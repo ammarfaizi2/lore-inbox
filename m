@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269709AbRHCXmF>; Fri, 3 Aug 2001 19:42:05 -0400
+	id <S269707AbRHCXmY>; Fri, 3 Aug 2001 19:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269708AbRHCXly>; Fri, 3 Aug 2001 19:41:54 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37847 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269707AbRHCXlh>;
-	Fri, 3 Aug 2001 19:41:37 -0400
-Date: Fri, 3 Aug 2001 19:41:40 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic
- change patch)
-In-Reply-To: <20010804113525.E17925@weta.f00f.org>
-Message-ID: <Pine.GSO.4.21.0108031937120.5264-100000@weyl.math.psu.edu>
+	id <S269708AbRHCXmO>; Fri, 3 Aug 2001 19:42:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22291 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269707AbRHCXmD>; Fri, 3 Aug 2001 19:42:03 -0400
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
+To: cw@f00f.org (Chris Wedgwood)
+Date: Sat, 4 Aug 2001 00:42:38 +0100 (BST)
+Cc: viro@math.psu.edu (Alexander Viro),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox), mason@suse.com (Chris Mason)
+In-Reply-To: <20010804113525.E17925@weta.f00f.org> from "Chris Wedgwood" at Aug 04, 2001 11:35:25 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15SoaV-0004Et-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 4 Aug 2001, Chris Wedgwood wrote:
-
-> On Fri, Aug 03, 2001 at 07:25:19PM -0400, Alexander Viro wrote:
-> 
->     You need credentials to sync a regular file on any network
->     filesystem.
-> 
 > For 2.5.x I assume your planning or a credentials cache?  Something
 > like dentry->d_creds or something?  If that's the case we still don't
 > need the struct file* to be passed --- but I suspect that's not the
 > case and I really don't understand.
 
-file->f_cred. Different people opening the same file can have different
-credentials (e.g. credentials can be revoked)
-
+It can't come off the dentry as multiple people can have the same file open
+with different rights.

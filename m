@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbSL2XS6>; Sun, 29 Dec 2002 18:18:58 -0500
+	id <S262208AbSL2XYL>; Sun, 29 Dec 2002 18:24:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbSL2XS6>; Sun, 29 Dec 2002 18:18:58 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:32516 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S262089AbSL2XS5>;
-	Sun, 29 Dec 2002 18:18:57 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212292327.gBTNR6k4000745@darkstar.example.net>
-Subject: [TRIVIAL] fix typo in drivers/video/pmagb-b-fb.h
-To: trivial@rustcorp.com.au
-Date: Sun, 29 Dec 2002 23:27:06 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262214AbSL2XYL>; Sun, 29 Dec 2002 18:24:11 -0500
+Received: from mx2out.umbc.edu ([130.85.25.11]:52931 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S262208AbSL2XYK>;
+	Sun, 29 Dec 2002 18:24:10 -0500
+Date: Sun, 29 Dec 2002 18:32:31 -0500 (EST)
+From: Stephen Brown <sbrown7@umbc.edu>
+X-X-Sender: sbrown7@linux3.gl.umbc.edu
+To: linux-kernel@vger.kernel.org
+Subject: Micron Samurai chipset in 2.4.x (ide-pci.c)
+Message-ID: <Pine.LNX.4.44L.01.0212291740470.13872-100000@linux3.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.707.1041204426--%"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Avmilter-Status: Skipped (size)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
+	I recently put together a system based on an off-cast mobo from
+a Micron Powerdigm XSU -- dual PII-266 and not much else.  Problem was
+that most of the stock distros failed to boot the system at install.  To
+make a long story short, the Samurai chipset's IDE controller is not
+connected, and there is an Intel PIIX4 to handle the IDE chains --
+unfortunately, both are seen by the PCI probing, and the kernel hangs
+trying to figure out how to handle the Samurai piece.  I was able to get
+the system to boot by unsetting CONFIG_BLOCK_DEV_IDEPCI, but that seemed
+Draconian.  I am now happily running having changed line 290 in
+linux/drivers/ide/ide-pci.c (kernel 2.4.20) from:
+#define INIT_SAMURAI    NULL
+to:
+#define INIT_SAMURAI    IDE_IGNORE
 
---%--multipart-mixed-boundary-1.707.1041204426--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	When I checked the changelogs for 2.4.21-pre2, I saw comments
+that the pci subsystem had been reworked, so I tried that patch to no
+avail -- kernel still hangs trying to probe the disconnected IDE
+controller.  However, my workaround is no longer valid, since ide-pci.c
+has been removed from the tree, and I haven't had the time yet to find
+where that functionality now resides (it did seem weird finding all
+those #defines in a .c instead of a .h).
 
-This patch is against 2.5.53, and applies to 2.4.20 as well.
+	If anyone wants more info, I can post output from a serial
+console during the unsuccessful boots, and try other investigations as
+needed (at least until class starts again at the end of January).  I'm
+not subscribed to this list (but will be checking the public archives
+frequently) so send mail directly or cc:
 
-John.
+Steve Brown
+sbrown7@umbc.edu
 
---%--multipart-mixed-boundary-1.707.1041204426--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII English text
-Content-Disposition: attachment; filename="my_patch"
 
---- linux-2.5.53-orig/drivers/video/pmagb-b-fb.h	2002-12-29 23:15:34.000000000 +0000
-+++ linux-2.5.53/drivers/video/pmagb-b-fb.h	2002-12-29 23:19:48.000000000 +0000
-@@ -4,7 +4,7 @@
-  *      TurboChannel PMAGB-B framebuffer card support,
-  *      Copyright (C) 1999, 2000, 2001 by
-  *      Michael Engel <engel@unix-ag.org> and 
-- *      Karsten Merker <merker@linxutag.org>
-+ *      Karsten Merker <merker@linuxtag.org>
-  *      This file is subject to the terms and conditions of the GNU General
-  *      Public License.  See the file COPYING in the main directory of this
-  *      archive for more details.
-
---%--multipart-mixed-boundary-1.707.1041204426--%--

@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTLWSOy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTLWSOy
+	id S262110AbTLWSEU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 13:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTLWSCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:14:54 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:53170 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S262176AbTLWSOs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:14:48 -0500
-Subject: Re: SCO's infringing files list
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0312230946010.14184@home.osdl.org>
-References: <1072125736.1286.170.camel@duergar>
-	 <200312221519.04677.tcfelker@mtco.com>
-	 <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
-	 <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de>
-	 <3FE811E3.6010708@debian.org>
-	 <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch>
-	 <20031223160425.GB45620@gaz.sfgoth.com>
-	 <20031223174454.GD45620@gaz.sfgoth.com>
-	 <Pine.LNX.4.58.0312230946010.14184@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1072203286.2947.45.camel@duergar>
+	Tue, 23 Dec 2003 13:02:47 -0500
+Received: from mail.kroah.org ([65.200.24.183]:3758 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262078AbTLWSB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 13:01:59 -0500
+Date: Tue, 23 Dec 2003 10:01:27 -0800
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [PATCH] add sysfs mem device support  [2/4]
+Message-ID: <20031223180127.GA14282@kroah.com>
+References: <20031223002126.GA4805@kroah.com> <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com> <20031223131523.B6864@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Dec 2003 13:14:47 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031223131523.B6864@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ignore my last reply, sometimes I'm jsut an idiot.
+On Tue, Dec 23, 2003 at 01:15:23PM +0000, Christoph Hellwig wrote:
+> On Mon, Dec 22, 2003 at 04:26:09PM -0800, Greg KH wrote:
+> > This adds /sys/class/mem which enables all mem char devices to show up
+> > properly in udev.
+> > 
+> > Has been posted to linux-kernel every so often since last July, and
+> > acked by a number of other kernel developers.
+> 
+> This is pointless.  The original point of sysfs and co was to present the
+> physical device tree, where these devices absolutely fit into.
 
--sb
+No. The point of sysfs and co was to present the physical _and_ logical
+device tree.  Mem devices are devices.  This patch also provides a place
+to move the /proc/sys/kernel/random files out of proc and into sysfs.
 
-On Tue, 2003-12-23 at 12:56, Linus Torvalds wrote:
-> Does anybody have old CD-ROM's lying around?
-> 
-> In particular, the Yggdrasil Linux/GNU/X alpha CD-ROM was apparently
-> released just a few months later. It would quite possibly contain the
-> libc-2.2.2 sources... Adam Richter is still active, and I added him to the
-> cc..
-> 
-> Who else was doing CD's back then? SLS? If nobody has the thing on a
-> web-site any more, maybe they exist in physical format on somebodys
-> bookshelf? The only reason that the really historic kernel archives still
-> exist is that people saved them, and even so we're missing versions 0.02
-> and 0.03, but by the latter half of -92 there were already CD-ROMs being 
-> manufactured...
-> 
-> Of course, maybe the CD's are unreadable by now.
-> 
-> 			Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+In order for tools like udev to work, we must export all char devices
+that are registered with the kernel.  We can't do this at
+register_chrdev() time, as that only allocates a whole major.  And
+people haven't converted over to using register_chrdev_region only when
+they really have a device present yet.
 
+With devices such as the misc devices, we only care about the devices we
+really have in the system at that time.  It also gives us the ability to
+show the linkage between the logical device, and the physical one (for
+misc devices.)
+
+Now yeah, I can see that some people might think it's a bit overkill to
+move the mem devices here, but why not?  They are logical devices in the
+system, and as stated above, it provides a place within sysfs to move
+user modifiable attributes of these devices out of /proc (as they do not
+pertain to anything related to processes.)
+
+I do agree that the duplication of the code should be fixed, and I'll go
+do that right now (I should have realized that after cut-and-pasting
+that logic the third time, sorry about that.)  If that is done, the
+overhead to support mem devices will drop to a very tiny ammount.
+
+thanks,
+
+greg k-h

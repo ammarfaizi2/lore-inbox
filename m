@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275971AbRI1I02>; Fri, 28 Sep 2001 04:26:28 -0400
+	id <S275973AbRI1IaS>; Fri, 28 Sep 2001 04:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275973AbRI1I0S>; Fri, 28 Sep 2001 04:26:18 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:62481 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S275971AbRI1I0E>;
-	Fri, 28 Sep 2001 04:26:04 -0400
-Date: Fri, 28 Sep 2001 10:26:17 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Robert Cohen <robert.cohen@anu.edu.au>
+	id <S275975AbRI1IaI>; Fri, 28 Sep 2001 04:30:08 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:59089 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S275973AbRI1IaC>;
+	Fri, 28 Sep 2001 04:30:02 -0400
+Date: Fri, 28 Sep 2001 10:30:12 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Ben Greear <greearb@candelatech.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and  2.4.9-ac15
-Message-Id: <20010928102617.7de2ec3a.skraw@ithnet.com>
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au>
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: How to debug PCI issues?
+Message-ID: <20010928103012.A17549@se1.cogenit.fr>
+In-Reply-To: <3BB3CFFA.F9021469@candelatech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BB3CFFA.F9021469@candelatech.com>; from greearb@candelatech.com on Thu, Sep 27, 2001 at 06:18:50PM -0700
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2001 22:46:17 +1000 Robert Cohen <robert.cohen@anu.edu.au>
-wrote:
+Ben Greear <greearb@candelatech.com> :
+[...]
+> So, I'm thinking that the DLINK NIC must be screwing up the PCI
+> bus somehow when more than one of it's interfaces is passing any
+> significant traffic.  I have been able to run 10Mbps on all 8 ports
+> of two DLINKs on an Intel EEA2 (i815) board, so I suspect the MB.
+> 
+> Does anyone have any ideas how to go about trouble-shooting this
+> farther?
 
-> Given the recent flurry of changes in the Linux kernel VM subsystems I
-> decided to do a bit of benchmarking.
-> The benchmark is a test of file server performance. I originally did
-> this test about a year ago with fairly dismal results, so I thought I'd
-> see how much things had improved.
+Check the pci latency timer settings for the devices are the same
+on the two mobos and force them with setpci if they aren't.
 
-Hello,
-
-do you have comparison to 2.2.19 ?
-
-Regards,
-Stephan
-
+-- 
+Ueimor

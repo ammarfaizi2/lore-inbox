@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132127AbRDCPhq>; Tue, 3 Apr 2001 11:37:46 -0400
+	id <S132147AbRDCP6m>; Tue, 3 Apr 2001 11:58:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132167AbRDCPh1>; Tue, 3 Apr 2001 11:37:27 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:21510 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S132127AbRDCPhT>;
-	Tue, 3 Apr 2001 11:37:19 -0400
-Date: Tue, 3 Apr 2001 11:34:11 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-To: <Wayne.Brown@altec.com>
-cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <Andries.Brouwer@cwi.nl>, <torvalds@transmeta.com>,
-        <alan@lxorguk.ukuu.org.uk>, <hpa@transmeta.com>,
-        <linux-kernel@vger.kernel.org>, <tytso@MIT.EDU>
-Subject: Re: Larger dev_t
-In-Reply-To: <86256A23.00517DBD.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.30.0104031129400.6886-100000@localhost>
+	id <S132167AbRDCP6b>; Tue, 3 Apr 2001 11:58:31 -0400
+Received: from [202.77.223.60] ([202.77.223.60]:58631 "HELO server.achan.com")
+	by vger.kernel.org with SMTP id <S132147AbRDCP6S>;
+	Tue, 3 Apr 2001 11:58:18 -0400
+Message-ID: <007901c0bc56$bb0bdca0$3700a8c0@pluto>
+From: "Andrew Chan" <achan@achan.com>
+To: "Ruth Ivimey-Cook" <Ruth.Ivimey-Cook@arm.com>
+Cc: <linux-kernel@vger.kernel.org>, <bugs@linux-ide.org>
+In-Reply-To: <4.3.2.7.2.20010403115233.00b97d80@cam-pop.cambridge.arm.com>
+Subject: Re: Promise 20267 "working" but no UDMA
+Date: Tue, 3 Apr 2001 23:57:05 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Apr 2001, Wayne.Brown@altec.com wrote:
+> Is the issue here about the Promise FastTrack BIOS messing things up? If
+> so, why use it, rather than the Promise Ultra100 BIOS, which seems to be
+> fine (again, AFAIK).
 
-> Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
->
-> >Yes: Let "mknod /dev/foo [bc] x y" die!
->
-> I hope this never happens.  Improving the major/minor device scheme is
-> reasonable; abandoning it would be a sad occurrence.  It would make Linux too
-> "un-UNIXish"  (how's THAT for an an ugly neologism!) for my tastes.
+Ultra100 is okay.
 
-I don't know... the command 'mknod' should probably remain for
-compatibility reasons.  But the way that it does create the node can be
-completely different.  For example the call could just be a wrapper to a
-syscall or a write to a proc file.
+FastTrack is not.
 
-I think Ingo had qualms with the process of creating of a device file
-which is totally detached of the kernel's ability to service that device.
+I have no choice since the motherboard has the chip on-board and with
+FastTrack BIOS.
 
-But I am with you.  The compatibility between *NIX should not be severed
-so fast.
+I am hoping Andre will come up with something so that I can use this
+motherboard.
 
-B.
-
--- 
-	WebSig: http://www.jukie.net/~bart/sig/
-
-
+I don't care much about the Fasttrack RAID part but I do want to utilize its
+ATA100 capability.
 

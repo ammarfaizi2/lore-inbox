@@ -1,87 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281068AbRKYVck>; Sun, 25 Nov 2001 16:32:40 -0500
+	id <S281075AbRKYVeK>; Sun, 25 Nov 2001 16:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281072AbRKYVcU>; Sun, 25 Nov 2001 16:32:20 -0500
-Received: from jik-0.dsl.speakeasy.net ([66.92.77.120]:5380 "EHLO
-	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
-	id <S281068AbRKYVcK>; Sun, 25 Nov 2001 16:32:10 -0500
-Date: Sun, 25 Nov 2001 16:32:09 -0500
-From: Jonathan Kamens <jik@kamens.brookline.ma.us>
-Message-Id: <200111252132.fAPLW9H02704@jik.kamens.brookline.ma.us>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10111251617280.7477-100000@coffee.psychology.mcmaster.ca>
-	(message from Mark Hahn on Sun, 25 Nov 2001 16:22:39 -0500 (EST))
-Subject: Re: IDE: 2.2.19+IDE patches works fine; 2.4.x fails miserably; please
- help me figure out why!
-In-Reply-To: <Pine.LNX.4.10.10111251617280.7477-100000@coffee.psychology.mcmaster.ca>
+	id <S281077AbRKYVeC>; Sun, 25 Nov 2001 16:34:02 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:6929 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S281075AbRKYVdw>;
+	Sun, 25 Nov 2001 16:33:52 -0500
+Message-ID: <XFMail.20011125223206.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <006701c175f1$d9b10630$0f00a8c0@minniemouse>
+Date: Sun, 25 Nov 2001 22:32:06 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Jon <marsaro@interearth.com>
+Subject: Re: i815 Card ...Machine Freezes
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Responding to E-mail sent to me privately by Mark Hahn....)
+Can reproduce this (2.4.15aa1).
+MSI-6215 Booksize, Kernel APM (monolithic kernel, i.e. no modules), no BIOS
+power management, no X11, no framebuffer, just plain 80x25.
+Symptoms: Console blanks but no DPMS blanking (monitor goes not to powersaving
+mode). The system is online (Internet, ISDN, ppp). Then scanning the system
+using Nessus locks up the system solid. Nothing happens when there's no
+ISDN/PPP activity. Didn't try this with LAN activity. No problems with a kernel
+without any power management support.
 
->  > This clearly isn't a problem with my cables (and I've just wasted over
->  > $40 to prove it, unless I can convince Staples to take back the opened
->  > cables).
->  
->  are the cables 18"?  lots of places sell 24" cables, which have never
->  been valid...
+On 25-Nov-2001 Jon wrote:
+> Power Management in the BIOS on or compiled into your Kernel?
+> 
+> Regards,
+> 
+> Jon
+> ----- Original Message -----
+> From: "Sid Carter" <sidcarter@symonds.net>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Sunday, November 25, 2001 1:32 AM
+> Subject: i815 Card ...Machine Freezes
+> 
+> 
+>> Hi,
+>>
+>> My Machine with a Intel i815 card hangs if it is not used for
+>> sometime. The monitor goes blank and after sometime if I don't use the
+>> machine , the system hangs. I can't even use the power switch to
+>> poweroff the machine. I have to pull out the power cable from the back
+>> of the machine. Kernel am using is 2.4.14 with SGi's XFS Patch.
+>>
+>> And when I am using X, If I switch from X to console and vice-versa
+>> more than once, my machine hangs. Is this a known problem ? The logs
+>> show no errors at all. Let me know if more info is required.
+>>
+>> The relevant output of lspci below:
+>>
+>> 00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory
+> Controller Hub (rev 02)
+>> 00:02.0 VGA compatible controller: Intel Corp. 82815 CGC [Chipset Graphics
+> Controller] (rev 02)
+>>
+>> TIA
+>> Regards
+>>         Carter
+>> --
+>> The only difference between your girlfriend and a barracuda is the
+> nailpolish.
+>>
+>> Sid Carter                                                   Debian
+> GNU/Linux.
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-No, both the new cables I put in and my old ones were 18" cables.
-
->  > If it's a problem with my drives, then how is it that I don't have any
->  > problems at all when I run 2.2.19+IDE on exactly the same hardware? 
->  
->  2.2 doesn't contain chipset-specific mode tuning code, afaik.
->  in general, it just uses the mode as programmed by the bios.
-
-Perhaps I have not explained myself clearly enough, or perhaps my
-understanding of what Andre's 2.2.x IDE patch is, is incorrect.
-
-I am not using stock 2.2.  I am using 2.2 plus Andre Hedrick's IDE
-backport patch.  I thought that the whole point of this patch was to
-backport the enhanced IDE functionality from 2.4 back to 2.2.
-
-Without Andre's patch, I wouldn't be able to send you the output of
-/proc/ide/pdc202xx, because it wouldn't exist, because (as you point
-out) there would be no code in the kernel specific to that chipset.
-With the patch, there *is* code in the kernel specific to that
-chipset.
-
->  > Bus Clocking                         : 33 PCI Internal
->  
->  my best theory is that this is wrong.  I assume you're not overclocking,
->  but have you scrutinized your bios settings?  the ide clock is usually
->  hung off the PCI clock, divided down from AGP, divided down from FSB.
-
-This is all Greek to me.  Could you translate a bit for the
-kernel-internals-impaired?  What should I be looking at/for, exactly?
-
->  wrong clocking (or the driver somehow using the wrong timing)
->  would explain both the messages you're seeing.
-
-But the settings are the same as those used by 2.2.19+IDE, with which
-I'm not having any problems.  Here's /proc/ide/pdc202xx when I'm
-running 2.2.19+IDE:
-
-                                PDC20262 Chipset.
-------------------------------- General Status ---------------------------------
-Burst Mode                           : enabled
-Host Mode                            : Normal
-Bus Clocking                         : 33 PCI Internal
-IO pad select                        : 10 mA
-Status Polling Period                : 15
-Interrupt Check Status Polling Delay : 13
---------------- Primary Channel ---------------- Secondary Channel -------------
-                enabled                          enabled 
-66 Clocking     enabled                          enabled 
-           Mode PCI                         Mode PCI   
-                FIFO Empty                       FIFO Empty  
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    yes              yes             yes               yes
-DMA Mode:       UDMA 4           NOTSET          UDMA 4            NOTSET
-PIO Mode:       PIO 4            NOTSET           PIO 4            NOTSET
-
-Thanks,
-
-  Jonathan Kamens
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTGATLp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 15:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbTGATLp
+	id S263319AbTGATXL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 15:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTGATXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 15:11:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17614 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263462AbTGATL0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 15:11:26 -0400
-Message-ID: <3F01E030.9060201@pobox.com>
-Date: Tue, 01 Jul 2003 15:25:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Tue, 1 Jul 2003 15:23:11 -0400
+Received: from ext-nj2gw-5.online-age.net ([64.14.56.41]:34300 "EHLO
+	ext-nj2gw-5.online-age.net") by vger.kernel.org with ESMTP
+	id S263319AbTGATXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 15:23:10 -0400
+Message-ID: <A9D3E503844A904CB9E42AD008C1C7FDBA9BD6@vacho3misge.cho.ge.com>
+From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+To: "'G. C.'" <gpc01532@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: RE: How to Avoid GPL Issue
+Date: Tue, 1 Jul 2003 15:36:40 -0400 
 MIME-Version: 1.0
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ata-scsi driver update
-References: <3F00CEDC.2010806@pobox.com> <1057086391.3444.3.camel@paragon.slim>
-In-Reply-To: <1057086391.3444.3.camel@paragon.slim>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurgen Kramer wrote:
-> Hi,
-> 
-> I've just tried your patch. Compiling fails at make dep:
+> We are trying to port a third party hardware driver into Linux kernel and 
+> this third party vendor does not allow us to publish the source code. Is 
+> there any approach that we can avoid publicizing the third party code
+while 
+> porting to Linux? Do we need to write some shim layer code in Linux kernel
 
-> make[4]: *** No rule to make target `libata.c', needed by
-> `/usr/src/linux-2.4.21/include/linux/modules/libata.ver'.  Stop.
+> to interface the third party code? How can we do that? Is there any
+document 
+> or samples?
 
-> Under SCSI low-level drivers only ATA support and Intel PIIX/ICH support
-> are selected.
-> 
-> This is with a freshly installed and patched 2.4.21.
-
-hmmm.  did you run a "make mrproper" or "make distclean" before 
-building?  The above is a symptom of stale dependencies, not really any 
-kernel patch.
-
-Just to be sure, though, I just tried building from a fresh 2.4.21 
-tarball + my patch, with modversions enabled, and it worked.
-
-	Jeff
-
+It depends on what you intend to do with your port. If it is only for
+internal use (you will not distribute the ported code in any form)
+then you may not be required to supply the source code to anyone. This is
+a common interpretation of the GPL (although I can not find explicit
+language providing for this interpretation in the license).
 

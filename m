@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTEEIPT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 04:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTEEIPT
+	id S262042AbTEEIRS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 04:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbTEEIRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 04:15:19 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:59630 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262050AbTEEIPR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 04:15:17 -0400
-Subject: Re: The disappearing sys_call_table export.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052122784.2821.4.camel@pc-16.office.scali.no>
-References: <1052122784.2821.4.camel@pc-16.office.scali.no>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-i5uWIOS8WTB/UdHNBPEB"
-Organization: Red Hat, Inc.
-Message-Id: <1052123263.1459.0.camel@laptop.fenrus.com>
+	Mon, 5 May 2003 04:17:17 -0400
+Received: from verein.lst.de ([212.34.181.86]:772 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S262042AbTEEIRQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 04:17:16 -0400
+Date: Mon, 5 May 2003 10:29:41 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: trond.myklebust@fys.uio.no, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
+Message-ID: <20030505102940.A16955@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	"David S. Miller" <davem@redhat.com>, trond.myklebust@fys.uio.no,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <16053.25445.434038.90945@charged.uio.no> <1052075166.27465.12.camel@rth.ninka.net> <20030504230010.A12753@lst.de> <20030504.131558.27788112.davem@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 05 May 2003 10:27:44 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030504.131558.27788112.davem@redhat.com>; from davem@redhat.com on Sun, May 04, 2003 at 01:15:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 04, 2003 at 01:15:58PM -0700, David S. Miller wrote:
+>    From: Christoph Hellwig <hch@lst.de>
+>    Date: Sun, 4 May 2003 23:00:11 +0200
+>    
+>    Oh well, what about something like the following?
+>  ...   
+>    +	 */
+>    +	if (!try_module_get(THIS_MODULE))
+>    +		return -EBUSY;
+> 
+> Ahem... Why don't we just do this right? :-)
+> 
+> By this I mean provide some real registry thing in the
+> main kernel image that we can use to do try_module_get()
+> outside of the sunrpc module?
 
---=-i5uWIOS8WTB/UdHNBPEB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Please read the comment above that piece of code.  We always
+enter this through an exported function so we know we currently
+aren't unloadable.
 
-On Mon, 2003-05-05 at 10:19, Terje Eggestad wrote:
-> Now that it seem that all are in agreement that the sys_call_table
-> symbol shall not be exported to modules, are there any work in progress
-> to allow modules to get an event/notification whenever a specific
-> syscall is being called?
->=20
-> We have a specific need to trace mmap() and sbrk() calls.=20
+> The other option is the make more progress in the area of
+> two-stage module unload, and allowing cleanup() to return
+> whether the module is unloadable or not.  This is being
+> discussed on netdev so that we have some way to make ipv6
+> modules work sanely (instead of putting try_module_get() in
+> every other line, that simply isn't acceptable).
 
-such trace hooks surely can be put in the mmap and sbrk calls themselves
-by means of a patch for your systems ?
+That's fine with me, but I won't sign up to do that work :)
 
---=-i5uWIOS8WTB/UdHNBPEB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+tiB/xULwo51rQBIRAlBKAJ44YLDvHG/VeDK0JKST9Hz9KOIf5QCfVW/s
-CRspQZnaOUNAjW0Lqz539Dg=
-=SedH
------END PGP SIGNATURE-----
-
---=-i5uWIOS8WTB/UdHNBPEB--

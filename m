@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbTIBSot (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 14:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTIBSot
+	id S261403AbTIBSjC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 14:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbTIBSjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 14:44:49 -0400
-Received: from mail.kroah.org ([65.200.24.183]:34251 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261176AbTIBSor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 14:44:47 -0400
-Date: Tue, 2 Sep 2003 11:44:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: devfs to be obsloted by udev?
-Message-ID: <20030902184440.GB18539@kroah.com>
-References: <3F54A4AC.1020709@wmich.edu> <20030902182025.GA18397@kroah.com> <3F54A9F4.4020705@wmich.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Sep 2003 14:39:02 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:49159 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261403AbTIBSjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 14:39:00 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22aa1
+Date: Tue, 2 Sep 2003 20:38:39 +0200
+User-Agent: KMail/1.5.3
+References: <20030902020218.GB1599@dualathlon.random>
+In-Reply-To: <20030902020218.GB1599@dualathlon.random>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <3F54A9F4.4020705@wmich.edu>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309022037.39364.m.c.p@wolk-project.de>
+Cc: Kurt Garloff <garloff@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 10:32:20AM -0400, Ed Sweetman wrote:
-> >>I dont see the real benefit in having two directories that basically
-> >>give the same info.
-> >
-> >What "two directories"?  udev can handle /dev.  What other directory are
-> >you talking about?
-> 
-> in your readme you  use the example of making the device root for udev 
-> /udev ... I thought that was the official suggestion since udev couldn't 
-> be loaded immediately at kernel boot.
+On Tuesday 02 September 2003 04:02, Andrea Arcangeli wrote:
 
-That's my suggestion today if you want to have a machine that's usable
-:)
+Hi Andrea,
 
-greg k-h
+> Only in 2.4.22aa1: 20_sched-o1-fixes-10
+> Only in 2.4.22pre7aa1: 20_sched-o1-fixes-9
+> 	Changed the CHILD_PENALTY logic to be centered around
+> 	50%. From Kurt Garloff.
+
+the changes 's/CHILD_PENALTY/CHILD_INHERITANCE' and "s/PARENT_PENALTIY//' are 
+really awfull for desktops. If I change child_inheritance from 60 to 95 and 
+reintroduce the logic with parent_penaltiy, it's alot smooter under load.
+
+I think these logics should be #ifdef'ed with CONFIG_DESKTOP, no?
+
+ciao, Marc
+

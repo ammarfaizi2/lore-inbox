@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314133AbSDLSIK>; Fri, 12 Apr 2002 14:08:10 -0400
+	id <S314134AbSDLSLA>; Fri, 12 Apr 2002 14:11:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314134AbSDLSIJ>; Fri, 12 Apr 2002 14:08:09 -0400
-Received: from relay03.valueweb.net ([216.219.253.237]:38152 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id <S314133AbSDLSII>; Fri, 12 Apr 2002 14:08:08 -0400
-Message-ID: <3CB721A8.F6C772C9@opersys.com>
-Date: Fri, 12 Apr 2002 14:04:24 -0400
-From: Karim Yaghmour <karym@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16-TRACE i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S314135AbSDLSK7>; Fri, 12 Apr 2002 14:10:59 -0400
+Received: from rover.ascpl.lib.oh.us ([199.218.0.2]:64960 "EHLO acorn.net")
+	by vger.kernel.org with ESMTP id <S314134AbSDLSK6>;
+	Fri, 12 Apr 2002 14:10:58 -0400
+Date: Fri, 12 Apr 2002 14:10:44 -0400 (EDT)
+From: Marcus Dennis <aa341@acorn.net>
+To: linux-kernel@vger.kernel.org
+cc: elenstev@mesatop.com, esr@thyrsus.com, marcelo@conectiva.com.br
+Subject: [PATCH] docfix for 2.4.x Configure.help
+Message-ID: <Pine.GSO.4.10.10204121350340.20151-100000@acorn.net>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Mark Hahn <hahn@physics.mcmaster.ca>,
-        Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Event logging vs enhancing printk
-In-Reply-To: <Pine.LNX.4.33.0204120836060.22605-100000@coffee.psychology.mcma
-			 ster.ca> <2238694662.1018597136@[10.10.2.3]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Apologies in advance if I've made an error in who this is Cc'd to.
 
-"Martin J. Bligh" wrote:
-> > frankly, evlog is a solution in search of a problem.  I see no reason
-> > printk can't do TSC timestamping, more robust and/or efficient buffering,
-> > auto-classification in klogd, realtime filtering/notification in
-> > userspace, even delaying of formatting, and logging of binary data.
-> 
-> Of course you could. You could just take the existing mechanism
-> that's been written for event logging and call it printk, for one.
+Problem: Input core help is confusing wrt joysticks
+Description:
+The input core subsystem is necessary for 2.4 joystick support, even for
+non-usb joysticks. "Joystick support" in "Input core support" mentions
+only USB joysticks, but is necessary to have a jsX interface at all.
+Fix:
+The following patch modifies Configure.help's entry for "Input core
+support" to state that it is required for any joysticks, and "Joystick
+support" under it to remove the reference to USB.
 
-True,
+Patch follows:
 
-I've been following this debate for some time and it seems to me that
-there's been a lot of arguments for or against an "enhanced printk".
-As Michel Dagenais pointed out, we can give it the name we would like,
-it is the technical merits of the evlog proposal which should be looked
-at carefully.
+--- linux-2.4.18/Documentation/Configure.help.old	Thu Mar 21 12:51:16 2002
++++ linux-2.4.18/Documentation/Configure.help	Thu Mar 21 12:56:55 2002
+@@ -12838,6 +12838,9 @@
+   Say Y here if you want to enable any of the USB HID options in the
+   USB support section which require Input core support.
+ 
++  Finally, say Y here and to Joystick Support below if you want to
++  support any joystick or gamepad.
++
+   Otherwise, say N.
+ 
+ Keyboard support
+@@ -12882,7 +12885,7 @@
+ 
+ Joystick support
+ CONFIG_INPUT_JOYDEV
+-  Say Y here if you want your USB HID joystick or gamepad to be
++  Say Y here if you want your joystick or gamepad to be
+   accessible as char device 13:0+ - /dev/input/jsX device.
+ 
+   This driver is also available as a module ( = code which can be
 
-Since everyone seems to agree that printk needs to be changed and since
-the evlog folks have already worked extensively on this issue, it would
-seem that their work should be weighed in and, at the very least, tested
-out by the folks who insist on an "enhanced printk".
-
-Cheers,
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

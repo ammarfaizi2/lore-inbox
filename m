@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267999AbRHJNYF>; Fri, 10 Aug 2001 09:24:05 -0400
+	id <S267977AbRHJNYp>; Fri, 10 Aug 2001 09:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267977AbRHJNXz>; Fri, 10 Aug 2001 09:23:55 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:36108 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S267973AbRHJNXj>; Fri, 10 Aug 2001 09:23:39 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Can I have a serial display output and a kbd PS/2 input?
-Date: Fri, 10 Aug 2001 13:23:50 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9l0n95$1me$1@ncc1701.cistron.net>
-In-Reply-To: <001b01c12194$a34a3370$66011ec0@frank>
-X-Trace: ncc1701.cistron.net 997449830 1742 195.64.65.67 (10 Aug 2001 13:23:50 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S267997AbRHJNYg>; Fri, 10 Aug 2001 09:24:36 -0400
+Received: from web11802.mail.yahoo.com ([216.136.172.156]:46865 "HELO
+	web11802.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267992AbRHJNY3>; Fri, 10 Aug 2001 09:24:29 -0400
+Message-ID: <20010810132440.96568.qmail@web11802.mail.yahoo.com>
+Date: Fri, 10 Aug 2001 15:24:40 +0200 (CEST)
+From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+Subject: possible ip checksumming issues?
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <001b01c12194$a34a3370$66011ec0@frank>,
-Frank Torres <frank@ingecom.net> wrote:
->Sorry to be insistent in this point, but perhaps requesting the problem this
->way someone figures out what I am trying to do.
->The display is already configured and sending getty line from inittab waits
->for an input from serial so it doesn't work.
->Any other ideas? This is my last try.
+>     I`ve got a following problem with kernels
+> 2.4.4-2.4.7 on two different hosts, two different
+> modems (so it hardly can be an hardware issue):
+>
+> it seems to me that these errors are strictly data-
+> dependent, so i made an assumption  about ip checksumming.
 
-If you want /dev/console to behave so that it sends output to the
-serial device yet takes input from the PC keyboard, no, that cannot
-be done. Right now /dev/console can be associated with only one
-device for both input and output at the same time.
+ Just a remark: those files contains the string "plus plus plus".
+ Your modem is maybe configured to go back to local control
+ on these 3 characters - or compression has been disabled in
+ these kernels?
 
-Output from kernel printk's does go to all console devices though.
+  €0.02
+  Etienne.
 
-Mike.
--- 
-"dselect has a user interface which scares small children"
-	-- Theodore Tso, on debian-devel
-
+___________________________________________________________
+Do You Yahoo!? -- Vos albums photos en ligne, 
+Yahoo! Photos : http://fr.photos.yahoo.com

@@ -1,101 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbTKXAaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 19:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbTKXAaQ
+	id S263564AbTKXAvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 19:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTKXAvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 19:30:16 -0500
-Received: from mail.kroah.org ([65.200.24.183]:39577 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263539AbTKXAaJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 19:30:09 -0500
-Date: Sun, 23 Nov 2003 16:29:01 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 007 release
-Message-ID: <20031124002901.GA8679@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 23 Nov 2003 19:51:15 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:40203 "EHLO maja.beep.pl")
+	by vger.kernel.org with ESMTP id S263564AbTKXAvH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 19:51:07 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: modular IDE in 2.4.23
+Date: Mon, 24 Nov 2003 01:50:36 +0100
+User-Agent: KMail/1.5.93
+Cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0311232221080.1292-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0311232221080.1292-100000@logos.cnet>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200311240150.37065.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've released the 007 version of udev.  It can be found at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-007.tar.gz
+On Monday 24 of November 2003 01:22, Marcelo Tosatti wrote:
+> Hum I think the saner approach is to remove the hotplugging indeed.
+>
+> Mind writting me a patch Bart? :)
+Hm, maybe for 2.4.23 it is sane but then reapply it again + merge ide-core and ide-detect
+since solution with ide-probe-mini works well.
 
-udev is a implementation of devfs in userspace using sysfs and
-/sbin/hotplug.  It requires a 2.6 kernel to run.  Please see the udev
-FAQ for any questions about it:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
+Right now I've cleaned up a bit my old patch and it is attached bellow. I'm currently
+compiling kernel with it (so all my tests were done with old (uglier, #include "ide-probe.c" )
+version of this patch).
 
-Note:
-	The CALLOUT rule format has changed.  If you have a config file
-	using this rule, please change it to follow the new order.  See
-	the man page for the proper style.
+Also probably most of #includes from ide-probe-mini.c could be removed, too.
 
-The major changes since the 006 release are:
-	- better parsing of the udev.permissions file
-	- string owner and group names in the udev.permissions file will
-	  now work if you build against glibc.
-	- fix the CALLOUT rule to look the same as the other rules.
-	- add format char for CALLOUT rule output
-	- support arguments in callout exec
-	- add ability for CALLOUT program to accept format modifiers.
-	- drop Makefile.klibc.  To build using klibc, use:
-		make KLIBC=true
-	- updated man page documenting new changes.
+ps. is there some magic way to avoid need of extern int ideprobe_init_module(void); etc
+in ide-probe-mini.c?
 
-Again, many thanks to Kay Sievers, for lots of great patches in this
-release.  Thanks also to Marco d'Itri and Olaf Hering, both of whom
-submitted patches for this release.
-
-I think with the ability to capture the output of the CALLOUT rule,
-combined with the ability to put format modifiers in the CALLOUT program
-string, we now have everything in place to emulate the existing devfs
-naming scheme.  Anyone want to verify this or not?
-
-The full ChangeLog can be found below.
+diff -urN linux-2.4.22.org/drivers/ide/ide-probe.c linux-2.4.22/drivers/ide/ide-probe.c
+--- linux-2.4.22.org/drivers/ide/ide-probe.c	2003-11-23 23:01:39.000000000 +0100
++++ linux-2.4.22/drivers/ide/ide-probe.c	2003-11-23 23:05:18.000000000 +0100
+@@ -1416,22 +1416,30 @@
+ #ifdef MODULE
+ extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
  
-udev development is done in a BitKeeper repository loacated at:
-	bk://linuxusb.bkbits.net/udev
+-int init_module (void)
++static int ideprobe_done = 0;
++
++int ideprobe_init_module (void)
+ {
+ 	unsigned int index;
++
++	if (ideprobe_done)
++    		return -EBUSY;
+ 	
+ 	for (index = 0; index < MAX_HWIFS; ++index)
+ 		ide_unregister(index);
+ 	ideprobe_init();
+ 	create_proc_ide_interfaces();
+ 	ide_xlate_1024_hook = ide_xlate_1024;
++	ideprobe_done++;
+ 	return 0;
+ }
+ 
+-void cleanup_module (void)
++void ideprobe_cleanup_module (void)
+ {
+ 	ide_probe = NULL;
+ 	ide_xlate_1024_hook = 0;
+ }
++EXPORT_SYMBOL(ideprobe_init_module);
++EXPORT_SYMBOL(ideprobe_cleanup_module);
+ MODULE_LICENSE("GPL");
+ #endif /* MODULE */
+diff -urN linux-2.4.22.org/drivers/ide/ide-probe-mini.c linux-2.4.22/drivers/ide/ide-probe-mini.c
+--- linux-2.4.22.org/drivers/ide/ide-probe-mini.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.4.22/drivers/ide/ide-probe-mini.c	2003-11-23 23:08:21.000000000 +0100
+@@ -0,0 +1,29 @@
++/*
++ *  linux/drivers/ide/ide-probe-mini.c	Version 1
++ *
++ *  Copyright (C) 1994-1998  Linus Torvalds & authors (see below)
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/string.h>
++#include <linux/kernel.h>
++#include <linux/kmod.h>
++
++#ifdef MODULE
++extern int ideprobe_init_module(void);
++
++int init_module (void)
++{
++    return ideprobe_init_module();
++}
++
++extern void ideprobe_cleanup_module(void);
++
++void cleanup_module (void)
++{
++    ideprobe_cleanup_module();
++}
++MODULE_LICENSE("GPL");
++#endif /* MODULE */
+diff -urN linux-2.4.22.org/drivers/ide/Makefile linux-2.4.22/drivers/ide/Makefile
+--- linux-2.4.22.org/drivers/ide/Makefile	2003-11-23 23:01:39.000000000 +0100
++++ linux-2.4.22/drivers/ide/Makefile	2003-11-23 23:02:29.000000000 +0100
+@@ -9,7 +9,7 @@
+ #
+ 
+ 
+-export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o ide-io.o ide-disk.o
++export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-probe-mini.o ide-dma.o ide-lib.o setup-pci.o ide-io.o ide-disk.o
+ 
+ all-subdirs	:= arm legacy pci ppc raid
+ mod-subdirs	:= arm legacy pci ppc raid
+@@ -28,9 +28,8 @@
+ 
+ # Core IDE code - must come before legacy
+ 
+-ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o ide-proc.o
+-ide-detect-objs	:= ide-probe.o ide-geometry.o
+-
++ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o ide-proc.o ide-probe.o ide-geometry.o
++ide-detect-objs	:= ide-probe-mini.o
+ 
+ ifeq ($(CONFIG_BLK_DEV_IDEPCI),y)
+ ide-core-objs += setup-pci.o
 
-Daily snapshots of this tree can be found at:
-	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
-Many thanks to Dave Jones for managing this.
 
-thanks,
-
-greg k-h
-
-
-Summary of changes from v006 to v007
-============================================
-
-<md:linux.it>:
-  o fix segfault in parsing bad udev.permissions file
-
-Greg Kroah-Hartman:
-  o update default config file with a CALLOUT rule, and more documentation
-  o updated the man page with the latest format specifier changes
-  o added ability to put format specifiers in the CALLOUT program string
-  o tweak udev-test.pl to report '0' errors if that's what happened
-  o only build klibc_fixups.c if we are actually using klibc
-  o add support for string group and string user names in udev.permissions
-  o add getgrnam and getpwnam to klibc_fixups files
-  o remove Makefile.klibc
-  o add udev-test perl script from Kay Sievers <kay.sievers@vrfy.org> which blows away my puny shell scripts
-  o added debian's version of udev.permissions
-  o change to 006_bk version
-
-Kay Sievers:
-  o format char for CALLOUT output
-  o more namedev whitespace cleanups
-  o support arguments in callout exec
-  o namedev.c - change order of fields in CALLOUT
-  o namedev.c whitespace + debug text cleanup
-  o man page with udev.permissions wildcard
-
-Olaf Hering:
-  o static klibc udev does not link against crt0.o
-
+-- 
+Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux

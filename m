@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbTJIOHh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 10:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTJIOHh
+	id S262196AbTJIOGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 10:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTJIOGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 10:07:37 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:56707 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262197AbTJIOGg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 10:06:36 -0400
-Date: Thu, 9 Oct 2003 11:09:35 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: marcelo.tosatti@cyclades.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] laptop mode
-In-Reply-To: <3F856A7E.2010607@pobox.com>
-Message-ID: <Pine.LNX.4.44.0310091109010.3040-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Oct 2003 10:06:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45473 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262196AbTJIOGQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 10:06:16 -0400
+Date: Thu, 9 Oct 2003 07:05:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, arun.sharma@intel.com, torvalds@osdl.org
+Subject: Re: 2.6.0-test7 BLK_DEV_FD dependence on ISA breakage
+Message-Id: <20031009070505.00470202.akpm@osdl.org>
+In-Reply-To: <16261.25288.125075.508225@gargle.gargle.HOWL>
+References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
+	<16261.25288.125075.508225@gargle.gargle.HOWL>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 9 Oct 2003, Jeff Garzik wrote:
-
-> Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1150.1.52, 2003/10/08 10:49:45-03:00, axboe@suse.de
-> > 
-> > 	[PATCH] laptop mode
-> > 	
-> > 	Hi Marcelo,
-> > 	
-> > 	Lots of people have been using this patch with great success, and it's
-> > 	been in the SuSE kernel for some months now too. It is also in the -benh
-> > 	ppc tree
-> > 	
-> > 	Basically, it introduces a write back mode of dirty and journal data
-> > 	that is more suitable for laptops. At the block layer end, it schedules
-> > 	write out of dirty data after the disk has been idle for 5 seconds.
-> > 	
-> > 	Laptop mode can be switched on and off with /proc/sys/vm/laptop_mode.
-> > 	There is also a block_dump sysctl, which if enabled will dump who
-> > 	dirties and writes out data. This is very helpful in pinning down who is
-> > 	causing unnecessary writes to the disk.
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> This patch
 > 
-> Red Hat just dropped this patch since it was suspected of data 
-> corruption ;-(
+> --- a/drivers/block/Kconfig	Wed Oct  8 12:24:56 2003
+> +++ b/drivers/block/Kconfig	Wed Oct  8 12:24:56 2003
+> @@ -6,7 +6,7 @@
+>  
+>  config BLK_DEV_FD
+>  	tristate "Normal floppy disk support"
+> -	depends on !X86_PC9800 && !ARCH_S390
+> +	depends on ISA || M68 || SPARC64
+>  	---help---
+>  	  If you want to use the floppy disk drive(s) of your PC under Linux,
+>  	  say Y. Information about this driver, especially important for IBM
+> 
+> is broken. 
 
-Uh, oh... Jens? 
+Yeah, and there's been a metric mile of blab about it but I don't think
+we've actually settled on a correct+complete solution.
+
+Perhaps we should just back it out and watch more closely next time someone
+tries to fix it?
+
 

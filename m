@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267915AbTBRTNm>; Tue, 18 Feb 2003 14:13:42 -0500
+	id <S267958AbTBRTRa>; Tue, 18 Feb 2003 14:17:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267929AbTBRTNm>; Tue, 18 Feb 2003 14:13:42 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:3211 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267915AbTBRTNm>;
-	Tue, 18 Feb 2003 14:13:42 -0500
-Subject: CIFS (2.5.62) build problems
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1045596223.17584.139.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 18 Feb 2003 11:23:43 -0800
-Content-Transfer-Encoding: 7bit
+	id <S267964AbTBRTR3>; Tue, 18 Feb 2003 14:17:29 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:21492 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267958AbTBRTR2>; Tue, 18 Feb 2003 14:17:28 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] Fix warnings from CIFS on 2.5.61
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: sfrench@samba.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF865305AC.FB1FEBF0-ON87256CD1.006A97BE@us.ibm.com>
+From: Steven French <sfrench@us.ibm.com>
+Date: Tue, 18 Feb 2003 13:26:33 -0600
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
+ 02/18/2003 12:27:01
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CIFS can not be built as a module because it cifs_readpages calls:
- __pagevec_lru_add
- add_to_page_cache
 
-The patch to mm/filemap.c and mm/swap.c is trivial, the question is
-should those internal functions be exported in the first place.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-Open Source Devlopment Lab
+
+
+Stephen Hemminger wrote:
+>This patch gets rid of the following warnings.
+>
+>fs/cifs/cifssmb.c: In function `CIFSSMBRead':
+>fs/cifs/cifssmb.c:489: warning: duplicate `const'
+
+Your proposed patch is slightly better than what I had coded up to get rid
+of the spurious gcc 3.2 warnings on the use of the min macro with const.  I
+will include it as part of the next cifs update in the next few days.
+
+Thanks.
+
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
 

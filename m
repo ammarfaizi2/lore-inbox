@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261646AbSJYXHP>; Fri, 25 Oct 2002 19:07:15 -0400
+	id <S261650AbSJYXP5>; Fri, 25 Oct 2002 19:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261650AbSJYXHP>; Fri, 25 Oct 2002 19:07:15 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:20727 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261646AbSJYXHO>;
-	Fri, 25 Oct 2002 19:07:14 -0400
-Message-ID: <3DB9D004.7041A75E@mvista.com>
-Date: Fri, 25 Oct 2002 16:13:08 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S261661AbSJYXP5>; Fri, 25 Oct 2002 19:15:57 -0400
+Received: from oak.sktc.net ([208.46.69.4]:38104 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S261650AbSJYXP5>;
+	Fri, 25 Oct 2002 19:15:57 -0400
+Message-ID: <3DB9D1FE.5010607@sktc.net>
+Date: Fri, 25 Oct 2002 18:21:34 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021012
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: ACPI in the box CONFIG
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: "Nakajima, Jun" <jun.nakajima@intel.com>, Robert Love <rml@tech9.net>,
+       Daniel Phillips <phillips@arcor.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+References: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com> <3DB9CC5D.7000600@pobox.com>
+In-Reply-To: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to define something like:
+Jeff Garzik wrote:
 
-CONFIG_HAS_ACPI
+>
+> "sibling" makes a lot more sense from an English language perspective.
+>
+Might I suggest "subcore", since that's really what it is - a sub-core 
+in the main chip.
 
-in the Config.in file, dependent on the hardware.  It could
-then be used to allow ACPI support to be prompted for or
-not.
+My siblings are distinct entities from me, my sub-parts aren't.
+(now, were I part of a cojoined twin....)
 
-So, does any one know which of the boxen listed in the
-Config.in (../arch/i386/Config.in) have the required
-hardware?
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml

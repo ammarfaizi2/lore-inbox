@@ -1,61 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313764AbSDPQlI>; Tue, 16 Apr 2002 12:41:08 -0400
+	id <S313766AbSDPQtK>; Tue, 16 Apr 2002 12:49:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313765AbSDPQlH>; Tue, 16 Apr 2002 12:41:07 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48657 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S313764AbSDPQlG>; Tue, 16 Apr 2002 12:41:06 -0400
-Date: Tue, 16 Apr 2002 13:40:49 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Moritz Franosch <jfranosc@physik.tu-muenchen.de>,
-        <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: IO performance problems in 2.4.19-pre5 when writing to DVD-RAM/ZIP/MO
-In-Reply-To: <E16xVW9-0000Fq-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44L.0204161334250.16531-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S313767AbSDPQtJ>; Tue, 16 Apr 2002 12:49:09 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:55689 "EHLO segfault.osdl.org")
+	by vger.kernel.org with ESMTP id <S313766AbSDPQtI>;
+	Tue, 16 Apr 2002 12:49:08 -0400
+Date: Tue, 16 Apr 2002 09:46:09 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 arch subdivision into machine types for 2.5.8
+In-Reply-To: <200204161555.g3GFtmH03317@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0204160911200.848-100000@segfault.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, Alan Cox wrote:
 
-> > > benchmarks 1-4, kernel 2.4.19-pre5 performed much worse than
-> > > 2.4.18. The reason may be that the main throughput stems from the
-> > > short moments where, for what reason whatsoever, read speed increases
->
-> Fairness, throughput, latency - pick any two..
+> I haven't done anything about the other half of i386/arch reform which is 
+> splitting the PC directory up into bus types, but I believe Patrick Mochel is 
+> thinking about this.
 
-Personally I try to go for fairness and latency in -rmap,
-since most real workloads I've encountered don't seem to
-have throughput problems.
+Not necessarily bus types, but close. 
 
-The standard "it's getting slow" complaint has been about
-response time and fairness 90% of the time, usually when
-the system stalls one process during some other activity.
+I've done three sets of cleanups in the arch/i386/kernel/ directory:
 
-> > Right fix is different but not suitable for 2.4.
->
-> Curious - what do you think the right fix is ?
+- x86 CPU
+- mtrr
+- PCI 
 
-Tuning the current system for latency and fairness should
-keep most people happy. Desktop users really won't notice
-if unpacking an RPM takes 20% longer, but having their
-mp3 skip during RPM unpacking is generally considered
-unacceptable.
+Each one does similar things to those drivers: moves the support into 
+subdirectories, and splits the monolithic files into platform-specific 
+modules. 
 
-regards,
+Doing this has several advantages:
 
-Rik
--- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
+- Only the code for your platform gets compiled in
+- Resulting code has fewer conditional compilation constructs 
+- Resulting code is more extensible and modular 
+- Fewer confliciting changes in files with mulitple contributors.
+- It's easier to figure out what the heck is going on
 
-http://www.surriel.com/		http://distro.conectiva.com/
+
+The main motivation behind this has been the PCI driver, especially with 
+the numerous conflicting changes that I've seen both personally, and with 
+the various ACPI and NUMA changes.  I've been wanting to do something like 
+this for about a year. About a month ago, I finally just sat down and did 
+it. 
+
+The patches can all be found at 
+
+http://kernel.org/pub/linux/kernel/people/mochel/patches/
+
+Unfortunately, maintaining these massive changes is time consuming, and 
+conflicting with other goals and timelines. The only one I really care 
+about is the PCI driver. I've had a chance to up-port it to 2.5.8, and 
+should work for most people (though I've only tested it on single and dual 
+x86 boxes w/o ACPI support)
+
+The CPU cleanups are against ~2.5.6, and most likely won't apply to the 
+current tree. Conflicts tend to be obvious, and easily fixable, if anyone 
+is willing to up-port it. 
+
+Ditto for the mtrr driver, though it's pretty stale (~1 month old), and 
+likely to have more conflicts. 
+
+If there is serious interest, I'll up-port them to the latest kernel and 
+export BK trees. 
+
+
+One issue that I encountered along the way was arch/i386/kernel/Makefile. 
+I found that you can't easily build multiple targets in the same 
+directory, and have dependencies for one target in subdirectories. 
+Typically, target objects have one or the other. 
+
+In order to make this work, I had to do:
+
+-all: kernel.o head.o init_task.o
++all: first_rule kernel.o head.o init_task.o
+
+...
+
++kernel-subdir-$(CONFIG_PCI)    += pci
++subdir-y                       := $(kernel-subdir-y)
++obj-y                          += $(foreach dir,$(subdir-y),$(dir)/$(dir).o)
+
+
+The last part is decent, but the explicit dependency on the first_rule 
+target is kinda gross. Is there a better way to do this? Will kbuild 2.5 
+make this nicer?
+
+
+	-pat
+
+
 

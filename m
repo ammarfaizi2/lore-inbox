@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262859AbTJGUyM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 16:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTJGUyM
+	id S262781AbTJGUxG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 16:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbTJGUxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 16:54:12 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:13766 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262859AbTJGUyI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 16:54:08 -0400
-Date: Tue, 7 Oct 2003 17:51:25 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: linux-kernel@vger.kernel.org
-Cc: linux-net@vger.kernel.org
-Subject: URL for shaper tools?
-Message-ID: <Pine.LNX.4.44.0310071750340.24677-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Oct 2003 16:53:06 -0400
+Received: from mail.kroah.org ([65.200.24.183]:4784 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262781AbTJGUxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 16:53:03 -0400
+Date: Tue, 7 Oct 2003 13:52:44 -0700
+From: Greg KH <greg@kroah.com>
+To: insecure <insecure@mail.od.ua>
+Cc: linux-kernel@vger.kernel.org,
+       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Subject: Re: devfs and udev
+Message-ID: <20031007205244.GA2978@kroah.com>
+References: <20031007131719.27061.qmail@web40910.mail.yahoo.com> <200310072128.09666.insecure@mail.od.ua> <20031007194124.GA2670@kroah.com> <200310072347.41749.insecure@mail.od.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310072347.41749.insecure@mail.od.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 07, 2003 at 11:47:41PM +0300, insecure wrote:
+> On Tuesday 07 October 2003 22:41, Greg KH wrote:
+> > On Tue, Oct 07, 2003 at 09:28:09PM +0300, insecure wrote:
+> > > What am I supposed to do, starting to use mknod again? Uggggh...
+> >
+> > Provide me with a kernel name to devfs name mapping file so that I can
+> > create a "devfs like" udev config file for people who happen to like
+> > that naming scheme.
+> 
+> It seems that we have a bit of misunderstanding here.
+> 
+> I just don't want to go back to /dev being actually placed on
+> real, on-disk fs.
+> 
+> I won't mind if naming scheme will change as long
+> as device names start with '/dev/' and appear
+> there (semi-)automagically. That's what I call devfs.
+> If udev can do this, I am all for that.
 
-Hi,
+udev can do this.  Is there some documentation that you read that has
+suggested otherwise?
 
-In previous message one pointed out that the help for CONFIG_SHAPER
-mentions ftp://shadow.cabi.net/pub/Linux/ as the location for the
-configuration utilities. 
-
-CONFIG_NET_RADIO section also mentions it as a place for "Some user-level
-drivers for scarab devices which don't require special kernel support".
-
-That host does not exist anymore though.
-
-Anyone knows the new location, if there is one? 
-
-
+greg k-h

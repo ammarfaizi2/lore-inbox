@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282190AbRLVUSd>; Sat, 22 Dec 2001 15:18:33 -0500
+	id <S282373AbRLVUce>; Sat, 22 Dec 2001 15:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282212AbRLVUSX>; Sat, 22 Dec 2001 15:18:23 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:57845 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S282190AbRLVUSR>;
-	Sat, 22 Dec 2001 15:18:17 -0500
-Date: Sat, 22 Dec 2001 21:18:08 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <20011222113043.GA19759@lina.inka.de>
-Message-ID: <Pine.GSO.4.30.0112222114120.9228-100000@balu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282276AbRLVUcY>; Sat, 22 Dec 2001 15:32:24 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:47099 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S282271AbRLVUcL>; Sat, 22 Dec 2001 15:32:11 -0500
+Mime-Version: 1.0
+Message-Id: <p05101000b84a980dd9e1@[10.0.0.42]>
+Date: Sat, 22 Dec 2001 12:32:04 -0800
+To: linux-kernel@vger.kernel.org
+From: "Timothy A. Seufert" <tas@mindspring.com>
+Subject: Re: Configure.help editorial policy
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlich wrote:
 
-On Sat, 22 Dec 2001, Bernd Eckenfels wrote:
+>4Mbit bandwidth is usually 4 * 10^3 * 2^10 bits per second.
+>20GB harddrive is usually 20 * 10^6 * 2^10 bytes.
 
-> On Sat, Dec 22, 2001 at 11:24:17AM +0100, Pozsar Balazs wrote:
-> > Why on earth is it good to develop misunderstandings and inconsistency
-> > with well- and widely-known historical abbrevs?
->
-> There is no well understood abrev. for power of two units, thats why
-> somebody had to introduce them.
->
-> Actually it was not my Idea, but since I got multiple error reports for
-> multible writings (and that even while the original count is visible in the
-> ouput) I decided to go with the standard.
+A 20 GB hard drive is always 20 * 10^9 bytes.  I'm not sure why so 
+many people on the linux-kernel list think otherwise, but the hard 
+drive industry is quite consistent in its use of power-of-10 units to 
+describe capacity.  See:
 
-What error reports do you receive?
+http://www.seagate.com/support/kb/disc/bytes.html
+   ("all major disc drive manufactures use decimal values when discussing
+     storage capacity")
 
-This might be a standard, but _it_is_not_adopted_anywhere! (at least I
-haven't seen it anywhere (I might be blind)).
-I would rather call standard something which is adopted in real life.
+Answer ID 336 in Maxtor's "Knowledge Base"
+   ("Hard drives are marketed in terms of decimal (base 10) capacity.
+     In decimal notation, one megabyte (MB) is equal to 1,000,000 bytes,
+     and one Gigabyte (GB) is equal to 1,000,000,000 bytes.")
+
+Answer ID 68 in Western Digital's "Knowledge Base"
+   ("Drive manufacturers have always defined a megabyte as one million
+     bytes.")
+
+http://www.storage.ibm.com/hdd/support/hddfaqs.htm#11
 
 -- 
-Balazs Pozsar
-
+Tim Seufert

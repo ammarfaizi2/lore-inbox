@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUDSQnF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 12:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUDSQmS
+	id S261479AbUDSQo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 12:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUDSQn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 12:42:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34445 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261405AbUDSQkv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 12:40:51 -0400
-Message-ID: <40840106.80403@pobox.com>
-Date: Mon, 19 Apr 2004 12:40:38 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Mon, 19 Apr 2004 12:43:26 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:41618 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261479AbUDSQm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 12:42:59 -0400
+Message-ID: <4084017C.5080706@colorfullife.com>
+Date: Mon, 19 Apr 2004 18:42:36 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Francois Romieu <romieu@fr.zoreil.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: rcpci45 dereference fix.
-References: <20040416212342.GG25240@redhat.com> <20040416224506.A2769@electric-eye.fr.zoreil.com> <20040416215037.GV20937@redhat.com>
-In-Reply-To: <20040416215037.GV20937@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Andreas Gruenbacher <agruen@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: slab-alignment-rework.patch in -mc
+References: <1082383751.6746.33.camel@f235.suse.de> <20040419162533.GR29954@dualathlon.random>
+In-Reply-To: <20040419162533.GR29954@dualathlon.random>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Fri, Apr 16, 2004 at 10:45:06PM +0200, Francois Romieu wrote:
-> 
->  > rcpci45_init_one() must succeed in order for rcpci45_remove_one() to be
->  > issued.
->  > 
->  > If rcpci45_init_one() succeeds, dev can not be NULL.
->  > 
->  > So I'd rather see the "if (!dev) {" test removed instead of this change.
-> 
-> Sure.
-> 
-> 		Dave
-> 
-> --- drivers/net/rcpci45.c~	2004-04-16 22:22:22.000000000 +0100
-> +++ drivers/net/rcpci45.c	2004-04-16 22:49:54.000000000 +0100
-> @@ -131,12 +131,6 @@
->  	struct net_device *dev = pci_get_drvdata (pdev);
->  	PDPA pDpa = dev->priv;
+Andrea Arcangeli wrote:
+
+>/mirror/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mc4/broken-out/slab-alignment-rework.patch
+>
+>I don't think this is right:
+>
 >  
-> -	if (!dev) {
-> -		printk (KERN_ERR "%s: remove non-existent device\n",
-> -				dev->name);
-> -		return;
-> -	}
-> -
+>
+>>-	if (flags & SLAB_HWCACHE_ALIGN) {
+>>-		/* Need to adjust size so that objs are cache aligned. */
+>>-		/* Small obj size, can get at least two per cache line. */
+>>+	if (!align) {
+>>+		/* Default alignment: compile time specified l1 cache size.
+>>+		 * Except if an object is really small, then squeeze multiple
+>>+		 * into one cacheline.
+>>+		 */
+>>+		align = cache_line_size();
+>> 		while (size <= align/2)
+>> 			align /= 2;
+>>-		size = (size+align-1)&(~(align-1));
+>> 	}
+>>+	size = ALIGN(size, align);
+>> 
+>>    
+>>
+>
+>I want anon-vma to really use only 12 bytes, period.
+>
+Then pass "4" as the align parameter to kmem_cache_create. That's the 
+main point of the patch: it's now possible to explicitely specify the 
+requested alignment. 32 for the 3rd level page tables, the optimal 
+number for the pte_chains, etc.
 
+> No best-guess must
+>be made automatically by the slab code, rounding it to 16 bytes.
+>
+If you pass 0 as align to kmem_cache_create, then it's rounded to L2 
+size. It's questionable if that's really the best thing - on 
+uniprocessor, 16-byte might result is better performance - there is no 
+risk of false sharing.
 
-Manually applied, since it's not in standard "patch -sp1" format.
-
-	Jeff
-
-
+--
+    Manfred
 

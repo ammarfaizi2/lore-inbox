@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUC1AJU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 19:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUC1AJT
+	id S261969AbUC1ALy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 19:11:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUC1AJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 19:09:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29109 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261990AbUC1AI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 19:08:59 -0500
-Message-ID: <4066178C.5020605@pobox.com>
-Date: Sat, 27 Mar 2004 19:08:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Stefan Smietanowski <stesmi@stesmi.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
+	Sat, 27 Mar 2004 19:09:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11201 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261969AbUC1AIE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 19:08:04 -0500
+Date: Sat, 27 Mar 2004 16:07:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <40660FEC.8080703@pobox.com> <406610EA.4010607@pobox.com> <200403280113.58555.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200403280113.58555.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20040327160745.7207ff98.akpm@osdl.org>
+In-Reply-To: <40661049.1050004@yahoo.com.au>
+References: <4066021A.20308@pobox.com>
+	<40661049.1050004@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Sunday 28 of March 2004 00:40, Jeff Garzik wrote:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+>  > 
+>  > With this simple patch, the max request size goes from 128K to 32MB... 
+>  > so you can imagine this will definitely help performance.  Throughput 
+>  > goes up.  Interrupts go down.  Fun for the whole family.
+>  > 
 > 
->>Jeff Garzik wrote:
->>
->>>That's the main limitation on request size right now...  libata limits
->>>S/G table entries to 128[1], so a perfectly aligned, fully merged
->>
->>    ...
->>
->>[1] because even though the block layer properly splits on segment
->>boundaries, pci_map_sg() may violate those boundaries (James B and
->>others are working on fixing this).  So...  for right now the driver
->>must check the s/g entry boundaries after DMA mapping, and split them
->>(again) if necessary.  IDE does this in ide_build_dmatable().
-> 
-> 
-> You are right but small clarification is needed: code in ide_build_dmatable()
-> predates segment boundary support in block layer (IDE never relied on it).
+>  Hi Jeff,
+>  I think 32MB is too much. You incur latency and lose
+>  scheduling grainularity. I bet returns start diminishing
+>  pretty quickly after 1MB or so.
 
-Agreed...  I'm saying it's still needed.
+As far as interactivity and throughput is concerned, the effect of really
+big requests will be the same as the effect of permitting _more_ requests. 
+Namely: more memory can be under readahead or writeback at any particular
+point in time.
 
-When the iommu layer knows about the boundaries it should respect, that 
-code can be removed from libata and drivers/ide, IMO...  But also 
-double-check and make sure IDE driver supports the worst case, by 
-limiting to 128 PRD entries, not 256.
+Note that users can cause a similar effect right now by a) increasing
+nr_requests or b) installing lots of disks.
 
-	Jeff
+The VM/VFS is pretty good at controlling this: the dirty thresholds are
+really "dirty+writeback" thresholds.  We do place firm limits on the amount
+of dirty+writeback memory.
+
+When you run with a really large nr_requests you can indeed have 40% of
+your machine's memory under writeback with just a single disk, and some
+benchmarks do take a hit.  Mainly because truncate latency increases.  But
+for real-life things, it just doesn't make much difference.
+
+So I think the change will be OK.
+
+If something bad does happen, the user can reduce nr_requests, or reduce
+dirty_ratio or we can teach the VFS to clamp the amounts of dirty and
+writeback memory separately rather than lumping them together for writer
+throttling purposes.
 
 
-
+Another effect of this change is that users can transiently pin larger
+amounts of memory via O_DIRECT.  But they can do that now, by performing
+I/O to lots of disks at the same time.  We'd need some form of system-wide
+clamping in the direct-io code to address this.  I don't know how easy such
+a DoS exploit would be in practice.

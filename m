@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319046AbSHMVIr>; Tue, 13 Aug 2002 17:08:47 -0400
+	id <S319118AbSHMVUE>; Tue, 13 Aug 2002 17:20:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319064AbSHMVIr>; Tue, 13 Aug 2002 17:08:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54286 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319046AbSHMVIr>;
-	Tue, 13 Aug 2002 17:08:47 -0400
-Message-ID: <3D5975B2.66B4B215@zip.com.au>
-Date: Tue, 13 Aug 2002 14:10:10 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S319128AbSHMVUE>; Tue, 13 Aug 2002 17:20:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4875 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319118AbSHMVUB>; Tue, 13 Aug 2002 17:20:01 -0400
+Date: Tue, 13 Aug 2002 14:24:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Theurer <habanero@us.ibm.com>
+Subject: Re: [PATCH] NUMA-Q disable irqbalance
+In-Reply-To: <2016010000.1029271332@flay>
+Message-ID: <Pine.LNX.4.33.0208131421190.3110-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH] simplify b_inode usage
-References: <20020813171024.A4365@lst.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> 
-> Current the b_inode of struct buffer_head is a pointer to an inode, but
-> it only always used as bool value.  This patch changes it to an simple
-> int (yes, I know some people have ideas for a flag that uses less space,
-> but that can be easily done ontop of this cleanup).  The advantage is
-> that we don't have to pass in the inode into buffer_insert_inode_queue/
-> buffer_insert_inode_data_queue and can merge them into a more general
-> buffer_insert_list, with inline wrappers around it.  reiserfs can now
-> use buffer_insert_list directly and embedd a simple list_head instead
-> of a full static inode into it's journal.
-> 
-> A similar cleanup has already been done in early 2.5, but the b_inode
-> flag is completly gone there now.
-> 
 
-Current ext3 CVS (ie: 2.4.20 candidate code) is using b_inode
-as an inode *.   Stephen has acked a proposal to stop doing that,
-but let's double check with him first.
+On Tue, 13 Aug 2002, Martin J. Bligh wrote:
+> 
+> Was that before or after you changed HZ to 1000? I *think* that increased
+> the frequency of IO-APIC reprogramming by a factor of 10, though I might
+> be misreading the code. If it does depend on HZ, I think that's bad.
 
-Also, Joe Thornber needs to add another pointer to struct buffer_head
-for LVM2 reasons.  If we collapse b_inode into a b_flags bit then
-Joe gets his pointer for free (bh stays at 48 bytes on ia32).
+The 1000Hz thing came much later, and I never noticed any impact of that 
+on my machines.
 
-So I'd suggest you just go ahead and do it that way.  (I had a patch
-for that but seem to have misplaced it).
+(Note that this is all entrely subjective. I was very disappointed in the
+feel of the first HT P4 machine I had for the first few weeks, but apart
+from running lmbench - which looked ok even though it shows that P4's are
+bad at system calls - I've not actually put numbers on it. But my feeling
+was that the irq thing made a noticeable difference. Caveat emptor -
+subjective feelings are not good).
+
+> People in our benchmarking group (Andrew, cc'ed) have told me that
+> reducing the frequency of IO-APIC reprogramming by a factor of 20 or
+> so improves performance greatly - don't know what HZ that was at, but
+> the whole thing seems a little overenthusiastic to me.
+
+The rebalancing was certainly done with a 100Hz clock, so yes, it might 
+have become much worse lately.
+
+		Linus
+

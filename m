@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269292AbRHCDrd>; Thu, 2 Aug 2001 23:47:33 -0400
+	id <S269308AbRHCEjd>; Fri, 3 Aug 2001 00:39:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269295AbRHCDrZ>; Thu, 2 Aug 2001 23:47:25 -0400
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:35545 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S269292AbRHCDrI>; Thu, 2 Aug 2001 23:47:08 -0400
-Message-ID: <3B6A1EBF.CF292235@sympatico.ca>
-Date: Thu, 02 Aug 2001 23:47:11 -0400
-From: Chris Friesen <chris_friesen@sympatico.ca>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
+	id <S269312AbRHCEjY>; Fri, 3 Aug 2001 00:39:24 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:3720 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S269308AbRHCEjL>;
+	Fri, 3 Aug 2001 00:39:11 -0400
+Message-ID: <3B6A2CC8.7D17F96F@randomlogic.com>
+Date: Thu, 02 Aug 2001 21:47:04 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: using ramdisk as root filesystem seems to cause carrier errors
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+Subject: Kernel 2.4.7 Source Code Documentation
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SUMMARY: Booting with a ramdisk as the root filesystem causes spurious errors
-(or possibly spurious detection of errors) on an ethernet interface configured
-later on, while the ethernet interface configured by the init scripts works
-fine. Booting with an nfs-mounted rootdisk with contents identical to the
-ramdisk works fine.
+I am attempting to get my slow UP PIII 800 here at work to parse the 2.4.7 source and annotate it so that I can put it up on my other web server. When it is
+done, I will upload it to the server and it should be available at this URL:
 
-DETAILS: We have a Motorola G4-based compact PCI card with dual DEC 21143-based
-ethernet ports.  We are using a 2.2.17 kernel with various patches, but none to
-the ethernet driver.  We've been working on this card for months now without
-seeing any real problems, but recently someone was doing bandwidth tests through
-each link and noticed a discrepency.  We then looked at the output of ifconfig
-and saw all kinds of carrier errors (one for each packet transmitted) on the
-problem link.
+http://www.randomlogic.com/kernel/
 
-The normal method of booting this card is with a largish (34MB uncompressed)
-ramdisk as the root filesystem.  In this scenario, one ethernet link is
-configured by the system based on information obtained from the bootp server,
-and the other ethernet link is brought up automatically later on based on the
-first address that was configured.  What we've noticed is that the ethernet link
-that is configured later on shows a carrier error for every packet transmitted
-through that link.  Interestingly the vast majority of those packets are
-actually making it through--a "ping -f" from another machine to the affected
-link shows about .1% packet loss.  It doesn't matter which link is configured
-automatically by the system (we've tried it both ways), the carrier errors
-always occur on the other link.
+This may or may not happen tonight since this machine is nowhere near as fast as my K7 at home and the K7 takes a few hours to do it all, but the U/L bandwidth
+is much better here (DS3 compared to cable). I do expect to have it up before the weekend.
 
-If we boot the exact same kernel (actually its the kernel and ramdisk glommed
-together into one file, loaded via tftp) but then override the boot args to use
-an nfs-mounted root filesystem that is identical to the one in the ramdisk, then
-everything works fine.  We configure one ethernet link at startup based on bootp
-requests and the other one gets configured later on.  Everything works
-perfectly, "ping -f" from another machine gives a few dropped packets out of a
-few hundred thousand, through either link.  No errors.
+(NOTE: I compared kernel compile times between the two, no official numbers, just compiling on both machines. I started the PIII 800 about 1 min before the K7
+Thunder. The K7 Thunder was done with make dep, bzImage, modules, and modules_install before the PIII was 50% complete with bzImage. The K7 was running 2
+SETI@Home sessions as well as compiling, the PIII was doing nothing else.)
 
-Can anyone think of what could possibly be causing this?  Somehow, the act of
-using a ramdisk as our root filesystem is causing problems with our ethernet
-links.  Are there any known gotchas that may be biting us?  Other than the
-problems with one of the two links, the system seems to be working perfectly.
+I plan to update the documentation with every stable kernel release. (So please, don't crank them out too fast, I'd hate to spend my life U/L 1GB+ of HTML every
+other day!! ;-)
 
-Thanks for any theories you might have,
+PGA
 
-Chris Friesen
-Nortel Networks
-Ottawa, ON
-
-PS.  This is my third time sending this, since my first two tries (from two
-different addresses) don't seem to have made it onto the list at all.  Anyone
-else seeing this?
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

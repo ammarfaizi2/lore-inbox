@@ -1,68 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbTKNO50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 09:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTKNO50
+	id S262608AbTKNPPc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 10:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTKNPPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 09:57:26 -0500
-Received: from dsl093-039-041.pdx1.dsl.speakeasy.net ([66.93.39.41]:51164 "EHLO
-	raven.beattie-home.net") by vger.kernel.org with ESMTP
-	id S262719AbTKNO5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 09:57:24 -0500
-Subject: Re: serverworks usb under 2.4.22
-From: Brian Beattie <beattie@beattie-home.net>
-To: rico-linux-kernel@patternassociates.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031114012426.26647.qmail@patternassociates.com>
-References: <20031114012426.26647.qmail@patternassociates.com>
-Content-Type: text/plain
-Message-Id: <1068821840.835.2.camel@kokopelli>
+	Fri, 14 Nov 2003 10:15:32 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:16313 "EHLO
+	dagobah.gnumonks.org") by vger.kernel.org with ESMTP
+	id S262608AbTKNPP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 10:15:29 -0500
+Date: Fri, 14 Nov 2003 16:10:04 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: [2.6] Nonsense-messages from iptables + co.
+Message-ID: <20031114151004.GE2395@obroa-skai.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
+References: <20031114132054.GA646@merlin.emma.line.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 14 Nov 2003 09:57:21 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aT9PWwzfKXlsBJM1"
+Content-Disposition: inline
+In-Reply-To: <20031114132054.GA646@merlin.emma.line.org>
+X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.4.23-pre7-ben0
+X-Date: Today is Pungenday, the 26th day of The Aftermath in the YOLD 3169
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-11-13 at 20:24, rico-linux-kernel@patternassociates.com
-wrote:
-> >From:	Brian Beattie <beattie@beattie-home.net>
-> >Date:	Thu, 13 Nov 2003 19:17:02 -0500
-> >...
-> >I've got a system with a Super Micro P3 dual processor board.  This
-> >board uses the Serverworks chipset and the 2.4.22 kernel is unable to
-> >allocate an IRQ when initializing the USB (usb-ohic) interface.  This
-> >board works fine under 2.4.20 and 2.4.21.
-> 
-> Transcript of kernel messages...?
 
-from dmesg:
+--aT9PWwzfKXlsBJM1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-usb.c: registered new driver hub
-host/usb-uhci.c: $Revision: 1.275 $ time 09:19:46 Nov 14 2003
-host/usb-uhci.c: High bandwidth mode enabled
-host/usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
-host/usb-ohci.c: USB OHCI at membase 0xf88a8000, IRQ -19
-host/usb-ohci.c: usb-00:0f.2, ServerWorks OSB4/CSB5 OHCI USB Controller
-usb.c: new USB bus registered, assigned bus number 1
-host/usb-ohci.c: request interrupt -19 failed
-usb.c: USB bus 1 deregistered
+On Fri, Nov 14, 2003 at 02:20:54PM +0100, Matthias Andree wrote:
+> Who the heck added these unhelpful
+>=20
+> "ipt_hook: happy cracking."
+>=20
+> messages to iptables/mangling/connection tracking code? There are three
+> instances.
 
+I guess it was Rusty.  The idea message is a funny way of telling you
+that you are sending incomplete ip headers.  Something that is not
+likely to occur unless you are trying to send corrupt packets via raw ip
+sockets...
 
-from lspci
+> If the kernel has got something to say, it should be clear what the
+> kernel means, say, maximum <whatever> rate exceeded or something, not
+> such junk like this.
 
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 USB Controller (rev 04)
-(prog-if 10 [OHCI])
-        Subsystem: ServerWorks: Unknown device 0220
-        Flags: medium devsel, IRQ -19
-        Memory at fcafe000 (32-bit, non-prefetchable) [size=4K]
-        
--- 
-Brian Beattie            | Experienced kernel hacker/embedded systems
-beattie@beattie-home.net | programmer, direct or contract, short or
-www.beattie-home.net     | long term, available immediately.
+There are people who do actually have fun developing linux code.  And
+Rusty has a peculiar sense of humor... for further reference see the
+comments like 'furniture shopping' throughout the netfilter/iptables
+source code.  I sometimes wish I had the same humor like he has.
 
-"Honor isn't about making the right choices.
-It's about dealing with the consequences." -- Midori Koto
+Yes, I know.  Stuff like this is not exactly useful in error messages.
+I'd say it's one of the few remainders of the 2.3.x early development
+time.  Like the "Rusty's brain broke" messages that have recently been
+removed/replaced.
 
+btw: *nix has a long history of funny error messages, like 'printer on
+fire' or others.
 
+> This is IMHO a MUST-FIX before 2.6.0.
+
+It is even in 2.4.x, where it could have been fixed throughout the last
+couple of years.  Nobody else has yet complained.
+
+> Matthias Andree
+
+--=20
+- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+Programming is like sex: One mistake and you have to support it your lifeti=
+me
+
+--aT9PWwzfKXlsBJM1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/tPBLXaXGVTD0i/8RAp9AAJ9tTrz2L+rfeXQT3QWC9grEKKtWowCfYMcw
+/5qkkIyHiolD7r3M1ZuRkEk=
+=dXv9
+-----END PGP SIGNATURE-----
+
+--aT9PWwzfKXlsBJM1--

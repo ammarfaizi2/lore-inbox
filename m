@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbUCWSL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 13:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUCWSL7
+	id S262770AbUCWSQM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 13:16:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbUCWSQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 13:11:59 -0500
-Received: from holomorphy.com ([207.189.100.168]:18048 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262753AbUCWSL5 (ORCPT
+	Tue, 23 Mar 2004 13:16:12 -0500
+Received: from k1.dinoex.de ([80.237.200.138]:50386 "EHLO k1.dinoex.de")
+	by vger.kernel.org with ESMTP id S262794AbUCWSQB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 13:11:57 -0500
-Date: Tue, 23 Mar 2004 10:11:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040323181126.GA791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andy Whitcroft <apw@shadowen.org>,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <1079902670.17681.324.camel@imladris.demon.co.uk> <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk> <405E1859.5030906@pobox.com> <20040321225117.F26708@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org> <405E23A5.7080903@pobox.com> <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org> <20040321235854.H26708@flint.arm.linux.org.uk> <28313883.1080064760@42.150.104.212.access.eclipse.net.uk>
-Mime-Version: 1.0
+	Tue, 23 Mar 2004 13:16:01 -0500
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OSS: cleanup or throw away
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+References: <200403221955.52767.jos@hulzink.net>
+	<20040322202220.GA13042@mulix.org> <20040323082338.GD23546@lgb.hu>
+	<20040323112305.F52644@toad.stack.nl>
+	<20040323191330.W29917@midi.ihme.net>
+	<Pine.LNX.4.58.0403231828090.2186@pnote.perex-int.cz>
+From: Jochen Hein <jochen@jochen.org>
+X-No-Archive: yes
+Date: Tue, 23 Mar 2004 18:49:58 +0100
+In-Reply-To: <Pine.LNX.4.58.0403231828090.2186@pnote.perex-int.cz> (Jaroslav
+ Kysela's message of "Tue, 23 Mar 2004 18:29:31 +0100 (CET)")
+Message-ID: <87smfzo3ll.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <28313883.1080064760@42.150.104.212.access.eclipse.net.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 March 2004 23:58 +0000 Russell King <rmk+lkml@arm.linux.org.uk>
->> Unfortunately this doesn't make dwmw2 happy - he claims to have machines
->> which implement dma_alloc_coherent using RAM which doesn't have any
->> struct page associated with it.
+Jaroslav Kysela <perex@suse.cz> writes:
 
-On Tue, Mar 23, 2004 at 05:59:20PM +0000, Andy Whitcroft wrote:
-> Would it not be possible to allocate struct page's for these special areas
-> of memory?  Worst, worst, worst case could they not represent pages in a
-> memory only node in the NUMA sense?  I am sure there is some way they could
-> be 'tacked' onto the end of the cmap in reality?
+> On Tue, 23 Mar 2004, Markus H.stbacka wrote:
+>
+>> I don't describe it here, I've sent a few mails about it, no response, so
+>> I don't wait for any response this time either, so why bother.
+>
+> It would be better to report bugs into our bug-tracking system or ask in
+> the alsa-user mailing list, if you have installation trouble.
 
-This has already been beaten to death and resolved. dma_mmap_coherent()
-is the preferred solution and will have no reliance on the coremap apart
-from requiring it when faults are handled (to feed the core API), and
-requiring prefaulting when coremap elements are absent for the mapped
-areas. More importantly, it allows sane fallback to read()/write() and
-understands the results of dma_alloc_coherent(), which virt_to_page(),
-whose current use on dma_alloc_coherent()'s results causes driver bugs,
-does not.
+Did you ever look into bugzilla.kernel.org?  There are about 45 bugs
+open, might be nice to work on them (or tell people to report the bugs
+elsewhere).  And yes, if I use vanilla 2.6, I report bugs here or in
+bugzilla, not somewhere else.
 
+Jochen
 
--- wli
+-- 
+#include <~/.signature>: permission denied

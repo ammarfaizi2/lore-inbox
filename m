@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUHKWBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268257AbUHKWC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268258AbUHKWBr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUHKWBr
+	id S268257AbUHKWC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHKWC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:01:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62666 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268258AbUHKWBp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:01:45 -0400
-Message-ID: <411A9735.5010006@pobox.com>
-Date: Wed, 11 Aug 2004 18:01:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Pavel Machek <pavel@ucw.cz>, Christoph Hellwig <hch@infradead.org>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Jouni Malinen <jkmaline@cc.hut.fi>
-Subject: Re: ipw2100 wireless driver
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <20040810113439.A15100@infradead.org> <20040811121735.GA31171@elf.ucw.cz> <411A5D3B.3010808@pobox.com> <20040811202704.GD1550@openzaurus.ucw.cz>
-In-Reply-To: <20040811202704.GD1550@openzaurus.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 18:02:57 -0400
+Received: from gprs214-50.eurotel.cz ([160.218.214.50]:3458 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268257AbUHKWCq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:02:46 -0400
+Date: Wed, 11 Aug 2004 23:59:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
+Message-ID: <20040811215915.GA21812@elf.ucw.cz>
+References: <Pine.LNX.4.58.0408072123590.19619@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408072123590.19619@montezuma.fsmlabs.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>>Hmm, strange, one merge in last 8 weeks. That's not too active
->>>project. Are you sure this is the right tree to work against?
->>
->>
->>It's the right tree, but wireless development hasn't coalesced yet on 
->>that tree it appears.  It sounds like the Intel folks are interested 
->>in working on that tree, and others have mentioned they are 
->>interested as well.
-> 
-> 
-> Is there way to access that tree without bk? Daily patches maybe?
+Hi!
 
-Just posted to netdev.  No regular snapshots, though.
+> Pulled from the -tiny tree, the focus of this patch is for reduced kernel
+> image size but in the process we benefit from improved cache performance
+> since it's possible for the common text to be present in cache. This is
+> probably more of a win on shared cache multiprocessor systems like
+> P4/Xeon HT. It's been benchmarked with bonnie++ on 2x and 4x PIII (my
+> ideal target would be a 4x+ logical cpu Xeon).
+> 
+> The bonnie++ results are here, the hostnames are of the form stpN-000 with
+> N denoting how many processors in the system. In a nutshell there doesn't
+> appear to be any performance regressions.
 
-	Jeff
+Fine, so perhaps we do not want config option?
+									Pavel
 
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

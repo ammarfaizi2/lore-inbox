@@ -1,50 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292635AbSBUQb0>; Thu, 21 Feb 2002 11:31:26 -0500
+	id <S292637AbSBUQbr>; Thu, 21 Feb 2002 11:31:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292641AbSBUQbR>; Thu, 21 Feb 2002 11:31:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12044 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292635AbSBUQbL>;
-	Thu, 21 Feb 2002 11:31:11 -0500
-Message-ID: <3C7520CD.D325A3DC@mandrakesoft.com>
-Date: Thu, 21 Feb 2002 11:31:09 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: BK Kernel Hacking HOWTO
-In-Reply-To: <3C751CB2.52110E58@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292641AbSBUQbi>; Thu, 21 Feb 2002 11:31:38 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:31423 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S292637AbSBUQbb>; Thu, 21 Feb 2002 11:31:31 -0500
+Date: Thu, 21 Feb 2002 16:35:26 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.5-dj1
+Message-ID: <20020221163526.A22035@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 3) Include a summary and "diffstat -p1" of each changeset that will be
-> downloaded, when Linus issues a "bk pull".  The author auto-generates
-> these summaries using "bk push -nl <parent> 2>&1", to obtain a listing
-> of all the pending-to-send changesets, and their commit messages.
+Mostly just syncing with Linus, plus the next round of small bits.
+I backed out the IDE changes for various reasons, handle with
+care in case I missed something.
 
-Two notes I wanted to get out before the rewrite:
+Patch against 2.5.5 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-1) The preferred format is likely to be a -single- diffstat followed by
-a changeset, and
+By popular request, the curious can now find most of what
+was merged in each release at http://www.codemonkey.org.uk/patches/merged/
 
-2) "bk changes -L <local-linus-repository>" is the preferred way to get
-a listing of changesets not yet sent to Linus, not "bk push -nl"
+ -- Davej.
 
-A script should be appearing in the very near future, which generates
-the desired for-Linus changeset format automatically.  In the medium
-term future and beyond, BK itself will hopefully generate the text.
+2.5.5-dj1
+o   Merge 2.5.5 final.
+    | Backout broken IDE changes.
+o   Implement proper locking in ALSA lseek methods.	(Robert Love)
+o   Document lseek locking.				(Robert Love)
+o   ALSA + YMFPCI compile fixes.			(Stelian Pop)
+o   Further console reentrancy work.			(James Simmons)
+o   NFS compile fix.					(Neil Brown)
+o   Fix up some strsep changes from last time.		(René Scharfe)
+o   tmpfs link-count on dir rename fixes.		(Christoph Rohland)
+o   USB vicam driver build fixes.			(Greg KH)
+o   Split up terminal emulation.			(James Simmons)
+o   Fix scsi_merge crash-on-boot problem.		(Jens Axboe)
 
-	Jeff
 
-
+2.5.4-dj3
+o   Merge up to 2.4.18rc2
+o   Change <linux/malloc.h> -> <linux/slab.h>	(Me)
+o   Fix borken locking in nfs ->lookup.		(Jarno Paananen)
+o   Fix ext2 freeing blocks not in datazone.	(Randy Hron, Chris Wright)
+o   Fix ext2/ext3 revision level checks.	(Andreas Dilger)
+o   Fix ramdisk compilation failure.		(Me, Rudmer van Dijk)
+o   More include dependancy tweaks.		(Me)
+o   BSS janitor work.				(Craig Christophel)
+o   Replace all strtok users with strsep.	(Matthew Hawkins, Jason Thomas)
+o   scsi_debug ->address & other fixes.		(Douglas Gilbert)
+o   Silence isapnp debug messages.		(Andrey Panin)
+o   Clear passcred in sock_alloc()		(OGAWA Hirofumi)
+    | Fixes slow sunrpc/portmap, and various
+    | gnome-terminal weirdness.
+o   Console reentrancy work.			(James Simmons)
+o   ALSA Config.in fixes.			(René Scharfe)
+o   Fix Oxford Semiconductor PCI id.		(Ed Vance)
+o   Power Management for es18xx.		(Zwane Mwaikambo)
+o   Remove duplicate PCI ids.			(Wim Van Sebroeck)
+o   Change Olympic driver to use spinlocks.	(Mike Phillips)
+o   Fix pcilynx locking.			(Manfred Spraul)
+o   Fix cris eeprom driver locking.		(Robert Love)
+o   PPP/BSD Compression vfree in interrupt fix.	(Paul Mackerras,
+						 Dominik Brodowski)
+o   cli->spinlocks for aha1542 driver.		(Douglas Gilbert)
+o   ALSA ISAPNP fixes.				(Andrey Panin)
+o   /proc/net/udp signedness fix.		(Arnaud Giersch)
+o   fcntl_[gs]etlk* cleanup.			(Chris Wright)
 
 
 -- 
-Jeff Garzik      | XXX FREE! secure AFSPC AK-47 unclassified CDC
-Building 1024    | NATO SAS CDMA fun with filters Bellcore kibo SSL
-MandrakeSoft     | high security goat clones infowar 2600 Magazine
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264210AbTCXOAn>; Mon, 24 Mar 2003 09:00:43 -0500
+	id <S264223AbTCXOLX>; Mon, 24 Mar 2003 09:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264217AbTCXOAm>; Mon, 24 Mar 2003 09:00:42 -0500
-Received: from f140.pav2.hotmail.com ([64.4.37.140]:32261 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S264210AbTCXOAC>;
-	Mon, 24 Mar 2003 09:00:02 -0500
-X-Originating-IP: [202.140.142.131]
-X-Originating-Email: [senthil_gowran@hotmail.com]
-From: "Senthil Kumar" <senthil_gowran@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 24 Mar 2003 14:11:05 +0000
+	id <S264215AbTCXOLW>; Mon, 24 Mar 2003 09:11:22 -0500
+Received: from ns2.uk.superh.com ([193.128.105.170]:64139 "EHLO
+	ns2.uk.superh.com") by vger.kernel.org with ESMTP
+	id <S264223AbTCXOK4>; Mon, 24 Mar 2003 09:10:56 -0500
+Date: Mon, 24 Mar 2003 14:21:58 +0000
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: struct nfs_fattr alignment problem in nfs3proc.c
+Message-ID: <20030324142158.GD17163@malvern.uk.w2k.superh.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030321175206.GA17163@malvern.uk.w2k.superh.com> <shs7karzmwv.fsf@charged.uio.no> <20030324120923.GB17163@malvern.uk.w2k.superh.com> <20030324134927.GC17163@malvern.uk.w2k.superh.com> <shsel4wsvtr.fsf@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F140Am6Iwj5tf8nTI1o00002770@hotmail.com>
-X-OriginalArrivalTime: 24 Mar 2003 14:11:05.0389 (UTC) FILETIME=[3562BDD0:01C2F20F]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <shsel4wsvtr.fsf@charged.uio.no>
+User-Agent: Mutt/1.4i
+X-OS: Linux 2.4.19 i686
+X-OriginalArrivalTime: 24 Mar 2003 14:22:03.0820 (UTC) FILETIME=[BDD756C0:01C2F210]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Trond Myklebust <trond.myklebust@fys.uio.no> [2003-03-24]:
+> >>>>> " " == Richard Curnow <Richard.Curnow@superh.com> writes:
+> 
+>      > + if (((unsigned long) arg & 0x7) != 0) {
+>      > + printk("nfs3_proc_unlink_setup : arg not 8-byte aligned!\n");
+>      > + }
+>      > + if (((unsigned long) res & 0x7) != 0) {
+>      > + printk("nfs3_proc_unlink_setup : res not 8-byte aligned!\n");
+>      > + }
+> 
+> Nope...
+> 
 
+Well spotted, ignore those checks :-)  At least they showed that the
+change higher up was making a difference.
 
+Once there's general agreement about this fix, I'll generate some
+patches for up-to-date 2.4 and 2.5.
 
+Cheers
+Richard
 
-
-
-
-
-
-Dear All,
-
-   Please give me some idea to play the extracted data from mp3 in real time 
-application.
-i. e. From the mp3 file i extracted the data to be played alone to my local 
-buffer leaving the Frame information of 32 bits.
-
-Then through ioctl() function i wrote the channel, bitrate and Format.
-Then through write function i wrote the data captured in the local buffer to 
-the dsp device /dev/dsp.
-But i am getting only the irregular noise.
-
-Is any uncompression should be done for data and written.
-Is so how the uncompression should be done..
-with thanks and regards
-Senthil
-
-
-
-
-_________________________________________________________________
-Get ball by ball action on your desktop. 
-http://server1.msn.co.in/msnspecials/cricketdownload/contest.asp Get Hutch 
-MSN Cricketer
-
+-- 
+Richard \\\ SuperH Core+Debug Architect /// .. At home ..
+  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
+Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk
+Speaking for myself, not on behalf of SuperH

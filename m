@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281780AbRLLSTL>; Wed, 12 Dec 2001 13:19:11 -0500
+	id <S281738AbRLLSSL>; Wed, 12 Dec 2001 13:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281762AbRLLSTB>; Wed, 12 Dec 2001 13:19:01 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:18960 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S281780AbRLLSSx>; Wed, 12 Dec 2001 13:18:53 -0500
-Date: Wed, 12 Dec 2001 19:18:48 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Petr Titera <P.Titera@century.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 4GB file size limit on SMBFS
-In-Reply-To: <3C175A07.6000505@century.cz>
-Message-ID: <Pine.LNX.4.33.0112121900510.4034-100000@cola.teststation.com>
+	id <S281748AbRLLSRw>; Wed, 12 Dec 2001 13:17:52 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:6669 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S281738AbRLLSRm>; Wed, 12 Dec 2001 13:17:42 -0500
+Date: Wed, 12 Dec 2001 10:19:49 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Near CPUs ...
+In-Reply-To: <E16E9x9-00019X-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0112121018540.1564-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Dec 2001, Petr Titera wrote:
+On Wed, 12 Dec 2001, Alan Cox wrote:
 
-> Hello,
-> 
-> 	I tested patches from Urban Wildmark to give SMBFS LFS support and found, 
-> that limit on file size has only moved from 2GB to 4GB. Is this expected 
-> behaviour?
+> > that lists metrics between CPUs, ie :
+> >
+> > metric(I, J) = F(cpus_dmap[I][J])
+> >
+> > and this is the easy part.
+> > How to detect CPUs that are "near" ( on the same bus/mb ) on x86/ia64 hardware ?
+> > Is the MP configuration data structured in a way that makes you understand
+> > this mapping, ie :
+>
+> The MP 1.1/1.4 mappings have no information on memory or locality. The ACPI
+> stuff seems to have the same limitations. The ACPI one does correctly
+> describe hyperthreading pairs (two execution units per die) - but while they
+> are "closer" they are also less efficient than two seperate cpus for most
+> tasks.
 
-I have never tested it vs a NT server with more than 3G of disc, but it's
-a 64bit offset so it should be a bit more ... I'll try and dig up a
-machine with more space to test with.
+Don't we need a common abstract interface to describe this topology
+informations ?
 
-It is possible that the readX/writeX SMB is used incorrectly and that
-while it does make the low 32 bits be unsigned the top 32 bits are set to
-0.
 
-But I have tested it with >4G files on samba servers and that seemed to
-work. You did patch smbmount too?
 
-/Urban
+
+- Davide
+
 

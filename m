@@ -1,146 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbULNQEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbULNQEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbULNQEh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 11:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbULNQEh
+	id S261534AbULNQEx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 11:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbULNQEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 11:04:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:4800 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261528AbULNQE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 11:04:27 -0500
-Subject: Re: 2.6.10-rc3-mm1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041213020319.661b1ad9.akpm@osdl.org>
-References: <20041213020319.661b1ad9.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1103040242.4221.5.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 14 Dec 2004 08:04:03 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Dec 2004 11:04:53 -0500
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:60290 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S261534AbULNQEb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 11:04:31 -0500
+Message-ID: <41BF0F0D.4000408@ribosome.natur.cuni.cz>
+Date: Tue, 14 Dec 2004 17:04:29 +0100
+From: =?UTF-8?B?TWFydGluIE1PS1JFSsWg?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20041209
+X-Accept-Language: cs, en, en-us
+MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: Andrew Morton <akpm@osdl.org>, piggin@cyberone.com.au, chris@tebibyte.org,
+       marcelo.tosatti@cyclades.com, andrea@novell.com,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH] fix spurious OOM kills
+References: <20041111112922.GA15948@logos.cnet>	 <20041114094417.GC29267@logos.cnet>	 <20041114170339.GB13733@dualathlon.random>	 <20041114202155.GB2764@logos.cnet>	<419A2B3A.80702@tebibyte.org>	 <419B14F9.7080204@tebibyte.org>	<20041117012346.5bfdf7bc.akpm@osdl.org>	 <419CD8C1.4030506@ribosome.natur.cuni.cz>	 <20041118131655.6782108e.akpm@osdl.org>	 <419D25B5.1060504@ribosome.natur.cuni.cz>	 <419D2987.8010305@cyberone.com.au>	 <419D383D.4000901@ribosome.natur.cuni.cz>	 <20041118160824.3bfc961c.akpm@osdl.org>	 <419E821F.7010601@ribosome.natur.cuni.cz>	 <1100946207.2635.202.camel@thomas> <419F2AB4.30401@ribosome.natur.cuni.cz>	 <1100957349.2635.213.camel@thomas>	 <419FB4CD.7090601@ribosome.natur.cuni.cz> <1101037999.23692.5.camel@thomas>	 <41A08765.7030402@ribosome.natur.cuni.cz>	 <1101045469.23692.16.camel@thomas>	 <1101120922.19380.17.camel@tglx.tec.linutronix.de>	 <41A2E98E.7090109@ribosome.natur.cuni.cz> <1101205649.3888.6.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1101205649.3888.6.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.4.1)
+Thomas Gleixner wrote:
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+Hi,
+  I went to check what's the status of this. I tested 2.6.10-rc3-bk8
+on the same machine, and the parent process still get's killed.
+The last patch Thomas has posted to the list in this thread for 2.6.10-rc2-mm3
+killed only the application. Maybe it's still in -mm tree?
+Anyway, here are results for 2.6.10-rc3-bk8 as I've said:
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.10-rc3-mm1   12w/0e     1w/7e   414w/0e    6w/0e  16w/0e    401w/0e
-2.6.10-rc2-mm4   15w/0e     1w/7e   421w/0e    6w/0e  16w/0e    408w/0e
-2.6.10-rc2-mm3   15w/0e     0w/0e  1255w/12e  66w/0e  16w/0e   1507w/0e
-2.6.10-rc2-mm2   15w/0e     0w/0e  1362w/15e  65w/0e  16w/0e   1612w/2e
-2.6.10-rc2-mm1   15w/0e     0w/0e  1405w/11e  65w/0e  16w/0e   1652w/0e
-2.6.10-rc1-mm5   16w/0e     0w/0e  1587w/0e   65w/0e  20w/0e   1834w/0e
-2.6.10-rc1-mm4   16w/0e     0w/0e  1485w/9e   65w/0e  20w/0e   1732w/0e
-(Compiles with gcc 3.2.2)
-2.6.10-rc1-mm3    7w/31e    0w/9e   496w/141e  4w/0e   4w/50e   693w/83e
-2.6.10-rc1-mm2   16w/1e     1w/1e   529w/1e    4w/0e  12w/1e    729w/0e
-2.6.10-rc1-mm1   16w/1e     1w/1e   592w/1e    4w/0e  13w/1e    857w/0e
-2.6.9-mm1         6w/1e     1w/1e  1761w/15e  65w/0e   9w/0e   2086w/0e
-2.6.9-rc4-mm1     5w/0e     0w/0e  1766w/11e  43w/0e   6w/0e   1798w/0e
-2.6.9-rc3-mm3     5w/0e     0w/0e  1756w/11e  43w/0e   4w/0e   1786w/0e
-2.6.9-rc3-mm2    10w/0e     4w/9e  1754w/14e  43w/0e   4w/0e   1782w/1e
-2.6.9-rc3-mm1    10w/0e     4w/10e 1768w/0e   43w/0e   4w/0e   1796w/0e
-2.6.9-rc2-mm4    10w/0e     5w/0e  2573w/0e   41w/0e   4w/0e   2600w/0e
-2.6.9-rc2-mm3    10w/0e     5w/0e  2400w/0e   41w/0e   4w/0e   2435w/0e
-2.6.9-rc2-mm2    10w/0e     5w/0e  2919w/0e   41w/0e   4w/0e   2954w/0e
-2.6.9-rc2-mm1     0w/0e     2w/0e  3541w/9e   41w/0e   3w/9e   3567w/0e
-2.6.9-rc1-mm4     0w/0e     1w/0e    55w/0e    3w/0e   2w/0e     48w/0e
-2.6.9-rc1-mm3     0w/0e     0w/0e    55w/13e   3w/0e   1w/0e     49w/1e
-2.6.9-rc1-mm2     0w/0e     0w/0e    53w/11e   3w/0e   1w/0e     47w/0e
-2.6.9-rc1-mm1     0w/0e     0w/0e    80w/0e    4w/0e   1w/0e     74w/0e
-2.6.8.1-mm4       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     73w/0e
-2.6.8.1-mm3       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-2.6.8.1-mm2       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-2.6.8.1-mm1       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     74w/0e
-2.6.8-rc4-mm1     0w/0e     0w/5e    81w/0e    4w/0e   1w/0e     75w/0e
-2.6.8-rc3-mm2     1w/7e     0w/5e    82w/8e    4w/0e   2w/8e     75w/0e
-2.6.8-rc3-mm1     0w/0e     1w/5e    81w/9e    4w/0e   1w/0e     75w/0e
-2.6.8-rc2-mm2     0w/0e     4w/5e    87w/9e    4w/0e   1w/0e     80w/0e
-2.6.8-rc2-mm1     0w/0e     0w/0e    83w/9e    3w/0e   1w/0e     81w/0e
-2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
-2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
-2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
-2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
-2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
-2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
-2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
-2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
-2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
-2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
-2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
-2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
-2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
-2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
-2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
-2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
-2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
-2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+Free pages:        3924kB (112kB HighMem)
+Active:128410 inactive:125323 dirty:0 writeback:0 unstable:0 free:981 slab:1985 mapped:253497 pagetables:739
+DMA free:68kB min:68kB low:84kB high:100kB active:5436kB inactive:5512kB present:16384kB pages_scanned:11608 all_unreclaimable
+? yes
+protections[]: 0 0 0
+Normal free:3744kB min:3756kB low:4692kB high:5632kB active:443312kB inactive:430804kB present:901120kB pages_scanned:887679 all_unreclaimable? yes
+protections[]: 0 0 0
+HighMem free:112kB min:128kB low:160kB high:192kB active:64892kB inactive:64976kB present:131044kB pages_scanned:132923 all_unreclaimable? yes
+protections[]: 0 0 0
+DMA: 1*4kB 0*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 68kB
+Normal: 0*4kB 0*8kB 0*16kB 1*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3744kB
+HighMem: 0*4kB 0*8kB 1*16kB 1*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 112kB
+Swap cache: add 294889, delete 294883, find 530/704, race 0+0
+Out of Memory: Killed process 6944 (RNAsubopt).
+oom-killer: gfp_mask=0xd0
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+HighMem per-cpu:
+cpu 0 hot: low 14, high 42, batch 7
+cpu 0 cold: low 0, high 14, batch 7
 
-John
+Free pages:        3924kB (112kB HighMem)
+Active:135050 inactive:118681 dirty:0 writeback:0 unstable:0 free:981 slab:1977 mapped:253498 pagetables:739
+DMA free:68kB min:68kB low:84kB high:100kB active:5572kB inactive:5368kB present:16384kB pages_scanned:13496 all_unreclaimable ? yes
+protections[]: 0 0 0
+Normal free:3744kB min:3756kB low:4692kB high:5632kB active:469736kB inactive:404380kB present:901120kB pages_scanned:941233 all_unreclaimable? yes
+protections[]: 0 0 0
+HighMem free:112kB min:128kB low:160kB high:192kB active:64892kB inactive:64976kB present:131044kB pages_scanned:137915 all_unreclaimable? yes
+protections[]: 0 0 0
+DMA: 1*4kB 0*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 68kB
+Normal: 0*4kB 0*8kB 0*16kB 1*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3744kB
+HighMem: 0*4kB 0*8kB 1*16kB 1*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 112kB
+Swap cache: add 294889, delete 294883, find 530/704, race 0+0
+Out of Memory: Killed process 6863 (xterm).
 
 
--- 
-John Cherry
-cherry@osdl.org
-503-626-2455x29
-Open Source Development Labs
+I see the machine a lot less responsive when it starts swapping
+compared to 2.6.10-rc2-mm3. For example, just moving mouse between
+windows takes some 10-12 seconds to fvwm2 to re-focus to another xterm
+window.
+
+Martin
+
+
+> On Tue, 2004-11-23 at 08:41 +0100, Martin MOKREJŠ wrote: 
+> 
+>>>One big problem when killing the requesting process or just sending
+>>>ENOMEM to the requesting process is, that exactly this process might be
+>>>a ssh login, when you try to log into to machine after some application
+>>>went crazy and ate up most of the memory. The result is that you
+>>>_cannot_ log into the machine, because the login is either killed or
+>>>cannot start because it receives ENOMEM.
+>>
+>>I believe the application is _first_ who will get ENOMEM. It must be
+>>terrible luck that it would ask exactly for the size of remaining free
+>>memory. Most probably, it will ask for less or more. "Less" in not
+>>a problem in this case, so consider it asks for more. Then, OOM killer
+>>might well expect the application asking for memory is most probably
+>>exactly the application which caused the trouble.
+> 
+> 
+> For one application, which eats up all memory the 2.4 ENOMEM bahviour
+> works.
+> 
+> The scenario which made one of my boxes unusable under 2.4 is a forking
+> server, which gets out of control. The last fork gets ENOMEM and does
+> not happen, but the other forked processes are still there and consuming
+> memory. The server application does the correct thing. It receives
+> ENOMEM on fork() and cancels the connection request. On the next request
+> the game starts again. Somebody notices that the box is not repsonding
+> anymore and tries to login via ssh. Guess what happens. ssh login cannot
+> fork due to ENOMEM. The same will happen on 2.6 if we make it behave
+> like 2.4. 
+> 
+> We have TWO problems in oom handling:
+> 
+> 1. When do we trigger the out of memory killer
+> 
+> As far as my test cases go, 2.6.10-rc2-mm3 does not longer trigger the
+> oom without reason.
+> 
+> 2. Which process do we select to kill
+> 
+> The decision is screwed since the oom killer was introduced. Also the
+> reentrancy problem and some of the mechanisms in the out_of_memory
+> function have to be modified to make it work.
+> That's what my patch is addressing.
+> 
+> 
+>>>Putting hard coded decisions like "prefer sshd, xyz,...", " don't kill
+>>>a, b, c" are out of discussion.
+>>
+>>I'd go for it at least nowadays.
+> 
+> 
+> Sure, you can do so on your box, but can you accept, that we _CANNOT_
+> hard code a list of do not kill apps, except init, into the kernel. I
+> don't want to see the mail thread on LKML, where the list of precious
+> application is discussed.
+> 
+> 
+>>> 
+>>>The ideas which were proposed to have a possibility to set a "don't kill
+>>>me" or "yes, I'm a candidate" flag are likely to be a future way to go.
+>>>But at the moment we have no way to make this work in current userlands.
+>>
+>>Do you think login or sshd will ever use flag "yes, I'm a candidate"?
+>>I think exactly same bahaviour we get right now with those hard coded decisions
+>>you mention above. Otherwise the hard coded decision is programmed into
+>>every sshd, init instance anyway. I think it's not necessary to put
+>>login and shells on thsi ban list, user will re-login again. ;)
+> 
+> 
+> Having a generic interface to make this configurable is the only way to
+> go. So users can decide what is important in their environment. There is
+> more than a desktop PC environment and a lot of embedded boxes need to
+> protect special applications.
+> 
+> 
+>>>I refined the decision, so it does not longer kill the parent, if there
+>>>were forked child processes available to kill. So it now should keep
+>>>your bash alive.
+>>
+>>Yes, it doesn't kill parent bash. I don't understand the _doubled_ output
+>>in syslog, but maybe you do. Is that related to hyperthreading? ;)
+>>Tested on 2.6.10-rc2-mm2.
+> 
+> 
+>>oom-killer: gfp_mask=0xd2
+>>Free pages:        3924kB (112kB HighMem)
+> 
+> 
+>>oom-killer: gfp_mask=0x1d2
+>>Free pages:        3924kB (112kB HighMem)
+> 
+> 
+> No, it's not related to hyperthreading. It's on the way out. 
+> 
+> I put an additional check into the page allocator. Does this help ?
+> 
+> tglx
+> 
 

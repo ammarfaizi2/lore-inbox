@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271708AbRH0MMu>; Mon, 27 Aug 2001 08:12:50 -0400
+	id <S271707AbRH0MQa>; Mon, 27 Aug 2001 08:16:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271707AbRH0MMk>; Mon, 27 Aug 2001 08:12:40 -0400
-Received: from [193.193.172.61] ([193.193.172.61]:35602 "EHLO
-	mail8.GRUPPOCREDIT.IT") by vger.kernel.org with ESMTP
-	id <S271706AbRH0MM2>; Mon, 27 Aug 2001 08:12:28 -0400
-Message-ID: <E504453C04C1D311988D00508B2C5C2DF2FB8E@mail11.gruppocredit.it>
-From: "Chemolli Francesco (USI)" <ChemolliF@GruppoCredit.it>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: 2.4.9 is less "thermally friendly" than 2.4.5?
-Date: Mon, 27 Aug 2001 14:21:06 +0200
+	id <S271706AbRH0MQL>; Mon, 27 Aug 2001 08:16:11 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:21229 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S271704AbRH0MP7>; Mon, 27 Aug 2001 08:15:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Andrew Grover <andrew.grover@intel.com>
+Subject: Re: VCool - cool your Athlon/Duron during idle
+Date: Mon, 27 Aug 2001 14:16:03 +0200
+X-Mailer: KMail [version 1.3]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15bJr2-0003fx-00@the-village.bc.nu>
+In-Reply-To: <E15bJr2-0003fx-00@the-village.bc.nu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827121600Z271704-760+6394@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Am Montag, 27. August 2001 12:42 schrieb Alan Cox:
+> > handle a too-hot cpu, but all C2/C3 gets you is reduced power when =
+> > idle.
+> > This results in better battery life on a laptop but that is irrelevant =
+> > on a
+> > desktop system.
+>
+> Thus speaks the country with chronic californian power shortages, and that
+> wouldn't sign up to a global accord on global warming 8)
 
-I've been running 2.4.5 on a Dell notebook for some time,
-with good-ish stability.
-When I upgraded it to 2.4.9, I noticed that it would
-become hotter than before.
-I don't know what could cause this. Maybe it's intended,
-or maybe it's just a symptom of kapm-idled not being as
-effective as before for whatever reason.
+We are one step further, here in "old" Germany...
 
--- 
-	/kinkie
+http://www.powerplant-for-sale.com/en/index.htm :-)))
+
+> C2 and C3 are useful IMHO even on a desktop PC. The slight hit on the
+> transition is not noticable, the change on the power bill is.
+
+I second that.
+
+-Dieter
+

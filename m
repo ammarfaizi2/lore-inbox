@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262274AbSJ0FYI>; Sun, 27 Oct 2002 01:24:08 -0400
+	id <S262159AbSJ0FVp>; Sun, 27 Oct 2002 01:21:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262290AbSJ0FYH>; Sun, 27 Oct 2002 01:24:07 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:50315 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S262274AbSJ0FYH>; Sun, 27 Oct 2002 01:24:07 -0400
-Subject: 2.5.44-ac3 -- linux/intermezzo_lib.h: No such file or directory
-From: Miles Lane <miles.lane@attbi.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Oct 2002 22:30:20 -0700
-Message-Id: <1035696621.1216.2.camel@bellybutton>
+	id <S262274AbSJ0FVp>; Sun, 27 Oct 2002 01:21:45 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:6157 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262159AbSJ0FVo>; Sun, 27 Oct 2002 01:21:44 -0400
+Date: Sun, 27 Oct 2002 01:27:57 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Maciej Babinski <maciej@imsa.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LLC /proc crash
+Message-ID: <20021027042756.GD2485@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Maciej Babinski <maciej@imsa.edu>, linux-kernel@vger.kernel.org
+References: <20021022184629.A8497@imsa.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021022184629.A8497@imsa.edu>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was first reported by Adrian Bunk against 2.5.43:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103475344003315&w=2
+Em Tue, Oct 22, 2002 at 06:46:29PM -0500, Maciej Babinski escreveu:
+> I get a kernel panic if I try to cat /proc/net/llc/core under 2.5.44.
+> 
+> I have appletalk loaded and netatalk running.
 
-In file included from fs/intermezzo/cache.c:42:
-include/linux/intermezzo_fs.h:30:34: linux/intermezzo_lib.h: No such
-file or directory
-include/linux/intermezzo_fs.h:31:34: linux/intermezzo_idl.h: No such
-file or directory
+I'll be looking at this, traces would be very welcome, if available.
 
+- Arnaldo

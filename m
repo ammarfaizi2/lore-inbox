@@ -1,216 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVCAJ74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCAKHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVCAJ74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 04:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVCAJ74
+	id S261848AbVCAKHx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 05:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVCAKHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 04:59:56 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:2378 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261847AbVCAJ7h (ORCPT
+	Tue, 1 Mar 2005 05:07:53 -0500
+Received: from fire.osdl.org ([65.172.181.4]:7048 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261848AbVCAKHm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 04:59:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=fiO7wkiJCwvQt/3zXNezFYPewbXri8ICiq4sZcvUxiHdSMzWRC2yGMtmO2eroaPquyf4IklTrhJeiFoH73xkdS+xPpl6r0fu0oAq1J/Xj48KCoM35rXX4emekVqL6MYlfYQWBYEABFyBN0jX4J4RI8RqN9sEYPFbQDnilCHZwUE=
-Message-ID: <58cb370e05030101592a46c258@mail.gmail.com>
-Date: Tue, 1 Mar 2005 10:59:36 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [patch ide-dev 8/9] make ide_task_ioctl() use REQ_DRIVE_TASKFILE
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050301092914.GA14007@htj.dyndns.org>
+	Tue, 1 Mar 2005 05:07:42 -0500
+Date: Tue, 1 Mar 2005 02:07:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
+Message-Id: <20050301020722.6faffb69.akpm@osdl.org>
+In-Reply-To: <20050228231721.GA1326@elf.ucw.cz>
+References: <20050228231721.GA1326@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <Pine.GSO.4.58.0502241547400.13534@mion.elka.pw.edu.pl>
-	 <200502271731.29448.bzolnier@elka.pw.edu.pl>
-	 <422337A1.4060806@gmail.com>
-	 <200502281714.55960.bzolnier@elka.pw.edu.pl>
-	 <20050301042116.GA9001@htj.dyndns.org>
-	 <58cb370e05030100424d98c85c@mail.gmail.com>
-	 <20050301092914.GA14007@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Mar 2005 18:29:15 +0900, Tejun Heo <htejun@gmail.com> wrote:
->  Hello,
-> 
-> On Tue, Mar 01, 2005 at 09:42:18AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > Hello,
-> >
-> > On Tue, 1 Mar 2005 13:21:16 +0900, Tejun Heo <htejun@gmail.com> wrote:
-> > >
-> > >  So, how do you like the following set of TFLAG's?
-> > >
-> > > /* struct ata_taskfile flags */
-> > >
-> > > /* The following six flags are used by IDE driver to control register IO. */
-> > > ATA_TFLAG_OUT_LBA48             = (1 <<  0), /* enable 48-bit LBA and HOB out */
-> >
-> > aggregate ATA_TFLAG_OUT_HOB_LBA{L,M,H}?
-> >
-> > > ATA_TFLAG_OUT_ADDR              = (1 <<  1), /* enable out to nsect/lba regs */
-> >
-> > not needed currently, add it {when,if} it is needed
-> >
-> 
->  Sure, I'll add flags on as-needed basis.  I was trying to show where
-> I'm heading.
-> 
-> > > ATA_TFLAG_OUT_DEVICE            = (1 <<  2), /* enable out to device reg */
-> > > ATA_TFLAG_IN_LBA48              = (1 <<  3), /* enable 48-bit LBA and HOB in */
-> >
-> > aggregate ATA_TFLAG_IN_HOB_LBA_{L,M,H}?
-> >
-> > > ATA_TFLAG_IN_ADDR               = (1 <<  4), /* enable in from nsect/lba regs */
-> >
-> > not needed currently, add it {when,if} it is needed
-> >
-> > > ATA_TFLAG_IN_DEVICE             = (1 <<  5), /* enable in from device reg */
-> > >
-> > > /* These three aggregate flags are used by libata, as it doesn't
-> > >    really need to optimize register INs */
-> > > ATA_TFLAG_LBA48                 = (ATA_TFLAG_OUT_LBA48  | ATA_TFLAG_IN_LBA48),
-> > > ATA_TFLAG_ISADDR                = (ATA_TFLAG_OUT_ADDR   | ATA_TFLAG_IN_ADDR),
-> > > ATA_TFLAG_DEVICE                = (ATA_TFLAG_OUT_DEVICE | ATA_TFLAG_IN_DEVICE),
-> > >
-> > > ATA_TFLAG_WRITE                 = (1 <<  6), /* data dir */
-> > >
-> > > /* The rest of TFLAGs are only for implementing ioctl direct drive
-> > >    commands in the IDE driver.  DO NOT use in other places. */
-> > > ATA_TFLAG_IO_16BIT              = (1 << 11),
-> > >
-> > > ATA_TFLAG_OUT_FEATURE           = (1 << 12),
-> > > ATA_TFLAG_OUT_NSECT             = (1 << 13),
-> > > ATA_TFLAG_OUT_LBAL              = (1 << 14),
-> > > ATA_TFLAG_OUT_LBAM              = (1 << 15),
-> > > ATA_TFLAG_OUT_LBAH              = (1 << 16),
-> > > ATA_TFLAG_OUT_HOB_FEATURE       = (1 << 17),
-> > > ATA_TFLAG_OUT_HOB_NSECT         = (1 << 18),
-> > > ATA_TFLAG_OUT_HOB_LBAL          = (1 << 19),
-> > > ATA_TFLAG_OUT_HOB_LBAM          = (1 << 20),
-> > > ATA_TFLAG_OUT_HOB_LBAH          = (1 << 21),
-> > >
-> > > ATA_TFLAG_IN_FEATURE            = (1 << 22),
-> > > ATA_TFLAG_IN_NSECT              = (1 << 23),
-> > > ATA_TFLAG_IN_LBAL               = (1 << 24),
-> > > ATA_TFLAG_IN_LBAM               = (1 << 25),
-> > > ATA_TFLAG_IN_LBAH               = (1 << 26),
-> > > ATA_TFLAG_IN_HOB_FEATURE        = (1 << 27),
-> > > ATA_TFLAG_IN_HOB_NSECT          = (1 << 28),
-> > > ATA_TFLAG_IN_HOB_LBAL           = (1 << 29),
-> > > ATA_TFLAG_IN_HOB_LBAM           = (1 << 30),
-> > > ATA_TFLAG_IN_HOB_LBAH           = (1 << 31),
-> >
-> > proposed changes will get rid of 4 bits
-> >
-> > > ATA_TFLAG_OUT_MASK              = 0x007ff000,
-> > > ATA_TFLAG_IN_MASK               = 0xffc00000,
-> > > ATA_TFLAG_OUT_IN_MASK           = (ATA_TFLAG_OUT_MASK | ATA_TFLAG_IN_MASK),
-> > >
-> > >  ATA_TFLAG_{OUT|IN}_{LBA48|ADDR|DEVICE} should provide enough
-> > > granuality for fs/internal requests without much hassle, and
-> > > individual IO/OUT flags will only be used to implement ioctls in
-> > > separate IN/OUT functions, something like ide_{load|read}_ioctl_task().
-> >
-> > They would be later used by IDE driver itself so names
-> > like ide_discrete_tf_{load,read}() suits it better IMHO.
-> >
-> > >  Would using more specific prefix for ioctl flags - like
-> > > ATA_TFLAG_IOC_{IN|OUT}_* - be better?
-> >
-> > Nope, they are not limited to ioctls by design.
-> >
-> 
->  The reason why I separated the flags into two sets is that if we
-> define IO flags as aggregate of separate flags, we'll end up with
-> do_rw_taskfile() or something equivalent which handle both normal
-> (fs/kernel-internal) and ioctl taskfiles, by design.  From previous
-> discussions, I kind of have the impression that you wanna separate the
-> fully-flagged taskfile handling from the normal, supposedly simpler,
-> taskfile handling.  So, I was aiming for IO control flags with similar
-> granuality w/ the current libata implementation.
 
-Yes but it seems that you've assumed that ioctl == flagged taskfile
-and fs/internal == normal taskfile which is _not_ what I aim for.
+btw, suspend is a bit messy.  The disk spins down.  Then up.  Then down
+again.  And:
 
-I want fully-flagged taskfile handling like flagged_taskfile() and "hot path"
-simpler taskfile handling like do_rw_taskfile() (at least for now - we can
-remove "hot path" later) where both can be used for fs/internal/ioctl requests
-(depending on the flags).
 
->  IMHO, handling both in the same path is better.  It would be
-> simpler/cleaner and, with simple optimizations, there would be
-> virtually no overhead.
 
-We can check this later.
-
->  So, here's the second proposal of the flags.
-> 
-> /* struct ata_taskfile flags */
-> 
-> /* Individual register IO control flags */
-> ATA_TFLAG_OUT_FEATURE           = (1 <<  0),
-> ATA_TFLAG_OUT_NSECT             = (1 <<  1),
-> ATA_TFLAG_OUT_LBAL              = (1 <<  2),
-> ATA_TFLAG_OUT_LBAM              = (1 <<  3),
-> ATA_TFLAG_OUT_LBAH              = (1 <<  4),
-> ATA_TFLAG_OUT_HOB_FEATURE       = (1 <<  5),
-> ATA_TFLAG_OUT_HOB_NSECT         = (1 <<  6),
-> ATA_TFLAG_OUT_HOB_LBAL          = (1 <<  7),
-> ATA_TFLAG_OUT_HOB_LBAM          = (1 <<  8),
-> ATA_TFLAG_OUT_HOB_LBAH          = (1 <<  9),
-> ATA_TFLAG_OUT_DEVICE            = (1 << 10),
-> 
-> ATA_TFLAG_IN_FEATURE            = (1 << 11),
-> ATA_TFLAG_IN_NSECT              = (1 << 12),
-> ATA_TFLAG_IN_LBAL               = (1 << 13),
-> ATA_TFLAG_IN_LBAM               = (1 << 14),
-> ATA_TFLAG_IN_LBAH               = (1 << 15),
-> ATA_TFLAG_IN_HOB_FEATURE        = (1 << 16),
-> ATA_TFLAG_IN_HOB_NSECT          = (1 << 17),
-> ATA_TFLAG_IN_HOB_LBAL           = (1 << 18),
-> ATA_TFLAG_IN_HOB_LBAM           = (1 << 19),
-> ATA_TFLAG_IN_HOB_LBAH           = (1 << 20),
-> ATA_TFLAG_IN_DEVICE             = (1 << 21),
-> 
-> /* The following four aggreate flags are used by IDE to control register IO. */
-> ATA_TFLAG_OUT_LBA48             = (ATA_TFLAG_OUT_HOB_FEATURE    |
->                                    ATA_TFLAG_OUT_HOB_NSECT      |
->                                    ATA_TFLAG_OUT_HOB_LBAL       |
->                                    ATA_TFLAG_OUT_HOB_LBAM       |
->                                    ATA_TFLAG_OUT_HOB_LBAH       ),
-> ATA_TFLAG_OUT_ADDR              = (ATA_TFLAG_OUT_FEATURE        |
->                                    ATA_TFLAG_OUT_NSECT          |
->                                    ATA_TFLAG_OUT_LBAL           |
->                                    ATA_TFLAG_OUT_LBAM           |
->                                    ATA_TFLAG_OUT_LBAH           ),
-> ATA_TFLAG_IN_LBA48              = (ATA_TFLAG_IN_HOB_FEATURE     |
->                                    ATA_TFLAG_IN_HOB_NSECT       |
->                                    ATA_TFLAG_IN_HOB_LBAL        |
->                                    ATA_TFLAG_IN_HOB_LBAM        |
->                                    ATA_TFLAG_IN_HOB_LBAH        ),
-> ATA_TFLAG_IN_ADDR               = (ATA_TFLAG_IN_FEATURE         |
->                                    ATA_TFLAG_IN_NSECT           |
->                                    ATA_TFLAG_IN_LBAL            |
->                                    ATA_TFLAG_IN_LBAM            |
->                                    ATA_TFLAG_IN_LBAH            ),
-> 
-> /* These three aggregate flags are used by libata, as it doesn't
->    really need to optimize register INs */
-> ATA_TFLAG_LBA48                 = (ATA_TFLAG_OUT_LBA48  | ATA_TFLAG_IN_LBA48 ),
-> ATA_TFLAG_ISADDR                = (ATA_TFLAG_OUT_ADDR   | ATA_TFLAG_IN_ADDR  ),
-> ATA_TFLAG_DEVICE                = (ATA_TFLAG_OUT_DEVICE | ATA_TFLAG_IN_DEVICE),
-> 
-> ATA_TFLAG_WRITE                 = (1 << 22), /* data dir */
-> ATA_TFLAG_IO_16BIT              = (1 << 23), /* force 16bit pio (IDE) */
-
-s/pio/PIO/
-
-This version look perfect, at least from IDE driver POV. :-)
- 
-Thanks,
-Bartlomiej
+Stopping tasks: ==========================================|
+Freeing memory... done (7069 pages freed)                  
+swsusp: Need to copy 7847 pages          
+swsusp: critical section/: done (7879 pages copied)
+swsusp: Restoring Highmem                          
+Debug: sleeping function called from invalid context at mm/slab.c:2082
+in_atomic():0, irqs_disabled():1                                      
+ [<c010318d>] dump_stack+0x19/0x20
+ [<c0111731>] __might_sleep+0x91/0x9c
+ [<c01365df>] kmem_cache_alloc+0x23/0x84
+ [<c0232d50>] acpi_evaluate_integer+0x3c/0xac
+ [<c024b3d9>] acpi_bus_get_status+0x39/0x94  
+ [<c024ca99>] acpi_pci_link_set+0x16d/0x1e8
+ [<c024ce65>] acpi_pci_link_resume+0x1d/0x28
+ [<c024ce8a>] irqrouter_resume+0x1a/0x38    
+ [<c0281e3c>] sysdev_resume+0x2c/0xae   
+ [<c0285ea8>] device_power_up+0x8/0x11
+ [<c012a873>] swsusp_suspend+0x4b/0x58
+ [<c012ac35>] pm_suspend_disk+0x35/0x74
+ [<c01292ea>] enter_state+0x2e/0x70    
+ [<c0129336>] software_suspend+0xa/0x10
+ [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
+ [<c0149f1b>] vfs_write+0xaf/0x118             
+ [<c014a028>] sys_write+0x3c/0x68 
+ [<c0102c05>] sysenter_past_esp+0x52/0x75
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 9 (level, low) -> IRQ 9
+PCI: Setting latency timer of device 0000:00:1f.5 to 64           
+ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
+ehci_hcd 0000:02:01.2: USB 2.0 restarted, EHCI 0.95, driver 10 Dec 2004
+ACPI: PCI interrupt 0000:02:0c.0[A] -> GSI 9 (level, low) -> IRQ 9     
+e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex          
+Writing data to swap (7879 pages)... done               
+Writing pagedir (31 pages)               
+S|                        
+Powering off system
+Debug: sleeping function called from invalid context at include/linux/rwsem.h:66
+in_atomic():0, irqs_disabled():1                                                
+ [<c010318d>] dump_stack+0x19/0x20
+ [<c0111731>] __might_sleep+0x91/0x9c
+ [<c0285872>] device_shutdown+0x16/0x82
+ [<c012aa97>] power_down+0x47/0x74     
+ [<c012ac5a>] pm_suspend_disk+0x5a/0x74
+ [<c01292ea>] enter_state+0x2e/0x70    
+ [<c0129336>] software_suspend+0xa/0x10
+ [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
+ [<c0149f1b>] vfs_write+0xaf/0x118             
+ [<c014a028>] sys_write+0x3c/0x68 
+ [<c0102c05>] sysenter_past_esp+0x52/0x75
+Synchronizing SCSI cache for disk sda:   
+Shutdown: hda                          
+acpi_power_off called

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbRESU7a>; Sat, 19 May 2001 16:59:30 -0400
+	id <S261339AbRESVBA>; Sat, 19 May 2001 17:01:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261357AbRESU7U>; Sat, 19 May 2001 16:59:20 -0400
-Received: from femail15.sdc1.sfba.home.com ([24.0.95.142]:21188 "EHLO
-	femail15.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S261337AbRESU7G>; Sat, 19 May 2001 16:59:06 -0400
-Date: Sat, 19 May 2001 16:58:54 -0400
-From: Tom Vier <tmv5@home.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-Message-ID: <20010519165854.A530@zero>
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010518223436.A563@zero> <20010519144815.A2177@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010519144815.A2177@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Sat, May 19, 2001 at 02:48:15PM +0400
+	id <S261345AbRESVAu>; Sat, 19 May 2001 17:00:50 -0400
+Received: from pop.gmx.net ([194.221.183.20]:39415 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261339AbRESVAj>;
+	Sat, 19 May 2001 17:00:39 -0400
+Message-ID: <01df01c0e0a6$bfb9ed40$0100005a@host1>
+From: "spam goes to /dev/null" <spam-goes-to-dev-null@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: serpent loopback crypto "EXT2-fs: group descriptors corrupted"
+Date: Sat, 19 May 2001 23:00:26 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 19, 2001 at 02:48:15PM +0400, Ivan Kokshaysky wrote:
-> This is incorrect. If you want directly mapped PCI window then you don't
-> need the iommu_arena for it. If you want scatter-gather mapping, you
-> should write address of the SG page table into the T3_BASE register.
+hi,
 
-i've tried both direct mapped and sg, but it still get pci_map_sg() failures
-in sym53c8xx. the sg version, below, won't boot (scsi commands all timeout).
-while the added direct map version does boot, it suffers the same problem as
-the stock code.
+i created a 10mb file called .enc2 with random data and ran "# losetup -e
+serpent -k 128 /dev/loop0 /mnt/hda7/.enc2"
+then i ran "# mke2fs /dev/loop0" and tried to "# mount /dev/loop0 /enc". but
+i get the following error messages when trying to mount:
 
-third direct map:
-	hose->sg_pci = NULL;
-	hose->sg_isa = iommu_arena_new(hose, 0x00800000, 0x00800000, 32768);
-	__direct_map_base = 0x40000000;
-	__direct_map_size = 0x88000000;
+May 19 21:32:10 HOST2 kernel: EXT2-fs error (device loop(7,0)):
+ext2_check_descriptors: Block bitmap for group 16 not in group (block 0)!
+May 19 21:32:10 HOST2 kernel: EXT2-fs: group descriptors corrupted !
 
-	*(vip)CIA_IOC_PCI_W3_BASE = 0xc0000000 | 1;
-	*(vip)CIA_IOC_PCI_W3_MASK = (0x08000000 - 1) & 0xfff00000;
-	*(vip)CIA_IOC_PCI_T3_BASE = 0x80000000 >> 2;
+im using kernel 2.4.4 patched with crypto patch 2.4.3.1 [and util linux
+2.11a patched with the patch from that crypto patch]
+i also got the same errors with a 2gb file and by creating the loop device
+directly on my 19.5gb /dev/hda7
+i tried a few times again and sometimes the encrypted loopback fs works
+perfectly, sometimes the error occurs!?
+anyone got an idea what this is!? i will supply more information on request
 
-sg (doesn't work):
 
-	hose->sg_isa = iommu_arena_new(hose, 0x00800000, 0x00800000, 32768);
-	hose->sg_pci = iommu_arena_new(hose, 0xc0000000, 0x08000000, 32768);
-	__direct_map_base = 0x40000000;
-	__direct_map_size = 0x80000000;
+thx for your help
+- peter k.
 
-	*(vip)CIA_IOC_PCI_W3_BASE = hose->sg_pci->dma_base | 3;
-	*(vip)CIA_IOC_PCI_W3_MASK = (hose->sg_pci->size - 1) & 0xfff00000;
-	*(vip)CIA_IOC_PCI_T3_BASE = virt_to_phys(hose->sg_pci->ptes) >> 2;
+ps: dont kill me if im doing something wrong, this is the first time im
+mailing to this list ;)
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C

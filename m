@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTH0JTY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 05:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTH0JTX
+	id S263210AbTH0JKq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 05:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTH0JKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 05:19:23 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:61445 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263212AbTH0JTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 05:19:23 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: "Marcelo E. Magallon" <mmagallo@debian.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
+	Wed, 27 Aug 2003 05:10:46 -0400
+Received: from ifi.informatik.uni-stuttgart.de ([129.69.211.1]:10417 "EHLO
+	ifi.informatik.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id S263210AbTH0JKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 05:10:44 -0400
+Date: Wed, 27 Aug 2003 11:10:40 +0200
+From: "Marcelo E. Magallon" <mmagallo@debian.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH,BACKPORT] AGPGART support for Intel 7205/7505 chipsets
-Date: Wed, 27 Aug 2003 11:18:47 +0200
-User-Agent: KMail/1.5.3
-References: <20030826122611.GA26314@informatik.uni-stuttgart.de> <20030827091040.GA5935@informatik.uni-stuttgart.de>
-In-Reply-To: <20030827091040.GA5935@informatik.uni-stuttgart.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030827091040.GA5935@informatik.uni-stuttgart.de>
+Mail-Followup-To: "Marcelo E. Magallon" <mmagallo@debian.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+References: <20030826122611.GA26314@informatik.uni-stuttgart.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
 Content-Disposition: inline
-Message-Id: <200308271118.47879.m.c.p@wolk-project.de>
+In-Reply-To: <20030826122611.GA26314@informatik.uni-stuttgart.de>
+X-Operating-System: Linux techno 2.4.21-ck1
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 August 2003 11:10, Marcelo E. Magallon wrote:
 
-Hi Marcelo,
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->  >  Ok, here's the patch again against what's current in the BK tree.  I
->  >  just checked that it still applies and works with 2.4.22.
->  I am sorry, I just noticed I omitted the diff of the include/linux
->  directory.  The missing bits are attached.  The whole patch is
->  available from:
->            http://people.debian.org/~mmagallo/agp-i7x05.diff
+On Tue, Aug 26, 2003 at 02:26:12PM +0200, Marcelo E. Magallon wrote:
 
-you know that your patch is already in? ;-)
+ >  Ok, here's the patch again against what's current in the BK tree.  I
+ >  just checked that it still applies and works with 2.4.22.
 
-http://linux.bkbits.net:8080/linux-2.4/cset@1.1065.1.37?nav=index.html|ChangeSet@-2d
+ I am sorry, I just noticed I omitted the diff of the include/linux
+ directory.  The missing bits are attached.  The whole patch is
+ available from:
 
-ciao, Marc
+           http://people.debian.org/~mmagallo/agp-i7x05.diff
 
+ Cheers,
+
+ Marcelo
+
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="agp-i7x05-defines.diff"
+
+Index: include/linux/agp_backend.h
+===================================================================
+--- include/linux/agp_backend.h	(revision 3835)
++++ include/linux/agp_backend.h	(working copy)
+@@ -55,6 +55,8 @@
+ 	INTEL_I855_PM,
+ 	INTEL_I860,
+ 	INTEL_I865_G,
++	INTEL_I7205,
++	INTEL_I7505,
+ 	VIA_GENERIC,
+ 	VIA_VP3,
+ 	VIA_MVP3,
+
+--y0ulUmNC+osPPQO6--

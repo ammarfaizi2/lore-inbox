@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUG2W6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUG2W6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267511AbUG2W6l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 18:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUG2WzS
+	id S262932AbUG2W6j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 18:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUG2Wzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 18:55:18 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30436 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267517AbUG2Wya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 18:54:30 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Scott Wood <scott@timesys.com>
-In-Reply-To: <20040729222657.GA10449@elte.hu>
-References: <40F3F0A0.9080100@vision.ee>
-	 <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe>
-	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
-	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu>  <20040729222657.GA10449@elte.hu>
+	Thu, 29 Jul 2004 18:55:49 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:60332 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S267490AbUG2Wxz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 18:53:55 -0400
+Subject: Re: fixing usb suspend/resuming
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Brownell <david-b@pacbell.net>,
+       Alexander Gran <alex@zodiac.dnsalias.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040729223959.GF18623@elf.ucw.cz>
+References: <200405281406.10447@zodiac.zodiac.dnsalias.org>
+	 <40F962B6.3000501@pacbell.net>
+	 <200407190927.38734@zodiac.zodiac.dnsalias.org>
+	 <200407202205.37763.david-b@pacbell.net>
+	 <20040729083543.GG21889@openzaurus.ucw.cz>
+	 <1091103438.2703.13.camel@desktop.cunninghams>
+	 <20040729210256.GC18623@elf.ucw.cz>
+	 <1091140000.2703.27.camel@desktop.cunninghams>
+	 <20040729223959.GF18623@elf.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1091141622.30033.3.camel@mindpipe>
+Message-Id: <1091141476.2703.47.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Jul 2004 18:53:42 -0400
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 30 Jul 2004 08:51:16 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-29 at 18:26, Ingo Molnar wrote:
-> i've uploaded the latest version of the voluntary-preempt patch:
->  
->    http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-M5
+Hi.
+
+On Fri, 2004-07-30 at 08:39, Pavel Machek wrote:
+> > I'm assuming (and believe I have achieved) that the only process doing
+> > anything significant is suspend, in which case the image isn't going to
+> > get damaged.
 > 
+> Well, only suspend is doing something significant, but driver might
+> take arbitrary time to do its DMA... Like
+> 
+> Freeing some memory... [write starts]
+> Suspending devices... [but you did not suspend disk!]
+> Atomic copy... [oops, that disk was *still* doing DMA]
 
-After running jackd with L2 all night, the only repeated XRUN was this one:
+Sorry. Should have mentioned that one of my freezer changes includes
+running sync between freezing userspace and freezing the kernel threads,
+that I double check there are no dirty buffers afterwards and wait on
+the completion of all suspend's I/O between after each part of the image
+is written/read (have to be paranoid because of the way I reuse LRU
+pages).
 
-ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
- [<c01066a7>] dump_stack+0x17/0x20
- [<de93d54b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
- [<de979211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
- [<c01078d7>] handle_IRQ_event+0x47/0x90
- [<c0107e93>] do_IRQ+0xe3/0x1b0
- [<c0106268>] common_interrupt+0x18/0x20
- [<c0146771>] add_to_swap+0x21/0xc0
- [<c0139446>] shrink_list+0x156/0x4b0
- [<c01398ed>] shrink_cache+0x14d/0x370
- [<c013a118>] shrink_zone+0xa8/0xf0
- [<c013a4ee>] balance_pgdat+0x1be/0x220
- [<c013a5f9>] kswapd+0xa9/0xb0
- [<c0104395>] kernel_thread_helper+0x5/0x10
+> > > need something like
+> > > 
+> > > suspend_fast_ill_resume_you_soon().
+> > 
+> > Don't understand what you're saying here, sorry.
+> 
+> Well, I believe we really need to suspend *all* devices. We just do
+> not need to spin the disks down and make screens blank; we still need
+> drivers to be stopped so that no activity happens during atomic copy.
 
-This produced a few ~2ms XRUNs.  The shrink_zone -> shrink_cache -> shrink_list 
-is a recurring motif.
-
-Is this addressed in M2?
-
-Lee
+Ah with you now. The typo got me (_ill_).
 

@@ -1,72 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275031AbRJANMo>; Mon, 1 Oct 2001 09:12:44 -0400
+	id <S273565AbRJANhA>; Mon, 1 Oct 2001 09:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275039AbRJANMf>; Mon, 1 Oct 2001 09:12:35 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:37647 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S275031AbRJANMQ>; Mon, 1 Oct 2001 09:12:16 -0400
-Message-ID: <3BB86BA2.B123ACAE@idb.hist.no>
-Date: Mon, 01 Oct 2001 15:12:02 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre1 i686)
-X-Accept-Language: no, en
+	id <S275061AbRJANgk>; Mon, 1 Oct 2001 09:36:40 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55820 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273565AbRJANgb>; Mon, 1 Oct 2001 09:36:31 -0400
+Subject: Re: more goodies from 2.4.9-ac16 on
+To: linux4u@wanadoo.es (Pau Aliagas)
+Date: Mon, 1 Oct 2001 14:42:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (lkml), alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <Pine.LNX.4.33.0110011503170.1299-100000@pau.intranet.ct> from "Pau Aliagas" at Oct 01, 2001 03:06:13 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: [Moving rapidly away from LKM] (Was: Re: [OT] New Anti-Terrorism Law 
- makes "hacking" punishable by life in)
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com> <3BB82DA9.34499802@idb.hist.no> <9p9l5d$r8e$1@forge.intermeta.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15o3Kc-0001KT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Henning P. Schmiedehausen" wrote:
-> 
-> Helge Hafting <helgehaf@idb.hist.no> writes:
-> 
-> >And the one to blame here isn't the virus writer.  The ones to blame
-> >are:
-> >1. Whoever decided to install that vulnerable software.
-> 
-> "The ones to blame are not the people that build the bombs.
-Oh, they too.  They too.  My first sentence was wrong, I'm just
-trying to say that increasingly harder punishment against
-_dead easy_ crime won't work.  And that people actually are
-responsible for taking simple precautions.  
+> Sorry to followup myself... I was too fast :( as the zombies are still
+> there. Many processes in Z state ([galeon-bin <defunct>]) til the parent
+> dies and only then all die.
 
-
-> The ones
-> to blame are the people that live in normal houses with normal locks
-> or even let their doors open instead of living in fortified bunkers
-> and shoot everyone on sight".
-
-I am not that extreme.  But if someone leaves their car with the engine
-running all day they are stupid and shouldn't be surprised when
-it is stolen.
-Someone who leave a unattended company car with the engine running 
-deserve to get fired when it is stolen.  This is neglect.
-
-Of course the thief is a criminal too, and the worst one.  But
-not taking any precautions is neglecting responsibility.
-
-[...] 
-> Fact is: Most companies don't install IIS just because they're
-> Microsoft slaves. They install it, because another 3rd party
-> application that depends on yet another application that needs another
-> piece of software to run is only available on (you may already have
-> guessed it) WIN32. OLE, Visual Basic and all the heavily glued
-> together windows stuff. That is what drags people to the WIN32.
-> And once you're here, you use IIS. Not Apache. Not iPlanet.
-> 
-You can run your internet server on windows.  Nothing inherently
-wrong in that.  But then you'd better put a good firewall in front 
-of it.  And you'll run the latest virus checkers.  And you'll
-turn _off_ particularly unsafe "features".  Windows servers can
-be safe, but many aren't.
-
-Not doing this is like storing your money in a heap on the street.
-A thief taking your pile is still a thief but there is less
-punishment because he didn't break in or threaten anybody.  
-
-Helge Hafting
+That is correct behaviour. It means the parent is buggy

@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129906AbQKJKua>; Fri, 10 Nov 2000 05:50:30 -0500
+	id <S129714AbQKJKwa>; Fri, 10 Nov 2000 05:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130409AbQKJKuU>; Fri, 10 Nov 2000 05:50:20 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:16911 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S129906AbQKJKuI>; Fri, 10 Nov 2000 05:50:08 -0500
-Message-ID: <3A0BDF3E.816DCBCB@evision-ventures.com>
-Date: Fri, 10 Nov 2000 12:42:54 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <Pine.GSO.4.21.0011091220050.12920-100000@weyl.math.psu.edu>
+	id <S129192AbQKJKwU>; Fri, 10 Nov 2000 05:52:20 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:52232 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S130235AbQKJKwD>;
+	Fri, 10 Nov 2000 05:52:03 -0500
+Date: Fri, 10 Nov 2000 12:51:50 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Constantine Gavrilov <const-g@xpert.com>
+Cc: willy tarreau <wtarreau@yahoo.fr>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre21
+Message-ID: <20001110125150.G13151@mea-ext.zmailer.org>
+In-Reply-To: <20001110092846.29847.qmail@web1102.mail.yahoo.com> <20001110114425.E13151@mea-ext.zmailer.org> <3A0BC699.791064BE@xpert.com> <20001110121402.F13151@mea-ext.zmailer.org> <3A0BCC4C.FCE21320@xpert.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3A0BCC4C.FCE21320@xpert.com>; from const-g@xpert.com on Fri, Nov 10, 2000 at 12:22:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On 9 Nov 2000, Mike Coleman wrote:
-> 
-> > Alexander Viro <viro@math.psu.edu> writes:
-> > > <shrug> RMS had repeatedly demonstrated what he's worth as a designer
-> > > and programmer. Way below zero. You may like or dislike his ideology,
-> > > but when it comes to technical stuff... Not funny.
-> >
-> > Huh?
-> >
-> > <annoying valspeak tone>
-> >
-> > *Hello*?  GNU gcc?  GNU emacs?  Way below zero?  *Hello*?!?
-> >
-> > </annoying valspeak tone>
-> 
-> Yes. GNU emacs. Bloated and ugly like hell. gcc. Codebase is anything but
-> pretty. Your point being? And no, it's not trolling. RMS really got no
-> taste - read his postings on _technical_ GNU lists and see yourself.
+On Fri, Nov 10, 2000 at 12:22:04PM +0200, Constantine Gavrilov wrote:
+> Gee, we do not call it EtherChannel, we say CISCO calls it
+> EtherChannel. Where is the infringment here? Are people that paranoid
+> or it is just me who is not getting it?
 
-Actually emacs is complete crap int terms of both ergonomy and coding.
-But the current gcc code base doesn't contain much from RMS anylonger. 
-The "beauty" of lisp coded in C it is...
+	You missed my original point.
+
+	I don't like to call it BONDING.
+
+	"Bonding" is something where two (or more) channels carry data
+	in between two participating systems.  Like Multilink-PPP, and
+	ISDN Channel Bonding.  Often indeed data goes out somehow inter-
+	leaved on the physical links.  (Like ISDN Channel Bonding supplies
+	a transparent 128 kbps link instead of two 64 kbps links to the
+	upper layers.)
+
+	EtherChannel does select the link (out of the group) by forming
+	XOR of source and destination MAC addresses (their lowest bytes),
+	and then doing MODULO number-of-links on the result.
+
+	So between systems A and B the flow goes via link 0, in between
+	A and C it goes via link 1.  Add there client system D, and it
+	may end up into either of the links.
+
+	|-----------|                |------|
+	|    A      |-----link-0-----| SW   |---[B]
+	|           |-----link-1-----| with |---[C]
+	|-----------|                |EthChn|---[D]
+	                             |------|
+
+
+	This gives improved throughput on congested links in between
+	two switches, or major server and core switches, while preserving
+	data order over the links.
+
+	Blind bonding-type "throw packets on links 0 and 1" MAY end up
+	sending ethernet frames out of sequence, which for a few LAN
+	based protocols is a great source of upset.
+
+
+	Beowulf systems have "bonding" in use for parallel Ethernet
+	links in between two machines, however THAT is not EtherChannel
+	compatible thing!
+
+> -- 
+> Constantine Gavrilov
+
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbUEQPxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUEQPzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUEQPxx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 11:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUEQPxx
+	id S261763AbUEQPzi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 11:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUEQPzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 11:53:53 -0400
-Received: from panda.sul.com.br ([200.219.150.4]:55052 "EHLO panda.sul.com.br")
-	by vger.kernel.org with ESMTP id S261706AbUEQPxv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 11:53:51 -0400
-Date: Mon, 17 May 2004 12:51:37 -0300
-To: Robert Picco <Robert.Picco@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm3
-Message-ID: <20040517155136.GA25157@cathedrallabs.org>
-References: <20040516025514.3fe93f0c.akpm@osdl.org> <20040517125705.GA23455@cathedrallabs.org> <40A8D4D9.2020703@hp.com>
+	Mon, 17 May 2004 11:55:38 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:26498 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S261746AbUEQPzM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 11:55:12 -0400
+Subject: Re: 2.6.6 breaks kmail (nfs related?)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Amann <amann@physik.tu-berlin.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200405171331.35688.amann@physik.tu-berlin.de>
+References: <200405131411.52336.amann@physik.tu-berlin.de>
+	 <Pine.LNX.4.58.0405161149430.25502@ppc970.osdl.org>
+	 <1084734612.6331.8.camel@lade.trondhjem.org>
+	 <200405171331.35688.amann@physik.tu-berlin.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1084809309.3669.17.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-Content-Disposition: inline
-In-Reply-To: <40A8D4D9.2020703@hp.com>
-From: aris@cathedrallabs.org (Aristeu Sergio Rozanski Filho)
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 17 May 2004 11:55:09 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+På må , 17/05/2004 klokka 07:31, skreiv Andreas Amann:
+> fstat64(8, 0xbfffe650)                  = -1 ESTALE (Stale NFS file handle)
+> _llseek(8, 0, [373], SEEK_END)          = 0
+> write(8, "X\1\0\0", 4)                  = -1 ESTALE (Stale NFS file handle)
+> write(8, "\5\0\0\0,\0\0a\0z\0/\0w\0t\0z\0t\0+\0N\0S\0+\0001\0s"..., 344) = -1 
+> ESTALE (Stale NFS file handle)
 
-> >>+hpet-driver.patch
-> >>
-> >>HPET clock driver (needs work)
-> >>   
-> >>
-> >this doesn't compiles if ACPI isn't present. patch attached.
-> >
-> > 
-> >
-> So you have HPET hardware which can be discovered without ACPI?  How is 
-nope, I don't have any hw with HPET.
-> the HPET detected?  Are you just using the HPET addresses documented for 
-> Southbridge?
-then this should be done instead:
+That's wierd... Where could that be coming from? The client is *never*
+supposed to generate that on its own. If an ESTALE turns up, it should
+always be generated from the server.
 
-- --- 2.6-mm-clean/drivers/char/Kconfig   2004-05-17 09:38:03.000000000 -0300
-+++ 2.6-mm/drivers/char/Kconfig 2004-05-17 12:52:16.000000000 -0300
-@@ -940,6 +940,7 @@ config RAW_DRIVER
- config HPET
-        bool "HPET - High Precision Event Timer"
-        default n
-+       depends on ACPI
-        help
-          If you say Y here, you will have a device named "/dev/hpet/XX" for
-          each timer supported by the HPET.  The timers are
+Does that same ESTALE show up on a tcpdump/ethereal dump? If so, could
+you please check that the filehandle that is contained from the reply to
+LOOKUP(".outbox.index") is the same as that which is sent on the
+offending GETATTR call?
 
-
-- --
-Aristeu
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAqN+IRRJOudsVYbMRAgeuAKCCK5zZHhRDoV2ZsdXfhewo7aKKBwCgiO0u
-btq6DvF9SkZUpbAD3d9gg14=
-=AxUi
------END PGP SIGNATURE-----
+Cheers,
+  Trond

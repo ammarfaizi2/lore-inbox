@@ -1,146 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262814AbSJRCug>; Thu, 17 Oct 2002 22:50:36 -0400
+	id <S262788AbSJRDMX>; Thu, 17 Oct 2002 23:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262815AbSJRCug>; Thu, 17 Oct 2002 22:50:36 -0400
-Received: from dp.samba.org ([66.70.73.150]:42118 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262814AbSJRCuc>;
-	Thu, 17 Oct 2002 22:50:32 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Daniel Phillips <phillips@arcor.de>, S@samba.org,
-       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: your mail 
-In-reply-to: Your message of "Thu, 17 Oct 2002 09:56:08 EST."
-             <Pine.LNX.4.44.0210170930410.6301-100000@chaos.physics.uiowa.edu> 
-Date: Fri, 18 Oct 2002 12:47:56 +1000
-Message-Id: <20021018025633.1D4C72C0BF@lists.samba.org>
+	id <S262793AbSJRDMX>; Thu, 17 Oct 2002 23:12:23 -0400
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:27072 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S262788AbSJRDMW>; Thu, 17 Oct 2002 23:12:22 -0400
+Message-ID: <3DAF8064.2080107@kegel.com>
+Date: Thu, 17 Oct 2002 20:30:44 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: "Charles 'Buck' Krasic" <krasic@acm.org>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+       John Gardiner Myers <jgmyers@netscape.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+References: <Pine.LNX.4.44.0210160618190.1548-100000@blue1.dev.mcafeelabs.com> <xu4fzv4ucll.fsf@brittany.cse.ogi.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0210170930410.6301-100000@chaos.physics.uiowa.edu> yo
-u write:
-> Since I made the mistake of getting involved into this discussion lately,
+Charles 'Buck' Krasic wrote:
+> On thinking about this a bit, I wonder if the evtmask isn't superflous
+> in sys_epoll_addf? ... As you say, the normal usage will be to 
+ > register for all events anyway.
 
-My condolences. 8)
+I agree... but we might eventually have events that apps aren't
+interested in.  No harm in letting app specify an interest mask once.
 
-> I wonder if this new method is going to be mandatory (the only one
-> available) or optional. I think there's two different kind of users, for
-> one modules which use an API which provides its own infrastructure for
-> dealing with modules via ->owner, on the other hand things like netfilter
-> (that's probably where you are coming from) where calls into a module,
-> which need protection are really frequent.
+> Taking the idea further, I would prefer that ALL non-blocking sockets
+> are automatically added to the epoll interest set if the application
+> has already called epoll_create().
 
-Mandatory for interfaces where the function can sleep (or be preempted).
+That would prevent apps from having more than one i/o readiness
+notification event source.  This is a problem for modular
+software, where you try to combine libraries in a multithreaded
+program.
 
-> Note that for the vast majority of modules, dealing with unload races is 
-> as simple as setting ->owner, for example filesystems, network drivers.
+- Dan
 
-Yes.  We do not have complete coverage though, this policy would
-extend it.
 
-> I see that your approach makes frequent calls into the module cheaper, but
-> I'm not totally convinced that the current safe interfaces need to change
-> just to accomodate rare cases like netfilter (there's most likely some
-> more cases like it, but the majority of modules is not).
-
-They're not changing.  The current users doing try_inc_mod_count() are
-fine.  It's the ones not doing it which are problematic.
-
-> Anyway, I may see further problems, but let me check first: Is your count
-> supposed to only count users which are currently executing in the module's
-> .text, or is it also to count references to data allocated in the module?
-> (I.e. when I register_netdev(), does that keep a reference to the module
-> even after the code has left the module's .text?)
-
-It's to protect entry to the function, but of course, some interfaces
-(eg. filesystems) lend themselves very neatly to batching this at
-mount/unmount time.  Data is already protected by the usual means.
-
-At risk of boring you, here's the document from the documentation
-patch.  Suggestions welcome.
-
-+Writing Modules and the Interfaces To Be Used By Them: A Gentle Guide.
-+Copyright 2002, Rusty Russell IBM Corportation
-+
-+Modules are running parts of the kernel which can be added, and
-+sometimes removed, while the kernel is operational.
-+
-+There are several delicate issues involved in this procedure which
-+indicate special care should be taken.
-+
-+There are three cases you need to be careful:
-+
-+1) Any code which creates an interface for callbacks (ie. almost any
-+   function called register_*)
-+	=> See Rule #1
-+
-+2) Any modules which use (old) interfaces which do not obey Rule #1
-+	=> See Rule #2
-+
-+Rule #1: Module-safe Interfaces.  Any interface which allows
-+	registration of callbacks, must also allow registration of a
-+	"struct module *owner", either in the structure or as a
-+	function parameter, and it must use them to protect the
-+	callbacks.  See "MAKING INTERFACES SAFE".
-+
-+Exception #1: As an optimization, you may skip this protection if you
-+	   *know* that the callbacks are non-preemtible and never
-+	   sleep (eg. registration of interrupt handlers).
-+
-+
-+Rule #2: Modules using unsafe interfaces.  If your module is using any
-+	interface which does not obey rule number 1, that means your
-+	module functions may be called from the rest of the kernel
-+	without the caller first doing a successful try_module_get().
-+
-+	You must not register a "module_cleanup" handler, and your module
-+	cannot be unloaded except by force.  You must be especially
-+	careful in this case with initialization: see "INITIALIZING
-+	MODULES WHICH USE UNSAFE INTERFACES".
-+
-+MAKING INTERFACES SAFE
-+
-+A caller must always call "try_module_get()" on a function pointers's
-+owner before calling through that function pointer.  If
-+"try_module_get()" returns 0 (false), the function pointer must *not*
-+be called, and the caller should pretend that registration does not
-+exist: this means the (module) owner is closing down and doesn't want
-+any more calls, or in the process of starting up and isn't ready yet.
-+
-+For many interfaces, this can be optimized by assuming that a
-+structure containing function pointers has the same owner, and knowing
-+that one function is always called before the others, such as the
-+filesystem code which knows a mount must succeed before any other
-+methods can be accessed.
-+
-+You must call "module_put()" on the owner sometime after you have
-+called the function(s).
-+
-+If you cannot make your interface module-safe in this way, you can at
-+least split registration into a "reserve" stage and an "activate"
-+stage, so that modules can use the interface, even if they cannot
-+(easily) unload.
-+
-+
-+INITIALIZING MODULES WHICH USE UNSAFE INTERFACES
-+
-+Safe interfaces will never enter your module before module_init() has
-+successfully finished, but unsafe interfaces may.  The rule is simple:
-+your init_module() function *must* succeed (by returning 0) if it has
-+successfully used any unsafe interfaces.
-+
-+So, if you are only using ONE unsafe interface, simply use that
-+interface last.  Otherwise you will have to use printk() to report
-+failure and leave the module initialized (but possibly useless).
-+
-+
-+
-+If you have questions about how to apply this document to your own
-+modules, please ask rusty@rustcorp.com.au or linux-kernel@vger.kernel.org.
-+
-+Thankyou,
-+Rusty.
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,76 +1,290 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286650AbSABCta>; Tue, 1 Jan 2002 21:49:30 -0500
+	id <S286672AbSABDNh>; Tue, 1 Jan 2002 22:13:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286654AbSABCtU>; Tue, 1 Jan 2002 21:49:20 -0500
-Received: from [208.179.59.195] ([208.179.59.195]:22868 "EHLO
-	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
-	id <S286650AbSABCtG>; Tue, 1 Jan 2002 21:49:06 -0500
-Message-ID: <3C327489.5030905@blue-labs.org>
-Date: Tue, 01 Jan 2002 21:46:33 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011231
-X-Accept-Language: en-us
+	id <S286670AbSABDN2>; Tue, 1 Jan 2002 22:13:28 -0500
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:14601 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S286667AbSABDNO>;
+	Tue, 1 Jan 2002 22:13:14 -0500
+Date: Tue, 1 Jan 2002 22:01:23 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>
+Subject: [PATCH] 2.5.2-pre6: fs fixes dev_t -> kdev_t 
+Message-ID: <Pine.LNX.4.33.0201012142550.1145-800000@localhost.localdomain>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-In-Reply-To: <200201010635.g016ZR6X014712@sleipnir.valparaiso.cl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1710771733-1009940483=:1145"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->It is not for anybody who handles large amounts of mail. I have yet to see
->a browser which does even a half-assed attempt at doing email right.
->
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I handle thousands of emails a day, over a hundred emails distinctly to 
-me, not a list.  I like mozilla most, but don't think I like the 
-footprint or everything about it ;)
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
->Here (emacs + mh-e): ^ on the message, RET to confirm the folder. Managing?
->No sweat, it is just another mail folder, to be handled by the same
->commands my fingers do on their own now.
->
+Hello all,
+  I've attached some changes for kdev_t . 
+Regards,
+Frank
 
-As I mentioned to DJ, this is fine for you, your personal database, but 
-it serves no purpose for anyone else and doesn't scale well for large 
-amounts of reference material.
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=affs_super
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201230.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=affs_super
 
->Plus the problem that thousands of (well meaning, but completely useless)
->reports clog up bug<foo>, rquiring hand-cleaning by somebody who _really_
->knows about the system. I.e., exactly the person whose work you want to
->spare.
->
+LS0tIGZzL2FmZnMvc3VwZXIuYy5vbGQJVHVlIEphbiAgMSAxODoxNjozNiAy
+MDAyDQorKysgZnMvYWZmcy9zdXBlci5jCVR1ZSBKYW4gIDEgMjA6NDg6MzQg
+MjAwMg0KQEAgLTI2Miw3ICsyNjIsNyBAQA0KIAkgKiBibG9ja3MsIHdlIHdp
+bGwgaGF2ZSB0byBjaGFuZ2UgaXQuDQogCSAqLw0KIA0KLQlibG9ja3MgPSBi
+bGtfc2l6ZVtNQUpPUihkZXYpXSA/IGJsa19zaXplW01BSk9SKGRldildW01J
+Tk9SKGRldildIDogMDsNCisJYmxvY2tzID0gYmxrX3NpemVbbWFqb3IoZGV2
+KV0gPyBibGtfc2l6ZVttYWpvcihkZXYpXVttaW5vcihkZXYpXSA6IDA7DQog
+CWlmICghYmxvY2tzKSB7DQogCQlwcmludGsoS0VSTl9FUlIgIkFGRlM6IENv
+dWxkIG5vdCBkZXRlcm1pbmUgZGV2aWNlIHNpemVcbiIpOw0KIAkJZ290byBv
+dXRfZXJyb3I7DQo=
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=coda_inode
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201231.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=coda_inode
 
-Untidied bug reports can be flushed out of the system, they can be 
-<insert action>.  By making a more intuitive system, these bug reports 
-could be fleshed out better or coallated when appropriate.  By having an 
-open system, anyone can do the maintenance.  You can choose different 
-pools for the entries and keep the chaff "outside" until it is weeded 
-through or discarded.
+LS0tIGZzL2NvZGEvaW5vZGUuYy5vbGQJVHVlIEphbiAgMSAxODoxNjozNyAy
+MDAyDQorKysgZnMvY29kYS9pbm9kZS5jCVR1ZSBKYW4gIDEgMjE6MzM6Mzkg
+MjAwMg0KQEAgLTcwLDcgKzcwLDcgQEANCiAJCWlub2RlID0gZmlsZS0+Zl9k
+ZW50cnktPmRfaW5vZGU7DQogCQ0KIAlpZighaW5vZGUgfHwgIVNfSVNDSFIo
+aW5vZGUtPmlfbW9kZSkgfHwNCi0JICAgTUFKT1IoaW5vZGUtPmlfcmRldikg
+IT0gQ09EQV9QU0RFVl9NQUpPUikgew0KKwkgICBtYWpvcihpbm9kZS0+aV9y
+ZGV2KSAhPSBDT0RBX1BTREVWX01BSk9SKSB7DQogCQlpZihmaWxlKQ0KIAkJ
+CWZwdXQoZmlsZSk7DQogDQpAQCAtNzgsNyArNzgsNyBAQA0KIAkJcmV0dXJu
+IC0xOw0KIAl9DQogDQotCWlkeCA9IE1JTk9SKGlub2RlLT5pX3JkZXYpOw0K
+KwlpZHggPSBtaW5vcihpbm9kZS0+aV9yZGV2KTsNCiAJZnB1dChmaWxlKTsN
+CiANCiAJaWYoaWR4IDwgMCB8fCBpZHggPj0gTUFYX0NPREFERVZTKSB7DQo=
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=psdev_patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201232.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=psdev_patch
 
->Look at the FAQ for the kernel (helpfully compiled by this list). Problems
->that get identified tend to get fixed fast, so working at documenting them
->in detail makes no sense at al.
->
->If you want to know what is broken in _development_ kernels, you have to
->read this list.
->
+LS0tIHBzZGV2LmMJVHVlIEphbiAgMSAxODoxNjozNyAyMDAyDQorKysgcHNk
+ZXYuYy5uZXcJVHVlIEphbiAgMSAyMTozNTowMiAyMDAyDQpAQCAtMjkzLDcg
+KzI5Myw3IEBADQogCWludCBpZHg7DQogDQogCWxvY2tfa2VybmVsKCk7DQot
+CWlkeCA9IE1JTk9SKGlub2RlLT5pX3JkZXYpOw0KKwlpZHggPSBtaW5vcihp
+bm9kZS0+aV9yZGV2KTsNCiAJaWYoaWR4ID49IE1BWF9DT0RBREVWUykgew0K
+IAkJdW5sb2NrX2tlcm5lbCgpOw0KIAkJcmV0dXJuIC1FTk9ERVY7DQo=
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=inode_cramfs
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201233.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=inode_cramfs
 
-Not everything needs to be documented or documented in detail. 
- Sometimes a simple "loopback compile err, 'loopback.c:417:foo is not 
-defined' is fixed in 2.2.2." is quite sufficient.  People with 2.2.1 
-will recognize the need to upgrade or generate a patch to solve their 
-problem.  The FAQ doesn't address everything and not everything is 
-broken.  A 'bug' database is sometimes a misnomer.
+LS0tIGZzL2NyYW1mcy9pbm9kZS5jLm9sZAlUdWUgSmFuICAxIDE4OjE2OjM3
+IDIwMDINCisrKyBmcy9jcmFtZnMvaW5vZGUuYwlUdWUgSmFuICAxIDIxOjAz
+OjU0IDIwMDINCkBAIC0xNDAsOCArMTQwLDggQEANCiAJfQ0KIA0KIAlkZXZz
+aXplID0gfjBVTDsNCi0JbWFqb3IgPSBNQUpPUihzYi0+c19kZXYpOw0KLQlt
+aW5vciA9IE1JTk9SKHNiLT5zX2Rldik7DQorCW1ham9yID0gbWFqb3Ioc2It
+PnNfZGV2KTsNCisJbWlub3IgPSBtaW5vcihzYi0+c19kZXYpOw0KIA0KIAlp
+ZiAoYmxrX3NpemVbbWFqb3JdKQ0KIAkJZGV2c2l6ZSA9IGJsa19zaXplW21h
+am9yXVttaW5vcl0gPj4gMjsNCg==
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=psdev_im
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201234.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=psdev_im
 
-Neither the DB nor the list replace each other.  They augment each other.
+LS0tIGZzL2ludGVybWV6em8vcHNkZXYuYy5vbGQJVHVlIEphbiAgMSAxODox
+NjozOSAyMDAyDQorKysgZnMvaW50ZXJtZXp6by9wc2Rldi5jCVR1ZSBKYW4g
+IDEgMjE6MTI6NTYgMjAwMg0KQEAgLTc4LDEyICs3OCwxMiBAQA0KIHsNCiAg
+ICAgICAgIGludCBtaW5vcjsNCiANCi0gICAgICAgIGlmICggTUFKT1IoZmls
+ZS0+Zl9kZW50cnktPmRfaW5vZGUtPmlfcmRldikgIT0gUFJFU1RPX1BTREVW
+X01BSk9SICkgew0KKyAgICAgICAgaWYgKCBtYWpvcihmaWxlLT5mX2RlbnRy
+eS0+ZF9pbm9kZS0+aV9yZGV2KSAhPSBQUkVTVE9fUFNERVZfTUFKT1IgKSB7
+DQogICAgICAgICAgICAgICAgIEVYSVQ7DQogICAgICAgICAgICAgICAgIHJl
+dHVybiBOVUxMOw0KICAgICAgICAgfQ0KIA0KLSAgICAgICAgbWlub3IgPSBN
+SU5PUihmaWxlLT5mX2RlbnRyeS0+ZF9pbm9kZS0+aV9yZGV2KTsNCisgICAg
+ICAgIG1pbm9yID0gbWlub3IoZmlsZS0+Zl9kZW50cnktPmRfaW5vZGUtPmlf
+cmRldik7DQogICAgICAgICBpZiAoIG1pbm9yIDwgMCB8fCBtaW5vciA+PSBN
+QVhfUFJFU1RPREVWICkgew0KICAgICAgICAgICAgICAgICBFWElUOw0KICAg
+ICAgICAgICAgICAgICByZXR1cm4gTlVMTDsNCkBAIC0yOTAsNyArMjkwLDcg
+QEANCiAgICAgICAgICAgICAgICAgfQ0KIA0KICAgICAgICAgICAgICAgICBs
+ZW4gPSByZWFkbW91bnQuaW9fbGVuOw0KLSAgICAgICAgICAgICAgICBtaW5v
+ciA9IE1JTk9SKGRldik7DQorICAgICAgICAgICAgICAgIG1pbm9yID0gbWlu
+b3IoZGV2KTsNCiAgICAgICAgICAgICAgICAgUFJFU1RPX0FMTE9DKHRtcCwg
+Y2hhciAqLCBsZW4pOw0KICAgICAgICAgICAgICAgICBpZiAoIXRtcCkgew0K
+ICAgICAgICAgICAgICAgICAgICAgICAgIEVYSVQ7DQpAQCAtNjI3LDcgKzYy
+Nyw3IEBADQogICAgICAgICAgICAgICAgICAgICAgICAgRVhJVDsNCiAgICAg
+ICAgICAgICAgICAgICAgICAgICByZXR1cm4gZXJyb3I7DQogICAgICAgICAg
+ICAgICAgIH0NCi0gICAgICAgICAgICAgICAgbWlub3IgPSBNSU5PUihkZXYp
+Ow0KKyAgICAgICAgICAgICAgICBtaW5vciA9IG1pbm9yKGRldik7DQogICAg
+ICAgICAgICAgICAgIGlmIChjbWQgPT0gUFJFU1RPX1NFVE9QVCkNCiAgICAg
+ICAgICAgICAgICAgICAgICAgICBlcnJvciA9IGRvc2V0b3B0KG1pbm9yLCAm
+a29wdCk7DQogDQo=
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=super_im
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201235.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=super_im
 
-David
+LS0tIGZzL2ludGVybWV6em8vc3VwZXIuYy5vbGQJRnJpIE5vdiAyMyAwMzo0
+NzozMyAyMDAxDQorKysgZnMvaW50ZXJtZXp6by9zdXBlci5jCVR1ZSBKYW4g
+IDEgMjE6MTQ6MjAgMjAwMg0KQEAgLTE4OCwxOSArMTg4LDE5IEBADQogCX0N
+CiANCiAgICAgICAgIGRldm5vID0gZGVudHJ5LT5kX2lub2RlLT5pX3JkZXY7
+DQotICAgICAgICBpZiAoIE1BSk9SKGRldm5vKSAhPSBQUkVTVE9fUFNERVZf
+TUFKT1IgKSB7IA0KKyAgICAgICAgaWYgKCBtYWpvcihkZXZubykgIT0gUFJF
+U1RPX1BTREVWX01BSk9SICkgeyANCiAJCUVYSVQ7DQogCQlnb3RvIG91dDsN
+CiAJfQ0KIA0KLSAgICAgICAgaWYgKCBNSU5PUihkZXZubykgPj0gTUFYX1BS
+RVNUT0RFViApIHsNCisgICAgICAgIGlmICggbWlub3IoZGV2bm8pID49IE1B
+WF9QUkVTVE9ERVYgKSB7DQogCQlFWElUOw0KIAkJZ290byBvdXQ7DQogCX0N
+CiANCiAJRVhJVDsNCiAgb3V0Og0KLSAgICAgICAgKm1pbm9yID0gTUlOT1Io
+ZGV2bm8pOw0KKyAgICAgICAgKm1pbm9yID0gbWlub3IoZGV2bm8pOw0KICAg
+ICAgICAgcGF0aF9yZWxlYXNlKCZuZCk7DQogICAgICAgICByZXR1cm4gMDsN
+CiB9DQo=
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=vfs_im
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201236.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=vfs_im
 
+LS0tIGZzL2ludGVybWV6em8vdmZzLmMub2xkCUZyaSBOb3YgMjMgMDM6NDc6
+MzMgMjAwMQ0KKysrIGZzL2ludGVybWV6em8vdmZzLmMJVHVlIEphbiAgMSAy
+MToxNTozNSAyMDAyDQpAQCAtMTQzMSw3ICsxNDMxLDcgQEANCiAgICAgICAg
+ICAgICAgICAgZXJyb3IgPSBwcmVzdG9fam91cm5hbF9ta25vZCgmcmVjLCBm
+c2V0LCBkZW50cnksICZ0Z3RfZGlyX3ZlciwNCiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAmbmV3X25vZGVfdmVyLCAN
+CiAJCQkJCSAgICAgZGVudHJ5LT5kX2lub2RlLT5pX21vZGUsDQotICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTUFKT1Io
+ZGV2KSwgTUlOT1IoZGV2KSApOw0KKyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIG1ham9yKGRldiksIG1pbm9yKGRldikg
+KTsNCiANCiAgICAgICAgIHByZXN0b19kZWJ1Z19mYWlsX2Jsa2Rldihmc2V0
+LCBQUkVTVE9fT1BfTUtOT0QgfCAweDIwKTsNCiAgICAgICAgIGlmICggcHJl
+c3RvX2RvX2V4cGVjdChpbmZvLCBkZW50cnktPmRfaW5vZGUpICkgDQo=
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=jffs_fm_jffs
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201237.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=jffs_fm_jffs
 
+LS0tIGZzL2pmZnMvamZmc19mbS5jLm9sZAlGcmkgT2N0IDEyIDE4OjM4OjEw
+IDIwMDENCisrKyBmcy9qZmZzL2pmZnNfZm0uYwlUdWUgSmFuICAxIDIxOjA1
+OjM4IDIwMDINCkBAIC00Niw3ICs0Niw3IEBADQogCX0NCiAJREpNKG5vX2pm
+ZnNfZm1jb250cm9sKyspOw0KIA0KLQltdGQgPSBnZXRfbXRkX2RldmljZShO
+VUxMLCBNSU5PUihkZXYpKTsNCisJbXRkID0gZ2V0X210ZF9kZXZpY2UoTlVM
+TCwgbWlub3IoZGV2KSk7DQogDQogCWlmICghbXRkKSB7DQogCQlrZnJlZShm
+bWMpOw0K
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=acorn_part
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201238.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=acorn_part
 
+LS0tIGZzL3BhcnRpdGlvbnMvYWNvcm4uYy5vbGQJRnJpIERlYyAyMSAyMDo0
+MjozMiAyMDAxDQorKysgZnMvcGFydGl0aW9ucy9hY29ybi5jCVR1ZSBKYW4g
+IDEgMjE6MDE6MjEgMjAwMg0KQEAgLTI4LDggKzI4LDggQEANCiAJZXh0ZXJu
+IHZvaWQgeGRfc2V0X2dlb21ldHJ5KGtkZXZfdCBkZXYsIHVuc2lnbmVkIGNo
+YXIsIHVuc2lnbmVkIGNoYXIsDQogCQkJCSAgICB1bnNpZ25lZCBsb25nLCB1
+bnNpZ25lZCBpbnQpOw0KIA0KLQlpZiAoTUFKT1IoZGV2KSA9PSBNRk1fQUNP
+Uk5fTUFKT1IpIHsNCi0JCXVuc2lnbmVkIGxvbmcgdG90YWxibG9ja3MgPSBo
+ZC0+cGFydFtNSU5PUihkZXYpXS5ucl9zZWN0czsNCisJaWYgKG1ham9yKGRl
+dikgPT0gTUZNX0FDT1JOX01BSk9SKSB7DQorCQl1bnNpZ25lZCBsb25nIHRv
+dGFsYmxvY2tzID0gaGQtPnBhcnRbbWlub3IoZGV2KV0ubnJfc2VjdHM7DQog
+CQl4ZF9zZXRfZ2VvbWV0cnkoZGV2LCBzZWNzcGVydHJhY2ssIGhlYWRzLCB0
+b3RhbGJsb2NrcywgMSk7DQogCX0NCiAjZW5kaWYNCkBAIC0yNjEsNyArMjYx
+LDcgQEANCiAJLyoNCiAJICogV29yayBvdXQgc3RhcnQgb2Ygbm9uLWFkZnMg
+cGFydGl0aW9uLg0KIAkgKi8NCi0JbnJfc2VjdHMgPSBoZC0+cGFydFtNSU5P
+Uih0b19rZGV2X3QoYmRldi0+YmRfZGV2KSldLm5yX3NlY3RzIC0gc3RhcnRf
+c2VjdDsNCisJbnJfc2VjdHMgPSBoZC0+cGFydFttaW5vcih0b19rZGV2X3Qo
+YmRldi0+YmRfZGV2KSldLm5yX3NlY3RzIC0gc3RhcnRfc2VjdDsNCiANCiAJ
+aWYgKHN0YXJ0X3NlY3QpIHsNCiAJCWZpcnN0X3NlY3RvciArPSBzdGFydF9z
+ZWN0Ow0K
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=ibm_part
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201012201239.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=ibm_part
+
+LS0tIGZzL3BhcnRpdGlvbnMvaWJtLmMub2xkCUZyaSBPY3QgMTIgMTg6Mzg6
+MTUgMjAwMQ0KKysrIGZzL3BhcnRpdGlvbnMvaWJtLmMJVHVlIEphbiAgMSAy
+MTowMjo0NyAyMDAyDQpAQCAtMTI1LDcgKzEyNSw3IEBADQogCQlyZXR1cm4g
+MDsNCiAJaWYgKGlvY3RsX2J5X2JkZXYoYmRldiwgSERJT19HRVRHRU8sICh1
+bnNpZ25lZCBsb25nKWdlbyk7DQogCQlyZXR1cm4gMDsNCi0JYmxvY2tzaXpl
+ID0gaGFyZHNlY3Rfc2l6ZVtNQUpPUihkZXYpXVtNSU5PUihkZXYpXTsNCisJ
+YmxvY2tzaXplID0gaGFyZHNlY3Rfc2l6ZVttYWpvcihkZXYpXVttaW5vcihk
+ZXYpXTsNCiAJaWYgKCBibG9ja3NpemUgPD0gMCApIHsNCiAJCXJldHVybiAw
+Ow0KIAl9DQpAQCAtMTU5LDE5ICsxNTksMTkgQEANCiAJCQlwcmludGsgKCIo
+TURTSykiKTsNCiAJCX0gZWxzZSB7DQogCQkJb2Zmc2V0ID0gKGluZm8tPmxh
+YmVsX2Jsb2NrICsgMSk7DQotCQkJc2l6ZSA9IGhkIC0+IHNpemVzW01JTk9S
+KGRldildPDwxOw0KKwkJCXNpemUgPSBoZCAtPiBzaXplc1ttaW5vcihkZXYp
+XTw8MTsNCiAJCX0NCi0JCXR3b19wYXJ0aXRpb25zKCBoZCwgTUlOT1IoZGV2
+KSwgYmxvY2tzaXplLCBvZmZzZXQsIHNpemUpOw0KKwkJdHdvX3BhcnRpdGlv
+bnMoIGhkLCBtaW5vcihkZXYpLCBibG9ja3NpemUsIG9mZnNldCwgc2l6ZSk7
+DQogCQlicmVhazsNCiAJY2FzZSBpYm1fcGFydGl0aW9uX2xueDE6IA0KIAlj
+YXNlIGlibV9wYXJ0aXRpb25fbm9uZToNCiAJCW9mZnNldCA9IChpbmZvLT5s
+YWJlbF9ibG9jayArIDEpOw0KLQkJc2l6ZSA9IGhkIC0+IHNpemVzW01JTk9S
+KGRldildPDwxOw0KLQkJdHdvX3BhcnRpdGlvbnMoIGhkLCBNSU5PUihkZXYp
+LCBibG9ja3NpemUsIG9mZnNldCwgc2l6ZSk7DQorCQlzaXplID0gaGQgLT4g
+c2l6ZXNbbWlub3IoZGV2KV08PDE7DQorCQl0d29fcGFydGl0aW9ucyggaGQs
+IG1pbm9yKGRldiksIGJsb2Nrc2l6ZSwgb2Zmc2V0LCBzaXplKTsNCiAJCWJy
+ZWFrOw0KIAljYXNlIGlibV9wYXJ0aXRpb25fdm9sMTogDQotCQlzaXplID0g
+aGQgLT4gc2l6ZXNbTUlOT1IoZGV2KV08PDE7DQotCQlhZGRfZ2RfcGFydGl0
+aW9uKGhkLCBNSU5PUihkZXYpLCAwLCBzaXplKTsNCisJCXNpemUgPSBoZCAt
+PiBzaXplc1ttaW5vcihkZXYpXTw8MTsNCisJCWFkZF9nZF9wYXJ0aXRpb24o
+aGQsIG1pbm9yKGRldiksIDAsIHNpemUpOw0KIAkJDQogCQkvKiBnZXQgYmxv
+Y2sgbnVtYmVyIGFuZCByZWFkIHRoZW4gZmlyc3QgZm9ybWF0MSBsYWJlbCAq
+Lw0KIAkJYmxrID0gY2NoaGIyYmxrKCZ2bGFiZWwudnRvYywgZ2VvKSArIDE7
+DQpAQCAtMTg3LDcgKzE4Nyw3IEBADQogCQkJCW9mZnNldCArIGdlby0+c2Vj
+dG9yczsNCiAJCQkNCiAJCQljb3VudGVyKys7DQotCQkJYWRkX2dkX3BhcnRp
+dGlvbihoZCwgTUlOT1IoZGV2KSArIGNvdW50ZXIsIA0KKwkJCWFkZF9nZF9w
+YXJ0aXRpb24oaGQsIG1pbm9yKGRldikgKyBjb3VudGVyLCANCiAJCQkJCSBv
+ZmZzZXQgKiBibG9ja3NpemUsDQogCQkJCQkgcHNpemUgKiBibG9ja3NpemUp
+Ow0KIAkJCQ0KQEAgLTIwMCw4ICsyMDAsOCBAQA0KIAkJfQ0KIAkJYnJlYWs7
+DQogCWRlZmF1bHQ6DQotCQlhZGRfZ2RfcGFydGl0aW9uKCBoZCwgTUlOT1Io
+ZGV2KSwgMCwgMCk7DQotCQlhZGRfZ2RfcGFydGl0aW9uKCBoZCwgTUlOT1Io
+ZGV2KSArIDEsIDAsIDApOw0KKwkJYWRkX2dkX3BhcnRpdGlvbiggaGQsIG1p
+bm9yKGRldiksIDAsIDApOw0KKwkJYWRkX2dkX3BhcnRpdGlvbiggaGQsIG1p
+bm9yKGRldikgKyAxLCAwLCAwKTsNCiAJfQ0KIAkNCiAJcHJpbnRrICggIlxu
+IiApOw0K
+--8323328-1710771733-1009940483=:1145
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=nfs3xdr_patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.020101220123A.1145@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=nfs3xdr_patch
+
+LS0tIGZzL25mc2QvbmZzM3hkci5jLm9sZAlGcmkgT2N0IDEyIDE4OjM4OjEy
+IDIwMDENCisrKyBmcy9uZnNkL25mczN4ZHIuYwlUdWUgSmFuICAxIDIwOjUz
+OjU4IDIwMDINCkBAIC0xNzMsOCArMTczLDggQEANCiAJCXAgPSB4ZHJfZW5j
+b2RlX2h5cGVyKHAsICh1NjQpKGlub2RlLT5pX3NpemUgKzUxMSkmIH41MTEp
+Ow0KIAllbHNlDQogCQlwID0geGRyX2VuY29kZV9oeXBlcihwLCAoKHU2NClp
+bm9kZS0+aV9ibG9ja3MpIDw8IDkpOw0KLQkqcCsrID0gaHRvbmwoKHUzMikg
+TUFKT1IoaW5vZGUtPmlfcmRldikpOw0KLQkqcCsrID0gaHRvbmwoKHUzMikg
+TUlOT1IoaW5vZGUtPmlfcmRldikpOw0KKwkqcCsrID0gaHRvbmwoKHUzMikg
+bWFqb3IoaW5vZGUtPmlfcmRldikpOw0KKwkqcCsrID0gaHRvbmwoKHUzMikg
+bWlub3IoaW5vZGUtPmlfcmRldikpOw0KIAlwID0geGRyX2VuY29kZV9oeXBl
+cihwLCAodTY0KSBpbm9kZS0+aV9kZXYpOw0KIAlwID0geGRyX2VuY29kZV9o
+eXBlcihwLCAodTY0KSBpbm9kZS0+aV9pbm8pOw0KIAlwID0gZW5jb2RlX3Rp
+bWUzKHAsIGlub2RlLT5pX2F0aW1lKTsNCkBAIC0yMDMsOCArMjAzLDggQEAN
+CiAJCXAgPSB4ZHJfZW5jb2RlX2h5cGVyKHAsICh1NjQpIGZocC0+ZmhfcG9z
+dF9zaXplKTsNCiAJfQ0KIAlwID0geGRyX2VuY29kZV9oeXBlcihwLCAoKHU2
+NClmaHAtPmZoX3Bvc3RfYmxvY2tzKSA8PCA5KTsNCi0JKnArKyA9IGh0b25s
+KCh1MzIpIE1BSk9SKGZocC0+ZmhfcG9zdF9yZGV2KSk7DQotCSpwKysgPSBo
+dG9ubCgodTMyKSBNSU5PUihmaHAtPmZoX3Bvc3RfcmRldikpOw0KKwkqcCsr
+ID0gaHRvbmwoKHUzMikgbWFqb3IoZmhwLT5maF9wb3N0X3JkZXYpKTsNCisJ
+KnArKyA9IGh0b25sKCh1MzIpIG1pbm9yKGZocC0+ZmhfcG9zdF9yZGV2KSk7
+DQogCXAgPSB4ZHJfZW5jb2RlX2h5cGVyKHAsICh1NjQpIGlub2RlLT5pX2Rl
+dik7DQogCXAgPSB4ZHJfZW5jb2RlX2h5cGVyKHAsICh1NjQpIGlub2RlLT5p
+X2lubyk7DQogCXAgPSBlbmNvZGVfdGltZTMocCwgZmhwLT5maF9wb3N0X2F0
+aW1lKTsNCg==
+--8323328-1710771733-1009940483=:1145--

@@ -1,71 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264534AbTLQUCM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 15:02:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTLQUCM
+	id S264415AbTLQULi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 15:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTLQULi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 15:02:12 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:32242 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264534AbTLQUCI
+	Wed, 17 Dec 2003 15:11:38 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:46504 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264415AbTLQULg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 15:02:08 -0500
-Message-ID: <3FE0B9D6.2070902@us.ibm.com>
-Date: Wed, 17 Dec 2003 12:17:26 -0800
-From: Janet Morgan <janetmor@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel McNeil <daniel@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
-References: <3FCD4B66.8090905@us.ibm.com>	 <1070674185.1929.9.camel@ibm-c.pdx.osdl.net>	 <1070907814.707.2.camel@ibm-c.pdx.osdl.net>	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>	 <1071624314.1826.12.camel@ibm-c.pdx.osdl.net>	 <20031216180319.6d9670e4.akpm@osdl.org> <1071689105.1826.46.camel@ibm-c.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 17 Dec 2003 15:11:36 -0500
+Subject: [PATCH] Problems with NFS while running SpecSFS with JFS
+	filesystem and 2.6 kernel.
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: "Jose R. Santos" <jrsantos@austin.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org
+Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031215142143.GA3981@dbz.austin.ibm.com>
+References: <20031210144011.GE708@dbz.austin.ibm.com>
+	 <20031215142143.GA3981@dbz.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1071691866.31508.127.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 17 Dec 2003 14:11:06 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil wrote:
+On Mon, 2003-12-15 at 08:21, Jose R. Santos wrote:
+> 
+> Can anybody provide me with some tips as to how to debug this a bit further?
+> Really want to figure out if this is a NFS bug or a JFS one.
 
->On Tue, 2003-12-16 at 18:03, Andrew Morton wrote:
->
->>Daniel McNeil <daniel@osdl.org> wrote:
->>
->>>I have found something else that might be causing the problem.
->>>filemap_fdatawait() skips pages that are not marked PG_writeback.
->>>However, when a page is going to be written, PG_dirty is cleared
->>>before PG_writeback is set (while the PG_locked is set).  So it
->>>looks like filemap_fdatawait() can see a page just before it is
->>>going to be written and not wait for it.  Here is a patch that
->>>makes filemap_fdatawait() wait for locked pages as well to make
->>>sure it does not missed any pages.
->>>
->>This filemap_fdatawait() behaviour is as-designed.  That function is only
->>responsible for waiting on I/O which was initiated prior to it being
->>invoked.  Because it is designed for fsync(), fdatasync(), O_SYNC, msync(),
->>sync(), etc.
->>
->>Now, it could be that this behaviour is not appropriate for the O_DIRECT
->>sync function - the result of your testing will be interesting.
->>
->
->My tests still failed overnight.  I was thinking that maybe a
->non-blocking do_writepages() was happening at the same time as
->the filemap_fdatawrite()/filemap_fdatawait(), so even though the
->page was dirty before the filemap_fdatawrite(), it was missed.
->
->Daniel
->
->
-I'm wondering if processing in generic_file_direct_IO() shouldn't look 
-more like
-sys_fsync()?  When I add to generic_file_direct_IO() a call to 
-f_op->fsync() between the calls to filemap_fdatawrite() and 
-filemap_fdatawait(), the test Daniel and I have been running no longer 
-fails for me.  This change would also seem consistent with 2.4, but I 
-could be way off base.
+After Jose debugged the problem down to the routine jfs_get_parent, we
+were able to find the problem.  I believe it only affects users of
+NFS-exported JFS file systems on big-endian hardware.
 
--Janet
+The problem was a missing le32_to_cpu macro.  The patch also fixes a
+return code to be more consistent other implementations of get_parent.
+
+Linus, Andrew,
+We're likely to see the problem on ppc running NFS.  Does this patch
+meet the criteria for 2.6.0?
+
+===== fs/jfs/namei.c 1.35 vs edited =====
+--- 1.35/fs/jfs/namei.c	Thu Oct 30 09:31:08 2003
++++ edited/fs/jfs/namei.c	Wed Dec 17 12:34:10 2003
+@@ -1439,14 +1439,18 @@
+ struct dentry *jfs_get_parent(struct dentry *dentry)
+ {
+ 	struct super_block *sb = dentry->d_inode->i_sb;
+-	struct dentry *parent = ERR_PTR(-EACCES);
++	struct dentry *parent = ERR_PTR(-ENOENT);
+ 	struct inode *inode;
++	unsigned long parent_ino;
+ 
+-	inode = iget(sb, JFS_IP(dentry->d_inode)->i_dtroot.header.idotdot);
++	parent_ino =
++		le32_to_cpu(JFS_IP(dentry->d_inode)->i_dtroot.header.idotdot);
++	inode = iget(sb, parent_ino);
+ 	if (inode) {
+-		if (is_bad_inode(inode))
++		if (is_bad_inode(inode)) {
+ 			iput(inode);
+-		else {
++			parent = ERR_PTR(-EACCES);
++		} else {
+ 			parent = d_alloc_anon(inode);
+ 			if (!parent) {
+ 				parent = ERR_PTR(-ENOMEM);
+
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

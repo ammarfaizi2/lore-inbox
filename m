@@ -1,121 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265625AbUAMUxp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 15:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265629AbUAMUxp
+	id S265627AbUAMVCE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 16:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265651AbUAMVBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 15:53:45 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:14577 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265625AbUAMUxl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 15:53:41 -0500
-Message-ID: <40045AC7.2070300@mvista.com>
-Date: Tue, 13 Jan 2004 12:53:27 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Tue, 13 Jan 2004 16:01:36 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:20061 "EHLO
+	thoron.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265627AbUAMVAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 16:00:36 -0500
+Date: Tue, 13 Jan 2004 16:00:32 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, <selinux@tycho.nsa.gov>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [PATCH][SELINUX] 2/2 Add SEND_MSG and RECV_MSG controls
+In-Reply-To: <Xine.LNX.4.44.0401131326240.6829-100000@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0401131557590.7560-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: kgdb cleanups
-References: <20040109183826.GA795@elf.ucw.cz> <3FFF2304.8000403@mvista.com> <20040110044722.GY18208@waste.org> <3FFFB3D6.1050505@mvista.com> <20040110175607.GH18208@waste.org> <400233A5.8080505@mvista.com> <20040112064923.GX18208@waste.org>
-In-Reply-To: <20040112064923.GX18208@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Sun, Jan 11, 2004 at 09:41:57PM -0800, George Anzinger wrote:
-> 
->>For the internal kgdb stuff I have created kdgb_local.h which I intended to 
->>be local to the workings of kgdb and not to contain anything a user would 
->>need.
-> 
-> 
-> Agreed, I just haven't touched it since you last mentioned it.
-> 
-> 
->>>+struct kgdb_hook {
->>>+	char *sendbuf;
->>>+	int maxsend;
->>
->>I don't see the need of maxsend, or sendbuff, for that matter, as kgdb uses 
->>it now (for the eth code) it is redundant, in that the eth putchar also 
->>does the same thing as is being done in the kgdb_stub.c code.  I think this 
->>should be removed from the stub and the limit in the ethcode relied upon.
-> 
-> 
-> Fair enough.
-> 
-> 
->>>void
->>>putDebugChar(int c)
->>>{
->>>-	if (!kgdboe) {
->>>-		tty_putDebugChar(c);
->>>-	} else {
->>>-		eth_putDebugChar(c);
->>>-	}
->>>+	if (kh)
->>>+		kh->putchar(c);
->>>}
->>
->>I was thinking that this might read something like:
->>         if (xxx[kh].putchar(c))
->>                xxx[kh].putchar(c);
->>
->>One might further want to do something like:
->>         if (!xxx[kh].putchar(c))
->>                kh = 0;
->>
->>In otherwords, an array (xxx must, of course, be renamed) of stuct 
->>kgdb_hook (which name should also be changed to relate to I/O, 
->>kgdb_IO_hook, for example). Then reserve entry 0 for the rs232 I/O code.  
-> 
-> 
-> Dunno about that. Probably should work more like the console code,
-> whoever registers first wins. Early boot will probably be the
-> exclusive province of serial for a while yet, but designing it in is
-> probably short-sighted.
-> 
-> 
->> An alternate possibility is an array of pointer to struct kgdb_hook which 
->>allows one to define the struct contents as below and to build the array, 
->>all at compile/link time.  A legal entry MUST define get and put, but why 
->>not define them all, using dummy functions for the ones that make no sense 
->>in a particular interface.
-> 
-> 
-> Throwing all the stubs in a special section could work well too. Then
-> we could add an avail() function so that early boot debugging could
-> discover if each one was available. The serial code could use this to
-> kickstart itself while the eth code could test a local initialized
-> flag and say "not a chance". Which gives us all the architecture to
-> throw in other trivial interfaces (parallel, bus-snoopers, etc.).
-> 
-I am thinking of something more like what was done with the x86 timer code. 
-Each timer option sets up a structure with an array of pointers to each option.
-There it is done at compile time, and the runtime code tries each.  There it is 
-done in order, but here we want to do it a bit differently.
+On Tue, 13 Jan 2004, James Morris wrote:
 
-Maybe we could have an "available" flag or just assume that the address being 
-!=0 for getdebugchar means it is "available".  I think there should be a 
-prefered intface set at config time.  Possibly over ride this with the command 
-line.  Then have a back up order in case kgdb wants to communicate prior to the 
-prefered one being available.
+> This patch implements two new access controls for SELinux: SEND_MSG and 
+> RECV_MSG, providing mediation of network packets based on destination 
+> port (IPv4 only at this stage).
+> 
 
-We would also have a rule that the command line over ride only works if 
-communication has not yet been established.  Here, we would also like control 
-from gdb/kgdb so we could switch to a different interface, but under gdb control 
-at this point.  Either a maintaince command or setting the "channel" with a 
-memory modify command.  We would want this to take effect only after the current 
-command is acknowledged.
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+After some further discussion, Stephen and I decided that it would be more 
+useful for security to invert the sense of the RECV_MSG permission so that 
+the source port is checked during packet reception.
+
+This patch is relative to the previous patch, please let me know if you 
+want the entire patch redone.
+
+
+diff -urN -X dontdiff linux-2.6.1-mm2.p/security/selinux/hooks.c linux-2.6.1-mm2.w/security/selinux/hooks.c
+--- linux-2.6.1-mm2.p/security/selinux/hooks.c	2004-01-13 15:59:04.153184216 -0500
++++ linux-2.6.1-mm2.w/security/selinux/hooks.c	2004-01-13 14:32:06.000000000 -0500
+@@ -2773,7 +2773,7 @@
+ 
+ 		/* Fixme: make this more efficient */
+ 		err = security_port_sid(sk->sk_family, sk->sk_type,
+-		                        sk->sk_protocol, ntohs(ad.u.net.dport),
++		                        sk->sk_protocol, ntohs(ad.u.net.sport),
+ 		                        &port_sid);
+ 		if (err)
+ 			goto out;
 

@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVCWXVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVCWXXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVCWXVE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 18:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCWXVE
+	id S262011AbVCWXXq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 18:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVCWXXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 18:21:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:729 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262089AbVCWXU5 (ORCPT
+	Wed, 23 Mar 2005 18:23:46 -0500
+Received: from mail.dif.dk ([193.138.115.101]:18865 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262011AbVCWXXo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 18:20:57 -0500
-Date: Wed, 23 Mar 2005 15:20:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: cmm@us.ibm.com, andrea@suse.de, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
-Message-Id: <20050323152055.6fc8c198.akpm@osdl.org>
-In-Reply-To: <17250000.1111619602@flay>
-References: <20050315204413.GF20253@csail.mit.edu>
-	<20050316003134.GY7699@opteron.random>
-	<20050316040435.39533675.akpm@osdl.org>
-	<20050316183701.GB21597@opteron.random>
-	<1111607584.5786.55.camel@localhost.localdomain>
-	<20050323144953.288a5baf.akpm@osdl.org>
-	<17250000.1111619602@flay>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Mar 2005 18:23:44 -0500
+Date: Thu, 24 Mar 2005 00:25:31 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] verify_area to access_ok conversion in drivers/char/drm/drm_os_linux.h
+Message-ID: <Pine.LNX.4.62.0503240021330.7460@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> > It would be interesting if you could run the same test on 2.6.11.  
-> 
-> One thing I'm finding is that it's hard to backtrace who has each page
-> in this sort of situation. My plan is to write a debug patch to walk
-> mem_map and dump out some info on each page. I would appreciate ideas
-> on what info would be useful here. Some things are fairly obvious, like
-> we want to know if it's anon / mapped into address space (& which),
-> whether it's slab / buffers / pagecache etc ... any other suggestions
-> you have would be much appreciated.
 
-You could use
+verify_area is deprecated, replaced by access_ok.
+Seems I missed this one when I did the big overall conversion.
 
-	page-owner-tracking-leak-detector.patch
-	make-page_owner-handle-non-contiguous-page-ranges.patch
-	add-gfp_mask-to-page-owner.patch
 
-which sticks an 8-slot stack backtrace into each page, recording who
-allocated it.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-But that's probably not very interesting info for pagecache pages.
+--- linux-2.6.12-rc1-mm1-orig/drivers/char/drm/drm_os_linux.h	2005-03-21 23:12:26.000000000 +0100
++++ linux-2.6.12-rc1-mm1/drivers/char/drm/drm_os_linux.h	2005-03-24 00:18:57.000000000 +0100
+@@ -89,7 +89,7 @@ static __inline__ int mtrr_del (int reg,
+ 	copy_to_user(arg1, arg2, arg3)
+ /* Macros for copyfrom user, but checking readability only once */
+ #define DRM_VERIFYAREA_READ( uaddr, size ) 		\
+-	verify_area( VERIFY_READ, uaddr, size )
++	(access_ok( VERIFY_READ, uaddr, size ) ? 0 : -EFAULT)
+ #define DRM_COPY_FROM_USER_UNCHECKED(arg1, arg2, arg3) 	\
+ 	__copy_from_user(arg1, arg2, arg3)
+ #define DRM_COPY_TO_USER_UNCHECKED(arg1, arg2, arg3)	\
 
-Nothing beats poking around in a dead machine's guts with kgdb though.
+

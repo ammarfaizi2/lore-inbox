@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317448AbSGENuh>; Fri, 5 Jul 2002 09:50:37 -0400
+	id <S317450AbSGENzm>; Fri, 5 Jul 2002 09:55:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317450AbSGENug>; Fri, 5 Jul 2002 09:50:36 -0400
-Received: from radio-112-20.poa.terraempresas.com.br ([200.176.112.20]:54277
-	"EHLO rush.interage.com.br") by vger.kernel.org with ESMTP
-	id <S317448AbSGENuf>; Fri, 5 Jul 2002 09:50:35 -0400
-Message-ID: <3D25A5BA.7030904@interage.com.br>
-Date: Fri, 05 Jul 2002 10:57:14 -0300
-From: Mauricio Pretto <pretto@interage.com.br>
-Organization: Interage Integradora
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, pt-br
+	id <S317451AbSGENzl>; Fri, 5 Jul 2002 09:55:41 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:7605 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S317450AbSGENzl>; Fri, 5 Jul 2002 09:55:41 -0400
+Message-ID: <180577A42806D61189D30008C7E632E8793972@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Question concerning ifconfig
+Date: Fri, 5 Jul 2002 09:58:14 -0400 
 MIME-Version: 1.0
-To: Lista Kernel <linux-kernel@vger.kernel.org>, hahn@physics.mcmaster.ca,
-       rudmer@legolas.dynup.net
-Subject: Re: 2.5.24 - Swap Problem?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.32)
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have done this and it steel keep 0 mbs of free Swap used
-like this
-              total       used       free     shared    buffers     cached
-Mem:        182808     178328       4480          0       7544      83744
--/+ buffers/cache:      87040      95768
-Swap:       136512          0     136512
-Its very strange
-my box almoust hangup
+I am running a Red Hat 7.2 load (Kernel version 2.4.7-10). I am trying to
+enter the following command to change the MAC address on my device.
 
+ifconfig ifp0 hw ether A2:A5:A5:01:00:00
 
--- 
-Mauricio Pretto
-Gerente de Produtos
-Interage Integradora
-http://www.interage.com.br
+ifp0 is my own device which replaces eth0. The system gives me a response
+"SIOCSIFHWADDR : device or resources busy"
+The same exact command works on my 2.2.16 Kernel. Any ideas why the error.
+Please CC me directly in any responses.
+
+Thanks in advance,  
+
+Jack Bloch
+Siemens Carrier Networks
+e-mail    : jack.bloch@icn.siemens.com
+phone     : (561) 923-6550
 

@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282941AbRLXFh2>; Mon, 24 Dec 2001 00:37:28 -0500
+	id <S283586AbRLXFk7>; Mon, 24 Dec 2001 00:40:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283586AbRLXFhS>; Mon, 24 Dec 2001 00:37:18 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:40716 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S282941AbRLXFhF>; Mon, 24 Dec 2001 00:37:05 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Cerberus testing of 2.4.17-rc1
-Date: Sun, 23 Dec 2001 21:37:48 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBCEJPEEAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <3C1E19E7.88C62DAC@redhat.com>
+	id <S283592AbRLXFkt>; Mon, 24 Dec 2001 00:40:49 -0500
+Received: from hq2.fsmlabs.com ([209.155.42.199]:58641 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S283586AbRLXFkj>;
+	Mon, 24 Dec 2001 00:40:39 -0500
+Date: Sun, 23 Dec 2001 22:33:48 -0700
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Victor Yodaiken <yodaiken@fsmlabs.com>, Mike Kravetz <kravetz@us.ibm.com>,
+        Momchil Velikov <velco@fadata.bg>, george anzinger <george@mvista.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
+Message-ID: <20011223223348.A20895@hq2>
+In-Reply-To: <20011223171802.A19931@hq2> <Pine.LNX.4.40.0112231722260.971-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0112231722260.971-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.23i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has this been fixed?
---
-M. Edward Borasky
-znmeb@borasky-research.net
-http://www.borasky-research.net
-
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Bob Matthews
-> Sent: Monday, December 17, 2001 8:15 AM
-> To: Marcelo Tosatti; linux-kernel@vger.kernel.org
-> Subject: Re: Cerberus testing of 2.4.17-rc1
->
->
-> Bob Matthews wrote:
->
-> > Hardware:  8 x PIII, 16G RAM, 20G Swap, 2 x Sym53c899.
-> > Kernel: 2.4.17-rc1, configured with SMP, HIGHMEM=64G, plus necessary
-> > drivers.
+On Sun, Dec 23, 2001 at 05:31:11PM -0800, Davide Libenzi wrote:
+> On Sun, 23 Dec 2001, Victor Yodaiken wrote:
+> 
 > >
-> > After 10-30 minutes of testing (it's different each time) the machine
-> > starts to slow down.  Eventually, the machine appears to stall
-> > completely.  The timer for the test harness continues to tick, and I can
-> > change virtual consoles, so the machine is not completely hung.  When
-> > the machine gets into this state, the test suite stops making progress.
-> > Also, input typed to the virtual consoles is not echoed.
 > >
-> > <SysRq><P> <T> and <M> print only the column headings, but not any data,
-> > so that is as complete a bug report as I can give you at this time.
->
-> The machine never made any more observable progress, and eventually
-> oopsed after approx. 48 hours.
+> > Run a "RT"  task that is scheduled   every millisecond (or time of your
+> > choice)
+> > 	while(1`){
+> > 		read cycle timer
+> > 		clock_nanosleep(time period using aabsolute time
+> > 		read cycle timer - what was actual delay? track worst
+> > 			case
+> > 		}
+> >
+> > Run this
+> > 	a) on aaaaaaaaan unstressed system
+> > 	b) under stress
+> > 	c) while a timed non-rt benchmark runs to figure out "RT"
+> > 	overhead.
+> 
+> I've coded a test app that uses the LatSched latency patch ( that uses
+> rdtsc ).
+> It basically does 1) set the current process priority to RT 2) an ioctl()
+> to activate the scheduler latency sampler 3) sleep for 1-2 secs 4) ioctl()
+> to stop the sampler 5) peek the sample with pid == getpid().
+> In this way i get the net RT task scheduler latency. Yes it does not get
+> the real one that includes accessories kernel paths but my code does not
+> affect these ones. And they add noise to the measure.
 
+
+Seems to me that you are not testing what apps see. Internal benchmarks
+are useful only for figuring out how to remove bottlenecks that 
+effect actual user apps - in my humble opinion of course.
+The nice thing about my benchmark is that it actually tests something
+useful - how well you can do periodic tasks. BTW, on RTLinux we get 
+under 100 microseconds on even 50Mhzx PPC860 - 17us on a 800Mhz K7.
+I'd be happy to see some decent numbers in Linux, but you gotta 
+measure something more applied. 
+
+> 
+> 
+> 
+> 
+> - Davide
+> 

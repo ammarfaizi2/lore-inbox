@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283537AbRLDV7N>; Tue, 4 Dec 2001 16:59:13 -0500
+	id <S283532AbRLDWBX>; Tue, 4 Dec 2001 17:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283534AbRLDV7C>; Tue, 4 Dec 2001 16:59:02 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:27371 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S283532AbRLDV65>;
-	Tue, 4 Dec 2001 16:58:57 -0500
-Date: Tue, 4 Dec 2001 22:58:49 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Netfilter hooks.
-Message-ID: <20011204225849.B5940@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3C0CCDAD.BC8F01B8@uab.ericsson.se>
+	id <S283540AbRLDWBQ>; Tue, 4 Dec 2001 17:01:16 -0500
+Received: from stine.vestdata.no ([195.204.68.10]:23242 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S283534AbRLDWA7>; Tue, 4 Dec 2001 17:00:59 -0500
+Date: Tue, 4 Dec 2001 23:00:53 +0100
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Roland Bauerschmidt <rb@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: virtual filesystem with data managed in userspace
+Message-ID: <20011204230053.F23430@vestdata.no>
+In-Reply-To: <20011204224026.A18753@g>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <3C0CCDAD.BC8F01B8@uab.ericsson.se>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011204224026.A18753@g>; from rb@debian.org on Tue, Dec 04, 2001 at 10:40:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 04 December 2001, at 14:20:46 +0100,
-Simona wrote:
-
-> Question: do I need to register a target for this?
-> Can I call a hook in the same way that I am getting called if I am
-> registering to a hook?
+On Tue, Dec 04, 2001 at 10:40:26PM +0100, Roland Bauerschmidt wrote:
+> Hi,
 > 
-http://netfilter.samba.org/unreliable-guides/netfilter-hacking-HOWTO
+> for a science project I'm thinking about writing a virtual filesystem
+> driver that provides access to data that is managed in userspace. I'm
+> quite new to Kernel hacking, so I'd be glad if someone could provide
+> some tips about the design, especially the data exchange between kernel-
+> and userspace. 
+
+See http://sourceforge.net/projects/avf/
+
 
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
-
+Ragnar Kjørstad
+Big Storage

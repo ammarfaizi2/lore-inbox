@@ -1,53 +1,31 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155143AbPFOAqF>; Mon, 14 Jun 1999 20:46:05 -0400
-Received: by vger.rutgers.edu id <S154873AbPFOApL>; Mon, 14 Jun 1999 20:45:11 -0400
-Received: from [208.232.87.36] ([208.232.87.36]:34130 "HELO CAraptorUU.geoworks.com") by vger.rutgers.edu with SMTP id <S154920AbPFOAlx>; Mon, 14 Jun 1999 20:41:53 -0400
-Date: Mon, 14 Jun 1999 17:43:00 -0700
-From: Mike Touloumtzis <miket@geoworks.com>
-To: Pavel Machek <pavel@bug.ucw.cz>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.rutgers.edu
-Subject: Re: size of pid_t (was: Re: NR_TASKS as config option)
-Message-ID: <19990614174300.L22748@sarcastro.geoworks.com>
-References: <UTC199906131847.UAA26622.aeb@eland.cwi.nl> <19990613214810.A548@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <19990613214810.A548@bug.ucw.cz>; from Pavel Machek on Sun, Jun 13, 1999 at 09:48:10PM +0200
+Received: by vger.rutgers.edu via listexpand id <S155058AbPFOX1G>; Tue, 15 Jun 1999 19:27:06 -0400
+Received: by vger.rutgers.edu id <S154813AbPFOX04>; Tue, 15 Jun 1999 19:26:56 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:8671 "EHLO pneumatic-tube.sgi.com") by vger.rutgers.edu with ESMTP id <S155031AbPFOXYV>; Tue, 15 Jun 1999 19:24:21 -0400
+From: sfoehner@illini.engr.sgi.com (Scott Foehner)
+Message-Id: <199906100556.WAA22464@illini.engr.sgi.com>
+Subject: [PATCH] gdb w/early connect
+To: linux-kernel@vger.rutgers.edu
+Date: Wed, 9 Jun 1999 22:56:51 -0700 (PDT)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+This patch allows a the linux kernel to be debugged with gdb over a
+serial line. There are other patches that allow similar functionality. The
+advantage of this patch is that it allows gdb to begin communicating
+with the kernel during the boot process. In this version, the kernel waits
+for a connection from gdb over the serial port as soon as the IRQs have
+been initialized. In the future I will try to make this connection point
+even earlier in the boot process.
 
-Some Unices (AIX?) use random PID allocation to make PID
-prediction more difficult.  Is this perceived to be worth
-it, or is it a non-issue?
+The patch can be found at:
+http://reality.sgi.com/sfoehner_engr/gdb/
 
-miket
+I can be reached at:
+sfoehner@engr.sgi.com
 
-On Sun, Jun 13, 1999 at 09:48:10PM +0200, Pavel Machek wrote:
->
-> > 
-> > Yes, eventually we'll have to.
-> > But a 32-bit pid_t is not so bad:
-> > With a hundred new processes spawned every second
-> > a 32-bit pid_t will wrap only after about 500 days.
-> 
-> Everyone should assume PID's are being reused! If you have buggy apps
-> which assume pid's not to be reused, then just watch your proc and
-> reboot when you are coming to 2G-th process ;-). (Ok, there's one bug
-> in kernel w.r.t. pid wrapparound - in console and it allows console
-> user to send arbitrary signals to newly created processes.)
-> 
-> What is bad is that clusters pretty much need 32bit pids... 
-> 
-> > Conclusion:
-> > - a 64-bit pid_t is most convenient for the kernel, but
-> >   gives trouble with libc.
-> > - a 32-bit pid_t is what we have today, but we use only
-> >   15 bits because of SYSV IPC (or perhaps other reasons
-> >   I am unaware of).
-> 
-> And becuase /proc internals. But please please go and change it.
-> 
-> 								Pavel
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

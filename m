@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318736AbSH1Gm7>; Wed, 28 Aug 2002 02:42:59 -0400
+	id <S318741AbSH1GvS>; Wed, 28 Aug 2002 02:51:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318739AbSH1Gm6>; Wed, 28 Aug 2002 02:42:58 -0400
-Received: from rekin.go2.pl ([212.126.20.3]:30732 "HELO rekin.go2.pl")
-	by vger.kernel.org with SMTP id <S318736AbSH1Gm6>;
-	Wed, 28 Aug 2002 02:42:58 -0400
-To: linux-kernel@vger.kernel.org
-From: <mucharek@o2.pl>
-Date: Wed, 28 Aug 2002 08:47:18
-Subject: =?iso-8859-2?Q?Bug=20when=20compiled=20\"under\"=20Athlon?=
-Reply-To: mucharek@o2.pl
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
-X-Mailer: first3.pl WebMailv2.02. Usluga Poczty Elektronicznej dla o2.pl
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Originator: 194.29.138.1
-Message-Id: <20020828064718.225E4C22A@rekin.go2.pl>
+	id <S318742AbSH1GvS>; Wed, 28 Aug 2002 02:51:18 -0400
+Received: from dp.samba.org ([66.70.73.150]:46255 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318741AbSH1GvS>;
+	Wed, 28 Aug 2002 02:51:18 -0400
+Date: Wed, 28 Aug 2002 16:47:12 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: rlahti@netikka.fi, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched.c
+Message-Id: <20020828164712.7ed21782.rusty@rustcorp.com.au>
+In-Reply-To: <3D6BC685.216B5B67@zip.com.au>
+References: <000b01c24df5$aacc7ed0$d20a5f0a@deldaran>
+	<3D6BC685.216B5B67@zip.com.au>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. After compiling the kernel to work with AMD Athlons', some modules 
-do not load.
-2. After compiling the kernel, to work with "Athlon/Duron" some 
-modules lik ppp* usb* do not get modeprobed or insmoded. I get an 
-error message about a "unresolved definition: _mmxmem_cpy".
-3. kernel, Athlon, compiling, insmod, modprobe, ppp.o, usbcore.o
-4. Kernel version: 2.4.19
-5. Environment: Slackware 8.0, Athlon 900MHz, 512 MB RAM, GeForce2 
-GTS 64MB DDR, AC97 soundcard, mainboard based on VIA chipsets.
+On Tue, 27 Aug 2002 11:35:49 -0700
+Andrew Morton <akpm@zip.com.au> wrote:
+> But these are not performance-critical functions.  And by far the
+> most inefficient part of them is that they're reading data for
+> CPUs which cannot exist.   That can be fixed with a `cpu_possible(i)'
+> test in there, but Rusty was going to give us a `for_each_cpu' macro.
+> We haven't seen that yet.
 
+I have it, but Linus isn't taking the prerequeisite, which changes cpu masks
+to generic bitmaps.
 
+Due to be retransmitted in the next couple of days,
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

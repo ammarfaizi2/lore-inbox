@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265809AbSKAXGY>; Fri, 1 Nov 2002 18:06:24 -0500
+	id <S265816AbSKAXKj>; Fri, 1 Nov 2002 18:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265810AbSKAXGY>; Fri, 1 Nov 2002 18:06:24 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:35741 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S265809AbSKAXGX>; Fri, 1 Nov 2002 18:06:23 -0500
-Message-Id: <5.1.0.14.2.20021101145232.0810d608@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 01 Nov 2002 15:12:47 -0800
-To: linux-kernel@vger.kernel.org
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Initialize seq->private before seq_start()
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S265826AbSKAXKi>; Fri, 1 Nov 2002 18:10:38 -0500
+Received: from mta06ps.bigpond.com ([144.135.25.138]:19136 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S265816AbSKAXKb>; Fri, 1 Nov 2002 18:10:31 -0500
+From: Brad Hards <bhards@bigpond.net.au>
+To: Wes Felter <wesley@felter.org>, Miles Lane <miles.lane@attbi.com>
+Subject: Re: Will we have UPnP support for Linux?
+Date: Sat, 2 Nov 2002 10:07:55 +1100
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+References: <3DC1DD1E.6000701@attbi.com> <1036177217.26996.9.camel@arlx002.austin.ibm.com>
+In-Reply-To: <1036177217.26996.9.camel@arlx002.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200211021007.56086.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Currently seq_file API doesn't provide any way to initialize seq->private before
-seq_start() is called. In most cases seq_start() uses global tables and 
-stuff and therefor doesn't need seq->private. However there are cases like
-        proc/something/0/table
-        ...
-        proc/something/N/table
-and seq_start() has to know where to look for table N.
+On Sat, 2 Nov 2002 06:00, Wes Felter wrote:
+> On Thu, 2002-10-31 at 19:47, Miles Lane wrote:
+>
+> [UPnP URLs snipped]
+>
+> Is this a kernel feature? AFAIK UPnP is just another application
+> protocol on top of UDP, so it can be done in userspace. And didn't Intel
+> release a UPnP stack on SourceForge? Whoa, I see 7 UPnP projects on SF;
+> at least one of them is probably real.
+Probably you want to go with the IETF approach - Service Location Protocol 
+(RFC2608, RFC2609, RFC2610, RFC2614 and some others). There is a reasonable 
+open source implementation (OpenSLP), and no dodgy vendor association.
 
-So, how about something like:
+Brad
 
-#define seq_open(file, op) __seq_open(file, op, NULL)
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-int __seq_open(struct file *file, struct seq_operations *op, void *priv)
-{
-        struct seq_file *p = kmalloc(sizeof(*p), GFP_KERNEL);
-        if (!p)
-                return -ENOMEM;
-        memset(p, 0, sizeof(*p));
-        sema_init(&p->sem, 1);
-        p->op = op;
-         p->private = priv;
-        file->private_data = p;
-        return 0;
-}
-
-Those who need seq->private in seq_start() (that'd be me :)) will use __seq_open().
-
-Currently I have 
-static int hci_seq_open(struct file *file, struct seq_operations *op, void *priv)
-{
-        struct seq_file *seq;
-
-        if (seq_open(file, op))
-                return -ENOMEM;
-
-        seq = file->private_data;
-        seq->private = priv;
-        return 0;
-}
-and it'd be nice if I could get rid of that function and use __seq_file instead.
-
-
-Max
-
-http://bluez.sf.net
-http://vtun.sf.net
+iD8DBQE9wwlMW6pHgIdAuOMRAvLKAJ9iUw3q7ISYSok2ULwnH+UJeHNCJgCfV37h
+0X20BM031CdfL696wzioMfA=
+=coAW
+-----END PGP SIGNATURE-----
 

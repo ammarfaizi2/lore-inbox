@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131966AbQLNSY5>; Thu, 14 Dec 2000 13:24:57 -0500
+	id <S131628AbQLNSds>; Thu, 14 Dec 2000 13:33:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131968AbQLNSYr>; Thu, 14 Dec 2000 13:24:47 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28676 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131966AbQLNSYg>; Thu, 14 Dec 2000 13:24:36 -0500
-Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released
-To: gibbs@scsiguy.com (Justin T. Gibbs)
-Date: Thu, 14 Dec 2000 17:56:21 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
-        shirsch@adelphia.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200012141403.eBEE3Ts46579@aslan.scsiguy.com> from "Justin T. Gibbs" at Dec 14, 2000 07:03:29 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E146ccB-0000JU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S131968AbQLNSdi>; Thu, 14 Dec 2000 13:33:38 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:49156 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S131628AbQLNSd2>; Thu, 14 Dec 2000 13:33:28 -0500
+Message-Id: <200012141802.eBEI2is52509@aslan.scsiguy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: shirsch@adelphia.net (Steven N. Hirsch), linux-kernel@vger.kernel.org
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
+In-Reply-To: Your message of "Thu, 14 Dec 2000 17:54:54 GMT."
+             <E146cal-0000JD-00@the-village.bc.nu> 
+Date: Thu, 14 Dec 2000 11:02:44 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm aware of the difference.  I only mentioned "curproc" as an example of
-> similar brokeness that has less of a chance of catching the uninitiated.
-> What about "curtask" or "curthread"?
+>> I figured as much.  I will test for the #define, stash it in a #define
+>> unique within my namespace, and #define it back in hosts.c should my
+>> local define exist.
+>
+>If that driver hits a tree I maintain be aware that the first thing I will do
+>is rip that out and rename the 'current' variables in it 8)
 
-Its called current. We write a lot of current->state type things where it makes
-a lot of sense. Being a define is ugly because it hits struct fields. Being a
-global is sane. Its also something that is inbuilt into every driver and every
-book or article on linux driver/kernel stuff. Changing it would be extremely
-bad.
+The only reason "namespace restoration" is an issue at all is due to the
+poor design of hosts.c in 2.2.X kernels.  A better solution would be to
+bring in the build hooks from 2.4 so modules and compiled in drivers are
+handled the same way - a way that lets drivers do what they want with
+their namespace without touching that of any other portion of the kernel.
 
-Alan
-
+--
+Justin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

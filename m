@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267240AbSKPHLO>; Sat, 16 Nov 2002 02:11:14 -0500
+	id <S267239AbSKPHI3>; Sat, 16 Nov 2002 02:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267241AbSKPHLO>; Sat, 16 Nov 2002 02:11:14 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:56839 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S267240AbSKPHLN>; Sat, 16 Nov 2002 02:11:13 -0500
-Date: Sat, 16 Nov 2002 05:17:50 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <20021116071750.GR16673@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Gerhard Mack <gmack@innerfire.net>, Larry McVoy <lm@bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-References: <20021115132304.M19291@work.bitmover.com> <Pine.LNX.4.44.0211160209180.18309-100000@innerfire.net>
+	id <S267240AbSKPHI3>; Sat, 16 Nov 2002 02:08:29 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:28164 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S267239AbSKPHI2>;
+	Sat, 16 Nov 2002 02:08:28 -0500
+Date: Sat, 16 Nov 2002 08:15:09 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PARAM 2/4
+Message-ID: <20021116071509.GC553@alpha.home.local>
+References: <20021115222725.258EC2C129@lists.samba.org> <3DD57A84.2070805@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211160209180.18309-100000@innerfire.net>
+In-Reply-To: <3DD57A84.2070805@pobox.com>
 User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Nov 16, 2002 at 02:10:13AM -0500, Gerhard Mack escreveu:
-> On Fri, 15 Nov 2002, Larry McVoy wrote:
- 
-> > This is not an easy problem space, on the one hand you want to have all
-> > bugs tracked, on the other hand, trivial bugs in the bug db just make the
-> > bug db unusable.  No engineer is going to put up with 100,000 stupid bug
-> > reports.  You need a plan to get rid of those or keep them out of the bugdb
-> > or it's unlikely to get used by the people who really need to use it.
+On Fri, Nov 15, 2002 at 05:51:48PM -0500, Jeff Garzik wrote:
+[snip] 
+> 2) "proper", converted-to-Rusty-style driver code is going to have
+> 
+> 	MODULE_blah
+> 	MODULE_foo
+> 	MODULE_bar
+> 	PARAM
+> 
+> You think that looks good??
+> 
+> 3) modules a.k.a. drivers are going to be the more common users of this 
+> interface.
+[snip] 
+> PARAM is ugly in drivers, and way too generic.
 
-> Or the bugs could just be assigned to whoever owns the patchset ...
+Why not DRIVER_PARAM in this case ? It's enough explicit and not misleading.
+I too agree that PARAM is a bit too generic.
 
-or the tickets could just be closed after, say, one month without activity.
+Cheers,
+Willy
 
-If it is really a bug it'll be resubmitted after a while, its not as we'll not
-have duplicates anyway...
-
-- Arnaldo

@@ -1,121 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVCNPaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVCNPbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVCNPaj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 10:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVCNPai
+	id S261540AbVCNPbK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 10:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVCNPbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 10:30:38 -0500
-Received: from web53304.mail.yahoo.com ([206.190.39.233]:44656 "HELO
-	web53304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261546AbVCNPaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 10:30:17 -0500
-Message-ID: <20050314153014.14324.qmail@web53304.mail.yahoo.com>
-Date: Mon, 14 Mar 2005 15:30:14 +0000 (GMT)
-From: sounak chakraborty <sounakrin@yahoo.co.in>
-Subject: Error in creating /proc file
-To: linux kernel <linux-kernel@vger.kernel.org>
+	Mon, 14 Mar 2005 10:31:10 -0500
+Received: from moutng.kundenserver.de ([212.227.126.173]:28381 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261540AbVCNPaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 10:30:23 -0500
+Message-ID: <4235AE08.6080605@tobias-grundmann.de>
+Date: Mon, 14 Mar 2005 16:30:16 +0100
+From: Tobias Grundmann <lk@tobias-grundmann.de>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: PATCH: 2.6.11 Making it possible to ignore blocked signals
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:67246fc725eebc4314ed16889a45a476
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dear sir,
-i am actually trying to create a thread directory in
-which files will be created by the name of the thread
-id
-which will contain the basic information about the
-thread
-(similar to process concept of kernel)
-but i want to the detail steps about how the kernel
-implements its process information inside
-the proc file so that i can do it similar kind in case
-of creating for the threads.
+Hi,
 
-the first basic problem is the 
-according to me the 
-1.the actual processes are creting in the do_fork
-function and from there the 
-  information is passed to the fs/proc  in the
-functions present in the generic and base.c
-  am i currect or the fs/proc is collecting the data
-from the current 
+the following patch fixes the IMHO incorrect behavior to silently ignore 
+attempts to set SIG_IGN on blocked signals (i.e. while running in a 
+signal handler). See below for further explanation.
 
-  but in this case i was applying a shortcuts as i was
-waiting for any proc file in the kernel to be written 
-  during startup and the setting a global variable in
-fs/proc/base.c after that in the
-  do_fork the function waits for the global variable
-to be turned on and after that calls anather function
-  which creates proc files through the use of
-create_proc_entry.
+Tobias
 
-  but during startup the following errors are coming 
-  "
-    *pde=00000000
-    Oops: 0000[#1]
-    PREEMPT
-    Modules link in: 
-    CPU: 0
-    EIP: 0060:[<c011d99c>] Not tainted
-    EFLAGS: 00010202 (2.6.8)
-    EIP is at register_proc_table+0xdc/0x130
-    
-    eax:00000000 ebx:c0321d40 ecx:10000006
-edx:c02e28c5
-    esi:00000000 edi:00000000 ebp:00000006
-esp:c7e95fb0
-    ds: 007b es: 007b ss:0068
-     
-    Process Swapper(pid :1,threadinfo =c7e94000
-task=c7e93670)
-    Stack: c03635e4 c03635e4 c03635e4 0000416d
-00100410 00000000 00000000
-           c03a8ee8 c0321d40 00000000 c039e8ac
-c0100445 0000007b ffffffff
-           c01040e0 c01040e5 00000000 00000000
-00000000 
+--- kernel/signal.c.orig        2005-03-06 18:12:26.000000000 +0100
++++ kernel/signal.c     2005-03-06 18:13:08.000000000 +0100
+@@ -163,14 +163,6 @@
+       if (t->ptrace & PT_PTRACED)
+               return 0;
 
-   Call Trace :
-     [<c0100410>] init+0x0/0x158 
-     [<c03a8338>] sysctl_init+0x18/0x20
-     [<c039e8aa>] do_basic_setup+0xa/0x20
-     [<c0100445>] init+0x35/0x158
-     [<c01040e0>] kernel_thread_helper+0x0/0x10
-     [<c01040e5>] kernel_thread_helper+0x5/0x10
-     
-     Code: 8b 78 34 85 ff 74 b7 8d b6 
-           00 00 00 00 8d bc 27 00 00 
-           00 00
-     <0> Kernel panic : Attempted to kill init!
-
-   "
-  
-    
-    
-  
+-       /*
+-        * Blocked signals are never ignored, since the
+-        * signal handler may change by the time it is
+-        * unblocked.
+-        */
+-       if (sigismember(&t->blocked, sig))
+-               return 0;
+-
+       /* Is it explicitly or implicitly ignored? */
+       handler = t->sighand->action[sig-1].sa.sa_handler;
+       return   handler == SIG_IGN ||
 
 
-2.if i am in a wrong way i could do the implementation
-in the following manner in which the 
-  kernel implements the proc system of its process
-part.
-  but i am really confused about that one .i need some
-kind of help in that case 
-  is it necessary to do all the details implementation
-like inode creating which are all being done 
-  in the generic and base.c  or i can simply bypass
-them with   create_proc_entry
+-------- Original Message --------
+Subject: 	PROBLEM: Ignoring blocked signals in 2.6 / 2.4 not possible
+Date: 	Sat, 26 Feb 2005 11:10:01 +0100
+From: 	<lk@tobias-grundmann.de>
+To: 	<linux-kernel@vger.kernel.org>
+CC: 	<lk@tobias-grundmann.de>
 
-  what should i do 
-  
- suggest me some architecture to implement the thread
-proc system 
 
-i can a way out 
-and i cant able to understand where i am wrong
-thanks in advance
-sounak
 
-________________________________________________________________________
-Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/
+Hi,
+
+I have a question regarding blocked signals:
+
+Is the current implementation to ignore attempts to set SIG_IGN on
+blocked signals correct? 
+The following code will go into an endless loop on kernels 2.6.10 and
+2.4.25, which is IMHO not the behaviour one would expect. 
+
+--------------------
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+volatile int sig_received  = 0;
+
+void sigio_handler_ex (int signum, siginfo_t * siginfo, void * ucontext)
+{
+       struct sigaction sigio_action;
+
+       sig_received++;
+       printf("handler %d\n",sig_received);
+
+       sigio_action.sa_handler = SIG_IGN;
+       sigio_action.sa_flags = 0;
+       sigemptyset(&sigio_action.sa_mask);
+       sigaction (SIGIO, &sigio_action, 0);
+
+       kill(getpid(),SIGIO);
+
+       sigio_action.sa_sigaction =  sigio_handler_ex;
+       sigio_action.sa_flags = SA_SIGINFO;
+       sigemptyset(&sigio_action.sa_mask);
+       sigaction (SIGIO, &sigio_action, 0);
+}
+
+int main(int argc, char **argv) {
+       struct sigaction sigio_action;
+       sigio_action.sa_sigaction =  sigio_handler_ex;
+       sigio_action.sa_flags = SA_SIGINFO;
+       sigemptyset(&sigio_action.sa_mask);
+
+       sigaction (SIGIO, &sigio_action, 0);
+
+       kill(getpid(),SIGIO);
+
+       while  (! sig_received) {
+               printf("waiting for signal\n");
+               sleep(1);
+       }
+
+       kill(getpid(),SIGIO);
+
+       printf("%d signals handled\n",sig_received);
+}
+
+--------------------
+
+In kernel 2.6.10/kernel/signal.c sig_ignored() I found this comment:
+...
+/*
+* Blocked signals are never ignored, since the
+* signal handler may change by the time it is
+* unblocked.
+*/
+
+if (sigismember(&t->blocked, sig))
+		return 0;
+...
+
+so it seems this behaviour is intentional, but I don't understand
+it. Why should it matter if a signal handler may change while blocked,
+if it is ignored also, which is a user request?
+
+The machine im writing this mail on runs with the above lines
+commented out without any problems so far...
+
+All this resulted from problems a customer had with implementing a
+whole protocol-stack to a serially attached device in a
+signal-handler. After the handler ran (with SIG_IGN) there was always
+an extra SIGIO which triggered the handler again. Of course the real
+fix was to move the protocol-stack out of the handler but still it
+should have worked since it was a controlled environment (so there
+wasn't even a race between entering the handler and setting
+SIG_IGN). Oh and it worked for years under some realtime variant of
+hp-unix.
+
+Please be so kind to CC any answer to me directly since I'm
+currently not subscribed to lkml.
+
+Yours
+Tobias Grundmann
+
+

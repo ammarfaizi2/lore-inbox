@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129145AbQKXRBl>; Fri, 24 Nov 2000 12:01:41 -0500
+        id <S129873AbQKXRGO>; Fri, 24 Nov 2000 12:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129716AbQKXRBc>; Fri, 24 Nov 2000 12:01:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:16 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129145AbQKXRBQ>; Fri, 24 Nov 2000 12:01:16 -0500
-Date: Fri, 24 Nov 2000 08:30:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Michael Elkins <me@toesinperil.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Rui Sousa <rsousa@grad.physics.sunysb.edu>, usb@in.tum.de,
-        jerdfelt@valinux.com, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Re: PROBLEM: kernel 2.4.0-test11-ac1 hang with usb-uhci
- and emu10k1
-In-Reply-To: <20001123230614.A32540@toesinperil.com>
-Message-ID: <Pine.LNX.4.10.10011240827500.2983-100000@penguin.transmeta.com>
+        id <S129716AbQKXRGE>; Fri, 24 Nov 2000 12:06:04 -0500
+Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:22552 "EHLO
+        porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
+        id <S129325AbQKXRFx>; Fri, 24 Nov 2000 12:05:53 -0500
+Date: Fri, 24 Nov 2000 18:35:39 +0200 (EET)
+From: Samuli Kaski <samkaski@cs.Helsinki.FI>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test10 FAT oops
+Message-ID: <Pine.LNX.4.21.0011241831560.15790-100000@melkki.cs.Helsinki.FI>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have had at least 2 similar (maybe even identic) oopses with 2.3/2.4
+kernels in the past. Either there is still something wrong with FAT or
+it's my hardware. Nevertheless, here it is.
 
+	Samuli
 
-On Thu, 23 Nov 2000, Michael Elkins wrote:
-> 
-> On Thu, Nov 23, 2000 at 03:53:27PM -0800, Linus Torvalds wrote:
-> > Try changing the thing around a bit: make the above place say
-> > 
-> > 	/* disable legacy emulation */
-> > 	pci_write_config_word (dev, USBLEGSUP, 0);
-> > 
-> > and then AFTER we have successfully done a request_irq() call, we 
-> > can enable PCI interrupts with
-> > 
-> > 	/* Enable PIRQ */
-> > 	pci_write_config_word (dev, USBLEGSUP, USBLEGSUP_DEFAULT);
-> > 
-> > Does that make it happier?
-> 
-> Yep! That seems to have fixed it.  Added the pci_write_config_word() after
-> the request_irq() in alloc_uhci().
-
-Johannes, can you get in touch with the right people and make sure this
-gets fixed in both uhci drivers? They both look like they have the same
-bug, and I'd prefer not to do it by hand as I don't have that much in the
-form of USB..
-
-		Linus
+Nov 24 18:30:37 vortex kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010 
+Nov 24 18:30:37 vortex kernel:  printing eip: 
+Nov 24 18:30:37 vortex kernel: c01599b0 
+Nov 24 18:30:37 vortex kernel: *pde = 00000000 
+Nov 24 18:30:37 vortex kernel: Oops: 0002 
+Nov 24 18:30:37 vortex kernel: CPU:    1 
+Nov 24 18:30:37 vortex kernel: EIP:    0010:[fat_cache_add+148/176] 
+Nov 24 18:30:37 vortex kernel: EFLAGS: 00010246 
+Nov 24 18:30:37 vortex kernel: eax: 00000000   ebx: 00021fdb   ecx: 00000000   edx: c02ac878 
+Nov 24 18:30:37 vortex kernel: esi: 00021da4   edi: c3eba080   ebp: 00000235   esp: c1a67e04 
+Nov 24 18:30:37 vortex kernel: ds: 0018   es: 0018   ss: 0018 
+Nov 24 18:30:37 vortex kernel: Process ncftp (pid: 10416, stackpage=c1a67000) 
+Nov 24 18:30:37 vortex kernel: Stack: 00000235 c3eba080 c7af2a00 00021fdb 034b0235 c015dcf6 c3eba080 00000235  
+Nov 24 18:30:37 vortex kernel:        00021fdb 00000000 000011a8 c3eba080 c0d36300 0017bb36 00000008 00021fda  
+Nov 24 18:30:37 vortex kernel:        ffffffff c015b6e5 c3eba080 c015b654 00000200 00000235 c1a67ea8 00000008  
+Nov 24 18:30:37 vortex kernel: Call Trace: [fat_add_cluster+438/484] [fat_get_block+145/232] [fat_get_block+0/232] [__block_prepare_write+245/576] [cont_prepare_write+371/524] [fat_get_block+0/232] [fat_prepare_write+38/44]  
+Nov 24 18:30:37 vortex kernel:        [fat_get_block+0/232] [generic_file_write+749/1060] [default_fat_file_write+34/88] [fat_file_write+45/52] [sys_write+142/196] [system_call+51/56] [startup_32+43/204]  
+Nov 24 18:30:37 vortex kernel: Code: c7 41 10 00 00 00 00 a1 e0 c7 2a c0 89 42 10 89 15 e0 c7 2a  
+Nov 24 18:30:37 vortex kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010 
+Nov 24 18:30:37 vortex kernel:  printing eip: 
+Nov 24 18:30:37 vortex kernel: c01599b0 
+Nov 24 18:30:37 vortex kernel: *pde = 00000000 
+Nov 24 18:30:37 vortex kernel: Oops: 0002 
+Nov 24 18:30:37 vortex kernel: CPU:    0 
+Nov 24 18:30:37 vortex kernel: EIP:    0010:[fat_cache_add+148/176] 
+Nov 24 18:30:37 vortex kernel: EFLAGS: 00010246 
+Nov 24 18:30:37 vortex kernel: eax: 00000000   ebx: 000d1b98   ecx: 00000000   edx: c02ac878 
+Nov 24 18:30:37 vortex kernel: esi: 000d1900   edi: c4d66b40   ebp: 00000297   esp: c4963dd8 
+Nov 24 18:30:37 vortex kernel: ds: 0018   es: 0018   ss: 0018 
+Nov 24 18:30:37 vortex kernel: Process mxaudio (pid: 10379, stackpage=c4963000) 
+Nov 24 18:30:37 vortex kernel: Stack: 00000297 c4d66b40 00000297 c0369ba0 034b0297 c0159ab0 c4d66b40 00000297  
+Nov 24 18:30:37 vortex kernel:        000d1b98 c7af2a9c 00000001 00000297 000d1b98 c0159b4b c4d66b40 00000297  
+Nov 24 18:30:37 vortex kernel:        c4d66b40 000014b9 c4d66b40 00000008 c015948b c4d66b40 000014b9 c015b66e  
+Nov 24 18:30:37 vortex kernel: Call Trace: [fat_get_cluster+140/164] [default_fat_bmap+131/164] [fat_bmap+27/32] [fat_get_block+26/232] [fat_get_block+0/232] [block_read_full_page+308/616] [__alloc_pages_limit+124/176]  
+Nov 24 18:30:37 vortex kernel:        [add_to_page_cache_unique+291/308] [fat_readpage+15/20] [fat_get_block+0/232] [generic_file_readahead+598/832] [do_generic_file_read+568/1344] [generic_file_read+99/128] [file_read_actor+0/84] [fat_file_read+45/52]  
+Nov 24 18:30:37 vortex kernel:        [sys_read+146/200] [system_call+51/56]  
+Nov 24 18:30:37 vortex kernel: Code: c7 41 10 00 00 00 00 a1 e0 c7 2a c0 89 42 10 89 15 e0 c7 2a
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

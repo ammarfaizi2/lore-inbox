@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261849AbSJIRAV>; Wed, 9 Oct 2002 13:00:21 -0400
+	id <S261848AbSJIRFw>; Wed, 9 Oct 2002 13:05:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261850AbSJIRAU>; Wed, 9 Oct 2002 13:00:20 -0400
-Received: from findaloan-online.cc ([216.209.85.42]:43525 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S261849AbSJIRAU>;
-	Wed, 9 Oct 2002 13:00:20 -0400
-Date: Wed, 9 Oct 2002 13:05:17 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: Robert Love <rml@tech9.net>, riel@conectiva.com.br, akpm@digeo.com,
-       linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Message-ID: <20021009170517.GA5608@mark.mielke.cc>
-References: <1034104637.29468.1483.camel@phantasy> <XFMail.20021009103325.pochini@shiny.it>
+	id <S261850AbSJIRFw>; Wed, 9 Oct 2002 13:05:52 -0400
+Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:6298 "EHLO
+	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S261848AbSJIRFt>; Wed, 9 Oct 2002 13:05:49 -0400
+Date: Wed, 9 Oct 2002 18:11:11 +0100
+From: Derek Fawcus <dfawcus@cisco.com>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
+Message-ID: <20021009181111.A23231@edi-view1.cisco.com>
+References: <20021008.000559.17528416.yoshfuji@linux-ipv6.org> <20021009170018.H29133@edinburgh.cisco.com> <20021010.015432.63506989.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <XFMail.20021009103325.pochini@shiny.it>
-User-Agent: Mutt/1.4i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20021010.015432.63506989.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Thu, Oct 10, 2002 at 01:54:32AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 10:33:25AM +0200, Giuliano Pochini wrote:
-> > The point of O_STREAMING is one change: drop pages in the pagecache
-> > behind our current position, that are free-able, because we know we will
-> > never want them.
-> Does it drop pages unconditionally ?  What happens if I do a
-> streaming_cat largedatabase > /dev/null while other processes
-> are working on it ?  It's not a good thing to remove the whole
-> cached data other apps are working on.
+On Thu, Oct 10, 2002 at 01:54:32AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> In article <20021009170018.H29133@edinburgh.cisco.com> (at Wed, 9 Oct 2002 17:00:18 +0100), Derek Fawcus <dfawcus@cisco.com> says:
+> 
+> > All link local's are currently supposed to have those top bits
+> > ('tween 10 and 64) zero'd,  however any address within the link local
+> > prefix _is_ on link / connected and should go to the interface.
+> > 
+> > i.e. it's perfectly valid for me to assign a link local of fe80:1910::10
+> >      to an interface and expect it to be work,  likewise for a packet
+> >      destined to any link local address to trigger ND.
+> 
+> First of all, please don't use such addresses.
 
-Anybody could make the cache thrash. I don't see this as an argument against
-O_STREAMING (whether explicitly activated, or dynamically activated).
+Why not,  they are perfectly legal?
 
-The only extension I would suggest (I don't think the patch did this?) 
-is that pages should only be candidates for being forgotten if all
-open files associated with the page are O_STREAMING and all seek
-points for all open files are beyond the page.
+> By spec, auto-configured link-local address is fe80::/64
+> and connected route should be /64.
 
-This would allow for a web app, or similar, that was serving the same
-document over two different sockets, to provide a compromise between
-O_STREAMING and not O_STREAMING where performance would suffer, but
-for the common case, where only one person is accessing the file, the
-full benefit of O_STREAMING would be realized.
+Yes auto-configured have fe80:0:0:0: in their upper 64 bits,  but that
+is just for autoconfigured addessses.  That is a seperate issue to which
+prefix desinates link local.
 
-Does the patch allow for mmap() to benefit from O_STREAMING?
-"I intend to access this virtual memory range sequentially..."
+Connected routes don't have to be /64,  things work correctly even if
+one picks any other value.  
 
-mark
+> If you do really want to use such addresses (like fe80:1920::10),
+> you can put another route by yourself, at your own risk.
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+No - what I'm saying is that all link locals should go to the link.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+There is no risk inherent in using such an address or link local prefix.
 
-                           http://mark.mielke.cc/
+If a mechanism is required such that autoconfig generates the correct
+type of address,  then add it.  But that doesn't _require_ that
+the connected route be /64.
 
+I happen to use link locals like the quite often,  since it makes
+testing and reading packet traces a hell of a lot easier.
+
+> We should not configure in such way by default.
+> and, we should even have to add "discard" route for them 
+> by default for safe.
+
+Why.  In what way is it not 'safe' to have any link local address
+sent onto the link?  They'll either reach a destination or not,
+but given that they'll never leave the link,  they can't be inherently
+unsafe.
+
+DF

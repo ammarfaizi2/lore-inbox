@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267606AbUHJSZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267658AbUHJSVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267606AbUHJSZL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 14:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUHJSWL
+	id S267658AbUHJSVS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 14:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUHJSU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:22:11 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:8621 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267625AbUHJSUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:20:11 -0400
-Subject: Re: Fork and Exec a process within the kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Eric Masson <cool_kid@future-ericsoft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040810092116.7dfe118c.pj@sgi.com>
-References: <4117E68A.4090701@future-ericsoft.com>
-	 <20040809161003.554a5de1.pj@sgi.com> <4118E822.3000303@future-ericsoft.com>
-	 <20040810092116.7dfe118c.pj@sgi.com>
-Content-Type: text/plain
-Message-Id: <1092162030.782.28.camel@mindpipe>
+	Tue, 10 Aug 2004 14:20:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56210 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267624AbUHJSQo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 14:16:44 -0400
+Date: Tue, 10 Aug 2004 14:10:42 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Kai Militzer <km@westend.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: uhci-hcd oops with 2.4.27/ intel D845GLVA
+Message-ID: <20040810171042.GD12702@logos.cnet>
+References: <1092142777.1042.30.camel@bart.intern> <20040810171000.GC12702@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 14:20:31 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810171000.GC12702@logos.cnet>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 12:21, Paul Jackson wrote:
-> > My user mode program is running.
+On Tue, Aug 10, 2004 at 02:10:00PM -0300, Marcelo Tosatti wrote:
+> On Tue, Aug 10, 2004 at 02:59:37PM +0200, Kai Militzer wrote:
+> > Hello everyone!
+> > 
+> > > I unable to boot due to a kernel oops on my D845GLVA.  This 
+> > > worked fine in 2.4.26, but with the same (well, except for the 
+> > > new features) config 2.4.27 does not.
+> > 
+> > I've got the same problem here. Did an make oldconfig from a 2.4.26 
+> > config, booted and the systems made an oops.
+> > 
+> > Problem is, that the system is production and I can't test, where the 
+> > problem is in special. We had two reboots already and even that is 
+> > nearly too much.
 > 
-> Good.
+> Kai,
 > 
-> > Any idea how to control which console it shows up on?
+> Can you please post the oops message? 
 > 
-> No clue.
+> Thats the only way we can try fix it.
 
-OK, ignore the peanut gallery, this is the real answer:
-
-./foo > /dev/tty1
-
-See /etc/syslog.conf on Debian for another example.  Anywhere you could
-write to a file you can write to /dev/tty$FOO and it will do the right
-thing.
-
-UNIX is full of stuff like this.  Pretty cool, huh?
-
-Lee
-
-
-
+And I'm unable to find the message you are responding to, 
+can you please forward me it?

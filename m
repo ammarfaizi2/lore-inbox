@@ -1,106 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267302AbUHIVxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUHIVz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267302AbUHIVxg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267303AbUHIVxg
+	id S267294AbUHIVz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267303AbUHIVy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:53:36 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30688 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267304AbUHIVvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:51:46 -0400
-Date: Mon, 9 Aug 2004 23:51:12 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: jgarzik@pobox.com
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/seeq8005.c: small cleanups (fwd)
-Message-ID: <20040809215112.GE26174@fs.tum.de>
+	Mon, 9 Aug 2004 17:54:58 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:58591 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S267294AbUHIVy0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 17:54:26 -0400
+Date: Mon, 9 Aug 2004 23:54:24 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Peter Schaefer <peter.schaefer@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [VIA-RHINE] Timeouts on EP-HDA3+ Motherboard
+Message-ID: <20040809215424.GA12237@k3.hellgate.ch>
+Mail-Followup-To: Peter Schaefer <peter.schaefer@gmx.de>,
+	linux-kernel@vger.kernel.org
+References: <41181BF7.6060002@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <41181BF7.6060002@gmx.de>
+X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The trivial patch forwarded below still applies and compiles against 
-2.6.8-rc3-mm2.
+On Tue, 10 Aug 2004 02:51:03 +0200, Peter Schaefer wrote:
+> I'm getting reproducable errors when Samba is transferring
+> large files:
+> 
+> eth0: Transmit timed out, status 0000, PHY status 786d, resetting...
 
-Please apply.
+What kernel? (my crystal ball is in repair)
 
-
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Fri, 16 Jul 2004 00:17:42 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: hamish@zot.apana.org.au
-Cc: jgarzik@pobox.com, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/seeq8005.c: small cleanups
-
-The patch below does the following small cleanups in seeq8005.c:
-- kill ancient version variable
-- remove Emacs settings
-
-
-diffstat output:
- drivers/net/seeq8005.c |   18 ------------------
- 1 files changed, 18 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.8-rc1-mm1-full-3.4/drivers/net/seeq8005.c.old	2004-07-16 00:08:55.000000000 +0200
-+++ linux-2.6.8-rc1-mm1-full-3.4/drivers/net/seeq8005.c	2004-07-16 00:09:28.000000000 +0200
-@@ -12,12 +12,7 @@
- 	This file is a network device driver for the SEEQ 8005 chipset and
- 	the Linux operating system.
- 
--*/
--
--static const char version[] =
--	"seeq8005.c:v1.00 8/07/95 Hamish Coleman (hamish@zot.apana.org.au)\n";
- 
--/*
-   Sources:
-   	SEEQ 8005 databook
-   	
-@@ -150,7 +145,6 @@
- 
- static int __init seeq8005_probe1(struct net_device *dev, int ioaddr)
- {
--	static unsigned version_printed;
- 	int i,j;
- 	unsigned char SA_prom[32];
- 	int old_cfg1;
-@@ -291,9 +285,6 @@
- 	}
- #endif
- 
--	if (net_debug  &&  version_printed++ == 0)
--		printk(version);
--
- 	printk("%s: %s found at %#3x, ", dev->name, "seeq8005", ioaddr);
- 
- 	/* Fill in the 'dev' fields. */
-@@ -757,12 +748,3 @@
- }
- 
- #endif /* MODULE */
--
--/*
-- * Local variables:
-- *  compile-command: "gcc -D__KERNEL__ -I/usr/src/linux/net/inet -Wall -Wstrict-prototypes -O6 -m486 -c skeleton.c"
-- *  version-control: t
-- *  kept-new-versions: 5
-- *  tab-width: 4
-- * End:
-- */
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+Roger

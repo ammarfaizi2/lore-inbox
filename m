@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265053AbSJWP0y>; Wed, 23 Oct 2002 11:26:54 -0400
+	id <S265045AbSJWPWq>; Wed, 23 Oct 2002 11:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265054AbSJWP0y>; Wed, 23 Oct 2002 11:26:54 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:61965 "EHLO
-	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S265053AbSJWP0w>; Wed, 23 Oct 2002 11:26:52 -0400
-Date: Wed, 23 Oct 2002 09:29:09 -0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/10] 2.5.44 cciss no scsi tape timeouts
-Message-ID: <20021023092909.D14917@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
+	id <S265049AbSJWPWq>; Wed, 23 Oct 2002 11:22:46 -0400
+Received: from almesberger.net ([63.105.73.239]:48390 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S265045AbSJWPWo>; Wed, 23 Oct 2002 11:22:44 -0400
+Date: Wed, 23 Oct 2002 12:28:41 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Richard J Moore <richardj_moore@uk.ibm.com>
+Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>
+Subject: Re: 2.4 Ready list - Kernel Hooks
+Message-ID: <20021023122841.G1421@almesberger.net>
+References: <OFD4366ECB.CE549043-ON80256C5A.007614F9@portsmouth.uk.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <OFD4366ECB.CE549043-ON80256C5A.007614F9@portsmouth.uk.ibm.com>; from richardj_moore@uk.ibm.com on Wed, Oct 23, 2002 at 12:09:38AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch 4 of 10
-The whole set can be grabbed via anonymous cvs (empty password):
-cvs -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss login
-cvs -z3 -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss co 2.5.44
+Richard J Moore wrote:
+> This is nothing more than a call-back mechanism such as could be used by
+> LSM or LTT.
 
-This patch makes scsi commands to tape drives have no timeouts.
-Previously the timeout was 1000 seconds, too short, and nothing good
-happens when the timeout expires.  Better to have no timeout.
+Hmm, Greg has already voiced some violent disagreement regarding
+LSM :-) That leaves LTT. Given the more exploratory nature of LTT,
+I wonder if [dk]probes wouldn't be quite sufficient there, too.
 
+Is the idea that people would deploy hooks locally, i.e. while
+profiling or debugging, or that some hooks would be put permanently
+in the kernel ? I can envision some rather nasty coding habits
+developing if the latter would be used extensively. (INTERCAL has
+"COME FROM", COBOL has "ALTER", ... ;-)
 
- drivers/block/cciss_scsi.c |    4 ++--
- 1 files changed, 2 insertions, 2 deletions
+By the way, those hooks look like an excellent mechanism for
+circumventing the GPL, so you might want to export them with
+EXPORT_SYMBOL_GPL.
 
---- linux-2.5.44/drivers/block/cciss_scsi.c~no_tape_timeouts	Mon Oct 21 12:05:48 2002
-+++ linux-2.5.44-root/drivers/block/cciss_scsi.c	Mon Oct 21 12:05:48 2002
-@@ -913,7 +913,7 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
- 
- 	memset(cp->Request.CDB, 0, sizeof(cp->Request.CDB));
- 	memcpy(cp->Request.CDB, cdb, cdblen);
--	cp->Request.Timeout = 1000;		// guarantee completion. 
-+	cp->Request.Timeout = 0;
- 	cp->Request.CDBLen = cdblen;
- 	cp->Request.Type.Type = TYPE_CMD;
- 	cp->Request.Type.Attribute = ATTR_SIMPLE;
-@@ -1427,7 +1427,7 @@ cciss_scsi_queue_command (Scsi_Cmnd *cmd
- 	
- 	// Fill in the request block...
- 
--	cp->Request.Timeout = 1000; // guarantee completion
-+	cp->Request.Timeout = 0;
- 	memset(cp->Request.CDB, 0, sizeof(cp->Request.CDB));
- 	if (cmd->cmd_len > sizeof(cp->Request.CDB)) BUG();
- 	cp->Request.CDBLen = cmd->cmd_len;
+> Yes both kprobes and kernel hooks implement call-backs, but using INT3 to
+> call functions is not the most efficient call mechanism,
 
-.
+Oh, you could probably have some "fast" probes by just checking
+for a certain "anchor" pattern (e.g. a sequence of 5 nops on
+i386), which could then be replaced with a direct call. This
+optimization would have to be optional, in case some code yields
+the anchor pattern such that it isn't also a basic block.
+
+Hooks would still have the advantage of easier access to local
+variables, of course.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

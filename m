@@ -1,189 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293121AbSB1RBX>; Thu, 28 Feb 2002 12:01:23 -0500
+	id <S293495AbSB1R1b>; Thu, 28 Feb 2002 12:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293504AbSB1Q6d>; Thu, 28 Feb 2002 11:58:33 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:45134 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S293490AbSB1Q4d>;
-	Thu, 28 Feb 2002 11:56:33 -0500
-Date: Thu, 28 Feb 2002 17:00:28 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: <tigran@einstein.homenet>
-To: <marcelo@conectiva.com.br>
-cc: <asit.k.mallick@intel.com>, <linux-kernel@vger.kernel.org>
-Subject: [patch-2.4.18] serialize microcode updates
-Message-ID: <Pine.LNX.4.33.0202281653410.1220-100000@einstein.homenet>
+	id <S293525AbSB1RYu>; Thu, 28 Feb 2002 12:24:50 -0500
+Received: from edu.joroinen.fi ([195.156.135.125]:39177 "HELO edu.joroinen.fi")
+	by vger.kernel.org with SMTP id <S293634AbSB1RWl> convert rfc822-to-8bit;
+	Thu, 28 Feb 2002 12:22:41 -0500
+Date: Thu, 28 Feb 2002 19:22:39 +0200 (EET)
+From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+X-X-Sender: <pk@edu.joroinen.fi>
+To: "David S. Miller" <davem@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, <jgarzik@mandrakesoft.com>,
+        <linux-net@vger.kernel.org>
+Subject: Re: [BETA-0.92] Third test release of Tigon3 driver
+In-Reply-To: <20020227.055102.75257130.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0202281917270.10668-100000@edu.joroinen.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings Marcelo,
 
-The attached patch is against 2.4.18 and serializes the microcode update
-because it has to be done like that in certain cases and it does no harm
-to do it in all cases.
+On Wed, 27 Feb 2002, David S. Miller wrote:
 
-Also, it avoids the silly message "upgrading from N to M" where M==N,
-which was confusing enough to generate lots of email in my inbox :)
-Because now only one update can happen at a time the above workaround is
-no longer needed so it was removed.
+>
+> In the usual place:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3-0.92.patch.gz
+>
+> Three changes of note:
+>
+> [FEATURE] Yay, real HW acceleration hooks in the 802.1q VLAN layer.
+> 	  Tigon3 takes advantage of it.
+> [BUG FIX] Let tg3_read_partno fail, some boards do not provide the
+>           information and it isn't critical to the operation of the
+> 	  driver.
+> [BUG FIX] Minor bug in ETHTOOL_GREGS length handling.
+> [CLEANUP] Use netif_carrier_{ok,on,off}() to keep track of link state.
+>
+> If people with real VLANs can try to get the HW acceleration stuff
+> working, I'd really appreciate it.  Especially the person who (GASP)
+> wanted us to put the tasteless NICE stuff into our driver. :-)
+>
 
-Regards,
-Tigran
+Heh, I've never looked at the NICE-code.. I just found it working OK for
+me :)
 
---- linux-2.4.18/arch/i386/kernel/microcode.c	Tue Oct 30 23:13:17 2001
-+++ linux-2.4.18-mc/arch/i386/kernel/microcode.c	Thu Feb 28 16:52:45 2002
-@@ -51,6 +51,10 @@
-  *		Bugfix for HT (Hyper-Threading) enabled processors
-  *		whereby processor resources are shared by all logical processors
-  *		in a single CPU package.
-+ *	1.10	28 Feb 2001 Asit K Mallick <asit.k.mallick@intel.com> and
-+ *		Tigran Aivazian <tigran@veritas.com>,
-+ *		Serialize updates as required on HT processors due to speculative
-+ *		nature of implementation.
-  */
+Anyway, I'm going to test this code after a while so I can be sure it
+_should_ work (I have only one production system where I can test this so
+I can't use very buggy drivers in it :)
 
- #include <linux/init.h>
-@@ -60,12 +64,16 @@
- #include <linux/vmalloc.h>
- #include <linux/miscdevice.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/spinlock.h>
 
- #include <asm/msr.h>
- #include <asm/uaccess.h>
- #include <asm/processor.h>
 
--#define MICROCODE_VERSION 	"1.09"
-+
-+static spinlock_t microcode_update_lock = SPIN_LOCK_UNLOCKED;
-+
-+#define MICROCODE_VERSION 	"1.10"
+> Adding support to the Acenic driver should be pretty easy and I'll
+> try to do that before catching some sleep.  Jeff could also probably
+> cook up something quick for the e1000.
+>
 
- MODULE_DESCRIPTION("Intel CPU (IA-32) microcode update driver");
- MODULE_AUTHOR("Tigran Aivazian <tigran@veritas.com>");
-@@ -195,7 +203,8 @@
- 	struct cpuinfo_x86 *c = cpu_data + cpu_num;
- 	struct update_req *req = update_req + cpu_num;
- 	unsigned int pf = 0, val[2], rev, sig;
--	int i,found=0;
-+	unsigned long flags;
-+	int i;
+That would be nice, a common way for hw-vlans is a good thing.
 
- 	req->err = 1; /* assume update will fail on this cpu */
+Intel has also their own (kludgy?) way of doing hw-vlans in the current
+driver?
 
-@@ -216,8 +225,9 @@
- 	for (i=0; i<microcode_num; i++)
- 		if (microcode[i].sig == sig && microcode[i].pf == pf &&
- 		    microcode[i].ldrver == 1 && microcode[i].hdrver == 1) {
--
--			found=1;
-+			int sum = 0;
-+			struct microcode *m = &microcode[i];
-+			unsigned int *sump = (unsigned int *)(m+1);
 
- 			printf("Microcode\n");
- 			printf("   Header Revision %d\n",microcode[i].hdrver);
-@@ -234,53 +244,68 @@
- 			printf("   Loader Revision %x\n",microcode[i].ldrver);
- 			printf("   Processor Flags %x\n\n",microcode[i].pf);
+- Pasi Kärkkäinen
 
-+			req->slot = i;
-+
-+			/* serialize access to update decision */
-+			spin_lock_irqsave(&microcode_update_lock, flags);
-+
- 			/* trick, to work even if there was no prior update by the BIOS */
- 			wrmsr(MSR_IA32_UCODE_REV, 0, 0);
- 			__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
-
- 			/* get current (on-cpu) revision into rev (ignore val[0]) */
- 			rdmsr(MSR_IA32_UCODE_REV, val[0], rev);
-+
- 			if (microcode[i].rev < rev) {
-+				spin_unlock_irqrestore(&microcode_update_lock, flags);
- 				printk(KERN_ERR
--					"microcode: CPU%d not 'upgrading' to earlier revision"
-+				       "microcode: CPU%d not 'upgrading' to earlier revision"
-+				       " %d (current=%d)\n", cpu_num, microcode[i].rev, rev);
-+				return;
-+			} else if (microcode[i].rev == rev) {
-+				/* notify the caller of success on this cpu */
-+				req->err = 0;
-+				spin_unlock_irqrestore(&microcode_update_lock, flags);
-+				printk(KERN_ERR
-+					"microcode: CPU%d already at revision"
- 					" %d (current=%d)\n", cpu_num, microcode[i].rev, rev);
--			} else {
--				int sum = 0;
--				struct microcode *m = &microcode[i];
--				unsigned int *sump = (unsigned int *)(m+1);
--
--				while (--sump >= (unsigned int *)m)
--					sum += *sump;
--				if (sum != 0) {
--					printk(KERN_ERR "microcode: CPU%d aborting, "
--							"bad checksum\n", cpu_num);
--					break;
--				}
--
--				/* write microcode via MSR 0x79 */
--				wrmsr(MSR_IA32_UCODE_WRITE, (unsigned int)(m->bits), 0);
-+				return;
-+			}
-
--				/* serialize */
--				__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
-+			/* Verify the checksum */
-+			while (--sump >= (unsigned int *)m)
-+				sum += *sump;
-+			if (sum != 0) {
-+				req->err = 1;
-+				spin_unlock_irqrestore(&microcode_update_lock, flags);
-+				printk(KERN_ERR "microcode: CPU%d aborting, "
-+				       "bad checksum\n", cpu_num);
-+				return;
-+			}
-+
-+			/* write microcode via MSR 0x79 */
-+			wrmsr(MSR_IA32_UCODE_WRITE, (unsigned int)(m->bits), 0);
-
--				/* get the current revision from MSR 0x8B */
--				rdmsr(MSR_IA32_UCODE_REV, val[0], val[1]);
-+			/* serialize */
-+			__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
-
--				/* notify the caller of success on this cpu */
--				req->err = 0;
--				req->slot = i;
-+			/* get the current revision from MSR 0x8B */
-+			rdmsr(MSR_IA32_UCODE_REV, val[0], val[1]);
-
--				printk(KERN_INFO "microcode: CPU%d updated from revision "
--						"%d to %d, date=%08x\n",
--						cpu_num, rev, val[1], m->date);
--			}
--			break;
-+			/* notify the caller of success on this cpu */
-+			req->err = 0;
-+			spin_unlock_irqrestore(&microcode_update_lock, flags);
-+			printk(KERN_INFO "microcode: CPU%d updated from revision "
-+			       "%d to %d, date=%08x\n",
-+			       cpu_num, rev, val[1], microcode[i].date);
-+			return;
- 		}
--
--	if(!found)
--		printk(KERN_ERR "microcode: CPU%d no microcode found! (sig=%x, pflags=%d)\n",
--				cpu_num, sig, pf);
-+
-+	printk(KERN_ERR
-+	       "microcode: CPU%d no microcode found! (sig=%x, pflags=%d)\n",
-+	       cpu_num, sig, pf);
- }
-+
-
- static ssize_t microcode_read(struct file *file, char *buf, size_t len, loff_t *ppos)
- {
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
 

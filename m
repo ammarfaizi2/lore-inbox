@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266101AbSLYGJJ>; Wed, 25 Dec 2002 01:09:09 -0500
+	id <S266108AbSLYHAF>; Wed, 25 Dec 2002 02:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266108AbSLYGJJ>; Wed, 25 Dec 2002 01:09:09 -0500
-Received: from polaris.galacticasoftware.com ([206.45.95.222]:36110 "EHLO
-	polaris.galacticasoftware.com") by vger.kernel.org with ESMTP
-	id <S266101AbSLYGJI>; Wed, 25 Dec 2002 01:09:08 -0500
-Date: Wed, 25 Dec 2002 00:16:41 -0600
-To: Joao Seabra <seabra@aac.uc.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel GCC Optimizations
-Message-ID: <20021225061641.GA6351@mira.lan.galacticasoftware.com>
-References: <Pine.LNX.4.33.0212221322260.12768-100000@ci.aac.uc.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0212221322260.12768-100000@ci.aac.uc.pt>
-User-Agent: Mutt/1.4i
-From: Adam Majer <adamm@galacticasoftware.com>
+	id <S266112AbSLYHAF>; Wed, 25 Dec 2002 02:00:05 -0500
+Received: from [209.195.52.121] ([209.195.52.121]:21948 "HELO
+	warden2b.diginsite.com") by vger.kernel.org with SMTP
+	id <S266108AbSLYHAE>; Wed, 25 Dec 2002 02:00:04 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Tue, 24 Dec 2002 22:56:01 -0800 (PST)
+Subject: aic7xxx won't boot in v2.5.53
+In-Reply-To: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212242251460.14400-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 22, 2002 at 01:23:08PM +0000, Joao Seabra wrote:
->  Rename registers from the gcc 3.2 man:
-> "Attempt to avoid false dependencies in scheduled code by making
->           use of registers left over after register allocation. This
->           optimization will most benefit processors with lots of
->           registers. It can, however, make debugging impossible, since
->           variables will no longer stay in a "home register"."
+when I try to boot 2.5.53 with the 6.2.24 'new' aic7xxx driver I get an
+error message
+aic 7xxx PCI Device 0:10:0 failed memory mapped test useing PIO
+and then the initial information block about the card, then nothing, it
+never finishes downloading the firmware or detects the drives.
 
-Just to be blunt here :), i386 is not one of these register rich
-archs. So it will probably not help you to compile with -O3... Of course
-you could have something else...
+I am sucessfully useing 2.4.18 on this box, but have been unable to use
+any of the recent 2.5 kernels, prior to .53 they were not detecting any of
+the disks.
 
-- Adam
+David Lang

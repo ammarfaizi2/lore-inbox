@@ -1,80 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUEWCnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUEWCrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUEWCnR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 22:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUEWCnR
+	id S262103AbUEWCrB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 22:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUEWCrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 22:43:17 -0400
-Received: from zasran.com ([198.144.206.234]:15747 "EHLO zasran.com")
-	by vger.kernel.org with ESMTP id S262079AbUEWCnP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 22:43:15 -0400
-Message-ID: <40B00FBD.8030506@bigfoot.com>
-Date: Sat, 22 May 2004 19:43:09 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
+	Sat, 22 May 2004 22:47:01 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52124 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262103AbUEWCqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 22:46:55 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm5
+References: <20040522013636.61efef73.akpm@osdl.org>
+	<m165aorm70.fsf@ebiederm.dsl.xmission.com>
+	<20040522180837.3d3cc8a9.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 May 2004 20:45:32 -0600
+In-Reply-To: <20040522180837.3d3cc8a9.akpm@osdl.org>
+Message-ID: <m11xlbsvxv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: how to make side button (button 6) work with kernel 2.6.5 (logitech
- mouseman)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   I have the Logitech Cordless MouseMan Wheel mouse and while it's
-mostly working I can't get the side button to work (used to be button 6
-when I was using kernel 2.4.x).
+Andrew Morton <akpm@osdl.org> writes:
 
-   the problem is that side button is same as button 2 (clicking the
-wheel), as verified by xev.
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > Andrew Morton <akpm@osdl.org> writes:
+> > 
+> > >
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm5/
+> 
+> > >
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm5/
+> 
+> > > 
+> > > 
+> > > add-i386-readq.patch
+> > >   add i386 readq()/writeq()
+> > 
+> > > static inline u64 readq(void *addr)
+> > > {
+> > > 	return readl(addr) | (((u64)readl(addr + 4)) << 32);
+> > > }
+> > > 
+> > > static inline void writeq(u64 v, void *addr)
+> > > {
+> > > 	u32 v32;
+> > > 
+> > > 	v32 = v;
+> > > 	writel(v32, addr);
+> > > 	v32 = v >> 32;
+> > > 	writel(v32, addr + 4);
+> > > }
+> > > 
+> > > #endif
+> > 
+> > The implementation is broken and it will break drivers that actually
+> > expect writeq and readq to be 64bit reads and writes.
+> 
+> I don't think we can expect all architectures to be able to implement
+> atomic 64-bit IO's, can we?
 
-   I use psmouse moudule, here's what syslog says when I modprobe psmouse:
+No I don't think we can expect all architectures to be able to
+generate 64-bit bus cycles.  Although I think we can expect a majority
+of them to, and I believe that majority encompasses all the platforms
+we want to run drivers that require readq and writeq.
 
-/var/log/syslog.0:May 10 23:30:27 jojda kernel: input: ImPS/2 Logitech
-Wheel Mouse on isa0060/serio1
+There are some drivers that cannot be implemented on architectures
+without 64bit transactions on the I/O bus.  This is not always a race
+issue that can be fixed with locking.  I know of at least mtd map
+driver where if you don't feed the device 64bit writes you will store
+corrupt data.
 
-   and here's my X config for mouse:
+If we want to use the above quoted functions we need to call them
+readq_emulated and writeq_emulated.  Because they are not the real
+mccoy.  Likely only readq_emulated and writeq_emulated can be
+implemented on all architectures.
 
+As I understand the current situation every architecture that
+implements readq/writeq generates true 64bit bus cycles.  A driver can
+test if it the support exists at compile time with a simple #ifdef to
+see if the function is present.  If the function is not supported at
+compile time the driver can implement a work around (like
+readq_emulated) or it can fail to compile.
 
-Section "InputDevice"
-	Identifier	"Logitech Cordless MouseMan Wheel"
-	Driver		"mouse"
-	Option		"CorePointer"
-	# Option		"Protocol"		"MouseManPlusPS/2"
-	Option		"Protocol"		"ExplorerPS/2"
-	Option		"Device"		"/dev/psaux"
-	Option		"Emulate3Buttons"	"false"
-	Option		"Buttons"		"6"
-	Option		"ZAxisMapping"		"5 6"
-	Option		"SendCoreEvents"	"true"
-EndSection
+> ergo, drivers which want to use readq and writeq should provide the
+> appropriate locking.
 
-and here's modmap that used to work with kernel 2.4.x (it still sort of
-works, the wheel is usable)
+Hmm.  I thought the logic:
+   I am going to introduce a broken implementation of a generic
+   function and this will reduce the maintainability of your driver in
+   subtle incomprehensible ways by not doing what is advertised.  In
+   addition I will not even attempt to fix all of the drivers in the
+   tree when I generate the patch.
+did not fly in linux.
 
-xmodmap -e "pointer = 1 2 3 6 4 5"
+I am worried about the general and subtle breakage that may occur
+from a driver that works when real 64bit read/writes are generated
+on the bus, and fails when we emulate them.
 
-   other combinations I tried:
+Knowing of two drivers off the top of my head that will break
+with this patch, I am opposed to it on general grounds.  The
+infiniband driver is not in the tree and it can have locking
+added to correct the additional race.  The 64bit mtd map drivers
+I have seen for some ppc platrrom will break as soon as they stop
+rolling readq/writeq by hand, and no amount of locking will help
+there.  I don't know what else in the tree will break.
 
-Option		"Protocol"		"ExplorerPS/2"
-Option		"ZAxisMapping"		"4 5"
-no xmodmap mapping
+> > I attempted to suggest some alternative implementations earlier
+> > in the original thread that brought this up but it looks like
+> > you missed that.
+> 
+> I saw some stuff float past, but I don't recall seeing anything which would
+> work on all architectures?
 
-Option		"Protocol"		"ImPS/2"
-Option		"ZAxisMapping"		"4 5"
-no xmodmap mapping
+I am not yet convinced you can write code that will work on all
+architectures.  I have yet to see generic code that with all
+existing drivers.
 
-   got same results, both wheel and side button act as button 2.
+I was attempting to start the conversation, because I don't know all
+of the answers, I can just detect failures.  In general on a 32bit
+arch you need to use the FPU to implement a 64bit read or write. This
+is not something you can code casually in the kernel or that you can
+write generically.  Although the basic idiom will likely be the same
+for different architectures.
 
-   I also tried "ZAxisMapping"		"4 5" and xmodmap -e "pointer = 1 2 3 6 
-4 5", that make turning the wheel become button 4 and 6, looks like side 
-button is always mapped to wahtever button 2 is mapped to, e.g. xmodmap 
--e "pointer = 1 6 3 4 5 2" results in side button and wheel click to 
-become button 6 (is it kernel module that does that?)
+Currently I know of a safe version that will work on x86 on processors
+with sse support.   And I how to generate 64bit I/O cycles with using
+mmx or x87 registers,  but don't know if I can write code that touches
+the FPU registers that is interrupt safe.
 
-   TIA
+Eric
 
-	erik
 

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbUCLBWl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 20:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUCLBWl
+	id S261879AbUCLBXn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 20:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUCLBXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 20:22:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15825 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261884AbUCLBWj (ORCPT
+	Thu, 11 Mar 2004 20:23:43 -0500
+Received: from holomorphy.com ([207.189.100.168]:51986 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261879AbUCLBXe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 20:22:39 -0500
-Date: Thu, 11 Mar 2004 17:22:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-Id: <20040311172244.3ae0587f.akpm@osdl.org>
-In-Reply-To: <16465.3163.999977.302378@notabene.cse.unsw.edu.au>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-	<16465.3163.999977.302378@notabene.cse.unsw.edu.au>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 11 Mar 2004 20:23:34 -0500
+Date: Thu, 11 Mar 2004 17:23:27 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       kenneth.w.chen@intel.com
+Subject: Re: [PATCH] per-backing dev unplugging #2
+Message-ID: <20040312012327.GA655@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jens Axboe <axboe@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com
+References: <20040311083619.GH6955@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040311083619.GH6955@suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
->
-> 
-> 2.6.4-mm1 doesn't work for me :-(
-> 
-> I get the:
->    Uncompressing kernel ... now booting Linux
-> 
-> message, and then ...... nothing.
-> 
-> I've seen this before when trying to boot a P4 kernel on a P-classic
-> etc, so I tried compiling with CONFIG_M386, and got lots of compile
-> errors:
-> 
-> include/asm/acpi.h: In function `__acpi_acquire_global_lock':
-> include/asm/acpi.h:74: warning: implicit declaration of function `cmpxchg'
-> 
-> So I tried the default (CONFIG_M686) and it still doesn't work.
-> 
-> So: where do I look next?
-> 
-> I've included some of the machine specs below together with a config
-> file.
+On Thu, Mar 11, 2004 at 09:36:19AM +0100, Jens Axboe wrote:
+> Final version, unless something stupid pops up. Changes:
+> - Adapt to 2.6.4-mm1
+> - Cleaned up the dm bits, much nicer with the lockless unplugging
+>   (thanks Joe)
+> - md and loop unplugging, stacked devices should unplug their targets.
+>   Otherwise they'll end up waiting for the unplug timer, which sucks.
+> - XFS fixed up, I hope. XFS folks still encouraged to look at this,
+>   looks better this time around though (and works, I tested).
+> - blk_run_* inlined in blkdev.h
+> Against 2.6.4-mm1 (note you need other attached patch to boot it).
 
-Tried adding earlyprintk=vga?
+There was a decent improvement here. I'll get some numbers up after
+I rerun (ETA 2 hours) since I blew away the results in reformatting.
 
-If that works, judicious addition of printks will narrow it down.
+
+-- wli
+

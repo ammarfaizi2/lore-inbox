@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263193AbTIVPjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 11:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbTIVPji
+	id S263190AbTIVPrI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 11:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTIVPrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 11:39:38 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:2800 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263193AbTIVPji (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 11:39:38 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Move slab objects to the end of the real allocation
-Date: Mon, 22 Sep 2003 17:33:37 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-mm@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Sep 2003 11:47:08 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:59564 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263190AbTIVPrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 11:47:05 -0400
+Date: Mon, 22 Sep 2003 16:45:52 +0100
+From: Dave Jones <davej@redhat.com>
+To: Marcelo Tossati <marcelo.tosatti@cyclades.com.br>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] backport missing Intel cache sizes.
+Message-ID: <20030922154552.GD15344@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Marcelo Tossati <marcelo.tosatti@cyclades.com.br>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309221733.37203.arnd@arndb.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
->    - Do not page-pad allocations that are <= SMP_CACHE_LINE_SIZE.  This
->      crashes.  Right now the limit is hardcoded to 128 bytes, but sooner or
->      later an arch will appear with 256 byte cache lines.
+Add some descriptors for Intel cache sizes.
 
-What made you think that 128 is the current maximum? All s390 machines
-have 256 byte cache lines.
+		Dave
 
-	Arnd <><
+--- arch/i386/kernel/setup.c~	2003-09-22 15:48:24.000000000 +0100
++++ arch/i386/kernel/setup.c	2003-09-22 15:49:33.000000000 +0100
+@@ -2296,6 +2296,8 @@
+ 	{ 0x23, LVL_3,      1024 },
+ 	{ 0x25, LVL_3,      2048 },
+ 	{ 0x29, LVL_3,      4096 },
++	{ 0x2c, LVL_1_DATA, 32 },
++	{ 0x30, LVL_1_INST, 32 },
+ 	{ 0x39, LVL_2,      128 },
+ 	{ 0x3b, LVL_2,      128 },
+ 	{ 0x3C, LVL_2,      256 },
+@@ -2318,6 +2320,8 @@
+ 	{ 0x83, LVL_2,      512 },
+ 	{ 0x84, LVL_2,      1024 },
+ 	{ 0x85, LVL_2,      2048 },
++	{ 0x86, LVL_2,      512 },
++	{ 0x87, LVL_2,      1024 },
+ 	{ 0x00, 0, 0}
+ };
+ 
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

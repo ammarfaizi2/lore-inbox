@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUFSUF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUFSUHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263736AbUFSUF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 16:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUFSUF3
+	id S264652AbUFSUHA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 16:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUFSUFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 16:05:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19105 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263736AbUFSUFR (ORCPT
+	Sat, 19 Jun 2004 16:05:51 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:53123 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S264627AbUFSUFd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 16:05:17 -0400
-Date: Sat, 19 Jun 2004 13:04:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: frankvm@xs4all.nl, sdake@mvista.com, liste@jordet.nu,
-       linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: [2.4] page->buffers vanished in journal_try_to_free_buffers()
-Message-Id: <20040619130409.6f3a5f8e.akpm@osdl.org>
-In-Reply-To: <20040619194849.GA2843@logos.cnet>
-References: <1075832813.5421.53.camel@chevrolet.hybel>
-	<Pine.LNX.4.58L.0402052139420.16422@logos.cnet>
-	<1078225389.931.3.camel@buick.jordet>
-	<1087232825.28043.4.camel@persist.az.mvista.com>
-	<20040615131650.GA13697@logos.cnet>
-	<1087322198.8117.10.camel@persist.az.mvista.com>
-	<20040617131600.GB3029@logos.cnet>
-	<20040617200859.7fada9fe.akpm@osdl.org>
-	<20040619194849.GA2843@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 19 Jun 2004 16:05:33 -0400
+Date: Sat, 19 Jun 2004 22:05:32 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/11] New set of input patches
+Message-ID: <20040619200532.GB20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040618203340.45436.qmail@web81301.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bzibOeouBB0RgR3s"
+Content-Disposition: inline
+In-Reply-To: <20040618203340.45436.qmail@web81301.mail.yahoo.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> Maybe adding this (untested) to v2.4 mainline helps? Comments?
 
-It would be helpful.
+--bzibOeouBB0RgR3s
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  --- transaction.c.orig	2004-06-19 15:21:32.861148560 -0300
->  +++ transaction.c	2004-06-19 15:23:18.214132472 -0300
->  @@ -1694,6 +1694,24 @@
->   	return 0;
->   }
->   
->  +void debug_page(struct page *p)
->  +{
->  +	struct buffer_head *bh;
->  +
->  +	bh = p->buffers;
->  +
->  +	printk(KERN_ERR "%s: page index:%u count:%d flags:%x\n", __FUNCTION__,
->  +		,p->index , atomic_read(&p->count), p->flags);
+On Fri, 2004-06-18 13:33:40 -0700, Dmitry Torokhov <dtor_core@ameritech.net>
+wrote in message <20040618203340.45436.qmail@web81301.mail.yahoo.com>:
+> > However, they won't apply onto Linus' tree and cause rejects in a good
+> > number of "interesting" files.
+>=20
+> Well, I do not consider it tested enough to be ready for Linus yet :)
+> I am thinking about publushing my input-sysfs bk tree... Will there
+> be an interest in it or you just want a patch against the vanilla 2.6.7?
+> I can do a wholesale patch but splitting my changes from other stuff in
+> Vojtech's tree does not sound very appealing...=20
 
-                ^
+As I said, I'd love to see a -linus based patch, simply because I
+basically work with exactly this as my base. However, I can also try to
+get another base to start from.
 
->  +
->  +	do {
->  +		printk(KERN_ERR "%s: bh b_next:%p blocknr:%u b_list:%u state:%x\n",
->  +			__FUNCTION__, bh->b_next, bh->b_blocknr, bh->b_list,
->  +				bh->b_state);
->  +		bh = bh->b_this_page;
->  +	} while (bh);
->  +}
->  +
+MfG, JBG
 
-you'll want to make this a while (!bh) {} loop, to handle the
-page->buffers==NULL case.
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
+--bzibOeouBB0RgR3s
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA1JyLHb1edYOZ4bsRAsmoAJ9o4O8OoMQOtz3uEsah8RYY+QtjRwCfcfH6
+dc9NK3Sa3yJpUFsQUkGaXNE=
+=qBy4
+-----END PGP SIGNATURE-----
+
+--bzibOeouBB0RgR3s--

@@ -1,198 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUIOMwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUIOMxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUIOMwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 08:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUIOMwJ
+	id S264085AbUIOMxn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 08:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUIOMxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 08:52:09 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:34962 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263100AbUIOMvu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 08:51:50 -0400
-Date: Wed, 15 Sep 2004 18:21:45 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org, fastboot@osdl.org
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>, mbligh@aracnet.com,
-       ebiederm@xmission.com, litke@us.ibm.com
-Subject: [PATCH][1/6]Documentation
-Message-ID: <20040915125145.GB15450@in.ibm.com>
-Reply-To: hari@in.ibm.com
-References: <20040915125041.GA15450@in.ibm.com>
+	Wed, 15 Sep 2004 08:53:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:11977 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264085AbUIOMwy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 08:52:54 -0400
+Date: Wed, 15 Sep 2004 14:53:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [patch] tune vmalloc size
+Message-ID: <20040915125356.GA11250@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
+Content-Type: multipart/mixed; boundary="RnlQjJ0d97Da+TV1"
 Content-Disposition: inline
-In-Reply-To: <20040915125041.GA15450@in.ibm.com>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---82I3+IH0IqGh5yIs
+--RnlQjJ0d97Da+TV1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Regards, Hari
--- 
-Hariprasad Nellitheertha
-Linux Technology Center
-India Software Labs
-IBM India, Bangalore
 
---82I3+IH0IqGh5yIs
+there are a few devices that use lots of ioremap space. vmalloc space is
+a showstopper problem for them.
+
+this patch adds the vmalloc=<size> boot parameter to override
+__VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+doubles the size.
+
+	Ingo
+
+--RnlQjJ0d97Da+TV1
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kd-doc-269rc1-mm5.patch"
+Content-Disposition: attachment; filename="tune-vmalloc.patch"
 
 
+there are a few devices that use lots of ioremap space. vmalloc space
+is a showstopper problem for them.
 
-This patch contains the documentation for the kexec based crash dump tool.
+this patch adds the vmalloc=<size> boot parameter to override
+__VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+doubles the size.
 
-Signed off by Hariprasad Nellitheertha <hari@in.ibm.com>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjanv@redhat.com>
 
+--- linux/arch/i386/kernel/setup.c.orig	
++++ linux/arch/i386/kernel/setup.c	
+@@ -814,7 +814,15 @@ static void __init parse_cmdline_early (
+ 		 */
+ 		if (c == ' ' && !memcmp(from, "highmem=", 8))
+ 			highmem_pages = memparse(from+8, &from) >> PAGE_SHIFT;
+-	
++
++		/*
++		 * vmalloc=size forces the vmalloc area to be exactly 'size'
++		 * bytes. This can be used to increase (or decrease) the
++		 * vmalloc area - the default is 128m.
++		 */
++		if (c == ' ' && !memcmp(from, "vmalloc=", 8))
++			__VMALLOC_RESERVE = memparse(from+8, &from);
++		
+ 		c = *(from++);
+ 		if (!c)
+ 			break;
+--- linux/arch/i386/mm/init.c.orig	
++++ linux/arch/i386/mm/init.c	
+@@ -40,6 +40,8 @@
+ #include <asm/tlbflush.h>
+ #include <asm/sections.h>
+ 
++unsigned int __VMALLOC_RESERVE = 128 << 20;
++
+ DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
+ unsigned long highstart_pfn, highend_pfn;
+ 
+--- linux/arch/i386/boot/setup.S.orig	
++++ linux/arch/i386/boot/setup.S	
+@@ -156,7 +156,7 @@ cmd_line_ptr:	.long 0			# (Header versio
+ 					# can be located anywhere in
+ 					# low memory 0x10000 or higher.
+ 
+-ramdisk_max:	.long (MAXMEM-1) & 0x7fffffff
++ramdisk_max:	.long (-__PAGE_OFFSET-(512 << 20)-1) & 0x7fffffff
+ 					# (Header version 0x0203 or later)
+ 					# The highest safe address for
+ 					# the contents of an initrd
+--- linux/include/asm-i386/page.h.orig	
++++ linux/include/asm-i386/page.h	
+@@ -94,13 +94,13 @@ typedef struct { unsigned long pgprot; }
+  * and CONFIG_HIGHMEM64G options in the kernel configuration.
+  */
+ 
++#ifndef __ASSEMBLY__
++
+ /*
+  * This much address space is reserved for vmalloc() and iomap()
+  * as well as fixmap mappings.
+  */
+-#define __VMALLOC_RESERVE	(128 << 20)
+-
+-#ifndef __ASSEMBLY__
++extern unsigned int __VMALLOC_RESERVE;
+ 
+ /* Pure 2^n version of get_order */
+ static __inline__ int get_order(unsigned long size)
+--- linux/mm/vmalloc.c.orig	
++++ linux/mm/vmalloc.c	
+@@ -247,6 +247,8 @@ found:
+ out:
+ 	write_unlock(&vmlist_lock);
+ 	kfree(area);
++	if (printk_ratelimit())
++		printk(KERN_WARNING "allocation failed: out of vmalloc space - use vmalloc=<size> to increase size.\n");
+ 	return NULL;
+ }
+ 
 
-
----
-
- linux-2.6.9-rc1-hari/Documentation/kdump.txt |  133 +++++++++++++++++++++++++++
- 1 files changed, 133 insertions(+)
-
-diff -puN /dev/null Documentation/kdump.txt
---- /dev/null	2003-01-30 15:54:37.000000000 +0530
-+++ linux-2.6.9-rc1-hari/Documentation/kdump.txt	2004-09-15 17:36:25.000000000 +0530
-@@ -0,0 +1,133 @@
-+Documentation for kdump - the kexec based crash dumping solution
-+================================================================
-+
-+DESIGN
-+======
-+
-+We use kexec to reboot to a second kernel whenever a dump needs to be taken.
-+This second kernel is booted with with very little memory (configurable
-+at compile time). The first kernel reserves the section of memory that the
-+second kernel uses. This ensures that on-going DMA from the first kernel
-+does not corrupt the second kernel. The first 640k of physical memory is
-+needed irrespective of where the kernel loads at. Hence, this region is
-+backed up before reboot.
-+
-+In the second kernel, "old memory" can be accessed in two ways. The
-+first one is through a device interface. We can create a /dev/oldmem or
-+whatever and write out the memory in raw format. The second interface is
-+through /proc/vmcore. This exports the dump as an ELF format file which
-+can be written out using any file copy command (cp, scp, etc). Further, gdb
-+can be used to perform some minimal debugging on the dump file. Both these
-+methods ensure that there is correct ordering of the dump pages (corresponding
-+to the first 640k that has been relocated).
-+
-+Note that the two approaches are independent and the patches
-+can be used depending on the functionality needed. More details on the
-+patches below.
-+
-+PATCHES
-+=======
-+
-+We currently have 6 patches.
-+
-+1) kd-doc-<version>.patch - Contains basic documentation (this document!!)
-+2) kd-reb-<version>.patch - This patch ensures we do a kexec reboot upon panic
-+   and also saves the necessary regions of  memory into a backup area
-+3) kd-copy-<version>.patch - This contains the code for reading the dump pages
-+   in the second kernel.
-+4) kd-reg-<version>.patch - This patch is for snapshotting the register contents
-+   of all processors on to the backup area before rebooting.
-+5) kd-elf-<version>.patch - This patch provides an ELF format interface to
-+   the dump, post-reboot.
-+6) kd-oldmem-<version>.patch - This patch contains the code to access the dump as
-+   an /dev/oldmem.
-+
-+SETUP
-+=====
-+
-+1) Apply the appropriate -mm patch on to the vanilla kernel tree. The -mm
-+   tree has the kexec patches included.
-+
-+2) In order to enable the kernel to boot from a non-default location, the
-+   following patches (by Eric Biederman) needs to be applied.
-+
-+   http://www.xmission.com/~ebiederm/files/kexec/2.6.8.1-kexec3/
-+	broken-out/highbzImage.i386.patch
-+   http://www.xmission.com/~ebiederm/files/kexec/2.6.8.1-kexec3/
-+	broken-out/vmlinux-lds.i386.patch
-+
-+3) Apply the crash dump patches.
-+
-+4) Two kernels need to be built in order to get this feature working.
-+
-+   For the first kernel, choose the default values for the following options.
-+
-+   a) Physical address where the kernel expects to be loaded
-+   b) kexec system call
-+   c) kernel crash dumps
-+
-+   All the options are under "Processor type and features"
-+
-+   For the second kernel, change (a) to 16MB. If you want to choose another
-+   value here, ensure "location of the crash dumps backup region" under (c)
-+   reflects the same value.
-+
-+   Also ensure you have CONFIG_HIGHMEM on.
-+
-+5) Boot into the first kernel. You are now ready to try out kexec based crash
-+   dumps.
-+
-+5) Load the second kernel to be booted using
-+
-+   kexec -l <second-kernel> --args-linux --append="root=<root-dev> dump
-+   init 1 memmap=exactmap memmap=640k@0 memmap=32M@16M"
-+
-+   Note that <second-kernel> has to be a vmlinux image. bzImage will not
-+   work, as of now.
-+
-+6) Enable kexec based dumping by
-+
-+   echo 1 > /proc/kexec-dump
-+
-+7) System reboots into the second kernel when a panic occurs.
-+   You could write a module to call panic, for testing purposes.
-+
-+8) Write out the dump file using
-+
-+   cp /proc/vmcore <dump-file>
-+
-+You can also access the dump as a device for a linear/raw view. To do this,
-+you will need the kd-oldmem-<version>.patch built into the kernel. To create
-+the device, type
-+
-+  mknod /dev/oldmem c 1 12
-+
-+Use "dd" with suitable options for count, bs and skip to access specific
-+portions of the dump.
-+
-+ANALYSIS
-+========
-+
-+You can run gdb on the dump file copied out of /proc/vmcore. Use vmlinux built
-+with -g and run
-+
-+  gdb vmlinux <dump-file>
-+
-+Stack trace for the task on processor 0, register display, memory display
-+work fine.
-+
-+TODO
-+====
-+
-+1) Provide a kernel-pages only view for the dump. This could possibly turn up
-+   as /proc/vmcore-kern.
-+2) Provide register contents of all processors (similar to what multi-threaded
-+   core dumps does).
-+3) Modify "crash" to make it recognize this dump.
-+4) Make the i386 kernel boot from any location so we can run the second kernel
-+   from the reserved location instead of the current approach.
-+
-+CONTACT
-+=======
-+
-+Hariprasad Nellitheertha - hari at in dot ibm dot com
-
-_
-
---82I3+IH0IqGh5yIs--
+--RnlQjJ0d97Da+TV1--

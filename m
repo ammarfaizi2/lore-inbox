@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131950AbRCVJC0>; Thu, 22 Mar 2001 04:02:26 -0500
+	id <S131941AbRCVIwN>; Thu, 22 Mar 2001 03:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131952AbRCVJCQ>; Thu, 22 Mar 2001 04:02:16 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:36100 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131950AbRCVJCJ>; Thu, 22 Mar 2001 04:02:09 -0500
-Date: Thu, 22 Mar 2001 04:17:50 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: kswapd deadlock 2.4.3-pre6
-In-Reply-To: <Pine.LNX.4.31.0103212217320.10817-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0103220411070.3306-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131942AbRCVIvy>; Thu, 22 Mar 2001 03:51:54 -0500
+Received: from [213.158.195.134] ([213.158.195.134]:49159 "EHLO
+	plwawtl0.pl.ccbeverages.com") by vger.kernel.org with ESMTP
+	id <S131941AbRCVIvw>; Thu, 22 Mar 2001 03:51:52 -0500
+From: "Tomasz Sterna" <smoku@jaszczur.org>
+Date: Thu, 22 Mar 2001 09:41:59 +0100
+To: James Simmons <jsimmons@linux-fbdev.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: standard_io_resources[]
+Message-ID: <20010322094159.A7407@plwawtl0.pl.ccbeverages.com>
+In-Reply-To: <Pine.LNX.4.31.0103210908560.2648-100000@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.31.0103210908560.2648-100000@linux.local>; from jsimmons@linux-fbdev.org on Wed, Mar 21, 2001 at 09:13:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 21, 2001 at 09:13:05AM -0800, James Simmons wrote:
+> >Isn't that a job of the device drivers?
+> Well most of those resources are present on every PC motherboard.
 
-On Wed, 21 Mar 2001, Linus Torvalds wrote:
+I still can't see a reason for allocating it before the device drivers 
+could do that.
 
-> diff -u --recursive --new-file pre6/linux/mm/memory.c linux/mm/memory.c
-> --- pre6/linux/mm/memory.c	Tue Mar 20 23:13:03 2001
-> +++ linux/mm/memory.c	Wed Mar 21 22:21:27 2001
-> @@ -1031,18 +1031,20 @@
->  	struct vm_area_struct * vma, unsigned long address,
->  	pte_t * page_table, swp_entry_t entry, int write_access)
->  {
-> -	struct page *page = lookup_swap_cache(entry);
-> +	struct page *page;
->  	pte_t pte;
-> 
-> +	spin_unlock(&mm->page_table_lock);
-> +	page = lookup_swap_cache(entry);
->  	if (!page) {
-> -		spin_unlock(&mm->page_table_lock);
->  		lock_kernel();
->  		swapin_readahead(entry);
->  		page = read_swap_cache(entry);
->  		unlock_kernel();
-> -		spin_lock(&mm->page_table_lock);
-> -		if (!page)
-> +		if (!page) {
-> +			spin_lock(&mm->page_table_lock);
->  			return -1;
-> +		}
-> 
->  		flush_page_to_ram(page);
->  		flush_icache_page(vma, page);
+Any suggestions? Anyone?
 
-Are you sure flush_page_to_ram()/flush_icache_page() without
-page_table_lock held is ok for all archs? 
+> This will also be the case for 2.5.X. We already have the PS/2 keyboard
+> ported over to the input api.
 
-Looking at arch/mips/mm/r2300.c:
-
-static void r3k_flush_cache_page(struct vm_area_struct *vma,
-                                   unsigned long page)
-{
-        struct mm_struct *mm = vma->vm_mm;
-
-	...
-               if ((physpage = get_phys_page(page, vma->vm_mm)))   <--------
-                        r3k_flush_icache_range(physpage, PAGE_SIZE);
-	...
-}
+What is the "input api"? Could You give me any URL to read?
 
 
-static inline unsigned long get_phys_page (unsigned long addr,
-                                           struct mm_struct *mm)
-{
-        pgd_t *pgd;
-        pmd_t *pmd;
-        pte_t *pte;
-        unsigned long physpage;
-
-        pgd = pgd_offset(mm, addr);
-        pmd = pmd_offset(pgd, addr);
-        pte = pte_offset(pmd, addr);
-
-        if((physpage = pte_val(*pte)) & _PAGE_VALID) 
-                return KSEG1ADDR(physpage & PAGE_MASK);
-        else
-                return 0;
-	...
-}
-
+-- 
+   __  ___   __
+__`-,_( | )_(__)_|-<_(__)___ _
+http://www.jaszczur.org/~smoku/

@@ -1,39 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133055AbRDLHC7>; Thu, 12 Apr 2001 03:02:59 -0400
+	id <S133054AbRDLHBt>; Thu, 12 Apr 2001 03:01:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133056AbRDLHCp>; Thu, 12 Apr 2001 03:02:45 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:1264 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S133055AbRDLHCX>; Thu, 12 Apr 2001 03:02:23 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200104120700.f3C70W3N016374@webber.adilger.int>
-Subject: Re: Fwd: Re: memory usage - dentry_cacheg
-In-Reply-To: <Pine.GSO.4.21.0104120110210.18135-100000@weyl.math.psu.edu>
- "from Alexander Viro at Apr 12, 2001 01:45:08 am"
-To: Alexander Viro <viro@math.psu.edu>
-Date: Thu, 12 Apr 2001 01:00:32 -0600 (MDT)
-CC: Andreas Dilger <adilger@turbolinux.com>, kowalski@datrix.co.za,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S133055AbRDLHBk>; Thu, 12 Apr 2001 03:01:40 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:60321 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S133054AbRDLHB3>;
+	Thu, 12 Apr 2001 03:01:29 -0400
+Message-ID: <3AD552CA.B56AA740@mandrakesoft.com>
+Date: Thu, 12 Apr 2001 03:01:30 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: George Bonser <george@gator.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: 2.4.4-pre2 nbd compile error
+In-Reply-To: <CHEKKPICCNOGICGMDODJCEHHCLAA.george@gator.com>
+Content-Type: multipart/mixed;
+ boundary="------------71B54C916EA0C6D1C628E25B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al writes:
-> We _have_ VM pressure there. However, such loads had never been used, so
-> there's no wonder that system gets unbalanced under them.
+This is a multi-part message in MIME format.
+--------------71B54C916EA0C6D1C628E25B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+George Bonser wrote:
 > 
-> I suspect that simple replacement of goto next; with continue; in the
-> fs/dcache.c::prune_dcache() may make situation seriously better.
+> gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall -Wstrict-prototypes -O
+> 2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary
+> =2 -march=i686 -DMODULE -DMODVERSIONS -include
+> /usr/local/src/linux/include/linux/modversions.h   -c -o nbd.o nbd.c
+> nbd.c: In function `nbd_send_req':
+> nbd.c:160: `MSG_MORE' undeclared (first use in this function)
+> nbd.c:160: (Each undeclared identifier is reported only once
+> nbd.c:160: for each function it appears in.)
 
-Yes, it appears that this would be a bug.  We were only _checking_
-"count" dentries, rather than pruning "count" dentries.
+Some zerocopy patch leakage :(
 
-Testing continues.
+> nbd.c: At top level:
+> nbd.c:481: warning: static declaration for `nbd_init' follows non-static
 
-Cheers, Andreas
+See the attached patch....
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."
+--------------71B54C916EA0C6D1C628E25B
+Content-Type: text/plain; charset=us-ascii;
+ name="blk.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="blk.patch"
+
+Index: include/linux/blk.h
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/include/linux/blk.h,v
+retrieving revision 1.1.1.37
+diff -u -r1.1.1.37 blk.h
+--- include/linux/blk.h	2001/04/12 03:17:07	1.1.1.37
++++ include/linux/blk.h	2001/04/12 05:57:14
+@@ -42,7 +42,6 @@
+ extern int swimiop_init(void);
+ extern int amiga_floppy_init(void);
+ extern int atari_floppy_init(void);
+-extern int nbd_init(void);
+ extern int ez_init(void);
+ extern int bpcd_init(void);
+ extern int ps2esdi_init(void);
+
+--------------71B54C916EA0C6D1C628E25B--
+

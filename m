@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269823AbUJHLUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269820AbUJHLUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269823AbUJHLUn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269837AbUJHLUm
+	id S269820AbUJHLUW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269837AbUJHLUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:20:42 -0400
-Received: from holomorphy.com ([207.189.100.168]:4310 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269823AbUJHLQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:16:57 -0400
-Date: Fri, 8 Oct 2004 04:16:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       "K.R. Foley" <kr@cybsft.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
-Message-ID: <20041008111645.GF9106@holomorphy.com>
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
+	Fri, 8 Oct 2004 07:20:21 -0400
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:37527 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S269820AbUJHLSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 07:18:22 -0400
+Subject: Re: hang after resume with adb: starting probe task.
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097189899.16161.6.camel@gaston>
+References: <1097172895.3281.31.camel@localhost>
+	 <1097189899.16161.6.camel@gaston>
+Content-Type: text/plain
+Date: Fri, 08 Oct 2004 13:17:48 +0200
+Message-Id: <1097234268.3339.27.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041005134707.GA32033@elte.hu>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 03:47:07PM +0200, Ingo Molnar wrote:
-> i've released the -T1 VP patch:
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-T1
-> Changes since -T0:
->  - added the read-lock fix from Hugh that affects SMP systems. This 
->    could fix Rui's problem - i've checked -T1 on a P4/HT box and saw no 
->    problems, BYMMV.
->  - compilation fixes (for those who downloaded T0 early)
->  - small tracer improvement
-> to build a -T1 tree from scratch the patching order is:
->    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
->  + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc3.bz2
->  + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/2.6.9-rc3-mm2.bz2
->  + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-T1
+On Fri, 2004-10-08 at 08:58 +1000, Benjamin Herrenschmidt wrote:
+> On Fri, 2004-10-08 at 04:14, Soeren Sonnenburg wrote:
+> > As of at least kernel version 2.6.9-rc2 I pretty often see the kernel
+> > hang after returning from sleep mode hanging with the message "adb:
+> > starting with probe task". This still happens with 2.6.9-rc3 but never
+> > happened with 2.6.8.1.
+> 
+> I doubt it has anything to do with ADB. The ADB probe is asynchronous,
+> it's more something that is coming back at the same time that is
+> crashing, maybe ethernet link, or USB... Can you try without anything
+> plugged in ethernet if you had anything of course ? and with nothing
+> in USB as well ?
 
-The version numbers are up to Chebyshev polynomials. Now I have to try it.
+Actually there was nothing plugged into the ethernet nor usb port. Could
+it also be the airport failing ? I still use orinoco cvs, i.e. airport
+0.15rc2HEAD, but that one also on 2.6.8.1. 
 
+I now have a more or less reliable way of making this pbook crash: put
+it to sleep and wake it up as soon it is sleeping.
 
--- wli
+HTH
+Soeren
+-- 
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety." Benjamin Franklin
+

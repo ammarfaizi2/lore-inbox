@@ -1,85 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTLULVS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 06:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTLULVS
+	id S262731AbTLULX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 06:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTLULX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 06:21:18 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.31]:36043 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262598AbTLULVQ
+	Sun, 21 Dec 2003 06:23:29 -0500
+Received: from mail.shareable.org ([81.29.64.88]:40071 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262731AbTLULX1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 06:21:16 -0500
-Date: Sun, 21 Dec 2003 12:21:13 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: linux@3ware.com
-Subject: 3ware driver broken with 2.4.22/23 ?
-Message-ID: <20031221112113.GE916@mail.muni.cz>
+	Sun, 21 Dec 2003 06:23:27 -0500
+Date: Sun, 21 Dec 2003 11:23:16 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: John Bradford <john@grabjohn.com>
+Cc: ryutaroh@it.ss.titech.ac.jp, vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cannot input bar with JP106 keyboards
+Message-ID: <20031221112316.GE3438@mail.shareable.org>
+References: <20031219123645.GA28801@ucw.cz> <20031220.183049.74735752.ryutaroh@it.ss.titech.ac.jp> <20031220093532.GB6017@ucw.cz> <20031220.185244.71103628.ryutaroh@it.ss.titech.ac.jp> <200312201246.hBKCkP4a000191@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200312201246.hBKCkP4a000191@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+John Bradford wrote:
+> As I understand it there was traditionally a distinction between pipe,
+> (a broken vertical line), and bar, (solid vertical line).
+> 
+> The markings on my keyboard are as follows:
+> 
+> Pipe is the fourth character on the lower-right backslash key.
+> Bar is the second character on the upper-right yen key.
+> 
+> However, my keyboard emulates a US one in Set 2, and produces the
+> Linux 'pipe' symbol, for example as in
+> 
+> cat foo | less
+> 
+> when the bar key is pressed.
 
-I have 3ware Escalade 8500-8 card with 8 SATA WD 250GB drives. I set up HW RAID5
-configuration over all drives.
-I'm using kernel 2.4.23 vanilla with XFS patch. RAID5 partition is formated to
-XFS.
-System is single hyper threaded P4 Xeon 2.8GHz with 1GB of RAM. There is Intel
-1000/PRO ethernet card. Motherboard is MSI E7501 Master-LS.
+I have a UK keyboard; it's a Microsoft Natural keyboard.
 
-If I do:
-iozone -Ra -g 20G -e -n 10485760 
-on the XFS partition then it freezes after certain time (but always the same
-amount if I run it again few times).
+It has both "broken vertical line" and "solid vertical line" markings.
+The former is in the usual place above backslash.  The latter is in
+the alternate (altgr, as opposed to shift) position on the key which
+has backquote (grave) and logical-not symbols.
 
-Server responds only to ping and sysrq. No process can be run and already
-running process top freezes as well. After about 8 hours it is still freezed.
-If I connect monitor to the server when it freezes then monitor indicates - no
-signal.
+Curiously, both "broken vertical line" and "solid vertical line"
+generate a solid vertical line character in X (U+007C, standard pipe
+character), though shift+altgr+"broken vertical line" generates a
+broken vertical line character (U+08A6).
 
-I use configuration with SMP without HIGHMEM. However it happens without SMP as
-well. (Driver: 1.02.00.036)
+On the Linux console, all combinations generate a broken vertical
+line, although that's the terminal font displaying a broken line for
+the same character that X shows as a solid one.
 
-With kernel 2.6.0 it seems to be ok. (Driver: 1.02.00.037)
+What a strange mismash.  It would be nice if the keyboard simply
+produced what is shown on the keys!
 
-Here is lspci:
-00:00.0 Host bridge: Intel Corp. E7501 Memory Controller Hub (rev 01)
-00:00.1 Class ff00: Intel Corp. E7000 Series Host RASUM Controller (rev 01)
-00:02.0 PCI bridge: Intel Corp. E7000 Series Hub Interface B PCI-to-PCI Bridge (rev 01)
-00:02.1 Class ff00: Intel Corp. E7000 Series Hub Interface B RASUM Controller (rev 01)
-00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02)
-00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02)
-00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB PCI Bridge (rev 42)
-00:1f.0 ISA bridge: Intel Corp. 82801CA LPC Interface Controller (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801CA Ultra ATA Storage Controller (rev 02)
-00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus Controller (rev 02)
-01:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 04)
-01:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 04)
-01:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 04)
-01:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 04)
-02:09.0 Ethernet controller: Intel Corp. 82545EM Gigabit Ethernet Controller (Copper) (rev 01)
-02:0c.0 RAID bus controller: 3ware Inc 3ware 7000-series ATA-RAID (rev 01)
-04:04.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet Controller (rev 02)
-04:05.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+It's nice that the logical-not key actually generates a logical-not
+character these days.  I'm not sure why so many keyboard have it, and
+in such a prominent position, considering I've never _ever_ seen it
+used in a document, and the other logical symbols aren't present.
 
-Here is info from 3ware card:
-Monitor version:	ME7X 1.01.00.035	
-Firmware version:	FE7S 1.05.00.036	
-BIOS version:		BE7X 1.08.00.044	
-PCB version:		Rev3	
-Achip version:		V3.20	
-Pchip version:		V1.30	
-Model:			8500-8
+Many older mappings emitted tilde at this position instead of
+logical-not, which I often used and was quite startled the day it
+started emitting what was on the key.
 
-Can firmware upgrade help? Or there is an issue with something other not related
-to 3ware card?
-
--- 
-Luká¹ Hejtmánek
+-- Jamie

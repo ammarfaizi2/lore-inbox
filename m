@@ -1,74 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272308AbTGYUho (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 16:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272309AbTGYUho
+	id S272313AbTGYUiD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 16:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272312AbTGYUiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 16:37:44 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:44797 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S272308AbTGYUhi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 16:37:38 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH] Linux 2.6-pre-mm2 Fix crash on boot on ASUS L3800C if enabing APIC => add this machine to DMI black list
-Date: Fri, 25 Jul 2003 13:52:44 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A847E97080@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Linux 2.6-pre-mm2 Fix crash on boot on ASUS L3800C if enabing APIC => add this machine to DMI black list
-Thread-Index: AcNPJYUFYJ5tPLMeS4W5jNvNlLTLTADyLZeA
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Mikael Pettersson" <mikpe@csd.uu.se>, <akpm@osdl.org>,
-       <eric.valette@free.fr>, <sziwan@hell.org.pl>
-Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Jul 2003 20:52:44.0620 (UTC) FILETIME=[B274D0C0:01C352EE]
+	Fri, 25 Jul 2003 16:38:03 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:36498 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S272311AbTGYUhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 16:37:52 -0400
+Date: Fri, 25 Jul 2003 22:50:24 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "David S. Miller" <davem@redhat.com>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] netfilter Configure.help cleanup
+Message-ID: <20030725205024.GA3244@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Rusty Russell <rusty@rustcorp.com.au>, Adrian Bunk <bunk@fs.tum.de>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>,
+	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+	linux-net@vger.kernel.org
+References: <20030717201304.GL1407@fs.tum.de> <20030718012910.0D5BB2C5A9@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JhY86nTAwD/oWhC3"
+Content-Disposition: inline
+In-Reply-To: <20030718012910.0D5BB2C5A9@lists.samba.org>
+X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
+X-Date: Today is Prickle-Prickle, the 53rd day of Confusion in the YOLD 3169
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
-> On Sun, 20 Jul 2003 21:48:24 +0200, Eric Valette wrote:
-> >The following patch integrated in 2.5.74,
-> >
-> ><http://lists.insecure.org/lists/linux-kernel/2003/Jun/5840.html>
 
-> At least two P4 laptops are known to require the 2.5.74 patch, and
-> they do work with the local APIC.
-> 
-> While I don't dispute your machine has some problem, please
-> do the following first before we completely blacklist it:
-> - ensure you have the latest BIOS (ftp.asuscom.de has the ones for
->   their desktop mainboards, presumably the laptop BIOSen are 
-> also there)
-> - in what way is ACPI mandatory? does it fail to boot, or does it
->   just lose some specific feature? If you just want suspend support,
->   try APM if the machine has it
-> 
-> A question for the ACPI people:
-> - Does the Linux kernel ACPI code ever transfer control to BIOS,
->   explicitly or implicitly via SMIs triggered by the interpreter?
->   If you do transfer control, do you disable interrupts and/or
->   the interrupt controllers before transferring control?
->   Entering BIOS with the local APIC live, in particular the timer,
->   is a known hang-generator with APM.
+--JhY86nTAwD/oWhC3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, some OEMs (IBM, for one. I'm sure there are more) enter SMM when
-executing control methods. The interpreter is just blithely going along
-and writing values to mem and io ports -- it doesn't know it just
-invoked SMM. Nothing is disabled.
+On Fri, Jul 18, 2003 at 11:06:49AM +1000, Rusty Russell wrote:
+> In message <20030717201304.GL1407@fs.tum.de> you write:
+>
+> > the patch below does the following changes to the netfilter entries in
+> > Configure.help in 2.4.22-pre2:
+> > - order similar to net/ipv4/netfilter/Config.in
+> > - remove useless short descriptions above CONFIG_*
+> > - added CONFIG_IP_NF_MATCH_RECENT entry (stolen from 2.5)
+>=20
+> Sorry Adrian, I think this is overzealous.
+>=20
+> Please just add the CONFIG_IP_NF_MATCH_RECENT entry.  Remember,
+> "stable" means "boring". 8)
 
-BTW I'm getting a bunch of other reports starting with 2.5.74 (see
-"linux laptop keyboard problem since 2.5.74"). 
+I will submit the RECENT entry to davem with my next set of patches.
 
-So let me get this straight -- because 2 machines require this patch,
-you want all the OTHER machines to go on the blacklist? Shouldn't the 2
-machines get special-cased?
+Does everybody else have an ordered Configure.help?  if yes, I'd accept
+the patch to comply with common practice.  If not, I would just say: who
+cares about the order, it's processed by {old,menu,x}config anyway.
 
-All these machines work under Windows, so there has to be a solution
-that enables everyone to work.
+> Rusty.
 
-Regards -- Andy
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--JhY86nTAwD/oWhC3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/IZgQXaXGVTD0i/8RArFrAJ912q2rrMA9hpwko3PQ6UDagd1H5wCgi5Jk
+s5GFci4ROPUR5mfpwrZTN1E=
+=6uEt
+-----END PGP SIGNATURE-----
+
+--JhY86nTAwD/oWhC3--

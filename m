@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVCCPBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVCCPIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVCCPBR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 10:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVCCPBR
+	id S261842AbVCCPIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 10:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVCCPHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 10:01:17 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:19176 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261791AbVCCPAp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 10:00:45 -0500
-Message-ID: <42272699.8020206@dgreaves.com>
-Date: Thu, 03 Mar 2005 15:00:41 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302235206.GK3163@waste.org>
-In-Reply-To: <20050302235206.GK3163@waste.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 10:07:44 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29700 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261211AbVCCPHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 10:07:33 -0500
+Date: Thu, 3 Mar 2005 16:07:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>, jmorris@redhat.com, davem@davemloft.net
+Cc: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: How to handle the multiple aes variants on i386?
+Message-ID: <20050303150730.GA4608@stusta.de>
+References: <20050226113123.GJ3311@stusta.de> <42256078.1040002@pobox.com> <20050302140833.GD4608@stusta.de> <42261004.4000501@pobox.com> <20050302123829.51dbc44b.akpm@osdl.org> <42262B08.2040401@pobox.com> <20050302131817.2e61805f.akpm@osdl.org> <4226412E.6070403@pobox.com> <20050302224550.GJ4608@stusta.de> <422642F6.5040102@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422642F6.5040102@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
+On Wed, Mar 02, 2005 at 05:49:26PM -0500, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >On Wed, Mar 02, 2005 at 05:41:50PM -0500, Jeff Garzik wrote:
+>...
+> >>Not really that easy.  For x86 we have
+> >>
+> >>	aes
+> >>	aes-586
+> >>	aes-via
+> >
+> >
+> >Where is aes-via?
+> 
+> drivers/crypto
+> 
+> 
+> >>And my own personal custom-kernel preference is to use the C version of 
+> >>the code on my x86 and x86-64 boxes.
+> >
+> >
+> >That's already not possible today.
+> 
+> It should be.
 
->On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
->  
->
->>This is an idea that has been brewing for some time: Andrew has mentioned
->>it a couple of times, I've talked to some people about it, and today Davem
->>sent a suggestion along similar lines to me for 2.6.12.
->>
->>Namely that we could adopt the even/odd numbering scheme that we used to 
->>do on a minor number basis, and instead of dropping it entirely like we 
->>did, we could have just moved it to the release number, as an indication 
->>of what was the intent of the release.
->>    
->>
->
->One last plea for the 2.4 scheme:
->
-> a) all the crazy stuff goes in 2.6.x-preN, which ends up being
->    equivalent to 2.6.<odd> and friends in your scheme
-> b) bugfixes only in 2.6.x-rcN, which ends up being equivalent to
->    2.6.<even>-* in your scheme.
-> c) 2.6.x is always 2.6.x-rc<last> with just a version number change[1]
->
->This has some nice features:
->
-> - alternates as rapidly as you want between stable and development
-> - no brown paper bag bugs sneaking in between -rc<last> and 2.6.x 
-> - 2.6.* is suitable for all users, 2.6.*-rc* is suitable for almost
->   all users
-> - it's already in use for 2.4 and people are happy with it
->
->  
->
+OK, rethinking about it, your arguments sound reasonable.
 
-I understand that :)
-(and if 2.6.y+1-preX appeared before 2.6.y then that wouldn't be too 
-confusing)
-(neither would 2.6.y.1 as an 'oops' in the human sense)
+Could anyone explain, what exactly happens if multiple "aes" algorithms 
+are compiled into the kernel?
 
---Joe User.
+Choosing between the i386 asm and the generic versions seems easy, bug 
+the VIA Padlock case sounds more tricky since it works only on a subset 
+of the i386 architecture.
 
-Who's scared to risk his personally valuable data on a 
-2.6.x-pre<anything> - but will install, lets see, hmm, -rc2 or above :)
-(I suppose the more paranoid I get, the higher the watermark I set on -rcX)
+> 	Jeff
 
-(I'm lying since I'm running a -mm on my server but that's only because 
-I helped track down an XFS/nfsd bug!)
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

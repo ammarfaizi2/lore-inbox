@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262213AbSJQWfR>; Thu, 17 Oct 2002 18:35:17 -0400
+	id <S262070AbSJQWd7>; Thu, 17 Oct 2002 18:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262218AbSJQWfQ>; Thu, 17 Oct 2002 18:35:16 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:1038 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S262213AbSJQWfQ>; Thu, 17 Oct 2002 18:35:16 -0400
-Date: Fri, 18 Oct 2002 08:39:00 +1000
-From: john slee <indigoid@higherplane.net>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Padraig Brady <padraig.brady@corvil.com>, garrett@tbaytel.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE, TRIVIAL, RFC] Linux source strip/bundle script
-Message-ID: <20021017223900.GP19055@higherplane.net>
-References: <200210010734.14949.garrett@tbaytel.net> <3D998C95.9060606@corvil.com> <E17wQCI-0005v4-00@starship>
-Mime-Version: 1.0
+	id <S262223AbSJQWd7>; Thu, 17 Oct 2002 18:33:59 -0400
+Received: from packet.digeo.com ([12.110.80.53]:5809 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262070AbSJQWd6>;
+	Thu, 17 Oct 2002 18:33:58 -0400
+Message-ID: <3DAF3C36.2065CFD1@digeo.com>
+Date: Thu, 17 Oct 2002 15:39:50 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Thomas Molina <tmolina@cox.net>
+CC: Steve Parker <steve.parker@netops.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.41 still not testable by end users
+References: <3DAE2691.76F83D1B@digeo.com> <Pine.LNX.4.44.0210171717550.18123-100000@dad.molina>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17wQCI-0005v4-00@starship>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Oct 2002 22:39:50.0599 (UTC) FILETIME=[1A8FA570:01C2762E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 06:48:34PM +0200, Daniel Phillips wrote:
-> On Tuesday 01 October 2002 13:52, Padraig Brady wrote:
-> > 3. What's the difference in size between 2.4.19.tar.bz2 and
-> >     2.4.19-bastardized.tar.bz2 ?
+Thomas Molina wrote:
 > 
-> Surely you meant "bowdlerized"?
+> ...
+> > > Oct 16 21:40:59 declan kernel:  [__might_sleep+84/96]
+> > > ...
+> > > Oct 16 21:41:00 declan kernel:  [init_irq+637/820] init_irq+0x27d/0x334
+> > >
+> >
+> > One day.  Before we all die.  Please.
+> 
+> I had that as fixed in my problem list.  It should have been integrated by
+> 2.5.42, certainly 2.5.43.  I'm not seeing any additional reports since
+> then.
 
-nup, my understanding of that term is (in the cloak+dagger sense)
-blacking out the sensitive bits with a big marker pen, typically before
-showing them to people who shouldn't see the sensitive bits.
+Oh.  We still have:
 
-a quasi-sane way to do this bastardisation of the kernel sources would
-be to do a make allyesconfig and remove anything that doesn't match up.
-but given the amount of kernel source dedicated to generic drivers or
-subsystems on any arch i think its a total waste of time, and i'm not
-alone :-)
+                if (request_irq(hwif->irq,&ide_intr,sa,hwif->name,hwgroup)) {
+                        if (!match)
+                                kfree(hwgroup);
+                        spin_unlock_irqrestore(&ide_lock, flags);
 
-j.
+request_irq() was changed to use GFP_ATOMIC, so it's "fixed".
 
--- 
-toyota power: http://indigoid.net/
+But only for i386.
+
+request_irq() inside spinlock is a *very* common bug.  Moreso
+as people move cli()-using code across to use spinlocks.
+
+And we've just lost our ability to detect this bug.
+
+request_irq() needs to take the allocation mode as an argument.
+Should always have.  Sigh.  I'll fix it up sometime.

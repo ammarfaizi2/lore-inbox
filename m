@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284812AbRLRUGX>; Tue, 18 Dec 2001 15:06:23 -0500
+	id <S284854AbRLRUCE>; Tue, 18 Dec 2001 15:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284860AbRLRUGO>; Tue, 18 Dec 2001 15:06:14 -0500
-Received: from ns.suse.de ([213.95.15.193]:40718 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284812AbRLRUF5>;
-	Tue, 18 Dec 2001 15:05:57 -0500
-Date: Tue, 18 Dec 2001 21:05:55 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] DRM OS
-In-Reply-To: <20011218115342.A23308@vitelus.com>
-Message-ID: <Pine.LNX.4.33.0112182103370.29077-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284860AbRLRUB6>; Tue, 18 Dec 2001 15:01:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51601 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S284967AbRLRUBF>;
+	Tue, 18 Dec 2001 15:01:05 -0500
+Date: Tue, 18 Dec 2001 12:00:34 -0800 (PST)
+Message-Id: <20011218.120034.132928760.davem@redhat.com>
+To: nicoya@apia.dhs.org
+Cc: ian@ichilton.co.uk, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-rc1 wont do nfs root on Javastation
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <v04003a12b8454bdc0779@[24.70.162.28]>
+In-Reply-To: <v04003a11b84549aa834a@[24.70.162.28]>
+	<20011218.113725.82100134.davem@redhat.com>
+	<v04003a12b8454bdc0779@[24.70.162.28]>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Aaron Lehmann wrote:
+   From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
+   Date: Tue, 18 Dec 2001 13:46:03 -0600
+   
+   Alternatley, having a configuration option to set a commandline, like some
+   other arches have, would also work.
 
-> On Tue, Dec 18, 2001 at 04:17:19PM +0000, Alan Cox wrote:
-> > encrypted music fed to an encrypted audio controller to speakers which
-> > decrypt and add watermarks
-> Write a program that decrypts it. If the speakers can, so can the CPU.
-> Remeber DeCSS?
-
-Remember DMCA ? Remember SSSCA ?
-
-What you propose is classed as "Bypassing an access control".
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+I like this idea better, it solves more problems than just the nfs
+root case.

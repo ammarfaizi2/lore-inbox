@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130300AbQK0NKf>; Mon, 27 Nov 2000 08:10:35 -0500
+        id <S130415AbQK0NNh>; Mon, 27 Nov 2000 08:13:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130415AbQK0NKZ>; Mon, 27 Nov 2000 08:10:25 -0500
-Received: from linuxpc1.lauterbach.com ([194.195.165.177]:23152 "HELO
-        linuxpc1.lauterbach.com") by vger.kernel.org with SMTP
-        id <S130300AbQK0NKU>; Mon, 27 Nov 2000 08:10:20 -0500
-Message-Id: <4.3.2.7.2.20001127133105.00e44b00@mail.munich.netsurf.de>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 27 Nov 2000 13:40:12 +0100
-To: David Riley <oscar@the-rileys.net>
-From: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
-Subject: Re: asm-ppc/elf.h error
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        linuxppc-dev@lists.linuxppc.org
-In-Reply-To: <3A1ED883.9AD8136A@the-rileys.net>
+        id <S131102AbQK0NNQ>; Mon, 27 Nov 2000 08:13:16 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:29675 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S130415AbQK0NM5>;
+        Mon, 27 Nov 2000 08:12:57 -0500
+Date: Mon, 27 Nov 2000 13:42:51 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Peter Cordes <peter@llama.nslug.ns.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: access() says EROFS even for device files if /dev is mounted RO
+Message-ID: <20001127134251.A8164@veritas.com>
+In-Reply-To: <20001126233522.A436@llama.nslug.ns.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001126233522.A436@llama.nslug.ns.ca>; from peter@llama.nslug.ns.ca on Sun, Nov 26, 2000 at 11:35:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 22:07 24.11.00, David Riley wrote:
->In asm-ppc/elf.h, <asm/types.h> is not included.  This breaks
->compilations of anything that compiles it (e.g. binutils) because the
->vector registers for Altivec aren't defined elsewhere.  Included is a
->quick diff.  I didn't know which PPC maintainer to send this to, so I
->posted it to the linuxppc-dev list.
+On Sun, Nov 26, 2000 at 11:35:22PM -0400, Peter Cordes wrote:
 
-(Looking at the correct patch)
+>  While doing some hdparm hacking, after booting with init=/bin/sh, I noticed
+> that open(1) doesn't work when / is mounted read only.
 
-Why do you need that? Your claim that binutils needs that is simply wrong, 
-I compiled CVS binutils without problems against bk 2.4.0-t11. In any case, 
-glibc-2.1.3 and glibc-2.2 have this stuff in sys/procfs.h, so you should 
-use that instead I guess. That's at least what gdb uses.
+Already long ago open(1) was renamed to openvt(1), so it may be that
+have a very old version. See a recent kbd or console-tools.
 
-Franz.
+> access("/dev/tty2", R_OK|W_OK)          = -1 EROFS (Read-only file system)
 
+>  However, this is wrong.  You _can_ write to device files on read-only
+> filesystems.  (open shouldn't bother calling access(), but the kernel should
+> definitely give the right answer!)
+
+You misunderstand the function of access(). The standard says
+
+[EROFS] write access shall fail if write access is requested
+        for a file on a read-only file system
+
+It does not look at whether you ask write access to a directory
+or a special device file (and whether the filesystem was mounted nodev or not).
+
+So, probably you found a flaw in openvt: the use of access is almost always
+a bug - it doesnt tell you what you want to know. You may send me a patch
+if you want to.
+
+On the other hand, on recent kernels access() doesnt fail in this situation.
+That is a kernel bug, I suppose. Will investigate later.
+
+Andries - aeb@cwi.nl
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

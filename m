@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbTK3SMP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 13:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTK3SMP
+	id S262792AbTK3SFd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 13:05:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264970AbTK3SFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 13:12:15 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:22206
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S262491AbTK3SML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 13:12:11 -0500
-Subject: Re: NForce2 pseudoscience stability testing (general)
-From: Ian Kumlien <pomac@vapor.com>
-To: linux-kernel@vger.kernel.org
-Cc: Ian Kumlien <pomac@vapor.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-csIVKcC3k3HCLAU1rnpx"
-Message-Id: <1070215929.12640.8.camel@big.pomac.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 30 Nov 2003 19:12:09 +0100
+	Sun, 30 Nov 2003 13:05:33 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35794 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262792AbTK3SFa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 13:05:30 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+Subject: Re: Silicon Image 3112A SATA trouble
+Date: Sun, 30 Nov 2003 19:07:01 +0100
+User-Agent: KMail/1.5.4
+Cc: Jeff Garzik <jgarzik@pobox.com>, marcush@onlinehome.de, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+References: <3FC36057.40108@gmx.de> <200311301721.41812.bzolnier@elka.pw.edu.pl> <3FCA26AA.90302@gmx.de>
+In-Reply-To: <3FCA26AA.90302@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311301907.01152.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 30 of November 2003 18:19, Prakash K. Cheemplavam wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > In 2.6.x there is no max_kb_per_request setting in
+> > /proc/ide/hdx/settings. Therefore
+> > 	echo "max_kb_per_request:128" > /proc/ide/hde/settings
+> > does not work.
+> >
+> > Hmm. actually I was under influence that we have generic ioctls in 2.6.x,
+> > but I can find only BLKSECTGET, BLKSECTSET was somehow lost.  Jens?
+> >
+> > Prakash, please try patch and maybe you will have 2 working drivers now
+> > :-).
+>
+> OK, this driver fixes the transfer rate problem. Nice, so I wanted to do
+> the right thing, but it didn't work, as you explained... Thanks.
 
---=-csIVKcC3k3HCLAU1rnpx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Cool.
 
-Hi,=20
+> Nevertheless there is still the issue left:
+>
+> hdparm -d1 /dev/hde makes the drive get major havoc (something like:
+> ide: dma_intr: status=0x58 { DriveReady, SeekCOmplete, DataRequest}
+>
+> ide status timeout=0xd8{Busy}; messages taken from swsups kernal panic
+> ). Have to do a hard reset. I guess it is the same reason why swsusp
+> gets a kernel panic when it sends PM commands to siimage.c. (Mybe the
+> same error is in libata causing the same kernel panic on swsusp.)
+>
+> Any clues?
 
-I also have a nforce2 mb (a7n8x-x). And i have also seen the same
-lockups, but, while NOT USING the amd/nvidia driver i had some not as
-bad experiences... It did lockup for 30 seconds or so at a time but it
-always come back and when doing dmesg i had constant statements about
-lost interrupts.
+Strange.  While doing 'hdparm -d1 /dev/hde' the same code path is executed
+which is executed during boot so probably device is in different state or you
+hit some weird driver bug :/.
 
-And to quote Craig Bradney:
-..TIMER: vector=3D0x31 pin1=3D2 pin2=3D-1
-..MP-BIOS bug: 8254 timer not connected to IO-APIC
-...trying to set up timer (IRQ0) through the 8259A ...  failed.
-...trying to set up timer as Virtual Wire IRQ... failed.
-...trying to set up timer as ExtINT IRQ... works.
+And you are right, thats the reason why swsusp panics.
 
-This was the first time i saw that, i doubt it's in 2.4 and i bet that
-it's related. Imho it could be the amd/nvidia driver not handling the
-lost interrupt as nicely as the "Unified E-IDE" driver.
-(Since thats the only difference between complete deadlock and stalling
-for XX seconds)
-
-Or is this apic workaround in 2.4.23 (the only kernel i have tested on
-this mb)?
-
-This is just how i see it, I had hoped that someone would have shared my
-view... =3DP
-
-CC, Since i'm not on this ml... And, Comments please.
-
---=20
-Ian Kumlien <pomac@vapor.com>
-
---=-csIVKcC3k3HCLAU1rnpx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/yjL57F3Euyc51N8RAjx4AJ9nQppltyzZJyL2qw9w/RJZXxsyIwCdED+G
-6+O5XFxm/Zb7Il/W6qrqrhE=
-=rhwQ
------END PGP SIGNATURE-----
-
---=-csIVKcC3k3HCLAU1rnpx--
+--bart
 

@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263082AbTJaKhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 05:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbTJaKhZ
+	id S263172AbTJaKho (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 05:37:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbTJaKho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 05:37:25 -0500
-Received: from unthought.net ([212.97.129.88]:27352 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S263082AbTJaKhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 05:37:24 -0500
-Date: Fri, 31 Oct 2003 11:37:23 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Dave Brondsema <dave@brondsema.net>, linux-kernel@vger.kernel.org
-Subject: Re: uptime reset after about 45 days
-Message-ID: <20031031103723.GE10792@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Maciej Zenczykowski <maze@cela.pl>,
-	Dave Brondsema <dave@brondsema.net>, linux-kernel@vger.kernel.org
-References: <1067552357.3fa18e65d1fca@secure.solidusdesign.com> <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
-User-Agent: Mutt/1.3.28i
+	Fri, 31 Oct 2003 05:37:44 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:43199 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S263172AbTJaKhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 05:37:40 -0500
+Message-ID: <3FA23B77.5040804@metaparadigm.com>
+Date: Fri, 31 Oct 2003 18:37:43 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0-test9 Fix oops in quirk_via_bridge
+References: <3FA22E6F.8000404@metaparadigm.com> <20031031094946.A4556@flint.arm.linux.org.uk> <3FA2324F.20801@metaparadigm.com> <20031031100043.B4556@flint.arm.linux.org.uk>
+In-Reply-To: <20031031100043.B4556@flint.arm.linux.org.uk>
+Content-Type: multipart/mixed;
+ boundary="------------090807040309000205000607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 31, 2003 at 12:09:25AM +0100, Maciej Zenczykowski wrote:
-...
-> Uptime is stored in jiffies which is 32bit on your arch, which results in 
-> an overflow after 2^32 clock ticks. TTTicks were 100 HZ till recently 
-> (overflow after 470 or so days) now, they're 1000 -> overflows after 45 
-> days.  Doesn't wreck anything except for uptime display - known problem, 
-> not worth the trouble fixing it would cause (64 bit values are 
-> non-atomic, unless MMX/SSE which isn't allowed in kernel) - however there 
-> is (if I'm not mistaken) a patch available wihich fixes this 'problem'.
+This is a multi-part message in MIME format.
+--------------090807040309000205000607
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+On 10/31/03 18:00, Russell King wrote:
+> On Fri, Oct 31, 2003 at 05:58:39PM +0800, Michael Clark wrote:
 > 
-> However since it is only a matter of uptime display...
+> Your fix looks 99% correct, except for the "__devinitdata" part - if
+> you drop this and resubmit the patch, I'm sure gregkh will take it.
 
-For me it would mean that I got disturbed or woken up by an SMS every 45
-/ (number_of_servers) = (low_number) days, because the monitoring system
-sees that a server suddenly has a 'suspiciously low' uptime.
+Cool. dropped __devinitdata, tested and works. Now I can suspend
+and resume then insert my ieee1394 cardbus controller with no oops.
 
-Fix the monitoring system to detect uptime wraps?
+~mc
 
-Perhaps.  It would be needed for Windows 95 as well, anyway.
 
-Still, it's pretty darn pathetic to be required to include workarounds
-in *Linux* apps that would otherwise only be needed for '95.
+--------------090807040309000205000607
+Content-Type: text/plain;
+ name="fix_via_quirk2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix_via_quirk2.patch"
 
-All in my humble oppinion of course.
+--- linux-2.6.0-test9/drivers/pci/quirks.c	2003-10-31 16:49:25.000000000 +0800
++++ linux-2.6.0-test9-mc/drivers/pci/quirks.c	2003-10-31 18:27:41.000000000 +0800
+@@ -646,7 +646,7 @@
+  
+ int interrupt_line_quirk;
+ 
+-static void __init quirk_via_bridge(struct pci_dev *pdev)
++static void __devinit quirk_via_bridge(struct pci_dev *pdev)
+ {
+ 	if(pdev->devfn == 0)
+ 		interrupt_line_quirk = 1;
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+--------------090807040309000205000607--
+

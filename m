@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbTJaVT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 16:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTJaVT6
+	id S263620AbTJaVaM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 16:30:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbTJaVaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 16:19:58 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:14737 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263568AbTJaVT5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 16:19:57 -0500
-Date: Fri, 31 Oct 2003 16:23:02 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Herman <Herman@AerospaceSoftware.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-In-Reply-To: <200310311359.50893.Herman@AerospaceSoftware.com>
-Message-ID: <Pine.LNX.4.53.0310311607300.21072@chaos>
-References: <3F9F7F66.9060008@namesys.com> <20031031193016.GA1546@thunk.org>
- <3FA2CA5E.3050308@namesys.com> <200310311359.50893.Herman@AerospaceSoftware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Oct 2003 16:30:12 -0500
+Received: from [212.57.164.72] ([212.57.164.72]:50442 "EHLO mail.ward.six")
+	by vger.kernel.org with ESMTP id S263598AbTJaVaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 16:30:06 -0500
+Date: Sat, 1 Nov 2003 02:29:38 +0500
+From: Denis Zaitsev <zzz@anda.ru>
+To: marcelo.tosatti@cyclades.com, gibbs@scsiguy.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH TRIVIAL] Compile error in 2.4.22 without PCI
+Message-ID: <20031101022938.A17535@natasha.ward.six>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Oct 2003, Herman wrote:
+I have these warnings when I'm compiling 2.4.22 for a 486 EISA system:
 
-> On Friday 31 October 2003 8:47 pm, Hans Reiser wrote:
-> > I can't get US bank accounts for my programmers working for me.  Why?
-> > Because every US bank without exception uses social security numbers as
-> > a primary key.  A person without a social security number cannot be
-> > coped with.  This is a weakness directly due to molding rather than
-> > matching structure in data.
->
-> No, that is a legal requirement, not a weakness due to molding,
-> but I get your point.
->
+aic7xxx_osm.c: In function `ahc_softc_comp':
+aic7xxx_osm.c:1560: warning: implicit declaration of function `ahc_get_pci_bus'
+aic7xxx_osm.c:1568: warning: implicit declaration of function `ahc_get_pci_slot'
 
-Not a legal requirement in the United States. In fact, using a
-"social security" or "taxpayer identification number" for
-identification is contrary to federal law and a SS card contains
-the words; "Not for identification".
+And then the make finishes with an error, because these functions
+really exist only if the PCI support is turned on.
 
-This is rigidly enforced by many federal agencies and completely
-ignored by others (go figure). Banks say they need to have a
-SS number for 1099 forms, even for accounts that earn no
-interest! It's just that their databases have an entry for
-SS numbers (if required by the kind of account), and the
-software is defective, requiring that field to be filled.
-The result being that many person's rights are violated because
-of defective software!
-
-Incidentally, I recently obtained a so-called identification
-badge that is now required for me to have access to my airplane.
-I purposely left the SS# entry blank when I filled out the
-form. This raised a stink that likely went all the way to the
-state house. I got the badge. It seems that a State Government,
-that has no business regulating air commerce, also wants to
-keep my SS# on hand for surveillance. You need to keep putting
-those attempts down.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+The patch below fixes this.  And the same patch fits for the 2.6
+kernels.  Please, apply it.
 
 
+--- drivers/scsi/aic7xxx/aic7xxx_osm.c.orig	2003-09-15 01:56:14.000000000 +0600
++++ drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-10-15 00:23:37.000000000 +0600
+@@ -1552,6 +1552,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
+ 
+ 	/* Still equal.  Sort by BIOS address, ioport, or bus/slot/func. */
+ 	switch (rvalue) {
++#ifdef CONFIG_PCI
+ 	case AHC_PCI:
+ 	{
+ 		char primary_channel;
+@@ -1584,6 +1585,8 @@ ahc_softc_comp(struct ahc_softc *lahc, s
+ 			value = 1;
+ 		break;
+ 	}
++#endif
++#ifdef CONFIG_EISA
+ 	case AHC_EISA:
+ 		if ((rahc->flags & AHC_BIOS_ENABLED) != 0) {
+ 			value = rahc->platform_data->bios_address
+@@ -1593,6 +1596,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
+ 			      - lahc->bsh.ioport; 
+ 		}
+ 		break;
++#endif
+ 	default:
+ 		panic("ahc_softc_sort: invalid bus type");
+ 	}
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

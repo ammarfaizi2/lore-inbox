@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133004AbRDRE0n>; Wed, 18 Apr 2001 00:26:43 -0400
+	id <S133007AbRDREjl>; Wed, 18 Apr 2001 00:39:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133005AbRDRE0d>; Wed, 18 Apr 2001 00:26:33 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:6665 "EHLO mx5.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S133004AbRDRE0Q>;
-	Wed, 18 Apr 2001 00:26:16 -0400
-Date: Wed, 18 Apr 2001 12:26:34 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Jeff Chua <jchua@fedex.com>
-Subject: 2.4.4-pre4 nfsd.o unresolved symbol
-Message-ID: <Pine.LNX.4.33.0104181224060.7126-100000@boston.corp.fedex.com>
+	id <S133008AbRDREjb>; Wed, 18 Apr 2001 00:39:31 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:32646 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S133007AbRDREjR>;
+	Wed, 18 Apr 2001 00:39:17 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200104180439.VAA21983@csl.Stanford.EDU>
+Subject: [CHECKER] copy_*_user length bugs?
+To: linux-kernel@vger.kernel.org
+Date: Tue, 17 Apr 2001 21:39:15 -0700 (PDT)
+Cc: engler@csl.Stanford.EDU (Dawson Engler)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-I compiled 2.4.4-pre4 and use nfsd as a module. Got the following error:
+at the suggestion of Chris (chris@ferret.lmh.ox.ac.uk) I wrote a simple
+checker to warn when the length parameter to copy_*_user was (1) an
+integer and (2) not checked < 0.    
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre4/kernel/fs/nfsd/nfsd.o
-depmod:         nfsd_linkage_Rb56858ea
+As an example, the ipv6 routine rawv6_geticmpfilter gets an integer 'len'
+from user space, checks that it is smaller than a struct size and then
+uses length as an argument to copy_to_user: 
 
+                if (get_user(len, optlen))
+                        return -EFAULT;
+                if (len > sizeof(struct icmp6_filter))
+                        len = sizeof(struct icmp6_filter);
+                if (put_user(len, optlen))
+                        return -EFAULT;
+                if (copy_to_user(optval, &sk->tp_pinfo.tp_raw.filter, len))
+                        return -EFAULT;
 
-Didn't have such problem on 2.4.4-pre3.
+Is this a real bug?  Or is the checked rule only applicable to
+__copy_*_user routines rather than copy_*_user routines?  (If its a real
+bug, theres about 8 others that we found).
 
-
-Jeff
-[ jchua@fedex.com ]
-
+Thanks,
+Dawson

@@ -1,27 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264748AbSLVE67>; Sat, 21 Dec 2002 23:58:59 -0500
+	id <S264767AbSLVFaN>; Sun, 22 Dec 2002 00:30:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbSLVE67>; Sat, 21 Dec 2002 23:58:59 -0500
-Received: from duracef.shout.net ([204.253.184.12]:47113 "EHLO
-	duracef.shout.net") by vger.kernel.org with ESMTP
-	id <S264748AbSLVE67>; Sat, 21 Dec 2002 23:58:59 -0500
-Date: Sat, 21 Dec 2002 23:07:03 -0600
-From: Michael Elizabeth Chastain <mec@shout.net>
-Message-Id: <200212220507.gBM573K13439@duracef.shout.net>
-To: john@grabjohn.com, sam@ravnborg.org
-Subject: Re: First Bug Found : RE: How to help new comers trying the v2.5x series kernels.
-Cc: linux-kernel@vger.kernel.org, sampson@attglobal.net, zippel@linux-m68k.org
+	id <S264779AbSLVFaN>; Sun, 22 Dec 2002 00:30:13 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:21770 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264767AbSLVFaM>;
+	Sun, 22 Dec 2002 00:30:12 -0500
+Date: Sat, 21 Dec 2002 21:35:01 -0800
+From: Greg KH <greg@kroah.com>
+To: Joshua Stewart <joshua.stewart@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A little explanation needed
+Message-ID: <20021222053501.GC17133@kroah.com>
+References: <1040535392.1518.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1040535392.1518.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg writes:
-> Despite the MAINTANERS file, roman Zippel is the right person to contact.
-> roman ripped out three different shell ased parsers and replaced them
-> with a single parser written in yacc and c.
-> During this process 2make menuconfig" functionality was altered.
+On Sun, Dec 22, 2002 at 12:36:32AM -0500, Joshua Stewart wrote:
+> 
+> In otherwords, what's the use of a do{X}while(0) "loop" instead of just
+> X.  I'm not the world's best trained C programmer, so forgive me if I
+> sound stupid.
 
-Right.  I'm retired now, which means I'm good if anyone needs insight
-into history from 1995-1999 or so, but not much else.
+http://www.kernelnewbies.org/faq/index.php3#dowhile
 
-Michael C
+Hope that helps,
+
+greg k-h

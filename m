@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbUKKPOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbUKKPV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbUKKPOj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 10:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUKKPMk
+	id S262255AbUKKPV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 10:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUKKPSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 10:12:40 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:57479 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262246AbUKKPKa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 10:10:30 -0500
-Date: Thu, 11 Nov 2004 17:12:35 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Gunther Persoons <gunther_persoons@spymac.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
-Message-ID: <20041111161235.GA26582@elte.hu>
-References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <41938D60.4070802@spymac.com> <20041111160819.GA26184@elte.hu>
+	Thu, 11 Nov 2004 10:18:02 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:493 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262255AbUKKPRb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 10:17:31 -0500
+Date: Thu, 11 Nov 2004 15:17:27 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Len Brown <len.brown@intel.com>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] [2.6 patch] drivers/acpi: #ifdef unused functions away
+Message-ID: <20041111151727.GB1108@parcelfarce.linux.theplanet.co.uk>
+References: <20041105215021.GF1295@stusta.de> <1099707007.13834.1969.camel@d845pe> <20041106114844.GK1295@stusta.de> <418CEE3A.40503@conectiva.com.br> <20041106212917.GP1295@stusta.de> <418D403E.30608@conectiva.com.br> <1099933263.13831.9547.camel@d845pe> <20041110012134.GB4089@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041111160819.GA26184@elte.hu>
+In-Reply-To: <20041110012134.GB4089@stusta.de>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 10, 2004 at 02:21:34AM +0100, Adrian Bunk wrote:
+> This patch only #ifdef's completely unused code away - it does not make 
+> the many global functions only used inside the file they are defined in 
+> static.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+It also ifdefs out the acpi_install_gpe_handler and acpi_remove_gpe_handler
+calls I use in the driver I posted on Sunday.  Please fix this.
 
-> * Gunther Persoons <gunther_persoons@spymac.com> wrote:
-> 
-> > Got 2 times a hard lock up with this one. Happened while i was typing
-> > something and downloading both after 15-20 minutes.
-> 
-> .config?
-
-just in case you are using UP-IOAPIC, could you enable CONFIG_SMP (even
-if you are running an UP box) and see whether the lockup goes away? 
-Which was the last -RT kernel that you tried that didnt lock up in this
-fashion?
-
-	Ingo
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

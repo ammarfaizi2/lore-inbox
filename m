@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbTIOVtx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 17:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTIOVtx
+	id S261605AbTIOViF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 17:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbTIOViE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 17:49:53 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:7831 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261628AbTIOVtw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 17:49:52 -0400
-Date: Mon, 15 Sep 2003 14:38:13 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
-Cc: mroos@linux.ee, linux-kernel@vger.kernel.org
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-Message-Id: <20030915143813.2011187f.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0309151225300.24675-100000@deadlock.et.tudelft.nl>
-References: <20030915011159.250f3346.davem@redhat.com>
-	<Pine.LNX.4.44.0309151225300.24675-100000@deadlock.et.tudelft.nl>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 15 Sep 2003 17:38:04 -0400
+Received: from spoetnik.kulnet.kuleuven.ac.be ([134.58.240.46]:41900 "EHLO
+	spoetnik.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261605AbTIOViA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 17:38:00 -0400
+Message-ID: <3F66310E.3000209@abcpages.com>
+Date: Mon, 15 Sep 2003 23:37:18 +0200
+From: Nicolae Mihalache <mache@abcpages.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test4 problems: suspend and touchpad
+References: <Pine.LNX.4.33.0309150949270.950-100000@localhost.localdomain> <3F662322.9060205@abcpages.com>
+In-Reply-To: <3F662322.9060205@abcpages.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Sep 2003 12:58:26 +0200 (CEST)
-Daniël Mantione <daniel@deadlock.et.tudelft.nl> wrote:
+Nicolae Mihalache wrote:
 
-> > Please, can we revert your changes if we can't fix Sparc quickly?
-> 
-> Well, the problem is, there are really a *lot* of chips sold which I
-> fixed.
+> Patrick Mochel wrote:
+>
+>>
+>> It does not. Could you please try removing the module before you 
+>> suspend?
+>
+> Yes, removing and readding the module does the trick.
+> Unfortunately I've seen that something else does not work after 
+> resume: my USB mouse.
+> But for some reason I can not remove the usbcore module, the kernel 
+> says it's in use. 
 
-And you broke one of the primary users of the atyfb driver,
-the sparc64 platform.
+I see that the mouse is not even powered. It's an optical mouse and the 
+light stays switched off.
 
-We don't even get a console if this driver is non-functional,
-that's the part you don't understand.  On x86 one can at least
-use the VGA or Vesa drivers, we simply don't have that option.
+mache
 
-So effectively, you've made 2.4.23-preX completely nonusable for
-the vast majority of sparc64 users.
-
-> Well, the only way to fix this is to work with you of course.
-
-Your change is a major regression and we should revert it until
-the kinks are worked out.

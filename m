@@ -1,64 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbULPWUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbULPWUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbULPWUi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 17:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbULPWT1
+	id S262048AbULPWUj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 17:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbULPWTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 17:19:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:29351 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262047AbULPWS5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 17:18:57 -0500
-Date: Thu, 16 Dec 2004 14:18:43 -0800
-From: Greg KH <greg@kroah.com>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: debugfs in the namespace
-Message-ID: <20041216221843.GA10172@kroah.com>
-References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com> <41C20356.4010900@sun.com>
+	Thu, 16 Dec 2004 17:19:17 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56837 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262048AbULPWSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 17:18:13 -0500
+Date: Thu, 16 Dec 2004 23:18:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Gerd Knorr <kraxel@bytesex.org>, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: [7/11] bttv-driver.c: make some variables static (fwd)
+Message-ID: <20041216221807.GV12937@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41C20356.4010900@sun.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 04:51:18PM -0500, Mike Waychison wrote:
-> I thought debugfs was meant for just debugging.  As there is no plans
-> for standardizing its namespace, why are we allowing ourselves to rely
-> on it being mounted at all?
-> 
-> AFAICT, there should be no excuse for userspace to actually rely on any
-> of the data within debugfs.  Otherwise we end up with yet another
-> filesystem whose role is: Chaotic hodgepodge of magic files created by
-> drivers that couldn't bother to be well-organized.
-> 
-> Please, let's not make debugfs part of userspace.  Keep it for what it
-> is, debugging purposes only.
+The patch forwarded below still applies and compiles against 
+2.6.10-rc3-mm1.
 
-I'm not saying we will ever make it "required" at all.  It's just that
-people are going to want to mount the thing, and are already asking me
-where we should mount it at.  If you pick a different place than me,
-fine, I don't mind.  It's the user who is asked to report some info that
-happens to be in debugfs that is going to want to know where to put it,
-as they have no idea even what it is.  Distros are going to ask what to
-put in their fstabs for where to mount the thing too.
+Please apply.
 
-So, let's pick a place and be done with it.
 
-I like /dbg (3 characters total to get to, which is shorter than /debug
-which takes at least 4, 3 chars and a tab).  Pete likes /debug.  Jan
-Engelhardt want to hide the thing from people at /.debugfs.
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Hm, what about /.debug ?  That's a compromise that I can live with (even
-less key strokes to get to...)
+Date:	Tue, 9 Nov 2004 02:00:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: [7/11] bttv-driver.c: make some variables static
 
-Or is their some restriction on putting hidden directories in the root
-filesystem as specified by the LSB?
+The patch below makes 3 variables in drivers/media/video/bttv-driver.c 
+with no external users static.
 
-So, /.debug sound acceptable?
 
-thanks,
+diffstat output:
+ drivers/media/video/bttv-driver.c |    6 +++---
+ drivers/media/video/bttvp.h       |    3 ---
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-greg k-h
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h.old	2004-11-07 16:34:44.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h	2004-11-07 16:47:42.000000000 +0100
+@@ -89,7 +89,6 @@
+ 	int   sram;
+ };
+ extern const struct bttv_tvnorm bttv_tvnorms[];
+-extern const unsigned int BTTV_TVNORMS;
+ 
+ struct bttv_format {
+ 	char *name;
+@@ -101,8 +100,6 @@
+ 	int  flags;
+ 	int  hshift,vshift;   /* for planar modes   */
+ };
+-extern const struct bttv_format bttv_formats[];
+-extern const unsigned int BTTV_FORMATS;
+ 
+ /* ---------------------------------------------------------- */
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c.old	2004-11-07 16:40:15.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c	2004-11-07 16:41:55.000000000 +0100
+@@ -321,12 +321,12 @@
+ 		.sram           = -1,
+ 	}
+ };
+-const unsigned int BTTV_TVNORMS = ARRAY_SIZE(bttv_tvnorms);
++static const unsigned int BTTV_TVNORMS = ARRAY_SIZE(bttv_tvnorms);
+ 
+ /* ----------------------------------------------------------------------- */
+ /* bttv format list
+    packed pixel formats must come first */
+-const struct bttv_format bttv_formats[] = {
++static const struct bttv_format bttv_formats[] = {
+ 	{
+ 		.name     = "8 bpp, gray",
+ 		.palette  = VIDEO_PALETTE_GREY,
+@@ -478,7 +478,7 @@
+ 		.flags    = FORMAT_FLAGS_RAW,
+ 	}
+ };
+-const unsigned int BTTV_FORMATS = ARRAY_SIZE(bttv_formats);
++static const unsigned int BTTV_FORMATS = ARRAY_SIZE(bttv_formats);
+ 
+ /* ----------------------------------------------------------------------- */
+ 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262741AbRE3LsF>; Wed, 30 May 2001 07:48:05 -0400
+	id <S262744AbRE3MAF>; Wed, 30 May 2001 08:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262742AbRE3Lrz>; Wed, 30 May 2001 07:47:55 -0400
-Received: from ns.caldera.de ([212.34.180.1]:4328 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S262741AbRE3Lrg>;
-	Wed, 30 May 2001 07:47:36 -0400
-Date: Wed, 30 May 2001 13:47:29 +0200
-Message-Id: <200105301147.f4UBlTA32401@ns.caldera.de>
-From: hch@caldera.de (Christoph Hellwig)
-To: Marcus.Meissner@caldera.de (Marcus Meissner)
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: 3c509 PNP80f7 id
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010530130905.A29368@caldera.de>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S262745AbRE3L74>; Wed, 30 May 2001 07:59:56 -0400
+Received: from web5504.mail.yahoo.com ([216.115.106.187]:44556 "HELO
+	web5504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262744AbRE3L7r>; Wed, 30 May 2001 07:59:47 -0400
+Message-ID: <20010530115942.21146.qmail@web5504.mail.yahoo.com>
+Date: Wed, 30 May 2001 04:59:42 -0700 (PDT)
+From: Rahul Karnik <rakarnik@yahoo.com>
+Subject: Re: Hard lockup switching to X from vc; Matrox G400 AGP
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010530130905.A29368@caldera.de> you wrote:
-> Hi,
->
-> This adds the PNP80f7 compat Id to 3c509.c, making it now autodetect my 
-> '3C509B EtherLink III'.
->
-> BTW, there is a problem there:
->
-> It has a card id of TCM5094 and a function id of PNP80f7, the cardid is
-> already there, but only probed as function id...
->
-> Anyway, I will let the dust settle on the ISAPNP module issue first before
-> fixing it ;)
+Hi fellow Matrox users,
 
-An option might be to use the proper isapnp_probe_devs() function instead
-of hand-coded probing code...
+Maybe I can help in reporting your problems to Matrox.
+Can you give me some more info as to XFree 86 version
+and Matrox driver version?
 
-	Christoph
+-Rahul
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+
+=====
+------------------
+Rahul Karnik
+rakarnik@yahoo.com
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/

@@ -1,86 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVASOoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVASOo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVASOoa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 09:44:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVASOoa
+	id S261736AbVASOo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 09:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVASOo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 09:44:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:52760 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261735AbVASOoV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 09:44:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=HeAkKexjPOYrFPiu45hbDkuBRcyCFULLuXbv9fXKn9Ste1sH84i8UeHGIBNiFai9Cu0GcERqRrGEW6BtstjDnxJgBXw47JlI12qTmplL873fTk4shxhkSR3b8RzxkauLkJDogAtrzDgNPv58Lm903lRG+IkKn4siJ2MFAlyC1O4=
-Message-ID: <d120d500050119064461d21d80@mail.gmail.com>
-Date: Wed, 19 Jan 2005 09:44:20 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH 2/2] Remove input_call_hotplug
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <41EE6BA8.6020705@suse.de>
+	Wed, 19 Jan 2005 09:44:58 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:63721 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261736AbVASOou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 09:44:50 -0500
+Subject: Re: [ANNOUNCEMENT] Collision regression test suite released
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
+In-Reply-To: <1106123242.6310.78.camel@laptopd505.fenrus.org>
+References: <1106088908.3832.56.camel@localhost.localdomain>
+	 <1106123242.6310.78.camel@laptopd505.fenrus.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Etz8EOayAhcagwRdTlT0"
+Date: Wed, 19 Jan 2005 15:43:47 +0100
+Message-Id: <1106145827.3832.93.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41ED2457.1030109@suse.de>
-	 <d120d50005011807566ee35b2b@mail.gmail.com> <41EE2F82.3080401@suse.de>
-	 <d120d500050119060530b57cd7@mail.gmail.com> <41EE6BA8.6020705@suse.de>
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jan 2005 15:16:08 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> Dmitry Torokhov wrote:
-> > Hi Hannes,
-> >
-> > On Wed, 19 Jan 2005 10:59:30 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> >
-> >>Dmitry Torokhov wrote:
-> >>
-> >>>But the real question is whether we really need class devices have
-> >>>unique names or we could do with inputX thus leaving individual
-> >>>drivers intact and only modifying the input core. As far as I
-> >>>understand userspace should be concerned only with device
-> >>>capabilities, not particular name, besides, it gets PRODUCT string
-> >>>which has all needed data encoded.
-> >>>
-> >>
-> >>Indeed. What about using 'phys' (with all '/' replaced by '-') as the
-> >>class_id? This way we'll retain compability with /proc/bus/input/devices
-> >>and do not have to touch every single driver.
-> >>
-> >
-> >
-> > I want to kill phys at some point - we have topology information
-> > already present in sysfs in much better form. Can we have a new
-> > hotplug variable HWDEV= which is kobject_path(input_dev->dev). If
-> > input_dev is not set then we can just dump phys in it. And the class
-> > id will still be inputX. Will this work?
-> >  
-> Sure. And we don't need a special HWDEV variable, as there is already a
-> PHYSDEVPATH variable providing exactly this information.
 
-Oh right! Even better.
+--=-Etz8EOayAhcagwRdTlT0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> I'm not too happy about this 'inputX' thing (as this doesn't carry any
-> information, whereas 'phys' gives you at least a rough guess what this
-> device's about), but if phys is to go it would be the logical choice.
-> 
+El mi=E9, 19-01-2005 a las 09:27 +0100, Arjan van de Ven escribi=F3:
+> On Tue, 2005-01-18 at 23:55 +0100, Lorenzo Hern=E1ndez Garc=EDa-Hierro
+> wrote:
+> > Also, maybe an ExecShield specific test (see [1] and [2]) and possibly =
+a
+> > few other tests related with BSD Jails.
+>=20
+> > [1]: http://212.130.50.194/papers/attack/ExploitingFedora.txt
+>=20
+> fwiw this paper is about exploiting prelink more than execshield; the
+> proposed technique only works because the system was prelinked (without
+> prelink every time you start a program all addresses get randomized,
+> with prelink the addresses randomize every 2 weeks) and the "security
+> sensitive" application was not made a PIE.
 
-The problem with encoding phys in class ID is the following: you have
-to guarantee that the moment you destroy underlying hw device yur
-input_device has to be gone too. Imagine you have input_device for
-your PS/2 mouse and you decide to unload psmouse module. You also have
-one of user processes holding any of the class device attributes open.
-This causes input_device to be pinned into memory so when you load
-psmouse module back again it will not be able to create new
-input_device and mouse will be dead. With monotonicaly increasing
-inputX name you will never have this issue.
+Right, that's a point I forgot to talk about.
 
-You had a workaround for this problem with your original path but when
-you fold it all in core you lost it.
+> The first makes it really hard to write generic exploits (but means you
+> can do a local based attack within 2 weeks), the second means that the
+> exploit technique only works for a subset of programs; in Fedora most
+> (if not all) network daemons and a bunch of other things are PIE, and
+> there even is an entire gentoo distribution which is entirely PIE.
 
--- 
-Dmitry
+Yes, the address space layout randomization (ASLR) as PaX calls it,
+makes really difficult to get done the so-called ret2libc attacks, but
+anyway it could be interesting to write some tests trying to achieve it,
+most for fun than an useful thing, as (unexpected) results might be as
+randomized as the address space can be ;D
+
+PIE is, hopefully, also being introduced in Debian-based systems by the
+Hardened Debian project.
+Gentoo has the Hardened Gentoo official sub project, which is doing (and
+has did) a great work around this stuff, among the deployment of other
+security technologies.
+
+Cheers and thanks for the comments,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
+[2048g/9AE91A22] Hardened Debian head developer & project manager
+
+--=-Etz8EOayAhcagwRdTlT0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB7nIjDcEopW8rLewRAsyoAKCwj9uQBu0LzLaXx1pjtu5Ozi78qwCglEf3
+/RhVIUKQgPC23Nlp63lLJ44=
+=wND6
+-----END PGP SIGNATURE-----
+
+--=-Etz8EOayAhcagwRdTlT0--
+

@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264740AbTFEQRo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 12:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264744AbTFEQRo
+	id S264741AbTFEQZS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 12:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264747AbTFEQZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 12:17:44 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:30353 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264740AbTFEQRl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 12:17:41 -0400
-Message-ID: <3EDF6F49.8070201@austin.ibm.com>
-Date: Thu, 05 Jun 2003 11:26:49 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Thu, 5 Jun 2003 12:25:17 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:7687 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S264741AbTFEQZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 12:25:17 -0400
+Date: Fri, 6 Jun 2003 02:38:32 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: pam.delaney@lsil.com, Greg KH <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] compile fix for MPT Fusion driver for 2.5.70 bk
+In-Reply-To: <20030605162901.GA7035@suse.de>
+Message-ID: <Mutt.LNX.4.44.0306060231390.2807-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Nightly regression run results
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 5 Jun 2003, Dave Jones wrote:
+
+>  > diff -urN -X dontdiff bk.pending/drivers/message/fusion/linux_compat.h bk.w1/drivers/message/fusion/linux_compat.h
+>  > --- bk.pending/drivers/message/fusion/linux_compat.h	2003-06-06 00:36:11.000000000 +1000
+>  > +++ bk.w1/drivers/message/fusion/linux_compat.h	2003-06-06 01:48:49.000000000 +1000
+>  > @@ -147,7 +147,7 @@
+>  >  
+>  >  
+>  >  /* PCI/driver subsystem { */
+>  > -#ifndef pci_for_each_dev
+>  > +#ifndef pci_for_each_dev_reverse
+>  >  #define pci_for_each_dev(dev)		for((dev)=pci_devices; (dev)!=NULL; (dev)=(dev)->next)
+> 
+> What has _reverse got to do with this define ?
+
+It was a partner to pci_for_each_dev(), which if not defined, required the 
+use of (dev)->next rather than pci_dev_g((dev)->global_list.next.
+
+i.e. it's detecting a version of the PCI API.
+
+It is fairly bogus, yes.
 
 
-Here are links to some 2.5.70 nightly regression comparisons:
 
-Each -bk snapshot compared to the base:
-
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk1/2.5.70-vs-2.5.70-bk1/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk2/2.5.70-vs-2.5.70-bk2/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk3/2.5.70-vs-2.5.70-bk3/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk4/2.5.70-vs-2.5.70-bk4/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk5/2.5.70-vs-2.5.70-bk5/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk6/2.5.70-vs-2.5.70-bk6/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk7/2.5.70-vs-2.5.70-bk7/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk8/2.5.70-vs-2.5.70-bk8/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk9/2.5.70-vs-2.5.70-bk9/
-
-Each -bk snapshot compared to the previous:
-
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk1/2.5.70-bk1-vs-2.5.70-bk2/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk2/2.5.70-bk2-vs-2.5.70-bk3/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk3/2.5.70-bk3-vs-2.5.70-bk4/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk4/2.5.70-bk4-vs-2.5.70-bk5/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk5/2.5.70-bk5-vs-2.5.70-bk6/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk6/2.5.70-bk6-vs-2.5.70-bk7/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk7/2.5.70-bk7-vs-2.5.70-bk8/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk8/2.5.70-bk8-vs-2.5.70-bk9/
-
-Each -mm patch compared to the base:
-
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm1/2.5.70-vs-2.5.70-mm1/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm2/2.5.70-vs-2.5.70-mm2/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm3/2.5.70-vs-2.5.70-mm3/
-
-Each -mm patch compared to the previous:
-
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm2/2.5.70-mm1-vs-2.5.70-mm2/
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm3/2.5.70-mm2-vs-2.5.70-mm3/
-
-Each -mjb patch compared to the base:
-
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mjb1/2.5.70-vs-2.5.70-mjb1/
-
-Mark
-
-
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 

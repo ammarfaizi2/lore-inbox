@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266575AbUHBPix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266564AbUHBPvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266575AbUHBPix (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 11:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUHBPiv
+	id S266564AbUHBPvC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 11:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266565AbUHBPvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 11:38:51 -0400
-Received: from mail.gmx.de ([213.165.64.20]:12751 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266561AbUHBPhc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 11:37:32 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Subject: Re: 2.6.8-rc2-mm2
-Date: Mon, 2 Aug 2004 17:38:58 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040802015527.49088944.akpm@osdl.org> <200408021631.24593.m.watts@eris.qinetiq.com>
-In-Reply-To: <200408021631.24593.m.watts@eris.qinetiq.com>
+	Mon, 2 Aug 2004 11:51:02 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:15515 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S266564AbUHBPvA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 11:51:00 -0400
+Date: Mon, 02 Aug 2004 08:50:53 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: finding out the boot cpu number from userspace
+Message-ID: <12690000.1091461852@[10.10.2.4]>
+In-Reply-To: <20040802121635.GE14477@devserv.devel.redhat.com>
+References: <20040802121635.GE14477@devserv.devel.redhat.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408021738.59384.dominik.karall@gmx.net>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 August 2004 17:31, Mark Watts wrote:
-> Noting the large wad of x86-64 stuff in here, I'm going to give it a whirl.
-> Stupid question though - do I apply this to 2.6.8rc2 or does it bring 2.6.7
-> up to rc2-mm2 ?
->
-> Mark.
->
+> assuming cpu 0 is the boot cpu sounds fragile/incorrect, but for irqbalanced
+> I'd like to find out which cpu is the boot cpu, is there a good way of doing
+> so ?
+> 
+> The reason for needing this is that some firmware only likes running on the
+> boot cpu so I need to bind firmware-related irq's to that cpu ideally.
 
-you must apply to 2.6.8-rc2
+On any sane arch, cpu 0 *IS* always the boot CPU, as we dynamically number
+CPUs that way ... that doesn't mean that it's apicid 0. I believe that 
+PPC64 screwed this up, but AFAIK, everyone else gets it correct ... ;-)
 
-dominik
+M.
+

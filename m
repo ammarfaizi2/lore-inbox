@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263034AbUDAShx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 13:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUDAShx
+	id S263058AbUDASsO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 13:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263061AbUDASsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 13:37:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61347 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263034AbUDAShv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 13:37:51 -0500
-Date: Thu, 1 Apr 2004 10:37:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Flavio Bruno Leitner <fbl@conectiva.com.br>
-Cc: dwcraig@qualcomm.com, list@noduck.net, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at kernel/timer.c:370!
-Message-Id: <20040401103718.5a599055.akpm@osdl.org>
-In-Reply-To: <20040401172401.GD2132@conectiva.com.br>
-References: <0320111483D8B84AAAB437215BBDA526847F70@NAEX01.na.qualcomm.com>
-	<20040401142458.GB2132@conectiva.com.br>
-	<20040401172401.GD2132@conectiva.com.br>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 1 Apr 2004 13:48:14 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:14237 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263058AbUDASsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 13:48:10 -0500
+Subject: Re: disable-cap-mlock
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       lkml <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>,
+       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com,
+       Chris Wright <chrisw@osdl.org>
+In-Reply-To: <20040401175436.GI791@holomorphy.com>
+References: <20040401135920.GF18585@dualathlon.random>
+	 <1080841071.25431.155.camel@moss-spartans.epoch.ncsc.mil>
+	 <20040401174405.GG791@holomorphy.com> <200404011952.29724@WOLK>
+	 <20040401175436.GI791@holomorphy.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1080845238.25431.196.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Apr 2004 13:47:18 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Flavio Bruno Leitner <fbl@conectiva.com.br> wrote:
->
-> cascade: c03b3128 != c03b28c0           
->  kernel/timer.c:296: spin_lock(kernel/timer.c:c03b28c0) already locked by kernel/timer.c/401
->  handler=c03b3120 (0xc03b3120)                                                              
->  Call Trace:                  
->   [<c01347ef>] cascade+0x7f/0xb0
->   [<c0135025>] run_timer_softirq+0x315/0x3f0
->   [<c012fa35>] do_softirq+0xa5/0xb0         
->   [<c010caea>] do_IRQ+0x21a/0x360  
->   [<c012b5bf>] profile_hook+0x1f/0x23
->   [<c010a934>] common_interrupt+0x18/0x20
->   [<c0107066>] default_idle+0x26/0x40    
->   [<c01070f4>] cpu_idle+0x34/0x40    
->   [<c0434829>] start_kernel+0x189/0x1e0
->   [<c0434540>] unknown_bootoption+0x0/0x120
+On Thu, 2004-04-01 at 12:54, William Lee Irwin III wrote:
+> On Thu, Apr 01, 2004 at 07:52:29PM +0200, Marc-Christian Petersen wrote:
+> > hmm, maybe a /proc/sys/capability/lock and if set to 1 you can't
+> > change any of the sysctl variables, even root should not be allowed
+> > to change lock back, until you do a reboot. Practical?
+> > ciao, Marc
+> 
+> Feasible, though it's an open question as to how many hoops we should
+> jump through to prevent people from shooting themselves in the foot.
+> 
+> Maybe Steven could recommend adjustments and/or give some idea as to
+> whether the above would be useful.
 
-Is the machine SMP?
+Some form of control over changing the sysctl settings (beyond just the
+mode) should be provided; otherwise, the module is too unsafe by itself
+for real use, and you can't assume that people will only use it stacked
+with SELinux (which could control such changes).  Allowing the settings
+to be locked as mcp suggested sounds simple and sufficient for the
+proposed use; they can disable their desired capability and then lock in
+/sbin/init.  For greater generality, I'd suggest adding a new capability
+to control the ability to set the capability sysctls, but then we are in
+a vicious cycle...
 
-What was the machine doing at the time?
-
-Can you have a look in System.map, see if you can work out what's at
-0xc03b3120?
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

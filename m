@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbTDHWSs (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTDHWSs (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:18:48 -0400
-Received: from [12.47.58.221] ([12.47.58.221]:43490 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262134AbTDHWSo (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 18:18:44 -0400
-Date: Tue, 8 Apr 2003 14:28:53 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Alistair Strachan <alistair@devzero.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm1
-Message-Id: <20030408142853.74709a82.akpm@digeo.com>
-In-Reply-To: <200304081741.10129.alistair@devzero.co.uk>
-References: <200304081741.10129.alistair@devzero.co.uk>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Apr 2003 22:30:15.0852 (UTC) FILETIME=[6D72F6C0:01C2FE1E]
+	id S262120AbTDHWYX (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbTDHWYX (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:24:23 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:19617 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262120AbTDHWYW (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 18:24:22 -0400
+Date: Tue, 8 Apr 2003 18:31:44 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH]  menu fix: move # CPUs option to better location
+Message-ID: <Pine.LNX.4.44.0304081828430.15140-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair Strachan <alistair@devzero.co.uk> wrote:
->
-> On attempting to boot this kernel, I get the following just before init:
-> Kernel panic: VFS: Unable to mount root fs on 03:05
-> 
-> 2.5.67 base works fine. I discovered that reverting the following 
-> patches allows me to boot. I can increase the granularity of my search 
-> if nothing comes immediately to mind:
-> 
-> aggregated-disk-stats.patch
-> dynamic-hd_struct-allocation-fixes.patch
-> dynamic-hd_struct-allocation.patch
-> 
 
-Ah, good detective work, thanks.  It looks like the hd_struct dynamic allocation
-patch has broken devfs partition discovery somehow.
+  strictly an aesthetic fix, to move a sub-option directly underneath
+its parent option, where it belongs.
+
+
+
+diff -Nru linux-2.5.67/arch/i386/Kconfig rday-2.5.67/arch/i386/Kconfig
+--- linux-2.5.67/arch/i386/Kconfig	2003-03-24 17:00:07.000000000 -0500
++++ rday-2.5.67/arch/i386/Kconfig	2003-04-05 14:20:36.000000000 -0500
+@@ -413,6 +413,18 @@
+ 
+ 	  If you don't know what to do here, say N.
+ 
++config NR_CPUS
++	int "Maximum number of CPUs (2-32)"
++	depends on SMP
++	default "32"
++	help
++	  This allows you to specify the maximum number of CPUs which this
++	  kernel will support.  The maximum supported value is 32 and the
++	  minimum value which makes sense is 2.
++
++	  This is purely to save memory - each supported CPU adds
++	  approximately eight kilobytes to the kernel image.
++
+ config PREEMPT
+ 	bool "Preemptible Kernel"
+ 	help
+@@ -464,18 +476,6 @@
+ 	depends on !SMP && X86_UP_IOAPIC
+ 	default y
+ 
+-config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	depends on SMP
+-	default "32"
+-	help
+-	  This allows you to specify the maximum number of CPUs which this
+-	  kernel will support.  The maximum supported value is 32 and the
+-	  minimum value which makes sense is 2.
+-
+-	  This is purely to save memory - each supported CPU adds
+-	  approximately eight kilobytes to the kernel image.
+-
+ config X86_TSC
+ 	bool
+ 	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
+
+
 

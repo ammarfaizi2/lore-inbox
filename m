@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129327AbRBUN4d>; Wed, 21 Feb 2001 08:56:33 -0500
+	id <S129104AbRBUOBD>; Wed, 21 Feb 2001 09:01:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129361AbRBUN4Y>; Wed, 21 Feb 2001 08:56:24 -0500
-Received: from nmh.informatik.uni-bremen.de ([134.102.224.3]:16541 "EHLO
-	nmh.informatik.uni-bremen.de") by vger.kernel.org with ESMTP
-	id <S129327AbRBUN4I>; Wed, 21 Feb 2001 08:56:08 -0500
-To: Jes Sorensen <jes@linuxcare.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        davem@redhat.com
-Subject: Re: Problem with 2.2.19pre9 (Connection closed.)
-In-Reply-To: <E14VZCs-00023R-00@the-village.bc.nu> <d3g0h8nou5.fsf@lxplus015.cern.ch>
-From: Markus Germeier <mager@tzi.de>
-Date: 21 Feb 2001 14:55:43 +0100
-In-Reply-To: Jes Sorensen's message of "21 Feb 2001 14:32:50 +0100"
-Message-ID: <941yss9m3k.fsf@religion.informatik.uni-bremen.de>
-User-Agent: Gnus/5.0802 (Gnus v5.8.2) Emacs/20.6
-MIME-Version: 1.0
+	id <S129791AbRBUOAn>; Wed, 21 Feb 2001 09:00:43 -0500
+Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:34308 "HELO
+	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S129104AbRBUOAk>;
+	Wed, 21 Feb 2001 09:00:40 -0500
+Date: Wed, 21 Feb 2001 11:00:35 -0300
+From: Rogerio Brito <rbrito@iname.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] VIA 4.2x driver for 2.2 kernels
+Message-ID: <20010221110035.A3374@iname.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010220134028.A5762@suse.cz> <20010220155927.A1543@cm.nu> <20010221080919.A469@suse.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010221080919.A469@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen <jes@linuxcare.com> writes:
+On Feb 21 2001, Vojtech Pavlik wrote:
+> Don't do that. Use the kernel option to enable DMA instead.
 
-> I only see this for connections with incoming traffic where I don't
-> send something out (like irc), whereas unused ssh connections seem to
-> survive fine.
+	You mean using hdparm can cause problems? Could you provide
+	more details on the problems that could arise? I'm completely
+	ignorant on the subject...
 
-Just for the record: My example was an idle ssh connection!
 
-I believe Alan is correct. I can't remember having this problem with
-another linux box. I'll try to reproduce this with a linux box.
-
-Thanks for your quick responses. Hopefully we can resolve this before
-2.2.19 comes out!
-
-Regards
-        Markus
+	[]s, Roger...
 
 -- 
-Markus Germeier
-mager@tzi.de
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

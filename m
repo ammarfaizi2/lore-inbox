@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129673AbQKYVgr>; Sat, 25 Nov 2000 16:36:47 -0500
+        id <S131242AbQKYVh5>; Sat, 25 Nov 2000 16:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131046AbQKYVgh>; Sat, 25 Nov 2000 16:36:37 -0500
-Received: from sneaker.sch.bme.hu ([152.66.226.5]:61189 "EHLO
-        sneaker.sch.bme.hu") by vger.kernel.org with ESMTP
-        id <S129673AbQKYVg2>; Sat, 25 Nov 2000 16:36:28 -0500
-Date: Sat, 25 Nov 2000 22:06:20 +0100 (CET)
-From: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: crashing kernels
-In-Reply-To: <m17l5rx2af.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.3.96.1001125215413.2103A-100000@sneaker.sch.bme.hu>
+        id <S131222AbQKYVhr>; Sat, 25 Nov 2000 16:37:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2823 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S131046AbQKYVhe>;
+        Sat, 25 Nov 2000 16:37:34 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011252107.VAA02744@raistlin.arm.linux.org.uk>
+Subject: Re: [PATCH] removal of "static foo = 0"
+To: aeb@veritas.com (Andries Brouwer)
+Date: Sat, 25 Nov 2000 21:07:08 +0000 (GMT)
+Cc: rusty@linuxcare.com.au, tigran@veritas.com, linux-kernel@vger.kernel.org,
+        Andries.Brouwer@cwi.nl
+In-Reply-To: <20001125211939.A6883@veritas.com> from "Andries Brouwer" at Nov 25, 2000 09:19:39 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Andries Brouwer writes:
+> What a strange reaction. If I write
 > 
-> > > benn compiled into the kernel, and not as a module) always gave the
-> > > errors:
-> > > 
-> > > eth0: Transmit timed out: status 0050  0090 at 134704418/134704432 
-> > > eth0: Trying to restart the transmitter...
-> > 
-> > Known problem. This one might be fixed in current 2.2.18pre. SOme people
-> > see it some dont
+>  static int foo;
 > 
-> I have another data point on this problem.
-> I have seen it most with 2.4.0-test9.  But I'll look at 2.2.18pre.
-> I can trigger this bug fairly reliably by warm booting, several times
-> in a row.  With my linux warm booting directly into linux code triggers this
-> one fairly reliably :)  Also putting another nick in seems to help
-> trigger it as well.
+> this means that foo is a variable, local to the present compilation unit,
+> whose initial value is irrelevant because it will be assigned to before use.
 
-Ok. I won't use that card anymore, and wont compile this part of code
-neither. But I still doesn't know why does my 2.4.0-test11 crash to black:
-no console, not keyboard, no logs, nothing... like a cut on the
-electricity. 
-Just some mins ago I got another interesting thing: (with the eepro100
-driver)
-I've been logged in trough ssh. Like 5-10 mins before the crash the packet
-loss jumped up to around 30% (the network was ok, the other hosts on the
-same network came with 0% loss) Then after a while no answare to the ping,
-but my ssh worked still, and even I could log in. So it seems so, that
-something in the network driver died, and it didn't answare anymore to the
-ICMP requests. 
-On the console was nothing again. When the guy pressed the ctrl-alt-del,
-the normal reboot message came to the ssh terminals, but nothing happened
-on the console, or on the computer (no hard drive activity, no leds on the
-keyboard)
+Wrong.  The initial value is well-defined.  Go and read any C standard you
+choose.  Any C standard you care.  You will find out something really
+interesting.  I can guarantee that you will find out that it will be
+initialised to zero.  Unconditionally.  No question.  Absolutely.
 
-For the confusion of the services maybe the libc6 could be blamed. But I
-yet doesn't understan why the packet loss rise, and why wasn't the console
-working.
+> It is a bad programming habit to depend on this zero initialization.
 
-And a note for Alan: it isn't so simple to hack the Mylex driver from the
-2.2.17 into the 2.2.14... I'm currently trying it...
+Why?  Again, it is WELL defined, and is WELL defined in any C standard.
 
+> Indeed, very often, when you have a program that does something
+> you need to change it so that it does that thing a number of times.
+> Well, put a for- or while-loop around it. But wait! The second time
+> through the loop certain variables need to be reinitialized. Which ones?
+> The ones that were initialized explicitly in your first program.
+> Make the program into a function in a larger one. Same story.
 
-+--------------------------------------------+
-| Nagy Attila                                |
-|   mailto:mrbig@sneaker.sch.bme.hu          |
-+--------------------------------------------+
+Your point here is as clear as mud.
 
+> If it is your intention to destabilize then you need not read the following.
+> But let us assume that you try to make a perfect system.
+
+There is absolutely NO destabilisation going on here.  Get a grip, read the
+C standards, read the C startup code.  Then come back with something more
+relevent.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

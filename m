@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266936AbSKOXSo>; Fri, 15 Nov 2002 18:18:44 -0500
+	id <S266931AbSKOXUC>; Fri, 15 Nov 2002 18:20:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266940AbSKOXSo>; Fri, 15 Nov 2002 18:18:44 -0500
-Received: from d06lmsgate-6.uk.ibm.com ([194.196.100.252]:5766 "EHLO
-	d06lmsgate-6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S266936AbSKOXSn>; Fri, 15 Nov 2002 18:18:43 -0500
-Subject: Re: [lkcd-general] Re: [lkcd-devel] Re: What's left over.
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andy Pfiffer <andyp@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Mike Galbraith <efault@gmx.de>, Jeff Garzik <jgarzik@pobox.com>,
+	id <S266930AbSKOXUB>; Fri, 15 Nov 2002 18:20:01 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:11757 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266897AbSKOXUA>; Fri, 15 Nov 2002 18:20:00 -0500
+Date: Fri, 15 Nov 2002 15:24:03 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Khoa Huynh <khoa@us.ibm.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, kniht@us.ibm.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-devel@lists.sourceforge.net, lkcd-general@lists.sourceforge.net,
-       lkcd-general-admin@lists.sourceforge.net, mjbligh@us.ibm.com,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, suparna@linux.ibm.com,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Werner Almesberger <wa@almesberger.net>,
-       "Matt D. Robinson" <yakker@aparity.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFCD0F9521.AC085965-ON80256C72.00805798@portsmouth.uk.ibm.com>
-From: "Richard J Moore" <richardj_moore@uk.ibm.com>
-Date: Fri, 15 Nov 2002 23:25:10 +0000
-X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 15/11/2002 23:24:53
+       linux-kernel-owner@vger.kernel.org, mailing-lists@digitaleric.net
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <470862895.1037373843@[10.10.2.3]>
+In-Reply-To: <OFE5F968DE.F33233C5-ON85256C72.007E57DF@pok.ibm.com>
+References: <OFE5F968DE.F33233C5-ON85256C72.007E57DF@pok.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Well, it's not 10 billion items, but closer to....60 :-)  And
+> the current component list is pretty complete, right?  
 
-> I'd rather have a set of clearly defined notifiers so that I don't have
-> to know about priority, just when I want to act
-You mean an additional notifier solely for kexec's use that would be called
-after the existing reboot notifier?
+No it's not.
 
+> We don't
+> want to add anything that is not included in the official trees.
 
-Richard
+What do you mean by that? Bugs or components? And which are the
+"offical" trees?
+ 
+> By the way, have you looked at Red Hat Bugzilla?  They have
+> several hundreds of components in a single scroll-down list
+> (they define a component as a package).  Of course, the list is
+> alphabetical, so it's not too bad to use it.
+> 
+> So I think 60+ is definitely a manageable number.
+
+Disagree. That's why we didn't go for a flat list in the first place.
+
+M.
 

@@ -1,79 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317508AbSG2RBJ>; Mon, 29 Jul 2002 13:01:09 -0400
+	id <S317525AbSG2RNo>; Mon, 29 Jul 2002 13:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317520AbSG2RBJ>; Mon, 29 Jul 2002 13:01:09 -0400
-Received: from dns1.arrancar.com ([209.92.187.33]:22921 "EHLO
-	core.arrancar.com") by vger.kernel.org with ESMTP
-	id <S317508AbSG2RBI>; Mon, 29 Jul 2002 13:01:08 -0400
-Subject: Re: Funding GPL projects or funding the GPL?
-From: Federico Ferreres <fferreres@ojf.com>
-To: linux-kernel@vger.kernel.org
-Cc: viro@math.psu.edu
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 29 Jul 2002 14:00:28 -0300
-Message-Id: <1027962034.4745.130.camel@fede>
+	id <S317531AbSG2RNo>; Mon, 29 Jul 2002 13:13:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8712 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317525AbSG2RNn>; Mon, 29 Jul 2002 13:13:43 -0400
+Date: Mon, 29 Jul 2002 18:17:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
+Message-ID: <20020729181702.E25451@flint.arm.linux.org.uk>
+References: <20020729040824.GA2351@zax> <20020729100009.A23843@flint.arm.linux.org.uk> <20020729144408.GA11206@opus.bloom.county>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020729144408.GA11206@opus.bloom.county>; from trini@kernel.crashing.org on Mon, Jul 29, 2002 at 07:44:08AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-29 at 10:11, Hans Reiser wrote:
-
-> Mine is a direct fee payment from users with allocation of fee 
-> instructions accompanying the fee.  
-
-Does it matter who collects the money? It should only be based on
-convenience. And it's much easier/safer/efficient to have the OEM
-collect the funds than any other party.
-
-Imagine going to a store and asking "Two Sony Vaio laptops please, and
-make them OSS, NOT Windows" and beign charged the computer's quoted
-price (or maybe even less, but never more). Imagine not having to
-research on how to get a refund for that Windows license that came
-bundled and that you don't need. Imagine not having to _require_ the OEM
-to preinstall any OSS on the machine for it to "OSS ready" (unless you
-ask for redhat/suse/etc), yet beign able to use any OSS without having
-to pay any extra dime.
-
-There's this ilusion in normal people's minds that Windows is free
-because it comes with the computer. We should take advantage of that
-fact. And anyone that claims OSS is free is having an ilusion for OSS
-costs money to develop and to be able to use OSS you need to spend a lot
-of money (even if you don't pay anything back to the OSS developers).
-
-Small note: funding OSS is not about the money. The money here is a
-medium (funds) for an end (free software). Only businesses invert the
-relation and put money as the objective objective and turn work into a
-medium.
-
-> >Everything else remains the same (as Hans and I have said, the users
-> >will have a limited ability to chose what they need. I say limited
-> >because for an Office application to work the core must remain funded
-> >even though the user may not notice it).
-> >
-> Limited?  What limit?  If you  pay the X% of hardware cost fee you can
-> use all the software in the pool.
-
-Here's a clear version of what I meant: Limited ability to "allocate the
-money paid" based on what they'd like to be improved.
-
-> You are assuming they think.  They don't.  They sense herd movement. 
->  This is wise of them, because unless a large portion of the herd
-moves 
-> to it, it has no value.  Thus it has no value.  Thus the herd does not
-move.
-
-Whatever they decide is fine for me as it's their show and not mine. You
-and Larry can think differently, as you are involved in developement. 
-
-> -- 
-> Hans
+On Mon, Jul 29, 2002 at 07:44:08AM -0700, Tom Rini wrote:
+> On Mon, Jul 29, 2002 at 10:00:10AM +0100, Russell King wrote:
+> > Unless ppc and others are willing to put up with major breakage when I
+> > change asm/serial.h, I don't see this getting cleaned up.  Comments on
+> > this area welcome.
 > 
+> Well, what changes do you have in mind?
 
-Federico
+Firstly, apologies to Tom for turning this into a general discussion
+mail.  At the request of Tom, this message is also CC:'d to the PPC
+devel lists.
+
+There's quite a lot in here, so please, when replying edit out stuff
+your not replying to.  Thanks.
+
+
+1. Serial port initialisation
+-----------------------------
+
+Firstly, one thing to bear in mind here is that, as Alan says "be nice
+to make sure it was much earlier".  I guess Alan's right, so we can get
+oopsen out of the the kernel relatively easily, even when we're using
+framebuffer consoles.
+
+I'm sure Alan will enlighten us with his specific reasons if required.
+
+There have been several suggestions around on how to fix this table:
+
+a. architectures provide a sub-module to 8250.c which contains the
+   per-port details, rather than a table in serial.h.  This would
+   ideally mean removing serial.h completely.  The relevant object
+   would be linked into 8250.c when 8250.c is built as a module.
+
+b. we create 8250_hub6.c, 8250_generic.c, 8250_multiport.c and friends
+   each containing the parameters for the specific cards and handle it
+   as above.
+
+c. make it the responsibility of user space to tell the kernel about
+   many serial ports, and leave just the ones necessary for serial
+   console in the kernel.  (see issue 2 below)
+
+d. we keep serial.h, make it 8250-compatible ports only, and change
+   CONFIG_SERIAL_MULTIPORT and friends to CONFIG_SERIAL_8250_MULTIPORT
+   This is the simplest and least likely to break other code.  On the
+   other hand, we end up hauling the ISA table and struct old_serial_port
+   into 2.6.
+
+
+2. setserial API
+----------------
+
+This is actually tied closely into another issue; I'd like to get rid
+of this silly idea where we're able to open serial ports that don't
+exist (ie, their UART is "unknown").  This behaviour appears to be for
+the benefit of setserial to allow it to modify port base addresses and
+interrupt levels, etc.  Removing this facility would require a new API
+for such things.  The best suggestion made so far is to do something
+like:
+
+# echo "add 0x2e8,3,autoconfig" >/dev/serialctl
+# echo "remove 0x2e8" >/dev/serialctl
+
+(or s,/dev/serialctl,/proc/tty/driver/serial, which pre-exists)
+
+where we have "add ioport,irq,flags" and "remove ioport" (note that
+mmio ports aren't covered here since they require ioremap games which
+tends to be card specific!)
+
+Why make this change?  Well, we have quite a lot of baggage being
+dragged around to support configuration of an open port and being
+able to open a non-existent port.  I'd really like to get rid of
+this excess baggage.
+
+
+3. /dev/ttyS*, /dev/ttySA*, /dev/ttyCL*, /dev/ttyAM*, etc
+---------------------------------------------------------
+
+All the above are serial ports of various types.  It has been expressed
+several times that people would like to see all of them appear as
+/dev/ttyS* (indeed, there was an, erm, rather heated discussion about
+it a couple of years ago.)  I'm going to be neutral on this point
+here.
+
+There are several issues surrounding this:
+
+a. The serial core.c is very almost capable of handling this abstraction,
+   with one exception - a registered port can only be in one group at
+   one time.  This restriction is brought about because of the way the
+   tty layer handles its tty ports.
+
+   (Handling dual registrations in two different majors gets _really_
+    messy - eg, you two built-in 16550A ports and two SA1100 ports
+    taking up ttyS0 to ttyS3.  You then add a 16550A PCMCIA modem,
+    which becomes ttyS4.  Oh, and the SA1100 ports are also appearing
+    as ttySA0 and ttySA1.  _really_ messy.  No thanks.)
+
+b. serial consoles.  Each hardware driver handles its serial consoles
+   by itself, and if you have two or more hardware drivers built in
+   with serial console support, you need to be able to tell them apart
+   with the console= kernel parameter.
+
+   Again, this could be solvable if we have one "ttyS" view of everything
+   (core.c would then be responsible for registering the console with
+    printk.c and passing the various methods off to the relevant
+    hardware).
+
+c. People with many serial ports.  We _could_ change the device number
+   allocations such that ttyS gobbles up the ttySA, ttyCL, ttyAM, etc
+   device numbers so we end up with the same number of port slots
+   available for those with many many serial ports in their machines.
 
 
 
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

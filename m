@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130499AbQLIWZf>; Sat, 9 Dec 2000 17:25:35 -0500
+	id <S132265AbQLIW0p>; Sat, 9 Dec 2000 17:26:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131776AbQLIWZZ>; Sat, 9 Dec 2000 17:25:25 -0500
-Received: from c334580-a.snvl1.sfba.home.com ([65.5.27.33]:37131 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S130499AbQLIWZJ>; Sat, 9 Dec 2000 17:25:09 -0500
-Message-ID: <001701c0622a$bf175620$0400a8c0@playtoy>
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: network delays with NE2K-PCI
-Date: Sat, 9 Dec 2000 13:55:29 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S132251AbQLIW0f>; Sat, 9 Dec 2000 17:26:35 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:65287 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S132238AbQLIW0b>; Sat, 9 Dec 2000 17:26:31 -0500
+Date: Sat, 9 Dec 2000 15:51:35 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Willy Tarreau <wtarreau@free.fr>
+Cc: Mark Sutton <mes@capelazo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: NTFS repair tools]
+Message-ID: <20001209155135.A14957@vger.timpanogas.org>
+In-Reply-To: <Pine.GSO.4.10.10012082329290.27791-100000@lazo.capelazo.com> <976380540.3a32627c184c3@imp.free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <976380540.3a32627c184c3@imp.free.fr>; from wtarreau@free.fr on Sat, Dec 09, 2000 at 05:49:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone have a clue on this issue? Even a starting point would be
-appreciated.
+On Sat, Dec 09, 2000 at 05:49:00PM +0100, Willy Tarreau wrote:
 
-I want to add a bunch of printfk() to the source so that I can track what
-functions are being executed and when in the hope that it may lend a hand in
-tracking this down. I'm NOT a coder in any way shape or form so this will be
-a major thing for me. Would it be considered spamming the list if I dump the
-responses I get back and identify when the last printfk() came through and
-the lag started?
+Alan has spoken.  If DANGEROUS doesn't get their attention, what 
+will?
 
-Would that assist someone on this list in any way in helping me with this?
+Jeff
 
-Since this is a major list I don't want to spam it if it would be.
-
-David PGPKeys Downey
-
-
+> One problem with warnings at compile time is that in many cases, administrators
+> use kernels provided by friends or collegues that "know linux better than them".
+> If an admin uses a kernel in which write support has been activated to mount
+> an NTFS file system without providing any option, he will get it mount R/W
+> without any warning, then may destroy it at the first mistake or so.
+> 
+> perhaps we should add an option such as "force" to mount an NTFS r/w, and as
+> suggested by JBG, print a KERN_EMERG message when attempting to mount it r/w
+> without the "force" option.
+> 
+> we could also add a static counter which will make the first r/w mount always
+> fail, to ensure people will read the message, and which would prevent people
+> from mounting r/w from fstab.
+> 
+> just my $0.02.
+> 
+> BTW, I like the message about microsoft preventing from fixing the driver ;-)
+> 
+> Cheers,
+> Willy
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

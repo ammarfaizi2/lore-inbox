@@ -1,143 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264722AbUDWKUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264328AbUDWKXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264722AbUDWKUV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 06:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbUDWKUV
+	id S264328AbUDWKXV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 06:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbUDWKXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 06:20:21 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:12046 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264722AbUDWKUH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 06:20:07 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: pegasus@nerv.eu.org (Jure Pe?ar), debian-alpha@lists.debian.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH} Fix bad __exit reference in aic7xxx (was: building a recent kernel ...)
-Organization: Core
-In-Reply-To: <20040422001939.2e1ec7a2.pegasus@nerv.eu.org>
-X-Newsgroups: apana.lists.os.linux.debian.alpha
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.25-1-686-smp (i686))
-Message-Id: <E1BGxmQ-0002sT-00@gondolin.me.apana.org.au>
-Date: Fri, 23 Apr 2004 20:19:34 +1000
+	Fri, 23 Apr 2004 06:23:21 -0400
+Received: from gprs214-93.eurotel.cz ([160.218.214.93]:21888 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264328AbUDWKXT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 06:23:19 -0400
+Date: Fri, 23 Apr 2004 12:23:10 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: stefandoesinger@gmx.at
+Subject: Tips for S3 resume on radeon cards
+Message-ID: <20040423102310.GA8358@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jure Pe?ar <pegasus@nerv.eu.org> wrote:
->
-> Error: ./drivers/scsi/aic7xxx/aic7xxx_osm.o .init.text refers to
-> 0000000000000040 ELF_LITERAL       .exit.text
-> Error: ./drivers/scsi/aic7xxx/aic7xxx_osm.o .init.text refers to
-> 0000000000000044 HINT              .exit.text
-> Error: ./drivers/scsi/aic7xxx/aic7xxx_osm.o .eh_frame refers to
-> 0000000000000941 SREL32            .exit.text
+Hi!
 
-That was my fault.  This patch should fix it.
+Stefan has pretty usefull tips for getting S3 to work on radeon
+notebooks. This brings whole new class of systems to be usable for S3,
+please apply.
+								Pavel
 
-Cheers,
+--- clean/Documentation/power/video.txt	2004-02-05 01:53:53.000000000 +0100
++++ linux/Documentation/power/video.txt	2004-04-23 12:19:00.000000000 +0200
+@@ -1,7 +1,7 @@
+ 
+ 		Video issues with S3 resume
+ 		~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-		     2003, Pavel Machek
++		  2003-2004, Pavel Machek
+ 
+ During S3 resume, hardware needs to be reinitialized. For most
+ devices, this is easy, and kernel driver knows how to do
+@@ -15,7 +15,7 @@
+ 
+ There are three types of systems where video works after S3 resume:
+ 
+-* systems where video state is preserved over S3. (HP Omnibook xe3)
++* systems where video state is preserved over S3. (Athlon HP Omnibook xe3s)
+ 
+ * systems that initialize video card into vga text mode and where BIOS
+   works well enough to be able to set video mode. Use
+@@ -26,6 +26,10 @@
+   point, but it happens to work on some machines. Use
+   acpi_sleep=s3_bios (Athlon64 desktop system)
+ 
++* radeon systems, where X can soft-boot your video card. You'll need
++  patched X, and plain text console (no vesafb or radeonfb), see
++  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. (Acer TM 800)
++
+ Now, if you pass acpi_sleep=something, and it does not work with your
+ bios, you'll get hard crash during resume. Be carefull.
+ 
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-Index: drivers/scsi/aic7xxx/aic7xxx_osm.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/scsi/aic7xxx/aic7xxx_osm.c,v
-retrieving revision 1.5
-diff -u -r1.5 aic7xxx_osm.c
---- a/drivers/scsi/aic7xxx/aic7xxx_osm.c	3 Apr 2004 10:13:36 -0000	1.5
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c	23 Apr 2004 10:15:57 -0000
-@@ -891,21 +891,14 @@
- 	 */
- 	ahc_list_lockinit();
- 
--#ifdef CONFIG_PCI
- 	found = ahc_linux_pci_init();
- 	if (found)
--		goto out;
--#endif
-+		goto pci_err;
- 
--#ifdef CONFIG_EISA
- 	found = ahc_linux_eisa_init();
- 	if (found) {
--#ifdef CONFIG_PCI
--		ahc_linux_pci_exit();
--#endif
--		goto out;
-+		goto eisa_err;
- 	}
--#endif
- 
- 	/*
- 	 * Register with the SCSI layer all
-@@ -921,7 +914,15 @@
- #endif
- 	aic7xxx_detect_complete++;
- 
--out:
-+	if (!found) {
-+		found = -ENODEV;
-+
-+		ahc_linux_eisa_exit();
-+eisa_err:
-+		ahc_linux_pci_exit();
-+	}
-+
-+pci_err:
- 	return (found);
- }
- 
-@@ -5088,11 +5089,7 @@
- ahc_linux_init(void)
- {
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
--	int rc = ahc_linux_detect(&aic7xxx_driver_template);
--	if (rc)
--		return rc;
--	ahc_linux_exit();
--	return -ENODEV;
-+	return ahc_linux_detect(&aic7xxx_driver_template);
- #else
- 	scsi_register_module(MODULE_SCSI_HA, &aic7xxx_driver_template);
- 	if (aic7xxx_driver_template.present == 0) {
-@@ -5132,12 +5129,8 @@
- 	 */
- 	scsi_unregister_module(MODULE_SCSI_HA, &aic7xxx_driver_template);
- #endif
--#ifdef CONFIG_PCI
- 	ahc_linux_pci_exit();
--#endif
--#ifdef CONFIG_EISA
- 	ahc_linux_eisa_exit();
--#endif
- }
- 
- module_init(ahc_linux_init);
-Index: drivers/scsi/aic7xxx/aic7xxx_osm.h
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/scsi/aic7xxx/aic7xxx_osm.h,v
-retrieving revision 1.2
-diff -u -r1.2 aic7xxx_osm.h
---- a/drivers/scsi/aic7xxx/aic7xxx_osm.h	3 Apr 2004 09:26:57 -0000	1.2
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm.h	23 Apr 2004 10:12:43 -0000
-@@ -845,6 +845,9 @@
- int			 aic7770_map_registers(struct ahc_softc *ahc,
- 					       u_int port);
- int			 aic7770_map_int(struct ahc_softc *ahc, u_int irq);
-+#else
-+static __inline int ahc_linux_eisa_init(void) { return 0; }
-+static __inline void ahc_linux_eisa_exit(void) {}
- #endif
- 
- /******************************* PCI Routines *********************************/
-@@ -960,6 +963,9 @@
-  */
- #define ahc_pci_set_dma_mask(dev_softc, mask)  			\
- 	(((dev_softc)->dma_mask = mask) && 0)
-+
-+static __inline int ahc_linux_pci_init(void) { return 0; }
-+static __inline void ahc_linux_pci_exit(void) {}
- #endif
- /**************************** Proc FS Support *********************************/
- #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

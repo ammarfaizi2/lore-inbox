@@ -1,81 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317808AbSFMTqi>; Thu, 13 Jun 2002 15:46:38 -0400
+	id <S317813AbSFMTzG>; Thu, 13 Jun 2002 15:55:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317809AbSFMTqi>; Thu, 13 Jun 2002 15:46:38 -0400
-Received: from stingr.net ([212.193.32.15]:2435 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S317808AbSFMTqh>;
-	Thu, 13 Jun 2002 15:46:37 -0400
-Date: Thu, 13 Jun 2002 23:46:36 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] aic7xxx won't compile w/o PCI at all <- fixed
-Message-ID: <20020613194636.GA26527@stingr.net>
-Mail-Followup-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+	id <S317815AbSFMTzF>; Thu, 13 Jun 2002 15:55:05 -0400
+Received: from p50886DD7.dip.t-dialin.net ([80.136.109.215]:18355 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317813AbSFMTzD>; Thu, 13 Jun 2002 15:55:03 -0400
+Date: Thu, 13 Jun 2002 13:54:37 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Pavel Machek <pavel@suse.cz>
+cc: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        David Ford <david+cert@blue-labs.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] Double quote patches part two: drivers 2/2
+In-Reply-To: <20020612171059.A87@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0206131353360.24261-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Hi,
 
-I know I shouldn't do that
-I also know someone should do at least compile on cases which affected by
-some patch.
+On Wed, 12 Jun 2002, Pavel Machek wrote:
+> Why are not these fed through trivial? Having two different people for
+> easy patches seems pretty confusing...
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.538   -> 1.539  
-#	drivers/scsi/aic7xxx/aic7xxx_proc.c	1.9     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/13	stingray@boxster.stingr.net	1.539
-# Fix two obscure cases in heh aic7xxx
-# --------------------------------------------
-#
-diff -Nru a/drivers/scsi/aic7xxx/aic7xxx_proc.c b/drivers/scsi/aic7xxx/aic7xxx_proc.c
-- --- a/drivers/scsi/aic7xxx/aic7xxx_proc.c	Thu Jun 13 23:43:23 2002
-+++ b/drivers/scsi/aic7xxx/aic7xxx_proc.c	Thu Jun 13 23:43:23 2002
-@@ -282,7 +282,11 @@
- 		sd.sd_CK = SEECK;
- 		sd.sd_DO = SEEDO;
- 		sd.sd_DI = SEEDI;
-+#ifdef CONFIG_PCI
- 		have_seeprom = ahc_acquire_seeprom(ahc, &sd);
-+#else
-+		have_seeprom = 0;
-+#endif
- 	}
- 
- 	if (!have_seeprom) {
-@@ -306,8 +310,10 @@
- 				  sizeof(struct seeprom_config)/2);
- 		ahc_read_seeprom(&sd, (uint16_t *)ahc->seep_config,
- 				 start_addr, sizeof(struct seeprom_config)/2);
-+#ifdef CONFIG_PCI
- 		if ((ahc->chip & AHC_VL) == 0)
- 			ahc_release_seeprom(&sd);
-+#endif
- 		written = length;
- 	}
- 
-- -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
-  When you're invisible, the only one really watching you is you (my keychain)
------BEGIN PGP SIGNATURE-----
+I don't know how much trivial will be confused if it gets two different 
+patches each fixing two different things. Also, my script sends to LKML by 
+default.
 
-iEYEAREDAAYFAj0I9poACgkQyMW8naS07KSyFgCeIaq/qC3CjghpuzZaQZDk+xFk
-gbEAn2VYDXsq+VC5lvvgOXCTUTr2DCsa
-=g0mm
------END PGP SIGNATURE-----
+Regards,
+Thunder
+-- 
+German attitude becoming        |	Thunder from the hill at ngforever
+rightaway popular:		|
+       "Get outa my way,  	|	free inhabitant not directly
+    for I got a mobile phone!"	|	belonging anywhere
+

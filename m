@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266120AbTBKALb>; Mon, 10 Feb 2003 19:11:31 -0500
+	id <S265277AbTBKAs2>; Mon, 10 Feb 2003 19:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266250AbTBKALb>; Mon, 10 Feb 2003 19:11:31 -0500
-Received: from packet.digeo.com ([12.110.80.53]:52866 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266120AbTBKALa>;
-	Mon, 10 Feb 2003 19:11:30 -0500
-Date: Mon, 10 Feb 2003 16:20:18 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: dhowells@redhat.com, torvalds@transmeta.com, jgarzik@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: extra PG_* bits for page->flags
-Message-Id: <20030210162018.385642f0.akpm@digeo.com>
-In-Reply-To: <1044922034.4866.14.camel@laptop-linux.cunninghams>
-References: <20459.1044874267@warthog.cambridge.redhat.com>
-	<20030210151244.7e42d3fb.akpm@digeo.com>
-	<1044922034.4866.14.camel@laptop-linux.cunninghams>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266622AbTBKAs2>; Mon, 10 Feb 2003 19:48:28 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:62470 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S265277AbTBKAs1>; Mon, 10 Feb 2003 19:48:27 -0500
+Subject: [PATCH] 2.5.60 fix ver_linux script for correct output from depmod
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Feb 2003 00:21:10.0186 (UTC) FILETIME=[7A3200A0:01C2D163]
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 10 Feb 2003 17:50:26 -0700
+Message-Id: <1044924628.25378.906.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@clear.net.nz> wrote:
->
-> On Tue, 2003-02-11 at 12:12, Andrew Morton wrote:
-> > David Howells <dhowells@redhat.com> wrote:
-> > >  (*) PG_journal
-> > >  (*) PG_journalmark
-> > 
-> > Well.  If you new fs goes in then yes, we can spare those bits (just).
-> 
-> May I ask, how many bits do you consider available?
+>From the depmod man page:
 
-Too darn few, frankly.
+BUGS
+       depmod [ -V | --version ] should exit immediately.  Instead, it prints
+       the version information and behaves as if no options were given.
 
-> swsusp beta 18 (ie
-> 2.4), which I'm beginning to port to 2.5, uses 4 bits during suspend &
-> resume for various purposes. If I understand the code correctly, the
-> zone flags use bits 24-31 (although there has been that thread saying
-> they could use less bits). I see in the 2.5.60 patch bit 19 is now in
-> use. Should I be using private, temporarily allocated bitmaps instead of
-> the page flags, to ease the pressure? (Especially since the suspend code
-> is not used in 'normal' operation anyway).
+A recent change to the ver_linux script replaced "rmmod" with "depmod",
+to determine module-init-tools version, but the output looks like this:
 
-256 zones is fairly exorbitant.  I suspect the number of machines which have
+[snip]
+mount                  2.11n
+module-init-tools      file
+e2fsprogs              1.28
+[snip]
 
-a) more than 16 zones and 
-b) CONFIG_SOFTWARE_SUSPEND
+The following patch adds a "| grep version" filter to the depmod -V output.
 
-is zero. So you can always munch into the top eight bits.
+[snip]
+mount                  2.11n
+module-init-tools      2.4.22
+e2fsprogs              1.28
+[snip]
 
-PG_checked is supposed to be removed - I have not looked into that.  PG_slab
-is fairly optional.
+Steven
 
-PG_highmem can go away.  (just use page_zone(page)->is_highmem)
-
-I would dearly like to dump PG_reserved, but I doubt if I'll get onto that.
-(thinks about what happens if you start a direct-io read from a soundcard DMA
-buffer, and munmap/close while that is in progress...)
-
-So.  There's not a lot of fat there, but we're not all out of options.
-
+--- linux-2.5.60/scripts/ver_linux.orig	Mon Feb 10 17:18:17 2003
++++ linux-2.5.60/scripts/ver_linux	Mon Feb 10 17:19:36 2003
+@@ -28,7 +28,7 @@
+ 
+ mount --version | awk -F\- '{print "mount                 ", $NF}'
+ 
+-depmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
++depmod -V  2>&1 | grep version | awk 'NR==1 {print "module-init-tools     ",$NF}'
+ 
+ tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
+ 'NR==1 {print "e2fsprogs             ", $2}'
 

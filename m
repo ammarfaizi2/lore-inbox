@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131278AbRCNCtR>; Tue, 13 Mar 2001 21:49:17 -0500
+	id <S131290AbRCNECZ>; Tue, 13 Mar 2001 23:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131279AbRCNCtH>; Tue, 13 Mar 2001 21:49:07 -0500
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:38156 "HELO
-	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
-	id <S131278AbRCNCsw>; Tue, 13 Mar 2001 21:48:52 -0500
-Message-Id: <m14d1KU-0005khC@gherkin.sa.wlk.com>
-From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: Re: another Cyrix/mtrr problem?
-In-Reply-To: <Pine.LNX.4.31.0103140009230.7143-100000@athlon>
- "from davej@suse.de at Mar 14, 2001 00:20:21 am"
-To: davej@suse.de
-Date: Tue, 13 Mar 2001 20:48:02 -0600 (CST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S131300AbRCNECF>; Tue, 13 Mar 2001 23:02:05 -0500
+Received: from odin.sinectis.com.ar ([216.244.192.158]:4103 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S131290AbRCNEB4>; Tue, 13 Mar 2001 23:01:56 -0500
+Date: Wed, 14 Mar 2001 01:03:35 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: linux-kernel@vger.kernel.org
+Cc: Pete Toscano <pete.lkml@toscano.org>, Greg KH <greg@wirex.com>
+Subject: Re: APIC  usb MPS 1.4 and the 2.4.2 kernel
+Message-ID: <20010314010335.C18554@grulic.org.ar>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Pete Toscano <pete.lkml@toscano.org>, Greg KH <greg@wirex.com>
+In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org> <20010313002513.A1664@bubba.toscano.org> <20010313092837.A805@wirex.com> <20010313124954.B5626@bubba.toscano.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010313124954.B5626@bubba.toscano.org>; from pete.lkml@toscano.org on Tue, Mar 13, 2001 at 12:49:54PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@suse.de wrote:
-> Normally the answer would be "Closed driver, complain to nVidia",
-> but just in case..
+On Tue, Mar 13, 2001 at 12:49:54PM -0500, Pete Toscano wrote:
+> Very interesting.  I had not heard about this.  Are there any SMP boards
+> with a VIA chipset that does work well with Linux and USB?  I have an
+> old P2B-DS that I had replace with this board as I needed more PCI
+> slots.  Heck, for that matter are there any SMP boards that work well
+> with Linux and USB that have six or more PCI slots?
 
-Glad you were open-minded enough to consider that it *might* be
-"our" code.
+My 694D Pro (MS-6321) has been working fine once I got the heat
+problem off my hands. USB works, as long as the MPS is set at
+1.1. It's a SMP board with VIA's "Apollo Pro133A" chipset, and
+the vt82c686a.
 
-> Can you verify that..
-> 
->  a. You have MTRR support compiled into the kernel.
-
-yes
-
->  b. You have a /proc/mtrr file
-
-yes
-
->  c. You can add/delete ranges using /proc/mtrr
->     (See Documentation/mtrr.txt for info on how to do this)
-
-yes, BUT...
-
-The "Documentation/mtrr.txt" file says "... 4 megabytes, which is
-0x400000 bytes (in hexadecimal)."  The math is correct: 1MB == 2**20
-== 0x100000 the last time I checked.  Unfortunately, when I execute
-
-echo "base=0xd8000000 size=0x100000 type=write-combining" >| /proc/mtrr
-
-I get a 2MB region instead of the 1MB region I expected...
-
-reg00: base=0xd8000000 (3456MB), size=   2MB: write-combining, count=1
-reg01: base=0x000c0000 (   0MB), size= 512KB: uncachable, count=1
-reg07: base=0x00000000 (   0MB), size= 256MB: write-through, count=1
-
-Similarly, the NVIDIA driver attempts to create a 32MB write-combining
-region by passing a size argument of 0x2000000, and fails because the
-underlying mtrr code tries to carve out a 64MB region whereas my video
-card has only 32MB of RAM.
-
-Looks like an off-by-one (bit) error to me.  So...  Is this a legitimate
-bug sighting, or is my analysis faulty?
-
---Bob Tracy
-rct@frus.com
+-- 
+John Lenton (john@grulic.org.ar) -- Random fortune:
+I matematici lo fanno in teoria, oppure lo portano al limite.

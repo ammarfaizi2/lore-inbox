@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUL1XY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbUL1XYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUL1XY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 18:24:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbUL1XY4
+	id S261166AbUL1XYs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 18:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUL1XYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 18:24:56 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:63723 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261169AbUL1XYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 18:24:46 -0500
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <200412272150.IBRnA4AvjendsF8x@topspin.com>
-	<20041227225417.3ac7a0a6.davem@davemloft.net>
-	<52pt0unr0i.fsf@topspin.com>
-	<20041228141710.4daebcfb.davem@davemloft.net>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 28 Dec 2004 15:24:43 -0800
-In-Reply-To: <20041228141710.4daebcfb.davem@davemloft.net> (David S.
- Miller's message of "Tue, 28 Dec 2004 14:17:10 -0800")
-Message-ID: <52pt0uhupw.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][v5][0/24] Latest IB patch queue
+	Tue, 28 Dec 2004 18:24:48 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:5404 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261166AbUL1XYh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 18:24:37 -0500
+Date: Wed, 29 Dec 2004 00:26:09 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: kbuild: find stdarg.h in a new way
+Message-ID: <20041228232609.GB29461@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 28 Dec 2004 23:24:44.0104 (UTC) FILETIME=[69B92480:01C4ED34]
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> I believe that you didn't test the sparc64 build of the
-    David> infiniband stuff because arch/sparc64/Kconfig needs to
-    David> explicitly include the infiniband Kconfig since it does not
-    David> use drivers/Kconfig.  You didn't send me any such changes.
+stdarg.h is a compiler specific file.
+Following patch is more explicit about how to find this file.
+In this way we also share the definition with sparse.
 
-Actually I did test the build (and Tom Duffy at Sun has actually run
-the drivers on his system), but I forgot to include the required Kconfig
-change -- I just have it in my local test tree.
+	Sam
 
-    David> There are a few platforms which also are in this situation.
-    David> I added the sparc64 one to my tree while integrating your
-    David> changes, but the others need to be attended to if you wish
-    David> infiniband to be configurable on them.
 
-I think sparc64 is the only such platform where InfiniBand is likely
-to be of much interest.  However I'll check out all of arch/ and send
-patches to hook up drivers/infiniband/ to the relevant maintainers
-once IB makes it upstream.
 
-Thanks,
-  Roland
+kbuild: Use -isystem `gcc --print-file-name=include`
+   
+   Using "-nostdinc -isystem `gcc --print-file-name=include" let
+   us see full path to compiler specific files when compiling with make V=1
+   Furthermore it lets us use same definition for sparse (CHECKFLAGS) and the kernel.
+   Tested with gcc 3.3.4 only.
+   
+   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+
+   
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-12-29 00:21:09 +01:00
++++ b/Makefile	2004-12-29 00:21:09 +01:00
+@@ -330,7 +330,10 @@
+ KALLSYMS	= scripts/kallsyms
+ PERL		= perl
+ CHECK		= sparse
++
++NOSTDINC_FLAGS := -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__
++CHECKFLAGS     += $(NOSTDINC_FLAGS)
+ MODFLAGS	= -DMODULE
+ CFLAGS_MODULE   = $(MODFLAGS)
+ AFLAGS_MODULE   = $(MODFLAGS)
+@@ -338,7 +341,6 @@
+ CFLAGS_KERNEL	=
+ AFLAGS_KERNEL	=
+ 
+-NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
+ 
+ # Use LINUXINCLUDE when you must reference the include/ directory.
+ # Needed to be compatible with the O= option
+diff -Nru a/scripts/Makefile.build b/scripts/Makefile.build
+--- a/scripts/Makefile.build	2004-12-29 00:21:09 +01:00
++++ b/scripts/Makefile.build	2004-12-29 00:21:09 +01:00
+@@ -83,7 +83,6 @@
+ 
+ # Linus' kernel sanity checking tool
+ ifneq ($(KBUILD_CHECKSRC),0)
+-  CHECKFLAGS += -I$(shell $(CC) -print-file-name=include)
+   ifeq ($(KBUILD_CHECKSRC),2)
+     quiet_cmd_force_checksrc = CHECK   $<
+           cmd_force_checksrc = $(CHECK) $(CHECKFLAGS) $(c_flags) $< ;

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264963AbTAJNye>; Fri, 10 Jan 2003 08:54:34 -0500
+	id <S265065AbTAJN6J>; Fri, 10 Jan 2003 08:58:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265008AbTAJNye>; Fri, 10 Jan 2003 08:54:34 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6384 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S264963AbTAJNye>; Fri, 10 Jan 2003 08:54:34 -0500
-Date: Fri, 10 Jan 2003 15:03:13 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, support@moxa.com.tw
-Subject: 2.5.55: static compilation of mxser.c doesn't work
-Message-ID: <20030110140313.GL6626@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S265092AbTAJN6J>; Fri, 10 Jan 2003 08:58:09 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:12160 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id <S265065AbTAJN6I>;
+	Fri, 10 Jan 2003 08:58:08 -0500
+Subject: Re: XFree86 vs. 2.5.54 - reboot
+In-Reply-To: <3E1C9D9A.FD5CA1F6@digeo.com> "from Andrew Morton at Jan 8, 2003
+ 01:52:26 pm"
+To: Andrew Morton <akpm@digeo.com>
+Date: Fri, 10 Jan 2003 08:06:51 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20030110140651.E13A04EE7@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy(0000))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arnaldo,
+Andrew Morton wrote:
+> > > "Bob_Tracy(0000)" wrote:
+> > > > AMD K6-III 450 running a 2.4.19 kernel with vesafb, XFree86 4.1.0, and
+> > > > a USB mouse works fine.  Same setup with a 2.5.54 kernel does a cold
+> > > > reboot when I type "startx".
+> 
+> Yup.  It must be something else then.  Perhaps you should try disabling
+> various DRM/AGP type things in config, see if that helps.
 
-the 2.5 Linux kernel contains your patch
-
-   o mxser: add module_exit/module_init
-   This fixes the compilation problem in 2.5
-
-This patch renames mxser_init to mxser_module_init causing a compile 
-error when trying to compile this driver statically into the kernel 
-since mxser_init is still called from drivers/char/tty_io.c.
-
-cu
-Adrian
+2.5.55 appears to work fine with CONFIG_AGP and CONFIG_DRM undefined.
+I'll retry with CONFIG_AGP_MODULE next...
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

@@ -1,46 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270611AbTGTDMz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 23:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270612AbTGTDMz
+	id S270612AbTGTDOr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 23:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270613AbTGTDOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 23:12:55 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:63990 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S270611AbTGTDMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 23:12:54 -0400
-Date: Sat, 19 Jul 2003 23:28:04 -0400
-From: Matt Reppert <repp0017@tc.umn.edu>
-To: Pedro Ribeiro <deadheart@netcabo.pt>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with mii-tool && 2.6.0-test1-ac2
-Message-Id: <20030719232804.08cc3689.repp0017@tc.umn.edu>
-In-Reply-To: <3F198C66.1030405@netcabo.pt>
-References: <3F198C66.1030405@netcabo.pt>
-Organization: Arashi no Kaze
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	Sat, 19 Jul 2003 23:14:47 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:37862
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270612AbTGTDOo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 23:14:44 -0400
+Date: Sat, 19 Jul 2003 23:29:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [BK PATCHES] more 2.4.x net driver merges
+Message-ID: <20030720032943.GA12272@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jul 2003 19:22:30 +0100
-Pedro Ribeiro <deadheart@netcabo.pt> wrote:
+(just sent to Marcelo; he already merged an earlier batch)
 
-> If I compile the 8139 ethernet support as a module (as I always did - 
-> module name >> 8130too) I will get an error in make modules_install. 
-> However, if I build it in the kernel it will work just fine. The problem 
-> is that now when I try to do a simple mii-tool -F 100baseTX-FD eth0 
-> (because my eth always stats at 100 Half duplex) I get this error:
-> 
-> SIOCGMIIPHY on 'eth0' failed: Operation not supported
 
-What's the error you get on install? I don't have a problem doing it on
-my iBook.
+BK users may do a
 
-You have to explicitly turn on MII support in 2.6-test; the kconfig option
-is CONFIG_MII; it's "Generic Media Independent Interface device support",
-the first item under "Ethernet (10 or 100Mbit)". This needs to be modular or
-on to use mii-tool, I imagine.
+	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4
 
-Matt
+Others may download the patch from
+
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.22-pre7-netdrvr3.patch.bz2
+
+This will update the following files:
+
+ Documentation/networking/ifenslave.c |   90 +++-
+ drivers/net/wireless/airo.c          |  663 ++++++++++++++++++++---------------
+ 2 files changed, 455 insertions(+), 298 deletions(-)
+
+through these ChangeSets:
+
+<shmulik.hen@intel.com> (03/07/19 1.1032)
+   [bonding] fix ifenslave ABI bug
+
+<achirica@telefonica.net> (03/07/19 1.1031)
+   [wireless airo] Update to wireless extensions 16 (new spy API).
+
+<achirica@telefonica.net> (03/07/19 1.1030)
+   [wireless airo] Update to wireless extensions 15 (add monitor mode).
+
+<achirica@telefonica.net> (03/07/19 1.1029)
+   [wireless airo] Return channel in infrastructure mode.
+
+<achirica@telefonica.net> (03/07/19 1.1028)
+   [wireless airo] Checks for small packets before transmitting them.
+
+<achirica@telefonica.net> (03/07/19 1.1027)
+   [wireless airo] Returns proper status in case of transmission error.
+
+<achirica@telefonica.net> (03/07/19 1.1026)
+   [wireless airo] Fix small endianness bug.
+
+<achirica@telefonica.net> (03/07/19 1.1025)
+   [wireless airo] Don't call MIC functions if the card doesn't support them.
+
+<achirica@telefonica.net> (03/07/19 1.1024)
+   [wireless airo] Don't sleep when the stats are requested.
+
+<achirica@telefonica.net> (03/07/19 1.1023)
+   [wireless airo] Make locking "per thread" so it's fully preemptive.
+
+<achirica@telefonica.net> (03/07/19 1.1022)
+   [wireless airo] Update  structs with the new fields in latest firmwares.
+
+<achirica@telefonica.net> (03/07/19 1.1021)
+   [wireless airo] Simplify dynamic buffer code in Cisco extensions.
+
+<achirica@telefonica.net> (03/07/19 1.1020)
+   [wireless airo] sync with 2.6
+   
+   Trivialities: spelling, stack usage, checking return vals, etc.
+

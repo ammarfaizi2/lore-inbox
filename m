@@ -1,144 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315476AbSFCUOT>; Mon, 3 Jun 2002 16:14:19 -0400
+	id <S315480AbSFCUOW>; Mon, 3 Jun 2002 16:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSFCUOT>; Mon, 3 Jun 2002 16:14:19 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:13215 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315476AbSFCUOL>;
-	Mon, 3 Jun 2002 16:14:11 -0400
-Date: Mon, 3 Jun 2002 22:11:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Fix suspend-to-RAM in 2.5.20
-Message-ID: <20020603201144.GA31808@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S315483AbSFCUOV>; Mon, 3 Jun 2002 16:14:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48655 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315480AbSFCUOM>;
+	Mon, 3 Jun 2002 16:14:12 -0400
+Message-ID: <3CFBCDBD.DF675D57@zip.com.au>
+Date: Mon, 03 Jun 2002 13:12:45 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: john slee <indigoid@higherplane.net>
+CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Helge Hafting <helgehaf@aitel.hist.no>,
+        "Ronny T. Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 3c59x driver: card not responding after a while
+In-Reply-To: <3CFB21C5.27BBFB66@aitel.hist.no> <Pine.LNX.4.44.0206031050170.10836-100000@netfinity.realnet.co.sz> <20020603125752.GE12322@higherplane.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+john slee wrote:
+> 
+> On Mon, Jun 03, 2002 at 10:51:34AM +0200, Zwane Mwaikambo wrote:
+> > On Mon, 3 Jun 2002, Helge Hafting wrote:
+> >
+> > > I see this too.  I always thought it was the less-than-perfect ABIT BP6
+> > > loosing an irq or something.  (odd that it _always_ is the NIC that goes
+> > > though...)  I also have a k6 with the same NIC, and another
+> > > UP machine at work.  They never fail this way.
+> > > Could it be a SMP problem?
+> >
+> > I wouldn't think so, i use it on SMP extensively without a hitch.
+> 
+> "me too" - have been using 3c905B cards in various SMP (and UP) boxes
+> for a couple of years now and they've never failed me, even on bp6.  in
+> fact i seem to have missed out on the plague of bp6 problems, even when
+> running dual 300a overclocked to 450.  strange.
+> 
 
-I created arch/i386/suspend.c not to clash with ACPI people so much in
-future. (More stuff is going to move into it in the future, to clean
-up functions that really do not belong to the headers.) Please apply,
+That driver is solid for SMP.  It's possible that the BP6
+is losing its IRQ routing assignments, or the APIC is
+getting stuck.  We had extensive problems with that last
+year.  A workaround was implemented and as far as I can tell,
+the problem went away.
 
-									Pavel
+It seems to affect network cards most because they typically
+generate the most interrupts.
 
---- clean/arch/i386/kernel/Makefile	Thu May 30 12:21:00 2002
-+++ linux-swsusp/arch/i386/kernel/Makefile	Mon Jun  3 19:06:05 2002
-@@ -24,6 +24,8 @@
- obj-$(CONFIG_SMP)		+= smp.o smpboot.o trampoline.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o apic.o nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
-+obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o
-+obj-$(CONFIG_ACPI_SLEEP)	+= suspend.o
- ifdef CONFIG_VISWS
- obj-y += setup-visws.o
- obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
---- clean/arch/i386/kernel/suspend.c	Mon Jun  3 11:48:17 2002
-+++ linux-swsusp/arch/i386/kernel/suspend.c	Mon Jun  3 19:01:07 2002
-@@ -0,0 +1,45 @@
-+/*
-+ * Suspend support specific for i386.
-+ *
-+ * Distribute under GPLv2
-+ *
-+ * Copyright (c) 2002 Pavel Machek <pavel@suse.cz>
-+ */
-+
-+#define ACPI_C
-+#include <linux/config.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/spinlock.h>
-+#include <linux/poll.h>
-+#include <linux/delay.h>
-+#include <linux/sysrq.h>
-+#include <linux/compatmac.h>
-+#include <linux/proc_fs.h>
-+#include <linux/irq.h>
-+#include <linux/pm.h>
-+#include <linux/device.h>
-+#include <linux/suspend.h>
-+#include <asm/uaccess.h>
-+#include <asm/acpi.h>
-+
-+
-+void do_suspend_lowlevel(int resume)
-+{
-+/*
-+ * FIXME: This function should really be written in assembly. Actually
-+ * requirement is that it does not touch stack, because %esp will be
-+ * wrong during resume before restore_processor_context(). Check
-+ * assembly if you modify this.
-+ */
-+	if (!resume) {
-+		save_processor_context();
-+		acpi_save_register_state((unsigned long)&&acpi_sleep_done);
-+		acpi_enter_sleep_state(3);
-+		return;
-+	}
-+acpi_sleep_done:
-+	restore_processor_context();
-+}
---- clean/drivers/acpi/system.c	Mon Jun  3 11:43:30 2002
-+++ linux-swsusp/drivers/acpi/system.c	Mon Jun  3 18:57:34 2002
-@@ -260,10 +260,8 @@
- 	u32			state)
- {
- 	acpi_status		status = AE_ERROR;
--#if 0
- 	unsigned long		flags = 0;
- 
--	/* this is very broken, so don't do anything until it's fixed */
- 	save_flags(flags);
- 	
- 	switch (state)
-@@ -289,8 +287,6 @@
- 	fix_processor_context();
- 
- 	restore_flags(flags);
--#endif
--	printk("ACPI: ACPI-based suspend currently broken, aborting\n");
- 
- 	return status;
- }
---- clean/include/asm-i386/suspend.h	Thu May 30 12:21:13 2002
-+++ linux-swsusp/include/asm-i386/suspend.h	Mon Jun  3 19:15:52 2002
-@@ -294,3 +294,27 @@
- }
- #endif 
- 
-+#ifdef CONFIG_ACPI_SLEEP
-+extern unsigned long saved_eip;
-+extern unsigned long saved_esp;
-+extern unsigned long saved_ebp;
-+extern unsigned long saved_ebx;
-+extern unsigned long saved_esi;
-+extern unsigned long saved_edi;
-+
-+static inline void acpi_save_register_state(unsigned long return_point)
-+{
-+	saved_eip = return_point;
-+	asm volatile ("movl %%esp,(%0)" : "=m" (saved_esp));
-+	asm volatile ("movl %%ebp,(%0)" : "=m" (saved_ebp));
-+	asm volatile ("movl %%ebx,(%0)" : "=m" (saved_ebx));
-+	asm volatile ("movl %%edi,(%0)" : "=m" (saved_edi));
-+	asm volatile ("movl %%esi,(%0)" : "=m" (saved_esi));
-+}
-+
-+#define acpi_restore_register_state()  do {} while (0)
-+
-+/* routines for saving/restoring kernel state */
-+extern int acpi_save_state_mem(void);
-+extern int acpi_save_state_disk(void);
-+#endif
+Try booting the machine with the `noapic' option.
 
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+-

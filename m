@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262922AbRFQV3u>; Sun, 17 Jun 2001 17:29:50 -0400
+	id <S263002AbRFQVo0>; Sun, 17 Jun 2001 17:44:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262982AbRFQV3k>; Sun, 17 Jun 2001 17:29:40 -0400
-Received: from [193.132.149.202] ([193.132.149.202]:58377 "EHLO uk2.imdb.com")
-	by vger.kernel.org with ESMTP id <S262923AbRFQV3d>;
-	Sun, 17 Jun 2001 17:29:33 -0400
+	id <S263003AbRFQVoF>; Sun, 17 Jun 2001 17:44:05 -0400
+Received: from mail007.syd.optusnet.com.au ([203.2.75.231]:12252 "EHLO
+	mail007.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S263002AbRFQVn4> convert rfc822-to-8bit; Sun, 17 Jun 2001 17:43:56 -0400
+From: alterity <alterity@dingoblue.net.au>
+To: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 VM & swap question
+Date: Mon, 18 Jun 2001 07:43:19 +1000
+Organization: alterity inc.
+Reply-To: alterity@dingoblue.net.au
+Message-ID: <fr8qitgqmqsnt9u38bj7di2dtj5vpbr8sc@4ax.com>
+In-Reply-To: <20010617104836.B11642@opus.bloom.county> <20010617205835.A12767@unthought.net>
+In-Reply-To: <20010617205835.A12767@unthought.net>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15149.8347.53385.459803@jim.imdb.com>
-Date: Sun, 17 Jun 2001 22:26:50 +0100 (BST)
-From: Jim Randell <jim@imdb.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Bug 2.4.{4,5} page_alloc.c:81
-In-Reply-To: <15148.32506.916604.938393@jim.imdb.com>
-In-Reply-To: <15148.32506.916604.938393@jim.imdb.com>
-X-Mailer: VM 6.75 (21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid)
-X-Missile-Address: 51 28 19 N / 02 35 41 W
-X-Location: Bristol, UK
-X-Face: 0i`dE&Q3d44YB<DfXUCR]+^L}0EAY(Lt}o%)3jE>g|yj*y0)|\a8KVbOdmkhW3Fgqy#oM1]JIV9VEO3$";)>8dpa}P8,R{(1<czOX27o7bK]q#GuwMpD2pgV4xj1\kUTVUo]ROa%aoNV,;.$P$@s#zuzpzw5B$KFYV)#5Cb1o8a&v$!gBRR;b
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Randell writes:
-> I've recently been getting strange system lock-ups - often my system
-> just dies, but occasionally I get messages in dmesg. I've tried to
-> isolate the problem by increasing the available swap (I now have > 2x
-> RAM), removing my reiserfs partitions (I'm now running with ext2) and
-> downgrading from kernel 2.4.5 to 2.4.4, but I'm still seeing the
-> problem.
+On Sun, 17 Jun 2001 20:58:35 +0200, you wrote:
 
-I think I've tracked this problem down to the D-Link DFE-530TX network
-card, via-rhine driver and SMP (at least I've removed the card and put
-the box through it's paces and not managed to get the problem to
-recur).
+>I have a database server with 1G phys and 1G swap. It uses 950+ MB for cache,
+>as it should, and doesn't even *touch* swap.  This is 2.4.5.
 
--- 
-Jim Randell  //  jim@imdb.com  //  +44.117.944.4227
-http://www.imdb.com/       Mobile: +44.779.087.6488
-                                                 :d
+I thought the new rule is: 
+	total_memory = max(physical, swap);
+
+And the old rule was:
+	total_memory = physical + swap;
+
+Hence under a 1G physical and 1G swap setup, the kernel would never
+access swap. 
+
+Is this the case, or am I a couple of megabytes short in my
+understanding of things?
+
+
+
+
+Al
+

@@ -1,24 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316763AbSFFGuO>; Thu, 6 Jun 2002 02:50:14 -0400
+	id <S316958AbSFFMVO>; Thu, 6 Jun 2002 08:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316831AbSFFGuN>; Thu, 6 Jun 2002 02:50:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:26256 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316763AbSFFGuN>;
-	Thu, 6 Jun 2002 02:50:13 -0400
-Date: Wed, 05 Jun 2002 23:46:49 -0700 (PDT)
-Message-Id: <20020605.234649.66334355.davem@redhat.com>
-To: lei_hu@ali.com.tw
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
-Subject: Re: [PATCH] update for ALi Audio Driver (0.14.10)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <OF7057B5B9.A6CA3C3B-ON48256BD0.0020BE4E@ali.com.tw>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316959AbSFFMVN>; Thu, 6 Jun 2002 08:21:13 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:23549 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S316958AbSFFMVN>; Thu, 6 Jun 2002 08:21:13 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020605134945.7ad22093.kristian.peters@korseby.net> 
+To: Kristian Peters <kristian.peters@korseby.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -ac series won't compile without fix 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 06 Jun 2002 13:21:13 +0100
+Message-ID: <30073.1023366073@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Please read linux/Documentation/CodingStyle
+kristian.peters@korseby.net said:
+> I'm unable to compile the -ac series correctly.  A "make mrproper"
+> does not help here.
+
+> make[1]: *** No rule to make target `/usr/src/linux-2.4.19-pre10-ac1/fs/inflate_fs/infblock.h', needed by `/usr/src/linux-2.4.19-pre10-ac1/fs/inflate_fs/infcodes.h'.  Stop.
+
+This is one of many symptoms of the broken kbuild system in current 2.4 and
+2.5 kernels. You need to re-run 'make dep'.
+
+--
+dwmw2
+
+

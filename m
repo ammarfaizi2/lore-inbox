@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUGDFJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUGDGG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUGDFJt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 01:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUGDFJt
+	id S265395AbUGDGG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 02:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUGDGG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 01:09:49 -0400
-Received: from tag.witbe.net ([81.88.96.48]:18614 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S265390AbUGDFJr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 01:09:47 -0400
-Message-Id: <200407040509.i6459iX21158@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Init single and Serial console : How to ?
-Date: Sun, 4 Jul 2004 07:09:39 +0200
-Organization: AS2917
+	Sun, 4 Jul 2004 02:06:26 -0400
+Received: from marc2.theaimsgroup.com ([63.238.77.172]:20382 "EHLO
+	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
+	id S265395AbUGDGGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 02:06:24 -0400
+Date: Sun, 4 Jul 2004 02:06:03 -0400 (EDT)
+From: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
+cc: Paul Rolland <rol@as2917.net>
+Message-ID: <010407040202350.28954@timmy.spinoli.org>
+X-Marks-The: Spot
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcRhhRs+yLX89HmXS5qQTBX2wOM0bQ==
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm trying to activate a serial console on a Linux 2.4.20 (OK, this is not
-the
-most recent one, but this is the one I'm running).
+On 2004-07-04, "Paul Rolland" <rol@as2917.net> wrote:
 
-Configuration is quite simple : at the LILO prompt, I key in :
-LILO: linux console=ttyS0 -s
+> Configuration is quite simple : at the LILO prompt, I key in :
+> LILO: linux console=ttyS0 -s
+>
+> This is supposed to start Linux, and have the console on ttyS0.
+>
+> The problem is that the bash prompt ends on the monitor, not on the
+> serial port.
 
-This is supposed to start Linux, and have the console on ttyS0.
+The lilo console redirection means boot messages, etc will go to the
+serial port.  But they don't necessarily mean a login prompt will be
+spawned on the console.  For that, you also want an entry in
+/etc/inittab (depending on distro, there's probably one there already,
+commented out):
 
-The problem is that the bash prompt ends on the monitor, not on the serial
-port.
+s1:12345:respawn:/sbin/agetty -L 9600 ttyS0 vt100
 
-I've read about the :
+...Change the speed if necessary.  Make sure that runlevel 1 is
+included--that's single user mode.  You should probably also make sure
+that ttyS0 is uncommented in /etc/securetty (or root logins on the
+serial console won't be allowed).
 
-    ioctlsave is a small utility to create the Linux SysV init file
-    /etc/ioctl.save from a multiple user run level rather than from single
-    user mode. /etc/ioctl.save contains the terminal settings to be used in
-    single user mode. Users of terminals or modems which cannot be
-    configured to operate at 9600bps (and thus set ioctl.save using the
-    standard mechanism) will find this utility useful. 
 
-but,  the problem is that this operation is only possible if you can have
-access to the machine (to run the ioctlsave utility).
+If you've got no physical access to the box other than the serial
+console, you can't very well boot it and log in at the keyboard in order
+to edit /etc/inittab.  In that case, boot with:
 
-When you have a remote machine, for which you have a serial access at boot 
-time, but which is not completed its "go to runlevel 3" boot to give you
-a serial console, how is it possible to force it to give you a prompt on
-the serial port in single mode ?
+LILO: linux console=ttyS0 init=/bin/sh
 
-Regards,
-Paul
+That will boot the system in a *very* minimal state, and will (probably ;)
+give you a text console on the serial port, from which you can remount /
+read-write ('mount -n -o remount,rw /') and mount any other local
+filesystems ('mount -a -v -t nonfs,nosmbfs').  From there, you can vi
+/etc/inittab and /etc/securetty.  Save, remount / readonly
+('mount -o remount,ro /') and reboot--probably with '/sbin/reboot -f',
+since init isn't there to run shutdown scripts, and you can't feed a
+ctl-alt-del down the serial port.
 
+HTH,
+
+Hank Leininger <hlein@progressive-comp.com>
+E407 AEF4 761E D39C D401  D4F4 22F8 EF11 861A A6F1
+-----BEGIN PGP SIGNATURE-----
+
+iD8DBQFA555LIvjvEYYapvERAk3XAJ9JdBWRL6fSIlZafeugeT9Yufp+qgCghCsG
+QS3ZV9/9G3NbJ2jMFPRwydY=
+=KWwJ
+-----END PGP SIGNATURE-----

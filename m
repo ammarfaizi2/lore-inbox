@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVC3TRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVC3TI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262414AbVC3TRA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:17:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVC3TN3
+	id S262409AbVC3TI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVC3TIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:13:29 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:49412 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S262411AbVC3TLD (ORCPT
+	Wed, 30 Mar 2005 14:08:52 -0500
+Received: from mail.dif.dk ([193.138.115.101]:679 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262409AbVC3TIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:11:03 -0500
-Message-ID: <424AF9C3.4000905@domdv.de>
-Date: Wed, 30 Mar 2005 21:10:59 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050308)
-X-Accept-Language: en-us, en
+	Wed, 30 Mar 2005 14:08:10 -0500
+Date: Wed, 30 Mar 2005 21:10:14 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, jengelh@linux01.gwdg.de,
+       penberg@gmail.com, rlrevell@joe-job.com, davej@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
+In-Reply-To: <20050329184411.1faa71eb.pj@engr.sgi.com>
+Message-ID: <Pine.LNX.4.62.0503302105320.2463@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
+ <1111825958.6293.28.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
+ <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
+ <1111881955.957.11.camel@mindpipe> <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
+ <20050327065655.6474d5d6.pj@engr.sgi.com> <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
+ <20050327174026.GA708@redhat.com> <1112064777.19014.17.camel@mindpipe>
+ <84144f02050328223017b17746@mail.gmail.com> <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>
+ <courier.42490293.000032B0@courier.cs.helsinki.fi> <20050329184411.1faa71eb.pj@engr.sgi.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-CC: vojtech@suse.cz, dtor_core@ameritech.net, acpi-devel@lists.sourceforge.net
-Subject: 2.6.11 acpi battery state readout as source of keyboard/touchpad
- troubles
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In traceing the source of my sporadic synaptics touchpad troubles
+On Tue, 29 Mar 2005, Paul Jackson wrote:
 
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
+> Pekka wrote:
+> >  (4) The cleanups Jesper and others are doing are to remove the
+> >      _redundant_ NULL checks (i.e. it is now checked twice). 
+> 
+> Even such obvious changes as removing redundant checks doesn't
+> seem to ensure a performance improvement.  Jesper Juhl posted
+> performance data for such changes in his microbenchmark a couple
+> of days ago.
+> 
+> As I posted then, I could swear that his numbers show:
+> 
+> > Just looking at the third run, it seems to me that "if (likely(p))
+> > kfree(p);" beats a naked "kfree(p);" everytime, whether p is half
+> > NULL's, or very few NULL's, or almost all NULL's.
+> 
+> Twice now I have asked Jesper to explain this strange result.
+> 
+I've been kept busy with other things for a while and haven't had the time 
+to reply to your emails, sorry.   As I just said in another post I don't 
+know how valid my numbers are, but I'll try and craft a few more tests to 
+see if I can get some more solid results.
 
-and keyboard troubles (sporadically lost key up/down events) on an Acer
-Aspire 1520 (x86_64, latest bios v1.09) I did enable the
-report_lost_ticks option which did spit out stuff like the following at
-regular intervals:
+> 
+> Maybe we should be following your good advice:
+> 
+> > You don't know that until you profile! 
+> 
+> instead of continuing to make these code changes.
+> 
+I'll gather some more numbers and post them along with any conclusions I 
+believe can be drawn from them within a day or two, untill then I'll hold 
+back on the patches...
 
-time.c: Lost 17 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-time.c: Lost 18 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
 
-This looked suspiciously like it happended when the the kde laptop
-applet polled the battery status. So I did terminate the applet.
-
-The result was no more lost ticks, no lost keyboard events and no more
-lost touchpad sync.
-
-To verify ACPI battery data as the source of trouble i did a simple
-
-cat /proc/acpi/battery/BAT0/state
-
-which instantly resulted in:
-
-time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-
-So it seems ACPI battery readout does cause some long running interrupt
-disable and that it causes nasty side effects for the 8042 input.
-
-Note that doing
-
-cat /proc/acpi/battery/BAT0/info
-
-doesn't cause any trouble (battery alarm is unsupported).
-
-I can ignore the lost ticks but the keyboard/touchpad problems caused by
-the state readout are definitely nasty.
-
-Any ideas?
 -- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Jesper Juhl
+
+

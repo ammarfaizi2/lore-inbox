@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbUAAUyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbUAAUyI
+	id S265442AbUAAVGu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 16:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbUAAVAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:54:08 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:34592 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264930AbUAAUDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:03:42 -0500
-Date: Thu, 1 Jan 2004 21:03:38 +0100
-Message-Id: <200401012003.i01K3cYL031956@callisto.of.borg>
+	Thu, 1 Jan 2004 16:00:55 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:10302 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264902AbUAAUD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:03:29 -0500
+Date: Thu, 1 Jan 2004 21:03:27 +0100
+Message-Id: <200401012003.i01K3Rip031888@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 387] M68k Documentation
+Subject: [PATCH 375] Mac II VIA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k Documentation: framebuffer.txt no longer exists in the m68k directory
-(from Nikita Melnikov)
+Mac II VIA: Don't include <asm/init.h> directly
 
---- linux-2.6.0/Documentation/m68k/00-INDEX	1997-11-29 19:33:18.000000000 +0100
-+++ linux-m68k-2.6.0/Documentation/m68k/00-INDEX	2003-11-27 12:07:24.000000000 +0100
-@@ -1,7 +1,5 @@
- 00-INDEX
- 	- this file
--framebuffer.txt
--	- info about the Linux/m68k frame buffer device
- kernel-options.txt
- 	- command line options for Linux/m68k
+--- linux-2.6.0/drivers/macintosh/via-macii.c	2003-05-27 19:02:53.000000000 +0200
++++ linux-m68k-2.6.0/drivers/macintosh/via-macii.c	2003-11-12 13:48:31.000000000 +0100
+@@ -22,13 +22,13 @@
+ #include <linux/sched.h>
+ #include <linux/adb.h>
+ #include <linux/interrupt.h>
++#include <linux/init.h>
+ #include <asm/macintosh.h>
+ #include <asm/macints.h>
+ #include <asm/machw.h>
+ #include <asm/mac_via.h>
+ #include <asm/io.h>
+ #include <asm/system.h>
+-#include <asm/init.h>
+ 
+ static volatile unsigned char *via;
  
 
 Gr{oetje,eeting}s,

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291203AbSAaRzF>; Thu, 31 Jan 2002 12:55:05 -0500
+	id <S291210AbSAaR6Z>; Thu, 31 Jan 2002 12:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291206AbSAaRyz>; Thu, 31 Jan 2002 12:54:55 -0500
-Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:31397 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S291203AbSAaRyl>;
-	Thu, 31 Jan 2002 12:54:41 -0500
-Message-ID: <3C5984C9.20104@candelatech.com>
-Date: Thu, 31 Jan 2002 10:54:17 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S291209AbSAaR6P>; Thu, 31 Jan 2002 12:58:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4868 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291208AbSAaR6B>; Thu, 31 Jan 2002 12:58:01 -0500
+Message-ID: <3C598585.4090004@zytor.com>
+Date: Thu, 31 Jan 2002 09:57:25 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: Robbert Kouprie <robbert@jvb.tudelft.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
-In-Reply-To: <Pine.LNX.4.44.0201311741430.5601-100000@flubber.jvb.tudelft.nl>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        Werner Almesberger <wa@almesberger.net>,
+        "Erik A. Hendriks" <hendriks@lanl.gov>
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>	<3C58CAE0.4040102@zytor.com> <m1r8o7ayo3.fsf@frodo.biederman.org>	<3C58DD2E.10106@zytor.com> <m1n0yvaucy.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+
+> 
+>>From my experience PXE is not easier to use than coming up with my
+> own.  At least not for machines that regularly need to network boot.
+> And many motherboard manufacturers are happy to replace their PXE
+> option rom with an etherboot option rom.
+> 
+> And besides not working well PXE is overly complicated, and
+> intricately tied to the x86 BIOS.  I would rather simply follow the
+> good internet RFC's and work on filling in the one missing piece.  A
+> file format.  And the ELF file format works very well.  
+> 
+
+> Besides all of that of that I regularly network boot LinuxBIOS which
+> PXE can't cope with.
+> 
+> Using etherboot I don't need a second stage bootloader.  Etherboot
+> does work well.  I don't need anything beyond vanilla DHCP and TFTP
+> (the standards for network booting).  The research into how to do it
+> has really been done.  And I can work on interesting things like
+> adding end to end checksums of the image I am booting.
+> 
 
 
-Robbert Kouprie wrote:
+Etherboot requires a specific other driver.  The problem with what 
+you're proposing -- and let me get it very clear here, it's a huge 
+problem -- is that you have no device-independent access to the boot 
+medium (in this case, the network) once you have loaded the initial boot 
+program.  This is an enormous drawback.
 
-> The box is an Abit BP6 with Dual Celerons 433 and 192 Mb RAM. No
-> PCI-Riser cards. It is connected at 100 Mbit full duplex to a 100
-> Mbit switch. APIC is enabled. No kind of power management is enabled.
+That's the thing with PXE and the BIOS too, for that matter: they might 
+be specs done by monkeys, but when it really counts, what you need is 
+really there (modulo bugs, but that applies to everything.)
 
-
-The only lockup problems I have run into are connecting some eepro nics to
-a 10bt hub, and using (cheap arsed, it appears) PCI riser cards.  I have
-heard of some SMP related issues, but nothing concrete, and I don't
-have any SMP systems personally.  You could try the e100, but I have
-no idea if it will be better or worse for your particular problem.
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+	-hpa
 

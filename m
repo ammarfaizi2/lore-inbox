@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269435AbRHCQEU>; Fri, 3 Aug 2001 12:04:20 -0400
+	id <S269433AbRHCQEa>; Fri, 3 Aug 2001 12:04:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269434AbRHCQEA>; Fri, 3 Aug 2001 12:04:00 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:39440 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269433AbRHCQDt>;
-	Fri, 3 Aug 2001 12:03:49 -0400
-Date: Fri, 3 Aug 2001 13:03:29 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Anders Peter Fugmann <afu@fugmann.dhs.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <3B6A935B.8000004@fugmann.dhs.org>
-Message-ID: <Pine.LNX.4.33L.0108031303000.11893-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269434AbRHCQEU>; Fri, 3 Aug 2001 12:04:20 -0400
+Received: from h24-76-184-93.vs.shawcable.net ([24.76.184.93]:33962 "HELO
+	md5.ca") by vger.kernel.org with SMTP id <S269433AbRHCQEJ>;
+	Fri, 3 Aug 2001 12:04:09 -0400
+Date: Fri, 3 Aug 2001 09:04:02 -0700
+From: Pavel Zaitsev <pavel@md5.ca>
+To: linux-kernel@vger.kernel.org
+Subject: df hangs after hung mount
+Message-ID: <20010803090402.A3649@md5.ca>
+Reply-To: pavel@md5.ca
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+X-Arbitrary-Number-Of-The-Day: 42
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Aug 2001, Anders Peter Fugmann wrote:
 
-> If the reason for the machine going bad is because when the running
-> process eventually (or even before) gets all it memory to actually run,
-> it is rescheduled, I see a simple solution.
->
-> Stop rescheduling too often when memory is low. Rescheduling is very
-> memory demanding (in terms of swapping and stuff), and that is not
-> helping the situation.
->
-> Any thought on this, or am I compleatly mistaken?
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We don't know which additional memory the big task will
-need until we let it run a bit and do its page fault.
+Hi,
+I sometimes try to mount a CDROM drive, and mount hangs hard, in 'D' state =
+ as specified in
+ps listing. Sometimes I do df, and that hangs as well. kill -9 doesn't work=
+ on those proggies.
+That is with 2.4.3 and 2.4.7 kernels. Shouldn't they fail if cdrom is dysfu=
+nctional?
+thx,
+p.
 
+[pavel@calgary pavel]$ lspci
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (r=
+ev 03)
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev=
+ 03)
+00:04.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+00:04.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:04.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (r=
+ev 30)
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/=
+2X (rev 5c)
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+--=20
+Take out your recursive cannons and shoot!
+110461387
+http://gpg.md5.ca
+http://perlpimp.com
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7astyEhbFhd1U3E0RAli3AJ9wFlHRhST1UjA1qsHJBhWF8KLMygCfVJae
++3RXy7CyuF0nIyifRG1JLrU=
+=S4xp
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--

@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVBOUkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVBOUlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVBOUkt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 15:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVBOUkt
+	id S261871AbVBOUlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 15:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVBOUlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 15:40:49 -0500
-Received: from a213-22-240-12.netcabo.pt ([213.22.240.12]:55173 "EHLO
-	sergiomb.no-ip.org") by vger.kernel.org with ESMTP id S261879AbVBOUhD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 15:37:03 -0500
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov
-X-Antivirus-bastov: 1.24-st-qms (Clear:RC:1(192.168.1.2):. Processed in 0.353861 secs Process 11923)
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and
-	give	dev=/dev/hdX as device
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108486952.4618.10.camel@localhost.localdomain>
-References: <1108426832.5015.4.camel@bastov>
-	 <1108434128.5491.8.camel@bastov>  <42115DA2.6070500@osdl.org>
-	 <1108486952.4618.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Tue, 15 Feb 2005 20:36:30 +0000
-Message-Id: <1108499791.11356.9.camel@bastov>
+	Tue, 15 Feb 2005 15:41:02 -0500
+Received: from dspnet.fr.eu.org ([62.73.5.179]:34316 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S261871AbVBOUgF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 15:36:05 -0500
+Date: Tue, 15 Feb 2005 21:35:54 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch 10/13] Solaris nfsacl workaround
+Message-ID: <20050215203553.GA34621@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <20050122203326.402087000@blunzn.suse.de> <20050122203619.889966000@blunzn.suse.de> <1108488547.10073.39.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108488547.10073.39.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well the problem for the common users is the haldeamon doesn't recognize
-automatically /dev/scd0 and /etc/fstab don't have any entry about it.
-
-So with hdc=scsi, how I read cds on hdc ?
-
-thanks,
-
-Note: I am using last updates of FC3, after upgrade from FC1. 
-
-
-On Tue, 2005-02-15 at 17:02 +0000, Alan Cox wrote:
-> On Maw, 2005-02-15 at 02:25, Randy.Dunlap wrote:
-> > It means:  don't use the ide-scsi driver.  Support for it is
-> > lagging (not well-maintained) because it's really not needed for
-> > burning CDs.  Just use the ide-cd driver (module) and
-> > specify the CD burner device as /dev/hdX.
+On Tue, Feb 15, 2005 at 12:29:06PM -0500, Trond Myklebust wrote:
+> lau den 22.01.2005 Klokka 21:34 (+0100) skreiv Andreas Gruenbacher:
+> > Solaris nfsacl workaround
 > 
-> This information is unfortunately *WRONG*. The base 2.6 ide-cd driver is
-> vastly inferior to ide-scsi. The ide-scsi layer knows about proper error
-> reporting, end of media and other things that ide-cd does not.
-> 
-> The -ac ide-cd knows some of the stuff that ide-cd needs to and works
-> with various drive/disk combinations the base code doesn't but ide-scsi
-> still handles CD's better.
-> 
-> Alan
-> 
--- 
-Sérgio M.B.
+> NACK. No hacks.
+
+That's the second time I see you refusing an interoperability patch
+without bothering to say what would be acceptable.  Do we need a fork
+between knfsd-pure and knfsd-actually-works-in-the-real-world or what?
+
+  OG.
 

@@ -1,73 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129545AbQK0MgP>; Mon, 27 Nov 2000 07:36:15 -0500
+        id <S130880AbQK0NAU>; Mon, 27 Nov 2000 08:00:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129588AbQK0MgF>; Mon, 27 Nov 2000 07:36:05 -0500
-Received: from 213-120-138-229.btconnect.com ([213.120.138.229]:10244 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S129545AbQK0Mf4>;
-        Mon, 27 Nov 2000 07:35:56 -0500
-Date: Mon, 27 Nov 2000 12:07:45 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch-2.4.0-test11] free_uid() optimization
-Message-ID: <Pine.LNX.4.21.0011271203520.827-100000@penguin.homenet>
+        id <S130916AbQK0NAL>; Mon, 27 Nov 2000 08:00:11 -0500
+Received: from hertz.ikp.physik.tu-darmstadt.de ([130.83.24.91]:62470 "EHLO
+        hertz.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
+        id <S130880AbQK0NAC>; Mon, 27 Nov 2000 08:00:02 -0500
+From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14882.20520.247769.591536@hertz.ikp.physik.tu-darmstadt.de>
+Date: Mon, 27 Nov 2000 13:14:32 +0100 (MET)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Multi-Chanel ATA, was: Re: ATA-4, ATA-5 TCQ status
+X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Hallo,
 
-Instead of having SMP-specific code and doing a sequence of (on SMP):
+the 3Ware Controllers have up to 8 channels. However I think you can
+only use one drive per chanel.
 
-test if count is 0
-take a spinlock
-test if count is still 0
+Bye
 
-we could make use of the atomic primitive
+Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
 
-atomic_dec_and_lock()
-
-and do it in one go, which is cleaner, imho. 
-
-Regards,
-Tigran
-
---- linux.kernel/user.c	Mon Nov 27 12:01:34 2000
-+++ work/kernel/user.c	Mon Nov 27 12:03:20 2000
-@@ -74,27 +74,12 @@
- 	}
- }
- 
--/*
-- * For SMP, we need to re-test the user struct counter
-- * after having acquired the spinlock. This allows us to do
-- * the common case (not freeing anything) without having
-- * any locking.
-- */
--#ifdef CONFIG_SMP
--  #define uid_hash_free(up)	(!atomic_read(&(up)->__count))
--#else
--  #define uid_hash_free(up)	(1)
--#endif
--
- void free_uid(struct user_struct *up)
- {
- 	if (up) {
--		if (atomic_dec_and_test(&up->__count)) {
--			spin_lock(&uidhash_lock);
--			if (uid_hash_free(up)) {
--				uid_hash_remove(up);
--				kmem_cache_free(uid_cachep, up);
--			}
-+		if (atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
-+			uid_hash_remove(up);
-+			kmem_cache_free(uid_cachep, up);
- 			spin_unlock(&uidhash_lock);
- 		}
- 	}
-
+Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
+--------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

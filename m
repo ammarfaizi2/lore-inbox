@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUJHSet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUJHSe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbUJHSet (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 14:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUJHSaK
+	id S261232AbUJHSe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 14:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUJHSdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 14:30:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3053 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261426AbUJHS1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 14:27:19 -0400
-Subject: Re: [PATCH] protect against buggy drivers
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: linus@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20041008171414.GA28001@kroah.com>
-References: <1097254421.16787.27.camel@localhost.localdomain>
-	 <20041008171414.GA28001@kroah.com>
-Content-Type: text/plain
-Organization: Open Source Development Lab
-Date: Fri, 08 Oct 2004 11:27:25 -0700
-Message-Id: <1097260045.16787.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+	Fri, 8 Oct 2004 14:33:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46257 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264098AbUJHSdM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 14:33:12 -0400
+Message-ID: <4166DD57.8060501@pobox.com>
+Date: Fri, 08 Oct 2004 14:32:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
+       marcelo.tosatti@cyclades.com, klassert@mathematik.tu-chemnitz.de
+Subject: Re: [patch 2.4.28-pre3] 3c59x: resync with 2.6
+References: <20041008121307.C14378@tuxdriver.com> <20041008191324.J17999@flint.arm.linux.org.uk>
+In-Reply-To: <20041008191324.J17999@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a better fix (thanks Greg) that allows long names for character
-device objects.
+Russell King wrote:
+> Ah, if someone's looking at the 3c59x driver then please look into the
+> NWAY autonegotiation code - even maybe update it to use mii.c.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-diff -Nru a/fs/char_dev.c b/fs/char_dev.c
---- a/fs/char_dev.c	2004-10-08 11:14:29 -07:00
-+++ b/fs/char_dev.c	2004-10-08 11:14:29 -07:00
-@@ -207,8 +207,8 @@
- 
- 	cdev->owner = fops->owner;
- 	cdev->ops = fops;
--	strcpy(cdev->kobj.name, name);
--	for (s = strchr(cdev->kobj.name, '/'); s; s = strchr(s, '/'))
-+	kobject_set_name(&cdev->kobj, "%s", name);
-+	for (s = strchr(kobject_name(&cdev->kobj),'/'); s; s = strchr(s, '/'))
- 		*s = '!';
- 		
- 	err = cdev_add(cdev, MKDEV(cd->major, 0), 256);
+Steffen Klassert (cc'd) actually did a patch to do just that :)
+
+	Jeff
 
 

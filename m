@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264192AbTFKU0q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTFKU03
+	id S264412AbTFKU3X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 16:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbTFKU2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:26:29 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:13712 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264454AbTFKUVL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:21:11 -0400
-Date: Wed, 11 Jun 2003 13:35:44 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: [BK PATCH] More i2c driver changes for 2.5.70
-Message-ID: <20030611203544.GA26458@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 11 Jun 2003 16:28:38 -0400
+Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:33413
+	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
+	id S264465AbTFKUYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 16:24:49 -0400
+From: "jds" <jds@soltis.cc>
+To: Andrew Morton <akpm@digeo.com>, "jds" <jds@soltis.cc>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem compile module vmnet VMWARE 4.0 in 2.4.70-mm8
+Date: Wed, 11 Jun 2003 14:09:10 -0600
+Message-Id: <20030611200731.M1071@soltis.cc>
+In-Reply-To: <20030611130850.358276ae.akpm@digeo.com>
+References: <20030611192737.M39931@soltis.cc> <20030611130850.358276ae.akpm@digeo.com>
+X-Mailer: Open WebMail 1.90 20030212
+X-OriginatingIP: 180.175.220.238 (jds)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here are some more i2c driver changes for 2.5.70.  These consist of a new i2c
-client driver, a new i2c bus driver, some coding style fixes for the new bus
-driver, and a bunch of sparse warning removels.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
+Hi Andrew:
 
-thanks,
+   Thanks.... :)
 
-greg k-h
+   Changes the bridge.c and compile good module vmnet
 
------
+   Best Regards.
 
- drivers/i2c/Kconfig        |    4 
- drivers/i2c/Makefile       |    1 
- drivers/i2c/chips/Kconfig  |   19 
- drivers/i2c/chips/Makefile |    1 
- drivers/i2c/chips/lm85.c   | 1223 +++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-core.c     |   36 -
- drivers/i2c/i2c-dev.c      |   10 
- drivers/i2c/i2c-iop3xx.c   |  868 +++++++++++++++++++++++++------
- drivers/i2c/i2c-iop3xx.h   |  238 ++++++--
- include/linux/i2c-dev.h    |    6 
- include/linux/i2c.h        |    4 
- 11 files changed, 2150 insertions(+), 260 deletions(-)
------
+   Muchas Gracias
 
-<margitsw:t-online.de>:
-  o I2C: add LM85 driver
+---------- Original Message -----------
+From: Andrew Morton <akpm@digeo.com>
+To: "jds" <jds@soltis.cc>
+Sent: Wed, 11 Jun 2003 13:08:50 -0700
+Subject: Re: Problem compile module vmnet VMWARE 4.0 in 2.4.70-mm8
 
-<peterm:remware.demon.co.uk>:
-  o I2C: add New bus driver: XSCALE iop3xx
-
-Greg Kroah-Hartman:
-  o I2C: fix up sparse warnings in the i2c-dev driver
-  o I2C: fix up sparse warnings in drivers/i2c/i2c-core.c
-  o I2C: fix some errors found by sparse in include/linux/i2c.h
-  o I2C: coding style updates for i2c-iop3xx driver
+> "jds" <jds@soltis.cc> wrote:
+> >
+> >     I have problems when compile module vmware 4.0 vmnet with kernel
+2.5.70-mm8.
+> > 
+> > ...
+> >  
+> > make: Entering directory `/tmp/vmware-config0/vmnet-only'
+> > bridge.c: In function `VNetBridgeReceiveFromVNet':
+> > bridge.c:368: structure has no member named `wmem_alloc'
+> > bridge.c: In function `VNetBridgeUp':
+> > bridge.c:618: structure has no member named `protinfo'
+> > bridge.c: In function `VNetBridgeReceiveFromDev':
+> > bridge.c:817: structure has no member named `protinfo'
+> > make: *** [bridge.o] Error 1
+> > make: Leaving directory `/tmp/vmware-config0/vmnet-only'
+> > Unable to build the vmnet module.
+> 
+> You'll need to replace all instances of "wmem_alloc" with "sk_wmem_alloc"
+> and replace all instances of "protinfo" with "sk_protinfo".  And 
+> similar if you get more compile errors.
+> 
+> Lots of socket members were renamed, by adding an "sk_" prefix.
+------- End of Original Message -------
 

@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbRE0Nrp>; Sun, 27 May 2001 09:47:45 -0400
+	id <S262049AbRE0Ojj>; Sun, 27 May 2001 10:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262052AbRE0Nrf>; Sun, 27 May 2001 09:47:35 -0400
-Received: from pop.gmx.net ([194.221.183.20]:46796 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262036AbRE0NrU>;
-	Sun, 27 May 2001 09:47:20 -0400
-Message-ID: <3B1101ED.3BF181F6@gmx.de>
-Date: Sun, 27 May 2001 15:32:29 +0200
-From: Edgar Toernig <froese@gmx.de>
+	id <S262052AbRE0Oj3>; Sun, 27 May 2001 10:39:29 -0400
+Received: from web12801.mail.yahoo.com ([216.136.174.36]:42765 "HELO
+	web12801.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262049AbRE0OjR>; Sun, 27 May 2001 10:39:17 -0400
+Message-ID: <20010527143912.23667.qmail@web12801.mail.yahoo.com>
+Date: Mon, 28 May 2001 00:39:12 +1000 (EST)
+From: =?iso-8859-1?q?Cody=20Gould?= <codygould@yahoo.com.au>
+Reply-To: codygould@yahoo.com.au
+Subject: 2.4.5-ac1 hard disk corruption... acpi responsible?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org> <0105251300000V.06233@starship> <3B0F1DF9.238C01B9@gmx.de> <0105270036060Z.06233@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> It won't, the open for "." is handled in the VFS, not the filesystem -
-> it will open the directory.  (Without needing to be told it's a
-> directory via O_DIRECTORY.)  If you do open("magicdev") you'll get the
-> device, because that's handled by magicdevfs.
+Debian, Intel 440BX2 Seattle, 2x Fujitsu UDMA33 IDE
+hard drives.  In my bootscripts, hdparm enables DMA.
 
-You really mean that "magicdev" is a directory and:
+I tried most all 2.4.0-acx up to 2.4.4-ac9, and then
+plain 2.4.5 today, over the past few months, with no
+corruption or instability.
 
-	open("magicdev/.", O_RDONLY);
-	open("magicdev", O_RDONLY);
+Today I moved to 2.4.5-ac1, the only different thing
+than normal was I enabled ACPI instead of APM.  
 
-would both succeed but open different objects?
+After 2 minutes in the fresh kernel on the console, I
+was make'ing an application, and the kernel gave some
+messages about reverting DMA mode, which I have never,
+ever seen before, followed by file I/O errors on lots
+of source files.
 
-> I'm not claiming there isn't breakage somewhere,
+I shutdown and rebooted, ext2fs detected my main disk
+as corrupt, and ran a check, spewing off screens and
+screens mentioning bad superblocks, incorrect times on
+inodes, and corrupt inodes within bad blocks [of which
+I have none].
 
-you break UNIX fundamentals.  But I'm quite relieved now because I'm
-pretty sure that something like that will never go into the kernel.
+I tar'd up what little I could salvage from my disk in
+single user mode where you run the fsck manually, when
+the kernel started giving messages about problems
+communicating with USB [I compile in the USB for
+Intel, and the HID, and have a Sidewinder joystick
+plugged in that I wasn't using].  
 
-Ciao, ET.
+The system was unuseable past that point, so I wiped
+clean and installed Win2K while I get my backups
+together.  My hardware is fine, of course, everything
+is AOK now.  The kernel had just gone crazy and mad.
+
+That's my experiences.  Sorry it's long and I can't
+provide specific error messages, as I couldn't really
+do anything with my system in the state it was in.
+
+I hope that helps someone.  Please CC me comments as I
+am not on the mailing list.  Thank you.
+
+Cody Gould
+
+
+_____________________________________________________________________________
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- Voice chat, mail alerts, stock quotes and favourite news and lots more!

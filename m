@@ -1,42 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264385AbTDPOVu (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTDPOVu 
+	id S264376AbTDPO16 (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTDPO16 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 10:21:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32901 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264385AbTDPOVu 
+	Wed, 16 Apr 2003 10:27:58 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:49061 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264376AbTDPO16 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 10:21:50 -0400
-Date: Wed, 16 Apr 2003 07:26:38 -0700 (PDT)
-Message-Id: <20030416.072638.65480350.davem@redhat.com>
-To: ak@muc.de
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, anton@samba.org,
-       schwidefsky@de.ibm.com, davidm@hpl.hp.com, matthew@wil.cx,
-       ralf@linux-mips.org, rth@redhat.com
-Subject: Re: Reduce struct page by 8 bytes on 64bit
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030416140715.GA2159@averell>
-References: <20030415112430.GA21072@averell>
-	<20030416.054521.26525548.davem@redhat.com>
-	<20030416140715.GA2159@averell>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Apr 2003 10:27:58 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 16 Apr 2003 16:39:50 +0200 (MEST)
+Message-Id: <UTC200304161439.h3GEdoM21920.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, torden88@yahoo.no
+Subject: Re: [Bug 588] New: 2.5.67 won't get the real partition table for hdb
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@muc.de>
-   Date: Wed, 16 Apr 2003 16:07:15 +0200
+> Do I have to upgrade my modutils?
 
-   How so? Of course I could write an generic set_bit32, but the question
-   is if these bit operations would be still atomic on SMP and not conflict with
-   fields occuping the same 8 byte slot. I remember you flaming someone 
-   some time ago because he used set_bit in an atomic fashion on a type smaller
-   than unsigned long for example.
+Not for this patch. But 2.5 requires new modutils.
+Try something below
+    http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
 
-It's OK if you align the pointer to 8 bytes, and subsequently the bit
-offset as appropriate. :-)
+See also http://www.win.tue.nl/~aeb/linux/lk/lk-2.html#ss2.5.1
 
+Andries

@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129359AbRB1X6j>; Wed, 28 Feb 2001 18:58:39 -0500
+	id <S129428AbRCAAm7>; Wed, 28 Feb 2001 19:42:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129389AbRB1X6U>; Wed, 28 Feb 2001 18:58:20 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:31503 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129359AbRB1X6P>;
-	Wed, 28 Feb 2001 18:58:15 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200102282358.f1SNw7b177652@saturn.cs.uml.edu>
-Subject: Re: Will Mosix go into the standard kernel?
-To: newt@scyld.com (Daniel Ridge)
-Date: Wed, 28 Feb 2001 18:58:07 -0500 (EST)
-Cc: beowulf@beowulf.org,
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.21.0102281732210.22184-100000@eleanor.wdhq.scyld.com> from "Daniel Ridge" at Feb 28, 2001 06:06:37 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S129424AbRCAAmu>; Wed, 28 Feb 2001 19:42:50 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:50704 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129421AbRCAAmf>; Wed, 28 Feb 2001 19:42:35 -0500
+Date: Thu, 1 Mar 2001 01:39:46 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Alexander Zarochentcev <zam@namesys.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Hans Reiser <reiser@namesys.com>, reiserfs-dev@namesys.com
+Subject: Re: [PATCH] reiserfs patch for linux-2.4.2
+Message-ID: <20010301013946.X25658@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010228222130.A3131@crimson.namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010228222130.A3131@crimson.namesys.com>; from zam@namesys.com on Wed, Feb 28, 2001 at 10:21:30PM +0300
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Ridge writes:
+On Wed, Feb 28, 2001 at 10:21:30PM +0300, Alexander Zarochentcev wrote:
+> 6. Using integer constants from limits.h instead of self made ones
 
-> Fellow Beowulfers,
-> 
-> I have yet to hear a compelling argument about why any of them should 
-> go into the standard kernel -- let alone a particular one or a duck of a
-> compromise.
-> 
-> The Scyld system is based on BProc -- which requires only a 1K patch to
-> the kernel. This patch adds 339 net lines to the kernel, and changes 38
-> existing lines.
+That's a userland header file. Don't use it in the kernel.
 
-Well, that explains your viewpoint and your motivation. :-)
+> 7. other minor fixes.
 
-> I think we should instead focus our collective will on removing things
-> from the kernel. For years, projects like ALSA, pcmcia-cs, and VMware
+Does this patch contain Chris Mason's "tail conversion" fix that he
+made after my bug report?
 
-ALSA: driver work gets done twice
 
-pcmcia-cs: this was so bad that Linus himself was unable to install
-Linux on his new laptop, so now PCMCIA support is in the kernel.
+Erik
 
-VMware: quite a pain I think
-
-You are basically suggesting the often-rejected "split up the kernel"
-idea. I think the linux-kernel FAQ covers this.
-
-> have done an outstanding job sans 'inclusion' and we should more
-> frequently have the courage to do the same. RedHat and other linux vendors
-> have demonstrated ably that they know how to build and package systems
-> that draw together these components in an essentially reasonable way. 
-
-So people should only get kernels from linux vendors? This is great
-for your business I'd imagine, but one of the nice things about Linux
-is that you can replace the kernel without too much trouble.
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

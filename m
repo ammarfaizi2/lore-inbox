@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281480AbRK0QI7>; Tue, 27 Nov 2001 11:08:59 -0500
+	id <S281458AbRK0QHJ>; Tue, 27 Nov 2001 11:07:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281478AbRK0QIw>; Tue, 27 Nov 2001 11:08:52 -0500
-Received: from AGrenoble-101-1-2-87.abo.wanadoo.fr ([193.253.227.87]:49281
-	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S281473AbRK0QIk> convert rfc822-to-8bit; Tue, 27 Nov 2001 11:08:40 -0500
-Message-ID: <3C03BB6C.50701@wanadoo.fr>
-Date: Tue, 27 Nov 2001 17:12:28 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
+	id <S281473AbRK0QG7>; Tue, 27 Nov 2001 11:06:59 -0500
+Received: from [200.210.19.82] ([200.210.19.82]:47495 "HELO
+	mail.centercursos.com.br") by vger.kernel.org with SMTP
+	id <S281458AbRK0QGq> convert rfc822-to-8bit; Tue, 27 Nov 2001 11:06:46 -0500
+Message-ID: <3C03B952.7040809@uol.com.br>
+Date: Tue, 27 Nov 2001 14:03:30 -0200
+From: Michel Angelo da Silva Pereira <michelpereira@uol.com.br>
+Organization: Borges & Rinolfi =?ISO-8859-1?Q?Solu=E7=F5es?= em Redes Corporativas
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: linuxlist@visto.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mounting NTFS
-In-Reply-To: <3BE042D00016CB26@iso1.vistocorporation.com> (added by	    administrator@vistocorporation.com)
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <Pine.LNX.4.21.0111261351160.13786-100000@freak.distro.conectiva> <9tu0n2$sav$1@cesium.transmeta.com> <20011126192902.M5770@khan.acc.umu.se> <3C028A8D.8040503@zytor.com> <20011126161802.A8398@xi.linuxpower.cx> <20011127154323.B513@Zenith.starcenter>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rohit prasad wrote:
+	I agree with your opinion, it's so difficult to understand what is 
+happening with the linux kernel.
+	And the -rc (Release Candidate) it's not welcome, remember me another OS 
+in development status.
 
->  mount -t ntfs /dev/hda1 /mnt/msdos
+Bye
 
+Sven Vermeulen wrote:
 
-seems fishy to mount an ntfs filesystem in
-/mnt/msdos
-:-)
-
-
-> I get a message ntfs not supported, where as the manual on mount indicates that ntfs is supported / mountable.
-
-
-NTFS needs to be supported by kernel to work.
-do : "cat /proc/filesystems"
-it should look like this, at least for the NTFS line :
-~$ cat /proc/filesystems
-nodev 
-rootfs
-nodev 
-bdev
-nodev 
-proc
-nodev 
-sockfs
-nodev 
-tmpfs
-nodev 
-shm
-nodev 
-pipefs
-nodev 
-binfmt_misc
-	ext2
-	minix
-	msdos
-	vfat
-	iso9660
-nodev 
-smbfs
-	ntfs
-nodev 
-autofs
-	reiserfs
-nodev 
-devpts
-	xfs
-nodev 
-usbdevfs
-
-If it doesn't, either you have to load the NTFS module :
-"modprobe ntfs" should do the trick, or compile it directly
-into your kernel, if you know how to do.
-
-BTW write support for NTFS is dangerous, only works
-(barely) for NT4 volumes, not W2K. You can read
-from NTFS safely though.
-
-Regards,
-
-François Cami
+> On Mon, Nov 26, 2001 at 04:18:02PM -0500, Gregory Maxwell wrote:
+> 
+> 
+> Some people may find this more "logical", but imho most will find it
+> confusing... It's already difficult to inform someone about the
+> (number).(even|odd).(release)-(patch|pre-final) scheme. I'm more into 
+> 	-pre: added some features, bugfixes etc...
+> 	-fc : feature-freeze, only bugfixes
+> and having some time (f.i. 48h) between the last -fc and the "real" release
+> (without having a single addendum to the ChangeLog).
+> 
+> Just my 2 cents,
+> 	Sven Vermeulen
+> 
+> 
 
 
+-- 
+=================================================
+Borges & Rinolfi Soluções em Redes Corporativas
+Security Officer
+Profissional Certificado Conectiva Linux
+www.techs.com.br/kidmumu - UIN 4553082 - LC 83522
+
+... e querido papai do céu, em vez de botar as vitaminas no óleo de
+bacalhau, bota nos merengues que seu Manoel tem lá na venda. Amém.
+=================================================
 

@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbUCEQ6U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 11:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUCEQ6U
+	id S262655AbUCERDx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 12:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUCERDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 11:58:20 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41489
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262652AbUCEQ6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 11:58:15 -0500
-Date: Fri, 5 Mar 2004 17:58:50 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, peter@mysql.com, akpm@osdl.org, riel@redhat.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305165850.GI4922@dualathlon.random>
-References: <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu> <20040305145947.GA4922@dualathlon.random> <20040305150225.GA13237@elte.hu> <p73ad2v47ik.fsf@brahms.suse.de> <20040305162319.GA16835@elte.hu> <20040310142125.6f448d28.ak@suse.de> <20040305164902.GA17745@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040305164902.GA17745@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 5 Mar 2004 12:03:52 -0500
+Received: from [193.138.115.101] ([193.138.115.101]:48398 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S262655AbUCERDu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 12:03:50 -0500
+Date: Fri, 5 Mar 2004 17:59:55 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Subject: SCSI CDROM/DVD trouble with 2.6.3 (2.6.2 is fine)
+Message-ID: <Pine.LNX.4.56.0403051745430.21208@jju_lnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05, 2004 at 05:49:02PM +0100, Ingo Molnar wrote:
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > > > [...] Only drawback is that if a timer tick is delayed for too long it
-> > > > won't fix that, but I guess that's reasonable for a 1s resolution.
-> > > 
-> > > what do you mean by delayed?
-> > 
-> > Normal gettimeofday can "fix" lost timer ticks because it computes the
-> > true offset to the last timer interrupt using the TSC or other means.
-> > xtime is always the last tick without any correction. If it got
-> > delayed too much the result will be out of date.
-> 
-> yeah - i doubt the softirq delay is a real issue.
 
-Do you think it's more likely the irq is lost? I think it's more likely
-the softirq takes more than 1msec than the irq is lost. If softirq takes
-more than 1msec we don't necessairly need to fix that, the timer code is
-designed to handle that case properly and the softirq is the place where
-to do the bulk of the work, if irq is lost we definitely need to fix
-that.
+Hi,
 
-Anyways either ways time may go backwards w.r.t. gettimeofday.
+I'm currently running 2.6.2 on a system with an Adaptec 29160N SCSI
+controller, an IBM UltraStar Ultra160 SCSI disk, A Plextor SCSI CD writer
+and a Pioneer SCSI DVD-ROM drive.
+With 2.6.2 everything functions perfectly (did so with 2.4.x as well) and
+I have no trouble what-so-ever.  With 2.6.3 it's a completely different
+matter.
+I had build my 2.6.2 kernel so that it included the config in /proc , so
+when time came to build 2.6.3 I grabbed /proc/config.gz and used that as a
+basis (make oldconfig) for my new kernel - I answered No to all the new
+options presented by oldconfig for 2.6.3 since I needed none of them, then
+proceeded to build and install the kernel (This is on a Slackware 9.1
+system and both kernels where build with the same gcc 3.2.3 compiler).
+Booting the 2.6.3 kernel works just fine, the controller is identified
+just as with 2.6.2 and all my devices are found as well. The trouble
+begins when I attempt to mount (or otherwhice access) the CD-RW and DVD
+devices. The processes accessing /dev/sr0 and/or /dev/sr1 just hang, and
+when I attempt to kill them they don't die but just end up unkillable in D
+state. Running strace on mount when trying to mount a CD reveals that it
+is stuck in a read() call that apparently never completes.
+I can use my SCSI HD just fine, but there is one small bit of strangeness
+there as well. When it comes time to shut down the system I get reports
+that /home is busy an cannot be unmounted so it gets remounted read-only
+instead (which seems to succeed). I actually get the same error for /proc
+which really puzzels me since it's not on any SCSI device.
 
-I'm not saying it's a real issue though.
+Rebooting back to 2.6.2 results in a perfectly working system again.
+
+So, what changed regarding SCSI and or the (new) aic7xxx driver from 2.6.2
+to 2.6.3 ?  I don't know, but something must have happened since 2.6.2
+works fine and 2.6.3 (with basically the same .config) is completely
+unusable.
+
+Let me know if you want further details and/or want me to test patches
+etc, and I'll be happy to provide anything you may need/test anything you
+want me to test.
+
+
+-- 
+Jesper Juhl <juhl@dif.dk>
+Systems Administrator, Danmarks Idræts-Forbund / The Danish Sports Federation
+Please don't top-post    http://www.catb.org/~esr/jargon/html/T/top-post.html
+Please send plain text emails only          http://www.expita.com/nomime.html

@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263592AbUDZVsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUDZV5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbUDZVsU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 17:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUDZVsT
+	id S261396AbUDZV5V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 17:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbUDZV5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 17:48:19 -0400
-Received: from email-out2.iomega.com ([147.178.1.83]:23774 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S263592AbUDZVsL
+	Mon, 26 Apr 2004 17:57:21 -0400
+Received: from mini.brewt.org ([64.180.111.212]:21770 "HELO mini.brewt.org")
+	by vger.kernel.org with SMTP id S261396AbUDZV5U convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 17:48:11 -0400
-In-Reply-To: <20040424194727.GA3353@dreamland.darkstar.lan>
-References: <20040423195004.GA1885@dreamland.darkstar.lan> <1082751675.3163.
-	 106.camel@patibmrh9> <20040424194727.GA3353@dreamland.darkstar.lan>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
-Message-Id: <68855BEB-97CB-11D8-B7A7-003065635034@ieee.org>
-Content-Transfer-Encoding: 7bit
-Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
-From: Pat LaVarre <p.lavarre@ieee.org>
-Subject: Re: Unable to read UDF fs on a DVD
-Date: Mon, 26 Apr 2004 15:48:09 -0600
-To: kronos@kronoz.cjb.net
-X-Mailer: Apple Mail (2.613)
-X-OriginalArrivalTime: 26 Apr 2004 21:48:10.0105 (UTC) FILETIME=[2A9C8E90:01
-	C42BD8]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:4.30608 C:49 M:1 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+	Mon, 26 Apr 2004 17:57:20 -0400
+Date: Mon, 26 Apr 2004 14:57:17 -0700
+From: "Adrian Yee" <adrian@gossamer-threads.com>
+Subject: Re: [PATCH] 8139too not running s3 suspend/resume pci fix
+To: Felipe W Damasio <felipewd@terra.com.br>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <GMail.1083016637.119257660.12741365653@brewt.org>
+In-Reply-To: <408D5E59.1090009@terra.com.br>
+Mime-Version: 1.0
+References: <408D5E59.1090009@terra.com.br>
+X-Gmail-Account: brewt@brewt.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kronos:
+Hi Felipe,
 
-> Well, Ben Fennema said that he has identified the issue. If it can be
-> usefull I can have my friend burn another DVD (with less data) with 
-> Easy
-> CD and upload the image somewhere.
+> 	IMHO, there's no problem in doing "pci_save_state (pdev, 
+> tp->pci_state)" before the suspend code..but I'm more confortable with 
+> leaving the set_power_state at the end of that path, since if the 
+> interface is down, we don't want to leave it in cold state.
 
-1) Useful to Ben, maybe not, Ben already understands much.
+That makes sense.  So something more like this:
 
-2) Useful to you, maybe not, maybe nobody on Earth but Ben can help you 
-rapidly.
-
-3) Useful to me, yes.  You put the image on the web, and I'll try to 
-download it, try to reproduce your trouble, and then try to find time 
-to learn ever more about how unamerican chars work inside udf.ko.
-
->> 5)
->>
->>> http://web.tiscali.it/kronoz/ucf_test.log
->>
->> Any chance this link will still work, a year from now?
->
-> Yup, no problem.
-
-Thank you, now blogged as the first of:
-
-udf fsck failures observed
-http://udfko.blog-city.com/read/585805.htm
-
-Pat LaVarre
-
+--- drivers/net/8139too.c.orig  2004-04-26 14:53:04.715985134 -0700
++++ drivers/net/8139too.c       2004-04-26 14:53:50.373431714 -0700
+@@ -2550,6 +2550,8 @@ static int rtl8139_suspend (struct pci_d
+        void *ioaddr = tp->mmio_addr;
+        unsigned long flags;
+ 
++       pci_save_state (pdev, tp->pci_state);
++
+        if (!netif_running (dev))
+                return 0;
+ 
+@@ -2568,7 +2570,6 @@ static int rtl8139_suspend (struct pci_d
+        spin_unlock_irqrestore (&tp->lock, flags);
+ 
+        pci_set_power_state (pdev, 3);
+-       pci_save_state (pdev, tp->pci_state);
+ 
+        return 0;
+ }
+@@ -2579,9 +2580,9 @@ static int rtl8139_resume (struct pci_de
+        struct net_device *dev = pci_get_drvdata (pdev);
+        struct rtl8139_private *tp = dev->priv;
+ 
++       pci_restore_state (pdev, tp->pci_state);
+        if (!netif_running (dev))
+                return 0;
+-       pci_restore_state (pdev, tp->pci_state);
+        pci_set_power_state (pdev, 0);
+        rtl8139_init_ring (dev);
+        rtl8139_hw_start (dev);

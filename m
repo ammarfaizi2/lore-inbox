@@ -1,106 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbTIPOI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 10:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTIPOIZ
+	id S261845AbTIPN4s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTIPN4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 10:08:25 -0400
-Received: from fep04.tuttopmi.it ([212.131.248.107]:4009 "EHLO
-	fep04-svc.flexmail.it") by vger.kernel.org with ESMTP
-	id S261936AbTIPOHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 10:07:46 -0400
-From: Frederik Nosi <fredi@e-salute.it>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.22-pre10] Kernel BUG at vmscan.c:358!
-Date: Tue, 16 Sep 2003 16:02:11 +0000
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 16 Sep 2003 09:56:48 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:2308 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261845AbTIPN4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:56:41 -0400
+Subject: Re: Nearly succes with suspend to disk in -test5-mm2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Mathieu LESNIAK <maverick@eskuel.net>, LKML <linux-kernel@vger.kernel.org>,
+       mochel@osdl.org
+In-Reply-To: <20030916121229.GE585@elf.ucw.cz>
+References: <3F660BF7.6060106@eskuel.net> <20030916114822.GB602@elf.ucw.cz>
+	 <1063714222.1302.5.camel@teapot.felipe-alfaro.com>
+	 <20030916121229.GE585@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1063720598.1488.13.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 16 Sep 2003 15:56:38 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309161602.12131.fredi@e-salute.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to all,
-I know this kernel is a bit outdated (2.4.22-pre10) but just in case it is
-interesting for somenoe I'm mailing the ksymoops output. Note that in the
-logs there are various consecutive oopses and in this email I'm attaching
-just the first one for not wasting bandwith. Of course if you need the full
-log (~500 lines) just ask.
-And please CC me as I'm not subscribed in the ML.
+On Tue, 2003-09-16 at 14:12, Pavel Machek wrote:
+> Hi!
+> 
+> > > cat you try with echo 4 > /proc/acpi/sleep?
+> > 
+> > It does nothing for me... No messages in the kernel ring, no intention
+> > to perform a swsusp.
+> 
+> That's strange; can you cat /proc/acpi/sleep?
 
-decoded oops follows,
-Bye
-fredi
+# cat /proc/acpi/sleep
+S0 S3 S4 S5
 
-ksymoops 2.4.8 on i686 2.4.22-pre10.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-pre10/ (default)
-     -m /boot/System.map-2.4.22-pre10 (default)
+# cat /sys/power/state
+standby mem disk
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+# cat /sys/power/disk
+platform
 
-Sep 16 15:27:16 carcass kernel: kernel BUG at vmscan.c:358!
-Sep 16 15:27:16 carcass kernel: invalid operand: 0000
-Sep 16 15:27:16 carcass kernel: CPU:    0
-Sep 16 15:27:16 carcass kernel: EIP:    0010:[shrink_cache+733/768]    Not tainted
-Sep 16 15:27:16 carcass kernel: EIP:    0010:[<c012f8fd>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Sep 16 15:27:16 carcass kernel: EFLAGS: 00013202
-Sep 16 15:27:16 carcass kernel: eax: 00000040   ebx: 00000000   ecx: c100063c   edx: 00000000
-Sep 16 15:27:16 carcass kernel: esi: c1000620   edi: 000010a2   ebp: c026b650   esp: c1173f40
-Sep 16 15:27:16 carcass kernel: ds: 0018   es: 0018   ss: 0018
-Sep 16 15:27:16 carcass kernel: Process kswapd (pid: 5, stackpage=c1173000)
-Sep 16 15:27:16 carcass kernel: Stack: c1055d64 c7396000 c1172000 0000011a 000001d0 00000013 00000011 000001d0
-Sep 16 15:27:16 carcass kernel:        00000013 00000003 c012fa71 00000003 000001d0 c026b650 00000003 000001d0
-Sep 16 15:27:16 carcass kernel:        c026b650 00000000 c012fae6 00000013 c026b650 c1172000 c026b5a0 c012fc14
-Sep 16 15:27:16 carcass kernel: Call Trace:    [shrink_caches+97/160] [try_to_free_pages_zone+54/96] [kswapd_balance_pgdat+8
-Sep 16 15:27:16 carcass kernel: Call Trace:    [<c012fa71>] [<c012fae6>] [<c012fc14>] [<c012fc79>] [<c012fdad>]
-Sep 16 15:27:16 carcass kernel:   [<c0105000>] [<c010577e>] [<c012fd10>]
-Sep 16 15:27:16 carcass kernel: Code: 0f 0b 66 01 b8 4c 24 c0 e9 a8 fd ff ff c7 00 00 00 00 00 e8
+I compiled swsusp into 2.6.0-test5-mm2 and defined "/dev/hda2" as the
+default partition used to store the swsusp data.
 
-
->>EIP; c012f8fd <shrink_cache+2dd/300>   <=====
-
->>ecx; c100063c <_end+d08624/a5d4048>
->>esi; c1000620 <_end+d08608/a5d4048>
->>ebp; c026b650 <contig_page_data+b0/340>
->>esp; c1173f40 <_end+e7bf28/a5d4048>
-
-Trace; c012fa71 <shrink_caches+61/a0>
-Trace; c012fae6 <try_to_free_pages_zone+36/60>
-Trace; c012fc14 <kswapd_balance_pgdat+54/a0>
-Trace; c012fc79 <kswapd_balance+19/30>
-Trace; c012fdad <kswapd+9d/c0>
-Trace; c0105000 <_stext+0/0>
-Trace; c010577e <arch_kernel_thread+2e/40>
-Trace; c012fd10 <kswapd+0/c0>
-
-Code;  c012f8fd <shrink_cache+2dd/300>
-00000000 <_EIP>:
-Code;  c012f8fd <shrink_cache+2dd/300>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012f8ff <shrink_cache+2df/300>
-   2:   66 01 b8 4c 24 c0 e9      add    %di,0xe9c0244c(%eax)
-Code;  c012f906 <shrink_cache+2e6/300>
-   9:   a8 fd                     test   $0xfd,%al
-Code;  c012f908 <shrink_cache+2e8/300>
-   b:   ff                        (bad)
-Code;  c012f909 <shrink_cache+2e9/300>
-   c:   ff c7                     inc    %edi
-Code;  c012f90b <shrink_cache+2eb/300>
-   e:   00 00                     add    %al,(%eax)
-Code;  c012f90d <shrink_cache+2ed/300>
-  10:   00 00                     add    %al,(%eax)
-Code;  c012f90f <shrink_cache+2ef/300>
-  12:   00 e8                     add    %ch,%al
+Curiously, echo 3 > /proc/acpi/sleep works, although I get panics and
+oopses.
 

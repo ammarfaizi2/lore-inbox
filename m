@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262885AbSJFBWe>; Sat, 5 Oct 2002 21:22:34 -0400
+	id <S262934AbSJFBZG>; Sat, 5 Oct 2002 21:25:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262927AbSJFBWe>; Sat, 5 Oct 2002 21:22:34 -0400
-Received: from pimout4-ext.prodigy.net ([207.115.63.103]:64204 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262885AbSJFBWd>; Sat, 5 Oct 2002 21:22:33 -0400
-Message-Id: <200210060128.g961S11J485516@pimout4-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: tom_gall@mac.com, Larry McVoy <lm@bitmover.com>
-Subject: Re: New BK License Problem?
-Date: Fri, 4 Oct 2002 20:50:06 -0400
-X-Mailer: KMail [version 1.3.1]
+	id <S263089AbSJFBZG>; Sat, 5 Oct 2002 21:25:06 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:39693 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262934AbSJFBZG>; Sat, 5 Oct 2002 21:25:06 -0400
+Date: Sat, 5 Oct 2002 21:30:36 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Andrew Patrikalakis <anrp@irulethe.net>
 Cc: linux-kernel@vger.kernel.org
-References: <ECF389B9-D7E0-11D6-A2D4-0003939E069A@mac.com>
-In-Reply-To: <ECF389B9-D7E0-11D6-A2D4-0003939E069A@mac.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [PowerPC] Bug in IEEE1394 implementation on PowerBooks
+Message-ID: <20021006013036.GE585@phunnypharm.org>
+References: <20021006012230.629D595E84@irulethe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021006012230.629D595E84@irulethe.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 October 2002 05:33 pm, tom_gall@mac.com wrote:
+> [X.] If someone can e-mail me with the pertinent information, I'd be
+> happy to fix the problem ;-). Or anything else for that matter, I'm
+> not subscribed to the list ^^; I'm also relatively sure it hasn't 
+> been fixed in the latest version (2.4.20-pre9) as the pertinant parts
+> of the code aren't different.
 
-> Yeah I understand what your intent is and I'm not flaming you. I have a
-> problem with the wording in that claus.  Unfortunately you're not a
-> lawyer so your stated intent means little, it's the language in the
-> license that has meaning.
+Check the USB OHCI driver.
 
-Actually, his stated intent means an awful lot, if you can get it in writing. 
- Which, thanks to the archived nature of this list, you have.  (Remember, the 
-legal basis for contract law is just informed consent and the recording 
-thereof.  The license itself is merely a formal and carefully worded version 
-of "what he said".)
+If you get something, carry it on over to linux1394-devel@lists.sf.net.
+I'd help out but my G4 is on the rocks.
 
-A verbal contract may only be worth the paper it's printed on, but it IS 
-legally binding if you can prove it.  And even relatively casual statements, 
-if recorded, can show up to haunt you in court later on.
-
-Larry said who he wouldn't sue.  If he then goes and sues them, these old 
-emails show in court and undercut his case in a big way.  That's not a 
-guarantee in any judicial system that could let OJ off and give a million 
-dollars to a woman who spills McDonalds coffee on herself, but it's probably 
-about as good as you're going to get.
-
-> Regards,
->
-> Tom
-
-Rob
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,112 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267024AbTBVMcP>; Sat, 22 Feb 2003 07:32:15 -0500
+	id <S267888AbTBVMjo>; Sat, 22 Feb 2003 07:39:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267888AbTBVMcP>; Sat, 22 Feb 2003 07:32:15 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:640 "EHLO bilbo.tmr.com")
-	by vger.kernel.org with ESMTP id <S267024AbTBVMcN>;
-	Sat, 22 Feb 2003 07:32:13 -0500
-Date: Sat, 22 Feb 2003 07:42:17 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@bilbo.tmr.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG][2.5.61-ac1] ide-scsi and ZIP
-Message-ID: <Pine.LNX.4.44.0302220737450.1200-200000@bilbo.tmr.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810548-216003382-1045917737=:1200"
+	id <S267890AbTBVMjo>; Sat, 22 Feb 2003 07:39:44 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:58887 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S267888AbTBVMjn>; Sat, 22 Feb 2003 07:39:43 -0500
+Date: Sat, 22 Feb 2003 21:49:35 +0900 (JST)
+Message-Id: <20030222.214935.134101784.yoshfuji@linux-ipv6.org>
+To: davem@redhat.com
+Cc: kazunori@miyazawa.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, usagi@linux-ipv6.org, kunihiro@ipinfusion.com
+Subject: Re: [PATCH] IPv6 IPSEC support
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20030222.031326.103246837.davem@redhat.com>
+References: <20030222202623.38d41d8a.kazunori@miyazawa.org>
+	<20030222.031326.103246837.davem@redhat.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hello.
 
----1463810548-216003382-1045917737=:1200
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In article <20030222.031326.103246837.davem@redhat.com> (at Sat, 22 Feb 2003 03:13:26 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
 
-When loading ide-scsi kernel get a BUG while looking at the ZIP drive. 
-Yes, I can get around it with config, but it shouldn't BUG me.
+> Nothing in xfrm routines really need to reference ipv6 module
+> functions, please eliminate this dependency.  Breaking ipv6 as module
+> is ok for temporary development, but eventually it must be solved.
 
-ksymoops attachment to prevent evil in mailing.
+xfrm_policy.c:xfrm6_bundle_create() seems to depend on ip6_route_output()
+as xfrm_bundle_create() depends on __ip_route_output_key().
+How do we solve this dependency? inter-module?
 
 -- 
-bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
-  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
-since using 2.5 kernels includes a lot of things jumping out of dark
-corners to scare you.
-
-
----1463810548-216003382-1045917737=:1200
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="x.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0302220742170.1200@bilbo.tmr.com>
-Content-Description: 
-Content-Disposition: attachment; filename="x.tmp"
-
-a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjUuNjEtYWMxLiAgT3B0aW9ucyB1
-c2VkDQogICAgIC1WIChkZWZhdWx0KQ0KICAgICAtayAvcHJvYy9rc3ltcyAo
-ZGVmYXVsdCkNCiAgICAgLWwgL3Byb2MvbW9kdWxlcyAoZGVmYXVsdCkNCiAg
-ICAgLW8gL2xpYi9tb2R1bGVzLzIuNS42MS1hYzEvIChkZWZhdWx0KQ0KICAg
-ICAtbSAvYm9vdC9TeXN0ZW0ubWFwLTIuNS42MS1hYzEgKGRlZmF1bHQpDQoN
-Cldhcm5pbmc6IFlvdSBkaWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmluZCBz
-eW1ib2wgaW5mb3JtYXRpb24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRoZSBs
-b2cgbWF0Y2hlcyB0aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1
-bm5pbmcNCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0
-aW9ucyBhYm92ZSBmb3Igc3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUgY3Vy
-cmVudCBrZXJuZWwgYW5kL29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRoZSBs
-b2csIHlvdSBjYW4gZ2V0DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxs
-aW5nIG1lIHRoZSBrZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZA0K
-bWFwLCBtb2R1bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlu
-cyB0aGUgb3B0aW9ucy4NCg0KRXJyb3IgKHJlZ3VsYXJfZmlsZSk6IHJlYWRf
-a3N5bXMgc3RhdCAvcHJvYy9rc3ltcyBmYWlsZWQNCk5vIG1vZHVsZXMgaW4g
-a3N5bXMsIHNraXBwaW5nIG9iamVjdHMNCk5vIGtzeW1zLCBza2lwcGluZyBs
-c21vZA0KYWN0aXZhdGluZyBOTUkgV2F0Y2hkb2cgLi4uIGRvbmUuDQp0ZXN0
-aW5nIE5NSSB3YXRjaGRvZyAuLi4gT0suDQpDUFUgMSBJUyBOT1cgVVAhDQog
-c2RhOjwxPlVuYWJsZSB0byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBk
-ZXJlZmVyZW5jZSBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDAwMDANCjAwMDAw
-MDAwDQoqcGRlID0gMDAwMDAwMDANCk9vcHM6IDAwMDANCkNQVTogICAgMA0K
-RUlQOiAgICAwMDYwOls8MDAwMDAwMDA+XSAgICBOb3QgdGFpbnRlZA0KVXNp
-bmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkz
-ODYNCkVGTEFHUzogMDAwMTAyODYNCmVheDogY2ZiY2RlYTAgICBlYng6IGNm
-ZmZlYWE4ICAgZWN4OiAwMDAwMDAwMCAgIGVkeDogY2ZmZmVhYTgNCmVzaTog
-MDAwMDAwMDMgICBlZGk6IDAwMDAwMDAwICAgZWJwOiBjZjU1N2RhMCAgIGVz
-cDogY2Y1NTdkOTgNCmRzOiAwMDdiICAgZXM6IDAwN2IgICBzczogMDA2OA0K
-U3RhY2s6IGMwMWY4NmZkIGNmZmZlYWE4IGNmNTU3ZGNjIGMwMWY0MDI0IGNm
-ZmZlYWE4IDAwMDAwMDAwIGMwMjkwYzhjIGNmNGRhMGRjIA0KICAgICAgIDAw
-MDAwMDAwIGMwMTVhMmEwIA0KIFs8YzAxZjg2ZmQ+XSBjdXJyZW50X2NhcGFj
-aXR5KzB4MWQvMHgzMA0KIFs8YzAxZjQwMjQ+XSBpZGVfeGxhdGVfMTAyNCsw
-eDEyNC8weDE3MA0KIFs8YzAxNWEyYTA+XSBibGtkZXZfcmVhZHBhZ2UrMHgw
-LzB4MjANCiBbPGMwMTg1YzI0Pl0gaGFuZGxlX2lkZV9tZXNzKzB4MTY0LzB4
-MjAwDQogWzxjMDE4NWNmYj5dIG1zZG9zX3BhcnRpdGlvbisweDNiLzB4MzYw
-DQogWzxjMDExZmE5Mz5dIHJlbGVhc2VfY29uc29sZV9zZW0rMHhhMy8weDE0
-MA0KIFs8YzAxMWY5NDg+XSBwcmludGsrMHgxZDgvMHgyMzANCiBbPGMwMTg1
-MDFhPl0gY2hlY2tfcGFydGl0aW9uKzB4YWEvMHgxMDANCiBbPGMwMTVhNmI3
-Pl0gYmRnZXQrMHgxODcvMHgyNDANCiBbPGMwMTg1MzYxPl0gcmVnaXN0ZXJf
-ZGlzaysweGMxLzB4MTQwDQogWzxjMDFlMTllZD5dIGJsa19yZWdpc3Rlcl9y
-ZWdpb24rMHg0ZC8weGMwDQogWzxjMDFlMWI0Nz5dIGFkZF9kaXNrKzB4Mzcv
-MHg1MA0KIFs8YzAxZTFhZTA+XSBleGFjdF9tYXRjaCsweDAvMHgxMA0KIFs8
-YzAxZTFhZjA+XSBleGFjdF9sb2NrKzB4MC8weDIwDQogWzxjMDIxMDQ3OT5d
-IHNkX2F0dGFjaCsweDJkOS8weDM1MA0KIFs8YzAyMDc4Y2M+XSBzY3NpX2F0
-dGFjaF9kZXZpY2UrMHg2Yy8weGMwDQogWzxjMDIwODMxNj5dIHNjc2lfYWRk
-X2hvc3QrMHg2Ni8weDgwDQogWzxkMDgzYmEyYj5dIGlkZXNjc2lfYXR0YWNo
-KzB4YWIvMHhjZiBbaWRlX3Njc2ldDQogWzxkMDgzZDAyMD5dIGlkZXNjc2lf
-cHJpbWFyeSsweDAvMHhlMCBbaWRlX3Njc2ldDQogWzxkMDgzY2VhMD5dIGlk
-ZXNjc2lfZHJpdmVyKzB4MC8weGQwIFtpZGVfc2NzaV0NCiBbPGQwODNjZjY4
-Pl0gaWRlc2NzaV9kcml2ZXIrMHhjOC8weGQwIFtpZGVfc2NzaV0NCiBbPGMw
-MWZhM2JlPl0gYXRhX2F0dGFjaCsweGRlLzB4MjcwDQogWzxkMDgzY2VhMD5d
-IGlkZXNjc2lfZHJpdmVyKzB4MC8weGQwIFtpZGVfc2NzaV0NCiBbPGQwODNj
-ZWEwPl0gaWRlc2NzaV9kcml2ZXIrMHgwLzB4ZDAgW2lkZV9zY3NpXQ0KIFs8
-YzAxZmI0ZmI+XSBpZGVfcmVnaXN0ZXJfZHJpdmVyKzB4MTZiLzB4MWEwDQog
-WzxkMDgzZjAzMD5dICsweDMwLzB4ZmZmZmU2YzAgW2lkZV9zY3NpXQ0KIFs8
-ZDA4M2NlYTA+XSBpZGVzY3NpX2RyaXZlcisweDAvMHhkMCBbaWRlX3Njc2ld
-DQogWzxkMDgzZDFlMD5dICsweDAvMHg0ZTAgW2lkZV9zY3NpXQ0KIFs8YzAx
-MzU0ZDA+XSBzeXNfaW5pdF9tb2R1bGUrMHgxYTAvMHgyNDANCiBbPGMwMTA5
-NGNiPl0gc3lzY2FsbF9jYWxsKzB4Ny8weGINCkNvZGU6ICBCYWQgRUlQIHZh
-bHVlLg0KDQo+PkVJUDsgMDAwMDAwMDAgQmVmb3JlIGZpcnN0IHN5bWJvbA0K
-DQp3YXJuaW5nOiBwcm9jZXNzIGB1cGRhdGUnIHVzZWQgdGhlIG9ic29sZXRl
-IGJkZmx1c2ggc3lzdGVtIGNhbGwNCndhcm5pbmc6IHByb2Nlc3MgYHVwZGF0
-ZScgdXNlZCB0aGUgb2Jzb2xldGUgYmRmbHVzaCBzeXN0ZW0gY2FsbA0KDQox
-IHdhcm5pbmcgYW5kIDEgZXJyb3IgaXNzdWVkLiAgUmVzdWx0cyBtYXkgbm90
-IGJlIHJlbGlhYmxlLg0K
----1463810548-216003382-1045917737=:1200--
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286702AbRLVHH1>; Sat, 22 Dec 2001 02:07:27 -0500
+	id <S286704AbRLVHnX>; Sat, 22 Dec 2001 02:43:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286704AbRLVHHS>; Sat, 22 Dec 2001 02:07:18 -0500
-Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:62452 "EHLO
-	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S286701AbRLVHHH>; Sat, 22 Dec 2001 02:07:07 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Rob Landley <landley@trommello.org>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-Date: Fri, 21 Dec 2001 18:05:34 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E16H8p9-00074z-00@DervishD.viadomus.com> <20011220214104.C9116@kushida.jlokier.co.uk>
-In-Reply-To: <20011220214104.C9116@kushida.jlokier.co.uk>
+	id <S286705AbRLVHnO>; Sat, 22 Dec 2001 02:43:14 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7763 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S286703AbRLVHnE>; Sat, 22 Dec 2001 02:43:04 -0500
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure=2Ehelp=2E?=
+In-Reply-To: <Pine.LNX.4.33.0112212050560.24550-100000@shell1.aracnet.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Dec 2001 00:41:27 -0700
+In-Reply-To: <Pine.LNX.4.33.0112212050560.24550-100000@shell1.aracnet.com>
+Message-ID: <m11yhnsnvc.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20011222070706.EUCG22452.femail12.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 December 2001 04:41 pm, Jamie Lokier wrote:
-> RaúlNúñez de Arenas Coronado wrote:
-> > >You are close - he uses "MiB" as short for "mebi" - Mega-binary.
+"M. Edward (Ed) Borasky" <znmeb@aracnet.com> writes:
+
+> On 21 Dec 2001, H. Peter Anvin wrote:
+> 
+> > > Finally, Farhenheit units are smaller so that they make more convenient
+> > > divisions: Eg.
 > >
-> >     Personally I don't like very much the abbreviations, but I must
-> > recognize that they remove all possible ambiguity for the
-> > Configure.help. With MiB, GiB, etc... you're completely sure that you
-> > are talking about 2^20, 2^30 and not 10^6, 10^9, etc...
->
-> Hah!  Everytime I have seen "MiB" before this thread I'd though it meant
-> "Million Bytes", because everyone knows that MB in computers is a
-> megabyte (<ahem>).
+> > Bullsh*t.  They seem more natural to you because you're more used to
+> > them.  Anyone who hasn't grown up on the system think that Fahrenheit
+> > is the ultimate in lunacy.
+> 
+> Fahrenheit units were developed by a different process than Celsius, but
+> they are both "natural". The Celsius scale is 0 = freezing point of
+> water and 100 = boiling point of water. The Fahrenheit scale was
+> developed less precisely -- 0 is approximately the freezing point of
+> human blood, IIRC, and 100 is approximately body temperature (Fahrenheit
+> may have had a fever :)).
 
-Me, I've got the "men in black" song running through my head now.  And I 
-don't particularly like it, either.
+32 Fahrenheit is the freezing point of water.
+32 + 180 is the boiling point of water.
+To avoid negatives an extra 32 degrees were added.
+And we measure it in degrees because the designer of Fahrenheit was
+thinking about how angles were measured when he designed the system.
 
-This reminds me of people going after metric speed limit signs with shotguns 
-back in the late 70's.  I never understood this impulse before now.
+Now measuring Celsius is in degrees is the cute one.
 
-Trust the ISO to change the BINARY nomenclature on something that has, until 
-now, DEFAULTED to binary.  I get the feeling nobody at the ISO actually uses 
-computers much.  Is it too late to sober them up?
+As for other topics in this thread.
+12 is a nicer base than 10 simply because it has more factors.
 
-Rob
+And the US officially is on the metric system.  However usage for
+common things hasn't changed over.  And no one has had the guts to
+have a flag day, and kick out.
+
+As for all of the mebibyte versus megabyte stuff.  While change is
+awkward it seems much more comfortable to me if we change the expanded
+for first.  And then put in the abbreviations.  Otherwise everyone
+will think megabyte and write MiB, which helps little.
+
+Thinking a megabyte is 1000000 bytes and a mebibyte is 1048576 bytes
+is almost sane.  Of course the only way to be really clear would be to
+have another term for a decimal megabyte, and just drop the old term
+with it's nasty baggage.  Since we don't have that the problem will
+continue on.  But having two terms at least lets us be precise.
+
+Eric

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVB1Xyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVB1X7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbVB1Xyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 18:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVB1Xyd
+	id S261828AbVB1X7X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 18:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVB1X7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 18:54:33 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:43450 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261825AbVB1Xy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 18:54:27 -0500
-Subject: Re: Multichannel audio ?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: robinud@volja.net, linux-kernel@vger.kernel.org
-In-Reply-To: <4223A838.1050507@tmr.com>
-References: <1109599986.422326f240b1b@webmail.volja.net>
-	 <1109599986.422326f240b1b@webmail.volja.net>
-	 <1109625077.9273.18.camel@mindpipe>  <4223A838.1050507@tmr.com>
+	Mon, 28 Feb 2005 18:59:23 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:29904 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261828AbVB1X7T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 18:59:19 -0500
+Subject: Re: [RFC] PCI bridge driver rewrite
+From: Adam Belay <abelay@novell.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050225233823.GC29496@kroah.com>
+References: <1109226122.28403.44.camel@localhost.localdomain>
+	 <20050225233823.GC29496@kroah.com>
 Content-Type: text/plain
-Date: Mon, 28 Feb 2005 18:54:25 -0500
-Message-Id: <1109634865.10783.0.camel@mindpipe>
+Date: Mon, 28 Feb 2005 18:58:01 -0500
+Message-Id: <1109635081.28403.108.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-28 at 18:24 -0500, Bill Davidsen wrote:
-> Lee Revell wrote:
-> > On Mon, 2005-02-28 at 15:13 +0100, robinud@volja.net wrote:
-> > 
-> >>Hi!
-> >>
-> >>How does one use the extra channels on a six channel card ?
-> >>I can only hear the 2 front speakers.
-> > 
-> > 
-> > Off topic.  Please switch to ALSA (OSS is deprecated) then ask this
-> > question on the ALSA lists.
-> 
-> What "the ALSA list" is that? I have asked the same question on 
-> linux-sound several times and gotten no answer. If that list is dead it 
-> should go away!
-> 
+On Fri, 2005-02-25 at 15:38 -0800, Greg KH wrote:
+> On Thu, Feb 24, 2005 at 01:22:01AM -0500, Adam Belay wrote:
 
-Yes, it should.  linux-audio-user is active too. 
+> > I look forward to any comments or suggestions.
+> 
+> I like it all :)
+> 
+> If you want to submit patches now that rearrange the code to make it
+> easier for you to modify in the future to achieve the above goals, feel
+> free, I'll gladly take them.
+> 
+> thanks,
+> 
+> greg k-h
 
-Lee
+I'm going to do an updated release soon.  It should take care of some of
+the issues on the TODO list and also will be based on previous feedback.
+>From there, I'll start planning a strategy for merging with mainline.  I
+appreciate the comments.
+
+Thanks,
+Adam
+
 

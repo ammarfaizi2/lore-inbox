@@ -1,73 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTEVVrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 17:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTEVVrw
+	id S263279AbTEVVtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 17:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTEVVtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 17:47:52 -0400
-Received: from granite.he.net ([216.218.226.66]:19211 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263275AbTEVVrv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 17:47:51 -0400
-Date: Thu, 22 May 2003 15:02:52 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] PCI changes for 2.5.69
-Message-ID: <20030522220251.GA6814@kroah.com>
-Mime-Version: 1.0
+	Thu, 22 May 2003 17:49:16 -0400
+Received: from ppp-62-245-208-43.mnet-online.de ([62.245.208.43]:385 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S263279AbTEVVtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 17:49:14 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 won't mount root on md device
+From: Julien Oster <frodo@dereference.de>
+Organization: FRODOID.ORG
+X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
+Date: Fri, 23 May 2003 00:02:17 +0200
+In-Reply-To: <20030522213013$7e9b@gated-at.bofh.it> (Christoph Hellwig's
+ message of "Thu, 22 May 2003 23:30:13 +0200")
+Message-ID: <frodoid.frodo.877k8i3aja.fsf@usenet.frodoid.org>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <20030522212009$4564@gated-at.bofh.it>
+	<20030522213013$7e9b@gated-at.bofh.it>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph Hellwig <hch@infradead.org> writes:
 
-Here's some PCI changesets against the latest 2.5.69 tree.  They include
-Matt Domsch's dynamic PCI id patch for sysfs, which has been gone over
-a few times on lkml in the recent past, and everyone now agrees with it.
+Hello Christoph,
 
-It also includes the start of the work to add proper locking to the PCI
-devices and the PCI device and bus lists.  After years of trying to
-foist that task off on unsuspecting people (who later run screaming from
-it), it looks like I'm finally going to have to do the work myself :)
+>> can't mount root filesystem "901" or "/dev/md1"
+>> .config included. Any suggestions?
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/pci-2.5
+> You are using devfs so you need to tell your kernel the devfs name
+> of the root device, /dev/md/1.  Or even better just turn devfs off.
 
-thanks,
+Thanks, that did work out. I was confused, since the kernel also told
+me the major and minor device number and so I thought it already
+knows which device to mount.
 
-greg k-h
+But now another problem shows up:
 
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
+May 22 23:34:01 frodo kernel: ide_dmaq_intr: stat=42, not expected
+May 22 23:34:01 frodo kernel: ide_dmaq_intr: stat=40, not expected
+May 22 23:34:01 frodo last message repeated 34 times
 
+I get these messages from the kernel *a lot*, as you can see on the
+repeat line. It's mostly stat=40, sometimes stat=42.
 
- drivers/pci/pci-sysfs-dynids.c |  251 -------------
- Documentation/pci.txt          |   24 +
- drivers/base/bus.c             |    2 
- drivers/pci/Makefile           |    6 
- drivers/pci/bus.c              |    2 
- drivers/pci/hotplug.c          |   23 -
- drivers/pci/pci-driver.c       |  785 +++++++++++++++++++++++++++++++++--------
- drivers/pci/pci-sysfs-dynids.c |  251 +++++++++++++
- drivers/pci/pci.h              |    2 
- drivers/pci/probe.c            |   18 
- include/linux/device.h         |   35 +
- include/linux/pci-dynids.h     |   68 ++-
- include/linux/pci.h            |   47 +-
- 13 files changed, 1045 insertions(+), 469 deletions(-)
------
+My two disks are attached to the onboard Promise RAID Controller (I
+use it only as an IDE controller, not for RAID - Linux SoftRAID seems
+faster).
 
-Greg Kroah-Hartman <greg@kroah.com>:
-  o PCI: remove pci_insert_device() as no one uses it anymore
-  o PCI: add pci_get_dev() and pci_put_dev()
+I included my "lspci -v" output so you can read out the exact
+mainboard and IDE/RAID controller chipset.
 
-Matt Domsch <matt_domsch@dell.com>:
-  o dynids: call driver_attach() when new IDs are added
-  o pci.h whitespace cleanups
-  o PCI dynids - documentation fixes, id_table NULL check
-  o Shrink dynids feature set
-  o Device Driver Dynamic PCI Device IDs
+For my harddrives, here's a snipplet from hdparm -i /dev/hd[ac]:
 
+ Model=IC35L080AVVA07-0, FwRev=VA4OA52A, SerialNo=VNC402A4CMNT6A
+ Model=IC35L080AVVA07-0, FwRev=VA4OA52A, SerialNo=VNC402A4L7D3XA
+
+(Yes, two identical IBM Deskstars with 80GB - those IBM beasts that
+tend to complete crash unrecoverably after some months, that's why I
+have two of them on a RAID 1)
+
+Regards,
+Julien

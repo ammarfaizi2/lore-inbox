@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbUKXLeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbUKXLou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbUKXLeA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 06:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbUKXLeA
+	id S262624AbUKXLou (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 06:44:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUKXLou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 06:34:00 -0500
-Received: from tri-e2k.ethz.ch ([129.132.112.23]:57614 "EHLO tri-e2k.ethz.ch")
-	by vger.kernel.org with ESMTP id S262620AbUKXLd5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 06:33:57 -0500
-Message-ID: <41A470F9.4000407@dbservice.com>
-Date: Wed, 24 Nov 2004 12:31:05 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@hist.no>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com,
-       dri-devel@lists.sourceforge.net
-Subject: Re: Kernel thoughts of a Linux user
-References: <200411181859.27722.gjwucherpfennig@gmx.net> <419CFF73.3010407@dbservice.com> <41A19E44.9080005@hist.no> <41A1CAD4.20101@dbservice.com> <41A46085.5050602@hist.no>
-In-Reply-To: <41A46085.5050602@hist.no>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Nov 2004 11:31:06.0129 (UTC) FILETIME=[162D2810:01C4D219]
+	Wed, 24 Nov 2004 06:44:50 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:16015 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262624AbUKXLor
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 06:44:47 -0500
+Date: Wed, 24 Nov 2004 17:15:23 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Andi Kleen <ak@suse.de>, akpm@osdl.org
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: x86_64 GPF handler (was: [PATCH] remove errornous semicolon)
+Message-ID: <20041124114523.GA2336@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <200411240026_MC3-1-8F47-CE27@compuserve.com> <20041124104338.GC10495@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041124104338.GC10495@wotan.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
->> From the [ruby patch] documentation:
->> The main problem up to this date (November 2004) is that linux kernel 
->> has only one behaviour regarding multiple keyboards : any key pressed 
->> catched on any keyboard is redirected to the one and only active 
->> Virtual Terminal (VT).
->>
->> Will this be changed/improved when the console code is moved into 
->> userspace, like some have proposed?
+> > x86_64 never checks the result of notify_die() and unconditionally does a die().
+> > I don't know if this is a bug or not...
+> > 
+> > Andi, if this is not a bug could you explain why not?
 > 
-> 
-> I don't know about any userspace console, but the ruby patch lets
-> you have several independent active VTs at the same time.  So
-> the above mentioned problem is solved - they keyboards does
-> not interfere with each other.
+> It depends on what the debugger (or kprobes) wants. These checks
+> are added based on their needs. Perhaps he didn't consider it 
+> necessary on x86-64. But why don't you ask Prasanna directly?  (cc'ed)
 > 
 
-I think the it would be much nicer to habe the console code in 
-userspace, ruby is only a patch, not in the mainline kernel, and AFAIK 
-not even in any experimental (-mm/-ac/-etc) tree.
-There are many aproaches how to solve the problem of having more than 
-one ative VT, and the userspace console seems to be the nicest one.
+I agree with Andi that it depends on the specific debugger. On handling
+the general protection fault notification, kprobe handler returns NOTIFY_STOP.
+This check missed out in x86_64 kprobes patch. Below patch should fix this,
+please let me know if you have any issues.
 
-I know that Jon Smirl wrote an email some time ago, here it is: 
-http://lkml.org/lkml/2004/8/2/111, look at point 15. I like the idea and 
-I've written him several times, but he didn't answer :(
-Anyone knows what's happened with him?
-I know he's involved in the DRM development, so I CC to the dri-devel list.
+Thanks
+Prasanna
 
-I'd really like to help with this, as I like and share his ideas.
 
-Is anyone already working on this? I mean pulling the console code out 
-of the kernel into the userspace.
+This patch adds the return value check for the exception notifiers at
+do_general_protection as pointed out by Chuck Ebbert.
 
-tom
+Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+
+
+---
+
+ linux-2.6.10-rc2-prasanna/arch/x86_64/kernel/traps.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff -puN arch/x86_64/kernel/traps.c~notifier-fix arch/x86_64/kernel/traps.c
+--- linux-2.6.10-rc2/arch/x86_64/kernel/traps.c~notifier-fix	2004-11-24 17:06:41.000000000 +0530
++++ linux-2.6.10-rc2-prasanna/arch/x86_64/kernel/traps.c	2004-11-24 17:08:18.000000000 +0530
+@@ -556,8 +556,9 @@ asmlinkage void do_general_protection(st
+ 			regs->rip = fixup->fixup;
+ 			return;
+ 		}
+-		notify_die(DIE_GPF, "general protection fault", regs, error_code,
+-			   13, SIGSEGV); 
++		if (notify_die(DIE_GPF, "general protection fault", regs,
++					error_code, 13, SIGSEGV) == NOTIFY_STOP)
++			return;
+ 		die("general protection fault", regs, error_code);
+ 	}
+ }
+
+_
+-- 
+
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

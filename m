@@ -1,60 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266804AbSKUQRG>; Thu, 21 Nov 2002 11:17:06 -0500
+	id <S266805AbSKUQRe>; Thu, 21 Nov 2002 11:17:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266805AbSKUQRG>; Thu, 21 Nov 2002 11:17:06 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:18640 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S266804AbSKUQRE>; Thu, 21 Nov 2002 11:17:04 -0500
-Message-ID: <3DDD089F.5080609@nortelnetworks.com>
-Date: Thu, 21 Nov 2002 11:23:59 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S266806AbSKUQRe>; Thu, 21 Nov 2002 11:17:34 -0500
+Received: from [207.61.129.108] ([207.61.129.108]:684 "EHLO mail.datawire.net")
+	by vger.kernel.org with ESMTP id <S266805AbSKUQRa> convert rfc822-to-8bit;
+	Thu, 21 Nov 2002 11:17:30 -0500
+From: Shawn Starr <shawn.starr@datawire.net>
+Organization: Datawire Communication Networks Inc.
+To: linux-kernel@vger.kernel.org
+Subject: Re: A7M266-D
+Date: Thu, 21 Nov 2002 11:24:36 -0500
+User-Agent: KMail/1.4.7
 MIME-Version: 1.0
-To: Felix Seeger <felix.seeger@gmx.de>
-Cc: "Christopher Friesen" <cfriesen@nortelnetworks.com>,
-       linux-kernel@vger.kernel.org, Nero <neroz@iinet.net.au>
-Subject: Re: 2.5.48 QM_MODULES: Function not implemented
-References: <200211202004.20261.felix.seeger@gmx.de> <3DDBF02D.4060005@iinet.net.au> <3DDC0AC8.9070308@nortelnetworks.com> <200211210042.17225.felix.seeger@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200211211124.36280.shawn.starr@datawire.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix Seeger wrote:
+Works fine in 2.4.18+ (since I had the machine only durning 2.4.18).
 
-> Maybe it is normal but this doesn't fix the depmod problem even with the new 
-> kernel, I have modprobe, rmod and so back but the package doesn't include 
-> depmod.
+Shawn.
 
-Yep.  Tnere is no depmod.  Bang on Rusty to fix things.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of jan
+Sent: Thursday, November 21, 2002 8:34 AM
+To: linux-kernel@vger.kernel.org
+Subject: A7M266-D
 
-> I am running debian unstable, many install scripts uses parameters that are 
-> not provided by this version (I think -l and -r).
-> Maybe this is only for debian so I have to wait for a patched package...
+dear list,
 
-Rusty didn't include them.
+i have an A7M266-D board with two AMD Athlon MP 2000+ on it.
+Unfortunately I am unable to compile the correct driver for the AM7441 
+IDE Controller (using 2.4.19)
+I always get this under SuSE :
 
-> Is it a bug that all modules are in the same dir without subdirs ? It is hard 
-> to find them.
+AMD7441: detected chipset, but driver not compiled in!
 
-See Rusty.
-
-
-There is a certain trend here....not that modules didn't need fixing, 
-but this is pretty serious functionality breakage.
-
-
-Chris
+When using a precompiled SUSE or RedHat Kernel it gets recognized.
 
 
 
+SuSE Linux 2.4.18-64GB-SMP output :
 
+AMD_IDE: IDE controller on PCI bus 00 dev 39
+AMD_IDE: chipset revision 4
+AMD_IDE: not 100% native mode: will probe irqs later
+AMD_IDE: AMD-768 Opus (rev 04) IDE UDMA100 controller on pci00:07.1
+     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+
+RedHat 2.4.18-14smp output :
+
+AMD7441: IDE controller on PCI bus 00 dev 39
+AMD7441: chipset revision 4
+AMD7441: not 100% native mode: will probe irqs later
+AMD7441: disabling single-word DMA support (revision < C4)
+     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:pio
+
+
+What am I doing wrong ? and why RedHat and SuSE Kernel have no Problem 
+with this Chipset ?
+
+
+best regards,
+
+
+Jan
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Shawn Starr
+UNIX Systems Administrator, Operations
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
+shawn.starr@datawire.net
+"The power to Transact" - http://www.datawire.net
 

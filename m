@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266096AbUIYGiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269251AbUIYGxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266096AbUIYGiz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 02:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269251AbUIYGiy
+	id S269251AbUIYGxl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 02:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269252AbUIYGxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 02:38:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9441 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266096AbUIYGix
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 02:38:53 -0400
-Date: Sat, 25 Sep 2004 07:38:52 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [PATCH 7/10] Re: [2.6-BK-URL] NTFS: 2.1.19 sparse annotation, cleanups and a bugfix
-Message-ID: <20040925063852.GR23987@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.60.0409241707370.19983@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0409241711400.19983@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0409241712320.19983@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0409241712490.19983@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0409241713070.19983@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0409241713220.19983@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0409241713380.19983@hermes-1.csi.cam.ac.uk> <Pine.LNX.4.60.0409241713540.19983@hermes-1.csi.cam.ac.uk>
+	Sat, 25 Sep 2004 02:53:41 -0400
+Received: from holomorphy.com ([207.189.100.168]:40677 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269251AbUIYGxj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 02:53:39 -0400
+Date: Fri, 24 Sep 2004 23:53:35 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [vm 0/76] convert remap_page_range() to remap_pfn_range() vs. 2.6.9-rc2-mm3
+Message-ID: <20040925065335.GV9106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0409241713540.19983@hermes-1.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 05:14:12PM +0100, Anton Altaparmakov wrote:
->   * Generic magic comparison macros. Finally found a use for the ## preprocessor
->   * operator! (-8
->   */
-> -#define ntfs_is_magic(x, m)	(   (u32)(x) == magic_##m )
-> -#define ntfs_is_magicp(p, m)	( *(u32*)(p) == magic_##m )
-> +
-> +static inline BOOL __ntfs_is_magic(le32 x, NTFS_RECORD_TYPES r)
-> +{
-> +	return (x == (__force le32)r);
-> +}
-> +#define ntfs_is_magic(x, m)	__ntfs_is_magic(x, magic_##m)
-> +
-> +static inline BOOL __ntfs_is_magicp(le32 *p, NTFS_RECORD_TYPES r)
-> +{
-> +	return (*p == (__force le32)r);
-> +}
-> +#define ntfs_is_magicp(p, m)	__ntfs_is_magicp(p, magic_##m)
+This series resolves a physical address overflow issue in the
+remap_page_range() API by replacing it with remap_pfn_range(), which
+accepts its physical address argument as a pfn, hence allowing the use
+of a single-precision physical address argument without the risk of
+overflow at the API boundary. The above issue has hobbled support for
+various 32-bit architectures, including some embedded systems (ppc440
+IIRC), caused persistent portability issues for sound drivers for
+legacy systems (sparc32; unfortunately this patch alone does not fully
+resolve those), and according to John Fusco's reports, made drivers for
+some PCI-X hardware infeasible to port to recent ia32 PAE enterprise
+systems. With this patch series applied, physical address overflows on
+32-bit systems caused directly by remap_page_range() are gone forever,
+and ca. 100LOC of cut-and-waste driver code are swept out of existence
+alongside them.
 
-*eeeeeek*
+vs. 2.6.9-rc2-mm3 and the scheduler header cleanups. The parts touching
+mm.h should apply with just offsets if those aren't applied beforehand.
+Successfully tested on x86-64.
 
-It looks badly wrong.  Why do you need these casts?
+
+-- wli
+
+P.S.: The existing solution to the sparc32 issue was to pass a double
+	precision representation of the physical address as 2 single-
+	precision arguments in an API (io_remap_page_range()) whose
+	argument corresponding to those two was a single single-
+	precision argument on most/all other architectures. The
+	sparc32-specific issue requires more work beyond these patches
+	to rectify. The most apparent consequence of the API skew is
+	that drivers don't compile on sparc32 when they use
+	io_remap_page_range() due to passing insufficient arguments,
+	or vice-versa for drivers originally written for sparc32.

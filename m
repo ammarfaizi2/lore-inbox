@@ -1,78 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUKBRrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbUKBRyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbUKBRrp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 12:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUKBRpY
+	id S261278AbUKBRyM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 12:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUKBRyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 12:45:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14857 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261284AbUKBReL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 12:34:11 -0500
-Date: Tue, 2 Nov 2004 18:33:37 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christian <evil@g-house.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 5 compile errors for 2.4-BK
-Message-ID: <20041102173337.GG4978@stusta.de>
-References: <41879488.10601@g-house.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41879488.10601@g-house.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 2 Nov 2004 12:54:12 -0500
+Received: from mail3.utc.com ([192.249.46.192]:15786 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S261338AbUKBRxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 12:53:19 -0500
+Message-ID: <4187C95F.5030808@cybsft.com>
+Date: Tue, 02 Nov 2004 11:52:31 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Thomas Gleixner <tglx@linutronix.de>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
+References: <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu> <20041101140630.GA20448@elte.hu> <1099324040.3337.32.camel@thomas> <20041102150634.GA24871@elte.hu>
+In-Reply-To: <20041102150634.GA24871@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 03:07:04PM +0100, Christian wrote:
-
-> every day my scripts compile several kernel from the latest -BK tree,
-> since oct, 30. there are 5 compile errors shown in:
+Ingo Molnar wrote:
+> * Thomas Gleixner <tglx@linutronix.de> wrote:
 > 
-> make[3]: [neighbour.o] Error 1 (ignored)
-> make[3]: [core.o] Error 1 (ignored)
-> make[3]: [arp.o] Error 1 (ignored)
-> make[3]: [ipv4.o] Error 1 (ignored)
-> make[1]: [first_rule] Error 2 (ignored)
 > 
-> [and that's why these 2 occur too:]
+>>>Thomas, can you confirm that this kernel fixes the irqs-off latencies? 
+>>>(the priority loop indeed was done with irqs turned off.)
+>>
+>>The latencies are still there. I have the feeling it's worse than 0.6.2.
 > 
-> make: [vmlinux] Error 1 (ignored)
-> make: [zImage] Error 2 (ignored)
+> 
+> update to others: Thomas debugged this problem today and found the place
+> that kept irqs disabled for a long time: it was update_process_times(). 
+> (which i recently touched to break latencies there - but forgot that the
+> lock is an irqs-off lock!)
+> 
+> i've uploaded a fixed kernel (-V0.6.8) to:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> (this kernel also has the module-put-unlock-kernel fix that should solve
+> the other warning reported by Thomas and Bill.)
+> 
+> 	Ingo
+> 
 
-This part of the errors alone is useless.
+This one initially booted fine on my SMP workstation at the office. Ran 
+for about 1 hr. 10 mins. then locked with no indications as to why. Then 
+failed reboot after hitting the reset switch. The last thing that I saw 
+on the console seems to match the following that I found in the log:
 
-> full make logs, configs here:
->...
-> this is all with debian/unstable, using gcc-3.4.2, binutils-2.15 (both
->...
+Nov  2 11:21:49 swdev14 rc: Starting readahead:  succeeded
+Nov  2 11:21:50 swdev14 messagebus: messagebus startup succeeded
+Nov  2 11:21:50 swdev14 rhnsd[3245]: Red Hat Network Services Daemon 
+starting up
+.
+Nov  2 11:21:50 swdev14 rhnsd: rhnsd startup succeeded
+Nov  2 11:21:51 swdev14 kernel: (rc/2112/CPU#2): new 912 us 
+maximum-latency wake
+up.
+Nov  2 11:21:51 swdev14 kernel: (ksoftirqd/1/6/CPU#1): new 3147 us 
+maximum-laten
+cy wakeup.
+Nov  2 11:21:51 swdev14 kernel: (mingetty/3251/CPU#1): new 3916 us 
+maximum-laten
+cy wakeup.
+Nov  2 11:21:51 swdev14 kernel: (init/3253/CPU#2): new 4321 us 
+maximum-latency w
+akeup.
+Nov  2 11:21:51 swdev14 kernel: (init/1/CPU#0): new 5332 us 
+maximum-latency wake
+up.
+Nov  2 11:21:51 swdev14 kernel: (init/1/CPU#0): new 5819 us 
+maximum-latency wake
+up.
+Nov  2 11:21:51 swdev14 kernel: (hotplug/3259/CPU#2): new 6847 us 
+maximum-latenc
+y wakeup.
+Nov  2 11:21:51 swdev14 kernel: (hotplug/3274/CPU#2): new 7378 us 
+maximum-latenc
+y wakeup.
+Nov  2 11:31:12 swdev14 syslogd 1.4.1: restart.
 
-Did you manually change your gcc link or are you using gcc 3.3 ?
+After the failed reboot a subsequent reboot went fine. This behavior 
+seems to be pretty much the same for a while now.
 
-> maybe someone may find this useful...
+My SMP system at home has been running for for 1 hr. 23 mins. so far. No 
+signs of problems.
 
-Other people already do similar things.
-
-The interesting thing is the exact error message. Your 5 errors are 
-actually only two (similar) compile errors.
-
-For being really useful, a posting of the error messages of the two 
-actual error messages would be useful. If you trace down who is "guilty" 
-for the compile error and Cc the person in question it's even better 
-(but please check linux-kernel before being the tenth person reporting 
-the same issue).
-
-> thanks,
-> Christian.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+kr
 
 

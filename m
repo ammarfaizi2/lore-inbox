@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269757AbUJALRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269759AbUJALSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269757AbUJALRk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 07:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJALRi
+	id S269759AbUJALSE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 07:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJALSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 07:17:38 -0400
-Received: from mx2.magma.ca ([206.191.0.250]:30359 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id S269759AbUJALRE (ORCPT
+	Fri, 1 Oct 2004 07:18:04 -0400
+Received: from [61.17.31.10] ([61.17.31.10]:9147 "HELO mail.kongu.edu")
+	by vger.kernel.org with SMTP id S269759AbUJALRp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 07:17:04 -0400
-Subject: Re: nforce2 bugs?
-From: Jesse Stockall <stockall@magma.ca>
-To: ross@datscreative.com.au
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Andy Currid <ACurrid@nvidia.com>,
-       "Prakash K. Cheemplavam" <prakashkc@gmx.de>,
-       Allen Martin <AMartin@nvidia.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       white phoenix <white.phoenix@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410011341.04506.ross@datscreative.com.au>
-References: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45A1C@hqemmail02.nvidia.com>
-	 <Pine.LNX.4.58L.0409301705180.25286@blysk.ds.pg.gda.pl>
-	 <200410011341.04506.ross@datscreative.com.au>
-Content-Type: text/plain
-Message-Id: <1096629411.5436.17.camel@homer.blizzard.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 01 Oct 2004 07:16:51 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 07:17:45 -0400
+Message-ID: <49219.172.16.42.200.1096629426.kourier@172.16.42.200>
+Date: Fri, 1 Oct 2004 16:47:06 +0530 (IST)
+Subject: OS Virtualization
+From: "Arvind Kalyan" <arvy@cse.kongu.edu>
+To: linux-kernel@vger.kernel.org
+User-Agent: Kourier/1.0
+X-Mailer: Kourier/1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-> An earlier Thread on the Topic of the time skew with I/O Apic routing:
-> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-01/3129.html
-> 
-> A couple of Skewing Mobos Involved:
-> Abit NF7-S V2.0 motherboard. 
-> A7N8X Deluxe mobo/Athlon
-> 
+I'm trying to load and run two linux kernels simultaneously; trying to
+demonstrate virtualization as a first step.
 
-I noticed that my MSI K7N2 Delta-ILSR was off by 15 minutes yesterday.
 
-Jesse
+Anyone have pointers to where I can start? I looked into plex, bochs,
+vmware, usermode linux.. they only simulate an architecture upon which
+another kernel runs.
+
+My intentions are to give control to both the kernels to directly control
+the hardware and do "context switch" between those two based on
+time-slice.
+
+Thanks in advance.
 
 -- 
-Jesse Stockall <stockall@magma.ca>
+i=0141;do{putchar(i);i=i&1?(0x10|i&0xf0)|(i&0xf)<<1:i&4?0:i|4;}while(i);
 

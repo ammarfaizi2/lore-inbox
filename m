@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265549AbSKAAx7>; Thu, 31 Oct 2002 19:53:59 -0500
+	id <S265550AbSKAAzV>; Thu, 31 Oct 2002 19:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265550AbSKAAx7>; Thu, 31 Oct 2002 19:53:59 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33249 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265549AbSKAAx6>;
-	Thu, 31 Oct 2002 19:53:58 -0500
-Date: Thu, 31 Oct 2002 20:00:25 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Bob Miller <rem@osdl.org>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.45] Export blkdev_ioctl for raw block driver.
-In-Reply-To: <20021031174622.A1185@doc.pdx.osdl.net>
-Message-ID: <Pine.GSO.4.21.0210311954210.16688-100000@weyl.math.psu.edu>
+	id <S265551AbSKAAzV>; Thu, 31 Oct 2002 19:55:21 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:5109 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S265550AbSKAAzT>; Thu, 31 Oct 2002 19:55:19 -0500
+Message-ID: <3DC1D271.5070602@attbi.com>
+Date: Thu, 31 Oct 2002 17:01:37 -0800
+From: Miles Lane <miles.lane@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021022
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: ieee1394/sbp2.c doesn't compile in 2.5.45
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Douglas wrote:
 
-On Thu, 31 Oct 2002, Bob Miller wrote:
+> Adrian,
+> Could you try this patch that I sent to the scsi
+> list against 2.5.44-bk3.
 
-> On Thu, Oct 31, 2002 at 05:20:07PM -0800, Bob Miller wrote:
-> > On Thu, Oct 31, 2002 at 07:11:19PM -0500, Alexander Viro wrote:
-> 
-> Stuff deleted...
-> 
-> > > Why not use ioctl_by_bdev() in the first place?  (and yes, it's very likely
-> > > my fault - I hadn't realized that raw.c went modular at some point).
-> > Didn't know about ioctl_by_bdev()... I'll make a patch that converts
-> > the raw driver to call it instead of blkdev_ioctl().
- 
-Looks OK.
+Yes, this patch fixed the 2.5.45 compile for me.
 
-<OT, teasing>
+	Miles
 
-vi -c'/blkdev_ioctl/s/blk.*NULL/ioctl_by_bdev(bdev/|x' drivers/char/raw.c
-
-would be a bit more concise than thing below, wouldn't it?
-
-</OT>
-
- 
-> # This is a BitKeeper generated patch for the following project:
-> # Project Name: Linux kernel tree
-> # This patch format is intended for GNU patch command version 2.5 or higher.
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.869   -> 1.870  
-> #	  drivers/char/raw.c	1.23    -> 1.24   
-> #
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 02/10/31	rem@doc.pdx.osdl.net	1.870
-> # Changed raw driver to call ioctl_by_bdev() instead of
-> # blkdev_ioctl() so that it will build as a module.
-> # --------------------------------------------
-> #
-> diff -Nru a/drivers/char/raw.c b/drivers/char/raw.c
-> --- a/drivers/char/raw.c	Thu Oct 31 17:34:56 2002
-> +++ b/drivers/char/raw.c	Thu Oct 31 17:34:56 2002
-> @@ -95,7 +95,7 @@
->  {
->  	struct block_device *bdev = filp->private_data;
->  
-> -	return blkdev_ioctl(bdev->bd_inode, NULL, command, arg);
-> +	return ioctl_by_bdev(bdev, command, arg);
->  }
->  
+> --- linux/drivers/ieee1394/sbp2.h	2002-10-26 03:11:32.000000000 +1000
+> +++ linux/drivers/ieee1394/sbp2.h2544bk3fix	2002-10-31 11:27:25.000000000 +1100
+> @@ -552,7 +552,8 @@
+>  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,28)
+>  static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]);
+>  #else
+> -static int sbp2scsi_biosparam (Scsi_Disk *disk, struct block_device *dev, int geom[]);
+> +static int sbp2scsi_biosparam (struct scsi_device *sdev, 
+> +			struct block_device *dev, sector_t capacy, int geom[]);
+>  #endif
+>  static int sbp2scsi_abort (Scsi_Cmnd *SCpnt); 
+>  static int sbp2scsi_reset (Scsi_Cmnd *SCpnt); 
+> --- linux/drivers/ieee1394/sbp2.c	2002-10-31 09:22:50.000000000 +1100
+> +++ linux/drivers/ieee1394/sbp2.c2544bk3fix	2002-10-31 11:30:20.000000000 +1100
+> @@ -3137,14 +3137,14 @@
 >  /*
-> -- 
-> Bob Miller					Email: rem@osdl.org
-> Open Source Development Lab			Phone: 503.626.2455 Ext. 17
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>   * Called by scsi stack to get bios parameters (used by fdisk, and at boot).
+>   */
+> -#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,44)
+> +#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,43)
+>  static int sbp2scsi_biosparam (struct scsi_device *sdev,
+> -		struct block_device *dev, sector_t capacy, int geom[]) 
+> +		struct block_device *dev, sector_t capacity, int geom[]) 
+>  {
+>  #else
+>  static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]) 
+>  {
+> -	sector_t capacy = disk->capacity;
+> +	sector_t capacity = disk->capacity;
+>  #endif
+>  	int heads, sectors, cylinders;
+
+
 

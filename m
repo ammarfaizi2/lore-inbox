@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbULWPfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbULWPgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbULWPfz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 10:35:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbULWPfz
+	id S261259AbULWPgi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 10:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbULWPgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 10:35:55 -0500
-Received: from apachihuilliztli.mtu.ru ([195.34.32.124]:61453 "EHLO
-	Apachihuilliztli.mtu.ru") by vger.kernel.org with ESMTP
-	id S261256AbULWPfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 10:35:39 -0500
-Subject: reiserfs bug fix: add missing pair of lock_kernel()/unlock_kernel()
-From: Vladimir Saveliev <vs@namesys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       reiserfs-list@namesys.com
-Content-Type: multipart/mixed; boundary="=-/5hXGKpWNF1ZZrGIOTaJ"
-Message-Id: <1103816136.8064.136.camel@tribesman.namesys.com>
+	Thu, 23 Dec 2004 10:36:38 -0500
+Received: from bender.bawue.de ([193.7.176.20]:23516 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S261259AbULWPgc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 10:36:32 -0500
+Date: Thu, 23 Dec 2004 16:36:24 +0100
+From: Joerg Sommrey <jo175@sommrey.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on 2.6.9-ac16: xfs, dm and md may be involved
+Message-ID: <20041223153624.GA5349@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo175@sommrey.de>,
+	Nathan Scott <nathans@sgi.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041221185754.GA28356@sommrey.de> <20041222182606.GA14733@infradead.org> <20041222195203.GA24857@sommrey.de> <20041223101143.A702917@wobbly.melbourne.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 23 Dec 2004 18:35:36 +0300
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041223101143.A702917@wobbly.melbourne.sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 23, 2004 at 10:11:43AM +1100, Nathan Scott wrote:
+> Certainly wasn't XFS using stack in the initial oops, perhaps
+> the lower layers, but I'm a bit sceptical.  Almost certainly
+> this is a device mapper snapshot problem, the DM folks should
+> be able to analyse it further.
+In the last couple of weeks I had a couple of other dm snapshot related
+problems too.  Even last night the system hung after creating snapshots. 
+So this really seems to be the source of my troubles.
 
---=-/5hXGKpWNF1ZZrGIOTaJ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+-jo
 
-Hello
-
-Andrew, please apply this reiserfs bug fix.
-
---=-/5hXGKpWNF1ZZrGIOTaJ
-Content-Disposition: attachment; filename=reiserfs-add-missing-lock_kernel.patch
-Content-Type: text/plain; name=reiserfs-add-missing-lock_kernel.patch; charset=koi8-r
-Content-Transfer-Encoding: 7bit
-
-
-This patch adds missing lock_kernel()/unlock_kernel() pair in reiserfs_get_dentry
-
-
- fs/reiserfs/inode.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-diff -puN fs/reiserfs/inode.c~reiserfs-add-missing-lock_kernel fs/reiserfs/inode.c
---- linux-2.6.10-rc3-mm1/fs/reiserfs/inode.c~reiserfs-add-missing-lock_kernel	2004-12-23 18:23:53.557228800 +0300
-+++ linux-2.6.10-rc3-mm1-vs/fs/reiserfs/inode.c	2004-12-23 18:23:53.583230368 +0300
-@@ -1447,12 +1447,14 @@ struct dentry *reiserfs_get_dentry(struc
-     
-     key.on_disk_key.k_objectid = data[0] ;
-     key.on_disk_key.k_dir_id = data[1] ;
-+    reiserfs_write_lock(sb);
-     inode = reiserfs_iget(sb, &key) ;
-     if (inode && !IS_ERR(inode) && data[2] != 0 &&
- 	data[2] != inode->i_generation) {
- 	    iput(inode) ;
- 	    inode = NULL ;
-     }
-+    reiserfs_write_unlock(sb);
-     if (!inode)
- 	    inode = ERR_PTR(-ESTALE);
-     if (IS_ERR(inode))
-
-_
-
---=-/5hXGKpWNF1ZZrGIOTaJ--
-
+-- 
+-rw-r--r--  1 jo users 63 2004-12-23 16:25 /home/jo/.signature

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288544AbSAHXD2>; Tue, 8 Jan 2002 18:03:28 -0500
+	id <S288547AbSAHXDs>; Tue, 8 Jan 2002 18:03:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288543AbSAHXDT>; Tue, 8 Jan 2002 18:03:19 -0500
-Received: from zero.tech9.net ([209.61.188.187]:62216 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288541AbSAHXDM>;
-	Tue, 8 Jan 2002 18:03:12 -0500
-Subject: Re: [PATCH] preempt abstraction
-From: Robert Love <rml@tech9.net>
-To: David Howells <dhowells@redhat.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Roger Larsson <roger.larsson@norran.net>,
-        Andrew Morton <akpm@zip.com.au>, Christoph Hellwig <hch@caldera.de>,
-        torvalds@transmeta.com, arjanv@redhat.com, mingo@redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <12550.1010530018@warthog.cambridge.redhat.com>
-In-Reply-To: <12550.1010530018@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 08 Jan 2002 18:05:13 -0500
-Message-Id: <1010531114.3225.172.camel@phantasy>
-Mime-Version: 1.0
+	id <S288541AbSAHXDj>; Tue, 8 Jan 2002 18:03:39 -0500
+Received: from web20504.mail.yahoo.com ([216.136.226.139]:44303 "HELO
+	web20504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S288543AbSAHXDf>; Tue, 8 Jan 2002 18:03:35 -0500
+Message-ID: <20020108230334.76104.qmail@web20504.mail.yahoo.com>
+Date: Wed, 9 Jan 2002 00:03:34 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: i810_audio
+To: Doug Ledford <dledford@redhat.com>
+Cc: Mario Mikocevic <mozgy@hinet.hr>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C3B4F7F.8010901@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-08 at 17:46, David Howells wrote:
+> that allowed me to see that on the SiS hardware we
 
-> ftp://infradead.org/pub/people/dwh/yield-252p10.diff.bz2
-> 
-> There's now a version of the patch with preempt/need_preempt changed to
-> yield/need_yield, and with the unlikely() claused moved into need_yield(),
-> should that be more to your preference.
+I'm on intel only, no SiS here.
 
-Still not the name I would pick, but better :)
+> solve your problem.  Please give it a try and let me
+> know how it works.
 
-Oh, and need_yield is still marked unlikely in sched.c
+I'll give it a try tomorrow morning (this little
+beast it at work).
 
-Good patch,
+Regards,
+Willy
 
-	Robert Love
 
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

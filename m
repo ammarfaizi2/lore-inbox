@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262863AbSJGEsg>; Mon, 7 Oct 2002 00:48:36 -0400
+	id <S262864AbSJGFDD>; Mon, 7 Oct 2002 01:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262864AbSJGEsg>; Mon, 7 Oct 2002 00:48:36 -0400
-Received: from adsl-216-62-201-42.dsl.austtx.swbell.net ([216.62.201.42]:10368
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S262863AbSJGEsg>; Mon, 7 Oct 2002 00:48:36 -0400
-Subject: Re: QLogic Linux failover/Load Balancing ER0000000020860
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Michael Clark <michael@metaparadigm.com>
-Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1033946058.2436.13.camel@localhost>
-References: <200210061103.g96B3mlO001484@darkstar.example.net>
-	 <3DA02BF2.2040506@metaparadigm.com>  <1033933235.2436.1.camel@localhost>
-	 <1033946058.2436.13.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1033966448.1512.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 06 Oct 2002 23:54:08 -0500
+	id <S262865AbSJGFDD>; Mon, 7 Oct 2002 01:03:03 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:33212 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262864AbSJGFDC>;
+	Mon, 7 Oct 2002 01:03:02 -0400
+Date: Sun, 6 Oct 2002 22:07:37 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Roberto De Leo <deleo@unica.it>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: limit to the length of args passed to kernel
+In-Reply-To: <3D9EBDBD.4030402@unica.it>
+Message-ID: <Pine.LNX.4.33L2.0210062156550.7363-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 18:14, GrandMasterLee wrote:
+I haven't seen any other replies to this on lkml, so...
 
-> I just reassigned all my LUNs to be a part of the same host
-> configuration on the storage(polling by HBAs and host, versus splitting
-> LUNs by HBA). I do get more than 1 LUN now, but only EVEN luns. I'll see
-> if I can identify why that is. 
+On Sat, 5 Oct 2002, Roberto De Leo wrote:
 
-After defining LSI in drivers/scsi/scsi_scan.c I can get half my luns,
-but still not all. I'm not sure what else I need to do. I now can see
-LUNs 0,2,4,6,8, etc but not 1,3,5,7,etc. I'm not sure what else to do,
-but maybe now that I've done this, I can get information from QLogic
-about what should be happening. Or does this still seem like a kernel
-config issue? 
+| Hi,
+| I recently found out the you can't pass too many args to the kernel
+| through the LILO "append"
+| option. Actually I passed the args through the similar "append" option
+| of the SysLinux package
+| (http://syslinux.zytor.com/) but on their ML I have been told it is
+| equivalent to LILO's one and
+| that there is a 256 characters limit for passing args at boot time to
+| the kernel.
 
-TIA
-> > > You just need to get the Vendor and Model info from /proc/scsi/scsi
-> > > 
-> > > I am using qlogic 2300s with sparse luns working fine on 2.4.18.
-> > 
-> > using the LB static bindings and *failover* still works?
+According to that mailing list, Peter Anvin has already confirmed
+this.
+
+| My question is: is this really a kernel limit or I misunderstood? if it
+| is a kernel limit, is there any way to bypass it?
+
+I didn't see any mention of what type of hardware you are using,
+but COMMAND_LINE_SIZE is a #define in the Linux kernel.
+You could change that, but that wouldn't "fix it."
+The boot protocol interface (from LILO or SysLinux etc. to the
+kernel) must also be changed for this to work.
+
+See linux/Documentation/i386/boot.txt for that interface definition.
+
+BTW, some other CPU architectures #define larger command line
+sizes, but then they don't use this same boot interface (I
+guess).
+
+| It would be very useful for a package I am developing: it is a micro
+| linux distro (the initrd.gz
+| is ~4MB) containing basically only a kernel and what you need to play a
+| movie through the FB.
+| The kernel (2.4.19) has been compiled with support for all possible FB
+| drivers, but for several
+| reasons it would be nice to have two booting options: one containing the
+| initialization for all
+| possible FB and one turning all of them off except the vesa FB.
+| Unfortunately though there are so many FB driverd that to turn them all
+| off it takes much more than 256 chars!
+|
+| Any help would be greatly appreciated.
+| Please CC me any answer to deleo@unica.it, I'm not subscrribed to the ML.
+
+Good luck.
+
+-- 
+~Randy
 

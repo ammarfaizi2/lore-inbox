@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276857AbRJRMZZ>; Thu, 18 Oct 2001 08:25:25 -0400
+	id <S277231AbRJRMkv>; Thu, 18 Oct 2001 08:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277231AbRJRMZQ>; Thu, 18 Oct 2001 08:25:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41857 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S276857AbRJRMZH>;
-	Thu, 18 Oct 2001 08:25:07 -0400
-Date: Thu, 18 Oct 2001 05:25:10 -0700 (PDT)
-Message-Id: <20011018.052510.105430257.davem@redhat.com>
-To: cary_dickens2@hp.com
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, erik_habbinga@hp.com
-Subject: Re: Problem with 2.4.14prex and qlogicfc
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D574@xfc01.fc.hp.com>
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D574@xfc01.fc.hp.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S277278AbRJRMkl>; Thu, 18 Oct 2001 08:40:41 -0400
+Received: from fe170.worldonline.dk ([212.54.64.199]:10259 "HELO
+	fe170.worldonline.dk") by vger.kernel.org with SMTP
+	id <S277231AbRJRMkd>; Thu, 18 Oct 2001 08:40:33 -0400
+Date: Thu, 18 Oct 2001 14:40:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Arjan Van de Ven <arjanv@redhat.com>
+Subject: [patch] block highmem zero-bounce #17
+Message-ID: <20011018144047.E4825@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Please try this patch:
+Ingo reported a severe 3ware corruption bug today which I've fixed, so
+it seemed due time for a new version of the patch.
 
---- linux/drivers/scsi/qlogicfc.h.~1~	Tue Nov 28 08:33:08 2000
-+++ linux/drivers/scsi/qlogicfc.h	Thu Oct 18 05:22:52 2001
-@@ -62,13 +62,8 @@
-  * determined for each queue request anew.
-  */
- 
--#if BITS_PER_LONG > 32
- #define DATASEGS_PER_COMMAND 2
- #define DATASEGS_PER_CONT 5
--#else
--#define DATASEGS_PER_COMMAND 3
--#define DATASEGS_PER_CONT 7
--#endif
- 
- #define QLOGICFC_REQ_QUEUE_LEN	127	/* must be power of two - 1 */
- #define QLOGICFC_MAX_SG(ql)	(DATASEGS_PER_COMMAND + (((ql) > 0) ? DATASEGS_PER_CONT*((ql) - 1) : 0))
+- Fix scsi_merge not setting sg->address for "legacy" drivers not using
+  the PCI DMA interface. Stupid bug, since the entire I/O path is
+  supposed to remain untouched (basically) for drivers not enabling
+  highmem... I really think this is the last of such bugs. (me)
+
+- Add 'nohighio' boot flag to disable I/O to highmem I/O. x86 only (me)
+
+- Finally remember to reverse size/offset arguments in cciss and
+  cpqarray. Fixed a long time ago, forgot to commit to the tree... (me,
+  arjan, others)
+
+- aic7xxx uses wrong DMA mask (arjan)
+
+- Remove SCSI host single_sg_ok, it is implied by can_dma_32 anyways
+  (arjan)
+
+- Enable can_dma_32 on aic7xxx_old (arjan)
+
+Patch is considered solid. Find it here:
+
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.13-pre4/block-highmem-all-17.bz2
+
+-- 
+Jens Axboe
+

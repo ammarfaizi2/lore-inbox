@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278143AbRJXD0V>; Tue, 23 Oct 2001 23:26:21 -0400
+	id <S278276AbRJXEZn>; Wed, 24 Oct 2001 00:25:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278273AbRJXD0M>; Tue, 23 Oct 2001 23:26:12 -0400
-Received: from [212.113.174.249] ([212.113.174.249]:5155 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id <S278143AbRJXD0C>;
-	Tue, 23 Oct 2001 23:26:02 -0400
+	id <S278297AbRJXEZc>; Wed, 24 Oct 2001 00:25:32 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:12293 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S278276AbRJXEZQ>; Wed, 24 Oct 2001 00:25:16 -0400
+Date: Wed, 24 Oct 2001 14:25:12 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Darrell A Escola <darrell-sg@descola.net>
+Cc: linux-kernel@vger.kernel.org, netfilter@lists.samba.org
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+Message-Id: <20011024142512.4f22ab17.rusty@rustcorp.com.au>
+In-Reply-To: <20011019061830.A8087@descola.net>
+In-Reply-To: <1002646705.2177.9.camel@aurora>
+	<Pine.LNX.4.33.0110091005540.209-100000@desktop>
+	<20011010135503.4f5c06b9.rusty@rustcorp.com.au>
+	<20011019061830.A8087@descola.net>
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Ricardo Ferreira <stormlabs@gmx.net>
-To: Tim Hockin <thockin@sun.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HPT370/366 testers needed
-Date: Wed, 24 Oct 2001 04:26:27 +0100
-X-Mailer: KMail [version 1.3.5]
-In-Reply-To: <3BD5A007.C07388ED@sun.com>
-In-Reply-To: <3BD5A007.C07388ED@sun.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <EXCH01SMTP01op3wyv900060652@smtp.netcabo.pt>
-X-OriginalArrivalTime: 24 Oct 2001 03:23:27.0638 (UTC) FILETIME=[3F357B60:01C15C3B]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 October 2001 17:51, Tim Hockin wrote:
-> All,
->
-> We have this (attached) large patch for the HighPoint driver.
-> Specifically, it deals with HPT370 controllers, and should make them MUCH
-> more stable (Adrian spent weeks on the phone with HighPoint).
->
-> What I'd like is for people to test this patch on other systems with
-> HighPoint 370 controllers.  Also, I need people with HPT366 chips to test,
-> and find any problems - we don't have HPT366 here to test.
->
-> Volunteers?
+On Fri, 19 Oct 2001 06:18:30 -0700
+Darrell A Escola <darrell-sg@descola.net> wrote:
 
-Ok, i applied it to my 2.4.12 (no patches besides these) kernel. I never had 
-any stability problems with the HPT so the value of my testing might be 
-limited. For what its worth, i didn't notice any degradation in performance 
-or any other unwanted effects. I also applied the ide-pci.c patch mentioned 
-on another thread. I was triyng (and still am) to fix the CoD !=0 in 
-idescsi_pc_intr message that always ruins my cd burning efforts. But that 
-apparently is not related to the HPT because it also happens on my Promise 
-ULTRA66. The only controller who doesn't do this is the VIA onboard 
-controller.
+> I have been running 2.4.10-ac11 for 7 days now with
+> TCP_CONNTRACK_CLOSE_WAIT set to 120 seconds - this has stopped nearly
+> all firewall activity on established connections.
 
-PS: HW Info: Abit VP6 2x PIII-1GHz 1GB SDRAM
-PS2: You wouldn't by any chance know what that CoD !=0 msg means ?
+OK... I think this needs changing then.  Can everyone please try the following
+trivial patch and report any changes?
 
--- 
-[------------------------------------------------][-------------------------]
-|"One World, One Web, One Program" - Microsoft Ad||    stormlabs@gmx.net    |
-|"Ein Volk, Ein Reich, Ein Fuhrer" - Adolf Hitler||http://storm.superzip.net|
-[------------------------------------------------][-------------------------]
-       --> thor up 2 days | sentinel up 59 days | loki up 59 days <--
+Thanks!
+Rusty.
+
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.12-official/net/ipv4/netfilter/ip_conntrack_proto_tcp.c working-2.4.12-tcptime/net/ipv4/netfilter/ip_conntrack_proto_tcp.c
+--- linux-2.4.12-official/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Sun Apr 29 06:17:11 2001
++++ working-2.4.12-tcptime/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Wed Oct 24 14:23:26 2001
+@@ -55,7 +55,7 @@
+     2 MINS,	/*	TCP_CONNTRACK_FIN_WAIT,	*/
+     2 MINS,	/*	TCP_CONNTRACK_TIME_WAIT,	*/
+     10 SECS,	/*	TCP_CONNTRACK_CLOSE,	*/
+-    60 SECS,	/*	TCP_CONNTRACK_CLOSE_WAIT,	*/
++    2 MINS,	/*	TCP_CONNTRACK_CLOSE_WAIT,	*/
+     30 SECS,	/*	TCP_CONNTRACK_LAST_ACK,	*/
+     2 MINS,	/*	TCP_CONNTRACK_LISTEN,	*/
+ };

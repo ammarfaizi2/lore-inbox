@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265464AbTIERFy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 13:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbTIERFy
+	id S265847AbTIERqS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 13:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265850AbTIERqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 13:05:54 -0400
-Received: from waste.org ([209.173.204.2]:34999 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265464AbTIERFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 13:05:53 -0400
-Date: Fri, 5 Sep 2003 12:05:29 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add_mouse_randomness
-Message-ID: <20030905170529.GM31897@waste.org>
-References: <UTC200309050916.h859G5813732.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200309050916.h859G5813732.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.3.28i
+	Fri, 5 Sep 2003 13:46:18 -0400
+Received: from [195.166.233.35] ([195.166.233.35]:27408 "HELO coolre4280.com")
+	by vger.kernel.org with SMTP id S265847AbTIERqM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 13:46:12 -0400
+From: "Mr. Samanja Garuba." <garubasamanja@excite.com>
+Reply-To: sgaruba1@yahoo.co.uk
+To: linux-kernel@vger.kernel.org
+Date: Fri, 5 Sep 2003 10:45:37 -0700
+Subject: GOODDAY!
+X-Priority: 1
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S265847AbTIERqM/20030905174613Z+34@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 11:16:05AM +0200, Andries.Brouwer@cwi.nl wrote:
->     From oxymoron@waste.org  Fri Sep  5 07:01:30 2003
->     From: Matt Mackall <mpm@selenic.com>
-> 
->     > Today:
->     > Every keypress and every key release causes two calls of
->     > add_mouse_randomness and one call of add_keyboard_randomness.
->     > Key repeat causes lots of calls of add_mouse_randomness.
->     > 
->     > The random driver contains a mechanism (delta, delta2, delta3)
->     > for estimating the amount of entropy in a stream of moments in
->     > time. But the fact that every event causes two calls, very
->     > quickly after each other, poisons this mechanism, and makes us
->     > overestimate.
-> 
->     The real problem is that the deltas are calculated from gigahertz
->     cycle counters, but yes, we're calling too frequently and blowing away
->     useful history. I've experimented with making the deltas per-source as
->     well.
-> 
-> I wouldnt know what is wrong with using gigahertz cycle counters.
-> The deltas are already per-source.
 
-Actually, they're only per-class. So if you have multiple mice,
-keyboards, drives, etc., they interfere with each other's deltas and
-increase the entropy estimates overall.
+MR SAMANJA GARUBA,
+DEPARTMENT OF MINERALS AND ENERGY,
+PRETORIA,SOUTH AFRICA.
+ 
+01-09-2003
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+
+Sir,
+
+It is my great pleasure to write you this letter on behalf of my colleagues. Your information was given to
+me by a member of the South African Export Promotion council(SAEPC) Who was with the Government delegation
+on a trip to your country for a bilateral conference talk to encourage foreign investors. I have decided to
+seek a confidential co-operation with you in the execution of the deal hereunder for the benefit of all
+parties and hope you will keep it confidential because of the nature of this business.
+
+Within the department of Minerials & Energy where I work as a Director of Audit and Project implementation
+and with the co-operation of two other top officials we have in our possession an overdue payment in Us
+funds.
+
+The said funds represent certain percentage of the total contract value executed on behalf of my
+department by a foreign contracting firm which we the officials over-invoiced to the amount of
+US$14.500,000.00(Fourteen Million Five Hundred Thousand Dollars). Though the actual contract cost
+have been paid to the original contractor,leaving the excess balance unclaimed.
+
+Since the elected Government is determined to pay contractors all their debts owed, so as to maintain
+good relationship with the foreign governments and non-government agencies, we include our approvals with
+the Department of Finance and the Reserve bank of South Africa(RBSA). We are seeking your assistance to
+front as the beneficiary of the unclaimed funds, since we are not allowed to operate foreign accounts.
+Details and change of beneficiary information upon application for claim to reflect payment and approvals
+will be secured on behalf of you/your company.
+
+I have the authorities of my partners to propose that should you be willing to asist us in this transaction
+your share as compensation will be US$3.625M(25%), while my colleagues and I receive US$9.425M(65%) and
+the balance of US$1.45(10%) for taxation and miscellaneous expenses incured.
+
+The business is completely safe and secure, provided you treat it with utmost confidentiality. It does not
+matter whether you/your company does contract projects as a transfer of powers will be secured in  favour of
+you/your company. Also, your area of specialization is not a hinderance to the successful execution of this
+transaction. I have reposed my confidence in you and I hope that you will not disappoint us.
+
+Kindly notify me on my confidential email address as provided. I will also prefer you to provide me with your telephone and fax number where i can reach you immediately for proper discussion for further details upon your acceptance of this proposal. Please, note that response should be to the email addresses provided.
+
+Thanks for your anticipated co-operation.
+
+Regards,
+
+MR. SAMANJA GARUBA.
+
+

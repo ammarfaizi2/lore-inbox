@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265092AbSJWQzO>; Wed, 23 Oct 2002 12:55:14 -0400
+	id <S265096AbSJWRL7>; Wed, 23 Oct 2002 13:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265089AbSJWQzN>; Wed, 23 Oct 2002 12:55:13 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:13326 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265092AbSJWQyz>; Wed, 23 Oct 2002 12:54:55 -0400
-Date: Wed, 23 Oct 2002 18:01:05 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Matt D. Robinson" <yakker@aparity.com>
-Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
-Subject: Re: [PATCH] LKCD for 2.5.44 (6/8): dump trace/dump calls/dump_in_progress
-Message-ID: <20021023180105.B16547@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Matt D. Robinson" <yakker@aparity.com>,
-	linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
-References: <Pine.LNX.4.44.0210230241050.27315-100000@nakedeye.aparity.com> <Pine.LNX.4.44.0210230244300.27315-100000@nakedeye.aparity.com>
+	id <S265102AbSJWRL7>; Wed, 23 Oct 2002 13:11:59 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:1216 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265096AbSJWRL6>; Wed, 23 Oct 2002 13:11:58 -0400
+Subject: Re: 2.5 Problem Report Status
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: jbradford@dial.pipex.com, tmolina@cox.net, erik@debill.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0210230952311.983-100000@cherise.pdx.osdl.net>
+References: <Pine.LNX.4.44.0210230952311.983-100000@cherise.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 23 Oct 2002 18:34:34 +0100
+Message-Id: <1035394474.4319.76.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210230244300.27315-100000@nakedeye.aparity.com>; from yakker@aparity.com on Wed, Oct 23, 2002 at 02:44:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 02:44:43AM -0700, Matt D. Robinson wrote:
-> +#if !defined(CONFIG_CRASH_DUMP) && !defined(CONFIG_CRASH_DUMP_MODULE)
->  #ifdef CONFIG_SMP
->  	smp_send_stop();
->  #endif
-> +#endif
+On Wed, 2002-10-23 at 18:03, Patrick Mochel wrote:
+> Concerning the actual shutdown, I'm simply calling the ide driver's 
+> ->standby() method. At least in the case of ide disks, there is a call in 
+> the driver's ->cleanup() method to flush the cache. Should this be 
+> moved to ->standby()? Or, should we call ->flushcache() for all drives 
+> from ->shutdown()? 
 
-Again, is there a chance you could make this a runtime switch?
-This would allow to poweroff dump-enabled kernel not configured for
-dumping.
+I'll take a look. I need to finish porting over the 2.4 shutdown/eject
+locking fixes that also touch this area
 

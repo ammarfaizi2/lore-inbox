@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289813AbSBLQ6f>; Tue, 12 Feb 2002 11:58:35 -0500
+	id <S289839AbSBLRBp>; Tue, 12 Feb 2002 12:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290553AbSBLQ62>; Tue, 12 Feb 2002 11:58:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:28932 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289813AbSBLQ51>;
-	Tue, 12 Feb 2002 11:57:27 -0500
-Date: Tue, 12 Feb 2002 17:57:18 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Pavel Machek <pavel@suse.cz>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-Message-ID: <20020212175718.P1907@suse.de>
-In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com> <20020212132846.A7966@suse.cz> <3C690E56.3070606@evision-ventures.com> <20020212135701.A16420@suse.cz> <3C6915FC.2020707@evision-ventures.com> <20020212144300.A18431@suse.cz>
+	id <S290312AbSBLRBf>; Tue, 12 Feb 2002 12:01:35 -0500
+Received: from angband.namesys.com ([212.16.7.85]:44416 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S289839AbSBLRB0>; Tue, 12 Feb 2002 12:01:26 -0500
+Date: Tue, 12 Feb 2002 20:01:24 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Alex Riesen <fork0@users.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+Message-ID: <20020212200124.A2267@namesys.com>
+In-Reply-To: <20020211172747.A1815@namesys.com> <Pine.LNX.4.44.0202121753360.15594-100000@Expansa.sns.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020212144300.A18431@suse.cz>
+In-Reply-To: <Pine.LNX.4.44.0202121753360.15594-100000@Expansa.sns.it>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12 2002, Vojtech Pavlik wrote:
-> On Tue, Feb 12, 2002 at 02:17:48PM +0100, Martin Dalecki wrote:
-> 
-> > So the conclusions is that not just the read_ahead array is bogous now.
-> > The max_readahead array can be killed entierly from the kernel as well ;-).
-> > 
-> > The answer is: I'm now confident that you can just remove all the
-> > max_readahead initialization from the ide code.
-> 
-> Since I've come to the same conclusion, here is the patch. It removes
-> read_ahead, max_readahead, BLKRAGET, BLKRASET, BLKFRAGET and BLKFRASET
-> completely.
-> 
-> Comments, Jens?
+Hello!
 
-Could you battle it out, and I'll take a good look at the patch
-tomorrow :-). I'm all for a bit of spring cleaning here, it's needed it
-badly for quite a while.
+   What kind of corruption? Can we look at corrupted file if there is something
+   unusual?
+   What Linux Distribution do you run?
 
--- 
-Jens Axboe
+   You can check cleanness by looking into kernel messages.
+   If there is "replaying journal" message - umount was not clean.
 
+Bye,
+    Oleg
+On Tue, Feb 12, 2002 at 05:55:54PM +0100, Luigi Genoni wrote:
+> Sorry but I got a corrupted file also with 2.5.4. I could see it after the
+> reboot to 2.4.17. It was /etc/exports and it was OK since i edited it
+> running 2.5.4, and It was readable by exportfs, so it corrupted at reboot.
+> 
+> The reboot was clean, of course. Maybe wrong umount?

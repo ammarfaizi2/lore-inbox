@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUCSSnr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 13:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbUCSSnr
+	id S263079AbUCSSs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 13:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbUCSSs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 13:43:47 -0500
-Received: from mail.kroah.org ([65.200.24.183]:61354 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263062AbUCSSnp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 13:43:45 -0500
-Date: Fri, 19 Mar 2004 09:57:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Hicks <mort@wildopensource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Exporting physical topology information
-Message-ID: <20040319175702.GA10432@kroah.com>
-References: <20040317213714.GD23195@localhost> <20040318232139.GA17586@kroah.com> <20040319174826.GC19428@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040319174826.GC19428@localhost>
-User-Agent: Mutt/1.5.6i
+	Fri, 19 Mar 2004 13:48:26 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:32651
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263079AbUCSSrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 13:47:45 -0500
+Message-ID: <405B403F.4000702@redhat.com>
+Date: Fri, 19 Mar 2004 10:47:27 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040317
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Woodruff, Robert J" <woody@co.intel.com>
+CC: "Woodruff, Robert J" <woody@jf.intel.com>, linux-kernel@vger.kernel.org,
+       "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+References: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com>
+In-Reply-To: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 12:48:26PM -0500, Martin Hicks wrote:
-> 
-> On Thu, Mar 18, 2004 at 03:21:39PM -0800, Greg KH wrote:
-> > On Wed, Mar 17, 2004 at 04:37:14PM -0500, Martin Hicks wrote:
-> > > 
-> > > Hi,
-> > > 
-> > > If we could physically locate a PCI bus, then it would be much easier
-> > > to (for example) locate our defective SCSI disk that is target4 on the
-> > > SCSI controller that is on pci bus 0000:20.
-> > 
-> > Um, what's wrong with the current /sys/class/pci_bus/*/cpuaffinity files
-> > for determining this topology information?  That is why it was added.
-> 
-> This gives us more logical topology information.  It still doesn't tell
-> us where in the room the specific piece of equipment is.
+I think I should be telling something about another nuance of this problem.
 
-True, but isn't that what labels on your CPU nodes are for?
 
-:)
+Parties interested in Infiniband have been working under the OpenGroup
+umbrella for quite some time now on API extensions to better accommodate
+interconnect fibers.  They've even presented at am Austin Group meeting
+in 2001 (I think) to get on the road map for being included in POSIX.
 
-greg k-h
+But when I wanted to take a look at the specs this was categorically
+rejected.  My contacts were explicitly forbidden to give the drafts to
+anybody but the elite circle.  Mind you, Red Hat is member of the OpenGroup.
+
+So, these people come up with their own software stacks, unreviewed
+interface extensions, and demand that everybody accepts what they were
+"designing" without the ability to question anything.
+
+I surely find this completely  unacceptable and any consideration of
+accepting anything the Infiniband group comes up with should be
+postponed until every bit of the design can be reviewed.  If bits and
+pieces are accepted prematurely it'll just be "now that this is support
+you have to add this too, otherwise it'll not be useful".
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

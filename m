@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbTJaB2K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 20:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbTJaB2K
+	id S263019AbTJaBcc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 20:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTJaBcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 20:28:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32965 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262574AbTJaB2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 20:28:08 -0500
-Subject: Update AIO tests
-From: Daniel McNeil <daniel@osdl.org>
-To: linux-aio@kvack.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>, Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067563684.19328.43.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Oct 2003 17:28:04 -0800
+	Thu, 30 Oct 2003 20:32:32 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:62129 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S263019AbTJaBcb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 20:32:31 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: bd <bdonlan@users.sf.net>, linux-kernel@vger.kernel.org
+Subject: Re: Post-halloween doc updates.
+Date: Thu, 30 Oct 2003 20:32:26 -0500
+User-Agent: KMail/1.5.1
+References: <20031030141519.GA10700@redhat.com> <u6f871-68s.ln1@bd-home-comp.no-ip.org>
+In-Reply-To: <u6f871-68s.ln1@bd-home-comp.no-ip.org>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310302032.26773.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.58.154] at Thu, 30 Oct 2003 19:32:29 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I started updating my AIO tests to be a bit cleaner and added code
-to dirty some free blocks before the test.  I also added options
-to set readsize, writesize, filesize and number of async i/o.
-I have update dio_sparse.c and aiodio_sparse.c, and I will be updating
-the rest tomorrow.  The test also stops immediately if it see
-bad (non-zero) data by the readers.
+On Thursday 30 October 2003 17:16, bd wrote:
+>Dave Jones wrote:
+>> - The format of /proc/stat changed, which could break some
+>>   applications that still depend on the old layout.
+>>   Currently the only known application to break is the java
+>>   'DOTS' app. (http://bugme.osdl.org/show_bug.cgi?id=277)
+>
+>'xosview' is also broken by this change.
+>
+I can confirm this, also xawtv and gnomeradio, neither can apparently 
+see the devices registered in at boot time according to grepping 
+/var/log/messages.
 
-I've run dio_sparse and aiodio_sparse on test9 on ext3 on my 2-proc:
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-$ dio_sparse
-non zero buffer at buf[0] => 0xaa,aa,aa,aa
-non-zero read at offset 69533696
-
-$ aiodio_sparse
-non zero buffer at buf[0] => 0xaa,aa,aa,aa
-non-zero read at offset 81854464
-
-With slab debug on, test9 still gets
-
-slab error in check_poison_obj(): cache `kiocb': object was modified after freeing
-
-I'll be testing test9-mm1 tomorrow and let you know what I see.
-
-Daniel
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

@@ -1,38 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316864AbSFVSxr>; Sat, 22 Jun 2002 14:53:47 -0400
+	id <S316869AbSFVTAp>; Sat, 22 Jun 2002 15:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316869AbSFVSxq>; Sat, 22 Jun 2002 14:53:46 -0400
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:64809 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id <S316864AbSFVSxq>; Sat, 22 Jun 2002 14:53:46 -0400
-Message-ID: <3D14C7B8.9030705@fabbione.net>
-Date: Sat, 22 Jun 2002 20:53:44 +0200
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-X-Accept-Language: en
+	id <S316877AbSFVTAo>; Sat, 22 Jun 2002 15:00:44 -0400
+Received: from wotug.org ([194.106.52.201]:1855 "EHLO gatemaster.ivimey.org")
+	by vger.kernel.org with ESMTP id <S316869AbSFVTAn>;
+	Sat, 22 Jun 2002 15:00:43 -0400
+Date: Sat, 22 Jun 2002 20:00:32 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+X-X-Sender: ruthc@sharra.ivimey.org
+To: Rob Landley <landley@trommello.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
+In-Reply-To: <200206221823.g5MIMuO327686@pimout4-int.prodigy.net>
+Message-ID: <Pine.LNX.4.44.0206221947140.11032-100000@sharra.ivimey.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [FREEZE] 2.4.19-pre10 + Promise ATA100 tx2 ver 2.20
-References: <3D14C06F.6010906@fabbione.net> <yw1xwusrkv9h.fsf@gladiusit.e.kth.se>
-X-Enigmail-Version: 0.62.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
+On Sat, 22 Jun 2002, Rob Landley wrote:
 
->  
->
->Does the machine recover from the freeze or do you have to reboot?
->
->  
->
+>On Saturday 22 June 2002 11:31 am, Alan Cox wrote:
+>> > A microkernel design was actually made to work once, with good
+>> > performance. It was about fifteen years ago, in the amiga.  Know how they
+>> > pulled it off? Commodore used a mutant ultra-cheap 68030 that had -NO-
+>> > memory management unit.
+>>
+>> Vanilla 68000 actually. And it never worked well - the UI folks had
+>> to use a library not threads. The fs performance sucked
 
-I have to hard reset the machine. Keyboard is unuseable at that stage.
-not even Magic sysreq works.
+Threads (in the sense of tasks[1]) in fact worked extremely well and very
+efficiently on the Amiga, and "Intuition" was always coded as one thread and
+was modified use them more widely as the programmers had time and resource to
+do so.
 
-Fabio
+>On a side note, it's fun looking through the tanenbaum-torvalds debate 
+>archive and see all the people holding up the amiga as an example of a 
+>successful microkernel with decent performance, and note the lack of MMU...
+
+I was very happy indeed with the performance of the computer, given the 0.25
+MIPS CPU. The "Exec" scheduler was an extremely good design of its type, as
+has been recognised in various places since.
+
+The filesystem of the Amiga was very slow because it was a very definitely 
+second-best setup; the original Amiga Corp. folks ran out of cash and in the 
+end the filesystem from another OS, Tripos, was grafted in. Not only was it 
+not what was originally designed in, but it was written in an 
+almost-incompatible language (BCPL).
+
+However, I won't argue about MMU vs non-MMU; it was obvious from the start
+that any kind of memory protection between tasks would render a great deal of
+the system design useless, because the whole system shared memory and 
+resources. How else did people get away with application footprints 1/5 to 
+1/10 that of equivalents on Windows?
+
+
+Regards,
+
+Ruth
+
+
+[1] Exec only understood "tasks" as the basic scheduling unit; a task could be
+extended to become a process if access to the filesystem was required, but
+doing so did not change the scheduling cost at all.
+
+
+-- 
+Ruth Ivimey-Cook
+Software engineer and technical writer.
 

@@ -1,91 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131060AbQKVKE3>; Wed, 22 Nov 2000 05:04:29 -0500
+	id <S131155AbQKVKJT>; Wed, 22 Nov 2000 05:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131140AbQKVKEK>; Wed, 22 Nov 2000 05:04:10 -0500
-Received: from 213-123-77-95.btconnect.com ([213.123.77.95]:26884 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S131060AbQKVKDw>;
-	Wed, 22 Nov 2000 05:03:52 -0500
-Date: Wed, 22 Nov 2000 09:34:18 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Joe Harrington <jharring@micron.net>
-cc: CSCD 440-01 Mailing List <cs440@tux.ewu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: filesystems
-In-Reply-To: <007d01c0545d$e6444760$53b613d1@micron.net>
-Message-ID: <Pine.LNX.4.21.0011220923100.1197-100000@penguin.homenet>
+	id <S131140AbQKVKJJ>; Wed, 22 Nov 2000 05:09:09 -0500
+Received: from smtp2.free.fr ([212.27.32.6]:50950 "EHLO smtp2.free.fr")
+	by vger.kernel.org with ESMTP id <S130912AbQKVKJF>;
+	Wed, 22 Nov 2000 05:09:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.2.1[78] : RTNETLINK lock not properly locking ?
+Message-ID: <974885943.3a1b9437847da@imp.free.fr>
+Date: Wed, 22 Nov 2000 10:39:03 +0100 (MET)
+From: Willy Tarreau <willy.lkml@free.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 195.6.58.78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, Joe Harrington wrote:
+Hello !
 
-> Does a typical Linux system or Mandrake boot using the ext2 filesystem? Do
-> all filesystems have or use commands such as stat, read, write and chmod. I
-> am trying to figure out without looking through the code how a VFS
-> filesystem works. I am assuming that it does not use the major minor system,
-> for faster access to data? On my system I have:
-> 
->             ext2
->             msdos
-> nodev proc
-> 
-> Yes I did a man filesystems, man virtual filesystems, and manVFS. What does
-> the nodev stand for? I have seen other systems containing filesystems such
+while I was searching how to implement an rtnl_lock() in the bonding code,
+I discovered that the rtnl_shlock() function in 2.2.1[78] could misbehave if
+CONFIG_RTNETLINK is not set :
+   - it will nearly never allow concurrent accesses (seems to be what was
+     intented when it was written)
+   - it will not always prevent concurrent accesses, which is weird because
+     rtnl_lock() only relies on rtnl_shlock() (and exlock, which is empty) to
+     protect sensible areas
 
-nodev means the filesystem is not of type FS_REQ|UIRES_DEV, i.e. does not
-require a block device to be mounted. In folklore, such are sometimes
-called "virtual" filesystems. Examples are sockfs, shm, pipefs, proc, nfs,
-devpts.
+The first case is trivial : one at a time.
+(code taken from include/linux/rtnetlink.h, line 639)
 
+     while (atomic_read(&rtnl_rlockct))
+            sleep_on(&rtnl_wait);
+     atomic_inc(&rtnl_rlockct);
 
-> as:
-> 
->             ext2
->             minix
->             msdos
->             vfat
-> nodev proc
-> nodev nfs
->             iso9660
->             ufs
-> nodev autofs
-> nodev devpts
-> 
-> Basically, do you mount a VFS filesystem, does it keep pages in RAM longer
-> than other filesystems.
+The second case isn't trivial, so I will quote some points in the code :
 
-you do not mount a VFS filesystem. VFS is not a filesystem. VFS is a
-Virtual Filesystem Switch, i.e. a set of concepts, philosophy, data
-structures and functions which together make writing new filesystems easy.
-The name is derived from the SVR4 data structure vfssw (sic?) whence all
-the good concepts of VFS came (yea, yea, I know, AV (and history books)
-will tell me that Sun had a vnode/vfs layer and that even FreeBSD has a
-sort of VFS/vnode layer but we all know that the really good form of VFS
-came from SVR4, like it or not, the others, except Linux of course, are
-impostors)
+[rtnl_shlock]
+(1) ---------
+        while (atomic_read(&rtnl_rlockct))
+(2) ---------
+                sleep_on(&rtnl_wait);
+(3) ---------
+        atomic_inc(&rtnl_rlockct);
+(4) ---------
 
+[rtnl_shunlock]
+(5) ---------
+        if (atomic_dec_and_test(&rtnl_rlockct))
+(6) ---------
+                wake_up(&rtnl_wait);
+(7) ---------
 
-> How would a VFS filesystem handle system calls such
-> as "stat" or "open"? I am just looking for something that can easily help me
-> visualize the VFS process.
+Consider 3 concurrent threads A, B and C.
+- First, A needs the lock. Noone has it. It enters (1), then (3), sets the
+  rtnl_rlockct to 1 and exits at (4).
+- now B comes in (1). The lock is already set by A, so B goes to (2) and
+  sleeps.
+- A unlocks. It goes to (5), then (6)
+- at this moment, C tries to lock in (1), an succeeds since A has just released
+  the lock. So it gets the lock and goes to (3), then (4).
+- A is at (6) and wakes B up and steps to (7) and exits.
+- B is woken up and goes to (3) then (4).
 
-when doing stat system call, the VFS does a name lookup which causes the
-relevant inode to be read from disk (by means of s_op->read_inode method
-the filesystem registered) and so, all the relevant information is already
-there in the incore inode, which is then copied to userspace.
+=> B and C both have the lock.
 
-You cannot visualize VFS without looking at the source code. In fact, you
-cannot even do so by looking at the source, it is so complex. But it is
-definitely worth a try -- just remember, it is a lifelong process.
-Nevertheless, it is certainly a good thing to dedicate whole life to study
-the subject so complex, and which changes so frequently that nobody in the
-whole world has an overall picture of it. But we all try :) One day, we
-will understand it all and rewrite it to be even better than it is now :)
+Perhaps I have missed something, but I don't find what. If I'm right, then why
+don't we simply keep the same code as for the CONFIG_RTNETLINK case ?
+
+Thanks in advance for any comment,
 
 Regards,
-Tigran
-
+Willy
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

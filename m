@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131167AbQLFUnP>; Wed, 6 Dec 2000 15:43:15 -0500
+	id <S130786AbQLFUpz>; Wed, 6 Dec 2000 15:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131430AbQLFUnF>; Wed, 6 Dec 2000 15:43:05 -0500
-Received: from newaccess.hereintown.net ([207.196.96.3]:7459 "EHLO
-	newaccess.hereintown.net") by vger.kernel.org with ESMTP
-	id <S131179AbQLFUmr>; Wed, 6 Dec 2000 15:42:47 -0500
-Date: Wed, 6 Dec 2000 15:23:46 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Trashing ext2 with hdparm
-In-Reply-To: <90m650$1oe$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0012061521210.83-100000@rc.priv.hereintown.net>
+	id <S130030AbQLFUpp>; Wed, 6 Dec 2000 15:45:45 -0500
+Received: from anime.net ([63.172.78.150]:56585 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S131038AbQLFUpc>;
+	Wed, 6 Dec 2000 15:45:32 -0500
+Date: Wed, 6 Dec 2000 12:15:56 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: James Lamanna <jlamanna@its.caltech.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with PDC202xx driver
+In-Reply-To: <Pine.LNX.4.10.10012061124400.21407-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0012061212430.23141-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Dec 2000, H. Peter Anvin wrote:
+On Wed, 6 Dec 2000, Andre Hedrick wrote:
+> Nope you have a chipset that is designed wrong.
 
-> <HARP>
-> Please don't use the path /var/shm... it was a really bad precedent
-> set when someone suggested it.  Use /dev/shm.
-> </HARP>
+Who makes an on-board chipset (not southbridge) which is designed right?
 
-And I'll ask again...  If this is now the recommend mount point, can we
-have devfs create this directory for us?
+Highpoint makes HPT370, but after HPT366 fiasco I'm not sure I trust them
+anymore...
 
--Chris
--- 
-Two penguins were walking on an iceburg.  The first one said to the
-second, "you look like you are wearing a tuxedo."  The second one said,
-"I might be..."
-                                              --David Lynch, Twin Peaks
+-Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTFUNql (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 09:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTFUNiZ
+	id S263944AbTFUNqm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 09:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTFUNiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 09:38:25 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:22690 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263631AbTFUNiB convert rfc822-to-8bit
+	Sat, 21 Jun 2003 09:38:22 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:22434 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262930AbTFUNiB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 21 Jun 2003 09:38:01 -0400
-Subject: [PATCH 8/11] input: Change order of search for beeper devices in keyboard.c
-In-Reply-To: <10562035172084@twilight.ucw.cz>
+Subject: [PATCH 9/11] input: Fix double kfree of device->rdesc in hid-core
+In-Reply-To: <10562035172152@twilight.ucw.cz>
 X-Mailer: gregkh_patchbomb_levon_offspring
 Date: Sat, 21 Jun 2003 15:51:57 +0200
-Message-Id: <10562035172152@twilight.ucw.cz>
+Message-Id: <10562035171903@twilight.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
@@ -27,27 +27,57 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1366, 2003-06-21 04:44:26-07:00, neilb@cse.unsw.edu.au
-  input: Change order of search for beeper devices in keyboard.c,
-         so that it is easier to replace a beeper with a different
-         driver
+ChangeSet@1.1367, 2003-06-21 04:45:44-07:00, acme@conectiva.com.br
+  input: fix double kfree of device->rdesc on hid_parse_parse error
+         path in hid-core.c
 
 
- keyboard.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ hid-core.c |    5 -----
+ 1 files changed, 5 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
---- a/drivers/char/keyboard.c	Sat Jun 21 15:25:44 2003
-+++ b/drivers/char/keyboard.c	Sat Jun 21 15:25:44 2003
-@@ -242,7 +242,7 @@
- 	del_timer(&kd_mksound_timer);
+diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+--- a/drivers/usb/input/hid-core.c	Sat Jun 21 15:25:51 2003
++++ b/drivers/usb/input/hid-core.c	Sat Jun 21 15:25:51 2003
+@@ -674,7 +674,6 @@
  
- 	if (hz) {
--		list_for_each(node,&kbd_handler.h_list) {
-+		list_for_each_prev(node,&kbd_handler.h_list) {
- 			struct input_handle *handle = to_handle_h(node);
- 			if (test_bit(EV_SND, handle->dev->evbit)) {
- 				if (test_bit(SND_TONE, handle->dev->sndbit)) {
+ 		if (item.format != HID_ITEM_FORMAT_SHORT) {
+ 			dbg("unexpected long global item");
+-			kfree(device->rdesc);
+ 			kfree(device->collection);
+ 			hid_free_device(device);
+ 			kfree(parser);
+@@ -684,7 +683,6 @@
+ 		if (dispatch_type[item.type](parser, &item)) {
+ 			dbg("item %u %u %u %u parsing failed\n",
+ 				item.format, (unsigned)item.size, (unsigned)item.type, (unsigned)item.tag);
+-			kfree(device->rdesc);
+ 			kfree(device->collection);
+ 			hid_free_device(device);
+ 			kfree(parser);
+@@ -694,7 +692,6 @@
+ 		if (start == end) {
+ 			if (parser->collection_stack_ptr) {
+ 				dbg("unbalanced collection at end of report description");
+-				kfree(device->rdesc);
+ 				kfree(device->collection);
+ 				hid_free_device(device);
+ 				kfree(parser);
+@@ -702,7 +699,6 @@
+ 			}
+ 			if (parser->local.delimiter_depth) {
+ 				dbg("unbalanced delimiter at end of report description");
+-				kfree(device->rdesc);
+ 				kfree(device->collection);
+ 				hid_free_device(device);
+ 				kfree(parser);
+@@ -714,7 +710,6 @@
+ 	}
+ 
+ 	dbg("item fetching failed at offset %d\n", (int)(end - start));
+-	kfree(device->rdesc);
+ 	kfree(device->collection);
+ 	hid_free_device(device);
+ 	kfree(parser);
 

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261434AbTCOMf5>; Sat, 15 Mar 2003 07:35:57 -0500
+	id <S261436AbTCONBP>; Sat, 15 Mar 2003 08:01:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261435AbTCOMf5>; Sat, 15 Mar 2003 07:35:57 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:45970 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S261434AbTCOMfz>; Sat, 15 Mar 2003 07:35:55 -0500
-From: David Woodhouse <dwmw2@infradead.org>
-To: Chris Fowler <cfowler@outpostsentinel.com>
-Cc: Robert White <rwhite@casabyte.com>, Ed Vance <EdV@macrolink.com>,
-       "'Linux PPP'" <linuxppp@indiainfo.com>, linux-serial@vger.kernel.org,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1047598241.5292.2.camel@hp.outpostsentinel.com>
-References: <PEEPIDHAKMCGHDBJLHKGGECKCDAA.rwhite@casabyte.com>
-	 <1047598241.5292.2.camel@hp.outpostsentinel.com>
-Message-Id: <1047732394.20703.10.camel@imladris.demon.co.uk>
+	id <S261440AbTCONBP>; Sat, 15 Mar 2003 08:01:15 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:18319 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261436AbTCONBO>; Sat, 15 Mar 2003 08:01:14 -0500
+Date: Sat, 15 Mar 2003 14:11:48 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Terry Barnaby <terry@beam.ltd.uk>
+Cc: Michael Madore <mmadore@aslab.com>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reproducible SCSI Error with Adaptec 7902
+Message-ID: <20030315141148.A626@nightmaster.csn.tu-chemnitz.de>
+References: <3E71B629.60204@beam.ltd.uk> <1999490000.1047653585@aslan.scsiguy.com> <3E7200D1.3030207@aslab.com> <3E7200B7.6000907@beam.ltd.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.1.99 (dwmw2) (Preview Release)
-Date: 15 Mar 2003 12:46:35 +0000
-Subject: RE: RS485 communication
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3E7200B7.6000907@beam.ltd.uk>; from terry@beam.ltd.uk on Fri, Mar 14, 2003 at 04:17:59PM +0000
+X-Spam-Score: -32.5 (--------------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18uBSG-0004at-00*w9dLt4AFKo2*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-13 at 23:30, Chris Fowler wrote:
-> Are you saying that for him to to use PPPD that he will have to write a
-> program that will run on a master and tell all the slave nodes when they
-> can transmit their data.  In this case it would be ppp data.  Hopfully
-> in block sizes that are at least the size of the MTU ppp is running.
+On Fri, Mar 14, 2003 at 04:17:59PM +0000, Terry Barnaby wrote:
+> The Seagate ST336607LW has firmware: 0004.
+> Seagate have stated to me that this is the latest.
+> They have also stated to me:
+> 
+>   Issuing an unrecognized or illegal command to the drive can cause the
+>   drive to go into a hardware fault mode where it will no longer respond,
+>   and may or may not respond to a SCSI BUS reset. It seems, in this case,
+>   the drive will no longer respond to any commands issued by the
+>   controller.
+> 
+> Is this "feature" now common on SCSI drives ????
 
-You don't _need_ a master, although it's often an easy answer.
+Could we add a KERN_WARNING printk in sd.c quoting/referencing
+this message on inquiry detecting this device? 
 
-You can have a token-bus arrangement like ARCnet does. In fact, the
-ARCnet data sheets describing how it works may make interesting reading.
+So sysadmins who are used to SCSI being robust could return the
+drive to their vendors in exchange to a drive working along the
+SCSI specs after reading this message.
 
--- 
-dwmw2
+Thanks in the name of the sysadmins.
 
+Regards
 
+Ingo Oeser

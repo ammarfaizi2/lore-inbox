@@ -1,65 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289161AbSAJEpS>; Wed, 9 Jan 2002 23:45:18 -0500
+	id <S289163AbSAJEtA>; Wed, 9 Jan 2002 23:49:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289163AbSAJEpI>; Wed, 9 Jan 2002 23:45:08 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:23476 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S289161AbSAJEo6>;
-	Wed, 9 Jan 2002 23:44:58 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Moving zlib so that others may use it 
-In-Reply-To: Your message of "Wed, 09 Jan 2002 22:23:31 MDT."
-             <3C3D1743.40900@acm.org> 
+	id <S289165AbSAJEsu>; Wed, 9 Jan 2002 23:48:50 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:30921 "HELO mail.broadpark.no")
+	by vger.kernel.org with SMTP id <S289163AbSAJEse>;
+	Wed, 9 Jan 2002 23:48:34 -0500
+Date: Thu, 10 Jan 2002 05:45:55 +0100
+From: jon svendsen <jon-sven@frisurf.no>
+To: linux-kernel@vger.kernel.org
+Subject: xfree86 compilation failure due to naming conflict (linux 2.4.17, Xfree86 4.1.0)
+Message-ID: <20020110054555.C4116@fig.aubernet>
+In-Reply-To: <20020110053949.A4116@fig.aubernet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 10 Jan 2002 15:44:47 +1100
-Message-ID: <24080.1010637887@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020110053949.A4116@fig.aubernet>; from jon-sven@frisurf.no on Thu, Jan 10, 2002 at 05:39:49 +0100
+X-Mailer: Balsa 1.2.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Jan 2002 22:23:31 -0600, 
-Corey Minyard <minyard@acm.org> wrote:
->Keith Owens wrote:
->>On Wed, 09 Jan 2002 17:32:20 -0600, 
->>Corey Minyard <minyard@acm.org> wrote:
->>>I would like to propose putting zlib in the lib directory and making it 
->>>optionally compile if it is needed.
->>
->>The best option is to build zlib.o for the kernel (not module) and
->>store it in lib.a.  Compile zlib.o if any consumer of zlib has been
->>selected and add a dummy reference to zlib code in vmlinux to ensure
->>that zlib is pulled from the archive if anybody needs it, even if all
->>the consumers are in modules.  Some of the zlib symbols will need to be
->>exported, I will leave that to you.
->>
->Why not just create zlib as a module if all the users are modules (so 
->depmod and modprobe load it)?  That's what everything else does.  And 
->that way, if it's already in the kernel, the module just won't get 
->loaded, but if it's not the module gets loaded.  What you are suggesting 
->seems rather convoluted.
+On 2002.01.10 05:39 jon svendsen wrote:
+Hello,
 
-If zlib is a module then it cannot be part of lib/lib.a, it has to be
-separate, with changes to the top level Makefile to conditionally
-include lib/zlib.o.  I did that originally but the changes to
-lib/Makefile and the top level Makefile were worse.  Building zlib as a
-module guarantees that you cannot use it in a boot loader, forcing you
-to maintain multiple versions of zlib.c.  If you are going to use one
-version of zlib then you should try to handle bootloaders as well.
+The SiS DRM drivers in the 2.4.17 linux kernel has caused the 
+possibility of failure to compile xfree86 4.1.0 (and CVS). The cause of 
+the conflict is the definition of CONFIG_DRM_SIS, used both in kernel 
+configuration and in the xfree86 DRM code.
 
-What is convoluted about my solution?  The derivation of CONFIG_ZLIB in
-the top level Makefile is ugly but that ugliness is a side effect of
-CML1.  CONFIG_ZLIB has to be derived somewhere, it is a smaller patch
-to do it in Makefile than to patch 15 arch/*/config.in files.  Apart
-from that, the only other niggle is the dummy reference in init/main.c.
+If DRM is enabled in the kernel (CONFIG_DRM) but the SiS driver is 
+disabled or configured as a module, <linux/autoconf.h>, included from 
+<linux/config.h>, will contain an #undef CONFIG_DRM_SIS.
 
->I guess one other option would be to have an explicit user-set tristate 
->like CONFIG_ZLIB, and if anything uses zlib, it could only be modules if 
->CONFIG_ZLIB was a module, etc.
+<linux/config.h> is included from 
+xc/programs/Xserver/hw/xfree86/os-support/linux/drm/kernel/drm.h in the 
+xfree86 source tree. The file 
+xc/programs/Xserver/hw/xfree86/os-support/linux/drm/xf86drmSiS.c does a 
+#define CONFIG_DRM_SIS prior to including this file in order to have 
+necessary parts of it included.
 
-Don't ask the user, they will not understand the problem.  CONFIG_ZLIB
-is derived from other configs and possibly ARCH variables, users have
-no direct control over CONFIG_ZLIB.
+It flows something like this:
+
+xf86drmSiS.c:
+#define CONFIG_DRM_SIS
+#include "drm.h"
+
+drm.h:
+#include <linux/config.h> // #undef CONFIG_DRM_SIS
+
+#ifdef CONFIG_DRM_SIS
+// stuff necessary for compilation of xf86drmSiS.c
+#endif
+
+And compilation of xf86drmSiS.c fails.
+
+I'd supply a patch, but I'm not familiar enough with the relationship 
+between the kernel and xfree86 drivers to know what the proper solution 
+would be, nor am I certain if the modification should happen in linux 
+or in xfree86. Hopefully I have supplied enough information facilitiate 
+a fairly simple solution.
+
+Jon Svendsen
+--- Sorcerer GNU Linux (http://sorcerer.wox.org)
+
+
 

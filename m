@@ -1,153 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268013AbTGIAXO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 20:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268011AbTGIAXL
+	id S267988AbTGIAWh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 20:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268005AbTGIAWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 20:23:11 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6405 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S267991AbTGIAVi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 20:21:38 -0400
-Date: Wed, 9 Jul 2003 02:26:19 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: [PATCH 2/8] 2.5.74 - seq_file conversion of /proc/net/atm (vc helpers)
-Message-ID: <20030709022619.D11897@electric-eye.fr.zoreil.com>
-References: <20030709021152.B11897@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030709021152.B11897@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Wed, Jul 09, 2003 at 02:11:52AM +0200
+	Tue, 8 Jul 2003 20:22:37 -0400
+Received: from dyn-ctb-203-221-72-225.webone.com.au ([203.221.72.225]:9220
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S267988AbTGIAVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 20:21:36 -0400
+Message-ID: <3F0B6374.2090803@cyberone.com.au>
+Date: Wed, 09 Jul 2003 10:36:04 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.74-mm1
+References: <20030703023714.55d13934.akpm@osdl.org> <200307080213.53203.phillips@arcor.de> <Pine.LNX.4.55.0307071724540.3524@bigblue.dev.mcafeelabs.com> <200307080307.18018.phillips@arcor.de> <Pine.LNX.4.55.0307072314490.3597@bigblue.dev.mcafeelabs.com> <3F0A8C5C.1070602@cyberone.com.au> <Pine.LNX.4.55.0307080821160.4544@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.55.0307080821160.4544@bigblue.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helpers for seq_file conversion of proc/atm/{pvc/svc/vc}:
-- struct atm_vc_state keeps
-  1) the struct sock from which the current struct atm_vcc is deduced
-  2) the family to which must belong the vcc (PF_ATM{SVC/PVC/any})
-  3) the availability of clip module
-- atm_vc_common_seq_{start/stop} are responsible for vcc_sklist locking
-- atm_vc_common_seq_{open/release} take care of get/put for the clip module.
 
 
- net/atm/proc.c |  103 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 103 insertions(+)
+Davide Libenzi wrote:
 
-diff -puN net/atm/proc.c~atm-proc-seq-vc-utils net/atm/proc.c
---- linux-2.5.74-1.1360.1.1-to-1.1384/net/atm/proc.c~atm-proc-seq-vc-utils	Wed Jul  9 01:42:55 2003
-+++ linux-2.5.74-1.1360.1.1-to-1.1384-fr/net/atm/proc.c	Wed Jul  9 01:42:55 2003
-@@ -161,6 +161,109 @@ static void atmarp_info(struct net_devic
- 
- #endif
- 
-+struct atm_vc_state {
-+	struct sock *sk;
-+	int family;
-+	int clip_info;
-+};
-+
-+static inline int compare_family(struct sock *sk, int family)
-+{
-+	struct atm_vcc *vcc = atm_sk(sk);
-+
-+	return !family || (vcc->sk->sk_family == family);
-+}
-+
-+/*
-+ * Don't know what happens if l < 1
-+ */
-+static int __atm_vc_common_walk(struct sock **sock, int family, loff_t l)
-+{
-+	struct sock *sk = *sock;
-+
-+	if (sk == (void *)1) {
-+		sk = hlist_empty(&vcc_sklist) ? NULL : __sk_head(&vcc_sklist);
-+		l--;
-+	} 
-+	for (; sk; sk = sk_next(sk)) {
-+		l -= compare_family(sk, family);
-+		if (l < 0)
-+			goto out;
-+	}
-+	sk = (void *)1;
-+out:
-+	*sock = sk;
-+	return (l < 0);
-+}
-+
-+static void *atm_vc_common_walk(struct atm_vc_state *state, loff_t l)
-+{
-+	return __atm_vc_common_walk(&state->sk, state->family, l) ?
-+	       state : NULL;
-+}
-+
-+static int atm_vc_common_seq_open(struct inode *inode, struct file *file,
-+	int family, struct seq_operations *ops)
-+{
-+	struct atm_vc_state *state;
-+	struct seq_file *seq;
-+	int rc = -ENOMEM;
-+
-+	state = kmalloc(sizeof(*state), GFP_KERNEL);
-+	if (!state)
-+		goto out;
-+
-+	rc = seq_open(file, ops);
-+	if (rc)
-+		goto out_kfree;
-+
-+	state->family = family;
-+	state->clip_info = try_atm_clip_ops();
-+
-+	seq = file->private_data;
-+	seq->private = state;
-+out:
-+	return rc;
-+out_kfree:
-+	kfree(state);
-+	goto out;
-+}
-+
-+static int atm_vc_common_seq_release(struct inode *inode, struct file *file)
-+{
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
-+	struct seq_file *seq = file->private_data;
-+	struct atm_vc_state *state = seq->private;
-+
-+	if (state->clip_info)
-+		module_put(atm_clip_ops->owner);
-+#endif
-+	return seq_release_private(inode, file);
-+}
-+
-+static void *atm_vc_common_seq_start(struct seq_file *seq, loff_t *pos)
-+{
-+	struct atm_vc_state *state = seq->private;
-+	loff_t left = *pos;
-+
-+	read_lock(&vcc_sklist_lock);
-+	state->sk = (void *)1;
-+	return left ? atm_vc_common_walk(state, left) : (void *)1;
-+}
-+
-+static void atm_vc_common_seq_stop(struct seq_file *seq, void *v)
-+{
-+	read_unlock(&vcc_sklist_lock);
-+}
-+
-+static void *atm_vc_common_seq_next(struct seq_file *seq, void *v, loff_t *pos)
-+{
-+	struct atm_vc_state *state = seq->private;
-+
-+	v = atm_vc_common_walk(state, 1);
-+	*pos += !!PTR_ERR(v);
-+	return v;
-+}
- 
- static void pvc_info(struct atm_vcc *vcc, char *buf, int clip_info)
- {
+>On Tue, 8 Jul 2003, Nick Piggin wrote:
+>
+>
+>>I agree some people have some inflated ideas about a desktop workload,
+>>but I'd just point out that if your mp3 player was using say 2% CPU,
+>>it should be able to preempt the make soon after it becomes runnable,
+>>and not have to wait at the end of the queue. It would become a CPU
+>>hog itself if you had 48 other processes running though.
+>>
+>
+>This is clearly true, actually even more since player usually suck way
+>less than 2% of the CPU. If no video is involved, they simply do a write()
+>to /dev/dsp and then they sync by calling GETOSPACE and sleeping in the
+>"hope" to be wake up almost in time. I never said that the scheduler
+>should not be fixed. It definitely has to.
+>
 
-_
+Well, yeah, I can run xmms on my 2xCPU system with 32 processes in
+an infinite loop, and 32 in an infinite loop of fork+wait. No skipping.
+So maybe gcc gets its priority elevated too much due to the small
+amount of waiting it does.
+
+

@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbULZMXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbULZNLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbULZMXI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 07:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbULZMXI
+	id S261643AbULZNLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 08:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbULZNLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 07:23:08 -0500
-Received: from gprs212-75.eurotel.cz ([160.218.212.75]:56448 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261644AbULZMXF (ORCPT
+	Sun, 26 Dec 2004 08:11:08 -0500
+Received: from smtp1.poczta.interia.pl ([217.74.65.44]:43710 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261643AbULZNLG convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 07:23:05 -0500
-Date: Sun, 26 Dec 2004 13:22:51 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: bkcvs seems to have stale data [was Re: lease.openlogging.org is unreachable]
-Message-ID: <20041226122251.GB1590@elf.ucw.cz>
-References: <200412250121_MC3-1-91AF-7FBB@compuserve.com> <1103977484.22653.11.camel@localhost.localdomain> <20041226011545.GB1896@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041226011545.GB1896@work.bitmover.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 26 Dec 2004 08:11:06 -0500
+Date: 26 Dec 2004 14:11:04 +0100
+From: me <cellsan@interia.pl>
+Subject: CPU freq scaling (Pentium M Dothan, Centrino)
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-ORIGINATE-IP: 213.25.140.5
+Organization: Poczta INTERIA.PL >>> http://poczta.interia.pl/
+Message-Id: <20041226131104.3A19F1B5884@poczta.interia.pl>
+X-EMID: 8b840acc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
+Does 2.6.10 support frequency scaling for Pentium M core Dothan? I saw patches about that already in 2.6.7 AFAIR, but in 2.6.9 it was not working. Patching 2.6.9 helped for /proc/acpi/.../throttling, but frequency scalling (in the fly) was still unsupported.
 
-> > > lease.openlogging.org is unreachable today.
-> > > 
-> > > So I guess I need to set up a cron job to renew my lease every
-> > > minute/hour/day/whatever so I can actually download new kernel
-> > > releases when they come out?  I can't even examine the code I
-> > > downloaded yesterday without that lease...  Now that's what I call
-> > > having my source code held hostage!
-> > 
-> > The tar ball edition works perfectly 8)
-> 
-> And a very Merry Christmas to you too Alan.  You're welcome for all that
-> BK has done for you and the kernel effort, always a pleasure to work with
-> such polite people.
 
-:-)
+I am not subscribed to the list, please CC me in reply.
 
-Is something wrong with bkcvs? 2.6.10 was released 40 hours ago, but I
-still see -rc3 when I update... I'm doing
-
-time rsync -zav --delete rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5 .
-
-and cvs update.
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Regards
+Sebastian Fabrycki
+cellsan@interia.pl
+
+
+----------------------------------------------------------------------
+Najlepsze auto, najlepsze moto... >>> http://link.interia.pl/f1841
+

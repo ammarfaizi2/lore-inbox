@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbTEMG5s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 02:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbTEMG5s
+	id S263272AbTEMG65 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 02:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTEMG65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 02:57:48 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:16516 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263246AbTEMG5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 02:57:47 -0400
-Date: Tue, 13 May 2003 00:11:35 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm4
-Message-Id: <20030513001135.2395860a.akpm@digeo.com>
-In-Reply-To: <87vfwf8h2n.fsf@lapper.ihatent.com>
-References: <20030512225504.4baca409.akpm@digeo.com>
-	<87vfwf8h2n.fsf@lapper.ihatent.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 May 2003 02:58:57 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:22107 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S263272AbTEMG6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 02:58:53 -0400
+From: Jos Hulzink <josh@stack.nl>
+To: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+Date: Tue, 13 May 2003 09:15:58 +0200
+User-Agent: KMail/1.5
+References: <200305122135.53751.josh@stack.nl> <20030513050133.GA4720@middle.of.nowhere>
+In-Reply-To: <20030513050133.GA4720@middle.of.nowhere>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 May 2003 07:10:27.0931 (UTC) FILETIME=[BB57C2B0:01C3191E]
+Content-Disposition: inline
+Message-Id: <200305130915.58419.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Hoogerhuis <alexh@ihatent.com> wrote:
->
-> net/core/dev.c:1496: conflicting types for `handle_bridge'
->  net/core/dev.c:1468: previous declaration of `handle_bridge'
+On Tuesday 13 May 2003 07:01, Jurriaan wrote:
+> Is this with or without IOAPIC? I got some problems with MPS 1.4, acpi
+> and the local ioapic on a uniprocessor system, see bugzilla 678. I think
+> it's a different problem, though.
 
-argh, sorry, stupid.
+Your problem looks the same, though isn't, for your kernel finds a MADT:
 
-diff -puN net/core/dev.c~handle_bridge-fix net/core/dev.c
---- 25/net/core/dev.c~handle_bridge-fix	2003-05-13 00:10:47.000000000 -0700
-+++ 25-akpm/net/core/dev.c	2003-05-13 00:10:57.000000000 -0700
-@@ -1491,7 +1491,7 @@ static inline void handle_diverter(struc
- #endif
- }
- 
--static inline int handle_bridge(struct sk_buff *skb,
-+static inline int __handle_bridge(struct sk_buff *skb,
- 			struct packet_type **pt_prev, int *ret)
- {
- #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
-@@ -1548,7 +1548,7 @@ int netif_receive_skb(struct sk_buff *sk
- 
- 	handle_diverter(skb);
- 
--	if (handle_bridge(skb, &pt_prev, &ret))
-+	if (__handle_bridge(skb, &pt_prev, &ret))
- 		goto out;
- 
- 	list_for_each_entry_rcu(ptype, &ptype_base[ntohs(type)&15], list) {
+ACPI: RSDP (v000 KT400                      ) @ 0x000f74a0
+ACPI: RSDT (v001 KT400  AWRDACPI 16944.11825) @ 0x3fff3000
+ACPI: FADT (v001 KT400  AWRDACPI 16944.11825) @ 0x3fff3040
+vvvvv
+ACPI: MADT (v001 KT400  AWRDACPI 16944.11825) @ 0x3fff71c0
+^^^^^
+ACPI: DSDT (v001 KT400  AWRDACPI 00000.04096) @ 0x00000000
+ACPI: BIOS passes blacklist
 
-_
+And ACPI uses the IOAPIC, as expected:
 
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+
+Unfortunately, we're talking two different bugs :(
+
+Jos

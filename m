@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265220AbRF0DdV>; Tue, 26 Jun 2001 23:33:21 -0400
+	id <S265230AbRF0DqN>; Tue, 26 Jun 2001 23:46:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbRF0DdL>; Tue, 26 Jun 2001 23:33:11 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:9992 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S265220AbRF0DdC>;
-	Tue, 26 Jun 2001 23:33:02 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106270332.f5R3WxU277042@saturn.cs.uml.edu>
-Subject: Re: [PATCH] User chroot
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Tue, 26 Jun 2001 23:32:59 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9hb6rq$49j$1@cesium.transmeta.com> from "H. Peter Anvin" at Jun 26, 2001 04:46:02 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S265232AbRF0DqD>; Tue, 26 Jun 2001 23:46:03 -0400
+Received: from mail002.syd.optusnet.com.au ([203.2.75.245]:44932 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S265230AbRF0Dpt>; Tue, 26 Jun 2001 23:45:49 -0400
+Followup-To: syoungs@dingoblue.net.au
+To: linux-kernel@vger.kernel.org
+Subject: Compiling with gcc-3.0
+From: Steve Youngs <syoungs@dingoblue.net.au>
+Organization: Linux Users - Fanatics Dept.
+X-Attribution: SY
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Date: 27 Jun 2001 13:45:20 +1000
+Message-ID: <microsoft-free.x4y9qeziun.fsf@slackware.mynet.pc>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.5 (anise)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
-> [somebody]
+I'm not on this list, followups set to my email address.
 
->> Have you ever wondered why normal users are not allowed to chroot?
->>
->> I have. The reasons I can figure out are:
->>
->> * Changing root makes it trivial to trick suid/sgid binaries to do
->>   nasty things.
->>
->> * If root calls chroot and changes uid, he expects that the process
->>   can not escape to the old root by calling chroot again.
->>
->> If we only allow user chroots for processes that have never been
->> chrooted before, and if the suid/sgid bits won't have any effect under
->> the new root, it should be perfectly safe to allow any user to chroot.
->
-> Safe, perhaps, but also completely useless: there is no way the user
-> can set up a functional environment inside the chroot.  In other
-> words, it's all pain, no gain.
+Trying to compile 2.4.5 with gcc-3.0 gives me this:
 
-Normal users can use an environment provided for them.
+,----
+| gcc -D__KERNEL__ -I/usr/src/linux-2.4.5/include -Wall \
+|   -Wstrict-prototypes -O2 -fomit-frame-pointer \
+|   -fno-strict-aliasing -pipe \
+|   -mpreferred-stack-boundary=2 -march=athlon \
+|   -c -o timer.o timer.c
+| 
+| timer.c:35: conflicting types for `xtime'
+| 
+| /usr/src/linux-2.4.5/include/linux/sched.h:540: \
+|   previous declaration of `xtime'
+| 
+| make[2]: *** [timer.o] Error 1
+| make[2]: Leaving directory `/usr/src/linux-2.4.5/kernel'
+| make[1]: *** [first_rule] Error 2
+| make[1]: Leaving directory `/usr/src/linux-2.4.5/kernel'
+| make: *** [_dir_kernel] Error 2
+`----
 
-While trying to figure out why the "heyu" program would not
-work on a Red Hat box, I did just this. As root I set up all
-the device files needed, along Debian libraries and the heyu
-executable itself. It was annoying that I couldn't try out
-my chroot environment as a regular user.
+Has anyone else seen this?  Is it a problem with the kernel or gcc?
+Have I just stuffed up the gcc installation?
 
-Creating the device files isn't a big deal. It wouldn't be
-hard to write a setuid app to make the few needed devices.
-If we had per-user limits, "mount --bind /dev/zero /foo/zero"
-could be allowed. One way or another, devices can be provided.
+I don't see this with gcc-2.95.2
 
+Thanks very much for any light you can shed of this for me.
 
+-- 
+|---<Steve Youngs>---------------<GnuPG KeyID: 787C1157>---|
+|              Ashes to ashes, dust to dust.               |
+|      The proof of the pudding, is under the crust.       |
+|-----------------------------<syoungs@dingoblue.net.au>---|

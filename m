@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266520AbUAWGst (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 01:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUAWGqs
+	id S266541AbUAWGyt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 01:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUAWGwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 01:46:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24530 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266520AbUAWGgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 01:36:46 -0500
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org
-From: davej@redhat.com
-Subject: Correct CPUs printout on boot.
-Message-Id: <E1Ajuub-0000y1-00@hardwired>
-Date: Fri, 23 Jan 2004 06:35:25 +0000
+	Fri, 23 Jan 2004 01:52:15 -0500
+Received: from mail-02.iinet.net.au ([203.59.3.34]:37073 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266541AbUAWGtm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 01:49:42 -0500
+Message-ID: <4010C2BF.7090806@cyberone.com.au>
+Date: Fri, 23 Jan 2004 17:44:15 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       nevdull@us.ibm.com, dvhart@us.ibm.com
+Subject: Re: [PATCH] clarify find_busiest_group
+References: <224300000.1074839500@[10.10.2.4]>
+In-Reply-To: <224300000.1074839500@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This currently prints out the maximum number of CPUs the
-kernel is configured to support, instead of the actual
-number that the kernel brought up. Which results in odd
-displays that look like you have more CPUs than you do.
 
-    Dave
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/init/main.c linux-2.5/init/main.c
---- linux-2.5/init/main.c~	Fri Jan 23 06:24:12 2004
-+++ linux-2.5/init/main.c	Fri Jan 23 06:24:44 2004
-@@ -339,7 +339,7 @@
- /* Called by boot processor to activate the rest. */
- static void __init smp_init(void)
- {
--	unsigned int i;
-+	unsigned int i, j=0;
- 
- 	/* FIXME: This should be done in userspace --RR */
- 	for (i = 0; i < NR_CPUS; i++) {
-@@ -348,11 +348,12 @@
- 		if (cpu_possible(i) && !cpu_online(i)) {
- 			printk("Bringing up %i\n", i);
- 			cpu_up(i);
-+			j++;
- 		}
- 	}
- 
- 	/* Any cleanup work */
--	printk("CPUS done %u\n", max_cpus);
-+	printk("CPUS done %u\n", j);
- 	smp_cpus_done(max_cpus);
- #if 0
- 	/* Get other processors into their bootup holding patterns. */
+Martin J. Bligh wrote:
+
+>Fix a minor nit with the find_busiest_group code. No functional change,
+>but makes the code simpler and clearer. This patch does two things ... 
+>adds some more expansive comments, and removes this if clause:
+>
+>      if (*imbalance < SCHED_LOAD_SCALE
+>                      && max_load - this_load > SCHED_LOAD_SCALE)
+>		*imbalance = SCHED_LOAD_SCALE;
+>
+>If we remove the scaling factor, we're basically conditionally doing:
+>
+>	if (*imbalance < 1)
+>		*imbalance = 1;
+>
+>Which is pointless, as the very next thing we do is to remove the scaling
+>factor, rounding up to the nearest integer as we do:
+>
+>	*imbalance = (*imbalance + SCHED_LOAD_SCALE - 1) >> SCHED_LOAD_SHIFT;
+>
+>Thus the if statement is redundant, and only makes the code harder to read ;-)
+>
+
+Thanks Martin,
+You are right. The redundant code was left over from an older
+version. Thanks for the comments too.
+
+Andrew would you like me to take small changes like this and
+feed them to you, or are you happy enough to pick them up?
+No doubt there will be a a few more.
+
+

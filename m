@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbULNHPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbULNHYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbULNHPK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 02:15:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbULNHPK
+	id S261439AbULNHYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 02:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULNHYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 02:15:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58544 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261437AbULNHPH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 02:15:07 -0500
-Date: Mon, 13 Dec 2004 23:14:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Bill Chimiak <bchimiak@earthlink.net>
+	Tue, 14 Dec 2004 02:24:25 -0500
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:40395 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261439AbULNHYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 02:24:22 -0500
+Message-ID: <24338756.1103009050547.JavaMail.tomcat@pne-ps1-sn1>
+Date: Tue, 14 Dec 2004 08:24:10 +0100 (MET)
+From: Voluspa <lista4@comhem.se>
+Reply-To: lista4@comhem.se
+To: mr@ramendik.ru
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: visor.ko freezes on dlpsh list
-Message-ID: <20041214071456.GA10906@kroah.com>
-References: <200412132119.52402.bchimiak@earthlink.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412132119.52402.bchimiak@earthlink.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Mailer: CP Presentation Server
+X-clientstamp: [213.64.150.229]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 09:19:52PM -0500, Bill Chimiak wrote:
-> Summary: Handspring visor does not  fully sync with kpilot or jpilot
-> or with pilot-xfer.
-> With dlpsh, the user, and df work but it freezes with a ls command
-> after completing about 75% to 80% of the actually listing.
+At 2004-12-14 2:28:59 Mikhail Ramendik wrote:
 
-What kernel version are you using?
+> BTW, somebody told me in a private email to try the oomkiller patch, but 
+I 
+> could not extract it from the Web archive, so I don't have the latest version 
+> of that :( I'd apreciate if anyone emailed that to me, or gave me a link. 
+or 
+> a pointer to instructions on getting it right from obe of the Web archives.
 
-thanks,
+Final incarnation can be picked up at
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110269783227867&w=2
 
-greg k-h
+But on my machine it doesn't address the issue you speak of. When I run something
+as demanding as that (end of memory, eating a large chunk of swap) it behaves 
+like
+yours. Gkrellm stops - no screen updates, mouse becomes very unresponsive etc. 
+Though
+I saw that as "normal" for the workload.
+
+In this appartment there's no difference between 2.6.9 patched with the kswapd 
+fix and
+the oomkill patch, or 2.6.10-rc3 with or without oomkill patch. Can't comment 
+on 2.6.8
+since I didn't exhaust memory with applications back then.
+
+Mvh
+Mats Johannesson
+

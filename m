@@ -1,40 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbTHUU5B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 16:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbTHUU5B
+	id S262888AbTHUU4i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 16:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTHUU4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 16:57:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42978 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262906AbTHUU47
+	Thu, 21 Aug 2003 16:56:38 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:8140 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S262888AbTHUU4g convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 16:56:59 -0400
-Date: Thu, 21 Aug 2003 21:56:56 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, gkajmowi@tbaytel.net,
-       linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: Initramfs
-Message-ID: <20030821205656.GG454@parcelfarce.linux.theplanet.co.uk>
-References: <200308210044.17876.gkajmowi@tbaytel.net> <1061447419.19503.20.camel@camp4.serpentine.com> <3F44D504.7060909@pobox.com> <1061490490.23060.9.camel@serpentine.internal.keyresearch.com> <20030821190358.GF454@parcelfarce.linux.theplanet.co.uk> <1061495854.23060.12.camel@serpentine.internal.keyresearch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061495854.23060.12.camel@serpentine.internal.keyresearch.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 21 Aug 2003 16:56:36 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH][2.6][5/5]Support for HPET based timer
+Date: Thu, 21 Aug 2003 13:56:32 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D1DF@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.6][5/5]Support for HPET based timer
+Thread-Index: AcNnwf2rqcojdBWfQXipgbK5SLhQSQAYcAbQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+X-OriginalArrivalTime: 21 Aug 2003 20:56:33.0044 (UTC) FILETIME=[B3C2CD40:01C36826]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 12:57:34PM -0700, Bryan O'Sullivan wrote:
-> On Thu, 2003-08-21 at 12:03, viro@parcelfarce.linux.theplanet.co.uk
-> wrote:
-> 
-> > RTFM.  cpio -o -H newc should be used to create an archive; _not_ the
-> > "binary" format that is default.
-> 
-> There is no FM to R in this regard.
 
-Ouch.  My apologies - I'd assumed that it got into the tree and hadn't
-checked that.  Google for "initramfs buffer spec" will give the text
-I had in mind.  Probably ought to go in Documentation/*, unless hpa
-has any problems with it.  Peter?
+
+
+> -----Original Message-----
+> From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
+> Indeed. The main problem, however, for me was to decide which 
+> IRQ to use
+> for the HPET. The HPET has a big mask of allowable IRQs, the APIC has
+> many pins - so how to decide which one to use and if possible 
+> not share
+> it with a PCI device?
+
+This possibly can be done by selecting the pin that is not already
+programmed by 
+setup_IO_APIC_irqs(), and do a manual setup_IO_APIC_irqs() on that, for
+HPET
+usage.
+
+> That'd work probably. I don't believe there will ever be systems with
+> HPET and without a working IOAPIC. But, well, insane things do happen.
+> 
+> As for the user disabling it, we could disable HPET then, 
+> too. Anyway, I
+> agree with your proposal of first going for legacy mode and 
+> doing native
+> mode later. 
+
+Thanks for all the comments/suggestions. I will work on using early
+ioremap in 
+place of fixmap and resend the patch.
+
+> (PS. It's a pretty stupid thing in the HPET spec to only be able to
+>  gobble up BOTH the PIT and RTC interrupts and not separately.)
+
+I totally agree with you. Just one additional bit would have solved the 
+these problems. Also, I do not understand why RTC interrupts were
+overridden 
+at all, when HPET cannot provide complete RTC functionality and it does
+not 
+know anything about RTC time.
+
+
+Thanks,
+-Venkatesh
+
+
+
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+> 

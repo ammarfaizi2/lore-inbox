@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263173AbUFFJho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbUFFJnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUFFJho (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 05:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUFFJho
+	id S263184AbUFFJnv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 05:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUFFJnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 05:37:44 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:29372 "EHLO
+	Sun, 6 Jun 2004 05:43:51 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:61884 "EHLO
 	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S263173AbUFFJhm convert rfc822-to-8bit (ORCPT
+	id S263184AbUFFJns convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 05:37:42 -0400
+	Sun, 6 Jun 2004 05:43:48 -0400
 To: Valdis.Kletnieks@vt.edu
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: keyboard problem with 2.6.6
 From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 06 Jun 2004 11:43:47 +0200
+Message-ID: <xb7hdtpyqb0.fsf@savona.informatik.uni-freiburg.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-Date: 06 Jun 2004 11:37:41 +0200
-Message-ID: <xb7llj1yql6.fsf@savona.informatik.uni-freiburg.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: 8BIT
@@ -26,35 +26,58 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 >>>>> "Valdis" == Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
 
-    >> You don't tell any kernel about that... it is the bootloader
-    >> you are talking to. And that one may very well have integrated
-    >> kbd support.
+    Valdis> On Fri, 04 Jun 2004 22:33:41 +0300, Denis Vlasenko said:
+    >> Using shell scripts instead of 'standard' init etc is way more
+    >> configurable. As an example, my current setup at home:
+    >> 
+    >> My kernel params are:
 
-    Valdis> So GRUB knows about keyboards, lets you type in the
-    Valdis> "init=/bin/bash", it loads the kernel, the kernel launches
-    Valdis> init, /bin/bash gets loaded 
+    Valdis> Yes. Those are *YOUR* config setup parameters, that happen
+    Valdis> to work with *your* specific configuration when everything
+    Valdis> is operational. Some problems:
 
-If  init can  launch /bin/bash  (actually,  it lauches  getty in  most
-setups), why can't it start the userland keyboard driver daemon?
+    Valdis> 1) Not all the world uses initrd....
 
-Back  in the  old days  before the  introduction of  /etc/rc.d/, every
-daemon was started from by init.
+Does ever /etc/rcS.d/* require initrd?
 
-
-    Valdis> - and /bin/bash can't talk to the keyboard because the
-    Valdis> userspace handler hasn't happened.  
-
-As soon as the daemon is  running, /bin/bash can talk to the keyboard.
-There is not much concurrency problems here.  The current input system
-makes  it possible  for /bin/bash  to start  opening the  keyboard and
-waiting for input before the userspace handler is ready.
+Moreover, not all the world uses a keyboard, either.
 
 
-    Valdis> At that point you're stuck...
 
-I  can't see  how stuck  it is.   And if  you fear  that  the userland
-keyboard driver  would crash  (maybe due to  bugs), use  the 'respawn'
-option in /etc/inittab.
+    Valdis> 2) I hope your /script/mount_root will Do The Right Thing
+    Valdis> if the mount fails because it needs an fsck, for example.
+    Valdis> Answering those 'y' and 'n' prompts can be a problem if
+    Valdis> your keyboard isn't working yet..
+
+Things even worse  can happen, too, such as  harddisk dying.  In those
+problematic situations,  you'd rather boot a failsafe  partition, or a
+rescue floppy, or Knoppix CD.
+
+
+    Valdis> 3) Bonus points if you can explain how to, *without* a
+    Valdis> working keyboard, modify that /linuxrc on your initrd to
+    Valdis> deal with the situation where your keyboard setup is wrong
+    Valdis> (think "booting with borrowed keyboard because your usual
+    Valdis> one just suffered a carbonated caffeine overdose")...
+
+How  do you  do the  same if  you had  only SCSI  disks, but  the SCSI
+modules are not loaded or compiled in?
+
+
+    Valdis> There's a *BASIC* bootstrapping problem here - if you move
+    Valdis> "initialize and handle the keyboard" into userspace, you
+    Valdis> then *require* that a significantly larger chunk of
+    Valdis> userspace be operational in order to be able to even type
+    Valdis> at the machine.  If you're trying to recover a *broken*
+    Valdis> userspace, it gets a lot harder.
+
+
+    Valdis> And the embedded people who use
+    Valdis> "init=/onlyprogramthateverruns" are going to have a
+    Valdis> significant collective cow about this....
+
+Does embedded systems always have a keyboard?
+
 
 
 

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVBRLxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVBRMPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVBRLxM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 06:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVBRLxL
+	id S261343AbVBRMPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 07:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVBRMPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 06:53:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:43410 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261332AbVBRLxJ (ORCPT
+	Fri, 18 Feb 2005 07:15:51 -0500
+Received: from ltgp.iram.es ([150.214.224.138]:48515 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S261332AbVBRMPq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 06:53:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=n7PLMGCQy4oUewkLrvYEW1pWYi4Xg2lQ16n15UyGaj92q8Glv5dEPJK7n8mI2fDrqk3pv3Gua1x8tiKPnNffRSAGnH6U6x3tWVNJTLKapLV4W6qxYvusG2G6opTmYpfiBvlmKIdL+lr8v8+x4pweKVRcry9y8zy8alCJwaVPDS4=
-Message-ID: <845b6e8705021803533ba8cc34@mail.gmail.com>
-Date: Fri, 18 Feb 2005 12:53:09 +0100
-From: =?ISO-8859-1?Q?Erik_B=E5gfors?= <zindar@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Erik_B=E5gfors?= <zindar@gmail.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [darcs-users] Re: [BK] upgrade will be needed
-Cc: Tupshin Harper <tupshin@tupshin.com>, darcs-users@darcs.net,
-       lm@bitmover.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050218090900.GA2071@opteron.random>
+	Fri, 18 Feb 2005 07:15:46 -0500
+From: Gabriel Paubert <paubert@iram.es>
+Date: Fri, 18 Feb 2005 13:09:14 +0100
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Message-ID: <20050218120914.GB31891@iram.es>
+References: <200502151557.06049.jbarnes@sgi.com> <1108515817.13375.63.camel@gaston> <200502161554.02110.jbarnes@sgi.com> <1108601294.5426.1.camel@gaston> <9e473391050217083312685e44@mail.gmail.com> <1108680350.5665.7.camel@gaston> <9e473391050217145620fecfdc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050214020802.GA3047@bitmover.com>
-	 <200502172105.25677.pmcfarland@downeast.net>
-	 <421551F5.5090005@tupshin.com> <20050218090900.GA2071@opteron.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e473391050217145620fecfdc@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Feb 2005 10:09:00 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
-> On Thu, Feb 17, 2005 at 06:24:53PM -0800, Tupshin Harper wrote:
-> > small to medium sized ones). Last I checked, Arch was still too slow in
-> > some areas, though that might have changed in recent months. Also, many
+On Thu, Feb 17, 2005 at 05:56:03PM -0500, Jon Smirl wrote:
+> On Fri, 18 Feb 2005 09:45:50 +1100, Benjamin Herrenschmidt
+> <benh@kernel.crashing.org> wrote:
 > 
-> IMHO someone needs to rewrite ARCH using the RCS or SCCS format for the
-> backend and a single file for the changesets and with sane parameters
-> conventions miming SVN.
+> > Can't the size be obtained like any other BAR ?
+> 
+> yes, but cards that don't fully decode their ROM address space can
+> waste memory in copy_rom. For example I have a card around here that
+> reports a BAR address space of 128K and has a 2K ROM in it. You only
+> want to copy the 2K, not the 128K.
 
-RCS/SCCS format doesn't make much sence for a changeset oriented SCM.
+Indeed, but they normally repeat by powers of 2, ignoring
+high order address bits. Is it that hard to detect?
 
-/Erik
+For example if it declares 128k, compare the two halves, reduce
+to 64k if equal. Lather, rinse, repeat.
+
+It's equivalent to reading the BAR declared size twice in 
+the worst case, so it's not that bad performance-wise.
+
+That would only be in the case of an unknown signature
+in the first bytes, otherwise the third byte gives you
+the size IIUC.
+
+	Gabriel

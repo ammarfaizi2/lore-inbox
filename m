@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbULAXjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbULAXnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbULAXjM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 18:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbULAXjM
+	id S261496AbULAXnB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 18:43:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbULAXmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 18:39:12 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:53257 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261494AbULAXiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 18:38:55 -0500
-Date: Thu, 2 Dec 2004 00:38:53 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] compile with -ffreestanding
-Message-ID: <20041201233853.GB5148@stusta.de>
+	Wed, 1 Dec 2004 18:42:51 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:55690 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261502AbULAXlZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 18:41:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=kJQ5QIIATQRBudSSlFEq2FaKZ2d4EYb7/OwGrAljFfEERAULNtOPlI2ZVWimYkHfhHqvxAfW5yDbVHmhlUy9LB+nKCqZXu8KhYv9wiSzIRDQurf629Kf9C2qwZ5CvL3OK4um631h43dzPUGKHkDEWf+m8qVYe5ZhzvZY0S++fY4=
+Message-ID: <aec7e5c304120115415153f706@mail.gmail.com>
+Date: Thu, 2 Dec 2004 00:41:22 +0100
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] documentation - mem=
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_666_29074319.1101944482054"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+------=_Part_666_29074319.1101944482054
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-for the kernel, it would be logical to use -ffreestanding. The kernel is 
-not a hosted environment with a standard C library.
+Hi All,
 
-The gcc option -ffreestanding is supported by both gcc 2.95 and 3.4, 
-which covers the whole range of currently supported compilers.
+I recently learnt that limiting RAM with by using only "mem=xxxM" is
+no good on machines equipped with PCI. In my case (vanilla 2.6.9) the
+cardbus bridge on my laptop got mapped to the unused RAM area which
+resulted in wierd errors due to the collision.
 
-I'm currently running a 2.6.10-rc2-mm4 with this patch applied and 
-compiled with gcc 2.95 and haven't yet observed any problems.
+The right solution is to use "mem=" together with "memmap=" to mark
+the unused RAM area reserved.
 
-Regarding changes caused by this patch:
+>From now on I force the kernel to use 2016MiB by passing "mem=2016M
+memmap=32M#2016M" instead of just "mem=2016M".
 
-Andi Kleen reported:
-  Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
+Anyway, this patch tried to document the behaviour. Please comment or apply.
 
-This is only true with unit-at-a-time (disabled on i386 but enabled
-on x86_64). The Linux kernel doesn't offer a standard C library, and
-such transparent replacements of kernel functions with builtins are
-quite fragile.
+Thanks!
 
-Even with -ffreestanding, it's still possilble to explicitely use a gcc
-builtin if desired.
+/ magnus
 
-Could you add the patch below to the next -mm to see whether there are 
-any problems I didn't find?
+------=_Part_666_29074319.1101944482054
+Content-Type: text/x-patch; name="linux-2.6.10-rc2-mm4-mem_hints.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="linux-2.6.10-rc2-mm4-mem_hints.patch"
 
-TIA
-Adrian
+diff -urN linux-2.6.10-rc2-mm4/Documentation/kernel-parameters.txt linux-2.=
+6.10-rc2-mm4-mem_hints/Documentation/kernel-parameters.txt
+--- linux-2.6.10-rc2-mm4/Documentation/kernel-parameters.txt=092004-12-01 2=
+3:50:53.125191440 +0100
++++ linux-2.6.10-rc2-mm4-mem_hints/Documentation/kernel-parameters.txt=0920=
+04-12-02 00:14:39.465354776 +0100
+@@ -704,6 +704,9 @@
+ =09mem=3Dnn[KMG]=09[KNL,BOOT] Force usage of a specific amount of memory
+ =09=09=09Amount of memory to be used when the kernel is not able
+ =09=09=09to see the whole system memory or for test.
++=09=09=09[IA-32] Use together with memmap=3D to avoid physical
++=09=09=09address space collisions. Without memmap=3D PCI devices
++=09=09=09could be placed at addresses belonging to unused RAM.
+=20
+ =09mem=3Dnopentium=09[BUGS=3DIA-32] Disable usage of 4MB pages for kernel
+ =09=09=09memory.
+diff -urN linux-2.6.10-rc2-mm4/Documentation/memory.txt linux-2.6.10-rc2-mm=
+4-mem_hints/Documentation/memory.txt
+--- linux-2.6.10-rc2-mm4/Documentation/memory.txt=092004-10-18 23:55:36.000=
+000000 +0200
++++ linux-2.6.10-rc2-mm4-mem_hints/Documentation/memory.txt=092004-12-02 00=
+:03:01.712429344 +0100
+@@ -21,6 +21,8 @@
+ All of these problems can be addressed with the "mem=3DXXXM" boot option
+ (where XXX is the size of RAM to use in megabytes). =20
+ It can also tell Linux to use less memory than is actually installed.
++If you use "mem=3D" on a machine with PCI, consider using "memmap=3D" to a=
+void
++physical address space collisions.
+=20
+ See the documentation of your boot loader (LILO, loadlin, etc.) about
+ how to pass options to the kernel.
+@@ -44,7 +46,9 @@
+ =09* Disabling the cache from the BIOS.
+=20
+ =09* Try passing the "mem=3D4M" option to the kernel to limit
+-=09  Linux to using a very small amount of memory.
++=09  Linux to using a very small amount of memory. Use "memmap=3D"-option
++=09  together with "mem=3D" on systems with PCI to avoid physical address
++=09  space collisions.
+=20
+=20
+ Other tricks:
 
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm4-full-ffreestanding/Makefile.old	2004-11-09 22:27:06.000000000 +0100
-+++ linux-2.6.10-rc1-mm4-full-ffreestanding/Makefile	2004-11-09 22:27:47.000000000 +0100
-@@ -349,7 +349,8 @@
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
- 
- CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs \
--	  	   -fno-strict-aliasing -fno-common
-+	  	   -fno-strict-aliasing -fno-common \
-+		   -ffreestanding
- AFLAGS		:= -D__ASSEMBLY__
- 
- export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION LOCALVERSION KERNELRELEASE \
-
-
-
+------=_Part_666_29074319.1101944482054--

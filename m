@@ -1,97 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUEaTSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264733AbUEaTUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264731AbUEaTSd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 15:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264733AbUEaTSd
+	id S264733AbUEaTUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 15:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUEaTUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 15:18:33 -0400
-Received: from ptb-relay01.plus.net ([212.159.14.212]:12302 "EHLO
-	ptb-relay01.plus.net") by vger.kernel.org with ESMTP
-	id S264731AbUEaTSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 15:18:30 -0400
-Message-ID: <40BB84F6.7060003@mauve.plus.com>
-Date: Mon, 31 May 2004 20:18:14 +0100
-From: Ian Stirling <linux-kernel@mauve.plus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: sd 1:0:0:0: Illegal state transition offline->cancel
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 31 May 2004 15:20:09 -0400
+Received: from vsmtp1b.tin.it ([212.216.176.141]:36785 "EHLO vsmtp1.tin.it")
+	by vger.kernel.org with ESMTP id S264733AbUEaTTm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 15:19:42 -0400
+Subject: Re: 2.6.x partition breakage and dual booting
+From: Frediano Ziglio <freddyz77@tin.it>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20040531180821.GC5257@louise.pinerecords.com>
+References: <40BA2213.1090209@pobox.com>
+	 <20040530183609.GB5927@pclin040.win.tue.nl> <40BA2E5E.6090603@pobox.com>
+	 <20040530200300.GA4681@apps.cwi.nl> <s5g8yf9ljb3.fsf@patl=users.sf.net>
+	 <20040531180821.GC5257@louise.pinerecords.com>
+Content-Type: text/plain
+Message-Id: <1086031180.3985.32.camel@freddy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 31 May 2004 21:19:40 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was trying to reformat my MP3 player, but it's not goint well.
-Amongst the other errors was this, that I thought might be of interest.
-2.6.6
+Il lun, 2004-05-31 alle 20:08, Tomas Szepe ha scritto:
+> > This is really very simple.  If you move a disk from a machine with
+a
+> > different BIOS and you preserve the partition table geometry, you
+will
+> > NEVER be able to install Windows on the drive.  If you partition a
+> > blank drive and use the wrong geometry, you will NEVER be able to
+> > install Windows on the drive.
+> 
+> I don't quite believe this.  AFAICT the Windows 2000/XP install
+program will
+> succeed no matter what, the only problem is with getting the dirty
+thing to
+> boot AFTER install has completed.  If it craps out, boot off the
+install
+> CD to the repair console prompt, run fixboot/fixmbr and all should be
+swell.
+> If you need dual boot, you can go ahead and reinstall lilo/grub at
+this point.
+> The one scenario unfixable without a hex editor that I know of is
+installing
+> Windows on a partition that was created using mkdosfs -F 32 (and even
+that
+> will sometimes work).
 
-May 31 20:03:21 mauve kernel: Buffer I/O error on device sdb1, logical block 7
-May 31 20:03:21 mauve kernel: lost page write due to I/O error on sdb1
-May 31 20:03:21 mauve kernel: Buffer I/O error on device sdb1, logical block 8
-May 31 20:03:21 mauve kernel: lost page write due to I/O error on sdb1
-May 31 20:03:21 mauve kernel: Buffer I/O error on device sdb1, logical block 9
-May 31 20:03:21 mauve kernel: lost page write due to I/O error on sdb1
-May 31 20:03:21 mauve kernel: scsi1 (0:0): rejecting I/O to offline device
-May 31 20:03:21 mauve last message repeated 3 times
-May 31 20:07:07 mauve kernel: sd 1:0:0:0: Illegal state transition offline->cancel
-May 31 20:07:07 mauve kernel: Badness in scsi_device_set_state at drivers/scsi/scsi_lib.c:1640
-May 31 20:07:07 mauve kernel: Call Trace:
-May 31 20:07:07 mauve kernel:  [<c027ddea>] scsi_device_set_state+0xba/0x110
-May 31 20:07:07 mauve kernel:  [<c0278ed7>] scsi_device_cancel+0x27/0x11c
-May 31 20:07:07 mauve kernel:  [<c02507fd>] device_for_each_child+0x5d/0x90
-May 31 20:07:07 mauve kernel:  [<c0279065>] scsi_host_cancel+0x35/0xa0
-May 31 20:07:07 mauve kernel:  [<c0279010>] scsi_device_cancel_cb+0x0/0x20
-May 31 20:07:07 mauve kernel:  [<cc9df47f>] usb_buffer_free+0x4f/0x60 [usbcore]
-May 31 20:07:07 mauve kernel:  [<c02790ec>] scsi_remove_host+0x1c/0x60
-May 31 20:07:07 mauve kernel:  [<cc850d69>] storage_disconnect+0x39/0x47 [usb_storage]
-May 31 20:07:07 mauve kernel:  [<cc9de106>] usb_unbind_interface+0x76/0x80 [usbcore]
-May 31 20:07:07 mauve kernel:  [<c02517b6>] device_release_driver+0x66/0x70
-May 31 20:07:07 mauve kernel:  [<c025192f>] bus_remove_device+0x6f/0xb0
-May 31 20:07:07 mauve kernel:  [<c025072e>] device_del+0x6e/0xb0
-May 31 20:07:07 mauve kernel:  [<c0250784>] device_unregister+0x14/0x30
-May 31 20:07:07 mauve kernel:  [<cc9e4540>] usb_disable_device+0x70/0xb0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9ded56>] usb_disconnect+0xc6/0x120 [usbcore]May 31 20:07:07 mauve kernel: 
-[<cc9e106f>] hub_port_connect_change+0x29f/0x2b0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9e09e1>] hub_port_status+0x41/0xb0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9e13c3>] hub_events+0x343/0x3b0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9e1465>] hub_thread+0x35/0xf0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<c0115770>] default_wake_function+0x0/0x20
-May 31 20:07:07 mauve kernel:  [<cc9e1430>] hub_thread+0x0/0xf0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<c01032e5>] kernel_thread_helper+0x5/0x10
-May 31 20:07:07 mauve kernel:
-May 31 20:07:07 mauve kernel: sd 1:0:0:0: Illegal state transition offline->cancel
-May 31 20:07:07 mauve kernel: Badness in scsi_device_set_state at drivers/scsi/scsi_lib.c:1640
-May 31 20:07:07 mauve kernel: Call Trace:
-May 31 20:07:07 mauve kernel:  [<c027ddea>] scsi_device_set_state+0xba/0x110
-May 31 20:07:07 mauve kernel:  [<c027fdcf>] scsi_remove_device+0x1f/0xc0
-May 31 20:07:07 mauve kernel:  [<c027f1b5>] scsi_forget_host+0x55/0xa0
-May 31 20:07:07 mauve kernel:  [<c02790fc>] scsi_remove_host+0x2c/0x60
-May 31 20:07:07 mauve kernel:  [<cc850d69>] storage_disconnect+0x39/0x47 [usb_storage]
-May 31 20:07:07 mauve kernel:  [<cc9de106>] usb_unbind_interface+0x76/0x80 [usbcore]
-May 31 20:07:07 mauve kernel:  [<c02517b6>] device_release_driver+0x66/0x70
-May 31 20:07:07 mauve kernel:  [<c025192f>] bus_remove_device+0x6f/0xb0
-May 31 20:07:07 mauve kernel:  [<c025072e>] device_del+0x6e/0xb0
-May 31 20:07:07 mauve kernel:  [<c0250784>] device_unregister+0x14/0x30
-May 31 20:07:07 mauve kernel:  [<cc9e4540>] usb_disable_device+0x70/0xb0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9ded56>] usb_disconnect+0xc6/0x120 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9e106f>] hub_port_connect_change+0x29f/0x2b0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9e09e1>] hub_port_status+0x41/0xb0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9e13c3>] hub_events+0x343/0x3b0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<cc9e1465>] hub_thread+0x35/0xf0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<c0115770>] default_wake_function+0x0/0x20
-May 31 20:07:07 mauve kernel:  [<cc9e1430>] hub_thread+0x0/0xf0 [usbcore]
-May 31 20:07:07 mauve kernel:  [<c01032e5>] kernel_thread_helper+0x5/0x10
-May 31 20:07:07 mauve kernel:
-May 31 20:07:17 mauve kernel: sdc: assuming drive cache: write through
-May 31 20:07:20 mauve modprobe: modprobe: QM_MODULES: Function not implemented
-May 31 20:07:20 mauve modprobe: modprobe: QM_MODULES: Function not implemented
-May 31 20:07:20 mauve modprobe: modprobe: Can't locate module usb-storage
-May 31 20:07:31 mauve kernel: scsi2: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 00 00 24 b3 00 00 5d 00
-May 31 20:07:31 mauve kernel: Info fld=0x2500, Current sdc: sense = f0  3
-May 31 20:07:31 mauve kernel: ASC=31 ASCQ= 0
-May 31 20:07:31 mauve kernel: Raw sense data:0xf0 0x00 0x03 0x00 0x00 0x25 0x00 0x0a 0x00 0x00 0x00 0x00 0x31 0x00 0x00 
-0x00 0x
-00 0x00
-May 31 20:07:31 mauve kernel: end_request: I/O error, dev sdc, sector 9472
-May 31 20:07:31 mauve kernel: Buffer I/O error on device sdc1, logical block 9421
+Let me explain my point of view
+
+I encountered the problem trying to install Fedora Core 2. Using Fedora
+Core 2 and fdisk do not works (it return bad head count), so it's not
+only an anaconda problem.
+
+I analyzed 2.4.22 code and 2.6.5 code (both from Fedora kernels)
+In 2.4 when an IDE drive is detected it looks in CMOS to see if a HD is
+configured, then fetch BIOS data from int 41h / int 46h. If this is not
+possible it try to compute heads number (the number that allow you to
+access most data) (drivers/ide/ide-geometry.c). Another hint is to check
+partition table (fs/partitions/msdos.c). In 2.6 this code just
+disappeared...
+
+I think it's important to know BIOS point of view. Linux provide these
+information so we have two choices to solve the problem:
+- correct the informations we return
+- do not return anything and let user space programs do the job!
+
+How to match Linux view with BIOS view? We have some unimplemented mode
+I'll explain below (I just want to fix this problem).
+
+Mainly the problem raise cause we have a lot of choices and different
+configurations:
+- SCSI. BIOS can see SCSI disks before IDE disks, see the first SCSI
+disk then IDEs then others SCSIs;
+- BIOS settings. Some BIOS always minimize cylinder count (maximizing
+head count), others no, others allow you to select geometry (in my BIOS
+I have three choices: LBA, CHS and Large)
+- BIOS boot sequence. Newer BIOS let you choice what's is the first
+disks. Also I tried to plug a USB disks and select as first disk but
+BIOS put it always as second (even if I boot from floppy)... perhaps it
+check MBR???
+
+How to match BIOS with Linux?
+There are some infos that can helps:
+- if we have only a disks it's easy
+- we can use dimensions (int13h/8h, int 41h/46h)
+- MBR signature. I don't even know this before yesterday!!! We save only
+this information for first BIOS disk (80h), we can improve saving this
+information (and provide in sysfs)
+- EDD 1.0. Use physical dimensions to match
+- EDD 2.0. I don't understand why Linux code int 41h/46h and ignore
+these informations. My BIOSes do not support EDD 3.0 but support EDD
+2.0. EDD 2.0 provide informations like command port and if slave or not
+(see Ralph Brown's interrupt list, int 13h/48h). If a disk is IDE we can
+match _exactly_ the disk!
+- EDD 3.0. Here we have disk type and path (like LUN/ID on SCSI), very
+easy to match but not very widely implemented.
+IMHO we should try to use these informations as best that we can.
+
+There are also some informations in EDD that should be detected like
+removable disks. It would be useful if Linux can provide a mapping
+between BIOS and Linux disks to user-space programs.
+
+I can try to code some implementation but I'm not an Linux kernel
+hacker... for example I don't know if IDE is detected before SCSI
+(something suggests me that there isn't an order).
+
+freddy77
+
+

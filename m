@@ -1,82 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266302AbUGKLAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUGKLJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266302AbUGKLAY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 07:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266562AbUGKLAY
+	id S266561AbUGKLJP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 07:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUGKLJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 07:00:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56033 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266302AbUGKLAN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 07:00:13 -0400
-Date: Sun, 11 Jul 2004 12:59:37 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       linux-audio-dev@music.columbia.edu
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040711105936.GA13956@devserv.devel.redhat.com>
-References: <20040709182638.GA11310@elte.hu> <20040710222510.0593f4a4.akpm@osdl.org> <20040711093209.GA17095@elte.hu> <20040711024518.7fd508e0.akpm@osdl.org> <20040711095039.GA22391@elte.hu> <20040711025855.08afbca1.akpm@osdl.org> <20040711103020.GA24797@elte.hu> <20040711034258.796f8c6a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+	Sun, 11 Jul 2004 07:09:14 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:39616 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266561AbUGKLJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 07:09:12 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Voluntary Kernel Preemption Patch
+Date: Sun, 11 Jul 2004 13:18:25 +0200
+User-Agent: KMail/1.5
+Cc: ck kernel mailing list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org
+References: <20040709182638.GA11310@elte.hu> <20040711064730.GA11254@elte.hu> <cone.1089529187.633082.20820.502@pc.kolivas.org>
+In-Reply-To: <cone.1089529187.633082.20820.502@pc.kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040711034258.796f8c6a.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200407111318.25065.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 11 of July 2004 08:59, Con Kolivas wrote:
+> Ingo Molnar writes:
+> > * Con Kolivas <kernel@kolivas.org> wrote:
+> >> Ooops forgot to mention this was running reiserFS 3.6 on software
+> >> raid0 2x IDE with cfq elevator.
+> >
+> > ok, reiserfs (and all journalling fs's) definitely need a look - as you
+> > can see from the ext3 mods in the patch. Any chance you could try ext3
+> > based tests? Those are the closest to my setups.
+>
+> Sorry, I only have one machine to my name and I have to share it with
+> both the family and testing so no such luck.
 
---wac7ysb48OaltWcw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Well, I'm now only working on some documentation, so I think I can run some 
+tests if they are automated enough, on either i686 or x86-64 machine (both 
+SMP).  There's about 5 - 10 GB of free disk space on each (ext3, but I can 
+create a reiserfs easily, if needed).
 
-On Sun, Jul 11, 2004 at 03:42:58AM -0700, Andrew Morton wrote:
-> > We do not want to enable preempt for Fedora yet because it
-> > breaks just too much stuff
-> 
-> What stuff?
+If you want me to do this, please provide me with:
+a) patches to test,
+b) benchmark tools,
+c) instructions (what to turn on/off in the kernel config, how to run the 
+benchmarks - I need to be able to use a text editor while they are running 
+and occasionally run a web browser or acroread, but I don't care much if the 
+system crashes on them).
 
-just look over all the "fix preempt" stuff that got added to the kernel in
-the last 6 months. Sometimes subtle sometimes less so. From a distribution
-POV I don't want a potential slew of basically impossible to reproduce
-problems, especially this young in 2.6, there are plenty of other problems
-already (and before you ask "which", just look at how many bugs got fixed in
-the last X weeks for any value of X, and look at say acpi issues). 
-Yes I understand this puts you into a bit of a bad position, several distros
-not enabling preempt means that it gets less testing than it should.
-However.. there's only so much issues distros can take and with 2.6 still
-quite fresh...
+Yours,
+rjw
 
- 
-> > (Long-term i'd like to see preempt be used unconditionally - at which
-> > point the 10-line CONFIG_VOLUNTARY_PREEMPT Kconfig and kernel.h change
-> > could go away.)
-> 
-> And "stuff" is already broken on SMP, yes?
-
-That's the classic preempt "myth"; it's true if you ignore per cpu stuff and
-some other subtle issues ;) And even then, yes a lot of our drivers are not
-quite SMP safe. Take ISDN or any of the other declared SMP-broken drivers.
-Not to speak of the ones that aren't declared as such yet still are.
-Regardless of Hyperthreading, smp is still quite rare while crappy
-hardware/drivers are not.
-
-Do the BROKEN_ON_SMP tests get triggered in Kconfig for PREEMPT ? It probably
-should. 
-
-Greetings,
-    Arjan van de Ven
---wac7ysb48OaltWcw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA8R2YxULwo51rQBIRAiQoAJ43FGXkgGf99Noeb2YXrUMMy/Y58gCfUlZ1
-MD+Qdc1jzYMIYJrhVvhvOeU=
-=wsnI
------END PGP SIGNATURE-----
-
---wac7ysb48OaltWcw--
+-- 
+Rafael J. Wysocki
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

@@ -1,78 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312987AbSDOTRC>; Mon, 15 Apr 2002 15:17:02 -0400
+	id <S313019AbSDOTYW>; Mon, 15 Apr 2002 15:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313019AbSDOTRB>; Mon, 15 Apr 2002 15:17:01 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13061
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312987AbSDOTRA>; Mon, 15 Apr 2002 15:17:00 -0400
-Date: Mon, 15 Apr 2002 12:16:42 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Josh McKinney <forming@comcast.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]
-In-Reply-To: <20020415190946.GA1383@cy599856-a>
-Message-ID: <Pine.LNX.4.10.10204151216110.1699-100000@master.linux-ide.org>
+	id <S313041AbSDOTYV>; Mon, 15 Apr 2002 15:24:21 -0400
+Received: from cliff.mcs.anl.gov ([140.221.9.17]:57217 "EHLO mcs.anl.gov")
+	by vger.kernel.org with ESMTP id <S313019AbSDOTYV>;
+	Mon, 15 Apr 2002 15:24:21 -0400
+To: tomas szepe <kala@pinerecords.com>
+Cc: James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.7 keyboard problem
+In-Reply-To: <Pine.LNX.4.44.0204152105220.27809-100000@louise.pinerecords.com>
+From: "Narayan Desai" <desai@mcs.anl.gov>
+Date: Mon, 15 Apr 2002 14:24:06 -0500
+Message-ID: <yrxg01wlq95.fsf@catbert.mcs.anl.gov>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.1 (Cuyahoga Valley,
+ i386-mandrake-linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am experiencing a similar problem, though my keyboard works, but no
+mouse is detected. I have built a 2.5.7-dj4 kernel with the supplied
+config on an IBM thinkpad 600E (ps2 mouse, etc)
+ -nld
 
-Please send me your .config cause this built clean ...
+>>>>> "tomas" == tomas szepe <kala@pinerecords.com> writes:
 
-On Mon, 15 Apr 2002, Josh McKinney wrote:
+>> > an excerpt from the 2.5.8 .config in question: .  .
+>> > CONFIG_INPUT=y CONFIG_INPUT_KEYBDEV=y CONFIG_INPUT_MOUSEDEV=y .
+>> > .  CONFIG_SERIO=y CONFIG_SERIO_SERPORT=y
+>>
+>> Wrong config for DJ tree. Here is what you need for PS/2 input
+>> keyboard support.
+>>
+>> CONFIG_SERIO=y CONFIG_SERIO_I8042=y CONFIG_I8042_REG_BASE=60
+>> CONFIG_I8042_KBD_IRQ=1 CONFIG_I8042_AUX_IRQ=12
+>>
+>> Also don't forget
+>>
+>> CONFIG_INPUT_KEYBOARD=y CONFIG_KEYBOARD_ATKBD=y
+>>
+>> CONFIG_INPUT_MOUSE=y CONFIG_MOUSE_PS2=y
 
-> On approximately Mon, Apr 15, 2002 at 11:39:14AM -0700, Andre Hedrick wrote:
-> > 
-> > http://www.linuxdiskcert.org/ide-2.4.19-p6.all.convert.3.patch.bz2
-> > 
-> Just got this when compiling...
-> 
-> drivers/ide/idedriver.o: In function `task_no_data_intr':
-> drivers/ide/idedriver.o(.text+0x9f1): undefined reference to `ide__sti'
-> drivers/ide/idedriver.o: In function `flagged_task_no_data_intr':
-> drivers/ide/idedriver.o(.text+0x14c7): undefined reference to `ide__sti'
-> drivers/ide/idedriver.o: In function `ide_cmd_ioctl':
-> drivers/ide/idedriver.o(.text+0x23e0): undefined reference to `set_transfer'
-> drivers/ide/idedriver.o(.text+0x23fc): undefined reference to `ide_ata66_check'
-> drivers/ide/idedriver.o(.text+0x24a7): undefined reference to `ide_driveid_update'
-> drivers/ide/idedriver.o: In function `check_dma_crc':
-> drivers/ide/idedriver.o(.text+0x2fc3): undefined reference to `ide_auto_reduce_xfer'
-> drivers/ide/idedriver.o: In function `ide_dump_status':
-> drivers/ide/idedriver.o(.text+0x34c8): undefined reference to `ide__sti'
-> drivers/ide/idedriver.o: In function `drive_cmd_intr':
-> drivers/ide/idedriver.o(.text+0x3b21): undefined reference to `ide__sti'
-> drivers/ide/idedriver.o: In function `ide_wait_stat':
-> drivers/ide/idedriver.o(.text+0x3cd5): undefined reference to `ide__sti'
-> drivers/ide/idedriver.o: In function `ide_do_request':
-> drivers/ide/idedriver.o(.text+0x42c9): undefined reference to `ide__sti'
-> drivers/ide/idedriver.o: In function `ide_intr':
-> drivers/ide/idedriver.o(.text+0x48f3): undefined reference to `ide__sti'
-> drivers/ide/idedriver.o: In function `report_drive_dmaing':
-> drivers/ide/idedriver.o(.text+0x784a): undefined reference to `eighty_ninty_three'
-> drivers/ide/idedriver.o(.text+0x789e): undefined reference to `eighty_ninty_three'
-> drivers/ide/idedriver.o: In function `config_drive_for_dma':
-> drivers/ide/idedriver.o(.text+0x79ce): undefined reference to `eighty_ninty_three'
-> drivers/ide/idedriver.o(.text+0x79fe): undefined reference to `eighty_ninty_three'
-> drivers/ide/idedriver.o: In function `via_set_drive':
-> drivers/ide/idedriver.o(.text+0x91a8): undefined reference to `ide_config_drive_speed'
-> drivers/ide/idedriver.o: In function `actual_try_to_identify':
-> drivers/ide/idedriver.o(.text+0xaaec): undefined reference to `ide__sti'
-> make: *** [vmlinux] Error 1
-> 
-> This comes at the final linking stage.
-> 
-> Thanks for the great stuff Andre.
-> 
-> Josh McKinney
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
-Andre Hedrick
-LAD Storage Consulting Group
+tomas> Yes, I'm aware, maybe I should have included the -dj .config as
+tomas> well.  Same results I'm afraid.
+
+tomas> T.
+
+tomas> - To unsubscribe from this list: send the line "unsubscribe
+tomas> linux-kernel" in the body of a message to
+tomas> majordomo@vger.kernel.org More majordomo info at
+tomas> http://vger.kernel.org/majordomo-info.html Please read the FAQ
+tomas> at http://www.tux.org/lkml/
 

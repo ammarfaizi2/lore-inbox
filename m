@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbTEGPGz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbTEGPGz
+	id S263811AbTEGPHl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbTEGPHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:06:55 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:11272 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S263805AbTEGPGy (ORCPT
+	Wed, 7 May 2003 11:07:41 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:60050 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S263811AbTEGPHh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:06:54 -0400
-To: linux-kernel@vger.kernel.org
+	Wed, 7 May 2003 11:07:37 -0400
+Date: Wed, 7 May 2003 17:18:11 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
+Message-ID: <20030507151811.GC412@elf.ucw.cz>
+References: <20030506164252.GA5125@mail.jlokier.co.uk> <20030506204305.GA5546@elf.ucw.cz> <20030506221819.GC6284@mail.jlokier.co.uk> <1052256672.1983.174.camel@dhcp22.swansea.linux.org.uk> <20030506224824.GE6284@mail.jlokier.co.uk> <1052310058.3061.11.camel@dhcp22.swansea.linux.org.uk> <20030507142619.GA16023@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@altium.nl (Dick Streefland)
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <20030507141458.B30005@flint.arm.linux.org.uk>
-From: spam@altium.nl (Dick Streefland)
-Subject: Re: The magical mystical changing ethernet interface order
 Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <6632.3eb923bb.15701@altium.nl>
-Date: Wed, 07 May 2003 15:18:19 -0000
+Content-Disposition: inline
+In-Reply-To: <20030507142619.GA16023@mail.jlokier.co.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> wrote:
-| Its rather annoying when your dhcpd starts on the wrong interface.
+Hi!
 
-You can avoid this by assigning new interface names with "nameif".
+> > > I'd get to define "the OS" so that is not a problem :) You could
+> > 
+> > The GPL is smarter than that
+> > "However, as a special exception, the source code distributed need not
+> > include anything that is normally distributed (in either source or
+> > binary form) with the major components (compiler, kernel, and so on) of
+> > the operating system on which the executable runs, unless that component
+> > itself accompanies the executable."
+> 
+> I am talking about replacing the kernel (and compiler as it
+> happens)... those _are_ the major components of the operating system
+> which fall under that exception.  So, if we were splitting hairs over
+> the wording, it would come down to whether the other major components
+> "accompany the executable", where the executable is the GPL module.
+> 
+> This is further complicated because those GPL modules need not be
+> distributed in binary form anyway, they could be compiled at run time
+> from source, so there is no executable to speak of.  More corner case
+> fun :)
 
+If you are compiling them from source, and interface between the
+module and the kernel is well defined (== "userspace") I guess you are
+okay.
+								Pavel
 -- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

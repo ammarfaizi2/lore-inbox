@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269052AbRHBPrl>; Thu, 2 Aug 2001 11:47:41 -0400
+	id <S269028AbRHBPrA>; Thu, 2 Aug 2001 11:47:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269047AbRHBPrb>; Thu, 2 Aug 2001 11:47:31 -0400
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:20751 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S269041AbRHBPrP>; Thu, 2 Aug 2001 11:47:15 -0400
-Date: Thu, 2 Aug 2001 09:47:18 -0600
-Message-Id: <200108021547.f72FlI619086@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: adilger@turbolinux.com (Andreas Dilger), linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
-In-Reply-To: <E15SKWg-0000uC-00@the-village.bc.nu>
-In-Reply-To: <no.id>
-	<E15SKWg-0000uC-00@the-village.bc.nu>
+	id <S269047AbRHBPqu>; Thu, 2 Aug 2001 11:46:50 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:56079 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S269041AbRHBPql>; Thu, 2 Aug 2001 11:46:41 -0400
+From: Nikita Danilov <NikitaDanilov@Yahoo.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15209.30134.699801.417492@beta.namesys.com>
+Date: Thu, 2 Aug 2001 19:45:58 +0400
+To: Linus Torvalds <Torvalds@Transmeta.COM>
+CC: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH]: reiserfs: D-clear-i_blocks.patch
+X-Mailer: VM 6.89 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > So, yes, you can already patch other subsystems to dynamically assign
-> > major numbers in 2.4.7. I'd like to see people do that. My patch for
-> > sd.c can also serve as a demonstration on how to use the new API.
-> 
-> Its a bit of an ugly hack but I guess its the best anyone can put
-> together for a 2.4 kernel tree. Going to a 32bit dev_t is going to
-> make life so much simpler do all of this without ugly hacks
+Hello, Linus,
 
-My patch is definately 2.4 material. I see it as a temporary solution
-until the whole block I/O subsystem is ripped out and replaced in 2.5.
-Since 2.4 will be the latest production kernel for about two years, we
-need to find ways of working around current limitations.
+This patch sets inode.i_blocks to zero on deletion of reiserfs
+file. This in particular cures hard to believe bug when saving file in
+EMACS caused top to loose sight of all processes:
+ . reiserfs didn't properly cleared i_blocks when removing
+   symlinks. Actually -7 was inserted into unsigned i_blocks field. This
+   didn't usually hurt because file is being deleted;
+ . inode is reused for procfs and neither get_new_inode() nor
+   proc_read_inode() cleared i_blocks;
+ . now procfs inode has huge i_blocks field;
+ . top calls stat on it and libc wrapper returns EOVERFLOW, as i_blocks
+   doesn't fit into user-level struct.
+ . top sees nothing.
+  
+[lkml: please CC me, I am not subscribed.]
 
-That said, in 2.5 I want to see us move away from using device numbers
-as the fundamental device handle and move to device instance
-structures. That's a lot cleaner, and BTW is devfs-neutral
-(i.e. doesn't need devfs to work). Exposing a 32 bit dev_t to
-user-space is acceptable, but internally it should be shunned.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Nikita.
+diff -rup linux-2.4.8-pre3/fs/reiserfs/inode.c linux-2.4.8-pre3.patched/fs/reiserfs/inode.c
+--- linux-2.4.8-pre3/fs/reiserfs/inode.c	Wed Aug  1 17:21:10 2001
++++ linux-2.4.8-pre3.patched/fs/reiserfs/inode.c	Wed Aug  1 21:33:37 2001
+@@ -55,6 +55,7 @@ void reiserfs_delete_inode (struct inode
+ 	;
+     }
+     clear_inode (inode); /* note this must go after the journal_end to prevent deadlock */
++    inode->i_blocks = 0;
+     unlock_kernel() ;
+ }
+ 

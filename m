@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVCILOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVCILSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVCILOl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 06:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbVCILOk
+	id S261608AbVCILSt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 06:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbVCILSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 06:14:40 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62613 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262309AbVCILMz (ORCPT
+	Wed, 9 Mar 2005 06:18:48 -0500
+Received: from mailfe04.swip.net ([212.247.154.97]:35780 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261608AbVCILSE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 06:12:55 -0500
-Date: Wed, 9 Mar 2005 12:11:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, chrisw@osdl.org,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050309111102.GA30119@elf.ucw.cz>
-References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
+	Wed, 9 Mar 2005 06:18:04 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: Race against parent deletion in key_user_lookup()
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: dhowells@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 12:17:59 +0100
+Message-Id: <1110367079.2294.8.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 09-03-05 09:52:46, Marcos D. Marado Torres wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Wed, 9 Mar 2005, Greg KH wrote:
-> 
-> >which is a patch against the 2.6.11.1 release.  If consensus arrives
-> >that this patch should be against the 2.6.11 tree, it will be done that
-> >way in the future.
-> 
-> IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt 
-> againt
-> the last -rc but against 2.6.x.
+I looked at some of the oops reports against keyrings, I think the problem
+is that the search isn't restarted after dropping the key_user_lock,
+*p will still be NULL when we get back to try_again and look through the tree.
 
-You expect people to go through all 2.6.11.1, 2.6.11.2, ... . That
-means .11.2 should be relative to .11.1, because otherwise people will
-have to revert (ugly). And you want people to track -stable kernels as
-fast as possible.
+It looks like the intention was that the search start over from scratch.
 
-So Greg did it right.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
+
+===== security/keys/key.c 1.5 vs edited =====
+--- 1.5/security/keys/key.c	2005-01-21 06:02:10 +01:00
++++ edited/security/keys/key.c	2005-03-09 12:04:54 +01:00
+@@ -57,9 +57,10 @@ struct key_user *key_user_lookup(uid_t u
+ {
+ 	struct key_user *candidate = NULL, *user;
+ 	struct rb_node *parent = NULL;
+-	struct rb_node **p = &key_user_tree.rb_node;
++	struct rb_node **p;
+ 
+  try_again:
++	p = &key_user_tree.rb_node;
+ 	spin_lock(&key_user_lock);
+ 
+ 	/* search the tree for a user record with a matching UID */
+
+

@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276445AbRJURwL>; Sun, 21 Oct 2001 13:52:11 -0400
+	id <S276448AbRJURxb>; Sun, 21 Oct 2001 13:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276448AbRJURwB>; Sun, 21 Oct 2001 13:52:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32262 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S276445AbRJURvu>; Sun, 21 Oct 2001 13:51:50 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-Date: Sun, 21 Oct 2001 17:50:48 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9qv1to$ase$1@penguin.transmeta.com>
-In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com> <20011020171730.A28057@parallab.uib.no> <3BD28673.1060302@sap.com> <20011021093547.A24227@work.bitmover.com>
-X-Trace: palladium.transmeta.com 1003686715 10611 127.0.0.1 (21 Oct 2001 17:51:55 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 21 Oct 2001 17:51:55 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S276444AbRJURxQ>; Sun, 21 Oct 2001 13:53:16 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:6149 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S276448AbRJURw7>;
+	Sun, 21 Oct 2001 13:52:59 -0400
+Date: Sun, 21 Oct 2001 19:53:30 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Jeremy M. Dolan" <jmd@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: severe ns558 joystick problems with 2.4.12
+Message-ID: <20011021195330.A30319@suse.cz>
+In-Reply-To: <20011021044630.A745@foozle.turbogeek.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011021044630.A745@foozle.turbogeek.org>; from jmd@pobox.com on Sun, Oct 21, 2001 at 04:46:30AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011021093547.A24227@work.bitmover.com>,
-Larry McVoy  <lm@bitmover.com> wrote:
->
->One of the engineers here has also seen this.  The root cause is that
->readdir() is returning a file multiple times.  We've seen it on tmpfs.
+On Sun, Oct 21, 2001 at 04:46:30AM -0500, Jeremy M. Dolan wrote:
+> I posted to linux-kernel 10 days ago with this problem, didn't really
+> get any follow up, except other users having the same problem. So far
+> have had 6 users contact me with the same problem, seems to have
+> occured as early as 2.4.9 and .10, based on what I've heard from others.
+> 
+> To recap:
+> 
+> I have a 2 axis 6 button analog (ns558) gamepad. With 2.4.7,
+> everything is fine, as long as I pass js=gamepad, it detects the 2
+> axis and 6 buttons.
+> 
+> With 2.4.12, with js=gamepad and js=12531 (bitfield forced detection),
+> the kernel message SAYS it detects 2 axis and 6 buttons, however when
+> I use it (for example, with the jstest program), the two axis and
+> buttons 4/5 don't register. The first four (0-3) buttons are fine.
 
-Yes.  "tmpfs" will consider the position in the dentry lists to be the
-"offset" in the file, and if you remove files from the directory as you
-do a readdir(), you can get the same file twice (or you can fail to see
-files).
+The bug was introduced in 2.4.10. I've sent a patch that fixes it to
+Linus already, one before 2.4.11, and one after 2.4.12, when I noticed
+the fix didn't get in it. Here it is (first chunk is the important
+thing, second chunk is just to avoid nonsensical values be printed on
+too fast CPUs):
 
-If somebody has a good suggestion for what could be used as a reasonably
-efficient "cookie" for virtual filesystems like tmpfs, speak up.  In the
-meantime, one way to _mostly_ avoid this should be to give a big buffer
-to readdir(), so that you end up getting all entries in one go (which
-will be protected by the semaphore inside the kernel), rather than
-having to do multiple readdir() calls. 
+--- linux/drivers/char/joystick/analog.c	Fri Sep 14 23:40:00 2001
++++ linux-fixed/drivers/char/joystick/analog.c	Thu Oct 18 17:57:06 2001
+@@ -138,7 +138,7 @@
+ 
+ #ifdef __i386__
+ #define TSC_PRESENT	(test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability))
+-#define GET_TIME(x)	do { if (TSC_PRESENT) rdtscl(x); else outb(0, 0x43); x = inb(0x40); x |= inb(0x40) << 8; } while (0)
++#define GET_TIME(x)	do { if (TSC_PRESENT) rdtscl(x); else { outb(0, 0x43); x = inb(0x40); x |= inb(0x40) << 8; } } while (0)
+ #define DELTA(x,y)	(TSC_PRESENT?((y)-(x)):((x)-(y)+((x)<(y)?1193180L/HZ:0)))
+ #define TIME_NAME	(TSC_PRESENT?"TSC":"PIT")
+ #elif __x86_64__
+@@ -499,7 +499,9 @@
+ 	else
+ 		printk(" [%s timer, %d %sHz clock, %d ns res]\n", TIME_NAME,
+ 		port->speed > 10000 ? (port->speed + 800) / 1000 : port->speed,
+-		port->speed > 10000 ? "M" : "k", (port->loop * 1000000) / port->speed);
++		port->speed > 10000 ? "M" : "k",
++		port->speed > 10000 ? (port->loop * 1000) / (port->speed / 1000)
++				    : (port->loop * 1000000) / port->speed);
+ }
+ 
+ /*
 
-(But we don't have an EOF cookie either, so..)
-
-The logic, in case people care is just "dcache_readdir()" in
-fs/readdir.c, and that logic is used for all virtual filesystems, so
-fixing that will fix not just tmpfs..
-
-Now, that said it might be worthwhile to be more robust on an
-application layer by simply just sorting the directory.  As you point
-out, NFS to some servers can have the same issues, for very similar
-reasons - on many filesystems a directory "position" is not a stable
-thing if you remove or add files at the same time.
-
-So I would consider the current tmpfs behaviour a beauty wart and
-something to be fixed, but at the same time I also think you're
-depending on behaviour that is not in any way guaranteed, and I would
-argue that the tmpfs behaviour (while bad) is not actually strictly a
-bug but more a quality-of-implementation issue. 
-
-			Linus
+-- 
+Vojtech Pavlik
+SuSE Labs

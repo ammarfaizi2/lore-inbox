@@ -1,97 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268070AbTBRWXo>; Tue, 18 Feb 2003 17:23:44 -0500
+	id <S268084AbTBRW2D>; Tue, 18 Feb 2003 17:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268066AbTBRWXo>; Tue, 18 Feb 2003 17:23:44 -0500
-Received: from pop016pub.verizon.net ([206.46.170.173]:5112 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP
-	id <S268070AbTBRWXl>; Tue, 18 Feb 2003 17:23:41 -0500
-Message-ID: <3E52B4CE.7040009@verizon.net>
-Date: Tue, 18 Feb 2003 17:33:50 -0500
-From: Stephen Wille Padnos <stephen.willepadnos@verizon.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S268087AbTBRW2D>; Tue, 18 Feb 2003 17:28:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59140 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268084AbTBRW2B>; Tue, 18 Feb 2003 17:28:01 -0500
+Date: Tue, 18 Feb 2003 14:34:09 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Linux v2.5.62 --- spontaneous reboots
+In-Reply-To: <Pine.LNX.4.44.0302181408200.1107-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0302181426020.1498-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: a really annoying feature of the config menu structure
-References: <Pine.LNX.4.44.0302181604310.23007-100000@dell>
-In-Reply-To: <Pine.LNX.4.44.0302181604310.23007-100000@dell>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at pop016.verizon.net from [64.223.82.122] at Tue, 18 Feb 2003 16:33:38 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
 
->  as i see it, this can only get worse.  the current
->erratic and disorganized structure of the config menus
->is proof of that.
->
->  comments?
->
+On Tue, 18 Feb 2003, Linus Torvalds wrote:
+> 
+> But if it was getting hard to trigger with 2.5.52 too, things might be
+> getting hairier and hairier.. If it becomes hard enough to trigger as to
+> be practically nondeterministic, a better approach might be to just go
+> back to -mjb4, and even if it is still there in -mjb4 try to see which
+> part of the patch seems to be making it more stable.
 
-I think the problem with the "Multimedia" menu is that it's misnamed.  
-It should actually be the "tuners" menu - it's there for audio, digital 
-video, and video tuners.  The same could be said of the networking menu, 
-and presumably others.
+Btw, this is particularly true if it takes you potentially hours to test 
+something like 2.5.51 for stability, but you can reboot 2.5.59 at will in 
+ten minutes. 
 
-You can actually reorganize things simply by changing the structure of 
-the top-level Kconfig file.  With the following patches, I reorganized 
-the multimedia options into the form that you are probably looking for.  
-(hopefully they won't be mangled by my mailer)
+In that case, you can test several vrsions of "2.5.59 + partial -mjb
+patches" much more quickly than you can walk backwards in 2.5.x, and try 
+to pinpoint the "this part of -mjb makes it much less likely to reboot".
 
-With not too much rewriting (many small changes, I think), the menus can 
-be organized much better.
+Also, with the -mjb patch there are some new configuration options. For 
+example, CONFIG_100HZ on -mjb has very different behaviour than a plain 
+2.5.59 kernel that defaults to 1kHz timer clock, and maybe the reason -mjb 
+seems more stable is that you may have selected a configuration option 
+that made -mjb act differently.
 
-Essentially, each subdirectory has a Kconfig file that does _not_ 
-declare itself a standalone menu.  This allows a parent to decide 
-whether or not to include it in another menu.  The menu should only have 
-options that pertain to things in its' directory.  ie, the Kconfig file 
-in drivers/net should not include "Networking" as an option - that is a 
-higher level decision (ie, it decides whether or not to include the 
-drivers/net config file).
+Regardless, it would be very interesting to hear what the -mjb split-down
+results would be. Even if the answer might be "at 1kHz timer it is
+unstable, at 100Hz it is stable" (and if that were to be it, then you'd
+have to walk backwards to 2.5.24 to find the old 2.5.x kernel that had a
+slow tick rate).
 
-Then, the Kconfig files from various subdirectories can be ordered in 
-whatever way makes sense from a user's point of view
-
---- drivers/media/Kconfig.orig        2003-02-18 17:15:46.000000000 -0500
-+++ drivers/media/Kconfig.new 2003-02-18 17:25:27.000000000 -0500
-@@ -2,8 +2,6 @@
- # Multimedia device configuration
- #
-
--menu "Multimedia devices"
--
- config VIDEO_DEV
-        tristate "Video For Linux"
-        ---help---
-@@ -32,5 +30,4 @@
-
- source "drivers/media/dvb/Kconfig"
-
--endmenu
-
---- arch/i386/Kconfig.orig        2003-02-18 17:17:49.000000000 -0500
-+++ arch/i386/Kconfig     2003-02-18 17:18:32.000000000 -0500
-@@ -1529,14 +1529,13 @@
-
- source "drivers/char/Kconfig"
-
--#source drivers/misc/Config.in
--source "drivers/media/Kconfig"
--
- source "fs/Kconfig"
-
- source "drivers/video/Kconfig"
-
--menu "Sound"
-+#source drivers/misc/Config.in
-+menu "MultiMedia (tuners, sound, video"
-+source "drivers/media/Kconfig"
-
- config SOUND
-        tristate "Sound card support"
-
+		Linus
 

@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbTKHUcK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 15:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbTKHUcK
+	id S263953AbTKHUec (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 15:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263955AbTKHUec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 15:32:10 -0500
-Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:57493 "EHLO
-	caphernaum.rivenstone.net") by vger.kernel.org with ESMTP
-	id S263927AbTKHUcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 15:32:07 -0500
-Date: Sat, 8 Nov 2003 15:31:03 -0500
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mii broken for 3c59x ?
-Message-ID: <20031108203103.GA9819@rivenstone.net>
-Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.51.0311052142040.19211@dns.toxicfilms.tv> <3FAA4EF9.70704@pobox.com> <Pine.LNX.4.51.0311061606560.715@dns.toxicfilms.tv>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0311061606560.715@dns.toxicfilms.tv>
-User-Agent: Mutt/1.5.4i
-From: jhf@rivenstone.net (Joseph Fannin)
+	Sat, 8 Nov 2003 15:34:32 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30472 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263953AbTKHUea (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 15:34:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6-test6: nanosleep+SIGCONT weirdness
+Date: Sat, 8 Nov 2003 22:32:59 +0200
+X-Mailer: KMail [version 1.4]
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>
+References: <Pine.LNX.4.44.0311081043440.1834-100000@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0311081043440.1834-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311082232.59175.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 08 November 2003 20:45, Linus Torvalds wrote:
+> On Sat, 8 Nov 2003, Linus Torvalds wrote:
+> > That nanosleep restart seems to be broken, and quite frankly,
+> > looking at the mess in kernel/posix-timers.c I'm not all that
+> > surprised. The code is total and absolute crap. I have no idea how
+> > it's even supposed to work.
+>
+> I'd suggest just removing the regular nanosleep() emulation from
+> there. The clock_nanosleep() restart is likely still broken, but at
+> least this way the _regular_ nanosleep() system call works correctly,
+> and fixing clock_nanosleep() is likely easier since the restart stuff
+> doesn't have to worry about _which_ system call it should restart.
+>
+> Denis, does this work for you?
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Does not seem to work, same symptoms 8(
 
-On Thu, Nov 06, 2003 at 04:08:00PM +0100, Maciej Soltysiak wrote:
-> > Most likely you need to recompile mii-tool, because it's using old ioct=
-ls.
-> It's from debian packages. I'll get the sources, compile, and see if it
-> works.
+Although I did not do make clean since build system is supposed to be 
+fixed. I just patched the tree where kernel was already built,
+and rebuild it (make bzImage modules modules_install).
 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D133648
-
-1 year and 268 days old.
-
---=20
-Joseph Fannin
-jhf@rivenstone.net
-
-
-
---liOOAslEiF7prFVr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/rVKGWv4KsgKfSVgRAqjiAJ0T6ByVZ80IDesCyjumcrbDEqitpwCfUSH1
-ZY1HnChtUyL0pmQVpDNtmvA=
-=S83I
------END PGP SIGNATURE-----
-
---liOOAslEiF7prFVr--
+Will apply to pristine test6 tree (or test9 - need to check whether it 
+is downloaded or not yet) and retest
+--
+vda

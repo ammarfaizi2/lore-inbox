@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUCDNg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 08:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbUCDNg1
+	id S261899AbUCDNlI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 08:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbUCDNlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 08:36:27 -0500
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:2195 "EHLO
-	quickman.certainkey.com") by vger.kernel.org with ESMTP
-	id S261891AbUCDNgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 08:36:25 -0500
-Date: Thu, 4 Mar 2004 08:24:30 -0500
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: James Morris <jmorris@redhat.com>, Christophe Saout <christophe@saout.de>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: dm-crypt, new IV and standards
-Message-ID: <20040304132430.GA8213@certainkey.com>
-References: <20040220172237.GA9918@certainkey.com> <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com> <20040221164821.GA14723@certainkey.com> <Pine.LNX.4.58.0403022352080.12846@twinlark.arctic.org> <20040303150647.GC1586@certainkey.com> <Pine.LNX.4.58.0403031735210.26196@twinlark.arctic.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Mar 2004 08:41:08 -0500
+Received: from mail.math.uni-mannheim.de ([134.155.89.179]:13262 "EHLO
+	mail.math.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S261899AbUCDNkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 08:40:55 -0500
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: GPLv2 or not GPLv2? (no license bashing)
+Date: Thu, 4 Mar 2004 08:38:29 +0100
+User-Agent: KMail/1.6
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403031735210.26196@twinlark.arctic.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403040838.31412.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 05:48:46PM -0800, dean gaudet wrote:
-> On Wed, 3 Mar 2004, Jean-Luc Cooke wrote:
-> 
-> > The difference between "$1,000,000" and "$8,000,000" is 1 bit.  If an
-> > attacker knew enough about the layout of the filesystem (modify times on blocks,
-> > etc) they could flip a single bit and change your $1Mil purchase order
-> > approved by your boss to a $8Mil order.
-> 
-> ah ok i was completely ignoring the desire to prevent data tampering.
-> 
-> you have to admit it's still a bit more effort than flipping 1 bit like
-> you suggest since you need to tweak the encrypted data enough so that the
-> decrypted data has only 1 bit flipped.  (especially if you use CBC like
-> you mention.)
-> 
-> something else which i've been wondering about -- would there be any extra
-> protection provided by permuting block addresses so that the location of
-> wellknown blocks such as the superblock and inode maps aren't so
-> immediately obvious?  given the lack of known plaintext attacks on AES i'm
-> thinking there's no point to permuting, but i'm not a cryptographer, i
-> only know enough to be dangerous.  (you'd want to choose a permutation
-> which makes some effort to group blocks into large enough chunks so that
-> *some* seek locality can be maintained.)
+Hi all,
 
-I think there is not value in "security though obscurity" when you're
-developing an open source application.  :)
+just digging a bit in the kernel and found some funny things:
 
-Like you said, CBC is not trivial to temper with - though it is do able.  CTR
-is trivial on the other hand.  Which is why NIST and every cryptographer will
-recommend using a MAC with CTR.  (Why still have CTR?  Unlike CBC, you can
-compute the N+1-th block without needing to know the output from the N-th
-block, so there is the possibility for very high parallelizum).
+-there is a tag only for "GPL v2" but there are some drivers claiming to be 
+v2 and not using this (patch will follow)
+-there are some drivers with the comment ", either version 2 of the License." 
+in the header. s/either // ? If so, there are some more files where someone 
+should change MODULE_LICENSE("GPL") to "GPL v2".
+-there are some files that have the long warranty warning in the header. This 
+brings up the question if we should see the mainline kernel as one piece of 
+software. If we do so we need this warning only once and this copy should be 
+in the main kernel directory and we should kill the others. The other 
+question is: when I only write down the names of the authors in the header 
+and then add MODULE_LICENSE("GPL") or "GPL v2" is this enough licensing 
+information or is always the long comment needed (would be another nice 
+trick to shrink tons of files)?
+-the LINUX_VERSION_CODE line in drivers/message/fusion/isense.c looks bogus, 
+the comment says it is for <2.5.0, but the line itself is for <2.3.0. Is 
+this wanted (fix the comment), bogus (fix the line) or crap (kill it 
+alltogether).
 
-JLC
+This are the files where I found "either version 2 of the License.":
 
--- 
-http://www.certainkey.com
-Suite 4560 CTTC
-1125 Colonel By Dr.
-Ottawa ON, K1S 5B6
+arch/arm/mach-integrator/integrator_cp.c
+drivers/serial/8250_pnp.c
+drivers/serial/8250_pci.c
+drivers/input/serio/pcips2.c
+drivers/input/serio/sa1111ps2.c
+
+These are some files (there are surely tons of others) with the long warning:
+
+drivers/scsi/3w-xxxx.[ch]
+drivers/message/fusion/mptctl.c
+drivers/message/fusion/mptbase.[ch]
+drivers/message/fusion/mptscsih.c
+drivers/message/fusion/isense.c (*)
+drivers/message/fusion/mptlan.[ch]
+drivers/message/fusion/mptctl.[ch]
+drivers/message/fusion/mptscsih.[ch]
+
+Eike

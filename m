@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268689AbTGTVsj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbTGTVsj
+	id S268751AbTGTV4W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268731AbTGTVzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:48:39 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.25]:45812 "EHLO
-	mwinf0603.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S268689AbTGTVsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:48:30 -0400
-Date: Mon, 21 Jul 2003 00:03:32 +0200 (CEST)
+	Sun, 20 Jul 2003 17:55:49 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:12554 "EHLO
+	mwinf0604.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S268589AbTGTVy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 17:54:58 -0400
+Date: Mon, 21 Jul 2003 00:09:47 +0200 (CEST)
 From: Philippe Biondi <biondi@cartel-securite.fr>
 X-X-Sender: pbi@deneb.intranet.cartel-securite.net
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] linux 2.6.0-test1: do_fork() return value for ARCH=um,m68k,s390,h8300
-Message-ID: <Pine.LNX.4.44.0307210003170.8505-100000@deneb.intranet.cartel-securite.net>
+To: linux-kernel@vger.kernel.org, <jdike@karaya.com>
+Subject: [PATCH] linux-2.6.0-test1, having ARCH=um compile
+Message-ID: <Pine.LNX.4.44.0307202356550.6274-100000@deneb.intranet.cartel-securite.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=ISO-8859-15
 Content-Transfer-Encoding: 8BIT
@@ -23,208 +23,388 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi all,
 
-I tried to compile linux-2.6.0-test1 with ARCH=um.
+It seems ARCH=um not ready yet.
+There are some #include problems (for ex: cyclic dependency between
+linux/spinlock.h and linux/seqlock.h), some missing constants, some
+missing functions.
 
-First, I noticed that some functions expected do_fork() to return a
-task_struct *. I don't know why. I find this really strange, did I miss
-something ?
+Here is an ugly patch (I did that as a robot, without trying to understand
+anything). Now it compiles.
 
-Here is the patch :
+It does not run (stack overflow : sigprocmask() calls spin_lock_irq(),
+that expends to sth that calls block_signals(), that calls sigprocmask())
 
-diff -Nrup linux-2.6.0-test1-ori/arch/h8300/kernel/process.c linux-2.6.0-test1/arch/h8300/kernel/process.c
---- linux-2.6.0-test1-ori/arch/h8300/kernel/process.c	2003-07-14 05:28:54.000000000 +0200
-+++ linux-2.6.0-test1/arch/h8300/kernel/process.c	2003-07-20 17:58:56.000000000 +0200
-@@ -172,25 +172,20 @@ asmlinkage int h8300_fork(struct pt_regs
+Great. Now I have to leave. If someone want to carry on, or if someone can
+say me it was not worth the effort because all is already done in another
+patch... please go on :)
 
- asmlinkage int h8300_vfork(struct pt_regs *regs)
- {
--	struct task_struct *p;
--	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL, NULL);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
-+	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL, NULL);
+
+
+diff -Nrup linux-2.6.0-test1-ori/arch/i386/kernel/module.c linux-2.6.0-test1/arch/i386/kernel/module.c
+--- linux-2.6.0-test1-ori/arch/i386/kernel/module.c	2003-07-14 05:34:03.000000000 +0200
++++ linux-2.6.0-test1/arch/i386/kernel/module.c	2003-07-20 20:09:58.000000000 +0200
+@@ -104,7 +104,7 @@ int apply_relocate_add(Elf32_Shdr *sechd
+ 	return -ENOEXEC;
  }
 
- asmlinkage int h8300_clone(struct pt_regs *regs)
- {
- 	unsigned long clone_flags;
- 	unsigned long newsp;
--	struct task_struct *p;
+-extern void apply_alternatives(void *start, void *end);
++void apply_alternatives(void *start, void *end) {}
 
- 	/* syscall2 puts clone_flags in er1 and usp in er2 */
- 	clone_flags = regs->er1;
- 	newsp = regs->er2;
- 	if (!newsp)
- 		newsp  = rdusp();
--	p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0, NULL, NULL);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
--
-+	return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0, NULL, NULL);
- }
+ int module_finalize(const Elf_Ehdr *hdr,
+ 		    const Elf_Shdr *sechdrs,
+diff -Nrup linux-2.6.0-test1-ori/arch/um/drivers/line.c linux-2.6.0-test1/arch/um/drivers/line.c
+--- linux-2.6.0-test1-ori/arch/um/drivers/line.c	2003-07-14 05:37:33.000000000 +0200
++++ linux-2.6.0-test1/arch/um/drivers/line.c	2003-07-20 22:26:07.000000000 +0200
+@@ -430,10 +430,10 @@ struct tty_driver *line_register_devfs(s
+ 	if(err) printk("Symlink creation from /dev/%s to /dev/%s "
+ 		       "returned %d\n", from, to, err);
 
- int copy_thread(int nr, unsigned long clone_flags,
-diff -Nrup linux-2.6.0-test1-ori/arch/m68k/kernel/process.c linux-2.6.0-test1/arch/m68k/kernel/process.c
---- linux-2.6.0-test1-ori/arch/m68k/kernel/process.c	2003-07-14 05:39:32.000000000 +0200
-+++ linux-2.6.0-test1/arch/m68k/kernel/process.c	2003-07-20 17:55:34.000000000 +0200
-@@ -202,24 +202,19 @@ void flush_thread(void)
+-	for(i = 0; i < nlines; i++){
++/*	for(i = 0; i < nlines; i++){
+ 		if(!lines[i].valid)
+ 			tty_unregister_devfs(driver, i);
+-	}
++	} */
 
- asmlinkage int m68k_fork(struct pt_regs *regs)
- {
--	struct task_struct *p;
--	p = do_fork(SIGCHLD, rdusp(), regs, 0, NULL, NULL);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
-+	return do_fork(SIGCHLD, rdusp(), regs, 0, NULL, NULL);
- }
+ 	mconsole_register_dev(&line_driver->mc);
+ 	return driver;
+diff -Nrup linux-2.6.0-test1-ori/arch/um/drivers/stdio_console.c linux-2.6.0-test1/arch/um/drivers/stdio_console.c
+--- linux-2.6.0-test1-ori/arch/um/drivers/stdio_console.c	2003-07-14 05:31:58.000000000 +0200
++++ linux-2.6.0-test1/arch/um/drivers/stdio_console.c	2003-07-20 18:05:27.000000000 +0200
+@@ -159,6 +159,15 @@ static int chars_in_buffer(struct tty_st
 
- asmlinkage int m68k_vfork(struct pt_regs *regs)
- {
--	struct task_struct *p;
--	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL,
-+	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL,
- 		    NULL);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
- }
+ static int con_init_done = 0;
 
- asmlinkage int m68k_clone(struct pt_regs *regs)
- {
- 	unsigned long clone_flags;
- 	unsigned long newsp;
--	struct task_struct *p;
- 	int *parent_tidptr, *child_tidptr;
-
- 	/* syscall2 puts clone_flags in d1 and usp in d2 */
-@@ -229,9 +224,8 @@ asmlinkage int m68k_clone(struct pt_regs
- 	child_tidptr = (int *)regs->d4;
- 	if (!newsp)
- 		newsp = rdusp();
--	p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0,
-+	return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0,
- 		    parent_tidptr, child_tidptr);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
- }
-
- int copy_thread(int nr, unsigned long clone_flags, unsigned long usp,
-diff -Nrup linux-2.6.0-test1-ori/arch/s390/kernel/compat_linux.c linux-2.6.0-test1/arch/s390/kernel/compat_linux.c
---- linux-2.6.0-test1-ori/arch/s390/kernel/compat_linux.c	2003-07-14 05:37:14.000000000 +0200
-+++ linux-2.6.0-test1/arch/s390/kernel/compat_linux.c	2003-07-20 17:59:34.000000000 +0200
-@@ -2809,7 +2809,6 @@ asmlinkage int sys32_clone(struct pt_reg
- {
-         unsigned long clone_flags;
-         unsigned long newsp;
--	struct task_struct *p;
- 	int *parent_tidptr, *child_tidptr;
-
-         clone_flags = regs.gprs[3] & 0xffffffffUL;
-@@ -2818,7 +2817,6 @@ asmlinkage int sys32_clone(struct pt_reg
- 	child_tidptr = (int *) (regs.gprs[5] & 0x7fffffffUL);
-         if (!newsp)
-                 newsp = regs.gprs[15];
--        p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
--		    parent_tidptr, child_tidptr);
--	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
-+       return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
-+		       parent_tidptr, child_tidptr);
- }
-diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/process_kern.c linux-2.6.0-test1/arch/um/kernel/process_kern.c
---- linux-2.6.0-test1-ori/arch/um/kernel/process_kern.c	2003-07-14 05:34:33.000000000 +0200
-+++ linux-2.6.0-test1/arch/um/kernel/process_kern.c	2003-07-20 18:00:42.000000000 +0200
-@@ -103,13 +103,13 @@ unsigned long alloc_stack(int order, int
-
- int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
- {
--	struct task_struct *p;
--
-+	long pid;
++static struct tty_operations console_ops = {
++	.open 	 		= con_open,
++	.close 	 		= con_close,
++	.write 	 		= con_write,
++	.chars_in_buffer 	= chars_in_buffer,
++	.set_termios 		= set_termios,
++	.write_room		= line_write_room,
++};
 +
- 	current->thread.request.u.thread.proc = fn;
- 	current->thread.request.u.thread.arg = arg;
--	p = do_fork(CLONE_VM | flags, 0, NULL, 0, NULL, NULL);
--	if(IS_ERR(p)) panic("do_fork failed in kernel_thread");
--	return(p->pid);
-+	pid = do_fork(CLONE_VM | flags, 0, NULL, 0, NULL, NULL);
-+	if (pid < 0) panic("do_fork failed in kernel_thread");
-+	return (pid);
+ int stdio_init(void)
+ {
+ 	char *new_title;
+@@ -188,15 +197,6 @@ static void console_write(struct console
+ 	if(con_init_done) up(&vts[console->index].sem);
  }
 
- void switch_mm(struct mm_struct *prev, struct mm_struct *next,
-diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/smp.c linux-2.6.0-test1/arch/um/kernel/smp.c
---- linux-2.6.0-test1-ori/arch/um/kernel/smp.c	2003-07-14 05:31:57.000000000 +0200
-+++ linux-2.6.0-test1/arch/um/kernel/smp.c	2003-07-20 17:58:20.000000000 +0200
-@@ -135,13 +135,15 @@ static int idle_proc(void *cpup)
-
- static struct task_struct *idle_thread(int cpu)
+-static struct tty_operations console_ops = {
+-	.open 	 		= con_open,
+-	.close 	 		= con_close,
+-	.write 	 		= con_write,
+-	.chars_in_buffer 	= chars_in_buffer,
+-	.set_termios 		= set_termios,
+-	.write_room		= line_write_room,
+-};
+-
+ static struct tty_driver *console_device(struct console *c, int *index)
  {
--	struct task_struct *new_task;
- 	unsigned char c;
-+	long new_pid;
-+	struct task_struct *new_task;
+ 	*index = c->index;
+diff -Nrup linux-2.6.0-test1-ori/arch/um/drivers/xterm_kern.c linux-2.6.0-test1/arch/um/drivers/xterm_kern.c
+--- linux-2.6.0-test1-ori/arch/um/drivers/xterm_kern.c	2003-07-14 05:36:37.000000000 +0200
++++ linux-2.6.0-test1/arch/um/drivers/xterm_kern.c	2003-07-20 18:03:39.000000000 +0200
+@@ -11,6 +11,7 @@
+ #include "kern_util.h"
+ #include "os.h"
+ #include "xterm.h"
++#include "linux/signal.h"
 
-         current->thread.request.u.thread.proc = idle_proc;
-         current->thread.request.u.thread.arg = (void *) cpu;
--	new_task = do_fork(CLONE_VM | CLONE_IDLETASK, 0, NULL, 0, NULL, NULL);
--	if(IS_ERR(new_task)) panic("do_fork failed in idle_thread");
-+	new_pid = do_fork(CLONE_VM | CLONE_IDLETASK, 0, NULL, 0, NULL, NULL);
-+	if (new_pid < 0) panic("do_fork failed in idle_thread");
-+	new_task = find_task_by_pid(new_pid);
+ struct xterm_wait {
+ 	struct semaphore sem;
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/init_task.c linux-2.6.0-test1/arch/um/kernel/init_task.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/init_task.c	2003-07-14 05:39:31.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/init_task.c	2003-07-20 17:13:47.000000000 +0200
+@@ -17,6 +17,8 @@ static struct fs_struct init_fs = INIT_F
+ struct mm_struct init_mm = INIT_MM(init_mm);
+ static struct files_struct init_files = INIT_FILES;
+ static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
++static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
++
 
- 	cpu_tasks[cpu] = ((struct cpu_task)
- 		          { .pid = 	new_task->thread.mode.tt.extern_pid,
-diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/syscall_kern.c linux-2.6.0-test1/arch/um/kernel/syscall_kern.c
---- linux-2.6.0-test1-ori/arch/um/kernel/syscall_kern.c	2003-07-14 05:36:35.000000000 +0200
-+++ linux-2.6.0-test1/arch/um/kernel/syscall_kern.c	2003-07-20 17:53:54.000000000 +0200
-@@ -35,32 +35,32 @@ long um_mount(char * dev_name, char * di
+ /*
+  * Initial task structure.
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/irq.c linux-2.6.0-test1/arch/um/kernel/irq.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/irq.c	2003-07-14 05:37:17.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/irq.c	2003-07-20 17:32:42.000000000 +0200
+@@ -384,7 +384,7 @@ out:
+  */
 
- long sys_fork(void)
+ int request_irq(unsigned int irq,
+-		void (*handler)(int, void *, struct pt_regs *),
++		irqreturn_t (*handler)(int, void *, struct pt_regs *),
+ 		unsigned long irqflags,
+ 		const char * devname,
+ 		void *dev_id)
+@@ -436,7 +436,7 @@ int um_request_irq(unsigned int irq, int
  {
--	struct task_struct *p;
-+	long pid;
+ 	int retval;
 
- 	current->thread.forking = 1;
--        p = do_fork(SIGCHLD, 0, NULL, 0, NULL, NULL);
-+        pid = do_fork(SIGCHLD, 0, NULL, 0, NULL, NULL);
- 	current->thread.forking = 0;
--	return(IS_ERR(p) ? PTR_ERR(p) : p->pid);
-+	return pid;
+-	retval = request_irq(irq, handler, irqflags, devname, dev_id);
++	retval = request_irq(irq, (irqreturn_t (*)(int, void *, struct pt_regs *))handler, irqflags, devname, dev_id);
+ 	if(retval) return(retval);
+ 	return(activate_fd(irq, fd, type, dev_id));
  }
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/process.c linux-2.6.0-test1/arch/um/kernel/process.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/process.c	2003-07-14 05:37:28.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/process.c	2003-07-20 20:51:52.000000000 +0200
+@@ -42,6 +42,9 @@
+ #include "skas_ptrace.h"
+ #endif
 
- long sys_clone(unsigned long clone_flags, unsigned long newsp)
++void prepare_to_copy(struct task_struct *tsk)
++{}
++
+ void init_new_thread_stack(void *sig_stack, void (*usr1_handler)(int))
  {
--	struct task_struct *p;
-+	long pid;
+ 	int flags = 0, pages;
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/sigio_kern.c linux-2.6.0-test1/arch/um/kernel/sigio_kern.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/sigio_kern.c	2003-07-14 05:32:29.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/sigio_kern.c	2003-07-20 17:43:58.000000000 +0200
+@@ -10,6 +10,7 @@
+ #include "init.h"
+ #include "sigio.h"
+ #include "irq_user.h"
++#include "asm/signal.h"
 
- 	current->thread.forking = 1;
--	p = do_fork(clone_flags, newsp, NULL, 0, NULL, NULL);
-+	pid = do_fork(clone_flags, newsp, NULL, 0, NULL, NULL);
- 	current->thread.forking = 0;
--	return(IS_ERR(p) ? PTR_ERR(p) : p->pid);
-+	return pid;
- }
+ /* Protected by sigio_lock() called from write_sigio_workaround */
+ static int sigio_irq_fd = -1;
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/signal_kern.c linux-2.6.0-test1/arch/um/kernel/signal_kern.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/signal_kern.c	2003-07-14 05:34:42.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/signal_kern.c	2003-07-20 17:48:53.000000000 +0200
+@@ -36,7 +36,7 @@ static void force_segv(int sig)
+ 	if(sig == SIGSEGV){
+ 		struct k_sigaction *ka;
 
- long sys_vfork(void)
+-		ka = &current->sig->action[SIGSEGV - 1];
++		ka = &current->sighand->action[SIGSEGV - 1];
+ 		ka->sa.sa_handler = SIG_DFL;
+ 	}
+ 	force_sig(SIGSEGV, current);
+@@ -142,7 +142,7 @@ static int kern_do_signal(struct pt_regs
+ 		return(0);
+
+ 	/* Whee!  Actually deliver the signal.  */
+-	ka = &current->sig->action[sig -1 ];
++	ka = &current->sighand->action[sig -1 ];
+ 	err = handle_signal(regs, sig, ka, &info, oldset, error);
+ 	if(!err) return(1);
+
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/time.c linux-2.6.0-test1/arch/um/kernel/time.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/time.c	2003-07-14 05:31:50.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/time.c	2003-07-20 18:02:11.000000000 +0200
+@@ -16,6 +16,8 @@
+ #include "signal_user.h"
+ #include "time_user.h"
+
++#define NSEC_PER_SEC (1000000000L)
++
+ extern struct timeval xtime;
+
+ void timer(void)
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/trap_kern.c linux-2.6.0-test1/arch/um/kernel/trap_kern.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/trap_kern.c	2003-07-14 05:30:00.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/trap_kern.c	2003-07-20 20:49:52.000000000 +0200
+@@ -23,6 +23,11 @@
+ #include "mconsole_kern.h"
+ #include "2_5compat.h"
+
++void show_stack(struct task_struct *task, unsigned long *sp)
++{}
++
++
++
+ int handle_page_fault(unsigned long address, unsigned long ip,
+ 		      int is_write, int is_user, int *code_out)
  {
--	struct task_struct *p;
-+	long pid;
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/tt/tlb.c linux-2.6.0-test1/arch/um/kernel/tt/tlb.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/tt/tlb.c	2003-07-14 05:30:01.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/tt/tlb.c	2003-07-20 19:30:34.000000000 +0200
+@@ -13,6 +13,7 @@
+ #include "user_util.h"
+ #include "mem_user.h"
+ #include "os.h"
++#include "asm/tlbflush.h"
 
- 	current->thread.forking = 1;
--	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, 0, NULL, 0, NULL, NULL);
-+	pid = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, 0, NULL, 0, NULL, NULL);
- 	current->thread.forking = 0;
--	return(IS_ERR(p) ? PTR_ERR(p) : p->pid);
-+	return pid;
+ static void fix_range(struct mm_struct *mm, unsigned long start_addr,
+ 		      unsigned long end_addr, int force)
+diff -Nrup linux-2.6.0-test1-ori/arch/um/vmlinux.lds.S linux-2.6.0-test1/arch/um/vmlinux.lds.S
+--- linux-2.6.0-test1-ori/arch/um/vmlinux.lds.S	2003-07-14 05:28:52.000000000 +0200
++++ linux-2.6.0-test1/arch/um/vmlinux.lds.S	2003-07-20 22:03:40.000000000 +0200
+@@ -8,4 +8,13 @@ jiffies = jiffies_64;
+ SECTIONS
+ {
+ #include "asm/common.lds.S"
++  .init.text : {
++        _sinittext = .;
++        *(.init.text)
++        _einittext = .;
++  }
++  __con_initcall_start = .;
++  .con_initcall.init : { *(.con_initcall.init) }
++  __con_initcall_end = .;
++  SECURITY_INIT
  }
+diff -Nrup linux-2.6.0-test1-ori/include/asm-i386/spinlock.h linux-2.6.0-test1/include/asm-i386/spinlock.h
+--- linux-2.6.0-test1-ori/include/asm-i386/spinlock.h	2003-07-14 05:31:58.000000000 +0200
++++ linux-2.6.0-test1/include/asm-i386/spinlock.h	2003-07-20 16:34:11.000000000 +0200
+@@ -14,12 +14,12 @@ extern int printk(const char * fmt, ...)
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+  */
 
- /* common code for old and new mmaps */
+-typedef struct {
++struct spinlock_s {
+ 	volatile unsigned int lock;
+ #ifdef CONFIG_DEBUG_SPINLOCK
+ 	unsigned magic;
+ #endif
+-} spinlock_t;
++};
+
+ #define SPINLOCK_MAGIC	0xdead4ead
+
+diff -Nrup linux-2.6.0-test1-ori/include/asm-um/archparam-i386.h linux-2.6.0-test1/include/asm-um/archparam-i386.h
+--- linux-2.6.0-test1-ori/include/asm-um/archparam-i386.h	2003-07-14 05:37:17.000000000 +0200
++++ linux-2.6.0-test1/include/asm-um/archparam-i386.h	2003-07-20 18:09:37.000000000 +0200
+@@ -10,6 +10,19 @@
+
+ #include "user.h"
+
++#define R_386_NONE      0
++#define R_386_32        1
++#define R_386_PC32      2
++#define R_386_GOT32     3
++#define R_386_PLT32     4
++#define R_386_COPY      5
++#define R_386_GLOB_DAT  6
++#define R_386_JMP_SLOT  7
++#define R_386_RELATIVE  8
++#define R_386_GOTOFF    9
++#define R_386_GOTPC     10
++#define R_386_NUM       11
++
+ #define ELF_PLATFORM "i586"
+
+ #define ELF_ET_DYN_BASE (2 * TASK_SIZE / 3)
+diff -Nrup linux-2.6.0-test1-ori/include/asm-um/pgtable.h linux-2.6.0-test1/include/asm-um/pgtable.h
+--- linux-2.6.0-test1-ori/include/asm-um/pgtable.h	2003-07-14 05:39:37.000000000 +0200
++++ linux-2.6.0-test1/include/asm-um/pgtable.h	2003-07-20 19:38:44.000000000 +0200
+@@ -49,6 +49,11 @@ extern unsigned long *empty_zero_page;
+ #define pgd_ERROR(e) \
+         printk("%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__, pgd_val(e))
+
++static inline int pgd_none(pgd_t pgd)           { return 0; }
++static inline int pgd_bad(pgd_t pgd)            { return 0; }
++static inline int pgd_present(pgd_t pgd)        { return 1; }
++#define pgd_clear(xp)                           do { } while (0)
++
+ /*
+  * pgd entries used up by user/kernel:
+  */
+@@ -86,6 +91,8 @@ extern unsigned long high_physmem;
+ #define _PAGE_DIRTY	0x040
+ #define _PAGE_NEWPROT   0x080
+
++#define _PAGE_FILE      0x040   /* set:pagecache unset:swap */
++
+ #define REGION_MASK	0xf0000000
+ #define REGION_SHIFT	28
+
+@@ -181,10 +188,6 @@ extern pte_t * __bad_pagetable(void);
+  * setup: the pgd is never bad, and a pmd always exists (as it's folded
+  * into the pgd entry)
+  */
+-static inline int pgd_none(pgd_t pgd)		{ return 0; }
+-static inline int pgd_bad(pgd_t pgd)		{ return 0; }
+-static inline int pgd_present(pgd_t pgd)	{ return 1; }
+-static inline void pgd_clear(pgd_t * pgdp)	{ }
 
 
+ #define pages_to_mb(x) ((x) >> (20-PAGE_SHIFT))
+@@ -232,6 +235,21 @@ static inline void set_pte(pte_t *pteptr
+ #define set_pmd(pmdptr, pmdval) (*(pmdptr) = pmdval)
+ #define set_pgd(pgdptr, pgdval) (*(pgdptr) = pgdval)
 
++
++
++#define PTE_FILE_MAX_BITS     29
++
++#define pte_to_pgoff(pte) \
++        ((((pte).pte_low >> 1) & 0x1f ) + (((pte).pte_low >> 8) << 5 ))
++
++#define pgoff_to_pte(off) \
++	        ((pte_t) { (((off) & 0x1f) << 1) + (((off) >> 5) << 8) + _PAGE_FILE })
++
++static inline int pte_file(pte_t pte)           { return (pte).pte_low & _PAGE_FILE; }
++
++
++
++
+ /*
+  * The following only work if pte_present() is true.
+  * Undefined behaviour if not..
+diff -Nrup linux-2.6.0-test1-ori/include/asm-um/processor-generic.h linux-2.6.0-test1/include/asm-um/processor-generic.h
+--- linux-2.6.0-test1-ori/include/asm-um/processor-generic.h	2003-07-14 05:31:21.000000000 +0200
++++ linux-2.6.0-test1/include/asm-um/processor-generic.h	2003-07-20 17:04:24.000000000 +0200
+@@ -11,7 +11,7 @@ struct pt_regs;
+ struct task_struct;
 
+ #include "linux/config.h"
+-#include "linux/signal.h"
++/* #include "linux/signal.h"*/
+ #include "asm/ptrace.h"
+ #include "asm/siginfo.h"
+ #include "choose-mode.h"
+diff -Nrup linux-2.6.0-test1-ori/include/asm-um/processor-i386.h linux-2.6.0-test1/include/asm-um/processor-i386.h
+--- linux-2.6.0-test1-ori/include/asm-um/processor-i386.h	2003-07-14 05:29:59.000000000 +0200
++++ linux-2.6.0-test1/include/asm-um/processor-i386.h	2003-07-20 19:43:17.000000000 +0200
+@@ -6,6 +6,9 @@
+ #ifndef __UM_PROCESSOR_I386_H
+ #define __UM_PROCESSOR_I386_H
 
++#ifdef cpu_has_xmm
++#undef cpu_has_xmm
++#endif
+ extern int cpu_has_xmm;
+ extern int cpu_has_cmov;
+
+diff -Nrup linux-2.6.0-test1-ori/include/asm-um/timex.h linux-2.6.0-test1/include/asm-um/timex.h
+--- linux-2.6.0-test1-ori/include/asm-um/timex.h	2003-07-14 05:35:16.000000000 +0200
++++ linux-2.6.0-test1/include/asm-um/timex.h	2003-07-20 17:07:50.000000000 +0200
+@@ -1,7 +1,7 @@
+ #ifndef __UM_TIMEX_H
+ #define __UM_TIMEX_H
+
+-#include "linux/time.h"
++/*#include "linux/time.h"*/
+
+ typedef unsigned long cycles_t;
+
+diff -Nrup linux-2.6.0-test1-ori/include/linux/seqlock.h linux-2.6.0-test1/include/linux/seqlock.h
+--- linux-2.6.0-test1-ori/include/linux/seqlock.h	2003-07-14 05:33:47.000000000 +0200
++++ linux-2.6.0-test1/include/linux/seqlock.h	2003-07-19 17:39:05.000000000 +0200
+@@ -31,7 +31,7 @@
+ #include <linux/preempt.h>
+
+ typedef struct {
+-	unsigned sequence;
++	unsigned int sequence;
+ 	spinlock_t lock;
+ } seqlock_t;
+
+diff -Nrup linux-2.6.0-test1-ori/usr/initramfs_data.S linux-2.6.0-test1/usr/initramfs_data.S
+--- linux-2.6.0-test1-ori/usr/initramfs_data.S	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.0-test1/usr/initramfs_data.S	2003-07-20 17:08:06.000000000 +0200
+@@ -0,0 +1,2 @@
++	.section .init.ramfs,"a"
++.incbin "usr/initramfs_data.cpio.gz"
 
 
 -- 
 Philippe Biondi <biondi@ cartel-securite.fr> Cartel Sécurité
 Security Consultant/R&D                      http://www.cartel-securite.fr
 PGP KeyID:3D9A43E2  FingerPrint:C40A772533730E39330DC0985EE8FF5F3D9A43E2
-
-
 
 

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbTLMA2W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 19:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTLMA2W
+	id S262369AbTLMA3x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 19:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTLMA3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 19:28:22 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:60166 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S262315AbTLMA2V (ORCPT
+	Fri, 12 Dec 2003 19:29:52 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:60934 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id S262369AbTLMA3v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 19:28:21 -0500
+	Fri, 12 Dec 2003 19:29:51 -0500
 X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: Dave Jones <davej@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [DOCUMENTATION] Revised Unreliable Kernel Locking Guide 
-In-reply-to: Your message of "Fri, 12 Dec 2003 18:25:56 -0000."
-             <20031212182556.GB10584@redhat.com> 
+To: Philippe Troin <phil@fifi.org>
+Cc: "Jeremy Kusnetz" <JKusnetz@nrtc.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 is freezing my systems hard after 24-48 hours 
+In-reply-to: Your message of "12 Dec 2003 13:26:12 -0800."
+             <871xr9budn.fsf@ceramic.fifi.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 13 Dec 2003 11:28:11 +1100
-Message-ID: <9653.1071275291@ocs3.intra.ocs.com.au>
+Date: Sat, 13 Dec 2003 11:29:40 +1100
+Message-ID: <9678.1071275380@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Dec 2003 18:25:56 +0000, 
-Dave Jones <davej@redhat.com> wrote:
->On Sat, Dec 13, 2003 at 03:25:52AM +1100, Keith Owens wrote:
-> > Also calls to smp_call_function() need to be wrapped in preempt_disable,
-> > plus any work that is done on the current cpu before/after calling a
-> > function on the other cpus.  Lack of preempt disable could result in
-> > the operation being done twice on one cpu and not at all on another.
+On 12 Dec 2003 13:26:12 -0800, 
+Philippe Troin <phil@fifi.org> wrote:
+>You're not alone... I have the same problems: 2.4.22 works, 2.4.23
+>locks up apparently randomly. I cannot get a backtrace with sysrq
+>either.
 >
->And where you want to do the same thing on every processor, there's a
->handy on_each_cpu() which takes care of this for you.
+>If only I could get a backtrace... :-)
 
-I know, but there is code in 2.6 that calls smp_call_function directly,
-without preempt disable around it.
+Try serial console + kdb.  ftp://oss.sgi.com/projects/download/kdb/v4.3
 

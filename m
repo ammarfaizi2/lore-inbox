@@ -1,87 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277942AbRKDUs0>; Sun, 4 Nov 2001 15:48:26 -0500
+	id <S277918AbRKDVCr>; Sun, 4 Nov 2001 16:02:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278823AbRKDUsS>; Sun, 4 Nov 2001 15:48:18 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:56483 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S277942AbRKDUr7>;
-	Sun, 4 Nov 2001 15:47:59 -0500
-Date: Sun, 04 Nov 2001 20:47:53 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-        Tim Jansen <tim@tjansen.de>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <625740430.1004906873@[195.224.237.69]>
-In-Reply-To: <20011104211153.V14001@unthought.net>
-In-Reply-To: <20011104211153.V14001@unthought.net>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S278829AbRKDVCh>; Sun, 4 Nov 2001 16:02:37 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:19651 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S277918AbRKDVCW>; Sun, 4 Nov 2001 16:02:22 -0500
+Date: Sun, 4 Nov 2001 16:01:54 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+cc: Andrew Morton <akpm@zip.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3c556 basicly not working.
+In-Reply-To: <008201c16537$e0176200$3a01a8c0@zeusinc.com>
+Message-ID: <Pine.LNX.4.40.0111041547110.139-100000@yas.clubneon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Using a ioctl that returns the type.
+On Sun, 4 Nov 2001, Tom Sightler wrote:
+
+> I experienced some similar problems when I first received my Dell Latitude
+> C810 which has the same card.  In my case the card worked fine after
+> upgrading to the latest BIOS from Dell.
+
+This machine also has Win2k on it.  I was trying to get IBM to help me
+with this a little, as I was seeing some funky stuff even in Windows.  The
+latest BIOS upgrade did help a little.
+
+In Windows the card does work.  But before when I was shutting down the
+machine wasn't turning all the way off.  The back light on the screen was
+staying on.  Now the backlight turns off, but I still don't think it
+shutsdown properly, because Windows won't restart properly, it just hangs.
+I have to hold the powerbutton to get it to shut down, when I hit the
+powerbutton again it won't POST, unless I unplug the AC adaptor first.
+
+Actually when booting from Windows to Linux, even Linux hangs on the first
+boot.  Right when it tries to load the ACPI kernel driver.  Linux seems to
+shutdown properly and start backup (actually this is the first machine
+I've seen power off with ACPI instead of APM in the kernel).
+
+> Interestingly, the card has a similar problem in Windows ME in that it's
+> won't initialize properly on first boot, but if I remove and reinstall the
+> driver it comes right up.
 >
-> But that's not pretty   :)
+> I think the problem is that the BIOS fails to initialize the PCI bridge
+> properly, but this is a total guess.
 >
-> Can't we think of something else ?
+> Anyway, my suggestion would be to verify that you have the most current BIOS
+> for your system, and select any options at all that would indicate a legacy
+> system.  Also, another stupid suggestion is to try ACPI in the kernel, a
+> friend of mine insist that his card started working after he simply compiled
+> in ACPI, he thinks the bridge was brought up in standby mode and somehow
+> ACPI fixed this (I'm skeptical, but it is just a suggestion).
 
-Well this sure isn't perfect, but to
-illustrate it can be done with a text
-interface (and the only restriction
-is strings can't contain \n):
+There are really no legacy options in the BIOS.  I have turned off the
+legacy floppy support because there is no floppy controller in this
+machine.  I've turned on the serial port because I need it sometimes.
 
-cat /proc/widget
-# Format: '%l'
-# Params: Number_of_Widgets
-37
+And as I stated above I do have ACPI in the kernel.  I know the hangs on
+loading ACPI are related to the card because I could reboot between
+Windows and Linux all day without a hang before I installed this card.  I
+tried removing the card and the laptop does work properly without it.  So
+it would also be my guess that there is something wrong with the BIOS.
 
-echo '38' > /proc/widget
+But the card works in Windows, and Linux can shutdown properly, so what
+ever the problem is it can be worked around it seems.
 
-cat /proc/widget
-# Format: '%l'
-# Params: Number_of_Widgets
-38
+Anway, I'll keep watching IBM for BIOS updates, and work as much as I can
+with Andrew to see if anything can be worked out.
 
-cat /proc/widget | egrep -v '^#'
-38
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 
-cat /proc/sprocket
-# Format: '%l' '%s'
-# Params: Number_of_Sprockets Master_Sprocket_Name
-21
-Foo Bar Baz
-
-echo '22' > /proc/sprocket
-# writes first value if no \n character written before
-# close - all writes done simultaneously on close
-
-cat /proc/sprocket | egrep -v '^#'
-22
-Foo Bar Baz
-
-echo 'Master_Sprocket_Name\nBaz Foo Bar' > /proc/sprocket
-
-cat /proc/sprocket | egrep -v '^#'
-22
-Baz Foo Bar
-
-echo 'Master_Sprocket_Name\nFoo Foo Foo\nNumber_of_Sprockets\n111' > 
-/proc/sprocket
-# Simultaneous commit if /proc driver needs it
-# i.e. it has get_lock() and release_lock()
-# entries
-cat /proc/sprocket | egrep -v '^#'
-111
-Foo Foo Foo
-
-& nice user tools look at the '# Params:' line to find
-what number param they want to read / alter.
-
---
-Alex Bligh

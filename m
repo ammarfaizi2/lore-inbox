@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbUADG2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 01:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUADG2P
+	id S264446AbUADG2U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 01:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUADG2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 01:28:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:985 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264411AbUADG2N
+	Sun, 4 Jan 2004 01:28:19 -0500
+Received: from esperance.ozonline.com.au ([203.23.159.248]:14720 "EHLO
+	ozonline.com.au") by vger.kernel.org with ESMTP id S264410AbUADG2N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 4 Jan 2004 01:28:13 -0500
-Date: Sun, 4 Jan 2004 06:28:12 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jeff Woods <kazrak+kernel@cesmail.net>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Should struct inode be made available to userspace?
-Message-ID: <20040104062812.GX4176@parcelfarce.linux.theplanet.co.uk>
-References: <200312292040.00409.mmazur@kernel.pl> <20031229195742.GL4176@parcelfarce.linux.theplanet.co.uk> <bt71ip$cer$1@gatekeeper.tmr.com> <20040103185712.GV4176@parcelfarce.linux.theplanet.co.uk> <6.0.1.1.0.20040103214203.038dceb0@no.incoming.mail>
+Date: Sun, 4 Jan 2004 17:31:29 +1100
+From: Davin McCall <davmac@ozonline.com.au>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] fix issues with loading PCI ide drivers as modules
+ (linux 2.6.0)
+Message-Id: <20040104173129.60cde487.davmac@ozonline.com.au>
+In-Reply-To: <200401040452.17659.bzolnier@elka.pw.edu.pl>
+References: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
+	<200401040256.57419.bzolnier@elka.pw.edu.pl>
+	<20040104142141.2bf4f230.davmac@ozonline.com.au>
+	<200401040452.17659.bzolnier@elka.pw.edu.pl>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6.0.1.1.0.20040103214203.038dceb0@no.incoming.mail>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 09:45:47PM -0800, Jeff Woods wrote:
-> At 1/3/2004 06:57 PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >On Sat, Jan 03, 2004 at 01:39:41PM -0500, Bill Davidsen wrote:
-> >>Moving the definitions is fine, but some user programs, like backup 
-> >>programs, do benefit from direct interpretation of the inode. Clearly 
-> >>that's not a normal user program, but this information is not only useful 
-> >>inside the kernel.
-> >
-> >No, they do not.  They care about on-disk structures, not the in-core ones 
-> >fs driver happens to build.
+Sorry, I'm resending this as I forgot to CC: it to the lists.
+
+On Sun, 4 Jan 2004 04:52:17 +0100
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+
+> > 1) unless "idex=base,ctl,irq" is used, the hwif->chipset is left as
+> > "ide_unknown" (this means for that the hwif can get re-allocated in
+> > setup-pci.c - ide_match_hwif() - and clobbered)
 > 
-> They may if trying to do an online backup of open files, especially if 
-> attempting to maintain transactional integrity (i.e. make the backup 
-> logically atomic).
+> Hmm.  What if hwif is freed by a driver?
 
-*ROTFL*
+I don't think I'm really sure what you're asking. (which driver frees hwif? why is it a problem? I see a "ide_unregister" call, it resets the hwif to default state - this should be fine.
 
-Excuse me, what sort of atomicity are you talking about?  If that "program"
-pokes around in kernel memory and accesses (nevermind how found) in-core
-inodes, it's not just not atomic, it's obviously racy in all sorts of
-interesting ways.  struct inode can be freed at any point _and_ userland
-code can lose timeslice and not regain it in quite a while.
+> > What about this is a solution to these problems:
+> >  - set hwif->chipset to "ide_generic" instead of leaving it as
+> > "ide_unknown" (ide-probe.c); - if ide_match_hwif() returns an already
+> > allocated hwif, do not clobber it in ide_hwif_configure() (setup-pci.c)
+>
+> This brakes "idex=base..." parameters for PCI chipsets.
+> They shouldn't be needed in this case, but...
 
-If any backup program tries to pull that off, I would really like to see
-the names of its "designers" posted for public ridicule.  If such duhvelopers
-actually exist, they more than deserve recognition.
+As far as i can see "idex=base.." is broken for PCI chipsets anyway- if the detected PCI base doesn't match the forced one, the PCI will be allocated a seperate hwif (ie as a seperate ideX) anyway. So you can't force the base port of a PCI-chipset controller.
+
+Do you mean that, if "idex=base..." is give, and the base is correct for the PCI device, then it should work ok? If so it seems the easiest way to fix it is to introduce another dummy chipset type (lets say "ide_generic_forced") which is set (instead of ide_generic) when "idex=.." is parsed. Then check for this in ide_hwif_configure(). Would also need to modify ide_match_hwif() (so it returns a match for "ide_generic_forced" as well as for "ide_generic") and ide_probe_init() would have to change "ide_generic_force" to "ide_generic" (to handle the case that no PCI chipset took control).
+
+So we handle these situations:
+- idex=... specified and no PCI chipset
+- idex=... specified and PCI chipset present
+- PCI chipset module loaded after ide initialization complete
+
+Does that sound ok? If so I will write another patch.
+
+Davin

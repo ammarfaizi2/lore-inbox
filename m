@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313038AbSD3DAu>; Mon, 29 Apr 2002 23:00:50 -0400
+	id <S313087AbSD3Fd0>; Tue, 30 Apr 2002 01:33:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313041AbSD3DAt>; Mon, 29 Apr 2002 23:00:49 -0400
-Received: from bstnma1-ar1-4-64-205-250.bstnma1.elnk.dsl.genuity.net ([4.64.205.250]:28670
-	"EHLO mail.spoofed.org") by vger.kernel.org with ESMTP
-	id <S313038AbSD3DAs>; Mon, 29 Apr 2002 23:00:48 -0400
-Date: Mon, 29 Apr 2002 23:04:18 -0400
-From: warchild@spoofed.org
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: remote memory reading using arp?
-Message-ID: <20020430030418.GB6179@spoofed.org>
-In-Reply-To: <p73znzom2kv.fsf@oldwotan.suse.de> <Pine.LNX.4.33L2.0204291121420.26604-100000@rtlab.med.cornell.edu> <20020429173144.A4044@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S313089AbSD3FdZ>; Tue, 30 Apr 2002 01:33:25 -0400
+Received: from styx.suse.cz ([213.210.157.162]:25081 "EHLO SnowWhite.SuSE.cz")
+	by vger.kernel.org with ESMTP id <S313087AbSD3FdY> convert rfc822-to-8bit;
+	Tue, 30 Apr 2002 01:33:24 -0400
+To: Larry McVoy <lm@work.bitmover.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@suse.cz>,
+        Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OFF TOPIC] BK license change
+In-Reply-To: <20020426042242.A294@toy.ucw.cz>
+	<Pine.LNX.4.44L.0204291633010.1960-100000@imladris.surriel.com>
+	<20020429124514.O15730@work.bitmover.com>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Tue, 30 Apr 2002 07:36:06 +0200
+Message-ID: <m3wuup694p.fsf@Janik.cz>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2.50
+ (i386-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings again,
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Mon, 29 Apr 2002 12:45:14 -0700
 
-I took the time today to gather as much arp traffic as my eyes could handle and
-enough to shed some valuable light on this issue.
+Larry,
 
-While it doesn't show who/what is at fault, it may possibly prove that I'm
-missing something entirely or the problem is more widespread that was
-thought.
+   > it is today.  Pavel is welcome to try and do better, but he sure as
+   > hell isn't going to do it in his spare time.  Nobody is, it's a much
+   > harder problem than it looks like.  I really wish people would try it
+   > and find out.  Maybe I'm wrong, in which case we can all get on to doing
+   > something more fun.
 
-Anyway, here goes.   
+you are not wrong. You have your `truth'. Pavel has his one. Pavel prefers
+free software and its freedom. Some people here prefer using BK instead of
+using (objectively worse) similar GPLed software. They have the right to
+think that and they have the right to say so.
 
-For test 1, I gathered ~1.5M of arp traffic from a monitoring port that
-sustains 4-5Mb/s traffic in a mixed solaris/linux/win2k environment of
-approximately 400 machines in an educational setting.
+Yes, I too think that using BK for kernel development is politically wrong
+decision and in the long run it will have bad effects on free software
+(generally, Linux kernel and the community specially).
 
-For test 2, I gathered ~.5M of arp traffic from a single interface of a
-RedHat machine located in a "Small Business" environment consisting of
-approximately 25 machines (linux/winXP).  
+Do not take it as a critique. I do not want to criticize you or your
+colleges. You did a great job!
 
-That much arp data is pretty unruly, so I used grep to see if anything
-stuck out.  
+But releasing BK under free software license would be (for me) much
+better. Of course, I can not force you to change the license or something
+similar. You are the creator and you have the right to release your work
+under license you find the best! I (or anyone else) can not tell you what
+should be done. But we all can tell you our opinion.
 
-I grepped for our domain name (ccs.neu.edu) and found this string 15 times in
-test 1, and grepped for 'http' in test 2 and found that string 62 times.
+But I do not think that having different `truth' qualifies people to be
+blackholed. Sorry, but I think you are like small child...
+-- 
+Pavel Janík
 
-Upon digging into the traffic a bit further, I saw an interesting trends.
-All of the arp packets that contained interesting data contained it in the
-last 18 bytes of the 60 byte arp packet.  After googling and browsing the
-rfcs, I've seen these last 18 bytes referred to as both 'trailers' and
-'padding'.  It is not clear to me what purpose they serve, but seems clear
-that they can contain some potentially sensitive data.  
-
-I know this may be getting a bit off topic, but I figured I share my
-findings with the lists.  If I am incorrect in any of my statements, please
-correct me.
-
-thanks,
-
--jon 
+Keep it simple to make it faster.
+                  --  The Elements of Programming Style (Kernighan & Plaugher)

@@ -1,71 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312608AbSDKRVH>; Thu, 11 Apr 2002 13:21:07 -0400
+	id <S312612AbSDKRVd>; Thu, 11 Apr 2002 13:21:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312612AbSDKRVG>; Thu, 11 Apr 2002 13:21:06 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:1032 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312608AbSDKRVF>;
-	Thu, 11 Apr 2002 13:21:05 -0400
-Date: Thu, 11 Apr 2002 10:18:01 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch-2.5.8-pre] swapinfo accounting
-In-Reply-To: <Pine.LNX.4.21.0204111543340.1231-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L2.0204111012120.28475-100000@dragon.pdx.osdl.net>
+	id <S312616AbSDKRVc>; Thu, 11 Apr 2002 13:21:32 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:25290 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S312612AbSDKRVb>;
+	Thu, 11 Apr 2002 13:21:31 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
+        Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
+In-Reply-To: <dnu1qia3zg.fsf@magla.zg.iskon.hr>
+	<20020411150219.A10486@infradead.org>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Thu, 11 Apr 2002 19:20:54 +0200
+Message-ID: <878z7u6tjd.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Apr 2002, Hugh Dickins wrote:
+Christoph Hellwig <hch@infradead.org> writes:
 
-| On Wed, 10 Apr 2002, Andrew Morton wrote:
-| > "Randy.Dunlap" wrote:
-| > >
-| > > It looks to me like mm/swapfile.c::si_swapinfo()
-| > > shouldn't be adding nr_to_be_unused to total_swap_pages
-| > > or nr_swap_pages for return in val->freeswap and
-| > > val->totalswap.
-|
-| Good observation, thanks Randy, but wrong fix.
+> On Thu, Apr 11, 2002 at 01:06:59PM +0200, Zlatko Calusic wrote:
+>> I had to make some changes, as kernel internals have changed since the
+>> time patch was originally written. Alan has also included this patch
+>> in his 2.4.x-ac kernel series, but it is not working well.
+>
+> Oh, it's also in 2.4.19-pre6 and works pretty well..
 
-Thanks for the patch.  I confirm that it is giving me
-numbers that look sane.
+Good. One more reason to put it in the 2.5.x as well. :)
 
-BTW, the patch was for discussion, so it worked.
-"a la akpm"  :)
+>
+>> First problem is that somehow, misteriously, ios_in_flight variable
+>> drops to value of -1 when disks are idle. Of course, this skews lots
+>> of other numbers and iostat reports garbage. I tried to find the cause
+>> of this behaviour, but failed (looks like we have a request fired on
+>> each disk, whose start is never accounted but completion is?!). So I
+>> resolved it this way
+>> 
+>> if (hd->ios_in_flight)
+>>                --hd->ios_in_flight;
+>> 
+>> which works well, but I would still love to know how number of I/Os
+>> can drop below zero. :)
+>
+> I'm unable to reproduce it here - I only have idle partition though..
 
-~Randy
+Here is how it looks here (SMP machine, it could matter):
 
-| > whee, an si_swapinfo() maintainer.
-|
-| That might be me?  I rewrote that code for 2.4.10
-| (when you called attention to si_swapinfo slowness).
-|
-...
-|
-| It is the right fix; but since that condition was misunderstood,
-| and some other flag might be added in future, the safer patch
-| would be this more explicit one (which I'll now send to Linus
-| with a briefer description).
-|
-| But I hope nobody backports this to 2.4, where it would be
-| wrong: 2.5.4 confusingly changed the nature of SWP_WRITEOK.
-|
-| Hugh
-|
-| --- 2.5.8-pre3/mm/swapfile.c	Mon Mar 11 12:30:56 2002
-| +++ linux/mm/swapfile.c	Thu Apr 11 15:26:51 2002
-| @@ -1095,7 +1095,8 @@
-|  	swap_list_lock();
-|  	for (i = 0; i < nr_swapfiles; i++) {
-|  		unsigned int j;
-| -		if (!(swap_info[i].flags & SWP_USED))
-| +		if (!(swap_info[i].flags & SWP_USED) ||
-| +		     (swap_info[i].flags & SWP_WRITEOK))
-|  			continue;
-|  		for (j = 0; j < swap_info[i].max; ++j) {
-|  			switch (swap_info[i].swap_map[j]) {
 
+major minor #blocks name rio rmerge rsect ruse wio wmerge wsect wuse running use aveq
+
+34 0 40011552 hdg 23 62 189 70 4 3 32 0 -1 946410 -946410
+33 0 60051600 hde 8349 18725 214666 108230 3781 15234 152176 91700 -1 927060 -746550
+ 3 0 19938240 hda 848 1023 14565 5470 1303 1542 22768 300 -1 942120 -940710
+
+
+Notice negative numbers for running, aveq. Kernel is 2.4.19-pre5-ac3.
+
+>
+>> Second problem/nuisance is that blk_partition_remap() destroys
+>> partition information from the bio->bi_dev before the request is
+>> queued. That's why -ac kernel doesn't report per-partition
+>> information.
+>
+> Bullocks.  2.4 doesn't even have blk_partition_remap, but the individual
+> drivers do the partition remapping themselves.  I wouldn't have submitted
+> sard for 2.4 inclusion if there would be such a bug.
+>
+
+Oops, you're right. I stand corrected. That particular problem doesn't
+exist on 2.4.x. It is obviously a property of new bio layer which
+exists only in the 2.5.x.
+
+Regards,
+-- 
+Zlatko

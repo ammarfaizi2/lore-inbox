@@ -1,75 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVA2Q4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVA2Q7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262939AbVA2Q4U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 11:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbVA2Q4U
+	id S262940AbVA2Q7D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 11:59:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVA2Q7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 11:56:20 -0500
-Received: from alg138.algor.co.uk ([62.254.210.138]:47839 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262939AbVA2Q4M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 11:56:12 -0500
-Date: Sat, 29 Jan 2005 16:52:02 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Philippe Robin <Philippe.Robin@arm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Re: flush_cache_page()
-Message-ID: <20050129165202.GA15046@linux-mips.org>
-References: <20050111223652.D30946@flint.arm.linux.org.uk> <Pine.LNX.4.58.0501111605570.2373@ppc970.osdl.org> <20050129113707.B2233@flint.arm.linux.org.uk> <1107008962.4535.8.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107008962.4535.8.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+	Sat, 29 Jan 2005 11:59:03 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:16866 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262940AbVA2Q6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 11:58:49 -0500
+Message-ID: <41FBC0EF.8010705@comcast.net>
+Date: Sat, 29 Jan 2005 11:59:27 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: Patch 4/6  randomize the stack pointer
+References: <20050127101117.GA9760@infradead.org>	 <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net>	 <1106848051.5624.110.camel@laptopd505.fenrus.org>	 <41F92D2B.4090302@comcast.net>	 <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org>	 <41F95F79.6080904@comcast.net>	 <1106862801.5624.145.camel@laptopd505.fenrus.org>	 <41F96C7D.9000506@comcast.net>	 <Pine.LNX.4.61.0501282147090.19494@chimarrao.boston.redhat.com>	 <41FB2DD2.1070405@comcast.net>	 <1106986224.4174.65.camel@laptopd505.fenrus.org>	 <41FBB821.3000403@comcast.net> <1107016955.4174.127.camel@laptopd505.fenrus.org>
+In-Reply-To: <1107016955.4174.127.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 29, 2005 at 08:29:22AM -0600, James Bottomley wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sat, 2005-01-29 at 11:37 +0000, Russell King wrote:
-> > Thanks for the response.  However, apart from Ralph, Paul and yourself,
 
-Who are you talking about ;-)
 
-> > it seems none of the other architecture maintainers care about this
-> > patch - the original mail was BCC'd to the architecture list.  Maybe
-> > that's an implicit acceptance of this patch, I don't know.
+
+
+Arjan van de Ven wrote:
+> On Sat, 2005-01-29 at 11:21 -0500, John Richard Moser wrote:
 > 
-> Well, OK, I'll try to answer for parisc, since we have huge VIPT
-> aliasing caches as well.
+>>-----BEGIN PGP SIGNED MESSAGE-----
 > 
-> Right now, we have a scheme in flush_cache_page to make sure it's only
-> called when necessary (cache flushes are expensive for us and show up as
-> the primary cpu consumer in all of our profiles).  Our scheme is to see
-> if a translation exists for the page and skip the flush if it doesn't.
 > 
-> Obviously, like MIPS, we're also walking the page tables without
-> locking...
+>>These are the only places mprotect() is mentioned; a visual scan
+>>confirms no trickery:
+>>
+>>        if( fork() == 0 ) {
+>>                /* Perform a dirty (but not unrealistic) trick to circumvent
+>>                 * the kernel protection.
+>>                 */
+>>                if( paxtest_mode == 1 ) {
+>>                        pthread_t thread;
+>>                        pthread_create(&thread, NULL, test_thread, dummy);
+>>                        doit();
+>>                        pthread_kill(thread, SIGTERM);
+>>                } else {
+> 
+> 
+>>So, there you have it.  These tests do not intentionally kill
+>>exec-shield based on its known issue with tracking the upper limit of
+>>the code segment.
+> 
+> 
+> 
+> here they do.
+> dummy is a local NESTED function, which causes the stack to *correctly*
+> be marked executable, due to the need of trampolines. 
+> That disables execshield for any tests that use dummy.o, which most of
+> them are.
+> 
 
-VIPT caches on MIPS R4000-class processors will perform an address
-translation using the TLB to obtain the physical address that will be
-compared against the cache tags.  This may result in TLB reloads which are
-an ugly case to deal with if the flush is being performed for a mm other
-than current->mm.  Since a long time the flush_cache_page implementation
-assumes getting this right is too hard but I suppose it's an optimization
-that should be attempted and which would require pagetable lookups.
+Only in "Blackhat" mode.  I ran in Kiddie and Blackhat mode, and my
+second batch of tests (tests.txt, my errata) was run after execstack -c.
 
-The current implementation actually does lookups as an optimization (and
-I'm just asking myself if that is still correct) by looking at the present
-bit of the pte to deciede if data from that page may have entered the cache
-at all so we can avoid the flush entirely.
+> 
 
-> Looking at the callers of this, it seems it would be very unlikely to
-> call this with a missing translation, in that case, we can use the pfn
-> to flush the page through a temporary alias space instead and just take
-> the odd hit if no translation exists.  
+root@iceslab:/mnt/redhat/root/paxtest-0.9.6 # strace ./execstack 2>&1 |
+grep mprotect
+mprotect(0x20822000, 4096, PROT_NONE)   = 0
+root@iceslab:/mnt/redhat/root/paxtest-0.9.6 # strace ./execstack 2>&1 |
+grep EXEC
+old_mmap(NULL, 64996, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x265d9000
+old_mmap(NULL, 1232332, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x265e9000
+mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC,
+MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x26716000
 
-That would be the MIPS optimization for the case of flushing on behalf of
-another process.
+I killed the fork() line and straced it.
+0x26716000 is only ~600 megs up,  I find my stack at ~1.5G under
+segmexec, I'd guess it'd be at ~3G under normal things like execshield.
+ You know what *looks*
 
-  Ralf
+getstack1:  0xfefcead7
+getstack1:  0xfefe9947
+getstack1:  0xfeedd4f7
+getstack1:  0xfefe6e37
+getstack1:  0xfee412b7
+getstack1:  0xfee71737
 
-PS: Don't get me started on PIVT caches ...
+Yeah it's pretty high under exec shield.
+
+none of these are doing ANYTHING weird (grepping for EXEC and scanning
+for PROT_EXEC and related addresses), aside from the normal mapping of
+libraries by the system, which is probably what's killing Exec Shield's
+anonymous mapping, heap, data, bss, library data, library bss. . .
+
+To put it bluntly, you're wrong.  The tests are valid.
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB+8DuhDd4aOud5P8RAscYAKCErG3KB5M9gMwZ1BRqTDBKyYYLrACfcYeb
+0ptJYTE+uUx0QYSHmKXWlsA=
+=PL8+
+-----END PGP SIGNATURE-----

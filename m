@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUFBPC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbUFBPFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUFBPC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 11:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUFBPC2
+	id S263101AbUFBPFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 11:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUFBPFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 11:02:28 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:38531 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S263107AbUFBPBn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 11:01:43 -0400
-Date: Wed, 2 Jun 2004 10:00:51 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Sean Estabrooks <seanlkml@sympatico.ca>, szepe@pinerecords.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x partition breakage and dual booting
-Message-ID: <20040602150051.GA3165@lists.us.dell.com>
-References: <20040530183609.GB5927@pclin040.win.tue.nl> <40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl> <s5g8yf9ljb3.fsf@patl=users.sf.net> <20040531180821.GC5257@louise.pinerecords.com> <s5gaczonzej.fsf@patl=users.sf.net> <20040531170347.425c2584.seanlkml@sympatico.ca> <s5gfz9f2vok.fsf@patl=users.sf.net> <20040601235505.GA23408@apps.cwi.nl> <s5gpt8ijf1g.fsf@patl=users.sf.net>
+	Wed, 2 Jun 2004 11:05:16 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:61835 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263101AbUFBPFK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 11:05:10 -0400
+Date: Wed, 2 Jun 2004 17:04:40 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040602150440.GA26474@wohnheim.fh-wedel.de>
+References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl> <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org> <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <s5gpt8ijf1g.fsf@patl=users.sf.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 June 2004 07:45:10 -0700, Linus Torvalds wrote:
+> 
+> The programmer had _better_ know that there is some upper limit.
+> 
+> And I claim: recursion is illegal unless the programmer has some explicit 
+> recursion limiter. And if he has that recursion limiter in one of the 
+> functions, then he damn well better know it, and know the value it limits 
+> recursion to.
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Can I read this as:
+Linus himself will use strong words to enforce all recursions in the
+kernel to be either removed or properly documented.
 
-On Wed, Jun 02, 2004 at 09:02:23AM -0400, Patrick J. LoPresti wrote:
-> Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
-> > Please, now that this is still unused, fix your names and/or
-> > your code. Names could be legacy_max_head (etc.) if you want
-> > to keep the values, or otherwise add 1 to the values.
->=20
-> Well, the EDD module belongs to Matt Domsch.  I only contributed the
-> "legacy_*" code and names.
->=20
-> If it is OK with Matt, I agree we should rename legacy_heads to
-> legacy_max_head and legacy_sectors to legacy_sectors_per_track.  I
-> doubt anybody other than myself is using these yet anyway.
+In that case, you have 273 recursions to deal with.  They are all in
+the data I attached a few posts back.  Recursions would basically be
+in the same league as huge stack hogs, sounds good.
 
-Yes, please submit a patch now to Andrew, cc: me and linux-kernel at
-least.   I've confirmed that our internal tools are not using these
-fields yet.
-=20
-> > Also - people will try to match the 0x7280b80 for int13_dev83 with
-> > the 120064896 sectors that dmesg or hdparm -g reports for /dev/hdf.
-> > Life would be easier with values given in decimal, as they are
-> > everywhere else.
->=20
-> I used hex for legacy_* because that is what all the other fields
-> already used.  It was not my decision, and I have no opinion either
-> way.  Convince Matt.
+Jörn
 
-Whatever, scanf works with either representation.  Patrick, if you're
-changing the above, feel free to submit a second patch to switch these
-all to %u instead.
-
-Thanks,
-Matt
-
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAveujIavu95Lw/AkRAuHdAKCIDgMYqImdyvXwLXEQcMCLxAIiswCghHRh
-x1FED7yoUEfUHjLlYwxzKyg=
-=WXas
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--
+-- 
+Write programs that do one thing and do it well. Write programs to work
+together. Write programs to handle text streams, because that is a
+universal interface. 
+-- Doug MacIlroy

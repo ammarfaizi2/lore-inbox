@@ -1,63 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263851AbUH0Nzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUH0N5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbUH0Nzo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 09:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUH0Nzo
+	id S265086AbUH0N5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 09:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUH0N5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 09:55:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29140 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263851AbUH0Nzl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 09:55:41 -0400
-Date: Fri, 27 Aug 2004 09:03:31 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org, gregkh@us.ibm.com
-Subject: Re: [2.4 patch][1/6] ibmphp_res.c: fix gcc 3.4 compilation
-Message-ID: <20040827120330.GD32707@logos.cnet>
-References: <20040826195133.GB12772@fs.tum.de> <20040826195455.GC12772@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826195455.GC12772@fs.tum.de>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 27 Aug 2004 09:57:24 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:12234 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265086AbUH0N4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 09:56:31 -0400
+Date: Fri, 27 Aug 2004 14:56:20 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Gergely Tamas <dice@mfa.kfki.hu>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Andrew Morton <akpm@osdl.org>, Ram Pai <linuxram@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: data loss in 2.6.9-rc1-mm1
+In-Reply-To: <200408271455.03733.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0408271448041.4725-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 09:54:55PM +0200, Adrian Bunk wrote:
-> I got the following compile error when trying to build 2.4.28-pre2 using 
-> gcc 3.4:
+On Fri, 27 Aug 2004, Denis Vlasenko wrote:
+> On Friday 27 August 2004 13:55, Gergely Tamas wrote:
+> >
+> > I've hit the following data loss problem under 2.6.9-rc1-mm1.
+> >
+> > If I copy data from a file to another the target will be smaller then
+> > the source file.
+> >
+> > 2.6.9-rc1 does not have this problem
+> > 2.6.8.1-mm4 does not have this problem
+> > 2.6.9-rc1-mm1 _does have_ this problem
 > 
-> <--  snip  -->
+> I've seen some errors from KDE too. Let me do your test...
 > 
-> ...
-> gcc-3.4 -D__KERNEL__ 
-> -I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
-> -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
-> -fno-unit-at-a-time  -D_LINUX 
-> -I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/drivers/acpi  
-> -nostdinc -iwithprefix include -DKBUILD_BASENAME=ibmphp_res  -c -o 
-> ibmphp_res.o ibmphp_res.c
-> ibmphp_res.c: In function `ibmphp_rsrc_init':
-> ibmphp_res.c:45: sorry, unimplemented: inlining failed in call to 
-> 'find_bus_wprev': function body not available
-> ibmphp_res.c:237: sorry, unimplemented: called from here
-> ibmphp_res.c:45: sorry, unimplemented: inlining failed in call to 
-> 'find_bus_wprev': function body not available
-> ibmphp_res.c:261: sorry, unimplemented: called from here
-> ibmphp_res.c:45: sorry, unimplemented: inlining failed in call to 
-> 'find_bus_wprev': function body not available
-> ibmphp_res.c:284: sorry, unimplemented: called from here
-> make[3]: *** [ibmphp_res.o] Error 1
-> make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/drivers/hotplug'
-> 
-> <--  snip  -->
-> 
-> 
-> The patch below fixes this issue by uninlining find_bus_wprev (as done 
-> in 2.6).
+> # dd if=/dev/zero of=testfile bs=$((1024*1024)) count=10
+> 10+0 records in
+> 10+0 records out
+> # cat testfile > testfile.1
+> # ls -l test*
+> -rw-r--r--    1 root     root     10485760 Aug 27 14:53 testfile
+> -rw-r--r--    1 root     root     10481664 Aug 27 14:53 testfile.1
 
-Just out of curiosity, if you move the inlined function up to the beginning of the 
-file (before any calls to it), and remove the declaration (at 45), does it
-stop complaining?
+Hmm, 2.6.9-rc1-mm1 looks like not a release to trust your (page
+size multiple) data to!  You should find the patch below fixes it
+(and, I hope, the issue the erroneous patches were trying to fix).
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.9-rc1-mm1/mm/filemap.c	2004-08-26 12:09:50.000000000 +0100
++++ linux/mm/filemap.c	2004-08-27 14:35:32.113359872 +0100
+@@ -722,10 +722,7 @@ void do_generic_mapping_read(struct addr
+ 	offset = *ppos & ~PAGE_CACHE_MASK;
+ 
+ 	isize = i_size_read(inode);
+-	if (!isize)
+-		goto out;
+-
+-	end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
++	end_index = isize >> PAGE_CACHE_SHIFT;
+ 
+ 	for (;;) {
+ 		struct page *page;
+@@ -733,6 +730,11 @@ void do_generic_mapping_read(struct addr
+ 
+ 		if (index > end_index)
+ 			goto out;
++		if (index == end_index) {
++			nr = isize & ~PAGE_CACHE_MASK;
++			if (nr <= offset)
++				goto out;
++		}
+ 
+ 		cond_resched();
+ 		page_cache_readahead(mapping, &ra, filp, index);
+@@ -831,8 +833,8 @@ readpage:
+ 		 * another truncate extends the file - this is desired though).
+ 		 */
+ 		isize = i_size_read(inode);
+-		end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
+-		if (unlikely(!isize || index > end_index)) {
++		end_index = isize >> PAGE_CACHE_SHIFT;
++		if (unlikely(index > end_index)) {
+ 			page_cache_release(page);
+ 			goto out;
+ 		}
+

@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbTKMRRq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 12:17:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTKMRRJ
+	id S264353AbTKMROL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 12:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbTKMROL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 12:17:09 -0500
-Received: from services3.virtu.nl ([217.114.97.6]:4507 "EHLO
-	services3.virtu.nl") by vger.kernel.org with ESMTP id S264355AbTKMRQx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 12:16:53 -0500
-Message-Id: <5.1.0.14.2.20031113180820.026e6ba0@services3.virtu.nl>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 13 Nov 2003 18:13:45 +0100
-To: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-From: Remco van Mook <remco@virtu.nl>
-Subject: Re: 2.4 odd behaviour of ramdisk + cramfs
-In-Reply-To: <E1AKKos-0000Ix-T4@rhn.tartu-labor>
-References: <5.1.0.14.2.20031113171537.01ee82c8@services3.virtu.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Virtu-MailScanner-VirusCheck: Found to be clean
+	Thu, 13 Nov 2003 12:14:11 -0500
+Received: from vpn-19-5.aset.psu.edu ([146.186.19.5]:24961 "EHLO
+	funkmachine.cac.psu.edu") by vger.kernel.org with ESMTP
+	id S264353AbTKMROI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 12:14:08 -0500
+Message-ID: <3FB3BBE0.D4D0EACC@psu.edu>
+Date: Thu, 13 Nov 2003 12:14:08 -0500
+From: Jason Holmes <jholmes@psu.edu>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.19-pre3-rmap12h i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] make 2.6 megaraid recognize intel vendor id
+Content-Type: multipart/mixed;
+ boundary="------------3A8963A11DAC098267A4157D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------3A8963A11DAC098267A4157D
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hello Meelis,
+Hi,
 
-thank you ! This patch works for me.
+The 2.4 megaraid driver recognizes the Intel PCI vendor id whereas the
+2.6 driver does not.  The attached patch against 2.6.0-test9 adds the
+missing two lines from the 2.4 driver to enable this.
 
-Does it have any side effects or might I suggest that this one is merged 
-into the mainstream kernel ?
+Thanks,
 
-Cheers,
+--
+Jason Holmes
+--------------3A8963A11DAC098267A4157D
+Content-Type: text/plain; charset=us-ascii;
+ name="2.6.0-test9-megaraid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.6.0-test9-megaraid.patch"
 
-Remco van Mook
+diff -uNr linux-2.6.0-test9.clean/drivers/scsi/megaraid.c linux-2.6.0-test9/drivers/scsi/megaraid.c
+--- linux-2.6.0-test9.clean/drivers/scsi/megaraid.c	Sat Oct 25 14:42:42 2003
++++ linux-2.6.0-test9/drivers/scsi/megaraid.c	Thu Nov 13 06:58:04 2003
+@@ -295,6 +295,7 @@
+ 		if( subsysvid && (subsysvid != AMI_SUBSYS_VID) &&
+ 				(subsysvid != DELL_SUBSYS_VID) &&
+ 				(subsysvid != HP_SUBSYS_VID) &&
++				(subsysvid != INTEL_SUBSYS_VID) &&
+ 				(subsysvid != LSI_SUBSYS_VID) ) continue;
+ 
+ 
+diff -uNr linux-2.6.0-test9.clean/drivers/scsi/megaraid.h linux-2.6.0-test9/drivers/scsi/megaraid.h
+--- linux-2.6.0-test9.clean/drivers/scsi/megaraid.h	Sat Oct 25 14:43:42 2003
++++ linux-2.6.0-test9/drivers/scsi/megaraid.h	Thu Nov 13 06:56:20 2003
+@@ -82,6 +82,7 @@
+ #define DELL_SUBSYS_VID			0x1028
+ #define	HP_SUBSYS_VID			0x103C
+ #define LSI_SUBSYS_VID			0x1000
++#define INTEL_SUBSYS_VID		0x8086
+ 
+ #define HBA_SIGNATURE	      		0x3344
+ #define HBA_SIGNATURE_471	  	0xCCCC
 
-At 18:59 13-11-2003 +0200, Meelis Roos wrote:
->RvM> Running it once causes the mount to fail with 'cramfs: wrong magic' -
->
->Debian kernel has a patch to help cramfs initrd's work. The symptoms
->wothout the patch are very similar. This is the patch, extracted from
->Debian kernel-source package:
->
->diff -urN linux-2.4.22.orig/fs/block_dev.c linux-2.4.22/fs/block_dev.c
->--- linux-2.4.22.orig/fs/block_dev.c     2003-06-01 13:06:32.000000000 +1000
->+++ linux-2.4.22/fs/block_dev.c  2003-06-01 20:43:53.000000000 +1000
->@@ -95,7 +95,7 @@
->         sync_buffers(dev, 2);
->         blksize_size[MAJOR(dev)][MINOR(dev)] = size;
->         bdev->bd_inode->i_blkbits = blksize_bits(size);
->-       kill_bdev(bdev);
->+       invalidate_bdev(bdev, 1);
->         bdput(bdev);
->         return 0;
->  }
->
->--
->Meelis Roos (mroos@linux.ee)
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+--------------3A8963A11DAC098267A4157D--
 

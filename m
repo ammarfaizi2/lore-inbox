@@ -1,483 +1,151 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317948AbSFNQNm>; Fri, 14 Jun 2002 12:13:42 -0400
+	id <S317949AbSFNQPY>; Fri, 14 Jun 2002 12:15:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317949AbSFNQNl>; Fri, 14 Jun 2002 12:13:41 -0400
-Received: from ns.suse.de ([213.95.15.193]:8977 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317948AbSFNQNi>;
-	Fri, 14 Jun 2002 12:13:38 -0400
-Date: Fri, 14 Jun 2002 18:13:28 +0200
-From: Andi Kleen <ak@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org,
-        Richard Brunner <richard.brunner@amd.com>, mark.langsdorf@amd.com
-Subject: Re: New version of pageattr caching conflict fix for 2.4
-Message-ID: <20020614181328.A18643@wotan.suse.de>
-In-Reply-To: <20020613221533.A2544@wotan.suse.de> <20020613210339.B21542@redhat.com> <20020614032429.A19018@wotan.suse.de> <20020613213724.C21542@redhat.com> <20020614040025.GA2093@inspiron.birch.net> <20020614001726.D21542@redhat.com> <20020614062754.A11232@wotan.suse.de> <20020614112849.A22888@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S317950AbSFNQPX>; Fri, 14 Jun 2002 12:15:23 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:56078 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317949AbSFNQPV> convert rfc822-to-8bit; Fri, 14 Jun 2002 12:15:21 -0400
+Message-ID: <3D0A1692.6070304@evision-ventures.com>
+Date: Fri, 14 Jun 2002 18:15:14 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 IDE 91
+In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D09F769.8090704@evision-ventures.com> <20020614151703.GB1120@suse.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 14, 2002 at 11:28:49AM -0400, Benjamin LaHaise wrote:
-> On Fri, Jun 14, 2002 at 06:27:54AM +0200, Andi Kleen wrote:
-> > Both AMD x86-64 and Intel IA32 documentation states that INVLPG flushes global
-> > TLBs. The first version of change_page_attr did in fact use __flush_tlb_all,
-> > but I changed it after checking the docs.
+U¿ytkownik Jens Axboe napisa³:
+> On Fri, Jun 14 2002, Martin Dalecki wrote:
 > 
-> As Andrea pointed out, there is an errata whereby 4MB pages aren't flushed 
-> on the Athlon.  If you mask off the low bits of the address for flushing, 
-> that should fix the problem, and sounds like a plausible explanation for 
-> the failure I saw.
+>>Thu Jun 13 22:59:54 CEST 2002 ide-clean-91
+>>
+>>- Realize that the only place where ata_do_taskfile gets used is ide-disk.c
+>>  move it and its "friends' over there.
+> 
+> 
+> Ehm, isn't that a bit odd? The typical "I'm not looking at the
+> interface, if only one person is currently using it then heck lets move
+> it" Martin approach (refer to prep_rq_fn cdb builder as well)
 
-Ok. I'm using __flush_tlb_all for now.
+Yes this is the usual Marcin aproach. The fscking best road to bloat
+is providing interfaces "on the heap" and "just in case", which
+then nobody sane uses. Wen one discovers later that they are inadequate,
+we try to support them until the end of days becouse
+some silly python based incompetently written setup application
+turns out to love to having you know what with.
 
-Here is the latest version; also fixing DRM and some more cleanups.
+And since application level programming expierence shows me that in 99%
+of the cases where interfaces are designed in front of beeing used
+they turn out to be inadequate I don't do it.
 
-Review please.
+Won't to see some silly things like the situation described above?
+Please just count the number of ioctl for the /dev/random.
+90% of them qualify as "debuggin during developement" or are
+working against the purpose of the thing. Just one example.
+Once another even more striking is the whole /proc/ mess.
 
--Andi
+> The above is just a minor thing, the reason I'm mailing is really:
+> 
+> - current 2.5 bk deadlocks reading partition info off disk. Again a
+>   locking problem I suppose, to be honest I just got very tired when
+>   seeing it happen and didn't want to spend tim looking into it.
 
+2.5.21 + the patches I did doesn't. Likely it's the driverfs?
 
-diff -burpN -X ../KDIFX -x *-o -x *.[ch]-* linux-2.4.19pre9/arch/i386/mm/Makefile linux-2.4.19pre9-work/arch/i386/mm/Makefile
---- linux-2.4.19pre9/arch/i386/mm/Makefile	Fri Dec 29 23:07:20 2000
-+++ linux-2.4.19pre9-work/arch/i386/mm/Makefile	Wed Jun  5 02:35:11 2002
-@@ -9,6 +9,7 @@
- 
- O_TARGET := mm.o
- 
--obj-y	 := init.o fault.o ioremap.o extable.o
-+obj-y	 := init.o fault.o ioremap.o extable.o pageattr.o
-+export-objs := pageattr.o
- 
- include $(TOPDIR)/Rules.make
-diff -burpN -X ../KDIFX -x *-o -x *.[ch]-* linux-2.4.19pre9/arch/i386/mm/pageattr.c linux-2.4.19pre9-work/arch/i386/mm/pageattr.c
---- linux-2.4.19pre9/arch/i386/mm/pageattr.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.4.19pre9-work/arch/i386/mm/pageattr.c	Fri Jun 14 18:07:58 2002
-@@ -0,0 +1,168 @@
-+/* 
-+ * Copyright 2002 Andi Kleen, SuSE Labs. 
-+ * Thanks to Ben LaHaise for precious feedback.
-+ */ 
-+
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/sched.h>
-+#include <linux/highmem.h>
-+#include <linux/module.h>
-+#include <asm/uaccess.h>
-+#include <asm/processor.h>
-+
-+/* Should move most of this stuff into the appropiate includes */
-+#define PAGE_LARGE (_PAGE_PSE|_PAGE_PRESENT) 
-+#define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
-+#define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
-+
-+static inline pte_t *lookup_address(unsigned long address) 
-+{ 
-+	pmd_t *pmd;	
-+	pgd_t *pgd = pgd_offset(&init_mm, address); 
-+
-+	if ((pgd_val(*pgd) & PAGE_LARGE) == PAGE_LARGE)
-+		return (pte_t *)pgd; 
-+	pmd = pmd_offset(pgd, address); 	       
-+	if ((pmd_val(*pmd) & PAGE_LARGE) == PAGE_LARGE)
-+		return (pte_t *)pmd; 
-+
-+        return pte_offset(pmd, address);
-+} 
-+
-+static struct page *split_large_page(unsigned long address, pgprot_t prot)
-+{ 
-+	int i; 
-+	unsigned long addr;
-+	struct page *base = alloc_pages(GFP_KERNEL, 0);
-+	pte_t *pbase;
-+	if (!base) 
-+		return NULL;
-+	address = __pa(address);
-+	addr = address & LARGE_PAGE_MASK; 
-+	pbase = (pte_t *)page_address(base);
-+	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
-+		pbase[i] = mk_pte_phys(addr, 
-+				      addr == address ? prot : PAGE_KERNEL);
-+	}
-+	return base;
-+} 
-+
-+static void flush_kernel_map(void * address) 
-+{ 
-+	/* Could use CLFLUSH here if the CPU supports it (Hammer,P4) */
-+	if (boot_cpu_data.x86_model >= 4) 
-+		asm volatile("wbinvd":::"memory"); 
-+	__flush_tlb_all(); 	
-+}
-+
-+static void set_pmd_pte(pte_t *kpte, unsigned long address, pte_t pte) 
-+{ 
-+	set_pte_atomic(kpte, pte); 	/* change init_mm */
-+#ifndef CONFIG_X86_PAE
-+	{
-+		struct list_head *l;
-+		spin_lock(&mmlist_lock);
-+		list_for_each(l, &init_mm.mmlist) { 
-+			struct mm_struct *mm = list_entry(l, struct mm_struct, mmlist);
-+			pmd_t *pmd = pmd_offset(pgd_offset(mm, address), address);
-+			set_pte_atomic((pte_t *)pmd, pte);
-+		} 
-+		spin_unlock(&mmlist_lock);
-+	}
-+#endif
-+}
-+
-+/* no more special protections in this 2/4MB area - revert to a
-+   large page again. */
-+static inline void revert_page(struct page *kpte_page, unsigned long address)
-+{
-+	pte_t *linear = (pte_t *) 
-+		pmd_offset(pgd_offset(&init_mm, address), address);
-+	set_pmd_pte(linear,  address,
-+		mk_pte_phys(__pa(address & LARGE_PAGE_MASK),
-+			    __pgprot(_KERNPG_TABLE|_PAGE_PSE)));
-+}	
-+ 
-+/*
-+ * Change the page attributes of an page in the linear mapping.
-+ *
-+ * This should be used when a page is mapped with a different caching policy
-+ * than write-back somewhere - some CPUs do not like it when mappings with
-+ * different caching policies exist. This changes the page attributes of the
-+ * in kernel linear mapping too.
-+ * 
-+ * The caller needs to ensure that there are no conflicting mappings elsewhere.
-+ * This function only deals with the kernel linear map.
-+ * When page is in highmem it must never be kmap'ed.
-+ */
-+static int 
-+__change_page_attr(struct page *page, pgprot_t prot, struct page **oldpage) 
-+{ 
-+	pte_t *kpte; 
-+	unsigned long address;
-+	struct page *kpte_page;
-+
-+#ifdef CONFIG_HIGHMEM
-+	/* Hopefully not be mapped anywhere else. */
-+	if (page >= highmem_start_page) 
-+		return 0;
-+#endif
-+	address = (unsigned long)page_address(page);
-+
-+	kpte = lookup_address(address);
-+	kpte_page = virt_to_page(((unsigned long)kpte) & PAGE_MASK);
-+	if (pgprot_val(prot) != pgprot_val(PAGE_KERNEL)) { 
-+		if ((pte_val(*kpte) & _PAGE_PSE) == 0) { 
-+			pte_t old = *kpte;
-+			pte_t standard = mk_pte(page, PAGE_KERNEL); 
-+
-+			set_pte_atomic(kpte, mk_pte(page, prot)); 
-+			if (pte_same(old,standard))
-+				atomic_inc(&kpte_page->count);
-+		} else {
-+			struct page *split = split_large_page(address, prot); 
-+			if (!split)
-+				return -ENOMEM;
-+			set_pmd_pte(kpte,address,mk_pte(split, PAGE_KERNEL));
-+		}	
-+	} else if ((pte_val(*kpte) & _PAGE_PSE) == 0) { 
-+		set_pte_atomic(kpte, mk_pte(page, PAGE_KERNEL));
-+		atomic_dec(&kpte_page->count); 
-+	}
-+
-+	if (test_bit(X86_FEATURE_PSE, &boot_cpu_data.x86_capability) && 
-+	    (atomic_read(&kpte_page->count) == 1)) { 
-+		*oldpage = kpte_page;
-+		revert_page(kpte_page, address);
-+	} 
-+	return 0;
-+} 
-+
-+int change_page_attr(struct page *page, int numpages, pgprot_t prot)
-+{
-+	int err = 0; 
-+	struct page *fpage; 
-+	int i; 
-+
-+	down_write(&init_mm.mmap_sem);
-+	for (i = 0; i < numpages; i++, page++) { 
-+		fpage = NULL;
-+		err = __change_page_attr(page, prot, &fpage); 
-+		if (err) 
-+			break; 
-+		if (fpage || i == numpages-1) { 
-+			void *address = page_address(page);
-+#ifdef CONFIG_SMP 
-+			smp_call_function(flush_kernel_map, address, 1, 1);
-+#endif	
-+			flush_kernel_map(address);
-+			if (fpage)
-+				__free_page(fpage);
-+		} 
-+	} 	
-+	up_write(&init_mm.mmap_sem); 
-+	return err;
-+}
-+
-+EXPORT_SYMBOL(change_page_attr);
-diff -burpN -X ../KDIFX -x *-o -x *.[ch]-* linux-2.4.19pre9/drivers/char/agp/agpgart_be.c linux-2.4.19pre9-work/drivers/char/agp/agpgart_be.c
---- linux-2.4.19pre9/drivers/char/agp/agpgart_be.c	Sun Jun  2 20:24:00 2002
-+++ linux-2.4.19pre9-work/drivers/char/agp/agpgart_be.c	Fri Jun 14 17:37:46 2002
-@@ -397,7 +397,7 @@ int agp_unbind_memory(agp_memory * curr)
- static void agp_generic_agp_enable(u32 mode)
- {
- 	struct pci_dev *device = NULL;
--	u32 command, scratch, cap_id;
-+	u32 command, scratch;
- 	u8 cap_ptr;
- 
- 	pci_read_config_dword(agp_bridge.dev,
-@@ -561,6 +561,7 @@ static int agp_generic_create_gatt_table
- 					    agp_bridge.current_size;
- 					break;
- 				}
-+				temp = agp_bridge.current_size;
- 			} else {
- 				agp_bridge.aperture_size_idx = i;
- 			}
-@@ -578,23 +579,21 @@ static int agp_generic_create_gatt_table
- 	}
- 	table_end = table + ((PAGE_SIZE * (1 << page_order)) - 1);
- 
--	for (page = virt_to_page(table); page <= virt_to_page(table_end); page++)
-+	page = virt_to_page(table);
-+
-+#ifdef __i386__
-+	if (change_page_attr(page, 1<<page_order, PAGE_KERNEL_NOCACHE) < 0) 
-+		return -ENOMEM;
-+#endif
-+	for (; page <= virt_to_page(table_end); page++) { 
- 		SetPageReserved(page);
-+	}
- 
- 	agp_bridge.gatt_table_real = (unsigned long *) table;
- 	CACHE_FLUSH();
--	agp_bridge.gatt_table = ioremap_nocache(virt_to_phys(table),
--					(PAGE_SIZE * (1 << page_order)));
-+	agp_bridge.gatt_table = agp_bridge.gatt_table_real;
- 	CACHE_FLUSH();
- 
--	if (agp_bridge.gatt_table == NULL) {
--		for (page = virt_to_page(table); page <= virt_to_page(table_end); page++)
--			ClearPageReserved(page);
--
--		free_pages((unsigned long) table, page_order);
--
--		return -ENOMEM;
--	}
- 	agp_bridge.gatt_bus_addr = virt_to_phys(agp_bridge.gatt_table_real);
- 
- 	for (i = 0; i < num_entries; i++) {
-@@ -651,7 +650,6 @@ static int agp_generic_free_gatt_table(v
- 	 * from the table.
- 	 */
- 
--	iounmap(agp_bridge.gatt_table);
- 	table = (char *) agp_bridge.gatt_table_real;
- 	table_end = table + ((PAGE_SIZE * (1 << page_order)) - 1);
- 
-@@ -769,6 +767,13 @@ static unsigned long agp_generic_alloc_p
- 	if (page == NULL) {
- 		return 0;
- 	}
-+#ifdef __i386__
-+	if (change_page_attr(page, 1, PAGE_KERNEL_NOCACHE) < 0) { 
-+	        __free_page(page); 			   
-+		return 0; 
-+	}
-+#endif
-+
- 	get_page(page);
- 	LockPage(page);
- 	atomic_inc(&agp_bridge.current_memory_agp);
-@@ -785,6 +790,11 @@ static void agp_generic_destroy_page(uns
- 	}
- 	
- 	page = virt_to_page(pt);
-+#ifdef __i386__
-+	change_page_attr(page, 1, PAGE_KERNEL);
-+#endif
-+	
-+
- 	put_page(page);
- 	UnlockPage(page);
- 	free_page((unsigned long) pt);
-@@ -2241,17 +2251,15 @@ static int amd_create_page_map(amd_page_
- 	if (page_map->real == NULL) {
- 		return -ENOMEM;
- 	}
--	SetPageReserved(virt_to_page(page_map->real));
--	CACHE_FLUSH();
--	page_map->remapped = ioremap_nocache(virt_to_phys(page_map->real), 
--					    PAGE_SIZE);
--	if (page_map->remapped == NULL) {
--		ClearPageReserved(virt_to_page(page_map->real));
--		free_page((unsigned long) page_map->real);
--		page_map->real = NULL;
-+#ifdef __i386__
-+	if (change_page_attr(virt_to_page(page_map->real), 
-+			     1, PAGE_KERNEL_NOCACHE)) {
-+		free_page(page_map->real); 
- 		return -ENOMEM;
- 	}
--	CACHE_FLUSH();
-+#endif
-+	SetPageReserved(virt_to_page(page_map->real));
-+	page_map->remapped = page_map->real; 
- 
- 	for(i = 0; i < PAGE_SIZE / sizeof(unsigned long); i++) {
- 		page_map->remapped[i] = agp_bridge.scratch_page;
-@@ -2262,7 +2270,6 @@ static int amd_create_page_map(amd_page_
- 
- static void amd_free_page_map(amd_page_map *page_map)
- {
--	iounmap(page_map->remapped);
- 	ClearPageReserved(virt_to_page(page_map->real));
- 	free_page((unsigned long) page_map->real);
- }
-@@ -2744,27 +2751,22 @@ static void ali_cache_flush(void)
- 
- static unsigned long ali_alloc_page(void)
- {
--	struct page *page;
--	u32 temp;
--
--	page = alloc_page(GFP_KERNEL);
--	if (page == NULL)
-+	unsigned long p = agp_generic_alloc_page(); 
-+	if (!p) 
- 		return 0;
- 
--	get_page(page);
--	LockPage(page);
--	atomic_inc(&agp_bridge.current_memory_agp);
--
-+	/* probably not needed anymore */
- 	global_cache_flush();
- 
- 	if (agp_bridge.type == ALI_M1541) {
-+		u32 temp;
- 		pci_read_config_dword(agp_bridge.dev, ALI_CACHE_FLUSH_CTRL, &temp);
- 		pci_write_config_dword(agp_bridge.dev, ALI_CACHE_FLUSH_CTRL,
- 				(((temp & ALI_CACHE_FLUSH_ADDR_MASK) |
--				  virt_to_phys(page_address(page))) |
-+				  virt_to_phys(p)) |
- 				    ALI_CACHE_FLUSH_EN ));
- 	}
--	return (unsigned long)page_address(page);
-+	return p;
- }
- 
- static void ali_destroy_page(unsigned long addr)
-@@ -2786,11 +2788,7 @@ static void ali_destroy_page(unsigned lo
- 				    ALI_CACHE_FLUSH_EN));
- 	}
- 
--	page = virt_to_page(pt);
--	put_page(page);
--	UnlockPage(page);
--	free_page((unsigned long) pt);
--	atomic_dec(&agp_bridge.current_memory_agp);
-+	agp_generic_destroy_page(pt);
- }
- 
- /* Setup function */
-@@ -2870,17 +2868,15 @@ static int serverworks_create_page_map(s
- 	if (page_map->real == NULL) {
- 		return -ENOMEM;
- 	}
--	SetPageReserved(virt_to_page(page_map->real));
--	CACHE_FLUSH();
--	page_map->remapped = ioremap_nocache(virt_to_phys(page_map->real), 
--					    PAGE_SIZE);
--	if (page_map->remapped == NULL) {
--		ClearPageReserved(virt_to_page(page_map->real));
--		free_page((unsigned long) page_map->real);
--		page_map->real = NULL;
-+#ifdef __i386__
-+	if (change_page_attr(virt_to_page(page_map->real), 1, 
-+			     PAGE_KERNEL_NOCACHE) < 0) {
-+		free_page(page_map->real);
- 		return -ENOMEM;
- 	}
--	CACHE_FLUSH();
-+#endif
-+	SetPageReserved(virt_to_page(page_map->real));
-+	page_map->remapped = page_map->real;
- 
- 	for(i = 0; i < PAGE_SIZE / sizeof(unsigned long); i++) {
- 		page_map->remapped[i] = agp_bridge.scratch_page;
-@@ -2891,7 +2887,6 @@ static int serverworks_create_page_map(s
- 
- static void serverworks_free_page_map(serverworks_page_map *page_map)
- {
--	iounmap(page_map->remapped);
- 	ClearPageReserved(virt_to_page(page_map->real));
- 	free_page((unsigned long) page_map->real);
- }
-diff -burpN -X ../KDIFX -x *-o -x *.[ch]-* linux-2.4.19pre9/drivers/char/drm/drm_vm.h linux-2.4.19pre9-work/drivers/char/drm/drm_vm.h
---- linux-2.4.19pre9/drivers/char/drm/drm_vm.h	Wed Jun  5 18:08:30 2002
-+++ linux-2.4.19pre9-work/drivers/char/drm/drm_vm.h	Fri Jun 14 06:05:08 2002
-@@ -531,6 +531,11 @@ int DRM(mmap)(struct file *filp, struct 
- 			vma->vm_flags |= VM_IO;	/* not in core dump */
- 		}
- 		offset = DRIVER_GET_REG_OFS();
-+#ifdef __i386__
-+		change_page_attr(vma->vm_pgoff, 
-+				 (vma->vm_end - vma->vm_start)>>PAGE_SHIFT,
-+				 vma->vm_page_prot); 
-+#endif
- #ifdef __sparc__
- 		if (io_remap_page_range(vma->vm_start,
- 					VM_OFFSET(vma) + offset,
-diff -burpN -X ../KDIFX -x *-o -x *.[ch]-* linux-2.4.19pre9/include/asm-i386/pgtable-2level.h linux-2.4.19pre9-work/include/asm-i386/pgtable-2level.h
---- linux-2.4.19pre9/include/asm-i386/pgtable-2level.h	Thu Jul 26 22:40:32 2001
-+++ linux-2.4.19pre9-work/include/asm-i386/pgtable-2level.h	Thu Jun 13 16:52:53 2002
-@@ -40,6 +40,8 @@ static inline int pgd_present(pgd_t pgd)
-  * hook is made available.
-  */
- #define set_pte(pteptr, pteval) (*(pteptr) = pteval)
-+#define set_pte_atomic(pteptr, pteval) (*(pteptr) = pteval)
-+
- /*
-  * (pmds are folded into pgds so this doesnt get actually called,
-  * but the define is needed for a generic inline function.)
-diff -burpN -X ../KDIFX -x *-o -x *.[ch]-* linux-2.4.19pre9/include/asm-i386/pgtable-3level.h linux-2.4.19pre9-work/include/asm-i386/pgtable-3level.h
---- linux-2.4.19pre9/include/asm-i386/pgtable-3level.h	Thu Jul 26 22:40:32 2001
-+++ linux-2.4.19pre9-work/include/asm-i386/pgtable-3level.h	Thu Jun 13 17:15:14 2002
-@@ -53,6 +53,9 @@ static inline void set_pte(pte_t *ptep, 
- 		set_64bit((unsigned long long *)(pmdptr),pmd_val(pmdval))
- #define set_pgd(pgdptr,pgdval) \
- 		set_64bit((unsigned long long *)(pgdptr),pgd_val(pgdval))
-+#define set_pte_atomic(pteptr,pteval) \
-+		set_64bit((unsigned long long *)(pteptr),pte_val(pteval))
-+
- 
- /*
-  * Pentium-II erratum A13: in PAE mode we explicitly have to flush
-diff -burpN -X ../KDIFX -x *-o -x *.[ch]-* linux-2.4.19pre9/include/asm-i386/pgtable.h linux-2.4.19pre9-work/include/asm-i386/pgtable.h
---- linux-2.4.19pre9/include/asm-i386/pgtable.h	Mon Jun  3 21:15:18 2002
-+++ linux-2.4.19pre9-work/include/asm-i386/pgtable.h	Fri Jun 14 17:45:29 2002
-@@ -347,6 +347,9 @@ static inline pte_t pte_modify(pte_t pte
- #define pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
- #define swp_entry_to_pte(x)		((pte_t) { (x).val })
- 
-+struct page;
-+int change_page_attr(struct page *, int, pgprot_t prot);
-+
- #endif /* !__ASSEMBLY__ */
- 
- /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
+> I thought IDE locking couldn't get worse than 2.4, but I think you are
+> well into doing just that. What exactly are you plans with the channel
+> locks? Right now, to me, it seems you are extending the use of them to
+> the point where they would be used to serialize the entire request
+> operation start? Heck, ide-cd is even holding the channel lock when
+> outputting the cdb now.
 
+After extracting out 80% of the host controller register file
+access one has to realize that in reality we where releasing the lock
+just to regain it immediately. Or alternatively accessing them
+without any lock protection at all. (Same goes for BIO ummer layer
+memmbers.) This is why they are pushed up. It's just avoiding the
+"windows" between unlock and immediate relock and making the real
+behaviour more "obvious". You have just realized this.
+
+2.4 prevents the locking problems basically by georgeously
+disabling IRQs. Too fine grained locking is a futile exercise.
+Unless I see the time spent in system state during concurrent disk
+access going really up (it doesn't right now), I don't see any thing
+bad in making the locking more coarse. Locks don't came for free and
+having fine grained locking isn't justifying itself.
+
+Another "usual Marcin approach" - don't optimze for the sake of it.
+See futile unlikely() tagging and inlining in tcq.c for example.
+I don't do somethig like that. I have just written too much
+numerical code which was really time constrained to do something
+like this before looking at benchmarks.
+Really constrained means having a program running 7 or "just"
+5 *days*. This can make a difference, a difference in hard real
+money on the range of multiple kEUR!
+
+Finally - unless there appears some aother way to block access to
+busy devices on the generic block layer I do it the only way
+we have right now - spinlocks. (... looking forward to working
+queue pugging and the work done by Adam richter).
+Unless there is a sane way to signal partial completion - we will
+be doing it at once. Unless we have a sane async io infrastructure
+most of the above will be likely not solved anyway.
+
+> - ata_end_request(). why didn't you just remove the last argument to
+>   __ata_end_request() instead just changing the comment saying why we
+>   pass nr_secs == 0 in from some sites?
+
+One step after another. Watch for hard_xxx members from struch request
+to see why I hesitated please.
+
+> - what's the reasoning behind moving the active request into the
+>   ata_device?! we are serializing requests for ata_device's on the
+>   ata_channel anyways, which is why it made sense to have the active
+>   request there.
+
+Becouse it is going to go away altogether. We need it there
+just only for the purpose of the default ide_timer_expiry function, which
+is subject to go away since a long time. And finally becouse
+it doesn't hurt.
+
+Further on I refer you to the discussion we had (or was it Linus?)
+once about the fact that attaching physical properties of the
+device to the request queue and replicating those parameters in
+every single request struct, is well ... "unpleasant" on behalf of the
+upper layers. Loop devices expose the same problem.
+Once again just grepping for hard_ memebers of the struct
+request makes it obvious.
+
+Somce people say that using the gratest common denominator in
+the case of the loop devices is the  solution,
+but I think that it's rather a work around.
+
+> And finally a small plea for more testing. Do you even test before
+> blindly sending patches off to Linus?! Sometimes just watching how
+> quickly these big patches appears makes it impossible that they have
+> gotten any kind of testing other than the 'hey it compiles', which I
+> think it just way too little for something that could possible screw
+> peoples data up very badly. Frankly, _I'm_ too scared to run 2.5 IDE
+> currently. The success ratio of posted over working patches is too big.
+
+Fact is: many of the patches are just big becouse they contain
+host chip handling cleanups done by others, and becouse
+we have just too many different drivers for the same purpose:
+ATAPI packet command devices. Which I'm more and more tempted
+to scarp... in favour of just ide-scsi.c. But that's another
+story. (Adam J. Richter is givng me constant preassure to do just that and I 
+start really tending to admitt that he is just right.)
+
+As of testing. Well at least I can assure you that I'm eating my dogfood,
+since I run constantly on the patches. (Heck even the time I write this.)
+But I don't use kernels from the BK repository at all.
+In fact I just don't use BK at all and I don't intend too.
 

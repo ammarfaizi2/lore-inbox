@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131174AbRAXUKm>; Wed, 24 Jan 2001 15:10:42 -0500
+	id <S132118AbRAXUKW>; Wed, 24 Jan 2001 15:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131082AbRAXUKe>; Wed, 24 Jan 2001 15:10:34 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:15312 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S131212AbRAXUKX>; Wed, 24 Jan 2001 15:10:23 -0500
-Date: Wed, 24 Jan 2001 13:35:03 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: John Roll <john@cfa.harvard.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Network hang with 2.4.1-pre9 and 3c59x
-In-Reply-To: <3A6E247A.C6A2FD17@uow.edu.au>
-Message-ID: <Pine.GSO.3.96.1010124132925.8454B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S132113AbRAXUKM>; Wed, 24 Jan 2001 15:10:12 -0500
+Received: from adglinux1.hns.com ([139.85.108.152]:20131 "EHLO
+	adglinux1.hns.com") by vger.kernel.org with ESMTP
+	id <S131212AbRAXUJy>; Wed, 24 Jan 2001 15:09:54 -0500
+To: Luc de Louw <luckyluke@delouw.ch>
+Cc: Juri Haberland <juri.haberland@innominate.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 statd trouble
+In-Reply-To: <Pine.LNX.4.21.0101242050230.4956-100000@delouw.ch>
+From: nbecker@fred.net
+Date: 24 Jan 2001 15:09:51 -0500
+In-Reply-To: Luc de Louw's message of "Wed, 24 Jan 2001 20:55:13 +0100 (CET)"
+Message-ID: <x88snm867ao.fsf@adglinux1.hns.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, Andrew Morton wrote:
+OK, you can find nfs-utils at http://sourceforge.net/projects/nfs
 
-> This is due to a lost APIC interrupt acknowledgement.  A workaround
-> is to boot with the `noapic' LILO option.
-> 
-> This long-standing and very nasty problem was discussed extensively
-> a week or two ago.  Suspicions were cast at the disable_irq() function
-> but I'm not sure anything 100% conclusive was arrived at.
+You can build on RH7 using rpm -ta /tmp/nfs-utils-0.2.1.tar.gz.
 
- Not sure if that is 100% conclusive but I decided to develop an APIC
-lockup recovery procedure.  Fortunately chips provide us enough
-information we may deal with the problem with moderate pain.
-
-> I guess I'll have to find a way to make disable_irq() go away,
-> see if that helps.
-
- Please don't.  This would be hiding problems under a carpet.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+These are worth mentioning in "Changes".
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132112AbRCYQlu>; Sun, 25 Mar 2001 11:41:50 -0500
+	id <S132110AbRCYQsk>; Sun, 25 Mar 2001 11:48:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132110AbRCYQlm>; Sun, 25 Mar 2001 11:41:42 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:8065 "EHLO zooty.lancs.ac.uk")
-	by vger.kernel.org with ESMTP id <S132109AbRCYQlY>;
-	Sun, 25 Mar 2001 11:41:24 -0500
-Message-Id: <l03130322b6e3ced39e99@[192.168.239.101]>
-In-Reply-To: <3ABE132F.E919F908@evision-ventures.com>
-In-Reply-To: <3ABDF8A6.7580BD7D@evision-ventures.com>
- <l03130321b6e3c0533688@[192.168.239.101]>
+	id <S132117AbRCYQsa>; Sun, 25 Mar 2001 11:48:30 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:27914 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S132110AbRCYQsO>;
+	Sun, 25 Mar 2001 11:48:14 -0500
+Date: Sun, 25 Mar 2001 18:47:25 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Jakob Østergaard <jakob@unthought.net>,
+        Kevin Buhr <buhr@stat.wisc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+Message-ID: <20010325184724.A16840@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com> <vba1yrr7w9v.fsf@mozart.stat.wisc.edu> <15032.1585.623431.370770@pizda.ninka.net> <vbay9ty50zi.fsf@mozart.stat.wisc.edu> <vbaelvp3bos.fsf@mozart.stat.wisc.edu> <20010322193549.D6690@unthought.net> <vbawv9hyuj0.fsf@mozart.stat.wisc.edu> <20010324104849.B9686@unthought.net> <vbabsqrvt6o.fsf@mozart.stat.wisc.edu> <20010325051738.A11943@unthought.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 25 Mar 2001 17:36:21 +0100
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] OOM handling
-Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "James A. Sutherland" <jas88@cam.ac.uk>,
-        Guest section DW <dwguest@win.tue.nl>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010325051738.A11943@unthought.net>; from jakob@unthought.net on Sun, Mar 25, 2001 at 05:17:38AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I didn't quite understand Martin's comments about "not normalised" -
->> presumably this is some mathematical argument, but what does this actually
->> mean?
->
->Not mathematics. It's from physics. Very trivial physics, basic scool
->indeed.
->If you try to calculate some weightning
->factors which involve different units (in this case mostly seconds and
->bits)
->then you will have to make sure tha those units get factorized out.
->Rik is just throwing the absolute values together...
+Jakob Østergaard wrote:
+> But the bad case was a garbage collector in GCC.  The mmap tricks seem like
+> some you may be inclined to actually use in something like garbage collectors.
+> Are we sure that the developers of all other garbage collectors out there
+> foresaw this problem and didn't do mmap tricks ?
 
-Understood - my Physics courses covered this as well, but not using the
-word "normalise".
+On this theme, some garbage collectors like to write-protect individual
+pages, to detect which pages are modified between generations.  The
+kernel has never handled this especially well.  It could be argued that
+mprotect() and signal() aren't the right way to get this information
+though, and it would be better to add a different mechanism.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
-
+-- Jamie

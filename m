@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269451AbRHCQIU>; Fri, 3 Aug 2001 12:08:20 -0400
+	id <S269438AbRHCQLU>; Fri, 3 Aug 2001 12:11:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269438AbRHCQIK>; Fri, 3 Aug 2001 12:08:10 -0400
-Received: from nef.ens.fr ([129.199.96.32]:40974 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S269437AbRHCQHw>;
-	Fri, 3 Aug 2001 12:07:52 -0400
-Date: Fri, 3 Aug 2001 18:07:49 +0200
-From: Thomas Pornin <Thomas.Pornin@ens.fr>
-To: ailinykh@usa.net
-Cc: linux-kernel@vger.kernel.org
+	id <S269437AbRHCQLK>; Fri, 3 Aug 2001 12:11:10 -0400
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:27141 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S269438AbRHCQLD> convert rfc822-to-8bit; Fri, 3 Aug 2001 12:11:03 -0400
+Date: Fri, 3 Aug 2001 18:11:12 +0200
+From: =?iso-8859-2?Q?Martin_Ma=E8ok?= <martin.macok@underground.cz>
+To: linux-kernel@vger.kernel.org
 Subject: Re: fake loop
-Message-ID: <20010803180749.A42133@bolet.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Message-ID: <20010803181112.F25738@sarah.kolej.mff.cuni.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 In-Reply-To: <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net>; from ailinykh@usa.net on Fri, Aug 03, 2001 at 09:57:34AM -0600
+X-Echelon: GRU NSA GCHQ KGB CIA nuclear conspiration war weapon spy agent
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net> you write:
+On Fri, Aug 03, 2001 at 09:57:34AM -0600, Andrey Ilinykh wrote:
 > #define prepare_to_switch()     do { } while(0)
+> 
+> Who can explain me a reason for these fake loops?
 
-This one is a classic C trick; it is documented in the K&R book. With
-this fake loop, the macro can be used like a statement anywhere. For
-instance, compare the two following :
+http://kernelnewbies.org/faq/index.php3#dowhile.xml
 
-#define macro1()	{ /* some stuff */ }
-#define macro2()	do { /* some stuff */ } while (0)
+There are a couple of reasons:
 
-if (foo) macro1(); else bar;
-if (foo) macro2(); else bar;
+    * (from Dave Miller) Empty statements give a warning from the compiler so
+        this is why you see #define FOO do { } while(0). 
+    * (from Dave Miller) It gives
+        you a basic block in which to declare local variables.
+    * (from Ben Collins) It allows you to use more complex macros in
+        conditional code. Imagine a macro of several lines of code like:
 
-The second one is correct, but the first one is incorrect (the extra
-semi-colon unlinks the `else' from the `if').
+#define FOO(x) \
+        printf("arg is %s\n", x); \
+        do_something_useful(x);
 
+      Now imagine using it like:
 
-Besides, a fake loop, within or outside a macro, can be useful: you jump
-out of it with a `break' statement; you could do it with a `goto' but
-with the `break' you do not have to bother about managing label names.
+if (blah == 2)
+                FOO(blah);
 
+      This interprets to:
 
-	--Thomas Pornin
+if (blah == 2)
+                printf("arg is %s\n", blah);
+                do_something_useful(blah);;
+
+      As you can see, the if then only encompasses the printf(), and the
+do_something_useful() call is unconditional (not within the scope of the if),
+like you wanted it. So, by using a block like do{...}while(0), you would get
+this:
+
+if (blah == 2)
+                do {
+                        printf("arg is %s\n", blah);
+                        do_something_useful(blah);
+                } while (0);
+
+      Which is exactly what you want.
+
+Have a nice day
+
+-- 
+   Martin Maèok
+  underground.cz
+    openbsd.cz

@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312855AbSDTTiA>; Sat, 20 Apr 2002 15:38:00 -0400
+	id <S312899AbSDTTlR>; Sat, 20 Apr 2002 15:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312899AbSDTTh7>; Sat, 20 Apr 2002 15:37:59 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:11255 "EHLO
-	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
-	id <S312855AbSDTTh6>; Sat, 20 Apr 2002 15:37:58 -0400
-Date: Sat, 20 Apr 2002 20:37:39 +0100 (BST)
-From: David Woodhouse <dwmw2@infradead.org>
-X-X-Sender: dwmw2@lapdancer.baythorne.internal
-To: Sebastian Droege <sebastian.droege@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BK patches exported.
-In-Reply-To: <20020420181837.0025c52e.sebastian.droege@gmx.de>
-Message-ID: <Pine.LNX.4.44.0204202037030.2761-100000@lapdancer.baythorne.internal>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312987AbSDTTlQ>; Sat, 20 Apr 2002 15:41:16 -0400
+Received: from ns.suse.de ([213.95.15.193]:16399 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312899AbSDTTlQ>;
+	Sat, 20 Apr 2002 15:41:16 -0400
+Date: Sat, 20 Apr 2002 21:41:14 +0200
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, ak@suse.de,
+        linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: [PATCH] Re: SSE related security hole
+Message-ID: <20020420214114.A11894@wotan.suse.de>
+In-Reply-To: <20020420201205.M1291@dualathlon.random> <Pine.LNX.4.33.0204201221120.11732-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Apr 2002, Sebastian Droege wrote:
+> Besides, I seriously doubt it is any faster than what is there already.
+> 
+> Time it, and notice how:
+> 
+>  - fninit takes about 200 cycles
+>  - fxrstor takes about 215 cycles
 
-> Yeah nice but is it somehow possible to create one big patch including
-> all changes automatical? It's much work to download all the 10000
-> changesets one by one ;(
+On what CPU? 
 
-Done. 
+I checked the Athlon4 optimization manual and fxrstor is listed as 68/108
+cycles (i guess depending on whether there is XMM state or not so 68 cycles
+probably apply here) and fninit as 91 cycles. It doesn't list the SSE1 
+timings, but i guess the instructions don't take more than 3 cycles
+(MMX instructions take that long). So Andrea's way should be 
+91+16*3=139+some cycles for emms (or 107 if sse ops take only a single cycle) 
+vs 68 or 108.  So the fxrstor wins well. 
 
--- 
-dwmw2
+On x86-64 the difference is even bigger because it has 16 XMM registers instead
+of 8.
 
+
+> In short, your "fast" code isn't actually any faster than doing it right.
+
+At least on Athlon it should be slower. 
+
+-Andi

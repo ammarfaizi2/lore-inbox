@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272314AbRHXUOv>; Fri, 24 Aug 2001 16:14:51 -0400
+	id <S272317AbRHXURw>; Fri, 24 Aug 2001 16:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272315AbRHXUOl>; Fri, 24 Aug 2001 16:14:41 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:59796 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S272314AbRHXUOa>; Fri, 24 Aug 2001 16:14:30 -0400
-Message-ID: <005a01c12cd9$2f153950$103147ab@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: <ddade@digitalstatecraft.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15aNCX-0006PH-00@the-village.bc.nu>
-Subject: Re: Is it bad to have lots of sleeping tasks?
-Date: Fri, 24 Aug 2001 13:13:04 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S272315AbRHXURl>; Fri, 24 Aug 2001 16:17:41 -0400
+Received: from willow.seitz.com ([207.106.55.140]:60944 "EHLO willow.seitz.com")
+	by vger.kernel.org with ESMTP id <S272318AbRHXURb>;
+	Fri, 24 Aug 2001 16:17:31 -0400
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Fri, 24 Aug 2001 16:17:47 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 broken on 486SX
+Message-ID: <20010824161747.A10618@willow.seitz.com>
+In-Reply-To: <20010824154233.A10048@willow.seitz.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010824154233.A10048@willow.seitz.com>; from ross@willow.seitz.com on Fri, Aug 24, 2001 at 03:42:33PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus scheduler is pretty dire beyond about 8 runnable threads, but very
-> good below that. It also has a refresh loop that is O(n) tasks, which is
-> strange, and actually looks easily to eliminate.
+Ack, that was a horrific problem report.  Here are a few relevant data points I left out:
 
-So why not do it?  Or implement a nicer scheduler?  There are many good
-ones.  There are o(1) schedulers that provide much better proportional
-sharing.  They scale and also perform well even in "few running processes"
-case.  They are also not hard to implement (I once implemented such a
-scheduler with 100 lines of patch, and that fitted in the existing Linux
-runqueue framework).  What's the resistence to scheduler changes?
+Kernels have always been compiled only with 386 optimizations.
+	(tried 486 a few times, no difference)
+Always built including soft float support (not that it matters so early)
+Always built with gcc 2.95.2
+Same kernel binaries work perfectly on a number of other boxen:
+	A 386DX, a number of Pentium 100's, another 486SX, and a K6-2
 
-> The critical bit is threads runnable at any given time. When that is low
-as
-> it is in almost all normal workloads the performance of the scheduler is
-> very good indeed.
->
-> > 2) If I have 1000 threads, and each calls sleep(), I assume that my
-> ...
-> > difference in the system's responsiveness?
->
-> Read kernel/timer.c.
->
-> Alan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+Ross Vandegrift
+ross@willow.seitz.com

@@ -1,30 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263340AbRFRVZK>; Mon, 18 Jun 2001 17:25:10 -0400
+	id <S263318AbRFRVYU>; Mon, 18 Jun 2001 17:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbRFRVZC>; Mon, 18 Jun 2001 17:25:02 -0400
-Received: from vitelus.com ([64.81.36.147]:1042 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S263343AbRFRVYr>;
-	Mon, 18 Jun 2001 17:24:47 -0400
-Date: Mon, 18 Jun 2001 14:24:28 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Airlie <airlied@skynet.ie>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/VAX booting to a shell.
-Message-ID: <20010618142428.B8363@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010617231129.A6466@bug.ucw.cz>
-User-Agent: Mutt/1.3.18i
+	id <S263341AbRFRVYK>; Mon, 18 Jun 2001 17:24:10 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S263318AbRFRVX6>; Mon, 18 Jun 2001 17:23:58 -0400
+Date: Mon, 18 Jun 2001 17:23:55 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Kelledin Tane <runesong@earthlink.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Why can't I flush /dev/ram0?
+In-Reply-To: <3B2E6EA3.3DED7D95@earthlink.net>
+Message-ID: <Pine.LNX.3.95.1010618172045.4490A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 17, 2001 at 11:11:29PM +0200, Pavel Machek wrote:
-> Congratulations. (This is pretty big machine, for the VAX, no? When
-> was it build? How much power does it take?)
+On Mon, 18 Jun 2001, Kelledin Tane wrote:
 
-Nah, it's a VAXstation.
+> At this point, I'm trying to get an initrd working properly.  So far, it
+> works, the system boots, etc. etc., but whenever I try to do a "blockdev
+> --flushbufs /dev/ram0", I get "device or resource busy"
+> 
+> When I mount the filesystem to check it out, nothing appears to have
+> anything open on the filesystem.  So why am I not able to flush it
+> clean?
+> 
+> This is kernel 2.4.5 stock, btw.
+> 
+> Kelledin
+> 
 
-http://www.mcmanis.com/chuck/computers/vaxen/buildvax.html
+If you have a directory called /initrd, in your root file-system,
+you may find that the old initrd is still mounted:
+
+Script started on Mon Jun 18 17:22:20 2001
+# ls /initrd
+bin  dev  etc  lib  linuxrc  sbin
+# umount /initrd
+# ls /initrd
+# exit
+exit
+Script done on Mon Jun 18 17:22:44 2001
+
+Unmount it first.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

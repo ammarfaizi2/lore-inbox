@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263559AbTIHTnN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 15:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263554AbTIHTnN
+	id S263586AbTIHTxg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 15:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTIHTxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 15:43:13 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2944 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263559AbTIHTnJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 15:43:09 -0400
-Date: Mon, 8 Sep 2003 15:42:51 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: How can I force a read to hit the disk?
-In-Reply-To: <Pine.LNX.4.44L0.0309081512150.665-100000@ida.rowland.org>
-Message-ID: <Pine.LNX.4.53.0309081539560.366@chaos>
-References: <Pine.LNX.4.44L0.0309081512150.665-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Sep 2003 15:53:36 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:40406 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263586AbTIHTxe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 15:53:34 -0400
+Date: Mon, 8 Sep 2003 15:53:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, torvalds@osdl.org, willy@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use size_t for the broken ioctl numbers
+Message-ID: <20030908195329.GA5720@gtf.org>
+References: <20030908123846.GA15553@win.tue.nl> <Pine.LNX.4.44.0309080812200.11840-100000@home.osdl.org> <20030908204023.A1060@pclin040.win.tue.nl> <20030908122853.65bff9df.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030908122853.65bff9df.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Sep 2003, Alan Stern wrote:
+On Mon, Sep 08, 2003 at 12:28:53PM -0700, Randy.Dunlap wrote:
+> On Mon, 8 Sep 2003 20:40:23 +0200 Andries Brouwer <aebr@win.tue.nl> wrote:
+> 
+> | [That reminds me - you announced sparse, a source checker.
+> | Is it available for non bk users? I haven't seen a URL.]
+> 
+> Dave Jones puts snapshots of it at
+> http://www.codemonkey.org.uk/projects/sparse/
 
-> On Fri, 5 Sep 2003, Andreas Dilger wrote:
->
-> > On Sep 05, 2003  13:46 -0400, Alan Stern wrote:
-> > > My kernel module for Linux-2.6 needs to be able to verify that the media
-> > > on which a file resides actually is readable.  How can I do that?
-> > >
-> > > It would certainly suffice to use the normal VFS read routines, if there
-> > > was some way to force the system to actually read from the device rather
-> > > than just returning data already in the cache.  So I guess it would be
-> > > enough to perform an fdatasync for the file and then invalidate the file's
-> > > cache entries.  How does one invalidate a file's cache entries?  Does
-> > > filemap_flush() perform both these operations for you?
-> >
-> > If you open the file with O_DIRECT, it should read/write directly on the
-> > disk, and it will also invalidate any existing cache for the read/written
-> > area.
->
-> I tried doing that, but it caused a segmentation violation.  The trouble
-> was this line near the start of fs/direct_io.c:dio_refill_pages()
->
-> 	down_read(&current->mm->mmap_sem);
->
-> Unfortunately, in a kernel thread (which is where my code runs)
-> current->mm is NULL.
->
-> Can anybody offer additional advice?  How about a way to invalidate all
-> the page cache entries that contain a page from the file?
->
-> Alan Stern
+I should send Linus my snapshot script ;-)
 
-When your thread code starts up, execute
-                init_rwsem(&current->mm->mmap_sem);
+	Jeff
 
-... This is in the thread's code, not the module init code.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
 

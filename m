@@ -1,128 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVAQKjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVAQKoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbVAQKjz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 05:39:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbVAQKjz
+	id S262765AbVAQKoW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 05:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbVAQKoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 05:39:55 -0500
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:58948 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S262764AbVAQKjt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 05:39:49 -0500
-Date: Mon, 17 Jan 2005 11:39:28 +0100 (CET)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-cc: linux-atm-general@lists.sourceforge.net,
-       Bartlomiej Solarz <solarz@wsisiz.edu.pl>
-Subject: Kernel 2.6.10 Oops fore200e
-Message-ID: <Pine.LNX.4.61L.0501171130330.8248@lt.wsisiz.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (portraits.wsisiz.edu.pl [0.0.0.0]); Mon, 17 Jan 2005 11:39:42 +0100 (CET)
+	Mon, 17 Jan 2005 05:44:22 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20998 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262765AbVAQKoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 05:44:16 -0500
+Date: Mon, 17 Jan 2005 10:43:52 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Philip.Blundell@pobox.com, tim@cyberelk.net,
+       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] non-PC parport config change
+Message-ID: <20050117104352.A21009@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, Philip.Blundell@pobox.com,
+	tim@cyberelk.net, linux-parport@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+References: <20050117103317.GM4274@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050117103317.GM4274@stusta.de>; from bunk@stusta.de on Mon, Jan 17, 2005 at 11:33:17AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Mon, Jan 17, 2005 at 11:33:17AM +0100, Adrian Bunk wrote:
+> This patch adds a config option PARPORT_NOT_PC (and removes the 
+> PARPORT_OTHER option) and lets all non-PC parallel ports options depend 
+> on it.
+> 
+> Advantages:
+> - the config structure is IMHO a bit more logical
+> - the mega #if in parport.h is gone now
+> 
+> Additionally, it removes the unneeded PARPORT_NEED_GENERIC_OPS #define.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Lately we have problem with our router. For me it's look like driver 
-fore200e problems. We know that's not a hardware problem.
-Below is fragment from logs file. Unfortunately I don't know 
-how to use ksymoops with 2.6.X kernels :/
-System is Fedora Core 2, 2 x Pentium 3.00GHz, 1 GB RAM, 0,5 GB swap
+This actually looks like a nice example where the use of select would
+work nicely.  IOW:
 
-[root@cosmos root]# atmarp -V
-0.78
+config PARPORT_ARC
+	tristate "Archimedes hardware"
+	depends on ARM && PARPORT
+	select PARPORT_NOT_PC
 
+config PARPORT_AMIGA
+	tristate "Amiga builtin port"
+	depends on AMIGA && PARPORT
+	select PARPORT_NOT_PC
 
-Jan  9 16:36:23 cosmos kernel: scheduling while atomic: swapper/0x00000200/0
+config PARPORT_NOT_PC
+	bool
 
-ksymoops 2.4.11 on i686 2.6.10.  Options used
-      -V (default)
-      -k /proc/ksyms (default)
-      -l /proc/modules (default)
-      -o /lib/modules/2.6.10/ (default)
-      -m /lib/modules/2.6.10/System.map (specified)
+And I notice in passing that you've already used select on this new
+configuration option in USB, and this new configuration option is user
+visible.  Bad.
 
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Jan  9 16:36:23 cosmos kernel:  [<c02dffd8>] schedule+0x4d8/0x4e0
-Jan  9 16:36:23 cosmos kernel:  [<c01173f4>] update_process_times+0x44/0x50
-Jan  9 16:36:23 cosmos kernel:  [<e0855816>] fore200e_send+0x156/0x680 [fore_200e]
-Jan  9 16:36:23 cosmos kernel:  [<c02dec0a>] clip_start_xmit+0x19a/0x220
-Jan  9 16:36:23 cosmos kernel:  [<c024da05>] qdisc_restart+0x65/0x160
-Jan  9 16:36:23 cosmos kernel:  [<c0241e7f>] dev_queue_xmit+0x18f/0x220
-Jan  9 16:36:23 cosmos kernel:  [<c025eded>] ip_finish_output2+0xcd/0x1a0
-Jan  9 16:36:23 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
-Jan  9 16:36:23 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
-Jan  9 16:36:23 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
-Jan  9 16:36:23 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
-Jan  9 16:36:23 cosmos kernel:  [<c025c7eb>] ip_finish_output+0x4b/0x50
-Jan  9 16:36:23 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
-Jan  9 16:36:23 cosmos kernel:  [<c025b262>] ip_forward_finish+0x22/0x50
-Jan  9 16:36:23 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
-Jan  9 16:36:23 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
-Jan  9 16:36:23 cosmos kernel:  [<c025b146>] ip_forward+0x176/0x270
-Jan  9 16:36:23 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
-Jan  9 16:36:24 cosmos kernel:  [<c025a109>] ip_rcv_finish+0x1e9/0x260
-Jan  9 16:36:24 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
-Jan  9 16:36:24 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
-Jan  9 16:36:24 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
-Jan  9 16:36:24 cosmos kernel:  [<c0259c9f>] ip_rcv+0x16f/0x220
-Jan  9 16:36:24 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
-Jan  9 16:36:24 cosmos kernel:  [<c02423c7>] netif_receive_skb+0x1b7/0x220
-Jan  9 16:36:24 cosmos kernel:  [<c02424af>] process_backlog+0x7f/0x100
-Jan  9 16:36:24 cosmos kernel:  [<c02425a4>] net_rx_action+0x74/0x100
-Jan  9 16:36:24 cosmos kernel:  [<c01138ab>] __do_softirq+0x7b/0x90
-Jan  9 16:36:24 cosmos kernel:  [<c01138e7>] do_softirq+0x27/0x30
-Jan  9 16:36:24 cosmos kernel:  [<c0103d5e>] do_IRQ+0x1e/0x30
-Jan  9 16:36:24 cosmos kernel:  [<c0102442>] common_interrupt+0x1a/0x20
-Jan  9 16:36:24 cosmos kernel:  [<c0100463>] default_idle+0x23/0x30
-Jan  9 16:36:24 cosmos kernel:  [<c01004e4>] cpu_idle+0x34/0x40
-Jan  9 16:36:24 cosmos kernel:  [<c036496b>] start_kernel+0x13b/0x160
-Jan  9 16:36:24 cosmos kernel:  [<c0364530>] unknown_bootoption+0x0/0x1e0
-Jan  9 16:36:24 cosmos kernel:  [<c02dffd8>] schedule+0x4d8/0x4e0
-Jan  9 16:36:24 cosmos kernel:  [<c010bdc2>] activate_task+0x62/0x80
-Jan  9 16:36:24 cosmos kernel:  [<e0855816>] fore200e_send+0x156/0x680 [fore_200e]
-Jan  9 16:36:25 cosmos kernel:  [<c02dec0a>] clip_start_xmit+0x19a/0x220
-Jan  9 16:36:25 cosmos kernel:  [<c024da05>] qdisc_restart+0x65/0x160
-Jan  9 16:36:25 cosmos kernel:  [<c0241e7f>] dev_queue_xmit+0x18f/0x220
-Jan  9 16:36:25 cosmos kernel:  [<c025eded>] ip_finish_output2+0xcd/0x1a0
-Jan  9 16:36:25 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
-Jan  9 16:36:25 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
-Jan  9 16:36:25 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
-Jan  9 16:36:25 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
-Jan  9 16:36:25 cosmos kernel:  [<c025c7eb>] ip_finish_output+0x4b/0x50
-Jan  9 16:36:25 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
-Jan  9 16:36:25 cosmos kernel:  [<c025b262>] ip_forward_finish+0x22/0x50
-Jan  9 16:36:25 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
-Jan  9 16:36:25 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
-Jan  9 16:36:25 cosmos kernel:  [<c025b146>] ip_forward+0x176/0x270
-Jan  9 16:36:25 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
-Jan  9 16:36:25 cosmos kernel:  [<c025a109>] ip_rcv_finish+0x1e9/0x260
-Jan  9 16:36:25 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
-Jan  9 16:36:25 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
-Jan  9 16:36:25 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
-Jan  9 16:36:26 cosmos kernel:  [<c0259c9f>] ip_rcv+0x16f/0x220
-Jan  9 16:36:26 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
-Jan  9 16:36:26 cosmos kernel:  [<c02423c7>] netif_receive_skb+0x1b7/0x220
-Jan  9 16:36:26 cosmos kernel:  [<c02424af>] process_backlog+0x7f/0x100
-Jan  9 16:36:26 cosmos kernel:  [<c02425a4>] net_rx_action+0x74/0x100
-Jan  9 16:36:26 cosmos kernel:  [<c01138ab>] __do_softirq+0x7b/0x90
-Jan  9 16:36:26 cosmos kernel:  [<c01138e7>] do_softirq+0x27/0x30
-Jan  9 16:36:26 cosmos kernel:  [<c0103d5e>] do_IRQ+0x1e/0x30
-Jan  9 16:36:26 cosmos kernel:  [<c0102442>] common_interrupt+0x1a/0x20
-Jan  9 16:36:26 cosmos kernel:  [<c0100463>] default_idle+0x23/0x30
-Jan  9 16:36:26 cosmos kernel:  [<c01004e4>] cpu_idle+0x34/0x40
-Jan  9 16:36:26 cosmos kernel:  [<c036496b>] start_kernel+0x13b/0x160
-Jan  9 16:36:26 cosmos kernel:  [<c0364530>] unknown_bootoption+0x0/0x1e0
+The golden rule (if you don't wish _me_ to complain) is:
 
-1 error issued.  Results may not be reliable.
+   Don't use select on user-visible options.  Either make them
+   non-user visibile or don't use select at all.
 
-
-Aby idea
+In this case, the former is far more preferable because it means that
+the existing defconfig files don't need to be fixed for their parports
+work again.
 
 -- 
-£T
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

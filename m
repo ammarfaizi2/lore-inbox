@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261191AbTC3UvN>; Sun, 30 Mar 2003 15:51:13 -0500
+	id <S261258AbTC3UzO>; Sun, 30 Mar 2003 15:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261258AbTC3UvN>; Sun, 30 Mar 2003 15:51:13 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:9446 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id <S261191AbTC3UvM>; Sun, 30 Mar 2003 15:51:12 -0500
-To: "Shawn Starr" <spstarr@sh0n.net>
-Cc: "Andrew Morton" <akpm@digeo.com>, <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS][2.5.66bk3+] run_timer_softirq - IRQ Mishandlings - New OOPS w/ timer
-References: <000b01c2f6d6$f843eab0$030aa8c0@unknown>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 30 Mar 2003 13:02:27 -0800
-In-Reply-To: <000b01c2f6d6$f843eab0$030aa8c0@unknown>
-Message-ID: <52he9k4lgc.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S261281AbTC3UzN>; Sun, 30 Mar 2003 15:55:13 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:28863 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S261258AbTC3UzN>;
+	Sun, 30 Mar 2003 15:55:13 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Jens Axboe <axboe@suse.de>, Robert Love <rml@tech9.net>
+Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
+Date: Mon, 31 Mar 2003 07:06:18 +1000
+User-Agent: KMail/1.5
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
+       LKML <linux-kernel@vger.kernel.org>
+References: <3E8610EA.8080309@telia.com> <1048992365.13757.23.camel@localhost> <20030330141404.GG917@suse.de>
+In-Reply-To: <20030330141404.GG917@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 Mar 2003 21:02:30.0230 (UTC) FILETIME=[AD2D0F60:01C2F6FF]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303310706.18484.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Shawn> Function found was: delayed_work_timer_fn
-    Shawn> (kernel/workqueue.c)
+On Mon, 31 Mar 2003 00:14, Jens Axboe wrote:
+> On Sat, Mar 29 2003, Robert Love wrote:
+> > On Sat, 2003-03-29 at 21:33, Con Kolivas wrote:
+> > > Are you sure this should be called a bug? Basically X is an interactive
+> > > process. If it now is "interactive for a priority -10 process" then it
+> > > should be hogging the cpu time no? The priority -10 was a workaround
+> > > for lack of interactivity estimation on the old scheduler.
+> >
+> > Well, I do not necessarily think that renicing X is the problem.  Just
+> > an idea.
+>
+> I see the exact same behaviour here (systems appears fine, cpu intensive
+> app running, attempting to start anything _new_ stalls for ages), and I
+> definitely don't play X renice tricks.
+>
+> It basically made 2.5 unusable here, waiting minutes for an ls to even
+> start displaying _anything_ is totally unacceptable.
 
-It looks to me like something is calling schedule_delayed_work()
-(which calls queue_delayed_work(), which starts a timer) and then
-freeing the work_struct before it's executed.
+I guess I should have trusted my own benchmark that was showing this was worse 
+for system responsiveness.
 
-Here's a list of places that use schedule_delayed_work() where the
-work_struct might be kmalloc()ed.  Are you using any of these drivers?
-(Obviously you're using tty_io, so that bears some looking at)
-
-    drivers/char/cyclades.c
-    drivers/char/mxser.c
-    drivers/char/tty_io.c
-    drivers/isdn/i4l/isdn_tty.c
-    drivers/message/fusion/mptlan.c
-    drivers/net/hamradio/baycom_epp.c
-    drivers/net/plip.c
-    drivers/scsi/imm.c
-    drivers/scsi/ppa.c
-
-If tty_io.c is the problem, then maybe something like the patch below
-will find the culprit.
-
-  - Roland
-
-===== drivers/char/tty_io.c 1.68 vs edited =====
---- 1.68/drivers/char/tty_io.c	Thu Mar 27 21:15:44 2003
-+++ edited/drivers/char/tty_io.c	Sun Mar 30 12:51:00 2003
-@@ -169,6 +169,10 @@
- 
- static inline void free_tty_struct(struct tty_struct *tty)
- {
-+	if (timer_pending(&tty->flip.work.timer)) {
-+		printk(KERN_WARNING "freeing tty with pending flip work timer from [<%p>]\n",
-+		       __builtin_return_address(0));
-+	}
- 	kfree(tty);
- }
- 
+Con

@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272192AbRH3Mgm>; Thu, 30 Aug 2001 08:36:42 -0400
+	id <S272188AbRH3Mec>; Thu, 30 Aug 2001 08:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272194AbRH3Mgc>; Thu, 30 Aug 2001 08:36:32 -0400
-Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:1796 "EHLO
-	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
-	id <S272192AbRH3MgV>; Thu, 30 Aug 2001 08:36:21 -0400
-Date: Thu, 30 Aug 2001 18:28:21 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Reg-mounting of minix file system
-Message-ID: <Pine.LNX.4.10.10108301828090.17070-100000@blrmail>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272191AbRH3MeN>; Thu, 30 Aug 2001 08:34:13 -0400
+Received: from access-35.98.rev.fr.colt.net ([213.41.98.35]:34570 "HELO
+	phoenix.linuxatbusiness.com") by vger.kernel.org with SMTP
+	id <S272188AbRH3MeD> convert rfc822-to-8bit; Thu, 30 Aug 2001 08:34:03 -0400
+Subject: Re: smp freeze on 2.4.9
+From: Philippe Amelant <philippe.amelant@free.fr>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010830221733.A3834@higherplane.net>
+In-Reply-To: <999166237.1257.31.camel@avior> 
+	<20010830221733.A3834@higherplane.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 30 Aug 2001 14:34:15 +0200
+Message-Id: <999174855.2667.4.camel@avior>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On jeu, 2001-08-30 at 14:17, john slee wrote:
+> On Thu, Aug 30, 2001 at 12:10:37PM +0200, Philippe Amelant wrote:
+> > I have an ABIT BP6 mobo with 2 celeron 400 running redhat 7.1 with 2.4.3
+> 
+> before you blame smp, try the usual bp6 stuff:
+> *	bigger/better power supply
 
-Hi,
-I did an "rmmod minix" to remove the minix module from the kernel
-and then tried to mount the partition on a mount point using minix
-filesystem. I gave the command 
+350 W should be enough (just 1 HD and 1 DVD + mobo ) ?
 
-mount -t minix /dev/sdb1 /dummy....
+> *	better cooling
 
-.but found that it got mounted without
-error, though I have already removed the minix module from the kernel. So
-again I unmounted the fs and took an strace of the same command and a part
-of the output was the following:
+I have 2 big fan :)
+cpu temp is typically 35 °C
 
+> *	boot with 'noapic' on commandline
+> 
 
------------------------
-lstat("/etc/mtab", {st_mode=S_IFREG|0644, st_size=118, ...}) = 0
-rt_sigprocmask(SIG_BLOCK, ~[TRAP SEGV], NULL, 8) = 0
- mount("/dev/sdb1","/dummy", "minix", 0xc0ed0000, 0) = -1 ENOSYS (Function not i mplemented)
+interresting, i notice that i have some error apic in kernel message
+with 2.4.3
+i will search that on lkml archive
 
-mount("/dev/sdb1", "/dummy", "minix", 0xc0ed0000, 0) = -1 ENOSYS (Function
-not i mplemented)
+thank for response
 
- mount("/dev/sdb1", "/dummy", "minix", 0xc0ed0000, 0) = 0
----------------------------
-In the above it succeds only the third time. 
-
-My doubts are:
-1. How did the kernel get the minix filesystem when I have already removed
-the module from the kernel?
-
-2. Where does the modules get loaded from when we use an insmod? Is it
-from "/lib/modules/<kernel version>/fs/" for the filesystem?
-
-Please help me with the answer.
-
-Thanks in advance,
-A
-Warm regards,
-sathish.j
-
-
+> search a linux-kernel archive (http://marc.theaimsgroup.com)
+> for more info.  these boards seem to be a bit of a lucky dip.  some
+> never have any problems, others have heaps.  i have a vague memory of
+> someone mentioning flaky caps on some revisions...  also are you using
+> the onboard ata66 controller?  there's been a fair few reports of
+> trouble with those, not sure if it was fixed/hacked-around or not.
+> 
+> best of luck,
+> 
+> j.
+> 
 
 

@@ -1,47 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262492AbSKDAs2>; Sun, 3 Nov 2002 19:48:28 -0500
+	id <S264010AbSKDAlO>; Sun, 3 Nov 2002 19:41:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264210AbSKDAs2>; Sun, 3 Nov 2002 19:48:28 -0500
-Received: from holomorphy.com ([66.224.33.161]:35729 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262492AbSKDAs1>;
-	Sun, 3 Nov 2002 19:48:27 -0500
-Date: Sun, 3 Nov 2002 16:53:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: interrupt checks for spinlocks
-Message-ID: <20021104005339.GA16347@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-References: <mailman.1036362421.16883.linux-kernel2news@redhat.com> <200211040028.gA40S8600593@devserv.devel.redhat.com> <20021104002813.GZ16347@holomorphy.com> <20021103194249.A1603@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021103194249.A1603@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S264021AbSKDAlO>; Sun, 3 Nov 2002 19:41:14 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:5841 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S264010AbSKDAlM>; Sun, 3 Nov 2002 19:41:12 -0500
+Message-ID: <3DC5C3A9.3060608@nortelnetworks.com>
+Date: Sun, 03 Nov 2002 19:47:37 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IDE BUG REPORT: 2.5.45 killed my / partition
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: William Lee Irwin III <wli@holomorphy.com>
->>>> (1) check that spinlocks are not taken in interrupt context without
->>>> 	interrupts disabled
 
-At some point in the past, Pete Zaitcev wrote:
->>> Bill, why is this bad? I routinely use this technique.
+duron, kt133 motherboard, ide disks, new clean mandrake 9 install with 
+ext3, running fine over several boots
 
-From: William Lee Irwin III <wli@holomorphy.com>
->> If you receive the same interrupt on the same cpu and re-enter code
->> that does that, you will deadlock.
+Yesterday I compiled 2.5.45 after working around some build glitches, 
+booted fine and ran it for several hours.  I just turned on your basic 
+generic IDE stuff and the VIA ide controllers, nothing fancy or (at 
+least so I thought) dangerous.
 
-On Sun, Nov 03, 2002 at 07:42:49PM -0500, Pete Zaitcev wrote:
-> How would that happen? I thought it was not possible to re-enter
-> an interrupt, and that it was pretty fundamental for Linux.
-> When did we allow it, and what are implications for architectures?
+Today I booted but it wouldn't let me log in as normal user (error 
+message flashed too quickly for me to be able to read it, looked like it 
+began with "critical") but I could log in as root so I did.  I poked 
+around and didn't see anything odd, so I went to reboot onto the 
+mandrake kernel.
 
-This non-reentrant stuff hurts my head. Another patch down the
-toilet, I guess.
+I boot up, and it gets to the point where it checks the root filesystem 
+and it halts with an error:
+
+Checking root filesystem
+fsck.ext3/dev/hdb9:
+The superblock could not be read or does not describe a correct ext2 
+filesystem. If the device is valid and it really contains an ext2 
+filesystem (and not swap or ufs or something else), then the superblock 
+is corrupt, and you might try running e2fsck with an alternate superblock:
+      e2fsck -b 8193 <device>
+
+: No such file or directory while trying to open /dev/hdb9
+Failed to check filesystem.  Do you want to repair the errors? (Y/N)
+(beware, you can lose data)
 
 
-Bill
+A bit worried, I rebooted with the rescue disk and ran fsck.ext3, which 
+found a bunch of errors that I told it to clean.  Still on my rescue 
+kernel/ramdisk I mounted the filesystem and tried listing a few files 
+and everything was fine.  I then rebooted and the boot-time fsck gave me 
+the same error as above.
+
+I thought that 2.5.45 wasn't supposed to have ide problems like this 
+anymore...
+
+Anyways, the only thing left that I can see is to re-install--anyone 
+else have a better idea?  I'll hold off on doing that for a few days in 
+case someone wants more information on the system.
+
+Any ideas why the rescue fsck passes but boot-time fails?
+
+Thanks,
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

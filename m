@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268554AbTANDT4>; Mon, 13 Jan 2003 22:19:56 -0500
+	id <S268527AbTANDXW>; Mon, 13 Jan 2003 22:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268555AbTANDT4>; Mon, 13 Jan 2003 22:19:56 -0500
-Received: from h80ad26f3.async.vt.edu ([128.173.38.243]:4482 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S268554AbTANDTy>; Mon, 13 Jan 2003 22:19:54 -0500
-Message-Id: <200301140328.h0E3SFqZ004587@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] [TRIVIAL] kstrdup 
-In-Reply-To: Your message of "Tue, 14 Jan 2003 12:55:40 +1100."
-             <20030114025452.656612C385@lists.samba.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030114025452.656612C385@lists.samba.org>
+	id <S268544AbTANDXW>; Mon, 13 Jan 2003 22:23:22 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:18082 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268527AbTANDXV>; Mon, 13 Jan 2003 22:23:21 -0500
+Subject: [PATCH][TRIVIAL] linux-2.5.57_x86-tsc-cleanup_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, trivial@rustcorp.com.au
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042514802.1514.30.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1500533200P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 13 Jan 2003 19:26:42 -0800
 Content-Transfer-Encoding: 7bit
-Date: Mon, 13 Jan 2003 22:28:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1500533200P
-Content-Type: text/plain; charset=us-ascii
+Linus, All,
+	Since no one complained about this over the weekend, here it is. This
+patch simply removes one more of the remaining CONFIG_X86_TSC #ifdefs
+(this one from get_cycles()). Instead of a compile time switch, it
+switches on cpu_has_tsc. 
 
-On Tue, 14 Jan 2003 12:55:40 +1100, Rusty Russell said:
-> Everyone loves reimplementing strdup. 
+Please apply.
 
-> +char *kstrdup(const char *s, int gfp)
-> +{
-> +	char *buf = kmalloc(strlen(s)+1, gfp);
-> +	if (buf)
-> +		strcpy(buf, s);
-> +	return buf;
-> +}
-
-Out of curiosity, who's job is it to avoid the race condition between when
-this function takes the strlen() and the other processor makes it a longer
-string before we return from kmalloc() and do the strcpy()?
+thanks
+-john
 
 
---==_Exmh_1500533200P
-Content-Type: application/pgp-signature
+diff -Nru a/include/asm-i386/timex.h b/include/asm-i386/timex.h
+--- a/include/asm-i386/timex.h	Mon Jan 13 17:29:06 2003
++++ b/include/asm-i386/timex.h	Mon Jan 13 17:29:06 2003
+@@ -40,14 +40,10 @@
+ 
+ static inline cycles_t get_cycles (void)
+ {
+-#ifndef CONFIG_X86_TSC
+-	return 0;
+-#else
+-	unsigned long long ret;
+-
+-	rdtscll(ret);
++	unsigned long long ret = 0;
++	if(cpu_has_tsc)
++		rdtscll(ret);
+ 	return ret;
+-#endif
+ }
+ 
+ extern unsigned long cpu_khz;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+I4POcC3lWbTT17ARAi0QAJ4ubZHKMEBo8hrJG2nsIKRH16XAYwCfd/2V
-iE95SeJnHdmPTYCxXBm436U=
-=xTQD
------END PGP SIGNATURE-----
 
---==_Exmh_1500533200P--

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129746AbRB0SfJ>; Tue, 27 Feb 2001 13:35:09 -0500
+	id <S129737AbRB0Se7>; Tue, 27 Feb 2001 13:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbRB0Se7>; Tue, 27 Feb 2001 13:34:59 -0500
-Received: from windsormachine.com ([206.48.122.28]:60934 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S129746AbRB0Seq>; Tue, 27 Feb 2001 13:34:46 -0500
-Message-ID: <3A9BF340.B8DD9F56@windsormachine.com>
-Date: Tue, 27 Feb 2001 13:34:40 -0500
-From: Mike Dresser <mdresser@windsormachine.com>
-Organization: Windsor Machine & Stamping
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Camm Maguire <camm@enhanced.com>
-CC: Khalid Aziz <khalid@fc.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 IDE tape problem, with ide-scsi
-In-Reply-To: <54u25g3yb9.fsf_-_@intech19.enhanced.com> <3A9BC2A9.F5EE8554@fc.hp.com> <544rxg2gde.fsf@intech19.enhanced.com> <3A9BE4C1.1868F020@windsormachine.com> <54u25gvuyg.fsf@intech19.enhanced.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+	id <S129747AbRB0Set>; Tue, 27 Feb 2001 13:34:49 -0500
+Received: from law2-f210.hotmail.com ([216.32.181.210]:11282 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129737AbRB0Seb>;
+	Tue, 27 Feb 2001 13:34:31 -0500
+X-Originating-IP: [195.29.214.50]
+From: "Zdravko Spoljar" <flirek@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: nfs_refresh_inode ?
+Date: Tue, 27 Feb 2001 18:34:24 -0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW2-F2101vraQ4yvco00012ad0@hotmail.com>
+X-OriginalArrivalTime: 27 Feb 2001 18:34:25.0074 (UTC) FILETIME=[E8DA1920:01C0A0EB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Camm Maguire wrote:
+Hi
+i'm running 2.2.19pre14+RAID+ide and get this message from kernel:
 
-> Greetings!  You are certainly right here, at least in part.  The ide
-> patches for 2.2 definitely impair tape operation on these boxes.
-> There was a crude workaround suggested on this list to use the
-> ide-scsi driver -- this basically worked, but gave *many* error
-> messages in the kernel log, and was significantly less reliable than
-> stock 2.2.18.  I'm still using ide-scsi out of inertia, but I suspect
-> that ide-tape might be just fine with stock 2.2.18 too.  And when I
-> saw some support for the ALI chipset, the decision was clear to drop
-> the latest ide stuff.
->
-> This has been the situation for some time.  Is this going to be
-> resolved soon?
+nfs_refresh_inode: inode number mismatch
+expected (0x0ffffffff/0x0ffffffff), got (0x0002b0001/0x00005605)
+                                                           ^^^^
+marked numbers vary from message to message. i can triger this
+by doing "make test;chmod 777 test" on some nfs mounted file sistem
+some times repeated chmod generate more messages, sometimes are executed ok. 
+i have feeling it happend more often when there is some cpu and net load.
 
-Wish i knew, I'm praying that 2.2.19 hasn't/doesn't implement the ide patches like 2.4.x did.  If so, and a major problem is found in
-2.2.18, then I have to maintain another machine running 2.2.18 to restore tapes.  Also means i'd have to stop using taper or dump,
-and stick to tar only, as both want to read the tape back in at some point.
+linux nfs client is dual pentium II (266) on P2B-DS with 2
+promise IDE cards, net card is smc (using realtek 8139 driver), ide and scsi 
+disks are in RAID 5 setup.
+nfs server is Apple Network server running AIX4.1.5
+net conn is 100MB over Cisco switch
 
-Mike
+ah, there is one more thing. on boot when nfs get mounted i find in dmesg:
+"nfs warning: mount version older than kernel"
+WTF? :)
+
+all this not happend on 2.2.17+RAID
+
+any ideas patches, more info?
+
+flirek
+
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

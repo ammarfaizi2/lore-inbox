@@ -1,416 +1,361 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319062AbSIDFdd>; Wed, 4 Sep 2002 01:33:33 -0400
+	id <S319061AbSIDFcE>; Wed, 4 Sep 2002 01:32:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319063AbSIDFdd>; Wed, 4 Sep 2002 01:33:33 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:58632 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S319062AbSIDFdZ>; Wed, 4 Sep 2002 01:33:25 -0400
-Date: Tue, 3 Sep 2002 22:37:57 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: "Joseph N. Hall" <joseph@5sigma.com>
+	id <S319062AbSIDFcE>; Wed, 4 Sep 2002 01:32:04 -0400
+Received: from dp.samba.org ([66.70.73.150]:39905 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319061AbSIDFcA>;
+	Wed, 4 Sep 2002 01:32:00 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15733.39709.872600.710759@argo.ozlabs.ibm.com>
+Date: Wed, 4 Sep 2002 15:33:17 +1000 (EST)
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: CRH  Out of Town
-Message-ID: <20020903223757.A20650@one-eyed-alien.net>
-Mail-Followup-To: "Joseph N. Hall" <joseph@5sigma.com>,
-	linux-kernel@vger.kernel.org
-References: <20020904013857Z318758-685+42497@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020904013857Z318758-685+42497@vger.kernel.org>; from joseph@5sigma.com on Tue, Sep 03, 2002 at 06:45:00PM -0700
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+Subject: [PATCH] [RESEND] pcmcia fixes for 2.5
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below is a forward-port of PCMCIA fixes from 2.4 to 2.5.
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It changes the pcmcia resource allocation code so that it allocates IO
+and memory resources from the correct resource parent.  The details
+were discussed on lkml last year in the 2.4 context.  I need this on
+powerbooks because they have multiple PCI host bridges.
 
-Have you tried enabling DMA on the drive?
+Linus, please apply this to your tree.
 
-Matt
+Thanks,
+Paul.
 
-On Tue, Sep 03, 2002 at 06:45:00PM -0700, Joseph N. Hall wrote:
-> Dear Kernel Folks,
->=20
-> I am trying to determine the cause of the poor performance of a
-> an IDE DVD device on my new machine.  I have an IDE Panasonic DF-210-type
-> DVD-RAM/R/ROM in a new machine with Soyo KT333 motherboard.  It
-> transfers data slowly (below DVD speed), consumes large amounts of
-> system time, and slows down the user interface and even system
-> clock (which can run as slow as 1/4 speed while the drive is
-> going).
->=20
-> The interrupt ERR count below seems to be mostly related to use
-> of the DVD drive.
->=20
-> Maybe it's something simple.  If not, I'll be glad to do further
-> work to help diagnose the problem.
->=20
-> Here are some possibly relevant details:
->=20
-> # uname -a
-> Linux dhcppc4 2.4.20-pre5-ac1 #4 Sun Sep 1 22:06:11 PDT 2002 i686 unknown
->=20
-> # cat /proc/cpuinfo
-> processor       : 0
-> vendor_id       : AuthenticAMD
-> cpu family      : 6
-> model           : 6
-> model name      : AMD Athlon(tm) XP 2100+
-> stepping        : 2
-> cpu MHz         : 1729.054
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 1
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mc=
-a cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-> bogomips        : 3447.19
->=20
-> # cat /proc/interrupts
->            CPU0
->   0:    2389082          XT-PIC  timer
->   1:          4          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   5:        107          XT-PIC  usb-uhci
->   8:    1293953          XT-PIC  rtc
->  10:          0          XT-PIC  usb-uhci
->  11:     124849          XT-PIC  eth0, EMU10K1
->  12:      46058          XT-PIC  usb-uhci, usb-uhci, ehci-hcd, cmpci
->  14:      56020          XT-PIC  ide0
->  15:          7          XT-PIC  ide1
-> NMI:          0
-> LOC:    2388955
-> ERR:        927
-> MIS:          0
->=20
-> # dmesg | more
->=20
-> Linux version 2.4.20-pre5-ac1 (root@dhcppc4) (gcc version 2.96 20000731 (=
-Red Hat
->  Linux 7.3 2.96-110)) #4 Sun Sep 1 22:06:11 PDT 2002
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000005fff0000 (usable)
->  BIOS-e820: 000000005fff0000 - 000000005fff3000 (ACPI NVS)
->  BIOS-e820: 000000005fff3000 - 0000000060000000 (ACPI data)
->  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-> 639MB HIGHMEM available.
-> 896MB LOWMEM available.
-> On node 0 totalpages: 393200
-> zone(0): 4096 pages.
-> zone(1): 225280 pages.
-> zone(2): 163824 pages.
-> Kernel command line: auto BOOT_IMAGE=3D2.4.20.p5ac1 ro root=3D305 BOOT_FI=
-LE=3D/boot/vm
-> linuz-2.4.20-pre5-ac1 hdc=3Dide-scsi hdd=3Dide-scsi
-> ide_setup: hdc=3Dide-scsi
-> ide_setup: hdd=3Dide-scsi
-> Local APIC disabled by BIOS -- reenabling.
-> Found and enabled local APIC!
-> Initializing CPU#0
-> Detected 1729.054 MHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 3447.19 BogoMIPS
-> Memory: 1548660k/1572800k available (1116k kernel code, 23756k reserved, =
-464k da
-> ta, 136k init, 655296k highmem)
-> Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
-> Inode cache hash table entries: 131072 (order: 8, 1048576 bytes)
-> Mount cache hash table entries: 512 (order: 0, 4096 bytes)
-> ramfs: mounted with options: <defaults>
-> ramfs: max_pages=3D193582 max_file_pages=3D0 max_inodes=3D0 max_dentries=
-=3D193582
-> Buffer cache hash table entries: 131072 (order: 7, 524288 bytes)
-> Page-cache hash table entries: 524288 (order: 9, 2097152 bytes)
-> CPU: Before vendor init, caps: 0383fbff c1c3fbff 00000000, vendor =3D 2
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 256K (64 bytes/line)
-> CPU: After vendor init, caps: 0383fbff c1c3fbff 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU:     After generic, caps: 0383fbff c1c3fbff 00000000 00000000
-> CPU:             Common caps: 0383fbff c1c3fbff 00000000 00000000
-> CPU: AMD Athlon(tm) XP 2100+ stepping 02
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> enabled ExtINT on CPU#0
-> ESR value before enabling vector: 00000000
-> ESR value after enabling vector: 00000000
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-> ..... CPU clock speed is 1729.0935 MHz.
-> ..... host bus clock speed is 266.0142 MHz.
-> cpu: 0, clocks: 2660142, slice: 1330071
-> CPU0<T0:2660128,T1:1330048,D:9,S:1330071,C:2660142>
-> mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-> mtrr: detected mtrr type: Intel
-> PCI: PCI BIOS revision 2.10 entry at 0xfb520, last bus=3D2
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> Unknown bridge resource 0: assuming transparent
-> Unknown bridge resource 2: assuming transparent
-> PCI: Using IRQ router default [1106/3099] at 00:00.0
-> isapnp: Scanning for PnP cards...
-> isapnp: No Plug & Play device found
-> Linux NET4.0 for Linux 2.4
-> Based upon Swansea University Computer Society NET3.039
-> Initializing RT netlink socket
-> apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16)
-> Starting kswapd
-> allocated 32 pages and 32 bhs reserved for the highmem bounces
-> VFS: Disk quotas vdquot_6.5.1
-> Detected PS/2 Mouse Port.
-> pty: 2048 Unix98 ptys configured
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS MULTIPORT SHARE_=
-IRQ SER
-> IAL_PCI ISAPNP enabled
-> ttyS00 at 0x03f8 (irq =3D 4) is a 16550A
-> ttyS01 at 0x02f8 (irq =3D 3) is a 16550A
-> Real Time Clock Driver v1.10e
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=
-=3Dxx
-> HPT372: IDE controller at PCI slot 00:0f.0
-> HPT372: chipset revision 5
-> HPT372: not 100% native mode: will probe irqs later
-> HPT37X: using 33MHz PCI clock
->     ide2: BM-DMA at 0xd800-0xd807, BIOS settings: hde:pio, hdf:pio
->     ide3: BM-DMA at 0xd808-0xd80f, BIOS settings: hdg:pio, hdh:pio
-> VP_IDE: IDE controller at PCI slot 00:11.1
-> PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try using=
- pci=3Dbi
-> osirq.
-> VP_IDE: chipset revision 6
-> VP_IDE: not 100% native mode: will probe irqs later
-> VP_IDE: VIA vt8233a (rev 00) IDE UDMA133 controller on pci00:11.1
->     ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: WDC WD1200JB-00CRA1, ATA DISK drive
-> hdb: WDC WD1200JB-00CRA1, ATA DISK drive
-> hdc: ASUS CRW-4816A, ATAPI CD/DVD-ROM drive
-> hdd: MATSHITADVD-RAM LF-D310, ATAPI CD/DVD-ROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: host protected area =3D> 1
-> hda: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=3D14593/255/63, U=
-DMA(100)
-> hdb: host protected area =3D> 1
-> hdb: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=3D14593/255/63, U=
-DMA(100)
-> ide-floppy driver 0.99.newide
-> Partition check:
->  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
->  hdb: hdb1 hdb2 < hdb5 hdb6 >
-> Floppy drive(s): fd0 is 1.44M
-> FDC 0 is a post-1991 82077
-> RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-> ide-floppy driver 0.99.newide
-> md: md driver 0.90.0 MAX_MD_DEVS=3D256, MD_SB_DISKS=3D27
-> md: Autodetecting RAID arrays.
-> md: autorun ...
-> md: ... autorun DONE.
-> NET4: Linux TCP/IP 1.0 for NET4.0
-> IP Protocols: ICMP, UDP, TCP, IGMP
-> IP: routing cache hash table of 16384 buckets, 128Kbytes
-> TCP: Hash tables configured (established 262144 bind 65536)
-> Linux IP multicast router 0.06 plus PIM-SM
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> RAMDISK: Compressed image found at block 0
-> Freeing initrd memory: 119k freed
-> VFS: Mounted root (ext2 filesystem).
-> Journalled Block Device driver loaded
-> kjournald starting.  Commit interval 5 seconds
-> EXT3-fs: mounted filesystem with ordered data mode.
-> Freeing unused kernel memory: 136k freed
-> Adding Swap: 1052248k swap-space (priority -1)
-> usb.c: registered new driver usbdevfs
-> usb.c: registered new driver hub
-> usb-uhci.c: $Revision: 1.275 $ time 21:01:49 Sep  1 2002
-> usb-uhci.c: High bandwidth mode enabled
-> usb-uhci.c: USB UHCI at I/O 0xc000, IRQ 5
-> usb-uhci.c: Detected 2 ports
->=20
-> # cat /proc/pci
-> PCI devices found:
->   Bus  0, device   0, function  0:
->     Host bridge: VIA Technologies, Inc. VT8367 [KT266] (rev 0).
->       Prefetchable 32 bit memory at 0xe8000000 [0xebffffff].
->   Bus  0, device   1, function  0:
->     PCI bridge: VIA Technologies, Inc. VT8367 [KT333 AGP] (rev 0).
->       Master Capable.  No bursts.  Min Gnt=3D12.
->   Bus  0, device   8, function  0:
->     Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 7).
->       IRQ 11.
->       Master Capable.  Latency=3D32.  Min Gnt=3D2.Max Lat=3D20.
->       I/O at 0xb000 [0xb01f].
->   Bus  0, device   8, function  1:
->     Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 7=
-).
->       Master Capable.  Latency=3D32.
->       I/O at 0xb400 [0xb407].
->   Bus  0, device   9, function  0:
->     FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controlle=
-r (rev 70).
->       IRQ 5.
->       Master Capable.  Latency=3D32.  Max Lat=3D32.
->       Non-prefetchable 32 bit memory at 0xef002000 [0xef0027ff].
->       I/O at 0xb800 [0xb87f].
->   Bus  0, device  13, function  0:
->     Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8=
-139C+ (rev 16).
->       IRQ 11.
->       Master Capable.  Latency=3D32.  Min Gnt=3D32.Max Lat=3D64.
->       I/O at 0xbc00 [0xbcff].
->       Non-prefetchable 32 bit memory at 0xef000000 [0xef0000ff].
->   Bus  0, device  14, function  0:
->     USB Controller: VIA Technologies, Inc. USB (rev 80).
->       IRQ 5.
->       Master Capable.  Latency=3D32.
->       I/O at 0xc000 [0xc01f].
->   Bus  0, device  14, function  1:
->     USB Controller: VIA Technologies, Inc. USB (#2) (rev 80).
->       IRQ 10.
->       Master Capable.  Latency=3D32.
->       I/O at 0xc400 [0xc41f].
->   Bus  0, device  17, function  2:
->     USB Controller: VIA Technologies, Inc. USB (#3) (rev 35).
->       IRQ 12.
->       Master Capable.  Latency=3D32.
->       I/O at 0xe400 [0xe41f].
->   Bus  0, device  17, function  3:
->     USB Controller: VIA Technologies, Inc. USB (#4) (rev 35).
->       IRQ 12.
->       Master Capable.  Latency=3D32.
->       I/O at 0xe800 [0xe81f].
->   Bus  0, device  14, function  2:
->     USB Controller: VIA Technologies, Inc. USB 2.0 (rev 81).
->       IRQ 12.
->       Master Capable.  Latency=3D32.
->       Non-prefetchable 32 bit memory at 0xef001000 [0xef0010ff].
->   Bus  0, device  15, function  0:
->     RAID bus controller: Triones Technologies, Inc. HPT366/368/370/370A/3=
-72 (rev 5).
->       IRQ 10.
->       Master Capable.  Latency=3D120.  Min Gnt=3D8.Max Lat=3D8.
->       I/O at 0xc800 [0xc807].
->       I/O at 0xcc00 [0xcc03].
->       I/O at 0xd000 [0xd007].
->       I/O at 0xd400 [0xd403].
->       I/O at 0xd800 [0xd8ff].
->   Bus  0, device  16, function  0:
->     Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 16).
->       IRQ 12.
->       Master Capable.  Latency=3D32.  Min Gnt=3D2.Max Lat=3D24.
->       I/O at 0xdc00 [0xdcff].
->   Bus  0, device  17, function  0:
->     ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge (rev 0).
->   Bus  0, device  17, function  1:
->     IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (=
-rev 6).
->       Master Capable.  Latency=3D32.
->       I/O at 0xe000 [0xe00f].
->   Bus  1, device   0, function  0:
->     VGA compatible controller: ATI Technologies Inc Radeon 8500 DV (rev 0=
-).
->       IRQ 11.
->       Master Capable.  Latency=3D32.  Min Gnt=3D8.
->       Prefetchable 32 bit memory at 0xe0000000 [0xe7ffffff].
->       I/O at 0xa000 [0xa0ff].
->       Non-prefetchable 32 bit memory at 0xed100000 [0xed11ffff].
->       Non-prefetchable 32 bit memory at 0xed120000 [0xed12ffff].
->   Bus  1, device   0, function  1:
->     PCI bridge: PCI device 1002:4243 (ATI Technologies Inc) (rev 0).
->       Master Capable.  Latency=3D32.  Min Gnt=3D2.
->   Bus  2, device   0, function  0:
->     FireWire (IEEE 1394): Lucent Microelectronics FW323 (rev 4).
->       IRQ 11.
->       Master Capable.  Latency=3D32.  Min Gnt=3D12.Max Lat=3D24.
->       Non-prefetchable 32 bit memory at 0xed000000 [0xed000fff].
->=20
->=20
-> # hdparm /dev/hdd
-> /dev/hdd:
->  HDIO_GET_MULTCOUNT failed: Invalid argument
->  I/O support  =3D  1 (32-bit)
->  unmaskirq    =3D  1 (on)
->  using_dma    =3D  0 (off)
->  keepsettings =3D  0 (off)
->  HDIO_GET_NOWERR failed: Invalid argument
->  readonly     =3D  0 (off)
->  BLKRAGET failed: Invalid argument
->  HDIO_GETGEO failed: Invalid argument
->  busstate     =3D  1 (on)
->=20
-> # cat /proc/ide/hdd/settings
-> name                    value           min             max             m=
-ode
-> ----                    -----           ---             ---             -=
----
-> bios_cyl                0               0               1023            rw
-> bios_head               0               0               255             rw
-> bios_sect               0               0               63              rw
-> current_speed           66              0               70              rw
-> ide-scsi                0               0               1               rw
-> init_speed              12              0               70              rw
-> io_32bit                1               0               3               rw
-> keepsettings            0               0               1               rw
-> log                     0               0               1               rw
-> nice1                   1               0               1               rw
-> number                  3               0               3               rw
-> pio_mode                write-only      0               255             w
-> slow                    0               0               1               rw
-> transform               1               0               3               rw
-> unmaskirq               1               0               1               rw
-> using_dma               0               0               1               rw
->=20
-> # cat /proc/ide/hdd/model
-> MATSHITADVD-RAM LF-D310
->=20
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-It was a new hope.
-					-- Dust Puppy
-User Friendly, 12/25/1998
-
---sm4nu43k4a2Rpi4c
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9dZw1IjReC7bSPZARAnSEAJ9GB+eZsAKhj6TpbEzoumqmtXs6sQCfQb5s
-MFlrfyjDulC0N8xd6PWTL4g=
-=KK++
------END PGP SIGNATURE-----
-
---sm4nu43k4a2Rpi4c--
+diff -urN linux-2.5/drivers/pcmcia/cistpl.c pmac-2.5/drivers/pcmcia/cistpl.c
+--- linux-2.5/drivers/pcmcia/cistpl.c	2002-02-05 18:55:14.000000000 +1100
++++ pmac-2.5/drivers/pcmcia/cistpl.c	2002-07-21 14:01:56.000000000 +1000
+@@ -264,11 +264,11 @@
+ 	(s->cis_mem.sys_start == 0)) {
+ 	int low = !(s->cap.features & SS_CAP_PAGE_REGS);
+ 	vs = s;
+-	validate_mem(cis_readable, checksum_match, low);
++	validate_mem(cis_readable, checksum_match, low, s);
+ 	s->cis_mem.sys_start = 0;
+ 	vs = NULL;
+ 	if (find_mem_region(&s->cis_mem.sys_start, s->cap.map_size,
+-			    s->cap.map_size, low, "card services")) {
++			    s->cap.map_size, low, "card services", s)) {
+ 	    printk(KERN_NOTICE "cs: unable to map card memory!\n");
+ 	    return CS_OUT_OF_RESOURCE;
+ 	}
+diff -urN linux-2.5/drivers/pcmcia/cs.c pmac-2.5/drivers/pcmcia/cs.c
+--- linux-2.5/drivers/pcmcia/cs.c	2002-02-05 18:55:14.000000000 +1100
++++ pmac-2.5/drivers/pcmcia/cs.c	2002-07-20 20:41:46.000000000 +1000
+@@ -809,7 +809,7 @@
+ 	    return 1;
+     for (i = 0; i < MAX_IO_WIN; i++) {
+ 	if (s->io[i].NumPorts == 0) {
+-	    if (find_io_region(base, num, align, name) == 0) {
++	    if (find_io_region(base, num, align, name, s) == 0) {
+ 		s->io[i].Attributes = attr;
+ 		s->io[i].BasePort = *base;
+ 		s->io[i].NumPorts = s->io[i].InUse = num;
+@@ -821,7 +821,7 @@
+ 	/* Try to extend top of window */
+ 	try = s->io[i].BasePort + s->io[i].NumPorts;
+ 	if ((*base == 0) || (*base == try))
+-	    if (find_io_region(&try, num, 0, name) == 0) {
++	    if (find_io_region(&try, num, 0, name, s) == 0) {
+ 		*base = try;
+ 		s->io[i].NumPorts += num;
+ 		s->io[i].InUse += num;
+@@ -830,7 +830,7 @@
+ 	/* Try to extend bottom of window */
+ 	try = s->io[i].BasePort - num;
+ 	if ((*base == 0) || (*base == try))
+-	    if (find_io_region(&try, num, 0, name) == 0) {
++	    if (find_io_region(&try, num, 0, name, s) == 0) {
+ 		s->io[i].BasePort = *base = try;
+ 		s->io[i].NumPorts += num;
+ 		s->io[i].InUse += num;
+@@ -1974,7 +1974,7 @@
+ 	find_mem_region(&win->base, win->size, align,
+ 			(req->Attributes & WIN_MAP_BELOW_1MB) ||
+ 			!(s->cap.features & SS_CAP_PAGE_REGS),
+-			(*handle)->dev_info))
++			(*handle)->dev_info, s))
+ 	return CS_IN_USE;
+     (*handle)->state |= CLIENT_WIN_REQ(w);
+ 
+diff -urN linux-2.5/drivers/pcmcia/cs_internal.h pmac-2.5/drivers/pcmcia/cs_internal.h
+--- linux-2.5/drivers/pcmcia/cs_internal.h	2002-02-06 04:40:18.000000000 +1100
++++ pmac-2.5/drivers/pcmcia/cs_internal.h	2002-07-20 20:38:06.000000000 +1000
+@@ -238,11 +238,11 @@
+ 
+ /* In rsrc_mgr */
+ void validate_mem(int (*is_valid)(u_long), int (*do_cksum)(u_long),
+-		  int force_low);
++		  int force_low, socket_info_t *s);
+ int find_io_region(ioaddr_t *base, ioaddr_t num, ioaddr_t align,
+-		   char *name);
++		   char *name, socket_info_t *s);
+ int find_mem_region(u_long *base, u_long num, u_long align,
+-		    int force_low, char *name);
++		    int force_low, char *name, socket_info_t *s);
+ int try_irq(u_int Attributes, int irq, int specific);
+ void undo_irq(u_int Attributes, int irq);
+ int adjust_resource_info(client_handle_t handle, adjust_t *adj);
+diff -urN linux-2.5/drivers/pcmcia/rsrc_mgr.c pmac-2.5/drivers/pcmcia/rsrc_mgr.c
+--- linux-2.5/drivers/pcmcia/rsrc_mgr.c	2002-02-05 18:55:14.000000000 +1100
++++ pmac-2.5/drivers/pcmcia/rsrc_mgr.c	2002-07-21 14:02:02.000000000 +1000
+@@ -44,6 +44,7 @@
+ #include <linux/ioport.h>
+ #include <linux/timer.h>
+ #include <linux/proc_fs.h>
++#include <linux/pci.h>
+ #include <asm/irq.h>
+ #include <asm/io.h>
+ 
+@@ -103,8 +104,82 @@
+ 
+ ======================================================================*/
+ 
+-#define check_io_resource(b,n)	check_resource(&ioport_resource, (b), (n))
+-#define check_mem_resource(b,n)	check_resource(&iomem_resource, (b), (n))
++static struct resource *resource_parent(unsigned long b, unsigned long n,
++					int flags, struct pci_dev *dev)
++{
++#ifdef CONFIG_PCI
++	struct resource res, *pr;
++
++	if (dev != NULL) {
++		res.start = b;
++		res.end = b + n - 1;
++		res.flags = flags;
++		pr = pci_find_parent_resource(dev, &res);
++		if (pr)
++			return pr;
++	}
++#endif /* CONFIG_PCI */
++	if (flags & IORESOURCE_MEM)
++		return &iomem_resource;
++	return &ioport_resource;
++}
++
++static inline int check_io_resource(unsigned long b, unsigned long n,
++				    struct pci_dev *dev)
++{
++	return check_resource(resource_parent(b, n, IORESOURCE_IO, dev), b, n);
++}
++
++static inline int check_mem_resource(unsigned long b, unsigned long n,
++				     struct pci_dev *dev)
++{
++	return check_resource(resource_parent(b, n, IORESOURCE_MEM, dev), b, n);
++}
++
++static struct resource *make_resource(unsigned long b, unsigned long n,
++				      int flags, char *name)
++{
++	struct resource *res = kmalloc(sizeof(*res), GFP_KERNEL);
++
++	if (res) {
++		memset(res, 0, sizeof(*res));
++		res->name = name;
++		res->start = b;
++		res->end = b + n - 1;
++		res->flags = flags | IORESOURCE_BUSY;
++	}
++	return res;
++}
++
++static int request_io_resource(unsigned long b, unsigned long n,
++			       char *name, struct pci_dev *dev)
++{
++	struct resource *res = make_resource(b, n, IORESOURCE_IO, name);
++	struct resource *pr = resource_parent(b, n, IORESOURCE_IO, dev);
++	int err = -ENOMEM;
++
++	if (res) {
++		err = request_resource(pr, res);
++		if (err)
++			kfree(res);
++	}
++	return err;
++}
++
++static int request_mem_resource(unsigned long b, unsigned long n,
++				char *name, struct pci_dev *dev)
++{
++	struct resource *res = make_resource(b, n, IORESOURCE_MEM, name);
++	struct resource *pr = resource_parent(b, n, IORESOURCE_MEM, dev);
++	int err = -ENOMEM;
++
++	if (res) {
++		err = request_resource(pr, res);
++		if (err)
++			kfree(res);
++	}
++	return err;
++}
+ 
+ /*======================================================================
+ 
+@@ -194,7 +269,7 @@
+     }   
+     memset(b, 0, 256);
+     for (i = base, most = 0; i < base+num; i += 8) {
+-	if (check_io_resource(i, 8))
++	if (check_io_resource(i, 8, NULL))
+ 	    continue;
+ 	hole = inb(i);
+ 	for (j = 1; j < 8; j++)
+@@ -207,7 +282,7 @@
+ 
+     bad = any = 0;
+     for (i = base; i < base+num; i += 8) {
+-	if (check_io_resource(i, 8))
++	if (check_io_resource(i, 8, NULL))
+ 	    continue;
+ 	for (j = 0; j < 8; j++)
+ 	    if (inb(i+j) != most) break;
+@@ -247,7 +322,8 @@
+ ======================================================================*/
+ 
+ static int do_mem_probe(u_long base, u_long num,
+-			int (*is_valid)(u_long), int (*do_cksum)(u_long))
++			int (*is_valid)(u_long), int (*do_cksum)(u_long),
++			socket_info_t *s)
+ {
+     u_long i, j, bad, fail, step;
+ 
+@@ -258,13 +334,14 @@
+     for (i = j = base; i < base+num; i = j + step) {
+ 	if (!fail) {	
+ 	    for (j = i; j < base+num; j += step)
+-		if ((check_mem_resource(j, step) == 0) && is_valid(j))
++		if ((check_mem_resource(j, step, s->cap.cb_dev) == 0) &&
++		    is_valid(j))
+ 		    break;
+ 	    fail = ((i == base) && (j == base+num));
+ 	}
+ 	if (fail) {
+ 	    for (j = i; j < base+num; j += 2*step)
+-		if ((check_mem_resource(j, 2*step) == 0) &&
++		if ((check_mem_resource(j, 2*step, s->cap.cb_dev) == 0) &&
+ 		    do_cksum(j) && do_cksum(j+step))
+ 		    break;
+ 	}
+@@ -283,12 +360,12 @@
+ 
+ static u_long inv_probe(int (*is_valid)(u_long),
+ 			int (*do_cksum)(u_long),
+-			resource_map_t *m)
++			resource_map_t *m, socket_info_t *s)
+ {
+     u_long ok;
+     if (m == &mem_db)
+ 	return 0;
+-    ok = inv_probe(is_valid, do_cksum, m->next);
++    ok = inv_probe(is_valid, do_cksum, m->next, s);
+     if (ok) {
+ 	if (m->base >= 0x100000)
+ 	    sub_interval(&mem_db, m->base, m->num);
+@@ -296,11 +373,11 @@
+     }
+     if (m->base < 0x100000)
+ 	return 0;
+-    return do_mem_probe(m->base, m->num, is_valid, do_cksum);
++    return do_mem_probe(m->base, m->num, is_valid, do_cksum, s);
+ }
+ 
+ void validate_mem(int (*is_valid)(u_long), int (*do_cksum)(u_long),
+-		  int force_low)
++		  int force_low, socket_info_t *s)
+ {
+     resource_map_t *m, *n;
+     static u_char order[] = { 0xd0, 0xe0, 0xc0, 0xf0 };
+@@ -310,7 +387,7 @@
+     if (!probe_mem) return;
+     /* We do up to four passes through the list */
+     if (!force_low) {
+-	if (hi++ || (inv_probe(is_valid, do_cksum, mem_db.next) > 0))
++	if (hi++ || (inv_probe(is_valid, do_cksum, mem_db.next, s) > 0))
+ 	    return;
+ 	printk(KERN_NOTICE "cs: warning: no high memory space "
+ 	       "available!\n");
+@@ -321,7 +398,7 @@
+ 	/* Only probe < 1 MB */
+ 	if (m->base >= 0x100000) continue;
+ 	if ((m->base | m->num) & 0xffff) {
+-	    ok += do_mem_probe(m->base, m->num, is_valid, do_cksum);
++	    ok += do_mem_probe(m->base, m->num, is_valid, do_cksum, s);
+ 	    continue;
+ 	}
+ 	/* Special probe for 64K-aligned block */
+@@ -331,7 +408,7 @@
+ 		if (ok >= mem_limit)
+ 		    sub_interval(&mem_db, b, 0x10000);
+ 		else
+-		    ok += do_mem_probe(b, 0x10000, is_valid, do_cksum);
++		    ok += do_mem_probe(b, 0x10000, is_valid, do_cksum, s);
+ 	    }
+ 	}
+     }
+@@ -340,7 +417,7 @@
+ #else /* CONFIG_ISA */
+ 
+ void validate_mem(int (*is_valid)(u_long), int (*do_cksum)(u_long),
+-		  int force_low)
++		  int force_low, socket_info_t *s)
+ {
+     resource_map_t *m;
+     static int done = 0;
+@@ -348,7 +425,7 @@
+     if (!probe_mem || done++)
+ 	return;
+     for (m = mem_db.next; m != &mem_db; m = m->next)
+-	if (do_mem_probe(m->base, m->num, is_valid, do_cksum))
++	if (do_mem_probe(m->base, m->num, is_valid, do_cksum, s))
+ 	    return;
+ }
+ 
+@@ -368,7 +445,7 @@
+ ======================================================================*/
+ 
+ int find_io_region(ioaddr_t *base, ioaddr_t num, ioaddr_t align,
+-		   char *name)
++		   char *name, socket_info_t *s)
+ {
+     ioaddr_t try;
+     resource_map_t *m;
+@@ -378,9 +455,8 @@
+ 	for (try = (try >= m->base) ? try : try+align;
+ 	     (try >= m->base) && (try+num <= m->base+m->num);
+ 	     try += align) {
+-	    if (check_io_resource(try, num) == 0) {
++	    if (request_io_resource(try, num, name, s->cap.cb_dev) == 0) {
+ 		*base = try;
+-		request_region(try, num, name);
+ 		return 0;
+ 	    }
+ 	    if (!align) break;
+@@ -390,7 +466,7 @@
+ }
+ 
+ int find_mem_region(u_long *base, u_long num, u_long align,
+-		    int force_low, char *name)
++		    int force_low, char *name, socket_info_t *s)
+ {
+     u_long try;
+     resource_map_t *m;
+@@ -403,8 +479,7 @@
+ 	    for (try = (try >= m->base) ? try : try+align;
+ 		 (try >= m->base) && (try+num <= m->base+m->num);
+ 		 try += align) {
+-		if (check_mem_resource(try, num) == 0) {
+-		    request_mem_region(try, num, name);
++		if (request_mem_resource(try, num, name, s->cap.cb_dev) == 0) {
+ 		    *base = try;
+ 		    return 0;
+ 		}

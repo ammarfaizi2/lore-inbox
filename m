@@ -1,93 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318225AbSIFB3d>; Thu, 5 Sep 2002 21:29:33 -0400
+	id <S318230AbSIFBgx>; Thu, 5 Sep 2002 21:36:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318224AbSIFB3d>; Thu, 5 Sep 2002 21:29:33 -0400
-Received: from rom.cscaper.com ([216.19.195.129]:39615 "HELO mail.cscaper.com")
-	by vger.kernel.org with SMTP id <S318221AbSIFB3c>;
-	Thu, 5 Sep 2002 21:29:32 -0400
-Subject: DMA borked in 2.4.20-pre5-ac1
-Content-Transfer-Encoding: 7BIT
+	id <S318231AbSIFBgx>; Thu, 5 Sep 2002 21:36:53 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:22278 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S318230AbSIFBgv>; Thu, 5 Sep 2002 21:36:51 -0400
+Date: Thu, 5 Sep 2002 18:41:22 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-From: "Joseph N. Hall" <joseph@5sigma.com>
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-Date: Thu, 5 Sep 2002 18:36 -0700
-X-mailer: Mailer from Hell v1.0
-Message-Id: <20020906012932Z318221-685+43270@vger.kernel.org>
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+Message-ID: <20020906014122.GE3942@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20020905135442.A19682@namesys.com> <20020905174902.A32687@namesys.com> <1031234624.1726.224.camel@tiny> <20020905181721.D32687@namesys.com> <1031244334.1684.264.camel@tiny> <20020905212545.A5349@namesys.com> <20020905211849.GA3942@pegasys.ws> <20020906000249.A10844@vestdata.no> <20020905225706.GC3942@pegasys.ws> <20020906020138.A23940@vestdata.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020906020138.A23940@vestdata.no>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I got tired of living DMA hell with the Soyo Dragon Ultra 
-Platinum m/b (KT333a), and bought an ALi-based m/b instead,
-an IWill XP333-R.  But ... to my dismay I had no DMA at all
-when booting under 2.4.20-pre5-ac1, which at least gave me
-hard disk DMA on the Soyo.  Also under 2.4.20-pre5-ac1
-hdparm -d1 /dev/hda refused to work, and hdparm -X66 
-/dev/hda segfaulted:
+On Fri, Sep 06, 2002 at 02:01:38AM +0200, Ragnar Kjørstad wrote:
+> On Thu, Sep 05, 2002 at 03:57:06PM -0700, jw schultz wrote:
+> > > Now, I've just checked the source of GNU find (v4.1.7) and it does _not_
+> > > recognize nlink=1 as a special value. (It works as long as there are
+> > > less than 2^32 subdirectories though, because it is looking for -1
+> > > subdirectories and it wraps)
+> > 
+> > So a value of 0 would have the same effect.
+> > (0 - 2 == -2 vs 1 - 2 == -1) Yes?
+> 
+> Yes, it will. For GNU find.
+> 
+> But the reasoning for using nlink==1 is that that's how "all non-unix
+> filesystems" behaved, so applications out there could potentially check
+> for it. 
 
-Sep  4 19:38:14 dhcppc5 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Sep  4 19:38:14 dhcppc5 kernel:  printing eip:
-Sep  4 19:38:14 dhcppc5 kernel: 00000000
-Sep  4 19:38:14 dhcppc5 kernel: *pde = 00000000
-Sep  4 19:38:14 dhcppc5 kernel: Oops: 0000
-Sep  4 19:38:14 dhcppc5 kernel: CPU:    0
-Sep  4 19:38:14 dhcppc5 kernel: EIP:    0010:[<00000000>]    Not tainted
-Sep  4 19:38:14 dhcppc5 kernel: EFLAGS: 00010286
-Sep  4 19:38:14 dhcppc5 kernel: eax: 00000042   ebx: 000000fa   ecx: 80002054   edx: 00000cfe
-Sep  4 19:38:14 dhcppc5 kernel: esi: c02ef9f0   edi: 00000056   ebp: c02ef940   esp: e02abdb8
-Sep  4 19:38:14 dhcppc5 kernel: ds: 0018   es: 0018   ss: 0018
-Sep  4 19:38:14 dhcppc5 kernel: Process hdparm (pid: 2077, stackpage=e02ab000)
-Sep  4 19:38:14 dhcppc5 kernel: Stack: c0190cd9 c02ef9f0 000000fa 00000001 42000056 000000fa 00000000 00000056
-Sep  4 19:38:14 dhcppc5 kernel:        c253ac00 c01a210e c02ef9f0 00000042 e02abdf3 00000001 fa42be1c e02abe90
-Sep  4 19:38:14 dhcppc5 kernel:        e02abe90 c02ef9f0 e02abe1c c01939f7 c02ef9f0 00000042 00000004 42557540
-Sep  4 19:38:14 dhcppc5 kernel: Call Trace:    [<c0190cd9>] [<c01a210e>] [<c01939f7>] [<c01328c9>] [<c017088c>]
-Sep  4 19:38:14 dhcppc5 kernel:   [<c016d6d8>] [<c016cfec>] [<c0198122>] [<c016f18c>] [<c013f6a3>] [<c01462e6>]
-Sep  4 19:38:14 dhcppc5 kernel:   [<c01087a3>]
-Sep  4 19:38:14 dhcppc5 kernel:
-Sep  4 19:38:14 dhcppc5 kernel: Code:  Bad EIP value.
+But we aren't talking about filesystems with different ideas
+about directory linking.  We are talking about directories
+with an overflowed link-count.
 
-Here are some syslog messages.  I'm not in the mood to go retrieve
-the 2.4.20-pre5-ac1 dmesg, but will do it if asked.
+> > I know it is used for reporting purposes such as ls -l.  It
+> > would also used by archiving tools like cpio, tar and rsync
+> > to identify files that may be linked so that not every file
+> > must be checked against every previous file.  A smart
+> > archiving tool would track the link count and remove entries
+> > that have all links found so any value that isn't recognized
+> > as an overflow indicator would tend to break things.  I see
+> > the value of 0 as indicating "link count unsupported".
+> 
+> Hmm, yes. Values of 1 or NLINK_MAX would definitively confuse such
+> applications. But then again, so would a value of 0 unless they know
+> it's meaning.
 
-Under 2.4.20-pre5-ac1:
+The value of 1 can't be used for regular files because it
+would mean the file doesn't need checking for other links.
+Coding for NLINK_MAX would mean the apps would have to
+adjust every time NLINK_MAX changed.  Yes, it could be done
+through #define in stat.h.  It is a corner case right now
+but these apps could know that
 
-Sep  5 18:16:33 dhcppc5 kernel: Linux version 2.4.20-pre5-ac1 (root@dhcppc4) (gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #4 Sun Sep 1 22:06:11 PDT 2002
+	1 == no other links
+	>1 == known number of other links
+	0 == unknown number of other links
 
-Sep  5 18:16:41 dhcppc5 kernel: ALI15X3: IDE controller at PCI slot 00:04.0
-Sep  5 18:16:41 dhcppc5 kernel: PCI: No IRQ known for interrupt pin A of device 00:04.0. Please try using pci=biosirq.
-Sep  5 18:16:41 dhcppc5 kernel: ALI15X3: chipset revision 196
-Sep  5 18:16:41 dhcppc5 kernel: ALI15X3: not 100%% native mode: will probe irqs later
-Sep  5 18:16:41 dhcppc5 kernel: ALI15X3: simplex device with no drives: DMA disabled
-Sep  5 18:16:41 dhcppc5 kernel: ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
-Sep  5 18:16:41 dhcppc5 kernel: ALI15X3: simplex device with no drives: DMA disabled
-Sep  5 18:16:41 dhcppc5 kernel: ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+And the code would work on other systems with different or
+no overflow/limit.  So far as i know Linux is the only OS
+that is allowing the creation of more links than 32767.
+These apps are going to need to cope with this sooner or
+later.  Allowing nlinks to overflow st_nlink is going to
+break them.  Using 0 would mean that the application code to
+handle this corner case would simply never get invoked on
+other platforms without requiring build options.  Sure 1 is
+a red flag for directories (if you can spot it) but any
+value greater than 0 is potentially valid for files.
 
-Under 2.4.19:
-Sep  5 18:20:03 dhcppc5 kernel: Linux version 2.4.19 (root@dhcppc4) (gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #6 Sun Sep 1 22:07:45 PDT 2002
+That is why i lean toward 0.  It is a clear indication that
+the value is meaningless.  It also sticks out like a sore
+thumb.  If i do an ls -l and see 0 i will know i've got a
+reporting overflow without having to remember what the exact
+limit is.  This way i can do a 'find -links 0' and spot
+directories and files with more links than fit etc.  The
+application code to cope with it won't break or require
+special handling on other platforms.
 
-Sep  5 18:20:04 dhcppc5 kernel: ALI15X3: IDE controller on PCI bus 00 dev 20
-Sep  5 18:20:04 dhcppc5 kernel: PCI: No IRQ known for interrupt pin A of device 00:04.0. Please try using pci=biosirq.
-Sep  5 18:20:04 dhcppc5 kernel: ALI15X3: chipset revision 196
-Sep  5 18:20:04 dhcppc5 kernel: ALI15X3: not 100%% native mode: will probe irqs later
-Sep  5 18:20:04 dhcppc5 kernel:     ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:DMA
-Sep  5 18:20:04 dhcppc5 kernel:     ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:DMA
+So you see why i dislike NLINK_MAX and it just makes sens to me
+to use the same for files and directories.  Filesystems that
+don't support hardlinks have been stuffing 1 into st_nlink
+for both file and directories (treating them identically).
+I am essentially saying we should treat files and directories
+the same on overflow.  We just shouldn't use some value that
+in future could represent reality.  Hence 0.  So far i
+haven't heard any reason why not.
 
-00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4) (prog-if 8a [Master SecP PriP])
-        Subsystem: Acer Laboratories Inc. [ALi] M5229 IDE
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (500ns min, 1000ns max)
-        Interrupt: pin A routed to IRQ 0
-        Region 4: I/O ports at a000 [size=16]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+NOTE: 
+	Allowing the creation of links that exceed the capacity of
+	stat(2) to report will break utilities.  There should be a
+	system wide tunable that allows restricting link creation to
+	a maximum number until the tools catch up.  This tunable
+	would only affect link creation causing link(2) to set errno
+	to EMLINK.  A mount option might be OK too.
+	This limit should not affect pseudo filesystems like
+	proc or driverfs.
 
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
-        Subsystem: Acer Laboratories Inc. [ALi] ALI M1533 Aladdin IV ISA Bridge
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-
+		Remember Cernan and Schmitt

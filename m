@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUAWSKA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 13:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUAWSKA
+	id S265263AbUAWSKN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 13:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266614AbUAWSKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 13:10:00 -0500
-Received: from prin.lo2.opole.pl ([213.77.100.98]:35597 "EHLO
-	prin.lo2.opole.pl") by vger.kernel.org with ESMTP id S262902AbUAWSJ7
+	Fri, 23 Jan 2004 13:10:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27568 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265263AbUAWSKL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 13:09:59 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Userland headers available
-Date: Fri, 23 Jan 2004 19:07:17 +0100
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8bit
+	Fri, 23 Jan 2004 13:10:11 -0500
+Date: Fri, 23 Jan 2004 18:10:04 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       Patrick Mochel <mochel@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
+Message-ID: <20040123181004.GJ21151@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0401230939170.2151@home.osdl.org> <Pine.LNX.4.44L0.0401231248510.856-100000@ida.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401231907.17802.mmazur@kernel.pl>
+In-Reply-To: <Pine.LNX.4.44L0.0401231248510.856-100000@ida.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At http://ep09.pld-linux.org/~mmazur/glibc-kernel-headers/ there are userland 
-headers for linux, derived from 2.6 kernels with lots of 2.4 compatibility 
-fixes. CVS repo can be found at cvs.pld-linux.org/glibc-kernel-headers (anon 
-and webcvs). These headers are currently used to compile a whole linux distro 
-(ftp.pld-linux.org/dists/ac) for x86, sparc, amd64, alpha and ppc, but 
-general fixes are applied to all archs since we never know if a new arch 
-won't be added (amd64 was added just a month-two ago). #1 feature is that 
-they are and will be maintained (currently three people are working on them) 
-and bugs are mostly fixed instantly. Enjoy.
+On Fri, Jan 23, 2004 at 01:03:33PM -0500, Alan Stern wrote:
+> The general context is that a module is trying to unload, but it can't
+> until the release() callback for its device has finished.
 
-
--- 
-Ka¿dy cz³owiek, który naprawdê ¿yje, nie ma charakteru, nie mo¿e go mieæ.
-Charakter jest zawsze martwy, otacza ciê zgni³a struktura przeniesiona z 
-przesz³o¶ci. Je¿eli dzia³asz zgodnie z charakterem wtedy nie dzia³asz w ogóle
-- jedynie mechanicznie reagujesz.                 { Osho }
+... and if I redirect rmmod stdin from sysfs, we get what?  Exactly.

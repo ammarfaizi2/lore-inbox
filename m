@@ -1,80 +1,207 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265913AbTFVVXT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 17:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265926AbTFVVXT
+	id S265897AbTFVVWS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 17:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265901AbTFVVWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 17:23:19 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:7165 "EHLO
-	sccrmhc12.attbi.com") by vger.kernel.org with ESMTP id S265913AbTFVVXJ
+	Sun, 22 Jun 2003 17:22:18 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:35457 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265897AbTFVVWO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 17:23:09 -0400
-Message-ID: <3EF62189.1020105@mvista.com>
-Date: Sun, 22 Jun 2003 16:37:13 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Sun, 22 Jun 2003 17:22:14 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH] sleep_decay for interactivity 2.5.72 - testers  needed
+Date: Mon, 23 Jun 2003 07:37:17 +1000
+User-Agent: KMail/1.5.2
+Cc: Andreas Boman <aboman@midgaard.us>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>
+References: <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net> <1056298486.601.25.camel@teapot.felipe-alfaro.com> <200306230724.39194.kernel@kolivas.org>
+In-Reply-To: <200306230724.39194.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>, Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Corey Minyard <minyard@mvista.com>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [2.4 patch] fix IPMI compile with new ACPI
-References: <20030621235417.GH23337@fs.tum.de>
-In-Reply-To: <20030621235417.GH23337@fs.tum.de>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_NGi9+hSIuXq7DnK"
+Message-Id: <200306230737.17766.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cool, they've fixed the ACPI stuff.  It looks good, please apply.
 
--Corey
+--Boundary-00=_NGi9+hSIuXq7DnK
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Adrian Bunk wrote:
+On Mon, 23 Jun 2003 07:24, Con Kolivas wrote:
+> On Mon, 23 Jun 2003 02:14, Felipe Alfaro Solana wrote:
+> > On Sun, 2003-06-22 at 17:58, Con Kolivas wrote:
+> > > On Mon, 23 Jun 2003 01:40, Felipe Alfaro Solana wrote:
+> > > > On Sun, 2003-06-22 at 15:45, Con Kolivas wrote:
+> > > > > > Feel free to test it and comment. Things to look for - the
+> > > > > > dreaded audio skip under load, and X remaining interactive duri=
+ng
+> > > > > > sustained use under load.
+> > > >
+> > > > I must say this seems to be getting better, but I still prefer Mike=
+'s
+> > > > patches. With the latest sleep decay patch and 2.5.72-mm3, I can
+> > > > still easily starve XMMS audio for a long time (~5 seconds) on my
+> > > > 700Mhz Pentium III lapto=F1 (running RHL9 and KDE 3.1.2) simply by
+> > > > running "while true; do a=3D2; done" on a konsole window. Dragging a
+> > > > window fast enough also starves XMMS for ~5 seconds just until the
+> > > > scheduler adjusts the priorities.
+> > > >
+> > > > XMMS is running with an effective priority of 15 (that's what top
+> > > > says). "while true; do a=3D2; done" starts with a priority of 15 (w=
+hich
+> > > > causes XMMS to stop playing sound), then it is detected as a CPU hog
+> > > > and every second its priority is increased by one. When its priority
+> > > > reaches 20, XMMS starts playing again.
+> > > >
+> > > > When I move windows around fast enough. the X server starts with a
+> > > > priority of 15, starving XMMS. If I keep moving windows around for a
+> > > > long time, X's priority starts increasing by one, until it reaches
+> > > > 20. At this moment, it stops disturbing XMMS audio playback.
+> > > >
+> > > > I've been playing with scheduler parameters, mainly by reducing
+> > > > MAX_SLEEP_AVG to (HZ) and STARVATION_LIMIT to (HZ). This seems to
+> > > > help a lot, although I can still make XMMS skip sound every once a
+> > > > bit. However, mplayer is a really hard one: I have been unable to
+> > > > make it skip sound yet.
+> > >
+> > > Yes Mike's patches are definitely better. My patches are designed for
+> > > the 2.4-ck patchset which has other workarounds that augment this
+> > > patch; however these workarounds are harder to stomach for mainstream
+> > > kernels (read nasty hacks). I thought I'd offer the not so nasty
+> > > sleep_decay patch in 2.5 form for perusal and comments since people a=
+re
+> > > more willing to test 2.5 patches.
+> >
+> > Well, it's nice to know.
+> > I'm willing to test nearly any 2.5 patch. So, I'll gladly test any other
+> > ideas or patches you (or others) might have.
+>
+> ANY?
+>
+> Ok well I guess I have to give away my secret then. This is the change th=
+at
+> turns 2.5 into a desktop kernel. Note the very slight change to Ingo's
+> addon ;-)
 
->The patch below fixes the compilation of ipmi_kcs_intf.c in 2.4.22-pre1.
->
->The changes are:
->- remove two now unneeded includes (since the files moved there was a 
->  compile error, but they are indirectly included via linux/acpi.h)
->- remove unneeded COMPILER_DEPENDENT_UINT64; besides that it's
->  unneeded it was wrong on 32 bit architectures
->- s/acpi_table_header/struct acpi_table_header/
->
->-ac contains a similar patch that differs because it also adds 
->#include's for acpi/acpi.h and acpi/actypes.h (indirectly included via 
->linux/acpi.h).
->
->cu
->Adrian
->
->--- linux-2.4.22-pre1-full/drivers/char/ipmi/ipmi_kcs_intf.c.old	2003-06-22 01:28:28.000000000 +0200
->+++ linux-2.4.22-pre1-full/drivers/char/ipmi/ipmi_kcs_intf.c	2003-06-22 01:40:12.000000000 +0200
->@@ -1031,10 +1031,6 @@
->    from Hewlett-Packard simple bmc.c, a GPL KCS driver. */
-> 
-> #include <linux/acpi.h>
->-/* A real hack, but everything's not there yet in 2.4. */
->-#define COMPILER_DEPENDENT_UINT64 unsigned long
->-#include <../drivers/acpi/include/acpi.h>
->-#include <../drivers/acpi/include/actypes.h>
-> 
-> struct SPMITable {
-> 	s8	Signature[4];
->@@ -1059,7 +1055,7 @@
-> static unsigned long acpi_find_bmc(void)
-> {
-> 	acpi_status       status;
->-	acpi_table_header *spmi;
->+	struct acpi_table_header *spmi;
-> 	static unsigned long io_base = 0;
-> 
-> 	if (io_base != 0)
->
->
->  
->
+Damn did it again.
+Here's the real one.
 
+--Boundary-00=_NGi9+hSIuXq7DnK
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="patch-o1int-9396230736"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-o1int-9396230736"
+
+diff -Naurp linux-2.5.72/include/linux/sched.h linux-2.5.72-test/include/linux/sched.h
+--- linux-2.5.72/include/linux/sched.h	2003-06-18 22:47:19.000000000 +1000
++++ linux-2.5.72-test/include/linux/sched.h	2003-06-19 20:56:18.000000000 +1000
+@@ -332,6 +332,7 @@ struct task_struct {
+ 
+ 	unsigned long sleep_avg;
+ 	unsigned long last_run;
++	unsigned long best_sleep_avg;
+ 
+ 	unsigned long policy;
+ 	unsigned long cpus_allowed;
+--- linux-2.5.72/kernel/sched.c	2003-06-18 22:47:25.000000000 +1000
++++ linux-2.5.72-test/kernel/sched.c	2003-06-23 07:21:07.000000000 +1000
+@@ -72,7 +72,8 @@
+ #define EXIT_WEIGHT		3
+ #define PRIO_BONUS_RATIO	25
+ #define INTERACTIVE_DELTA	2
+-#define MAX_SLEEP_AVG		(10*HZ)
++#define MAX_SLEEP_AVG		(2 * HZ)
++#define BEST_SLEEP_DECAY	(10)
+ #define STARVATION_LIMIT	(10*HZ)
+ #define NODE_THRESHOLD		125
+ 
+@@ -313,12 +314,22 @@ static inline void enqueue_task(struct t
+  */
+ static int effective_prio(task_t *p)
+ {
+-	int bonus, prio;
++	int bonus, prio, neg_flag = 1, scale = MAX_SLEEP_AVG / 2;
+ 
+ 	if (rt_task(p))
+ 		return p->prio;
+ 
+-	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/MAX_SLEEP_AVG/100 -
++	bonus = p->best_sleep_avg/BEST_SLEEP_DECAY;
++	if (bonus > MAX_SLEEP_AVG) bonus = MAX_SLEEP_AVG;
++
++	bonus -= scale;
++	if (bonus < 0) neg_flag = -1;
++	bonus *= bonus;
++	bonus /= scale;
++	bonus *= neg_flag;
++	bonus += scale;
++
++	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*bonus/MAX_SLEEP_AVG/100 -
+ 			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
+ 
+ 	prio = p->static_prio - bonus;
+@@ -371,6 +382,8 @@ static inline void activate_task(task_t 
+ 			sleep_avg = MAX_SLEEP_AVG;
+ 		if (p->sleep_avg != sleep_avg) {
+ 			p->sleep_avg = sleep_avg;
++			if ((sleep_avg * BEST_SLEEP_DECAY) > p->best_sleep_avg)
++				p->best_sleep_avg = sleep_avg * (BEST_SLEEP_DECAY + 1) - 1;
+ 			p->prio = effective_prio(p);
+ 		}
+ 	}
+@@ -551,6 +564,7 @@ void wake_up_forked_process(task_t * p)
+ 	 */
+ 	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
+ 	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
++	p->best_sleep_avg = p->sleep_avg * (BEST_SLEEP_DECAY + 1) - 1;
+ 	p->prio = effective_prio(p);
+ 	set_task_cpu(p, smp_processor_id());
+ 
+@@ -1200,6 +1214,8 @@ void scheduler_tick(int user_ticks, int 
+ 	 */
+ 	if (p->sleep_avg)
+ 		p->sleep_avg--;
++	if (p->best_sleep_avg)
++		p->best_sleep_avg--;
+ 	if (unlikely(rt_task(p))) {
+ 		/*
+ 		 * RR tasks need a special form of timeslice management.
+@@ -1229,6 +1245,27 @@ void scheduler_tick(int user_ticks, int 
+ 			enqueue_task(p, rq->expired);
+ 		} else
+ 			enqueue_task(p, rq->active);
++	} else {
++		/*
++		 * Prevent a too long timeslice allowing a task to monopolize
++		 * the CPU. We do this by splitting up the timeslice into
++		 * smaller pieces.
++		 *
++		 * Note: this does not mean the task's timeslices expire or
++		 * get lost in any way, they just might be preempted by
++		 * another task of equal priority. (one with higher
++		 * priority would have preempted this task already.) We
++		 * requeue this task to the end of the list on this priority
++		 * level, which is in essence a round-robin of tasks with
++		 * equal priority.
++		 */
++		if (!(p->time_slice % MIN_TIMESLICE) &&
++			       		(p->array == rq->active)) {
++			dequeue_task(p, rq->active);
++			set_tsk_need_resched(p);
++			p->prio = effective_prio(p);
++			enqueue_task(p, rq->active);
++		}
+ 	}
+ out_unlock:
+ 	spin_unlock(&rq->lock);
+
+--Boundary-00=_NGi9+hSIuXq7DnK--
 

@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281893AbRKZPjM>; Mon, 26 Nov 2001 10:39:12 -0500
+	id <S281835AbRKZPoM>; Mon, 26 Nov 2001 10:44:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281835AbRKZPjC>; Mon, 26 Nov 2001 10:39:02 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:12819 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S281842AbRKZPiw>; Mon, 26 Nov 2001 10:38:52 -0500
-Date: Mon, 26 Nov 2001 07:38:55 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <vwbshp3fdx.fsf@akrulino.lkpg.cendio.se>
-Message-ID: <Pine.LNX.4.33.0111260730270.17309-100000@shell1.aracnet.com>
+	id <S281842AbRKZPoC>; Mon, 26 Nov 2001 10:44:02 -0500
+Received: from abasin.nj.nec.com ([138.15.150.16]:1800 "HELO abasin.nj.nec.com")
+	by vger.kernel.org with SMTP id <S281835AbRKZPnn>;
+	Mon, 26 Nov 2001 10:43:43 -0500
+From: Sven Heinicke <sven@research.nj.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15362.25385.224210.438095@abasin.nj.nec.com>
+Date: Mon, 26 Nov 2001 10:43:37 -0500 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: Oops 2.4.15-pre1aa1
+In-Reply-To: <20011116132520.A6204@lucon.org>
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Nov 2001, Martin Persson wrote:
 
-> I must say I'm seriously annoyed with the 2.4-tree so far. As far as
-> I'm concerned, 2.4 were obviously released too eary (or maybe the
-> 2.5-tree should have been opened earlier so we wouldn't had this
-> VM-mess in the "stable" release). I'm not so annoyed for my own part
-> (I've mainly stayed on the 2.2 and will stay there until 2.4 looks
-> sane), but for a friend of mine.
+I came back from my Turkey Day weekend to the following, hand copied
+but I beleive it is accurate:
 
-[snip]
+__alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x70/0)
+Unable to handle kernel paging request at virtual address 3cdd5c20
+  Printing eip:
+*pde=00000000
+Oops: 0000
+CPU: 0
+EIP: 0010:[<c01126f8>] Not tainted
+EFLAGS: 00010046
+eax: 00000000 ebx: 3cdd5c20 ecx: 00000000 edx: 3cdd5c20
+esi: 20268f25 edi: c027e000 edp: df065de8 esp: df065dc0
+Process mcrawler (pid: 26574, stockpage=df065000)
+Stack: 00000268 d1b3eec0 c0204468 df064000 fffffc18 00000000 df064000 7fffffff
+       e3c13434 df064000 df065e18 c0112447 dba078e0 c01e7e67 dba078e0 00000000
+       c01eb6f2 d6a078e0 e3c13400 00000246 e3c13434 e3c13434 c02ed300 c01fd05f
+Call Trace: [<c0204468>][<c0112447>][<c01e7e67>][<c01e7e67>][<c01eb6f2>][<c01fd05f>]
+  [<c01fd6cf>][<c02160c9>][<c01e4b31>][<c01292fc>][<c01e4c48>][<c0134d76>]
 
-> I must say that he really tried. He forsaked much of his spare time to
-> learn Linux and he learned a lot rather fast, but when a deadline on
-> one of his projects crept too close and he still didn't have a working
-> computer, he finally despaired and we lost him back to Windows XP.
+  [<c0134bc9>][<c0106f1b>]
+Code: 8b 02 89 c3 0f 18 03 81 fa 60 8f 26 c0 0f 85 6a ff ff ff 8b
 
-Yes. I bought an Athlon with top-of-the-line video and sound cards for
-multimedia work. I *still* don't have a Linux driver for either the 3D or
-the sound card, so I'm dual-booting with Windows 2000. Alsa is garbage -- they
-"have a driver" for my sound card but the documentation -- what little there
-is -- is incomprehensible. I even bought the OSS/Linux drivers, but they are
-closed source and the documentation isn't much better. I sent e-mail to the
-vendor who told me RTFM. I haven't even tried to deal with the video issues.
---
-znmeb@aracnet.com (M. Edward Borasky) http://www.meta-trading-coach.com
-Relax! Run Your Own Brain with Neuro-Semantics!
+This system has 4G of memory and two processors.  It was booted on
+November 12th at about 10am and lasted until November 26 at about 5am.
+I was usinmg the aa kernel as the vanilla kernel was freezing up the
+system often with no Oops, and it provided some unwanted swapping.
+The vanilla kernel never lasted more then a few days.
 
-How to Stop A Folksinger Cold # 4
-"Tie me kangaroo down, sport..."
-Tie your own kangaroo down -- and stop calling me "sport"!
+The syslog shows:
 
+Nov 15 16:04:44 ps1 kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Nov 15 16:04:44 ps1 kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Nov 15 16:04:44 ps1 kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/0)
+
+but it lasted happily for days after that with nothing to report.  The
+mcrawler program is a inhouse program that does lots of network IO and
+a good about of disk IO.  It was running for like 5 days when the
+system crashed.
+
+I just upgraded to 2.4.15-pre9aa1.  Is there a better kernel to try?
+Might any more information be helpful.
+
+  Sven

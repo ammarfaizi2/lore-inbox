@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVBOW6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVBOW6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVBOW6u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 17:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVBOW5c
+	id S261936AbVBOW6v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 17:58:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVBOW5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 17:57:32 -0500
-Received: from colin2.muc.de ([193.149.48.15]:32014 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261930AbVBOWz2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 17:55:28 -0500
-Date: 15 Feb 2005 23:55:27 +0100
-Date: Tue, 15 Feb 2005 23:55:27 +0100
-From: Andi Kleen <ak@muc.de>
-To: YhLu <YhLu@tyan.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X86_64 kernel support MAX memory.
-Message-ID: <20050215225527.GB87835@muc.de>
-References: <3174569B9743D511922F00A0C94314230808586B@TYANWEB>
+	Tue, 15 Feb 2005 17:57:04 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:15028
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261936AbVBOW4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 17:56:47 -0500
+Date: Tue, 15 Feb 2005 14:53:48 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: mirko.parthey@informatik.tu-chemnitz.de, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org, shemminger@osdl.org
+Subject: Re: [IPSEC] Move dst->child loop from dst_ifdown to xfrm_dst_ifdown
+Message-Id: <20050215145348.36ed3508.davem@davemloft.net>
+In-Reply-To: <20050208013140.GB30659@gondor.apana.org.au>
+References: <20050131162201.GA1000@stilzchen.informatik.tu-chemnitz.de>
+	<20050205052407.GA17266@gondor.apana.org.au>
+	<20050204213813.4bd642ad.davem@davemloft.net>
+	<20050205061110.GA18275@gondor.apana.org.au>
+	<20050204221344.247548cb.davem@davemloft.net>
+	<20050205064643.GA29758@gondor.apana.org.au>
+	<20050205201044.1b95f4e8.davem@davemloft.net>
+	<20050206065117.GC16057@gondor.apana.org.au>
+	<20050208012929.GA30659@gondor.apana.org.au>
+	<20050208013140.GB30659@gondor.apana.org.au>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3174569B9743D511922F00A0C94314230808586B@TYANWEB>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 02:57:14PM -0800, YhLu wrote:
-> It passed the memtest86+ 3.1a
+On Tue, 8 Feb 2005 12:31:40 +1100
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
-Are you sure it even tests the full 128GB? Traditionally PAE only
-supports 64GB. 
-
+> On Tue, Feb 08, 2005 at 12:29:29PM +1100, herbert wrote:
+> > 
+> > This one moves the dst->child processing from dst_ifdown into
+> > xfrm_dst_ifdown.
 > 
-> No oops dump, it just restart the system.
+> This patch adds a net_device argument to ifdown.  After all,
+> it's a bit silly to notify someone of an ifdown event without
+> telling them what which device it was for :)
+> 
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-At what point exactly? You probably have a serial
-console. What are the last lines.
-
-That could well be an ECC error. You can see if mcelog
-logs something after reboot (kernel should preserve 
-machine check events) 
-
-Or you could switch around the DIMMs of the CPUs for 
-testing.
-
--Andi
+Ok, I'm going to try and get these two patches into 2.6.11

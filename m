@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314555AbSD0Bye>; Fri, 26 Apr 2002 21:54:34 -0400
+	id <S314557AbSD0CHa>; Fri, 26 Apr 2002 22:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314556AbSD0Byd>; Fri, 26 Apr 2002 21:54:33 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:25614 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S314555AbSD0Byd>; Fri, 26 Apr 2002 21:54:33 -0400
-Message-ID: <3CCA04C8.4080506@lexus.com>
-Date: Fri, 26 Apr 2002 18:54:16 -0700
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020426
-X-Accept-Language: en-us, en
+	id <S314558AbSD0CH3>; Fri, 26 Apr 2002 22:07:29 -0400
+Received: from web10406.mail.yahoo.com ([216.136.130.98]:37125 "HELO
+	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314557AbSD0CH2>; Fri, 26 Apr 2002 22:07:28 -0400
+Message-ID: <20020427020728.18534.qmail@web10406.mail.yahoo.com>
+Date: Sat, 27 Apr 2002 12:07:28 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: UFS in 2.4.19-pre
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>
-CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre kernels leaking memory? How to debug?
-In-Reply-To: <Pine.LNX.4.44.0204261430260.4360-100000@mustard.heime.net> <3CC9F347.6010301@wanadoo.fr>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same here, it's been fairly solid -
 
-Even better though is 2.4.19-pre7-ac2 with the
-preempt patch and the mini low latency patch.
+Hi,
 
-Joe
+I can not mount a working free bsd file system, with
+2.4.19-pre2 and 2.4.19-pre4-ac4  not sure for other
+version.
 
-François Cami wrote:
+#mount -t ufs /dev/hda6 /mnt/disk/
+mount: wrong fs type, bad option, bad superblock on
+/dev/hda6,  or too many mounted file systems
 
-> Roy Sigurd Karlsbakk wrote:
->
->> hi
->>
->> How can I check if my theory about 2.4.19-pre-kernels are leaking 
->> memory? After upgrading from 2.4.17-something, my computer chrashes, 
->> wildswapping, after some time. Quite short too.
->>
->> roy
->>
->
-> i've ran 2.4.19pre7 for 10 days straight, never had a crash...
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Run fdisk
+
+Disk /dev/hda: 255 heads, 63 sectors, 1245 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id 
+System
+/dev/hda1             1         9     72261   82 
+Linux swap
+/dev/hda2   *        10       227   1751085    b 
+Win95 FAT32
+/dev/hda3           228       355   1028160   83 
+Linux
+/dev/hda4           356      1245   7148925   a5 
+BSD/386
+
+Command (m for help):
+I tried all mount options, ro, ufstype=44bsd  etc  but
+all I got is the same messaage
+
+did anyone see it before? What should I do to read
+from this partition from Linux, as u can see this is
+the bigest one, and I dont want to delete the whole
+freebsd by now, at least until they (freebsd people)
+have fixes the i810 audio driver so I can test again.
+At the moment I have to boot freebsd to transfer files
+from ext2 between...
+
+Thanks in advance.
 
 
+=====
+Steve Kieu
+
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- A great way to communicate long-distance for FREE!

@@ -1,56 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261532AbSJMPTd>; Sun, 13 Oct 2002 11:19:33 -0400
+	id <S261537AbSJMPaE>; Sun, 13 Oct 2002 11:30:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261535AbSJMPTd>; Sun, 13 Oct 2002 11:19:33 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:18158 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261532AbSJMPTc>; Sun, 13 Oct 2002 11:19:32 -0400
-Message-ID: <20021013152510.13283.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
+	id <S261539AbSJMPaE>; Sun, 13 Oct 2002 11:30:04 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:22792 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261537AbSJMPaD>; Sun, 13 Oct 2002 11:30:03 -0400
+Date: Sun, 13 Oct 2002 16:35:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: Linux v2.5.42
+Message-ID: <20021013163551.A18184@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michael Clark <michael@metaparadigm.com>,
+	Mark Peloquin <markpeloquin@hotmail.com>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+	evms-devel@lists.sourceforge.net
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com> <3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org> <3DA98E48.9000001@metaparadigm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Sun, 13 Oct 2002 23:25:10 +0800
-Subject: Re:Benchmark results from resp1 trivial response time test
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DA98E48.9000001@metaparadigm.com>; from michael@metaparadigm.com on Sun, Oct 13, 2002 at 11:16:24PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bill Davidsen <davidsen@tmr.com>
-> On Sun, 13 Oct 2002, Paolo Ciarrocchi wrote:
+On Sun, Oct 13, 2002 at 11:16:24PM +0800, Michael Clark wrote:
+> On 10/13/02 21:49, Christoph Hellwig wrote:
+> > On Sun, Oct 13, 2002 at 08:41:20PM +0800, Michael Clark wrote:
+> > 
+> >>Exactly. I think Christoph is comparing it to the original md
+> >>architecture thich was more of an evolutionary design on the existing
+> >>block layer
+> > 
+> > 
+> > No, I do not.  MD is in _no_ ways a volume managment framwork but just
+> > a few drivers that share common code.  That's somethig entirely different.
 > 
-> > Hi David,
->   thanks for the quick results, but it's Bill...
-Ops... sorry ;-)
- 
-> > I think your benchmark is very intersting.
-> > Here goes my results:
+> So why then the requirement that internal remapping layers be
+> implemented as block devices?
+
+I don't care how a single remapping layers is implemented.  I want
+the common Voulme managment API work on public nodes.
+
+> Neither is implementing an internal logical remapping layer as a
+> block device just so you can do an ioctl directly to it.
+
+Not without hacks. 
+
+> I think the point is really explaining why they _should_ be accessed.
+> If there is some valid reason other than having something you
+> can do an ioctl on.
+
+Because that
+
+a) removes hacks like the EVMS pass-though
+b) allows userspace to easily access it through read/write
+
 > 
-> > It seems that 2.5.42-mm2 is the "winner".
+> > argumentation tell me why you haven't submitted a patch to Linus
+> > yet to disallow direct access to block devices that are in use
+> > by a filesystem.
 > 
-> > Comments ?
+> I think the issue here is an md block device in use by another md block
+> device. Possbily becuase md's design precludes this (a design artifact)
+> (ie. md tools need access to the intermediary devices - users don't).
+
+I'm not talksing about MD here.  Why do you want to disallow people
+using a device just it has another layer above it.  E.g. write a change
+to the ondisk structures (setting a flag, etcc..) is most logically
+expressed by simple, O_DIRECT write to the actual device.
+
+
+> Yes, but the block device encapsulation here removes the need for plugins
+> to be implemented as block devices ie. removing complexity elsewhere.
+> I must admit to not being an expert on the block layer - but wouldn't
+> your suggesed approach mean intermediary layers would each have a
+> request queue
+
+It _coukd_ have a request queue, yes.
+
+> and other unneeded stuff - if so, is this desirable?
+
+What unneeded stuff?  block device state contains no state relevant
+to userspace access.
+
+> > This argument is NIL if the infrastructure is part of exactly that
+> > evolving block layer.  You might have noticed that kernel code
+> > compatility to other releases is not really a criteria for the
+> > linux kernel development, btw..
 > 
-> This mirrors my results, which is encouraging. The -mm2 patch seems to
-> improve performance under write pressure quite a bit. I am attaching Con
-> Kolivas' patch to 41-mm2 in case you missed it, as you can note from the
-> results on the website, it improves things beyond -mm2. If you decide to
-> run this version I'd like to see the result. I believe I had to use the
-> "-l" patch option to ignore blank mismatches to get this to work, and I've
-> cleaned up another mailing funny as well. 
+> I agree, maybe this would be worth doing for 2.7/2.8.
 
-Ok, thanks for the patch. 
-I try it and I back with the result.
+Yes.
 
-Ciao,
-         Paolo
--- 
-Get your free email from www.linuxmail.org 
+> In the meatime
+> do you think this would be feasible? - you are basically suggesting
+> a complete rewrite
 
+Exactly.
 
-Powered by Outblaze
+> (or do you think you can do the rewrite to IBM's
+> satisfaction before the freeze ie. in the eternal linux kernel way,
+> you want it you write it ;). Me, i'm happy with the current approach
+> - but of course, i'm only a user ;).
+
+_I_ don't want to get EVMS in, sorry.  I _do_ want a proper volume
+managment framework, but I can live with it not beeing in before 2.8.
+

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310929AbSCTAaQ>; Tue, 19 Mar 2002 19:30:16 -0500
+	id <S292866AbSCTAfq>; Tue, 19 Mar 2002 19:35:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310943AbSCTAaG>; Tue, 19 Mar 2002 19:30:06 -0500
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:17145 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S310929AbSCTA3v>; Tue, 19 Mar 2002 19:29:51 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 19 Mar 2002 13:35:09 -0700
-To: yodaiken@fsmlabs.com
-Cc: Rik van Riel <riel@conectiva.com.br>, lm@bitmover.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper licence issues
-Message-ID: <20020319203509.GV470@turbolinux.com>
-Mail-Followup-To: yodaiken@fsmlabs.com,
-	Rik van Riel <riel@conectiva.com.br>, lm@bitmover.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020319163155.A25986@hq.fsmlabs.com> <Pine.LNX.4.10.10203191605190.23878-100000@www.transvirtual.com>
+	id <S293131AbSCTAfh>; Tue, 19 Mar 2002 19:35:37 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:52421 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S292866AbSCTAfX>; Tue, 19 Mar 2002 19:35:23 -0500
+Date: Tue, 19 Mar 2002 18:34:20 -0600
+From: Ken Brownfield <ken@irridia.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I/O APIC fixed in 2.4.19-pre3 & 2.5.6 (was Re: Linux 2.4.19-pre3)
+Message-ID: <20020319183420.A15811@asooo.flowerfire.com>
+In-Reply-To: <20020318204106.A24611@asooo.flowerfire.com> <Pine.LNX.3.96.1020319111636.1772A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Victor Yodaiken wrote:
-> On Tue, Mar 19, 2002 at 08:08:24PM -0300, Rik van Riel wrote:
-> > > On Tue, 19 Mar 2002, Alan Cox wrote:
-> > 
-> > > Hans Reiser's team of Russian wizards is simply a couple of years ahead
-> > > of everyone else moving all real software development to the czech
-> > > republic and india,
-> > 
-> > Hey, don't forget about Brazil ;)
-> 
-> Or New Mexico. Third world software development wins again!  
+If noapic doesn't fix your problem, the I/O APIC patch won't help
+unfortunately, AFAIK.  Are these solid system-wide lockups not
+attributable to a binary-only X driver? ;)
 
-Hmm, at my former job (office in Santa Fe, NM) I found that everything
-was considerably more expensive than here in Calgary, Canada.  The worst
-was high-speed internet - DSL from Qwest is absurdly expensive (i.e.
-U$1000 setup + U$100 or more monthly) and takes a long time to get.
-In Calgary there is both high speed cable and ADSL for C$40 a month,
-has free setup, and one month free to start.  The lousy Canadian dollar
-is finally good for _something_.
+-- 
+Ken.
+ken@irridia.com
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+On Tue, Mar 19, 2002 at 11:22:44AM -0500, Bill Davidsen wrote:
+|   Any chance this will cure the lockups on a Dell Latitude C600 every time
+| you exit X? I've disabled both the IO-APIC and APIC-uni, which was
+| supposed to fix the problem but didn't. Dare I hope that the disable
+| wasn't enough?
+| 
+|   A quick google tells me other people have the same problem, but I
+| haven't seen a working solution yet. Nice machine other than needing to be
+| rebooted after every use of X :-(
+| 
+| -- 
+| bill davidsen <davidsen@tmr.com>
+|   CTO, TMR Associates, Inc
+| Doing interesting things with little computers since 1979.
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269160AbUIHOOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUIHORl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269160AbUIHOOS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 10:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUIHOHV
+	id S267615AbUIHORl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 10:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269156AbUIHOO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 10:07:21 -0400
-Received: from cantor.suse.de ([195.135.220.2]:55681 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269168AbUIHODX (ORCPT
+	Wed, 8 Sep 2004 10:14:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13278 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268345AbUIHOJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 10:03:23 -0400
-Date: Wed, 8 Sep 2004 16:03:23 +0200
-From: Olaf Hering <olh@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CONFIG_CMDLINE broken on ppc
-Message-ID: <20040908140323.GA15309@suse.de>
-References: <20040908134028.GB15209@suse.de> <20040908135211.GA26381@smtp.west.cox.net>
+	Wed, 8 Sep 2004 10:09:56 -0400
+Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Scott Wood <scott@timesys.com>
+In-Reply-To: <Pine.LNX.4.53.0409080938470.15087@montezuma.fsmlabs.com>
+References: <20040908120613.GA16916@elte.hu>
+	 <20040908133445.A31267@infradead.org> <20040908124547.GA19231@elte.hu>
+	 <20040908125755.GC3106@holomorphy.com>
+	 <Pine.LNX.4.53.0409080932050.15087@montezuma.fsmlabs.com>
+	 <20040908143143.A32002@infradead.org>
+	 <Pine.LNX.4.53.0409080938470.15087@montezuma.fsmlabs.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gcVs7A8O3Ng80AoI0fr4"
+Organization: Red Hat UK
+Message-Id: <1094652572.2800.14.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040908135211.GA26381@smtp.west.cox.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 08 Sep 2004 16:09:32 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Sep 08, Tom Rini wrote:
 
-> On Wed, Sep 08, 2004 at 03:40:28PM +0200, Olaf Hering wrote:
-> 
-> > CONFIG_CMDLINE can not work on ppc.
-> > machine_init() copies the string to cmd_line, then platform_init() is
-> > called. It truncates the string to length zero.
-> 
-> This has come up before, actually.  What happens if CMDLINE isn't set,
-> and we don't terminate cmd_line here?  It's part of the BSS and is
-> zero'd out anyways?
+--=-gcVs7A8O3Ng80AoI0fr4
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-strlcpy generates a null-terminated string, if size != 0. Looks like
-that line can go. Or move it at the start of machine_init().
+On Wed, 2004-09-08 at 15:47, Zwane Mwaikambo wrote:
+> On Wed, 8 Sep 2004, Christoph Hellwig wrote:
+>=20
+> > On Wed, Sep 08, 2004 at 09:34:03AM -0400, Zwane Mwaikambo wrote:
+> > > Hmm, whenever i've brought up weak functions in a patch it's never we=
+ll=20
+> > > received. Frankly i prefer it to littering the architectures with sim=
+ilar=20
+> > > functions.
+> >=20
+> > That's what we have asm-generic for.
+>=20
+> So you have an inline function in a header and include it everywhere? How=
+=20
+> is that better?
 
--- 
-USB is for mice, FireWire is for men!
+the thing is, now with the config option, you don't need the generic_
+wrapper thing, just use the full real name. And the prototypes can be
+generic for the arch's that want it.
 
-sUse lINUX ag, nÜRNBERG
+
+--=-gcVs7A8O3Ng80AoI0fr4
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBPxKcxULwo51rQBIRAufOAJwMdn015A9rR30F3HRXEPNPQL5sBwCeJCwr
+l+mRl1OgekLAgAossLPHAzA=
+=x2mW
+-----END PGP SIGNATURE-----
+
+--=-gcVs7A8O3Ng80AoI0fr4--
+

@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVAJSML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVAJSQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbVAJSML (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVAJSMC
+	id S262419AbVAJSQA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbVAJSPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:12:02 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:18911 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262400AbVAJSJI (ORCPT
+	Mon, 10 Jan 2005 13:15:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41138 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262409AbVAJSNO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:09:08 -0500
-Subject: [PATCH 5/6] 2.4.19-rc1 rpc_call_sync() stack reduction patch
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com>
-References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-SxTOT5E8wy/ZlsK93zU/"
-Organization: 
-Message-Id: <1105378897.4000.144.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jan 2005 09:41:37 -0800
+	Mon, 10 Jan 2005 13:13:14 -0500
+Date: Mon, 10 Jan 2005 10:13:07 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
+In-Reply-To: <Pine.LNX.4.58.0501100915200.19135@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0501101004230.2373@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0501100915200.19135@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-SxTOT5E8wy/ZlsK93zU/
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
+On Mon, 10 Jan 2005, Christoph Lameter wrote:
+>
+> Yes. Right my ia64 centric vision got me again. Thanks for all the other
+> patches that were posted. I hope this is now all cleared up?
 
+Hmm.. I fixed things up, but I didn't exactly do it like the posted 
+patches. 
 
---=-SxTOT5E8wy/ZlsK93zU/
-Content-Disposition: attachment; filename=rpc_call_sync.patch
-Content-Type: text/plain; name=rpc_call_sync.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Currently the BK tree
+ - doesn't use __GFP_ZERO with anonymous user-mapped pages (which is what 
+   you wrote this whole thing for ;)
 
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
---- linux-2.4.29-rc1.org/net/sunrpc/clnt.c	2003-11-28 10:26:21.000000000 -0800
-+++ linux-2.4.29-rc1/net/sunrpc/clnt.c	2005-01-09 23:08:31.000000000 -0800
-@@ -238,7 +238,7 @@ void rpc_clnt_sigunmask(struct rpc_clnt 
-  */
- int rpc_call_sync(struct rpc_clnt *clnt, struct rpc_message *msg, int flags)
- {
--	struct rpc_task	my_task, *task = &my_task;
-+	struct rpc_task	*task;
- 	sigset_t	oldset;
- 	int		status;
- 
-@@ -253,8 +253,11 @@ int rpc_call_sync(struct rpc_clnt *clnt,
- 
- 	rpc_clnt_sigmask(clnt, &oldset);		
- 
--	/* Create/initialize a new RPC task */
--	rpc_init_task(task, clnt, NULL, flags);
-+	status = -ENOMEM;
-+	task = rpc_new_task(clnt, NULL, flags);
-+	if (task == NULL)
-+		goto out;
-+
- 	rpc_call_setup(task, msg, 0);
- 
- 	/* Set up the call info struct and execute the task */
-@@ -265,6 +268,7 @@ int rpc_call_sync(struct rpc_clnt *clnt,
- 		rpc_release_task(task);
- 	}
- 
-+out:
- 	rpc_clnt_sigunmask(clnt, &oldset);		
- 
- 	return status;
+   Potential fix: declare a per-architecture "alloc_user_highpage(vaddr)"
+   that does the proper magic on virtually indexed machines, and on others 
+   it just does a "alloc_page(GFP_HIGHUSER | __GFP_ZERO)".
 
---=-SxTOT5E8wy/ZlsK93zU/--
+ - verifies that nobody ever asks for a HIGHMEM allocation together with 
+   __GFP_ZERO (nobody does - a quick grep shows that 99% of all uses are
+   statically clearly fine (there's a few HIGHMEM zero-page users, but 
+   they are all GFP_KERNEL or similar), with just two special cases:
 
+	- get_zeroed_page() - which can't use HIGHMEM anyway
+	- shm.c does "mapping_gfp_mask(inode->i_mapping) | __GFP_ZERO"
+	  and that's fine because while the mapping gfp masks may lack
+	  GFP_FS and GFP_IO, they are always supposed to be ok with 
+	  waiting.
+
+ - moves "kernel_map_pages()" into "prep_new_page()" to fix the 
+   DEBUG_PAGEALLOC issue (Chris Wright).
+
+So that should take care of the known problems.
+
+		Linus

@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVAQW0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbVAQWaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbVAQW0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 17:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbVAQWZ2
+	id S262903AbVAQWaG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 17:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbVAQWZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:25:28 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:7306 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262905AbVAQWNC
+	Mon, 17 Jan 2005 17:25:11 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:21725 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262903AbVAQWEl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 17:13:02 -0500
-Date: Mon, 17 Jan 2005 23:13:31 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+	Mon, 17 Jan 2005 17:04:41 -0500
+Message-ID: <41EC363D.1090106@zytor.com>
+Date: Mon, 17 Jan 2005 14:03:41 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: kbuild: Implicit dependence on the C compiler
-Message-ID: <20050117221331.GC17132@mars.ravnborg.org>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <cshbd7$nff$1@terminus.zytor.com> <20050117220052.GB18293@mars.ravnborg.org> <41EC363D.1090106@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EC363D.1090106@zytor.com>
-User-Agent: Mutt/1.5.6i
+References: <cshbd7$nff$1@terminus.zytor.com> <20050117220052.GB18293@mars.ravnborg.org>
+In-Reply-To: <20050117220052.GB18293@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 02:03:41PM -0800, H. Peter Anvin wrote:
-> I don't mind the current default, but saying I shouldn't be able to 
-> override it is asinine.
-No-one asked for it until now.
-Any preferred syntax to disable this dependency check?
-
+Sam Ravnborg wrote:
 > 
-> It also means "make install" is largely unusable.
+> It better be difficult. You want to recompile when changing gcc.
+> Try this untested patch.
+> 
 
-Maybe we should not let install be dependent on vmlinux then?
+Sorry, but that's baloney.  Saying "it better be difficult" is 
+equivalent to saying "kbuild is smarter than you."
 
-	Sam
+I don't mind the current default, but saying I shouldn't be able to 
+override it is asinine.
+
+It also means "make install" is largely unusable.
+
+> There is no way to tell kbuild "ignore gcc change"
+
+There really needs to be one.
+
+	-hpa

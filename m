@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286986AbSABMVA>; Wed, 2 Jan 2002 07:21:00 -0500
+	id <S286978AbSABM0L>; Wed, 2 Jan 2002 07:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286980AbSABMUk>; Wed, 2 Jan 2002 07:20:40 -0500
-Received: from mta43-acc.tin.it ([212.216.176.239]:16002 "EHLO
-	fep43-svc.tin.it") by vger.kernel.org with ESMTP id <S286979AbSABMUj>;
-	Wed, 2 Jan 2002 07:20:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Flavio Stanchina <flavio.stanchina@tin.it>
-Organization: not at all
-To: andre@linux-ide.org
-Subject: ide.2.4.16.12102001.patch: please provide help for new config options
-Date: Wed, 2 Jan 2002 13:20:32 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
+	id <S286979AbSABM0B>; Wed, 2 Jan 2002 07:26:01 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59398 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S286978AbSABMZr>;
+	Wed, 2 Jan 2002 07:25:47 -0500
+Date: Wed, 2 Jan 2002 10:25:23 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <brian@worldcontrol.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17 vs 2.2.19 vs rml new VM
+In-Reply-To: <20020102013305.A5272@top.worldcontrol.com>
+Message-ID: <Pine.LNX.4.33L.0201021015390.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020102122032.MFVM3377.fep43-svc.tin.it@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
-I downloaded the ide.2.4.16.12102001.patch from linuxdiskcert.org and I 
-applied it to 2.4.17. Compiles fine, but now I'm looking for documentation 
-and there doesn't seem to be any on linuxdiskcert.org. Could you provide 
-us with basic help text for the following new configuration options?
+On Wed, 2 Jan 2002 brian@worldcontrol.com wrote:
 
-CONFIG_IDEDISK_STROKE
-CONFIG_IDE_TASK_IOCTL
-CONFIG_IDE_TASKFILE_IO
-CONFIG_BLK_DEV_IDEDMA_FORCED
-CONFIG_IDEDMA_ONLYDISK
+> I tried rmap-10 new VM and under my typical load my desktop machine
+> froze repeatedly.  Seemed the memory pool was going down the drain
+> before the freeze. Meaning apps were failing and getting stuck in
+> various odd states.
 
-Which ones are we supposed to enable for better performance, reliability, 
-etc. and which ones are for compatibility? I would guess 
-CONFIG_IDEDMA_ONLYDISK pertains to the latter category for example.
+There's a stupid logic inversion bug in rmap-10, which is
+fixed in rmap-10a. Andrew Morton tracked it down about an
+hour after I released rmap-10.
 
-Please CC me, I'm not on linux-kernel.
+Basically in wakeup_kswapd() user processes go to sleep
+if the pressure on the VM is _really_ high *and* the user
+process has all the same GFP options set as kswapd itself,
+so the process can sleep on kswapd.
 
+	if ((gfp_mask & GFP_KSWAPD) == GFP_KSWAPD)
+		return;
+
+Thinking about it, rmap-10a doesn't do the right thing,
+either, releasing patches at 4 am isn't the right thing ;)
+
+In vmscan.c, line 707 _should_ be:
+
+	if ((gfp_mask & GFP_KSWAPD) != GFP_KSWAPD)
+		return;
+
+This way tasks which cannot safely sleep on kswapd will
+return immediately, allowing only tasks which _can_
+sleep on kswapd to go for a break.
+
+Oh well, time for testing and releasing rmap-11 ;)
+
+regards,
+
+Rik
 -- 
-Ciao,
-    Flavio Stanchina
-    Trento - Italy
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-"The best defense against logic is ignorance."
-http://spazioweb.inwind.it/fstanchina/
+http://www.surriel.com/		http://distro.conectiva.com/
+

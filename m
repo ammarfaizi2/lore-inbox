@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265230AbRFUVQZ>; Thu, 21 Jun 2001 17:16:25 -0400
+	id <S265239AbRFUVSP>; Thu, 21 Jun 2001 17:18:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265231AbRFUVQP>; Thu, 21 Jun 2001 17:16:15 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6918 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265230AbRFUVQE>; Thu, 21 Jun 2001 17:16:04 -0400
+	id <S265238AbRFUVSF>; Thu, 21 Jun 2001 17:18:05 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:37892 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S265236AbRFUVR5>; Thu, 21 Jun 2001 17:17:57 -0400
+Date: Thu, 21 Jun 2001 16:17:49 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010621170534.F23465@pimlott.ne.mediaone.net>
+In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <E15D9DP-0001sF-00@the-village.bc.nu> 
+	<20010621151716.B5662@thyrsus.com> <20010621155103.B23465@pimlott.ne.mediaone.net> 
+	<20010621161322.A6873@thyrsus.com> <20010621161322.A6873@thyrsus.com> 
+	<20010621164625.E23465@pimlott.ne.mediaone.net> <pg4C1B.A.WWC.7DmM7@dinero.interactivesi.com> 
+	<pg4C1B.A.WWC.7DmM7@dinero.interactivesi.com> ; from ttabi@interactivesi.com on Thu, Jun 21, 2001 at 04:02:49PM -0500
 Subject: Re: Controversy over dynamic linking -- how to end the panic
-To: marco@esi.it (Marco Colombo)
-Date: Thu, 21 Jun 2001 22:14:49 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106212158090.6630-100000@Megathlon.ESI> from "Marco Colombo" at Jun 21, 2001 10:12:35 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15DBmr-0002E4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <a_xr5.A.nFE.-RmM7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pardon me, but what does "Oracle Corp.'s database becomes GPL" mean in the
-> above 3)? (I'm asking to you since you seem to agree).  Even if the
-> database is found to be linked with a GPLed piece of SW, this doesn't make
-> it (the database) GPLed, it just breaks Oracle's licence on the GPL SW.
+** Reply to message from Andrew Pimlott <andrew@pimlott.ne.mediaone.net> on
+Thu, 21 Jun 2001 17:05:34 -0400
 
-Right. And anyone who claims that Oracle is a derivative work of the Linux
-Kernel has a few screws loose.
 
-It no more belongs to Linus because it runs on Linux than to Bill Gates because
-it runs on NT
+> Sorry, I meant to say "chooser of the license".  Given that Linux
+> was never an FSF project, and that Linus editorializes at the top of
+> COPYING, I think it is reasonable to infer that we are talking about
+> his interpretation of the GPL.
+
+And my point is that by making such a public, far-reaching interpretation of
+the GPL, a lawyer in court could argue that his interpretation should be THE
+interpretation.  I believe that judges have made interpretations of a law based
+solely on how the law is practiced, to avoid situations where everyone affected
+by that law has to change what he's doing.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 

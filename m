@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267281AbTAWVJR>; Thu, 23 Jan 2003 16:09:17 -0500
+	id <S267121AbTAWVSM>; Thu, 23 Jan 2003 16:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267292AbTAWVJR>; Thu, 23 Jan 2003 16:09:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:30663 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267281AbTAWVJR>;
-	Thu, 23 Jan 2003 16:09:17 -0500
-Date: Thu, 23 Jan 2003 22:18:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, cdwrite@other.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
-Message-ID: <20030123211805.GY910@suse.de>
-References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch> <20030123180653.GU910@suse.de> <20030123181002.GV910@suse.de> <20030123185554.GC9141@ulima.unil.ch> <20030123190711.GW910@suse.de> <20030123192140.GD9141@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030123192140.GD9141@ulima.unil.ch>
+	id <S267198AbTAWVSM>; Thu, 23 Jan 2003 16:18:12 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:28657 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S267121AbTAWVSL>; Thu, 23 Jan 2003 16:18:11 -0500
+Message-ID: <3E306392.4040900@kegel.com>
+Date: Thu, 23 Jan 2003 13:50:10 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: dk@webcluster.at, linux-kernel@vger.kernel.org
+Subject: re: Frequent system lockups under load
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 23 2003, Gregoire Favre wrote:
->   	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-> drivers/built-in.o(.text+0x5c563): In function `cdrom_end_request':
-> : undefined reference to `block_pc_request'
-> make: *** [vmlinux] Error 1
+dk@webcluster.at wrote:
+> this posting is the last try to get a solution for a problem I have since
+> summer last year.
 > 
-> Sorry I certainly didn't understand you right...
+> Last summer we bought 2 servers for a cluster and run RedHat 7.2 on it.
+> We had frequently lockups ...
+> As long as I don't do LDAP lookups in postfix the system seems to be stable
 
-No it's my mistake, should be blk_pc_request(). Sorry about that.
+For support with Red Hat kernels, please contact Red Hat.
+The linux-kernel mailing list can only support kernels built
+from the sources at http://kernel.org
+(e.g. http://www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.20.tar.bz2 )
+If you can reproduce the problem using a kernel.org kernel, please repost your question,
+preferably using the format described at http://lxr.linux.no/source/REPORTING-BUGS
+And if you can't reproduce the problem with that kernel, you've solved it!
+
+See http://www.kernelnewbies.org/ if you need help with the above.
+- Dan
 
 -- 
-Jens Axboe
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 

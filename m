@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280996AbRKTIeS>; Tue, 20 Nov 2001 03:34:18 -0500
+	id <S277382AbRKTIr3>; Tue, 20 Nov 2001 03:47:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280997AbRKTIeI>; Tue, 20 Nov 2001 03:34:08 -0500
-Received: from are.twiddle.net ([64.81.246.98]:7367 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S280996AbRKTIdy>;
-	Tue, 20 Nov 2001 03:33:54 -0500
-Date: Tue, 20 Nov 2001 00:33:38 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jan Hubicka <jh@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: i386 flags register clober in inline assembly
-Message-ID: <20011120003338.A24717@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Jan Hubicka <jh@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011118020957.A10674@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0111171844001.899-100000@penguin.transmeta.com>
+	id <S279840AbRKTIrU>; Tue, 20 Nov 2001 03:47:20 -0500
+Received: from mail.wave.co.nz ([203.96.216.11]:13940 "EHLO mail.wave.co.nz")
+	by vger.kernel.org with ESMTP id <S277382AbRKTIrI>;
+	Tue, 20 Nov 2001 03:47:08 -0500
+Date: Tue, 20 Nov 2001 21:47:04 +1300
+From: Mark van Walraven <markv@wave.co.nz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
+Message-ID: <20011120214703.A26799@mail.wave.co.nz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011112232539.A14409@redhat.com> <20011113121022.L1778@lynx.no> <20011114085714.V17761@khan.acc.umu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111171844001.899-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 17, 2001 at 06:48:22PM -0800
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20011114085714.V17761@khan.acc.umu.se>; from David Weinehall on Wed, Nov 14, 2001 at 08:57:14AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 06:48:22PM -0800, Linus Torvalds wrote:
-> That sounds pretty ideal - have some way of telling gcc to add a "seta
-> %reg", while at the same time telling gcc that if it can elide the "seta"
-> and use a direct jump instead, do so..
+On Wed, Nov 14, 2001 at 08:57:14AM +0100, David Weinehall wrote:
+> 	switch (option) {
+> 	case 1: 
+> 		/* blaha */
+> 
+> 
+> That feels kind of odd compared to the rest of the codingstyle.
+> 
+> Comments?!
 
-Hmm.  It appears to be easy to do with machine-dependent builtins.  E.g.
+A case statement is a label, therefore "outdented" on level.
 
-	int x;
-	__asm__ __volatile__(LOCK "subl %1,%0"
-			     : "=m"(v->counter) : "ir"(i) : "memory");
-	x = __builtin_ia32_sete();
-	if (x) {
-		...
-	}
+Regards,
 
-Now, you'd have to be careful in where that __builtin_ia32_sete
-gets placed, but I'd guess that immediately after an asm would
-be relatively safe.  No 100% guarantees on that, unfortunately.
-
-And the sete _ought_ to get merged with the if test by combine
-or cse with no extra code.
-
-It wouldn't take too much effort to try this out either...
-
-
-r~
+Mark.

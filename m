@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291918AbSBATFv>; Fri, 1 Feb 2002 14:05:51 -0500
+	id <S291924AbSBATcb>; Fri, 1 Feb 2002 14:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291919AbSBATFb>; Fri, 1 Feb 2002 14:05:31 -0500
-Received: from [196.30.226.170] ([196.30.226.170]:31902 "EHLO www.ezinto.co.za")
-	by vger.kernel.org with ESMTP id <S291917AbSBATFZ>;
-	Fri, 1 Feb 2002 14:05:25 -0500
-Date: Fri, 1 Feb 2002 21:11:46 +0200
-From: Craig Schlenter <craig.schlenter@freemail.absa.co.za>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lkml] Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020201211146.A2574@codefountain.com>
-In-Reply-To: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil> <20020131032832.KJVO14927.femail22.sdc1.sfba.home.com@there> <20020130224112.A25977@havoc.gtf.org> <9cfy9iefvbt.fsf@rogue.ncsl.nist.gov> <a3d979$22g$1@penguin.transmeta.com>
+	id <S291925AbSBATcW>; Fri, 1 Feb 2002 14:32:22 -0500
+Received: from sunfish.linuxis.net ([64.71.162.66]:7878 "HELO
+	sunfish.linuxis.net") by vger.kernel.org with SMTP
+	id <S291924AbSBATcL>; Fri, 1 Feb 2002 14:32:11 -0500
+Date: Fri, 1 Feb 2002 11:24:16 -0800
+To: linux-kernel@vger.kernel.org
+Subject: should I trust 'free' or 'top'?
+Message-ID: <20020201192415.GC23997@flounder.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <a3d979$22g$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Feb 01, 2002 at 05:31:21AM +0000
+User-Agent: Mutt/1.3.25i
+X-Delivery-Agent: TMDA v0.42/Python 2.1.1 (sunos5)
+From: "Adam McKenna" <adam-dated-1013023458.e87e05@flounder.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 05:31:21AM +0000, Linus Torvalds wrote:
-[snip]
-> Anyway, I'm actually personally willing to make small trials, and right
-> now I'm trying to see if it makes any difference if I try to use BK [snip]
+There have been a lot of issues lately on our oracle servers with runaway
+processes and swapping, enough that I feel compelled to report them here.  We
+have tried all different kernels from 2.4.6 to 2.4.16, and the problem seems
+to happen with all of them (but is more pronounced on certain kernels)
 
-Are there any other cute pieces of technology that might be able to
-help? I'm thinking specifically about a couple of scripts, bits of
-procmail and changes to pine perhaps (or whatever mailer you use) so
-that email/patch management becomes a bit easier.
+Basically, what happens is that after an unspecified amount of time, the
+boxes will become unresponsve and start swapping wildly.  At that time, I
+will login to the box to see what is going on, and I generally see something
+like this:
 
-The rationale behind most of the ideas below is to get better feedback
-to people that email you with the same number of keystrokes as it would
-have taken to simply delete the mail/thread and to better organise the
-mail you get. I see you're already reading l-k through a newsreader ...
+adam@xpdb:~$ uptime
+ 11:21am  up 42 days, 18:53,  3 users,  load average: 54.72, 21.21, 17.60
+adam@xpdb:~$ free
+             total       used       free     shared    buffers     cached
+Mem:       5528464    5522744       5720          0        476    5349784
+-/+ buffers/cache:     172484    5355980
+Swap:      2939804    1302368    1637436
 
-Some ideas:
+As you can see, there are supposedly 5.3 gigs of memory free (not counting
+memory used for cache).  However, the box is swapping like mad (about 10 megs
+every 2 seconds according to vmstat) and the load is skyrocketing.
 
-- a 'patch-tester' that tries to auto-apply patches to a test tree and
-if the application fails, flags the message in some way before popping
-it in your mailbox eg. [SUCCESSFUL-PATCH] or [FAILED-PATCH] with the
-failure as a text attachment to glance at in case you do want to try
-to apply it.
+Now top, on the other hand, has a very different idea about the amount of
+free memory:
 
-- some procmail goo to dump patches that aren't sent as text attachments
-or whatever, with a cute autoresponse to the sender giving details
-of proper patch submission procedure.
+CPU states:  0.0% user,  0.1% system,  0.1% nice,  0.0% idle
+Mem:  5528464K av, 5523484K used,   4980K free,      0K shrd,    340K buff
+Swap: 2939804K av, 1082008K used, 1857796K free                5351892K
+cached
 
-- threads that are deleted or procmailed will trigger an autoresponse to
-the sender if your name is in the TO or CC fields ( or the subject
-contains [PATCH] ) saying you've nuked the thread and if they really
-want a response from you it should be sent under a different name and
-provide a pointer to a 'submitting patches to Linus' page. Perhaps
-there could be two types nuking emails: 'nuked since I've got 50 million
-emails in my inbox' and 'thread is uninteresting, nuked on
-[DATE] while reading [MSGID]' ...
+So, what am I supposed to believe?  Is 'free' a useful tool?  Is it providing
+accurate results?  I'm constantly fielding questions from people who want to
+know why a box is swapping, even though 'free' reports a whole bunch of
+memory free, and I'm tired of not having an answer for them.
 
-- some hotkeys to autoreply to things with canned responses ...  I am
-reminded of the 'tick a box' sort of email things but that can be
-driven with 1 or 2 keypresses to reply and send the right response:
-[ ] You have sent me a patch that does not apply cleanly
-[x] Read the codingstyle doc!!! This is awful. Not applied
-[ ] This doesn't even compile. Not applied.
-[ ] Applied. Thank you.
-[ ] Resend diff against latest pre-patch please.
-[ ] Resend via the relevant maintainer [link to list] please.
-[ ] I can't accept your marriage proposal. I'm already married.
-[ ] Send money to [BANK DETAILS]
-[ ] Yes
-[ ] Never!
-etc. ... Some of these might be triggered automatically perhaps eg.
-based on the code that a patch touches, the sender etc.
+Thanks,
 
-Anyway, just ideas ... there must be something that will make life a
-little easier if it was automated and there are probably lots of people
-wanting to put a 'I wrote a script that Linus uses' stamp on their CV so
-you wouldn't even have to code the stuff yourself :)
-
-Cheers,
-
---Craig
+--Adam
+-- 
+Adam McKenna <adam@flounder.net>   | GPG: 17A4 11F7 5E7E C2E7 08AA
+http://flounder.net/publickey.html |      38B0 05D0 8BF7 2C6D 110A

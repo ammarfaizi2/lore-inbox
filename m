@@ -1,106 +1,174 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314058AbSDKNzR>; Thu, 11 Apr 2002 09:55:17 -0400
+	id <S314059AbSDKN4E>; Thu, 11 Apr 2002 09:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314059AbSDKNzQ>; Thu, 11 Apr 2002 09:55:16 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:30227 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314058AbSDKNzP>; Thu, 11 Apr 2002 09:55:15 -0400
-Message-ID: <3CB5872B.9090708@evision-ventures.com>
-Date: Thu, 11 Apr 2002 14:52:59 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: linux-kernel@vger.kernel.org
-Subject: Re: New IDE code and DMA failures
-In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua> <3CB57C1F.9060607@evision-ventures.com> <200204111341.g3BDfJX10546@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314060AbSDKN4D>; Thu, 11 Apr 2002 09:56:03 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:22751 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314059AbSDKNzu>;
+	Thu, 11 Apr 2002 09:55:50 -0400
+Date: Thu, 11 Apr 2002 19:26:49 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+Message-ID: <20020411192649.A1947@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+In-Reply-To: <1759496962.1018114339@[10.10.2.3]> <m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com> <m1ofgum81l.fsf@frodo.biederman.org> <20020409205636.A1234@in.ibm.com> <m1y9fvlfyb.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+On Wed, Apr 10, 2002 at 09:40:44AM -0600, Eric W. Biederman wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> writes:
+> 
+> > On Mon, Apr 08, 2002 at 11:09:26AM -0600, Eric W. Biederman wrote:
+> > > Suparna Bhattacharya <suparna@in.ibm.com> writes:
+> > > 
+> > > > I have been trying look through this in terms of how it compares with 
+> > > > alternate projects (bootimg, monte etc). As I mentioned in an earlier 
+> > > > mail, crash dump (mcore) relies on bootimg, and I'm trying to decide if
+> > > > there
+> > > > could be advantages in using your kexec stuff. 
+> > > 
+> > > My target it to submit the kexec stuff to Linus.  I seem to be the
+> > > only one really actively working on it at this time.  I believe my
+> > > code is the most mature at the moment.  The bottom line is the system
+> > > call needs to get into the kernel.
+> > > 
+> > > With respect to bootimg there is a strong similarity it how things are
+> > > done.  The big difference is that bootimg interface does everything
+> > > per page in asking the kernel where to put things and my kexec call is
+> > > does everything with extents.  Which means the kexec data structures
+> > > are usually much smaller, plus I rely on odd things like PAGE_SIZE.
+> > 
+> > OK.
+> > 
+> > > 
+> > > As for monte I can boot other things than the linux kernel.  I'm much
+> > > better at doing the work than publisizing it so my variant isn't quite
+> > > as well known.  That plus I can late to the game.
+> > > 
+> > 
+> > I'm not sure if I got this right, but unlike bootimg, monte seems 
+> > to prefer going through the early real mode setup code (unless one 
+> > specifies skip_setup), and also resets the video mode. 
+> 
+> Going through the early setup code is good.  I do this as well,
+> though I have tried the other route as well.
 
-> # hdparm -i /dev/hda
->  Model=Maxtor 51369U3, FwRev=DA620CQ0, SerialNo=EK3HAE61C
->  Config={ Fixed }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
->  BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
->  DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
->  CurCHS=17475/15/63, CurSects=16513875, LBA=yes
->  LBA CHS=512/511/63 Remapping, LBA=yes, LBAsects=26520480
->  tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
->  IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
->  UDMA modes: mode0 mode1 *mode2
-
-To answer an later question.
-The asterix here denotes the active UDMA mode!
-
-> 
-> # hdparm -i /dev/hdc
->  Model=ST31277A, FwRev=0.75, SerialNo=VAE07701
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
->  RawCHS=2482/16/63, TrkSize=0, SectSize=0, ECCbytes=4
->  BuffType=0(?), BuffSize=0kB, MaxMultSect=16, MultSect=16
->  DblWordIO=no, maxPIO=1(medium), DMA=yes, maxDMA=2(fast)
->  CurCHS=2482/16/63, CurSects=2501856, LBA=yes
->  LBA CHS=620/64/63 Remapping, LBA=yes, LBAsects=2501856
->  tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2
->  IORDY=on/off, tPIO={min:383,w/IORDY:120}, PIO modes: mode3 mode4
-> 
-> I have problems with hdc. hda is mostly unused, so maybe it is DMA errors
-> prone too but I have not seen that yet.
-> 
-> 
->>3. Some timeout values got increased to more generally used values (in esp.
->>    IBM microdrives advice about timeout values. Could you see whatever
->>    the data doesn't eventually go to the disk after georgeous
->>    amounts of time.
-> 
-> 
-> Erm.. my English comprehension fails here... do you say my disk
-> does not like bigger timeouts?
-
-Please just wait and look whatever the driver actually recovers (can be
-minutes...)
+OK. I hadn't looked at your user space pieces earlier, where you 
+patch in the code to jump to real-mode etc. 
+(from my perspective this seems to be the main difference vs bootimg)
 
 > 
->>4. Could you try to set the DMA mode lower then it's set up
->>    per default by using hdparm and try whatever it helps?
-> 
-> 
-> Current params:
-> 
-> # hdparm /dev/hda /dev/hdc
-> /dev/hda:
->  multcount    = 16 (on)
->  I/O support  =  1 (32-bit)
->  unmaskirq    =  1 (on)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Could you try to disable this please? This can cause trouble
-as well.
+> Reseting the video mode like monte does is questionable.
 
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  nowerr       =  0 (off)
->  readonly     =  0 (off)
->  BLKRAGET failed: Invalid argument
->  geometry     = 1754/240/63, sectors = 26520480, start = 0
-> 
-> /dev/hdc:
->  multcount    = 16 (on)
->  I/O support  =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  nowerr       =  0 (off)
->  readonly     =  0 (off)
->  BLKRAGET failed: Invalid argument
->  geometry     = 620/64/63, sectors = 2501856, start = 0
-> 
-> I can't quite figure what MW/UDMA mode is active.
+Could you explain that a bit ?
 
-See above.
+> 
+> The basic point though is that the monte kernel interface is not set
+> up to support anything but the linux kernel.  The bootimg interface
+> if fairly general, the user space just happens to be a little
+> immature.
 
+I wasn't really looking at the system call interface as yet. That's
+important of course, but I first wanted to be understand the actual
+boot mechanism and the degree of reliability plus any known
+limitations.
+
+The interface which is interesting to me ATM is actually the lower
+level in-kernel interface to initate the boot with a preloaded image
+(i.e after the segments are loaded into a kimage).
+
+> 
+> As for skipping the real mode setup code, I prefer to do that cleanly
+> when it is needed.
+> 
+> > At first I
+> > thought some of your querybios stuff achieves a similar effect,
+> > but then is that for linux bios ?
+> 
+> Yes that is primarily for linuxbios.  But that is when it is necessary
+> to skip the real mode setup.  But all you have to do is specify a
+
+OK. Now that I have seen your bzImage kexec userland code, I see the 
+missing link.  When I'd looked at the older patches around 
+the time of our elfboot announcment, I couldn't locate the right
+user space pieces, so things weren't clear.
+
+> mem=xyz line and you also skip the real mode setup, if you feel like
+> it.
+> 
+> > > > My main concern of
+> > > > course is with regard to these BIOS dependent/related issues
+> > > > since at the time of a crash dump we may not be in quite a "friendly 
+> > > > state". Guess some the linux power mgmt infrastructure or driverfs
+> > > > should help with sane resets etc (I'm not saying its straightforward
+> > > > :)).
+> > > > in the long run. As such how far does your implementation address
+> > > > some of this BIOS/h/w state handling better ?
+> > > 
+> > > My code works in SMP.   I call the reboot notifier.
+> > > I probably should run through the pci bus and disable bus masters, but
+> > > I don't right now.
+> > 
+> > The crash dump code with bootimg seems to work on smp
+> 
+> Unless I missed something the Linux kernel won't work on smp though.
+> It is a matter of resetting the state of the apics, and ensuring you
+> are running on the first processor.  I don't believe bootimg did/does that.
+
+What I tried out was the MCLX crash dump implementation using bootimg
+and that did work on a 2-way. This has some modifications to run on
+the boot_cpu, and also to setup the local APIC and program the LVT0
+register. (The pure bootimg patch I had was pretty old, so never 
+tried that out separately). 
+
+> 
+> > Yes, I noticed the reboot notifier part in your code.
+> > Disabling the busmaster might be required (monte seems to do that)
+> 
+> In general yes.  There are some interesting side effects though.
+> Going through the pci bus and shutting off bus masters is a good
+> first approximation of what needs to happen.
+> 
+> In general though (a) there are buggy devices that can hang the system
+> if you treat the incorrectly.  (b) Sometimes you need to do more than
+> just shutdown bus master DMA.
+> 
+> Which is why I have for the most part been holding off.
+> 
+> > > And you probably meant:
+> > > ftp://downalod.lnxi.com/pub/src/linux-kernel-patches/kexec.
+> > 
+> > Yes indeed (except for the spelling of download above :))
+> > Looks like I can't type straight either :)
+> 
+> :)
+> 
+> > > My other code for cleaning up the boot process is in:
+> > >
+> > ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/linux-2.5.7.boot.diff
+> > 
+> > 
+> > Ok got it.
+> > Have to get over the tools too and give it a shot.
+> 
+> Thanks.  Please holler if you have problems.   I really need
+
+I ran into some errors when building elfboottools.
+EM_486 is reported to be undeclared. I think it must somehow be
+picking up the wrong elf.h, but didn't dig around too much
+into the makefiles. 
+
+> to look at building a debugging strategy for this code.  I have gotten
+> some failure reports but so far it is hard to track down why any of
+> it has problems.
+> 
+> Eric
+
+Regards
+Suparna

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbUCOKRP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 05:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUCOKRP
+	id S262528AbUCOK1R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 05:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUCOK1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 05:17:15 -0500
-Received: from ns2.uk.superh.com ([193.128.105.170]:5289 "EHLO
-	smtp.uk.superh.com") by vger.kernel.org with ESMTP id S262522AbUCOKRO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 05:17:14 -0500
-Date: Mon, 15 Mar 2004 10:13:40 +0000
-From: Richard Curnow <Richard.Curnow@superh.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040315101340.GE17627@malvern.uk.w2k.superh.com>
-Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20040311141703.GE3053@luna.mooo.com> <200403140245.i2E2jKSx005375@eeyore.valparaiso.cl>
+	Mon, 15 Mar 2004 05:27:17 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:47810 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S262528AbUCOK1Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 05:27:16 -0500
+Date: Mon, 15 Mar 2004 11:27:04 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Sytse Wielinga <s.b.wielinga@student.utwente.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for testing] cow behaviour for hard links
+Message-ID: <20040315102704.GA16615@wohnheim.fh-wedel.de>
+References: <20040310193429.GB4589@wohnheim.fh-wedel.de> <200403121849.03505.s.b.wielinga@student.utwente.nl> <20040312182912.GB7087@wohnheim.fh-wedel.de> <20040313134330.GC3352@openzaurus.ucw.cz> <20040313194827.GA4748@wohnheim.fh-wedel.de> <20040313210305.GB549@elf.ucw.cz> <20040315074558.GA7188@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200403140245.i2E2jKSx005375@eeyore.valparaiso.cl>
-User-Agent: Mutt/1.5.6i
-X-OriginalArrivalTime: 15 Mar 2004 10:18:33.0999 (UTC) FILETIME=[DF2E51F0:01C40A76]
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040315074558.GA7188@mail.shareable.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Horst von Brand <vonbrand@inf.utfsm.cl> [2004-03-14]:
-> Micha Feigin <michf@post.tau.ac.il> said:
-> > Is it possible to find out what the kernel's notion of HZ is from user
-> > space?
+On Mon, 15 March 2004 07:45:58 +0000, Jamie Lokier wrote:
+> Pavel Machek wrote:
+> > > Or did you mean the problem of tar backups growing *much* larger than
+> > > the real filesystem?  Yes, tar becomes useless for backups then. :)
+> > 
+> > Yep, this is what I meant.
 > 
-> What for? It should be invisible to userspace...
+> A different but related problem: rsync cannot backup my kernel
+> development directory from one hard disk to another, because it
+> contains lots of kernel trees mostly hard linked to each other.  rsync
+> falls over, trying to keep track of the roughly half a million links.
 > 
+> You might see similar problems trying to backup a strongly "copyfile"'d
+> filesystems.
 
-A related issue that's bugged me for a long time is lack of userspace
-access to the quantity that's called 'freq_scale' in 2.4, where it's
-(1<<SHIFT_HZ)/HZ for HZ!=100 and 128/128.125 for HZ==100.  (I haven't
-started to reverse-engineer the equivalent value in 2.6, I took a quick
-look once and concluded things had got a little more hairy.)
+And both are easily fixable, if you don't mind using 16 bytes of RAM
+per inode.  At least for rsync this should be a piece of cake compared
+to the amount of memory already used. :)
 
-My interest is that I maintain (in spare-time) an NTP application called
-chrony (http://chrony.sunsite.dk/), originally written to be good for
-dial-up, i.e. NTP servers accessible for a short window once or twice a
-day.  This app wants to tune the parameters it passes to adjtimex() to
-take a best shot at keeping the system clock correct over the
-potentially 'long' offline period.  To do this well, it has to
-reverse-compensate for the freq_scale multiplier that the kernel will
-apply to the frequency value passed to adjtimex().  Getting the right
-value for this across different kernels has always been a fragile
-exercise.
+Jörn
 
 -- 
-Richard \\\ SH-4/SH-5 Core & Debug Architect
-Curnow  \\\         SuperH (UK) Ltd, Bristol
+When in doubt, use brute force.
+-- Ken Thompson

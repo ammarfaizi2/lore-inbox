@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264922AbSJVSVm>; Tue, 22 Oct 2002 14:21:42 -0400
+	id <S264913AbSJVSQt>; Tue, 22 Oct 2002 14:16:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264924AbSJVSVm>; Tue, 22 Oct 2002 14:21:42 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:41990 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264922AbSJVSVl>; Tue, 22 Oct 2002 14:21:41 -0400
-Date: Tue, 22 Oct 2002 19:27:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Blackwell <jblack@linuxguru.net>
-Cc: linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
-Message-ID: <20021022192748.A3346@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Blackwell <jblack@linuxguru.net>,
-	linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-References: <20021021182737.A23371@infradead.org> <20021022014015.GB23958@Master.Wizards> <3DB4AEC1.1060906@pobox.com> <3DB4B455.921467D3@digeo.com> <20021021193131.G20688@work.bitmover.com> <E183sO7-0003td-00@comet.linuxguru.net> <20021022080037.A1500@work.bitmover.com> <E1842ls-0000yJ-00@comet.linuxguru.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1842ls-0000yJ-00@comet.linuxguru.net>; from jblack@linuxguru.net on Tue, Oct 22, 2002 at 01:24:48PM -0400
+	id <S264906AbSJVSPd>; Tue, 22 Oct 2002 14:15:33 -0400
+Received: from kathmandu.sun.com ([192.18.98.36]:31629 "EHLO kathmandu.sun.com")
+	by vger.kernel.org with ESMTP id <S264905AbSJVSPN>;
+	Tue, 22 Oct 2002 14:15:13 -0400
+Message-ID: <3DB59722.2090701@sun.com>
+Date: Tue, 22 Oct 2002 11:21:22 -0700
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesse Pollard <pollard@admin.navo.hpc.mil>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
+References: <200210220036.g9M0aP831358@scl2.sfbay.sun.com> <1035308740.31873.107.camel@irongate.swansea.linux.org.uk> <3DB58CBD.3030207@sun.com> <200210221303.47488.pollard@admin.navo.hpc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 01:24:48PM -0400, James Blackwell wrote:
-> If you wish, I can go through all 500 or 600 emails and try and list
-> which people seem to be on which side of the issue, but I'd rather
-> assume that you and others can see for themselves. The only question
-> regarding this issue is whether this rift were to grow deep enough to
-> cause a fork. Hypothetically speaking here... wouldn't you agree it 
-> would be a shame if we ended up with a Linux-A lead by Linus Torvalds 
-> and a Linux-B lead by Alan Cox (Alan works at Redhat, which I understand 
-> supports amongst other things, subversion)?
+Jesse Pollard wrote:
 
-Umm, we already have tons of forks, e.g. Alan's Tree(s), Andrea's Tree,
-SuSE's Tree(s), RedHat's Tree(s) Carrier Grade Linux.
+> Does it actually work with NFS???? or any networked file system?
+> Most of them limit ngroups to 16 to 32, and cannot send any data
+> if there is an overflow, since that overflow would replace all of the
+> data you try to send/recieve...
 
-And unlike the emacs/xemacs debacle they're compatible and actually code
-flows in both directions.
+NFS has a smaller limit, that is correct.  An unfortunate limitation.
+
+> And I really doubt that anybody has 10000 unique groups (or even
+> close to that) running under any system. The center I'm at has
+> some of the largest UNIX systems ever made, and there are only
+> about 600 unique groups over the entire center. The largest number
+> of groups a user can be in is 32. And nobody even comes close.
+
+I'm glad it doesn't affect you.  If it was a more common problem, it 
+would have been solved a long time ago.  It does affect some people, 
+though.  Maybe they can redesign their group structures, but why not 
+remove this arbitrary limit, since we can?
+
+Tim
+
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
 

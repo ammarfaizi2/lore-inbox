@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbTIPONZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 10:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbTIPONZ
+	id S261251AbTIPO3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 10:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTIPO3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 10:13:25 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:19614 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261906AbTIPONW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 10:13:22 -0400
-Date: Tue, 16 Sep 2003 15:47:55 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Diadon <diadon@isfera.ru>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: Netfilter problem with new 2.4.22
-Message-ID: <20030916134755.GA677@obroa-skai.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Diadon <diadon@isfera.ru>, linux-kernel@vger.kernel.org,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
-References: <3F66E46D.2060000@isfera.ru>
+	Tue, 16 Sep 2003 10:29:25 -0400
+Received: from abort.boom.net ([205.159.115.34]:11574 "EHLO abort.boom.net")
+	by vger.kernel.org with ESMTP id S261251AbTIPO3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 10:29:24 -0400
+Date: Tue, 16 Sep 2003 07:29:23 -0700
+From: Reza Naima <reza@reza.net>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: linux-2.6.0-test5-mm2 ext3 filesystem wierdness
+Message-ID: <20030916142923.GA28409@boom.net>
+Reply-To: Reza Naima <reza@reza.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F66E46D.2060000@isfera.ru>
-X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.6.0-test4
-X-Date: Today is Prickle-Prickle, the 40th day of Bureaucracy in the YOLD 3169
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4i
+X-URL: http://www.reza.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In trying to recompile test5-mm2, I discovered that I have a file in a
+wierd state where the system hangs while trying to access it... 
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here's the output of 'strace -f' and the gcc command that causes it to
+lock.......
 
-On Tue, Sep 16, 2003 at 02:22:37PM +0400, Diadon wrote:
-> After installing 2.4.22
-> this chain doesn't work
+[pid  3416] write(3, ".byte 0x05\n        .asciz \"dma_c"..., 4096) = 4096
+[pid  3416] brk(0)                      = 0x80a4000
+[pid  3416] brk(0x80a6000)              = 0x80a6000
+[pid  3416] open("./..tmp_kallsyms1.o.d", O_WRONLY|O_CREAT|O_TRUNC, 0666
 
-please post iptables related questions to netfilter@lists.netfilter.org
-or netfilter-devel@lists.netfilter.org.  I'm forwarding your mail there.
+then freezes.  I can kill strace, but not cpp0.
 
-> any ideas?
+I also tried 'less ./..tmp_kallsyms1.o.d' and it locked..
 
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+root      3475  0.0  0.3  3820  728 pts/1    D    07:17   0:00 less ./..tmp_kallsyms1.o.d
+root      3402  0.0  0.5  4164 1228 pts/1    D    07:12   0:00 /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/cpp0 -lang-a
 
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I'll revert to test-4 to verify that I do not have this problem there.
+If anyone wants more info or for me to run some tests, please feel free
+to email me.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/ZxSKXaXGVTD0i/8RAgdPAJsHSSk0EGWTYJbKoQjtotkOML8RogCeLRYa
-7X1OBFLvpfaOuX1Uq7l7oUE=
-=3R84
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
+Reza

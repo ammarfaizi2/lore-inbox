@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVCUXQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVCUXQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262209AbVCUXQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 18:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVCUXNE
+	id S262203AbVCUXQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 18:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVCUXL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 18:13:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16813 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262190AbVCUXGm (ORCPT
+	Mon, 21 Mar 2005 18:11:58 -0500
+Received: from spectre.fbab.net ([212.214.165.139]:51587 "HELO mail2.fbab.net")
+	by vger.kernel.org with SMTP id S262203AbVCUXKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 18:06:42 -0500
-Date: Mon, 21 Mar 2005 10:40:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: PCI: remove pci_find_device usage from pci sysfs code.
-Message-ID: <20050321184020.GA5472@kroah.com>
-References: <11099696382684@kroah.com> <11099696382576@kroah.com> <200503201554.05010.eike-kernel@sf-tec.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503201554.05010.eike-kernel@sf-tec.de>
-User-Agent: Mutt/1.5.8i
+	Mon, 21 Mar 2005 18:10:17 -0500
+Message-ID: <423F5456.5010908@fbab.net>
+Date: Tue, 22 Mar 2005 00:10:14 +0100
+From: "Magnus Naeslund(t)" <mag@fbab.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu>
+In-Reply-To: <20050321090622.GA8430@elte.hu>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 20, 2005 at 03:53:58PM +0100, Rolf Eike Beer wrote:
-> Greg KH wrote:
-> > ChangeSet 1.1998.11.23, 2005/02/25 08:26:11-08:00, gregkh@suse.de
-> >
-> > PCI: remove pci_find_device usage from pci sysfs code.
+Ingo Molnar wrote:
 > 
-> > diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-> > --- a/drivers/pci/pci-sysfs.c	2005-03-04 12:41:33 -08:00
-> > +++ b/drivers/pci/pci-sysfs.c	2005-03-04 12:41:33 -08:00
-> > @@ -481,7 +481,7 @@
-> >  	struct pci_dev *pdev = NULL;
-> >
-> >  	sysfs_initialized = 1;
-> > -	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
-> > +	while ((pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
-> >  		pci_create_sysfs_dev_files(pdev);
-> >
-> >  	return 0;
+> i've uploaded my current tree (-V0.7.41-01) to:
 > 
-> Any reasons why you are not using "for_each_pci_dev(pdev)" here?
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> it includes the latest round of RCU fixes - but doesnt solve the SMP
+> bootup crash.
+> 
+> 	Ingo
 
-Nope, I forgot it was there :)
+With this kernel I can run for some 20 minutes, then the ip_dst_cache 
+overflows.
+I gather it has something to do with RCU...
 
-Care to send a patch?
+If I just let it run and grep ip_dst_cache /proc/slab it goes up to 4096 
+(max) and then the printk's are starting, and the networks stops.
+After i up the limit to the double (echo "8192" > 
+/proc/sys/net/ipv4/route/max_size) network starts to work again.
+But of course, after a while it overflows again:
 
-thanks,
+# grep ip_dst_cache /proc/slabinfo
+ip_dst_cache        8192   8205    256   15    1 : tunables   16    8 
+  0 : slabdata    547    547      0
 
-greg k-h
+I haven't tried the vanilla 2.6.12-rc2 kernel, and I don't have the time 
+to do that right now, but i figured it would have something to do with 
+your patch. Older 2.6.8 works just fine.
+
+Regards,
+Magnus

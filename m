@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTJWW7a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 18:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJWW7a
+	id S261837AbTJWXFj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTJWXFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 18:59:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43682 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261863AbTJWW73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 18:59:29 -0400
-Date: Thu, 23 Oct 2003 15:59:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: suparna@in.ibm.com
-Cc: daniel@osdl.org, linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-       pbadari@us.ibm.com, Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: Patch for Retry based AIO-DIO (Was AIO and DIO testing on
- 2.6.0-test7-mm1)
-Message-Id: <20031023155937.41b0eeda.akpm@osdl.org>
-In-Reply-To: <20031023135030.GA11807@in.ibm.com>
-References: <1066432378.2133.40.camel@ibm-c.pdx.osdl.net>
-	<20031020142727.GA4068@in.ibm.com>
-	<1066693673.22983.10.camel@ibm-c.pdx.osdl.net>
-	<20031021121113.GA4282@in.ibm.com>
-	<1066869631.1963.46.camel@ibm-c.pdx.osdl.net>
-	<20031023104923.GA11543@in.ibm.com>
-	<20031023135030.GA11807@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 23 Oct 2003 19:05:39 -0400
+Received: from smtp5.arnet.com.ar ([200.45.191.23]:38025 "HELO
+	smtp5.arnet.com.ar") by vger.kernel.org with SMTP id S261837AbTJWXFi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 19:05:38 -0400
+Message-ID: <3F985F04.3020202@arnet.com.ar>
+Date: Thu, 23 Oct 2003 20:06:44 -0300
+From: Javier Villavicencio <jvillavicencio@arnet.com.ar>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Simmons <jsimmons@infradead.org>
+CC: DuDe <dude68@tiscali.it>, linux-kernel@vger.kernel.org
+Subject: Re: Radeon 9600 triplex
+References: <Pine.LNX.4.44.0310232341480.21561-100000@phoenix.infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0310232341480.21561-100000@phoenix.infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya <suparna@in.ibm.com> wrote:
->
-> It turns out that backing out gcc-Os.patch (on RH 9) or switching 
-> to a system with an older compiler version made those errors go away.
+James Simmons wrote:
 
-Ho hum, so we have our answer.
-
-Adrian, how do you feel about slotting this under CONFIG_EMBEDDED?
+> I have a newer radeon driver to people to try.
+> 
+> 
+> 
+> 
+You're welcome.
 

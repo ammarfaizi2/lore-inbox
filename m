@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263406AbRFNRNH>; Thu, 14 Jun 2001 13:13:07 -0400
+	id <S263415AbRFNRQr>; Thu, 14 Jun 2001 13:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263407AbRFNRM6>; Thu, 14 Jun 2001 13:12:58 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:54533 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S263406AbRFNRMn>; Thu, 14 Jun 2001 13:12:43 -0400
-Subject: Re: 2.2.19: eepro100 and cmd_wait issues
-From: Florin Andrei <florin@sgi.com>
-To: Ken Brownfield <brownfld@irridia.com>
-Cc: linux-kernel@vger.kernel.org, jmadden@ivy.tec.in.us
-In-Reply-To: <200106121921.OAA05009@asooo.flowerfire.com>
-In-Reply-To: <200106121921.OAA05009@asooo.flowerfire.com>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 14 Jun 2001 10:12:14 -0700
-Message-Id: <992538734.15063.2.camel@stantz.corp.sgi.com>
+	id <S263416AbRFNRQh>; Thu, 14 Jun 2001 13:16:37 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:60206 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263415AbRFNRQ2>; Thu, 14 Jun 2001 13:16:28 -0400
+Date: Thu, 14 Jun 2001 19:16:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@redhat.com>
+Subject: Re: unregistered changes to the user<->kernel API
+Message-ID: <20010614191634.B30567@athlon.random>
+In-Reply-To: <20010614191219.A30567@athlon.random>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010614191219.A30567@athlon.random>; from andrea@suse.de on Thu, Jun 14, 2001 at 07:12:19PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jun 2001 12:20:58 -0700, Ken Brownfield wrote:
-> Or you could keep your hardware and try the Intel driver, which seems to 
-> work fine.  It only works as a module, though.  This might also help 
-> narrow the issue to a driver vs. card vs. mobo/BIOS/IRQ/APIC/etc issue.
+On Thu, Jun 14, 2001 at 07:12:19PM +0200, Andrea Arcangeli wrote:
+> is not definitive yet, O_DIRECTIO of tru64 is our O_NOFOLLOW so we're
+> just screwed as we just need a wrapper anyways to make complex programs like
 
-I did that, and it seems to be the right solution. ;-) No problem until
-now (i got the old problem at least once every day).
+I just got the email from Richard that he prefers to break O_NOFOLLOW
+than to define O_DIRECT to something else than 0200000.  So probably
+there will be an incrmeental patch for the alpha later to apply on top
+of the previous ones.
 
-Hmmm... Seems like Intel did a good job with this driver... :-)
+Also please folks remind to never choose random numbers for the alpha
+userspace visible kernel API.
 
--- 
-Florin Andrei
-
+Andrea

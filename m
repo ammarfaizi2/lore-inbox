@@ -1,29 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbUKGQQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbUKGQSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbUKGQQp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 11:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUKGQQo
+	id S261647AbUKGQSC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 11:18:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbUKGQQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 11:16:44 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:10137 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S261644AbUKGQQk (ORCPT
+	Sun, 7 Nov 2004 11:16:59 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:965 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S261647AbUKGQQk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 7 Nov 2004 11:16:40 -0500
 From: Michael Buesch <mbuesch@freenet.de>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH 2.4] fix typo in fs/proc/base.c
-Date: Sun, 7 Nov 2004 14:19:23 +0100
+Subject: [PATCH 2.4] fix THIS_MODULE error in arp.c
+Date: Sun, 7 Nov 2004 14:58:12 +0100
 User-Agent: KMail/1.7.1
 Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <200411071419.23785.mbuesch@freenet.de>
-Content-Disposition: inline
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_bDijBRmvPROTMau"
+  boundary="Boundary-00=_0nijBpCUSQzEq4g"
+Message-Id: <200411071458.12846.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_bDijBRmvPROTMau
+--Boundary-00=_0nijBpCUSQzEq4g
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -31,29 +30,28 @@ Content-Disposition: inline
 
 Hi Marcelo,
 
-This fixes a typo which got introduced in latest 2.4 bk.
+This fixes an "undeclared THIS_MODULE" compiletime error.
+
 Sorry for the attachment. My mailer is currently broken and
 corrupts diffs.
 
---Boundary-00=_bDijBRmvPROTMau
+--Boundary-00=_0nijBpCUSQzEq4g
 Content-Type: text/x-diff;
   charset="us-ascii";
-  name="proc.typo.diff"
+  name="net-ipv4-arp-fix.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="proc.typo.diff"
+	filename="net-ipv4-arp-fix.diff"
 
---- linux-2.4.28-rc1-bk4/fs/proc/base.c.orig	Sun Nov  7 14:37:12 2004
-+++ linux-2.4.28-rc1-bk4/fs/proc/base.c	Sun Nov  7 14:40:12 2004
-@@ -780,7 +780,7 @@
- 	return inode;
- 
- out_unlock:
--	node->u.generic_ip = NULL;
-+	inode->u.generic_ip = NULL;
- 	iput(inode);
- 	return NULL;
- }
+--- linux-2.4.28-rc1-bk4/net/ipv4/arp.c.orig	Sun Nov  7 15:27:45 2004
++++ linux-2.4.28-rc1-bk4/net/ipv4/arp.c	Sun Nov  7 15:28:42 2004
+@@ -94,6 +94,7 @@
+ #include <linux/stat.h>
+ #include <linux/init.h>
+ #include <linux/jhash.h>
++#include <linux/module.h>
+ #ifdef CONFIG_SYSCTL
+ #include <linux/sysctl.h>
+ #endif
 
---Boundary-00=_bDijBRmvPROTMau--
-
+--Boundary-00=_0nijBpCUSQzEq4g--

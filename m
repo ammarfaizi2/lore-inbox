@@ -1,118 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265665AbSKAIhR>; Fri, 1 Nov 2002 03:37:17 -0500
+	id <S265666AbSKAIfa>; Fri, 1 Nov 2002 03:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265668AbSKAIhR>; Fri, 1 Nov 2002 03:37:17 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:53227 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S265665AbSKAIhP>; Fri, 1 Nov 2002 03:37:15 -0500
-Date: Fri, 1 Nov 2002 09:43:20 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: [2.5. PATCH] cpufreq: update Documentation
-Message-ID: <20021101094320.A2500@brodo.de>
+	id <S265665AbSKAIfa>; Fri, 1 Nov 2002 03:35:30 -0500
+Received: from pdbn-d9bb870f.pool.mediaWays.net ([217.187.135.15]:34058 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id <S265666AbSKAIf3>;
+	Fri, 1 Nov 2002 03:35:29 -0500
+Date: Fri, 1 Nov 2002 09:41:52 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Xiafs inclusion in 2.5?
+Message-ID: <20021101084152.GA3763@citd.de>
+References: <Pine.LNX.4.44.0210311837060.2487-100000@home.transmeta.com> <3DC1F7FD.6060703@gmx.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
+In-Reply-To: <3DC1F7FD.6060703@gmx.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 01, 2002 at 04:41:49AM +0100, Carl-Daniel Hailfinger wrote:
+> Linus Torvalds wrote:
+> >On Thu, 31 Oct 2002, Carl-Daniel Hailfinger wrote:
+> >
+> >>Out of curiosity, would you reaccept xiafs in 2.5, if it was cleaned up 
+> >>and forward ported to use the new interfaces?
+> >
+> >
+> >Quite frankly, I probably _would_ accept it, if it's cleanly done. If only 
+> >because of the fact that it's such a ridiculous thing to do, and thus gets 
+> >high points on my "surreality meter".
+> 
+> I will do my best and get it reviewed before submitting it.
+> 
+> >>And if you accept it, what's the latest date I could submit it? 
+> >>Technically, it is a regression, ;-) so the feature freeze date might not 
+> >>apply.
+> >
+> >
+> >Yeah, I think xiafs has little to do with a feature freeze. It has little 
+> >to do with sanity too, for that matter. 
+> 
+> Hey, I am insane. Sounds like the right job for me.
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+And when you are done with xiafs you should try to reintegrate
+"Extended FS". ;-)
 
-Update/Add description of longhaul module parameters. (David Kimdon)
-Also update status of ARM drivers, and add cpufreq to the list in
-00-INDEX.
+(No i don't have anything with an extended-fs.)
 
-	Dominik
 
-diff -ruN linux-2545original/arch/i386/Kconfig linux/arch/i386/Kconfig
---- linux-2545original/arch/i386/Kconfig	Thu Oct 31 12:00:00 2002
-+++ linux/arch/i386/Kconfig	Thu Oct 31 21:00:00 2002
-@@ -525,6 +525,13 @@
- 	  VIA Cyrix Samuel/C3, VIA Cyrix Ezra and VIA Cyrix Ezra-T=20
- 	  processors.
-=20
-+	  If you do not want to scale the Front Side Bus or voltage,
-+	  pass the module parameter "dont_scale_fsb=3D1" or
-+	  "dont_scale_voltage=3D1". Additionally, it is advised that
-+	  you pass the current Front Side Bus speed (in MHz) to=20
-+	  this module as module parameter "current_fsb", e.g.=20
-+	  "current_fsb=3D133" for a Front Side Bus speed of 133 MHz.
-+
- 	  For details, take a look at linux/Documentation/cpufreq.=20
-=20
- 	  If in doubt, say N.
-diff -ruN linux-2545original/Documentation/00-INDEX linux/Documentation/00-=
-INDEX
---- linux-2545original/Documentation/00-INDEX	Thu Oct 31 12:00:00 2002
-+++ linux/Documentation/00-INDEX	Thu Oct 31 21:00:00 2002
-@@ -58,6 +58,8 @@
- 	- info on Computone Intelliport II/Plus Multiport Serial Driver
- cpqarray.txt
- 	- info on using Compaq's SMART2 Intelligent Disk Array Controllers.
-+cpufreq
-+	- describes the CPU frequency and voltage scaling support=20
- cris/
- 	- directory with info about Linux on CRIS architecture.
- devices.txt
-diff -ruN linux-2544original/Documentation/cpufreq linux/Documentation/cpuf=
-req
---- linux-2544original/Documentation/cpufreq	Thu Oct 31 12:00:00 2002
-+++ linux/Documentation/cpufreq	Thu Oct 31 21:00:00 2002
-@@ -37,8 +37,7 @@
- ARM:
-     ARM Integrator, SA 1100, SA1110
- --------------------------------
--    This driver will be ported to new CPUFreq core soon, so
--    far it will not work.
-+    No known issues.   =20
-=20
-=20
- AMD Elan:
-@@ -56,19 +55,19 @@
-     VIA Cyrix Ezra, VIA Cyrix Ezra-T
- --------------------------------
-     If you do not want to scale the Front Side Bus or voltage,
--    pass the module parameter "dont_scale_fsb 1" or
--    "dont_scale_voltage 1". Additionally, it is advised that
-+    pass the module parameter "dont_scale_fsb=3D1" or
-+    "dont_scale_voltage=3D1". Additionally, it is advised that
-     you pass the current Front Side Bus speed (in MHz) to=20
-     this module as module parameter "current_fsb", e.g.=20
--    "current_fsb 133" for a Front Side Bus speed of 133 MHz.
-+    "current_fsb=3D133" for a Front Side Bus speed of 133 MHz.
-=20
-=20
- Intel SpeedStep:
-     certain mobile Intel Pentium III (Coppermine), and all mobile
-     Intel Pentium III-M (Tualatin) and mobile Intel Pentium 4 P4-Ms.
- --------------------------------
--    Unfortunately only modern Intel ICH2-M and ICH3-M chipsets are=20
--    supported.
-+    Unfortunately, only modern Intel ICH2-M and ICH3-M chipsets are=20
-+    supported yet.
-=20
-=20
- P4 CPU Clock Modulation:
 
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Bis denn
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Weitere Infos: siehe http://www.gnupg.org
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 
-iD8DBQE9wj6nZ8MDCHJbN8YRAiqNAJ9YdHyZyhy77HzZmH2kHQGCz7sOqgCfdWC8
-lagrbz3PbcPGZF3R5QIAlJ0=
-=vGXc
------END PGP SIGNATURE-----
-
---pWyiEgJYm5f9v55/--

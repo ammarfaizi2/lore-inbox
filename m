@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTFDDMp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 23:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTFDDMp
+	id S262687AbTFDDO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 23:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTFDDO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 23:12:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19156 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262610AbTFDDMp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 23:12:45 -0400
-Date: Tue, 03 Jun 2003 20:23:20 -0700 (PDT)
-Message-Id: <20030603.202320.59680883.davem@redhat.com>
-To: niv@us.ibm.com
-Cc: kuznet@ms2.inr.ac.ru, jmorris@intercode.com.au, davidm@hpl.hp.com,
-       gandalf@wlug.westbo.se, linux-kernel@vger.kernel.org,
-       linux-ia64@linuxia64.org, netdev@oss.sgi.com, akpm@digeo.com
-Subject: Re: fix TCP roundtrip time update code
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3EDD52F5.8090706@us.ibm.com>
-References: <200306040043.EAA24505@dub.inr.ac.ru>
-	<3EDD52F5.8090706@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 3 Jun 2003 23:14:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42393 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262671AbTFDDOY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 23:14:24 -0400
+Message-ID: <3EDD672C.2000701@pobox.com>
+Date: Tue, 03 Jun 2003 23:27:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: Regarding SET_NETDEV_DEV
+References: <20030603175921.GE2079@gtf.org> <20030603.200944.78736971.davem@redhat.com>
+In-Reply-To: <20030603.200944.78736971.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Nivedita Singhvi <niv@us.ibm.com>
-   Date: Tue, 03 Jun 2003 19:01:25 -0700
-   
-   But, FYI, DaveM and Alexey, we tried
-   reproducing the stalls we (Dave Hansen, Troy Wilson) had
-   seen during SpecWeb99 runs and couldn't reproduce them on
-   2.5.69. (Same config, etc). So its possible our hang/stalls
-   were some other issue that got silently fixed (or more
-   likely, possibly the same thing but other changes minimized
-   us running into the problem).
-   
-I think this means nothing, and that you can infer nothing from such
-results.
+David S. Miller wrote:
+>    From: Jeff Garzik <jgarzik@pobox.com>
+>    Date: Tue, 3 Jun 2003 13:59:21 -0400
+> 
+>    For janitors and other developers placing this in net drivers...
+>    please don't :)  This can be done in upper layers, accomplishing the
+>    same goal without changing the low-level net driver code at all.
+>    
+> Don't say something can be done without showing exactly
+> how :-)
+> 
+> How does register_netdevice() know that the device is "whatever" and
+> where to get the generic device struct from?
 
-My understanding is that the problem case triggers only when a timeout
-based retransmit occurs.  On LAN this tends to be extremely rare.
-Although under enough traffic load it can occur.
 
-So if your old SpecWEB99 lab tended more to trigger timeout based
-retransmits on LAN, and your new test network does not, then your new
-test network will tend to not reproduce the bug regardless of whether
-the bug is present in the kernel or not :-)
+Doh!  You are totally right -- it can't get the association any other 
+way.  Folks, ignore me :)
+
+	Jeff
+
+
+

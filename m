@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265240AbTLFUPk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 15:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbTLFUPk
+	id S265243AbTLFUbb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 15:31:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbTLFUbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 15:15:40 -0500
-Received: from web14914.mail.yahoo.com ([216.136.225.241]:36870 "HELO
-	web14914.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265240AbTLFUPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 15:15:24 -0500
-Message-ID: <20031206201522.44780.qmail@web14914.mail.yahoo.com>
-Date: Sat, 6 Dec 2003 12:15:22 -0800 (PST)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] FIx  'noexec' behavior
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Ulrich Drepper <drepper@redhat.com>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <87n0a590th.fsf@devron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Dec 2003 15:31:31 -0500
+Received: from smtp05.web.de ([217.72.192.209]:55576 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S265243AbTLFUba (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 15:31:30 -0500
+Subject: Re: 2.6.0-preX causes memory corruption
+From: Ali Akcaagac <aliakc@web.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1070742702.1735.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Dec 2003 21:31:42 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This seems to fix it:
+Hello,
 
-[jonsmirl@smirl mm]$ bk diffs
-===== mmap.c 1.94 vs edited =====
-481c481
-<       if ((prot & PROT_EXEC) && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
----
->       if (file && (prot & PROT_EXEC) && (file->f_vfsmnt->mnt_flags & MNT_NOEXE
-C))
-[jonsmirl@smirl mm]$
+Around 2 weeks ago I made a bugreport about strange memory corruption
+which have occoured with Kernel 2.6.0-pre9/10 on my system. As I told I
+verified this problem on 2 different machines and today I wanted to give
+feedback as I promised.
 
-Although I didn't have any oops on my console, in dmesg or messages.
+I was busy with private stuff for a couple of days and wasn't able to
+check this any closer. Today I detected that even with PREEMPT DISABLED
+in 2.6.0-pre11 the problem still exists. E.g. when unpacking some
+tar.bz2 files I still get the message thrown out that there is a problem
+and after reset the problem is gone. As reference I give you my previous
+email to this list:
 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0311.3/0386.html
 
---- OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
-> Ulrich Drepper <drepper@redhat.com> writes:
-> 
-> 	if (file && (!file->f_op || !file->f_op->mmap))
-> 		return -ENODEV;
-> 
-> 	if ((prot & PROT_EXEC) && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
-> 		return -EPERM;
-> 
-> Probably he get the oops, because file can be NULL.
-> -- 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+And another one which I think may (or may not) be related to this:
 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0311.3/0122.html
 
-=====
-Jon Smirl
-jonsmirl@yahoo.com
+Again, this has problem exists on my old hardware as on my brand new
+hardware. So basically 2 different plattforms.
 
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/
+Please CC to me.
+

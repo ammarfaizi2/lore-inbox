@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129028AbRBCHqB>; Sat, 3 Feb 2001 02:46:01 -0500
+	id <S129080AbRBCHux>; Sat, 3 Feb 2001 02:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129033AbRBCHpw>; Sat, 3 Feb 2001 02:45:52 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32266 "EHLO
+	id <S129035AbRBCHun>; Sat, 3 Feb 2001 02:50:43 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33546 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129028AbRBCHpd>; Sat, 3 Feb 2001 02:45:33 -0500
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-To: jamagallon@able.es (J . A . Magallon)
-Date: Sat, 3 Feb 2001 07:46:06 +0000 (GMT)
-Cc: reiser@namesys.com (Hans Reiser), alan@redhat.com (Alan Cox),
-        mason@suse.com (Chris Mason), kas@informatics.muni.cz (Jan Kasprzak),
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        yura@yura.polnet.botik.ru (Yury Yu . Rupasov)
-In-Reply-To: <20010203004003.A2962@werewolf.able.es> from "J . A . Magallon" at Feb 03, 2001 12:40:03 AM
+	id <S129033AbRBCHuf>; Sat, 3 Feb 2001 02:50:35 -0500
+Subject: Re: bidirectional named pipe?
+To: Brendan.Miller@Dialogic.com (Miller, Brendan)
+Date: Sat, 3 Feb 2001 07:51:41 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <EFC879D09684D211B9C20060972035B1D4684F@exchange2ca.sv.dialogic.com> from "Miller, Brendan" at Feb 02, 2001 07:33:09 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14OxOb-0007yA-00@the-village.bc.nu>
+Message-Id: <E14OxTz-0007yS-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please, do not do so. That depends on the PACKAGE name and version, and there
-> is no standard way of versioning a patched gcc.
-> The -54 is a RH'ism, for example Mandrake Cooker includes patches from
-> different sources, and gcc is versioned like
-> 
-> werewolf:~# rpm -q gcc
-> gcc-2.96-0.33mdk
+> I'm porting some software to Linux that requires use of a bidirectional,
+> named pipe.  The architecture is as follows:  A server creates a named pipe
 
-Thats fine. It doesnt matcht he problem one. If you know which are the problem
-ones on Mandrake add those too
+Pipes are not bidirectional in Linux. We follow traditional non stream
+behaviour
 
-You can also use
+> /dev/spx".  I experiemented with socket-based pipes under Linux, but I
+> couldn't gain access to them by open()ing the name.  Is there help?  I
 
-
-if [ -e /bin/rpm ]; then
-	if [ -e /etc/redhat-release ]; then
-
-
-
+AF_UNIX sockets are bidirectional but like all sockets use bind() and
+connect().
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbRBNOdi>; Wed, 14 Feb 2001 09:33:38 -0500
+	id <S132268AbRBNOgI>; Wed, 14 Feb 2001 09:36:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132268AbRBNOd2>; Wed, 14 Feb 2001 09:33:28 -0500
-Received: from 64-32-144-137.nyc1.phoenixdsl.net ([64.32.144.137]:268 "HELO
-	mail.ovits.net") by vger.kernel.org with SMTP id <S129057AbRBNOdR>;
-	Wed, 14 Feb 2001 09:33:17 -0500
-Date: Wed, 14 Feb 2001 09:33:36 -0500
-From: Mordechai Ovits <movits@ovits.net>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: Rick Hohensee <humbubba@smarty.smart.net>, linux-kernel@vger.kernel.org
-Subject: Reason (was: Re: dropcopyright script)
-Message-ID: <20010214093336.A8748@ovits.net>
-In-Reply-To: <200102140647.BAA24740@smarty.smart.net> <3A8A86ED.F8397F69@haque.net>
+	id <S132352AbRBNOf6>; Wed, 14 Feb 2001 09:35:58 -0500
+Received: from cold.fortyoz.org ([64.40.111.214]:61193 "HELO cold.fortyoz.org")
+	by vger.kernel.org with SMTP id <S132268AbRBNOfn>;
+	Wed, 14 Feb 2001 09:35:43 -0500
+Date: Wed, 14 Feb 2001 06:36:20 -0800
+From: David Raufeisen <david@fortyoz.org>
+To: Jonathan Brugge <jonathan_brugge@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:  Problem: NIC doesn't work anymore, SIOCIFADDR-errors
+Message-ID: <20010214063620.A4486@fortyoz.org>
+Reply-To: David Raufeisen <david@fortyoz.org>
+In-Reply-To: <F19t0CI76rOJhKPc99i00002310@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A8A86ED.F8397F69@haque.net>; from mhaque@haque.net on Wed, Feb 14, 2001 at 08:23:57AM -0500
-X-Satellite-Tracking: 0x4B305AFF
+In-Reply-To: <F19t0CI76rOJhKPc99i00002310@hotmail.com>; from "Jonathan Brugge" on Wednesday, 14 February 2001, at 15:17:09 (+0100)
+X-Operating-System: Linux 2.2.17 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In newer file managers, the icon of a C file is a tiny image of the first
-few lines of text.  If all files startt with a copyright, it's not much
-good.  So running this on a local, personal, tree can be a good thing.
+Are you using the net-tools from debian? There was a broken one causing these
+errors the last few days, is fixed now.
 
-Mordy
+On Wednesday, 14 February 2001, at 15:17:09 (+0100),
+Jonathan Brugge wrote:
 
-On Wed, Feb 14, 2001 at 08:23:57AM -0500, Mohammad A. Haque wrote:
-> What prompted this? People are going to want copyright notices in a
-> prominent place. Namely at the beginning of the code along with whatever
-> instructions and cruft.
+> Here's the output from dmesg, after deleting some unimportant stuff like 
+> sound and graphics-init. I don't see any errors that have something to do 
+> with my NIC, the detected type (Winbond 89C940) is the right one.
 > 
-> Rick Hohensee wrote:
-> > 
-> > .......................................................................
-> > ## drop copyright notices to the bottoms of C files in current dir and
-> > #     subs.
-> > # /*
-> > #  CopYriGHt Guess Who          2001            All reserves righted.
-> > # */
-> > 
-> > grep -ilr "copyright" . > tempdropcopyrights
-> > 
-> > for f in `cat tempdropcopyrights`
-> > do
-> > ed $f <<HEREDOC
-> > /[Cc][oO][pP][yY][rR][iI]/
-> > ?\/\*?
-> > .,/\*\//m$
-> > wq
-> > HEREDOC
-> > done
-> > ........................................................................
-> > 
-> 
-> -- 
-> 
-> =====================================================================
-> Mohammad A. Haque                              http://www.haque.net/ 
->                                                mhaque@haque.net
-> 
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown          http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Linux version 2.4.0-prerelease (root@odysseus) (gcc version 2.95.3 20010125 
+> (prerelease)) #2 Tue Feb 13 20:27:53 CET 2001
+
+-- 
+David Raufeisen <david@fortyoz.org>
+Cell: (604) 818-3596

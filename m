@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278615AbRJ1R4e>; Sun, 28 Oct 2001 12:56:34 -0500
+	id <S278625AbRJ1SBF>; Sun, 28 Oct 2001 13:01:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278617AbRJ1R4P>; Sun, 28 Oct 2001 12:56:15 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:17669 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S278615AbRJ1R4M>;
-	Sun, 28 Oct 2001 12:56:12 -0500
-Date: Sun, 28 Oct 2001 09:55:27 -0800
-From: Greg KH <greg@kroah.com>
-To: Solid Silver Panther <silverpanther50@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.13 freezes on boot
-Message-ID: <20011028095527.B8059@kroah.com>
-In-Reply-To: <F266tyCEyjWk9UlwaM30001198e@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F266tyCEyjWk9UlwaM30001198e@hotmail.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S278629AbRJ1SAz>; Sun, 28 Oct 2001 13:00:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11529 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278625AbRJ1SAo>; Sun, 28 Oct 2001 13:00:44 -0500
+Date: Sun, 28 Oct 2001 09:59:14 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Zlatko Calusic <zlatko.calusic@iskon.hr>, Jens Axboe <axboe@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+In-Reply-To: <E15xu2b-0008QL-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0110280945150.7360-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 28, 2001 at 01:11:24PM +0000, Solid Silver Panther wrote:
-> greetings all,
-> 
->  I apologise for the somewhat vague descriptions here, but Im no 
-> experienced Kernel Hacker. I'm in my 3rd month of Linux (RedHat 7.1) and was 
-> 
-> disappointed by the lack of my USB devices (printer and scanner and 
-> keyboard). I managed to replace the keyboard for PS/2 one. So, i decided to 
-> upgrade kernel to 2.4.13.
-> 
-> The USB Support I built in is now killing my PC.
-> 
-> usb.c: Registered new driver iforce
-> 
-> Thats my last boot message before the system freezes, so Im guessing 2.4.13 
-> doesnt properly support the USB stuff I have.
-> 
-> If theres a fix for that, or if its a common problem that everyone building 
-> USB support into their kernels has, I'd appreciate knowing in either case. 
-> If it is something im doing hiddeously wrong, please feel free to shout at 
-> me.
 
-What happens if you boot without any USB devices plugged in?
+On Sun, 28 Oct 2001, Alan Cox wrote:
+>
+> > Does the -ac patches have any hpt366-specific stuff? Although I suspect
+> > you're right, and that it's just the driver (or controller itself) being
+>
+> The IDE code matches between the two. It isnt a driver change
 
-thanks,
+It might, of course, just be timing, but that sounds like a bit _too_ easy
+an explanation. Even if it could easily be true.
 
-greg k-h
+The fact that -ac gets higher speeds, and -ac has a very different
+request watermark strategy makes me suspect that that might be the cause.
+
+In particular, the standard kernel _requires_ that in order to get good
+performance you can merge many bh's onto one request. That's a very
+reasonable assumption: it basically says that any high-performance driver
+has to accept merging, because that in turn is required for the elevator
+overhead to not grow without bounds. And if the driver doesn't accept big
+requests, that driver cannot perform well because it won't have many
+requests pending.
+
+In contrast, the -ac logic says roughly "Who the hell cares if the driver
+can merge requests or not, we can just give it thousands of small requests
+instead, and cap the total number of _sectors_ instead of capping the
+total number of requests earlier".
+
+In my opinion, the -ac logic is really bad, but one thing it does allow is
+for stupid drivers that look like high-performance drivers. Which may be
+why it got implemented.
+
+And it may be that the hpt366 IDE driver has always had this braindamage,
+which the -ac code hides. Or something like this.
+
+Does anybody know the hpt driver? Does it, for example, limit the maximum
+number of sectors per merge somehow for some reason?
+
+Jens?
+
+		Linus
+

@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275917AbSIURhH>; Sat, 21 Sep 2002 13:37:07 -0400
+	id <S275927AbSIURjq>; Sat, 21 Sep 2002 13:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275925AbSIURhG>; Sat, 21 Sep 2002 13:37:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:28813 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S275917AbSIURhF>;
-	Sat, 21 Sep 2002 13:37:05 -0400
-Date: Sat, 21 Sep 2002 10:35:31 -0700
+	id <S275928AbSIURjq>; Sat, 21 Sep 2002 13:39:46 -0400
+Received: from holomorphy.com ([66.224.33.161]:30093 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S275927AbSIURjp>;
+	Sat, 21 Sep 2002 13:39:45 -0400
+Date: Sat, 21 Sep 2002 10:38:15 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: quadratic behaviour
-Message-ID: <20020921173531.GQ3530@holomorphy.com>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
+Message-ID: <20020921173815.GE28202@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Andries Brouwer <aebr@win.tue.nl>, Ingo Molnar <mingo@elte.hu>,
-	linux-kernel@vger.kernel.org
-References: <20020921125626.GA15603@win.tue.nl> <Pine.LNX.4.44.0209210958080.2702-100000@home.transmeta.com>
+	Erich Focht <efocht@ess.nec.de>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
+	Michael Hohnbaum <hohnbaum@us.ibm.com>
+References: <598631797.1032601564@[10.10.2.3]> <600156739.1032603089@[10.10.2.3]> <200209211932.59871.efocht@ess.nec.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209210958080.2702-100000@home.transmeta.com>
+In-Reply-To: <200209211932.59871.efocht@ess.nec.de>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Sep 2002, Andries Brouwer wrote:
->> Let me repeat this, and call it an observation instead of a question,
->> so that you do not think I am in doubt.
+On Sat, Sep 21, 2002 at 07:32:59PM +0200, Erich Focht wrote:
+> Might also be that the __node_distance matrix which you might use
+> by default is not optimal for NUMAQ. It is fine for our remote/local
+> latency ratio of 1.6. Yours is maybe an order of magnitude larger?
+> Try replacing: 15 -> 50, guess you don't go beyond 4 nodes now...
 
-On Sat, Sep 21, 2002 at 10:06:02AM -0700, Linus Torvalds wrote:
-> The reason Ingo thinks it is fixed is that it is fixed for the case of 
-> having millions of threads - because the threads (with the new thread 
-> library) won't show up on the "for_each_process()" loop. Which makes 
-> threaded apps look a lot better on ps and top (we'll have to expose them 
-> some day under /proc/<pid>/thread/<tid>/, but that's another matter)
-> But the quadratic behaviour wrt processes clearly isn't fixed. Suggestions
-> welcome (and we'll need to avoid the same quadratic behaviour wrt the
-> threads when we expose them).
+I'm running with 8 over the weekend, and by and large we go to 16,
+though we rarely put all our eggs in one basket.
 
-Okay, I'm in trouble. My end-users use processes. But /proc/ needs some
-more tweaking before they can use it during larger runs anyway.
+I'll take it for a spin.
 
 
-On Sat, Sep 21, 2002 at 10:06:02AM -0700, Linus Torvalds wrote:
-> The only "obvious" thing to do is to insert markers into the process list,
-> and have "for_each_process()" automatically skip the marker entries. There
-> probably wouldn't be all that many things that would ever notice if that
-> were done (excatly because most things that want to traverse the list use
-> "for_each_process()" already). And then instead of using "index", you 
-> carry the marker thing around...
-
-This also sounds like an excellent idea. I may take a stab at this.
-
-
-Thanks,
+Cheers,
 Bill

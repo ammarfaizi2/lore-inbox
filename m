@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbUBVEll (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 23:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUBVEll
+	id S261682AbUBVEql (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 23:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUBVEql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 23:41:41 -0500
-Received: from adsl-63-194-240-129.dsl.lsan03.pacbell.net ([63.194.240.129]:51205
-	"EHLO mikef-fw.mikef-fw.matchmail.com") by vger.kernel.org with ESMTP
-	id S261676AbUBVElj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 23:41:39 -0500
-Message-ID: <40383300.5010203@matchmail.com>
-Date: Sat, 21 Feb 2004 20:41:36 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Sat, 21 Feb 2004 23:46:41 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:30406 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261682AbUBVEqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 23:46:39 -0500
+Date: Sat, 21 Feb 2004 23:46:24 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Phil White <cerise@littlegreenmen.armory.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3 doesn't see my 2nd CPU
+In-Reply-To: <20040221215228.GA4317@littlegreenmen.armory.com>
+Message-ID: <Pine.LNX.4.58.0402212345160.7734@montezuma.fsmlabs.com>
+References: <20040221031717.GB4827@littlegreenmen.armory.com>
+ <20040220202224.5f4394cf.akpm@osdl.org> <20040221215228.GA4317@littlegreenmen.armory.com>
 MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Large slab cache in 2.6.1
-References: <4037FCDA.4060501@matchmail.com> <20040222023638.GA13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org> <20040222031113.GB13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org> <20040222033111.GA14197@dingdong.cryptoapps.com> <4038299E.9030907@cyberone.com.au> <40382BAA.1000802@cyberone.com.au> <4038307B.2090405@cyberone.com.au>
-In-Reply-To: <4038307B.2090405@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+On Sat, 21 Feb 2004, Phil White wrote:
 
-> 
-> 
-> Nick Piggin wrote:
-> 
->>
->> Actually I think the previous shrink_slab formula factors
->> out to the right thing anyway, so nevermind this patch :P
->>
->>
-> 
-> Although, nr_used_zone_pages probably shouldn't be counting
-> highmem zones, which might be our problem.
+> I found a BIOS upgrade.  Alas, no luck.  WIth acpi=force, I get more output,
+> (and recognition that a processor #1 exists), but I have the same crash in the
+> dmesg log and only 1 CPU is actually recognized.
 
-What is the kernel parameter to disable highmem?  I saw nohighio, but 
-that's not it...
+Could you make accessible to me, the vmlinux of a failing kernel?
+Preferably a vanilla kernel (e.g. 2.6.3 from kernel.org)
 
-Doesn't "mem=" have alignment problems?
-
+Thanks.

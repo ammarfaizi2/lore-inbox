@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263711AbRFCWKs>; Sun, 3 Jun 2001 18:10:48 -0400
+	id <S263449AbRFCQVS>; Sun, 3 Jun 2001 12:21:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263786AbRFCWKj>; Sun, 3 Jun 2001 18:10:39 -0400
-Received: from ns01.vbnet.com.br ([200.230.208.6]:34027 "EHLO
-	iron.vbnet.com.br") by vger.kernel.org with ESMTP
-	id <S263711AbRFCV2d>; Sun, 3 Jun 2001 17:28:33 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carlos E Gorges <carlos@techlinux.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 245-ac7 i2c Config.in fix ( please ignore the previous message )
-Date: Sun, 3 Jun 2001 18:27:56 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01060318083600.25690@shark.techlinux>
-In-Reply-To: <01060318083600.25690@shark.techlinux>
+	id <S263504AbRFCQGv>; Sun, 3 Jun 2001 12:06:51 -0400
+Received: from cs.huji.ac.il ([132.65.16.10]:60609 "EHLO cs.huji.ac.il")
+	by vger.kernel.org with ESMTP id <S263338AbRFCQGm>;
+	Sun, 3 Jun 2001 12:06:42 -0400
+Message-ID: <3B1A608E.21AE7C5B@cs.huji.ac.il>
+Date: Sun, 03 Jun 2001 19:06:38 +0300
+From: Tsafrir Dan <dants@cs.huji.ac.il>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-6.2.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01060318275601.25690@shark.techlinux>
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+CC: etsman@cs.huji.ac.il, feit@cs.huji.ac.il
+Subject: the value of PROC_CHANGE_PENALTY
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+as I understand, for i386 in Linux-2.2.x the default length
+of a quantum was 200ms, and in 2.4.x it had changed to 50ms
+(
+ according to the following 2.4.5 sched.c code:
 
-Please ignore the previous message, 
-this is a problem caused by sensors patch.
+    #if HZ < 200
+    #define TICK_SCALE(x)   ((x) >> 2)
+    ...
+    #define NICE_TO_TICKS(nice)     (TICK_SCALE(20-(nice))+1)
+    ...
+    /* in the `recalculate' portion of schedule(): ... */
+    for_each_task(p)
+        p->counter = (p->counter >> 1) + NICE_TO_TICKS(p->nice);
+)
 
-cya;
+But, 
+the value of PROC_CHANGE_PENALTY was not changed accordingly, and is 
+still 15. This means that the result of the following goodness() code:
+    if (p->processor == this_cpu)
+        weight += PROC_CHANGE_PENALTY;
+is that any task that executed on `this_cpu' (goodness > 15) 
+will always be more "desirable" then a task that executed on 
+another cpu (goodness <= 6) which was not the case in 2.2.x .
 
--- 
-	 _________________________
-	 Carlos E Gorges          
-	 (carlos@techlinux.com.br)
-	 Tech informática LTDA
-	 Brazil                   
-	 _________________________
+am I correct ?
+and if so, is this what the authors meant, or did they simply forget
+to update PROC_CHANGE_PENALTY's value when moving from 2.2 to 2.4 ?
 
+please cc me: dants@cs.huji.ac.il
+thanks, dan.

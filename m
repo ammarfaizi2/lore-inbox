@@ -1,93 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268663AbUJUMP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268609AbUJUM1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268663AbUJUMP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 08:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUJUMOQ
+	id S268609AbUJUM1S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 08:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269031AbUJUMXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 08:14:16 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7552 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268698AbUJUMKh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 08:10:37 -0400
-Date: Thu, 21 Oct 2004 08:10:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Paulo Marques <pmarques@grupopie.com>
-cc: Mildred Frisco <mildred.frisco@gmail.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: making a linux kernel with no root filesystem
-In-Reply-To: <417792F0.20008@grupopie.com>
-Message-ID: <Pine.LNX.4.61.0410210757040.10239@chaos.analogic.com>
-References: <e7b30b2404102102466dc71118@mail.gmail.com>
- <e7b30b24041021030535925d1d@mail.gmail.com> <417792F0.20008@grupopie.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 21 Oct 2004 08:23:22 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35599 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S268609AbUJUMVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 08:21:23 -0400
+Date: Thu, 21 Oct 2004 14:20:51 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041021122051.GA10801@stusta.de>
+References: <4176E08B.2050706@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4176E08B.2050706@techsource.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004, Paulo Marques wrote:
+On Wed, Oct 20, 2004 at 06:02:51PM -0400, Timothy Miller wrote:
 
-> Mildred Frisco wrote:
->> Hi,
->> I would like to ask help in compiling a minimal linux kernel.
->> Basically, it would only contain the kernel andno filesystem (or
->> probably devfs).  I would only have to boot the kernel from floppy.
->> Then after the necessary kernel initializations, I would issue a
->> prompt where I can either shutdown or reboot the system. That's the
->> only functionality required.  As I've learned from the init program
->> (and startup scripts), the init services and shutdown commands are
->> called from /sbin. However, I do not require to mount the root fs
->> anymore.  I also tried to search for the source code of the shutdown
->> program but I can't find it.  Please help on the steps that I should
->> do.
->
-> Your /sbin/init can be a simple script (or even just bash or another shell).
->
-> You can use statically compiled binaries against dietlibc from here:
->
-> ftp://foobar.math.fu-berlin.de:2121/pub/dietlibc/bin-i386/
->
-> If you use "ash" as /sbin/init and place busybox there with the appropriate 
-> symlinks, you get a small semi-functional shell for a mere 120kb of 
-> executables.
->
-> If you're really desperate for space, you can build your own executable that 
-> asks for shutdown/reboot and calls reboot(2) with the appropriate parameters, 
-> and link against dietlibc (or ulibc).
->
-> This is not really kernel related and you should not mess with the kernel 
-> code for acomplishing this. If you really need to cut down extra space in the 
-> kernel you can check the patches from the "tiny" tree to build an incredibly 
-> small kernel.
->
-> I hope this helps,
->
-> -- 
-> Paulo Marques - www.grupopie.com
+>...
+> (1) Would the sales volumes of this product be enough to make it worth 
+> producing (ie. profitable)?
 
+no
 
-Let me add the basics that the kernel expects to execute
-/sbin/init. This means that there must be a root file-system
-to contain it. However, it can be a RAM-disk. That's how
-initrd works. /sbin/init can be a program that you write
-that does everything you need yout system to do. It can
-fork off multiple tasks, etc. Just don't accidentally call
-exit() or return from main()!
+> (2) How much would you be willing to pay for it?
 
-The kernel configuration can be changed so that it's really
-small. It is possible to boot the Linux operating system plus
-an entire network router from a 1.44Mb floppy disk, or anything
-that can emulate such a disk (a NVRAM disk).
+with DVI output:
+29 Euro
 
-Shutdown and reboot are simple, for instance 'reboot' is
-system-call number 88. It takes some documented parameters.
-You don't really need a 'C' runtime library if you want
-to make your own interface to the kernel. The kernel
-directly provides the non-buffered file stuff, basically
-most everything in unistd.h and more.
+without DVI output:
+< 10 Euro (current Ebay prices including shipping for a Matrox G200 
+           which is a really good 2D card)
 
+> (3) How do you feel about the choice of neglecting 3D performance as a 
+> priority?  How important is 3D performance?  In what cases is it not?
+> (4) How much extra would you be willing to pay for excellent 3D performance?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+3D is a nice feature, but I wouldn't pay extra money for it
+
+> (5) What's most important to you, performance, price, or stability?
+
+1. stability
+2. no fan
+3. price
+
+> Feel free to insert your own questions and answers here.  Remember, I'm 
+> an engineer.  My understanding of business is dilettantish at best.
+>...
+
+I do not care that much about 3D performance.
+
+My graphics card has a ATI Radeon 7000 and offers as output
+VGA, DVI and VideoCinch. The card has no fan.
+
+This card is more than enough for all my uses (I use DVI, but not 
+VideoCinch; even Tuxracer runs fine although I wouldn't need the 3D 
+suppport).
+
+This card is well-supported with open source drivers (and I'm using 
+only open source drivers).
+
+I didn't experience any problems with it.
+
+This card which is more than enough for all of my uses is sold in it's 
+32 MB version for 29 Euro [1] in many shops.
+
+cu
+Adrian
+
+[1] that's not a special offer, this price is stable for at about half a
+    year now
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

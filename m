@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbTBOWO3>; Sat, 15 Feb 2003 17:14:29 -0500
+	id <S265238AbTBOWO1>; Sat, 15 Feb 2003 17:14:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265270AbTBOWO3>; Sat, 15 Feb 2003 17:14:29 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:42382 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265246AbTBOWO2>; Sat, 15 Feb 2003 17:14:28 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 15 Feb 2003 14:31:37 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: James Antill <james@and.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-In-Reply-To: <m3fzqpgxlx.fsf@code.and.org>
-Message-ID: <Pine.LNX.4.50.0302151430230.1891-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
- <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
- <m3fzqpgxlx.fsf@code.and.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265246AbTBOWO1>; Sat, 15 Feb 2003 17:14:27 -0500
+Received: from packet.digeo.com ([12.110.80.53]:44207 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265238AbTBOWO0>;
+	Sat, 15 Feb 2003 17:14:26 -0500
+Date: Sat, 15 Feb 2003 14:24:55 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: John Bradford <john@grabjohn.com>
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: openbkweb-0.0
+Message-Id: <20030215142455.7264ad36.akpm@digeo.com>
+In-Reply-To: <200302152211.h1FMBK6a001200@darkstar.example.net>
+References: <20030215215259.GA22512@work.bitmover.com>
+	<200302152211.h1FMBK6a001200@darkstar.example.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Feb 2003 22:24:15.0498 (UTC) FILETIME=[F92E4EA0:01C2D540]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Feb 2003, James Antill wrote:
-
-> > I would personally like it a lot to have timer events available on
-> > pollable fds. Am I alone in this ?
+John Bradford <john@grabjohn.com> wrote:
 >
->  Think of "timer events" as a single TCP connection, so you have...
->
-> time X: empty
-> time X+Y: timed event "Arrives"
-> time X+Z: timed event "Arrives"
->
-> ...at which point it's pretty obvious that if you "poll" the timer
-> event queue from anytime before X+Y it'll be empty, and anytime after
-> X+Y it'll be "full". There isn't any point in being able to distinguish
-> between the events X+Y and X+Z, you only need to know a timed event has
-> occurred so you should process all timed events that are needed.
->  At which point you just need to work out the difference between X and
-> X+Y, and pass that to poll/sigtimedwait/etc.
+> Larry,
+> 
+> >From reading this thread, and the similar ones that have preceeded it,
+> it seems to me that most people are not exactly bothered about using
+> the SCM functionality of BitKeeper, but just want to get the
+> up-to-the-second changes to Linus' tree.
 
-I'm sorry, I'm a bit confused. What's the point here ?
+Yup.
 
+> I always thought that that is what the bk-commit mailing lists were
+> for?  I could be wrong about that, not having used BitKeeper - if so,
+> what are they for, and would it not be possible to simply have a
+> mailing list which got sent a diff every time Linus' updated his tree?
 
+The latest diff against the last-released kernel is always available
+at http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
 
-- Davide
-
+"Gzipped full patch from ..."

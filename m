@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129157AbQKNOt0>; Tue, 14 Nov 2000 09:49:26 -0500
+	id <S129130AbQKNOyG>; Tue, 14 Nov 2000 09:54:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbQKNOtQ>; Tue, 14 Nov 2000 09:49:16 -0500
-Received: from windsormachine.com ([206.48.122.28]:47109 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S129340AbQKNOtJ>; Tue, 14 Nov 2000 09:49:09 -0500
-Message-ID: <3A1149CD.A2A1E4F4@windsormachine.com>
-Date: Tue, 14 Nov 2000 09:18:53 -0500
-From: Mike Dresser <mdresser@windsormachine.com>
-Organization: Windsor Machine & Stamping
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: IDE0 /dev/hda performance hit in 2217 on my HW
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIEJDCJAA.law@sgi.com>
+	id <S129514AbQKNOx4>; Tue, 14 Nov 2000 09:53:56 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:60174 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129130AbQKNOxz>;
+	Tue, 14 Nov 2000 09:53:55 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: Re: Modprobe local root exploit
+Date: Tue, 14 Nov 2000 15:23:50 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-3A114AF6.44AA8032@innominate.de>
+In-Reply-To: <14864.5656.706778.275865@ns.caldera.de> <Pine.LNX.4.21.0011131744100.594-100000@toy.mandrakesoft.com> <14864.6812.849398.988598@ns.caldera.de> <20001113134630.C18203@wire.cadcamlab.org> <news2mail-3A112225.F29226B6@innominate.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 974211825 11965 10.0.0.90 (14 Nov 2000 14:23:45 GMT)
+X-Complaints-To: news@innominate.de
+Cc: David Relson <relson@osagesoftware.com>,
+        Peter Samuelson <peter@cadcamlab.org>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-check if DMA mode is still on, on your hard drive.  I'm trying to remember if
-that behaviour changed for 2.2.17
+On Tue, 14 Nov 2000, David Relson wrote:
+> At 06:29 AM 11/14/00, Daniel Phillips wrote:
+> 
+> >Heading in the right direction, but this is equivalent to:
+> >
+> >   if (isalnum(*p) && *p != '-' && *p != '_') return -EINVAL;
+> >
+> >which is faster, smaller and easier to read.
+> 
+> Almost right, but you forgot to negate isalnum().  Should be:
+> 
+>          if (!isalnum(*p) && *p != '-' && *p != '_') return -EINVAL;
+> 
+> or
+>          if (! (isalnum(*p) || *p == '-' || *p == '_')) return -EINVAL;
+> 
+> I think I prefer the older version with "continue" as I don't have to think 
+> about all the negatives ("!"), i.e.
+> 
+>          for ( ... )
+>          {
+>                  if ( isalnum(*p) || *p == '-' || *p == '_' )
+>                          continue;
+>                  return -EINVAL;
+>          }
+> 
 
-LA Walsh wrote:
+I reserve the right to make coding errors, thanks for not letting it get
+written into history :-)
 
-> I skimmed over the archives and didn't find a mention of this.  I thought
-> I'd noticed this when I first installed 2217, but I was too busy to verify
-> it at the time.
->
-> Simple case:
-> Under 2216, I can do a 'badblocks /dev/hda1 XXXXX'.  Vmstat shows about
-> 10,000K/s average.  This is consistent with 'dd' operations I use to copy
-> partitions for disk mirroring/backup.
->
-> Under 2217, the xfer speed drops to near 1,000K/s.  This is for both
-> 'badblocks'
-> and a 'dd' if=/dev/hda of=/dev/hdb bs=256k.  In both instances, I notice
-> a near 90% performance degredation.
->
-> Haven't tried any latest 2.2.18's -- has there been any work that might
-> have fixed this problem in 2218.  Am I the only person who noticed this?
-> I.e. -- maybe it's something peculiar to my HW (Inspiron 7500),
-> IBM DARA-22.5G HD.
->
-> --
-> L A Walsh                        | Trust Technology, Core Linux, SGI
-> law@sgi.com                      | Voice/Vmail: (650) 933-5338
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+How about:
 
+  for ( ... ) if (!isalnum(*p) && !strchr("-_", *p)) return -EINVAL;
+
+-- 
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

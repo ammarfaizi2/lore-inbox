@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVAUJIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVAUJMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbVAUJIi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 04:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVAUJIg
+	id S261663AbVAUJMN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 04:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVAUJMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 04:08:36 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44285 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261800AbVAUJI1
+	Fri, 21 Jan 2005 04:12:12 -0500
+Received: from mail-gw1.york.ac.uk ([144.32.128.246]:57996 "EHLO
+	mail-gw1.york.ac.uk") by vger.kernel.org with ESMTP id S261663AbVAUJMC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 04:08:27 -0500
-Message-ID: <41F0C686.5070903@mvista.com>
-Date: Fri, 21 Jan 2005 01:08:22 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] to fix xtime lock for in the RT kernel patch
-References: <41F04573.7070508@mvista.com> <20050121063519.GA19954@elte.hu> <41F0BA56.9000605@mvista.com> <20050121082125.GA28267@elte.hu> <41F0BFA4.5030107@mvista.com> <20050121084557.GA29550@elte.hu> <41F0C33D.60908@mvista.com> <20050121090014.GA30379@elte.hu>
-In-Reply-To: <20050121090014.GA30379@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 21 Jan 2005 04:12:02 -0500
+Subject: Re: 2.6.9 suspend-to-disk bug (during resume)
+From: Alan Jenkins <aj504@student.cs.york.ac.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050120145804.GJ476@openzaurus.ucw.cz>
+References: <1106210882.7975.9.camel@linux.site>
+	 <1106210985l.8224l.0l@linux>  <20050120145804.GJ476@openzaurus.ucw.cz>
+Content-Type: text/plain
+Date: Fri, 21 Jan 2005 09:08:20 +0000
+Message-Id: <1106298500.10018.2.camel@linux.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
+X-York-MailScanner: Found to be clean
+X-York-MailScanner-From: aj504@student.cs.york.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * George Anzinger <george@mvista.com> wrote:
+On Thu, 2005-01-20 at 15:58 +0100, Pavel Machek wrote:
+> Hi!
 > 
 > 
->>What I am suggesting is spliting the mark code so that it would only
->>grap the offset (current TSC in most systems) during interrupt
->>processing.  Applying this would be done later in the thread.  Since
->>it is not applying the offset, the xtime_lock would not need to be
->>taken.
+> > ACPI: PCI interrupt 0000:00:02.7[C] -> GSI 10 (level, low) -> IRQ 10
+> > bad: scheduling while atomic!
+> >  [<c030164e>] schedule+0x4be/0x570
+> >  [<c011ce69>] call_console_drivers+0x79/0x110
+> >  [<c0124817>] __mod_timer+0x177/0x190
+> >  [<c0301b8a>] schedule_timeout+0x5a/0xb0
+> >  [<c0293ed9>] 
+
+> Try without preempt for an ugly workaround. 
+Check.
+
+> Also try to reproduce it
+> on 2.6.11-rc1.
+Looks the same.  I can send demsg output if required.
+
+> 				Pavel
 > 
-> 
-> ok, you are right, and this would be fine with me. Wanna take a shot at
-> it? I've uploaded the -03 patch which is my most current tree. (with the
-> do_timer() moving done already.) I've reviewed the TSC offset codepath
-> again and i'm not sure where i got the 10 usecs from ... it's a pretty
-> cheap codepath that can be done in the direct interrupt just fine.
-> 
-Tomorrow, uh, later today.  Need some sleep now...
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+
 

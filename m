@@ -1,73 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbUBWE1j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 23:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUBWE1j
+	id S261807AbUBWEoD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 23:44:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUBWEoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 23:27:39 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:61619 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261803AbUBWE1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 23:27:35 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Pavol Luptak <P.Luptak@sh.cvut.cz>
-Date: Mon, 23 Feb 2004 15:27:27 +1100
+	Sun, 22 Feb 2004 23:44:03 -0500
+Received: from everest.2mbit.com ([24.123.221.2]:31973 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S261807AbUBWEnz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 23:43:55 -0500
+Message-ID: <403984DD.4030108@greatcn.org>
+Date: Mon, 23 Feb 2004 12:43:09 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+Organization: GreatCN.org & The Summit Open Source Develoment Group
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en, zh
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16441.33071.218049.163976@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: SW RAID5 + high memory support freezes 2.6.3 kernel
-In-Reply-To: message from Pavol Luptak on Monday February 23
-References: <20040223024124.GA1590@psilocybus>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+To: Jamie Lokier <jamie@shareable.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <c16rdh$gtk$1@terminus.zytor.com> <40375261.6030705@greatcn.org> <20040221163213.GB15991@mail.shareable.org>
+In-Reply-To: <20040221163213.GB15991@mail.shareable.org>
+X-Scan-Signature: 62d1087d478a9a52db5682afa485e771
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: [PATCH] Re: BOOT_CS
+Content-Type: multipart/mixed;
+ boundary="------------090105030904020007020704"
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+X-SA-Exim-Version: 3.1 (built Tue Oct 14 21:11:59 EST 2003)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday February 23, P.Luptak@sh.cvut.cz wrote:
-> Hello,
-> issue http://www.spinics.net/lists/lvm/msg10322.html could be still present
-> in the current 2.6.3 kernel. I am able to repeat the conditions to halt the 
-> 2.6.3 kernel (using mkfs.ext3 on RAID device):
+This is a multi-part message in MIME format.
+--------------090105030904020007020704
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-To be fair, your subject should say that 
-   SW RAID5 + high memory + loop device freezes 2.6.3 kernel
-                          ^^^^^^^^^^^^^^
+Jamie Lokier wrote:
 
-Would you be able to try the same tes without using "loop" in the
-middle and see what happens?
+> Coywolf Qi Hunt wrote:
+> 
+>>>(the jump and indirect branch aren't guaranteed to have the
+>>>proper effects, although technically neither should be required due to
+>>>the %cr0 write):
 
-The trace you sent:
+???
 
-> Feb 23 02:52:12 psilocybus kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000008
-> Feb 23 02:52:12 psilocybus kernel: printing eip:
-> Feb 23 02:52:12 psilocybus kernel: f9885205
-> Feb 23 02:52:12 psilocybus kernel: *pde = 00000000
-> Feb 23 02:52:12 psilocybus kernel: Oops: 0000 [#1]
-> Feb 23 02:52:12 psilocybus kernel: CPU:    0
-> Feb 23 02:52:12 psilocybus kernel: EIP:    0060:[<f9885205>]    Tainted: PF 
-> Feb 23 02:52:12 psilocybus kernel: EFLAGS: 00010246
-> Feb 23 02:52:12 psilocybus kernel: EIP is at make_request+0x5/0x210 [raid5]
-> Feb 23 02:52:12 psilocybus kernel: eax: f10e2f2b   ebx: f6631800   ecx: f7fe9040   edx: 00001000
-> Feb 23 02:52:12 psilocybus kernel: esi: 00000008   edi: c644dbc0   ebp: 025c0e08   esp: c1b8bcd0
+>>
+>>
+>>IMHO, why bother to re-reload %cs again?
+>>
+>>In setup.S, %cs is reloaded already. The enable paging code maps the
+>>address identically, so %cs already contains the proper selector.
+> 
+> 
+> It's to flush the instruction prefetch queue: that's one of the side
+> effects of ljmp.
 
-seems to suggest that %esi is being dereferenced at make_request+0x5,
-but when I disassemble my raid5.o, it doesn't.
+Re-loading %cs and flushing prefetch queue are two different things.
 
-I tried disassembling the code:
+> 
+> I recall an Intel manual that said ljmp is required when switching
+> between real and protected modes, to flush the prefetch queue.
 
-> Feb 23 02:52:12 psilocybus kernel: 
-> Feb 23 02:52:12 psilocybus kernel: Code: a7 c0 09 b6 d3 db 66 06 71 67 67 d7 32 47 2a 92 23 22 ee b1 
+Not necessarily ljmp, imho
 
-but that just produced nonsense.
+> 
+> Unfortunately I don't remember what that manual said about just setting PG.
+> 
+> I'd guess that current generation CPUs don't care about ljmp when
+> changing modes, but older ones certainly do.
+> 
+> -- Jamie
+> 
 
-Could you 
-   gdb raid5.o
-   disassemble make_request
+FYI, intel's example code located in STARTUP.ASM Listing arround line
+180, chapter 9, IA-32 Intel Architecture Software Developer's Manual,
+Volume 3: System Programming Guide
 
-and send me the output please.
 
-NeilBrown
+
+Please consider my patch for this issue.
+
+
+	Coywolf
+
+
+
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
+
+
+
+
+
+--------------090105030904020007020704
+Content-Type: text/plain;
+ name="patch-cy0402230"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-cy0402230"
+
+--- head.S.orig	2004-02-18 11:57:16.000000000 +0800
++++ head.S	2004-02-23 12:35:24.000000000 +0800
+@@ -115,10 +115,8 @@
+ 	movl %cr0,%eax
+ 	orl $0x80000000,%eax
+ 	movl %eax,%cr0		/* ..and set paging (PG) bit */
+-	jmp 1f			/* flush the prefetch-queue */
+-1:
+-	movl $1f,%eax
+-	jmp *%eax		/* make sure eip is relocated */
++	pushl $1f		/* flush the prefetch-queue */
++	ret			/* and normalize $eip */
+ 1:
+ 	/* Set up the stack pointer */
+ 	lss stack_start,%esp
+
+
+--------------090105030904020007020704--
+

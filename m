@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274032AbRI0Wyc>; Thu, 27 Sep 2001 18:54:32 -0400
+	id <S274040AbRI0WzW>; Thu, 27 Sep 2001 18:55:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274049AbRI0WyW>; Thu, 27 Sep 2001 18:54:22 -0400
-Received: from anime.net ([63.172.78.150]:22536 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S274032AbRI0WyQ>;
-	Thu, 27 Sep 2001 18:54:16 -0400
-Date: Thu, 27 Sep 2001 15:54:19 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: AMD viper chipset and UDMA100
-In-Reply-To: <20010928002410.A18608@suse.cz>
-Message-ID: <Pine.LNX.4.30.0109271551400.20621-100000@anime.net>
+	id <S274049AbRI0WzP>; Thu, 27 Sep 2001 18:55:15 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27666 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274040AbRI0Wy4>; Thu, 27 Sep 2001 18:54:56 -0400
+Subject: Re: Locking comment on shrink_caches()
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 27 Sep 2001 23:59:38 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com, bcrl@redhat.com,
+        marcelo@conectiva.com.br, andrea@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20010927.124134.28787324.davem@redhat.com> from "David S. Miller" at Sep 27, 2001 12:41:34 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15mk82-0005N5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Sep 2001, Vojtech Pavlik wrote:
-> This southbridge is called Viper Plus as far as I know. In the past,
-> I've written a driver for this, but it didn't make it into the kernel,
-> because Andre also had his version.
+>    See prefetching - the CPU prefetching will hide some of the effect and
+>    the spin_lock_prefetch() macro does wonders for the rest.
+>    
+> Well, if prefetching can do it faster than avoiding the transaction
+> altogether, I'm game :-)
 
-And Andre's didnt make it into the kernel either it seems :-)
-
-> Perhaps I could dig up my code and you can give it a test. Would you be
-> interested?
-
-Sure.
-
--Dan
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+That would depend on the cost of avoidance, the amount of contention and
+the distance ahead you can fetch. Avoiding it also rather more portable so
+I suspect you win 
 

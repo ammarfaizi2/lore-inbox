@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263024AbTCWLRM>; Sun, 23 Mar 2003 06:17:12 -0500
+	id <S263027AbTCWL34>; Sun, 23 Mar 2003 06:29:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263026AbTCWLRM>; Sun, 23 Mar 2003 06:17:12 -0500
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:64815 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S263024AbTCWLRJ>; Sun, 23 Mar 2003 06:17:09 -0500
-Date: Sun, 23 Mar 2003 12:26:02 +0100
-Message-Id: <200303231126.h2NBQ25G009820@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k timekeeping update
+	id <S263030AbTCWL34>; Sun, 23 Mar 2003 06:29:56 -0500
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:31212 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id <S263027AbTCWL3z>;
+	Sun, 23 Mar 2003 06:29:55 -0500
+Date: Sun, 23 Mar 2003 12:58:27 +0100
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: configuring kernel-2.5.6x
+Message-ID: <20030323115827.GA508@wind.cocodriloo.com>
+References: <1048394971.30382.8.camel@tiger>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048394971.30382.8.camel@tiger>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k timekeeping: Do not update the RTC every 11 minutes, since this confuses
-NTP (from 2.5.x).
+On Sat, Mar 22, 2003 at 11:49:31PM -0500, Louis Garcia wrote:
+> How can I feed make oldconfig a config file? I'm trying to build an rpm
+> with a custom kernel setup for my hardware. I already made a config file
+> with make menuconfig. If this is the wrong way to do it please let me
+> know. Oh, I don't mean the make rpm way, I'm making my own spec file.
+> 
+> Thanks
 
---- linux-2.4.x/arch/m68k/kernel/time.c	Thu Jan  4 22:00:55 2001
-+++ linux-m68k-2.4.x/arch/m68k/kernel/time.c	Tue Mar  4 17:10:38 2003
-@@ -55,28 +55,11 @@
-  */
- static void timer_interrupt(int irq, void *dummy, struct pt_regs * regs)
- {
--	/* last time the cmos clock got updated */
--	static long last_rtc_update=0;
--
- 	do_timer(regs);
- 
- 	if (!user_mode(regs))
- 		do_profile(regs->pc);
- 
--	/*
--	 * If we have an externally synchronized Linux clock, then update
--	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
--	 * called as close as possible to 500 ms before the new second starts.
--	 */
--	if ((time_status & STA_UNSYNC) == 0 &&
--	    xtime.tv_sec > last_rtc_update + 660 &&
--	    xtime.tv_usec >= 500000 - ((unsigned) tick) / 2 &&
--	    xtime.tv_usec <= 500000 + ((unsigned) tick) / 2) {
--	  if (set_rtc_mmss(xtime.tv_sec) == 0)
--	    last_rtc_update = xtime.tv_sec;
--	  else
--	    last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
--	}
- #ifdef CONFIG_HEARTBEAT
- 	/* use power LED as a heartbeat instead -- much more useful
- 	   for debugging -- based on the version for PReP by Cort */
+Just place your old config file as .config at the root of the
+kernel tree, then "make oldconfig" will put it up.
 
-Gr{oetje,eeting}s,
+Greets, Antonio.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

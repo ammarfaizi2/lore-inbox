@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289394AbSAJK7k>; Thu, 10 Jan 2002 05:59:40 -0500
+	id <S289395AbSAJLBa>; Thu, 10 Jan 2002 06:01:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289393AbSAJK7a>; Thu, 10 Jan 2002 05:59:30 -0500
-Received: from hal.astr.lu.lv ([195.13.134.67]:6016 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S289389AbSAJK7O> convert rfc822-to-8bit;
-	Thu, 10 Jan 2002 05:59:14 -0500
-Message-Id: <200201101058.g0AAwJH00606@hal.astr.lu.lv>
-Content-Type: text/plain; charset=US-ASCII
-From: Andris Pavenis <pavenis@latnet.lv>
-To: dledford@redhat.com, tom@infosys.tuwien.ac.at
-Subject: i810_audio driver v0.19 still freezes machine
-Date: Thu, 10 Jan 2002 12:58:19 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S289393AbSAJLBU>; Thu, 10 Jan 2002 06:01:20 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19720 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289392AbSAJLBE>; Thu, 10 Jan 2002 06:01:04 -0500
+Subject: Re: xfree86 compilation failure due to naming conflict (linux 2.4.17, Xfree86 4.1.0)
+To: jon-sven@frisurf.no (jon svendsen)
+Date: Thu, 10 Jan 2002 11:12:42 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020110054555.C4116@fig.aubernet> from "jon svendsen" at Jan 10, 2002 05:45:55 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Od8U-000456-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found that i810_audio driver v0.19 from 
-	http://people.redhat.com/dledford/i810_audio.c.gz
-still freezes machine after /dev/dsp is being closed 
-(printk at end of i810_release()). It doesn't happen always though.
+> I'd supply a patch, but I'm not familiar enough with the relationship 
+> between the kernel and xfree86 drivers to know what the proper solution 
+> would be, nor am I certain if the modification should happen in linux 
+> or in xfree86. Hopefully I have supplied enough information facilitiate 
+> a fairly simple solution.
 
-I did tests under KDE. artsd is setup to close /dev/dsp after being idle 
-for 5 seconds. System rather often (but not always) freezes
-after that.
-
-Earlier v0.14 from
-	http://www.infosys.tuwien.ac.at/Staff/tom/SiS7012/i810_audio-020105.c
-doen't cause similar problems for me
-
-Andris
+Fix the XFree86 side I think. Its not shown up because DRI as shipped in
+4.1 didn't actually work for the SIS cards

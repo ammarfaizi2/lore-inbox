@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263553AbUCYSo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 13:44:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUCYSoZ
+	id S263521AbUCYSmW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 13:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbUCYSmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 13:44:25 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60813 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263553AbUCYSoK (ORCPT
+	Thu, 25 Mar 2004 13:42:21 -0500
+Received: from main.gmane.org ([80.91.224.249]:41893 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263521AbUCYSmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 13:44:10 -0500
-Date: Thu, 25 Mar 2004 10:43:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, gerg@snapgear.com
-Subject: Re: [PATCH 2.6 istallion.c] RFT added class support to istallion.c
-Message-ID: <20040325184334.GB28127@kroah.com>
-References: <129960000.1080093056@w-hlinder.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <129960000.1080093056@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 25 Mar 2004 13:42:20 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Happe <news_0403@flatline.ath.cx>
+Subject: Re: 2.6.5-rc2-mm2
+Date: Thu, 25 Mar 2004 19:41:49 +0100
+Message-ID: <slrnc669vd.1nf.news_0403@flatline.ath.cx>
+References: <20040323232511.1346842a.akpm@osdl.org> <slrnc63mc2.18m.news_0403@flatline.ath.cx> <20040324130653.35cab65b.akpm@osdl.org> <20040324234659.GA1263@flatline.ath.cx>
+Reply-To: Andreas Happe <news_0403@flatline.ath.cx>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: chello062178006202.3.11.tuwien.teleweb.at
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23, 2004 at 05:50:56PM -0800, Hanna Linder wrote:
-> 
-> 
-> Here is a patch to add class support to the Stallion Intelligent multiport 
-> serial driver.
-> 
-> I have verified it compiles but do not have the hardware. 
-> If you do please verify, thanks.
-> 
-> Please consider for Inclusion or Testing.
+On 2004-03-24, Andreas Happe <andreashappe@flatline.ath.cx> wrote:
+> .. will try booting without framebuffer later.
 
-Applied to my trees, thanks.
+The system booted fine without framebuffer, some googling showed your
+patch against drivers/char/vt.c which solved the problem (I'm not using
+devfs).
 
-greg k-h
+posting can be found at newsid: <20040325092002.62edd8e7.akpm@osdl.org>.
+
+	--Andreas
+

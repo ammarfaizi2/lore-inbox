@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261590AbSJAMSc>; Tue, 1 Oct 2002 08:18:32 -0400
+	id <S261593AbSJAMUy>; Tue, 1 Oct 2002 08:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbSJAMSc>; Tue, 1 Oct 2002 08:18:32 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:2432 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261590AbSJAMSb> convert rfc822-to-8bit; Tue, 1 Oct 2002 08:18:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>
-Subject: Re: [BENCHMARK] 2.5.39-mm1
-Date: Tue, 1 Oct 2002 22:19:21 +1000
+	id <S261594AbSJAMUx>; Tue, 1 Oct 2002 08:20:53 -0400
+Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:49548 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S261593AbSJAMUx> convert rfc822-to-8bit; Tue, 1 Oct 2002 08:20:53 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+Subject: Re: System very unstable
+Date: Tue, 1 Oct 2002 14:32:47 +0200
 User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200209301941.41627.conman@kolivas.net> <20021001101520.GB20878@suse.de> <3D9976D9.C06466B@digeo.com>
-In-Reply-To: <3D9976D9.C06466B@digeo.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <200209290741.40679.Dieter.Nuetzel@hamburg.de> <1033368426.779.4.camel@madmax>
+In-Reply-To: <1033368426.779.4.camel@madmax>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210012219.53464.conman@kolivas.net>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210011432.47493.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Tuesday 01 Oct 2002 8:20 pm, Andrew Morton wrote:
-> Jens Axboe wrote:
-> > On Mon, Sep 30 2002, Andrew Morton wrote:
-> > > > io_load:
-> > > > Kernel                  Time            CPU             Ratio
-> > > > 2.4.19                  216.05          33%             3.19
-> > > > 2.5.38                  887.76          8%              13.11
-> > > > 2.5.38-mm3              105.17          70%             1.55
-> > > > 2.5.39                  229.4           34%             3.4
-> > > > 2.5.39-mm1              239.5           33%             3.4
-> > >
-> > > I think I'll set fifo_batch to 16 again...
+Am Montag, 30. September 2002 08:47 schrieb Kristofer T. Karas:
+> On Sun, 2002-09-29 at 01:41, Dieter Nützel wrote:
+> > >        ktk@madmax:~$ glxgears
+> > >        10797 frames in 5.0 seconds = 2159.400 FPS
 > >
-> > As not to compare oranges and apples, I'd very much like to see a
-> > 2.5.39-mm1 vs 2.5.39-mm1 with fifo_batch=16. Con, would you do that?
-> > Thanks!
+> > This is slower than the current DRI can do ;-)
+> > 11955 frames in  5.000 seconds = 2391.000 FPS
 >
-> The presence of /proc/sys/vm/fifo_batch should make that pretty easy.
+> Ah, well then!  :-)
+>
+> The difference in numbers might be due to clock timing.  I have an
+> 8500LEE, which was an original batch of 8500's that couldn't meet their
+> advertised clock times, so had the clock dropped back to 170MHz; they
+> were only sold that way in Japan, IIRC.  Driving it is a UP
+> AthlonXP-1700.  Running a 250MHz Radeon-8500 might surpass your numbers
+> (250/170 * 2159) = 3174!
 
-Thanks. That made it a lot easier and faster, and made me curious enough to 
-create a family or very interesting results. All these are with 2.5.39-mm1 
-with fifo_batch set to 1->16, average of three runs. The first result is the 
-unmodified 2.5.39-mm1 (fifo_batch=32).
+It depends...;-)
 
-io_load:
-Kernel                  Time            CPU%            Ratio
-2.5.39-mm1              239.5           32              3.54
-2539mm1fb16             131.2           57              1.94
-2539mm1fb8              109.1           68              1.61
-2539mm1fb4              146.4           51              2.16
-2539mm1fb2              112.7           65              1.67
-2539mm1fb1              125.4           60              1.85
+Mine is in no way OC or the like.
 
-What's most interesting is the variation was small until the number was <8; 
-then the variation between runs increased. Dare I say it there appears to be 
-a sweet spot in the results.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9mZLPF6dfvkL3i1gRAjYnAKCGvWq43uTeClFz2tb6d8fcVe95zwCfbor2
-HKO0FgK8kVsEvyQ3FwYaubg=
-=bAzC
------END PGP SIGNATURE-----
+-Dieter

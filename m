@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267862AbTBRQqs>; Tue, 18 Feb 2003 11:46:48 -0500
+	id <S267866AbTBRQzF>; Tue, 18 Feb 2003 11:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267865AbTBRQqs>; Tue, 18 Feb 2003 11:46:48 -0500
-Received: from [212.122.164.10] ([212.122.164.10]:12704 "EHLO
-	pechkin.minfin.bg") by vger.kernel.org with ESMTP
-	id <S267862AbTBRQqs>; Tue, 18 Feb 2003 11:46:48 -0500
-From: "Kostadin Karaivanov" <larry@minfin.bg>
-To: "'Christoph Hellwig'" <hch@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: XFS problem 2.5.6{0,1,2}
-Date: Tue, 18 Feb 2003 18:55:51 +0200
-Message-ID: <000001c2d76e$98c38500$04010101@laptop>
+	id <S267867AbTBRQzF>; Tue, 18 Feb 2003 11:55:05 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:23702 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267866AbTBRQzE>; Tue, 18 Feb 2003 11:55:04 -0500
+Date: Tue, 18 Feb 2003 09:04:57 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 375] New: M5451 (OSS trident.c) did not come out of reset 
+Message-ID: <5790000.1045587897@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-In-Reply-To: <20030218152702.B16760@infradead.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugme.osdl.org/show_bug.cgi?id=375
+
+           Summary: M5451 (OSS trident.c) did not come out of reset
+    Kernel Version: 2.5.62
+            Status: NEW
+          Severity: low
+             Owner: mulix@mulix.org
+         Submitter: mulix@mulix.org
 
 
+Last time I booted 2.5, I noticed that my sound card no longer
+works. The card is:
 
-On Tue, Feb 18, 2003 at 03:28:32PM +0200, Kostadin Karaivanov wrote:
->> Oftenly I get errors something like ...
->> "In memory data corruption ..... shuting down filesystem ide(0,3)"
-and
->> linux halts. Reboot fixes the things.
->> Sorry can't paste the proper error output.
->> It happens when I try to erase a lots of small files or on shutdown.
->> I can't reproduce this, but it happens for at least once a day.
->> My whole linux partition is on XFS.
->> As long as I can tell this is not present in 2.5.5{7,8,9}
+00:06.0 Multimedia audio controller: Acer Laboratories Inc. [ALi]
+M5451 PCI AC-Link Controller Audio Device (rev 01)
 
-> Do you use blocksize smaller than your pagesize?
+And the computer is a thinkpad R30. It turns out that this patch, from
+Alan Cox on 01/11/2002, broke it for me, by failing ali_reset_5451 if
+the card doesn't come out of reset:
 
-No, nothing fancy, the partition is formated with default settings of
-mkfs.xfs (as slackware did) bsize=4096 according to xfs_info.
-BTW, the errors on reboot I get on my laptop right after (trying
-to)shtutting down the PCMCIA card as result my /var/run is lost
-Manual xfs_repair fixes that. 
+# --------------------------------------------
+# 02/11/01      alan@lxorguk.ukuu.org.uk        1.786.161.45
+# [PATCH] some trident needs longer delays to power up codecs
+# --------------------------------------------
+
+The 2.4 behaviour is to continue as usual even if the card doesn't
+come out of reset, because it's a non fatal error on at least some
+cards. This patch reverts the behaviour to the 2.4 behaviour, which
+works for me. If anyone knows how to tell for a given card whether
+this is a fatal error or not, please let me know and I'll update the
+patch.
+
 

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132040AbRBDQXu>; Sun, 4 Feb 2001 11:23:50 -0500
+	id <S129436AbRBDQZA>; Sun, 4 Feb 2001 11:25:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRBDQXn>; Sun, 4 Feb 2001 11:23:43 -0500
-Received: from [62.122.17.207] ([62.122.17.207]:9485 "EHLO penny")
-	by vger.kernel.org with ESMTP id <S132040AbRBDQXa>;
-	Sun, 4 Feb 2001 11:23:30 -0500
+	id <S131967AbRBDQYu>; Sun, 4 Feb 2001 11:24:50 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:8172 "EHLO
+	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S129436AbRBDQYi>; Sun, 4 Feb 2001 11:24:38 -0500
+From: Mathieu Dube <mathieu_dube@videotron.ca>
+Reply-To: mathieu_dube@videotron.ca
+Organization: Mondo-Live
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 segfault when doing "ls /dev/"
-In-Reply-To: <87u26avkfp.fsf@penny.ik5pvx.ampr.org>
-	<3A7D5CFB.1C21ECD2@wanadoo.fr> <87lmrmv984.fsf@penny.ik5pvx.ampr.org>
-	<3A7D7BCE.37F3DDF@wanadoo.fr>
-Reply-To: Pierfrancesco Caci <p.caci@tin.it>
-From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
-Date: 04 Feb 2001 17:28:03 +0100
-In-Reply-To: <3A7D7BCE.37F3DDF@wanadoo.fr>
-Message-ID: <87g0huv2ek.fsf@penny.ik5pvx.ampr.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Subject: Re: accept
+Date: Sun, 4 Feb 2001 11:40:55 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <200102040044.f140i7a473095@saturn.cs.uml.edu>
+In-Reply-To: <200102040044.f140i7a473095@saturn.cs.uml.edu>
+Cc: acahalan@cs.uml.edu
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01020411423601.00110@grndctrl>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-:-> "Pierre" == Pierre Rousselet <pierre.rousselet@wanadoo.fr> writes:
-
-
-    > /dev is mounted at boot time by the kernel (CONFIG_DEVFS_MOUNT=y).
-    > The system boots and runs without devfsd. You just can't start any 
-    > process calling for non-existing device under /dev and not created
-    > by devfsd. For instance pppd or mc won't start by lack of pseudo-tty 
-    > esd needs /dev/dsp ...
-
-Yes I know this. Actually, booting with "devfs=nomount s" is the only
-way to update the boot record with lilo and my existing lilo.conf.
-If I boot with devfs=nomount, I *can* ls /dev, without segfaulting.
-I don't want to access or use any device in /dev, I just want to stat
-/dev and see what's inside. There's something wrong with (I suspect)
-devfsd and the way it populates /dev with symlinks, whick make /dev
-un-listable but still usable, somewhat.
-
-
-    > i was thinking the trouble may come from some programme launched by
-    > your boot scripts before devfsd is running.
-
-I have no idea. Any other debian users reporting this ?
-
-    > is your version of fileutils > 4.0.28 (ls --version) ?
-
-root@penny:/usr/src/linux # ls --version
-ls (fileutils) 4.0.37
-
-
-Pf
-
-
+On Sat, 03 Feb 2001, you wrote:
+> > What does it typically mean when accept returns 0
+> > and that the perror outputs "Interupted system call"??
+> 
+> During the call, your process received a signal.
+> Most system calls are affected in this way, so that
+> you may break out of what you are doing by sending
+> a signal to yourself with alarm().
+> 
+> It sucks too, since you have to wrap nearly every
+> system call in a while loop. You can avoid some of
+> the trouble with careful use of sigaction() to make
+> the OS restart system calls in some conditions.
+Could it be the SIG32 signal that pthreads use ??
 -- 
-
--------------------------------------------------------------------------------
- Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
-  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
-     Linux penny 2.4.1 #1 Sat Feb 3 20:43:54 CET 2001 i686 unknown
+Mathieu Dube
+Mondo-Live
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

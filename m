@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288262AbSAMWx7>; Sun, 13 Jan 2002 17:53:59 -0500
+	id <S288259AbSAMW5t>; Sun, 13 Jan 2002 17:57:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288266AbSAMWxu>; Sun, 13 Jan 2002 17:53:50 -0500
-Received: from zero.tech9.net ([209.61.188.187]:30482 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288262AbSAMWxl>;
-	Sun, 13 Jan 2002 17:53:41 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: jogi@planetzork.ping.de, Andrea Arcangeli <andrea@suse.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
-        Rob Landley <landley@trommello.org>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16PtX0-0000VA-00@starship.berlin>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu>
-	<20020112121315.B1482@inspiron.school.suse.de>
-	<20020112160714.A10847@planetzork.spacenet> 
-	<E16PtX0-0000VA-00@starship.berlin>
-Content-Type: text/plain
+	id <S288272AbSAMW5j>; Sun, 13 Jan 2002 17:57:39 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:31448 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S288260AbSAMW5b>; Sun, 13 Jan 2002 17:57:31 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200201132257.g0DMvU905716@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.18pre3-ac1
+To: vherva@niksula.hut.fi (Ville Herva)
+Date: Sun, 13 Jan 2002 17:57:30 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020113225244.GC51648@niksula.cs.hut.fi> from "Ville Herva" at Jan 14, 2002 12:52:44 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 13 Jan 2002 17:56:25 -0500
-Message-Id: <1010962587.813.22.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-01-13 at 17:55, Daniel Phillips wrote:
+> On Sun, Jan 13, 2002 at 04:44:46PM -0500, you [Alan Cox] claimed:
+> > People keep bugging me about the -ac tree stuff so this is whats in my
+> > current internal diff with the ll patch and the ide changes excluded.
+> 
+> Any big reason why you aren't including those two? I'm pretty sure a lot of
+> people will eventual bug Marcelo (and you) about merging ide to 2.4
+> proper (or -ac)... :)
 
-> I'd like to add my 'me too' to those who have requested a re-run of this test, building
-> the *identical* kernel tree every time, starting from the same initial conditions.
-> Maybe that's what you did, but it's not clear from your post.
+So I can tell which patch causes problems if any
 
-He later said he did in fact build the same tree, from the same initial
-condition, in single user mode, etc etc ... sounded like good testing
-methodology to me.
+> 2.4.10ac10 (which is what I ran before 17rc1) never showed this. I wan't
+> able to reproduce it on purpose.
+> 
+> I guess this is not the fix for that?
 
-I later asked for a test of Ingo's sched with ll (to compare to Ingo's
-sched with preempt).  In this test, like the others, preempt gives the
-best times.
-
-	Robert Love
-
+Thats the first I've heard of the other problem

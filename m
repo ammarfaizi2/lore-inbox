@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130541AbRCDXaf>; Sun, 4 Mar 2001 18:30:35 -0500
+	id <S130544AbRCEAJx>; Sun, 4 Mar 2001 19:09:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130544AbRCDXa0>; Sun, 4 Mar 2001 18:30:26 -0500
-Received: from tetsuo.zabbo.net ([204.138.55.44]:50191 "HELO tetsuo.zabbo.net")
-	by vger.kernel.org with SMTP id <S130541AbRCDXaS>;
-	Sun, 4 Mar 2001 18:30:18 -0500
-Date: Sun, 4 Mar 2001 18:30:17 -0500
-From: Zach Brown <zab@zabbo.net>
-To: linux-kernel@vger.kernel.org
-Subject: [CFT] maestro update vs 2.2.18
-Message-ID: <20010304183017.A19760@tetsuo.zabbo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S130552AbRCEAJn>; Sun, 4 Mar 2001 19:09:43 -0500
+Received: from innerfire.net ([208.181.73.33]:4 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S130544AbRCEAJe>;
+	Sun, 4 Mar 2001 19:09:34 -0500
+Date: Sun, 4 Mar 2001 16:09:34 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: J Sloan <jjs@mirai.cx>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Miles Lane <miles@megapathdsl.net>
+Subject: Re: Linux on the Unisys ES7000 and CMP2 machines?
+In-Reply-To: <3AA2A940.EC5E71AA@mirai.cx>
+Message-ID: <Pine.LNX.4.10.10103041606530.17847-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I finally spent some time fixing up the maestro driver.  lots of
-feature additions had backed up, and the source was rotting.  Its still
-gross, but at least its cleaned up a bit.  "It works for me" on my
-pentium with an ESS maestro2 engineering board, but laptops will be
-another story entirely.  I'd love it if people could apply this patch to
-vanilla 2.2.18 and let me know how it goes.  
+On Sun, 4 Mar 2001, J Sloan wrote:
 
-The patch does a few things.  Most interestingly for the user, it moves
-away from the model of having multiple /dev/dsp? files and instead allows
-/dev/dsp to be opened concurrently.  It also adds some support for the
-hardware volume buttons on laptops, but not all vendors wire this the same
-way.  As I don't have a maestro-bearing laptop, this is totally untested.
+> Miles Lane wrote:
+> 
+> > http://www.nytimes.com/cnet/CNET_0-1003-200-5007472.html
+> >
+> > Hi,
+> >
+> > I noticed that this article mentions that Unisys has
+> > no plans to port Linux to it's "cellular multiprocessor"
+> > machines.  So, I am wondering if anyone is working
+> > on this independantly.
+> >
+> > These systems seems to be selling well with Microsoft's
+> > Windoze 2000 Datacenter installed.
+> 
+> My take on it is that unisys is an example of brain damage
+> and it's easiest to ignore/work around them rather than
+> trying to get them out of bed with microsoft. Nature will
+> eventually take it's course with unisys as it did with Dec.
+>
+ 
+Given Unisys' reputation you would think compaq and HP would leave
+them alone to avoid being dirtied.
 
-The code is butchered, so the diff is almost illegible.  Perhaps I'll
-learn and do things in stages next time, but I was on a roll :)  One
-of the more notable changes involves using the kernel's ac97_codec
-code rather than its own.  Hopefully this will result in better mixer
-behaviour.
+I think after the gif fiasco most people on the net hate that company.
 
-I'm particularly interested in hearing how suspend/resume functions,
-whether or not the multi-open stuff works, and I'd like to get subvendor
-IDs from people whose laptop's hardware volume buttons work.  See the
-Documentation/sound/Maestro text for instructions on enabling multi-open
-(channels=2 or 4) and hardware volume support (hw_vol=1).
+	Gerhard
+	 
 
-Its an awfully large diff, so it can be fetched from:
+ 
+--
+Gerhard Mack
 
-	http://www.zabbo.net/maestro/patches/2.2.18-mega-1.diff.gz
+gmack@innerfire.net
 
-if this works I'll officially submit it and make the same sorts of
-changes to 2.4.  
+<>< As a computer I find your faith in technology amusing.
 
--- 
- zach

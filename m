@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUGOMbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUGOMdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266187AbUGOMbd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 08:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUGOMbd
+	id S266186AbUGOMdK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 08:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUGOMdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 08:31:33 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:39322 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266187AbUGOMbc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 08:31:32 -0400
-Date: Thu, 15 Jul 2004 13:31:08 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: christophe.varoqui@free.fr, dm-devel@redhat.com,
+	Thu, 15 Jul 2004 08:33:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15563 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266186AbUGOMdC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 08:33:02 -0400
+Date: Thu, 15 Jul 2004 14:31:51 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Paul Jakma <paul@clubi.ie>
+Cc: christophe.varoqui@free.fr, dm-devel@redhat.com,
        linux-kernel@vger.kernel.org
-Subject: namespaces (was Re: [Q] don't allow tmpfs to page out)
-In-Reply-To: <20040715080017.GB20889@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.60.0407151329100.2622@fogarty.jakma.org>
-References: <1089878317.40f6392d7e365@imp5-q.free.fr>
- <20040715080017.GB20889@devserv.devel.redhat.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: namespaces (was Re: [Q] don't allow tmpfs to page out)
+Message-ID: <20040715123148.GA23112@devserv.devel.redhat.com>
+References: <1089878317.40f6392d7e365@imp5-q.free.fr> <20040715080017.GB20889@devserv.devel.redhat.com> <Pine.LNX.4.60.0407151329100.2622@fogarty.jakma.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0407151329100.2622@fogarty.jakma.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jul 2004, Arjan van de Ven wrote:
 
-> sure; namespaces can do a LOT
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-speaking of which, how does one use namespaces exactly? The kernel 
-appears to maintain mount information per process, but how do you set 
-this up?
+On Thu, Jul 15, 2004 at 01:31:08PM +0100, Paul Jakma wrote:
+> On Thu, 15 Jul 2004, Arjan van de Ven wrote:
+> 
+> >sure; namespaces can do a LOT
+> 
+> speaking of which, how does one use namespaces exactly? The kernel 
+> appears to maintain mount information per process, but how do you set 
+> this up?
+> 
+> neither 'man mount/namespace' nor 'appropos namespace' show up 
+> anything.
 
-neither 'man mount/namespace' nor 'appropos namespace' show up 
-anything.
+it's a clone() flag....
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
- 	warning: do not ever send email to spam@dishone.st
-Fortune:
- 	A man was reading The Canterbury Tales one Saturday morning, when his
-wife asked "What have you got there?"  Replied he, "Just my cup and Chaucer."
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA9nk0xULwo51rQBIRAtAnAJsGc1In6DEGNXJMfdenWV60rH48fQCbBk0i
+YyOHIyOG34MW1BblRplvSfM=
+=eFrb
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

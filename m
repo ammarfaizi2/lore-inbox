@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284580AbRLZLPE>; Wed, 26 Dec 2001 06:15:04 -0500
+	id <S279778AbRLZLt0>; Wed, 26 Dec 2001 06:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286194AbRLZLOz>; Wed, 26 Dec 2001 06:14:55 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:7362 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S284580AbRLZLOr>;
-	Wed, 26 Dec 2001 06:14:47 -0500
-Date: Wed, 26 Dec 2001 13:14:29 +0200 (EET)
-From: Teodor Iacob <theo@astral.kappa.ro>
-X-X-Sender: <theo@linux.kappa.ro>
-Reply-To: <Teodor.Iacob@astral.kappa.ro>
-To: Naresh Kothari <Naresh_K@infy.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Porting of routing protocols (RIP, BGP,OSPF) from 2.2.X to 2.4.X
-In-Reply-To: <B10DD1F99B22C844BC146F2C66BF17F83F2E9F@punmsg01.ad.infosys.com>
-Message-ID: <Pine.LNX.4.31.0112261314100.7020-100000@linux.kappa.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.2(snapshot 20010725) (linux)
+	id <S286197AbRLZLtG>; Wed, 26 Dec 2001 06:49:06 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:65502 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S286196AbRLZLtD>; Wed, 26 Dec 2001 06:49:03 -0500
+Date: Wed, 26 Dec 2001 12:49:01 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Thomas Winischhofer <tw@webit.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: @Linus, Marcello, (Alan?) (regards sisfb)
+Message-ID: <20011226124901.A14221@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Thomas Winischhofer <tw@webit.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C2349C8.1DF70E5F@falke.mail> <3C28B113.7F4CFA0E@webit.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C28B113.7F4CFA0E@webit.com>; from tw@webit.com on Tue, Dec 25, 2001 at 06:02:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Dec 25, 2001 at 06:02:11PM +0100, Thomas Winischhofer wrote:
+> 
+> Hi again.
+> 
+> I just finished an update for the new sisfb driver which is available
+> here:
+> 
+> http://members.aon.at/~twinisch/sisfb_src_251201.tar.gz
 
-There is always zebra available you know for all this protcols .. and it
-does work fine with newer kernels
+Works for me! Thanks! 
 
+On a Gericom Webgine Laptop:
+Linux version 2.5.0 (ahu@snapcount) (gcc version 2.95.4 20011006 (Debian prerelease)) #2 Wed Dec 26 12:31:08 CET 2001
+Kernel command line: auto BOOT_IMAGE=sis ro root=301 video=sisfb:mode:1024x768x16
+(...)
+SiS ROM signature = 55 ffffffaa 60 ffffffe9 5f  2 32 2e 30 32 2e 31 (U*_B2.02.1)
+sisfb: Assuming BIOS at 0xc00c0000 and copied to RAM (Sig: 55 aa 60)
+sisfb: framebuffer at 0xd0000000, mapped to 0xd001c000, size 8192k
+sisfb: MMIO at 0xdfee0000, mapped to 0xd081d000, size 128k
+sisfb: LVDS bridge and CHRONTEL TV converter detected
+sisfb: mode is 1024x768x16 (60Hz), linelength=2048
+Console: switching to colour frame buffer device 128x48
+fb0: SIS 630 frame buffer device, Version 1.3.09
 
+> The update was necessary for making sisfb co-operate better with the new
+> X driver.
 
-On Wed, 26 Dec 2001, Naresh Kothari wrote:
+Will test that next.
 
-> Hi,
-> I need to port routing protocols ( RIP , BGP, OSPF) from linux kernel
-> version 2.2.X to 2.4.X
-> For this, I need a list of system calls which have been added/modified
-> in the 2.4.X version.
-> Any pointers to this ?
->
-> Thanx
-> Naresh Kothari
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Regards,
 
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc

@@ -1,118 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbULYGbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbULYJJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbULYGbN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 01:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbULYGbN
+	id S261435AbULYJJn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 04:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbULYJJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 01:31:13 -0500
-Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:47296 "EHLO
-	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261493AbULYGbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 01:31:03 -0500
-Message-ID: <41CD091E.7070107@kolivas.org>
-Date: Sat, 25 Dec 2004 17:30:54 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
-Subject: 2.6.10-ck1
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig36AA2FD07B1450EC36C5860C"
+	Sat, 25 Dec 2004 04:09:43 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:5045 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261435AbULYJJk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 04:09:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=gjFkZQ+tHSF3x7sM2KFiiTAAj+qsj4bCX8U6Zk5Px1T0jEdSqvFCjfRCmlX6YpHcvCd52oHItmKhuoMg5/1H5zq3dmdODwrI68WCcGfEu44tV+rRGfkj9MrEXqrlhjGGz1FmKtW5dyn9+YUZNn4pcOKXtn1HBxbIAMxzPC9CzN4=
+Message-ID: <31f2b71904122501096a8b787@mail.gmail.com>
+Date: Sat, 25 Dec 2004 09:09:39 +0000
+From: Graeme T Ford <gtford@gmail.com>
+Reply-To: Graeme T Ford <gtford@gmail.com>
+To: linux lover <linux.lover2004@gmail.com>
+Subject: Re: Understanding how kernel functions works and adding new one
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <72c6e3790412242020482eadbe@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <72c6e3790412242020482eadbe@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig36AA2FD07B1450EC36C5860C
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Take a look at:
 
-These are patches designed to improve system responsiveness. It is 
-configurable to any workload but the default ck1 patch is aimed at the 
-desktop and ck1-server is available with more emphasis on serverspace.
+http://www.kernelhacking.org/docs/kernelhacking-HOWTO/index.html
 
-http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck1/
+and
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
+http://www.linuxhq.com/lkprogram.html
 
+First is a basic intro, the latter contains some good information to
+get you started.
 
-Full patchlist and descriptions:
-.2.6.10_to_staircase9.2.diff
-This is the latest version of the staircase cpu scheduler.
+You might also find just looking at random .c files in the driver
+source directory helpful, to see how it's been done there.
 
-.schedrange.diff
-.schedbatch2.6.diff
-.schediso2.8.diff
-Add batch scheduling (idle only scheduling) and low latency non 
-privileged (isochronous) scheduling
+Lastly, I've noticed you've been asking some questions over the past
+few days which are easily answered by a simple Google search - may I
+suggest that as a first point of call in future. You'd probably learn
+a lot more by searching for stuff yourself.
 
-.mwII.diff
-(mapped watermark v2). Modify the virtual memory system to start 
-clearing ram at a less full state and do so only lightly. This causes 
-less system load while loading applications and ends up using swap much 
-less.
-	
-.1g_lowmem1_i386.diff
-Allow 1Gb of ram to be used without the overhead of enabling highmem 
-support.
+Regards (and Merry Christmas),
 
-.defaultcfq.diff
-Use the complete fair queueing I/O scheduler by default
-
-.2.6.10-mingoll.diff
-The low latency modifications currently in the -mm tree by Ingo Molnar
-
-.cddvd-cmdfilter-drop.patch
-Allow unprivileged users to burn cds/dvds until userspace applications 
-catch up. Note your cd burning software must not be suid root for this 
-to work.
-
-.2.6.10-nvidia-fix.diff
-A small compatibility change to allow the current version of the nvidia 
-graphics card driver (6629) to work
-
-.vm-pageout-throttling.patch
-.inc_total_scanned.diff
-Decrease the system cpu usage of heavy memory usage conditions
-
-.fix_noswap.diff
-Build fix for config without swap
-
-.2610ck1-version.diff
-version
-
-and available as an addon:
-.supermount-ng208-10ck1.diff
-simplest way to have automounting removable media.
+Graeme.
 
 
-For those following the ck development, the time sliced cfq patch is 
-currently not included in the so-called "official" ck release but will 
-be available in the ckdev version until it's development stabilises.
-
-
-Merry Xmas Cheers,
-Con Kolivas
-
-
---------------enig36AA2FD07B1450EC36C5860C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBzQkgZUg7+tp6mRURAgKnAJ9LNCzPo77NRQOTZPbOIGdcZPVn9ACfdAHQ
-Ue7LX5cA/fsWYAuV4baNepk=
-=3ouV
------END PGP SIGNATURE-----
-
---------------enig36AA2FD07B1450EC36C5860C--
+On Sat, 25 Dec 2004 09:50:23 +0530, linux lover
+<linux.lover2004@gmail.com> wrote:
+> Hello ,
+>          I want to know what things are require me to add my own
+> function in kernel through modules?
+>           Actually i  have 2 questions in my mind
+>        1) Is it possible to write own user defined function in kernel
+> modules and get in laoded in kernel and allow kernel to use it?
+>        2) Is it possible to add my own function program in C file to
+> kernel and allow my kernel module to use it?
+>        I want to add own function not any system call(Am i
+> misunderstanding between syscall and new function call in kernel?)
+>          Can anybody correct me in above approaches?Also give me steps
+> to do that adding functions in kernel/kernel module?
+> Thanks in advance.
+> regards,
+> linux.lover
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,47 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263545AbTI2PSL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 11:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263546AbTI2PSL
+	id S263546AbTI2PTo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 11:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTI2PT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 11:18:11 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:51698 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263545AbTI2PSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 11:18:06 -0400
-Message-ID: <3F784CFC.30103@nortelnetworks.com>
-Date: Mon, 29 Sep 2003 11:17:16 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Michal Kochanowicz <michal@michal.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What to use with 2.6.x instead of iproute2?
-References: <20030927151935.GD5956@wieszak.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Sep 2003 11:19:28 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:32151 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S263546AbTI2PS2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 11:18:28 -0400
+Date: Mon, 29 Sep 2003 08:18:27 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: 3c59x problem with 2.4.6-test[34]
+Message-ID: <20030929151827.GB862@ip68-0-152-218.tc.ph.cox.net>
+References: <20030907212348.GA836@ip68-0-152-218.tc.ph.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030907212348.GA836@ip68-0-152-218.tc.ph.cox.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Kochanowicz wrote:
-> Hi!
+On Sun, Sep 07, 2003 at 02:23:48PM -0700, Tom Rini wrote:
+> Hello.  I've run into an odd problem with the 3c59x driver on
+> 2.6.0-test[34] (and 2.6.0-test4-mm6).  First, from scripts/ver_linux:
 > 
-> It seems that iproute2 is not maintained any more and it doesn't build
-> with kernel 2.6.0-test5.
+> If some fields are empty or look unusual you may have an old version.
+> Compare to the current minimal requirements in Documentation/Changes.
+>  
+> Linux opus 2.6.0-test4 #2 SMP Sat Sep 6 20:43:52 MST 2003 i686 GNU/Linux
+>  
+> Gnu C                  3.3.2
+> Gnu make               3.80
+> util-linux             2.11z
+> mount                  2.11z
+> e2fsprogs              1.35-WIP
+> PPP                    2.4.1
+> nfs-utils              1.0.5
+> Linux C Library        2.3.2
+> Dynamic linker (ldd)   2.3.2
+> Procps                 3.1.11
+> Net-tools              1.60
+> Console-tools          0.2.3
+> Sh-utils               5.0.90
+> Modules Loaded         parport_pc lp parport ipt_REJECT iptable_filter ipt_MASQUERADE ip_nat_ftp ip_conntrack_ftp iptable_nat ip_conntrack ip_tables 8250 core soundcore microcode rtc tulip crc32 af_packet 3c59x hid uhci_hcd usbcore ext2
+> 
+> and lspci:
+> 00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 03)
+> 00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+> 00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 01)
+> 00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+> 00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+> 00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 01)
+> 00:0b.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+> 00:0c.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
+> 00:0d.0 SCSI storage controller: LSI Logic / Symbios Logic 53c895 (rev 01)
+> 00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
+> 00:0f.0 Unknown mass storage controller: Promise Technology, Inc. 20262 (rev 01)
+> 01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
+> 
+> What seems to happen on every other boot (and just rebooting the machine
+> will 'fix' this) is that when 3c59x is loaded I get:
+> 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+> 0000:00:0e.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xe480. Vers LK1.1.19
+>   ***WARNING*** No MII transceivers found!
+> 
+> and then dhcp never gets an IP.   Virtually all of 2.4 has run just fine
+> in this particular setup.
 
-Is Alexey still the iproute2 maintainer?  Has anyone sent him a patch 
-for 2.6?
-
-Chris
-
-
-
+This is still a problem with 2.6.0-test6.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+Tom Rini
+http://gate.crashing.org/~trini/

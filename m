@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311530AbSDDUak>; Thu, 4 Apr 2002 15:30:40 -0500
+	id <S311572AbSDDUdU>; Thu, 4 Apr 2002 15:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311564AbSDDUaV>; Thu, 4 Apr 2002 15:30:21 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:59037 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S311530AbSDDUaJ>; Thu, 4 Apr 2002 15:30:09 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: Changes in s390x uaccess.h in 2.4.17+
-To: zaitcev@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-        "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF002C3AD3.583E5011-ONC1256B91.006ED06D@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Thu, 4 Apr 2002 22:29:58 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 04/04/2002 22:30:01
+	id <S311582AbSDDUdL>; Thu, 4 Apr 2002 15:33:11 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1033 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S311572AbSDDUc7>; Thu, 4 Apr 2002 15:32:59 -0500
+Date: Thu, 4 Apr 2002 16:28:14 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Tom Holroyd <tomh@po.crl.go.jp>
+Cc: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre5
+In-Reply-To: <Pine.LNX.4.44.0204041802310.549-100000@holly.crl.go.jp>
+Message-ID: <Pine.LNX.4.21.0204041627580.10117-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
 
->The 2.4.17 patch comes with a change to uaccess.h, which
->contains the following:
->
->- * These functions have a non-standard call interface
->+ * These functions have standard call interface
->
->Does it look familiar to anyone? The change is in Marcelo's
->tree now, but I am curious what it actually does.
+Could you please try to reproduce with 2.4.19-pre4 ?
 
-This is just a minor optimization.  The old code used to
-have the core of __copy_to_user_asm etc. inline, and only
-the exception fixup code in lib (__copy_to_user_fixup).
+Thanks
 
-The point of this was to save the cost of a function call
-for the default case.  However, because of various reasons
-(tedious argument reloading, register pressure, code size)
-this 'optimization' turned out to be actually worse than
-just a plain function call, so we threw it out. The new code
-simply implements __copy_to_user_asm completely in lib.
+On Thu, 4 Apr 2002, Tom Holroyd wrote:
 
->The 2.4.17 patch readme says "This patch contains the current
->recommended kernel 2.4.7 code base (up to 2002-01-21),
->adapted to kernel 2.4.17.", but I cannot find this change
->in any published 2.4.7 patches. I am pretty sure there must
->be a good reason for the change, and it's interesting to
->know what it is.
+> AlphaPC 264DP 666 MHz (Tsunami, UP)
+> 1GB RAM
+> gcc version 3.0.3
+> 
+> Running stuff as usual, reading large files, I can often get
+> very long mouse freezes when redrawing a certain window in X after
+> leaving it for a while.  I never saw this behavior in 2.4.18-rc1,
+> which I ran for over 1 month doing the same stuff.  vmstat doesn't
+> report swapping activity that I can see, just a window that should
+> refresh (no backing store) right away causes long (2~5 sec) freezes.
 
-The 2.4.17 patch also contains a number of minor cleanups
-that should not cause any noticeable difference in behaviour,
-like this one.
-
-We did not find it worthwhile to backport this to 2.4.7;
-we usually do that only for bugfixes.
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
 

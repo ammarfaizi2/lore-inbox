@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288651AbSANCMy>; Sun, 13 Jan 2002 21:12:54 -0500
+	id <S288655AbSANCNy>; Sun, 13 Jan 2002 21:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288643AbSANCMp>; Sun, 13 Jan 2002 21:12:45 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:49936 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288639AbSANCM1>; Sun, 13 Jan 2002 21:12:27 -0500
-Message-ID: <3C423CB9.7BB04345@zip.com.au>
-Date: Sun, 13 Jan 2002 18:04:41 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <20020108142117.F3221@inspiron.school.suse.de> <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>
+	id <S288643AbSANCNk>; Sun, 13 Jan 2002 21:13:40 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:13585 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S288639AbSANCNX>; Sun, 13 Jan 2002 21:13:23 -0500
+Date: Sun, 13 Jan 2002 21:13:21 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18pre3-ac1
+Message-ID: <20020113211321.C32700@redhat.com>
+In-Reply-To: <028b01c19c90$87300760$02c8a8c0@kroptech.com> <E16PvI2-0008WI-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16PvI2-0008WI-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 12:47:54AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
-> Finally, I doubt that any of this will address my biggest problem with
-> Linux, which is that as memory gets cheap a program doing significant disk
-> writing can get buffers VERY full (perhaps a while CD worth) before the
-> kernel decides to do the write, at which point the system becomes
-> non-responsive for seconds at a time while the disk light comes on and
-> stays on. That's another problem, and I did play with some patches this
-> weekend without making myself really happy :-( Another topic,
-> unfortunately.
+On Mon, Jan 14, 2002 at 12:47:54AM +0000, Alan Cox wrote:
+> That is very useful information actually. That does rather imply that some
+> of the performance hit came from the block I/O elevator differences in the
+> old ac tree (the ones Linus hated ;)). Now the question (and part of the
+> reason Linus didnt like them) - is why ?
 
-/proc/sys/vm/bdflush: Decreasing the kupdate interval from five
-seconds, decreasing the nfract and nfract_sync setting in there
-should smooth this out.  The -aa patches add start and stop
-levels for bdflush as well, which means that bdflush can be the
-one who blocks on IO rather than your process.  And it means that
-the request queue doesn't get 100% drained as soon as the writer
-hits nfract_sync.
+Iirc, Linus just didn't like the low/high watermarks for starting & stopping 
+io.  Personally, I liked it and wanted to use that mechanism for deciding 
+when to submit additional blocks from the buffer cache for the device (it 
+provides a nice means of encouraging batching).  The problem that started 
+this whole mess was a combination of the missing wake_up in the block layer 
+that I found, plus the horrendous io latency that we hit with a long io queue 
+and no priorities.  The critical pages for swap in and program loading, as 
+well as background write outs need to have a priority boost so that 
+interactive feel is better.  Of course, with quite a few improvements in 
+when we wait on ios going into the vm between 2.4.7 and 2.4.17, we don't 
+wait as indiscriminately on io as we did back then.  But write out latency 
+can still harm us.
 
-All very interesting and it will be fun to play with when it
-*finally* gets merged.
+In effect, it is a latency vs thruput tradeoff.
 
-But with the current elevator design, disk read latencies will
-still be painful.
-
--
+		-ben

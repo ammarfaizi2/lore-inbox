@@ -1,91 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290017AbSAQQsX>; Thu, 17 Jan 2002 11:48:23 -0500
+	id <S290028AbSAQQvy>; Thu, 17 Jan 2002 11:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290027AbSAQQsN>; Thu, 17 Jan 2002 11:48:13 -0500
-Received: from L0563P10.dipool.highway.telekom.at ([62.46.134.74]:16000 "EHLO
-	pitt.yi.org") by vger.kernel.org with ESMTP id <S290024AbSAQQsF>;
-	Thu, 17 Jan 2002 11:48:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Christoph Pittracher <pitt@gmx.at>
-Organization: PITT
-Message-Id: <200201171736.25266@pitt4u.2y.net>
-To: linux-kernel@vger.kernel.org
-Subject: ncpfs input/output error
-Date: Thu, 17 Jan 2002 17:48:02 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S290034AbSAQQvs>; Thu, 17 Jan 2002 11:51:48 -0500
+Received: from rpapar1.cgey.com ([194.3.224.25]:31422 "EHLO door.cgey.com")
+	by vger.kernel.org with ESMTP id <S290060AbSAQQvj>;
+	Thu, 17 Jan 2002 11:51:39 -0500
+Message-ID: <3C470105.ED9DDCE@cgey.com>
+Date: Thu, 17 Jan 2002 16:51:17 +0000
+From: Fabien Ribes <fabien.ribes@cgey.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Oops in sock_poll
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-I've a problem with writing to a netware volume from a linux client. 
-The server is a novell netware 4. Mounting the netware volume and 
-reading data from the server works without problems. But if i want to 
-write a file to the server that is bigger than 128kb I get an I/O-error 
-(sometimes it's possible to write a file with more than 128kb but then 
-the I/O-error occurs at 256kb, or 283kb sometimes after storing 192kb 
-of the data).
+Hi all,
 
-workstation:~$ mount
-/dev/hda2 on / type ext2 (rw,errors=remount-ro,errors=remount-ro)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-FST01/NETWARE.USER on /home/netware-user type ncpfs (rw)
-workstation:~$
+I have a kernel Oops on ppc kernel 2.4.5 with an application listenning
+to a high throughput of incoming messages on a netlink socket. The
+application is running select() on the netlink socket file descriptor
+followed with  recvmsg() call (in a forever loop).
 
-The netware volume is mounted to /home/netware-user (with 
-uid=netware-user and gid=netware, a local linux user).
+The Oops (not saved, and hard to reproduce) showed a crash in the
+sock_poll function (kernel/net/socket.c); after investigations, crash is
+due to a NULL pointer in f_dentry member of the file structure. This
+pointer is set to NULL in the fput (kernel/fs/file_table.c) function.
+The backtraces show that the calling function is the sys_recvmsg
+(kernel/net/socket.c).
 
-workstation:~$ cp /home/wk/linux-2.4.17.tar.bz2 /home/netware-user
-cp: writing `./linux-2.4.17.tar.bz2': Input/output error
-workstation:~$
+My understanding of the problem is the following:
 
-Now have a look at the file size on the server:
+- When everything goes right:
 
-workstation:~$ ls -al /home/netware-user/linux-2.4.17.tar.bz2
--rwxr-xr-x    1 netware- netware    262144 Jan 17 15:00 
-linux-2.4.17.tar.bz2
-workstation:~$
+A/ When netlink socket is opened, its associated file structure is
+initialised with f_count to 1, and a dentry;
 
-strace output of the cp command:
-workstation:~$ strace cp /home/wk/linux-2.4.17.tar.bz2 
-/home/netware-user
-[...]
-read(3, "i1L@a\216\27\212Dva\200\344\'.O\306\331\257\232;\367\375"..., 
-512)
-= 512
-write(4, "i1L@a\216\27\212Dva\200\344\'.O\306\331\257\232;\367\375"..., 
-512)
-= 512
-read(3, "\337\375\337\341\273\257\344\n\264\0302%\231\337\233\261"..., 
-512)
-= 512
-write(4, "\337\375\337\341\273\257\344\n\264\0302%\231\337\233\261"..., 
-512)
-= -1 EIO (Input/output error)
-[...]
+B/ When select is executed, f_count is increased to 2;
 
-I don't know why this write fails...
-Any hints?
+C/ When select ends, f_count is decreased to 1;
 
-Some version information:
-workstation:~$ ncpmount -v
-ncpfs version 2.2.0.18
-workstation:~$
+D/ When recvmsg is executed, f_count is increased to 2;
 
-workstation:~$ uname -r
-2.4.17
-workstation:~$
+E/ When recvmsg ends, f_count is decreased to 1;
 
-NCPFS specific kernel configurations:
-CONFIG_NCP_FS=y
-CONFIG_NCPFS_OS2_NS=y
-CONFIG_NCPFS_NLS=y
-CONFIG_NCPFS_EXTRAS=y
+F/ Loop forever to B/
 
-Please tell me if you need any additional information.
+- When the problem occurs:
 
-Thanks,
-Christoph
+A/ When netlink socket is opened, its associated file structure is
+initialised with f_count to 1, and a dentry;
+
+B/ When select is executed, f_count is increased to 2;
+
+C/ When select ends, f_count is decreased to 1;
+
+D/ When recvmsg is executed, f_count is increased to 2;
+
+????/ SOMETHING decreases f_count to 1;
+
+E/ When recvmsg ends, f_count is decreased to 0, AND THEREFORE f_dentry
+member of file is set to NULL (since file is considered as not used) ;
+
+F/ When select is executed, f_count is incremented to 1, but f_dentry is
+NULL and therefore following code crashes in sock_poll function:
+ sock = socki_lookup(file->f_dentry->d_inode);
+
+Do you have an idea of the event that could have decreased the f_count
+member between D/ and E/ ?
+Could you give me elements to continue my investigation ?
+
+Thanks a lot for you help,
+Fabien

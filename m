@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290553AbSBFOKN>; Wed, 6 Feb 2002 09:10:13 -0500
+	id <S290561AbSBFOVf>; Wed, 6 Feb 2002 09:21:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290561AbSBFOKD>; Wed, 6 Feb 2002 09:10:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:51723 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290553AbSBFOJu>;
-	Wed, 6 Feb 2002 09:09:50 -0500
-Date: Wed, 6 Feb 2002 15:09:49 +0100
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel: ldt allocation failed
-Message-ID: <20020206150949.A10871@wotan.suse.de>
-In-Reply-To: <p73ofj2lpdg.fsf@oldwotan.suse.de> <E16YSpV-0005Es-00@the-village.bc.nu>
+	id <S290565AbSBFOVZ>; Wed, 6 Feb 2002 09:21:25 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:53001 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S290561AbSBFOVL>;
+	Wed, 6 Feb 2002 09:21:11 -0500
+Subject: Re: Intel Speedstep bug in 2.4.17?
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: lathi@seapine.com
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87eljzb8l6.fsf@localhost.localdomain>
+In-Reply-To: <87eljzb8l6.fsf@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 06 Feb 2002 09:20:48 -0500
+Message-Id: <1013005249.15711.1.camel@zaphod>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16YSpV-0005Es-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 02:13:45PM +0000, Alan Cox wrote:
-> > glibc 2.3 seems to plan to use segment register based thread local data for 
-> > even non threaded programs, so it would be a good idea to optimize LDT 
-> > allocation a bit (= not allocate 64K of vmalloc space every time 
-> > sys_modify_ldt is called - there is only 8MB of it) 
+I have similiar issues on my t21.
+
+when I boot without AC it says my mhz is < 200mhz (while I believe it
+should be 650, as opposed to the full 800)
+
+shaya potter
+
+On Tue, 2002-02-05 at 22:19, Doug Alcorn wrote:
+> I have an IBM Thinkpad A22m with an Intel Pentium III (Coppermine)
+> 800Mhz.  I custom compiled a 2.4.17 kernel.  I'm also using Sawfish
+> 1.0.1-6.  I have a problem with the mouse input in my XFree86 4.1.0.
+> Sometimes it doesn't register mouse clicks (requiring me to click
+> three or four times).  Also, the focus follows mouse seems off.
+> Most times I have to move the mouse in and out of a window several
+> times before the focus actually switches.  I originally thought this
+> was a bug in sawfish, so I asked there.  They said it was actually a
+> kernel issue.  I'm not sure I really understand that; however, when I
+> boot the machine with the AC plugged in I never see these symptoms.
+> If I boot the machine on battery power the symptoms show up right
+> away.  Also, if I boot on AC but later suspend and then resume on
+> battery power I don't see any of the symptoms.  Can anyone shed any
+> light on this?  Is it a known issue?  Is it fixable?
 > 
-> I think it would be a good idea to modify the glibc authors in that case.
-> The ldt costs real performance on task switches. It would be very dumb of
-> glibc to use it except when justified in the bigger picture - ie threaded
-> apps
+> Here are my APM configuration variables for my kernel:
+> 
+> CONFIG_APM=y
+> # CONFIG_APM_IGNORE_USER_SUSPEND is not set
+> # CONFIG_APM_DO_ENABLE is not set
+> CONFIG_APM_CPU_IDLE=y
+> CONFIG_APM_DISPLAY_BLANK=y
+> CONFIG_APM_RTC_IS_GMT=y
+> CONFIG_APM_ALLOW_INTS=y
+> # CONFIG_APM_REAL_MODE_POWER_OFF is not set
+> # CONFIG_ACPI is not set
+> 
+> -- 
+>  (__) Doug Alcorn (mailto:doug@lathi.net http://www.lathi.net)
+>  oo / PGP 02B3 1E26 BCF2 9AAF 93F1  61D7 450C B264 3E63 D543
+>  |_/  If you're a capitalist and you have the best goods and they're
+>       free, you don't have to proselytize, you just have to wait. 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Are you sure it does? LGDT with non zero argument shouldn't be that costly. 
-The %fs switching adds some locked cycles for reloading the segment cache, 
-but because Windows uses that I would it expect to be reasonably optimized 
-on CPUs. 
 
-I actually tried to complain because on x86-64 it is more costly, but to
-no avail. 
-
--Andi

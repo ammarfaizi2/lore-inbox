@@ -1,75 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUB0VJr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 16:09:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUB0VJr
+	id S263119AbUB0VMw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 16:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUB0VMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 16:09:47 -0500
-Received: from plum.csi.cam.ac.uk ([131.111.8.3]:48092 "EHLO
-	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP id S263101AbUB0VJg
+	Fri, 27 Feb 2004 16:12:52 -0500
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:36754
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S263119AbUB0VKq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 16:09:36 -0500
-To: Ben Collins <bcollins@debian.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: Using physical extents instead of logical ones for NEC USB HID
- gamepads
-References: <86y8vcygar.fsf@notus.ireton.fremlin.de>
-	<20031023001850.GB9808@phunnypharm.org>
-	<87ptgolq69.fsf@bayu.ireton.fremlin.de>
-From: John Fremlin <john@fremlin.de>
-In-Reply-To: <87ptgolq69.fsf@bayu.ireton.fremlin.de> (John Fremlin's message
- of "Thu, 23 Oct 2003 01:05:02 +0000")
-X-Home-Page: http://john.fremlin.de
-Date: Fri, 27 Feb 2004 11:49:30 +0000
-Message-ID: <87y8qo4u9h.fsf_-_@bayu.ireton.fremlin.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Security Through
- Obscurity, i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Fri, 27 Feb 2004 16:10:46 -0500
+Subject: Re: kgdb support in vanilla 2.6.2
+From: Piet Delaney <piet@www.piet.net>
+To: George Anzinger <george@mvista.com>
+Cc: Andi Kleen <ak@suse.de>, "Amit S. Kale" <amitkale@emsyssoft.com>,
+       akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       piggy@timesys.com, trini@kernel.crashing.org, piet <piet@www.piet.net>
+In-Reply-To: <40295388.5080901@mvista.com>
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>	<20040204155452.4
+	9c1eba8.akpm@osdl.org.suse.lists.linux.kernel>	<p73n07ykyop.fsf@verdi.suse.d
+	 e>	<200402052320.04393.amitkale@emsyssoft.com>
+	<20040206032054.3fd7db8d.ak@suse.de>  <40295388.5080901@mvista.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Feb 2004 13:09:11 -0800
+Message-Id: <1077916151.3291.133.camel@www.piet.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Tue, 2004-02-10 at 13:56, George Anzinger wrote:
 
-This patch for 2.4.22 (which applied cleanly to 2.4.25-pre) adds the
-ID 073e:0301 NEC, Inc. Game Pad to the list of quirky USB joypads which
-mix up logical and physical extents.
+I thought I'd poke around an AMD64 with etherbased kgdb on 2.6.*.
+I just picked up a used AMD64 K8D Master-F MS-9131 and thought I'd
+install Fedora Core 1 test1 and the latest kernel from kernel.org.
 
-Please apply as the joypad obviously does not work without it. I've
-tested it.
+It Might be interesting to try out a SuSE release also, I was wondering
+if 9.0 from linuxiso.org might be best.
 
+Last I worked with your kgdb patch for 2.6 Andrew's mm patch had the
+latest code; Is that still the case?
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment;
-  filename=linux-2.4.22-nec-usb-badpad.patch
+-piet
 
---- drivers/usb/hid-core.c.~1~	2003-09-03 10:27:13.000000000 +0000
-+++ drivers/usb/hid-core.c	2003-10-23 00:57:04.000000000 +0000
-@@ -1182,7 +1182,10 @@ void hid_init_reports(struct hid_device 
- #define USB_VENDOR_ID_MGE		0x0463
- #define USB_DEVICE_ID_MGE_UPS		0xffff
- #define USB_DEVICE_ID_MGE_UPS1		0x0001
-- 
-+
-+#define USB_VENDOR_ID_NEC		0x073e
-+#define USB_DEVICE_ID_NEC_USB_GAME_PAD	0x0301
-+
- struct hid_blacklist {
- 	__u16 idVendor;
- 	__u16 idProduct;
-@@ -1237,6 +1240,7 @@ struct hid_blacklist {
- 	{ USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_HIDDEV },
- 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS1, HID_QUIRK_HIDDEV },
-+	{ USB_VENDOR_ID_NEC, USB_DEVICE_ID_NEC_USB_GAME_PAD, HID_QUIRK_BADPAD },
- 	{ 0, 0 }
- };
- 
-
---=-=-=--
+> Andi Kleen wrote:
+> > On Thu, 5 Feb 2004 23:20:04 +0530
+> > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > 
+> > 
+> >>On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
+> >>
+> >>>Andrew Morton <akpm@osdl.org> writes:
+> >>>
+> >>>>need to take a look at such things and really convice ourselves that
+> >>>>they're worthwhile.  Personally, I'd only be interested in the basic
+> >>>>stub.
+> >>>
+> >>>What I found always extremly ugly in the i386 stub was that it uses
+> >>>magic globals to talk to the page fault handler. For the x86-64
+> >>>version I replaced that by just using __get/__put_user in the memory
+> >>>accesses, which is much cleaner. I would suggest doing that for i386
+> >>>too.
+> >>
+> >>May be I am missing something obvious. When debugging a page fault handler if 
+> >>kgdb accesses an swapped-out user page doesn't it deadlock when trying to 
+> >>hold mm semaphore?
+> > 
+> > 
+> > Modern i386 kernels don't grab the mm semaphore when the access is >= TASK_SIZE
+> > and the access came from kernel space (actually I see x86-64 still does, but that's 
+> > a bug, will fix). You could only see a deadlock when using user addresses
+> > and you already hold the mm semaphore for writing (normal read lock is ok). 
+> > Just don't do that. 
+> > 
+> > 
+> > 
+> >>George has coded cfi directives i386 too. He can use them to backtrace past 
+> >>irqs stack.
+> > 
+> > 
+> > Problem is that he did it without binutils support. I don't think that's a good
+> > idea because it makes the code basically unmaintainable for normal souls
+> > (it's like writing assembly code directly in hex) 
+> 
+> Well, bin utils, at this time, makes it even worse in that it does not support 
+> the expression syntax.  Also, it is not asm but dwarf2 and it is written in, 
+> IMHO, useful macros (not hex :)
+> 
+> 
+> 
+> -- 
+> George Anzinger   george@mvista.com
+> High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+> Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+piet@www.piet.net
 

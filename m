@@ -1,79 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbTLUTnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 14:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbTLUTnQ
+	id S263904AbTLUTvz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 14:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbTLUTvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 14:43:16 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:52107 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S263953AbTLUTnO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 14:43:14 -0500
-Date: Sun, 21 Dec 2003 14:40:40 -0500
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-Message-ID: <20031221194040.GG30397@gnu.org>
-References: <20031218231137.GA13652@gnu.org> <20031221012504.GB21001@pegasys.ws>
+	Sun, 21 Dec 2003 14:51:55 -0500
+Received: from main.gmane.org ([80.91.224.249]:29364 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263904AbTLUTvy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 14:51:54 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Thomas Backlund <tmb@iki.fi>
+Subject: Re: PROBLEM: nForce2 keeps crashing during network activity
+Date: Sun, 21 Dec 2003 21:51:52 +0200
+Message-ID: <bs4tko$a2c$1@sea.gmane.org>
+References: <200312211524.40325.cleanerx@au.hadiko.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031221012504.GB21001@pegasys.ws>
-User-Agent: Mutt/1.3.28i
-From: Lennert Buytenhek <buytenh@gnu.org>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 20, 2003 at 05:25:04PM -0800, jw schultz wrote:
+Jens Kübler wrote:
 
-> > What am I to do?  Ignore the patent?  Or should I refrain from submitting
-> > the patch I wrote, and look for an unencumbered algorithm instead?
+> Hi
 > 
-> This whole thing seems strange to me.
+> My computer will freeze if I produce heavy network traffic. The crashes
+> happen after an arbitrary time and seem not to be related to hardware
+> defects. I tried the onboard nic and the rtl8139 which worked fine for me
+> with my old mainboard. I've copied the same file with windowsXP and tried
+> some other heavy network traffic just to see wheater it might be an
+> hardware error but the system was stable. After I have started to import
+> my home directory via NFS the crashes became more often. I will crash my
+> system if I copy a big file via SMB.
+> I had the problem with Mandrake 9.1 and now with 9.2 and even compiled my
+> own kernel (mandrake source) with no effect.
 > 
-> Why do you even know the algorithm is patented?  And if you
-> knew it was, why implement it?  If you implemented it and
-> then did a search you poisoned yourself.
+> Any suggestions?
+> 
 
-I implemented the algorithm, and before submitting it, I asked
-the authors of the paper I used to implement the algorithm what
-the patent status of this algorithm is.  The paper doesn't say
-anything about any patents (in retrospect, obviously it wouldn't.)
+Boot with noapic or acpi=off
 
+--
+Regards
 
-> I've not poked around in the routing code but it seems to me
-> that the kernel would need a longest-prefix match algorithm
-> already so you shouldn't have to look far for one.
+Thomas
 
-There is one already, and it's suboptimal, to say it mildly.
-
-
-> As for asking the patent holder for a license.  If the
-> patent were owned by a network hardware company i cannot see
-> them licensing it because the speed of their equipment is
-> their competitive advantage.  But you indicated the the
-> patent is not owned by the HW company but exclusively
-> licensed.  An existing exclusive license would preclude
-> FLOSS being granted a license and a gratis sublicense would 
-> likely violate the existing license.
-
-I asked this question on l-k because there seem to be many 'common'
-techniques in wide use which have US patents covering them.
-
-Considering the circumstances, yes, licensing is probably out of the
-question.
-
-
-> It would be completely OT to wonder at what point source
-> code crossed the line of expressing information of public
-> record into being a patent violation. <niggle>
-
-I wouldn't be surprised if publishing source code implementing a patented
-algorithm would itself be considered as a patent violation (I'm not saying
-that it would make sense to me though.)
-
-I think this l-k thread was sufficiently instructive for me to decide that
-I won't be publishing my implementation of this algorithm, and I'll just
-wait until another (free) LPM algorithm pops up.
-
-
---L

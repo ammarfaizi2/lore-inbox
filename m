@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312962AbSDBWRA>; Tue, 2 Apr 2002 17:17:00 -0500
+	id <S312972AbSDBWSA>; Tue, 2 Apr 2002 17:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312972AbSDBWQu>; Tue, 2 Apr 2002 17:16:50 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:4752 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S312962AbSDBWQm>;
-	Tue, 2 Apr 2002 17:16:42 -0500
-Date: Tue, 2 Apr 2002 17:16:42 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Question about 'Hidden' Directories in ext2
-Message-ID: <Pine.LNX.4.30.0204021704360.6590-100000@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312975AbSDBWRq>; Tue, 2 Apr 2002 17:17:46 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39669
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312972AbSDBWRc>; Tue, 2 Apr 2002 17:17:32 -0500
+Date: Tue, 2 Apr 2002 14:19:09 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Rene Rebe <rene.rebe@gmx.net>
+Cc: insight@metalab.unc.edu, pabloa@laotraesquina.com.ar,
+        mtopper@xarch.tu-graz.ac.at, Ruth.Ivimey-Cook@ivimey.org,
+        hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
+Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only version
+Message-ID: <20020402221909.GD961@matchmail.com>
+Mail-Followup-To: Rene Rebe <rene.rebe@gmx.net>, insight@metalab.unc.edu,
+	pabloa@laotraesquina.com.ar, mtopper@xarch.tu-graz.ac.at,
+	Ruth.Ivimey-Cook@ivimey.org, hahn@physics.mcmaster.ca,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3CA990E0.6060507@laotraesquina.com.ar> <20020402.151107.115901725.rene.rebe@gmx.net> <20020402205918.36a94648.insight@metalab.unc.edu> <20020402.215534.971160138.rene.rebe@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 02, 2002 at 09:55:34PM +0200, Rene Rebe wrote:
+> The only problems I had with 2.4 were the NFS+reiserfs and
+> NFS+smy-links problems and the obvious broken 2.4.9 (or was it .10?)
+> and 2.4.15 ...
 
-Ok, so some hackers broke into one of our boxes and set up an ftp site.
-They monopolized over 70gb of hard drive space with warez and porn.  We
-aren't really that upset about it, since we thought it was kind of funny.
-(Of course we don't like the idea that they are using out bandwidth and
-disk space, but we can easily remedy that).
-
-Anyway, the weird thing is they created 2 directories, both of which were
-strangely hidden.  You can cd into them but you can't ls them.  I
-
-/usr/lib/ypx and /usr/man/ypx were the two directories that contained both
-the ftp software and the ftp root.  When you are in /usr/man and you do an
-ls, you don't see the ypx directory (same when you are in /usr/lib).  The
-ls binary we got is right off the redhat cd so it shouldn't still be
-compromised by whatever rootkit was installed.
-
-My question is this: can the data structures in ext2fs be somehow hacked
-so a directory can't appear in a listing but can be otherwise located for
-a stat or a chdir?  I should think no.. maybe we still haven't gotten rid
-of the rootkit...
-
--Calin
-
-
+2.4.{10,11,15}

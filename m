@@ -1,83 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTEEUpP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 16:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbTEEUpP
+	id S261369AbTEEUw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 16:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbTEEUwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 16:45:15 -0400
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:37382 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261336AbTEEUpL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 16:45:11 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Frank Davis <fdavis@si.rr.com>, maxk@qualcomm.com
-Subject: Re: [PATCH] 2.5.69 : drivers/bluetooth/hci_usb.c
-Date: Mon, 5 May 2003 22:57:07 +0200
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.44.0305051642060.18736-100000@master>
-In-Reply-To: <Pine.LNX.4.44.0305051642060.18736-100000@master>
-Cc: fdavis@si.rr.com, linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Mon, 5 May 2003 16:52:25 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:56782 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261369AbTEEUwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 16:52:23 -0400
+Date: Mon, 5 May 2003 23:04:58 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add a config option for drivers/char/raw.o
+Message-ID: <20030505210458.GB7049@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200305052257.19652.fsdeveloper@yahoo.de>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-On Monday 05 May 2003 22:47, Frank Davis wrote:
-> Hello,
->
-> The following patch addresses the compile error below (I haven't seent
-> this previously reported.). I suspect there's a cleaner patch. Please
-> review. Thanks.
->
-> Regards,
-> Frank
->
-> drivers/bluetooth/hci_usb.c: In function `hci_usb_send_bulk':
-> drivers/bluetooth/hci_usb.c:461: `USB_ZERO_PACKET' undeclared (first use in
-> this function) drivers/bluetooth/hci_usb.c:461: (Each undeclared identifier
-> is reported only once drivers/bluetooth/hci_usb.c:461: for each function it
-> appears in.) make[2]: *** [drivers/bluetooth/hci_usb.o] Error 1
-> make[1]: *** [drivers/bluetooth] Error 2
-> make: *** [drivers] Error 2
->
-> --- linux/drivers/bluetooth/hci_usb.c.old	2003-05-05 16:38:58.000000000
-> -0400 +++ linux/drivers/bluetooth/hci_usb.c	2003-05-05 16:40:35.000000000
-> -0400 @@ -68,6 +68,8 @@
->  #define USB_ZERO_PACKET 0
->  #endif
->
-> +#define USB_ZERO_PACKET 0
-> +
->  static struct usb_driver hci_usb_driver;
->
->  static struct usb_device_id bluetooth_ids[] = {
->
+This patch is basically a backport of 2.5, works for me and applies
+cleanly to 2.4.20, -rc1 and -rc1-ac4.
 
-> [snip] I suspect there's a cleaner patch. [/snip]
+Comments?
 
-And I suspect, this patch is wrong. :)
+Jörn
 
-Maxim Krasnyansky, what has USB_ZERO_PACKET to be set to if
-CONFIG_BT_USB_ZERO_PACKET is enabled? I didn't find it out.
+-- 
+Public Domain  - Free as in Beer
+General Public - Free as in Speech
+BSD License    - Free as in Enterprise
+Shared Source  - Free as in "Work will make you..."
 
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 22:52:55 up  5:17,  2 users,  load average: 1.20, 1.25, 1.15
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+ttAvoxoigfggmSgRAsZUAJ9d9XZ1FSDr2zj/ssAJOJgbyjJUvACeN43j
-RMYAoDK1ZknM0GrNi4lxnwE=
-=l6wk
------END PGP SIGNATURE-----
-
+--- linux-2.4.20/drivers/char/Makefile~remove_charraw	2002-11-29 00:53:12.000000000 +0100
++++ linux-2.4.20/drivers/char/Makefile	2003-04-14 15:16:17.000000000 +0200
+@@ -16,7 +16,7 @@
+ 
+ O_TARGET := char.o
+ 
+-obj-y	 += mem.o tty_io.o n_tty.o tty_ioctl.o raw.o pty.o misc.o random.o
++obj-y	 += mem.o tty_io.o n_tty.o tty_ioctl.o pty.o misc.o random.o
+ 
+ # All of the (potential) objects that export symbols.
+ # This list comes from 'grep -l EXPORT_SYMBOL *.[hc]'.
+@@ -197,6 +197,7 @@
+ obj-$(CONFIG_HVC_CONSOLE) += hvc_console.o
+ obj-$(CONFIG_SERIAL_TX3912) += generic_serial.o serial_tx3912.o
+ obj-$(CONFIG_TXX927_SERIAL) += serial_txx927.o
++obj-$(CONFIG_RAW_DRIVER) += raw.o
+ 
+ subdir-$(CONFIG_RIO) += rio
+ subdir-$(CONFIG_INPUT) += joystick
+--- linux-2.4.20/drivers/char/Config.in~remove_charraw	2002-11-29 00:53:12.000000000 +0100
++++ linux-2.4.20/drivers/char/Config.in	2003-04-14 15:18:33.000000000 +0200
+@@ -321,4 +321,6 @@
+    tristate 'ACP Modem (Mwave) support' CONFIG_MWAVE
+ fi
+ 
++tristate "RAW driver (/dev/raw/rawN)" CONFIG_RAW_DRIVER
++
+ endmenu
+--- linux-2.4.20/Documentation/Configure.help~remove_charraw	2002-11-29 00:53:08.000000000 +0100
++++ linux-2.4.20/Documentation/Configure.help	2003-04-14 15:20:04.000000000 +0200
+@@ -3478,6 +3478,13 @@
+   The module will be called mwave.o. If you want to compile it as
+   a module, say M here and read Documentation/modules.txt.
+ 
++RAW driver (/dev/raw/rawN)
++CONFIG_RAW_DRIVER
++  The raw driver permits block devices to be bound to /dev/raw/rawN. 
++  Once bound, I/O against /dev/raw/rawN uses efficient zero-copy I/O.
++  See the raw(8) manpage for more details.
++
++
+ /dev/agpgart (AGP Support)
+ CONFIG_AGP
+   AGP (Accelerated Graphics Port) is a bus system mainly used to

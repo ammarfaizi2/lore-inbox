@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290498AbSAYCBP>; Thu, 24 Jan 2002 21:01:15 -0500
+	id <S290397AbSAYCLH>; Thu, 24 Jan 2002 21:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290497AbSAYCBF>; Thu, 24 Jan 2002 21:01:05 -0500
-Received: from codepoet.org ([166.70.14.212]:34022 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S290495AbSAYCAL>;
-	Thu, 24 Jan 2002 21:00:11 -0500
-Date: Thu, 24 Jan 2002 19:00:13 -0700
+	id <S290495AbSAYCK6>; Thu, 24 Jan 2002 21:10:58 -0500
+Received: from codepoet.org ([166.70.14.212]:39398 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S290397AbSAYCKw>;
+	Thu, 24 Jan 2002 21:10:52 -0500
+Date: Thu, 24 Jan 2002 19:10:55 -0700
 From: Erik Andersen <andersen@codepoet.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: booleans and the kernel
-Message-ID: <20020125020013.GA12506@codepoet.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: If you haven't seen it yet...
+Message-ID: <20020125021055.GB12506@codepoet.org>
 Reply-To: andersen@codepoet.org
 Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux-Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <a2q2ud$kr$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
+In-Reply-To: <a2q2ud$kr$1@cesium.transmeta.com>
 User-Agent: Mutt/1.3.24i
 X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Jan 24, 2002 at 12:42:58PM -0500, Jeff Garzik wrote:
-> A small issue... 
-> 
-> C99 introduced _Bool as a builtin type.  The gcc patch for it went into
-> cvs around Dec 2000.  Any objections to propagating this type and usage
-> of 'true' and 'false' around the kernel?
-> 
-> Where variables are truly boolean use of a bool type makes the
-> intentions of the code more clear.  And it also gives the compiler a
-> slightly better chance to optimize code [I suspect].
-> 
-> Actually I prefer 'bool' to '_Bool', if this becomes a kernel standard.
+On Thu Jan 24, 2002 at 02:47:41PM -0800, H. Peter Anvin wrote:
+> If you haven't noticed yet, there are two new links on the kernel.org
+> front page: V and VI (View and View Incremental.)  Both take you to a
+> diff viewer application and display the full diff and incremental diff
+> (when available), respectively.
 
-Agreed, bool is nicer.  Out of curiosity, esp 
-wrt struct packing, how does gcc actully store 
-a bool?  A single bit?  A full 32-bit word?
+Wonderful, thanks!  Adding diffstat output would also be very
+nice so I can easily see if the stuff I'm messing with is or 
+isn't changed,
 
  -Erik
 

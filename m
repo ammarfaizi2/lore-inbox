@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132607AbQKWGo5>; Thu, 23 Nov 2000 01:44:57 -0500
+        id <S132570AbQKWHLC>; Thu, 23 Nov 2000 02:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132615AbQKWGor>; Thu, 23 Nov 2000 01:44:47 -0500
-Received: from smtp2.free.fr ([212.27.32.6]:14353 "EHLO smtp2.free.fr")
-        by vger.kernel.org with ESMTP id <S132607AbQKWGog>;
-        Thu, 23 Nov 2000 01:44:36 -0500
-To: kuznet@ms2.inr.ac.ru
-Subject: Re: [BUG] 2.2.1[78] : RTNETLINK lock not properly locking ?
-Message-ID: <974960072.3a1cb5c821d96@imp.free.fr>
-Date: Thu, 23 Nov 2000 07:14:32 +0100 (MET)
-From: Willy Tarreau <willy.lkml@free.fr>
-Cc: Willy Tarreau <willy.LKml@free.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <200011221809.VAA20851@ms2.inr.ac.ru>
-In-Reply-To: <200011221809.VAA20851@ms2.inr.ac.ru>
+        id <S132615AbQKWHKw>; Thu, 23 Nov 2000 02:10:52 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:44023 "EHLO
+        webber.adilger.net") by vger.kernel.org with ESMTP
+        id <S132570AbQKWHKk>; Thu, 23 Nov 2000 02:10:40 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011230640.eAN6eb223846@webber.adilger.net>
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <3A1CB07C.CEE01F1F@haque.net> "from Mohammad A. Haque at Nov 23,
+ 2000 00:51:56 am"
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Date: Wed, 22 Nov 2000 23:40:36 -0700 (MST)
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 212.27.48.151
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is linux-2.2, guy. 8) "threads" are not threaded there.
+Mohammad A. Haque writes:
+> I just got these while doing many compiles on my box ....
 > 
-> Semaphores (rtnl_lock, particularly) protects only areas, which
-> are going to _schedule_ excplicitly or implicitly.
+> Nov 23 00:40:06 viper kernel: EXT2-fs warning (device ide0(3,3)):
+> ext2_unlink: Deleting nonexistent file (622295), 0
+> Nov 23 00:40:06 viper kernel: = 1
+> Nov 23 00:40:06 viper kernel: EXT2-fs error (device ide0(3,3)):
+> ext2_free_blocks: Freeing blocks not in datazone - block = 540028982,
+> count = 1
+> Nov 23 00:40:06 viper kernel: EXT2-fs error (device ide0(3,3)):
+> ext2_free_blocks: Freeing blocks not in datazone - block = 540024880,
+> count = 1
+> Nov 23 00:40:06 viper kernel: EXT2-fs error (device ide0(3,3)):
+> ext2_free_blocks: Freeing blocks not in datazone - block = 170926128,
+> count = 1
 
-ok, thanks a lot Alexey, now I understand.
+I'm not sure where the nonexistent file comes from.  According to the
+printf statement, you're trying to unlink a file with no links, so it
+would be interesting to see if 622295 is a valid inode number (it
+should be, or there would have been more error messages).  Doing
 
-> Please, read comments. People used to consider comments as something
-> decorative, but they are not. 
+dumpe2fs -h /dev/hda3
 
-I did read them again and again, but you know, when there's something
-you don't understand, sometimes you interprete things badly.
+may help to find out where this bogus inode came from.
 
-> Any questions?
-not anymore, of course :-)
+These block numbers decode to ASCII data:
 
-> Sorry...
-> 
-> /* NOTE: these locks are not interrupt safe, are not SMP safe,
->  * they are even not atomic. 8)8)8) ... and it is not a bug.
-> etc.
-> 
-> Do you call this "very precautios"? 8)
+540028982 = 0x20303036 = " 336"
+540024880 = 0x20302030 = " 3 3"
+170926128 = 0x0a302030 = "\n3 3"
 
-I spoke about the first ones :)
 
-thanks a lot, now I know how to proceed.
+There were problems like this quite a while ago (block numbers that are
+really ASCII data)...  I can't recall what the problem turned out to be
+at that time.
 
-Cheers,
-Willy
+I would suggest a full fsck to start with (you have probably already
+done so).  If you haven't done a full fsck on this filesystem in a long
+time, there is a chance the corruption was from the old kernel bug.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

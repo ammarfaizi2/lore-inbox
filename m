@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVCJDYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVCJDYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbVCJDYn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 22:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVCJBJU
+	id S261794AbVCJDYm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 22:24:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVCJBJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:09:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:50079 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262619AbVCJAm2 convert rfc822-to-8bit
+	Wed, 9 Mar 2005 20:09:58 -0500
+Received: from mail.kroah.org ([69.55.234.183]:51871 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262621AbVCJAm3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:28 -0500
-Cc: kay.sievers@vrfy.org
-Subject: [PATCH] block core: export MAJOR/MINOR to the hotplug env
-In-Reply-To: <1110414880513@kroah.com>
+	Wed, 9 Mar 2005 19:42:29 -0500
+Cc: ecashin@coraid.com
+Subject: [PATCH] aoe: fail IO on disk errors
+In-Reply-To: <1110413963858@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:41 -0800
-Message-Id: <11104148811634@kroah.com>
+Date: Wed, 9 Mar 2005 16:19:23 -0800
+Message-Id: <11104139631637@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,96 +24,47 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2040, 2005/03/09 09:32:58-08:00, kay.sievers@vrfy.org
+ChangeSet 1.2038, 2005/03/09 10:21:33-08:00, ecashin@coraid.com
 
-[PATCH] block core: export MAJOR/MINOR to the hotplug env
+[PATCH] aoe: fail IO on disk errors
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/block/genhd.c |   53 ++++++++++++++++++++++++++++++++------------------
- 1 files changed, 34 insertions(+), 19 deletions(-)
+This patch makes disk errors fail the IO instead of getting logged and
+ignored.
 
 
-diff -Nru a/drivers/block/genhd.c b/drivers/block/genhd.c
---- a/drivers/block/genhd.c	2005-03-09 16:29:48 -08:00
-+++ b/drivers/block/genhd.c	2005-03-09 16:29:48 -08:00
-@@ -430,42 +430,57 @@
- static int block_hotplug(struct kset *kset, struct kobject *kobj, char **envp,
- 			 int num_envp, char *buffer, int buffer_size)
- {
--	struct device *dev = NULL;
- 	struct kobj_type *ktype = get_ktype(kobj);
-+	struct device *physdev;
-+	struct gendisk *disk;
-+	struct hd_struct *part;
- 	int length = 0;
- 	int i = 0;
+Fail IO on disk errors
+
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+
+ drivers/block/aoe/aoecmd.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
+--- a/drivers/block/aoe/aoecmd.c	2005-03-09 16:15:53 -08:00
++++ b/drivers/block/aoe/aoecmd.c	2005-03-09 16:15:53 -08:00
+@@ -416,7 +416,9 @@
  
--	/* get physical device backing disk or partition */
- 	if (ktype == &ktype_block) {
--		struct gendisk *disk = container_of(kobj, struct gendisk, kobj);
--		dev = disk->driverfs_dev;
-+		disk = container_of(kobj, struct gendisk, kobj);
-+		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-+				    &length, "MINOR=%u", disk->first_minor);
- 	} else if (ktype == &ktype_part) {
--		struct gendisk *disk = container_of(kobj->parent, struct gendisk, kobj);
--		dev = disk->driverfs_dev;
--	}
--
--	if (dev) {
--		/* add physical device, backing this device  */
--		char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
-+		disk = container_of(kobj->parent, struct gendisk, kobj);
-+		part = container_of(kobj, struct hd_struct, kobj);
-+		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-+				    &length, "MINOR=%u",
-+				    disk->first_minor + part->partno);
-+	} else
-+		return 0;
-+
-+	add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size, &length,
-+			    "MAJOR=%u", disk->major);
-+
-+	/* add physical device, backing this device  */
-+	physdev = disk->driverfs_dev;
-+	if (physdev) {
-+		char *path = kobject_get_path(&physdev->kobj, GFP_KERNEL);
- 
- 		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
- 				    &length, "PHYSDEVPATH=%s", path);
- 		kfree(path);
- 
--		/* add bus name of physical device */
--		if (dev->bus)
-+		if (physdev->bus)
- 			add_hotplug_env_var(envp, num_envp, &i,
- 					    buffer, buffer_size, &length,
--					    "PHYSDEVBUS=%s", dev->bus->name);
-+					    "PHYSDEVBUS=%s",
-+					    physdev->bus->name);
- 
--		/* add driver name of physical device */
--		if (dev->driver)
-+		if (physdev->driver)
- 			add_hotplug_env_var(envp, num_envp, &i,
- 					    buffer, buffer_size, &length,
--					    "PHYSDEVDRIVER=%s", dev->driver->name);
--
--		envp[i] = NULL;
-+					    "PHYSDEVDRIVER=%s",
-+					    physdev->driver->name);
+ 	if (ahin->cmdstat & 0xa9) {	/* these bits cleared on success */
+ 		printk(KERN_CRIT "aoe: aoecmd_ata_rsp: ata error cmd=%2.2Xh "
+-			"stat=%2.2Xh\n", ahout->cmdstat, ahin->cmdstat);
++			"stat=%2.2Xh from e%ld.%ld\n", 
++			ahout->cmdstat, ahin->cmdstat,
++			d->aoemajor, d->aoeminor);
+ 		if (buf)
+ 			buf->flags |= BUFFL_FAIL;
+ 	} else {
+@@ -458,8 +460,8 @@
+ 	if (buf) {
+ 		buf->nframesout -= 1;
+ 		if (buf->nframesout == 0 && buf->resid == 0) {
+-			n = !(buf->flags & BUFFL_FAIL);
+-			bio_endio(buf->bio, buf->bio->bi_size, 0);
++			n = (buf->flags & BUFFL_FAIL) ? -EIO : 0;
++			bio_endio(buf->bio, buf->bio->bi_size, n);
+ 			mempool_free(buf, d->bufpool);
+ 		}
  	}
-+
-+	/* terminate, set to next free slot, shrink available space */
-+	envp[i] = NULL;
-+	envp = &envp[i];
-+	num_envp -= i;
-+	buffer = &buffer[length];
-+	buffer_size -= length;
- 
- 	return 0;
- }
 

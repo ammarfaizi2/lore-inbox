@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130695AbRBGAmW>; Tue, 6 Feb 2001 19:42:22 -0500
+	id <S130638AbRBGAsM>; Tue, 6 Feb 2001 19:48:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbRBGAmM>; Tue, 6 Feb 2001 19:42:12 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64261 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130695AbRBGAl6>; Tue, 6 Feb 2001 19:41:58 -0500
-Date: Tue, 6 Feb 2001 16:41:21 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S130678AbRBGAsC>; Tue, 6 Feb 2001 19:48:02 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:57617 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130638AbRBGArt>; Tue, 6 Feb 2001 19:47:49 -0500
+Date: Tue, 6 Feb 2001 18:42:28 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@redhat.com>,
+Cc: Ingo Molnar <mingo@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+        kiobuf-io-devel@lists.sourceforge.net
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <20010207002107.L1167@redhat.com>
-Message-ID: <Pine.LNX.4.10.10102061628440.2045-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010206184228.A23674@vger.timpanogas.org>
+In-Reply-To: <20010207002107.L1167@redhat.com> <Pine.LNX.4.32.0102061924300.24366-100000@devserv.devel.redhat.com> <20010207003629.M1167@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010207003629.M1167@redhat.com>; from sct@redhat.com on Wed, Feb 07, 2001 at 12:36:29AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 7 Feb 2001, Stephen C. Tweedie wrote:
+On Wed, Feb 07, 2001 at 12:36:29AM +0000, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> On Tue, Feb 06, 2001 at 08:57:13PM +0100, Ingo Molnar wrote:
+> On Tue, Feb 06, 2001 at 07:25:19PM -0500, Ingo Molnar wrote:
 > > 
-> > [overhead of 512-byte bhs in the raw IO code is an artificial problem of
-> > the raw IO code.]
+> > On Wed, 7 Feb 2001, Stephen C. Tweedie wrote:
+> > 
+> > > No, it is a problem of the ll_rw_block interface: buffer_heads need to
+> > > be aligned on disk at a multiple of their buffer size.  Under the Unix
+> > > raw IO interface it is perfectly legal to begin a 128kB IO at offset
+> > > 512 bytes into a device.
+> > 
+> > then we should either fix this limitation, or the raw IO code should split
+> > the request up into several, variable-size bhs, so that the range is
+> > filled out optimally with aligned bhs.
 > 
-> No, it is a problem of the ll_rw_block interface: buffer_heads need to
-> be aligned on disk at a multiple of their buffer size.
+> That gets us from 512-byte blocks to 4k, but no more (ll_rw_block
+> enforces a single blocksize on all requests but that relaxing that
+> requirement is no big deal).  Buffer_heads can't deal with data which
+> spans more than a page right now.
 
-Ehh.. True of ll_rw_block() and submit_bh(), which are meant for the
-traditional block device setup, where "b_blocknr" is the "virtual
-blocknumber" and that indeed is tied in to the block size.
 
-That's the whole _point_ of ll_rw_block() and friends - they show the
-device at a different "virtual blocking" level than the low-level physical
-accesses necessarily are. Which very much means that if you have a 4kB
-"view", of the device, you get a stream of 4kB blocks. Not 4kB sized
-blocks at 512-byte offsets (or whatebver the hardware blocking size is).
+I can handle requests larger than a page (64K) but I am not using 
+the buffer cache in Linux.  We really need an NT/NetWare like model 
+to support the non-Unix FS's properly.
 
-This way the interfaces are independent of the hardware blocksize. Which
-is logical and what you'd expect. You need to go to a lower level to see
-those kinds of blocking issues.
+i.e.   
 
-But it is _not_ true of "generic_make_request()" and the block IO layer in
-general. It obviously _cannot_ be true, because the block I/O layer has
-always had the notion of merging consecutive blocks together - regardless
-of whether the end result is even a power of two or antyhing like that in
-size. You can make an IO request for pretty much any size, as long as it's
-a multiple of the hardare blocksize (normally 512 bytes, but there are
-certainly devices out there with other blocksizes).
+a disk request should be 
 
-The fact is, if you have problems like the above, then you don't
-understand the interfaces. And it sounds like you designed kiobuf support
-around the wrong set of interfaces.
+<disk> <lba> <length> <buffer> and get rid of this fixed block 
+stuff with buffer heads. :-)
 
-If you want to get at the _sector_ level, then you do
+I understand that the way the elevator is implemented in Linux makes
+this very hard at this point to support, since it's very troublesome 
+to handling requests that overlap sector boundries.
 
-	lock_bh();
-	bh->b_rdev = device;
-	bh->b_rsector = sector-number (where linux defines "sector" to be 512 bytes)
-	bh->b_size = size in bytes (must be a multiple of 512);
-	bh->b_data = pointer;
-	bh->b_end_io = callback;
-	generic_make_request(rw, bh);
+Jeff
 
-which doesn't look all that complicated to me. What's the problem?
 
-		Linus
-
+> 
+> --Stephen
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

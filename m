@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262950AbTJQKMX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 06:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTJQKMX
+	id S263373AbTJQKVb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 06:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTJQKVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 06:12:23 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:17130 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262950AbTJQKMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 06:12:21 -0400
-Date: Fri, 17 Oct 2003 12:12:19 +0200
-From: Jens Axboe <axboe@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: I/O errors in -test7-mm1 tree on ia64
-Message-ID: <20031017101219.GD1128@suse.de>
-References: <20031016185505.GA1255@sgi.com> <20031016194934.GB711@holomorphy.com> <20031016204649.GA1778@sgi.com>
+	Fri, 17 Oct 2003 06:21:30 -0400
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:16645 "EHLO
+	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S263373AbTJQKV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 06:21:29 -0400
+Date: Fri, 17 Oct 2003 12:20:02 +0200
+From: Torben Mathiasen <torben.mathiasen@hp.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Torben Mathiasen <torben.mathiasen@hp.com>,
+       Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
+Message-ID: <20031017102002.GC1690@tmathiasen>
+References: <200310162344.09021.bzolnier@elka.pw.edu.pl> <20031017095117.GB1690@tmathiasen> <200310171222.29796.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031016204649.GA1778@sgi.com>
+In-Reply-To: <200310171222.29796.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
+X-OS: Linux 2.4.22 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16 2003, Jesse Barnes wrote:
-> On Thu, Oct 16, 2003 at 12:49:34PM -0700, William Lee Irwin III wrote:
-> > On Thu, Oct 16, 2003 at 11:55:05AM -0700, Jesse Barnes wrote:
-> > > I don't see this when using Linus' BK tree as of a few minutes ago, and
-> > > the only changes I've made are adding the kgdb.h for ia64 and adding in
-> > > the Altix console driver.  Any ideas?  I'll try reverting some patches
-> > > and looking around a bit more.
-> > 
-> > Well, the first thing to try is backing out invalidate_inodes-speedup.patch
+On Fri, Oct 17 2003, Bartlomiej Zolnierkiewicz wrote:
+> > Also, the previous problem we had where Linux would enable DMA on a device
+> > (system) not supporting it has also been fixed now that we look at the
+> > dma_stat bits to determine whether the BIOS indicated DMA. We're currently
 > 
-> That didn't seem to help.  Got the same errors.
+> Can I assume that "biostimings" option is no longer needed for ServerWorks?
+> 
+> If so I will remove it because it is dangerous on many chipsets.
+> Even if some chipset needs it in the future it should be reimplemented
+> in specific chipset driver, not in generic IDE code.
+>
 
---- fs/xfs/pagebuf/page_buf.c	2003-10-17 12:11:30.000000000 +0200
-+++ fs/xfs/pagebuf/page_buf.c~	2003-10-17 12:11:19.000000000 +0200
-@@ -1406,10 +1406,8 @@
- 		int cmd = WRITE;
- 		if (pb->pb_flags & PBF_READ)
- 			cmd = READ;
--#if 0
- 		else if (pb->pb_flags & PBF_FLUSH)
- 			cmd = WRITESYNC;
--#endif
- 		submit_bio(cmd, bio);
- 		if (size)
- 			goto next_chunk;
+Yes, even though I haven't tested on many systems, I believe this is the right
+fix. Regarding the biostimings stuff, then I already sent fixes to Alan a long
+time ago but I think they got lost. Please remove it and we can come up with
+something else if ever needed.
 
-it was a mistake to enable barriers unconditionally on XFS when it has
-no fallback logic. If you apply the above on test7-mm1, it should work
-fine for you.
-
+Torben
 -- 
-Jens Axboe
-

@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277530AbRJERvu>; Fri, 5 Oct 2001 13:51:50 -0400
+	id <S277527AbRJER6m>; Fri, 5 Oct 2001 13:58:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277536AbRJERvk>; Fri, 5 Oct 2001 13:51:40 -0400
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:10444 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277527AbRJERve>; Fri, 5 Oct 2001 13:51:34 -0400
-Date: Fri, 5 Oct 2001 23:27:35 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11pre3aa1
-Message-ID: <20011005232735.A23554@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
+	id <S277531AbRJER6c>; Fri, 5 Oct 2001 13:58:32 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:5801 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S277527AbRJER6O>;
+	Fri, 5 Oct 2001 13:58:14 -0400
+Date: Fri, 05 Oct 2001 10:54:02 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Olaf Zaplinski <o.zaplinski@mediascape.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.11-pre4
+Message-ID: <1551862685.1002279242@mbligh.des.sequent.com>
+In-Reply-To: <1546529396.1002273909@mbligh.des.sequent.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011004225708.A724@athlon.random> Andrea Arcangeli wrote:
-> FYI: the next things I will try to concentrate on the next days are:
+> Odd. Compiles for me with and without SMP support turned on.
 
-> 4) rcu, Dipankar, could you send me your latest version, the design that we
->    agreed that only adds a per-cpu sequence number inc (not a branch)
->    in schedule?
+My fault. I'd tested this on SMP and Uniproc, but not uniproc with
+IO apic support. Try this patch:
 
-The latest patch based on our agreed design (2.4.10) is available at -
-http://lse.sourceforge.net/locking/patches/rcu-2.4.10-1.patch
+--- smp.h.old	Fri Oct  5 10:46:40 2001
++++ smp.h	Fri Oct  5 10:48:37 2001
+@@ -31,9 +31,20 @@
+ #  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
+ # endif
+ #else
++# define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
+ # define TARGET_CPUS 0x01
+ #endif
+ 
++#ifndef clustered_apic_mode
++ #ifdef CONFIG_MULTIQUAD
++  #define clustered_apic_mode (1)
++  #define esr_disable (1)
++ #else /* !CONFIG_MULTIQUAD */
++  #define clustered_apic_mode (0)
++  #define esr_disable (0)
++ #endif /* CONFIG_MULTIQUAD */
++#endif 
++
+ #ifdef CONFIG_SMP
+ #ifndef ASSEMBLY
+ 
+@@ -76,16 +87,6 @@
+ extern volatile int physical_apicid_to_cpu[MAX_APICID];
+ extern volatile int cpu_to_logical_apicid[NR_CPUS];
+ extern volatile int logical_apicid_to_cpu[MAX_APICID];
+-
+-#ifndef clustered_apic_mode
+- #ifdef CONFIG_MULTIQUAD
+-  #define clustered_apic_mode (1)
+-  #define esr_disable (1)
+- #else /* !CONFIG_MULTIQUAD */
+-  #define clustered_apic_mode (0)
+-  #define esr_disable (0)
+- #endif /* CONFIG_MULTIQUAD */
+-#endif 
+ 
+ /*
+  * General functions that each host system must provide.
 
-I will make a 2.4.11preX patch as soon as I can get to that.
-
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263334AbTJQIPt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 04:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbTJQIPt
+	id S263337AbTJQILb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 04:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbTJQILb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 04:15:49 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:39040 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263334AbTJQIPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 04:15:47 -0400
-Message-ID: <3F8FA52E.2090906@softhome.net>
-Date: Fri, 17 Oct 2003 10:15:42 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Transparent compression in the FS
-References: <GTJr.60q.17@gated-at.bofh.it> <GU2N.6v7.17@gated-at.bofh.it> <GVBC.Ep.23@gated-at.bofh.it> <Hjkq.3Al.1@gated-at.bofh.it> <Hkgx.4Vu.7@gated-at.bofh.it> <HkA0.5lh.9@gated-at.bofh.it> <HnxT.3BB.27@gated-at.bofh.it>
-In-Reply-To: <HnxT.3BB.27@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Oct 2003 04:11:31 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:25860 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263337AbTJQIL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 04:11:29 -0400
+Date: Fri, 17 Oct 2003 09:11:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Colin Ngam <cngam@sgi.com>
+Cc: Jes Sorensen <jes@trained-monkey.org>, Patrick Gefre <pfg@sgi.com>,
+       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com, jbarnes@sgi.com
+Subject: Re: [PATCH] Altix I/O code cleanup
+Message-ID: <20031017091125.A22492@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Colin Ngam <cngam@sgi.com>, Jes Sorensen <jes@trained-monkey.org>,
+	Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+	davidm@napali.hpl.hp.com, jbarnes@sgi.com
+References: <3F872984.7877D382@sgi.com> <20031013095652.A25495@infradead.org> <yq0llrmncus.fsf@trained-monkey.org> <20031015135558.A8963@infradead.org> <yq0brshwcrx.fsf@trained-monkey.org> <3F8ECA11.C4281A8C@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F8ECA11.C4281A8C@sgi.com>; from cngam@sgi.com on Thu, Oct 16, 2003 at 11:40:49AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Val Henson wrote:
->>   of many kinds of hardware errors. Further analysis shows that this
->>   approach is not as risk-free as it seems at first glance."
+On Thu, Oct 16, 2003 at 11:40:49AM -0500, Colin Ngam wrote:
+> > to panic() on a failed kmalloc because the data structure is required
+> > for a core service, then doing ASSERT_ALWAYS isn't that unreasonable.
 > 
-> 
-> I'm curious if anyone has done any work on using multiple different 
-> checksums?  For example, the cost of checksumming a single block with 
-> multiple algorithms (sha1+md5+crc32 for a crazy example), and storing 
+> ASSERT_ALWAYS is used for many other cases other than just for
+> testing NULL Pointers.  Whether you call ASSERT_ALWAYS or
+> call panic with a message or just allow it to oops, a descriptive panic
+> message can save some time.
 
-   With sha1 you probably have 8-9 nines reliability.
-   You can improve this - but still adding nines doesn't mean it 
-(reliability) becomes 100%.
-
-   my 0.02c.
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
+Of course - but that's not that point.  You have to handle an out of
+memory situtation propery because it  may happen all the time - you
+should not panic at all.  The ASSERT_ALWAYS just confuses automatic
+checker tools that help to find such conditions.
 

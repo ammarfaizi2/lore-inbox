@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269382AbUI3R77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269372AbUI3SK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269382AbUI3R77 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 13:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269386AbUI3R76
+	id S269372AbUI3SK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 14:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269386AbUI3SK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 13:59:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16849 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269382AbUI3R6X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 13:58:23 -0400
-Date: Thu, 30 Sep 2004 13:58:00 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: PATCH: Fix up tty patch problem with pc300 and clean up braces
-Message-ID: <20040930175800.GA2037@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 30 Sep 2004 14:10:29 -0400
+Received: from mail3.praxissolutions.com ([141.149.200.3]:5129 "EHLO
+	odysseynetworks.net") by vger.kernel.org with ESMTP id S269372AbUI3SK1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 14:10:27 -0400
+Message-ID: <415C4BD8.40005@acipower.com>
+Date: Thu, 30 Sep 2004 14:09:28 -0400
+From: "Andrey S. Klochko" <aklochko@acipower.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Franz Pletz <franz_pletz@t-online.de>, Michal Rokos <michal@rokos.info>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
+References: <200409230958.31758.michal@rokos.info> <200409231618.56861.michal@rokos.info> <415C37D8.20203@t-online.de> <Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: sendmail@acipower.com
+X-MDRemoteIP: 129.44.218.101
+X-Return-Path: aklochko@acipower.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-Spam-Processed: odysseynetworks.net, Thu, 30 Sep 2004 14:14:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc3/drivers/net/wan/pc300_tty.c linux-2.6.9rc3/drivers/net/wan/pc300_tty.c
---- linux.vanilla-2.6.9rc3/drivers/net/wan/pc300_tty.c	2004-09-30 16:13:09.075305760 +0100
-+++ linux-2.6.9rc3/drivers/net/wan/pc300_tty.c	2004-09-30 17:02:18.400940112 +0100
-@@ -192,13 +192,14 @@
-  */
- void cpc_tty_init(pc300dev_t *pc300dev)
- {
--	int port, aux;
-+	unsigned long port;
-+	int aux;
- 	st_cpc_tty_area * cpc_tty;
- 
- 	/* hdlcX - X=interface number */
- 	port = pc300dev->dev->name[4] - '0';
- 	if (port >= CPC_TTY_NPORTS) {
--		printk("%s-tty: invalid interface selected (0-%i): %i", 
-+		printk("%s-tty: invalid interface selected (0-%i): %li", 
- 			pc300dev->dev->name,
- 			CPC_TTY_NPORTS-1,port);
- 		return;
-@@ -682,7 +683,8 @@
-  */
- static void cpc_tty_rx_work(void * data)
- {
--	int port, i, j;
-+	unsigned long port;
-+	int i, j;
- 	st_cpc_tty_area *cpc_tty; 
- 	volatile st_cpc_rx_buf * buf;
- 	char flags=0,flg_rx=1; 
-@@ -693,18 +695,15 @@
- 	
- 	for (i=0; (i < 4) && flg_rx ; i++) {
- 		flg_rx = 0;
--		port = (int) data;
-+		port = (unsigned long) data;
- 		for (j=0; j < CPC_TTY_NPORTS; j++) {
- 			cpc_tty = &cpc_tty_area[port];
- 		
- 			if ((buf=cpc_tty->buf_rx.first) != 0) {
--				
--				if(cpc_tty->tty)
--				{											
--					ld = tty_ldisc_ref(cpc_tty);
--					if(ld)
--					{
--						if (ld->receive_buf)) {
-+				if(cpc_tty->tty) {
-+					ld = tty_ldisc_ref(cpc_tty->tty);
-+					if(ld) {
-+						if (ld->receive_buf) {
- 							CPC_TTY_DBG("%s: call line disc. receive_buf\n",cpc_tty->name);
- 							ld->receive_buf(cpc_tty->tty, (char *)(buf->data), &flags, buf->size);
- 						}
+
+
+Linus Torvalds wrote:
+> 
+>   * One readl should be good to PCI @ 100MHz
+>   */
+> -#define mii_delay(dev)  readl(dev->base_addr + EECtrl)
+> +#define mii_delay(dev)  readl(ioaddr + EECtrl)
+                      ^^^
+Probably this should be
++#define mii_delay(ioaddr)  readl(ioaddr + EECtrl)
+
+and than change all occurrences of
+mii_delay(dev) to mii_delay(ioaddr)
+?
+>  static int mii_getbit (struct net_device *dev)
+>  {
+
+Thanks,
+
+Andrey
+
+-----------
+Andrey Klochko
+System Administrator
+Applied Concepts, Inc.
+

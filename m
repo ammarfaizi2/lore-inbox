@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136087AbRDVMxH>; Sun, 22 Apr 2001 08:53:07 -0400
+	id <S136085AbRDVMzh>; Sun, 22 Apr 2001 08:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136085AbRDVMw5>; Sun, 22 Apr 2001 08:52:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44815 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136083AbRDVMws>; Sun, 22 Apr 2001 08:52:48 -0400
+	id <S136088AbRDVMz1>; Sun, 22 Apr 2001 08:55:27 -0400
+Received: from mx2out.umbc.edu ([130.85.253.52]:42149 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S136085AbRDVMzM>;
+	Sun, 22 Apr 2001 08:55:12 -0400
+Date: Sun, 22 Apr 2001 08:55:09 -0400
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Manuel McLure <manuel@mclure.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.3-ac12
-To: philb@gnu.org (Philip Blundell)
-Date: Sun, 22 Apr 2001 13:54:28 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), junio@siamese.dhis.twinsun.com,
-        manuel@mclure.org (Manuel McLure), linux-kernel@vger.kernel.org
-In-Reply-To: <E14rJD9-0005hr-00@kings-cross.london.uk.eu.org> from "Philip Blundell" at Apr 22, 2001 01:43:31 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <E14rIiE-0005h2-00@the-village.bc.nu>
+Message-ID: <Pine.SGI.4.31L.02.0104220854380.5115910-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rJNn-0005mh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Why ? It works in the 2.96 snapshots. So 2.96+ is fine.
-> 
-> GCC snapshots have called themselves 2.97 since last September.  "2.96" just 
-> means that it's some random old version.  Yours happens to work; there's no 
-> guarantee that everybody else's will too.
+On Sun, 22 Apr 2001, Alan Cox wrote:
 
-2.97+ are also all random snapshots most of which dont actually work. Im 
-obviously missing a point here.
+> This is from Linus tree. You currently need gcc 2.96 or higher to build
+> the 2.4.x kernel.
 
-The compilers people actually get shipped on the whole do work at least for C
-from egcs upwards.
+Is this going to be a permanent change, or just temporary?
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

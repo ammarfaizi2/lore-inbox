@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUHUBRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268806AbUHUB1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268805AbUHUBRj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 21:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268807AbUHUBRj
+	id S268806AbUHUB1B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 21:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268810AbUHUB1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 21:17:39 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:24443 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268805AbUHUBRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 21:17:38 -0400
-Message-ID: <4126A2A6.1020403@yahoo.com.au>
-Date: Sat, 21 Aug 2004 11:17:26 +1000
+	Fri, 20 Aug 2004 21:27:00 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:53630 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268806AbUHUB07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 21:26:59 -0400
+Message-ID: <4126A4DC.1050103@yahoo.com.au>
+Date: Sat, 21 Aug 2004 11:26:52 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Simon Derr <Simon.Derr@bull.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CPU stuck in wake_up_forked_thread()
-References: <Pine.A41.4.53.0408201742100.20680@isabelle.frec.bull.fr>
-In-Reply-To: <Pine.A41.4.53.0408201742100.20680@isabelle.frec.bull.fr>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3
+References: <20040820031919.413d0a95.akpm@osdl.org> <200408201144.49522.jbarnes@engr.sgi.com>
+In-Reply-To: <200408201144.49522.jbarnes@engr.sgi.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Derr wrote:
-> Hi,
+Jesse Barnes wrote:
+> On Friday, August 20, 2004 6:19 am, Andrew Morton wrote:
 > 
-> It seems (as of 2.6.8-rc3) that there is an issue in
-> wake_up_forked_thread():
+>>- This is (very) lightly tested.  Mainly a resync with various parties.
+> 
+> 
+> Woo-hoo!  This boots *without changes* on a 512p Altix!  Now to re-run the 
+> profiles and try wli's new per-cpu profiling buffers.
 > 
 
-Should be fixed in the -mm tree, which should be merged up
-soon.
+What changes were needed to achieve this previously?

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268497AbRHFNt1>; Mon, 6 Aug 2001 09:49:27 -0400
+	id <S268570AbRHFNyh>; Mon, 6 Aug 2001 09:54:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268560AbRHFNtR>; Mon, 6 Aug 2001 09:49:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42513 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268497AbRHFNtH>; Mon, 6 Aug 2001 09:49:07 -0400
-Subject: Re: Problem in Interrupt Handling ....
-To: vvgkrishna_78@yahoo.com (Venu Gopal Krishna Vemula)
-Date: Mon, 6 Aug 2001 14:51:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Venu Gopal Krishna Vemula" at Aug 06, 2001 06:27:00 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S268576AbRHFNy1>; Mon, 6 Aug 2001 09:54:27 -0400
+Received: from weta.f00f.org ([203.167.249.89]:61584 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S268570AbRHFNyO>;
+	Mon, 6 Aug 2001 09:54:14 -0400
+Date: Tue, 7 Aug 2001 01:55:09 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+Message-ID: <20010807015509.A24099@weta.f00f.org>
+In-Reply-To: <20010807002320.A23937@weta.f00f.org> <E15TkGC-0000z3-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Tkmf-00011f-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E15TkGC-0000z3-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> serial communication adapter which is based on
-> interrrupt driven IO, top half handles registering the
-> Immediate task queue and  acknowledging to PIC, bottom
-> half performs the actual task of interrupt handling. 
+On Mon, Aug 06, 2001 at 02:17:32PM +0100, Alan Cox wrote:
 
-Why are you touching the PIC at all - the kernel handles the PIC for you.
-Indeed you IRQ might not even be coming from a PIC
+    mmap nothing over a large space
+
+shouldn't the rlimit be in the mmap?
+(or are sparse mappings not supposed to count towards the rlimit?)
+
+
+
+  --cw

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287344AbSA3A4d>; Tue, 29 Jan 2002 19:56:33 -0500
+	id <S287565AbSA3A7x>; Tue, 29 Jan 2002 19:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286263AbSA3A4Y>; Tue, 29 Jan 2002 19:56:24 -0500
-Received: from nat.overture.com ([208.50.18.5]:31647 "EHLO
-	tiresias.corp.go2.com") by vger.kernel.org with ESMTP
-	id <S285161AbSA3A4N>; Tue, 29 Jan 2002 19:56:13 -0500
-Message-ID: <3C5744A7.E11B72CA@overture.com>
-Date: Tue, 29 Jan 2002 16:56:07 -0800
-From: Xeno <xeno@overture.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S286263AbSA3A7o>; Tue, 29 Jan 2002 19:59:44 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:27282
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S285161AbSA3A7e>; Tue, 29 Jan 2002 19:59:34 -0500
+Message-Id: <200201300059.g0U0xAU22684@snark.thyrsus.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Tue, 29 Jan 2002 20:00:19 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>, <nathans@sgi.com>
+In-Reply-To: <Pine.LNX.4.33.0201291502460.1747-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201291502460.1747-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.4: NFS client kmapping across I/O
-In-Reply-To: <Pine.LNX.4.21.0201291701510.1367-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Tuesday 29 January 2002 06:13 pm, Linus Torvalds wrote:
+> On 30 Jan 2002, Andi Kleen wrote:
+> > Does that answer your questions?
+> > Would you look at a patch again?
 >
-> We will in any case want to make the RPC layer 'page aware' in
-> order to be able to make use of the zero-copy socket stuff
-> (a.k.a. sendpage()).  I'm still not ready to detail exactly how
-> it should be done though. I'll have to get back to you on this one...
+> That answers the specific questions about Al and Stephen.
+>
+> It does NOT address whether consensus has been reached in general, and
+> whether people are happy. Is that the case?
 
-Oh, yeah, zero-copy is definitely the way to go.  No hurry, the
-workaround is good enough for now.  Thanks, Trond!
+Wouldn't it be nice if somebody could collect this sort of information for 
+you?
 
-Hugh Dickins wrote:
-> 
-> I don't think the kmap area was really designed to be so small, it's
-> just that nobody ever got around to allowing more than one page table
-> for it.  It was surely absurd that HIGHMEM64G (doubly-sized ptes so half
-> as many per page table) should be limited to fewer kmaps than HIGHMEM4G.
+> Also, obviously nobody actually took over maintainership of the patch,
+> because equally obviously nobody has been pinging me about it.
 
-Thanks for the patch, Hugh, I may try it out when I get some free
-hardware next week.  Looks like there is already a limit of 256 pages
-kmapped per mount built into the NFS client, so LAST_PKMAP of 1800 would
-allow heavy I/O to 7 mounts before filling up the kmap table, up from 2
-mounts.
+I.E. patches get dropped, even when there's intense interest about them, due 
+to sheer frustration burning out the patch's maintainer, and scaring away 
+other potential maintainers.  (Is this NOT the case?  I could be wrong.  
+Please point out the flaw in my logic...)
 
-I wasn't sure about the kmap table size because of the loops in
-flush_all_zero_pkmaps and map_new_virtual.  In the worst case, when the
-table is nearly full, like when NFS is maxing it out, each of those
-operations will tend to scan through the table without finding much that
-can be freed/used.  I don't have a machine where I can tinker with it at
-the moment, though, so I'm not sure how much it matters.
+> For some
+> reason you seem to want _me_ to go out of my way to search for patches
+> that are over a month old that I don't know whether they are valid or not,
+> used or not, or even agreed upon or not.
 
-Xeno
+I thought I was actually proposing somebody else be formally tasked with the 
+job of doing that...
+
+> But yes, it's so much easier to blame me.
+
+Maybe just to suggest that you could use a secretary?
+
+> 			Linus
+
+Rob

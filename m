@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbUKXRzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbUKXRzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbUKXRzG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 12:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUKXRxM
+	id S262812AbUKXRzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 12:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUKXRxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 12:53:12 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:60093 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262770AbUKXRvl convert rfc822-to-8bit (ORCPT
+	Wed, 24 Nov 2004 12:53:37 -0500
+Received: from fsmlabs.com ([168.103.115.128]:13213 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262812AbUKXRwt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 12:51:41 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 24 Nov 2004 12:52:49 -0500
+Date: Wed, 24 Nov 2004 09:42:16 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 22/51: Suspend2 lowlevel code.
+In-Reply-To: <1101296166.5805.279.camel@desktop.cunninghams>
+Message-ID: <Pine.LNX.4.61.0411240931470.7171@musoma.fsmlabs.com>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+ <1101296166.5805.279.camel@desktop.cunninghams>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH 1/2] setup_arg_pages can insert overlapping vma
-Date: Wed, 24 Nov 2004 09:51:24 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0271E665@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/2] setup_arg_pages can insert overlapping vma
-Thread-Index: AcTRw96orC/nsr9iTRiMK45P3iuPtQAie6aw
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: <hugh@veritas.com>, <chrisw@osdl.org>, <torvalds@osdl.org>,
-       <schwidefsky@de.ibm.com>, <ak@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 24 Nov 2004 17:51:26.0765 (UTC) FILETIME=[3855DDD0:01C4D24E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->"Zou, Nanhai" <nanhai.zou@intel.com> wrote:
->>
->> I think ia64 ia32
->> subsystem is not vulnerable to this kind of overlapping vm problem,
->> because it does not support a.out binary format, 
->> X84_64 is vulnerable to this. 
->
->Martin, Andi and Tony: could we please get a 2.6.10 ack on 
->this from you?
+On Wed, 24 Nov 2004, Nigel Cunningham wrote:
 
-I can "Ack" it too ... but I gave Nanhai one of my "Signed-off-by:"
-lines which he already attached to this patch :-)
+> + * SMP support:
+> + * All SMP processors enter this routine during suspend. The one through
+> + * which the suspend is initiated (which, for simplicity, is always CPU 0)
+> + * sends the others here using an IPI during do_suspend2_suspend_1. They
+> + * remain here until after the atomic copy of the kernel is made, to ensure
+> + * that they don't mess with memory in the meantime (even just idling will
+> + * do that). Once the atomic copy is made, they are free to carry on idling.
+> + * Note that we must let them go, because if we're using compression, the
+> + * vfree calls in the compressors will result in IPIs being called and hanging
+> + * because the CPUs are still here.
+> + *
+> + * At resume time, we do a similar thing. CPU 0 sends the others in here using
+> + * an IPI. It then copies the original kernel back, restores its own processor
+> + * context and flushes local tlbs before freeing the others to do the same.
+> + * They can then go back to idling while CPU 0 reloads pageset 2, cleans up
+> + * and unfreezes the processes.
+> + *
+> + * (Remember that freezing and thawing processes also uses IPIs, as may
+> + * decompressing the data. Again, therefore, we cannot leave the other processors
+> + * in here).
+> + * 
+> + * At the moment, we do nothing about APICs, even though the code is there.
 
--Tony
+Ok,
+	Do you see anything missing (from an implementation point of view) 
+for the following?
+
+Suspend:
+	1) suspend all cpus, save cpu0
+	2) proceed with state saving on cpu0 only
+	3) begin suspend
+	
+Resume:
+	1) begin resume
+	2) offline all currently online cpus
+	3) proceed with state restoring
+	4) online all previously online cpus
+
+A lot of the subsystems which have work split across cpus will now have 
+work migrated across to cpu0, in that regard, which have you made swsusp 
+savvy? It looks like the timer changes might need looking at any others?
+
+Thanks,
+	Zwane

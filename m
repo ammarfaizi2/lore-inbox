@@ -1,267 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVBDHOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbVBDHRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVBDHOy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 02:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVBDHOy
+	id S263040AbVBDHRI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 02:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVBDHRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 02:14:54 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:36777 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S263257AbVBDHNU (ORCPT
+	Fri, 4 Feb 2005 02:17:07 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:39081 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S263270AbVBDHNV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 02:13:20 -0500
+	Fri, 4 Feb 2005 02:13:21 -0500
 To: bzolnier@gmail.com, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2 02/14] ide_pci: Merges aec62xx.h into aec62xx.c
+Subject: Re: [PATCH 2.6.11-rc2 05/14] ide_pci: Merges generic.h into generic.c
 From: Tejun Heo <tj@home-tj.org>
 In-Reply-To: <42032014.1020606@home-tj.org>
 References: <42032014.1020606@home-tj.org>
-Message-Id: <20050204071317.C864C13264D@htj.dyndns.org>
-Date: Fri,  4 Feb 2005 16:13:17 +0900 (KST)
+Message-Id: <20050204071318.2F0EB132650@htj.dyndns.org>
+Date: Fri,  4 Feb 2005 16:13:18 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-02_ide_pci_aec62xx_merge.patch
+05_ide_pci_generic_merge.patch
 
-	Merges ide/pci/aec62xx.h into aec62xx.c.
+	Merges ide/pci/generic.h into generic.c.
 
 
 Signed-off-by: Tejun Heo <tj@home-tj.org>
 
 
-Index: linux-idepci-export/drivers/ide/pci/aec62xx.c
+Index: linux-idepci-export/drivers/ide/pci/generic.c
 ===================================================================
---- linux-idepci-export.orig/drivers/ide/pci/aec62xx.c	2005-02-04 16:08:23.966693938 +0900
-+++ linux-idepci-export/drivers/ide/pci/aec62xx.c	2005-02-04 16:08:24.332634340 +0900
-@@ -16,7 +16,54 @@
+--- linux-idepci-export.orig/drivers/ide/pci/generic.c	2005-02-04 16:07:36.891360866 +0900
++++ linux-idepci-export/drivers/ide/pci/generic.c	2005-02-04 16:08:25.160499511 +0900
+@@ -39,8 +39,6 @@
  
  #include <asm/io.h>
  
--#include "aec62xx.h"
-+struct chipset_bus_clock_list_entry {
-+	byte		xfer_speed;
-+	byte		chipset_settings;
-+	byte		ultra_settings;
-+};
-+
-+static struct chipset_bus_clock_list_entry aec6xxx_33_base [] = {
-+	{	XFER_UDMA_6,	0x31,	0x07	},
-+	{	XFER_UDMA_5,	0x31,	0x06	},
-+	{	XFER_UDMA_4,	0x31,	0x05	},
-+	{	XFER_UDMA_3,	0x31,	0x04	},
-+	{	XFER_UDMA_2,	0x31,	0x03	},
-+	{	XFER_UDMA_1,	0x31,	0x02	},
-+	{	XFER_UDMA_0,	0x31,	0x01	},
-+
-+	{	XFER_MW_DMA_2,	0x31,	0x00	},
-+	{	XFER_MW_DMA_1,	0x31,	0x00	},
-+	{	XFER_MW_DMA_0,	0x0a,	0x00	},
-+	{	XFER_PIO_4,	0x31,	0x00	},
-+	{	XFER_PIO_3,	0x33,	0x00	},
-+	{	XFER_PIO_2,	0x08,	0x00	},
-+	{	XFER_PIO_1,	0x0a,	0x00	},
-+	{	XFER_PIO_0,	0x00,	0x00	},
-+	{	0,		0x00,	0x00	}
-+};
-+
-+static struct chipset_bus_clock_list_entry aec6xxx_34_base [] = {
-+	{	XFER_UDMA_6,	0x41,	0x06	},
-+	{	XFER_UDMA_5,	0x41,	0x05	},
-+	{	XFER_UDMA_4,	0x41,	0x04	},
-+	{	XFER_UDMA_3,	0x41,	0x03	},
-+	{	XFER_UDMA_2,	0x41,	0x02	},
-+	{	XFER_UDMA_1,	0x41,	0x01	},
-+	{	XFER_UDMA_0,	0x41,	0x01	},
-+
-+	{	XFER_MW_DMA_2,	0x41,	0x00	},
-+	{	XFER_MW_DMA_1,	0x42,	0x00	},
-+	{	XFER_MW_DMA_0,	0x7a,	0x00	},
-+	{	XFER_PIO_4,	0x41,	0x00	},
-+	{	XFER_PIO_3,	0x43,	0x00	},
-+	{	XFER_PIO_2,	0x78,	0x00	},
-+	{	XFER_PIO_1,	0x7a,	0x00	},
-+	{	XFER_PIO_0,	0x70,	0x00	},
-+	{	0,		0x00,	0x00	}
-+};
-+
-+#define BUSCLOCK(D)	\
-+	((struct chipset_bus_clock_list_entry *) pci_get_drvdata((D)))
+-#include "generic.h"
+-
+ static unsigned int __devinit init_chipset_generic (struct pci_dev *dev, const char *name)
+ {
+ 	return 0;
+@@ -83,6 +81,115 @@ static void __devinit init_hwif_generic 
+ 	return 0;
+ #endif	
  
- #if 0
- 		if (dev->device == PCI_DEVICE_ID_ARTOP_ATP850UF) {
-@@ -344,6 +391,58 @@ static int __devinit init_setup_aec6x80(
- 	return ide_setup_pci_device(dev, d);
- }
- 
-+static ide_pci_device_t aec62xx_chipsets[] __devinitdata = {
++static ide_pci_device_t generic_chipsets[] __devinitdata = {
 +	{	/* 0 */
-+		.name		= "AEC6210",
-+		.init_setup	= init_setup_aec62xx,
-+		.init_chipset	= init_chipset_aec62xx,
-+		.init_hwif	= init_hwif_aec62xx,
-+		.init_dma	= init_dma_aec62xx,
++		.name		= "NS87410",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
 +		.channels	= 2,
 +		.autodma	= AUTODMA,
-+		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
-+		.bootable	= OFF_BOARD,
-+	},{	/* 1 */
-+		.name		= "AEC6260",
-+		.init_setup	= init_setup_aec62xx,
-+		.init_chipset	= init_chipset_aec62xx,
-+		.init_hwif	= init_hwif_aec62xx,
-+		.init_dma	= init_dma_aec62xx,
++		.enablebits	= {{0x43,0x08,0x08}, {0x47,0x08,0x08}},
++		.bootable	= ON_BOARD,
++        },{	/* 1 */
++		.name		= "SAMURAI",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 2 */
++		.name		= "HT6565",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 3 */
++		.name		= "UM8673F",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 4 */
++		.name		= "UM8886A",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 5 */
++		.name		= "UM8886BF",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 6 */
++		.name		= "HINT_IDE",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 7 */
++		.name		= "VIA_IDE",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
 +		.channels	= 2,
 +		.autodma	= NOAUTODMA,
-+		.bootable	= OFF_BOARD,
-+	},{	/* 2 */
-+		.name		= "AEC6260R",
-+		.init_setup	= init_setup_aec62xx,
-+		.init_chipset	= init_chipset_aec62xx,
-+		.init_hwif	= init_hwif_aec62xx,
-+		.init_dma	= init_dma_aec62xx,
++		.bootable	= ON_BOARD,
++	},{	/* 8 */
++		.name		= "OPTI621V",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
 +		.channels	= 2,
-+		.autodma	= AUTODMA,
-+		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
-+		.bootable	= NEVER_BOARD,
-+	},{	/* 3 */
-+		.name		= "AEC6X80",
-+		.init_setup	= init_setup_aec6x80,
-+		.init_chipset	= init_chipset_aec62xx,
-+		.init_hwif	= init_hwif_aec62xx,
-+		.init_dma	= init_dma_aec62xx,
++		.autodma	= NOAUTODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 9 */
++		.name		= "VIA8237SATA",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
 +		.channels	= 2,
 +		.autodma	= AUTODMA,
 +		.bootable	= OFF_BOARD,
-+	},{	/* 4 */
-+		.name		= "AEC6X80R",
-+		.init_setup	= init_setup_aec6x80,
-+		.init_chipset	= init_chipset_aec62xx,
-+		.init_hwif	= init_hwif_aec62xx,
-+		.init_dma	= init_dma_aec62xx,
++	},{ /* 10 */
++		.name 		= "Piccolo0102",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
 +		.channels	= 2,
-+		.autodma	= AUTODMA,
-+		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
-+		.bootable	= OFF_BOARD,
++		.autodma	= NOAUTODMA,
++		.bootable	= ON_BOARD,
++	},{ /* 11 */
++		.name 		= "Piccolo0103",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= NOAUTODMA,
++		.bootable	= ON_BOARD,
++	},{ /* 12 */
++		.name 		= "Piccolo0105",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= NOAUTODMA,
++		.bootable	= ON_BOARD,
 +	}
 +};
 +
++#if 0
++static ide_pci_device_t unknown_chipset[] __devinitdata = {
++	{	/* 0 */
++		.name		= "PCI_IDE",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	}
++};
++#endif
++
  /**
-  *	aec62xx_init_one	-	called when a AEC is found
-  *	@dev: the aec62xx device
-Index: linux-idepci-export/drivers/ide/pci/aec62xx.h
+  *	generic_init_one	-	called when a PIIX is found
+  *	@dev: the generic device
+Index: linux-idepci-export/drivers/ide/pci/generic.h
 ===================================================================
---- linux-idepci-export.orig/drivers/ide/pci/aec62xx.h	2005-02-04 16:08:23.967693775 +0900
+--- linux-idepci-export.orig/drivers/ide/pci/generic.h	2005-02-04 16:07:36.891360866 +0900
 +++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,112 +0,0 @@
--#ifndef AEC62XX_H
--#define AEC62XX_H
+@@ -1,120 +0,0 @@
+-#ifndef IDE_GENERIC_H
+-#define IDE_GENERIC_H
 -
 -#include <linux/config.h>
 -#include <linux/pci.h>
 -#include <linux/ide.h>
 -
--struct chipset_bus_clock_list_entry {
--	byte		xfer_speed;
--	byte		chipset_settings;
--	byte		ultra_settings;
--};
+-static unsigned int init_chipset_generic(struct pci_dev *, const char *);
+-static void init_hwif_generic(ide_hwif_t *);
 -
--static struct chipset_bus_clock_list_entry aec6xxx_33_base [] = {
--	{	XFER_UDMA_6,	0x31,	0x07	},
--	{	XFER_UDMA_5,	0x31,	0x06	},
--	{	XFER_UDMA_4,	0x31,	0x05	},
--	{	XFER_UDMA_3,	0x31,	0x04	},
--	{	XFER_UDMA_2,	0x31,	0x03	},
--	{	XFER_UDMA_1,	0x31,	0x02	},
--	{	XFER_UDMA_0,	0x31,	0x01	},
--
--	{	XFER_MW_DMA_2,	0x31,	0x00	},
--	{	XFER_MW_DMA_1,	0x31,	0x00	},
--	{	XFER_MW_DMA_0,	0x0a,	0x00	},
--	{	XFER_PIO_4,	0x31,	0x00	},
--	{	XFER_PIO_3,	0x33,	0x00	},
--	{	XFER_PIO_2,	0x08,	0x00	},
--	{	XFER_PIO_1,	0x0a,	0x00	},
--	{	XFER_PIO_0,	0x00,	0x00	},
--	{	0,		0x00,	0x00	}
--};
--
--static struct chipset_bus_clock_list_entry aec6xxx_34_base [] = {
--	{	XFER_UDMA_6,	0x41,	0x06	},
--	{	XFER_UDMA_5,	0x41,	0x05	},
--	{	XFER_UDMA_4,	0x41,	0x04	},
--	{	XFER_UDMA_3,	0x41,	0x03	},
--	{	XFER_UDMA_2,	0x41,	0x02	},
--	{	XFER_UDMA_1,	0x41,	0x01	},
--	{	XFER_UDMA_0,	0x41,	0x01	},
--
--	{	XFER_MW_DMA_2,	0x41,	0x00	},
--	{	XFER_MW_DMA_1,	0x42,	0x00	},
--	{	XFER_MW_DMA_0,	0x7a,	0x00	},
--	{	XFER_PIO_4,	0x41,	0x00	},
--	{	XFER_PIO_3,	0x43,	0x00	},
--	{	XFER_PIO_2,	0x78,	0x00	},
--	{	XFER_PIO_1,	0x7a,	0x00	},
--	{	XFER_PIO_0,	0x70,	0x00	},
--	{	0,		0x00,	0x00	}
--};
--
--static int init_setup_aec6x80(struct pci_dev *, ide_pci_device_t *);
--static int init_setup_aec62xx(struct pci_dev *, ide_pci_device_t *);
--static unsigned int init_chipset_aec62xx(struct pci_dev *, const char *);
--static void init_hwif_aec62xx(ide_hwif_t *);
--static void init_dma_aec62xx(ide_hwif_t *, unsigned long);
--
--static ide_pci_device_t aec62xx_chipsets[] __devinitdata = {
+-static ide_pci_device_t generic_chipsets[] __devinitdata = {
 -	{	/* 0 */
--		.name		= "AEC6210",
--		.init_setup	= init_setup_aec62xx,
--		.init_chipset	= init_chipset_aec62xx,
--		.init_hwif	= init_hwif_aec62xx,
--		.init_dma	= init_dma_aec62xx,
+-		.name		= "NS87410",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
 -		.channels	= 2,
 -		.autodma	= AUTODMA,
--		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
--		.bootable	= OFF_BOARD,
--	},{	/* 1 */
--		.name		= "AEC6260",
--		.init_setup	= init_setup_aec62xx,
--		.init_chipset	= init_chipset_aec62xx,
--		.init_hwif	= init_hwif_aec62xx,
--		.init_dma	= init_dma_aec62xx,
+-		.enablebits	= {{0x43,0x08,0x08}, {0x47,0x08,0x08}},
+-		.bootable	= ON_BOARD,
+-        },{	/* 1 */
+-		.name		= "SAMURAI",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 2 */
+-		.name		= "HT6565",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 3 */
+-		.name		= "UM8673F",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= NODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 4 */
+-		.name		= "UM8886A",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= NODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 5 */
+-		.name		= "UM8886BF",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= NODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 6 */
+-		.name		= "HINT_IDE",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 7 */
+-		.name		= "VIA_IDE",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
 -		.channels	= 2,
 -		.autodma	= NOAUTODMA,
--		.bootable	= OFF_BOARD,
--	},{	/* 2 */
--		.name		= "AEC6260R",
--		.init_setup	= init_setup_aec62xx,
--		.init_chipset	= init_chipset_aec62xx,
--		.init_hwif	= init_hwif_aec62xx,
--		.init_dma	= init_dma_aec62xx,
+-		.bootable	= ON_BOARD,
+-	},{	/* 8 */
+-		.name		= "OPTI621V",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
 -		.channels	= 2,
--		.autodma	= AUTODMA,
--		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
--		.bootable	= NEVER_BOARD,
--	},{	/* 3 */
--		.name		= "AEC6X80",
--		.init_setup	= init_setup_aec6x80,
--		.init_chipset	= init_chipset_aec62xx,
--		.init_hwif	= init_hwif_aec62xx,
--		.init_dma	= init_dma_aec62xx,
+-		.autodma	= NOAUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 9 */
+-		.name		= "VIA8237SATA",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
 -		.channels	= 2,
 -		.autodma	= AUTODMA,
 -		.bootable	= OFF_BOARD,
--	},{	/* 4 */
--		.name		= "AEC6X80R",
--		.init_setup	= init_setup_aec6x80,
--		.init_chipset	= init_chipset_aec62xx,
--		.init_hwif	= init_hwif_aec62xx,
--		.init_dma	= init_dma_aec62xx,
+-	},{ /* 10 */
+-		.name 		= "Piccolo0102",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
 -		.channels	= 2,
--		.autodma	= AUTODMA,
--		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
--		.bootable	= OFF_BOARD,
+-		.autodma	= NOAUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{ /* 11 */
+-		.name 		= "Piccolo0103",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= NOAUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{ /* 12 */
+-		.name 		= "Piccolo0105",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= NOAUTODMA,
+-		.bootable	= ON_BOARD,
 -	}
 -};
 -
--#endif /* AEC62XX_H */
+-#if 0
+-static ide_pci_device_t unknown_chipset[] __devinitdata = {
+-	{	/* 0 */
+-		.name		= "PCI_IDE",
+-		.init_chipset	= init_chipset_generic,
+-		.init_hwif	= init_hwif_generic,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	}
+-};
+-#endif
+-
+-#endif /* IDE_GENERIC_H */

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262909AbSJWHx1>; Wed, 23 Oct 2002 03:53:27 -0400
+	id <S262908AbSJWH5w>; Wed, 23 Oct 2002 03:57:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbSJWHx1>; Wed, 23 Oct 2002 03:53:27 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:56252 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262909AbSJWHxZ>; Wed, 23 Oct 2002 03:53:25 -0400
-Subject: Re: [PATCH] niceness magic numbers, 2.4.20-pre11
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Kristis Makris <devcore@freeuk.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L2.0210222332480.15859-100000@dragon.pdx.osdl.net>
-References: <Pine.LNX.4.33L2.0210222332480.15859-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 23 Oct 2002 09:16:01 +0100
-Message-Id: <1035360961.4033.0.camel@irongate.swansea.linux.org.uk>
+	id <S262912AbSJWH5w>; Wed, 23 Oct 2002 03:57:52 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:676 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262908AbSJWH5v>; Wed, 23 Oct 2002 03:57:51 -0400
+Date: Wed, 23 Oct 2002 10:03:20 +0200
+To: venom@sns.it, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44: /proc/stat not reporting all disks statistics
+Message-ID: <20021023080318.GA655@neljae>
+Mail-Followup-To: venom@sns.it, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.43.0210230137380.25356-100000@cibs9.sns.it>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.43.0210230137380.25356-100000@cibs9.sns.it>
+User-Agent: Mutt/1.4i
+From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 07:37, Randy.Dunlap wrote:
-> --- ./include/linux/resource.h.nice	Tue Jun 18 20:10:36 2002
-> +++ ./include/linux/resource.h	Sat Oct 19 13:55:10 2002
-> @@ -43,7 +43,7 @@
->  };
+On Wed, Oct 23, 2002 at 01:42:18AM +0200, venom@sns.it wrote:
+> I have on this system two disks, primary master and secondary master,
+> hda and hdc.
 > 
->  #define	PRIO_MIN	(-20)
-> -#define	PRIO_MAX	20
-> +#define	PRIO_MAX	19
+> In /proc/stat
+> i see just:
+> 
+> disk_io: (3,0):(24382,16849,158610,7533,382512)
+> 
+> so, I see 22,0 disk (hdc) is somehow missing.
 
-I suspect this isnt correct
+By default, the kernel only collects statistics on majors 1 to 16.  If
+you want the disks on your second IDE channel to show up, go to
+include/linux/kernel_stat.h and raise the limit DK_MAX_MAJOR to 22 or
+higher.  (Assuming 2.5 stats still work the same as in 2.4, that is.)
+
+Daniel.
 

@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVCEUVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVCEU0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVCEUVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 15:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCEUR2
+	id S261279AbVCEU0V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 15:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCEUQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 15:17:28 -0500
-Received: from secure.htb.at ([195.69.104.11]:12815 "EHLO pop3.htb.at")
-	by vger.kernel.org with ESMTP id S261253AbVCEUGQ (ORCPT
+	Sat, 5 Mar 2005 15:16:59 -0500
+Received: from main.gmane.org ([80.91.229.2]:48815 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261187AbVCEUCi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 15:06:16 -0500
-Date: Sat, 5 Mar 2005 21:05:57 +0100
-From: Richard Mittendorfer <jkerdawn@yahoo.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Error messages with ACPI
-Message-Id: <20050305210557.26d7fa28.jkerdawn@yahoo.com>
-In-Reply-To: <33065.24.85.238.99.1110046181.squirrel@24.85.238.99>
-References: <33065.24.85.238.99.1110046181.squirrel@24.85.238.99>
-X-Mailer: Sylpheed version 0.9.99-gtk2-20041024 (GTK+ 2.4.14; i386-pc-linux-gnu)
+	Sat, 5 Mar 2005 15:02:38 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ian Pilcher <i.pilcher@comcast.net>
+Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
+Date: Sat, 05 Mar 2005 14:01:15 -0600
+Message-ID: <d0d2sa$h12$1@sea.gmane.org>
+References: <20050304222146.GA1686@kroah.com> <20050305135917.GB6373@stusta.de> <20050305174055.GB13104@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1D7fXH-000227-00*2p.z0u/rAVs*
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: c-24-0-215-208.client.comcast.net
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+In-Reply-To: <20050305174055.GB13104@kroah.com>
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner-SpamScore: s
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Mina Nozar <nozarm@triumf.ca> (Sat, 5 Mar 2005 10:09:41
--0800 (PST)):
-> Hi,
+Greg KH wrote:
+> On Sat, Mar 05, 2005 at 02:59:17PM +0100, Adrian Bunk wrote:
+> 
+> 
+>>An example that doesn't fit:
+>>
+>>A patch of me to remove an unused function was accepted into 2.6.11 .
+>>Today, someone mailed that there's an external GPL'ed module that uses 
+>>this function.
+>>
+>>A patch to re-add this function as it was in 2.6.10 does not fulfill 
+>>your criteria, but it is a low-risk way to fix a regression compared to 
+>>2.6.10 .
+> 
+> 
+> Yes, I wouldn't have a problem with adding this kind of fix.  Do others
+> disagree?
+> 
 
-hi mina.
+Something about major functional regressions?
 
-> [...]
-> kernel:  ACPI-1133: *** Error: Method execution failed
-> [\_SB_.BAT0._BST](Node dfe043c0), AE_AML_NO_RETURN_VALUE
-> lastt message repeated 2 times
-> last message repeated 4 times
-> ...
-> ...
+-- 
+========================================================================
+Ian Pilcher                                        i.pilcher@comcast.net
+========================================================================
 
-(afaik) these are not critical - they come from the yout acpi bios.
-these implementions are known to be bad. you can find more information
-on the acpi homepage[1]. maybe you can fix this with a modifcated dsdt
-from there - but i'm not sure if it's worth the work.
-
-do you get valid entries in /proc/acpi and are your battery states ok?
-then you most likely have no problem. on my old libretto i get tons of
-them at bootup and sometimes when comming out of suspend.
-
-however, if your logs get filled with those messages ... 
-
-sl ritch.
-
-[1] http://acpi.sourceforge.net/

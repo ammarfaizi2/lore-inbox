@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264391AbUFKX2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUFKXpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbUFKX2N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 19:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264404AbUFKX2N
+	id S264405AbUFKXpd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 19:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUFKXpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 19:28:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30431 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264391AbUFKX2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 19:28:12 -0400
-Date: Fri, 11 Jun 2004 16:30:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: dhowells@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated >
- MAX_ORDER size
-Message-Id: <20040611163051.6e7985bb.akpm@osdl.org>
-In-Reply-To: <3067490000.1086995928@flay>
-References: <20040611034809.41dc9205.akpm@osdl.org>
-	<567.1086950642@redhat.com>
-	<1056.1086952350@redhat.com>
-	<20040611150419.11281555.akpm@osdl.org>
-	<3066250000.1086995005@flay>
-	<20040611161920.0a40e49d.akpm@osdl.org>
-	<3067490000.1086995928@flay>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 11 Jun 2004 19:45:33 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:28150 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S264405AbUFKXpb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 19:45:31 -0400
+Subject: Re: [PPC]  2.6.7-rc3 IBM405EP kernel won't build without PCI
+From: Aubin LaBrosse <arl8778@rit.edu>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+In-Reply-To: <40C9CC65.5030209@metaparadigm.com>
+References: <1086930832.8686.50.camel@lhosts>
+	 <40C9CC65.5030209@metaparadigm.com>
+Content-Type: text/plain
+Message-Id: <1086997505.15798.8.camel@lhosts>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 11 Jun 2004 19:45:05 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> --On Friday, June 11, 2004 16:19:20 -0700 Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > "Martin J. Bligh" <mbligh@aracnet.com> wrote:
-> >> 
-> >> We've hit a problem with alignment issues where the start of the zone is
-> >> aligned to 16MB, for instance, and the max grouping is now 256MB. That
-> >> generatates a "warning: wrong zone alignment: it will crash" error (or
-> >> something similar). Andy sent me a patch this morning to throw away
-> >> the lower section, which is much nicer than crashing ... but I'd prefer
-> >> not to throw that RAM away unless we have to. 
+
+On Fri, 2004-06-11 at 11:14, Michael Clark wrote:
+> On 06/11/04 21:13, Aubin LaBrosse wrote:
+> > Hello all,
 > > 
-> > Confused.  Why do we have that test in there at all?  We should just toss
-> > the pages one at a time into the buddy list and let the normal coalescing
-> > work it out.  That way we'd end up with a single 16MB "page" followed by N
-> > 256MB "pages".
+> > I'm having a little fun with my first embedded system - it's an
+> > Intrinsyc CerfCube, http://www.intrinsyc.com/products/cerfcube405EP/
+> > 
+> > basically it's got an ibm 405ep powerpc processor in it.  the thing
+> > ships with a version of 2.4.21 but i've decided to take the newer
+> > kernels for a spin on it.  except i can't compile unless i enable pci,
+> > which is unnecessary for this thing since it has no pci bus.
 > 
-> That's what I thought ... Andy looked at it more than I did, but I think
-> he's asleep, unfortunately. IIRC, he said the buddy stuff keys off 
-> zone_start_pfn though. Maybe that's fixable ...
+> Then why does it have a miniPCI connector?
 
-Doesn't look that way.  It uses
 
-	(zone->zone_mem_map - page) >> (1 + order)
+so it does....I'm retarded. ;-)
+
+Although I should still be able to build the kernel without pci support,
+shouldn't I?
+
+Where does the CONFIG_BIOS_FIXUP come from and is it necessary for a
+device like this is I guess what I'm asking -  the code compiled in by
+CONFIG_BIOS_FIXUP seems to depend on PCI being in but you can select it
+without selecting PCI -  that's the underlying issue here I think.  I
+assume I don't really need CONFIG_BIOS_FIXUP for this device (given the
+name of the option, I would hope that this thing doesn't have a bios
+that needs 'fixing
+up') but I'm not even sure how to turn it off... and of course I'm only
+guessing based on the error I got and the names of the things involved,
+i haven't rolled up my sleeves and got into it yet..
+
+-Aubin
+
+
+
+
+> ~mc
 

@@ -1,128 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263691AbTCUTPQ>; Fri, 21 Mar 2003 14:15:16 -0500
+	id <S263717AbTCUTQs>; Fri, 21 Mar 2003 14:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263735AbTCUTOe>; Fri, 21 Mar 2003 14:14:34 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41092
+	id <S263733AbTCUTP2>; Fri, 21 Mar 2003 14:15:28 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:42628
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263793AbTCUTMx>; Fri, 21 Mar 2003 14:12:53 -0500
-Date: Fri, 21 Mar 2003 20:28:09 GMT
+	id <S263753AbTCUTOy>; Fri, 21 Mar 2003 14:14:54 -0500
+Date: Fri, 21 Mar 2003 20:30:10 GMT
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303212028.h2LKS9lk026347@hraefn.swansea.linux.org.uk>
+Message-Id: <200303212030.h2LKUApv026359@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: document useraccess lib functions too
+Subject: PATCH: Make pci-bios function ids per machine type
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/arch/i386/lib/usercopy.c linux-2.5.65-ac2/arch/i386/lib/usercopy.c
---- linux-2.5.65/arch/i386/lib/usercopy.c	2003-02-10 18:37:55.000000000 +0000
-+++ linux-2.5.65-ac2/arch/i386/lib/usercopy.c	2003-03-06 23:12:31.000000000 +0000
-@@ -50,6 +50,26 @@
- 		: "memory");						   \
- } while (0)
+Yes NEC use *different* function numbers!!
+
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/arch/i386/pci/pcbios.c linux-2.5.65-ac2/arch/i386/pci/pcbios.c
+--- linux-2.5.65/arch/i386/pci/pcbios.c	2003-02-10 18:37:58.000000000 +0000
++++ linux-2.5.65-ac2/arch/i386/pci/pcbios.c	2003-02-14 23:04:05.000000000 +0000
+@@ -5,22 +5,9 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include "pci.h"
++#include "pci-functions.h"
  
-+/**
-+ * __strncpy_from_user: - Copy a NUL terminated string from userspace, with less checking.
-+ * @dst:   Destination address, in kernel space.  This buffer must be at
-+ *         least @count bytes long.
-+ * @src:   Source address, in user space.
-+ * @count: Maximum number of bytes to copy, including the trailing NUL.
-+ * 
-+ * Copies a NUL-terminated string from userspace to kernel space.
-+ * Caller must check the specified block with access_ok() before calling
-+ * this function.
-+ *
-+ * On success, returns the length of the string (not including the trailing
-+ * NUL).
-+ *
-+ * If access to userspace fails, returns -EFAULT (some data may have been
-+ * copied).
-+ *
-+ * If @count is smaller than the length of the string, copies @count bytes
-+ * and returns @count.
-+ */
- long
- __strncpy_from_user(char *dst, const char *src, long count)
- {
-@@ -58,6 +78,24 @@
- 	return res;
- }
  
-+/**
-+ * strncpy_from_user: - Copy a NUL terminated string from userspace.
-+ * @dst:   Destination address, in kernel space.  This buffer must be at
-+ *         least @count bytes long.
-+ * @src:   Source address, in user space.
-+ * @count: Maximum number of bytes to copy, including the trailing NUL.
-+ * 
-+ * Copies a NUL-terminated string from userspace to kernel space.
-+ *
-+ * On success, returns the length of the string (not including the trailing
-+ * NUL).
-+ *
-+ * If access to userspace fails, returns -EFAULT (some data may have been
-+ * copied).
-+ *
-+ * If @count is smaller than the length of the string, copies @count bytes
-+ * and returns @count.
-+ */
- long
- strncpy_from_user(char *dst, const char *src, long count)
- {
-@@ -93,6 +131,16 @@
- 		: "r"(size & 3), "0"(size / 4), "1"(addr), "a"(0));	\
- } while (0)
- 
-+/**
-+ * clear_user: - Zero a block of memory in user space.
-+ * @to:   Destination address, in user space.
-+ * @n:    Number of bytes to zero.
-+ *
-+ * Zero a block of memory in user space.
-+ *
-+ * Returns number of bytes that could not be cleared.
-+ * On success, this will be zero.
-+ */
- unsigned long
- clear_user(void *to, unsigned long n)
- {
-@@ -101,6 +149,17 @@
- 	return n;
- }
- 
-+/**
-+ * __clear_user: - Zero a block of memory in user space, with less checking.
-+ * @to:   Destination address, in user space.
-+ * @n:    Number of bytes to zero.
-+ *
-+ * Zero a block of memory in user space.  Caller must check
-+ * the specified block with access_ok() before calling this function.
-+ *
-+ * Returns number of bytes that could not be cleared.
-+ * On success, this will be zero.
-+ */
- unsigned long
- __clear_user(void *to, unsigned long n)
- {
-@@ -108,12 +167,17 @@
- 	return n;
- }
- 
--/*
-- * Return the size of a string (including the ending 0)
-+/**
-+ * strlen_user: - Get the size of a string in user space.
-+ * @s: The string to measure.
-+ * @n: The maximum valid length
-  *
-- * Return 0 on exception, a value greater than N if too long
-+ * Get the size of a NUL-terminated string in user space.
-+ *
-+ * Returns the size of the string INCLUDING the terminating NUL.
-+ * On exception, returns 0.
-+ * If the string is too long, returns a value greater than @n.
-  */
+-#define PCIBIOS_PCI_FUNCTION_ID 	0xb1XX
+-#define PCIBIOS_PCI_BIOS_PRESENT 	0xb101
+-#define PCIBIOS_FIND_PCI_DEVICE		0xb102
+-#define PCIBIOS_FIND_PCI_CLASS_CODE	0xb103
+-#define PCIBIOS_GENERATE_SPECIAL_CYCLE	0xb106
+-#define PCIBIOS_READ_CONFIG_BYTE	0xb108
+-#define PCIBIOS_READ_CONFIG_WORD	0xb109
+-#define PCIBIOS_READ_CONFIG_DWORD	0xb10a
+-#define PCIBIOS_WRITE_CONFIG_BYTE	0xb10b
+-#define PCIBIOS_WRITE_CONFIG_WORD	0xb10c
+-#define PCIBIOS_WRITE_CONFIG_DWORD	0xb10d
+-#define PCIBIOS_GET_ROUTING_OPTIONS	0xb10e
+-#define PCIBIOS_SET_PCI_HW_INT		0xb10f
 -
- long strnlen_user(const char *s, long n)
- {
- 	unsigned long mask = -__addr_ok(s);
+ /* BIOS32 signature: "_32_" */
+ #define BIOS32_SIGNATURE	(('_' << 0) + ('3' << 8) + ('2' << 16) + ('_' << 24))
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-default/pci-functions.h linux-2.5.65-ac2/include/asm-i386/mach-default/pci-functions.h
+--- linux-2.5.65/include/asm-i386/mach-default/pci-functions.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.65-ac2/include/asm-i386/mach-default/pci-functions.h	2003-02-14 22:54:22.000000000 +0000
+@@ -0,0 +1,19 @@
++/*
++ *	PCI BIOS function numbering for conventional PCI BIOS 
++ *	systems
++ */
++
++#define PCIBIOS_PCI_FUNCTION_ID 	0xb1XX
++#define PCIBIOS_PCI_BIOS_PRESENT 	0xb101
++#define PCIBIOS_FIND_PCI_DEVICE		0xb102
++#define PCIBIOS_FIND_PCI_CLASS_CODE	0xb103
++#define PCIBIOS_GENERATE_SPECIAL_CYCLE	0xb106
++#define PCIBIOS_READ_CONFIG_BYTE	0xb108
++#define PCIBIOS_READ_CONFIG_WORD	0xb109
++#define PCIBIOS_READ_CONFIG_DWORD	0xb10a
++#define PCIBIOS_WRITE_CONFIG_BYTE	0xb10b
++#define PCIBIOS_WRITE_CONFIG_WORD	0xb10c
++#define PCIBIOS_WRITE_CONFIG_DWORD	0xb10d
++#define PCIBIOS_GET_ROUTING_OPTIONS	0xb10e
++#define PCIBIOS_SET_PCI_HW_INT		0xb10f
++
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-pc9800/pci-functions.h linux-2.5.65-ac2/include/asm-i386/mach-pc9800/pci-functions.h
+--- linux-2.5.65/include/asm-i386/mach-pc9800/pci-functions.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.65-ac2/include/asm-i386/mach-pc9800/pci-functions.h	2003-02-14 23:00:56.000000000 +0000
+@@ -0,0 +1,20 @@
++/*
++ *	PCI BIOS function codes for the PC9800. Different to
++ *	standard PC systems
++ */
++
++/* Note: PC-9800 confirms PCI 2.1 on only few models */
++
++#define PCIBIOS_PCI_FUNCTION_ID 	0xccXX
++#define PCIBIOS_PCI_BIOS_PRESENT 	0xcc81
++#define PCIBIOS_FIND_PCI_DEVICE		0xcc82
++#define PCIBIOS_FIND_PCI_CLASS_CODE	0xcc83
++/*      PCIBIOS_GENERATE_SPECIAL_CYCLE	0xcc86	(not supported by bios) */
++#define PCIBIOS_READ_CONFIG_BYTE	0xcc88
++#define PCIBIOS_READ_CONFIG_WORD	0xcc89
++#define PCIBIOS_READ_CONFIG_DWORD	0xcc8a
++#define PCIBIOS_WRITE_CONFIG_BYTE	0xcc8b
++#define PCIBIOS_WRITE_CONFIG_WORD	0xcc8c
++#define PCIBIOS_WRITE_CONFIG_DWORD	0xcc8d
++#define PCIBIOS_GET_ROUTING_OPTIONS	0xcc8e	/* PCI 2.1 only */
++#define PCIBIOS_SET_PCI_HW_INT		0xcc8f	/* PCI 2.1 only */

@@ -1,73 +1,209 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130050AbQJZSCx>; Thu, 26 Oct 2000 14:02:53 -0400
+	id <S129112AbQJZSJi>; Thu, 26 Oct 2000 14:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130147AbQJZSCo>; Thu, 26 Oct 2000 14:02:44 -0400
-Received: from styx.suse.cz ([195.70.145.226]:21491 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130050AbQJZSCd>;
-	Thu, 26 Oct 2000 14:02:33 -0400
-Date: Thu, 26 Oct 2000 20:02:20 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Yoann Vandoorselaere <yoann@mandrakesoft.com>,
+	id <S130061AbQJZSJ1>; Thu, 26 Oct 2000 14:09:27 -0400
+Received: from smtp05.primenet.com ([206.165.6.135]:31930 "EHLO
+	smtp05.primenet.com") by vger.kernel.org with ESMTP
+	id <S129112AbQJZSJR>; Thu, 26 Oct 2000 14:09:17 -0400
+From: Terry Lambert <tlambert@primenet.com>
+Message-Id: <200010261808.LAA00925@usr08.primenet.com>
+Subject: Re: kqueue microbenchmark results
+To: tlambert@primenet.com (Terry Lambert)
+Date: Thu, 26 Oct 2000 18:08:51 +0000 (GMT)
+Cc: bright@wintelcom.net (Alfred Perlstein),
+        davids@webmaster.com (David Schwartz),
+        jlemon@flugsvamp.com (Jonathan Lemon), chat@FreeBSD.ORG,
         linux-kernel@vger.kernel.org
-Subject: Re: Possible critical VIA vt82c686a chip bug (private question)
-Message-ID: <20001026200220.A492@suse.cz>
-In-Reply-To: <20001026190309.A372@suse.cz> <Pine.LNX.3.95.1001026134131.13342A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+In-Reply-To: <200010260610.XAA11949@usr08.primenet.com> from "Terry Lambert" at Oct 26, 2000 06:10:52 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1001026134131.13342A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Oct 26, 2000 at 01:42:29PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2000 at 01:42:29PM -0400, Richard B. Johnson wrote:
+This is a long posting, with a humble beginning, but it has
+a point.  I'm being complete so that no one is left in the
+dark, or in any doubt as to what that point is.  That means
+rehashing some history.
 
-> > > ../drivers/block/ide.c, line 162, on version 2.2.17 does bad things
-> > > to the timer. It writes 0 to the control-word for timer 0. This
-> > > does the following:
-> [Snipped...]
-> >  
-> > Well, at least on 2.4.0-test9, the above timing code is #ifed to
-> > DISK_RECOVERY_TIME > 0, which in turn is #defined to 0 in
-> > include/linux/ide.h.
-> > 
-> > So this is not our problem here. Anyway I guess it's time to hunt for
-> > i8259 accesses in the kernel that lack the necessary spinlock, even when
-> > they're not probably the cause of the problem we see here.
-> 
-> Okay, good.
+This posting is not really about select or Linux: it's about
+interfaces.  Like cached state, interfaces can often be
+harmful.
 
-Ok, here is a list of places within the kernel that access the PIT
-timer, plus the method of locking (i386 arch only):
+NB: I really should redirect this to FreeBSD, as well, since
+there are people in that camp who haven't learned the lesson,
+either, but I'll leave it in -chat, for now.
 
-Usage:						Lock method:
+---
 
-arch/i386/kernel/time.c:170:			spin_lock()
-arch/i386/kernel/time.c:491:			spin_lock()
-arch/i386/kernel/time.c:575:			none (init)
-arch/i386/kernel/i8259.c:491:			none (init)
-arch/i386/kernel/apm.c:871:			cli()
-arch/i386/kernel/apic.c:398:			spin_lock_irqsave()
+[ ... kqueue discussion ... ]
 
-drivers/char/vt.c:121:				cli()
-drivers/char/ftape/lowlevel/ftape-calibr.c:80:	cli()
-drivers/char/ftape/lowlevel/ftape-calibr.c:99: 	cli()
-drivers/char/joystick/analog.c:142:		cli() __cli()
-drivers/char/joystick/gameport.c:66:		cli()
-drivers/ide/hd.c:137:   		 	cli()
-drivers/ide/ide.c:206:  		  	__cli()
+> Linux also thought it was OK to modify the contents of the
+> timeval structure before returning it.
 
-I guess we'll need to fix this. While races here are not likely (the
-most likely is a beep by vt.c at a wrong moment), they're possible.
+It's been pointed out that I should provide more context
+for this statement, before people look at me strangely and
+make circling motions with their index fingers around
+their ears (or whatever the international sign for "crazy"
+is these days).  So I'll start with a brief history.
 
-However, these don't seem to be the cause of the problem we see here
-anyway.
+The context is this: the select API was designed with the
+idea that one might wish to do non-I/O related background
+processing.  Toward this end, one could have several ways
+of using the API:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+1)	The (struct timeval *) could be NULL.  This means
+	"block until a signal or until a condition on
+	which you are selecting is true"; select is a BSD
+	interface, and, until BSD 4.x and POSIX signals,
+	the signal would actually call the handler and
+	restart the select call, so in effect, this really
+	meant "block until you longjmp out of a signal
+	handler or until a condition on which you are
+	selecting is true".
+
+2)	The (struct timeval *) could point to the address
+	of a real timeval structure (i.e. not be NULL); in
+	that case, the result depended on the contents:
+
+	a)	If the timeval struct was zero valued, it
+		meant that the select should poll for one
+		of the conditions being selected for in
+		the descriptor set, and return a 0 if no
+		conditions were true.  The contents of
+		the bitmaps and timeval struct were left
+		alone.
+
+	b)	If the timeval struct was not zero valued,
+		it meant that the select should wait until
+		the time specified had expired since the
+		system call was first started, or one of
+		the conditions being selected for was true.
+		If the timeout expired, then a 0 would be
+		returned, but if one or more of the conditions
+		were true, the number of descriptors on which
+		true conditions existed would be returned.
+
+Wedging so much into a single interface was fraught with peril:
+it was undefined as to what would happen if the timeval specified
+an interval of 5 seconds, yet there was a persistently rescheduled
+alarm every 2 seconds, resulting in a signal handler call that did
+_not_ longjmp... would the timer expire after 5 seconds, or would
+the timer be considered to have been restarted along with the call?
+Implementations that went both ways existed.  Mostly, programmers
+used longjmp in signal handlers, and it wasn't a portability issue.
+
+More perilous, the question of what to do with a partially
+satisfied request that was interrupted with a timer or signal
+handler and longjump (later, siginterrupt(2), and later POSIX
+non-restart default behaviour).  This meant that the bitmap of
+select events might have been modified already, after the
+wakeup, but before the process was rescheduled to run.
+
+Finally, the select manual page specifically reserved the right
+to modify the contents of the timeval struct; this was presumably
+so that you could either do accurate timekeeping by maintaining
+a running tally using the timeval deficit (a lot of math, that),
+or, more likely, to deal with the system call restart, and ensure
+that signals would not prevent the select from ever exiting in
+the case of system call restart.
+
+So this was the select API definition.
+
+---
+
+Being pragmatists, programmers programmed to the behaviour of
+the API in actual implementations, rather than to the strict
+"letter of the law" laid down by the man page.  This meant
+that select was called in loop control constructs, and that
+the bitmaps were reinitialized each time through the loop.
+
+It also meant that the timeval struct was not reinitialized,
+since that was more work, and no known implementations would
+modify it.  Pre-POSIX signals, signal handlers were handled on
+a signal stack, as a result of a kernel trampoline outcall,
+and that meant that a restarting system call would not impact
+the countdown.
+
+---
+
+Linux came along, and implemented the letter of the law; the
+machines were no sufficiently fast, and the math sufficiently
+cheap, that it was now possible to usefully accurate timekeeping
+using the inverted math required of keeping a running tally
+using the timeval deficit.  So they implemented it: it was
+more useful than the historical behaviour on most platforms.
+
+And every program which used non-zero valued timeval struct
+contents, and assumed that they would not be modified, broke.
+
+---
+
+And here we see the problem with defining interfaces instead of
+defining protocols.  A protocol is unambiguous with regard to
+implementation details.  But an API, unless a lot of work takes
+place to make it sufficiently abstract, and a lot more work
+takes place to define exactly what will happen in all allowed
+conditions, and to preclude the possibility of undefined
+behaviour, simply can not hide implementation details.
+
+
+
+If what people are trying to do here is define a cross-platform
+system interface (and if they succeed, it will be the first one
+forced on mainstream UNIX by the Open Source community), then
+it means that careful design which eliminates ambiguity is the
+single most important consideration.  There can be no undefined
+behaviour, like that of select's timeval struct updating, or the
+equally ambiguous, but less problematic, bitmap content partial
+update -- which could bite people on a new platform, but so far
+has not.
+
+---
+
+I have seen the BSD kqueue interface called "overengineered";
+but people apparently don't realize that it is not so much
+that it has been thought out to that level of detail beforehand,
+as it is that it is on its third revision.  It wasn't really
+overengineered to where it is today: it has matured to where it
+is today.
+
+Just as poll (however much I disdain it for select, in favor of
+select's more universal platform portability) is a more mature
+interface than select, and resolves problems in the select
+design.  Poll is not an overengineered interface, it is a more
+mature version of the select interface.
+
+---
+
+FWIW: except for platform-specific applications, which I've tried
+very hard to avoid writing since the early 1980's or so, I will
+probably be very conservative in my adoption of a kqueue interface,
+whatever it ends up looking like, just as I've been conservative in
+my adoption of poll (and, untill 1989, my adoption of select, since
+there are other ways to solve the multiple input stream problem,
+without needing a select, poll, or kqueue, and which work all
+the way back to V7 UNIX).  Unless there's a problem that can not
+be solved in any other way, such as performance or footprint, I'll
+stick to tools that are cross-platform.
+
+On general principles, it'd be a good idea if BSD and Linux
+ended up with the same unambiguous interface.  The wider an
+interface is adopted, the quicker you will see people who can't
+afford to be nailed to the cross of a single platform willing
+to adopt it in their code.  Ambiguity of any kind will hinder
+that adoption, and would certainly prevent adoption by mainstream
+UNIX: if you have to code it differently on different platforms,
+then you might as well code it differently on their platform, too.
+
+
+					Terry Lambert
+					terry@lambert.org
+---
+Any opinions in this posting are my own and not those of my present
+or previous employers.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272638AbRIGNGd>; Fri, 7 Sep 2001 09:06:33 -0400
+	id <S272631AbRIGNOq>; Fri, 7 Sep 2001 09:14:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272639AbRIGNGX>; Fri, 7 Sep 2001 09:06:23 -0400
-Received: from prfdec.natur.cuni.cz ([195.113.56.1]:22534 "EHLO
-	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id <S272638AbRIGNGI>; Fri, 7 Sep 2001 09:06:08 -0400
-X-Envelope-From: mmokrejs
-Posted-Date: Fri, 7 Sep 2001 15:06:28 +0200 (MET DST)
-Date: Fri, 7 Sep 2001 15:06:28 +0200 (MET DST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages: 0-order allocation failed.
-In-Reply-To: <20010904160546Z16284-32383+3441@humbolt.nl.linux.org>
-Message-ID: <Pine.OSF.4.21.0109071502390.170-100000@prfdec.natur.cuni.cz>
+	id <S272640AbRIGNOg>; Fri, 7 Sep 2001 09:14:36 -0400
+Received: from picard.csihq.com ([204.17.222.1]:11407 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S272631AbRIGNOZ>;
+	Fri, 7 Sep 2001 09:14:25 -0400
+Message-ID: <033a01c1379e$e3514880$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <024f01c13601$c763d3c0$e1de11cc@csihq.com> <shsae07md9d.fsf@charged.uio.no>
+Subject: Re: 2.4.8 NFS Problems
+Date: Fri, 7 Sep 2001 09:13:29 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Sep 2001, Daniel Phillips wrote:
+But my timeouts were only 10 seconds -- well below the timeo and retrans
+timeout periods.
+And my network traffic shows that this is the client causing the problem NOT
+the server.
+It's the read() that pauses for 10 seconds and then the NFS write
+immediately returns EIO.
+So...I don't think soft mounts has anything to do with it.
+Also...I've now seen this error once more even with the 4096 read/write
+sizes.
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+----- Original Message -----
+From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+To: "Mike Black" <mblack@csihq.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Sent: Friday, September 07, 2001 7:49 AM
+Subject: Re: 2.4.8 NFS Problems
 
-> On September 4, 2001 03:11 pm, Martin MOKREJ? wrote:
-> > Hi,
-> >   I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
-> > enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
-> > physically. Althougj I've found many report to linux-kernel list during
-> > past months, not a real solution. Maybe only:
-> > http://www.alsa-project.org/archive/alsa-devel/msg08629.html
-> 
-> Try 2.4.10-pre4.
 
+>>>>> " " == Mike Black <mblack@csihq.com> writes:
 
-Wow, I've just now realized that I get two types of error message:
-__alloc_pages: 0-order allocatiocation failed (gfp=0x70/1).
-__alloc_pages: 0-order allocation failed (gfp=0x70/1).
+     > I've been getting random NFS EIO errors for a few months but
+     > now it's repeatable.  Trying to copy a large file from one
+     > 2.4.8 SMP box to another is consistently failing (at different
+     > offsets each time).  This doesn't appear to be a network
+     > problem as the last comm between the machines looks OK.  By the
+     > timestamps it appears that a read() is taking too long and
+     > causing a timeout?
 
-We are using LVM and ReiserFS, HIGMEM kernel.
+Morale: Don't use soft mounts: they are prone to these things. If you
+insist on using them, then try playing around with the `timeo' and
+`retrans' mount variables.
 
-Maybe it helps to track it down. Any ideas?
--- 
-Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
-MIPS / Institute for Bioinformatics <http://mips.gsf.de>
-GSF - National Research Center for Environment and Health
-Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+Soft mount timeouts are not only due to network problems, but can
+equally well be due to internal congestion. The rate at which the
+network can transmit requests is usually (unless you are using
+Gigabit) way below the rate at which your machine can generate them.
+
+Cheers,
+   Trond
 

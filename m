@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132957AbRAKWq1>; Thu, 11 Jan 2001 17:46:27 -0500
+	id <S135324AbRAKWq1>; Thu, 11 Jan 2001 17:46:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135322AbRAKWqR>; Thu, 11 Jan 2001 17:46:17 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:50270 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S132957AbRAKWqH>; Thu, 11 Jan 2001 17:46:07 -0500
-Date: Thu, 11 Jan 2001 22:45:30 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] free_page(0) freed pagenr 0x40000
-Message-ID: <Pine.LNX.4.21.0101112240280.1033-100000@localhost.localdomain>
+	id <S132957AbRAKWqS>; Thu, 11 Jan 2001 17:46:18 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:55045 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S132628AbRAKWqH>; Thu, 11 Jan 2001 17:46:07 -0500
+Message-ID: <3A5E37B3.233B9C03@Hell.WH8.TU-Dresden.De>
+Date: Thu, 11 Jan 2001 23:46:11 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Strange umount problem in latest 2.4.0 kernels
+In-Reply-To: <UTC200101112234.XAA98877.aeb@ark.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sys_mount(), and probably others, calls free_page(0) when
-no page was got.  free_pages() allows for this explicitly if
-CONFIG_DISCONTIGMEM, and _appears_ to allow for it generally
-by testing VALID_PAGE() - but that test is inadequate, if
-over 1GB of memory then pagenr 0x40000 can be wrongly freed
-(in i386 case).  Complicate the test, for what? or simply...
+Andries.Brouwer@cwi.nl wrote:
+> 
+> These days umount is done by directory, not by device,
+> since a device may be mounted multiple times, so
+> I expect the silly message is gone.
+> (Is your umount recent?)
+> 
+> [But this is only about the "none". I don't know what is
+> wrong in your situation.]
 
---- linux-2.4.1-pre2/mm/page_alloc.c	Thu Jan 11 13:44:43 2001
-+++ linux/mm/page_alloc.c	Thu Jan 11 21:41:39 2001
-@@ -542,14 +542,8 @@
- 
- void free_pages(unsigned long addr, unsigned long order)
- {
--	struct page *fpage;
--
--#ifdef CONFIG_DISCONTIGMEM
--	if (addr == 0) return;
--#endif
--	fpage = virt_to_page(addr);
--	if (VALID_PAGE(fpage))
--		__free_pages(fpage, order);
-+	if (addr != 0)
-+		__free_pages(virt_to_page(addr), order);
- }
- 
- /*
+My umount is 2.10r. Alan says he knows what is wrong,
+so we're all curiously expecting -ac7 ;)
 
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

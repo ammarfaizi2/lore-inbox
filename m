@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263455AbUJ2SHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263454AbUJ2SDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263455AbUJ2SHi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 14:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbUJ2SEL
+	id S263454AbUJ2SDT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 14:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbUJ2SAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 14:04:11 -0400
-Received: from pop.gmx.de ([213.165.64.20]:50332 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263382AbUJ2R7X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:59:23 -0400
-X-Authenticated: #15156664
-Message-ID: <015101c4bde1$1051bce0$8511050a@alexs>
-From: "Alexander Stohr" <alexander.stohr@gmx.de>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Cc: <airlied@gmail.com>, <kendallb@scitechsoft.com>,
-       <linux-kernel@vger.kernel.org>
-References: <1098806794.6000.7.camel@tara.firmix.at>
-Subject: Re: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?]
-Date: Fri, 29 Oct 2004 19:12:15 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 29 Oct 2004 14:00:12 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:10987 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263447AbUJ2R54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 13:57:56 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+From: Lee Revell <rlrevell@joe-job.com>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+In-Reply-To: <32870.192.168.1.5.1099062000.squirrel@192.168.1.5>
+References: <20041027211957.GA28571@elte.hu>
+	 <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
+	 <20041028063630.GD9781@elte.hu>
+	 <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
+	 <20041028085656.GA21535@elte.hu>
+	 <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
+	 <20041028093215.GA27694@elte.hu>
+	 <43163.195.245.190.94.1098981230.squirrel@195.245.190.94>
+	 <20041028191605.GA3877@elte.hu>
+	 <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
+	 <20041029073001.GB30400@elte.hu>
+	 <32870.192.168.1.5.1099062000.squirrel@192.168.1.5>
+Content-Type: text/plain
+Date: Fri, 29 Oct 2004 13:57:50 -0400
+Message-Id: <1099072671.14209.2.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jon, Hi audience,
+On Fri, 2004-10-29 at 16:00 +0100, Rui Nuno Capela wrote:
+> For example, in my own case, if those tests are done with ACPI disabled
+> (yes, with acpi=off), this laptop of mine just skews the results
+> completely: vanilla 2.6.9 gets better results, while the RT ones go
+> slumber. Go figure ;)
 
-(I just got aware of that discussion because i got that mail CCed 
-trough a resend on a general discussion list about software patents.)
+I suspect that your laptop uses SMM traps to talk to the battery.  That
+could certainly explain the 700 us xruns, because SMM disables all
+interrupts.  This was covered recently in another thread.  According to
+Alan Cox most laptops work this way.
 
-Even if ATI and nVidia, plus maybe even IBM, would sign a well written
-and working agreement between them all, it would not stop anybody else
-out there in the world that is holding patents from inspecting the unveiled
-data and then looking for specific things that might work for pressing out
-some Billion dollars from those companys. Patents do work, but they do
-work mostly for the lawers income, and for companys that have the only
-purpose for getting revenues from a "bought up" patent portfolio. Those
-can be really nastys, even if you are Microsoft you dont like to pull out
-some tons of code from your web browser just because someone else
-is (really!) holding a patent for plugin technology like used for ActiveX.
+Has anyone been able to reproduce the problem on a desktop system?
 
-BTW, did you know that the main study on SCO source in the Linux core
-is from 1999, according to the SCO lawyers. Lets say it took two engineers
-some two months for fiddeling out all those details in the 500.000 lines 
-where there were similarities to SCO code - then that was an effort of 
-some 30.000 USD - and according to SCO there was no bigger study
-before that and no bigger study after that research. And now SCO is
-reporting a 30.000.000 USD (thirty million) effort shedule for upcoming
-lawyers work in the SCO vs. IBM case.
-
-You dont want to go to court unless someone really forces you to do so.
-You dont even want to do that despite you are as big as ATI or nVidia.
-For such amounts you better want to hire some 300 high rank developers
-rather than some 6 high paid lawyers with their full office staff - just to
-stop others from charging you repeatedly with a per-chip-tax that sums
-up to some 10 Million a year _per patent_ with options for up to back
-propagation of charges for the previous 20 years. Much worser, as soon 
-as you have redesigned your chip desing to something else less performant
-there is absolutely no guarantee that tomorrow there will be no other
-person starting charging you once again and again for another topic.
-
-You might now understand, keeping the IP of a company a company secret 
-despite having several patents is a vital measure for keeping the business
-running well for the very own benefit and not for the pocket of some other
-people, including the big big pockets of his lawyers. Technology was meant
-for getting a nice refund from other people for providing them wanted products.
-That is the true base of the "demand and delivery" market concept. Getting 
-distracted from that economy core by courtroum events is contra productive.
-Therefore its a well funded strategy of any company to avoid getting to court
-so that they can in turn preserve their productivity and end up in a nice benefit.
-
--Alex.
-
-> -------- Forwarded Message --------
-> > From: Jon Smirl <jonsmirl@gmail.com>
-> > Reply-To: Jon Smirl <jonsmirl@gmail.com>
-> > To: Dave Airlie <airlied@gmail.com>
-> > Cc: Kendall Bennett <kendallb@scitechsoft.com>, Linux Kernel Mailing
-> > List <linux-kernel@vger.kernel.org>
-> > Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-> > Date: Mon, 25 Oct 2004 23:55:58 -0400
-
-> > I wish they could just get together and agree not to sue each other
-> > over stupid things like register designs and programming models. The
-> > designs are horrible on both cards due to accumulation of historical
-> > cruft. Save the lawsuits for the core of the engines if you really
-> > have to sue each other.
-> > 
-> > -- 
-> > Jon Smirl
+Lee
 

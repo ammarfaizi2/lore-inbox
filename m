@@ -1,43 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316623AbSG3VaI>; Tue, 30 Jul 2002 17:30:08 -0400
+	id <S316591AbSG3V1x>; Tue, 30 Jul 2002 17:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316621AbSG3VaH>; Tue, 30 Jul 2002 17:30:07 -0400
-Received: from 12-225-96-71.client.attbi.com ([12.225.96.71]:3201 "EHLO
-	p3.coop.hom") by vger.kernel.org with ESMTP id <S316589AbSG3V2y>;
-	Tue, 30 Jul 2002 17:28:54 -0400
-Date: Tue, 30 Jul 2002 14:32:34 -0700
-From: Jerry Cooperstein <coop@axian.com>
-To: linux-kernel@vger.kernel.org
-Subject: IRQTUNE and irq priority
-Message-ID: <20020730143234.A17111@p3.attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316589AbSG3V1x>; Tue, 30 Jul 2002 17:27:53 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44817 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S316591AbSG3V1v>; Tue, 30 Jul 2002 17:27:51 -0400
+Date: Tue, 30 Jul 2002 17:40:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [patch] disable READA
+In-Reply-To: <3D47043E.413E9803@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0207301740090.2285-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's an OLD tool called "irqtune"
 
-         http://www.best.com/~cae/irqtune
-
-by Craig Estey, which says about itself:
-
-   "irqtune changes the IRQ priority of devices to allow devices
-    that require high priority and fast service 
-    (e.g. serial ports, modems) to have it...."
-
-I'm told it still works even with recent kernels, but could 
-someone comment on how good an idea it is and if there are
-better and newer ways to do this with recent kernels.
+Who is using READA this days ?
 
 
-Thanks,
+On Tue, 30 Jul 2002, Andrew Morton wrote:
 
-======================================================================
- Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
- Axian, Inc., Software Consulting and Training
- 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
- http://www.axian.com/               
-======================================================================
+>
+> There's a bug in bread() which can cause it to misinterpret a
+> failed READA request as an IO error on SMP.
+>
+> If a filesytem block is subject to READA and __make_request()
+> decides that the request would block then __make_request()
+> will (via end_buffer_io_sync) mark the buffer as not uptodate
+> and will unlock it.
+>
+> But if another CPU attempts to bread() the same buffer at the same
+> time, the following happens:
+>
+> 1: ll_rw_block() sees the buffer is locked and does nothing at all
+>
+> 2: bread() does a wait_on_buffer()
+>
+> 3: the other CPU (the one doing READA) unlocks the non uptodate buffer
+>
+> 4: bread() sees the buffer come unlocked.  It's not uptodate, so
+>    bread() bogusly reports an IO error.
+>
+> I haven't seen it in the wild, because it is rare to get that
+> much read I/O in flight.  reiserfs and ext3 (at least) use READA.
+>
+> An appropriate fix for 2.4 is to disable READA.
+>
+>
+>  ll_rw_blk.c |    2 ++
+>  1 files changed, 2 insertions
+>
+> --- 2.4.19-rc3/drivers/block/ll_rw_blk.c~no-readahead	Tue Jul 30 14:18:17 2002
+> +++ 2.4.19-rc3-akpm/drivers/block/ll_rw_blk.c	Tue Jul 30 14:19:52 2002
+> @@ -841,7 +841,9 @@ static int __make_request(request_queue_
+>  	rw_ahead = 0;	/* normal case; gets changed below for READA */
+>  	switch (rw) {
+>  		case READA:
+> +#if 0	/* bread() misinterprets failed READA attempts as IO errors on SMP */
+>  			rw_ahead = 1;
+> +#endif
+>  			rw = READ;	/* drop into READ */
+>  		case READ:
+>  		case WRITE:
+>
+> .
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

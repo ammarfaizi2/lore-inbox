@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318153AbSGMMax>; Sat, 13 Jul 2002 08:30:53 -0400
+	id <S316851AbSGMND3>; Sat, 13 Jul 2002 09:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318154AbSGMMaw>; Sat, 13 Jul 2002 08:30:52 -0400
-Received: from web14008.mail.yahoo.com ([216.136.175.124]:50949 "HELO
-	web14008.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318153AbSGMMav>; Sat, 13 Jul 2002 08:30:51 -0400
-Message-ID: <20020713123342.10442.qmail@web14008.mail.yahoo.com>
-Date: Sat, 13 Jul 2002 05:33:42 -0700 (PDT)
-From: Tony Spinillo <tspinillo@yahoo.com>
-Subject: Re: ittle problems with /dev/sr0 with 2.4.19-rc1
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316853AbSGMND3>; Sat, 13 Jul 2002 09:03:29 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:15614 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316851AbSGMND2>; Sat, 13 Jul 2002 09:03:28 -0400
+Subject: Re: Q: boot time memory region recognition and clearing.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D2FFC22.49A057CD@yk.rim.or.jp>
+References: <3D2FFC22.49A057CD@yk.rim.or.jp>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 Jul 2002 15:15:17 +0100
+Message-Id: <1026569717.9958.77.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I also hit this. Kernel 2.4.19-rc1-ac3. I tried the
--no-pad option. I also tried readcd dev=2,0,0 f=/test.iso,
-that failed also.
+On Sat, 2002-07-13 at 11:08, Ishikawa wrote:
+> I have found that the particular motherboard (and memory sticks)
+> that I use at home tends to generate bogus memory problem 
+> warning messages when I use ecc module.
+> Motherboard is Gigabyte 7XIE4 that uses AMD751.
+> (Yes, AMD has now provides AMD76x series chipset for
+> newer CPUs.)
+> 
+> I say "bogus" because I have tested the hardware
+> many times using memtest86 and found that it doesn't
+> detect any memory errors even 
 
-The latest cdrdao seems to read and make good copies though.
+memtest86 isnt (except on the very very latest versions) aware of ECC.
+It sees the memory after the ECC rescues minor errors so if the RAM has
+errors but ECC just about saves you it will show up clean
 
-from /var/log/messages:
-Jul 13 07:50:14 251 kernel: scsi2: ERROR on channel 0, id 0, lun
-
-0,CDB: Request Sense 00 00 00 40 00
-Jul 13 07:50:14 251 kernel: Info fld=0x50698 (nonstd), Current
-sd0b:00: sense key Medium Error
-Jul 13 07:50:14 251 kernel: Additional sense indicates 
-Unrecovered read error
-
-I will test later with some other media, a different build
-of cdrecord, and I will run a cleaner through the drive.
-
-Thanks,
-
-Tony
-
-
-
->>On Sun Jul 07, 2002 at 06:07:44AM -0400, Christian Robert
-wrote:
->> [root@X-home:/btemp] # md5sum /dev/sr0
->> md5sum: /dev/sr0: Input/output error         <- oups, it 
-failed
->> 
->> [root@X-home:/btemp] # dd if=/dev/sr0 | md5sum
->> dd: reading `/dev/sr0': Input/output error   <- failed here
-too
->> 13440+0 records in
->> 13440+0 records out
->> 5ec08b6fa7bf09741d1310e5baa800de  - <- but md5sum is 
->OK
-
->Looks like a read ahead bug to me...  Out of curiousity,
->did you use "-no-pad" with mkisofs?
-
-> -Erik
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Autos - Get free new car price quotes
-http://autos.yahoo.com

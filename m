@@ -1,68 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129669AbRCAQBP>; Thu, 1 Mar 2001 11:01:15 -0500
+	id <S129674AbRCAQDf>; Thu, 1 Mar 2001 11:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129674AbRCAQBF>; Thu, 1 Mar 2001 11:01:05 -0500
-Received: from rm05-24-167-188-86.ce.mediaone.net ([24.167.188.86]:54954 "EHLO
-	calvin.localdomain") by vger.kernel.org with ESMTP
-	id <S129669AbRCAQAz>; Thu, 1 Mar 2001 11:00:55 -0500
-Date: Thu, 1 Mar 2001 10:00:41 -0600
-From: Tim Walberg <tewalberg@mediaone.net>
-To: linux-kernel@vger.kernel.org
-Subject: smartmedia adapter support??
-Message-ID: <20010301100041.A22824@mediaone.net>
-Reply-To: Tim Walberg <tewalberg@mediaone.net>
-Mail-Followup-To: Tim Walberg <tewalberg@mediaone.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
-X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
-X-URL: http://www.concentric.net/~twalberg
+	id <S129677AbRCAQDQ>; Thu, 1 Mar 2001 11:03:16 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:53632 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129674AbRCAQDJ>; Thu, 1 Mar 2001 11:03:09 -0500
+Date: Thu, 1 Mar 2001 11:02:23 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: kernel@kvack.org
+cc: Ofer Fryman <ofer@shunra.co.il>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
+In-Reply-To: <Pine.LNX.3.96.1010301102756.2411B-100000@kanga.kvack.org>
+Message-ID: <Pine.LNX.3.95.1010301105321.12870A-101000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1295196120-1201726546-983462543=:12870"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+---1295196120-1201726546-983462543=:12870
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Just wondering whether anyone has successfully gotten
-either a PCMCIA SmartMedia Adapter (specifically the
-Viking Components one) or a FlashPath floppy SmartMedia
-adapter working under 2.4.x. I've got both, and haven't
-gotten either working under either 2.2.x or 2.4.x, but
-I haven't had the time to work real hard at it either,
-so I'm hoping someone can give me some pointers...
+On Thu, 1 Mar 2001 kernel@kvack.org wrote:
+
+> On Thu, 1 Mar 2001, Ofer Fryman wrote:
+> 
+> > I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
+> > successfully. 
+> > With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless interrupts
+> > and the computer freezes, without this bit set it works but I cannot receive
+> > or send anything.
+> 
+> Intel refuses to provide complete documentation for any of their ethernet
+> cards.  I recommend purchasing alternative products from vendors like 3com
+> and National Semiconduct who are cooperative in providing data needed by
+> the development community.
+> 
+
+Well Intel has been a continual contributor to Linux and BSD. Somebody
+is not getting to the right person. There are lazy people at all
+companies. 
+
+Here is a compressed `grep` of linux-kernel mail headers from Intel
+who had something useful to say during the past year. Maybe you
+can ask one of them for the information you need? You just need to
+find an advocate at a big company.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
-			TIA,
-				tw
+---1295196120-1201726546-983462543=:12870
+Content-Type: APPLICATION/octet-stream; name="xxx.gzip"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.3.95.1010301110223.12870B@chaos.analogic.com>
+Content-Description: 
 
-
---=20
-+--------------------------+------------------------------+
-| Tim Walberg              | tewalberg@mediaone.net       |
-| 828 Marshall Ct.         | www.concentric.net/~twalberg |
-| Palatine, IL 60074       |                              |
-+--------------------------+------------------------------+
-
---cWoXeonUoKmBZSoM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.1i
-
-iQA/AwUBOp5yJ8PlnI9tqyVmEQJEEgCg1ewObygvrKaZdM/L2Fwq89tatVQAoLwK
-5wrxmVDvWM00wzOsrXlvA5it
-=YYrT
------END PGP SIGNATURE-----
-
---cWoXeonUoKmBZSoM--
+H4sIAC1xnjoAA52WXW/iOBSGr3d+hYX2Yqolxl9J7ExVNRCYqTTVVLTavRj1
+wgUDaUmCnECHf782AYZA+JhKIJsDPj7v8fM65HKhhk6i8lyOVR70dJaAROo3
+ONZZnt/GaaGmcGCC4D5LQTjTAAuAecBwQLGZC/Epr6boq2KuU+dBFpOgNtXh
+goGKTSQAI7v7RL0omGn4e+vPh6GfmDJo34RxyJ6vwMsSDCYyy6FM5TQbx4Ny
+JYcC0haHPqRX4D0uJqD7eP/0AOIheAxDxJhHwSjT4FpnWXF7mOHmi9XdtKJL
+7WKrHgEHMYTOqMl0nuS/CIevo11F9eGfWBCIPQ49FxL+fLWf+y+jsqY9ViSW
+/8xwazVrmb21msolTFhzATD0bN28hXGLMEBIgFHgeiB+VzPQ/TUrJ3/vt+fB
+tMfzhX9cnymmXsYq0Z35qFNVgHsZT8Gj0ot4oMBnFxpphBIoDtTdlxPnLgrA
+NcIdzqhHXEZoRDAOO7SHUIg6whNdLhDCqEMxRbdlCdStlHCzn9tyHYDGV0ti
+05Sk3xrgug7Og5VP2WUU2981onk6lbMm6Mt0uDQ7aDvC4Sp6Yo++Gimt0oGZ
+guvI7QpKeq7Pu+0IV5S3cdfrIZe5Hc/3NsrxaeV7PI5lukzUcB+hip/oc8A4
+EaDR/fb9xwGDtRkaKwcuxkpDPS/MkEM1nO8gdaasFXVrVyxyhB18whkI1Vvj
+iLZz9iAEmJSohVgLGav4gcsDF4NhMhhIXawssnFH5e4wVH75mPu3any08rnt
+3W7o1K3ycdcxc7TotOsExSKKesb2HVa6jvkb9vyOYAhzwruCrdlj5CLX9eVr
+E4T5JLOmk3aEWr6e9EOli8VETmMJR8kesQQSSo0uH2L8HBAfM/8IszUZdoh9
+sy2bGmrGfwrsKFkDSw2wlfq25ZkeEUTrga0Vdg5XSktc7XVun8BGuHmBPMmK
+ifFdLa9PYUioR+k5Xks9WBzrtSEIizWvv0NG30le67Oe5dVzjRXwaWDPXpZ+
+1I56HXThZbkG9uJrXKWFk5jKHTnTjj2V8jFwAfCHK+9Sp69m06VjU1zoRIaP
+OnG7wUi9fLC06son9S513AT/xq/SNmVhR1isomfWV6X5bRp5fhhyvDkz8zdq
+LY3Qno/cyMedntic2XFpr/PpB6VtV/551wX2wvNdz9Vsp7SvMk6V+ePR1qoo
+wH+mvhc7g+9wvPqmvshtjr0iXeoaqDm3dDOMeZev++dGiLgYI+557dvSdcKv
+uO7m0/+IV/dV8QsAAA==
+---1295196120-1201726546-983462543=:12870--

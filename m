@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130177AbQLILRL>; Sat, 9 Dec 2000 06:17:11 -0500
+	id <S131117AbQLILb6>; Sat, 9 Dec 2000 06:31:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131117AbQLILRC>; Sat, 9 Dec 2000 06:17:02 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:52229 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130177AbQLILQ5>; Sat, 9 Dec 2000 06:16:57 -0500
-Date: Sat, 9 Dec 2000 04:46:15 -0600
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Cc: dagb@brattli.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove warning from drivers/net/irda/w83977af_ir.c
-Message-ID: <20001209044615.T6567@cadcamlab.org>
-In-Reply-To: <20001208220030.K599@jaquet.dk>
+	id <S131156AbQLILbt>; Sat, 9 Dec 2000 06:31:49 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:36868 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S131117AbQLILbc>; Sat, 9 Dec 2000 06:31:32 -0500
+Date: Sat, 9 Dec 2000 13:49:12 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Benjamin Herrenschmidt <bh40@calva.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI bridge setup weirdness
+Message-ID: <20001209134912.B1463@jurassic.park.msu.ru>
+In-Reply-To: <20001208155128.A2926@jurassic.park.msu.ru> <19341102080252.6877@192.168.1.2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001208220030.K599@jaquet.dk>; from rasmus@jaquet.dk on Fri, Dec 08, 2000 at 10:00:30PM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+User-Agent: Mutt/1.2i
+In-Reply-To: <19341102080252.6877@192.168.1.2>; from bh40@calva.net on Fri, Dec 08, 2000 at 03:31:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 08, 2000 at 03:31:08PM +0100, Benjamin Herrenschmidt wrote:
+> The problem I have (and this is why I don't setup host resources
+> properly on multi-host PPCs yet) is that some hosts can have several
+> non-contiguous ranges (especially with memory, IO is usually a single
+> contiguous range).
 
-[Rasmus Andersen]
-> -static struct w83977af_ir *dev_self[] = { NULL, NULL, NULL, NULL};
-> +static struct w83977af_ir *dev_self[];
+What about creating dummy resources covering "holes" between those
+ranges and claiming them on the parent bus? Resource allocation code
+will put everything in the right places in this case.
 
-How does the compiler know the size of the array?
-
-Peter
+Ivan.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

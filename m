@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272644AbTHPIJf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 04:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272637AbTHPIJf
+	id S272635AbTHPIL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 04:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272638AbTHPIL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 04:09:35 -0400
-Received: from law11-f27.law11.hotmail.com ([64.4.17.27]:64274 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S272652AbTHPIJH
+	Sat, 16 Aug 2003 04:11:26 -0400
+Received: from law11-f29.law11.hotmail.com ([64.4.17.29]:40198 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S272635AbTHPIKM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 04:09:07 -0400
+	Sat, 16 Aug 2003 04:10:12 -0400
 X-Originating-IP: [220.224.16.244]
 X-Originating-Email: [kartik_me@hotmail.com]
 From: "kartikey bhatt" <kartik_me@hotmail.com>
 To: jmorris@intercode.com.au
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] [CRYPTO] Add CAST6 (CAST-256) algorithm.
-Date: Sat, 16 Aug 2003 13:39:06 +0530
+Date: Sat, 16 Aug 2003 13:40:11 +0530
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-Message-ID: <Law11-F27eGrlki7ti400058609@hotmail.com>
-X-OriginalArrivalTime: 16 Aug 2003 08:09:06.0370 (UTC) FILETIME=[A9BD3220:01C363CD]
+Message-ID: <Law11-F29CCuilvz1Pr000584c2@hotmail.com>
+X-OriginalArrivalTime: 16 Aug 2003 08:10:11.0498 (UTC) FILETIME=[D08EF0A0:01C363CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -928,6 +928,6 @@ hope you'll also forward it.
 >
 
 _________________________________________________________________
-Access Hotmail from your mobile now. 
-http://server1.msn.co.in/sp03/mobilesms/ Click here.
+Polyphonic ringtones. Latest movie trailors. 
+http://server1.msn.co.in/sp03/gprs/index.asp On your mobile!
 

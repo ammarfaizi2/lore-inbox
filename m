@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314369AbSDRPCb>; Thu, 18 Apr 2002 11:02:31 -0400
+	id <S314371AbSDRPGA>; Thu, 18 Apr 2002 11:06:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314370AbSDRPCa>; Thu, 18 Apr 2002 11:02:30 -0400
-Received: from web9208.mail.yahoo.com ([216.136.129.41]:42254 "HELO
-	web9208.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314369AbSDRPCa>; Thu, 18 Apr 2002 11:02:30 -0400
-Message-ID: <20020418150229.65663.qmail@web9208.mail.yahoo.com>
-Date: Thu, 18 Apr 2002 08:02:29 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
+	id <S314373AbSDRPF7>; Thu, 18 Apr 2002 11:05:59 -0400
+Received: from borg.org ([208.218.135.231]:9868 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S314371AbSDRPF6>;
+	Thu, 18 Apr 2002 11:05:58 -0400
+Date: Thu, 18 Apr 2002 11:05:58 -0400
+From: Kent Borg <kentborg@borg.org>
 To: linux-kernel@vger.kernel.org
-Cc: karlran1234@yahoo.com
-MIME-Version: 1.0
+Subject: Versioning File Systems?
+Message-ID: <20020418110558.A16135@borg.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello,
->I've a big problem with my SCSI/PCI setup:
+I just read an article mentioned on Slashdot,
+<http://www.sigmaxi.org/amsci/Issues/Comsci02/Compsci2002-05.html>.
 
->When doing a:
->>/sbin/modprobe aic7xxx
+It is a fascinating short summary of the history of hard disks (they
+still use the same fundamental design as the very first one) and an
+update on current technology (disks are no longer aluminum).  It also
+looks at today's 120 gigabyte disk and muses over the question of how
+we might ever put an imagined 120 terabyte disk to use.  And the got
+me thinking various thoughts, one turns into a question for this list:
+It there any work going on to make a versioning file system?
 
->Apr 14 09:13:04 test  kernel: SCSI subsystem driver Revision: 1.00
-.
->Has anyone seen this before?
+I remember in VMS that I could accumulate "myfile.txt;1",
+"myfilw.txt;2", etc., until the local admin got pissed at me for using
+up all the disk space with my several megabytes of redundant files.
 
->The problem ONLY appears when I run my PC with a Davicom 100MBPS NIC.
->The Davicom runs fine without the 29160!
+It is time for Linux to start figuring out ways to use all the disk
+space that is on the horizon!  In a few weeks the sweet spot will be
+to buy a pair of 80 GB disks.  Disks are outpacing even Red Hat's
+"everything" install.
 
->scanpci  -v
+Seriously, I have a server in the basement with a pair of 60 GB RAID 1
+disks the protect me against likely hardware failure, but they don't
+protect me against: "# rm rf /*".  They don't even let me easily back
+out a bad RPM from Red Hat.
 
-Please run 'lspci -v' instead of 'scanpci -v'. 
+I guess I am suggesting the (more constructive) discussions over
+desirable Bitkeeper and CVS features consider what it would mean for a
+filesystem to absorb some of the key underlying features of each.
 
->I already tried shuffeling the boards & IRQs - no luck :-((
+As a first crack, I am imagining a file system that records every (or
+nearly every) change to every file with time stamps and sequence
+numbering.  I don't know what all the primitives would be.  It
+obviously seems much of making sense of it all would have to happen in
+userland.  Making this too powerful almost brings up some science
+fiction problems of time travel through parallel universes, but I
+think it could be kept grounded by looking at it as a powerful version
+of existing backup systems: they don't have such problems because they
+are too cumbersome for them to arise very often.
 
-Please try shuffling the cards again, and run 'lspci -v' on each reshuffle.
-It appears from the 'scanpci' output that some card is using the same IRQ
-as the SCSI card. I don't think all drivers handle IRQ sharing gracefully.
 
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Tax Center - online filing with TurboTax
-http://taxes.yahoo.com/
+-kb, the Kent who thinks his journaled filesystem on redundant disks
+next needs a better memory.

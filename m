@@ -1,55 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261294AbSJHP2h>; Tue, 8 Oct 2002 11:28:37 -0400
+	id <S261282AbSJHP0O>; Tue, 8 Oct 2002 11:26:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSJHP2g>; Tue, 8 Oct 2002 11:28:36 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:17916 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S261294AbSJHP2g>; Tue, 8 Oct 2002 11:28:36 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 8 Oct 2002 09:31:50 -0600
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
-Message-ID: <20021008153150.GG3045@clusterfs.com>
-Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <1281002684.1033892373@[10.10.2.3]> <E17ybuZ-0003tz-00@starship> <3DA1D30E.B3255E7D@digeo.com> <3DA1D969.8050005@nortelnetworks.com> <3DA1E250.1C5F7220@digeo.com> <3DA2E385.A16F9325@aitel.hist.no>
+	id <S261286AbSJHP0O>; Tue, 8 Oct 2002 11:26:14 -0400
+Received: from aneto.able.es ([212.97.163.22]:22145 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id <S261282AbSJHP0M>;
+	Tue, 8 Oct 2002 11:26:12 -0400
+Date: Tue, 8 Oct 2002 17:31:30 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: procps-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] procps 2.0.10
+Message-ID: <20021008153130.GG1560@werewolf.able.es>
+References: <Pine.LNX.4.44L.0210081135290.1909-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <3DA2E385.A16F9325@aitel.hist.no>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.44L.0210081135290.1909-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Oct 08, 2002 at 16:38:36 +0200
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 08, 2002  15:54 +0200, Helge Hafting wrote:
-> Andrew Morton wrote:
-> > Part of the problem here is that it has got worse over time.  The
-> > size of a blockgroup is hardwired to blocksize*bits-in-a-byte*blocksize.
-> > But disks keep on getting bigger.  Five years ago (when, presumably, this
-> > algorithm was designed), a typical partition had, what?  Maybe four
-> > blockgroups?  Now it has hundreds, and so the "levelling" is levelling
-> > across hundreds of blockgroups and not just a handful.
-> 
-> If having only "a few" block groups really work better 
-> (even for todays bigger disks) then bigger
-> block groups seems like a solution.
-> 
-> changing the on-disk format might not be popular, but there
-> is no need for that.  Simply regard several on-disk block
-> groups as a bigger "allocation group" when using the above
-> algorithm.  This should be perfectly backwards compatible.
 
-We already have plans for something like this - a "meta blockgroup".
-This will help us with several things, actually, so it is likely to
-be implemented.
+On 2002.10.08 Rik van Riel wrote:
+>On Tue, 8 Oct 2002, J.A. Magallon wrote:
+>
+>> It also kills the 'states' part, things are beginning to spread past 80
+>> columns...is it very important ?
+>
+>Yes, things should stay within 80 lines.
+>
+>> I am gettin also strange outputs sometimes, with a ton of digits in
+>> decimal parts.
+>
+>Wait... I remember fixing that bug.  On 2.4 kernels iowait
+>should always be 0.0% and it always is 0.0% here.
+>
+>I have no idea why it's displaying a wrong value on your
+>system, unless you somehow managed to run against a wrong
+>libproc.so (shouldn't happen).
+>
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Perhaps it is the percentage-mod plays. With this (calculate percentage in
+0.1% units and then /10 and %10, I do not get that strange output). Perhaps
+it was gcc-3.2 optimizing things, and it eats this better. It also guarantees
+that decimal part never has more than 1 digit (%10 thing):
 
+--- top.c.orig	2002-10-08 15:28:10.000000000 +0200
++++ top.c	2002-10-08 17:21:24.000000000 +0200
+@@ -1691,6 +1691,8 @@
+ 								i, __LINE__);
+ 							break;
+ 						} else {
++							int u_delta, s_delta, n_delta, io_delta, i_delta, un_delta;
++
+ 							t_ticks = (u_ticks + s_ticks + i_ticks + n_ticks + io_ticks)
+ 							    - (u_ticks_o[i] + s_ticks_o[i] + i_ticks_o[i] + n_ticks_o[i] + io_ticks_o[i]);
+ 							if (Irixmode)
+@@ -1699,25 +1701,21 @@
+ 								cpumap =
+ 								    cpu_mapping
+ 								    [i];
++							u_delta  = (trimzero(u_ticks - u_ticks_o[i])*1000)/t_ticks;
++							s_delta  = (trimzero(s_ticks - s_ticks_o[i])*1000)/t_ticks;
++							n_delta  = (trimzero(n_ticks - n_ticks_o[i])*1000)/t_ticks;
++							io_delta = (trimzero(io_ticks - io_ticks_o[i])*1000)/t_ticks;
++							i_delta  = (trimzero(i_ticks - i_ticks_o[i])*1000)/t_ticks;
++							un_delta  = (trimzero(u_ticks - u_ticks_o[i]+n_ticks - n_ticks_o[i])*1000)/t_ticks;
+ 							printf
+-							    ("CPU%d states: %2d%s%-d%% user, %2d%s%-d%% system,"
+-							     " %2d%s%-d%% nice, %2d%s%-d%% iowait, %2d%s%-d%% idle",
++							    ("CPU%d: %3d%s%-d%% user %3d%s%-d%% system"
++							     " %3d%s%-d%% nice %3d%s%-d%% iowait %3d%s%-d%% idle",
+ 							     cpumap,
+-							     trimzero(u_ticks - u_ticks_o [i] + n_ticks - n_ticks_o [i]) * 100 / t_ticks,
+-							     decimal_point,
+-							     trimzero(u_ticks - u_ticks_o [i]) * 100 % t_ticks / 100,
+-							     trimzero(s_ticks - s_ticks_o [i]) * 100 / t_ticks,
+-							     decimal_point,
+-							     trimzero(s_ticks - s_ticks_o [i]) * 100 % t_ticks / 100,
+-							     trimzero(n_ticks - n_ticks_o [i]) * 100 / t_ticks,
+-							     decimal_point,
+-							     trimzero(n_ticks - n_ticks_o [i]) * 100 % t_ticks / 100,
+-							     trimzero(io_ticks - io_ticks_o [i]) * 100 / t_ticks,
+-							     decimal_point,
+-							     trimzero(io_ticks - io_ticks_o [i]) * 100 % t_ticks / 100,
+-							     trimzero(i_ticks - i_ticks_o [i]) * 100 / t_ticks,
+-							     decimal_point,
+-							     trimzero(i_ticks - i_ticks_o [i]) * 100 % t_ticks / 100);
++							     un_delta/ 10, decimal_point, un_delta% 10,
++							     s_delta / 10, decimal_point, s_delta % 10,
++							     n_delta / 10, decimal_point, n_delta % 10,
++							     io_delta/ 10, decimal_point, io_delta% 10,
++							     i_delta / 10, decimal_point, i_delta % 10);
+ 							s_ticks_o[i] = s_ticks;
+ 							u_ticks_o[i] = u_ticks;
+ 							n_ticks_o[i] = n_ticks;
+
+And looks cleaner...;)
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (dolphin) for i586
+Linux 2.4.20-pre9-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

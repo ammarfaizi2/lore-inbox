@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263811AbTKSD2r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 22:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263819AbTKSD2q
+	id S263828AbTKSDjX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 22:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263822AbTKSDjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 22:28:46 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:1665
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263811AbTKSD2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 22:28:45 -0500
-Date: Tue, 18 Nov 2003 22:24:00 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Jon Foster <jon@jon-foster.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re:Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
-In-Reply-To: <3FBAAFDF.5000803@jon-foster.co.uk>
-Message-ID: <Pine.LNX.4.53.0311182220570.11537@montezuma.fsmlabs.com>
-References: <3FBAAFDF.5000803@jon-foster.co.uk>
+	Tue, 18 Nov 2003 22:39:23 -0500
+Received: from reptilian.maxnet.nu ([212.209.142.131]:54540 "EHLO
+	reptilian.maxnet.nu") by vger.kernel.org with ESMTP id S263819AbTKSDjT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 22:39:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Habets <thomas@habets.pp.se>
+To: sparclinux@vger.kernel.org
+Subject: PATCH: forgotten EXPORT_SYMBOL()s on sparc
+Date: Wed, 19 Nov 2003 04:38:40 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1AMJBP-0003L5-00@reptilian.maxnet.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Nov 2003, Jon Foster wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > The other thing I've found printks to hide before is timing bugs / races.
-> > Unfortunately I can't see one here, but maybe someone else can ;-)
-> > Maybe inserting a 1ms delay or something in place of the printk would
-> > have the same effect?
-> 
-> One of my colleagues had an interesting bug caused by an
-> uninitialized variable - a printk() in the right place happened
-> to set the variable (which gcc had put in a register) to the
-> correct value for his code to work.
 
-Very nice =)
+These two symbols not exported on sparc made my life (well, my evening
+anyway) hell (well... long anyway). I couldn't load a bunch of modules, like
+sunrpc and ipv6 until I added them.
 
-> I've tried looking for uses of uninitialized registers in entry.S,
-> but the assembly there isn't easy to follow.
+Note that these two lines are probably in the wrong place in the file.
+Bleh, my mailclient is doing evil things to the patch, but it's only two
+lines, so it should be clear.
 
-I've walked that code and can't see anything wrong anywhere.
+Also, I wonder what the status is for keyboard, mouse and framebuffer is for
+2.6.0 on sparc. None of them seem to work right now.
 
-> What happens if you replace the printk with assembly code
-> that clobbers eax, ecx, edx and (most of) eflags?  (Assuming
-> I've remembered the calling convention correctly, those are
-> the registers that printk will be overwriting).
+- --- linux-2.6.0-test9.orig/arch/sparc/kernel/sparc_ksyms.c   2003-10-25
+20:42:54.000000000 +0200
++++ linux-2.6.0-test9/arch/sparc/kernel/sparc_ksyms.c       2003-11-19
+03:09:46.000000000 +0100
+@@ -287,6 +287,8 @@
 
-Well i have tried a number of heavyweight functions, so far none of them 
-have had the effect that a printk has had. It's also worth noting that a 
-printk lookalike function such as the following, does not fix things 
-either.
+ /* Networking helper routines. */
+ /* XXX This is NOVERS because C_LABEL_STR doesn't get the version number.
+ -DaveM */
++EXPORT_SYMBOL(sparc_flush_page_to_ram);
++EXPORT_SYMBOL(csum_partial);
+ EXPORT_SYMBOL_NOVERS(__csum_partial_copy_sparc_generic);
 
-asmlinkage int kooh_la_la(const char *fmt, ...)
-{
-	return strlen(fmt);
-}
+ /* No version information on this, heavily used in inline asm,
 
+- ---------
+typedef struct me_s {
+  char name[]      = { "Thomas Habets" };
+  char email[]     = { "thomas@habets.pp.se" };
+  char kernel[]    = { "Linux 2.4" };
+  char *pgpKey[]   = { "http://www.habets.pp.se/pubkey.txt" };
+  char pgp[] = { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
+  char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
+} me_t;
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/uuXAKGrpCq1I6FQRAu3ZAKCrglCwluOp1wt1NXuX78CemjzQuwCbB2rA
+OFRBa5wypAiFD/U2EwCVMFg=
+=cNKA
+-----END PGP SIGNATURE-----

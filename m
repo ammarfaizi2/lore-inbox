@@ -1,62 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287538AbSAEFvd>; Sat, 5 Jan 2002 00:51:33 -0500
+	id <S287526AbSAEGCx>; Sat, 5 Jan 2002 01:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287540AbSAEFvY>; Sat, 5 Jan 2002 00:51:24 -0500
-Received: from otter.mbay.net ([206.40.79.2]:776 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S287538AbSAEFvS> convert rfc822-to-8bit;
-	Sat, 5 Jan 2002 00:51:18 -0500
-From: John Alvord <jalvo@mbay.net>
-To: Steinar Hauan <hauan@cmu.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: smp cputime issues (patch request ?)
-Date: Fri, 04 Jan 2002 21:51:12 -0800
-Message-ID: <tt4d3uoubkg4vu5si7suoqkr9g7fq5ogtt@4ax.com>
-In-Reply-To: <20020103022705.A3163@werewolf.able.es> <Pine.GSO.4.33L-022.0201050016110.15393-100000@unix13.andrew.cmu.edu>
-In-Reply-To: <Pine.GSO.4.33L-022.0201050016110.15393-100000@unix13.andrew.cmu.edu>
-X-Mailer: Forte Agent 1.8/32.553
-MIME-Version: 1.0
+	id <S287540AbSAEGCo>; Sat, 5 Jan 2002 01:02:44 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:57353 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S287526AbSAEGCZ>;
+	Sat, 5 Jan 2002 01:02:25 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: pwd@mdtsoft.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Update to the make rpm system kernel 2.4.17 and 2.5.1 
+In-Reply-To: Your message of "Fri, 04 Jan 2002 15:05:37 CDT."
+             <200201042005.g04K5bZ19255@mdtsoft.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Date: Sat, 05 Jan 2002 17:02:11 +1100
+Message-ID: <7074.1010210531@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jan 2002 00:21:44 -0500 (EST), Steinar Hauan <hauan@cmu.edu>
-wrote:
+On Fri, 4 Jan 2002 15:05:37 -0500 (EST), 
+pwd@mdtsoft.com wrote:
+>I needed to be able to build a bit more complex set of rpm files than
+>the make rpm function allowed. Attached is a patch that will replace
+>the scripts/mkspec file with a perl program that generates a bit better
+>spec file, the change to the top level Makefile that will use perl not
+>bash for mkspec and a file for the Doc... directory explaining the changes.
+>
+>If there is anyone using the make rpm could take a look at this and let
+>me know if it works with your build. I have tested this under a production
+>build based on 2.4.17 and a build with default configuration under 2.5.1
+>(I can't build any of my standard configuration for 2.5.1 due to buslogic
+>dirver problems) and it does what I intended it to.
 
->On Thu, 3 Jan 2002, J.A. Magallon wrote:
->> Cache pollution problems ?
->>
->> As I understand, your job does not use too much memory, does no IO,
->> just linear algebra (ie, matrix-times-vector or vector-plus-vector
->> operations). That implies sequential access to matrix rows and vectors.
->
->very correct.
->
->> Problem with linux scheduler is that processes are bounced from one CPU
->> to the other, they are not tied to one, nor try to stay in the one they
->> start, even if there is no need for the cpu to do any other job.
->
->one of the tips received was to set the penalty for cpu switch, i.e. set
->
->  linux/include/asm/smp.h:#define PROC_CHANGE_PENALTY   15
->
->to a much higher value (50). this had no effect on the results.
->
->> On an UP box, the cache is useful to speed up your matrix-vector ops.
->> One process on a 2-way box, just bounces from one cpu to the other,
->> and both caches are filled with the same data. Two processes on two
->> cpus, and everytime they 'swap' between cpus they trash the previous
->> cache for the other job, so when it returs it has no data cached.
->
->this would be an issue, agreed, but cache invalidation by cpu bounces
->should also affect one-cpu jobs? thus is does not explain why this
->effect should be (much) worse with 2 jobs.
+In kernel build 2.5 the make rpm target does not exist.  kbuild 2.5
+builds the kernel and modules, installs the kernel, modules, System.map
+and .config, that is _all_ it does.  Extra tasks like updating
+bootloader files or building a package using the packaging method of
+the month are _not_ part of kbuild 2.5.  Every user wants to do
+something different with bootloaders and packaging, there is no "one
+size fits all" script.
 
-One factor to consider is that to see it bounce, you need to be
-running an observation process like top, or if it is a GUI display two
-processes (application and X). Those observing processes will
-continuosly bump aside the calcuation processes, causing a bouncing
-effect.
+Having said that, kbuild 2.5 is extensible.  You can specify additional
+targets and commands to do whatever special processing the user wants.
+I have no problem with kbuild 2.5 shipping /sample/ scripts to do extra
+processing, but it will not invoke them directly.  Users copy the
+sample code to their own directories and change it, then tell kbuild to
+execute the copy that does exactly what this user wants.  From
+Documentation/kbuild/kbuild-2.5.txt:
 
-john
+ADDITIONAL TARGETS AND COMMANDS
+
+  Some users will want to execute additional commands as part of kbuild.  In
+  particular users who generate kernel packages will want to run their own
+  commands after make install.  Instead of polluting the kbuild Makefiles
+  with rules that have nothing to do with kernel building, kbuild 2.5
+  supports user defined additional commands, using variables ADD0 through
+  ADD9, with the corresponding ADD[0-9]_DEP and ADD[0-9]_CMD.  A command like
+
+    make ADD0=pkg ADD0_DEP=install ADD0_CMD='my-package-script' pkg
+
+  Will make target 'pkg', which is defined by ADD0.  It has a dependency
+  (ADD0_DEP) of install so the install process runs first.  After install has
+  completed, command my-package-script (ADD0_CMD) is run.  The command can be
+  shell commands separated by ';' but will normally be a distribution
+  specific script.  The command has access to all the config variables plus
+  the variables that define the kernel, including KERNELRELEASE.
+
+  It is the responsibility of the packager to maintain their own scripts.
+  kbuild will not maintain scripts for every packaging manager used by every
+  distribution.
+
+  Because of the way that the .config variables are read by kbuild, you can
+  specify a CONFIG_ variable on the make command line and it will override
+  the value used by the makefiles.  In general this is not safe because the
+  config values read during the compile stage are set by another mechanism so
+  overriding a config variable on the command line when that variable is used
+  in code will generate inconsistent results.
+
+  However there are some config variables that can be safely specified on the
+  make command line because they are only used by the makefiles.  All these
+  variables start with CONFIG_INSTALL_, they define where the kernel,
+  modules, map, .config etc. are installed.  Obviously a packaging system
+  will want to set some of these values on the command line.  See the top
+  level Makefile.in for the current CONFIG_INSTALL_ variables.
+

@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130487AbQKBD1W>; Wed, 1 Nov 2000 22:27:22 -0500
+	id <S129199AbQKBEL2>; Wed, 1 Nov 2000 23:11:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130527AbQKBD1L>; Wed, 1 Nov 2000 22:27:11 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:32270 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130487AbQKBD0x>;
-	Wed, 1 Nov 2000 22:26:53 -0500
-Message-ID: <3A00DEDC.634E46CE@mandrakesoft.com>
-Date: Wed, 01 Nov 2000 22:26:20 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "J . A . Magallon" <jamagallon@able.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-In-Reply-To: <E13r6lL-0000w4-00@the-village.bc.nu> <3A00BF7F.5C7CB1D7@mandrakesoft.com> <20001102034703.B766@werewolf.able.es>
+	id <S129207AbQKBELS>; Wed, 1 Nov 2000 23:11:18 -0500
+Received: from nvgate.nvidia.com ([140.174.105.2]:4947 "EHLO
+	hygelac.nvidia.com") by vger.kernel.org with ESMTP
+	id <S129199AbQKBELF>; Wed, 1 Nov 2000 23:11:05 -0500
+Date: Wed, 1 Nov 2000 20:04:34 -0800
+From: Terence Ripperda <ripperda@nvidia.com>
+To: linux-kernel@vger.kernel.org
+Subject: overflow bugs in virtual memory routines?
+Message-ID: <20001101200434.A12936@hygelac>
+Reply-To: Terence Ripperda <ripperda@nvidia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-Accept-Language: en
+X-Operating-System: Linux hygelac 2.2.16 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J . A . Magallon" wrote:
-> 
-> On Thu, 02 Nov 2000 02:12:31 Jeff Garzik wrote:
-> >>
-> > You're not changing 2.4.x to use kgcc, are you?  It seems to be working
-> > fine under gcc 2.95.2+fixes...
-> >
-> 
-> What means "using kgcc" ?
+Hello,
 
-Alan has a script in 2.2.x which attempts to find the best compiler for
-building your kernel.  It looks for kgcc first, IIRC.
+I believe I've found some corner-case overflow bugs in the virtual memory routines of the kernel. 
 
-Alan's message wasn't clear, but it seemed to imply that a patch to add
-this script to 2.4.x would be submitted to Linus.  gcc 2.95.2 is a bit
-smarter about some things, and I definitely prefer using that compiler. 
-I also prefer fixing 2.4.x kernel<->compiler bugs rather than defaulting
-people to an older compiler.
+I'm tracking down some bugs with our driver on a 1 Gig system. This forces the kernel's VMALLOC_AREA into very high memory, exactly where based on the VMALLOC_RESERVE value, but roughly 0xfc000000-0xffffe000 or 0xf8000000-0xffffe000. As virtual memory is allocated, and the addresses come closer to 0xffffe000, it appears some of the macros/tests in the virtual memory layer overflow and fail.
+
+The first is in vmalloc.c:163, in the function get_vm_area():
+
+161:        addr = VMALLOC_START;
+162:        for (p = &vmlist; (tmp = *p) ; p = &tmp->next) {
+163:                if (size + addr < (unsigned long) tmp->addr)
+
+If size is large enough, size + addr can overflow, and fulfill this condition when it shouldn't. The new allocation will continue and overwrite some number of page tables. The specific example I've seen is when the first virtual allocation (tmp->addr) is 0xfc000000, and an ioremap of 64 Megs is tried. Since addr also starts off as 0xfc000000, size + addr (0x4000000 + 0xfc000000) overflows to 0x0, and the remapping overwrites previous allocations.
 
 
-> Think of packages like ALSA drivers grepping or analizing the kernel Makefile
-> to find that options are -fomit-frame-pointer -malign=xxxx and so on.
-> And that options can change from version to version of gcc.
-> Simpler: build a script (what kgcc is). An external module package, use kgcc.
+Perhaps this would work (without too big a performance hit?):
 
-This is a totally separate issue.  Choice of compiler is but one of many
-variables.  We need the build system to export all these variables, and
-ALSA and other external packages will then pick up those settings for
-use in their own builds.  See for example
-http://gtf.org/garzik/kernel/files/patches/2.4/2.4.0-test9/external-modules-2.4.0.9.8.patch.gz
+163:                if ( (size + addr < (unsigned long) tmp->addr) && (size + addr > addr) )
 
-	Jeff
 
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
+The second is in vmalloc.c:135, in the function vmalloc_area_pages():
+
+133:        dir = pgd_offset_k(address);
+134:        flush_cache_all();      
+135:        while (address < end) {
+...
+146:                address = (address + PGDIR_SIZE) & PGDIR_MASK;
+147:                dir++;
+148:        }
+
+If I do an allocation that fits exactly into the last bit of virtual address space, this logic fails. My allocation ends up with a kernel virtual address of 0xffa090000, with a size of 0x500000.
+
+This allocation *should* span the last two page directories, 0xc0101ff8 & 0xc0101ffc, and therefor make 2 passes through this loop, getting kicked out by the test at 135.
+
+What ends up happening is that line 146 masks the address as so:
+
+    1st pass: (0xffa09000 + 0x400000) & 0xffc00000   =>  0xffc00000
+    2nd pass: (0xffc00000 + 0x400000) & 0xffc00000   =>  0x0
+
+We start a 3rd with a pgd of 0xc0102000, which is the start of pg0. Obviously, very bad things start happening when you rewrite those page tables, and the system shortly reboots itself.
+
+Perhaps something like this would work:
+
+            unsigned int start = address;
+135:        while ( (address < end) && (address > start) ) {
+
+
+I'm more than happy to provide more details or test possible patches.
+
+Thanks,
+Terence Ripperda
+NVIDIA
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

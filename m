@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263810AbTJET76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTJET6d
+	id S263871AbTJEUHi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 16:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263872AbTJEUHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:58:33 -0400
-Received: from play.smurf.noris.de ([192.109.102.42]:46254 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S263847AbTJET6T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:58:19 -0400
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Organization: {M:U} IT Consulting
-Subject: Re: compile error with 2.6.0-test6 on ppc32
-Date: Sat, 04 Oct 2003 19:39:19 +0200
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-Message-Id: <pan.2003.10.04.17.39.19.402587@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-References: <3F7EE203.4030601@g-house.de>
-X-Pan-Internal-Attribution: Hi, Christian Kujau wrote:
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
-X-Pan-Internal-Post-Server: smurf
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Cc: recipient list not shown:;
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 5 Oct 2003 16:07:38 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:25748 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S263871AbTJEUHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 16:07:36 -0400
+From: David Woodhouse <dwmw2@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031005191344.GA963@elf.ucw.cz>
+References: <1065266733.16088.91.camel@imladris.demon.co.uk>
+	 <20031005161155.GA753@elf.ucw.cz>
+	 <20031005171916.B21478@flint.arm.linux.org.uk>
+	 <20031005191344.GA963@elf.ucw.cz>
+Message-Id: <1065384453.3157.149.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Sun, 05 Oct 2003 21:07:33 +0100
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+Subject: Re: JFFS2 swsusp / signal cleanup.
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Christian Kujau wrote:
+On Sun, 2003-10-05 at 21:13 +0200, Pavel Machek wrote:
+> Should I do recalc_sigpending() instead of flush_signals(current)?
 
-> upon compiling kernel 2.6.0-test6 on my PowerPC 604r machine (PReP),
-> i got the following error:
-> 
-That's a regression in binutils. Debian/unstable fixed it in version
-2.14.90.0.6-3.
+Yes. You can do that unconditionally, too -- no need to do it depending
+on an argument from the caller.
 
 -- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-...a noble practice which does honor to women.
-		-- Sheik Gad Al Haq Ali Gad Al Haq, explaining
-		   clitorectomy
+dwmw2
+
+

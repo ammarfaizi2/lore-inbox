@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbULAK5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbULALJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbULAK5r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 05:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbULAK5q
+	id S261362AbULALJX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 06:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbULALJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 05:57:46 -0500
-Received: from 92.Red-80-34-142.pooles.rima-tde.net ([80.34.142.92]:42572 "EHLO
-	samsagaz.sirte.net") by vger.kernel.org with ESMTP id S261367AbULAKz5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 05:55:57 -0500
-Message-ID: <41ADA35E.2010801@sombragris.com>
-Date: Wed, 01 Dec 2004 11:56:30 +0100
-From: Miguel Angel Flores <maf@sombragris.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; es-ES; rv:1.7) Gecko/20040616
-X-Accept-Language: es-es, es
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Joe Hsu <joe@softwell.com.tw>
-Subject: Re: Kernel 2.6 with X (xorg) 4.4 (eats more CPU power)
-References: <1101896505.2161.45.camel@joe>
-In-Reply-To: <1101896505.2161.45.camel@joe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 01 Dec 2004 10:56:30.0265 (UTC) FILETIME=[69C1B290:01C4D794]
+	Wed, 1 Dec 2004 06:09:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:65118 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261362AbULALJU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 06:09:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=r4t0WsXSIuFC0xALVeVZ7tirfUb7wsmAOC7KM8m/g24ogqJTl2ypiihWj0ls6bRb8N6epGfKAQvPmrC5ZkmT6EJR00gepchxA2yL35NPv+1zGG63TOFJkUM5dbMGm+4MxnMVx3FZOfp/UosNHaarNPDD9Bw90DNB0S79BcgIjm8=
+Message-ID: <40f323d0041201030969c5dd92@mail.gmail.com>
+Date: Wed, 1 Dec 2004 12:09:19 +0100
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.6.10-rc2-mm3 [was: Re: 2.6.9-rc2: "kernel BUG at mm/rmap.c:473!"]
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Mike Kirk <mike.kirk@sympatico.ca>
+In-Reply-To: <20041201011046.GY4365@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041130150639.GA11294@ens-lyon.fr>
+	 <Pine.LNX.4.44.0412010028460.3344-100000@localhost.localdomain>
+	 <20041201011046.GY4365@dualathlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Its just an idea but... ¿Have you configured your 2.6 kernel as a 
-Preemptive kernel?
-
-Cheers,
-MaF
-
-Joe Hsu escribió:
-
->     In contrast, I've tried Kernel 2.4 with same X, same 
-> program, and same machine. It consumes almost zero of CPU 
-> resource( no matter it runs on a P4 1.xG or P4 3.0G and no
-> matter it runs on 4.4 or 4.2 X-server).
+On Wed, 1 Dec 2004 02:10:46 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
+> On Wed, Dec 01, 2004 at 12:49:39AM +0000, Hugh Dickins wrote:
+> > The atomic counter underflow in do_exit does suggest corruption
+> > elsewhere than in transcode's page table (though I'm not at all
+> > sure that is corrupt) - as always, it is worth giving memtest86
+> > a thorough run to check your memory.
 > 
->     Same phenomenon happened when I ran 4 mpeg4 playback 
-> programs (each 320x240, 30 frames per second, no scaling).
-> It seems that these programs and X consume almost zero of 
-> CPU power when the KERNEL HZ is 100. (I've 
-> tried Robert Love's variable HZ patch to kernel 2.4 and 
-> change HZ to 1000........Same phenomenon as 2.6)
+> Transcode should be 99% cpu bound in userspace and it shouldn't be
+> kernel intensive at all. It's one of the few desktop apps 99% cpu bound,
+> in turn the reasoning that the cpu is overheating sounds reasonable to
+> me. It might also be using sse2 to compress faster etc...
+> 
+
+I just did a memtest86 and it reported errors. It looks like my
+hardware is faulty here.
+Sorry for the inconvenience.
+
+regards,
+
+Benoit

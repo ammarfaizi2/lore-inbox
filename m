@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129346AbRCZVg1>; Mon, 26 Mar 2001 16:36:27 -0500
+	id <S129292AbRCZVy3>; Mon, 26 Mar 2001 16:54:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRCZVgR>; Mon, 26 Mar 2001 16:36:17 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:23819 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S129346AbRCZVgI>; Mon, 26 Mar 2001 16:36:08 -0500
-To: Jonathan Morton <chromi@cyberspace.org>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] OOM handling
-In-Reply-To: <3ABDF8A6.7580BD7D@evision-ventures.com>
-	<l03130321b6e3c0533688@[192.168.239.101]>
-	<l03130322b6e3ced39e99@[192.168.239.101]>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Jonathan Morton's message of "Sun, 25 Mar 2001 17:36:21 +0100"
-Date: 26 Mar 2001 15:34:31 -0600
-Message-ID: <vba4rwgtdso.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S129393AbRCZVyU>; Mon, 26 Mar 2001 16:54:20 -0500
+Received: from colorfullife.com ([216.156.138.34]:63241 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129292AbRCZVyD>;
+	Mon, 26 Mar 2001 16:54:03 -0500
+Message-ID: <00c701c0b63f$2d4fe720$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "LA Walsh" <law@sgi.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <009201c0b61e$c83f7550$5517fea9@local> <3ABF9B40.6B93ECA2@sgi.com>
+Subject: Re: 64-bit block sizes on 32-bit systems
+Date: Mon, 26 Mar 2001 23:53:05 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Morton <chromi@cyberspace.org> writes:
+From: "LA Walsh" <law@sgi.com>
+> Manfred Spraul wrote:
+> >
+> > >4k page size * 2GB = 8TB.
+> >
+> > Try it.
+> > If your drive (array) is larger than 512byte*4G (4TB) linux will eat
+> > your data.
+> ---
+> I have a block device that doesn't use 'sectors'.  It
+> only uses the logical block size (which is currently set for
+> 1K).  Seems I could up that to the max blocksize (4k?) and
+> get 8TB...No?
 >
-> Understood - my Physics courses covered this as well, but not using the
-> word "normalise".
+> I don't use the generic block make request (have my
+> own).
+>
+Which field do you access? bh->b_blocknr instead of bh->r_sector?
 
-Be that as it may, Martin's comments about normalizing are nonsense.
-Rik's killer (at least in 2.4.3-pre7) produces a badness value that's
-a product of badness factors of various units.  It then uses these
-products only for relative comparisons, choosing the process with
-maximum badness product to kill.  No normalization is necessary, nor
-would it have any effect.
+There were plans to split the buffer_head into 2 structures: buffer
+cache data and the block io data.
+b_blocknr is buffer cache only, no driver should access them.
 
-The reason a 256 Meg process on a 1 Gig machine was being killed had
-nothing to do with normalization---it was a bug where the OOM killer
-was being called long before we were reduced to last resorts.
+http://groups.google.com/groups?q=NeilBrown+io_head&hl=en&lr=&safe=off&r
+num=1&seld=928643305&ic=1
 
-Kevin <buhr@stat.wisc.edu>
+--
+    Manfred
+

@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbTH2QlO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTH2QlO
+	id S261499AbTH2Que (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbTH2Que
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:41:14 -0400
-Received: from PAT.cpr.ca ([209.115.235.79]:58675 "HELO calcprsmtp01.cpr.ca")
-	by vger.kernel.org with SMTP id S261415AbTH2QlG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:41:06 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-Subject: RE: Related Problems? [WAS: 2.6.0-test4: Unable to handle kernel NULL pointer dereference]
-MIME-Version: 1.0
+	Fri, 29 Aug 2003 12:50:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17824 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261499AbTH2Quc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 12:50:32 -0400
+Date: Fri, 29 Aug 2003 09:34:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Cliff White <cliffw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, cliffw@osdl.org
+Subject: Re: 2.6.0-test4-mm3
+Message-Id: <20030829093424.1f02cebe.akpm@osdl.org>
+In-Reply-To: <200308291627.h7TGRoX02912@mail.osdl.org>
+References: <20030829083540.58c9dd47.akpm@osdl.org>
+	<200308291627.h7TGRoX02912@mail.osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Fri, 29 Aug 2003 10:41:04 -0600
-Message-ID: <68D2A80760018245B05351CDCACF543601DFDA@CALGARYMAIL04.cpr.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.0-test4: Unable to handle kernel NULL pointer dereference
-Thread-Index: AcNt1ppXa3COR4KrSlyRGZH7H+tnlwAXlH/AAAXVhtA=
-From: "Garrett Serack" <Garrett_Serack@cpr.ca>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 29 Aug 2003 16:41:04.0689 (UTC) FILETIME=[56A77210:01C36E4C]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My guess now is that they are not completely related, the fdisk one I think is fixed by 2.6.0-test4-mm-3, and the other two are not, but may be fixed by the other patch (~disable-athlon-prefetch) that was posted.
+Cliff White <cliffw@osdl.org> wrote:
+>
+> This also breaks STP. We installed module-init-tools using the 'moveold' 
+> method,
+> so we can still run 2.4.
+> Our depmod is in /usr/local/sbin. 
+> Using /sbin/depmod hoses us. Using PATH works for us.
 
-hmmm
+Hrm, but your build must be playing up already:
 
-G
+dhcp-140-218:/usr/src/25> grep DEPMOD Makefile
+DEPMOD          = /sbin/depmod
+        @if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
+        if [ -r System.map ]; then $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE); fi
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Garrett Serack
-Sent: Friday, August 29, 2003 8:01 AM
-To: linux-kernel@vger.kernel.org
-Subject: Related Problems? [WAS: 2.6.0-test4: Unable to handle kernel
-NULL pointer dereference]
+> [root@stp1-002 linux]# depmod -V
+> module-init-tools 0.9.12
+> 
+> [root@stp1-002 linux]# /sbin/depmod -V
+> depmod version 2.4.22
+> 
+> [root@stp1-002 linux]# /usr/local/sbin/depmod -V
+> module-init-tools 0.9.12
+> 
+> Please send patch, we'll get some tests moving.
 
+--- 25/Makefile~old-module-tools-warning-fix	Fri Aug 29 09:31:46 2003
++++ 25-akpm/Makefile	Fri Aug 29 09:32:16 2003
+@@ -609,7 +609,7 @@ _modinst_:
+ 	@if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
+ 		echo "Install a current version of module-init-tools"; \
+ 		echo "See http://www.codemonkey.org.uk/post-halloween-2.5.txt";\
+-		/bin/false; \
++		sleep 1; \
+ 	fi
+ 	@rm -rf $(MODLIB)/kernel
+ 	@rm -f $(MODLIB)/build
 
-I'm experiencing all of the problems in referenced in posts 
+_
 
-	"2.6.0-test4: Unable to handle kernel NULL pointer dereference"
-	"2.6.0-test4-mm2: fdisk causes Oops" (I get it with Lilo)
-	"2.6.0-test4 and hardware reports a non fatal incident"
-
-Am I right in assuming that these are all related problems?  It seems that they all appeared at once, when I went to 2.6.0-test4-mm2.
-
-
-And, did these get fixed with 2.6.0-test4-mm3 ?
-
-Thanks
-
-Garrett
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

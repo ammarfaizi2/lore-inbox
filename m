@@ -1,99 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270998AbTG1CZP (ORCPT <rfc822;willy@w.ods.org>);
+	id S271001AbTG1CZP (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 27 Jul 2003 22:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTG1AAb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270998AbTG1AAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:00:31 -0400
+	Sun, 27 Jul 2003 20:00:39 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272954AbTG0XCX (ORCPT
+	by vger.kernel.org with ESMTP id S272953AbTG0XCW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:02:23 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.6.0-test2] remove MOD_{INC,DEC}_USE_COUNT from ircomm_tty.c
-Date: Sun, 27 Jul 2003 23:57:40 +0400
-User-Agent: KMail/1.5
-Cc: irda-users@lists.sourceforge.net
+	Sun, 27 Jul 2003 19:02:22 -0400
+Date: Sun, 27 Jul 2003 15:26:30 -0400 (EDT)
+From: steven james <pyro@linuxlabs.com>
+To: Jeff Dike <jdike@addtoit.com>
+cc: Henrik Nordstrom <hno@marasystems.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] uml-patch-2.6.0-test1 
+In-Reply-To: <200307270034.h6R0YbG8010438@uml.karaya.com>
+Message-ID: <Pine.LNX.4.21.0307271522230.12132-100000@ucontrol.mobiledns.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_06CJ/fRCaqBdi7e"
-Message-Id: <200307272357.40144.arvidjaar@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings,
 
---Boundary-00=_06CJ/fRCaqBdi7e
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I got networking going (at least for the switch daemon) by commenting out 
+dev->hard_header = uml_net_hard_header;
+in eth_configure. Might or might not be 'right', but it works anyway.
 
-This compiles and loads but I am not sure how to test it, I do not actually 
-have any ircomm device currently.
+G'day,
+sjames
 
--andrey
---Boundary-00=_06CJ/fRCaqBdi7e
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.0-test2-ircomm_tty-USE_COUNT.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.6.0-test2-ircomm_tty-USE_COUNT.patch"
 
---- linux-2.6.0-test2-smp/net/irda/ircomm/ircomm_tty.c.MOD	2003-07-14 20:21:31.000000000 +0400
-+++ linux-2.6.0-test2-smp/net/irda/ircomm/ircomm_tty.c	2003-07-27 23:22:20.000000000 +0400
-@@ -117,6 +117,7 @@ int __init ircomm_tty_init(void)
- 		return -ENOMEM;
- 	}
- 
-+	driver->owner		= THIS_MODULE,
- 	driver->driver_name     = "ircomm";
- 	driver->name            = "ircomm";
- 	driver->devfs_name      = "ircomm";
-@@ -363,10 +364,8 @@ static int ircomm_tty_open(struct tty_st
- 
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
- 
--	MOD_INC_USE_COUNT;
- 	line = tty->index;
- 	if ((line < 0) || (line >= IRCOMM_TTY_PORTS)) {
--		MOD_DEC_USE_COUNT;
- 		return -ENODEV;
- 	}
- 
-@@ -377,7 +376,6 @@ static int ircomm_tty_open(struct tty_st
- 		self = kmalloc(sizeof(struct ircomm_tty_cb), GFP_KERNEL);
- 		if (self == NULL) {
- 			ERROR("%s(), kmalloc failed!\n", __FUNCTION__);
--			MOD_DEC_USE_COUNT;
- 			return -ENOMEM;
- 		}
- 		memset(self, 0, sizeof(struct ircomm_tty_cb));
-@@ -503,7 +501,6 @@ static void ircomm_tty_close(struct tty_
- 	spin_lock_irqsave(&self->spinlock, flags);
- 
- 	if (tty_hung_up_p(filp)) {
--		MOD_DEC_USE_COUNT;
- 		spin_unlock_irqrestore(&self->spinlock, flags);
- 
- 		IRDA_DEBUG(0, "%s(), returning 1\n", __FUNCTION__ );
-@@ -530,7 +527,6 @@ static void ircomm_tty_close(struct tty_
- 		self->open_count = 0;
- 	}
- 	if (self->open_count) {
--		MOD_DEC_USE_COUNT;
- 		spin_unlock_irqrestore(&self->spinlock, flags);
- 
- 		IRDA_DEBUG(0, "%s(), open count > 0\n", __FUNCTION__ );
-@@ -572,8 +568,6 @@ static void ircomm_tty_close(struct tty_
- 
- 	self->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
- 	wake_up_interruptible(&self->close_wait);
--
--	MOD_DEC_USE_COUNT;
- }
- 
- /*
 
---Boundary-00=_06CJ/fRCaqBdi7e--
+On Sat, 26 Jul 2003, Jeff Dike wrote:
+
+> hno@marasystems.com said:
+> > As usable as the 2.4 (barring generic kernel issues) 
+> 
+> Generally, yes, but...
+> 
+> > or is there areas
+> > still neeed to be looked into for the UML port to 2.6?
+> 
+> ... I've fallen behind on some areas, like
+> 	modules
+> 	hugetlbfs
+> 	networking doesn't work for some reason
+> 	vsyscalls and sysenter
+> 	and probably a few other things which aren't coming to mind
+> 
+> > Any news on the possibility of having more of UML merged into the 2.6
+> > tree?
+> 
+> Linus isn't taking my patches.  I'll give him one more try, then see if I
+> can get them in through akpm.
+> 
+> 				Jeff
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email sponsored by: Free pre-built ASP.NET sites including
+> Data Reports, E-commerce, Portals, and Forums are available now.
+> Download today and enter to win an XBOX or Visual Studio .NET.
+> http://aspnet.click-url.com/go/psa00100003ave/direct;at.aspnet_072303_01/01
+> _______________________________________________
+> User-mode-linux-devel mailing list
+> User-mode-linux-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/user-mode-linux-devel
+> 
+
+-- 
+-------------------------steven james, director of research, linux labs
+... ........ ..... ....                    230 peachtree st nw ste 2701
+the original linux labs                             atlanta.ga.us 30303
+      -since 1995                              http://www.linuxlabs.com
+                                   office 404.577.7747 fax 404.577.7743
+-----------------------------------------------------------------------
+
 

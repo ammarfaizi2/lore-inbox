@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264042AbUDGSGG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 14:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbUDGSGG
+	id S264025AbUDGSIj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 14:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbUDGSIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 14:06:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:225 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264042AbUDGSGD (ORCPT
+	Wed, 7 Apr 2004 14:08:38 -0400
+Received: from colin2.muc.de ([193.149.48.15]:18194 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264025AbUDGSIh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 14:06:03 -0400
-MIME-Version: 1.0
+	Wed, 7 Apr 2004 14:08:37 -0400
+Date: 7 Apr 2004 20:08:35 +0200
+Date: Wed, 7 Apr 2004 20:08:35 +0200
+From: Andi Kleen <ak@muc.de>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Andi Kleen <ak@muc.de>, Paul Wagland <paul@wagland.net>,
+       linux-kernel@vger.kernel.org, gktnews@gktech.net
+Subject: Re: amd64 questions
+Message-ID: <20040407180835.GA52759@colin2.muc.de>
+References: <1Ijzw-4ff-5@gated-at.bofh.it> <1Ijzv-4ff-3@gated-at.bofh.it> <1IntE-7wn-39@gated-at.bofh.it> <m3isgb69xx.fsf@averell.firstfloor.org> <40743110.8000306@nortelnetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16500.17103.665134.7465@neuro.alephnull.com>
-Date: Wed, 7 Apr 2004 14:05:03 -0400
-From: Rik Faith <faith@redhat.com>
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com, rusty@au1.ibm.com
-Subject: Re: [RFC] [PATCH] Improve list.h documentation for _rcu() primitives
-In-Reply-To: [Paul E. McKenney <paulmck@us.ibm.com>] Mon  5 Apr 2004 14:55:25 -0700
-References: <20040405215524.GA2173@us.ibm.com>
-X-Key: 7EB57214; 958B 394D AD29 257E 553F  E7C7 9F67 4BE0 7EB5 7214
-X-Url: http://www.redhat.com/
-X-Mailer: VM 7.17; XEmacs 21.4; Linux 2.4.22-1.2163.nptl (neuro)
+Content-Disposition: inline
+In-Reply-To: <40743110.8000306@nortelnetworks.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon  5 Apr 2004 14:55:25 -0700,
-   Paul E. McKenney <paulmck@us.ibm.com> wrote:
-> The attached patch improves the documentation of the _rcu list
-> primitives, as suggested off-list.
+On Wed, Apr 07, 2004 at 12:49:20PM -0400, Chris Friesen wrote:
+> Andi Kleen wrote:
 > 
-> 						Thanx, Paul
+> >The problem is always the long long alignment. AMD64/IA64 have different
+> >alignment for long long than i386. The emulation was originally tested
+> >on some RISC port, where the alignment is the same.
+> 
+> What about a compiler flag to emit i386 code with the more strenuous 
+> long long alignment?
 
-Thanks for making these changes!
+That would break other things, glibc uses long long heavily too. 
+The only simple way would be to add the necessary alignment by hand and 
+create a special 32bit on 64bit kernel iptables or ipsec.
 
-I recently used the _rcu list primitives for the audit framework and I
-found that, even though I read the header file comments and the papers
-that were referenced, and even though I then had a good understanding of
-RCU, I missed some implementation details about how the primitives
-themselves should be used inside the Linux kernel.
-
-These new comments fill in those missing details -- I hope they are
-accepted into the kernel.
-
+-Andi

@@ -1,79 +1,267 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263712AbUDZCbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263790AbUDZCza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263712AbUDZCbp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 22:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUDZCbp
+	id S263790AbUDZCza (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 22:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbUDZCza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 22:31:45 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:35731 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S263712AbUDZCbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 22:31:42 -0400
-Date: Mon, 26 Apr 2004 12:30:51 +1000
-From: CaT <cat@zip.com.au>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc3-mm4 tmpfs, free and free memory reporting
-Message-ID: <20040426023051.GD2011@zip.com.au>
-References: <20040425130338.GB2011@zip.com.au> <Pine.LNX.4.44.0404251737200.13626-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404251737200.13626-100000@localhost.localdomain>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 25 Apr 2004 22:55:30 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:39953 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263790AbUDZCzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 22:55:11 -0400
+Date: Mon, 26 Apr 2004 03:55:03 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: pazke@orbita1.ru
+cc: linux-visws-devel@lists.sf.net,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SGI Visual Workstation fbdev patch
+Message-ID: <Pine.LNX.4.44.0404260345570.31004-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 25, 2004 at 05:50:58PM +0100, Hugh Dickins wrote:
-> On Sun, 25 Apr 2004, CaT wrote:
-> > I noticed that the OoM killer was being rather brutal to my tasks
-> > even though free was reporting that I had 150meg of ram left. It wasn't
-> > until much later that I realise that I have tmpfs being used as /tmp
-> > and I checked that. Once I cleaned that up a big all was well. The
-> > hassle was, the memory used by tmpfs was being reported as being used
-> > by the cache. That may be so internally but shouldn't it be reported
-> > as actually used ram as it cannot be dumped for processes like a normal
-> > disk cache can and therefore cannot be considered to be 'free' ram.
-> 
-> If you have swap enabled (do you?) then tmpfs pages get written out
 
-Not this time. I had written that in in the first version of the email
-but then scrapped that and rewrote and forgot to put it in.
+This ports the SGI Visual Workstation fbdev driver to use the 
+framebuffer_alloc/release api. Please try it.
 
-Basically the complaint was that tmpfs was being registered in cached
-memory but it wasn't really cache. Now that I'm a bit more awake I
-see that as not being that big a deal.
+--- linus-2.6/drivers/video/sgivwfb.c	2004-02-18 20:59:08.000000000 -0800
++++ fbdev-2.6/drivers/video/sgivwfb.c	2004-02-19 16:11:44.000000000 -0800
+@@ -22,7 +22,7 @@
+ #include <asm/mtrr.h>
+ 
+ #define INCLUDE_TIMING_TABLE_DATA
+-#define DBE_REG_BASE default_par.regs
++#define DBE_REG_BASE par->regs
+ #include <video/sgivw.h>
+ 
+ struct sgivw_par {
+@@ -44,9 +44,6 @@
+ extern unsigned long sgivwfb_mem_phys;
+ extern unsigned long sgivwfb_mem_size;
+ 
+-static struct sgivw_par default_par;
+-static u32 pseudo_palette[17];
+-static struct fb_info fb_info;
+ static int ypan = 0;
+ static int ywrap = 0;
+ 
+@@ -162,7 +159,7 @@
+  *              console.
+  */
+ 
+-static void dbe_TurnOffDma(void)
++static void dbe_TurnOffDma(struct sgivw_par *par)
+ {
+ 	unsigned int readVal;
+ 	int i;
+@@ -367,7 +364,7 @@
+ /*
+  *  Setup flatpanel related registers.
+  */
+-static void sgivwfb_setup_flatpanel(struct dbe_timing_info *currentTiming)
++static void sgivwfb_setup_flatpanel(struct sgivw_par *par, struct dbe_timing_info *currentTiming)
+ {
+ 	int fp_wid, fp_hgt, fp_vbs, fp_vbe;
+ 	u32 outputVal = 0;
+@@ -429,7 +426,7 @@
+ 	/* Turn on dotclock PLL */
+ 	DBE_SETREG(ctrlstat, 0x20000000);
+ 
+-	dbe_TurnOffDma();
++	dbe_TurnOffDma(par);
+ 
+ 	/* dbe_CalculateScreenParams(); */
+ 	maxPixelsPerTileX = 512 / bytesPerPixel;
+@@ -453,7 +450,7 @@
+ 		DBE_SETREG(vt_xy, 0x00000000);
+ 		udelay(1);
+ 	} else
+-		dbe_TurnOffDma();
++		dbe_TurnOffDma(par);
+ 
+ 	/* dbe_Initdbe(); */
+ 	for (i = 0; i < 256; i++) {
+@@ -567,7 +564,7 @@
+ 	DBE_SETREG(vt_hcmap, outputVal);
+ 
+ 	if (flatpanel_id != -1)
+-		sgivwfb_setup_flatpanel(currentTiming);
++		sgivwfb_setup_flatpanel(par, currentTiming);
+ 
+ 	outputVal = 0;
+ 	temp = currentTiming->vblank_start - currentTiming->vblank_end - 1;
+@@ -752,16 +749,30 @@
+ /*
+  *  Initialisation
+  */
+-int __init sgivwfb_init(void)
++static void sgivwfb_release(struct device *device)
++{
++}	
++
++static int __init sgivwfb_probe(struct device *device)
+ {
++	struct platform_device *dev = to_platform_device(device);
++	struct sgivw_par *par;	
++	struct fb_info *info;
+ 	char *monitor;
+ 
++	info = framebuffer_alloc(sizeof(struct sgivw_par) + sizeof(u32) * 256, &dev->dev); 
++	if (!info)
++		return -ENOMEM;
++	par = info->par;
++	
+ 	if (!request_mem_region(DBE_REG_PHYS, DBE_REG_SIZE, "sgivwfb")) {
+ 		printk(KERN_ERR "sgivwfb: couldn't reserve mmio region\n");
++		framebuffer_release(info);
+ 		return -EBUSY;
+ 	}
+-	default_par.regs = (struct asregs *) ioremap_nocache(DBE_REG_PHYS, DBE_REG_SIZE);
+-	if (!default_par.regs) {
++
++	par->regs = (struct asregs *) ioremap_nocache(DBE_REG_PHYS, DBE_REG_SIZE);
++	if (!par->regs) {
+ 		printk(KERN_ERR "sgivwfb: couldn't ioremap registers\n");
+ 		goto fail_ioremap_regs;
+ 	}
+@@ -773,66 +784,110 @@
+ 	sgivwfb_fix.ywrapstep = ywrap;
+ 	sgivwfb_fix.ypanstep = ypan;
+ 
+-	fb_info.fix = sgivwfb_fix;
++	info->fix = sgivwfb_fix;
+ 
+ 	switch (flatpanel_id) {
+ 		case FLATPANEL_SGI_1600SW:
+-			fb_info.var = sgivwfb_var1600sw;
++			info->var = sgivwfb_var1600sw;
+ 			monitor = "SGI 1600SW flatpanel";
+ 			break;
+ 		default:
+-			fb_info.var = sgivwfb_var;
++			info->var = sgivwfb_var;
+ 			monitor = "CRT";
+ 	}
+ 
+ 	printk(KERN_INFO "sgivwfb: %s monitor selected\n", monitor);
+ 
+-	fb_info.fbops = &sgivwfb_ops;
+-	fb_info.pseudo_palette = pseudo_palette;
+-	fb_info.par = &default_par;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	info->fbops = &sgivwfb_ops;
++	info->pseudo_palette = (void *) (par + 1);
++	info->flags = FBINFO_FLAG_DEFAULT;
+ 
+-	fb_info.screen_base = ioremap_nocache((unsigned long) sgivwfb_mem_phys, sgivwfb_mem_size);
+-	if (!fb_info.screen_base) {
++	info->screen_base = ioremap_nocache((unsigned long) sgivwfb_mem_phys, sgivwfb_mem_size);
++	if (!info->screen_base) {
+ 		printk(KERN_ERR "sgivwfb: couldn't ioremap screen_base\n");
+ 		goto fail_ioremap_fbmem;
+ 	}
+ 
+-	fb_alloc_cmap(&fb_info.cmap, 256, 0);
++	if (fb_alloc_cmap(&info->cmap, 256, 0) < 0)
++		goto fail_color_map;
+ 
+-	if (register_framebuffer(&fb_info) < 0) {
++	if (register_framebuffer(info) < 0) {
+ 		printk(KERN_ERR "sgivwfb: couldn't register framebuffer\n");
+ 		goto fail_register_framebuffer;
+ 	}
+ 
++	dev_set_drvdata(&dev->dev, info);
++	
+ 	printk(KERN_INFO "fb%d: SGI DBE frame buffer device, using %ldK of video memory at %#lx\n",      
+-		fb_info.node, sgivwfb_mem_size >> 10, sgivwfb_mem_phys);
++		info->node, sgivwfb_mem_size >> 10, sgivwfb_mem_phys);
+ 	return 0;
+-
++	
+ fail_register_framebuffer:
+-	iounmap((char *) fb_info.screen_base);
++	fb_dealloc_cmap(&info->cmap);
++fail_color_map:
++	iounmap((char *) info->screen_base);
+ fail_ioremap_fbmem:
+-	iounmap(default_par.regs);
++	iounmap(par->regs);
+ fail_ioremap_regs:
+ 	release_mem_region(DBE_REG_PHYS, DBE_REG_SIZE);
++	framebuffer_release(info);
+ 	return -ENXIO;
+ }
+ 
+-#ifdef MODULE
+-MODULE_LICENSE("GPL");
++static int sgivwfb_remove(struct device *device)
++{
++	struct fb_info *info = dev_get_drvdata(device);
++
++	if (info) {
++		struct sgivw_par *par = info->par;
++		
++		unregister_framebuffer(info);
++		dbe_TurnOffDma(par);
++		iounmap(par->regs);
++		iounmap(info->screen_base);
++		release_mem_region(DBE_REG_PHYS, DBE_REG_SIZE);
++	}
++	return 0;
++}	
++
++static struct device_driver sgivwfb_driver = {
++	.name	= "sgivwfb",
++	.bus	= &platform_bus_type,
++	.probe	= sgivwfb_probe,
++	.remove	= sgivwfb_remove,
++};
++
++static struct platform_device sgivwfb_device = {
++	.name	= "sgivwfb",
++	.id	= 0,
++	.dev	= {
++		.release = sgivwfb_release,
++	}
++};
+ 
+-int init_module(void)
++int __init sgivwfb_init(void)
+ {
+-	return sgivwfb_init();
++	int ret;
++
++	ret = driver_register(&sgivwfb_driver);
++	if (!ret) {
++		ret = platform_device_register(&sgivwfb_device);
++		if (ret)
++			driver_unregister(&sgivwfb_driver);
++	}
++	return ret;
+ }
+ 
+-void cleanup_module(void)
++#ifdef MODULE
++MODULE_LICENSE("GPL");
++
++static void __exit sgivwfb_exit(void)
+ {
+-	unregister_framebuffer(&fb_info);
+-	dbe_TurnOffDma();
+-	iounmap(regs);
+-	iounmap(&fb_info.screen_base);
+-	release_mem_region(DBE_REG_PHYS, DBE_REG_SIZE);
++	platform_device_unregister(&sgivwfb_device);
++	driver_unregister(&sgivwfb_driver);
+ }
+ 
++module_init(sgivwfb_init);
++module_exit(sgivwfb_exit);
++
+ #endif				/* MODULE */
 
-> If you don't have swap enabled, yes, there's nowhere else for it to
-> go; but I'd say perhaps you were then unwise to allow so much of your
-> memory to be used for tmpfs mounts - not been bumping up that nice
-> size=50% have you ;-?
 
-Yes. :) But I would've hit problems anyway as I completely forgot about 
-tmpfs when I was trying to figure out why the oom killer was kicking in
-and free was reporting high cache usage which would mean that that
-ram is available for more permanent use rather then being used by something
-that already has it allocated more or less permanently.
-
-> But there's certainly scope for suspicion, as to whether the vmscan
-> algorithms deal effectively with sending tmpfs to swap.  Should
-> page_mapping_inuse be so reluctant to write out tmpfs swap?  Should
-
-I wouldn't think so. If I haven't used something in my tmpfs mounts
-for a while it should be gone to swap as I'd much rather the memory
-be used for active caching and other more immediately useful bits.
-
-> We've made no change in the face of those doubts because nobody was
-> complaining of current behaviour; and it makes some sense to be a
-> little reluctant to swap out tmpfs pages - it is supposed to be a
-> ram-based filesystem, after all.  But if complaints do accumulate,
-> let's look into changing some decisions there.
-
-Well the above isn't a complaint but rathe rmore of a thought. ;) I
-do some unimportant logging to tmpfs so that it's there when I need
-it but doesn't actually need to survive a reboot. Chucking that to
-swap sooner rather then later would be a good thing for me I reckon.
-
--- 
-    Red herrings strewn hither and yon.

@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268036AbTAIXDl>; Thu, 9 Jan 2003 18:03:41 -0500
+	id <S268032AbTAIXHS>; Thu, 9 Jan 2003 18:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268039AbTAIXDl>; Thu, 9 Jan 2003 18:03:41 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:17061 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268036AbTAIXDh>; Thu, 9 Jan 2003 18:03:37 -0500
-Date: Thu, 9 Jan 2003 18:11:22 -0500 (EST)
-From: Richard A Nelson <cowboy@debian.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.21-pre3-ac1/2 and CONFIG_CPU_FREQ failure
-Message-ID: <Pine.LNX.4.51.0301091807300.24500@nqynaqf.yrkvatgba.voz.pbz>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268050AbTAIXGe>; Thu, 9 Jan 2003 18:06:34 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:14293 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S268032AbTAIXFh>; Thu, 9 Jan 2003 18:05:37 -0500
+From: Richard Stallman <rms@gnu.org>
+To: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
+cc: linux-kernel@vger.kernel.org
+In-reply-to: <010101c2b786$794d87a0$0200a8c0@wsl3> (vlad@vlad.geekizoid.com)
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Reply-to: rms@gnu.org
+References: <010101c2b786$794d87a0$0200a8c0@wsl3>
+Message-Id: <E18WlsS-0000Xp-00@fencepost.gnu.org>
+Date: Thu, 09 Jan 2003 18:14:20 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If CONFIG_CPU_FREQ is set, and CONFIG_SMP isn't,
-./arch/i386/kernel/time.c will fail to compile at line 946:
+    Do you actually buy your own bullshit here?  If so, that's sad.  I used to
+    respect you.
 
-#if defined(CONFIG_CPU_FREQ) && !defined(CONFIG_SMP)
-    cpufreq_register_notifier(&time_cpufreq_notifier_block,
-CPUFREQ_TRANSITION_NOTIFIER);
-#endif
+One wonders what it is you thought I had done, when you respected me
+for it ;-).
 
-There is no definition of time_cpufreq_notifier_block
+		  I'd like to see you put your money where your mouth is 
 
--- 
-Rick Nelson
-The nice thing about Windows is - It does not just crash, it displays a
-dialog box and lets you press 'OK' first.
-(Arno Schaefer's .sig)
+I've dedicated my life to free software since 1984, and have been
+working for the cause more than full time, all these 19 years.  I
+think that counts as "putting my money where my mouth is" for the
+movement.
+
+If it doesn't, then you have set a standard so high that perhaps
+nobody in the world qualifies.
+
+									 - PROVE
+    that GNU (not just people who have release GPL'd software) contributed most
+    of the work to say Slackware, or Debian, or Red Hat.
+
+Let's be careful.  I don't say that the GNU software packages were
+most of the early GNU/Linux system.  They were, however, the largest
+contribution of any single project.  Probably they still are.
+
+GNU, the system we were developing, was most of the early GNU/Linux
+system in 1992.  GNU in 1992 included non-GNU packages such as X11,
+and TeX.
+
+If we look at the GNU packages alone rather than the GNU system as a
+whole, they were a large fraction of the early GNU/Linux system.  The
+specific data point I have comes from Adam Richter, who maintained an
+early distro.  In 1995, he counted up the code and found that GNU
+packages added up to 28% of his distro.  Linux, the kernel, was 3% of
+that distro.
+
+I would expect that both GNU code and Linux make up smaller fractions
+of current GNU/Linux distros, because so many other programs have been
+added over the years.  It's a good thing that so many free programs
+have been developed, and that so many people have contributed, but
+this doesn't change the system's history.  It started out as the
+combination of GNU and Linux.

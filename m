@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUHWVHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUHWVKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267298AbUHWVHB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267596AbUHWVEF
+	id S267509AbUHWVKW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266548AbUHWVHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:04:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:13711 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266806AbUHWVAg (ORCPT
+	Mon, 23 Aug 2004 17:07:20 -0400
+Received: from mail3.utc.com ([192.249.46.192]:7091 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S266806AbUHWVEM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:00:36 -0400
-Date: Mon, 23 Aug 2004 13:59:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][7/7] add xattr support to ramfs
-Message-ID: <20040823205942.GA3370@kroah.com>
-References: <Xine.LNX.4.44.0408231420100.13728-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0408231421200.13728-100000@thoron.boston.redhat.com> <20040823212623.A20995@infradead.org> <1093292789.27211.279.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093292789.27211.279.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.6i
+	Mon, 23 Aug 2004 17:04:12 -0400
+Message-ID: <412A5BA6.2060608@cybsft.com>
+Date: Mon, 23 Aug 2004 16:03:34 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
+References: <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu> <20040821140501.GA4189@elte.hu>
+In-Reply-To: <20040821140501.GA4189@elte.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23, 2004 at 04:26:29PM -0400, Stephen Smalley wrote:
-> On Mon, 2004-08-23 at 16:26, Christoph Hellwig wrote:
-> > On Mon, Aug 23, 2004 at 02:22:20PM -0400, James Morris wrote:
-> > > This patch adds xattr support to tmpfs, and a security xattr handler.
-> > > Original patch from: Chris PeBenito <pebenito@gentoo.org>
-> > 
-> > What's the point on doing this for ramfs?  And if you really want this
-> > the implementation could be shared with tmpfs easily and put into xattr.c
+Ingo Molnar wrote:
+> i've uploaded the -P7 patch:
 > 
-> For udev.
-
-What's wrong with using a tmpfs for udev in such situations that xattrs
-are needed?  udev does not require ramfs at all.  In fact, why not just
-use a ext2 or ext3 partition for /dev instead today, if you really need
-it?
-
-thanks,
-
-greg k-h
-
-
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P7
 > 
-> -- 
-> Stephen Smalley <sds@epoch.ncsc.mil>
-> National Security Agency
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+Here are a couple more traces in the ~200 - ~300 usec range:
+
+http://www.cybsft.com/testresults/2.6.8.1-P7/2.6.8.1-P7-4.txt
+
+http://www.cybsft.com/testresults/2.6.8.1-P7/2.6.8.1-P7-10.txt
+
+Also, can someone tell me why I often see traces in the 4 ms range with 
+  3 - 4 ms being reported by a single routine?
+
+kr
+
+

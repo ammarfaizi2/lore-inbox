@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272206AbRIKAEq>; Mon, 10 Sep 2001 20:04:46 -0400
+	id <S272220AbRIKAOJ>; Mon, 10 Sep 2001 20:14:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272209AbRIKAEg>; Mon, 10 Sep 2001 20:04:36 -0400
-Received: from baltazar.tecnoera.com ([200.29.128.1]:28420 "EHLO
-	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
-	id <S272206AbRIKAE0>; Mon, 10 Sep 2001 20:04:26 -0400
-Date: Mon, 10 Sep 2001 20:04:45 -0400 (CLT)
-From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.9-ac10 + reiserfs + quota
-Message-ID: <Pine.LNX.4.33.0109101955150.6080-100000@baltazar.tecnoera.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272219AbRIKAN7>; Mon, 10 Sep 2001 20:13:59 -0400
+Received: from 212-170-187-103.uc.nombres.ttd.es ([212.170.187.103]:33540 "EHLO
+	femto") by vger.kernel.org with ESMTP id <S272209AbRIKANw>;
+	Mon, 10 Sep 2001 20:13:52 -0400
+Date: Tue, 11 Sep 2001 02:13:42 +0200
+From: Eric Van Buggenhaut <ericvb@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_PCMCIA_APA1480 not linked to any code ?
+Message-ID: <20010911021342.A2682@eric.ath.cx>
+Reply-To: Eric.VanBuggenhaut@AdValvas.be
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+X-Echelon: FBI CIA NSA Handgun Assault Atomic Bomb Heroin Drug Terrorism
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+I'm with 2.4.9 source tree.
 
-	I just compiled 2.4.9-ac10 with reiserfs support. Now I need to
-set up quota, but watching
-http://www.namesys.com/pub/reiserfs-for-2.4/quota-for-3.6/ I realized
-there's no quota patch for this kernel version yet..... so what should I
-do??
+Documentation/Configure.help documents a CONFIG_PCMCIA_APA1480 but this option
+doesn't lead to any code ?!
 
+femto:/usr/src/linux-2.4.9[0]# grep -r CONFIG_PCMCIA_APA1480 *
+Documentation/Configure.help:CONFIG_PCMCIA_APA1480
+femto:/usr/src/linux-2.4.9[0]#
+
+Am I missing something ?
 
 Thanks.
 
+Please CC me any answer/comment.
+
+-- 
+Eric VAN BUGGENHAUT
+
+Eric.VanBuggenhaut@AdValvas.be

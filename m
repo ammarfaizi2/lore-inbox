@@ -1,36 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUBREDt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 23:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbUBREDt
+	id S263539AbUBREQd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 23:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbUBREQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 23:03:49 -0500
-Received: from mail.kroah.org ([65.200.24.183]:61870 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262328AbUBREDr (ORCPT
+	Tue, 17 Feb 2004 23:16:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36503 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263539AbUBREPV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 23:03:47 -0500
-Date: Tue, 17 Feb 2004 20:03:42 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3rc4 compaq hotplug driver go bang on rmmod.
-Message-ID: <20040218040342.GC6729@kroah.com>
-References: <20040218025938.GA26304@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040218025938.GA26304@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Feb 2004 23:15:21 -0500
+Date: Tue, 17 Feb 2004 20:15:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.3
+Message-ID: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 02:59:38AM +0000, Dave Jones wrote:
-> I notice this driver has got its pci_driver remove: method commented out.
-> Greg, whats the thinking behind that? Surely we can do something
-> better than the current ...
 
-Ick.  I don't remember why that was done that way.  I'll make up a patch
-tomorrow and add it to my pci tree.
+Ok, it's out.
 
-Thanks for finding this.
+There were some minimal changes relative to the last -rc4, mostly some 
+configuration and build fixes, but a few important one-liners too.
 
-greg k-h
+Happy testing,
+
+		Linus
+
+
+Summary of changes from v2.6.3-rc4 to v2.6.3
+============================================
+
+Alexander Viro:
+  o blkdev_put() data corruption
+
+Andrew Morton:
+  o mremap NULL pointer dereference fix
+  o cifs: kunmap_atomic() takes a kernel address
+  o Tuner bugfix
+
+Bartlomiej Zolnierkiewicz:
+  o fix build with CONFIG_BLK_DEV_IDEDMA=n (once again)
+
+Ben Collins:
+  o [SPARC64]: Add symbols to show_stack, and make oops stack output
+    work
+
+David Mosberger:
+  o fix ia64 build failure
+  o Fix radeon warning on 64-bit platforms
+
+David S. Miller:
+  o [SPARC64]: Fix non-PCI build, reported by David Dillow
+  o [SPARC64]: Fix warnings on non-PCI build
+  o [SPARC64]: Fix build with sysctl disabled
+
+Hideaki Yoshifuji:
+  o [NETFILTER]: Fix signedness overflow in ip{,6}_tables.c
+
+James Simmons:
+  o small fbmem.c fix
+
+Jim Paradis:
+  o Fix fencepost error in x86_64 IOMMU
+
+Linus Torvalds:
+  o Fix the dependency chain for I2C_ALGOBIT from the FB drivers that
+    need it. 
+  o Linux 2.6.3
+
+Roman Zippel:
+  o Avoid bogus warning about recursive dependencies
+

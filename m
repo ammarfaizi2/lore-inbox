@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUGFQ1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUGFQcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUGFQ1V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 12:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUGFQ1U
+	id S264147AbUGFQcR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 12:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUGFQcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 12:27:20 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:15232 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264113AbUGFQ1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 12:27:19 -0400
-Subject: Re: 2.6.7-mm3 USB ehci IRQ problem
-From: Len Brown <len.brown@intel.com>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1089130549.3160.2.camel@paragon.slim>
-References: <A6974D8E5F98D511BB910002A50A6647615FEF3E@hdsmsx403.hd.intel.com>
-	 <1089054167.15653.51.camel@dhcppc4>  <1089058581.2496.9.camel@paragon.slim>
-	 <1089059612.3589.5.camel@paragon.slim> <1089062128.15675.122.camel@dhcppc4>
-	 <1089130549.3160.2.camel@paragon.slim>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1089131222.15660.445.camel@dhcppc4>
+	Tue, 6 Jul 2004 12:32:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25501 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264147AbUGFQcP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 12:32:15 -0400
+Date: Tue, 6 Jul 2004 12:31:41 -0400
+From: Alan Cox <alan@redhat.com>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: question about /proc/<PID>/mem in 2.4
+Message-ID: <20040706163141.GI11736@devserv.devel.redhat.com>
+References: <20040706110436.GA11441@logos.cnet> <Pine.LNX.4.44.0407061406200.20027-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 06 Jul 2004 12:27:02 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0407061406200.20027-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-06 at 12:15, Jurgen Kramer wrote:
-> On Mon, 2004-07-05 at 23:15, Len Brown wrote:
-> > On Mon, 2004-07-05 at 16:33, Jurgen Kramer wrote:
-> > > On Mon, 2004-07-05 at 22:16, Jurgen Kramer wrote:
+On Tue, Jul 06, 2004 at 02:08:04PM +0100, Tigran Aivazian wrote:
+> > This code was added to stop the ptrace/kmod vulnerabilities. I do not 
+> > fully understand the issues around tsk->is_dumpable and the fix itself,
+> > but I agree on that the checks here could be relaxed for the super user.
 
-> > > 2.6.7 vanilly results are in. The results are...it works..
-> > 
-> > great!  Now if you can apply this patch to 2.6.7 and tell me if
-> > it is ACPI that broke EHCI for you in -mm5 or something else:
-> > 
-> >
-> http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm5/broken-out/bk-acpi.patch
-> > 
-> Alright, still looks good:
+is_dumpable tells you various things in 2.4, including whether the
+curent memory image is valid, and as a race preventor for ptrace during
+exec of setuid apps. You should probably talk to Solar Designer about
+the whole design of the dump/suid race fixing work rather than me.
 
-> <snip>
-> 
-> So it doesn't look like a ACPI problem.
+We also had to deal with another nasty case which could be fixed by grabbing
+the mm at open time (which then opens a resource attack bug).
 
-Okay, something else in -mm5 broke your ehci.
-Now -mm6 is out, probably that is the thing to try next.
+Consider what happens if your setuid app reads stdin
 
-thanks,
--Len
+	setuidapp < /proc/self/mem
+
+(No idea how 2.6 deals with these but if its got better backportable ways
+ that *actually work* it might make sense).
 
 

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268963AbUIXRcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268881AbUIXRcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268963AbUIXRcS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 13:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUIXR3J
+	id S268881AbUIXRcs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 13:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268954AbUIXRcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 13:29:09 -0400
-Received: from fire.osdl.org ([65.172.181.4]:38544 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268944AbUIXR03 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 13:26:29 -0400
-Subject: 8 New compile/sparse warnings (overnight build)
-From: John Cherry <cherry@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1096046780.2721.24.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 24 Sep 2004 10:26:20 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Sep 2004 13:32:47 -0400
+Received: from mta7.srv.hcvlny.cv.net ([167.206.5.74]:23185 "EHLO
+	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S268881AbUIXRaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 13:30:46 -0400
+Date: Fri, 24 Sep 2004 13:30:44 -0400
+From: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
+Subject: [Patch 2.6] Use proper sysfs mount-point
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, torvalds@osdl.org
+Message-id: <20040924173044.GB17723@optonline.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resuming the reports for sparse warning changes...
+Use proper sysfs mount-point.
 
-Summary:
-   New warnings = 8
-   Fixed warnings = 134
-
-New warnings:
--------------
-drivers/atm/ambassador.c:2297: warning: unsigned int format, long
-unsigned int arg (arg 2)
-
-drivers/atm/eni.c:1318:8: warning: Using plain integer as NULL pointer
-
-drivers/atm/eni.c:1352:15: warning: Using plain integer as NULL pointer
-
-drivers/atm/eni.c:1426:23: warning: Using plain integer as NULL pointer
-
-drivers/atm/eni.c:1447:25: warning: Using plain integer as NULL pointer
-
-drivers/atm/eni.c:1745:12: warning: cast removes address space of
-expression
-
-drivers/atm/eni.c:248:39: warning: Using plain integer as NULL pointer
-
-drivers/atm/eni.c:263:31: warning: Using plain integer as NULL pointer
-
-
-Fixed warnings:
----------------
-(too many to list)
-
-
+Jeff Sipek.
+   
+Signed-off-by: Josef "Jeff" Sipek <jeffpc@optonline.net>
+ 
+diff -Nru a/Documentation/firmware_class/README b/Documentation/firmware_class/README
+--- a/Documentation/firmware_class/README	2004-09-24 13:08:57 -04:00
++++ b/Documentation/firmware_class/README	2004-09-24 13:08:57 -04:00
+@@ -61,7 +61,7 @@
+ 	HOTPLUG_FW_DIR=/usr/lib/hotplug/firmware/
+ 
+ 	echo 1 > /sys/$DEVPATH/loading
+-	cat $HOTPLUG_FW_DIR/$FIRMWARE > /sysfs/$DEVPATH/data
++	cat $HOTPLUG_FW_DIR/$FIRMWARE > /sys/$DEVPATH/data
+ 	echo 0 > /sys/$DEVPATH/loading
+ 
+  Random notes:
+diff -Nru a/Documentation/firmware_class/hotplug-script b/Documentation/firmware_class/hotplug-script
+--- a/Documentation/firmware_class/hotplug-script	2004-09-24 13:08:57 -04:00
++++ b/Documentation/firmware_class/hotplug-script	2004-09-24 13:08:57 -04:00
+@@ -7,10 +7,10 @@
+ HOTPLUG_FW_DIR=/usr/lib/hotplug/firmware/
+ 
+ echo 1 > /sys/$DEVPATH/loading
+-cat $HOTPLUG_FW_DIR/$FIRMWARE > /sysfs/$DEVPATH/data
++cat $HOTPLUG_FW_DIR/$FIRMWARE > /sys/$DEVPATH/data
+ echo 0 > /sys/$DEVPATH/loading
+ 
+ # To cancel the load in case of error:
+ #
+-#	echo -1 > /sysfs/$DEVPATH/loading
++#	echo -1 > /sys/$DEVPATH/loading
+ #

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132419AbRDCSzb>; Tue, 3 Apr 2001 14:55:31 -0400
+	id <S132429AbRDCS5b>; Tue, 3 Apr 2001 14:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132429AbRDCSzW>; Tue, 3 Apr 2001 14:55:22 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:59987 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S132419AbRDCSzH>; Tue, 3 Apr 2001 14:55:07 -0400
-Message-ID: <3ACA1A91.70401@kalifornia.com>
-Date: Tue, 03 Apr 2001 11:46:41 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; 0.8.1)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "J . A . Magallon" <jamagallon@able.es>
-CC: David Lang <dlang@diginsite.com>, linux-kernel@vger.kernel.org
-Subject: Re: /proc/config idea
-In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com> <20010403161322.A8174@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132434AbRDCS5V>; Tue, 3 Apr 2001 14:57:21 -0400
+Received: from cc946626-a.vron1.nj.home.com ([24.5.103.153]:4612 "EHLO
+	tela.bklyn.org") by vger.kernel.org with ESMTP id <S132429AbRDCS5K>;
+	Tue, 3 Apr 2001 14:57:10 -0400
+Date: Tue, 3 Apr 2001 14:56:15 -0400
+From: Caleb Epstein <cae@bklyn.org>
+To: linux-kernel@vger.kernel.org
+Subject: NFS client code slow in 2.4.3
+Message-ID: <20010403145615.C1049@hagrid.bklyn.org>
+Reply-To: Caleb Epstein <cae@bklyn.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+Organization: Brooklyn Dust Bunny Mfg.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J . A . Magallon wrote:
 
-> On 04.03 David Lang wrote:
-> 
->> if the distro/sysadmin _always_ installs the kernel the 'right way' then
->> the difference isn't nessasarily that large, but if you want reliability
->> on any system it may be worth loosing a page or so of memory (hasn't
->> someone said that the data can be compressed to <1K?) make it so that you
->> need a common external tool to use the data and deliver it from the kernel
->> in compressed form and you don't even need to put the decompression
->> routine in the kernel (cat /proc/sys/kernel/config |gunzip >config)
->> 
-> 
-> Just my 2 cents...
-> 
-> If this has not been done for System.map, that is a much more important
-> info for debug and oops, and the de facto standard is to put it aside
-> kernel with some standadr naming, lets use the same method for config.
-> 
-That would be great and all, but can you tell me how to do it when I 
-have 3 or 4 different compiles of the same kernel version?
+	I am having problems with timeouts and generaly throughput in
+	the 2.4.3 NFS client side code which are not present in the
+	2.4.2 kernel running in the same configuraiton on the same
+	hardware.  The machines are on a 100 Mbit switched local
+	network with essentially no other trafic.
 
--b
+	In both cases, testing against a 2.4.3 NFS server (using
+	knfsd).  My tests involved using "dd" to read a large file on
+	an NFS mounted directory and running the "connectathon" NFS
+	test suite.
 
+	When I boot my client machine with 2.4.3, reading a 327 Mbyte
+	file over NFS takes on the order of 5-6 minutes to complete.
+	If I run the same command witrh the client running kernel
+	2.4.2, the command completes in about 1 minute.
 
+	Running the "cthon01" test suite, the 2.4.3 client machine
+	basically hangs in the "read + write" test section and I
+	didn't bother waiting for it to finish.  Again, when switching
+	back to 2.4.2, the client runs through the tests quite
+	quickly.
+
+	From my tests I'm pretty convinced that something in either
+	the NFS client code or the networking layer has changed which
+	has drastically reduced NFS client speeds in 2.4.3.
+
+	Is this a known problem?  Can I provide any additional
+	information to help debug it?
+
+-- 
+cae at bklyn dot org | Caleb Epstein | bklyn . org | Brooklyn Dust Bunny Mfg.

@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbUC0Ouz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 09:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUC0Ouy
+	id S261778AbUC0OsW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 09:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUC0OsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 09:50:54 -0500
-Received: from mail.shareable.org ([81.29.64.88]:23954 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261757AbUC0Ouw
+	Sat, 27 Mar 2004 09:48:21 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:47771 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S261778AbUC0OsU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 09:50:52 -0500
-Date: Sat, 27 Mar 2004 14:49:45 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Suspend development list <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
-Message-ID: <20040327144945.GG21884@mail.shareable.org>
-References: <20040323233228.GK364@elf.ucw.cz> <opr5d7ad0b4evsfm@smtp.pacific.net.th> <20040325014107.GB6094@elf.ucw.cz> <200403250857.08920.matthias.wieser@hiasl.net> <1080247142.6679.3.camel@calvin.wpcb.org.au> <20040325222745.GE2179@elf.ucw.cz> <1080250718.6674.35.camel@calvin.wpcb.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080250718.6674.35.camel@calvin.wpcb.org.au>
-User-Agent: Mutt/1.4.1i
+	Sat, 27 Mar 2004 09:48:20 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 27 Mar 2004 14:48:18 -0000
+MIME-Version: 1.0
+Subject: Re: Somewhat OT: gcc, x86, -ffast-math, and Linux
+Message-ID: <40659432.5955.326A2643@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> > Kernel could automagically select the right one..
->
-> How?
+I had very funny results building a Quake2 MOD I am coder on (Quake2 
+dday).
 
-Run two parallel tasks: 1. write pages to disk by queuing the I/Os;
-2. compress unqueued pages.
+Using -ffast-math made the HMG (e.g.) fire off aim by say 25º.  Do a 
+recompile with NO code change, and the HMG would be OK... but then 
+the pistol starting firing all over the show.  Do another rebuild (NO 
+code change) and then the rifle showed this... etc. etc.
 
-The first task won't use much CPU because it's always waiting for disk
-DMAs to complete.  While it sleeps, the second task runs.
-Alternatively this can be implemented using polling for I/O
-completions in the second task, if that's easier.
+Every new build produced a different result, although the code was 
+untouched.
 
-The first task should keep the I/O queue full enough to sustain
-writing, but not much fuller than that.  Either a fixed queue length
-will be fine, or it is easy to adjust the queue length dynamically by
-enlarging it if any I/O completions occur when the queue is empty.
+I had to build leaving `--fast-math' option out in the end to get it 
+to work correctly.
 
-The second task consumes uncompressed pages and makes available
-compressed pages.
+Maybe bad coding here, but what I didn't understand was why the 
+result was so random (like each weapon has it's own code - so why one 
+routine worked then after a rebuild didn't and vice versa, I don't 
+know).
 
-When the first task wants to queue more pages for I/O, it first checks
-the compressed-page list.  If there are any, they are queued,
-otherwise it consumes uncompressed pages.
+Nick
+(Not subscribed to list).
 
-This will automatically converge on an optimal balance between
-compressed and uncompressed page writing, provided the disk is using
-DMA, which they do on all modern system.
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."
 
-This is actually better than fully enabling or disabling compression.
-Even on a slow CPU, the fastest strategy is to compress x% of the
-pages.  E.g. if the CPU can compress 1 page in the time it takes to
-write 3 pages, you will suspend fastest by compressing about 30% of
-all pages.
-
--- Jamie

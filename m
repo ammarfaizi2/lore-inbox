@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129719AbRCWGwf>; Fri, 23 Mar 2001 01:52:35 -0500
+	id <S129638AbRCWGrg>; Fri, 23 Mar 2001 01:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbRCWGwZ>; Fri, 23 Mar 2001 01:52:25 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:1807 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129719AbRCWGwL>;
-	Fri, 23 Mar 2001 01:52:11 -0500
-Date: Fri, 23 Mar 2001 07:51:07 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Amit D Chaudhary <amit@muppetlabs.com>
-Cc: lermen@fgan.de, linux-kernel@vger.kernel.org
-Subject: Re: /linuxrc query
-Message-ID: <20010323075107.Q3932@almesberger.net>
-In-Reply-To: <3ABAEED2.6020708@muppetlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ABAEED2.6020708@muppetlabs.com>; from amit@muppetlabs.com on Thu, Mar 22, 2001 at 10:36:02PM -0800
+	id <S129679AbRCWGr0>; Fri, 23 Mar 2001 01:47:26 -0500
+Received: from adsl-63-200-41-38.steelrain.org ([63.200.41.38]:29199 "EHLO
+	thor.sbay.org") by vger.kernel.org with ESMTP id <S129638AbRCWGrO>;
+	Fri, 23 Mar 2001 01:47:14 -0500
+Date: Thu, 22 Mar 2001 22:43:21 -0800 (PST)
+From: Dave Zarzycki <dave@zarzycki.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Woller, Thomas" <twoller@crystal.cirrus.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Incorrect mdelay() results on Power Managed Machines x86
+In-Reply-To: <E14gCbN-0003Kn-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0103222238001.994-100000@batman.zarzycki.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit D Chaudhary wrote:
-> what does redirecting stdin\stdout\stderr to dev/console achieve? I thought 
-> since the root is now the "new" root, dev/console will be used automatically?
+On Thu, 22 Mar 2001, Alan Cox wrote:
 
-No, you would continue using the file descriptors which are already
-open, i.e. on /dev/console on the old root.
+> This is commonly done using the speedstep feature on intel cpus. Speedstep
+> can generate events so the OS knows about it but Intel are not telling
+> people about how this works.
+<...snip...>
+> We certainly could recalibrate the clock if we could get events out of
+> ACPI, APM or some other source.
 
-> Also, why chroot, why not call init directly?
+Specific events for Speedstep on/off would be nice, but in practice, can
+we re-calibrate when ever there is a change in the power status (on
+battery, charging, etc.)?
 
-To make sure the root of the current process is indeed changed.
-pivot_root currently forces a chroot on all processes (except the
-ones that have explicitly moved out of /) in order to move all the
-kernel threads too, but this is not a nice solution. Once a better
-solution is implemented for the kernel threads, we might drop the
-forced chroot, and then the explicit chroot here becomes important.
-
-> Since the above never returns, what follows in not freed.
-
-You can run them later, e.g. /etc/rc.d/rc.local
-Or, if you needs the space immediately,  make "what-follows" a
-script than first frees them, and then exec's init.
-
-- Werner
+davez
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+Dave Zarzycki
+http://thor.sbay.org/~dave/
+

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271786AbRHUS3u>; Tue, 21 Aug 2001 14:29:50 -0400
+	id <S271788AbRHUSbl>; Tue, 21 Aug 2001 14:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271787AbRHUS3l>; Tue, 21 Aug 2001 14:29:41 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:41228 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S271783AbRHUS3X>;
-	Tue, 21 Aug 2001 14:29:23 -0400
-Message-Id: <200108202257.CAA00748@mops.inr.ac.ru>
-Subject: Re: Problems with corruption sending packets from a module
-To: igloo@earth.li (Ian Lynagh)
-Date: Tue, 21 Aug 2001 02:57:08 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010820170424.A713@stu163.keble.ox.ac.uk> from "Ian Lynagh" at Aug 20, 1 09:15:01 pm
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S271783AbRHUSbE>; Tue, 21 Aug 2001 14:31:04 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:51462 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S271788AbRHUSak>;
+	Tue, 21 Aug 2001 14:30:40 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: /dev/random in 2.4.6
+Date: 21 Aug 2001 18:27:27 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9lu96f$n5v$5@abraham.cs.berkeley.edu>
+In-Reply-To: <605512235.998386789@[169.254.45.213]> <Pine.LNX.4.33.0108211212570.20625-100000@Megathlon.ESI>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 998418447 23743 128.32.45.153 (21 Aug 2001 18:27:27 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 21 Aug 2001 18:27:27 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Marco Colombo  wrote:
+>A little question: I used to believe that crypto software requires
+>strong random source to generate key pairs, but this requirement in
+>not true for session keys.
 
-> In case someone is reading the archives and has a similar problem, this
-> appears to be the cause of the trouble. If I do
-> skb->data += sizeof(struct ethhdr);
-> then it's fine. 
-
-It is not fine at all... You are not allowed to change skb->data,
-skb->len etc.
-
-
->	I guess I ought to be using skb_reserve really
-
-You guess right: skb_reserve(), skb_put() and other functions
-provided by skbuff.h. But not to touch pointers directly,
-they have dependancies, which are known only to skbuff.[hc].
-
-Alexey
+It is true for session keys, too.  Session keys should not be guessable,
+so you must use an unpredictable source for them.  Fortunately,
+/dev/urandom is essentially just as good as /dev/random in this respect.

@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132935AbRDEUbz>; Thu, 5 Apr 2001 16:31:55 -0400
+	id <S132479AbRDEUjp>; Thu, 5 Apr 2001 16:39:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132970AbRDEUbo>; Thu, 5 Apr 2001 16:31:44 -0400
-Received: from ns2.cypress.com ([157.95.67.5]:17287 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S132935AbRDEUbe>;
-	Thu, 5 Apr 2001 16:31:34 -0400
-Message-ID: <3ACCD5B9.866BEB42@cypress.com>
-Date: Thu, 05 Apr 2001 15:29:45 -0500
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+	id <S132541AbRDEUjZ>; Thu, 5 Apr 2001 16:39:25 -0400
+Received: from mail.digitalme.com ([193.97.97.75]:62233 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S132479AbRDEUjU>;
+	Thu, 5 Apr 2001 16:39:20 -0400
+Message-ID: <3ACCD746.3010000@bigfoot.com>
+Date: Thu, 05 Apr 2001 16:36:22 -0400
+From: "Trever L. Adams" <trever_Adams@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; 0.8.1)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Brownell <david-b@pacbell.net>
-Subject: Re: Contacts within AMD?  AMD-756 USB host-controller blacklisted dueto
-In-Reply-To: <E14kxc7-00035S-00@the-village.bc.nu>
-Content-Type: multipart/mixed;
- boundary="------------5C319453A1F77DEC8049811B"
+To: "Grover, Andrew" <andrew.grover@intel.com>
+CC: linux Kernel <linux-kernel@vger.kernel.org>,
+        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: 2.4.3 (and possibly 2.4.2) don't enter S5 (ACPI) on shutdown
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE810@orsmsx35.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5C319453A1F77DEC8049811B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Grover, Andrew wrote:
 
-Alan Cox wrote:
+>> From: Trever L. Adams [mailto:trever_Adams@bigfoot.com]
+>> 2.4.3 no longer shuts down automatically with S5.
+>> 
+>> [2.] Full description of the problem/report:
+>> 
+>> 2.4.3 no longer shuts down automatically with S5.  I have an Athlon 
+>> based system using the FIC-SD11 motherboard.  In 2.4.1 and possibly 
+>> 2.4.2 the system used to shut down just fine.
 > 
-> Since we expect to get errata docs very soon Im not that worried. As an
-> implementation I'd rather a module option of 'ignore_blacklist' or similar
-> so that it is runtime
+> 
+> This is the most likely culprit. Trevor please let me know if this does it:
+> 
+> --- linux/drivers/acpi/hardware/hwsleep.c.orig	Fri Feb  9 11:45:58 2001
+> +++ linux/drivers/acpi/hardware/hwsleep.c	Thu Apr  5 12:11:54 2001
+> @@ -179,8 +179,6 @@
+>  
+>  	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_a_CONTROL, PM1_acontrol);
+>  	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_b_CONTROL, PM1_bcontrol);
+> -	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_CONTROL,
+> -		(1 << acpi_hw_get_bit_shift (SLP_EN_MASK)));
+>  
+>  	enable();
 
-This seamed to work here.
 
-	-Thomas
---------------5C319453A1F77DEC8049811B
-Content-Type: text/plain; charset=us-ascii;
- name="USB.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="USB.patch"
+Thank you Andrew.  This fixed it perfectly.  I wish I understood what
 
-diff -u --new-file --recursive linux-2.4.3-ac2.orig/drivers/usb/usb-ohci.c linux-2.4.3-ac2/drivers/usb/usb-ohci.c
---- linux-2.4.3-ac2.orig/drivers/usb/usb-ohci.c	Wed Apr  4 15:23:15 2001
-+++ linux-2.4.3-ac2/drivers/usb/usb-ohci.c	Thu Apr  5 14:02:08 2001
-@@ -92,6 +92,10 @@
- static LIST_HEAD (ohci_hcd_list);
- static spinlock_t usb_ed_lock = SPIN_LOCK_UNLOCKED;
- 
-+static int overrideBlacklist = 0;
-+MODULE_PARM(overrideBlacklist, "i");
-+MODULE_PARM_DESC(overrideBlacklist, " override blacklisted controlers");
-+
- /*-------------------------------------------------------------------------*
-  * URB support functions 
-  *-------------------------------------------------------------------------*/ 
-@@ -2333,12 +2337,13 @@
- 	void *mem_base;
- 
- 	/* blacklisted hardware? */
--	if (id->driver_data) {
--		info ("%s (%s): %s", dev->slot_name,
-+	if (overrideBlacklist != 1){
-+		if (id->driver_data) {
-+			info ("%s (%s): %s", dev->slot_name,
- 			dev->name, (char *) id->driver_data);
- 		return -ENODEV;
-+		}
- 	}
--
- 	if (pci_enable_device(dev) < 0)
- 		return -ENODEV;
- 	
+the different PM controls were, but it sure did the trick.
 
---------------5C319453A1F77DEC8049811B--
+I do have a question that you might be able to answer.
+
+Since I left the 2.2.x series of kernels, my harddrives never spin down 
+now.  I do not know what else doesn't sleep.  This is the case with APM 
+(on a box that doesn't crash from it) as well as ACPI.  What could be 
+the cause?  I would like the system to go to sleep as much as possible 
+when it is idle.
+
+TrevEr Adams
 

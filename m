@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbTEPFaL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 01:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbTEPFaL
+	id S264227AbTEPFlR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 01:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTEPFlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 01:30:11 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:6907 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S264124AbTEPFaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 01:30:09 -0400
-Message-ID: <3EC47A57.30407@nortelnetworks.com>
-Date: Fri, 16 May 2003 01:42:47 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: techstuff@gmx.net
-Cc: linux-kernel@vger.kernel.org
+	Fri, 16 May 2003 01:41:17 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:52228 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S264227AbTEPFlQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 01:41:16 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200305160554.h4G5s8Es010863@green.mif.pg.gda.pl>
 Subject: Re: The kernel is miscalculating my RAM...
-References: <200305131415.37244.techstuff@gmx.net> <200305140650.h4E6oCu04880@Port.imtp.ilyichevsk.odessa.ua> <200305160003.25262.techstuff@gmx.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: techstuff@gmx.net
+Date: Fri, 16 May 2003 07:54:08 +0200 (CEST)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <200305160551.h4G5pbYO026350@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at May 16, 2003 07:51:47 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Boris Kurktchiev wrote:
+> 
 > ok here is what dmesg shows:
 > 384MB LOWMEM available.
 > 
 > then further down:
-> Memory: 385584k/393216k available
-> 
+> Memory: 385584k/393216k available (2010k kernel code, 7244k reserved, 597k 
+> data, 128k init, 0k highmem)
+        ^^^^
+
 > now how is the little 38.../39... possible? 
+> 
+> and then top shows this:
+> Mem:    385712k total
 
-384 * 1024 * 1000 = 393216000
+385584+128=385712
 
+> this again is different than the others...
+> 
+> and finaly gkrellm is telling me that I have only 377 mb actually recognized 
+> out of the 384mb that the kernel detected above...
 
-
-
-
+# echo $((385712/1024))
+376
+ 
+> So the question is where does my 7mb go, why that weird 38.../39 difference 
+> and why does top report another different value.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Gdansk University of Technology

@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263954AbTKGXyv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 18:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTKGWNj
+	id S261769AbTKGWJg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTKGWIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:13:39 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:20714 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S264569AbTKGSu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 13:50:26 -0500
-Message-ID: <3FABEAF0.9060000@pacbell.net>
-Date: Fri, 07 Nov 2003 10:56:48 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Alan Stern <stern@rowland.harvard.edu>,
-       Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [Bug 1412] Copy from USB1 CF/SM reader
- stalls, no actual content is read (only directory structure)
-References: <20031105084002.GX1477@suse.de> <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org> <20031107082439.GB504@suse.de>
-In-Reply-To: <20031107082439.GB504@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 7 Nov 2003 17:08:54 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:30471 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264460AbTKGQ1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 11:27:13 -0500
+Subject: Re: lib.a causing modules not to load
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <1068222065.1894.21.camel@mulgrave>
+References: <1068222065.1894.21.camel@mulgrave>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 07 Nov 2003 10:27:09 -0600
+Message-Id: <1068222431.1894.24.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> No that looks alright, given you are allocating low memory pages. The
-> devices can probably do full 32-bit dma I bet, though. 
+On Fri, 2003-11-07 at 10:21, James Bottomley wrote:
+[...]
 
-Typically ... most usb host controllers you'll see are on
-PCI (OHCI, UHCI, EHCI) with no restrictions, and only some
-EHCI controllers can do 64-bit DMA.  That's all visible in
-the the dma_mask for each interface in the device with the
-mass storage support, usually still at its "32-bit dma is ok"
-pci controller default.
+And with the actual patch
 
-But it seems that most current 2.6 DMA API implementations
-have some problems in those areas.  See for example:
+James
 
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=106746453218943&w=2
-   http://marc.theaimsgroup.com/?l=linux-usb-devel&m=106789996221347&w=2
-
-That second patch is a partial workaround for the first patch
-presumably not getting applied before 2.6.0-final.  Net result,
-some systems with gobs of memory and no IOMMU may do needless
-buffer copies during USB I/O.
-
-Though a quick glance suggested to me that SCSI infrastructure
-is consulting dma_mask directly, instead of using the DMA API
-calls which do that.  I'm not sure I'd trust it to be any
-more correct, given GIGO ...
-
-- Dave
+===== fs/Makefile 1.59 vs edited =====
+--- 1.59/fs/Makefile	Thu Aug 14 20:17:09 2003
++++ edited/fs/Makefile	Tue Nov  4 16:33:42 2003
+@@ -46,8 +46,10 @@
+  
+ # Do not add any filesystems before this line
+ obj-$(CONFIG_EXT3_FS)		+= ext3/ # Before ext2 so root fs can be ext3
++libobj-$(CONFIG_EXT3_FS)	+= ext3/
+ obj-$(CONFIG_JBD)		+= jbd/
+ obj-$(CONFIG_EXT2_FS)		+= ext2/
++libobj-$(CONFIG_EXT2_FS)	+= ext2/
+ obj-$(CONFIG_CRAMFS)		+= cramfs/
+ obj-$(CONFIG_RAMFS)		+= ramfs/
+ obj-$(CONFIG_HUGETLBFS)		+= hugetlbfs/
+@@ -91,3 +93,6 @@
+ obj-$(CONFIG_XFS_FS)		+= xfs/
+ obj-$(CONFIG_AFS_FS)		+= afs/
+ obj-$(CONFIG_BEFS_FS)		+= befs/
++
++# now pick up the lib resolving refs
++obj-y				+= $(libobj-m)
+\ No newline at end of file
+===== fs/ext2/Makefile 1.10 vs edited =====
+--- 1.10/fs/ext2/Makefile	Sat Jul 19 16:53:59 2003
++++ edited/fs/ext2/Makefile	Tue Nov  4 16:32:35 2003
+@@ -3,6 +3,10 @@
+ #
+ 
+ obj-$(CONFIG_EXT2_FS) += ext2.o
++libobj-$(CONFIG_EXT2_FS) := librefs.o
++
++# if we're a module, add our lib requirements to the kernel
++obj-y	+= $(libobj-m)
+ 
+ ext2-y := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o inode.o \
+ 	  ioctl.o namei.o super.o symlink.o
+--- /dev/null	2003-11-02 22:37:48.000000000 -0600
++++ edited/fs/ext2/librefs.c	2003-11-05 11:42:37.000000000 -0600
+@@ -0,0 +1,7 @@
++#include <linux/init.h>
++#include <linux/percpu_counter.h>
++
++__init __attribute__((unused)) static void dummy(void)
++{
++	percpu_counter_mod(NULL, 0);
++}
 

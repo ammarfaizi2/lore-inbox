@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132032AbRCVOkK>; Thu, 22 Mar 2001 09:40:10 -0500
+	id <S132021AbRCVOeK>; Thu, 22 Mar 2001 09:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132033AbRCVOkA>; Thu, 22 Mar 2001 09:40:00 -0500
-Received: from ns-inetext.inet.com ([199.171.211.140]:61893 "EHLO
-	ns-inetext.inet.com") by vger.kernel.org with ESMTP
-	id <S132032AbRCVOjt>; Thu, 22 Mar 2001 09:39:49 -0500
-Message-ID: <3ABA0E89.D3D965B7@inet.com>
-Date: Thu, 22 Mar 2001 08:39:05 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S132032AbRCVOeA>; Thu, 22 Mar 2001 09:34:00 -0500
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:65295 "HELO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with SMTP
+	id <S132021AbRCVOdp>; Thu, 22 Mar 2001 09:33:45 -0500
+Reply-To: <frey@cxau.zko.dec.com>
+From: "Martin Frey" <frey@scs.ch>
+To: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: kernel_thread vs. zombie
+Date: Thu, 22 Mar 2001 06:32:52 -0800
+Message-ID: <004c01c0b2dc$fa6ab3e0$90600410@SCHLEPPDOWN>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
-In-Reply-To: <200103220638.HAA16050@green.mif.pg.gda.pl> <3ABA00BB.A9C2DF1B@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010322114927.14509@mailhost.mipsys.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> hmm, on second thought, I think I would prefer the attached patch
-> (compiled but not tested).
-> 
-> Hardware usually returns all 1's when it's not present, or not working,
-> so think checking for addresses filled with 1's is a good idea too.
-> 
-> I also took the patch from alan's tree and made the memcmp against
-> six-byte 'zaddr' rather than a seven-byte string :)
+Hi,
 
-Jeff,
+>How do I force a kernel thread to always be a child of init and never
+>become a zombie ?
+>
+>I do call daemonize at the beginning of the thread (as it won't do
+>anything with files, signals or whatever), but that doesn't 
+>seem to be enough.
+>
+Have a look at:
+http://www.scs.ch/~frey/linux/kernelthreads.html
+I have an example there that starts and stops kernel threads
+from init_module and never produced a zombie.
+I use the same code also to start threads from ioctl and it
+works for me. I tested it on UP and SMP, Intel and Alpha,
+2.2.18 and 2.4.2.
 
-The "!(addr[0]&1)" part of the test already catches the ff's case, so
-that is redundant.
-Using 6 bytes instead of 7 is an improvement.
+Regards,
 
-Eli
-
-
-> Index: include/linux/etherdevice.h
-> ===================================================================
-> RCS file: /cvsroot/gkernel/linux_2_4/include/linux/etherdevice.h,v
-> retrieving revision 1.1.1.14.4.2
-> diff -u -r1.1.1.14.4.2 etherdevice.h
-> --- include/linux/etherdevice.h 2001/03/21 14:10:50     1.1.1.14.4.2
-> +++ include/linux/etherdevice.h 2001/03/22 13:37:15
-> @@ -46,6 +46,25 @@
->         memcpy (dest->data, src, len);
->  }
-> 
-> +/**
-> + * is_valid_ether_addr - Determine if the given Ethernet address is valid
-> + * @addr: Pointer to a six-byte array containing the Ethernet address
-> + *
-> + * Check that the Ethernet address (MAC) is not 00:00:00:00:00:00, is not
-> + * a multicast address, and is not FF:FF:FF:FF:FF:FF.
-> + *
-> + * Return true if the address is valid.
-> + */
-> +static inline int is_valid_ether_addr( u8 *addr )
-> +{
-> +       const char zaddr[6] = {0,};
-> +       const char faddr[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
-> +
-> +       return !(addr[0]&1) &&
-> +              memcmp( addr, zaddr, 6) &&
-> +              memcmp( addr, faddr, 6);
-> +}
-> +
->  #endif
-> 
->  #endif /* _LINUX_ETHERDEVICE_H */
+Martin
 
 -- 
------------------------.           Rule of Accuracy: When working toward
-Eli Carter             |            the solution of a problem, it always 
-eli.carter(at)inet.com `------------------ helps if you know the answer.
+Supercomputing Systems AG       email: frey@scs.ch
+Martin Frey                     web:   http://www.scs.ch/~frey/
+at Compaq Computer Corporation  phone: +1 603 884 4266
+ZKO2-3P09, 110 Spit Brook Road, Nashua, NH 03062
+

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUBDOaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 09:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUBDOaW
+	id S262078AbUBDOpS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 09:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUBDOpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 09:30:22 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:39316 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262040AbUBDOaV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 09:30:21 -0500
-Date: Wed, 4 Feb 2004 12:30:14 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Robert Love <rml@ximian.com>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4's sys_readahead is borked
-In-Reply-To: <1075853962.8022.3.camel@localhost>
-Message-ID: <Pine.LNX.4.58L.0402041224050.1700@logos.cnet>
-References: <1075853962.8022.3.camel@localhost>
+	Wed, 4 Feb 2004 09:45:18 -0500
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:31910 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262078AbUBDOpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 09:45:13 -0500
+Message-ID: <40210578.6000504@mrc-bsu.cam.ac.uk>
+Date: Wed, 04 Feb 2004 14:45:12 +0000
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+Organization: MRC Biostatistics Unit
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.2 aka "Feisty Dunnart"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Very nice.  But I see the name thing is really official now:
 
+   2 alastair@gluck:~/linux-2.6> head Makefile
+   VERSION = 2
+   PATCHLEVEL = 6
+   SUBLEVEL = 2
+   EXTRAVERSION =
+   NAME=Feisty Dunnart
 
-On Tue, 3 Feb 2004, Robert Love wrote:
+Its own line in the Makefile, no less.  So, no doubt you're planning to 
+actually _use_ this in some devious way?  Worrying indeed....
 
-> In 2.4, sys_readahead() performs readahead against a maximum of half the
-> number of inactive pages.  This is dumb, as it ignores the number of
-> free pages completely.  Worse, in certain situations, such as boot, the
-> inactive list can be quite small and the free list quite large, but
-> readahead(2) won't do anything.
->
-> The right thing to do is limit sys_readahead() to a maximum of half of
-> the sum of the number of free pages and inactive pages, which is what
-> 2.6 does.
+BTW, I did my first attempt at an ATAPI CD burn last night, on one of 
+Feisty Dunnart's release candidates, and it was wildly successful.  I'm 
+sure this isn't news, but it was great to see.
 
-Hi Robert,
+2.6 is looking great from here, no visible problems for me.
 
-This looks okay, applied.
+Cheers
+Alastair
 
-Question: Do you know any user of sys_readahead() ?
-
+-- 
+  \\ ........................................   www.mrc-bsu.cam.ac.uk
+   \\  Alastair Stevens, SysAdmin Team       \       01223 330383
+   //  MRC Biostatistics Unit, Cambridge UK   \.......................
+  --

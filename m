@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268654AbUHRGM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUHRGYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268654AbUHRGM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 02:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268660AbUHRGM5
+	id S267364AbUHRGYd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 02:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUHRGYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 02:12:57 -0400
-Received: from gprs214-177.eurotel.cz ([160.218.214.177]:47232 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268654AbUHRGMy (ORCPT
+	Wed, 18 Aug 2004 02:24:33 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24982 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267364AbUHRGYb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 02:12:54 -0400
-Date: Wed, 18 Aug 2004 08:12:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [patch] enums to clear suspend-state confusion
-Message-ID: <20040818061227.GA7854@elf.ucw.cz>
-References: <20040812120220.GA30816@elf.ucw.cz> <20040817212510.GA744@elf.ucw.cz> <20040817152742.17d3449d.akpm@osdl.org> <20040817223700.GA15046@elf.ucw.cz> <20040817161245.50dd6b96.akpm@osdl.org> <20040818002711.GD15046@elf.ucw.cz> <1092794687.10506.169.camel@gaston>
+	Wed, 18 Aug 2004 02:24:31 -0400
+Date: Wed, 18 Aug 2004 08:22:10 +0200
+From: Olaf Hering <olh@suse.de>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: ismail =?utf-8?Q?d=C3=B6nmez?= <ismail.donmez@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+Message-ID: <20040818062210.GB22332@suse.de>
+References: <2a4f155d040817070854931025@mail.gmail.com> <412247FF.5040301@microgate.com> <2a4f155d0408171116688a87f1@mail.gmail.com> <4122501B.7000106@microgate.com> <2a4f155d04081712005fdcdd9b@mail.gmail.com> <41225D16.2050702@microgate.com> <2a4f155d040817124335766947@mail.gmail.com> <41226512.9000405@microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1092794687.10506.169.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41226512.9000405@microgate.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ On Tue, Aug 17, Paul Fulghum wrote:
 
-> > Now, Patrick has some plans with device power managment and they
-> > included something bigger being passed down to the drivers. I wanted
-> > to prepare for those plans.
-> > 
-> > I can replace suspend_state_t with enum system_state, but it might
-> > mean that enum system_state will have to be extended with things like
-> > RUNTIME_PM_PCI_D0 in future... I guess that's easiest thing to do. It
-> > solves all the problems we have *now*.
+> ismail dönmez wrote:
 > 
-> Better is to use a typedef then, so that enum can be turned into a
-> pointer to a structure later on, and drivers using the "helper"
-> function to_pci_state() would not need any change when that transition
-> happen.
+> >>That does not look right.
+> >>Char dev 3 is the pty major.
+> >>This could be left over from running with the controlling-tty patch.
+> >>
+> >>Try recreating /dev/tty as a char special file:
+> >>mknod -m 666 /dev/tty c 5 0
+> >
+> >
+> >Hmm I use udev and /dev/tty dir is created again at startup. So
+> >something else is broken too I think.
+> 
+> This is almost certainly related to the addition
+> of pty devices to devfs in bk-driver-core.patch
+> Change is by olh@suse.de
+> 
+> This explains why you are seein pty major devices
+> created in a /dev/tty directory.
 
-Yes, that's exactly what I did... Unfortunately typedef means ugly
-code. So I'll just switch it back to enum system_state, and lets care
-about device power managment when it hits us, okay?
-
---- tmp/linux/include/linux/pci.h	2004-08-15 19:15:05.000000000 +0200
-+++ linux/include/linux/pci.h	2004-08-17 23:16:41.000000000 +0200
-...
- 	const struct pci_device_id *id_table;	/* must be non-NULL for probe to be called */
- 	int  (*probe)  (struct pci_dev *dev, const struct pci_device_id *id);	/* New device inserted */
- 	void (*remove) (struct pci_dev *dev);	/* Device removed (NULL if not a hot-plug capable driver) */
--	int  (*suspend) (struct pci_dev *dev, u32 state);	/* Device suspended */
-+	int  (*suspend) (struct pci_dev *dev, suspend_state_t reason);	/* Device suspended */
- 	int  (*resume) (struct pci_dev *dev);	                /* Device woken up */
- 	int  (*enable_wake) (struct pci_dev *dev, u32 state, int enable);   /* Enable wake event */
- 
---- tmp/linux/include/linux/pm.h	2004-08-15 19:15:05.000000000 +0200
-+++ linux/include/linux/pm.h	2004-08-15 19:35:41.000000000 +0200
-... 
-+/*
-+ * For now, drivers only get system state. Later, this is going to become
-+ * structure or something to enable runtime power managment.
-+ */
-+typedef enum system_state suspend_state_t;
-+
-+#define SUSPEND_EQ(a, b) (a == b)
-+
- enum {
- 	PM_DISK_FIRMWARE = 1,
- 	PM_DISK_PLATFORM,
+/dev/tty is supposed to be char c 5 0, /class/tty/tty/dev will tell udev
+how to create it, see man 4 tty.
+No idea who came up with the bright idea to put legacy bsd devices in a
+subdir. Documentation/devices.txt shows that my patch is ok, it handles
+up to 256 device nodes.
+If you are using udev, file a bugreport for your distros package. In the
+meantime, remove the offending line from your udev.rules file.
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

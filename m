@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVABRnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVABSms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVABRnW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 12:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVABRnW
+	id S261226AbVABSms (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 13:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVABSms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 12:43:22 -0500
-Received: from smtp.uninet.ee ([194.204.0.4]:43281 "EHLO smtp.uninet.ee")
-	by vger.kernel.org with ESMTP id S261188AbVABRnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 12:43:18 -0500
-Message-ID: <41D83297.7030605@tuleriit.ee>
-Date: Sun, 02 Jan 2005 19:42:47 +0200
-From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
-Reply-To: indrek.kruusa@tuleriit.ee
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question: advancements in proven concepts
-References: <41D7E3EF.8000700@tuleriit.ee> <20050102130304.GA27255@outpost.ds9a.nl>
-In-Reply-To: <20050102130304.GA27255@outpost.ds9a.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Jan 2005 13:42:48 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:36229 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261226AbVABSmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 13:42:45 -0500
+Date: Sun, 2 Jan 2005 13:42:39 -0500
+From: John M Flinchbaugh <john@hjsoft.com>
+To: Pavel Machek <pavel@ucw.cz>, John M Flinchbaugh <john@hjsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10: e100 network broken after swsusp/resume
+Message-ID: <20050102184239.GA21322@butterfly.hjsoft.com>
+References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
 
->On Sun, Jan 02, 2005 at 02:07:11PM +0200, Indrek Kruusa wrote:
->  
->
->LT> It would have been nice if Intel had added a
->LT> "single-step" bit to %db7, and then just or'ed in the values of TF and the
->LT> new flag when deciding to single-step.
->  
->
->>Maybe this idea have been said out just for fun  (btw, I have one book 
->>which have similar title :) ) but why not collect such things together? 
->>    
->>
->
->Rest assured that this list has subscribers @ all relevant processor
->manufacturers. But there is nothing formal, it is not the linux way to set
->up committees or whatever, except perhaps for OSDL.
->
->  
->
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Of course by using this list you can reach all the knowledge which 
-kernel community has. But maybe some essential conclusions should be 
-made more visible and more public? This is not needed for kernel 
-developers itselves but for example for students or IT project leaders 
-or investors. But okay, I got answer from you.
+On Sat, Jan 01, 2005 at 09:57:53PM -0800, Barry K. Nathan wrote:
+> > e100 does not help, fault is not in e100]. Are you running with APIC
+> > enabled? Try noapic. Try acpi=3Doff.
+> Reloading doesn't help, with either e100 or 8139too. I forgot to=20
+> mention
+> that in my other e-mail in this thread. (As I previously mentioned,=20
+> on
+> my system with 8139too, noapic makes matters worse, and the problem=20
+> goes
+> away if I use *either* pci=3Drouteirq or acpi=3Doff. I haven't tried=20
+> using
+> both.)
 
-And thanks for god that this have never happened: "Linux kernel 
-developers summit 2004", 23.-28. december, Sri Lanka
+pci=3Drouteirq worked for me to get my e100 working again after resume.
 
+so what's that mean?  what's the trade-off for using this option?
 
-regards,
-Indrek
+thanks for the guidance.
+--=20
+John M Flinchbaugh
+john@hjsoft.com
 
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB2ECfCGPRljI8080RArnoAJ4pDtLITwqFRpJxQH8am6wC+xcMhQCfdp5T
+L6FYfMWIWnlhLrF+Bcf73Zg=
+=yaA8
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--

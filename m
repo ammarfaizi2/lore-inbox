@@ -1,106 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265408AbRGJDpl>; Mon, 9 Jul 2001 23:45:41 -0400
+	id <S265437AbRGJEFS>; Tue, 10 Jul 2001 00:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265411AbRGJDpW>; Mon, 9 Jul 2001 23:45:22 -0400
-Received: from suntan.tandem.com ([192.216.221.8]:58362 "EHLO
-	suntan.tandem.com") by vger.kernel.org with ESMTP
-	id <S265408AbRGJDpQ>; Mon, 9 Jul 2001 23:45:16 -0400
-Message-ID: <3B4A773D.50632896@compaq.com>
-Date: Mon, 09 Jul 2001 20:32:13 -0700
-From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S265445AbRGJEFI>; Tue, 10 Jul 2001 00:05:08 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46344 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265437AbRGJEEw>; Tue, 10 Jul 2001 00:04:52 -0400
+Date: Mon, 9 Jul 2001 21:03:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rik van Riel <riel@conectiva.com.br>, Mike Galbraith <mikeg@wen-online.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <20010710045617.J1594@athlon.random>
+Message-ID: <Pine.LNX.4.33.0107092053130.10187-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: bcrl@redhat.com
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] read/write semaphore trylock routines - 2.4.6
-Content-Type: multipart/mixed;
- boundary="------------D29EE838BA57F3F1A4E8993C"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------D29EE838BA57F3F1A4E8993C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Ben-
+On Tue, 10 Jul 2001, Andrea Arcangeli wrote:
+>
+> it seems to me there's a bit of overkill in the pre4 fix.
 
-A few months ago, I sent you a couple of trylock routines for
-read/write semaphores. Here's an updated version for 2.4.6. We use
-them for deadlock avoidance in the clustering work we're doing. We
-thought that others might be able to use them, as well.
+It may look that way, but look closer..
 
-A caveat for these trylock routines is that they use the cmpxchg
-instruction, which limits their usefulness on x86 to 486 and above. I
-noticed that the RISC architectures, however, have no problem rigging
-up a cmpxchg() equivalent (at least Alpha and PPC don't).
+>						 First of all
+> such race obviously couldn't happen with the async_io and kiobuf
+> handlers, the former because the page stays locked so the bh cannot go
+> away with the locked page, the latter because the bh are private not
+> visible at all to the vm. Playing with the b_count for those two cases
+> are just wasted cycles.
 
-Please let me know if you have any objections to folding them in with
-the rest of the read/write semaphore implementation.
+No. Playing with the bh count for those two makes the rules be the same
+for everybody, because the sync_io handler needs it, and then we might as
+well just make it a general rule: IO in-flight shows up as an elevated
+count. It also makes sense from a "reference count" standpoint - the
+buffer head count really means "how many references do we have to it", and
+the reference from a IO request is very much a reference.
 
-Thanks.
+> Also somebody should explain me why end_buffer_write exists in first
+> place, it is just wasted memory and icache.
 
--- 
-Brian Watson               | "The common people of England... so 
-Linux Kernel Developer     |  jealous of their liberty, but like the 
-SSI Clustering Laboratory  |  common people of most other countries 
-Compaq Computer Corp       |  never rightly considering wherein it 
-Los Angeles, CA            |  consists..."
-                           |      -Adam Smith, Wealth of Nations, 1776
+Now that I agree with, we could just get rid of one of them.
 
-mailto:Brian.J.Watson@compaq.com
-http://opensource.compaq.com/
---------------D29EE838BA57F3F1A4E8993C
-Content-Type: text/plain; charset=us-ascii;
- name="patch-rwsem-trylock"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-rwsem-trylock"
+> This is the way I would have fixed the smp race against pre3. Can you
+> see anything that isn't fixed by the below patch and that is fixed by
+> pre4?
 
-Index: include/asm-i386/rwsem.h
-===================================================================
-RCS file: /src/nsc_linux/src/kernel/include/asm-i386/rwsem.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 rwsem.h
---- include/asm-i386/rwsem.h	2001/04/27 22:48:24	1.1.1.1
-+++ include/asm-i386/rwsem.h	2001/07/06 20:54:13
-@@ -222,5 +222,34 @@
- 	return tmp+delta;
- }
- 
-+#if __HAVE_ARCH_CMPXCHG
-+/* returns 1 if it successfully obtained the semaphore for write */
-+static inline int down_write_trylock(struct rw_semaphore *sem)
-+{
-+	signed long ret = cmpxchg(&sem->count,
-+				  RWSEM_UNLOCKED_VALUE, 
-+				  RWSEM_ACTIVE_WRITE_BIAS);
-+	if (ret == RWSEM_UNLOCKED_VALUE)
-+		return 1;
-+	return 0;
-+}
-+
-+/* returns 1 if it successfully obtained the semaphore for read */
-+static inline int down_read_trylock(struct rw_semaphore *sem)
-+{
-+	signed long old, new;
-+
-+repeat:
-+	old = (volatile signed long)sem->count;
-+	if (old < RWSEM_UNLOCKED_VALUE)
-+		return 0;
-+	new = old + RWSEM_ACTIVE_READ_BIAS;
-+	if (cmpxchg(&sem->count, old, new) == old)
-+		return 1;
-+	else
-+		goto repeat;
-+}
-+#endif /* __HAVE_ARCH_CMPXCHG */
-+
- #endif /* __KERNEL__ */
- #endif /* _I386_RWSEM_H */
+I can. I "fixed" it your way at first, and it doesn't actually help a
+thing.
 
---------------D29EE838BA57F3F1A4E8993C--
+Look:
+
+	CPU #1					CPU #2
+
+   try_to_free_buffers()
+
+	if (atomic_read(&bh->b_count)
+
+					    end_buffer_io_sync()
+
+						atomic_inc(&bh->b_count);
+						bit_clear(BH_Locked,  &bh->b_flags);
+
+	|| bh->b_flags & BUSY_BITS)
+		free bh
+
+						if (waitqueue_active(&bh->b_wait))
+							wakeup(&bh->b_wait);
+						atomic_dec(&bh->b_count);
+
+
+See? Your patch with the b_count stuff inside end_buffer_io_sync() fixes
+absolutely _nothing_ - we still have exactly the same issue.
+
+You can fix it with some interesting memory barriers inside the
+try_to_free_buffers() logic, but by that time my fix is (a) much more
+obvious and (b) faster too.
+
+Notice how my fix actually has the same number of atomic operations as
+your fix, except my fix actually _fixes_ the race?
+
+(Yeah, I'm not counting the async IO ones - those I admit are not
+necessary, but at the same time I really prefer to have the different IO
+paths look as similar as possible. And see the reference count issue).
+
+			Linus
 

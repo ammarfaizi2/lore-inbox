@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284301AbRLXB2Q>; Sun, 23 Dec 2001 20:28:16 -0500
+	id <S284304AbRLXCBr>; Sun, 23 Dec 2001 21:01:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284304AbRLXB2H>; Sun, 23 Dec 2001 20:28:07 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:43533 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284301AbRLXB1w>; Sun, 23 Dec 2001 20:27:52 -0500
-Date: Sun, 23 Dec 2001 17:31:11 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-cc: Mike Kravetz <kravetz@us.ibm.com>, Momchil Velikov <velco@fadata.bg>,
-        george anzinger <george@mvista.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
-In-Reply-To: <20011223171802.A19931@hq2>
-Message-ID: <Pine.LNX.4.40.0112231722260.971-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284305AbRLXCBg>; Sun, 23 Dec 2001 21:01:36 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:5104 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S284304AbRLXCB0>;
+	Sun, 23 Dec 2001 21:01:26 -0500
+Date: Mon, 24 Dec 2001 13:00:55 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] a bit smarter dmi-scan.c
+Message-Id: <20011224130055.32113ef8.sfr@canb.auug.org.au>
+In-Reply-To: <3C26255B.70AE386A@sltnet.lk>
+In-Reply-To: <3C26255B.70AE386A@sltnet.lk>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Dec 2001, Victor Yodaiken wrote:
+Hi,
 
+On Sun, 23 Dec 2001 12:41:31 -0600
+Ishan Oshadi Jayawardena <ioshadi@sltnet.lk> wrote:
 >
->
-> Run a "RT"  task that is scheduled   every millisecond (or time of your
-> choice)
-> 	while(1`){
-> 		read cycle timer
-> 		clock_nanosleep(time period using aabsolute time
-> 		read cycle timer - what was actual delay? track worst
-> 			case
-> 		}
->
-> Run this
-> 	a) on aaaaaaaaan unstressed system
-> 	b) under stress
-> 	c) while a timed non-rt benchmark runs to figure out "RT"
-> 	overhead.
+> --- src/linux/arch/i386/kernel/dmi_scan.c       Sat Dec 22 16:31:11 2001
+> +++ src/linux/arch/i386/kernel/dmi_scan.c.mod   Sat Dec 22 17:06:22 2001
+> @@ -255,26 +255,29 @@
+>  
+>  static __init int set_realmode_power_off(struct dmi_blacklist *d)
+>  {
+> +#if defined (CONFIG_APM)
 
-I've coded a test app that uses the LatSched latency patch ( that uses
-rdtsc ).
-It basically does 1) set the current process priority to RT 2) an ioctl()
-to activate the scheduler latency sampler 3) sleep for 1-2 secs 4) ioctl()
-to stop the sampler 5) peek the sample with pid == getpid().
-In this way i get the net RT task scheduler latency. Yes it does not get
-the real one that includes accessories kernel paths but my code does not
-affect these ones. And they add noise to the measure.
-
-
-
-
-- Davide
-
-
+APM can also be compiled as a module.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

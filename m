@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135416AbRDMFRc>; Fri, 13 Apr 2001 01:17:32 -0400
+	id <S135419AbRDMFlX>; Fri, 13 Apr 2001 01:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135417AbRDMFRW>; Fri, 13 Apr 2001 01:17:22 -0400
-Received: from smtp1.legato.com ([137.69.200.1]:42629 "EHLO smtp1.legato.com")
-	by vger.kernel.org with ESMTP id <S135416AbRDMFRS>;
-	Fri, 13 Apr 2001 01:17:18 -0400
-Message-ID: <061f01c0c3d8$c34e8870$5c044589@legato.com>
-From: "David E. Weekly" <dweekly@legato.com>
-To: "ML-linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Yacc in 2.4.3 causes kernel compile to fail (aicasm_gram.y)
-Date: Thu, 12 Apr 2001 22:15:32 -0700
-Organization: Legato Systems, Inc.
+	id <S135421AbRDMFlN>; Fri, 13 Apr 2001 01:41:13 -0400
+Received: from [206.46.170.140] ([206.46.170.140]:47853 "EHLO
+	smtp8ve.mailsrvcs.net") by vger.kernel.org with ESMTP
+	id <S135419AbRDMFlC>; Fri, 13 Apr 2001 01:41:02 -0400
+Message-ID: <3AD69167.13CE6E91@neuronet.pitt.edu>
+Date: Fri, 13 Apr 2001 01:40:55 -0400
+From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: LK <linux-kernel@vger.kernel.org>
+Subject: Sudden scsi timeouts on main disk.
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a singular Yacc file in 2.4.3:
-linux/drivers/scsi/aic7xxx/aicasm/aicasm_gram.y
+Hi,
 
-This is the first time I remember seeing a Yacc file in the Linux kernel
-source code, but I'm young and stupid.
+While playing a dvd I was plugging a headphone and my machine froze and had to reset.
+The machine was running 2.4.3 with the new aha7xxx driver.
 
-Since the default Makefile mapping for .y files is to call yacc, and since I
-have bison on my system instead, compiling the aic7xxx code into 2.4.3 broke
-my build.
+I booted back into 2.2.18. It took a while to get pass the scsi BIOS. It finally detected
+all the drives, but lilo would not find the scsi disk to boot. After several attempts it
+finally booted but started to get scsi time outs from my main disk. My scsi adapter
+is an adaptec 7895. The logs are:
 
-The Makefile system is expecting the YACC variable to be defined; a
-straightforward workaround is then to define:
+Apr 13 01:16:17 inca kernel: scsi : aborting command due to timeout : pid 3797, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 88 aa f3 00 00 08 00 
+Apr 13 01:16:17 inca kernel: (scsi0:0:0:0) SCSISIGI 0x54, SEQADDR 0x156, SSTAT0 0x7, SSTAT1 0x7
+Apr 13 01:16:17 inca kernel: (scsi0:0:0:0) SG_CACHEPTR 0x0, SSTAT2 0x10, STCNT 0x0
+Apr 13 01:16:19 inca kernel: SCSI host 0 abort (pid 3797) timed out - resetting
+Apr 13 01:16:19 inca kernel: SCSI bus is being reset for host 0 channel 0.
+Apr 13 01:16:20 inca kernel: (scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 8.
+Apr 13 01:16:50 inca kernel: scsi : aborting command due to timeout : pid 3801, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 88 ac 8b 00 00 08 00 
+Apr 13 01:16:50 inca kernel: (scsi0:0:0:0) SCSISIGI 0x54, SEQADDR 0x156, SSTAT0 0x7, SSTAT1 0x7
+Apr 13 01:16:50 inca kernel: (scsi0:0:0:0) SG_CACHEPTR 0x0, SSTAT2 0x10, STCNT 0x0
+Apr 13 01:16:52 inca kernel: SCSI host 0 abort (pid 3801) timed out - resetting
+Apr 13 01:16:52 inca kernel: SCSI bus is being reset for host 0 channel 0.
+Apr 13 01:16:53 inca kernel: (scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 8.
+Apr 13 01:17:23 inca kernel: scsi : aborting command due to timeout : pid 3820, scsi0, channel 0, id 0, lun 0 Request Sense 00 00 00 10 00 
+Apr 13 01:17:23 inca kernel: (scsi0:0:0:0) SCSISIGI 0x54, SEQADDR 0x156, SSTAT0 0x7, SSTAT1 0x17
+Apr 13 01:17:23 inca kernel: (scsi0:0:0:0) SG_CACHEPTR 0x0, SSTAT2 0x10, STCNT 0x0
+Apr 13 01:17:24 inca kernel: SCSI host 0 abort (pid 3820) timed out - resetting
+Apr 13 01:17:24 inca kernel: SCSI bus is being reset for host 0 channel 0.
+Apr 13 01:17:25 inca kernel: (scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 8.
 
-export YACC="`which bison` -y"
+This has not happened before and the time outs are occurring intermittently. Are the logs
+a signal of hardware error? What would be the steps to check the machine? Any suggestion
+would be appreciated.
 
-The -y option makes sure that bison outputs files in the same way that yacc
-does (i.e., y.tab.c and not [filename].tab.c).
-
-I would put in my two cents that the better way to do this is to add YACC to
-the list of "make variables" in the root Makefile.
-
-I'm guessing that anyone compiling the AIC 7xxx SCSI drivers who has bison
-and hasn't configured a spoof "yacc" will run into this problem.
-
--david
-
-
+-- 
+     Rafael

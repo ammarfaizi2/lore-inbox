@@ -1,92 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266378AbUHSOyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266397AbUHSPCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266378AbUHSOyr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 10:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUHSOyo
+	id S266397AbUHSPCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 11:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUHSPCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 10:54:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32406 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266311AbUHSOvs (ORCPT
+	Thu, 19 Aug 2004 11:02:03 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:59268 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S266347AbUHSPAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 10:51:48 -0400
-Message-ID: <4124BE89.20909@redhat.com>
-Date: Thu, 19 Aug 2004 10:51:53 -0400
-From: Frank Hirtz <fhirtz@redhat.com>
-User-Agent: Mozilla Thunderbird 0.6 (Macintosh/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.8.1:  display committed memory limit and available in
- meminfo
-Content-Type: multipart/mixed;
- boundary="------------030103000904070608090505"
+	Thu, 19 Aug 2004 11:00:09 -0400
+Date: Thu, 19 Aug 2004 17:00:10 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
+       diablod3@gmail.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040819150010.GB13501@ucw.cz>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org> <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner> <20040819131026.GA9813@ucw.cz> <4124AD46.nail80H216HKB@burner> <20040819135614.GA12634@ucw.cz> <4124B314.nail8221CVOE9@burner> <20040819141442.GC13003@ucw.cz> <4124BD14.90603@bio.ifi.lmu.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4124BD14.90603@bio.ifi.lmu.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030103000904070608090505
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello!
 
-The following patch will have the committed memory limit (per the current 
-overcommit ratio) and the amount of memory remaining under this limit displayed 
-in meminfo.
+> There is already. cdrecord on SuSE 9.1 tells you:
+> Cdrecord-Clone-dvd 2.01a27 (i686-suse-linux) Copyright (C) 1995-2004 J??rg Schilling
+> Note: This version is an unofficial (modified) version with DVD support
+> Note: and therefore may have bugs that are not present in the original.
+> Note: Please send bug reports or support requests to http://www.suse.de/feedback
+> Note: The author of cdrecord should not be bothered with problems in this version.
 
-It's presently somewhat difficult to use the strict memory overcommit settings 
-as it's somewhat difficult to determine the amount of memory remaining under the 
-cap. This patch would make using strict overcommit a good bit simpler. Does such 
-an addition seem reasonable?
+So, case closed, it seems. Any other arguments, Joerg?
 
-Thank you,
-
-Frank.
-
---------------030103000904070608090505
-Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
- name="linux-2.6.8.1-committedmem.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.8.1-committedmem.patch"
-
---- linux-2.6.8.1/fs/proc/proc_misc.c		2004-08-18 16:32:07.000000000 -0400
-+++ linux-2.6.8.1.new/fs/proc/proc_misc.c	2004-08-18 16:55:47.000000000 -0400
-@@ -153,7 +153,7 @@
- 				 int count, int *eof, void *data)
- {
- 	struct sysinfo i;
--	int len, committed;
-+	int len, committed, allowed;
- 	struct page_state ps;
- 	unsigned long inactive;
- 	unsigned long active;
-@@ -171,6 +171,8 @@
- 	si_meminfo(&i);
- 	si_swapinfo(&i);
- 	committed = atomic_read(&vm_committed_space);
-+	allowed = ((totalram_pages - hugetlb_total_pages()) 
-+		* sysctl_overcommit_ratio / 100) + total_swap_pages;
- 
- 	vmtot = (VMALLOC_END-VMALLOC_START)>>10;
- 	vmi = get_vmalloc_info();
-@@ -198,7 +200,9 @@
- 		"Writeback:    %8lu kB\n"
- 		"Mapped:       %8lu kB\n"
- 		"Slab:         %8lu kB\n"
-+		"CommitLimit:  %8lu kB\n"
- 		"Committed_AS: %8u kB\n"
-+		"CommitAvail:  %8ld kB\n"
- 		"PageTables:   %8lu kB\n"
- 		"VmallocTotal: %8lu kB\n"
- 		"VmallocUsed:  %8lu kB\n"
-@@ -220,7 +224,9 @@
- 		K(ps.nr_writeback),
- 		K(ps.nr_mapped),
- 		K(ps.nr_slab),
-+		K(allowed),
- 		K(committed),
-+		K(allowed - committed),
- 		K(ps.nr_page_table_pages),
- 		vmtot,
- 		vmi.used,
-
---------------030103000904070608090505--
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Man is the highest animal. Man does the classifying.

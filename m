@@ -1,42 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbULPAgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbULPAcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262552AbULPAgP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 19:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbULPAeK
+	id S262563AbULPAcl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 19:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbULPAXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 19:34:10 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:43959 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262552AbULPARD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 19:17:03 -0500
-Message-ID: <41C0D426.8090806@jp.fujitsu.com>
-Date: Thu, 16 Dec 2004 09:17:42 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: ja
+	Wed, 15 Dec 2004 19:23:33 -0500
+Received: from mail.dif.dk ([193.138.115.101]:44195 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262551AbULPAJF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 19:09:05 -0500
+Date: Thu, 16 Dec 2004 01:19:29 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>
+Subject: [PATCH 9/30] return statement cleanup - kill pointless parentheses
+ in fs/xfs/xfs_trans_buf.c
+Message-ID: <Pine.LNX.4.61.0412160118300.3864@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-To: Dimitris Lampridis <labis@mhl.tuc.gr>
-Cc: linux-os@analogic.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI interrupt lost
-References: <1102941933.3415.14.camel@naousa.mhl.tuc.gr>	 <Pine.LNX.4.61.0412130755290.22212@montezuma.fsmlabs.com>	 <Pine.LNX.4.61.0412131141480.4429@chaos.analogic.com> <1103109084.3565.13.camel@naousa.mhl.tuc.gr>
-In-Reply-To: <1103109084.3565.13.camel@naousa.mhl.tuc.gr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> The only thing that didn't already exist in my code was
-> pci_set_power_state(pdev, 0), but it did not make any difference. the
-> problem persists. Do you think that there is a problem if I request the
-> irq line after calling pci_enable_device()? I cannot think of anything
-> else. Everything that you mentioned is already in my code, and yet I can
-> see no interrupt. Maybe it has something to do with my HW / BIOS?
-> 
+This patch removes pointless parentheses from return statements in 
 
-You should call pci_enable_device() first, and then request the irq.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Thanks,
-Kenji Kaneshige
+--- linux-2.6.10-rc3-bk8-orig/fs/xfs/xfs_trans_buf.c	2004-10-18 23:53:10.000000000 +0200
++++ linux-2.6.10-rc3-bk8/fs/xfs/xfs_trans_buf.c	2004-12-15 22:50:18.000000000 +0100
+@@ -89,7 +89,7 @@ xfs_trans_get_buf(xfs_trans_t	*tp,
+ 	if (tp == NULL) {
+ 		bp = xfs_buf_get_flags(target_dev, blkno, len,
+ 							flags | BUF_BUSY);
+-		return(bp);
++		return bp;
+ 	}
+ 
+ 	/*
+@@ -125,7 +125,7 @@ xfs_trans_get_buf(xfs_trans_t	*tp,
+ 		bip->bli_recur++;
+ 		xfs_buftrace("TRANS GET RECUR", bp);
+ 		xfs_buf_item_trace("GET RECUR", bip);
+-		return (bp);
++		return bp;
+ 	}
+ 
+ 	/*
+@@ -178,7 +178,7 @@ xfs_trans_get_buf(xfs_trans_t	*tp,
+ 
+ 	xfs_buftrace("TRANS GET", bp);
+ 	xfs_buf_item_trace("GET", bip);
+-	return (bp);
++	return bp;
+ }
+ 
+ /*
+@@ -202,7 +202,7 @@ xfs_trans_getsb(xfs_trans_t	*tp,
+ 	 * if tp is NULL.
+ 	 */
+ 	if (tp == NULL) {
+-		return (xfs_getsb(mp, flags));
++		return xfs_getsb(mp, flags);
+ 	}
+ 
+ 	/*
+@@ -218,7 +218,7 @@ xfs_trans_getsb(xfs_trans_t	*tp,
+ 		ASSERT(atomic_read(&bip->bli_refcount) > 0);
+ 		bip->bli_recur++;
+ 		xfs_buf_item_trace("GETSB RECUR", bip);
+-		return (bp);
++		return bp;
+ 	}
+ 
+ 	bp = xfs_getsb(mp, flags);
+@@ -260,7 +260,7 @@ xfs_trans_getsb(xfs_trans_t	*tp,
+ 	XFS_BUF_SET_FSPRIVATE2(bp, tp);
+ 
+ 	xfs_buf_item_trace("GETSB", bip);
+-	return (bp);
++	return bp;
+ }
+ 
+ #ifdef DEBUG
+
+
 

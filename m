@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVBAIUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVBAIWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVBAIUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 03:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVBAIUJ
+	id S261504AbVBAIWH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 03:22:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVBAIWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 03:20:09 -0500
-Received: from web51102.mail.yahoo.com ([206.190.38.144]:61780 "HELO
-	web51102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261473AbVBAIUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 03:20:03 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=0ztlVb2nLnLzI5rI0oldFZLJQlXzzoYoEKNOa9AIoMsAtxz3bTstQSz5weG+mkNI1klC6rVz0lCRtIjePbh4cckbr58eigO91FMj2uz3wFYOA+jqWbrUY7Cy5Xa5FVnnPm2WB9+bJjFLfo8mScy0lDTvjUi5UAf20+kPT++iac0=  ;
-Message-ID: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
-Date: Tue, 1 Feb 2005 00:20:01 -0800 (PST)
-From: baswaraj kasture <kbaswaraj@yahoo.com>
-Subject: Kernel 2.4.21 hangs up
-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Lameter <clameter@sgi.com>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-In-Reply-To: <41FF0281.6090903@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Feb 2005 03:22:07 -0500
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:61351 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S261504AbVBAIVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 03:21:41 -0500
+Date: Tue, 1 Feb 2005 09:21:39 +0100
+From: Bastian Blank <waldi@debian.org>
+To: linux-kernel@vger.kernel.org, pavlic@de.ibm.com
+Cc: netdev@oss.sgi.com, davem@davemloft.net
+Subject: [RFC] device types for s390 network devices
+Message-ID: <20050201082139.GB31992@wavehammer.waldi.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org, pavlic@de.ibm.com,
+	netdev@oss.sgi.com, davem@davemloft.net
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I compiled kernel 2.4.21 with intel compiler .
-While booting it hangs-up . further i found that it
-hangsup due to call to "calibrate_delay" routine in
-"init/main.c". Also found that loop in the
-callibrate_delay" routine goes infinite.When i comment
-out the call to "callibrate_delay" routine, it works
-fine.Even compiling "init/main.c" with "-O0" works
-fine. I am using IA-64 (Intel Itanium 2 ) with EL3.0.
+--H1spWtNR+x+ondvy
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Any pointers will be great help.
+The s390 network devices specifies device types which does not match the
+reality.
 
+ctc
+=3D=3D=3D
 
-Thanks,
--Baswaraj
+This device is currently specified as ARPHRD_SLIP. If I see it
+correctly, SLIP is an IP-only transport. ctc is more, the link level
+header contains the ethernet protocoll type, so it is some sort of
+pointopoint ethernet (which is sometimes crippled to IPv4-only for
+compatiblity reasons).
 
+qeth
+=3D=3D=3D=3D
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - 250MB free storage. Do more. Manage less. 
-http://info.mail.yahoo.com/mail_250
+This device is currently specified as the corresponding real device
+type if it is a real adapter, or ARPHRD_ETHER if it is a virtual one.
+The virtual device behaves different in different modi:
+- "layer2": In this mode, the device behaves like a real layer 2 device.
+- "fake_ll": The kernel prepends a faked link level header.
+- default: The kernel processes the IP-packages.  This is the most used
+  mode, in whom it is impossible to use a standard libpcap as it parses
+  the IP-headers as Ethernet. (IBM suggests to patch libpcap, but I
+  think that changing the device type to something more matching is the
+  correct solution.)
+
+At least the last part needs some fix, but I don't know how to fix if
+properly.
+
+Bastian
+
+--=20
+The more complex the mind, the greater the need for the simplicity of play.
+		-- Kirk, "Shore Leave", stardate 3025.8
+
+--H1spWtNR+x+ondvy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iEYEARECAAYFAkH/PBMACgkQnw66O/MvCNF2kACfZfwLIsQfwOQN1FttPlez0RP1
+1b4Ani15xbP7UoHepA/yvwXBP2a1Kxjy
+=38zD
+-----END PGP SIGNATURE-----
+
+--H1spWtNR+x+ondvy--

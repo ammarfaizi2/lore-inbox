@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbUJ1Vfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262994AbUJ1ViD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbUJ1Vfp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 17:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUJ1Vfp
+	id S262994AbUJ1ViD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 17:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbUJ1VgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 17:35:45 -0400
-Received: from [129.105.5.125] ([129.105.5.125]:50071 "EHLO
-	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
-	id S263089AbUJ1VTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 17:19:01 -0400
-Message-ID: <418162A6.80808@ece.northwestern.edu>
-Date: Thu, 28 Oct 2004 16:20:38 -0500
-From: Lei Yang <lya755@ece.northwestern.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies <kernelnewbies@nl.linux.org>
-Subject: Re: set blksize of block device
-References: <417FE6A8.5090803@ece.northwestern.edu> <41804F04.4000300@ece.northwestern.edu> <418058A8.5080706@ece.northwestern.edu> <200410280911.15756.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200410280911.15756.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 28 Oct 2004 17:36:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54461 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262159AbUJ1VeA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 17:34:00 -0400
+Date: Thu, 28 Oct 2004 14:37:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: dsaxena@plexity.net, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove inclusion of <linux/irq.h> from pci/quirks.c
+Message-Id: <20041028143753.338c1b7e.akpm@osdl.org>
+In-Reply-To: <20041028211432.GB9369@kroah.com>
+References: <20041020182222.GA20201@plexity.net>
+	<20041020215750.3f3764e6.akpm@osdl.org>
+	<20041028211432.GB9369@kroah.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+Greg KH <greg@kroah.com> wrote:
+>
+> > Also, it worries me that quirk_intel_irqbalance() is marked __devinit and
+> > calls irqbalance_disable(), which is marked __init.  I guess a fix for that
+> > would be to mark quirk_intel_irqbalance() as __init, since it's unlikely to
+> > be called after free_initmem().  Does Greg agree?
+> 
+> I do agree.  But I think the intel people are mucking around in this
+> area too and hopefully they'll fix it all up soon...
 
->On Thursday 28 October 2004 05:25, Lei Yang wrote:
->  
->
->>Or in other words, is there generic routines for block devices such that 
->>we could:
->>
->>get (set) block size of a block device;
->>read an existing block (e.g. block 4);
->>write an existing block (e.g. block 5);
->>    
->>
->
->Can you stick to "reply below quote" style please?
->  
->
-OK
-
->  
->
->>>If nobody could answer this question, what about another one? Is there 
->>>a system call or a kernel interface that would allow me to write a 
->>>      
->>>
->
->Can you use read, write and seek system calls?
->--
->vda
->
->
->  
->
-Not really, as I've explained, I want to do all these stuff in kernel 
-space. More specifically, I want to write a newbie kernel module. In 
-this module, I'll do something with a raw block device (with no 
-filesystem). For example, I want to do block I/O operations on ramdisk, 
-and I want to set the block size of ramdisk to whatever value I want 
-(power of 2 of course).
-
-Any comments?
-
-Thanks,
-Lei
-
+It should all be fixed up now.  We moved the intel-specific quirk to the
+new arch/i386/kernel/quirks.c.

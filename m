@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265534AbUFDALX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264329AbUFDAQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265534AbUFDALX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 20:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265484AbUFDAIm
+	id S264329AbUFDAQx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 20:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUFDAQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 20:08:42 -0400
-Received: from holomorphy.com ([207.189.100.168]:3234 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265361AbUFDAHw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 20:07:52 -0400
-Date: Thu, 3 Jun 2004 17:07:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: vojtech@suse.cz
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1
-Message-ID: <20040604000718.GP21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	vojtech@suse.cz, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040601021539.413a7ad7.akpm@osdl.org> <20040602132654.GY2093@holomorphy.com> <20040603233828.GA27504@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Jun 2004 20:16:52 -0400
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:52455 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264329AbUFDAQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 20:16:51 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: FabF <fabian.frederick@skynet.be>
+Subject: Re: why swap at all?
+Date: Fri, 4 Jun 2004 10:16:40 +1000
+User-Agent: KMail/1.6.1
+Cc: Valdis.Kletnieks@vt.edu, Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net> <1086279414.2295.13.camel@localhost.localdomain> <200406040956.17808.kernel@kolivas.org>
+In-Reply-To: <200406040956.17808.kernel@kolivas.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040603233828.GA27504@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406041016.40927.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 06:26:54AM -0700, William Lee Irwin III wrote:
->> Fix warnings about various structs declared inside parameter lists and so
->> on seen while compiling compat_ioctl.c.
+On Fri, 4 Jun 2004 09:56, Con Kolivas wrote:
+> On Fri, 4 Jun 2004 02:16, FabF wrote:
+> > On Thu, 2004-06-03 at 01:54, Con Kolivas wrote:
+> > > Try this version instead which biases it downwards.
+> >
+> > I've been unhappy with this one.sw range : 19->60.
+> > So I've been playing slightly with sw curve replacing nerve centre with
+>
+> Are you unhappy with the numbers for swappiness it gives or the feel of it?
+> It gives a range of 0-100 in meaningful ways. Your version gives swappiness
+> > 100 at times (oops). If this version does not feel good, the last linear
+> one is better and you simply dont have enough ram for it to feel good after
+> updatedb.
 
-On Thu, Jun 03, 2004 at 04:38:28PM -0700, Greg KH wrote:
-> Doesn't apply to my, or a clean -rc2 tree :(
-> Probably needs to be sent to Vojtech and put in his tree.
-> thanks,
-> greg k-h
+Oh and I forgot to say, if that's the case then you should try Nick's patches 
+which are far more sophisticated than this.
 
-Vojtech, gregkh referred me to you for this change. Some compilation
-failures are caused by some changes to hiddev.h or some surrounding
-area in -mm; this patch resolves them.
-
-Thanks.
-
--- wli
-
-Index: linux-2.6.7-rc2/include/linux/hiddev.h
-===================================================================
---- linux-2.6.7-rc2.orig/include/linux/hiddev.h	2004-06-01 03:11:37.000000000 -0700
-+++ linux-2.6.7-rc2/include/linux/hiddev.h	2004-06-02 06:15:34.807765000 -0700
-@@ -213,12 +213,12 @@
-  * In-kernel definitions.
-  */
- 
--#ifdef CONFIG_USB_HIDDEV
- struct hid_device;
- struct hid_usage;
- struct hid_field;
- struct hid_report;
- 
-+#ifdef CONFIG_USB_HIDDEV
- int hiddev_connect(struct hid_device *);
- void hiddev_disconnect(struct hid_device *);
- void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,
+Con

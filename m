@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTH0Uyl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 16:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbTH0Uyk
+	id S262290AbTH0VDa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 17:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbTH0VDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 16:54:40 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:13836 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262153AbTH0Uyj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 16:54:39 -0400
-Date: Wed, 27 Aug 2003 22:48:58 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-2.4] make log buffer length selectable
-Message-ID: <20030827204858.GA11660@alpha.home.local>
-References: <200308251148.h7PBmU8B027700@hera.kernel.org> <20030826042550.GJ734@alpha.home.local> <20030827200922.GH32065@ip68-0-152-218.tc.ph.cox.net>
+	Wed, 27 Aug 2003 17:03:30 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:21463 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262290AbTH0VD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 17:03:28 -0400
+Date: Wed, 27 Aug 2003 23:03:42 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.23-pre1] /proc/ikconfig support
+Message-ID: <20030827210341.GE26817@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030827200922.GH32065@ip68-0-152-218.tc.ph.cox.net>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 01:09:22PM -0700, Tom Rini wrote:
-> On Tue, Aug 26, 2003 at 06:25:50AM +0200, Willy Tarreau wrote:
-> > On Mon, Aug 25, 2003 at 04:48:30AM -0700, Marcelo Tosatti wrote:
-> > > final:
-> > > 
-> > > - 2.4.22-rc4 was released as 2.4.22 with no changes.
-> > 
-> > Hi Marcelo,
-> > 
-> > as you requested, here is the log_buf_len patch for inclusion in 23-pre.
+On Tue, Aug 26, 2003 at 04:33:09PM -0300, Marcelo Tosatti wrote:
 > 
-> Two things.  First, why not ask on every arch like 2.6 does?  Second:
-
-I'm sorry, shame on me. It was an old one that I first showed as an example,
-and I blindly resent without checking. I'll do my best to backport code in 2.6
-on the next sleepless night.
-
-> > +#if !defined(CONFIG_LOG_BUF_SHIFT) || (CONFIG_LOG_BUF_SHIFT - 0 == 0)
+> On Tue, 26 Aug 2003 18:36:59 +0200 Marc-Christian Petersen
+> <m.c.p@wolk-project.de> wrote:
 > 
-> Why not just || (CONFIG_LOG_BUF_SHIFT == 0) ?
+> | On Monday 25 August 2003 19:50, Marc-Christian Petersen wrote:
+> |
+> | Hi Marcelo,
+> |
+> | > Idea/Patch from Randy Dunlap including fixes/updates:
+> | > From: Daniele Bellucci <bellucda@tiscali.it>
+> | >     put_user() to return -EFAULT on error.
+> | > From: Randy.Dunlap" <rddunlap@osdl.org>
+> | >     Updated 'extract-ikconfig' script
+> | > From me:
+> | >     /proc/ikconfig should only be allowed if CONFIG_PROC_FS=y
+> | > Attached is /proc/ikconfig support.
+> ...
+> |
+> | something not ok with this or do you just need some time to review it?
+> :)
+> 
+> > I have the same question about the seq_file "single" additions
+> > patch that I sent yesterday.... ???
+> 
+> The seq_file patch needs EXPORT_SYMBOL right?
+> 
+> And about ikconfig, hum, I'm not sure if I want that. Its nice, yes, but I
+> still wonder. You are free to convince me though: I think people usually
+> know what they compile in their kernels, dont they?
 
-It's an old trick I was used to, but at other places. Basically, it was used
-to avoid syntax errors when the macro was not defined, which would lead to
-(-0 == 0) which is valid while ( == 0) is not. But it appears that cpp handles
-the case correctly so it's not needed here. I'll fix it too.
+not if you do 20 kernels a week, and then want to know
+the config for machine XY, to compile a new kernel ...
 
-Marcelo, sorry for this quick patch, I'll better check what I feed you next
-time.
+since early 2.4.18 I'm happy with kconfig[1] but I guess
+ikconfig will do almost the same ...
 
-Cheers,
-Willy
+best,
+Herbert
+
+[1] http://www.13thfloor.at/VServer/patches-2.4.22-p10c17/03_kconfig-2.4.22-pre3.patch.bz2
 

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278108AbRKDD2t>; Sat, 3 Nov 2001 22:28:49 -0500
+	id <S278038AbRKDDYA>; Sat, 3 Nov 2001 22:24:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278099AbRKDD2j>; Sat, 3 Nov 2001 22:28:39 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:407 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S278085AbRKDD2d>; Sat, 3 Nov 2001 22:28:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Google's mm problems
-Date: Sun, 4 Nov 2001 04:29:39 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin> <20011103205601.2170.qmail@thales.mathematik.uni-ulm.de>
-In-Reply-To: <20011103205601.2170.qmail@thales.mathematik.uni-ulm.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011104032828Z16097-4784+757@humbolt.nl.linux.org>
+	id <S278057AbRKDDXt>; Sat, 3 Nov 2001 22:23:49 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:23557
+	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S278038AbRKDDXh>;
+	Sat, 3 Nov 2001 22:23:37 -0500
+Subject: Re: Strange memory stats with 2.4.13 and ext3
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        EXT3 Users <ext3-users@redhat.com>
+In-Reply-To: <20011030062318.B1502@redhat.com>
+In-Reply-To: <1004213323.9797.15.camel@ixodes.goop.org> 
+	<20011030062318.B1502@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 03 Nov 2001 19:23:35 -0800
+Message-Id: <1004844215.11911.35.camel@ixodes.goop.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 3, 2001 09:56 pm, Christian Ehrhardt wrote:
-> On Wed, Oct 31, 2001 at 12:07:17AM +0100, Daniel Phillips wrote:
-> > Hi, I've been taking a look on a mm problem that Ben Smith of Google posted 
-> > a couple of weeks ago.  As it stands, Google can't use 2.4 yet because all
-> > known flavors of 2.4 mm fall down in one way or another.  This is not good.
+On Mon, 2001-10-29 at 22:23, Stephen Tweedie wrote:
+> Hi,
 > 
-> Andrea suggested that this might be a mlock bug and someone else
-> pointed out that madvise instead of mlock exhibits similar behaviour.
-> So I looked at this code and this patch looks obviously correct:
+> On Sat, Oct 27, 2001 at 01:08:43PM -0700, Jeremy Fitzhardinge wrote:
+>  
+> > My gateway/firewall/mailserver machine has been running 2.4.13 for a day
+> > or so now.  Its basically a stock Linus kernel + ext3-0.9.13 patch (for
+> > -pre6, with the rej fixed).
+> 
+> Does this happen with stock 2.4.13?  I don't think ext3 touches
+> anything that could cause this.
 
-I'm pretty sure at this point that it's just poor balancing between zones.  To
-test this, Ben tried it highmem config'ed off and ran without problems (2/2G
-user/kernel split).
+Someone else reported it happening on stock 2.4.13.  I only mentioned
+ext3 because it was there.  I have a number of ext3 machines, and it
+only happens on one (with the smallest memory).
 
---
-Daniel
+	J
+

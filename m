@@ -1,202 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268707AbUIGWLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268701AbUIGWNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268707AbUIGWLS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268701AbUIGWLQ
+	id S268701AbUIGWNH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 18:13:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUIGWNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:11:16 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:44471 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268702AbUIGWKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:10:24 -0400
-Message-ID: <413E31D1.9090301@sgi.com>
-Date: Tue, 07 Sep 2004 17:10:25 -0500
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Tue, 7 Sep 2004 18:13:06 -0400
+Received: from smtp08.auna.com ([62.81.186.18]:4260 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S268701AbUIGWMp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 18:12:45 -0400
+Date: Tue, 07 Sep 2004 22:12:39 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Killer CacheFS [was Re: 2.6.9-rc1-mm4]
+To: Danny ter Haar <dth@ncc1701.cistron.net>
+Cc: linux-kernel@vger.kernel.org
+References: <20040907020831.62390588.akpm@osdl.org>
+	<chkom3$hf4$1@news.cistron.nl>
+In-Reply-To: <chkom3$hf4$1@news.cistron.nl> (from dth@ncc1701.cistron.net on
+	Tue Sep  7 18:46:59 2004)
+X-Mailer: Balsa 2.2.4
+Message-Id: <1094595159l.7322l.0l@werewolf.able.es>
+X-Balsa-Fcc: file:///home/magallon/mail/sentbox
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Latest Altix I/O code reorganization code
-References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com> <20040827165443.A32567@infradead.org> <20040827172131.A473@infradead.org> <20040904004024.A10459@infradead.org>
-In-Reply-To: <20040904004024.A10459@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
 
-> Crosscheck of your new code vs the review:
+On 2004.09.07, Danny ter Haar wrote:
+> Andrew Morton  <akpm@osdl.org> wrote:
+> >2.6.9-rc1-mm4
 > 
 > 
-> >io_init.c:
+> >md-add-interface-for-userspace-monitoring-of-events.patch
+> >  md: add interface for userspace monitoring of events.
 > >
-> > - sal_get_hubdev_info
-> >	umm, you're getting a kernel pointer by a SAL
-> > 	call.  I wonders how this is supposed to work when the kernel
-> >	changes it's VA layout.  (Dito for a bunch of other functions)
+> >md-correct-working_disk-counts-for-raid5-and-raid6.patch
+> >  md: correct "working_disk" counts for raid5 and raid6
 > 
 > 
+> My machine is/was running -mm3 on a software raid1 setup.
+> After the upgrade to -mm4 it boots to the point where it says:
+> 
+> md: Autodetecting RAID arrays.
+> md: autorun ...
+> md: ... autorun DONE.
+> md: Loading md_d0: /dev/sda
+> md: bind<sda>
+> md: bind<sdb>
+> raid1: raid set md_d0 active with 2 out of 2 mirrors
+> md_d0: p1 p2 p3 < p5 p6 p7 p8 p9 >
+> CacheFS: filesystem mounted read-only
 
-I will change the ptr passed to a physical address.
+LOOK HERE ^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^
+> VFS: Cannot open root device "md_d0p1" or unknown_block (254,1)
+> Please append a correct "root=" boot option
+> 
 
+Me too, and I boot from a normal ide drive. Disable CacheFS and
+you will boot.
 
- > >  - sn_io_init
- > >       what's going on here?
- >
- > gone
- >
- > > iomv.c:
- > >
- > >  - okay, could use some reformatting to fit 80 chars
- >
- > ok
- >
- > > pci_dma.c:
- > >
- > >  - still using all those indirections althoug there's only a single backend
- >
- > this comment is fixed, but the one later sent in private (stupid choice
- > of interface beteen upper pci dma code and pcibr code ignored)
- >
+In my case, the block was (33,1), drive was hde1.
+It looks like cachefs is doing something strange....
 
-Guess I'm confused about this then. Are you suggesting putting the pcibr_dma files
-into the pci_dma.c code and not having a pcibr_dma interface ?? The api is there because
-pcibr is an ASIC and is ASIC specific.
+I swear, I just disabled CacheFS and the same kernel booted.
 
+Hope this helps.
 
- > > pci_extension.c:
- > >
- > >  - dito.  Why does this single function need a separate file?
- >
- > Not addressed.  In general your file organization is mess still.
- >
-
-How is this:
-arch/ia64/sn/pci/
-                  pci_dma.c
-                  pci_extension.c
-                  pcibr/
-                      pcibr_ate.c
-                      pcibr_dma.c
-                      pcibr_provider.c
-                      pcibr_reg.c
-
-arch/ia64/sn/kernel/
-                  bte_error.c
-                  io_init.c
-                  iomv.c
-
-Since pcibr is an ASIC it makes sense for it to have its own directory. There are
-other ASIC interfaces that will be put in in the not too distant future and they
-will go in separate directories also.
-
-
-
- > Just do arch/ia64/sn/pci/ for all pci code and move the rest to
- > arch/ia64/sn/kernel.  That how most arches work.
- >
- > > pcibr_ate.c:
- > >
- > >  - doesn't look to bad, but should probably merged into pcibr_dma.c.  And
- > >    the trivial < 10 line function opencoded in their only callers.
- >
- > Not addressed or commented on yet.
- >
-
-I will inline free_ate_resource(), alloc_ate_resource() and ate_write(). I want to
-keep the ate code in a separate file - since it is a group of functions with a similar
-theme and is non-trivial.
-
-
- > > pcibr_provider.c
- > >
- > >  actual code code looks okay, but:
- > >
- > >   - sal_pcibr_slot_enable/sal_pcibr_slot_disabl are completely unused
- >
- > you still have typedefs for these around
- >
-
-Missed them - I'll take them out.
-
-
- > >   - the pci_provider abstraction is right now completely useless, please
- > >     add such abstractions only when you need them (and if you'll ever need
- > >     that a few hints:  stop that casting of methods silliness but use
- > >     container_of, use C99 initializers, stop the typedef abuse)
- >
- > ok
- >
- > >   - request_irq return value needs checking
- >
- > ok
- >> > pcibr_reg.c:
- > >
- > >  - all this casting is rather horrible.  At least keep a pointer to each
- > >    of struct tiocp and pic_s (and kill the _s postifx) in syruct pcibus_info.
- > >    the volatiles looks bogus, if you need it you're missing memorry barries.
- >
- > the type pointer isn't done.  Any specific reason?
- >
-
-I'm confused on this too. The struct defs are for different MMR sets - so we do need
-to use different types of pointers.
-
-
- > > xtalk_providers.c:
- > >
- > >  - bogus indirection again.  if you actually do have different lowlevel
- > >    implementations they should be hidden inside the prom.  While at it I think
- > >    the two calls could just move to arch/ia64/sn/kernel/irq.c
- >
- > ok
- >
- > More items:
- >
- >  - sal_pcibr_rrb_alloc should be merged into its only caller
-
-I'll move the sal_pcibr_rrb_alloc() code into snia_pcibr_rrb_alloc()
-
-
- >  - io_init.c still has KDB ifdefs
-
-Sorry, missed this....
-
-
- >  - sn_pci_set_vchan should absolutely _not_ be placed in qla1280.c,
-
-I'll fix this.
-
-
- >    and while you're at it there extern for snia_pcibr_rrb_alloc should
- >    move to a header
-
-OK.
-
- >  - kill HUBREG_CAST instead of touching it
-
-OK.
-
- >  - please don't put your ASSERT into asm/ headers.  In general you
- >    should use BUG_ON
-
-OK.
-
- >  - why do you add a pfn_t typedef that's not used anywhere
- >  - the patch adds include/asm-ia64/sn/xtalk/xtalk_provider.h but there's
- >    no more xtalk providers
- >
-
-Missed these too.
-
-
- > Your headers are still a complete mess.  There's no point exposing tons
- > of defails about the pci interface in include/asm - just keep and
- > pci_extensions.h there for non-standard PCI APIs, and the rest should
- > stay private inisde arch/ia64/sn/pci/.
-
-I'll work on fixing this up.
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (RC 1) for i586
+Linux 2.6.9-rc1-mm3 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #1
 
 

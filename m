@@ -1,139 +1,290 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVAEAf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVAEAfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVAEAf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 19:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVAEAdf
+	id S261761AbVAEAfz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 19:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVAEAex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 19:33:35 -0500
-Received: from mailhost.ntl.com ([212.250.162.8]:14812 "EHLO
-	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S261795AbVAEAaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 19:30:24 -0500
-Message-ID: <41DB4014.6070308@gentoo.org>
-Date: Wed, 05 Jan 2005 01:17:08 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
+	Tue, 4 Jan 2005 19:34:53 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57489 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261761AbVAEAaK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 19:30:10 -0500
+Date: Tue, 4 Jan 2005 16:29:39 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Adam Litke <agl@us.ibm.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Akinobu Mita <amgta@yacht.ocn.ne.jp>, nickpiggin@yahoo.com.au,
+       Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, hugh@veritas.com,
+       benh@kernel.crashing.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Anticipatory prefaulting in the page fault handler V4
+In-Reply-To: <1103052678.28318.446.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0501041628320.1980@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+  <156610000.1102546207@flay>  <Pine.LNX.4.58.0412091130160.796@schroedinger.engr.sgi.com>
+  <200412132330.23893.amgta@yacht.ocn.ne.jp> 
+ <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com>  <8880000.1102976179@flay>
+  <Pine.LNX.4.58.0412131730410.817@schroedinger.engr.sgi.com>
+ <1103052678.28318.446.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: William Park <opengeometry@yahoo.ca>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Wait and retry mounting root device
-References: <41DA8DFC.4030801@gentoo.org> <20050104221600.GA2619@node1.opengeometry.net>
-In-Reply-To: <20050104221600.GA2619@node1.opengeometry.net>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------030200060000080909060303"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030200060000080909060303
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi William,
+Changes from V3 to V4:
+- Add /proc/sys/vm/max_prealloc_order to limit preallocations
+- Tested against 2.6.10-bk7
 
-William Park wrote:
-> It's funny...  Your patch does the opposite.  It works for
->     root=/dev/sda1
-> from the kernel command line, but not from Lilo or 'root=8:1' on command
-> line. :-)
+(This version of the patch is not depending on atomic pte operations and will
+conflict with the page fault scalabilty patchset. I have another patch
+that works with atomic pte operations)
 
-Ah, yes :/
+The page fault handler for anonymous pages can generate significant overhead
+apart from its essential function which is to clear and setup a new page
+table entry for a never accessed memory location. This overhead increases
+significantly in an SMP environment.
 
-I found a simpler way to do it (but I'm not sure if it is 'clean' enough). 
-I've attached an incremental patch against your first patch. This works with 
-root=8:1 and root=/dev/sda1 for me.
+In the page table scalability patches, we addressed the issue by changing
+the locking scheme so that multiple fault handlers are able to be processed
+concurrently on multiple cpus. This patch attempts to aggregate multiple
+page faults into a single one. It does that by noting
+anonymous page faults generated in sequence by an application.
 
-Andrew, how does this look? I've also attached the new full patch so that you 
-can also see the context.
+If a fault occurred for page x and is then followed by page x+1 then it may
+be reasonable to expect another page fault at x+2 in the future. If page
+table entries for x+1 and x+2 would be prepared in the fault handling for
+page x+1 then the overhead of taking a fault for x+2 is avoided. However
+page x+2 may never be used and thus we may have increased the rss
+of an application unnecessarily. The swapper will take care of removing
+that page if memory should get tight.
 
-Thanks,
-Daniel
+The following patch makes the anonymous fault handler anticipate future
+faults. For each fault a prediction is made where the fault would occur
+(assuming linear acccess by the application). If the prediction turns out to
+be right (next fault is where expected) then a number of pages is
+preallocated in order to avoid a series of future faults. The order of the
+preallocation increases by the power of two for each success in sequence.
 
---------------030200060000080909060303
-Content-Type: text/x-patch;
- name="incremental.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="incremental.patch"
+The first successful prediction leads to an additional page being allocated.
+Second successful prediction leads to 2 additional pages being allocated.
+Third to 4 pages and so on. The max order is 3 by default. In a large
+continous allocation the number of faults is reduced by a factor of 8.
 
-Applies on top of William Park's wait/retry mounting root device patch.
-Allows usage of "root=/dev/sda1" style arguments, which was not possible
-in the first version.
+Patch against 2.6.10-bk7:
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
---- linux-2.6.10/init/do_mounts.c	2005-01-05 01:03:47.165499144 +0000
-+++ linux-dsd/init/do_mounts.c	2005-01-05 01:04:19.001659312 +0000
-@@ -283,6 +283,10 @@
- 
- 	get_fs_names(fs_names);
- retry:
-+	if (!ROOT_DEV) {
-+		ROOT_DEV = name_to_dev_t(saved_root_name);
-+		create_dev(name, ROOT_DEV, root_device_name);
-+	}
- 	for (p = fs_names; *p; p += strlen(p)+1) {
- 		int err = do_mount_root(name, p, flags, root_mount_data);
- 		switch (err) {
+Index: linux-2.6.10/include/linux/sched.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/sched.h	2005-01-04 13:55:00.000000000 -0800
++++ linux-2.6.10/include/linux/sched.h	2005-01-04 14:00:27.000000000 -0800
+@@ -537,6 +537,8 @@
+ #endif
 
---------------030200060000080909060303
-Content-Type: text/x-patch;
- name="full.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="full.patch"
+ 	struct list_head tasks;
++	unsigned long anon_fault_next_addr;	/* Predicted sequential fault address */
++	int anon_fault_order;			/* Last order of allocation on fault */
+ 	/*
+ 	 * ptrace_list/ptrace_children forms the list of my children
+ 	 * that were stolen by a ptracer.
+Index: linux-2.6.10/mm/memory.c
+===================================================================
+--- linux-2.6.10.orig/mm/memory.c	2005-01-04 13:55:00.000000000 -0800
++++ linux-2.6.10/mm/memory.c	2005-01-04 14:00:27.000000000 -0800
+@@ -57,6 +57,7 @@
 
-Retry up to 20 times if mounting the root device fails.
-This fixes booting from usb-storage devices, which no longer
-make their partitions immediately available.
+ #include <linux/swapops.h>
+ #include <linux/elf.h>
++#include <linux/pagevec.h>
 
-From: William Park <opengeometry@yahoo.ca>
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+ #ifndef CONFIG_DISCONTIGMEM
+ /* use the per-pgdat data instead for discontigmem - mbligh */
+@@ -1626,6 +1627,8 @@
+ 	return ret;
+ }
 
---- linux-2.6.10/init/do_mounts.c	2005-01-05 01:11:25.118879648 +0000
-+++ linux-dsd/init/do_mounts.c	2005-01-05 01:04:19.001659312 +0000
-@@ -6,6 +6,7 @@
- #include <linux/suspend.h>
- #include <linux/root_dev.h>
- #include <linux/security.h>
-+#include <linux/delay.h>
- 
- #include <linux/nfs_fs.h>
- #include <linux/nfs_fs_sb.h>
-@@ -278,9 +279,14 @@
- 	char *fs_names = __getname();
- 	char *p;
- 	char b[BDEVNAME_SIZE];
-+	int tryagain = 20;
- 
- 	get_fs_names(fs_names);
- retry:
-+	if (!ROOT_DEV) {
-+		ROOT_DEV = name_to_dev_t(saved_root_name);
-+		create_dev(name, ROOT_DEV, root_device_name);
-+	}
- 	for (p = fs_names; *p; p += strlen(p)+1) {
- 		int err = do_mount_root(name, p, flags, root_mount_data);
- 		switch (err) {
-@@ -297,9 +303,13 @@
- 		 * and bad superblock on root device.
- 		 */
- 		__bdevname(ROOT_DEV, b);
--		printk("VFS: Cannot open root device \"%s\" or %s\n",
--				root_device_name, b);
--		printk("Please append a correct \"root=\" boot option\n");
-+		if (--tryagain) {
-+		    printk (KERN_WARNING "VFS: Waiting %dsec for root device...\n", tryagain);
-+		    ssleep (1);
-+		    goto retry;
++int sysctl_max_prealloc_order = 4;
++
+ /*
+  * We are called with the MM semaphore and page_table_lock
+  * spinlock held to protect against concurrent faults in
+@@ -1637,52 +1640,105 @@
+ 		unsigned long addr)
+ {
+ 	pte_t entry;
+-	struct page * page = ZERO_PAGE(addr);
++ 	unsigned long end_addr;
++
++	addr &= PAGE_MASK;
+
+-	/* Read-only mapping of ZERO_PAGE. */
+-	entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++ 	if (likely((vma->vm_flags & VM_RAND_READ)
++		|| current->anon_fault_next_addr != addr)
++		|| current->anon_fault_order >= sysctl_max_prealloc_order) {
++		/* Single page */
++		current->anon_fault_order = 0;
++		end_addr = addr + PAGE_SIZE;
++	} else {
++		/* Sequence of faults detect. Perform preallocation */
++ 		int order = ++current->anon_fault_order;
++
++		if ((1 << order) < PAGEVEC_SIZE)
++			end_addr = addr + (PAGE_SIZE << order);
++		else {
++			end_addr = addr + PAGEVEC_SIZE * PAGE_SIZE;
++			current->anon_fault_order = 3;
 +		}
-+		printk (KERN_CRIT "VFS: Cannot open root device \"%s\" or %s\n", root_device_name, b);
-+		printk (KERN_CRIT "Please append a correct \"root=\" boot option\n");
- 
- 		panic("VFS: Unable to mount root fs on %s", b);
- 	}
 
---------------030200060000080909060303--
+-	/* ..except if it's a write access */
++		if (end_addr > vma->vm_end)
++			end_addr = vma->vm_end;
++		if ((addr & PMD_MASK) != (end_addr & PMD_MASK))
++			end_addr &= PMD_MASK;
++	}
+ 	if (write_access) {
+-		/* Allocate our own private page. */
++
++		unsigned long a;
++		int i;
++		struct pagevec pv;
++
+ 		pte_unmap(page_table);
+ 		spin_unlock(&mm->page_table_lock);
+
++		pagevec_init(&pv, 0);
++
+ 		if (unlikely(anon_vma_prepare(vma)))
+-			goto no_mem;
+-		page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
+-		if (!page)
+-			goto no_mem;
+-		clear_user_highpage(page, addr);
++			return VM_FAULT_OOM;
++
++		/* Allocate the necessary pages */
++		for(a = addr; a < end_addr ; a += PAGE_SIZE) {
++			struct page *p = alloc_page_vma(GFP_HIGHUSER, vma, a);
++
++			if (likely(p)) {
++				clear_user_highpage(p, a);
++				pagevec_add(&pv, p);
++			} else {
++				if (a == addr)
++					return VM_FAULT_OOM;
++				break;
++			}
++		}
+
+ 		spin_lock(&mm->page_table_lock);
+-		page_table = pte_offset_map(pmd, addr);
+
+-		if (!pte_none(*page_table)) {
++		for(i = 0; addr < a; addr += PAGE_SIZE, i++) {
++			struct page *p = pv.pages[i];
++
++			page_table = pte_offset_map(pmd, addr);
++			if (unlikely(!pte_none(*page_table))) {
++				/* Someone else got there first */
++				pte_unmap(page_table);
++				page_cache_release(p);
++				continue;
++			}
++
++ 			entry = maybe_mkwrite(pte_mkdirty(mk_pte(p,
++ 						 vma->vm_page_prot)),
++ 					      vma);
++
++			mm->rss++;
++			lru_cache_add_active(p);
++			SetPageReferenced(p);
++			page_add_anon_rmap(p, vma, addr);
++
++			set_pte(page_table, entry);
+ 			pte_unmap(page_table);
+-			page_cache_release(page);
+-			spin_unlock(&mm->page_table_lock);
+-			goto out;
++
++ 			/* No need to invalidate - it was non-present before */
++ 			update_mmu_cache(vma, addr, entry);
++		}
++ 	} else {
++ 		/* Read */
++		entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++nextread:
++		set_pte(page_table, entry);
++		pte_unmap(page_table);
++		update_mmu_cache(vma, addr, entry);
++		addr += PAGE_SIZE;
++		if (unlikely(addr < end_addr)) {
++			page_table = pte_offset_map(pmd, addr);
++			if (likely(pte_none(*page_table)))
++				goto nextread;
+ 		}
+-		mm->rss++;
+-		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
+-							 vma->vm_page_prot)),
+-				      vma);
+-		lru_cache_add_active(page);
+-		SetPageReferenced(page);
+-		page_add_anon_rmap(page, vma, addr);
+ 	}
+-
+-	set_pte(page_table, entry);
+-	pte_unmap(page_table);
+-
+-	/* No need to invalidate - it was non-present before */
+-	update_mmu_cache(vma, addr, entry);
++	current->anon_fault_next_addr = addr;
+ 	spin_unlock(&mm->page_table_lock);
+-out:
+ 	return VM_FAULT_MINOR;
+-no_mem:
+-	return VM_FAULT_OOM;
+ }
+
+ /*
+Index: linux-2.6.10/kernel/sysctl.c
+===================================================================
+--- linux-2.6.10.orig/kernel/sysctl.c	2005-01-04 13:55:00.000000000 -0800
++++ linux-2.6.10/kernel/sysctl.c	2005-01-04 14:00:27.000000000 -0800
+@@ -56,6 +56,7 @@
+ extern int C_A_D;
+ extern int sysctl_overcommit_memory;
+ extern int sysctl_overcommit_ratio;
++extern int sysctl_max_prealloc_order;
+ extern int max_threads;
+ extern int sysrq_enabled;
+ extern int core_uses_pid;
+@@ -826,6 +827,16 @@
+ 		.strategy	= &sysctl_jiffies,
+ 	},
+ #endif
++	{
++		.ctl_name	= VM_MAX_PREFAULT_ORDER,
++		.procname	= "max_prealloc_order",
++		.data		= &sysctl_max_prealloc_order,
++		.maxlen		= sizeof(sysctl_max_prealloc_order),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &zero,
++	},
+ 	{ .ctl_name = 0 }
+ };
+
+Index: linux-2.6.10/include/linux/sysctl.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/sysctl.h	2005-01-04 13:55:00.000000000 -0800
++++ linux-2.6.10/include/linux/sysctl.h	2005-01-04 14:00:27.000000000 -0800
+@@ -169,6 +169,7 @@
+ 	VM_VFS_CACHE_PRESSURE=26, /* dcache/icache reclaim pressure */
+ 	VM_LEGACY_VA_LAYOUT=27, /* legacy/compatibility virtual address space layout */
+ 	VM_SWAP_TOKEN_TIMEOUT=28, /* default time for token time out */
++	VM_MAX_PREFAULT_ORDER=29, /* max prefault order during anonymous page faults */
+ };
+
+

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261577AbRFFKIe>; Wed, 6 Jun 2001 06:08:34 -0400
+	id <S261515AbRFFKFe>; Wed, 6 Jun 2001 06:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261561AbRFFKIY>; Wed, 6 Jun 2001 06:08:24 -0400
-Received: from www.teaparty.net ([216.235.253.180]:6406 "EHLO www.teaparty.net")
-	by vger.kernel.org with ESMTP id <S261547AbRFFKIN> convert rfc822-to-8bit;
-	Wed, 6 Jun 2001 06:08:13 -0400
-Date: Wed, 6 Jun 2001 11:08:10 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261547AbRFFKFZ>; Wed, 6 Jun 2001 06:05:25 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:39933 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S261515AbRFFKFK>; Wed, 6 Jun 2001 06:05:10 -0400
+Message-Id: <l0313030bb743b005b65a@[192.168.239.105]>
+In-Reply-To: <20010606102514.E15199@dev.sportingbet.com>
+In-Reply-To: <991818989.30690.2.camel@nomade>; from xavier.bestel@free.fr
+ on Wed, Jun 06, 2001 at 11:16:27AM +0200
+ <3B1D5ADE.7FA50CD0@illusionary.com>
+ <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
+ <3B1D927E.1B2EBE76@uow.edu.au> <20010605231908.A10520@illusionary.com>
+ <991815578.30689.1.camel@nomade>
+ <20010606095431.C15199@dev.sportingbet.com>
+ <991818989.30690.2.camel@nomade>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 6 Jun 2001 11:04:22 +0100
+To: Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>
+From: Jonathan Morton <chromi@cyberspace.org>
 Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.SOL.3.96.1010606103559.20297A-100000@draco.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.10.10106061101510.12097-100000@www.teaparty.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jun 2001, Dr S.M. Huen wrote:
+>I am waiting patiently for the bug to be fixed. However, it is a real
+>embarrasment that we can't run this "stable" kernel in production yet
+>because somethign as fundamental as this is so badly broken.
 
-> On Wed, 6 Jun 2001, Sean Hunter wrote:
-> 
-> > 
-> > For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
-> > 
-> 
-> Do I understand you correctly?
-> ECC grade SDRAM for your 8GB server costs £335 per GB as 512MB sticks even
-> at today's silly prices (Crucial). Ultra160 SCSI costs £8.93/GB as 73GB
-> drives.
+Rest assured that a fix is in the works.  I'm already seeing a big
+improvement in behaviour on my Athlon (256Mb RAM, but testing using mem=32M
+and mem=48M), and I strongly believe that we're making progress here.
+Maybe some of the more significant improvements will find their way into
+2.4.6.
 
-Not the point. It is an absolute pig to have to allocate extra swap just
-because extra memory was added. You might not have a bay free. You might
-not have the space knocking around to allocate as swap. It's not about the
-money, it's about adaptability. 2.2 was perfectly happy before, why this
-giant leap backwards? If I quadruple the memory in my laptop to 512Mb, do
-I have to carve up my partitions just to get an extra 768Mb of swap? Or
-must I turn off swap completely? What if you are working on a device where
-everything is at a premium, both permamanent storage and memory, but you
-do have a little to spare as swap?
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-It just seems like an overly onerous restriction.
+The key to knowledge is not to rely on people to teach you it.
 
--- 
-The time for action is past!  Now is the time for senseless bickering.
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
+
 

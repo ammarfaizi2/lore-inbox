@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264635AbUEOTQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbUEOT0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264635AbUEOTQv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 15:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUEOTQu
+	id S262132AbUEOT0n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 15:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUEOT0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 15:16:50 -0400
-Received: from colin2.muc.de ([193.149.48.15]:40197 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264635AbUEOTQp (ORCPT
+	Sat, 15 May 2004 15:26:43 -0400
+Received: from colin2.muc.de ([193.149.48.15]:15369 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262132AbUEOT0l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 15:16:45 -0400
-Date: 15 May 2004 21:16:43 +0200
-Date: Sat, 15 May 2004 21:16:43 +0200
+	Sat, 15 May 2004 15:26:41 -0400
+Date: 15 May 2004 21:26:40 +0200
+Date: Sat, 15 May 2004 21:26:40 +0200
 From: Andi Kleen <ak@muc.de>
 To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: ak@muc.de, linux-kernel@vger.kernel.org
+Cc: ak@muc.de, bos@serpentine.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][3/7] perfctr-2.7.2 for 2.6.6-mm2: x86_64
-Message-ID: <20040515191643.GA5748@colin2.muc.de>
-References: <200405151442.i4FEgkjY001401@harpo.it.uu.se>
+Message-ID: <20040515192640.GB5748@colin2.muc.de>
+References: <200405151444.i4FEiDkK001433@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405151442.i4FEgkjY001401@harpo.it.uu.se>
+In-Reply-To: <200405151444.i4FEiDkK001433@harpo.it.uu.se>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15, 2004 at 04:42:46PM +0200, Mikael Pettersson wrote:
-> Computing the mapping in the kernel would need lots of code, unless
-> it cheats like oprofile does on the P4 and hides most counters.
-> Neither hiding counters nor computing imperfect mappings is acceptable.
-
-So how do you get oprofile and the perfctr based NMI watchdog 
-to cooperate?  IMHO just silently breaking each other is not a good idea, 
-and clearly the kernel users cannot depend on user space management.
-
-Also how does the user space management with multiple processes when
-the virtual counters are disabled? 
-
-If you think doing it for individual registers is too complicated
-how about a global lock? - Each application could reserve the full
-perfctr bank.
-
-This would require disabling the non IO-APIC NMI watchdog completely 
-when any other users are active, but that is probably tolerable.
-
-> >+	if( perfctr_cstatus_has_tsc(cstatus) )
-> >+		rdtscl(ctrs->tsc);
-> >+	nrctrs = perfctr_cstatus_nractrs(cstatus);
-> >+	for(i = 0; i < nrctrs; ++i) {
-> >+		unsigned int pmc = state->pmc[i].map;
-> >+		rdpmc_low(pmc, ctrs->pmc[i]);
-> >+	}
+On Sat, May 15, 2004 at 04:44:13PM +0200, Mikael Pettersson wrote:
+> On Sat, 15 May 2004 11:09:11 +0200, Andi Kleen wrote:
+> >> entail; just look at the horrendous mess that is the P4 performance
+> >> counter event selector.
 > >
-> >K8 has speculative rdtsc. Most likely you want a sync_core() somewhere
-> >in there.
+> >There is no way around that - there are kernel users (like the
+> >nmi watchdog or oprofile) and kernel users cannot be made dependent 
+> >on user space modules.
 > 
-> What's the cost for sync_core()? The counts don't have to be
-> perfect.
+> The NMI watchdog uses a simple static mapping. No problem there.
 
-It's a CPUID to force a pipeline flush. Let's say 20-30 cycles.
+So how do you prevent your user applications from overwriting
+the single perfctr the watchdog uses?
 
--Andi
+I actually wrote some monitoring applications that changed perfctrs
+from user space in the past (using /dev/msr), but I always wanted
+to get rid of the adhoc hacks I had to do to detect interaction with the 
+watchdog and replace them with a real mechanism.
+
+> User-space needs to know about it anyway. For instance, unless
+> you understand the HW constraints, you may try to enable mutually
+> exclusive events. Some events may be unconstrained, but you need
+> to know about the constrained ones before you assign the
+> unconstrained ones. And user-space must know the mapping anyway
+> for the RDPMC instruction.
+
+Sure, but it could still ask the kernel if it's available, no?
+
+> 
+> The kernel, in the case of both perfctr and oprofile, needs to be
+> informed of the mapping, but it has no real reason to compute it
+> itself -- especially not on a complex machine like the P4.
+
+It needs some way to veto a mapping when the counter is already
+used for something.
+
+> We don't put an abstract floating-point module in the kernel,
+> charging it with choosing x87, 3dnow!, or sse code, and
+> performing register allocation, do we?
+
+Bad analogy.  The kernel switches the FP state and each process
+has its own and does not impact any other processes.
+
+It would be needed if the kernel used e.g. XMM0 for something
+without hiding it from the user (like the NMI watchdog does), but 
+that's not the case.
+
+-AndI

@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266626AbUI0Kjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266627AbUI0Kmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266626AbUI0Kjb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 06:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUI0Kjb
+	id S266627AbUI0Kmg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 06:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUI0Kmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 06:39:31 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:61635 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S266626AbUI0Kj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 06:39:28 -0400
-Subject: Re: mlock(1)
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Stefan Seyfried <seife@suse.de>
-Cc: Andrea Arcangeli <andrea@novell.com>,
-       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <4157B04B.2000306@suse.de>
-References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net>
-	 <1096071873.3591.54.camel@desktop.cunninghams>
-	 <20040925011800.GB3309@dualathlon.random>  <4157B04B.2000306@suse.de>
-Content-Type: text/plain
-Message-Id: <1096281162.6485.19.camel@laptop.cunninghams>
+	Mon, 27 Sep 2004 06:42:36 -0400
+Received: from cantor.suse.de ([195.135.220.2]:10925 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266627AbUI0Kme (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 06:42:34 -0400
+Date: Mon, 27 Sep 2004 12:41:47 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, tom.l.nguyen@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix x86-64 properly with MSI & Suresh's change
+Message-ID: <20040927104147.GE3532@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 27 Sep 2004 20:32:43 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Mon, 2004-09-27 at 16:16, Stefan Seyfried wrote:
-> Andrea Arcangeli wrote:
-> 
-> > random keys are exactly fine, but only for the swap usage on a desktop
-> > machine (the one I mentioned above, where the user will not be asked for
-> > a password), but it's not ok for suspend/resume, suspend/resume needs
-> > a regular password asked to the user both at suspend time and at resume
-> > time.
-> 
-> Why not ask on every boot? (and yes, the passphrase could be stored on a
-> fixed disk location - hashed with a function of sufficient complexity
-> and number of bits, just to warn the user if he does a typo, couldn't
-> it?). If suspend is working, you basically never reboot. So why ask on
-> suspend _and_ resume? This also solves the "suspend on lid close" issue.
-> 
-> And a resume is - in the beginning - a boot, so just ask early enough
-> (maybe the bootloader could do this?)
-> 
-> I'm not a crypto expert at all, just thinking loud...
+Together with Suresh's recent LH workaround: this patch makes x86-64 
+compile again with MSI on.  i386 uses an CPU number, x86-64
+an CPU mask for MSI_TARGET_CPUS and that didn't work very well.
 
-I loved Andrea's compare-the-checksum idea, but don't see why the
-passphrase is needed both times either. Then again I have zero
-experience with encryption. In fact, I care so much about security that
-I don't have a root password and have sudo without a password :>
+I must admit I don't fully understand how MSI irq affinity
+is supposed to work (why do you always redirect to the current CPU?),
+but this matches i386 which is presumably the best tested MSI
+platform.
 
-Regards,
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+diff -u linux/include/asm-x86_64/msi.h-o linux/include/asm-x86_64/msi.h
+--- linux/include/asm-x86_64/msi.h-o	2004-09-24 13:04:06.000000000 +0200
++++ linux/include/asm-x86_64/msi.h	2004-09-27 12:19:56.000000000 +0200
+@@ -7,10 +7,11 @@
+ #define ASM_MSI_H
+ 
+ #include <asm/desc.h>
++#include <asm/smp.h>
+ 
+ #define LAST_DEVICE_VECTOR		232
+ #define MSI_DEST_MODE			MSI_LOGICAL_MODE
+ #define MSI_TARGET_CPU_SHIFT		12
+-#define MSI_TARGET_CPU			TARGET_CPUS
++#define MSI_TARGET_CPU			hard_smp_processor_id()
+ 
+ #endif /* ASM_MSI_H */
 
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
 

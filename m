@@ -1,87 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316593AbSE0Mfm>; Mon, 27 May 2002 08:35:42 -0400
+	id <S316595AbSE0MhM>; Mon, 27 May 2002 08:37:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316595AbSE0Mfl>; Mon, 27 May 2002 08:35:41 -0400
-Received: from elin.scali.no ([62.70.89.10]:7173 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S316593AbSE0Mfk>;
-	Mon, 27 May 2002 08:35:40 -0400
-Subject: Re: i8259 and IO-APIC
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Eric Lemoine <Eric.Lemoine@ens-lyon.fr>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020522093139.GA390@hookipa>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 27 May 2002 14:35:36 +0200
-Message-Id: <1022502939.12203.81.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+	id <S316598AbSE0MhL>; Mon, 27 May 2002 08:37:11 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:43469 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316595AbSE0MhJ>; Mon, 27 May 2002 08:37:09 -0400
+To: Paratimer@aol.com
+Cc: rddunlap@osdl.org, lm@bitmover.com, erwin@muffin.org, yodaiken@fsmlabs.com,
+        linux-kernel@vger.kernel.org, rtai@rtai.org
+Subject: Re: RTAI/RtLinux 
+From: Wolfgang Denk <wd@denx.de>
+X-Mailer: exmh version 2.2
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: Your message of "Mon, 27 May 2002 08:10:49 EDT."
+             <57.c083d0f.2a237c49@aol.com> 
+Date: Mon, 27 May 2002 14:36:38 +0200
+Message-Id: <20020527123643.9297A11973@denx.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm
-
-I'm a bit curious my self, in theory the IO_APIC should drastically
-reduce interrupt latency. An x86 has two interrupt pins, IRQ and NMI.  
-
-The first 8259 are (if remember correctly) connected to the IRQ only,
-and the second is connected to IRQ2 on the first 8259 (cascade). 
-When an Int is triggered the CPU has to go out and read the registers in
-the two 8259's to find the triggered interrupt, and call the
-corresponding int handler. THe thing is that the 8259 of today are
-located in the south bridge, and there are an internal ISA bus in the
-south bridge, but still running at the amazing speed in 10MHz.  
-
-THe IO-APIC, when used, the CPU is set to use the two IRQ pins (IRQ, and
-NMI) as a two bit bus, and the IO_APIC send the interruot vector on this
-bus, saving the CPU from reading the vector over the slow ISA bus, and
-can call the interrupt directly.
-
-However, I've on a couple of  occations tried to measure the interrupt
-latency and I end up with that the latency is the same either I use 8259
-or APIC. Most likely a problem with my measuring. Especially since you
-see better thruput using APIC. However I would like to see you get the
-same results with a different NIC. 
-
-
-Now, if our UDP packetloss are due to bursts, and not sustained traffic,
-and you have a NIC that uses memory descriptors (like Intel eepro100
-chips, or 3com 90x, most new chips do), you can do a workaround by
-increasing the receive ring size in the driver. 
-
-TJ
- 
-
- 
-On Wed, 2002-05-22 at 11:31, Eric Lemoine wrote:
-> I already asked this question but did not get any responses. Please
-> condider answering.
+In message <57.c083d0f.2a237c49@aol.com> Joachim Martillo wrote:
 > 
-> Using the old i8259 interrupts controller, my 1-way Linux2.4.16 box
-> livelocks when receiving a high rate UDP flow (interrupt rate is so
-> high that the NET_RX_SOFTIRQ never gets the chance to pull the
-> packets off the backlog queue). However, the receive livelock
-> phenomenom completely disappears when making use of the IO-APIC.
-> Does anyone have an explanation for this?
-> 
-> TIA
-> -- 
-> Eric
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Hardly seems surprising.  Linux is a general purpose multiuser
+> moderate weight multiprocessing preemptive time sliced time 
+> shared virtual memory operating system.  Embedded system
+> developers generally need single purpose extremely lightweight
+> limited process count nonpreemptive cooperative real memory
+> operating systems.  
+
+Joachim, your perception of "Embedded Systems" is  not  up  to  date.
+There  is  a  lot  of devices which fall into this group that provide
+resources you have been dreaming of for your workstation just 5 years
+ago. For instance, your digital video recorder may have  a  200+  MHz
+PowerPC  CPU,  tens  of  megabytes RAM and tens of gigabytes harddisk
+space. Can you remember the configuration of your fastest workstation
+from 10 or 5 years ago?
+
+Yes, there are embedded systems with limited resources where Linux is
+just overkill. And probably (by number of units sold)  these  devices
+are the majority.
+
+But there are also lots of embedded devices that not only provide the
+resources for a more powerful OS  like  Linux,  but  also  demand  it
+because  of  the  complexity of applications they are running. And if
+you look at current trends you will find that  this  is  one  of  the
+fastest growing parts on the market.
+
+> There is not so much overlap between the two types of
+> operating systems.  It is to the credit of the Linux design
+> that with hacking Linux can generally be adapter to real
+> time uses unlike some other common proprietary operating
+> systems.
+
+Again, this is not quite  correct.  There  have  been  Real-Time  and
+Embedded  Unix  systems  before  (LynxOS, to name one). And there are
+other "common proprietary operating systems" that can be adapted  for
+embedded needs (WinCE).
+
+The big advantages of Linux are in  defferent  areas  (free  sources,
+excellent  support  of  all  modern technologies, not single-sourced,
+...).
+
+
+The problems with Linux  in  Embedded  and  especially  in  Real-Time
+Systems  are not technical ones. It is the political situation, where
+the user is left in uncertainty about what he can legally do and what
+not.
+
+And if you look at the (missing) answers to  all  specific  questions
+about  this  you  can  see  that there is method to it. "Go and see a
+lawyer" is all you get.
+
+Hell, would you do busines with ANY company who tell  you  "ask  your
+laywer"  when  you  ask  for explanations of the conditions of use of
+their products?
+
+THIS is the main problem of Linux in the real-time market.
+
+
+But who knows, maybe VY will provide clear "yes" / "no" answers  this
+time...
+
+Wolfgang Denk
+
 -- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
-
+Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
+Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
+Man did not weave the web of life; he  is  merely  a  strand  in  it.
+Whatever he does to the web, he does to himself.     - Seattle [1854]

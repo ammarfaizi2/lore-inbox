@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261363AbTCVAVr>; Fri, 21 Mar 2003 19:21:47 -0500
+	id <S261463AbTCVAXF>; Fri, 21 Mar 2003 19:23:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261403AbTCVAVr>; Fri, 21 Mar 2003 19:21:47 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:42760 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261363AbTCVAVq>;
-	Fri, 21 Mar 2003 19:21:46 -0500
-Date: Fri, 21 Mar 2003 16:32:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Junfeng Yang <yjf@stanford.edu>, linux-kernel@vger.kernel.org,
-       mc@cs.stanford.edu
+	id <S261610AbTCVAXF>; Fri, 21 Mar 2003 19:23:05 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:4862 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S261463AbTCVAXD>; Fri, 21 Mar 2003 19:23:03 -0500
+Date: Fri, 21 Mar 2003 16:32:54 -0800
+From: Chris Wright <chris@wirex.com>
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
 Subject: Re: [CHECKER] potential dereference of user pointer errors
-Message-ID: <20030322003251.GA18359@kroah.com>
-References: <200303041112.h24BCRW22235@csl.stanford.edu> <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU> <20030321161550.D646@figure1.int.wirex.com>
+Message-ID: <20030321163254.E646@figure1.int.wirex.com>
+Mail-Followup-To: Junfeng Yang <yjf@stanford.edu>,
+	linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+References: <200303041112.h24BCRW22235@csl.stanford.edu> <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030321161550.D646@figure1.int.wirex.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU>; from yjf@stanford.edu on Thu, Mar 20, 2003 at 10:33:45PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 21, 2003 at 04:15:50PM -0800, Chris Wright wrote:
-> * Junfeng Yang (yjf@stanford.edu) wrote:
-> > 
-> > [MINOR] in debug data
-> > 
-> > /home/junfeng/linux-2.5.63/drivers/usb/serial/kobil_sct.c:429:kobil_write:
-> > ERROR:TAINTED deferencing "buf" tainted by [dist=0][copy_from_user:parm1]
+* Junfeng Yang (yjf@stanford.edu) wrote:
 > 
-> This is a bug, which could print kernel data if debugging was enabled.
-> Greg, any reason the debug info can't just use the priv->buf?
+> [UNKNOWN] sys_quotaoctl is a real system call. The entry point is at
+> entry.S. But this file is under subdir fs. So there must be something we
+> are missing
+> 
+> /home/junfeng/linux-2.5.63/fs/block_dev.c:817:lookup_bdev: ERROR:TAINTED
+> deferencing "path" tainted by [dist=1][called by
+> /home/junfeng/linux-2.5.63/fs/quota.c:sys_quotactl:parm1]
 
-Ugh, that's pretty bad.  That whole chunk of debug code should just be
-replaced with a call to usb_serial_debug_data() like the other
-usb-serial drivers do.
-
-Patches welcomed :)
+Yup, this is a bug, should have a getname() in there.  Patch below.
 
 thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 
-greg k-h
+===== fs/quota.c 1.12 vs edited =====
+--- 1.12/fs/quota.c	Sun Feb  2 13:40:31 2003
++++ edited/fs/quota.c	Fri Mar 21 16:25:46 2003
+@@ -221,12 +221,17 @@
+ 	uint cmds, type;
+ 	struct super_block *sb = NULL;
+ 	struct block_device *bdev;
++	char *tmp;
+ 	int ret = -ENODEV;
+ 
+ 	cmds = cmd >> SUBCMDSHIFT;
+ 	type = cmd & SUBCMDMASK;
+ 
+-	bdev = lookup_bdev(special);
++	tmp = getname(special);
++	if (IS_ERR(tmp))
++		return PTR_ERR(tmp);
++	bdev = lookup_bdev(tmp);
++	putname(tmp);
+ 	if (IS_ERR(bdev))
+ 		return PTR_ERR(bdev);
+ 	sb = get_super(bdev);

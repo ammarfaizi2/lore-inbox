@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbTDPLmi (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 07:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTDPLmi 
+	id S264323AbTDPMDB (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTDPMDB 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 07:42:38 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:8452 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id S264305AbTDPLmh 
+	Wed, 16 Apr 2003 08:03:01 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:40209 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S264323AbTDPMC7 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 07:42:37 -0400
-Date: Wed, 16 Apr 2003 13:52:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: PATCH: MTRR save and restore.
-Message-ID: <20030416115250.GA241@elf.ucw.cz>
-References: <20030407201311.GA177@elf.ucw.cz> <Pine.LNX.4.44.0304151313260.912-100000@cherise>
+	Wed, 16 Apr 2003 08:02:59 -0400
+Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server
+	terminates
+From: Steven Cole <elenstev@mesatop.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Joseph Fannin <jhf@rivenstone.net>, Florin Iucha <florin@iucha.net>,
+       linux-kernel@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <200304160825.h3G8PtMS001267@turing-police.cc.vt.edu>
+References: <20030415133608.A1447@cuculus.switch.gts.cz>
+	 <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com>
+	 <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net>
+	 <20030416044144.GA32400@rivenstone.net>
+	 <200304160825.h3G8PtMS001267@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050495049.27972.15.camel@spc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304151313260.912-100000@cherise>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 16 Apr 2003 06:10:49 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I'd like to see the rest of this thread ;)
+On Wed, 2003-04-16 at 02:25, Valdis.Kletnieks@vt.edu wrote:
+> On Wed, 16 Apr 2003 00:41:48 EDT, Joseph Fannin said:
 > 
-> > > > > We could add it to suspend scripts, but wouldn't mtrrs fit into the
-> > > > > driver model idea? Would you say the same thing about implementing S3
-> > > > > support?
-> > > > 
-> > > > I think going through the driver model is the right thing to
-> > > > do.
-> > > 
-> > > It's useless bloat.
-> 
-> What exactly is useless bloat? Based on the level of indentation, I'd 
-> assume that Richard said that...care to elaborate? 
-
-Richard claims that MTRR save/restore is "useless bloat" and that it
-can be don in userspace. He wants userland daemon to do it. I believe
-that's bad idea (for reasons like suspend when battery low).
-
-[This is what I said]
-> > There's no helper daemon, nor I plan to make one. Notice that mtrr
-> > stuff is shared between S3 (== suspend to ram) and swsusp. Both S3 and
-> > swsusp can be used to do some pretty important stuff (machine
-> > overheats or battery critically low -> suspend somewhere), so I do not
-> > think userland daemon is good idea.
+> >     Except that I'm seeing the very same sort of freeze on with a
+> >  Rage128 card with XFree86 4.2.1.
 > > 
-> > It can be dependend on CONFIG_PM; if you still think that's too much
-> > bloat, it could be dependend on CONFIG_SLEEP which could be only
-> > compiled when S3 or swsusp is selected (but I feel that would be
-> > overdesign).
+> >     Are we all Debian sid users, perhaps?
 > 
-> Yes, that's too much. 
+> Nice try, but I'm seeing it on a RedHat 9-ish laptop with this card:
 > 
-> MTRRs are one interface to an x86 CPU. CPUs are already represented in the
-> device tree. The proper thing to do would be to have the CPU suspend/ 
-> resume methods save and restore the MTRRs. It still requires an #ifdef in 
-> the CPU code, but with a little work, could be massaged down a ways. 
+> 01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 440 Go] (rev a3)
+> 
+> using XFree86 4.3.0 and the binary NVidia 4191 driver.  I hadn't posted because
+> I figured it was an NVidia problem and tainted  quite thoroughly.
+> 
+> Another data point:  I *dont* see this sort of freeze if I start it with
+> 'NvAGP=1' (use internal agp), but I *do* see it with 'NvAGP=2' or '3'
+> (which tell it to use the kernel 'agpgart' code).
+> 
+> Sorry Dave, looks like a bug in AGP....
 
-Yep, agreed, mtrrs need in-kernel save/restore support.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Yet another data point.  I've seen this with RedHat 9 and i810 and
+2.5.67+. I've haven't had time to test without AGP yet
+
+I could avoid the freeze by starting X with "startx". Then, when going
+back to runlevel 3, the freeze did _not_ occur. 
+
+I saw the freeze when selecting "Log Out" from either KDE or Gnome, but
+only if I started X with /sbin/init 5.
+
+Occasionally and with 2.5.67-mm1 only, instead of a freeze, I saw a
+spontaneous reboot.
+
+I'm many miles from that test box now but if I get the chance I'll test
+without AGP.
+
+Steven
+

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290379AbSAPHNI>; Wed, 16 Jan 2002 02:13:08 -0500
+	id <S290382AbSAPHOU>; Wed, 16 Jan 2002 02:14:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290382AbSAPHM6>; Wed, 16 Jan 2002 02:12:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27408 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S290383AbSAPHMr>;
-	Wed, 16 Jan 2002 02:12:47 -0500
-Date: Wed, 16 Jan 2002 08:12:41 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5 and ppa.c
-Message-ID: <20020116081241.H3805@suse.de>
-In-Reply-To: <3C4505C4.37EBD193@torque.net>
+	id <S289757AbSAPHOJ>; Wed, 16 Jan 2002 02:14:09 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:23817 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S290381AbSAPHNu>; Wed, 16 Jan 2002 02:13:50 -0500
+Date: Wed, 16 Jan 2002 01:13:46 -0600
+To: "Eric S. Raymond" <esr@thyrsus.com>, Rob Landley <landley@trommello.org>,
+        Nicolas Pitre <nico@cam.org>, lkml <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020116071346.GD2067@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.33.0201151538340.5892-100000@xanadu.home> <20020116034137.CRFB26021.femail12.sdc1.sfba.home.com@there> <20020115224821.A4658@thyrsus.com> <20020116062942.GC2067@cadcamlab.org> <20020116013250.A3880@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C4505C4.37EBD193@torque.net>
+In-Reply-To: <20020116013250.A3880@thyrsus.com>
+User-Agent: Mutt/1.3.25i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15 2002, Douglas Gilbert wrote:
-> John Weber <weber@nyc.rr.com> wrote:
-> 
-> > This is one of those drivers still broken due to 
-> > the BIO changes (it still calls io_request_lock()).
-> >
-> > Unfortunately, I only know enough to
-> > s/io_request_lock/host->host_lock/g.
-> > 
-> > I am afraid this requires a little more than this.
-> 
-> John,
-> The ppa_detect() must _not_ take the host_lock semaphore
-> as it is already taken by the mid level before it calls
-> ppa_detect(). [This will cause a lock up on an SMP
-> machine.]
 
-Not true in 2.5, detect is called without any locks held.
+Forgot this point earlier..
 
-> The ppa_interrupt() should take the host_lock semaphore
-> before it calls scsi_done() (which calls up the scsi
-> driver stack).
+[esr]
+> > > The version I just released does exactly that.  Well, not exactly; it
+> > > actually looks at fstab -- /proc/mounts gives you '/dev/root' rather
+> > > than a physical device name in the root entry.
 
-True
+IMHO you should still use /proc/mounts to determine the root filesystem
+type.  In my fstab file I don't mention ext3 anywhere - I use 'auto' as
+fs type instead.  That way my ext3 partitions will mount correctly when
+I boot a non-ext3-capable kernel.  (They mount as ext2 in that case.)
 
--- 
-Jens Axboe
-
+Peter

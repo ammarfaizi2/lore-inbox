@@ -1,89 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131535AbQLVCNX>; Thu, 21 Dec 2000 21:13:23 -0500
+	id <S131528AbQLVCXA>; Thu, 21 Dec 2000 21:23:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131571AbQLVCNN>; Thu, 21 Dec 2000 21:13:13 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:57870 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S131535AbQLVCNK>; Thu, 21 Dec 2000 21:13:10 -0500
-Date: Fri, 22 Dec 2000 02:30:53 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Willem Riede <osst@riede.org>, Kai Makisara <Kai.Makisara@metla.fi>,
+	id <S131571AbQLVCWu>; Thu, 21 Dec 2000 21:22:50 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:30481 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S131528AbQLVCWc>;
+	Thu, 21 Dec 2000 21:22:32 -0500
+Message-ID: <3A42B353.D0D249C1@innominate.de>
+Date: Fri, 22 Dec 2000 02:50:11 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Cassella <pwc@sgi.com>, Tim Wright <timw@splhi.com>,
         linux-kernel@vger.kernel.org
-Subject: osst driver for 2.4.0
-Message-ID: <20001222023053.M7400@garloff.etpnet.phys.tue.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="GvuyDaC2GNSBQusT"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+Subject: Re: [RFC] Semaphores used for daemon wakeup
+In-Reply-To: <3A42380B.6E9291D1@sgi.com> <Pine.SGI.3.96.1001221130859.8463C-100000@fsgi626.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Cassella wrote:
+> The sync variable version of the dmabuf code snippet (assuming the
+> dmabuf_mutex is never acquired from an interrupt) would look like this:
+> 
+>     dmabuf_init(...);
+>     {
+>             ...
+>             spin_lock_init(&dmabuf_spin);
+>             sv_init(&dmabuf_sv, &dmabuf_spin, SV_MON_SPIN);
+>             ...
+>     }
+> 
+>     dmabuf_alloc(...)
+>     {
+> 
+>             ...
+>             while (1) {
+>                     spin_lock(&dmabuf_spin);
+>                     attempt to grab a free buffer;
+>                     if (success){
+>                             spin_unlock(&dmabuf_spin);
+>                             return;
+>                     } else {
+>                             sv_wait(&dmabuf_sv);
+>                     }
+>             }
+>     }
+> 
+>     dmabuf_free(...)
+>     {
+>             ...
+>             spin_lock(&dmabuf_spin);
+>             free up buffer;
+>             sv_broadcast(&dmabuf_sv);
+>             spin_unlock(&dmabuf_spin);
+>     }
+> 
 
---GvuyDaC2GNSBQusT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+But isn't this actually a simple situation?  How about:
 
-Hi Linus,
+    dmabuf_alloc(...)
+    {
+            ...
+            while (1) {
+                    spin_lock(&dmabuf_lock);
+                    attempt to grab a free buffer;
+                    spin_unlock(&dmabuf_lock);
+                    if (success)
+                           return;
+                    down(&dmabuf_wait);
+            }
+    }
 
-I'd like to ask you to include the osst driver into the next 2.4 kernels.
-The osst driver is a new SCSI high-level driver, able to drive the OnStream
-SC-x0, DI-x0 and USBx0 tape driver, offering a st interface to the userspac=
-e.
-The reason for its existance is, that those OnStream devs are different
-from the SCSI-2 spec for SASDs (QIC157), but rather provide a QIC172 like
-interface.
-Unlike ide-tape, which includes a driver for the DI-30, after some
-discussion with Kai Makisara (st maintainer), we decided to not add
-lots of if (ST->onstream); to the code but to create a new driver,
-which was based on st, of course. Most work has been done by Willem Riede,
-BTW, who will also function as maintainer.=20
+    dmabuf_free(...)
+    {
+            ...
+            spin_lock(&dmabuf_lock);
+            free up buffer;
+            spin_unlock(&dmabuf_lock);
+            up(&dmabuf_wait);
+    }
 
-See http://linux1.onstream.nl/
-
-The thing has proven very stable during the beta test since April, so we
-believe it's time for integration into the mainstrean kernel.
-
-Alan just accepted the driver into 2.2.19pre1 and we'd like to have the
-driver in 2.4 as well.
-
-And no, there's no risk, otherwise I wouldn't dare to send it to you
-at this time.
-The only change to existing code is just preventing the st driver from
-attempting to drive those OnStream devices.=20
-The code for this is by Kai and has already been merged into the kernel ...
-
-So, please consider applying the patch against 2.4.0-test13-pre3, which
-I send to you in private mail.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
-
---GvuyDaC2GNSBQusT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Qq7NxmLh6hyYd04RAsNdAKDI2j1+lV5j+FBtTf+P5FDkmSdy0ACfTNAF
-SXXbvkUY9OImp+0UJ0sA5NY=
-=gwVF
------END PGP SIGNATURE-----
-
---GvuyDaC2GNSBQusT--
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

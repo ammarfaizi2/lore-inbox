@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278189AbRJXGgP>; Wed, 24 Oct 2001 02:36:15 -0400
+	id <S279481AbRJXGzl>; Wed, 24 Oct 2001 02:55:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279476AbRJXGgG>; Wed, 24 Oct 2001 02:36:06 -0400
-Received: from fe070.worldonline.dk ([212.54.64.208]:57618 "HELO
-	fe070.worldonline.dk") by vger.kernel.org with SMTP
-	id <S278189AbRJXGfv>; Wed, 24 Oct 2001 02:35:51 -0400
-Date: Wed, 24 Oct 2001 08:36:18 +0200
-From: Jens Axboe <axboe@suse.de>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: More memory == better?
-Message-ID: <20011024083617.B641@suse.de>
-In-Reply-To: <20011023161340.02EAC9BD76@pop3.telenet-ops.be> <fRjB7.3865$bi5.656765064@newssvr17.news.prodigy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fRjB7.3865$bi5.656765064@newssvr17.news.prodigy.com>
+	id <S279483AbRJXGzc>; Wed, 24 Oct 2001 02:55:32 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:6951 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S279481AbRJXGzZ>; Wed, 24 Oct 2001 02:55:25 -0400
+Message-ID: <3BD6653E.70906@blue-labs.org>
+Date: Wed, 24 Oct 2001 02:52:46 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011019
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Petr Titera <owl@century.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: issue: deleting one IP alias deletes all
+In-Reply-To: <Pine.LNX.4.33.0110240042570.1210-100000@u.domain.uli> <3BD65188.1060203@blue-labs.org> <02b601c15c53$c02f4990$0800a8c0@century.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23 2001, bill davidsen wrote:
-> In article <20011023161340.02EAC9BD76@pop3.telenet-ops.be>,
-> DevilKin <DevilKin@gmx.net> wrote:
-> 
-> | Currently I've got myself a nice setup (amd 1.4ghz, abit kg7raid etc etc) 
-> | with 512mb ram... (DDR). I'm wondering if increasing this to 1gb has 
-> | advantages (speedwise or anything), since I can get my hands on it at a very 
-> | low price...
-> | 
-> | I must say that even with most of my applications loaded/running, the system 
-> | never even touches the swap partition.
-> | 
-> | So, would it be wise?
-> 
-> There are some good reasons to add memory.
-> 
-> - disk i/o rates. vmstat will tell you some disk i/o rates, if they are
-> high you *may* get better performance with more memnory for cache.
-> 
-> - future applications. As you say it's cheap right now, if you think
-> there's a good chance of larger images, more kernel compiles, whatever,
-> buy now.
-> 
-> - memory bandwidth. This is very motherboard dependent, read your specs.
-> Some systems will use two or four way interleave to increase bandwidth
-> to memory or reduce access time. See what your m/b spec tells you.
-> 
-> - you have the money and want to spend it on {something}! Go ahead,
-> memory is one of the best investments for any system.
-> 
-> Just remember that to use this memory you need a large memory kernel.
+I agree that the documentation for 'ip' is sparse or hard to grok. 
+ Learn by example.  I have some scripts on http://blue-labs.org/, the 
+rc.* scripts.  These two scripts are my live scripts and cover a lot of 
+things from simple to advanced.
 
-There's also the argument that you may slow down your system by adding
-more memory, since with 1G you will have high memory which needs to be
-kmap'ed to be accessed by the kernel. For I/O it needs to be bounced to
-lower memory, which is even worse.
+(comments appreciated for corrections or improvements)
 
--- 
-Jens Axboe
+David
+
+Petr Titera wrote:
+
+>>Actually it is quite sane.  The tool is not.
+>>
+>>Switch to 'ip' instead of 'ifconfig', several large distros now include
+>>it.  Addresses can be added and removed completely indiscriminately on
+>>interfaces.
+>>
+>I'd like to, but there's nothing like documentation with it.
+>
+>Petr
+>
+>P.S.: Yes I know about examples in Linux 2.4 routing, but manpage would be
+>nicer.
+>
+
 

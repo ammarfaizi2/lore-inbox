@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264621AbUEJKuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUEJKwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264621AbUEJKuY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 06:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264616AbUEJKuY
+	id S264627AbUEJKwb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 06:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264616AbUEJKuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 06:50:24 -0400
-Received: from albireo.ucw.cz ([81.27.194.19]:60034 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S264621AbUEJKtr (ORCPT
+	Mon, 10 May 2004 06:50:35 -0400
+Received: from ns.suse.de ([195.135.220.2]:34458 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264627AbUEJKtg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 06:49:47 -0400
-Date: Mon, 10 May 2004 12:49:46 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: PCI devices with no PCI_CACHE_LINE_SIZE implemented
-Message-ID: <20040510104946.GL1477@ucw.cz>
-References: <20040506132810.GB13482@lists.us.dell.com> <409A5DA6.4020801@pobox.com>
+	Mon, 10 May 2004 06:49:36 -0400
+Date: Mon, 10 May 2004 12:49:32 +0200
+From: Olaf Hering <olh@suse.de>
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.6
+Message-ID: <20040510104932.GA26721@suse.de>
+References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org> <20040510083905.GA18603@suse.de> <20040510104014.GA21671@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <409A5DA6.4020801@pobox.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040510104014.GA21671@redhat.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ On Mon, May 10, Dave Jones wrote:
 
-> I'd send it straight to Marcelo, saying that the 2.6 PCI maintainer 
-> approved it....  Martin hasn't hacked on kernel code in a while...
+> On Mon, May 10, 2004 at 10:39:05AM +0200, Olaf Hering wrote:
+>  > cp: cannot open `linux-2.6.6/drivers/char/agp/isoch.c' for reading: Permission denied
+> 
+> I don't know about the other files, but this one hasn't changed
+> in almost a year. How come this is only a problem now ?
+> What happened?
 
-Anyway, looks OK for me :)
+It was always broken.
+-rw-r----- torvalds/torvalds   13235 2003-07-10 22:14:50 linux-2.5.75/drivers/char/agp/isoch.c
 
-				Have a nice fortnight
+
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Next lecture on time travel will be held on previous Monday.
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

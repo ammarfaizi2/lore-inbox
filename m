@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263952AbTHJNCD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 09:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTHJNCD
+	id S263997AbTHJNHz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 09:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTHJNHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 09:02:03 -0400
-Received: from smtphost.cis.strath.ac.uk ([130.159.196.96]:32695 "EHLO
-	smtphost.cis.strath.ac.uk") by vger.kernel.org with ESMTP
-	id S263952AbTHJNCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 09:02:01 -0400
-Date: Sun, 10 Aug 2003 13:59:44 +0100
-From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test3 yipee!
-Message-ID: <20030810125944.GA1751@iain-vaio-fx405>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sun, 10 Aug 2003 09:07:55 -0400
+Received: from mail.suse.de ([213.95.15.193]:18697 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263997AbTHJNHy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 09:07:54 -0400
+Date: Sun, 10 Aug 2003 15:07:52 +0200
+From: Andi Kleen <ak@suse.de>
+To: kwijibo@zianet.com
+Cc: Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>,
+       richard.brunner@amd.com, linux-kernel@vger.kernel.org
+Subject: Re: Machine check expection panic
+Message-ID: <20030810130752.GB586@wotan.suse.de>
+References: <3F3182B5.3040301@zianet.com.suse.lists.linux.kernel> <20030807002722.GA3579@suse.de.suse.lists.linux.kernel> <p73ekzynuxt.fsf@oldwotan.suse.de> <3F35FE5B.7060003@zianet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Linux/2.6.0-test3 (i686)
-X-Uptime: 13:58:20 up 48 min,  4 users,  load average: 0.82, 0.50, 1.07
-X-Message-Flag: Outlook viruses can be made to send private documents from your hard drive to any or all recipients from your address book. But it only happens about once a month or so, so it's okay. Just keep on using it.
-User-Agent: Mutt/1.5.4i
-X-CIS-MailScanner: Found to be clean
-X-CIS-MailScanner-SpamCheck: not spam, SpamAssassin (score=-8, required 5,
-	BAYES_00 -5.20, USER_AGENT_MUTT -2.80)
+In-Reply-To: <3F35FE5B.7060003@zianet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All seems fine, USB mouse, Belkin wireless PC-Card, &c.
+> The CPU's aren't overclocked and have worked fine for
+> me under much heavier loads than booting a kernel for
 
-cheers all,
+It could be corrected ECC errors in the cache. If that
+happens I would consider it a hardware problem
 
-iain
+(now hidden with the disabled bank).
 
--- 
-wh33, y1p33 3tc.
+> at least a year. Using the 2.4 kernel that is. Once
+> I remove the exception code from the kernel it boots
+> fine and runs fine under any load I put it under.
 
-"If sharing a thing in no way diminishes it, it is not rightly owned if it is
-not shared." -St. Augustine
+I maintain that such a magic hack needs at least a big fat comment.
+
+I still find the change very suspicious, there isn't any errata that 
+says that bank 0 is bad on Athlon.
+
+Also disabling a whole bank just for some buggy CPUs is quite a sledgehammer,
+it would be probably better to identify the bank 0 sub unit that causes it
+and only turn that off.
+
+-Andi
+

@@ -1,68 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUG1TMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUG1TJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUG1TMF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 15:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUG1TMA
+	id S262574AbUG1TJh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 15:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUG1TJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 15:12:00 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:62674 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262605AbUG1TLA (ORCPT
+	Wed, 28 Jul 2004 15:09:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55786 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262574AbUG1TJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 15:11:00 -0400
-Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask()
-	to	pcibus_to_node()
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Christoph Hellwig <hch@infradead.org>,
-       Jesse Barnes <jbarnes@sgi.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <82510000.1091026879@[10.10.2.4]>
-References: <1090887007.16676.18.camel@arrakis>
-	 <20040727105145.A18533@infradead.org>
-	 <200407270822.43870.jbarnes@engr.sgi.com>
-	 <1090953179.18747.19.camel@arrakis>  <82510000.1091026879@[10.10.2.4]>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1091041808.19459.10.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 28 Jul 2004 12:10:09 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jul 2004 15:09:31 -0400
+Date: Wed, 28 Jul 2004 15:09:13 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+cc: Pasi Sjoholm <ptsjohol@cc.jyu.fi>, Francois Romieu <romieu@fr.zoreil.com>,
+       H?ctor Mart?n <hector@marcansoft.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
+ RLT-8139 related)
+In-Reply-To: <16647.61953.158512.433946@robur.slu.se>
+Message-ID: <Xine.LNX.4.44.0407281508450.12082-100000@dhcp83-76.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-28 at 08:01, Martin J. Bligh wrote:
-> >> I wonder though if we shouldn't add
-> >> 
-> >>   ...
-> >> # ifdef CONFIG_NUMA
-> >>   int node; /* or nodemask_t if necessary */
-> >> # endif
-> >>   ...
-> >> 
-> >> to struct pci_bus instead?  That would make the existing code paths a little 
-> >> faster and avoid the need for a global array, which tends to lead to TLB 
-> >> misses.
-> > 
-> > I like that idea!  Stick a nodemask_t in struct pci_bus, initialize it
-> > to NODE_MASK_ALL.  If a particular arch wants to put something more
-> > accurate in there, then great, if not, we're just in the same boat we're
-> > in now.
-> > 
-> > Anyone else have opinions one way or the other on Jesse's idea?
-> 
-> Sounds great - if it's possible to add it to something more generic than
-> PCI, that'd be even better, but pci would still be very useful.
-> 
-> M.
+On Wed, 28 Jul 2004, Robert Olsson wrote:
 
-Is there anything like that?  I'm not aware of any structure that keeps
-track of general "buses", which would be what we want.  Something that
-keeps track of PCI buses, Infiniband buses, arch-specific fabric buses,
-etc.  Barring the existence of such a structure, I'll just shove it in
-the PCI bus structure for now.
+> And maybe we should take the experiment disussions off the list.
 
--Matt
+This is what netdev is for :-)
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

@@ -1,104 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbUJ0M3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbUJ0Mih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbUJ0M3q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 08:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbUJ0M3q
+	id S262408AbUJ0Mih (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 08:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbUJ0Mih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 08:29:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60898 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262409AbUJ0M3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 08:29:25 -0400
-Date: Wed, 27 Oct 2004 14:29:24 +0200
-From: Jan Kara <jack@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH] Quota warnings somewhat broken
-Message-ID: <20041027122924.GE29852@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.53.0410211807020.12823@yvahk01.tjqt.qr> <20041022093423.GC31932@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.58.0410220804040.2101@ppc970.osdl.org> <20041025111517.GF13208@atrey.karlin.mff.cuni.cz>
+	Wed, 27 Oct 2004 08:38:37 -0400
+Received: from cantor.suse.de ([195.135.220.2]:16336 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262408AbUJ0Mid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 08:38:33 -0400
+Date: Wed, 27 Oct 2004 14:38:32 +0200
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] remove double newline from sysrq action_msg
+Message-ID: <20041027123832.GA19052@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20041025111517.GF13208@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > On Fri, 22 Oct 2004, Jan Kara wrote:
-> > >
-> > >   Thanks for notifying. It looks like a good idea. Attached patch should apply
-> > > well to 2.6.9. Linus, please apply.
-> > 
-> > Why does this code use tty_write_message() in the first place? It's a bit 
-> > rude to mess up the users tty without any way to disable it, isn't it? 
->   OK, I'll tide up a bit a patch of Jan Engelhardt <jengelh@linux01.gwdg.de>
-> and send it to you.
-  Here's the promised patch to allow root to turn off quota warnings
-into the console. The patch is based on the one by Jan Engelhardt. Please
-apply.
-								Honza
 
-Allow root to turn off quota warnings into the console.
+__handle_sysrq already prints a newline, so the action_msg string doesnt
+need yet another newline.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
 
-diff -ru linux-2.6.9/fs/dquot.c linux-2.6.9-quotawarn/fs/dquot.c
---- linux-2.6.9/fs/dquot.c	2004-10-18 23:54:39.000000000 +0200
-+++ linux-2.6.9-quotawarn/fs/dquot.c	2004-10-25 15:48:56.000000000 +0200
-@@ -774,8 +774,13 @@
- 	clear_bit(DQ_BLKS_B, &dquot->dq_flags);
- }
+diff -purN linux-2.6.9/arch/i386/mach-voyager/voyager_basic.c linux-2.6.10-rc1-bk6/arch/i386/mach-voyager/voyager_basic.c
+--- linux-2.6.9/arch/i386/mach-voyager/voyager_basic.c	2004-10-18 23:53:45.000000000 +0200
++++ linux-2.6.10-rc1-bk6/arch/i386/mach-voyager/voyager_basic.c	2004-10-27 14:32:53.196332547 +0200
+@@ -53,7 +53,7 @@ voyager_dump(int dummy1, struct pt_regs 
+ static struct sysrq_key_op sysrq_voyager_dump_op = {
+ 	.handler	= voyager_dump,
+ 	.help_msg	= "Voyager",
+-	.action_msg	= "Dump Voyager Status\n",
++	.action_msg	= "Dump Voyager Status",
+ };
+ #endif
  
-+static int flag_print_warnings = 1;
-+
- static inline int need_print_warning(struct dquot *dquot)
+diff -purN linux-2.6.9/arch/ppc/xmon/start.c linux-2.6.10-rc1-bk6/arch/ppc/xmon/start.c
+--- linux-2.6.9/arch/ppc/xmon/start.c	2004-10-27 14:27:41.138618227 +0200
++++ linux-2.6.10-rc1-bk6/arch/ppc/xmon/start.c	2004-10-27 14:32:40.212360526 +0200
+@@ -102,7 +102,7 @@ static struct sysrq_key_op sysrq_xmon_op
  {
-+	if (!flag_print_warnings)
-+		return 0;
-+
- 	switch (dquot->dq_type) {
- 		case USRQUOTA:
- 			return current->fsuid == dquot->dq_id;
-@@ -803,6 +808,7 @@
+ 	.handler =	sysrq_handle_xmon,
+ 	.help_msg =	"Xmon",
+-	.action_msg =	"Entering xmon\n",
++	.action_msg =	"Entering xmon",
+ };
+ #endif
  
- 	if (!need_print_warning(dquot) || (flag && test_and_set_bit(flag, &dquot->dq_flags)))
- 		return;
-+
- 	tty_write_message(current->signal->tty, dquot->dq_sb->s_id);
- 	if (warntype == ISOFTWARN || warntype == BSOFTWARN)
- 		tty_write_message(current->signal->tty, ": warning, ");
-@@ -1722,6 +1728,14 @@
- 		.mode		= 0444,
- 		.proc_handler	= &proc_dointvec,
- 	},
-+	{
-+		.ctl_name	= FS_DQ_WARNINGS,
-+		.procname	= "warnings",
-+		.data		= &flag_print_warnings,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
- 	{ .ctl_name = 0 },
+diff -purN linux-2.6.9/arch/ppc64/xmon/start.c linux-2.6.10-rc1-bk6/arch/ppc64/xmon/start.c
+--- linux-2.6.9/arch/ppc64/xmon/start.c	2004-10-27 14:27:55.870582096 +0200
++++ linux-2.6.10-rc1-bk6/arch/ppc64/xmon/start.c	2004-10-27 14:32:57.627307280 +0200
+@@ -35,7 +35,7 @@ static struct sysrq_key_op sysrq_xmon_op
+ {
+ 	.handler =	sysrq_handle_xmon,
+ 	.help_msg =	"Xmon",
+-	.action_msg =	"Entering xmon\n",
++	.action_msg =	"Entering xmon",
  };
  
-diff -ru linux-2.6.9/include/linux/sysctl.h linux-2.6.9-quotawarn/include/linux/sysctl.h
---- linux-2.6.9/include/linux/sysctl.h	2004-10-18 23:54:31.000000000 +0200
-+++ linux-2.6.9-quotawarn/include/linux/sysctl.h	2004-10-25 15:43:47.000000000 +0200
-@@ -662,7 +662,7 @@
- 	FS_LEASES=13,	/* int: leases enabled */
- 	FS_DIR_NOTIFY=14,	/* int: directory notification enabled */
- 	FS_LEASE_TIME=15,	/* int: maximum time to wait for a lease break */
--	FS_DQSTATS=16,	/* disc quota usage statistics */
-+	FS_DQSTATS=16,	/* disc quota usage statistics and control */
- 	FS_XFS=17,	/* struct: control xfs parameters */
- 	FS_AIO_NR=18,	/* current system-wide number of aio requests */
- 	FS_AIO_MAX_NR=19,	/* system-wide maximum number of aio requests */
-@@ -678,6 +678,7 @@
- 	FS_DQ_ALLOCATED = 6,
- 	FS_DQ_FREE = 7,
- 	FS_DQ_SYNCS = 8,
-+	FS_DQ_WARNINGS = 9,
+ static int __init setup_xmon_sysrq(void)
+diff -purN linux-2.6.9/kernel/power/poweroff.c linux-2.6.10-rc1-bk6/kernel/power/poweroff.c
+--- linux-2.6.9/kernel/power/poweroff.c	2004-10-18 23:54:08.000000000 +0200
++++ linux-2.6.10-rc1-bk6/kernel/power/poweroff.c	2004-10-27 14:33:05.269313716 +0200
+@@ -32,7 +32,7 @@ static void handle_poweroff(int key, str
+ static struct sysrq_key_op	sysrq_poweroff_op = {
+ 	.handler        = handle_poweroff,
+ 	.help_msg       = "powerOff",
+-	.action_msg     = "Power Off\n"
++	.action_msg     = "Power Off"
  };
  
- /* CTL_DEBUG names: */
+ static int pm_sysrq_init(void)
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

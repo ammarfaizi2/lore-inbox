@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267261AbSK3Prv>; Sat, 30 Nov 2002 10:47:51 -0500
+	id <S267264AbSK3QAy>; Sat, 30 Nov 2002 11:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267265AbSK3Prv>; Sat, 30 Nov 2002 10:47:51 -0500
-Received: from dhcp024-210-222-139.woh.rr.com ([24.210.222.139]:51780 "EHLO
-	mail.tacomeat.net") by vger.kernel.org with ESMTP
-	id <S267261AbSK3Prv>; Sat, 30 Nov 2002 10:47:51 -0500
-Date: Sat, 30 Nov 2002 10:45:56 -0500 (EST)
-Message-Id: <20021130.104556.59462872.hoho@tacomeat.net>
-To: linux-kernel@vger.kernel.org
-Subject: Reiserfs broken in 2.5.50 (possibly nanosecond stat timefields?)
-From: Colin Slater <hoho@tacomeat.net>
-X-Mailer: Mew version 2.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S267265AbSK3QAx>; Sat, 30 Nov 2002 11:00:53 -0500
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:64246 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S267264AbSK3QAx>; Sat, 30 Nov 2002 11:00:53 -0500
+Message-ID: <3DE8E271.6090307@yahoo.com>
+Date: Sat, 30 Nov 2002 16:08:17 +0000
+From: Chris Rankin <rankincj@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-gb, en-us
+MIME-Version: 1.0
+To: alan@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Massive problems with 2.4.20 module loading
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2002-11-30 at 08:49, Martin Loschwitz wrote:
+ > I'm having massive problems with Linux 2.4.20 and modul loading.
+ > In fact, it seems to have something to do with devfs.
 
-Upon compiling and booting 2.5.50, there seemed to be a flurry of
-messages regarding /etc/mtab and /etc/mtab~77 or ~32 or some other
-random numbers. ls in /etc seems to look good, but upon opening mtab
-up in vi, I get a kernel BUG, and everything stops responding. I flip
-VT's and type my username, but never get a password prompt. I rebooted
-again, and cat'ed dmesg to a file just for safety. That works, until I
-open it up, where I get the BUG again. Reboot to 2.5.47, everything
-seems to work ok. Open up the dmesg file I saved, no bug, but the file
-seems to be garbage. hexdump looks like
+On Sat Nov 30 2002 - 09:36:57 EST, Alan Cox wrote:
+ > Linux 2,4.20 doesnt include vmware or ALSA. The fact you list those
+ > modules alone suggests that the problem is that you haven't rebuilt
+ > them for the new kernel.
 
-0000000: 6c64 2e73 6f2d 312e 372e 3000 2c03 0000  ld.so-1.7.0.,...
-0000010: 0300 0000 504c 0000 5c4c 0000 0300 0000  ....PL..\L......
-0000020: 714c 0000 7b4c 0000 0300 0000 8e4c 0000  qL..{L.......L..
+Well maybe that's his problem and maybe it isn't, but he's not the only 
+person thinking that there's something strange about devfs in 2.4.20. I 
+have a 2.4.20-SMP box that is deadlocking when loading modules via 
+devfs. The NMI watchdog has produced two oopsen for me, which I have 
+published to this list, and while one oops is also from the ALSA 
+modules, the other is from mga.o. Both oopsen occur in the 
+__write_lock_failed() function and have devfs_open() in the module 
+stack. I have most definitely NOT forgotten to recompile everything for 
+2.4.20, and I am using symbol versioning anyway.
 
-ld.so? My systems is completely reiserfs (3.6), and nothing has
-changed in my config file between 2.5.47 and 2.5.50. Upon looking
-through the source tree, it seems like lines 1134-7 in
-fs/reiserfs/namei.c seem to be throwing this panic. Only changesets to
-touch namei.c in the past 4 months are "nanosecond stat timefields" and
-"*_mknod prototype". I really can't see why these would cause this
-problem, so maybe someone else does. Hand-copied output from the
-BUG() follows, so this is only what I thought was important and might
-contain errors. If you need any other information I will gladly supply
-it.
+Chris
 
-  Colin
-
-vs-7050: new entry is found, new inode==0
---cut here--
-kernel BUG at fs/reiserfs/prints.c:336
-invalid operand:0000
-EIP: 0060:[<c01c70e9>]   Not Tainted
-EIP is at reiserfs_panic+0x29/0x60
-Call Trace
-   reiserfs_rename+0x33d/0x9e0
-   journal_end+0x16/0x20
-   reiserfs_get_block+0xeb5/0xf20
-   __getblk+0x17/0x30
-   is_tree_node+0x36/0x50
-   ...(There is more if it's really needed)
-
-Code 0F 0B 50 01 78 3F 38 c0 68 60 D8 53 C0 B8 90 3C 38 C0 8D 96
-Segmentation Fault

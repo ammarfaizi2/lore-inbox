@@ -1,69 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274987AbTHFJhK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 05:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274989AbTHFJhK
+	id S274990AbTHFJjT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 05:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274989AbTHFJjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 05:37:10 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:23511 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S274987AbTHFJhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 05:37:01 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Wed, 6 Aug 2003 11:36:58 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: marcelo@conectiva.com.br, andrea@suse.de, linux-kernel@vger.kernel.org,
-       green@namesys.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030806113658.7a53731c.skraw@ithnet.com>
-In-Reply-To: <20030806090920.GA9492@alpha.home.local>
-References: <20030802142734.5df93471.skraw@ithnet.com>
-	<Pine.LNX.4.44.0308051340010.2848-100000@logos.cnet>
-	<20030806094150.4d7b0610.skraw@ithnet.com>
-	<20030806090920.GA9492@alpha.home.local>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 6 Aug 2003 05:39:19 -0400
+Received: from angband.namesys.com ([212.16.7.85]:57258 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S274990AbTHFJjA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 05:39:00 -0400
+Date: Wed, 6 Aug 2003 13:38:58 +0400
+From: Oleg Drokin <green@namesys.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.6] reiserfs: fix locking in reiserfs_remount
+Message-ID: <20030806093858.GF14457@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Aug 2003 11:09:20 +0200
-Willy Tarreau <willy@w.ods.org> wrote:
+Hello!
 
-> On Wed, Aug 06, 2003 at 09:41:50AM +0200, Stephan von Krawczynski wrote:
->  
-> > Code;  c0144b14 <__remove_from_queues+14/30>
-> > 00000000 <_EIP>:
-> > Code;  c0144b14 <__remove_from_queues+14/30>   <=====
-> >    0:   89 02                     mov    %eax,(%edx)   <=====
-> > Code;  c0144b16 <__remove_from_queues+16/30>
-> >    2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)
-> > Code;  c0144b1d <__remove_from_queues+1d/30>
-> >    9:   89 4c 24 04               mov    %ecx,0x4(%esp,1)
-> > Code;  c0144b21 <__remove_from_queues+21/30>
-> >    d:   e9 7a ff ff ff            jmp    ffffff8c <_EIP+0xffffff8c>
-> > Code;  c0144b26 <__remove_from_queues+26/30>
-> >   12:   8d 76 00                  lea    0x0(%esi),%esi
-> 
-> once again, it's *pprev=next which is is causing trouble, with pprev=6 this
-> time (fs/buffer.c:523). There really seems to be something playing badly with
-> this...
-> 
-> I find amazing that such widely used portions of code only trigger panics on
-> your system ! either it's a rare combinations of several components/drivers,
-> or a strange hardware problem, although I can't imagine which (cpu? bus
-> locking?).
+    Since reiserfs_remount can be called without BKL held, we better take BKL in there.
+    Please apply the below patch. It is against 2.6.0-test2
 
-Hm, the hardware may not be that widespread. I guess not many people are really
-using SMP, 64 bit PCI network, 3 GB RAM, 3ware RAID5 and serverworks board
-altogether in one box. I can't fight the impression it has something to do with
-locking issues. It doesn't look exactly like a hardware problem, you would not
-expect crashes on the same type of code then.
-The question is: what additional information is needed to find the underlying
-problem?
+Bye,
+    Oleg
 
-Regards,
-Stephan
+===== fs/reiserfs/super.c 1.66 vs edited =====
+--- 1.66/fs/reiserfs/super.c	Sat Jun 21 00:16:06 2003
++++ edited/fs/reiserfs/super.c	Tue Aug  5 12:22:10 2003
+@@ -761,6 +761,7 @@
+   if (!reiserfs_parse_options(s, arg, &mount_options, &blocks, NULL))
+     return -EINVAL;
+   
++  reiserfs_write_lock(s);
+   handle_attrs(s);
+ 
+   /* Add options that are safe here */
+@@ -778,17 +779,22 @@
+ 
+   if(blocks) {
+     int rc = reiserfs_resize(s, blocks);
+-    if (rc != 0)
++    if (rc != 0) {
++      reiserfs_write_unlock(s);
+       return rc;
++    }
+   }
+ 
+   if (*mount_flags & MS_RDONLY) {
+     /* remount read-only */
+-    if (s->s_flags & MS_RDONLY)
++    if (s->s_flags & MS_RDONLY) {
+       /* it is read-only already */
++      reiserfs_write_unlock(s);
+       return 0;
++    }
+     /* try to remount file system with read-only permissions */
+     if (sb_umount_state(rs) == REISERFS_VALID_FS || REISERFS_SB(s)->s_mount_state != REISERFS_VALID_FS) {
++      reiserfs_write_unlock(s);
+       return 0;
+     }
+ 
+@@ -800,8 +806,10 @@
+     s->s_dirt = 0;
+   } else {
+     /* remount read-write */
+-    if (!(s->s_flags & MS_RDONLY))
++    if (!(s->s_flags & MS_RDONLY)) {
++        reiserfs_write_unlock(s);
+ 	return 0; /* We are read-write already */
++    }
+ 
+     REISERFS_SB(s)->s_mount_state = sb_umount_state(rs) ;
+     s->s_flags &= ~MS_RDONLY ; /* now it is safe to call journal_begin */
+@@ -824,6 +832,7 @@
+   if (!( *mount_flags & MS_RDONLY ) )
+     finish_unfinished( s );
+ 
++  reiserfs_write_unlock(s);
+   return 0;
+ }
+ 

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291782AbSBHUYA>; Fri, 8 Feb 2002 15:24:00 -0500
+	id <S291785AbSBHUZK>; Fri, 8 Feb 2002 15:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291785AbSBHUXw>; Fri, 8 Feb 2002 15:23:52 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:56737 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S291782AbSBHUXj>;
-	Fri, 8 Feb 2002 15:23:39 -0500
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] larger kernel stack (8k->16k) per task
-In-Reply-To: <Pine.LNX.4.33.0202081645170.1359-100000@einstein.homenet>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 08 Feb 2002 21:22:05 +0100
-In-Reply-To: Tigran Aivazian's message of "Fri, 8 Feb 2002 16:59:47 +0000 (GMT)"
-Message-ID: <d3eljvlo5u.fsf@lxplus052.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S291787AbSBHUY5>; Fri, 8 Feb 2002 15:24:57 -0500
+Received: from [216.151.155.108] ([216.151.155.108]:27399 "EHLO
+	varsoon.denali.to") by vger.kernel.org with ESMTP
+	id <S291785AbSBHUYj>; Fri, 8 Feb 2002 15:24:39 -0500
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linus' email account is full. - Fwd: Mail System Error - Returned Mail
+In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>
+From: Doug McNaught <doug@wireboard.com>
+Date: 08 Feb 2002 15:24:37 -0500
+In-Reply-To: Anton Altaparmakov's message of "Fri, 08 Feb 2002 20:19:15 +0000"
+Message-ID: <m38za3203e.fsf@varsoon.denali.to>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian <tigran@veritas.com> writes:
+Anton Altaparmakov <aia21@cam.ac.uk> writes:
 
-> So, I found this patch useful at least for debugging. Moreover, I think it
-> would be very useful to have it in Linus' kernel as a CONFIG_ option so
-> that if people complain about random memory corruption then they can try
-> to reproduce it with larger stack and then (with aid of /proc/stack) the
-> offender is found and fixed. I cc'd Alan; if he thinks this is a bad idea
-> I would be interested to know why.
+> Linus' email account appears to be full if we can believe this returned email:
+> 
+> ><usr3189@transmet.com>
 
-Well as someone suggested, stick it under CONFIG_SLAB_DEBUG then, it
-surely shouldn't be an option to be enabled in normal production
-kernels but for debugging it's fine.
+Should be "transmeta".  ;)
+                   ^
 
-Jes
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUJKCY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUJKClh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268646AbUJKCY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 22:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUJKCY4
+	id S266807AbUJKClh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 22:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268660AbUJKClh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 22:24:56 -0400
-Received: from main.gmane.org ([80.91.229.2]:25243 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268646AbUJKCYy (ORCPT
+	Sun, 10 Oct 2004 22:41:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40584 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266807AbUJKClf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 22:24:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Subject: Re: possible GPL violation by Free
-Date: Mon, 11 Oct 2004 04:24:39 +0200
-Message-ID: <yw1xmzyuyot4.fsf@mru.ath.cx>
-References: <1097456379.27877.51.camel@frenchenigma> <MDEHLPKNGKAHNMBLJOLKAEFIOOAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 197.80-202-92.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:zMsCcWSAc4lCXLLULvMdkBozGMU=
+	Sun, 10 Oct 2004 22:41:35 -0400
+Date: Sun, 10 Oct 2004 19:41:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>
+Subject: Re: Totally broken PCI PM calls
+In-Reply-To: <1097455528.25489.9.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
+References: <1097455528.25489.9.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
 
-> 	In any event, it seems pretty obvious to me that renting a
-> physical medium that contains an encoded copyrighted work is a form of
-> distribution of that work. The operation of that physical device is as
-> much a derived work of the copyrighted work as the visual/audio
-> experience of seeing a play is a derived work of the script for the
-> play.
 
-Are you sure it's not a performance?
+On Mon, 11 Oct 2004, Benjamin Herrenschmidt wrote:
+>
+> Any reason why this totally broken code was ever merged upstream ?
 
--- 
-Måns Rullgård
-mru@mru.ath.cx
+Because it fixes a lot of drivers.
 
+> Please, revert that to something sane before 2.6.9...
+
+Nope. There's just too much confusion abou what the state thing means. 
+See the TG3 driver, for one, all the USB drivers for another.
+
+The long-term solution is to make this thing be not a number at all, but a 
+restricted type (ie a "struct" with one member, or similar) to make sure 
+you _cannot_ mis-use it. As it is, most PCI drivers do seem to expect a 
+PCI suspend state. 
+
+> I'll bomb it ever and ever again until some sense gets into
+> all of this.
+
+If you have the energy to complain about it, maybe you have the energy to 
+change it to use a "struct", and fix up all the drivers and verify that 
+they actually get it right.
+
+Until that happens, we pass in PCI suspend states, and we _also_ make sure 
+that the PCI suspend states "almost match" the PM_SUSPEND_xxx constants, 
+so that when there is confusion, it tends to be as benign as possible.
+
+			Linus

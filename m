@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUDHWh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 18:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUDHWh1
+	id S262898AbUDHWm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 18:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUDHWm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 18:37:27 -0400
-Received: from rrcs-central-24-123-144-118.biz.rr.com ([24.123.144.118]:18722
-	"EHLO zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S262730AbUDHWhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 18:37:25 -0400
-Subject: Re: Does OSS sound work in 2.6 or not?
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4075BDE0.6050302@tmr.com>
-References: <4075BDE0.6050302@tmr.com>
-Content-Type: text/plain
-Message-Id: <1081463836.3223.123.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Thu, 08 Apr 2004 18:37:17 -0400
+	Thu, 8 Apr 2004 18:42:26 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:6575 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262898AbUDHWli
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 18:41:38 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] QD65xx I/O ports
+Date: Fri, 9 Apr 2004 00:50:24 +0200
+User-Agent: KMail/1.5.3
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+References: <Pine.GSO.4.58.0404061330470.4158@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.58.0404061330470.4158@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404090050.24841.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-08 at 17:02, Bill Davidsen wrote:
-> I have several user machines I would like to convert to 2.6 because they 
-> run threaded applications and would be happier if I did. However, being 
-> able to play forwarded wav files is also needed. I have been assurred by 
-> several people in Email that it does, *without* converting the whole 
-> machine from OSS to ALSA, but by running the ALSA+OSS emulation.
+On Tuesday 06 of April 2004 13:31, Geert Uytterhoeven wrote:
+> I/O port numbers can be larger than 8-bit on many platforms (this caused a
+> warning when {out,in}b() cast reg to a pointer on platforms with memory
+> mapped I/O)
 
-Can you clarify the question?  What do you mean by "*without* converting
-the whole machine from OSS to ALSA"?  Do you mean you willing to convert
-to the ALSA drivers but want to continue to use OSS applications?  Or do
-you mean you don't want to convert to ALSA at all?  You obviously can't
-use ALSA+OSS emulation if your not willing to convert to the ALSA
-drivers since basically OSS emulation is just a few ALSA modules you
-load *in addition* to the ALSA hardware drivers that allow ALSA to
-provide an OSS emulation layer to OSS only applications.
+Was VESA Local Bus ever used on something else than 486?
+I think it's better to just add "depends on X86" to drivers/ide/Kconfig.
 
-Of course, OSS drivers are still available in 2.6, even though they are
-deprecated.  You can just continue to use these just like you always
-have in 2.4, no ALSA at all.
-
-Later,
-Tom
-
- 
- 
+Cheers,
+Bartlomiej
 

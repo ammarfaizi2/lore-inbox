@@ -1,25 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282454AbRKZTtC>; Mon, 26 Nov 2001 14:49:02 -0500
+	id <S282447AbRKZTsp>; Mon, 26 Nov 2001 14:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282445AbRKZTsp>; Mon, 26 Nov 2001 14:48:45 -0500
-Received: from [206.196.53.54] ([206.196.53.54]:16815 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S282450AbRKZTpu>;
-	Mon, 26 Nov 2001 14:45:50 -0500
-Date: Mon, 26 Nov 2001 13:48:00 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: linux-scsi@vger.kernel.org
-Subject: Looking for SCSI test harness
-Message-ID: <Pine.LNX.4.40.0111261337590.15983-100000@waste.org>
+	id <S282445AbRKZTra>; Mon, 26 Nov 2001 14:47:30 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:3333 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282435AbRKZTqa>; Mon, 26 Nov 2001 14:46:30 -0500
+Message-ID: <3C029BE0.2BEA2264@zip.com.au>
+Date: Mon, 26 Nov 2001 11:45:36 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: mingo@elte.hu, velco@fadata.bg, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [PATCH] Scalable page cache
+In-Reply-To: <Pine.LNX.4.33.0111262201420.18923-100000@localhost.localdomain>,
+		<87vgfxqwd3.fsf@fadata.bg>
+		<Pine.LNX.4.33.0111262201420.18923-100000@localhost.localdomain> <20011126.111854.102567147.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone have a tool to put a SCSI disk/driver through its paces?  I'm
-looking for something that can be used for regression testing.
+"David S. Miller" wrote:
+> 
+>    From: Ingo Molnar <mingo@elte.hu>
+>    Date: Mon, 26 Nov 2001 22:09:02 +0100 (CET)
+> 
+>    something like this:
+> 
+>    - #define SetPageReferenced(page)    set_bit(PG_referenced, &(page)->flags)
+>    + #define SetPageReferenced(page) \
+>    +    if (!test_bit(PG_referenced), &(page)->flags) \
+>    +            set_bit(PG_referenced, &(page)->flags)
+> 
+> On some platforms all the {test_,}{clear,change,set}_bit() ops give
+> you this cache behavior.  How hard would it be to make ix86 act
+> similarly?
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+It would be nice to have a full complement of non-atomic
+bitops.  At present we have __set_bit, but no __clear_bit, etc.
 
+So we often do buslocked RMW's in places where it's not needed.
+
+-

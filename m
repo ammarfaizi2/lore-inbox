@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267819AbUHPRXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267821AbUHPR0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267819AbUHPRXo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUHPRXn
+	id S267821AbUHPR0M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUHPRZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:23:43 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4340 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267813AbUHPRXk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:23:40 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@redhat.com>
-Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
-Date: Mon, 16 Aug 2004 19:23:19 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20040815151346.GA13761@devserv.devel.redhat.com>
-In-Reply-To: <20040815151346.GA13761@devserv.devel.redhat.com>
+	Mon, 16 Aug 2004 13:25:55 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:25184 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267814AbUHPRZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:25:46 -0400
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Centralize i386 Constants
+X-Message-Flag: Warning: May contain useful information
+References: <1092619849.29612.49.camel@bach>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 16 Aug 2004 10:25:43 -0700
+In-Reply-To: <1092619849.29612.49.camel@bach> (Rusty Russell's message of
+ "Mon, 16 Aug 2004 11:30:50 +1000")
+Message-ID: <52n00vm1uw.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408161923.19024.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 16 Aug 2004 17:25:43.0737 (UTC) FILETIME=[0F4F7A90:01C483B6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 August 2004 17:13, Alan Cox wrote:
-> There really isnt any sane way to break this patch down because all the
-> changes are interlinked so closely.
+    Rusty> __FIXADDR_TOP and PAGE_OFFSET are hardcoded in various
+    Rusty> places.  I had to change it to run the kernel under
+    Rusty> qemu-fast, so I wanted to centralize them.
 
-at least /proc/ide/hd?/settings:ide-scsi removal and doc fixes are very easy 
-to separate, I also think that locking fixes should be separated from 
-hotplugging ones
+I like this patch -- I recently built a kernel with PAGE_OFFSET
+0xb0000000 to avoid highmem on my box with 1G of RAM, based on recent
+discussion, and I made the same change to vmlinux.lds.S (although
+since <asm-i386/thread_info.h> includes <asm-i386/page.h>, I didn't
+bother adding the "#include <asm/page.h>" line).
+
+In any case it seems there is at least one more place where 0xc0000000
+is hardcoded in arch/i386.  The patch below uses PAGE_OFFSET instead
+of 0xc0000000 in doublefault.c's ptr_ok() macro.
+
+ - Roland
+
+Signed-off-by: Roland Dreier <roland@topspin.com>
+
+--- linux-2.6.8.1.orig/arch/i386/kernel/doublefault.c	2004-08-14 03:54:50.000000000 -0700
++++ linux-2.6.8.1/arch/i386/kernel/doublefault.c	2004-08-14 10:44:55.000000000 -0700
+@@ -13,7 +13,7 @@
+ static unsigned long doublefault_stack[DOUBLEFAULT_STACKSIZE];
+ #define STACK_START (unsigned long)(doublefault_stack+DOUBLEFAULT_STACKSIZE)
+ 
+-#define ptr_ok(x) ((x) > 0xc0000000 && (x) < 0xc1000000)
++#define ptr_ok(x) ((x) > PAGE_OFFSET && (x) < PAGE_OFFSET + 0x1000000)
+ 
+ static void doublefault_fn(void)
+ {

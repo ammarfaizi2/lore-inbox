@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbUKSQBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbUKSQDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbUKSQBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 11:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUKSP7M
+	id S261316AbUKSQDT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 11:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUKSP7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 10:59:12 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:18840 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261449AbUKSP6q (ORCPT
+	Fri, 19 Nov 2004 10:59:03 -0500
+Received: from fsmlabs.com ([168.103.115.128]:64958 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261446AbUKSP5t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 10:58:46 -0500
-Date: Fri, 19 Nov 2004 16:58:36 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Hans Reiser <reiser@namesys.com>
-cc: tridge@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: performance of filesystem xattrs with Samba4
-In-Reply-To: <419E1297.4080400@namesys.com>
-Message-ID: <Pine.LNX.4.53.0411191658030.13268@yvahk01.tjqt.qr>
-References: <16797.41728.984065.479474@samba.org> <419E1297.4080400@namesys.com>
+	Fri, 19 Nov 2004 10:57:49 -0500
+Date: Fri, 19 Nov 2004 08:57:24 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: kernel-stuff <kernel-stuff@comcast.net>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, acurrid@nvidia.com
+Subject: Re: X86_64: Many Lost ticks
+In-Reply-To: <200411182056.03184.kernel-stuff@comcast.net>
+Message-ID: <Pine.LNX.4.61.0411190856121.7201@musoma.fsmlabs.com>
+References: <111820041702.27846.419CD5AD000313A800006CC6220588448400009A9B9CD3040A029D0A05@comcast.net>
+ <20041118184904.GN17532@wotan.suse.de> <200411182056.03184.kernel-stuff@comcast.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Is this an fsync intensive benchmark?  If no, could you try with
->reiser4?  If yes, you might as well wait for us to optimize fsync first
->in reiser4.
+On Thu, 18 Nov 2004, kernel-stuff wrote:
 
-Do I sense an attempt to get more users from non-reiser*fs to reiser4? ;-)
+> Ignore my earlier mail about the DMA timeouts and NMI errors after applying 
+> the ACPI timer override patch.  My bad.  I forgot to recompile the modules 
+> after I applied your patch - and I believe thats what caused those errors. 
+> I recompiled and reinstalled the modules this time and no errors [well, apart 
+> from those lost ticks, which anyway is a separate issue]  with the ACPI Timer 
+> override for NVIDIA chipset. 
+> 
+> Alan - Needless to say you should keep Andi's NVIDIA ACPI Timer override patch 
+> in -ac. It works.
+> 
+> Sorry for the confusion!
 
+Thanks for confirming that Parry, so your system definitely is using the 
+IOAPIC now (/proc/interrupts output should suffice)?
 
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+	Zwane

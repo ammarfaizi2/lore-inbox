@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317450AbSGENzm>; Fri, 5 Jul 2002 09:55:42 -0400
+	id <S317452AbSGEOBA>; Fri, 5 Jul 2002 10:01:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317451AbSGENzl>; Fri, 5 Jul 2002 09:55:41 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:7605 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S317450AbSGENzl>; Fri, 5 Jul 2002 09:55:41 -0400
-Message-ID: <180577A42806D61189D30008C7E632E8793972@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Question concerning ifconfig
-Date: Fri, 5 Jul 2002 09:58:14 -0400 
+	id <S317454AbSGEOA7>; Fri, 5 Jul 2002 10:00:59 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:34081 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317452AbSGEOA6>; Fri, 5 Jul 2002 10:00:58 -0400
+Date: Fri, 5 Jul 2002 08:03:28 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Daniel Egger <degger@fhm.edu>
+cc: venom@sns.it, <linux-kernel@vger.kernel.org>
+Subject: Re: IBM Desktar disk problem?
+In-Reply-To: <1025873421.16768.20.camel@sonja.de.interearth.com>
+Message-ID: <Pine.LNX.4.44.0207050801190.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running a Red Hat 7.2 load (Kernel version 2.4.7-10). I am trying to
-enter the following command to change the MAC address on my device.
+Hi,
 
-ifconfig ifp0 hw ether A2:A5:A5:01:00:00
+On 5 Jul 2002, Daniel Egger wrote:
+> <advise>
+> Buy decent drives, then get DriveFitnessTest (DFT) from their website
+> and check the harddrives, note the TRC number, request an RMA on their
+> website and ship the drives as soon as possible to IBM. Wait for the
+> replacement drives and sell them ASAP on Ebay to some freaks who don't
+> give a dime about data security.
+> </advise>
 
-ifp0 is my own device which replaces eth0. The system gives me a response
-"SIOCSIFHWADDR : device or resources busy"
-The same exact command works on my 2.2.16 Kernel. Any ideas why the error.
-Please CC me directly in any responses.
+...and tell all the people who got a DTLA (because it's not as expensive 
+as others in some countries, mind France, USA, Germany) to drop their 
+disks if they want to use Linux, because we're too lazy to find a 
+solution. That might be cool to you, but we want HARDWARE SUPPORT for 
+Linux! That's why we're here.
 
-Thanks in advance,  
+There _is_ a solution, we just have to find it.
 
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

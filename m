@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbTBLKQ5>; Wed, 12 Feb 2003 05:16:57 -0500
+	id <S266999AbTBLK3g>; Wed, 12 Feb 2003 05:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbTBLKQ5>; Wed, 12 Feb 2003 05:16:57 -0500
-Received: from bjl1.jlokier.co.uk ([81.29.64.88]:12672 "EHLO
-	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S266987AbTBLKQ4>; Wed, 12 Feb 2003 05:16:56 -0500
-Date: Wed, 12 Feb 2003 10:27:41 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Message-ID: <20030212102741.GC10422@bjl1.jlokier.co.uk>
-References: <629040000.1045013743@flay> <20030212025902.GA14092@codemonkey.org.uk> <20030212075048.GA9049@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030212075048.GA9049@wotan.suse.de>
-User-Agent: Mutt/1.4i
+	id <S266995AbTBLK3g>; Wed, 12 Feb 2003 05:29:36 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:64423 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S266991AbTBLK3f>;
+	Wed, 12 Feb 2003 05:29:35 -0500
+Date: Wed, 12 Feb 2003 11:39:14 +0100 (CET)
+From: Stephan van Hienen <raid@a2000.nu>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       bernard@biesterbos.nl, ext2-devel@lists.sourceforge.net
+Subject: Re: raid5 2TB+ NO GO ?
+In-Reply-To: <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu>
+References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
+ <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
+ <15937.50001.367258.485512@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu>
+ <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> +	/* FIXME should disable preemption here but how can we reenable it? */
-> +
-> +	enable_sysenter();
-> +
+On Wed, 12 Feb 2003, Peter Chubb wrote:
 
-Try this:
+> >>>>> "Stephan" == Stephan van Hienen <raid@a2000.nu> writes:
+>
+> Stephan,
+> 	Just noticed you're using raid5 --- I don't believe that level
+> 5 will work, as its data structures and  internal algorithms are
+> 32-bit only.  I've done no work on it to make it work (I've been
+> waiting for the rewrite in 2.5), and don't have time to do anything now.
+>
+> You could try making sector in the struct stripe_head a sector_t, but
+> I'm pretty sure you'll run into other problems.
+>
+> I only managed to get raid 0 and linear to work when I was testing.
 
-	1. Disable preemption in do_sys_vm86(), at the same place as
-	   disable_sysenter() is called.
+ok clear, so no raid5 for 2TB+ then :(
 
-	2. Enable preemption in save_v86_state(), and put the call
-	   to enable_sysenter() there.
+looks like i have to remove some hd's then
 
-	3. In restore_sigcontext() [signal.c], _iff_ the VM flag
-	   is set in the restored context, call disable_sysenter()
-	   and also disable preemption.
+what will be the limit ?
 
-That should make vm86 simply disable preemption while it is activated.
-It is not as nice as actually being preemptible, but safe first,
-optimise later.
+13*180GB in raid5 ?
+or 12*180GB in raid5 ?
 
-The return path to vm86 mode has the peculiar property of not doing
-the need_resched test, unlike the return path to normal user space,
-which is a boon here.
+    Device Size : 175823296 (167.68 GiB 180.09 GB)
 
--- Jamie
+13* will give me 1,97TiB but will there be an internal raid5 problem ?
+(since it will be 13*180GB to be adressed)
+
 

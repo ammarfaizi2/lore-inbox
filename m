@@ -1,62 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310328AbSCGNx6>; Thu, 7 Mar 2002 08:53:58 -0500
+	id <S310330AbSCGNxh>; Thu, 7 Mar 2002 08:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310329AbSCGNxs>; Thu, 7 Mar 2002 08:53:48 -0500
-Received: from idefix.linkvest.com ([194.209.53.99]:44294 "EHLO
-	idefix.linkvest.com") by vger.kernel.org with ESMTP
-	id <S310328AbSCGNxe>; Thu, 7 Mar 2002 08:53:34 -0500
-Message-ID: <3C8770D5.3040108@linkvest.com>
-Date: Thu, 07 Mar 2002 14:53:25 +0100
-From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+	id <S310329AbSCGNx2>; Thu, 7 Mar 2002 08:53:28 -0500
+Received: from hanoi.cronyx.ru ([144.206.181.53]:14610 "EHLO hanoi.cronyx.ru")
+	by vger.kernel.org with ESMTP id <S310328AbSCGNxP>;
+	Thu, 7 Mar 2002 08:53:15 -0500
+Message-ID: <3C8770D5.3090209@cronyx.ru>
+Date: Thu, 07 Mar 2002 16:53:25 +0300
+From: Roman Kurakin <rik@cronyx.ru>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rework of /proc/stat
-In-Reply-To: <E16iyHy-0002Ij-00@the-village.bc.nu>
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Ed Vance <EdV@macrolink.com>, linux-kernel@vger.kernel.org
+Subject: Re: Serial.c BUG 2.4.x-2.5x
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76CB@EXCHANGE> <20020306203936.C26344@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2002 13:53:25.0592 (UTC) FILETIME=[73E60D80:01C1C5DF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, what could be said is that the sard (which IS in 2.4.19-per1-ac2) 
-has features:
-- all devices available (not only major < 16)
-- stat struct is in the request_queue, not in kstat anymore
-- All structs are dynamic, no static allocation of per-device structs.
-So, it's all we need.
+Hi,
 
-The only drawback is:
-- infos are in /proc/partitions not in /proc/stat (some apps get infos 
-there...)
+Russell King wrote:
 
-Right?
--jec
-
-PS: When will it be in official tree? An idea?
-
-Alan Cox wrote:
-
->>>Any reason for preferring this over the sard patches in -ac ?
+>On Fri, Mar 01, 2002 at 11:07:03AM -0800, Ed Vance wrote:
+>
+>>On Fri, Mar 01, 2002 at 4:19 AM, Roman Kurakin wrote:
+>>
+>>>    Who is responsible person for applying [serial driver] patches 
+>>>    to main tree?
 >>>
->>Basically, statistic data are moved from the global kstat structure to 
->>the request_queue structures, and it is allocated/freed when the request 
->>queue is initialized and freed.  This way it is
+>
+>This particular bug has already been fixed in the rewrite, as I originally
+>said back on 14 November 2001.
+>
+I remember this, I thought some one responsible for updating current 
+version of the main tree.
+Now I see the reason this didn't  get into recent stable versions.
+
+>The patch does fine for the most part, but I have two worries:
+>
+>1. the possibilities of pushing through changes in the IO or memory space
+>   by changing the other space at the same time. (ie, port = 1, iomem =
+>   0xfe007c00 and you already have a line at port = 0, iomem = 0xfe007c00).
+>   I delt with this properly using the resource management subsystem.
+>
+I think such code could solve this problem ...
+
+- 			    (rs_table[i].port == new_port) &&
++ 			    ((rs_table[i].port && rs_table[i].port == new_port) ||
++			    ((rs_table[i].iomem_base && rs_table[i].iomem_base == new_mem)) &&
+ 
+
+>2. there seems to be a lack of security considerations for changing the
+>   iomem address.  (ie, changing the iomem address without CAP_SYS_ADMIN.
+>   I added this as an extra check for change_port)
+>
+And this one could be fixed with something like this (this is no a 
+patch, just an idea)
+
+        change_port = (new_port != ((int) state->port)) ||
+                (new_serial.hub6 != state->hub6);
++        change_mem = (new_mem != state->iomem_base)
+
+        if (!capable(CAP_SYS_ADMIN)) {
+-                if (change_irq || change_port ||
++                if (change_irq || change_port || change_mem
+
+As I wrote I didn't check serial.c for all possible problems, I just 
+find one bug and suggested
+the way it could be solved.
+
+Best regards,
+                        Roman Kurakin
+
+>>I then asked Russell to set the rules for this co-ordination and no response
+>>has been forthcoming. Perhaps he missed my question?
 >>
 >
->So does sard
+>I have a fair bit of email backed up at the moment, but I have been in
+>contact with Ted T'so recently.  I won't say much more at the moment,
+>but should have something in a month or two.  Until then I'd rather not
+>say too much publically.
 >
 
--- 
-Jean-Eric Cuendet
-Linkvest SA
-Av des Baumettes 19, 1020 Renens Switzerland
-Tel +41 21 632 9043  Fax +41 21 632 9090
-E-mail: jean-eric.cuendet@linkvest.com
-http://www.linkvest.com
---------------------------------------------------------
 
 
 

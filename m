@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264760AbUEYNgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264759AbUEYNgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264760AbUEYNgU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 09:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264761AbUEYNgU
+	id S264759AbUEYNgG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 09:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264760AbUEYNgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 09:36:20 -0400
-Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:43414 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S264760AbUEYNgO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 09:36:14 -0400
-Message-ID: <40B34C35.3090303@ru.mvista.com>
-Date: Tue, 25 May 2004 17:37:57 +0400
-From: "Eugeny S. Mints" <emints@ru.mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 25 May 2004 09:36:06 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:6322 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264759AbUEYNgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 09:36:04 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Lustre VFS patch
+Date: Tue, 25 May 2004 08:35:24 -0500
+User-Agent: KMail/1.6
+Cc: Lars Marowsky-Bree <lmb@suse.de>, braam <braam@clusterfs.com>,
+       "'Jens Axboe'" <axboe@suse.de>, torvalds@osdl.org, akpm@osdl.org,
+       "'Phil Schwan'" <phil@clusterfs.com>
+References: <20040525064730.GB14792@suse.de> <20040525082305.BAEE93101A0@moraine.clusterfs.com> <20040525105252.GJ22750@marowsky-bree.de>
+In-Reply-To: <20040525105252.GJ22750@marowsky-bree.de>
 MIME-Version: 1.0
-To: Christian Kujau <evil@g-house.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       baptiste coudurier <baptiste.coudurier@free.fr>
-Subject: Re: MORE THAN 10 IDE CONTROLLERS
-References: <40B23D4A.4010708@free.fr> <40B34946.9030500@g-house.de>
-In-Reply-To: <40B34946.9030500@g-house.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405250835.24110.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> baptiste coudurier schrieb:
-> | Does anyone know what are major/minors for hdu, hdv, hdw, hdx ?
-> 
-> not being a professional, i see:
-> 
-> evil@sheep:~$ la /dev/hd?
-> brw-rw----    1 root     disk       3,   0 2004-03-10 11:33 /dev/hda
-> brw-rw----    1 root     disk       3,  64 2004-03-10 11:33 /dev/hdb
-> brw-rw----    1 root     disk      22,   0 2004-03-10 11:33 /dev/hdc
-> brw-rw----    1 root     disk      22,  64 2004-03-10 11:33 /dev/hdd
-> brw-rw----    1 root     disk      33,   0 2004-03-10 11:40 /dev/hde
-> brw-rw----    1 root     disk      33,  64 2004-03-10 11:40 /dev/hdf
-> brw-rw----    1 root     disk      34,   0 2004-03-10 11:40 /dev/hdg
-> brw-rw----    1 root     disk      34,  64 2004-03-10 11:40 /dev/hdh
-> 
-> so, it's a major number for every controller (e.g. "22" for hdc+hdd each
-> belonging to one controller). hdi+hdj would be major 35, minor [0|64] ?
-> i'd try this out for hdx and further...
+On Tuesday 25 May 2004 5:52 am, Lars Marowsky-Bree wrote:
+> Maybe you could fix this in the test harness / Lustre itself instead and
+> silently discard the writes internally if told so via an (internal)
+> option, instead of needing a change deeper down in the IO layer, or use
+> a DM target which can give you all the failure scenarios you need?
+>
+> In particular the last one - a fault-injection DM target - seems like a
+> very valuable tool for testing in general, but the Lustre-internal
+> approach may be easier in the long run.
 
-afaik even the 2.6.x kernel defines only 10 major numbers for IDE 
-devices (from 0 upto 9). All are predefined - see include/linux/major.h
+See dm-flakey.c in the latest -udm patchset for a fairly simple version of a 
+"fault-injection" target.
 
-> 
-> did you try devfs/udev? perhaps it could solve this by itsself....?
-> 
-> Christian.
-> 
-> PS: maybe Documentation/devices.txt helps out too.
-> 
-> - --
-> BOFH excuse #75:
-> 
-> There isn't any problem
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.4 (GNU/Linux)
-> Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-> 
-> iD8DBQFAs0lG+A7rjkF8z0wRAmp5AJ985JGLXpxX5rSJnQM0GJNq0LkcIQCfT4hH
-> kj4lr37B1urPVTAMiLbMXlE=
-> =fohg
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
+http://sources.redhat.com/dm/patches.html
 
-
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/

@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbRAIQJH>; Tue, 9 Jan 2001 11:09:07 -0500
+	id <S129324AbRAIQQB>; Tue, 9 Jan 2001 11:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRAIQI6>; Tue, 9 Jan 2001 11:08:58 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:58565 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129226AbRAIQIu>;
-	Tue, 9 Jan 2001 11:08:50 -0500
-Date: Tue, 9 Jan 2001 16:05:11 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Christoph Rohland <cr@sap.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM subsystem bug in 2.4.0 ?
-Message-ID: <20010109160511.I9321@redhat.com>
-In-Reply-To: <Pine.LNX.4.10.10101081003410.3750-100000@penguin.transmeta.com> <Pine.LNX.4.21.0101081621590.21675-100000@duckman.distro.conectiva> <20010109140932.E4284@redhat.com> <qwwhf387p4s.fsf@sap.com> <20010109153119.G9321@redhat.com> <qwwd7dw7mrd.fsf@sap.com>
-Mime-Version: 1.0
+	id <S129884AbRAIQPv>; Tue, 9 Jan 2001 11:15:51 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34316 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129324AbRAIQPm>; Tue, 9 Jan 2001 11:15:42 -0500
+Subject: Re: [PATCH] dn_keyb.c: restore_flags on failure
+To: acme@conectiva.com.br (Arnaldo Carvalho de Melo)
+Date: Tue, 9 Jan 2001 16:17:30 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010109113837.P21057@conectiva.com.br> from "Arnaldo Carvalho de Melo" at Jan 09, 2001 11:38:37 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <qwwd7dw7mrd.fsf@sap.com>; from cr@sap.com on Tue, Jan 09, 2001 at 04:45:10PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14G1Sm-0006t5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>  		keyb_cmds[keyb_cmd_write++]=*(cmd++);
+>  		if(keyb_cmd_write==keyb_cmd_read)
+> -			return;
+># +			goto out;
 
-On Tue, Jan 09, 2001 at 04:45:10PM +0100, Christoph Rohland wrote:
-> Hi Stephen,
-> 
-> AFAIU mlock'ed pages would never get deactivated since the ptes do not
-> get dropped.
-
-D'oh, right --- so can't you lock a segment just by bumping page_count
-on its pages?
-
---Stephen
+Hans Grobler beat you to this one
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,107 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265339AbTBJVuS>; Mon, 10 Feb 2003 16:50:18 -0500
+	id <S265355AbTBJVvK>; Mon, 10 Feb 2003 16:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265351AbTBJVuS>; Mon, 10 Feb 2003 16:50:18 -0500
-Received: from cda1.e-mind.com ([195.223.140.107]:58242 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S265339AbTBJVuO>;
-	Mon, 10 Feb 2003 16:50:14 -0500
-Date: Mon, 10 Feb 2003 22:59:40 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: torvalds@transmeta.com, mikulas@artax.karlin.mff.cuni.cz, pavel@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.0, 2.2, 2.4, 2.5: fsync buffer race
-Message-ID: <20030210215940.GC22275@dualathlon.random>
-References: <Pine.LNX.4.44.0302101723540.32095-100000@artax.karlin.mff.cuni.cz> <Pine.LNX.4.44.0302100846090.2127-100000@home.transmeta.com> <20030210124000.456318e7.akpm@digeo.com> <20030210211806.GA22275@dualathlon.random> <20030210134434.72a59aed.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030210134434.72a59aed.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S265368AbTBJVvK>; Mon, 10 Feb 2003 16:51:10 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:4105 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S265355AbTBJVvI>; Mon, 10 Feb 2003 16:51:08 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+Date: 10 Feb 2003 21:36:45 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <b2961d$l9d$1@abraham.cs.berkeley.edu>
+References: <3E471F21.4010803@wirex.com> <004701c2d146$24c26230$1403a8c0@sc.tlinx.org>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1044913005 21805 128.32.153.211 (10 Feb 2003 21:36:45 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 10 Feb 2003 21:36:45 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 01:44:34PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > On Mon, Feb 10, 2003 at 12:40:00PM -0800, Andrew Morton wrote:
-> > > 	void sync_dirty_buffer(struct buffer_head *bh)
-> > > 	{
-> > > 		lock_buffer(bh);
-> > > 		if (test_clear_buffer_dirty(bh)) {
-> > > 			get_bh(bh);
-> > > 			bh->b_end_io = end_buffer_io_sync;
-> > > 			submit_bh(WRITE, bh);
-> > > 		} else {
-> > > 			unlock_buffer(bh);
-> > > 		}
-> > > 	}
-> > 
-> > If you we don't take the lock around the mark_dirty_buffer as Linus
-> > suggested (to avoid serializing in the non-sync case), why don't you
-> > simply add lock_buffer() to ll_rw_block() as we suggested originally
-> 
-> That is undesirable for READA.
+LA Walsh wrote:
+>> >  Some security people were banned from the kernel
+>> >devel. summit because their thoughts were deemed 
+>> 'dangerous': fear was they
+>> >were too persuasive about ideas that were deemed 'ignorant' and would
+>> >fool those poor kernel lambs at the summit.
+>
+>> Internal SGI politics.
+>
+>	Nope... external -- the conference organizer was the one selecting and
+>specifically disallowing certain attendees.  It
+>appeared important to weed out anyone who didn't think like him.
 
-in 2.4 we killed READA some release ago becuse of races:
+I'm not sure that's relevant.  We discussed these issues at length on
+the LSM mailing list months ago.  You had the opportunity (and took
+it) to make the case for your proposal on the LSM mailing list, but in
+the end, it was deemed not persuasive by most list members.  The LSM
+mailing list came to rough consensus on the right technical decision.
+I know you didn't like the outcome of that decision, but there were good
+technical reasons for the decisions we made.  To say that you didn't
+have a chance to present your ideas is a misrepresentation of the truth.
 
-		case READA:
-#if 0	/* bread() misinterprets failed READA attempts as IO errors on SMP */
-			rw_ahead = 1;
-#endif
-
-so I wasn't focusing on it.
-
-> > and
-> > you #define sync_dirty_buffer as ll_rw_block+wait_on_buffer if you
-> > really want to make the cleanup?
-> 
-> Linux 2.4 tends to contain costly confusion between writeout for memory
-> cleansing and writeout for data integrity.
-> 
-> In 2.5 I have been trying to make it very clear and explicit that these are
-> fundamentally different things.
-
-yes, and these are in the memory cleansing area (only the journal
-commits [and somehow the superblock again in journaling] needs to be
-writeouts for data integrity). Data doesn't need to provide data
-integrity either, userspace has to care about that.
-
-> 
-> > ...
-> > Especially in 2.4 I wouldn't like to make the below change that is
-> > 100% equivalent to a one liner patch that just adds lock_buffer()
-> > instead of the test-and-set-bit (for reads I see no problems either).
-> 
-> That'd probably be OK, with a dont-do-that for READA.
-
-Not an issue in 2.4. In 2.5 the bio is providing reada still though, so
-it would be wrong to wait_on_buffer there.
-
-> > BTW, Linus's way that suggests the lock around the data modifications
-> > (unconditionally), would also enforce metadata coherency so it would
-> > provide an additional coherency guarantee (but it's not directly related
-> > to this problem and it may be overkill). Normally we always allow
-> > in-core modifications of the buffer during write-IO to disk (also for
-> > the data in pagecache). Only the journal commits must be very careful in
-> > avoiding that (like applications must be careful to run fsync and not to
-> > overwrite the data during the fsync). So normally taking the lock around
-> > the in-core modification and mark_buffer_dirty, would be overkill IMHO.
-> 
-> Yup.  Except for a non-uptodate buffer.  If software is bringing a
-> non-uptodate buffer uptodate by hand it should generally be locked, else a
-> concurrent read may stomp on the changes.  There are few places where this
-> happens.
-
-I recall I fixed all those cases where we write a non uptodate buffer
-under reads in ext2 in 2.2 with proper wait_on_buffers before modifying
-the buffer. That was enough to guarantee any underlying read would
-complete before we were going to touch the buffer. However today with
-threading (if they're not protected against reads by the big kernel
-lock) they should all be converted to lock_buffers(). they were easy to
-spot grepping for getblk IIRC.
-
-Andrea
+Part of distributed decision-making is conceding gracefully when the
+consensus doesn't go your way.  We've all had to do this from time
+to time.  In short, we've had this discussion already, and nothing has
+changed since then.

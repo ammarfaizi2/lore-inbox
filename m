@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbULVQHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbULVQKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbULVQHW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 11:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbULVQHW
+	id S262010AbULVQKy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 11:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbULVQKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 11:07:22 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:64358 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262004AbULVQHJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 11:07:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=s4vmJHBD05RGAv2GeOKD1ZN81A3iVar01gsOC0Zwic/OgYXWDYb4p/p5LxvhaDWB7sfyvC3/iIF7G4B4dKLsU2aNJiPERCSzMEWerzB1M70eYMsCHZimeHau4Cdy1iWMXibCU7vC0fyQRKdtztsVGGrMWEpRoEThdJdOdaOZOKc=
-Message-ID: <29495f1d04122208073d71914b@mail.gmail.com>
-Date: Wed, 22 Dec 2004 11:07:08 -0500
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Little rework of usbserial in 2.4
-Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net, rwhite@casabyte.com,
-       linux-kernel@vger.kernel.org, kingst@eecs.umich.edu,
-       paulkf@microgate.com, oleksiy@kharkiv.com.ua, reg@dwf.com,
-       clemens@dwf.com
-In-Reply-To: <20041221125222.5754cdb2@lembas.zaitcev.lan>
+	Wed, 22 Dec 2004 11:10:54 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:33959 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262005AbULVQKU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 11:10:20 -0500
+Date: Wed, 22 Dec 2004 08:09:52 -0800
+From: Greg KH <greg@kroah.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, willy@debian.org,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] add legacy resources to sysfs
+Message-ID: <20041222160952.GB9358@kroah.com>
+References: <200412211247.44883.jbarnes@engr.sgi.com> <20041221214623.GB10362@kroah.com> <1103704739.28670.57.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041127173558.4011b177@lembas.zaitcev.lan>
-	 <29495f1d0412121547c0c644d@mail.gmail.com>
-	 <20041221125222.5754cdb2@lembas.zaitcev.lan>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103704739.28670.57.camel@gaston>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Dec 2004 12:52:22 -0800, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> On Sun, 12 Dec 2004 15:47:44 -0800, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+On Wed, Dec 22, 2004 at 09:38:59AM +0100, Benjamin Herrenschmidt wrote:
+> On Tue, 2004-12-21 at 13:46 -0800, Greg KH wrote:
+> > On Tue, Dec 21, 2004 at 12:47:44PM -0800, Jesse Barnes wrote:
+> > > Here's a rediff against Greg's current tree.  It adds legacy_io and legacy_mem 
+> > > files to each PCI bus directory in sysfs for use by applications that want to 
+> > > do old school ISA style programming from userspace.
+> > > 
+> > > I'm not sure I've got the sysfs file creation correct, Greg?  Am I passing the 
+> > > wrong thing around?  The compile warnings in pci-sysfs.c for the new routines 
+> > > seem to indicate that...  Basically I need to get to a pci_bus structure from 
+> > > the read/write/mmap routines, and that should be accessible from the kobject 
+> > > somewhere, right?
+> > 
+> > You are passing the wrong things around :)
+> > 
+> > A struct pci_bus is a struct class_device, not a struct device.  I think
+> > you need to rethink your goal of putting the files into the pci device
+> > directory, or just put the files into the proper /sys/class/pci_bus/*
+> > directory as your code assumes is happening.
 > 
-> > > diff -urpN -X dontdiff linux-2.4.28-bk3/drivers/usb/serial/usbserial.c linux-2.4.28-bk3-sx4/drivers/usb/serial/usbserial.c
-> > > --- linux-2.4.28-bk3/drivers/usb/serial/usbserial.c     2004-11-22 23:04:19.000000000 -0800
-> 
-> > > @@ -1803,6 +1820,12 @@ static void __exit usb_serial_exit(void)
-> > >
-> > >         usb_deregister(&usb_serial_driver);
-> > >         tty_unregister_driver(&serial_tty_driver);
-> > > +
-> > > +       while (!list_empty(&usb_serial_driver_list)) {
-> > > +               err("%s - module is in use, hanging...\n", __FUNCTION__);
-> > > +               set_current_state(TASK_UNINTERRUPTIBLE);
-> > > +               schedule_timeout(5*HZ);
-> > > +       }
-> 
-> > Please consider using msleep() here instead of schedule_timeout().
-> 
-> No, Nish, it's 2.4. There's no msleep here. I can create something like
-> "drivers/usb/serial/compat26.h", similar to include/linux/libata-compat.h,
-> but I do not think it's worth the trouble at present juncture.
+> It makes no sense in /sys/class/pci_bus/* since we need the files to be
+> in a bus _instance_ 
 
-I agree that it's not worth the trouble. Sorry, I was under the
-impression that Kernel-Janitors had pushed a series of patches to
-backport msleep(). Maybe they haven't made it to mainline yet. Sorry
-for the noise.
+Hm, what do you mean by "instance"?  My /sys/class/pci_bus has the
+individual pci busses:
+ $ tree /sys/class/pci_bus/
+ /sys/class/pci_bus/
+ |-- 0000:00
+ |   |-- bridge -> ../../../devices/pci0000:00
+ |   `-- cpuaffinity
+ |-- 0000:01
+ |   |-- bridge -> ../../../devices/pci0000:00/0000:00:01.0
+ |   `-- cpuaffinity
+ `-- 0000:02
+     |-- bridge -> ../../../devices/pci0000:00/0000:00:1e.0
+     `-- cpuaffinity
 
--Nish
+
+We already have the cpuaffinity stuff in there, why not more, pci bus
+specific things?
+
+thanks,
+
+greg k-h

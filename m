@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266697AbUGLD3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUGLDg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266697AbUGLD3E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 23:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUGLD3E
+	id S266692AbUGLDg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 23:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUGLDg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 23:29:04 -0400
-Received: from ENGR.ORST.EDU ([128.193.40.2]:15355 "EHLO engr.orst.edu")
-	by vger.kernel.org with ESMTP id S266697AbUGLD3C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 23:29:02 -0400
-From: Eric Altendorf <EricAltendorf@orst.edu>
-Reply-To: EricAltendorf@orst.edu
-To: Jan Rychter <jan@rychter.com>
-Subject: Re: [PATCH] swsusp bootsplash support
-Date: Sun, 11 Jul 2004 20:21:37 -0700
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040708110549.GB9919@linux.nu> <20040709155614.GA8426@linux.nu> <m21xjh1gul.fsf@tnuctip.rychter.com>
-In-Reply-To: <m21xjh1gul.fsf@tnuctip.rychter.com>
-MIME-Version: 1.0
+	Sun, 11 Jul 2004 23:36:56 -0400
+Received: from 142.13.111.219.st.bbexcite.jp ([219.111.13.142]:37564 "EHLO
+	tiger.gg3.net") by vger.kernel.org with ESMTP id S266692AbUGLDgy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 23:36:54 -0400
+Date: Mon, 12 Jul 2004 12:36:50 +0900
+From: Georgi Georgiev <chutz@gg3.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: partitionable md devices and partition detection
+Message-ID: <20040712033647.GA20240@lion.gg3.net>
+References: <20040707045939.GA20516@ols-dell.iic.hokudai.ac.jp> <16619.35060.821865.570842@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407112021.37153.EricAltendorf@orst.edu>
+In-Reply-To: <ccgq1q$sht$1@news.cistron.nl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 July 2004 06:43, Jan Rychter wrote:
-...
-> upgrade kernels, you don't much care. But if you use a laptop and
-> you actually care about opening it and getting a stable, working
-> environment within 20s, trust me -- software suspend becomes more
-> important to you than all the scheduler improvements in the world.
->
-> I would gladly trade all the performance improvements of the last
-> couple of years for a stable, working swsusp2 and a USB subsystem
-> which doesn't a) prohibit my CPU from using C3 sleep and b) crash
-> and burn regularly bringing the whole machine down with it.
+> So the fact that it works for me is a freak accident?
+> 
+> I have this in lilo.conf:
+> 
+> append="md=d0,/dev/sda,/dev/sdb root=/dev/md_d0p1 "
+> 
+> and this is dmesg:
+> 
+> md: Autodetecting RAID arrays.
+> md: autorun ...
+> md: ... autorun DONE.
+> md: Loading md_d0: /dev/sda
+> md: bind<sda>
+> md: bind<sdb>
+> raid1: raid set md_d0 active with 2 out of 2 mirrors
+>  md_d0: p1 p2 p3 < p5 p6 p7 p8 p9 p10 >
+> kjournald starting.  Commit interval 5 seconds
+> EXT3-fs: mounted filesystem with ordered data mode.
+> VFS: Mounted root (ext3 filesystem) readonly.
 
-I'll second this.  I moved to 2.6 because I needed a slew of drivers 
-that were difficult to patch into 2.4 or out of date or etc.  
-However, I haven't had a working 2.6 swsusp for probably 4 months or 
-so (since I stopped using the 2.6.3 version after it ate my ext3 
-journal on my root partition).
+I guess my problem (and not only mine it seems) is here:
 
-I suppose I could look at going back to 2.4....
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+md: Loading md_d0: /dev/hda
+md: bind<hda>
+md: bind<sda>
+raid1: raid set md_d0 active with 2 out of 2 mirrors
+ md_d0: unknown partition table
+
+Why the unknown partition table? It does work fine once I complete booting.
+This is with 2.6.7.
+
+Don't pay attention to the hda,sda -- I was using vmware for the tests.
+
+Sorry if I break the thread, but I had trouble finding the proper message to
+reply to.
 
 -- 
-Eric Altendorf    //    http://www.speedtoys.com/~eric
+|    Georgi Georgiev   |  When you have eliminated the impossible,     |
+|     chutz@gg3.net    |  whatever remains, however improbable, must   |
+|   +81(90)6266-1163   |  be the truth. -- Sherlock Holmes, "The       |
+|  ------------------- |  Sign of Four"                                |

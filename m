@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbTJIS1q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 14:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTJIS1q
+	id S262379AbTJISld (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 14:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJISld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 14:27:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65169 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262384AbTJIS1o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 14:27:44 -0400
-Date: Thu, 9 Oct 2003 19:27:43 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
-Message-ID: <20031009182743.GD7665@parcelfarce.linux.theplanet.co.uk>
-References: <20031009174604.GC7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310091049150.22318-100000@home.osdl.org>
-Mime-Version: 1.0
+	Thu, 9 Oct 2003 14:41:33 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36414 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262379AbTJISlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 14:41:32 -0400
+To: Cherry George Mathew <cherry@sdf.lonestar.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] kexec update (2.6.0-test7)
+References: <20031008172235.70d6b794.rddunlap@osdl.org>
+	<Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Oct 2003 12:40:22 -0600
+In-Reply-To: <Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org>
+Message-ID: <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310091049150.22318-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 11:03:14AM -0700, Linus Torvalds wrote:
+Cherry George Mathew <cherry@sdf.lonestar.org> writes:
+
+> On Wed, 8 Oct 2003, Randy.Dunlap wrote:
 > 
-> On Thu, 9 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >
-> > a) on x86:
-> > static void end_8259A_irq (unsigned int irq)
-> > {
-> >         if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)) &&
-> >				 irq_desc[irq].action)
-				^^^^^^^^^^^^^^^^^^^^^^^
-> >                enable_8259A_irq(irq);
-> > }
+> > You'll need to update the kexec-syscall.c file for the correct
+> > kexec syscall number (274).
 > 
-> This matches the "if IRQ is disabled for whatever reason" test in irq.c, 
-> and as such it makes some amount of sense. However, from a logical 
-> standpoint it is indeed not very sensible. It's hard to see why the code 
-> does what it does.
+> Is there a consensus about what the syscall number will finally be ? We've
+> jumped from 256 to 274 over the 2.5.x+  series kernels. Or is it the law
+> the Jungle ?
 
-The underlined bit is absent on alpha version of the same function.
+So far the law of the jungle.  Regardless of the rest it looks like it
+is time to submit a place keeping patch.
 
-Note that this piece is bogus - if .action is NULL, we are already caught
-by IRQ_INPROGRESS check.  So it's not exactly a bug, but considering
-your arguments about exact same check slightly earlier in handle_irq()...
-
-It's from cset1.437.22.19 by mingo; the same changeset had done unconditional
-removal of IRQ_INPROGRESS, so there it made sense.  After the irq.c part
-had been reverted (1.497.61.30 from you), i8259.c one should be killed
-too, AFAICS...
+Eric

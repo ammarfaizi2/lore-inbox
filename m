@@ -1,93 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbTFYXti (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 19:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbTFYXth
+	id S265208AbTFYXxd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 19:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbTFYXxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 19:49:37 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:61487 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S265144AbTFYXte
+	Wed, 25 Jun 2003 19:53:33 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:26378 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S265208AbTFYXxb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 19:49:34 -0400
-Message-ID: <3EFA3770.70806@rackable.com>
-Date: Wed, 25 Jun 2003 16:59:44 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Wed, 25 Jun 2003 19:53:31 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Timothy Miller" <miller@techsource.com>,
+       "David Woodhouse" <dwmw2@infradead.org>
+Cc: "Larry McVoy" <lm@bitmover.com>, "Werner Almesberger" <wa@almesberger.net>,
+       "Stephan von Krawczynski" <skraw@ithnet.com>,
+       <miquels@cistron-office.nl>, <linux-kernel@vger.kernel.org>
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Wed, 25 Jun 2003 17:07:31 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGGEEJDBAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-To: Brian Jackson <brian@brianandsara.net>
-CC: Orion Poplawski <orion@cora.nwra.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is their an explanation of various kernel versions/brances/patches/?
- (-mm, -ck, ..)
-References: <bdd64m$3dr$1@main.gmane.org> <200306251857.48341.brian@brianandsara.net>
-In-Reply-To: <200306251857.48341.brian@brianandsara.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 26 Jun 2003 00:03:45.0441 (UTC) FILETIME=[693ED110:01C33B76]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3EFA2696.9050207@techsource.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Jackson wrote:
+People want to receive "payment" for "work".
 
->I don't know of a website that tracks that stuff, but here goes my knowledge 
->of the different patchsets:
->
->for the most part all of them are testing grounds for patches that someday 
->hope to be in the vanilla kernel
->
->mm - Andrew Morton - vm related testing ground for dev tree
->ck - Con Kolivas - desktop/interactivity patches
->kj - Kernel Janitors - testing ground for kernel cleanups on development trees
->mjb - Martin J Bligh - scalability stuff
->wli - William Lee Irwin - other vm related stuff for dev tree that Andrew
->	Morton may not have time for
->ac - Alan Cox - lately it's been a testing ground for new ide
->
-  Actually the ac is often the test ground for new 2.4 fixes, and features.
+Fine, true, and desirable.
 
->lsm - Chris Wright - Linux Security Modules, provides a lightweight, general
->	purpose framework for access control
->osdl - Stephen Hemminger, ? maybe enterprise stuff
->laptop - Hanno Böck - unproven laptop type patches
->aa - Andrea Arcangeli - stable series vm stuff
->dj - Dave Jones - cleanups/AGP
->rmap - Rik van Riel - reverse mapping vm for 2.4
->pgcl - William Lee Irwin - ?
->
->Others? Oh yes. Maybe this is something that should be tracked on a webpage 
->somewhere.
->
->--Brian Jackson
->
->On Wednesday 25 June 2003 05:02 pm, Orion Poplawski wrote:
->  
->
->>Seems like everybody and their brother is maintaining a kernel patch set
->>these days :-).
->>
->>Is there a page somewhere that explains the goals of each of the various
->>versions?
->>
->>Thanks!
->>
->>- Orion
->>
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>    
->>
->
->  
->
+But the missing piece in the capitalist mindset WRT/software is that those
+self-same capitalists don't want to pay for the work of others.
 
+In point of fact, the common intellectual domain, in particular the great
+source/sink of free software *doest* fit the pay-for-value model.
 
--- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+The problem is that the current business people don't understand that the
+"free software" "costs" the promise to return contributions.  The system is
+resilient enough to withstand a huge percentage of parasitism, so each
+business wants to say that they might as well a parasite too.
 
+The simple fact is that when you return your modifications to the pool, the
+"lost cost" of the man hours and mental effort spent to make that
+modification, insignificant to the value you took from the pool.
+
+When you return value to the pool, you have not "given away valuable
+property" you are paying (long due) bills for the larger type and number of
+works you have already taken possession of "on credit".
+
+Once you take that single step back you realize two things.
+
+1) The total value you harvest dwarfs the total value you return (even in
+simple man hour payroll terms) so even if you spend a substantial outlay it
+is still a return on investment of remarkable proportions.
+
+2) If software is the only thing you do, you are screwed because that
+immense return on investment is payment in kind so there is no "cash margin"
+from which to draw profit.
+
+The final conclusion is that "free software" works for every business model
+*EXCEPT* pure software sales.  Absolutely every other model (e.g.
+"<anything> and no software at all" and "<anything> plus software") lets you
+"buy" ninety-plus percent of your "software part" for pennies.  The fact
+that "nothing but software" times "free software" nets zero excess cash
+should surprise nobody.  Yet it did surprise the entire 1990's economy...
+
+Irony can be so damn Ironic sometimes... 8-)
+
+There is no rational argument that this model "should somehow", in and of
+itself, with no further effort on your part, support you financially.
+Especially if you have decided that said support will come while you only
+fulfill the parasite role of taking what you will and returning nothing.
+
+Rob.
 

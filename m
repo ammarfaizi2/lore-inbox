@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313316AbSC2A2B>; Thu, 28 Mar 2002 19:28:01 -0500
+	id <S313317AbSC2AmW>; Thu, 28 Mar 2002 19:42:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313317AbSC2A1w>; Thu, 28 Mar 2002 19:27:52 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:64260 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S313316AbSC2A1l>; Thu, 28 Mar 2002 19:27:41 -0500
-Message-ID: <3CA3B48F.25F9042D@zip.com.au>
-Date: Thu, 28 Mar 2002 16:25:51 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S313319AbSC2AmN>; Thu, 28 Mar 2002 19:42:13 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12304 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S313317AbSC2Al7>; Thu, 28 Mar 2002 19:41:59 -0500
+Date: Thu, 28 Mar 2002 19:39:42 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Stephen Baker <stbaker@cisco.com>
+cc: Chris Wright <chris@wirex.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Patch; setpriority
+In-Reply-To: <3CA39732.2050209@cisco.com>
+Message-ID: <Pine.LNX.3.96.1020328193113.19963A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] ext2_fill_super breakage
-In-Reply-To: <3CA356AE.2E61F712@zip.com.au> <Pine.GSO.4.21.0203281838310.25746-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Thu, 28 Mar 2002, Andrew Morton wrote:
-> 
-> > > For one thing, the latter is hell on any search.
-> >
-> > If the usage of the type is hard to search for then
-> > then wrong identifier was chosen.
-> 
-> Huh?
-> 
-> Search for ext2_sb_info will give you all places that refer to it.
-> Including a buttload of
->         struct ext2_sb_info *p;
-> 
-> Now, search for ext2_sb_info[   ]*[^    *] is much more interesting.
-> With explicit sizeof it is guaranteed to give you all places where
-> such beast is allocated or subjected to memset, etc.
+On Thu, 28 Mar 2002, Stephen Baker wrote:
 
-Where "etc" is "typecast".  I can't think of much else
-which would be found.
+> All this is really just pigeon dancing around the fact that Linux 
+> doesn't implement the PTHREAD_SCOPE_PROCESS which is all I want .  I t 
+> would make Linux match Solaris and BSD model for POSIX threads.  I guess 
+> it wouldn't be POSIX if everyone implemented it the same set of 
+> supported features.  That's why I resorted to changing the nice value in 
+> hopes of have some say in how things get scheduled without all the 
+> superuser / capabilities hacks.
 
-So the search for ext2_sb_info found the function, and
-then you're down to perfoming a forward search for "p".
-Which, of course, doesn't work because "p" is an asinine
-identifier.  Which was my point.  (Insert monthly whine
-about ext2_new_block)
+  I just did a "man 3 pthreads" and that capability is listed as
+available... If you can boil it down to a small test program as I did,
+I'll run it on Linux and Solaris and see what I see.
 
-> ...
-> BTW, I _really_ wonder who had audited lvm.c for inclusion - quite a
-> few places in there pull such lovely stunts as, say it, use of strcmp()
-> on a user-supplied array of characters.  Whaddya mean, "what if there's
-> no NUL"?  Sigh...
+  Of course Linux doesn't implement anything here, you choose the
+implementation by pthreads lib and includes, the old MIT user-level one,
+the so-called "Linux threads" model, or the current NGPT model in current
+kernels and the library from IBM.
 
-We do not appear to have an "audit for inclusion" process.
-I wish we did.  If a tree owner threw a patch at me and
-asked for comments I'd gladly help out that way.  Jeff
-did some absolutely brilliant work on the e100/e1000
-drivers behind the scenes - it'd be nice to have more of that.
+  The latter work, at least for some definitions of "work," but I know
+there are some differences.
 
-BTW, ext3 keeps a kdev_t on-disk for external journals.  The
-external journal support is experimental, added to allow people
-to evaluate the usefulness of external journalling.  If we
-decide to retain the capability we'll be moving it to a UUID
-or mount-based scheme.  So if the kdev_t is being a problem,
-I think we can just break it.
+  I don't see why starting two threads at different priorities when the
+program does init is enough overhead to notice, but I don't have your
+program so you may need something inobvious.
 
--
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

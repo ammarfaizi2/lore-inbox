@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266884AbRGOTps>; Sun, 15 Jul 2001 15:45:48 -0400
+	id <S266888AbRGOTrs>; Sun, 15 Jul 2001 15:47:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266886AbRGOTp2>; Sun, 15 Jul 2001 15:45:28 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44292 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266882AbRGOTpU>; Sun, 15 Jul 2001 15:45:20 -0400
-Subject: Re: ORBS blacklist is BROKEN (deliberately)...
-To: glynn.clements@virgin.net (Glynn Clements)
-Date: Sun, 15 Jul 2001 20:44:55 +0100 (BST)
-Cc: mhw@wittsend.com (Michael H. Warfield),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
-        matti.aarnio@zmailer.org (Matti Aarnio), linux-kernel@vger.kernel.org,
-        linux-admin@vger.kernel.org
-In-Reply-To: <15185.60966.754883.694830@cerise.nosuchdomain.co.uk> from "Glynn Clements" at Jul 15, 2001 08:25:26 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266893AbRGOTri>; Sun, 15 Jul 2001 15:47:38 -0400
+Received: from beasley.gator.com ([63.197.87.202]:58122 "EHLO
+	beasley.gator.com") by vger.kernel.org with ESMTP
+	id <S266888AbRGOTrW>; Sun, 15 Jul 2001 15:47:22 -0400
+From: "George Bonser" <george@gator.com>
+To: "Lew Wolfgang" <wolfgang@train.sweet-haven.com>,
+        "Steve VanDevender" <stevev@efn.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Linux default IP ttl
+Date: Sun, 15 Jul 2001 12:51:48 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJEEFODKAA.george@gator.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Lrp1-0004O9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.33.0107151211010.20532-100000@train.sweet-haven.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Maybe you misunderstood who "he" refers to?
-> 
-> I took it as referring to the Alan Brown (the ORBS maintainer), rather
-> than to to Ron Guilmette (who doesn't want his DNS server to be used). 
+> However, sometimes doing the right thing will cause you to loose
+> the war.  I recall that early Solaris systems had a problem,
+> the details of which I forget, where web browsers of a certain
+> very large company would fail.  Apparently the Solaris tcp-ip stack
+> was strictly adhering to the RFC's, it was the other large company's
+> stack that didn't conform.  If memory serves, there was a raging
+> discussion at the time about whether this non-conformance was
+> intentional in an effort to target Solaris as an inferior web
+> server platform.  Solaris bowed to the inevitable.
 
-Then you took it wrongly
+I *THINK* there was some Path MTU Discovery thing that did not always work
+properly with some BSD 4.2 derived stacks. It has been a long time.
+

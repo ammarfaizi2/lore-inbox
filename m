@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268775AbUJUQXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUJUQYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268775AbUJUQXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 12:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUJUQVa
+	id S268355AbUJUQYx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 12:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUJUQYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 12:21:30 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:32265 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S262085AbUJUQPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 12:15:14 -0400
-Message-ID: <4177E351.3080604@techsource.com>
-Date: Thu, 21 Oct 2004 12:26:57 -0400
-From: Timothy Miller <miller@techsource.com>
+	Thu, 21 Oct 2004 12:24:45 -0400
+Received: from math.ut.ee ([193.40.5.125]:48591 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S268839AbUJUQTe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 12:19:34 -0400
+Date: Thu, 21 Oct 2004 19:19:31 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: readcd hangs in blk_execute_rq
+In-Reply-To: <20041021161100.GA14154@suse.de>
+Message-ID: <Pine.GSO.4.44.0410211915460.12730-100000@math.ut.ee>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com> <20041021122051.GA10801@stusta.de>
-In-Reply-To: <20041021122051.GA10801@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > > ide-cd: cmd 0x28 timed out
+> > > > hdc: DMA interrupt recovery
+> > > > hdc: lost interrupt
+> > > > hdc: status timeout: status=0xd0 { Busy }
+> > > > hdc: status timeout: error=0x00
+> > > > hdc: DMA disabled
+> > > > hdc: drive not ready for command
+> > > > hdc: ATAPI reset complete
 
+> > It worked in earlier 2.4 kernels (2.4.18?) with DMA - I don't remember
+> > if it had some reliability problems. Since then, it's no dma. We have 3
+> > such computers here (Intel D816EEA2 mainboard, this specific Sony CDrom)
+> > and they all behave the same.
+>
+> 2.4.x never used dma for this operation. Does 2.6.9 work if you turn off
+> dma first?
 
-Adrian Bunk wrote:
-> On Wed, Oct 20, 2004 at 06:02:51PM -0400, Timothy Miller wrote:
-> 
-> 
->>...
->>(1) Would the sales volumes of this product be enough to make it worth 
->>producing (ie. profitable)?
-> 
-> 
-> no
+I have not tried this operation before. Reading data disks with DMA
+worked and that's what I have used. I did read the same disk with
+readdisk subcommand on readcd currently, it was successful until the end
+of disk (6xx MB - maybe the end of the disk).
 
+Will try it with turning DMA off first.
 
-In other words, Richard Stallman is too idealistic.  :)
+-- 
+Meelis Roos (mroos@linux.ee)
 

@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264992AbSLJX5m>; Tue, 10 Dec 2002 18:57:42 -0500
+	id <S265608AbSLKADl>; Tue, 10 Dec 2002 19:03:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbSLJX5m>; Tue, 10 Dec 2002 18:57:42 -0500
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:28738 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id <S264992AbSLJX5l> convert rfc822-to-8bit; Tue, 10 Dec 2002 18:57:41 -0500
-From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-To: "'Serge Kuznetsov'" <serge@wcom.ca>, <linux-kernel@vger.kernel.org>
-Subject: RE: Is this going to be true ?
-Date: Tue, 10 Dec 2002 18:05:24 -0600
-Message-ID: <001801c2a0a9$02613f40$2e863841@joe>
+	id <S265667AbSLKADl>; Tue, 10 Dec 2002 19:03:41 -0500
+Received: from clem.digital.net ([216.230.43.233]:26377 "EHLO clem.digital.net")
+	by vger.kernel.org with ESMTP id <S265608AbSLKADk>;
+	Tue, 10 Dec 2002 19:03:40 -0500
+From: Pete Clements <clem@clem.digital.net>
+Message-Id: <200212110011.TAA11516@clem.digital.net>
+Subject: 2.5.51 compile fails (fs/readdir.c)
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Tue, 10 Dec 2002 19:11:22 -0500 (EST)
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <050c01c2a091$77564600$9c094d8e@wcom.ca>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am just curious if someone has an opinion for the
-> following link?
->
-> Research Firm: Microsoft Will Use Linux by 2004:
-> [trim]
+FYI:
 
-Over Bill Gates' dead body.  The Microsoft Corporation (and by that, I mean
-the people running it: Chairman of the Board, CEO, CIO, CFO, Board of
-Directors, most of the stockholders, etc.) is of the genuine belief that
-Microsoft Windows is the operating system of the future.  (Whether you
-believe it or not is a separate topic.)  Developing products for the Linux
-platform is both 1) an admission that this belief was wrong, and 2) an
-admission that their own current version of Microsoft Windows is somehow
-shoddy, not-up-to-par, insufficient, or even on an equal footing with Linux.
-The Microsoft Corporation will never admit either of those two things.
-After all, it's the MICROSOFT CORPORATION.  If they didn't believe these
-things, they would go somewhere else.
 
-The following scenarios are far more likely.
+  gcc -Wp,-MD,fs/.readdir.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=readdir -DKBUILD_MODNAME=readdir   -c -o fs/readdir.o fs/readdir.c
+fs/readdir.c: In function `filldir64':
+fs/readdir.c:242: internal error--unrecognizable insn:
+(insn 187 186 448 (set (reg/v:SI 4 %esi)
+        (asm_operands/v ("1:	movl %%eax,0(%2)
+2:	movl %%edx,4(%2)
+3:
+.section .fixup,"ax"
+4:	movl %3,%0
+	jmp 3b
+.previous
+.section __ex_table,"a"
+	.align 4
+	.long 1b,4b
+	.long 2b,4b
+.previous") ("=r") 0[ 
+                (reg:DI 1 %edx)
+                (reg:SI 0 %eax)
+                (const_int -14 [0xfffffff2])
+                (reg/v:SI 4 %esi)
+            ] 
+            [ 
+                (asm_input:DI ("A"))
+                (asm_input:SI ("r"))
+                (asm_input:SI ("i"))
+                (asm_input:SI ("0"))
+            ]  ("fs/readdir.c") 226)) -1 (insn_list 184 (insn_list 186 (nil)))
+    (nil))
+make[1]: *** [fs/readdir.o] Error 1
+make: *** [fs] Error 2
 
-1) Future development of the Windows operating system or some of its
-components will be *BSD based.  The Microsoft Corporation will never touch
-Linux.  Period.  The lawyers simply wouldn't allow it.  The lawyers think of
-GNU GPL as an infectious disease, and so anything Linux is out of the
-question.  The BSD license is far more favorable to proprietary development,
-since it allows you to close off the source.  Hence, assimilating a *BSD
-structure, component, or piece of code is far more likely.
-
-In fact, Microsoft Windows 2000/XP already did that with Kerberos.
-
-2) Lower prices for Microsoft Licensing or more broadly interpreted
-licensing.  It may be that to better compete with Linux that Microsoft
-lowers the prices of some of its Microsoft products.
-
-One thing Microsoft has already done in this regard is to change the
-licensing on Terminal Server.  On Windows NT 4.0, each copy of Windows NT
-Workstation needed a Client Access License and a Terminal Server Client
-Access License to connect to a server and a server's Terminal Server,
-respectively.  Now, with Windows 2000 and XP Pro, a Terminal Server Client
-Access License is included with either a regular Client Access License or a
-Windows 2000 or XP Pro operating system license (I forget which).
-
-3) Develop kits, wizards, and other software to help people convert from
-Linux to Windows.  Microsoft already has Unix for Windows Services (or
-something like that with a similar name).  It's purpose is to help people
-convert from SCO UNIX to Windows.  I see no reason that Microsoft can't
-develop a similar such kit for, say, Red Hat Linux.  (Sure, it would be one
-heck-of-a-kit and very complicated, but I can see it).
-
-*Sigh*  Yet, another topic for the linux-politics list.  There is no such
-list, BTW, but this email highlights the need for one.
-
-Joseph Wagner
-
+-- 
+Pete Clements 
+clem@clem.digital.net

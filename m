@@ -1,36 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUFGJTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264368AbUFGJYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbUFGJTs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 05:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUFGJTr
+	id S264368AbUFGJYd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 05:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUFGJYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 05:19:47 -0400
-Received: from webbox24.server-home.net ([195.137.212.20]:11431 "EHLO
-	webbox24.server-home.net") by vger.kernel.org with ESMTP
-	id S264367AbUFGJTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 05:19:40 -0400
+	Mon, 7 Jun 2004 05:24:32 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:11485 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S264368AbUFGJY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 05:24:26 -0400
+Date: Mon, 7 Jun 2004 11:24:25 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-From: Walter Hofmann <linux-kernel-040607111815-5c1d@secretlab.mine.nu>
-Subject: Re: Possible bug: ext3 misreporting filesystem usage
-In-Reply-To: <22GWW-28x-43@gated-at.bofh.it>
-References: <22GWW-28x-43@gated-at.bofh.it>
-Date: Mon, 7 Jun 2004 11:19:35 +0200
-Message-Id: <E1BXGI3-0003pA-00@gimli.local>
+Subject: Re: linux-abi dead?
+Message-ID: <20040607092425.GN20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1086588439.8572.10.camel@ip68-12-228-23.ok.ok.cox.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AILDNu/Czeq/qvk7"
+Content-Disposition: inline
+In-Reply-To: <1086588439.8572.10.camel@ip68-12-228-23.ok.ok.cox.net>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been getting a possible bug after running my system a few weeks. The
-> ext3 partition's usage is being misreported. Right now, df -h says ive got
-> no space left, but according to du /, I'm only using 17 gigs of my 40 gig
-> drive. Restarting fixes the problem, so I'm thinking it might be some
-> mis-handled variable in memory, not something on the disc itself? And, yes,
-> I do know that du is right, not df, because I keep good track of my disc
-> usage. This is pretty serious, it killed a 40+ hour process that i'll have
-> to start over again from the beginning!
 
-I have seen this too. See
- http://marc.theaimsgroup.com/?l=linux-kernel&m=108549779731780&w=2
+--AILDNu/Czeq/qvk7
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No replies yet.
+On Mon, 2004-06-07 01:07:19 -0500, Steve Bergman <steve@rueb.com>
+wrote in message <1086588439.8572.10.camel@ip68-12-228-23.ok.ok.cox.net>:
+> I just moved a server over to Fedora Core 2 (kernel 2.6.6) and
+> discovered that there is a need to run an old SCO binary.
 
-Walter
+IIRC the iBCS things died long ago... Additionally, there isn't really a
+need to run SCO binaries:)
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--AILDNu/Czeq/qvk7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAxDRJHb1edYOZ4bsRAgBuAJ9GFnfM5x2S3nETRewmrSI+GMduxgCfTntz
+NcONIE1AodHswHEPlVQztHo=
+=/oi2
+-----END PGP SIGNATURE-----
+
+--AILDNu/Czeq/qvk7--

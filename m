@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133050AbRDRHZy>; Wed, 18 Apr 2001 03:25:54 -0400
+	id <S133047AbRDRH1E>; Wed, 18 Apr 2001 03:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133047AbRDRHZp>; Wed, 18 Apr 2001 03:25:45 -0400
-Received: from jffdns01.or.intel.com ([134.134.248.3]:59370 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S133046AbRDRHZd>; Wed, 18 Apr 2001 03:25:33 -0400
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B271DD@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: change_mtu boundary checking error
-Date: Wed, 18 Apr 2001 00:25:26 -0700
+	id <S133048AbRDRH0y>; Wed, 18 Apr 2001 03:26:54 -0400
+Received: from denise.shiny.it ([194.20.232.1]:30154 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S133047AbRDRH0g>;
+	Wed, 18 Apr 2001 03:26:36 -0400
+Message-ID: <XFMail.010418092543.pochini@shiny.it>
+X-Mailer: XFMail 1.3 [p0] on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+In-Reply-To: <E14pcR4-0003E2-00@the-village.bc.nu>
+Date: Wed, 18 Apr 2001 09:25:43 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: I can eject a mounted CD
+Cc: lna@bigfoot.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But Ethernet is not only for IP, what about other protocols ?
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Tuesday, April 17, 2001 3:41 PM
-To: shmulik.hen@intel.com
-Cc: linux-net@vger.kernel.org; linux-kernel@vger.kernel.org
-Subject: Re: change_mtu boundary checking error
+>> > /dev/cdrom        /mnt/cdrom        auto        noauto,user,ro    0 0
+>> >
+>> > And remove the other cdrom listing. This will allow mounting any
+>> > supported format and eliminate the duel support for one device.
+>>
+>> That's not the point. The kernel should not allow someone to
+>> eject a mounted media.
+>
+> rpm -e magicdev
+
+Magicdev is not installed.
+Ok, I'm the only one with this problem, I'll manage to find the bug by myself.
 
 
-> Now, the high boundary seemed reasonable (ETH_FRAME_LEN - ETH_HLEN =
-> ETH_DATA_LEN) which gives 1500, but why is the low boundary set to 68 ?
-> According to my calculations, it should have been ETH_ZLEN - ETH_HLEN
-which
-> gives 46.
-
-The IPv4 minimum MTU is 68 bytes. Below that not all frames can be delivered
-
+Bye.
+    Giuliano Pochini ->)|(<- Shiny Network {AS6665} ->)|(<-
 

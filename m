@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264613AbSKDBed>; Sun, 3 Nov 2002 20:34:33 -0500
+	id <S264619AbSKDBip>; Sun, 3 Nov 2002 20:38:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264616AbSKDBed>; Sun, 3 Nov 2002 20:34:33 -0500
-Received: from holomorphy.com ([66.224.33.161]:45969 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264613AbSKDBec>;
-	Sun, 3 Nov 2002 20:34:32 -0500
-Date: Sun, 3 Nov 2002 17:39:37 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hch@lst.de,
-       Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: interrupt checks for spinlocks
-Message-ID: <20021104013937.GQ23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	hch@lst.de, Benjamin LaHaise <bcrl@redhat.com>
-References: <20021104003906.GB12891@holomorphy.com> <Pine.LNX.4.44.0211031731270.954-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211031731270.954-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S264621AbSKDBip>; Sun, 3 Nov 2002 20:38:45 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:40115 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264619AbSKDBio>;
+	Sun, 3 Nov 2002 20:38:44 -0500
+Date: Sun, 3 Nov 2002 17:40:37 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Jos Hulzink <josh@stack.nl>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Petition against kernel configuration options madness...
+In-Reply-To: <200211032325.28397.josh@stack.nl>
+Message-ID: <Pine.LNX.4.33L2.0211031738400.10796-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 05:39:29PM -0800, Davide Libenzi wrote:
-> It's not realy a graph Bill.  Each task has a list of acquired locks (
-> by address ). You keep __LINE__ and __FILE__ with you list items. When
-> there's a deadlock you'll have somewhere :
->    TSK#N	TSK#M
->    -------------
->    ...		...
->    LCK#I	LCK#J
->    ...		...
-> -> LCK#J	LCK#I
-> Then with a SysReq key you dump the list of acquired locks for each task
-> who's spinning for a lock. IMO it might be usefull ...
+On Sun, 3 Nov 2002, Jos Hulzink wrote:
 
-Then you had something different in mind. I *thought* you meant
-maintaining a graph's arcs and dumping the specific deadlocking
-processes and their acquired locks at failure time. This scheme
-with limited reporting requires less work/code, but is still beyond
-the scope of what I was doing.
+| On Sunday 03 November 2002 21:13, Vojtech Pavlik wrote:
+| >
+| > All the needed options ARE enabled by default. (check arch/i386/defconfig)
+|
+| Now all you need is the users to know "make defconfig". I compile kernels since 1.2.13, but I didn't know the option till today. Sure, my fault, but I'm sure I'm not the only one.
+|
+| Detail: IMHO the USB keyboard and mouse support should be on, and DRI should be enabled for all video cards, but that is a minor issue...
 
+so while some people are attempting to "fix" this with
+defconfig or mostlikelyconfig, I'd like to remind people
+of the post-halloween doc from Dave Jones.  He addresses
+this stuff in there.  Does it possibly need even more
+emphasis there?  and stronger hints for people to at
+least browse it before using 2.5.x for the first time?
 
-Bill
+-- 
+~Randy
+

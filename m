@@ -1,98 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263241AbSJOHTi>; Tue, 15 Oct 2002 03:19:38 -0400
+	id <S263280AbSJOHbg>; Tue, 15 Oct 2002 03:31:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbSJOHTh>; Tue, 15 Oct 2002 03:19:37 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:9205 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263241AbSJOHTc>;
-	Tue, 15 Oct 2002 03:19:32 -0400
-Date: Tue, 15 Oct 2002 00:25:42 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Jeff Dike <jdike@karaya.com>, user-mode-linux-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] Re: uml-patch-2.5.42-1
-Message-ID: <20021015072541.GA12781@beaverton.ibm.com>
-Mail-Followup-To: Oleg Drokin <green@namesys.com>,
-	Jeff Dike <jdike@karaya.com>,
-	user-mode-linux-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <200210150058.TAA05520@ccure.karaya.com> <20021015104210.A1335@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021015104210.A1335@namesys.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S263281AbSJOHbg>; Tue, 15 Oct 2002 03:31:36 -0400
+Received: from [212.3.242.3] ([212.3.242.3]:57588 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id <S263280AbSJOHbf>;
+	Tue, 15 Oct 2002 03:31:35 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.40] Network problem after suspend
+Date: Tue, 15 Oct 2002 11:34:37 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200210151134.38226.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am hitting this same issue. I cannot see what is setting __i386__.
-A similar hack of undef __i386__ inside the files makes mine work.
+Hello all,
 
-Oleg Drokin [green@namesys.com] wrote:
-> Hello!
-> 
-> On Mon, Oct 14, 2002 at 07:58:28PM -0500, Jeff Dike wrote:
-> > UML has been updated to 2.5.42 and UML 2.4.19-12.  In non-numeric terms,
-> 
-> For some reason I now need this patch to make bk-current to compile
-> (with 2.5.42-1 patch from you applied, of course).
-> I do not claim this is correct fix, but at least it works for me ;)
-> 
-> ===== drivers/char/random.c 1.24 vs edited =====
-> --- 1.24/drivers/char/random.c	Mon Oct  7 18:38:26 2002
-> +++ edited/drivers/char/random.c	Tue Oct 15 10:20:50 2002
-> @@ -738,7 +738,7 @@
->  	__s32		delta, delta2, delta3;
->  	int		entropy = 0;
->  
-> -#if defined (__i386__) || defined (__x86_64__)
-> +#if (defined (__i386__) || defined (__x86_64__)) && !defined (__arch_um__)
->  	if (cpu_has_tsc) {
->  		__u32 high;
->  		rdtsc(time, high);
-> ===== drivers/char/mem.c 1.23 vs edited =====
-> --- 1.23/drivers/char/mem.c	Mon Aug  5 23:05:22 2002
-> +++ edited/drivers/char/mem.c	Tue Oct 15 10:18:31 2002
-> @@ -132,6 +132,7 @@
->  {
->  	unsigned long prot = pgprot_val(_prot);
->  
-> +#if !defined(__arch_um__)
->  #if defined(__i386__) || defined(__x86_64__)
->  	/* On PPro and successors, PCD alone doesn't always mean 
->  	    uncached because of interactions with the MTRRs. PCD | PWT
-> @@ -152,7 +153,7 @@
->  	else if (MMU_IS_040 || MMU_IS_060)
->  		prot = (prot & _CACHEMASK040) | _PAGE_NOCACHE_S;
->  #endif
-> -
-> +#endif
->  	return __pgprot(prot);
->  }
->  
-> @@ -164,7 +165,7 @@
->   */
->  static inline int noncached_address(unsigned long addr)
->  {
-> -#if defined(__i386__)
-> +#if defined(__i386__) && !defined(__arch_um__)
->  	/* 
->  	 * On the PPro and successors, the MTRRs are used to set
->  	 * memory types for physical addresses outside main memory, 
-> 
-> 
-> -------------------------------------------------------
-> This sf.net email is sponsored by:ThinkGeek
-> Welcome to geek heaven.
-> http://thinkgeek.com/sf
-> _______________________________________________
-> User-mode-linux-devel mailing list
-> User-mode-linux-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/user-mode-linux-devel
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+I've got a little problem here with my network card (cardbus) - using the 
+Vortex driver after I've entered suspend on my laptop (dell latitude) and 
+revive the machine from it.
+
+After reviving the machine, the dulplex mode and mbits are wrongly 
+autodetected. I'm connected to a 100mbit/FD network, and the card goes back 
+to the default state of 10mbit/HD.  Disconnecting/reconnecting the cable does 
+not help. 
+
+If I remove the module from the kernel, and re-load it, the system hangs 
+solid.
+
+After reviving the pc also 'stalls' now and again, approximatively every 15-20 
+seconds, for 1-2 seconds.
+
+In my kernel logs i get these messages:
+
+-------------------------
+Oct 15 11:16:05 laptop kernel: eth0: command 0x5800 did not complete! 
+Status=0xffff
+Oct 15 11:16:05 laptop kernel: eth0: command 0x2804 did not complete! 
+Status=0xffff
+Oct 15 11:16:21 laptop kernel: eth0: command 0x3002 did not complete! 
+Status=0xffff
+Oct 15 11:16:44 laptop last message repeated 12 times
+Oct 15 11:16:46 laptop kernel: Debug: sleeping function called from illegal 
+context at slab.c:1374
+Oct 15 11:16:46 laptop kernel: eth0: command 0x3002 did not complete! 
+Status=0xffff
+Oct 15 11:16:48 laptop last message repeated 2 times
+Oct 15 11:16:58 laptop kernel: eth0: transmit timed out, tx_status ff status 
+ffff.
+Oct 15 11:16:58 laptop kernel:   diagnostics: net ffff media ffff dma ffffffff 
+fifo ffff
+Oct 15 11:16:58 laptop kernel: eth0: Transmitter encountered 16 collisions -- 
+network cable problem?
+Oct 15 11:16:58 laptop kernel: eth0: Interrupt posted but not delivered -- IRQ 
+blocked by another device?
+Oct 15 11:16:58 laptop kernel:   Flags; bus-master 1, dirty 0(0) current 16(0)
+Oct 15 11:16:58 laptop kernel:   Transmit list ffffffff vs. c03b6200.
+Oct 15 11:16:58 laptop kernel: eth0: command 0x3002 did not complete! 
+Status=0xffff
+Oct 15 11:16:58 laptop kernel:   0: @c03b6200  length 800000ff status 000000ff
+Oct 15 11:16:58 laptop kernel:   1: @c03b62a0  length 800000f9 status 000000f9
+Oct 15 11:16:58 laptop kernel:   2: @c03b6340  length 800000ff status 000000ff
+Oct 15 11:16:58 laptop kernel:   3: @c03b63e0  length 8000005c status 0000005c
+Oct 15 11:16:58 laptop kernel:   4: @c03b6480  length 8000005c status 0000005c
+Oct 15 11:16:58 laptop kernel:   5: @c03b6520  length 8000005c status 0000005c
+Oct 15 11:16:58 laptop kernel:   6: @c03b65c0  length 8000005c status 0000005c
+Oct 15 11:16:59 laptop kernel:   7: @c03b6660  length 800000e7 status 000000e7
+Oct 15 11:16:59 laptop kernel:   8: @c03b6700  length 800000e7 status 000000e7
+Oct 15 11:16:59 laptop kernel:   9: @c03b67a0  length 800000e7 status 000000e7
+Oct 15 11:17:00 laptop kernel:   10: @c03b6840  length 800000e7 status 
+000000e7
+Oct 15 11:17:00 laptop kernel:   11: @c03b68e0  length 800000e7 status 
+000000e7
+Oct 15 11:17:00 laptop kernel:   12: @c03b6980  length 8000006e status 
+0000006e
+Oct 15 11:17:00 laptop kernel:   13: @c03b6a20  length 8000006e status 
+0000006e
+Oct 15 11:17:00 laptop kernel:   14: @c03b6ac0  length 8000006e status 
+8000006e
+Oct 15 11:17:00 laptop kernel:   15: @c03b6b60  length 8000006e status 
+8000006e
+Oct 15 11:17:00 laptop kernel: eth0: command 0x5800 did not complete! 
+Status=0xffff
+Oct 15 11:17:13 laptop kernel: eth0: transmit timed out, tx_status ff status 
+ffff.
+Oct 15 11:17:13 laptop kernel:   diagnostics: net ffff media ffff dma ffffffff 
+fifo ffff
+Oct 15 11:17:13 laptop kernel: eth0: Transmitter encountered 16 collisions -- 
+network cable problem?
+Oct 15 11:17:13 laptop kernel: eth0: Interrupt posted but not delivered -- IRQ 
+blocked by another device?
+-------------------------
+
+over and over again (with different numbers), until i reboot the machine. 
+Networkconnection never gets established.
+
+Card:
+
+06:00.0 Ethernet controller: 3Com Corporation 3c575 [Megahertz] 10/100 LAN 
+CardBus (rev 01)
+        Subsystem: 3Com Corporation 3C575 Megahertz 10/100 LAN Cardbus PC Card
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (2500ns min, 1250ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at 4800 [size=128]
+        Region 1: Memory at 11000000 (32-bit, non-prefetchable) [size=128]
+        Region 2: Memory at 11000080 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at 10c00000 [size=128K]
+        Capabilities: [50] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+DK
+
+-- 
+PL/1, "the fatal disease", belongs more to the problem set than to the
+solution set.
+		-- E. W. Dijkstra
 

@@ -1,105 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267444AbTBUOPI>; Fri, 21 Feb 2003 09:15:08 -0500
+	id <S267448AbTBUOT6>; Fri, 21 Feb 2003 09:19:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267445AbTBUOPI>; Fri, 21 Feb 2003 09:15:08 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:10482 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S267444AbTBUOPG>; Fri, 21 Feb 2003 09:15:06 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c w ith flush_tlb_all()
-Date: Fri, 21 Feb 2003 15:25:01 +0100
-User-Agent: KMail/1.5
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302211217390.1531-100000@localhost.localdomain> <200302211342.19007.schlicht@uni-mannheim.de> <20030221142039.GA21532@codemonkey.org.uk>
-In-Reply-To: <20030221142039.GA21532@codemonkey.org.uk>
+	id <S267449AbTBUOT6>; Fri, 21 Feb 2003 09:19:58 -0500
+Received: from yakko.cs.wmich.edu ([141.218.40.78]:53497 "EHLO yakko.cclub.net")
+	by vger.kernel.org with ESMTP id <S267448AbTBUOT5>;
+	Fri, 21 Feb 2003 09:19:57 -0500
+Date: Fri, 21 Feb 2003 09:27:55 -0500 (EST)
+From: Edward Killips <camber@yakko.cs.wmich.edu>
+X-X-Sender: camber@yakko.cclub.net
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+cc: toptan@eunet.eu, <linux-kernel@vger.kernel.org>
+Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
+In-Reply-To: <20030221122051.20942f70.deepfire@ibe.miee.ru>
+Message-ID: <Pine.LNX.4.44.0302210926250.8764-100000@yakko.cclub.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_DbjV+7Ae8S/EhGN";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200302211525.07213.schlicht@uni-mannheim.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On my GA-7VAXP (KT400) with an AIW 9700 Pro Radeon the agpgart module 
+would not load. It could not set the apeture size.
 
---Boundary-02=_DbjV+7Ae8S/EhGN
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
-
-Yes, you are right. I was just looking for this preempt-problem where a=20
-flush_tlb* was done, but there are many other places where this problem=20
-occours, too... Nearly everywhere where smp_call_function() is used!
-
-I found a function in the file mm/slab.c called smp_call_function_all_cpus(=
-)=20
-which tries to do the thing we want, but I think not even this function is=
-=20
-preempt-safe...!
-
-But here I think I better get off my fingers, I just wanted to help a bit w=
-ith=20
-this issue, but I don't think I have the time and knowledge to solve it=20
-completely in the mentioned good way...
-
-Perhaps even the semantic of the function smp_call_function() could be chan=
-ged=20
-to call the function on every CPU? Just an idea...
-
-Best regards
-  Thomas Schlichter
+-Edward Killips.
 
 
-On Fri, 21 Feb 2003 15:20, Dave Jones wrote:
-> On Fri, Feb 21, 2003 at 01:42:12PM +0100, Thomas Schlichter wrote:
->  > > No.  All that does is make sure that the cpu you start out on is
->  > > flushed, once or twice, and the cpu you end up on may be missed.
->  > > Use preempt_disable and preempt_enable.
->  >
->  > Oh, you are right! I think I am totally stupid this morning...!
->  > Now finally I hope this is the correct patch...
->
-> That would appear to do what you want, but its an ugly construct to
-> be repeating everywhere that wants to call a function on all CPUs.
-> It would probably clean things up a lot if we had a function to do..
->
-> static inline void on_each_cpu(void *func)
-> {
-> #ifdef CONFIG_SMP
-> 	preempt_disable();
-> 	smp_call_function(func, NULL, 1, 1);
-> 	func(NULL);
-> 	preempt_enable();
-> #else
-> 	func(NULL);
-> #endif
-> }
->
-> Bluesmoke and agpgart could both use this to cleanup some mess,
-> and no doubt there are others
->
-> Comments?
->
-> 		Dave
+On Fri, 21 Feb 2003, Samium Gromoff wrote:
 
---Boundary-02=_DbjV+7Ae8S/EhGN
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+VjbDYAiN+WRIZzQRAk6FAJ45uZxT8aFPEfxzQgihAf6VQjharwCggdOr
-MuDk8MqPYjchHUJnsOqNRBU=
-=t/x1
------END PGP SIGNATURE-----
-
---Boundary-02=_DbjV+7Ae8S/EhGN--
+> >	GA-7VAXPUltra (KT400)   + ATI Radeon R9000      = passed.
+> >                                                + GeForce 2MX400        = passed.
+> >        Chaintech 7AJA2E (KT133)        + ATI Radeon R9000      = passed.
+> >                                                + GeForce 2MX400        = passed.
+> >
+> >        Abit (i810)                             + ATI Radeon R9000      = passed.
+> >                                                + GeForce 2MX400        = passed.
+> 
+>  From all this hardware only the KT400+R9000 pair possibly engage in AGP8x transfers,
+> and i`m suspicious whether R9000 does it at all...
+> 
+>  So i think somebody testing it on real AGP3.0-capable hardware would do good...
+> 
+> regards, Samium Gromoff
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,117 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbUJ2Esm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbUJ2Evx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbUJ2Esm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 00:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbUJ2Esm
+	id S262882AbUJ2Evx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 00:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUJ2Evw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 00:48:42 -0400
-Received: from fmr10.intel.com ([192.55.52.30]:7115 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262017AbUJ2Esh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 00:48:37 -0400
-Subject: Re: Userspace ACPI interpreter ( was RE: [ACPI] [RFC] dev_acpi:
-	support for userspace access to acpi)
-From: Len Brown <len.brown@intel.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Luming Yu <luming.yu@intel.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Robert Moore <robert.moore@intel.com>,
-       Alex Williamson <alex.williamson@hp.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20041028152404.GB7902@thunk.org>
-References: <3ACA40606221794F80A5670F0AF15F84041ABFFA@pdsmsx403>
-	 <418085B0.30208@intel.com>  <20041028152404.GB7902@thunk.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1099025292.5402.200.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 29 Oct 2004 00:48:14 -0400
+	Fri, 29 Oct 2004 00:51:52 -0400
+Received: from out011pub.verizon.net ([206.46.170.135]:40950 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S262882AbUJ2EuH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 00:50:07 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9bk6 msdos fs OOPS
+Date: Fri, 29 Oct 2004 00:50:06 -0400
+User-Agent: KMail/1.7
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Nigel Kukard <nkukard@lbsd.net>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <41809921.10200@lbsd.net> <200410281905.20547.gene.heskett@verizon.net> <87k6ta1jf5.fsf@devron.myhome.or.jp>
+In-Reply-To: <87k6ta1jf5.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410290050.06454.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 23:50:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re: why would we want a user-space interpreter?
+On Thursday 28 October 2004 20:01, OGAWA Hirofumi wrote:
+>Gene Heskett <gene.heskett@verizon.net> writes:
+>> Not at the time, which is why I came to the conclusion it may be a
+>> bug in the camera software.  It checks in as version 1.0, and we
+>> all know no one trusts anything at version 1.0. :-)
+>>
+>> I know now how to keep it from happening, so its not a showstopper
+>> for me.
+>
+>Can you check the camera's entry of "cat /proc/mounts"?  Is it
+>something like, "/dev/sda1 /mnt vfat ro,..."?
 
-I don't see any strong reasons.  This is sort of an indulgent "what if"
-topic...
+Unforch, I just rebooted to 2.6.10-rc1-bk7, and something is now broken.
+It's always plugged in, but as it eats batteries pretty bad, turned off.
 
-Sure page-able memory is better to use than locked down kernel memory. 
-Indeed, if the target system doesn't support ACPI at all, then we could
-free all of ACPI's memory (static sizes listed below).  But this
-configuration is becoming less common over time, not more common.
-And if you've got a tiny system w/o ACPI, you'd probably just build with
-CONFIG_ACPI=n rather than running a general-purpose ACPI-enabled kernel.
+When I turned it on, I got this in the logs:
+Oct 29 00:36:03 coyote kernel: usb 3-2.2: new full speed USB device using address 7
+Oct 29 00:36:04 coyote kernel: scsi0 : SCSI emulation for USB Mass Storage devices
+Oct 29 00:36:09 coyote scsi.agent[3339]: disk at /devices/pci0000:00/0000:00:02.1/usb3/3-2/3-2.2/3-2.2:1.0/host0/target0:0:0/0:0:0:0
+Oct 29 00:36:09 coyote kernel:   Vendor: OLYMPUS   Model: C-3020ZOOM(U)     Rev: 1.00
+Oct 29 00:36:09 coyote kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Oct 29 00:36:09 coyote kernel: Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
+Oct 29 00:36:09 coyote kernel: SCSI device sda: 128000 512-byte hdwr sectors (66 MB)
+Oct 29 00:36:09 coyote kernel: sda: assuming Write Enabled
+Oct 29 00:36:09 coyote kernel: sda: assuming drive cache: write through
+Oct 29 00:36:09 coyote kernel:  sda: sda1
+Oct 29 00:36:09 coyote kernel: Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
 
-[ It would be sort of neat if we could built the core ACPI support in
-some kind of modular way such that that we could have it at boot-time,
-if we need it, but optionally unload it at run-time if it turned out the
-target system didn't need it. ]
+When I mounted it, the logs show:
+Nothing.
 
-I suppose that a crash in the kernel-mode-interpreter would kill the
-system.  But I'm not aware of any such failures today and we fix those
-pretty quickly when they do happen.  From a high-level view, however,
-Luming's simplicity=stability argument has some merit when you add in
-things like memory leaks, stack overflows and all the other system
-killing things that could potentially happen in the kernel.
+The screen I mnounted it in gave this:
+[root@coyote dlds-tgzs]# mount -t iso9660 /dev/camera /mnt/camera
+mount: wrong fs type, bad option, bad superblock on /dev/camera,
+       or too many mounted file systems
 
-In the kernel we currently have an issue running AML with interrupts off
--- can't do it b/c arbitrary AML could require allocating memory and
-sleeping.  But this issue probably has a solution and by itself doesn't
-justify a user-land interpreter.
+And:
+[root@coyote dlds-tgzs]# ls -l /dev/camera
+lrwxr-xr-x  1 root root 9 Nov 14  2003 /dev/camera -> /dev/sda1
 
-One could argue that the _policy_ drivers -- the modules listed below
-should live in user-space because they implement policy.  This, however,
-is a philosophical, rather than practical, argument.
+So it appears that -bk7 is broken and I'll have to reboot back to
+2.6.10-rc1-bk6 to get that info, and that will require the fscking
+of about 200GB of drives, they will all check on the next reboot. :(
 
+Att: Linus:  bk7 broke this, it worked fine at 2.6.10-rc1-bk6.  This
+-bk7 kernel includes the patch that started this thread also, as did
+the -bk6 test kernel under which it worked.
 
-Re: why would we NOT want a user-space interpreter?
-
-We need one in the kernel to boot the system anyway, so why have two?
-
-Synchronization and concurrency in the kernel is well controlled.
-
-No issues with AML accessing arbitrary ports and addresses when running
-in the kernel.
-
--Len
-
----
-
-CONFIG_ACPI_DEBUG=n
-
-Loadable Module Sizes:
-   text    data     bss     dec     hex filename
-   1072     324       4    1400     578 drivers/acpi/ac.o
-   8511    1624      20   10155    27ab drivers/acpi/asus_acpi.o
-   5227     216       4    5447    1547 drivers/acpi/battery.o
-   2006     452      16    2474     9aa drivers/acpi/button.o
-    956     216       4    1176     498 drivers/acpi/fan.o
-   9714    1057     372   11143    2b87 drivers/acpi/ibm_acpi.o
-   9465    1012     128   10605    296d drivers/acpi/processor.o
-   5891     868       8    6767    1a6f drivers/acpi/thermal.o
-   3044      72      20    3136     c40 drivers/acpi/toshiba_acpi.o
-   7824    1348       4    9176    23d8 drivers/acpi/video.o
-
-Static Kernel Size:
-   text    data     bss     dec     hex filename
- 144533    5608    4920  155061   25db5 drivers/acpi/built-in.o
-
-
-CONFIG_ACPI_DEBUG=y
-
-   text    data     bss     dec     hex filename
-   2234     356       4    2594     a22 drivers/acpi/ac.o
-   8511    1624      20   10155    27ab drivers/acpi/asus_acpi.o
-   7686     248       4    7938    1f02 drivers/acpi/battery.o
-   3420     484      16    3920     f50 drivers/acpi/button.o
-   1886     248       4    2138     85a drivers/acpi/fan.o
-  18508    1044     128   19680    4ce0 drivers/acpi/processor.o
-  11119     868       8   11995    2edb drivers/acpi/thermal.o
-   3044      72      20    3136     c40 drivers/acpi/toshiba_acpi.o
-
-Static Kernel Size:
-   text    data     bss     dec     hex filename
- 282285    6636    5112  294033   47c91 drivers/acpi/built-in.o
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

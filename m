@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268126AbUI2Ay4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268128AbUI2A4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268126AbUI2Ay4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 20:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUI2Awi
+	id S268128AbUI2A4j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 20:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUI2AzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 20:52:38 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:12937 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268126AbUI2Avw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 20:51:52 -0400
-Subject: Re: mlock(1)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Stefan Seyfried <seife@suse.de>,
-       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       Chris Wright <chrisw@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-In-Reply-To: <20040927141652.GF28865@dualathlon.random>
-References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net>
-	 <1096071873.3591.54.camel@desktop.cunninghams>
-	 <20040925011800.GB3309@dualathlon.random> <4157B04B.2000306@suse.de>
-	 <20040927141652.GF28865@dualathlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096291898.9911.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 27 Sep 2004 14:31:39 +0100
+	Tue, 28 Sep 2004 20:55:10 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:30352 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268128AbUI2Axs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 20:53:48 -0400
+Date: Wed, 29 Sep 2004 09:55:33 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH] add hook for PCI resource deallocation
+In-reply-to: <20040928220047.GB13816@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel@vger.kernel.org
+Message-id: <415A0805.5000502@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
+References: <41498CF6.9000808@jp.fujitsu.com>
+ <20040924130251.A26271@unix-os.sc.intel.com> <20040924212208.GD7619@kroah.com>
+ <4157CA04.5050604@jp.fujitsu.com> <20040928220047.GB13816@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-09-27 at 15:16, Andrea Arcangeli wrote:
-> because I never use suspend/resume on my desktop, I never shutdown my
-> desktop. I don't see why should I spend time typing a password when
-> there's no need to. Every single guy out there will complain at linux
-> hanging during boot asking for password before reaching kdm.
+Hi Greg,
 
-So attempt a decrypt with a null password before asking. 
+Greg KH wrote:
+> 
+> Based on all of the comments, I'll wait for you to incorporate them, so
+> I'm not going to apply this one.
+> 
 
-> > And a resume is - in the beginning - a boot, so just ask early enough
-> > (maybe the bootloader could do this?)
+Okay.
+I'll be able to post an updated set of patches based on all of the
+comments soon.
 
-We are very limited as to which bits the bootloader can do
-unfortunately.
+Thanks,
+Kenji Kaneshige
+

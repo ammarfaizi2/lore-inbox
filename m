@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268963AbRIPI7M>; Sun, 16 Sep 2001 04:59:12 -0400
+	id <S268835AbRIPJNz>; Sun, 16 Sep 2001 05:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268940AbRIPI7D>; Sun, 16 Sep 2001 04:59:03 -0400
-Received: from [213.17.90.247] ([213.17.90.247]:39947 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S268837AbRIPI6w>; Sun, 16 Sep 2001 04:58:52 -0400
-Message-Id: <200109160858.KAA28624@cave.bitwizard.nl>
-Subject: Re: How errorproof is ext2 fs?
-In-Reply-To: <E15hebh-0007QK-00@the-village.bc.nu> from Alan Cox at "Sep 13,
- 2001 11:05:13 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sun, 16 Sep 2001 10:58:46 +0200 (MEST)
-CC: otto.wyss@bluewin.ch, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
+	id <S268940AbRIPJNp>; Sun, 16 Sep 2001 05:13:45 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:49677 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268835AbRIPJNk>; Sun, 16 Sep 2001 05:13:40 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: 0-order allocation failed in 2.4.10-pre8
+Date: Sun, 16 Sep 2001 11:21:15 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: kelley eicher <keicher@nws.gov>, J <jack@i2net.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3BA24EB0.5000402@i2net.com> <20010916015917Z16125-2757+260@humbolt.nl.linux.org> <20010916100325.B1045@suse.de>
+In-Reply-To: <20010916100325.B1045@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010916091402Z16065-2757+289@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > due to an not responding USB-keyboard/-mouse (what a nice coincident). Now while
-> > the Mac restarted without any fuse I had to fix the ext2-fs manually for about
-> > 15 min. Luckily it seems I haven't lost anything on both system. 
+On September 16, 2001 10:03 am, Jens Axboe wrote:
+> On Sun, Sep 16 2001, Daniel Phillips wrote:
+> > > Use the
+> > > 
+> > > 
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.9/block-highmem-all
+> > > 
+> > > patch and you can use highmem without having to worry about failed
+> > > 0-order bounce pages allocations.
 > > 
-> > This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
-> > worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
- 
-> That sounds like it behaved well. fsck didnt have enough info to safely
-> do all the fixup without asking you. Its not a reliability issue as such.
+> > Right, by using 64 bit DMA instead of bounce buffers.  But aren't there 
+cases
+> > where the 64 bit capable hardware isn't there but somebody still wants to 
+use
+> > highmem?
+> 
+> Yes of course. The common case is not 64-bit dma here though, it's just
+> being able to DMA to highmem pages (just full 32-bit dma instead of low
+> memory dma). And that should cover most systems out there.
 
-Well, fsck wants to ask 
+Right, but that does not mean we can forget about bounce buffers, does it.  
+Most users will probably be able to use full 32-bit dma and users with more 
+than 4 GB of memory really should go to the effort of making sure their 
+hardware supports 64 bit dma.  But there will still be a few people who have 
+to use bounce buffers.
 
-	"Found an unattached inode, connect to lost+found?"
+I'm just confirming that we really do have to push on and get bounce buffers 
+working reliably, even if most people will be able to use your far nicer 
+alternative.
 
-to the user and will interrupt an automatic reboot for that.
-
-This is bad: The safe choice is safe: It won't cause data-loss. 
-
-Maybe it should report it (say by Email), but interrupting a reboot
-just for connecting a couple of files to lost+found, that's
-rediculous.
-
-If it would give me enough information when I do this manually, I'd
-make an informed decision. However, what are the chances of me knowing
-that inode 123456 is a staroffice bak-file? So the only way to safely
-operate is to link them into lost+found, and then to look at the files
-manually.
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+--
+Daniel

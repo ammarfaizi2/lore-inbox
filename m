@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272456AbTHOXPg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 19:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272458AbTHOXPg
+	id S272485AbTHOXSt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 19:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272495AbTHOXSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 19:15:36 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:43783 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S272456AbTHOXPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 19:15:32 -0400
-Date: Sat, 16 Aug 2003 00:15:31 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: mouse and keyboard by default if not embedded
-In-Reply-To: <E19mVL7-000EMp-00.arvidjaar-mail-ru@f20.mail.ru>
-Message-ID: <Pine.LNX.4.44.0308160013450.21319-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Aug 2003 19:18:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:6074 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272485AbTHOXSp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 19:18:45 -0400
+Date: Fri, 15 Aug 2003 16:15:14 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Mark McClelland <mark@alpha.dyndns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: remove "Linux 2.4" strings
+Message-Id: <20030815161514.24eed70a.rddunlap@osdl.org>
+In-Reply-To: <3F3D65D2.1070700@alpha.dyndns.org>
+References: <20030815101143.72bbea51.rddunlap@osdl.org>
+	<3F3D65D2.1070700@alpha.dyndns.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Aug 2003 15:59:30 -0700 Mark McClelland <mark@alpha.dyndns.org> wrote:
 
-> > kYes it is fine. That is a PS/2 aux emulator. It turns non PS/2 mice into 
-> > PS/2 mice. Personally I rather have people use the /dev/input/eventX 
-> > interface. That PS/2 hack will go away in the future. 
-> 
-> does XFree support event?
+| Randy.Dunlap wrote:
+| 
+| >This patch removes "Linux 2.4" printed strings from a few
+| >drivers and net protocols.
+| >
+| >Instead of changing them to "Linux 2.6", they should just
+| >be deleted, I think.  Other suggestions?
+| >
+| These strings are sometimes useful to maintainers when handling bug 
+| reports. Vendors and users often replace drivers with out-of-tree 
+| versions to gain features that aren't included in the in-kernel version 
+| (because of licensing issues, etc...). I have had this happen with ov511 
+| a number of times, so I add the "for Linux 2.4" now.
 
-I don't know but patches have been floating around for a while for 
-XFree86.
- 
-> also there dual boot 2.4/2.6 systems where you have single XFree config
-> and single gpm config ... although these will have problems with
-> non-imps2 mice anyway.
+OK, I won't push them.
+Just seems odd to see drivers "for Linux 2.4" in the 2.6 tree.
 
-Once everything starts using the event api we will not need configs 
-anymore when it comes to input devices ;-)
+Thanks for your RFC reply.
 
-
+--
+~Randy

@@ -1,486 +1,230 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317764AbSGVToI>; Mon, 22 Jul 2002 15:44:08 -0400
+	id <S317782AbSGVTxf>; Mon, 22 Jul 2002 15:53:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317761AbSGVToI>; Mon, 22 Jul 2002 15:44:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:1447 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317764AbSGVTn5>;
-	Mon, 22 Jul 2002 15:43:57 -0400
-Subject: [OOPS] 2.5.27 - __free_pages_ok()
-From: Paul Larson <plars@austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Content-Type: multipart/mixed; boundary="=-XB+YNemAQPiyzzpKCfWX"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 22 Jul 2002 14:34:27 -0500
-Message-Id: <1027366468.5170.26.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S317783AbSGVTxf>; Mon, 22 Jul 2002 15:53:35 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:53903 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317782AbSGVTxd>;
+	Mon, 22 Jul 2002 15:53:33 -0400
+Date: Mon, 22 Jul 2002 21:55:35 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch] context-switching & LDT fixes, 2.5.27
+Message-ID: <Pine.LNX.4.44.0207222154320.25175-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-XB+YNemAQPiyzzpKCfWX
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+the attached patch [against current BK tree] fixes a number of x86 LDT
+related SMP bugs in the context-switching code:
 
-Encountered this first with Linux-2.5.25+rmap and it looks like the
-problem also slipped into 2.5.27.  The same machine boots fine with a
-vanilla 2.5.25 or 2.5.26, but gets this on boot with rmap.  The machine
-is an 8-way PIII-700.
+ - update mm->context atomically wrt. context-switching. The segment 
+   semaphore alone is not enough, since the context-switching code does
+   not use it. Without this fix a thread on another CPU might see an
+   inconsistent ->count or ->ldt value, causing either to load the default
+   5-entry LDT descriptor with an incorrect size, or loading a non-default
+   LDT descriptor.
 
-# free
-             total       used       free     shared    buffers    
-cached
-Mem:       3871360     464796    3406564          0     110280    
-110356
--/+ buffers/cache:     244160    3627200
-Swap:     15719284          0   15719284
+ - copy_ldt() must not printk on an allocation error - it's relatively
+   easy to trigger this message.
 
--Paul Larson
+ - copy_ldt() does not have to set new->size to 0 - it's 0 already in 
+   this codepath.
 
+ - introduce load_LDT_nolock to have maximum performance in the
+   context-switch codepath, which path is IRQ and preempt-locked already.
 
---=-XB+YNemAQPiyzzpKCfWX
-Content-Disposition: attachment; filename=oops.out
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=oops.out; charset=ISO-8859-1
+ - fix preempt bugs in clean_LDT() and alloc_ldt().
 
-ksymoops 2.4.4 on i686 2.4.18-3smp.  Options used
-     -V (default)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m /usr/src/linux-2.5.27/System.map (specified)
+non-x86 architectures should not be affected by this patch. x86 SMP and UP
+kernels compile, boot & work just fine.
 
-15488MB HIGHMEM available.
-WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.=
-org if you experience SMP problems!
-cpu: 0, clocks: 99984, slice: 3029
-cpu: 7, clocks: 99984, slice: 3029
-cpu: 5, clocks: 99984, slice: 3029
-cpu: 6, clocks: 99984, slice: 3029
-cpu: 3, clocks: 99984, slice: 3029
-cpu: 4, clocks: 99984, slice: 3029
-cpu: 1, clocks: 99984, slice: 3029
-cpu: 2, clocks: 99984, slice: 3029
-ds: no socket drivers loaded!
-kernel BUG at page_alloc.c:98!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0132a0a>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: cbffcc08   ebx: c03cc2b0   ecx: cbffcc08   edx: fffe5638
-esi: 00000058   edi: 00000000   ebp: cbffcc08   esp: f7545f10
-ds: 0018   es: 0018   ss: 0018
-Stack: cbffcc08 c0127930 c03cc140 f7951f50 bfffc000 00004000 f7564f80 00000=
-000=20
-       cbffcc08 c03cc2b0 00000058 00000106 cbffcc08 c012aa9c cbffcc08 00000=
-001=20
-       c011b068 00000000 f7545f70 f7952bc0 00000002 f79146e0 00000100 c0116=
-ea8=20
-Call Trace: [<c0127930>] [<c012aa9c>] [<c011b068>] [<c0116ea8>] [<c011bc34>=
-]=20
-   [<c010700b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
+	Ingo
 
->>EIP; c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-Trace; c0127930 <unmap_page_range+40/60>
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c011b068 <release_task+a8/b0>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c011bc34 <do_exit+c4/2a0>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
-kernel BUG at page_alloc.c:98!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0132a0a>]    Not tainted
-EFLAGS: 00010282
-eax: cbffbd98   ebx: c03cc2c0   ecx: cbffbd98   edx: fffe5638
-esi: 0000005c   edi: 00000000   ebp: cbffbd98   esp: f7511c20
-ds: 0018   es: 0018   ss: 0018
-Stack: cbffbd98 c0127930 c03cc140 f7951ef0 bfffc000 00004000 f753b5a0 00000=
-000=20
-       cbffbd98 c03cc2c0 0000005c 00000125 cbffbd98 c012aa9c cbffbd98 f7966=
-280=20
-       f7511ca0 f7511c6c c012bfd0 f79529e0 f7510000 00000000 f79529e0 c0116=
-ea8=20
-Call Trace: [<c0127930>] [<c012aa9c>] [<c012bfd0>] [<c0116ea8>] [<c014479e>=
-]=20
-   [<c014495d>] [<c015ac26>] [<c0232293>] [<c0114f3b>] [<c0139de2>] [<c0144=
-242>]=20
-   [<c015a7c0>] [<c0144f5c>] [<c0145227>] [<c01463ee>] [<c0105bb0>] [<c0107=
-00b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
-
->>EIP; c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-Trace; c0127930 <unmap_page_range+40/60>
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c012bfd0 <file_read_actor+0/f0>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c014479e <exec_mmap+14e/170>
-Trace; c014495d <flush_old_exec+9d/2d0>
-Trace; c015ac26 <load_elf_binary+466/ad0>
-Trace; c0232293 <scsi_dispatch_cmd+e3/180>
-Trace; c0114f3b <schedule+33b/3a0>
-Trace; c0139de2 <do_page_cache_readahead+f2/120>
-Trace; c0144242 <copy_strings+1c2/240>
-Trace; c015a7c0 <load_elf_binary+0/ad0>
-Trace; c0144f5c <search_binary_handler+ac/1e0>
-Trace; c0145227 <do_execve+197/240>
-Trace; c01463ee <getname+5e/a0>
-Trace; c0105bb0 <sys_execve+30/60>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
-Setting clockernel BUG at page_alloc.c:98!
-EFLAGS: 00010282
-Stack: cbff9da0 c0127930 c03cc140 f7951f30 bfffc000 00004000 f75527e0 00000=
-000=20
-       cbff9da0 c03cc2c0 0000005c 00000128 cbff9da0 c012aa9c cbff9da0 f7966=
-280=20
-       f753fca0 f753fc6c c012bfd0 f7952b20 f753e000 00000000 f7952b20 c0116=
-ea8=20
-Call Trace: [<c0127930>] [<c012aa9c>] [<c012bfd0>] [<c0116ea8>] [<c014479e>=
-]=20
-   [<c014495d>] [<c015ac26>] [<c0139d6a>] [<c0144242>] [<c015a7c0>] [<c0144=
-f5c>]=20
-   [<c0145227>] [<c01463ee>] [<c0105bb0>] [<c010700b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
-
-Trace; c0127930 <unmap_page_range+40/60>
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c012bfd0 <file_read_actor+0/f0>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c014479e <exec_mmap+14e/170>
-Trace; c014495d <flush_old_exec+9d/2d0>
-Trace; c015ac26 <load_elf_binary+466/ad0>
-Trace; c0139d6a <do_page_cache_readahead+7a/120>
-Trace; c0144242 <copy_strings+1c2/240>
-Trace; c015a7c0 <load_elf_binary+0/ad0>
-Trace; c0144f5c <search_binary_handler+ac/1e0>
-Trace; c0145227 <do_execve+197/240>
-Trace; c01463ee <getname+5e/a0>
-Trace; c0105bb0 <sys_execve+30/60>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>
-   0:   0f 0b                     ud2a  =20
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
-kernel BUG at page_alloc.c:98!
-invalid operand: 0000
-CPU:    1
-EIP:    0010:[<c0132a0a>]    Not tainted
-EFLAGS: 00010282
-eax: cbff88d4   ebx: c03ccabc   ecx: cbff88d4   edx: fffee638
-esi: 0000005c   edi: 00000000   ebp: cbff88d4   esp: f7501f10
-ds: 0018   es: 0018   ss: 0018
-Stack: cbff88d4 c0127930 c03cc93c f7505f70 bfffc000 00004000 f7552660 00000=
-000=20
-       cbff88d4 c03ccabc 0000005c 00000128 cbff88d4 c012aa9c cbff88d4 00000=
-001=20
-       c011b068 00000282 fffffff6 f7510c80 00000002 f79e5340 00000000 c0116=
-ea8=20
-Call Trace: [<c0127930>] [<c012aa9c>] [<c011b068>] [<c0116ea8>] [<c011bc34>=
-]=20
-   [<c01114e6>] [<c010700b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
-
->>EIP; c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-Trace; c0127930 <unmap_page_range+40/60>
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c011b068 <release_task+a8/b0>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c011bc34 <do_exit+c4/2a0>
-Trace; c01114e6 <smp_apic_timer_interrupt+f6/120>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
-/: clean, 285771kernel BUG at page_alloc.c:98!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0132a0a>]    Not tainted
-EFLAGS: 00010282
-eax: cbff9ea8   ebx: c03cc390   ecx: cbff9ea8   edx: fffe5ff8
-esi: 00000090   edi: 00000000   ebp: cbff9ea8   esp: f74abc20
-ds: 0018   es: 0018   ss: 0018
-Stack: cbff9ea8 003c8000 c100001c cbff5410 c19a001c c034628c 00000203 fffff=
-ffe=20
-       cbff9ea8 c03cc390 00000090 00000094 cbff9ea8 c012aa9c cbff9ea8 f7966=
-280=20
-       f74abca0 f74abc6c c012bfd0 f7510e60 f74aa000 00000000 f7510e60 c0116=
-ea8=20
-Call Trace: [<c012aa9c>] [<c012bfd0>] [<c0116ea8>] [<c014479e>] [<c014495d>=
-]=20
-   [<c015ac26>] [<c0139d6a>] [<c0144242>] [<c015a7c0>] [<c0144f5c>] [<c0145=
-227>]=20
-   [<c01463ee>] [<c0105bb0>] [<c010700b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
-
->>EIP; c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c012bfd0 <file_read_actor+0/f0>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c014479e <exec_mmap+14e/170>
-Trace; c014495d <flush_old_exec+9d/2d0>
-Trace; c015ac26 <load_elf_binary+466/ad0>
-Trace; c0139d6a <do_page_cache_readahead+7a/120>
-Trace; c0144242 <copy_strings+1c2/240>
-Trace; c015a7c0 <load_elf_binary+0/ad0>
-Trace; c0144f5c <search_binary_handler+ac/1e0>
-Trace; c0145227 <do_execve+197/240>
-Trace; c01463ee <getname+5e/a0>
-Trace; c0105bb0 <sys_execve+30/60>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
- kernel BUG at page_alloc.c:98!
-invalid operand: 0000
-CPU:    1
-EIP:    0010:[<c0132a0a>]    Not tainted
-EFLAGS: 00010282
-eax: cbff5ba0   ebx: c03cca40   ecx: cbff5ba0   edx: fffee680
-esi: 0000003d   edi: 00000000   ebp: cbff5ba0   esp: f74c9f10
-ds: 0018   es: 0018   ss: 0018
-Stack: cbff5ba0 c0127930 c03cc93c f7505ff0 bfffc000 00004000 f74dba80 00000=
-000=20
-       cbff5ba0 c03cca40 0000003d 00000054 cbff5ba0 c012aa9c cbff5ba0 f7a36=
-f60=20
-       f7520340 cc09eee0 f74d2b40 f7510f00 00000002 f74ef320 00000000 c0116=
-ea8=20
-Call Trace: [<c0127930>] [<c012aa9c>] [<c0116ea8>] [<c011bc34>] [<c013c402>=
-]=20
-   [<c010700b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
-
->>EIP; c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-Trace; c0127930 <unmap_page_range+40/60>
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c011bc34 <do_exit+c4/2a0>
-Trace; c013c402 <filp_close+92/a0>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
- /2469152 files, kernel BUG at page_alloc.c:98!
-EIP:    0010:[<c0132a0a>]    Not tainted
-EFLAGS: 00010286
-Warning (Oops_read): Code line not seen, dumping what data is available
-
->>EIP; c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-
-0127930 c03ce130 f7505f90 bfffb000 00005000 f74e9380 00000000=20
-       cbff7778 c03ce160 00000008 000000a6 cbff7778 c012aa9c cbff7778 f74ef=
-960=20
-       c011b068 00000282 00000059 f7510d20 00000002 f79e5340 00000800 c0116=
-ea8=20
-Call Trace: [<c0127930>] [<c012aa9c>] [<c011b068>] [<c0116ea8>] [<c011bc34>=
-]=20
-   [<c01209e0>] [<c0114fa0>] [<c010700b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
-
-Trace; c0127930 <unmap_page_range+40/60>
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c011b068 <release_task+a8/b0>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c011bc34 <do_exit+c4/2a0>
-Trace; c01209e0 <process_timeout+0/10>
-Trace; c0114fa0 <default_wake_function+0/40>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>
-   0:   0f 0b                     ud2a  =20
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
- /etc/rc.sysinit:kernel BUG line 295:    88 Segmentation fault      initlog=
- -c "fsck -T -a $fsckoptions /"
-invalid operand: 0000
-CPU:    7
-EIP:    0010:[<c0132a0a>]    Not tainted
-EFLAGS: 00010282
-eax: cbff6e5c   ebx: c03cfb98   ecx: cbff6e5c   edx: fffeeff8
-esi: 00000099   edi: 00000000   ebp: cbff6e5c   esp: f7501c20
-ds: 0018   es: 0018   ss: 0018
-Stack: cbff6e5c 003c8000 c100001c cbff5468 c19a001c c034628c 00000207 fffff=
-ffe=20
-       cbff6e5c c03cfb98 00000099 0000009d cbff6e5c c012aa9c cbff6e5c f7966=
-280=20
-       f7501ca0 f7501c6c c012bfd0 f74c8f20 f7500000 00000000 f74c8f20 c0116=
-ea8=20
-Call Trace: [<c012aa9c>] [<c012bfd0>] [<c0116ea8>] [<c014479e>] [<c014495d>=
-]=20
-   [<c015ac26>] [<c0115020>] [<c0139d6a>] [<c0144242>] [<c015a7c0>] [<c0144=
-f5c>]=20
-   [<c0145227>] [<c01463ee>] [<c0105bb0>] [<c010700b>]=20
-Code: 0f 0b 62 00 06 6c 2e c0 8b 0c 24 ba 04 00 00 00 8b 41 14 83=20
-
->>EIP; c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-Trace; c012aa9c <exit_mmap+15c/220>
-Trace; c012bfd0 <file_read_actor+0/f0>
-Trace; c0116ea8 <mmput+48/70>
-Trace; c014479e <exec_mmap+14e/170>
-Trace; c014495d <flush_old_exec+9d/2d0>
-Trace; c015ac26 <load_elf_binary+466/ad0>
-Trace; c0115020 <__wake_up_common+40/60>
-Trace; c0139d6a <do_page_cache_readahead+7a/120>
-Trace; c0144242 <copy_strings+1c2/240>
-Trace; c015a7c0 <load_elf_binary+0/ad0>
-Trace; c0144f5c <search_binary_handler+ac/1e0>
-Trace; c0145227 <do_execve+197/240>
-Trace; c01463ee <getname+5e/a0>
-Trace; c0105bb0 <sys_execve+30/60>
-Trace; c010700b <syscall_call+7/b>
-Code;  c0132a0a <__free_pages_ok+9a/320>
-00000000 <_EIP>:
-Code;  c0132a0a <__free_pages_ok+9a/320>   <=3D=3D=3D=3D=3D
-   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-Code;  c0132a0c <__free_pages_ok+9c/320>
-   2:   62 00                     bound  %eax,(%eax)
-Code;  c0132a0e <__free_pages_ok+9e/320>
-   4:   06                        push   %es
-Code;  c0132a0f <__free_pages_ok+9f/320>
-   5:   6c                        insb   (%dx),%es:(%edi)
-Code;  c0132a10 <__free_pages_ok+a0/320>
-   6:   2e c0 8b 0c 24 ba 04      rorb   $0x0,%cs:0x4ba240c(%ebx)
-Code;  c0132a17 <__free_pages_ok+a7/320>
-   d:   00=20
-Code;  c0132a18 <__free_pages_ok+a8/320>
-   e:   00 00                     add    %al,(%eax)
-Code;  c0132a1a <__free_pages_ok+aa/320>
-  10:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c0132a1d <__free_pages_ok+ad/320>
-  13:   83 00 00                  addl   $0x0,(%eax)
-
-
-1 warning issued.  Results may not be reliable.
-
---=-XB+YNemAQPiyzzpKCfWX--
+diff -rNu linux-orig/arch/i386/kernel/cpu/common.c linux/arch/i386/kernel/cpu/common.c
+--- linux-orig/arch/i386/kernel/cpu/common.c	Mon Jul 22 21:04:49 2002
++++ linux/arch/i386/kernel/cpu/common.c	Mon Jul 22 21:55:09 2002
+@@ -454,7 +454,7 @@
+ 	 */
+ 	atomic_inc(&init_mm.mm_count);
+ 	current->active_mm = &init_mm;
+-	if(current->mm)
++	if (current->mm)
+ 		BUG();
+ 	enter_lazy_tlb(&init_mm, current, nr);
+ 
+diff -rNu linux-orig/arch/i386/kernel/ldt.c linux/arch/i386/kernel/ldt.c
+--- linux-orig/arch/i386/kernel/ldt.c	Mon Jul 22 21:04:49 2002
++++ linux/arch/i386/kernel/ldt.c	Mon Jul 22 21:55:09 2002
+@@ -49,17 +49,20 @@
+ 		memcpy(newldt, pc->ldt, oldsize*LDT_ENTRY_SIZE);
+ 	oldldt = pc->ldt;
+ 	memset(newldt+oldsize*LDT_ENTRY_SIZE, 0, (mincount-oldsize)*LDT_ENTRY_SIZE);
+-	wmb();
++	spin_lock_irq(&pc->lock);
+ 	pc->ldt = newldt;
+ 	pc->size = mincount;
++	spin_unlock_irq(&pc->lock);
++
+ 	if (reload) {
+ 		load_LDT(pc);
+ #ifdef CONFIG_SMP
+-		if (current->mm->cpu_vm_mask != (1<<smp_processor_id()))
++		preempt_disable();
++		if (current->mm->cpu_vm_mask != (1 << smp_processor_id()))
+ 			smp_call_function(flush_ldt, 0, 1, 1);
++		preempt_enable();
+ #endif
+ 	}
+-	wmb();
+ 	if (oldsize) {
+ 		if (oldsize*LDT_ENTRY_SIZE > PAGE_SIZE)
+ 			vfree(oldldt);
+@@ -72,11 +75,8 @@
+ static inline int copy_ldt(mm_context_t *new, mm_context_t *old)
+ {
+ 	int err = alloc_ldt(new, old->size, 0);
+-	if (err < 0) {
+-		printk(KERN_WARNING "ldt allocation failed\n");
+-		new->size = 0;
++	if (err < 0)
+ 		return err;
+-	}
+ 	memcpy(new->ldt, old->ldt, old->size*LDT_ENTRY_SIZE);
+ 	return 0;
+ }
+@@ -91,6 +91,7 @@
+ 	int retval = 0;
+ 
+ 	init_MUTEX(&mm->context.sem);
++	spin_lock_init(&mm->context.lock);
+ 	mm->context.size = 0;
+ 	old_mm = current->mm;
+ 	if (old_mm && old_mm->context.size > 0) {
+diff -rNu linux-orig/include/asm-i386/desc.h linux/include/asm-i386/desc.h
+--- linux-orig/include/asm-i386/desc.h	Mon Jul 22 21:04:49 2002
++++ linux/include/asm-i386/desc.h	Mon Jul 22 21:55:09 2002
+@@ -82,17 +82,18 @@
+ 
+ static inline void clear_LDT(void)
+ {
+-	int cpu = smp_processor_id();
++	int cpu = get_cpu();
++
+ 	set_ldt_desc(cpu, &default_ldt[0], 5);
+ 	__load_LDT(cpu);
++	put_cpu();
+ }
+ 
+ /*
+  * load one particular LDT into the current CPU
+  */
+-static inline void load_LDT (mm_context_t *pc)
++static inline void load_LDT_nolock(mm_context_t *pc, int cpu)
+ {
+-	int cpu = smp_processor_id();
+ 	void *segments = pc->ldt;
+ 	int count = pc->size;
+ 
+@@ -103,6 +104,13 @@
+ 		
+ 	set_ldt_desc(cpu, segments, count);
+ 	__load_LDT(cpu);
++}
++
++static inline void load_LDT (mm_context_t *pc)
++{
++	spin_lock_irq(&pc->lock);
++	load_LDT_nolock(pc, smp_processor_id());
++	spin_unlock_irq(&pc->lock);
+ }
+ 
+ #endif /* !__ASSEMBLY__ */
+diff -rNu linux-orig/include/asm-i386/mmu.h linux/include/asm-i386/mmu.h
+--- linux-orig/include/asm-i386/mmu.h	Mon Jul 22 21:04:49 2002
++++ linux/include/asm-i386/mmu.h	Mon Jul 22 21:55:09 2002
+@@ -6,11 +6,16 @@
+  * we put the segment information here.
+  *
+  * cpu_vm_mask is used to optimize ldt flushing.
++ *
++ * The spinlock is used to protect context switches
++ * against inconsistent values of ->ldt and ->size.
+  */
+ typedef struct { 
+-	int size;
+ 	struct semaphore sem;
+-	void *	ldt;
++	spinlock_t lock;
++	void *ldt;
++	int size;
+ } mm_context_t;
+ 
++#define INIT_CONTEXT { lock: SPIN_LOCK_UNLOCKED }
+ #endif
+diff -rNu linux-orig/include/asm-i386/mmu_context.h linux/include/asm-i386/mmu_context.h
+--- linux-orig/include/asm-i386/mmu_context.h	Mon Jul 22 21:04:49 2002
++++ linux/include/asm-i386/mmu_context.h	Mon Jul 22 21:55:09 2002
+@@ -40,23 +40,28 @@
+ 		/* Re-load page tables */
+ 		load_cr3(next->pgd);
+ 
+-		/* load_LDT, if either the previous or next thread
++		/* load LDT, if either the previous or next thread
+ 		 * has a non-default LDT.
+ 		 */
+-		if (next->context.size+prev->context.size)
+-			load_LDT(&next->context);
++		if (next->context.size + prev->context.size) {
++			_raw_spin_lock(&next->context.lock);
++			load_LDT_nolock(&next->context, cpu);
++			_raw_spin_unlock(&next->context.lock);
++		}
+ 	}
+ #ifdef CONFIG_SMP
+ 	else {
+ 		cpu_tlbstate[cpu].state = TLBSTATE_OK;
+-		if(cpu_tlbstate[cpu].active_mm != next)
++		if (cpu_tlbstate[cpu].active_mm != next)
+ 			BUG();
+-		if(!test_and_set_bit(cpu, &next->cpu_vm_mask)) {
++		if (!test_and_set_bit(cpu, &next->cpu_vm_mask)) {
+ 			/* We were in lazy tlb mode and leave_mm disabled 
+ 			 * tlb flush IPI delivery. We must reload %cr3.
+ 			 */
+ 			load_cr3(next->pgd);
+-			load_LDT(&next->context);
++			_raw_spin_lock(&next->context.lock);
++			load_LDT_nolock(&next->context, cpu);
++			_raw_spin_unlock(&next->context.lock);
+ 		}
+ 	}
+ #endif
+diff -rNu linux-orig/include/linux/init_task.h linux/include/linux/init_task.h
+--- linux-orig/include/linux/init_task.h	Mon Jul 22 21:04:49 2002
++++ linux/include/linux/init_task.h	Mon Jul 22 21:55:09 2002
+@@ -18,6 +18,10 @@
+ 	fd_array:	{ NULL, } 			\
+ }
+ 
++#ifndef INIT_CONTEXT
++# define INIT_CONTEXT { }
++#endif
++
+ #define INIT_MM(name) \
+ {			 				\
+ 	mm_rb:		RB_ROOT,			\
+@@ -27,6 +31,8 @@
+ 	mmap_sem:	__RWSEM_INITIALIZER(name.mmap_sem), \
+ 	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
+ 	mmlist:		LIST_HEAD_INIT(name.mmlist),	\
++	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
++	context:	INIT_CONTEXT,			\
+ }
+ 
+ #define INIT_SIGNALS {	\
 

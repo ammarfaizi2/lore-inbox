@@ -1,73 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUKCLsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbUKCLwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUKCLsi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 06:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbUKCLsi
+	id S261559AbUKCLwA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 06:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbUKCLv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 06:48:38 -0500
-Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:56298 "EHLO
-	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261551AbUKCLsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 06:48:23 -0500
-Subject: Re: [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill
-	host-OS processes
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Jeff Dike <jdike@addtoit.com>, Blaisorblade <blaisorblade_spam@yahoo.it>,
-       user-mode-linux-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041103113736.GA23041@taniwha.stupidest.org>
-References: <20041103113736.GA23041@taniwha.stupidest.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Message-Id: <1099482457.16445.1.camel@imp.csi.cam.ac.uk>
+	Wed, 3 Nov 2004 06:51:59 -0500
+Received: from the.earth.li ([193.201.200.66]:29331 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S261559AbUKCLvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 06:51:42 -0500
+Date: Wed, 3 Nov 2004 11:51:42 +0000
+From: Jonathan McDowell <noodles@earth.li>
+To: David Brownell <dbrownell@users.sourceforge.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: KC2190 support for usbnet.
+Message-ID: <20041103115142.GZ31945@earth.li>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 03 Nov 2004 11:47:38 +0000
-Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-03 at 11:37, Chris Wedgwood wrote:
-> kill(..., SIGKILL) doesn't work to kill host-OS processes created in
-> the exec path in TT mode --- for this we need PTRACE_KILL (it did work
-> in previous kernels, but not by design).  Without this process will
-> accumulate on the host-OS (although the won't be visible inside UML).
-> 
-> Signed-off-by: Chris Wedgwood <cw@f00f.org>
-> ---
-> 
-> Yes, there are other fixes along these lines which are needed but one
-> at a time as we test these...
-> 
-> Index: cw-current/arch/um/kernel/tt/exec_user.c
-> ===================================================================
-> --- cw-current.orig/arch/um/kernel/tt/exec_user.c	2004-11-03 02:10:18.064830204 -0800
-> +++ cw-current/arch/um/kernel/tt/exec_user.c	2004-11-03 02:12:10.447716745 -0800
-> @@ -35,7 +35,8 @@
->  		tracer_panic("do_exec failed to get registers - errno = %d",
->  			     errno);
->  
-> -	kill(old_pid, SIGKILL);
-> +	if (ptrace(PTRACE_KILL, old_pid, NULL, NULL))
-> +		printk("Warning: ptrace(PTRACE_KILL, %d, ...) saw %d\n", errno);
+The patch below adds support for the KC2190 usb-to-usb networking
+device; the version I have reports itself as:
 
-You have two %d but only one argument.  You seem to have forgotten an
-"old_pid, " in there.
+Bus 001 Device 003: ID 050f:0190 KC Technology, Inc.
 
->  
->  	if(ptrace_setregs(new_pid, regs) < 0)
->  		tracer_panic("do_exec failed to start new proc - errno = %d",
+I was under the impression that support for this had been added a long
+time ago, but searching through old kernel versions all I could find was
+a comment about the chip, with no support. Patch is against 2.6.9 but is
+pretty minimal.
 
-Best regards,
+I don't have a Windows box around to test interoperability with that
+driver, but the patch appears to make it work perfectly between 2 Linux
+boxes.
 
-	Anton
+J.
+
+Signed-off-by: Jonathan McDowell <noodles@earth.li>
+
+--------
+diff -u linux-2.6.9.orig/drivers/usb/net/Kconfig linux-2.6.9/drivers/usb/net/Kconfig
+--- linux-2.6.9.orig/drivers/usb/net/Kconfig	2004-06-16 06:19:43.000000000 +0100
++++ linux-2.6.9/drivers/usb/net/Kconfig	2004-11-03 11:06:06.000000000 +0000
+@@ -185,6 +185,14 @@
+ 	  Choose this option if you're using a host-to-host cable
+ 	  with one of these chips.
+ 
++config USB_KC2190
++	boolean "KT Technology KC2190 based cables (InstaNet)"
++	default y
++	depends on USB_USBNET && EXPERIMENTAL
++	help
++	  Choose this option if you're using a host-to-host cable
++	  with one of these chips.
++
+ comment "Intelligent USB Devices/Gadgets"
+ 	depends on USB_USBNET
+ 
+diff -u linux-2.6.9.orig/drivers/usb/net/usbnet.c linux-2.6.9/drivers/usb/net/usbnet.c
+--- linux-2.6.9.orig/drivers/usb/net/usbnet.c	2004-10-11 17:37:08.000000000 +0100
++++ linux-2.6.9/drivers/usb/net/usbnet.c	2004-11-03 11:42:25.000000000 +0000
+@@ -31,6 +31,7 @@
+  *	- GeneSys GL620USB-A
+  *	- NetChip 1080 (interoperates with NetChip Win32 drivers)
+  *	- Prolific PL-2301/2302 (replaces "plusb" driver)
++ *	- KC Technology KC2190
+  *
+  *   + Smart USB devices can support such links directly, using Internet
+  *     standard protocols instead of proprietary host-to-device links.
+@@ -106,6 +107,7 @@
+  * 22-aug-2003	AX8817X support (Dave Hollis).
+  * 14-jun-2004  Trivial patch for AX8817X based Buffalo LUA-U2-KTX in Japan
+  *		(Neil Bortnak)
++ * 03-nov-2004	Trivial patch for KC2190 (KC-190) chip. (Jonathan McDowell)
+  *
+  *-------------------------------------------------------------------------*/
+ 
+@@ -134,7 +136,7 @@
+ #include <linux/mm.h>
+ #include <linux/dma-mapping.h>
+ 
+-#define DRIVER_VERSION		"25-Aug-2003"
++#define DRIVER_VERSION		"03-Nov-2004"
+ 
+ 
+ /*-------------------------------------------------------------------------*/
+@@ -2159,6 +2161,13 @@
+ 
+ #endif /* CONFIG_USB_PL2301 */
+ 
++
++#ifdef CONFIG_USB_KC2190
++#define HAVE_HARDWARE
++static const struct driver_info kc2190_info = {
++	.description =  "KC Technology KC-190",
++};
++#endif /* CONFIG_USB_KC2190 */
+ 
+ 
+ #ifdef	CONFIG_USB_ARMLINUX
+@@ -3292,6 +3301,13 @@
+ },
+ #endif
+ 
++#ifdef CONFIG_USB_KC2190
++{
++	USB_DEVICE (0x050f, 0x0190),	// KC-190
++	.driver_info =	(unsigned long) &kc2190_info,
++},
++#endif
++
+ #ifdef	CONFIG_USB_RNDIS
+ {
+ 	/* RNDIS is MSFT's un-official variant of CDC ACM */
+--------
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
-
+/-\                             |  If I, um, err. Yeah, it probably
+|@/  Debian GNU/Linux Developer |    rounds down. -- Simon Huggins
+\-                              |

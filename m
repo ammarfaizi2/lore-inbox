@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbUCPThH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 14:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbUCPTcn
+	id S261602AbUCPTnm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 14:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbUCPTnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 14:32:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32733 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261351AbUCPTcQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 14:32:16 -0500
-Message-ID: <40575631.1080006@pobox.com>
-Date: Tue, 16 Mar 2004 14:32:01 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk, bos@serpentine.com,
-       linux-raid@vger.kernel.org
-Subject: Re: [PATCH] klibc update
-References: <4056B0DB.9020008@pobox.com> <20040316005229.53e08c0c.akpm@osdl.org> <20040316153719.GA13723@kroah.com> <20040316111026.6729e153.akpm@osdl.org> <40575279.7040408@pobox.com> <20040316192458.GB21172@kroah.com>
-In-Reply-To: <20040316192458.GB21172@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Mar 2004 14:43:32 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17422 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261576AbUCPTlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 14:41:25 -0500
+Date: Tue, 16 Mar 2004 19:41:21 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ian Campbell <icampbell@arcom.com>, netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Do not include linux/irq.h from linux/netpoll.h
+Message-ID: <20040316194121.C7886@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Ian Campbell <icampbell@arcom.com>, netdev@oss.sgi.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1079369568.19012.100.camel@icampbell-debian> <20040316001141.C29594@flint.arm.linux.org.uk> <20040316192247.A7886@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403161133430.17272@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0403161133430.17272@ppc970.osdl.org>; from torvalds@osdl.org on Tue, Mar 16, 2004 at 11:34:56AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Mar 16, 2004 at 02:16:09PM -0500, Jeff Garzik wrote:
+On Tue, Mar 16, 2004 at 11:34:56AM -0800, Linus Torvalds wrote:
+> On Tue, 16 Mar 2004, Russell King wrote:
+> > > 
+> > > What are your thoughts on this?
+> > 
+> > So how do we solve this problem.  Should I just merge this change and
+> > ask you to pull it?  I think that's rather impolite though.
 > 
->>Bryan O'Sullivan and Greg KH at varying times in the past had BK trees, 
->>but I didn't know of any up-to-date one.
-> 
-> 
-> I think Bryan was trying to keep his bk tree up to date with the klibc
-> cvs tree, but don't know how well that went.
+> I didn't apply the patch because you said it was untested ;)
 
-The latest I found from bos was 2.6.0-test9, not terribly ancient but 
-still required some hand-fixing of merge conflicts.
+Ok, but bear in mind that although I can test that removing linux/irq.h
+from netpoll.h fixes my problem, it really needs an x86 person to also
+test it, just in case there's some dependency there that may not show
+up for me.
 
+> I'll happily remove that irq.h include if it really doesn't do anything 
+> but break things. I'd feel happier about it if somebody said it has been 
+> tested, though ;)
 
->>Note that it isn't my intention to become klibc maintainer...  just in 
->>case anybody started getting ideas... :)
-> 
-> 
-> I thought hpa was the klibc maintainer, you're just offering a patch to
-> add it to the build :)
+Andi Kleen, hch and jgarzik are presently discussing the issue, and I
+think they're convincing themselves that linux/irq.h is disgusting
+mess.
 
-Right...  I meant I am not going to become the maintainer of said 
-patch/BK tree :)
+As far as me doing anything with linux/irq.h, I think that's out of my
+control because ARM doesn't use it - an x86 person needs to look into
+fixing it properly.
 
-	Jeff
+So all I can do is moan each time this problem comes up until someone
+gets pissed off enough to fix it properly.
 
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

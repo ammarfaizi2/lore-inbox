@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282979AbRLVXjW>; Sat, 22 Dec 2001 18:39:22 -0500
+	id <S283052AbRLVXwv>; Sat, 22 Dec 2001 18:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282976AbRLVXjM>; Sat, 22 Dec 2001 18:39:12 -0500
-Received: from jalon.able.es ([212.97.163.2]:21438 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S282979AbRLVXjD>;
-	Sat, 22 Dec 2001 18:39:03 -0500
-Date: Sun, 23 Dec 2001 00:41:04 +0100
+	id <S282998AbRLVXwl>; Sat, 22 Dec 2001 18:52:41 -0500
+Received: from jalon.able.es ([212.97.163.2]:64446 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S282983AbRLVXw0>;
+	Sat, 22 Dec 2001 18:52:26 -0500
+Date: Sun, 23 Dec 2001 00:54:28 +0100
 From: "J.A. Magallon" <jamagallon@able.es>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Mike Black <mblack@csihq.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.17
-Message-ID: <20011223004104.G6735@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.21.0112211439390.7313-100000@freak.distro.conectiva> <002701c18adf$b9f0f140$ac542341@cfl.rr.com> <20011222185940.6a646662.skraw@ithnet.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Robert Love <rml@tech9.net>, Martin Devera <devik@cdi.cz>,
+        Chris Meadors <clubneon@hereintown.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: gcc 3.0.2/kernel details (-O issue)
+Message-ID: <20011223005428.I6735@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.10.10112192037490.3265-100000@luxik.cdi.cz> <1008792213.806.36.camel@phantasy> <20011222215457.A118@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20011222185940.6a646662.skraw@ithnet.com>; from skraw@ithnet.com on Sat, Dec 22, 2001 at 18:59:40 +0100
+In-Reply-To: <20011222215457.A118@elf.ucw.cz>; from pavel@suse.cz on Sat, Dec 22, 2001 at 21:54:58 +0100
 X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 20011222 Stephan von Krawczynski wrote:
->On Sat, 22 Dec 2001 06:56:44 -0500
->"Mike Black" <mblack@csihq.com> wrote:
+On 20011222 Pavel Machek wrote:
+>Hi!
 >
->> My thanks to for Marcelo's efforts...but....
+>> > It is interesting that 2.2 can be done with -O. Also I'd expect
+>> > errors during compilation and not silent crash...
 >> 
->> Is there any way we can get Marcelo, Rik, and Andrea to work together on the
->> "stable" version now (a Linux tribunal)?
+>> Well, you certainly won't get errors, because compiler optimizations
+>> shouldn't change expected syntax.
+>> 
+>> -O2 is the standard optimization level for the kernel; everything is
+>> compiled via it.  When developers test their code, nuances that the
+>> optimization introduce are accepted.  Removing the optimization may
+>> break those expectations.  Thus the kernel requires it.
 >
->Would you mind to give us a short hint on the implicit "instability" you are
->exactly talking about? I think 2.4.17 is in various ways well worked out and
->maintained. There are further improvements possible for sure, but that is a
->normal thing. Anyway I cannot really see any major instability issues that
->require instant brainstorming. I am confident in Marcelo's maintenance.
+>Huh? Those expectations are *bugs*.
 >
+>Kernel will not link without optimalizations because it *needs*
+>inlining. Any else dependency is a *bug*.
+>									Pavel
 
-They are not different branches. Perhaps what is confusing him (and sometimes
-also confuses me), is that there are patches in aa kernel (I am not a
-compulsive patcher...) that look like basic bug fixes or simple but effective
-enhancements that never reach mainline, they are only in aa for ages (looking
-at andrea's dir in ftp.kernel.org: all the _vm patches, the spinlock-cacheline,
-compiler.h, rwsem, parent-timeslice, etc.). Nothing wrt numa, tux, uml or lvm.
-
-How about a 18-pre1 taking from aa all that is usefull and not really intrusive ?
-
+Wouldn't it be better to mark such places with something like
+#pragma inline, if gcc allows it, than relaying on gcc guesses about
+inlining, or options activated in O2 ?
 
 -- 
 J.A. Magallon                           #  Let the source be with you...        

@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVCaTI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVCaTLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVCaTI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 14:08:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVCaTI7
+	id S261629AbVCaTLs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 14:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVCaTLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 14:08:59 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:43425 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261631AbVCaTIi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 14:08:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=VbaIi6GnGdb0Dva/ZCyV2DXRB8fFORElzYp05jidOVv12L9/2abIS8goU2+aiRImGVCBjTIoWavIpXVpj0ydGnzxDhACdte00Q1E0nsRikpFq0A9DyelN0uozuH3aByNP6iGEOq12eLmOvJz2U+wRzjsTkcktcYB/z+mYAbthE4=
-Message-ID: <d120d50005033111084a8a6f37@mail.gmail.com>
-Date: Thu, 31 Mar 2005 14:08:36 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: klists and struct device semaphores
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.50.0503311021040.7249-100000@monsoon.he.net>
+	Thu, 31 Mar 2005 14:11:48 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:9620 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261640AbVCaTLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 14:11:16 -0500
+Subject: Re: off topic: GPL and binary modules
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Emmanuel Papirakis <papiraki@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <424C43FF.3050107@didntduck.org>
+References: <11ad0fa80503311026536d9db2@mail.gmail.com>
+	 <424C43FF.3050107@didntduck.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 31 Mar 2005 14:11:08 -0500
+Message-Id: <1112296268.12543.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.44L0.0503311054410.1510-100000@ida.rowland.org>
-	 <Pine.LNX.4.50.0503310947180.7249-100000@monsoon.he.net>
-	 <200503311018.02135.david-b@pacbell.net>
-	 <Pine.LNX.4.50.0503311021040.7249-100000@monsoon.he.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005 10:26:36 -0800 (PST), Patrick Mochel
-<mochel@digitalimplant.org> wrote:
-> I don't understand what you mean. Even if a device is suspended, be it
-> automatically after some amount of inactivity or as directed explicitly by
-> a user, we want to be able to open the device and have it work.
+On Thu, 2005-03-31 at 13:39 -0500, Brian Gerst wrote:
+> Emmanuel Papirakis wrote:
+> > Hello,
+> > 
+> > before I go on, let me say that I did check the FAQ. I also checked
+> > the available archives, but curiously did not find an answer to my
+> > question (so I did Read The Fantastic Manual).
+> > 
+> > As you know, most available drivers do come with the source code. But,
+> > still, some come in binary form (often providing just enough code to
+> > make them compliant with new kernel releases).
+> > 
+> > Is this a GPL violation ? In any case, what is the official position
+> > on the subject (is this legal or just tolerated) ?
+> > 
+> > Thank you
+> > 
+> > Emmanuel
 > 
-> Conversely, we only want to automatically suspend the device, or allow the
-> device to be explicitly put to sleep, if the device is not being used.
+> Search the list archives, this has been flamed to death already.
 
-Well, the disagreement in definition of "being used". Quite often you
-have a device "open" for extended period of time (inactive ext2
-partition is mounted on a disk) but device is not really active. You
-could power it down and only wake up when there is a read or write
-request.
+You don't need to search very far. There's still a flame thread going on
+today. Just search for 
 
-It looks like "open" and "close" are terms better suited for class
-devices while power management is applied to the "real" devices.
+"Can't use SYSFS for "Proprietry" driver modules !!!."
 
--- 
-Dmitry
+At least you were correct in putting in "off topic".
+
+-- Steve
+
+

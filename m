@@ -1,109 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbTL1Vp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 16:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTL1Vp3
+	id S262074AbTL1Vfj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 16:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTL1Vfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 16:45:29 -0500
-Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:56620 "EHLO
-	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
-	id S262081AbTL1Vp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 16:45:26 -0500
-Message-ID: <3FEF4EF2.4080303@planet.nl>
-Date: Sun, 28 Dec 2003 22:45:22 +0100
-From: Stef van der Made <svdmade@planet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20031227
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: wrlk@riede.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: The survival of ide-scsi in 2.6.x
-References: <20031226181242.GE1277@linnie.riede.org> <3FED7E80.20800@planet.nl> <20031227131724.GG1277@linnie.riede.org>
-In-Reply-To: <20031227131724.GG1277@linnie.riede.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Dec 2003 16:35:39 -0500
+Received: from litaipig.ucr.edu ([138.23.89.48]:50126 "EHLO
+	mail-infomine.ucr.edu") by vger.kernel.org with ESMTP
+	id S262074AbTL1Vfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 16:35:37 -0500
+Date: Sun, 28 Dec 2003 13:35:35 -0800
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
+Message-ID: <20031228213535.GA21459@mail-infomine.ucr.edu>
+References: <20031228180424.GA16622@mail-infomine.ucr.edu> <Pine.LNX.4.44.0312281032350.21070-100000@twin.uoregon.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0312281032350.21070-100000@twin.uoregon.edu>
+User-Agent: Mutt/1.3.28i
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+X-BeenThere: crackmonkey@crackmonkey.org
+From: ruschein@mail-infomine.ucr.edu (Johannes Ruscheinski)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Also sprach Joel Jaeggli:
+> well if you currently have 1tb in 8 non-redundant drives then you using 
+> 160GB disks... no?
+> 
+> the biggest p-ata disks right now are ~320GB so you can do a ~1TB software 
+> raid 5 stripe on a single 4 port ata controller such as a promise tx4000 
+> using regular software raid rather than the promise raid. that would end 
+> up being fairly inexpensive and buy you more protection.
 
-Hi Willem,
+Fisrt of all: thanks for the advice Joel!  Two questions: why not use the
+hardware raid capability of the Promise tx4000 and if we'd use software
+raid instead, what would be the CPU overhead?
 
-The standard stuff like mt -f /dev/ht0 status etc etc works. But tar 
-doesn't wan't to-do backups anymore both with and witout the patch on a 
-2.6.0 kernel. I don't have a 2.4.x kernel handy to test if it still 
-works with those kernels and my drive.
+> 
+> linux software raid hsa been as releiable as anything else we've used over 
+> the years, the lack of reliabilitiy in your situation will come entirely 
 
-What I've done is the following:
+Good to hear.
 
-bash-2.05# tar -cvb 64 -f /dev/ht0 /
-tar: Removing leading `/' from absolute path names in the archive
- 
-lost+found/
-usr/
-usr/X11
-usr/adm
-usr/bin/
-usr/bin/w
-usr/bin/ar
-tar: Cannot write to /dev/ht0: Invalid argument
-tar: Error is not recoverable: exiting now
+> from failing disks, lose one and your filesystem is toast.
 
-It looks as if the backup starts but it almost immediatly ends after the 
-drive does some spinning and reading and or writing.
+I was aware of that, thanks!
 
-Cheers
+> 
+> joelja
+> 
+> On Sun, 28 Dec 2003, Johannes Ruscheinski wrote:
+> 
+> > Hi,
+> > 
+> > We're looking for a low-cost high-reliability IDE RAID solution that works well
+> > with the 2.6.x series of kernels.  We have about 1 TB (8 disks) that we'd
+> > like to access in a non-redundant raid mode.  Yes, I know, that lack of
+> > redundancy and high reliability are contradictory.  Let's just say that
+> > currently we lack the funding to do anything else but we may be able to obtain
+> > more funding for our disk storage needs in the near future.
+> > 
+> 
+> -- 
+> -------------------------------------------------------------------------- 
+> Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+> GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+> 
 
-Stef
+-- 
+Johannes
+--
+Dr. Johannes Ruscheinski
+EMail:    ruschein_AT_infomine.ucr.edu ***          Linux                  ***
+Location: science library, room G40    *** The Choice Of A GNU Generation! ***
+Phone:    (909) 787-2279
 
-Willem Riede wrote:
-
->On 2003.12.27 07:43, Stef van der Made wrote:
->  
->
->>Willem Riede wrote:
->>
->>snip
->>
->>    
->>
->>>(By the way, ide-tape contains code for the ATAPI version, the 
->>>DI-30, but that code is old and has serveral known problems - 
->>>I'd like to see it removed - or at least deprecated - I will do 
->>>that myself later if people want me to.)
->>>
->>>      
->>>
->>snip
->>
->>After some fixing on ide-scsi my DI-30 is now working fine. I don't know 
->>of any bugs in it. All works fine for me. 
->>    
->>
->
->If your system ever loses an interrupt form the DI-30 you'll find out :-)
->
->  
->
->>                                          Getting rid if ide-scsi might 
->>be a good idea but it ain't going to be easy as a lot of programs are 
->>using the code.
->>    
->>
->
->I was actually trying to save ide-scsi, as we need it for the DI-30 + osst.
->
->  
->
->> If you need a tester for the di-30 please feed me the patches and I'll 
->>play around with them.
->>    
->>
->
->Well, you could try the patch in the oiginal mail, and there is a new 
->version of osst on osst.sourceforge.net that you could test.
->
->Thnaks, Willem Riede.
->
->  
->
-
+Outlook, n.:
+        A virus delivery system with added email functionality.

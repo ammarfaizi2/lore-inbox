@@ -1,103 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262501AbTIUSfR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 14:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbTIUSfR
+	id S261988AbTIUSy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 14:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTIUSy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 14:35:17 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:44302 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S262501AbTIUSfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 14:35:05 -0400
-Date: Sun, 21 Sep 2003 15:37:40 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Shantanu Goel <sgoel01@yahoo.com>, <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Subject: Re: A couple of 2.4.23-pre4 VM nits
-In-Reply-To: <20030921024649.GB16294@velociraptor.random>
-Message-ID: <Pine.LNX.4.44.0309211533310.18223-100000@logos.cnet>
+	Sun, 21 Sep 2003 14:54:56 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:65477
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261988AbTIUSyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 14:54:55 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: Keyboard oddness.
+Date: Sun, 21 Sep 2003 14:51:39 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200309201633.22414.rob@landley.net> <20030921001838.A3619@pclin040.win.tue.nl>
+In-Reply-To: <20030921001838.A3619@pclin040.win.tue.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309211451.39180.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 20 September 2003 18:18, Andries Brouwer wrote:
+> On Sat, Sep 20, 2003 at 04:33:22PM -0400, Rob Landley wrote:
+> > I've mentioned my keyboard repeat problems before.  I grepped through the
+> > logs and found a whole bunch of these type messages:
+> >
+> > Aug 17 05:28:48 atkbd.c: Unknown key (set 2, scancode 0x1d0,
+> > on isa0060/serio0) pressed.
+> > Aug 19 09:06:51 atkbd.c: Unknown key (set 2, scancode 0x8e,
+> > on isa0060/serio0) pressed.
+>
+> ...
+>
+> These are key releases for keys i8042.c didnt know were down.
+> If otherwise your keyboard functions well, this is harmless.
 
+It doesn't.  It's missing key release events left and right.  About twice an 
+hour a key well get "stuck".  X is okay once you press a second key, but if a 
+VT gets a key stuck, it doesn't come back.
 
-On Sun, 21 Sep 2003, Andrea Arcangeli wrote:
+> > Sep  2 13:37:52 atkbd.c: Unknown key (set 0, scancode 0xfc,
+> > on isa0060/serio1) pressed.
+> > Sep  2 13:37:52 atkbd.c: Unknown key (set 0, scancode 0xfc,
+> > on isa0060/serio1) pressed.
+>
+> I suppose these are error codes from your mouse.
+> If so, it is a bug that they ever went to atkbd.c.
 
-> Hi Shantanu,
-> 
-> On Sat, Sep 20, 2003 at 06:39:30AM -0700, Shantanu Goel wrote:
-> > Hi Andrea,
-> > 
-> > The VM fixes perform rather well in my testing
-> > (thanks!), but I noticed a couple of glitches that the
-> > attached patch addresses.
-> > 
-> > 1. max_scan is never decremented in shrink_cache().  I
-> > am assuming this is a typo.
-> 
-> this is an huge half-merging error, no surprise Andi run into vm
-> troubles with pre4. My tree looks like this for years:
-> 
-> 		if (unlikely(!page_count(page)))
-> 			continue;
-> 
-> 		only_metadata = 0;
-> 		if (!memclass(page_zone(page), classzone)) {
-> 			/*
-> 			 * Hack to address an issue found by Rik. The
-> 			 * problem is that
-> 			 * highmem pages can hold buffer headers
-> 			 * allocated
-> 			 * from the slab on lowmem, and so if we are
-> 			 * working
-> 			 * on the NORMAL classzone here, it is correct
-> 			 * not to
-> 			 * try to free the highmem pages themself (that
-> 			 * would be useless)
-> 			 * but we must make sure to drop any lowmem
-> 			 * metadata related to those
-> 			 * highmem pages.
-> 			 */
-> 			if (page->buffers && page->mapping) { /* fast
-> path racy check */
-> 				if (unlikely(TryLockPage(page)))
-> 					continue;
-> 				if (page->buffers && page->mapping &&
-> memclass_related_bhs(page, classzone)) { /* non racy check */
-> 					only_metadata = 1;
-> 					goto free_bhs;
-> 				}
-> 				UnlockPage(page);
-> 			}
-> 			continue;
-> 		}
-> 
-> 		max_scan--;
-> 
-> max_scan-- should happen only after the memclass check to ensure not
-> failing too early on GFP_KERNEL/DMA allocations (i.e. no highmem)
-> 
-> This is the right fix:
-> 
-> --- 2.4.23pre4/mm/vmscan.c.~1~	2003-09-13 00:08:04.000000000 +0200
-> +++ 2.4.23pre4/mm/vmscan.c	2003-09-21 04:40:12.000000000 +0200
-> @@ -401,6 +401,8 @@ static int shrink_cache(int nr_pages, zo
->  		if (!memclass(page_zone(page), classzone))
->  			continue;
->  
-> +		max_scan--;
-> +
->  		/* Racy check to avoid trylocking when not worthwhile */
->  		if (!page->buffers && (page_count(page) != 1 || !page->mapping))
->  			goto page_mapped;
+The mouse sometimes sticks as well, just like the keyboard.  (Click and the 
+button is held down for no reason.)
 
-Right! Thanks Andrea. 
+I suspect the bug is actually in the new input core...
 
-Sorry for the merge mistake people. Shame on me.
+> Andries
 
-Im going to release pre5 now with this. 
-
+Rob

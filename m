@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287816AbSAFLb2>; Sun, 6 Jan 2002 06:31:28 -0500
+	id <S287831AbSAFLxW>; Sun, 6 Jan 2002 06:53:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287831AbSAFLbS>; Sun, 6 Jan 2002 06:31:18 -0500
-Received: from hirogen.kabelfoon.nl ([62.45.45.69]:58892 "HELO
-	hirogen.kabelfoon.nl") by vger.kernel.org with SMTP
-	id <S287816AbSAFLbF>; Sun, 6 Jan 2002 06:31:05 -0500
-Message-ID: <004a01c196a5$91964840$73552d3e@kabelfoon.nl>
-From: "Stepan Hluchan" <stepan@3amp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.17 - hang after 'freeing unused kernel memory'
-Date: Sun, 6 Jan 2002 12:30:39 +0100
-Organization: 3 AM Productions
+	id <S287832AbSAFLxM>; Sun, 6 Jan 2002 06:53:12 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:38405 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S287831AbSAFLxC>; Sun, 6 Jan 2002 06:53:02 -0500
+Message-Id: <200201061151.g06BpvE04632@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: "vda@port.imtp.ilyichevsk.odessa.ua" 
+	<vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Sun, 6 Jan 2002 13:51:58 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201050355300.11089-100000@shell1.aracnet.com>
+In-Reply-To: <Pine.LNX.4.33.0201050355300.11089-100000@shell1.aracnet.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On 5 January 2002 10:59, M. Edward (Ed) Borasky wrote:
 
-I have installed the RedHat 7.2 distro (I think it comes with
-2.4.10-something
-but that hangs too) on one machine A. and then transferred the HD to
-another (machine B) where it should be used.   On machine A (Celeron 800Mhz)
-it all boots up fine with any kernel, on machine B (P75 @ 100Mhz, ancient
-BIOS
-and mobo) it hangs after the message 'freeing up XX k unused kernel memory'.
+> OK, here's some pseduo-code for a real-world test case. I haven't had a
+> chance to code it up, but I'm guessing I know what it's going to do. I'd
+> *love* to be proved wrong :).
+>
+> # build and boot a kernel with "Magic SysRq" turned on
+> # echo  1 > /proc/sys/kernel/sysrq
+> # fire up "nice --19 top" as "root"
+> # read "MemTotal" from /proc/meminfo
+>
+> # now start the next two jobs concurrently
+>
+> # write a disk file with "MemTotal" data or more in it
 
-I have compiled the 2.4.17, 2.4.0 kernels set to 'classic pentium', but both
-would
-hang...
+Like dd if=/dev/zero of=/tmp/file bs=... count=... ?
 
-What can be the cause for this?  (keep in mind it works fine on the newer
-machine)
+> # perform a 2D in-place FFT of total size at least "MemTotal/2" but less
+> # than "MemTotal"
 
-Thanks in advance,
+I'm willing to try. What program can I use for FFT?
 
-Stepan
+> What's worse is if the page cache gets so big that the FFT has to start
+> swapping. For those who aren't familiar with 2D FFTs, they take two
+> passes over the data. The first pass will be unit strides -- sequential
+> addresses. But the second pass will be large strides -- a power of two.
+> That second pass is going to be brutal if every page it hits has to be
+> swapped in!
 
-
-:: stepan hluchan
---------------------------------------------------------
-p :  +31.(0)626.126.308
-e :  stepan@3amp.com
-i  :  http://stepan.3amp.com/
-Gallery - http://stepan.3amp.com/gallery/
---------------------------------------------------------
-
+Can you describe FFT memory access pattern in more detail?
+I'd like to write a simple testcase with similar 'bad' pattern.
+--
+vda

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317188AbSFBOZt>; Sun, 2 Jun 2002 10:25:49 -0400
+	id <S317187AbSFBOZq>; Sun, 2 Jun 2002 10:25:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317189AbSFBOZs>; Sun, 2 Jun 2002 10:25:48 -0400
-Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:14211
-	"EHLO server.home.at") by vger.kernel.org with ESMTP
-	id <S317188AbSFBOZr>; Sun, 2 Jun 2002 10:25:47 -0400
-Subject: Re: linux-2.4.19-pre9 and sym53c8xx problem
-From: Christian Thalinger <e9625286@student.tuwien.ac.at>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CF96804.D25F623B@torque.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 02 Jun 2002 16:21:30 +0200
-Message-Id: <1023027690.3348.3.camel@sector17.home.at>
-Mime-Version: 1.0
+	id <S317188AbSFBOZp>; Sun, 2 Jun 2002 10:25:45 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:16058 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317187AbSFBOZp>; Sun, 2 Jun 2002 10:25:45 -0400
+Date: Sun, 2 Jun 2002 16:25:20 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: FUD or FACTS ?? but a new FLAME!
+In-Reply-To: <1023028184.23878.12.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.SOL.4.30.0206021621050.7413-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-06-02 at 02:34, Douglas Gilbert wrote:
-> Christian,
-> What does the output of "cat /proc/scsi/sg/*" look like?
-> 
-> Cdrecord should see your plextor writer both as /dev/scd0
-> and /dev/sg0 (assuming you don't have any other scsi devices).
-> Cdrecord goes on to scan the parallel generic devices (i.e. /dev/pg*)
-> if it doesn't find anything suitable on its /dev/sg* scan.
-> 
-> Your post doesn't supply any information that would link
-> this problem with the sym53c8xxx driver. If there is some
-> problem then there will be some "noise" in the /var/log/messages
-> file [typically showing multiple scsi bus resets].
-> 
-> BTW The "-vv" switch (and/or "-VV") on cdrecord will yield more
-> debug information. strace may also be useful.
-> 
-> Doug Gilbert
-> 
 
-Sorry, was my fault. Lost CONFIG_CHR_DEV_SG during make oldconfig.
 
-Anyway, thanks for your reply. It helped to find the problem...
+On 2 Jun 2002, Alan Cox wrote:
+
+> On Sun, 2002-06-02 at 13:11, Bartlomiej Zolnierkiewicz wrote:
+> > So what should we do in case of overclocked PCI bus?
+> > Get overclocked ATA or try to mess with timings?
+>
+> You cannot overclock the AMD on chipset IDE or the intel on chipset IDE.
+> It doesn't actually matter what you do the system is going to be way out
+> of wack. These are chipset bridges rather than card people ram into
+> weird bits of hardware.
+
+Please explain further, so in general AMD, Intel must not be overclocked?
+Beacause if they are they are screwed (not only IDE)...?
+
+> The VIA stuff and the Promise it makes some sense to try because they
+> may be shoved in boxes with a 25MHz PCI clock, or in a few cases a
+> horribly broke 37.5/41Mhz bus from the early chipsets that had 'idiot
+> only' 75/83Mhz FSB options
+
+--
+Bartlomiej
 

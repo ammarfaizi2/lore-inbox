@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265327AbTLHESE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 23:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265328AbTLHESD
+	id S265325AbTLHEOz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 23:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbTLHEOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 23:18:03 -0500
-Received: from holomorphy.com ([199.26.172.102]:11738 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265327AbTLHESA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 23:18:00 -0500
-Date: Sun, 7 Dec 2003 20:17:41 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rafal Skoczylas <nils@secprog.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.test11 bug
-Message-ID: <20031208041741.GC8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rafal Skoczylas <nils@secprog.org>, linux-kernel@vger.kernel.org
-References: <20031208034631.GA14081@secprog.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031208034631.GA14081@secprog.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 7 Dec 2003 23:14:55 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46084 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265325AbTLHEOy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 23:14:54 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Date: 8 Dec 2003 04:03:37 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <br0t6p$c8o$1@gatekeeper.tmr.com>
+References: <200312041432.23907.rob@landley.net> <16335.47878.628726.26978@wombat.chubb.wattle.id.au> <873cc0nkgf.fsf@ceramic.fifi.org>
+X-Trace: gatekeeper.tmr.com 1070856217 12568 192.168.12.62 (8 Dec 2003 04:03:37 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 08, 2003 at 04:46:31AM +0100, Rafal Skoczylas wrote:
-> I am experiencing similiar behaviour as described below.
-> In my case it is mlnetd (of mldonkey package) which seems to be
-> responsible for driving kernel to a crash[1].
-> After a few hours of running, either the process gets killed or system
-> crashes (I am only able to reboot it with alt+prntscr+b, but it seems
-> like it is not able to [S]ync or [U]nmount filesystems - i have lost
-> a few files which were open at the time of crash[2]).
-> It may be worth to mention that I don't remember having such a crash
-> on 2.6.0-test9 which i used for a couple of weeks (since first day
-> it apeared on ftp.kernel.org untill test11 - i skipped test10).
+In article <873cc0nkgf.fsf@ceramic.fifi.org>,
+Philippe Troin  <phil@fifi.org> wrote:
+| Peter Chubb <peter@chubb.wattle.id.au> writes:
+| 
+| > >>>>> "Rob" == Rob Landley <rob@landley.net> writes:
+| > 
+| > Rob> You can make a file with a hole by seeking past it and never
+| > Rob> writing to that bit, but is there any way to punch a hole in a
+| > Rob> file after the fact?  (I mean other with lseek and write.  Having
+| > Rob> a sparse file as the result....)
+| > 
+| > SVr4 has fcntl(fd, F_FREESP, flock) that frees the space covered by
+| > the struct flock in the file.  Linux doesn't have this, at least in
+| > the baseline kernels.
+| 
+| However most SVr4 (at least Solaris and HP-UX) only implement FREESP
+| when the freed space is at the file's tail. In other words, FREESP can
+| only be used to implement ftruncate().
 
-I'm grabbing mldonkey and taking it for a spin.
-
-
--- wli
+Actually, I would thinmk that you *don't* want to do this at end of
+file, turning zeros into holes is not the same as truncate, since it
+will change the value of the file size, and that may not be what you
+want at all.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

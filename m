@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311262AbSCZL4p>; Tue, 26 Mar 2002 06:56:45 -0500
+	id <S311211AbSCZLup>; Tue, 26 Mar 2002 06:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311274AbSCZL4f>; Tue, 26 Mar 2002 06:56:35 -0500
-Received: from hitpro.hitachi.co.jp ([133.145.224.7]:26355 "EHLO
-	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id <S311262AbSCZL40>; Tue, 26 Mar 2002 06:56:26 -0500
-Date: Tue, 26 Mar 2002 20:11:12 +0900 (JST)
-Message-Id: <20020326.201112.01364938.t-kawano@ebina.hitachi.co.jp>
-To: linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
-Subject: [PATCH]fix for double free in efi.c 
-From: Takanori Kawano <t-kawano@ebina.hitachi.co.jp>
-X-Mailer: Mew version 2.0 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S311212AbSCZLuf>; Tue, 26 Mar 2002 06:50:35 -0500
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:268 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S311211AbSCZLuT>;
+	Tue, 26 Mar 2002 06:50:19 -0500
+Message-ID: <3CA05B75.3FA00CC1@yahoo.com>
+Date: Tue, 26 Mar 2002 06:28:53 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+MIME-Version: 1.0
+To: David Weinehall <tao@acc.umu.se>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Announcement] patch-2.0.40-rc4
+In-Reply-To: <20020317135322.J3301@khan.acc.umu.se> <E16meOv-0002xY-00@the-village.bc.nu> <20020326111424.A16636@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following is a fix for a double free bug in fs/partitions/efi.c.
+David Weinehall wrote:
+> 
+> On Sun, Mar 17, 2002 at 05:24:57PM +0000, Alan Cox wrote:
+> > > o   Commented out a printk in fs/buffer.c   (Michael Deutschmann)
+> > >     that complains about mismatching
+> > >     blocksizes
+> >
+> > Erm.. why ?? It seems to be correctly complaining for a reason
+> 
+> According to Michael Deutschmann, who still uses v2.0 actively (and gets
+> this message a lot), the code seems to do the right thing despite the
+> complaint; hence the message seemed unnecessary.
 
---- efi.c	Fri Mar  1 16:59:19 2002
-+++ efi.c.fixed	Mon Mar 11 16:34:29 2002
-@@ -546,8 +547,8 @@
- 
- 		*gpt = pgpt;
- 		*ptes = pptes;
--		if (agpt)  kfree(agpt);
--		if (aptes) kfree(aptes);
-+		if (agpt)   { kfree(agpt); agpt=NULL; }
-+		if (aptes)  { kfree(aptes); aptes=NULL; }
- 	} /* if primary is valid */
- 	else {
- 		/* Primary GPT is bad, check the Alternate GPT */
-@@ -595,6 +596,8 @@
-         if (agpt) {kfree(agpt); agpt = NULL;}
-         if (pptes) {kfree(pptes); pptes = NULL;}
-         if (aptes) {kfree(aptes); aptes = NULL;}
-+        *gpt = NULL;
-+        *ptes = NULL;
- 	return 0;
- }
+Assuming the message is meaningful, rate limit the number of
+times the user sees it.  Or rate limit on time, which ever seems 
+more appropriate.
 
-
-This patch is against redhat 2.4.9 kernel and has already 
-been reported to redhat Bugzilla.
-
-I suppose why such a serious bug has remained for a long time 
-is that the current debug code in slab.c fails to detect 
-double free in case the object holded by cpucaches is doubly 
-freed.
-I think the current debug code should be improved to detect
-this case.
-
----
-Takanori Kawano
-Hitachi Ltd,
-Internet Systems Platform Division
-t-kawano@ebina.hitachi.co.jp
-
+Paul.
 
 

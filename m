@@ -1,195 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271710AbTG2NDY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 09:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271713AbTG2NDY
+	id S271702AbTG2NAE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 09:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271705AbTG2NAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 09:03:24 -0400
-Received: from modemcable198.171-130-66.que.mc.videotron.ca ([66.130.171.198]:56708
-	"EHLO gaston") by vger.kernel.org with ESMTP id S271710AbTG2NDI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 09:03:08 -0400
-Subject: [PATCH] airo driver: fix races, oops, etc..
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: achirica@telefonica.net,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059483772.8545.13.camel@gaston>
+	Tue, 29 Jul 2003 09:00:04 -0400
+Received: from dialpool-210-214-82-140.maa.sify.net ([210.214.82.140]:37769
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S271702AbTG2NAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 09:00:00 -0400
+Date: Tue, 29 Jul 2003 18:30:58 +0530
+From: Balram Adlakha <b_adlakha@softhome.net>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 NFS file transfer
+Message-ID: <20030729130058.GA3636@localhost.localdomain>
+References: <20030728225947.GA1694@localhost.localdomain> <20030729014822.6488539d.akpm@osdl.org> <20030729105706.GA2761@localhost.localdomain> <20030729114838.GS150921@niksula.cs.hut.fi>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 29 Jul 2003 09:02:52 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030729114838.GS150921@niksula.cs.hut.fi>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Tue, Jul 29, 2003 at 02:48:38PM +0300, Ville Herva wrote:
+> On Tue, Jul 29, 2003 at 04:27:06PM +0530, you [Balram Adlakha] wrote:
+> > On Tue, Jul 29, 2003 at 01:48:22AM -0700, Andrew Morton wrote:
+> > > Balram Adlakha <b_adlakha@softhome.net> wrote:
+> > > >
+> > > > I cannot transfer files larger than 914 mb from an NFS mounted
+> > > > filesystem to a local filesystem. A larger file than that is
+> > > > simply cut of at 914 MB. This is using 2.6.0-test1, 2.4.20 
+> > > > works fine. Can it be the version of mount I'm using? Its the
+> > > > one that comes with util-linux-2.11y.
+> > > 
+> > > Works OK here, with `cp'.  How are you "transferring" the file?
+> > > 
+> > > You're sure there is sufficient disk space on the receiving end? (sorry)
+> > > 
+> > > Can you strace the copy operation, see why it terminates?
+> > 
+> > Very strange, It was a 4.9 GB raw mpeg-ps file and I couldn't copy more than 914 mb of it using -test2, even playing the file from the server using mplayer didn't work (and I wasn't smart enough to use strace) then I rebooted with 2.4.20 and the whole file was copied. Now I tried copying a 990 mb wav file and it worked(using -test2). The orginal 4.9 GB file is not on the server now so I'll have to put it there first and then copy it again. It'll take some time on my slow NIC (and the server being a 300 Mhz laptop). I'll email you again, sorry.
+> 
+> Rather than copying a file over, you can create a sparse file very quickly:
+> 
+>   touch foo; perl -e 'truncate "foo", 2000000000'
+> 
+> (creates a 2000000000 byte sparse file). Neat thing is, sparse files don't
+> take disk space on the server.
+> 
+> Or if you prefer a non-sparse file: 
+> 
+>   head -c 2000m /dev/zero > foo
+> 
+> 
+> -- v --
+> 
+> v@iki.fi
 
-Here's a patch against Linus current airo.c, it adds back some fixes I
-did during OLS on the previous version of this driver. I couldn't test
-this new 'fixed' version though as I don't have the airo card anymore:
-
- - Initialize the work_struct structures used by the driver
- - Change most of schedule_work() to schedule_delayed_work(). The
-   problem with schedule_work() is that the worker_thread will never
-   schedule() if the work keeps getting added back to the list by the
-   callback, which typically happened with this driver when the xmit
-   work gets scheduled while the semaphore was used by a pending
-   command. Note that -ac tree has a modified version of this driver
-   that gets rid of this "over-smart" work queue stuff and uses normal
-   spinlock instead, probably at the expense of some latency...
- - Fix a small signed vs. unsigned char issue
- - Remove bogus pci_module_init(), use pci_register_driver() instead and
-   add missing pci_unregister_driver() so the module can now be removed
-   without leaving stale references (and thus avoid an oops next time
-   the driver list is walked by the device core).
-
-Jeff, if you are ok with these, please send to Linus,
-
-Ben
-
-
-diff -urN linux-2.5/drivers/net/wireless/airo.c linuxppc-2.5-benh/drivers/net/wireless/airo.c
---- linux-2.5/drivers/net/wireless/airo.c	2003-07-29 08:51:06.000000000 -0400
-+++ linuxppc-2.5-benh/drivers/net/wireless/airo.c	2003-07-29 08:54:26.000000000 -0400
-@@ -633,7 +633,7 @@
- 	u16 SSIDlen;
- 	char SSID[32];
- 	char apName[16];
--	char bssid[4][ETH_ALEN];
-+	unsigned char bssid[4][ETH_ALEN];
- 	u16 beaconPeriod;
- 	u16 dimPeriod;
- 	u16 atimDuration;
-@@ -1031,7 +1031,7 @@
- 	struct work_struct promisc_task;
- 	struct {
- 		struct sk_buff *skb;
--		int fid;
-+		int fid, hardirq;
- 		struct work_struct task;
- 	} xmit, xmit11;
- 	struct net_device *wifidev;
-@@ -1348,7 +1348,12 @@
- 		netif_stop_queue(dev);
- 		priv->xmit.task.func = (void (*)(void *))airo_do_xmit;
- 		priv->xmit.task.data = (void *)dev;
--		schedule_work(&priv->xmit.task);
-+		if (priv->xmit.hardirq) {
-+			priv->xmit.hardirq = 0;
-+			schedule_work(&priv->xmit.task);
-+			return;
-+		}
-+		schedule_delayed_work(&priv->xmit.task, 1);
- 		return;
- 	}
- 	status = transmit_802_3_packet (priv, fids[fid], skb->data);
-@@ -1393,6 +1398,7 @@
- 		fids[i] |= (len << 16);
- 		priv->xmit.skb = skb;
- 		priv->xmit.fid = i;
-+		priv->xmit.hardirq = 1;
- 		airo_do_xmit(dev);
- 	}
- 	return 0;
-@@ -1410,7 +1416,12 @@
- 		netif_stop_queue(dev);
- 		priv->xmit11.task.func = (void (*)(void *))airo_do_xmit11;
- 		priv->xmit11.task.data = (void *)dev;
--		schedule_work(&priv->xmit11.task);
-+		if (priv->xmit11.hardirq) {
-+			priv->xmit11.hardirq = 0;
-+			schedule_work(&priv->xmit11.task);
-+			return;
-+		}
-+		schedule_delayed_work(&priv->xmit11.task, 1);
- 		return;
- 	}
- 	status = transmit_802_11_packet (priv, fids[fid], skb->data);
-@@ -1485,7 +1496,7 @@
- 	} else {
- 		ai->stats_task.func = (void (*)(void *))airo_read_stats;
- 		ai->stats_task.data = (void *)ai;
--		schedule_work(&ai->stats_task);
-+		schedule_delayed_work(&ai->stats_task, 1);
- 	}
- }
- 
-@@ -1508,7 +1519,7 @@
- 	} else {
- 		ai->promisc_task.func = (void (*)(void *))airo_end_promisc;
- 		ai->promisc_task.data = (void *)ai;
--		schedule_work(&ai->promisc_task);
-+		schedule_delayed_work(&ai->promisc_task, 1);
- 	}
- }
- 
-@@ -1524,7 +1535,7 @@
- 	} else {
- 		ai->promisc_task.func = (void (*)(void *))airo_set_promisc;
- 		ai->promisc_task.data = (void *)ai;
--		schedule_work(&ai->promisc_task);
-+		schedule_delayed_work(&ai->promisc_task, 1);
- 	}
- }
- 
-@@ -1710,6 +1721,14 @@
- 	sema_init(&ai->sem, 1);
- 	ai->need_commit = 0;
- 	ai->config.len = 0;
-+	INIT_WORK(&ai->stats_task, NULL, NULL);
-+	INIT_WORK(&ai->promisc_task, NULL, NULL);
-+	INIT_WORK(&ai->xmit.task, NULL, NULL);
-+	INIT_WORK(&ai->xmit11.task, NULL, NULL);
-+	INIT_WORK(&ai->mic_task, NULL, NULL);
-+#ifdef WIRELESS_EXT
-+	INIT_WORK(&ai->event_task, NULL, NULL);
-+#endif
- 	rc = add_airo_dev( dev );
- 	if (rc)
- 		goto err_out_free;
-@@ -1859,7 +1878,7 @@
- 	} else {
- 		ai->event_task.func = (void (*)(void *))airo_send_event;
- 		ai->event_task.data = (void *)dev;
--		schedule_work(&ai->event_task);
-+		schedule_delayed_work(&ai->event_task, 1);
- 	}
- }
- #endif
-@@ -1876,7 +1895,7 @@
- 	} else {
- 		ai->mic_task.func = (void (*)(void *))airo_read_mic;
- 		ai->mic_task.data = (void *)ai;
--		schedule_work(&ai->mic_task);
-+		schedule_delayed_work(&ai->mic_task, 1);
- 	}
- }
- 
-@@ -4090,7 +4109,7 @@
- 
- #ifdef CONFIG_PCI
- 	printk( KERN_INFO "airo:  Probing for PCI adapters\n" );
--	rc = pci_module_init(&airo_driver);
-+	rc = pci_register_driver(&airo_driver);
- 	printk( KERN_INFO "airo:  Finished probing for PCI adapters\n" );
- #endif
- 
-@@ -4102,6 +4121,7 @@
- 
- static void __exit airo_cleanup_module( void )
- {
-+	pci_unregister_driver(&airo_driver);
- 	while( airo_devices ) {
- 		printk( KERN_INFO "airo: Unregistering %s\n", airo_devices->dev->name );
- 		stop_airo_card( airo_devices->dev, 1 );
-@@ -5160,7 +5180,7 @@
- 			      & status_rid.bssid[i][2]
- 			      & status_rid.bssid[i][3]
- 			      & status_rid.bssid[i][4]
--			      & status_rid.bssid[i][5])!=-1 &&
-+			      & status_rid.bssid[i][5])!=0xff &&
- 			     (status_rid.bssid[i][0]
- 			      | status_rid.bssid[i][1]
- 			      | status_rid.bssid[i][2]
-
+Availablity of files is not a problem, theres already a large number of large files that I want to transfer to and from my computer. I didn't know about sparse files, will my NIC be used the same way?

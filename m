@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUFOIg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUFOIhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264884AbUFOIg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 04:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUFOIg5
+	id S264954AbUFOIhP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 04:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbUFOIhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 04:36:57 -0400
-Received: from docsis224-219.menta.net ([62.57.224.219]:5611 "EHLO
-	pof.eslack.org.") by vger.kernel.org with ESMTP id S264884AbUFOIgz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 04:36:55 -0400
-Subject: Re: pcibios_write_config_dword()?  porting drivers to 2.6
-From: Esteve =?ISO-8859-1?Q?Espu=F1a?= Sargatal <esteve@eslack.org>
-Reply-To: esteve@eslack.org
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040614215732.GA29550@havoc.gtf.org>
-References: <20040614214554.GA25127@havoc.gtf.org>
-	 <20040614215732.GA29550@havoc.gtf.org>
-Content-Type: text/plain
-Message-Id: <1087288594.7302.2.camel@esteve.pofhq.net>
+	Tue, 15 Jun 2004 04:37:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6543 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264954AbUFOIhM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 04:37:12 -0400
+Date: Tue, 15 Jun 2004 04:36:51 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Does exec-shield with -fpie  work?
+Message-ID: <20040615083649.GG21264@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1087286723.3156.35.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 15 Jun 2004 10:36:34 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1087286723.3156.35.camel@pc-16.office.scali.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-14 at 23:57, Jeff Garzik wrote:
-> On Mon, Jun 14, 2004 at 05:45:54PM -0400, David Eger wrote:
-> > I've been working on a port of the Cirrus Logic framebuffer driver to
-> > Linux 2.6, and stumbled upon the line:
-> > 
-> >       pcibios_write_config_dword (0, pdev->devfn, PCI_BASE_ADDRESS_0,
-> >          0x00000000);
-> > 
-> > What did this used to mean?  It's been deleted as old cruft in 2.6...
-> 
-> pci_write_config_dword
-> 
+On Tue, Jun 15, 2004 at 10:05:23AM +0200, Terje Eggestad wrote:
+> te pc-16 ~ 70> !gcc
+> gcc -fPIE -fpic -o ./testsc ./testsc.c
 
-But done through the bios routine.
+This is not a command to build a PIE.
+You need
+gcc -fpie -pie -o ./testsc ./testsc.c
+instead (or s/-fpie/-fPIE/).
 
-> 	Jeff
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Furthermore, I don't think lkml is the right mailing list to ask about this.
 
+	Jakub

@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264758AbTFLMoj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 08:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbTFLMoj
+	id S264767AbTFLMxO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 08:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbTFLMxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 08:44:39 -0400
-Received: from dp.samba.org ([66.70.73.150]:2774 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264758AbTFLMoh (ORCPT
+	Thu, 12 Jun 2003 08:53:14 -0400
+Received: from dp.samba.org ([66.70.73.150]:34284 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264767AbTFLMxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 08:44:37 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
+	Thu, 12 Jun 2003 08:53:13 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16104.31251.530055.156452@nanango.paulus.ozlabs.org>
+Date: Thu, 12 Jun 2003 23:03:15 +1000 (EST)
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] Fix __check_region deprecation
-Date: Thu, 12 Jun 2003 21:19:13 +1000
-Message-Id: <20030612125823.148A52C2C3@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix macserial driver compilation
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+There is a missing declaration of serial_driver in macserial.c,
+causing the compilation to fail.  This patch adds a suitable
+declaration.
 
-Kills that stupid deprecated warning in kernel/ksyms.c, and makes
-others simpler.
+Please apply.
 
-Name: Fix overzealous check_region deprecation
-Author: Rusty Russell
-Status: Trivial
+Thanks,
+Paul.
 
-D: 1) We export __check_region, so making it __deprecated gives a spurious
-D:    warning in kernel/ksyms.c.
-D: 2) Other warnings refer to __check_region rather than check_region,
-D:    which has confused some people.
-D:
-D: Make check_region an inline, not a macro, and deprecate *that*.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.70-bk16/include/linux/ioport.h working-2.5.70-bk16-check_region/include/linux/ioport.h
---- linux-2.5.70-bk16/include/linux/ioport.h	2003-03-25 12:17:30.000000000 +1100
-+++ working-2.5.70-bk16-check_region/include/linux/ioport.h	2003-06-12 20:02:55.000000000 +1000
-@@ -105,12 +105,15 @@ extern int allocate_resource(struct reso
- extern struct resource * __request_region(struct resource *, unsigned long start, unsigned long n, const char *name);
+diff -urN linux-2.5/drivers/macintosh/macserial.c pmac-2.5/drivers/macintosh/macserial.c
+--- linux-2.5/drivers/macintosh/macserial.c	2003-06-12 20:33:22.000000000 +1000
++++ pmac-2.5/drivers/macintosh/macserial.c	2003-06-12 22:58:04.000000000 +1000
+@@ -76,6 +76,8 @@
+    in the order we want. */
+ #define RECOVERY_DELAY	eieio()
  
- /* Compatibility cruft */
--#define check_region(start,n)	__check_region(&ioport_resource, (start), (n))
- #define release_region(start,n)	__release_region(&ioport_resource, (start), (n))
- #define check_mem_region(start,n)	__check_region(&iomem_resource, (start), (n))
- #define release_mem_region(start,n)	__release_region(&iomem_resource, (start), (n))
++static struct tty_driver *serial_driver;
++
+ struct mac_zschannel zs_channels[NUM_CHANNELS];
  
--extern int __deprecated __check_region(struct resource *, unsigned long, unsigned long);
-+extern int __check_region(struct resource *, unsigned long, unsigned long);
- extern void __release_region(struct resource *, unsigned long, unsigned long);
- 
-+static inline int __deprecated check_region(unsigned long s, unsigned long n)
-+{
-+	return __check_region(&ioport_resource, s, n);
-+}
- #endif	/* _LINUX_IOPORT_H */
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+ struct mac_serial zs_soft[NUM_CHANNELS];

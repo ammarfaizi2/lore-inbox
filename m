@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319395AbSIFUxn>; Fri, 6 Sep 2002 16:53:43 -0400
+	id <S319369AbSIFUxT>; Fri, 6 Sep 2002 16:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319392AbSIFUxW>; Fri, 6 Sep 2002 16:53:22 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:12160 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319395AbSIFUwT>;
-	Fri, 6 Sep 2002 16:52:19 -0400
-Date: Fri, 6 Sep 2002 10:04:06 +0000
+	id <S319392AbSIFUwI>; Fri, 6 Sep 2002 16:52:08 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:8064 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319389AbSIFUwF>;
+	Fri, 6 Sep 2002 16:52:05 -0400
+Date: Fri, 6 Sep 2002 11:31:30 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amos Waterland <apw@us.ibm.com>, pwaechtler@mac.com,
-       golbi@mat.uni.torun.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] POSIX message queues
-Message-ID: <20020906100406.C35@toy.ucw.cz>
-References: <20020901015025.A10102@kvasir.austin.ibm.com> <Pine.LNX.4.44.0209041311550.4000-100000@localhost.localdomain>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dominik Brodowski <devel@brodo.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
+Message-ID: <20020906113129.E39@toy.ucw.cz>
+References: <20020828223939.C816@brodo.de> <Pine.LNX.4.33.0208281400330.16824-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.44.0209041311550.4000-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 04, 2002 at 01:13:28PM +0200
+In-Reply-To: <Pine.LNX.4.33.0208281400330.16824-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Aug 28, 2002 at 02:05:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > That is the fundamental problem with a userspace shared memory
-> > implementation: write permissions on a message queue should grant
-> > mq_send(), but write permissions on shared memory grant a lot more than
-> > just that.
+> > #3 Then the cpufreq driver is called to actually set the CPU frequency. 
+> > 
+> > #3 is absolutely ready
 > 
-> is it really a problem? As long as the read and write queues are separated
-> per sender, all that can happen is that a sender is allowed to read his
-> own messages - that is not an exciting capability.
+> #3 is _not_ ready, if it doesn't include a "policy" part in addition to
+> the frequency. That was what I started off talking about: on some CPU's
+> you absolutely do _not_ want to set a hard frequency, you want to tell the
+> CPU how to behave (possibly together with a frequency _range_).
+> 
+> Until that is done, no other upper layers can use this low-level 
+> functionality, since all upper layers would be forced to come up with a 
+> hard frequency goal.
+> 
+> THAT is the problem. If you want to build infrastructure for upper layers, 
+> then that infrastructure has to be able to pass down sufficient 
+> information from those upper layers.
 
-Imagine something that writes data into the que then erases the data and
-gets rid of setuid.
-								Pavel
+So... would you take a patch that passed range down to cpufreq "core"?
+
+Dumb cpus would set speed to upper limit while smart cpus would get all
+the info...
+
+									Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

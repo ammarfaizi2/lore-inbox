@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbTIKR5j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 13:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbTIKR5j
+	id S261391AbTIKSSL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 14:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbTIKSSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 13:57:39 -0400
-Received: from mail.kroah.org ([65.200.24.183]:52150 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261416AbTIKR5e (ORCPT
+	Thu, 11 Sep 2003 14:18:11 -0400
+Received: from ns.suse.de ([195.135.220.2]:59286 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261391AbTIKSSJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 13:57:34 -0400
-Date: Thu, 11 Sep 2003 10:57:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: 2.6.0-test5 usbserial oops
-Message-ID: <20030911175755.GA13334@kroah.com>
-References: <3F60B4AB.7060109@kmlinux.fjfi.cvut.cz>
+	Thu, 11 Sep 2003 14:18:09 -0400
+Date: Thu, 11 Sep 2003 20:18:06 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-Id: <20030911201806.2b2d9c5b.ak@suse.de>
+In-Reply-To: <20030911174839.GM29532@mail.jlokier.co.uk>
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
+	<20030911012708.GD3134@wotan.suse.de>
+	<20030911165845.GE29532@mail.jlokier.co.uk>
+	<20030911190516.64128fe9.ak@suse.de>
+	<20030911173245.GJ29532@mail.jlokier.co.uk>
+	<20030911193954.63724a82.ak@suse.de>
+	<20030911174839.GM29532@mail.jlokier.co.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F60B4AB.7060109@kmlinux.fjfi.cvut.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 07:45:15PM +0200, Jindrich Makovicka wrote:
-> Hello,
+On Thu, 11 Sep 2003 18:48:39 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
+
+> Andi Kleen wrote:
+> > signal exception path is thousands of cycles, we're talking about tens
+> > of cycles here.
 > 
-> I have a similar problem, here is the syslog with debug=1 set for visor 
-> and usbserial. This occured after using a ppp connection. I am running 
-> 2.4.0test5 with v4l2 patch from http://bytesex.org/v4l/.
+> <hand-waving>
+> 
+> Tens vs thousands == percentage points.
 
-Hm, can you try the following patch and let me know if it fixes the
-problem for you?
+It is more thousands than tens :-)
 
-thanks,
+[just the page fault alone is quite costly]
 
-greg k-h
+> 
+> Isn't it about 20 cycles per mispredicted branch on a P4?
+> 
+> Five of those and we're talking several percent slowdown, ridiculous
+> as it seems.
 
---- a/drivers/usb/serial/usb-serial.c	Wed Sep  3 08:47:22 2003
-+++ b/drivers/usb/serial/usb-serial.c	Thu Sep 11 11:01:55 2003
-@@ -871,8 +871,10 @@
- 
- 	/* the ports are cleaned up and released in port_release() */
- 	for (i = 0; i < serial->num_ports; ++i)
--		if (serial->port[i]->dev.parent != NULL)
-+		if (serial->port[i]->dev.parent != NULL) {
- 			device_unregister(&serial->port[i]->dev);
-+			serial->port[i] = NULL;
-+		}
- 
- 	/* If this is a "fake" port, we have to clean it up here, as it will
- 	 * not get cleaned up in port_release() as it was never registered with
+There are a lot of conditional branches in the signal
+path. If you don't believe me I can send you simics full instruction traces of it.
+I'm not going to believe that 2-3 more make a significant difference.
+
+-Andi

@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271568AbRHPM2h>; Thu, 16 Aug 2001 08:28:37 -0400
+	id <S271567AbRHPM1h>; Thu, 16 Aug 2001 08:27:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271570AbRHPM2U>; Thu, 16 Aug 2001 08:28:20 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:35598 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S271568AbRHPM2L>;
-	Thu, 16 Aug 2001 08:28:11 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.7 is available 
-Date: Thu, 16 Aug 2001 22:28:19 +1000
-Message-ID: <16639.997964899@ocs3.ocs-net>
+	id <S271568AbRHPM11>; Thu, 16 Aug 2001 08:27:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63370 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271567AbRHPM1U>;
+	Thu, 16 Aug 2001 08:27:20 -0400
+Date: Thu, 16 Aug 2001 05:27:27 -0700 (PDT)
+Message-Id: <20010816.052727.68039859.davem@redhat.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [patch] zero-bounce highmem I/O
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010816140317.Y4352@suse.de>
+In-Reply-To: <20010816135150.X4352@suse.de>
+	<20010816.045642.116348743.davem@redhat.com>
+	<20010816140317.Y4352@suse.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+   From: Jens Axboe <axboe@suse.de>
+   Date: Thu, 16 Aug 2001 14:03:17 +0200
 
-Content-Type: text/plain; charset=us-ascii
+   > That is why PCI_MAX_DMA32, or whatever you would like to name it, does
+   > not make any sense.  It can be a shorthand for drivers themselves, but
+   > that is it and personally I'd rather they just put the bits there
+   > explicitly.
+   
+   Drivers, right. THe block stuff used it in _one_ place -- the
+   BLK_BOUNCE_4G define, to indicated the need to bounce anything above 4G.
+   But no problem, I can just define that to 0xffffffff myself.
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+How can "the block stuff" (ie. generic code) make legal use of this
+value?  Which physical bits it may address, this is a device specific
+attribute and has nothing to with with 4GB and highmem and PCI
+standard specifications. :-)
 
-modutils-2.4.7.tar.gz           Source tarball, includes RPM spec file
-modutils-2.4.7-1.src.rpm        As above, in SRPM format
-modutils-2.4.7-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
-patch-modutils-2.4.7.gz         Patch from modutils 2.4.6 to 2.4.7.
+In fact, this is not only a device specific attribute, it also has
+things to do with elements of the platform.
 
-Sparc and IA64 versions to follow next week.
+This is why we have things like pci_dma_supported() and friends.
+Let me give an example, for most PCI controllers on Sparc64 if your
+device can address the upper 2GB of 32-bit PCI space, one may DMA
+to any physical memory location via the IOMMU these controllers have.
 
-Related kernel patches.
+There may easily be HIGHMEM platforms which operate this way.  So the
+result is that CONFIG_HIGHMEM does _not_ mean ">=4GB memory must be
+bounced".
 
-patch-2.4.2-persistent.gz       Adds persistent data and generic string
-				support to kernel 2.4.2 onwards.  Optional.
+Really, 0xffffffff is a meaningless value.  You have to test against
+device indicated capabilities for bouncing decisions.
 
-Changelog extract
+You do not even know how "addressable bits" translates into "range of
+physical memory that may be DMA'd to/from by device".  If an IOMMU is
+present on the platform, these two things have no relationship
+whatsoever.  These two things happen to have a direct relationship
+on x86, but that is as far as it goes.
 
-	* Correct filename in depmod man page.  Debian #94652.
-	* Note that modprobe requries a bare module name.
-	* Ensure at least one space after section names in insmod map.
-	* obj_kallsyms needs to be 32/64 safe.
-	* Better error checking in makefiles.  Reported by Nico Schottelius.
-	* S390 support from Ulrich Weigand.  Includes Debian #107308.
-	* Add s390 iucv aliases.  Add binfmt-0000 off.  Fix modprobe man page
-	  typo.  Redhat.
-	* Non-zero return code for depmod with unresolved symbols.  Original by
-	  Redhat, reworked by me.
-	* Add alias tunl0 ipip, requested by Pekka Savola.
-	* Aliases for parallel port devices.  Tim Waugh.
+Enough babbling on my part, I'll have a look at your bounce patch
+later today. :-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.3 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE7e7xji4UHNye0ZOoRArYxAKDXLc1zVThsZQbkHXfFDUTm7nML5QCeNYEY
-7hc6U1q7AnCPMIk5VDSIrD8=
-=1w56
------END PGP SIGNATURE-----
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263207AbRE2EqD>; Tue, 29 May 2001 00:46:03 -0400
+	id <S262642AbRE2Ern>; Tue, 29 May 2001 00:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263208AbRE2Epx>; Tue, 29 May 2001 00:45:53 -0400
-Received: from [209.226.175.53] ([209.226.175.53]:16296 "EHLO
-	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S263207AbRE2Epr>; Tue, 29 May 2001 00:45:47 -0400
-Subject: Re: (via-rhine.c problem) 2.4.5 and pppd/pppoe
-From: Daniel Rose <daniel.rose@datalinesolutions.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <991081135.1399.0.camel@rocket.novakayne.net>
-In-Reply-To: <991081135.1399.0.camel@rocket.novakayne.net>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 29 May 2001 00:34:29 -0400
-Message-Id: <991110870.912.3.camel@rocket>
-Mime-Version: 1.0
+	id <S262710AbRE2Erd>; Tue, 29 May 2001 00:47:33 -0400
+Received: from [203.237.32.200] ([203.237.32.200]:31651 "EHLO
+	eunhasu.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S262642AbRE2ErT>; Tue, 29 May 2001 00:47:19 -0400
+Message-ID: <3B1329A4.E72D9D62@kjist.ac.kr>
+Date: Tue, 29 May 2001 13:46:28 +0900
+From: "G. Hugh Song" <ghsong@kjist.ac.kr>
+Organization: KJIST, Dept of Info. & Commun.
+X-Mailer: Mozilla 4.75 [ko] (X11; U; Linux 2.4.4-ac11 i686)
+X-Accept-Language: en, ko
+MIME-Version: 1.0
+To: Jakob =?EUC-KR?B?2HN0ZXJnYWFyZA==?= <jakob@unthought.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Plain 2.4.5 VM...
+In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr> <20010529061039.D29962@unthought.net>
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I have decided the problem lays in via-rhine.c, the ethernet driver
-for my card. The second boot finds the mac address as 00's all the time,
-regardless of whether the driver is compiled as a module, or monolith.
+Jakob,
 
-On 28 May 2001 16:18:55 -0400, Daniel Rose wrote:
-> 
-> Hello,
-> I'm having problems with 2.4.5 and my pppoe connection.
-> The kernel compiles fine, and works fine too, until I reboot, at which
-> time it decides it no longer wants to work, and any time I attempt to
-> call my start-pppoe script, i get:
-> 
-> May 28 15:54:28 rocket pppd[3091]: pppd 2.4.1 started by root, uid 0
-> May 28 15:54:28 rocket pppd[3091]: Using interface ppp0
-> May 28 15:54:28 rocket pppd[3091]: Connect: ppp0 <--> /dev/ttyp0
-> May 28 15:54:43 rocket pppd[3091]: Hangup (SIGHUP)
-> May 28 15:54:43 rocket pppd[3091]: Modem hangup
-> May 28 15:54:43 rocket pppd[3091]: Connection terminated.
-> May 28 15:54:44 rocket pppd[3091]: Exit.
-> 
-> I am assuming that this is because of my eth0, which shows in ifconfig:
-> 
-> eth0      Link encap:Ethernet  HWaddr 00:00:00:00:00:00 (it's using
-> via-rhine chipset, compiled into kernel, not a module)
-> 
-> This _only_ occurs after I reboot (ie. i can start up the new 2.4.5
-> kernel and work it perfectly once, then reboot and it doesnt work)
-> 
-> Anybody have any ideas?
-> 
-> Thanks,
-> 
-> Daniel Rose
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+My Alpha has 2GB of physical memory.  In this case how much swap space
+should
+I assign in these days of kernel 2.4.*?  I had had trouble with 1GB of
+swap space
+before switching back to 2.2.20pre2aa1.
 
+Thanks
 
-
+-- 
+G. Hugh Song

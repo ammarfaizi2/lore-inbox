@@ -1,128 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbVAFNz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVAFN6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262828AbVAFNz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 08:55:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbVAFNxr
+	id S262826AbVAFN6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 08:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVAFN6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 08:53:47 -0500
-Received: from apachihuilliztli.mtu.ru ([195.34.32.124]:40716 "EHLO
-	Apachihuilliztli.mtu.ru") by vger.kernel.org with ESMTP
-	id S262833AbVAFNwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 08:52:41 -0500
-Subject: Re: 2.6.10-mm1
-From: Vladimir Saveliev <vs@namesys.com>
-To: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       Alexander Zarochentcev <zam@namesys.com>
-In-Reply-To: <41DC2386.9010701@namesys.com>
-References: <20050103011113.6f6c8f44.akpm@osdl.org>
-	 <20050103114854.GA18408@infradead.org>  <41DC2386.9010701@namesys.com>
-Content-Type: text/plain
-Message-Id: <1105019521.7074.79.camel@tribesman.namesys.com>
+	Thu, 6 Jan 2005 08:58:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:26381 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262826AbVAFN6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 08:58:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=nyKsf+jtRqnqckhS76Cl+aMz3OapztSGjoUT9gAsbf4mNaZKrBsbvK6GHg9iaLgcdvtdr25pERzOHv21QI3dY/M8LpQTd0TT/7ivpG4oPIhbXJ1wBVtez/pmzi+FCCigsZrGJYmOPyA9ahDN2AFIt/dPvQ/iOZtYikhVOXUuNDw=
+Message-ID: <58cb370e05010605584cdcd400@mail.gmail.com>
+Date: Thu, 6 Jan 2005 14:58:07 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: linux-os@analogic.com
+Subject: Re: 2.6.10: "[permanent]" modules?
+Cc: Christoph Hellwig <hch@infradead.org>, Harald Dunkel <harald@coware.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0501060744330.17811@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 06 Jan 2005 16:52:01 +0300
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <41DCE48E.5010604@coware.com>
+	 <20050106092858.GB15162@infradead.org>
+	 <Pine.LNX.4.61.0501060744330.17811@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-
-On Wed, 2005-01-05 at 20:27, Hans Reiser wrote:
-> Christoph Hellwig wrote:
+On Thu, 6 Jan 2005 07:46:53 -0500 (EST), linux-os
+<linux-os@chaos.analogic.com> wrote:
+> On Thu, 6 Jan 2005, Christoph Hellwig wrote:
 > 
-> >> reiser4-export-inode_lock.patch
-> >>    
+> > On Thu, Jan 06, 2005 at 08:11:10AM +0100, Harald Dunkel wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE-----
+> >> Hash: SHA1
 > >>
-> >
-> >Han,s how'as the work progressing on removing these and other fishy
-> >core changes?
-> >  
-
-The work is in progress. Here is list of patches. 
-
-reiser4-sb_sync_inodes.patch
-reiser4-allow-drop_inode-implementation.patch - will either try to do
-what Christoph suggested or find something else
-reiser4-truncate_inode_pages_range.patch
-reiser4-export-remove_from_page_cache.patch
-reiser4-export-page_cache_readahead.patch
-reiser4-reget-page-mapping.patch
-reiser4-rcu-barrier.patch
-reiser4-export-inode_lock.patch           - trying to change to go
-without this
-reiser4-export-pagevec-funcs.patch
-reiser4-export-radix_tree_preload.patch
-reiser4-export-find_get_pages.patch
-reiser4-radix-tree-tag.patch              - not needed anymore
-reiser4-radix_tree_lookup_slot.patch
-reiser4-perthread-pages.patch
-reiser4-unstatic-kswapd.patch             - not needed anymore
-reiser4-include-reiser4.patch
-reiser4-doc.patch
-
-Christoph, what else do you especially object against?
-
-> >
-> Vladimir is writing code to reduce the number of patches needed.  This 
-> code is causing bugs that have not yet been fixed.  His email is not 
-> working today, hopefully it will work tomorrow.  This is the russian 
-> holiday season....
-> 
-> >  
-> >
-> >> reiser4-unstatic-kswapd.patch
-> >>    
+> >> Hi folks,
 > >>
+> >> Seems that for 2.6.10 I cannot unload ide modules.
+> >> 'lsmod | grep permanent" lists
 > >
-> >Andrew, could you please finally drop this one?  It's not needed for
-> >reiser4 operation at all just for some of their stranger debugging
-> >features.
-> >  
+> > ...
 > >
-> I'll let vs comment.
+> >> Is this on purpose?
+> >
+> > Yes.
+> >
 > 
-> >  
-> >
-> >> 
-> >> reiser4-include-reiser4.patch
-> >>    
-> >>
-> >
-> >What about moving fs/Kconfig.reiser4 to fs/reiser4/Kconfig?  This is
-> >the logical place for it and makes dropping in a new version of the fs
-> >easier.
-> >  
-> >
-> Ok.
-> 
-> >  
-> >
-> >> reiser4-only.patch
-> >>    
-> >>
-> >
-> >Documentation shouldn't be in fs/FOO/doc but Documentation/filesystems/.
-> >  
-> >
-> Ok.
-> 
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> >  
-> >
-> What are the other ones you object to?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Can you explain? Normally if a module is no longer in use, it
+> can be unloaded. I'm sure that there are number of folks
+> who would like to know how come it's now necessary to reboot
+> to get rid of some module no longer in use.
 
+It can be unloaded given that the needed locking
+and cleanup code are in place...

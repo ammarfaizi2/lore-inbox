@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287838AbSA2AOR>; Mon, 28 Jan 2002 19:14:17 -0500
+	id <S287827AbSA2APi>; Mon, 28 Jan 2002 19:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287833AbSA2AOA>; Mon, 28 Jan 2002 19:14:00 -0500
-Received: from zero.tech9.net ([209.61.188.187]:17934 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S287827AbSA2ANs>;
-	Mon, 28 Jan 2002 19:13:48 -0500
-Subject: Re: Rik van Riel's vm-rmap
-From: Robert Love <rml@tech9.net>
+	id <S287833AbSA2AP3>; Mon, 28 Jan 2002 19:15:29 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:780 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287827AbSA2APW>;
+	Mon, 28 Jan 2002 19:15:22 -0500
+Date: Mon, 28 Jan 2002 22:15:03 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
 To: Louis Garcia <louisg00@bellsouth.net>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Rik van Riel's vm-rmap
 In-Reply-To: <1012263259.1634.3.camel@tiger>
-In-Reply-To: <Pine.LNX.4.33L.0201280613510.32617-100000@imladris.surriel.com> 
-	<1012262826.1634.1.camel@tiger>  <1012263182.817.9.camel@phantasy> 
-	<1012263259.1634.3.camel@tiger>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 28 Jan 2002 19:19:19 -0500
-Message-Id: <1012263560.817.11.camel@phantasy>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.33L.0201282214010.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-28 at 19:14, Louis Garcia wrote:
+On 28 Jan 2002, Louis Garcia wrote:
+
 > Should I do the rmap patch first?
 
-Yes, if Andrew's low-latency patch fails you just lose the scheduling
-points in vmscan.c (big deal).  If rmap half applies... ouch.
+Yes.
 
-So apply rmap first.
+After that you can patch the low latency patch,
+which will give you a reject on vmscan.c
 
-	Robert Love
+This doesn't matter because:
+1) each part of the low latency patch is independant
+2) -rmap already has low latency code in vmscan.c
+
+kind regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbTAWJ0l>; Thu, 23 Jan 2003 04:26:41 -0500
+	id <S265081AbTAWJcZ>; Thu, 23 Jan 2003 04:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264702AbTAWJ0l>; Thu, 23 Jan 2003 04:26:41 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:45068 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262821AbTAWJ0k>; Thu, 23 Jan 2003 04:26:40 -0500
-Message-Id: <200301230927.h0N9RHs22240@Port.imtp.ilyichevsk.odessa.ua>
+	id <S265074AbTAWJcZ>; Thu, 23 Jan 2003 04:32:25 -0500
+Received: from packet.digeo.com ([12.110.80.53]:48539 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265065AbTAWJcZ>;
+	Thu, 23 Jan 2003 04:32:25 -0500
+Date: Thu, 23 Jan 2003 01:41:45 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "dada1" <dada1@cosmosbay.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strong kernel lock with linux-2.5.59 : futex in Huge Pages
+Message-Id: <20030123014145.633b6517.akpm@digeo.com>
+In-Reply-To: <00e201c2c2c0$838954c0$760010ac@edumazet>
+References: <E18bd5l-000Duj-00@f16.mail.ru>
+	<00e201c2c2c0$838954c0$760010ac@edumazet>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Sam Gendler <SGendler@s8.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: completely undiagnosable (for me) kernel boot problem
-Date: Thu, 23 Jan 2003 11:26:23 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <8D587D949A61D411AFE300D0B74D75D7048C9F13@server.s8.com>
-In-Reply-To: <8D587D949A61D411AFE300D0B74D75D7048C9F13@server.s8.com>
-Cc: DragonK <dragon_krome@yahoo.com>, "W. Michael Petullo" <mike@flyn.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Jan 2003 09:41:28.0788 (UTC) FILETIME=[9A985140:01C2C2C3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 January 2003 06:20, Sam Gendler wrote:
-> the main one) fails.  It successfully uncompresses vmlinuz and
-> initrd.img, then clears the screen and displays the message
-> "Uncompressing Linux... Ok, booting the kernel." and leaves a
-> blinking cursor two lines below.  Nothing ever happens subsequent to
-> that.
-
-Heh... you'll have to mess up with boot code. CCed to
-DragonK <dragon_krome@yahoo.com> (he had similar 'no boot'
-horror story, and was able to diagnose it).
-
-> was complaining about a 2.88MB boot image.  Also, the same symptoms
-> occur whether I boot from the net or the CDR/DVD drive, so I don't
-> think it is the device.  I don't know how to go about finding out
-> what is hanging the system, and I don't have a system available to me
-> on which I can comple a custom kernel.  This is the only machine I
-> have, and it now has nothing but freeDOS on it.
-
-Thats strange. How did you managed to try network boot without
-a second system available to you? Did you tried to copy kernel
-to DOS partition and load it with loadlin or linld?
-
-http://www.imtp.ilyichevsk.odessa.ua/linux/vda/linld/
-
-A long time ago I said to "W. Michael Petullo" <mike@flyn.org>:
->> Since the kernel does not even peep an oops message, I'm not sure where
->> to start debugging.  Is anyone else having similar problems?
+"dada1" <dada1@cosmosbay.com> wrote:
 >
->If noone will send you a suggestion, I'm afraid you'll have to put debug 
->stores to video memory all over startup code.
->
->C example (assumes 1:1 address mapping)
->
->char *p = (char*)0x000b8000;  // color VGA text framebuffer
->p[(col+row*80)*2] = 'Z';      // character
->p[(col+row*80)*2+1] = 0x0f;   // attr (0x0f=white on black)
->
->You may try this first with booting kernel to be sure it works.
->Good luck.
---
-vda
+> Hello
+> 
+> I found a way to lock a linux-2.5.59 in all cases, in using futexes landing
+> in a HugeTLB page.
+> 
+> You need to be root to be able to obtain HugePages (or CAP_IPC_LOCK
+> capability)
+> 
+> I suspect that the kernel/futex.c:__pin_page(unsigned long addr) or
+> mm/memory.c:follow_page() are not HugeTLB page aware.
+> 
+> How you can reproduce it. (dont do it of course, unless you really want to
+> debug the thing)
+
+Yup, futexes and direct-io against hugepages are bust.  I was going to fix
+that up this week, but got distracted.
+
+

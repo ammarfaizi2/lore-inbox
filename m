@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317674AbSGZKnd>; Fri, 26 Jul 2002 06:43:33 -0400
+	id <S317651AbSGZKvH>; Fri, 26 Jul 2002 06:51:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317671AbSGZKnb>; Fri, 26 Jul 2002 06:43:31 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:11648 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317673AbSGZKna>;
-	Fri, 26 Jul 2002 06:43:30 -0400
-Date: Fri, 26 Jul 2002 12:46:42 +0200
-From: Pavel Machek <pavel@elf.ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Albert Cranford <ac9410@bellsouth.net>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/9] 2.5.6 lm_sensors
-Message-ID: <20020726104640.GD279@elf.ucw.cz>
-References: <3D381CD1.6A0B9909@bellsouth.net> <1027130877.14314.6.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1027130877.14314.6.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S317657AbSGZKvH>; Fri, 26 Jul 2002 06:51:07 -0400
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:46235 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S317651AbSGZKvG>; Fri, 26 Jul 2002 06:51:06 -0400
+Date: Fri, 26 Jul 2002 11:54:21 +0100 (BST)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: alastair@gerber
+To: linux-kernel@vger.kernel.org
+Subject: Something else broke between -rc2 and -rc3?
+Message-ID: <Pine.GSO.4.44.0207261146270.25223-100000@gerber>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Guys - for the last week, I've been running 2.4.19-rc2 (with the "hacky"
+Athlon/AGP cache coherency fix) and it's the _only_ kernel to have
+worked properly on my machine. BTW, I also added the latest O(1)
+scheduler patch, but nothing else.
 
-> > The i2c & lm_sensors group would like to submit these 9
-> > patches from our stable 2.6.3 package.
-> 
-> 
-> Does this stuff still destroy thinkpads so badly they have to go back to
-> ibm for a non warranty repair ? Nobody seems willing to provide straight
-> answers, and I think they must be addressed before we merge such code
+I use the Nvidia driver for my sins, and it triggers the Athlon "issue".
+Hacky or not, -rc2 seemed to finally fix the problem, because my box
+survived 6 days of relative torture, which it's _never_ got close to
+before.
 
-Someone should write windows virus killing thinkpads -- to get some
-nice publicity for IBM. Hardware that commits suicide on i2c access is
-just not nice.
+Being the obsessive upgrader that I am, I then built -rc3 with the same
+config. Bang, the box didn't even survive 12 quiet hours. Seeing as
+there are few changes between -rc2 and -rc3 (though there is something
+in the AGP backend somewhere), what could cause this?
 
-Hmm, perhaps bugtraq article with "severe DoS on thinkpad hardware"
-would be nice, too.
-									Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+[ Machine is Athlon XP 1800+ / Via KT266A / IDE / Red Hat 7.3 ]
+
+Cheers
+Alastair                            .-=-.
+__________________________________,'     `.
+                                           \   www.mrc-bsu.cam.ac.uk
+Alastair Stevens, Systems Management Team   \       01223 330383
+MRC Biostatistics Unit, Cambridge UK         `=.......................
+

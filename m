@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277696AbRJICPp>; Mon, 8 Oct 2001 22:15:45 -0400
+	id <S277698AbRJICSp>; Mon, 8 Oct 2001 22:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277699AbRJICPf>; Mon, 8 Oct 2001 22:15:35 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:65038 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S277696AbRJICPa>;
-	Mon, 8 Oct 2001 22:15:30 -0400
-Message-ID: <20011009041618.A6135@win.tue.nl>
-Date: Tue, 9 Oct 2001 04:16:18 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Radovan Garabik <garabik@melkor.dnp.fmph.uniba.sk>,
-        linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] dead keys in unicode console mode
-In-Reply-To: <20011008215313.A11879@melkor.dnp.fmph.uniba.sk>
+	id <S277697AbRJICSh>; Mon, 8 Oct 2001 22:18:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:56968 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277702AbRJICSW>;
+	Mon, 8 Oct 2001 22:18:22 -0400
+Date: Mon, 08 Oct 2001 19:18:47 -0700 (PDT)
+Message-Id: <20011008.191847.15267448.davem@redhat.com>
+To: pmckenne@us.ibm.com
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200110090155.f991tPt22329@eng4.beaverton.ibm.com>
+In-Reply-To: <200110090155.f991tPt22329@eng4.beaverton.ibm.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20011008215313.A11879@melkor.dnp.fmph.uniba.sk>; from Radovan Garabik on Mon, Oct 08, 2001 at 09:53:13PM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 09:53:13PM +0200, Radovan Garabik wrote:
-> FWIW, this little patch makes it possible to
-> use dead keys in unicode console mode.
-> It is against 2.4.10, but should apply cleanly in
-> broader range of kernel versions.
+   From: "Paul E. McKenney" <pmckenne@us.ibm.com>
+   Date: Mon, 8 Oct 2001 18:55:24 -0700 (PDT)
 
->  struct kbdiacr {
-> -        unsigned char diacr, base, result;
-> +        unsigned char diacr, base;
-> +        unsigned short int result; /* holds UCS2 value */
->  };
+   I am particularly interested in comments from people who understand
+   the detailed operation of the SPARC membar instruction and the PARISC
+   SYNC instruction.  My belief is that the membar("#SYNC") and SYNC
+   instructions are sufficient,
+   
+SYNC is sufficient but way too strict.  You don't explicitly say what
+you need to happen.  If you need all previous stores to finish
+before all subsequent memory operations then:
 
-And now all existing binaries that use the KDGKBDIACR ioctl
-dump core? And all existing binaries that use the KDSKBDIACR
-ioctl do very strange things?
+	membar #StoreStore | #StoreLoad
 
-If you want to do something like this, a new ioctl and a new
-structure are necessary. If you design something new, keep
-examples like Vietnamese in mind (with several accents on
-one symbol). We do support that now in the 8-bit world,
-but complete support of the 16-bit world still requires
-some work. (And in the meantime Unicode has already gone beyond.)
+is sufficient.  If you need all previous memory operations to finish
+before all subsequent stores then:
+
+	membar #StoreStore | #LoadStore
+
+is what you want.
+
+   Thoughts?
+
+I think if you need to perform IPIs and junk like that to make the
+memory barrier happen correctly, just throw your code away and use a
+spinlock instead.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

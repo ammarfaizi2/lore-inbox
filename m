@@ -1,97 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSHRWQ1>; Sun, 18 Aug 2002 18:16:27 -0400
+	id <S316437AbSHRWWf>; Sun, 18 Aug 2002 18:22:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316437AbSHRWQ1>; Sun, 18 Aug 2002 18:16:27 -0400
-Received: from AMontsouris-108-1-18-117.abo.wanadoo.fr ([80.15.147.117]:17797
-	"EHLO leloo") by vger.kernel.org with ESMTP id <S316434AbSHRWQ0>;
-	Sun, 18 Aug 2002 18:16:26 -0400
-Date: Mon, 19 Aug 2002 00:20:25 +0200
-From: Edouard Gomez <ed.gomez@wanadoo.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [BUG] ide-scsi in 2.4.20-pre2-ac3
-Message-ID: <20020818222025.GA2981@leloo>
+	id <S316446AbSHRWWf>; Sun, 18 Aug 2002 18:22:35 -0400
+Received: from mail17.speakeasy.net ([216.254.0.217]:21708 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S316437AbSHRWWe>; Sun, 18 Aug 2002 18:22:34 -0400
+Subject: devfs
+From: Ed Sweetman <safemode@speakeasy.net>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020818215355.GB5154@ip68-4-77-172.oc.oc.cox.net>
+References: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu>
+	<1029662182.2970.23.camel@psuedomode> <1029694235.520.9.camel@psuedomode>
+	<6un0rkuiyg.fsf@zork.zork.net> <1029695363.1357.5.camel@psuedomode>
+	<6uhehsui80.fsf@zork.zork.net> 
+	<20020818215355.GB5154@ip68-4-77-172.oc.oc.cox.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Aug 2002 18:26:35 -0400
+Message-Id: <1029709596.3331.32.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 2002-08-18 at 17:53, Barry K. Nathan wrote:
+> On Sun, Aug 18, 2002 at 07:36:47PM +0100, Sean Neakums wrote:
+> > commence  Ed Sweetman quotation:
+> [snip]
+> > > the devfs documentation says it doesn't need to have devfs mounted
+> > > to work, but this doesn't seem to be true at all.
+> > 
+> > If it does say exactly that, then it is outrageously wrong.
+> 
+> Starting at line 722 of
+> linux-2.4.19/Documentation/filesystems/devfs/README:
+> 
+> > In general, a kernel built with CONFIG_DEVFS_FS=y but without mounting
+> > devfs onto /dev is completely safe, and requires no
+> > configuration changes.
+> 
+> I skimmed through the documentation and it appears to assume that you're
+> not deleting all the stuff in /dev before switching over to devfs.
 
-I've been using successfully the  last 2.4.19-rcX-ac series but when i
-switched to the last 2.4.20-pre2-ac3, i got problems with the ide-scsi
-module. It was reseting all the time and i had to reboot.
+This has nothing to do with not mounting devfs and still using devfs to
+work with devices.   If devfs is not mounted but you're still using
+devfs, you shouldn't need anything in /dev.   The documentation says you
+can use devfs without mounting and This is what i'm saying is
+problematic and doesn't seem possible in normal usage.   It's an
+optional config so are we using devfs when we dont mount it or not?  
+and if not, then why make not mounting it an option ? 
 
-Hardware :
+If it's using the old device files in /dev then how can it be using
+devfs and how can accessing physical inodes on the disk be intentional
+to devfs? 
 
-[root@leloo] # hdparm -iv /dev/hdc
 
-/dev/hdc:
- HDIO_GET_MULTCOUNT failed: Input/output error
- IO_support   =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- BLKRAGET failed: Input/output error
- HDIO_GETGEO failed: Invalid argument
+> Right, there's no way around that. If you deleted everything in /dev --
+> which you're not supposed to do -- then there's no way for anything to
+> find any devices if devfs isn't enabled. (And you should have a rescue
+> CD around anyway -- you never know when you might need it! BTW, what
+> distribution are you (Ed) using? Some distributions have special boot
+> options you can use when booting their install CDs to get into a rescue
+> mode.)
+> 
+> In any event, it might be a good idea to make the documentation a bit
+> more explicit about this, and I might send a patch to the mailing
+> list later today.
 
- Model=SONY DVD-ROM DDU1211, FwRev=IYH1, SerialNo=
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 *udma2 
- AdvancedPM=no
+I'm not talking about booting without devfs enabled being the problem, i
+know booting without devfs enabled I'll have issues booting the system
+without physical /dev entries, i was referring to having devfs enabled
+and not mounting it.  Which according to the documentation should be
+perfectly functional and valid.  This is not the case though.   devfs
+should not require the old /dev entries at all since it doesn't use them
+so why would keeping them be required at all when using it (not counting
+the "if i want to not use devfs" argument).  This is what should be
+cleared up in the documentation.  
 
-[root@leloo] # cat /proc/cmdline 
-quiet hdc=ide-scsi hdd=ide-scsi root=/dev/hda2 idebus=66
-
-What happens :
-
-When  using transcode to  access my  dvd drive  (hdc) for  an encoding
-session, the  ide-scsi module tells me  that there's a  timeout and it
-must reset  the bus.  When i  switch back to  a previous  2.4.19-rc ac
-series kernel, all works fine.
-
-Here's the log  when starting the transcode program :
-
-Aug 17 21:31:30 leloo kernel: Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-Aug 17 21:31:30 leloo kernel: Attached scsi CD-ROM sr1 at scsi0, channel 0, id 1, lun 0
-Aug 17 21:31:30 leloo kernel: sr0: scsi3-mmc drive: 0x/40x cd/rw xa/form2 cdda tray
-Aug 17 21:31:30 leloo kernel: Uniform CD-ROM driver Revision: 3.12
-Aug 17 21:31:30 leloo kernel: sr1: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
-Aug 17 21:31:30 leloo kernel: kernel BUG in header file at line 157
-Aug 17 21:31:30 leloo kernel: kernel BUG at panic.c:286!
-Aug 17 21:31:30 leloo kernel: invalid operand: 0000
-Aug 17 21:31:30 leloo kernel: CPU:    0
-Aug 17 21:31:30 leloo kernel: EIP:    0010:[<c01194c7>]    Tainted: P 
-Aug 17 21:31:30 leloo kernel: EFLAGS: 00010282
-Aug 17 21:31:30 leloo kernel: eax: 00000026   ebx: 00000000   ecx: 00000001   edx: c4d6e0a4
-Aug 17 21:31:30 leloo kernel: esi: 00000000   edi: 00001000   ebp: 00000000   esp: c5289d08
-Aug 17 21:31:30 leloo kernel: ds: 0018   es: 0018   ss: 0018
-Aug 17 21:31:30 leloo kernel: Process tcprobe (pid: 5933, stackpage=c5289000)
-Aug 17 21:31:30 leloo kernel: Stack: c01e8c60 0000009d c01894c1 0000009d 00000000 00000014 00000028 00000002 
-Aug 17 21:31:30 leloo kernel: d7ec0000 d7ec3000 c0267180 00000000 d4fa2e00 c01896ac c02670d0 d4fa2e00 
-Aug 17 21:31:30 leloo kernel: d7ec2180 00000000 c02670d0 c02670d0 c0267180 d4fa2e00 d4fa2e00 c0189bc7 
-Aug 17 21:31:30 leloo kernel: Call Trace:    [<c01894c1>] [<c01896ac>] [<c0189bc7>] [<d8840c41>] [<c01858c1>]
-Aug 17 21:31:30 leloo kernel: [<c0185a3b>] [<c0186100>] [<d8841661>] [<d8831642>] [<d88372a0>] [<d8837010>]
-Aug 17 21:31:30 leloo kernel: [<d8838d4e>] [<d99e4720>] [<c017c4d6>] [<c011e7da>] [<c014039f>] [<c012bc5d>]
-Aug 17 21:31:30 leloo kernel: [<c012c66e>] [<c012ca10>] [<c012cb58>] [<c012ca10>] [<c013bce3>] [<c01090bf>]
-Aug 17 21:31:30 leloo kernel: 
-Aug 17 21:31:30 leloo kernel: Code: 0f 0b 1e 01 99 86 1e c0 90 eb fe 8d b4 26 00 00 00 00 8d bc 
-Aug 17 21:32:00 leloo kernel: scsi : aborting command due to timeout : pid 19, scsi0, channel 0, id 0, lun 0 0x28 00 00 00 01 00 00 00 04 00 
-Aug 17 21:32:00 leloo kernel: scsi : aborting command due to timeout : pid 20, scsi0, channel 0, id 0, lun 0 0x00 00 00 00 00 00 
-Aug 17 21:32:30 leloo kernel: scsi : aborting command due to timeout : pid 19, scsi0, channel 0, id 0, lun 0 0x28 00 00 00 01 00 00 00 04 00 
-Aug 17 21:32:30 leloo kernel: SCSI host 0 abort (pid 19) timed out - resetting
-Aug 17 21:32:30 leloo kernel: SCSI bus is being reset for host 0 channel 0.
-
-Then the 4 last lines were repeated until the reboot. I'm sorry bit i had not System.map to map the call to symbol names
-
--- 
-Edouard Gomez

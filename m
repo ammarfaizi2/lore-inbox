@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264863AbTBOSpl>; Sat, 15 Feb 2003 13:45:41 -0500
+	id <S264875AbTBOSyo>; Sat, 15 Feb 2003 13:54:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbTBOSpl>; Sat, 15 Feb 2003 13:45:41 -0500
-Received: from adsl-64-168-240-37.dsl.sntc01.pacbell.net ([64.168.240.37]:30446
-	"EHLO porky.localdomain") by vger.kernel.org with ESMTP
-	id <S264863AbTBOSpk>; Sat, 15 Feb 2003 13:45:40 -0500
-Date: Sat, 15 Feb 2003 12:03:05 -0800
-From: Brian Craft <bcboy@thecraftstudio.com>
-To: linux-kernel@vger.kernel.org
-Subject: ide cdrom problem, cured by reboot
-Message-ID: <20030215200305.GA2387@porky.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S264877AbTBOSyo>; Sat, 15 Feb 2003 13:54:44 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:52531
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S264875AbTBOSyn>; Sat, 15 Feb 2003 13:54:43 -0500
+Date: Sat, 15 Feb 2003 14:01:06 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH][2.5][8/14] smp_call_function_on_cpu - s390
+In-Reply-To: <200302151804.TAA04500@faui11.informatik.uni-erlangen.de>
+Message-ID: <Pine.LNX.4.50.0302151351580.16012-100000@montezuma.mastecende.com>
+References: <200302151804.TAA04500@faui11.informatik.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An ide dvd drive on my system is getting into an unusable state, which is cured
-by reboot. When it's mucked up, I get endless messages as follows, and
-processes accessing the drive remain in uninterruptable sleep for several
-minutes.
+On Sat, 15 Feb 2003, Ulrich Weigand wrote:
 
-Feb 15 01:00:58 porky kernel: hdd: ATAPI reset complete
-Feb 15 01:01:07 porky kernel: hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-Feb 15 01:01:07 porky kernel: hdd: cdrom_decode_status: error=0x30
-Feb 15 01:01:15 porky kernel: hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-Feb 15 01:01:15 porky kernel: hdd: cdrom_decode_status: error=0x30
-Feb 15 01:01:23 porky kernel: hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-Feb 15 01:01:23 porky kernel: hdd: cdrom_decode_status: error=0x30
-Feb 15 01:01:23 porky kernel: hdd: ATAPI reset complete
+> ... this test is quite pointless as the routine will hang shortly
+> anyway.  In fact is appears to be rather misleading as it can give
+> the casual reader the impression that offline CPUs are properly
+> cared for.  I'd suggest to either
+> 
+> - make the routine really safe by doing something like
+>     mask &= cpu_online_mask;
+>   at the beginning
 
-The drive remains unusable until reboot. I've tried reloading the kernel
-modules (cdrom, ide-cd) and issuing "hdparm -w", both of which have no effect.
-Momentarily ejecting the disc sometimes allows it to work for a bit, but
-rebooting seems to be the best workaround.
- 
-I see in the archive that there have been posts about these error messages, but
-I didn't find any replies that address them. Is there a faq somewhere that
-covers this?
+If the caller is calling smp_call_function_on_cpu directly (in 
+contrast to calling it via smp_call_function) they probably 
+are targetting a specific group of processors so they have also probably 
+done a check of some sort for cpus online, or are explicitely targeting 1 
+cpu.
 
-The kernel is the redhat kernel-smp-2.4.18-24.8.0 release. The mainboard is an
-Asus P2B-D (IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 1)).
+> or else
+> 
+> - lose the cpu_online test
 
-Any ideas?
+This could be achieved if s390 (or if we had a generic one, this is 
+another story...) had a for_each_cpu type iterator, which would also 
+cover aforementioned mask &= cpu_online_map issue, but as an aside, it is 
+harder to track down lockups from things like IPIs to invalid cpus than a busy loop 
+waiting for num_cpus.
 
-b.c.
+> But apart from this cosmetic issue, there is still a real problem:
+> smp_ext_bitcall can fail due to SIGP returning a busy condition;
+> smp_ext_bitcall_others would have retried until the busy condition
+> is gone.  This means your version can actually lose signals and
+> deadlock.  You should do something like
+> 
+> 	while (smp_ext_bitcall(i, ec_call_function) == sigp_busy)
+> 		udelay(10);
+
+Thanks i wasn't aware of that, i'll add that.
+
+> B.t.w as you are removing the only caller of smp_ext_bitcall_others,
+> you might as well delete the function itself.
+> 
+> All those comments apply likewise to the s390x version.
+
+Thanks,
+	Zwane
+-- 
+function.linuxpower.ca

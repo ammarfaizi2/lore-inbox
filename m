@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265075AbUFVSC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265074AbUFVSC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265075AbUFVSC4 (ORCPT <rfc822;willy@w.ods.org>);
+	id S265074AbUFVSC4 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 22 Jun 2004 14:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUFVSCo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUFVSCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:02:44 -0400
-Received: from mail.kroah.org ([65.200.24.183]:45749 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265075AbUFVRnb convert rfc822-to-8bit
+	Tue, 22 Jun 2004 14:02:19 -0400
+Received: from mail.kroah.org ([65.200.24.183]:46773 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265074AbUFVRnc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:43:31 -0400
+	Tue, 22 Jun 2004 13:43:32 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.7
-In-Reply-To: <10879261111963@kroah.com>
+In-Reply-To: <10879261092729@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Tue, 22 Jun 2004 10:41:51 -0700
-Message-Id: <10879261112687@kroah.com>
+Date: Tue, 22 Jun 2004 10:41:49 -0700
+Message-Id: <1087926109288@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,52 +23,113 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1722.102.2, 2004/06/04 14:46:39-07:00, khali@linux-fr.org
+ChangeSet 1.1722.89.49, 2004/06/03 12:38:31-07:00, hannal@us.ibm.com
 
-[PATCH] I2C: update I2C IDs
+[PATCH] Add class support to cpuid.c
 
-> > Greg, should I send a patch to you with these?
->
-> Sure, if it's needed.
+This patch adds class support to arch/i386/kernel/cpuid.c. This enables udev
+support. I have tested on a 2-way SMP system and on a 2-way built as UP.
+Here are the results for the SMP:
 
-Just noticed that I never sent the promised patch. Here it is. I also
-added a few other IDs, since we have them in our (2.4) i2c CVS
-repository. Having them in 2.6 as well will at least prevent collisions.
+[hlinder@w-hlinder2 hlinder]$ tree /sys/class/cpuid
+/sys/class/cpuid
+|-- cpu0
+|   `-- dev
+`-- cpu1
+    `-- dev
+
+2 directories, 2 files
+[hlinder@w-hlinder2 hlinder]$ more /sys/class/cpuid/cpu0/dev
+203:0
+[hlinder@w-hlinder2 hlinder]$ more /sys/class/cpuid/cpu1/dev
+203:1
+[hlinder@w-hlinder2 hlinder]$
+
+And for the UP:
+
+[root@w-hlinder2 root]# tree /sys/class/cpuid
+/sys/class/cpuid
+`-- cpu0
+    `-- dev
+
+1 directory, 1 file
+
 
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- include/linux/i2c-id.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
+ arch/i386/kernel/cpuid.c |   38 ++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 36 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/include/linux/i2c-id.h b/include/linux/i2c-id.h
---- a/include/linux/i2c-id.h	Tue Jun 22 09:48:15 2004
-+++ b/include/linux/i2c-id.h	Tue Jun 22 09:48:15 2004
-@@ -101,6 +101,14 @@
- #define I2C_DRIVERID_UDA1342	53	/* UDA1342 audio codec		*/
- #define I2C_DRIVERID_ADV7170	54	/* video encoder		*/
- #define I2C_DRIVERID_RADEON	55	/* I2C bus on Radeon boards	*/
-+#define I2C_DRIVERID_MAX1617	56	/* temp sensor			*/
-+#define I2C_DRIVERID_SAA7191	57	/* video encoder		*/
-+#define I2C_DRIVERID_INDYCAM	58	/* SGI IndyCam			*/
-+#define I2C_DRIVERID_BT832	59	/* CMOS camera video processor	*/
-+#define I2C_DRIVERID_TDA9887	60	/* TDA988x IF-PLL demodulator	*/
-+#define I2C_DRIVERID_OVCAMCHIP	61	/* OmniVision CMOS image sens.	*/
-+#define I2C_DRIVERID_TDA7313	62	/* TDA7313 audio processor	*/
-+#define I2C_DRIVERID_MAX6900	63	/* MAX6900 real-time clock	*/
+diff -Nru a/arch/i386/kernel/cpuid.c b/arch/i386/kernel/cpuid.c
+--- a/arch/i386/kernel/cpuid.c	Tue Jun 22 09:48:45 2004
++++ b/arch/i386/kernel/cpuid.c	Tue Jun 22 09:48:45 2004
+@@ -36,12 +36,15 @@
+ #include <linux/fs.h>
+ #include <linux/smp_lock.h>
+ #include <linux/fs.h>
++#include <linux/device.h>
  
+ #include <asm/processor.h>
+ #include <asm/msr.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
  
- #define I2C_DRIVERID_EXP0	0xF0	/* experimental use id's	*/
-@@ -264,6 +272,10 @@
- #define I2C_HW_SMBUS_SCX200	0x0b
- #define I2C_HW_SMBUS_NFORCE2	0x0c
- #define I2C_HW_SMBUS_W9968CF	0x0d
-+#define I2C_HW_SMBUS_OV511	0x0e	/* OV511(+) USB 1.1 webcam ICs	*/
-+#define I2C_HW_SMBUS_OV518	0x0f	/* OV518(+) USB 1.1 webcam ICs	*/
-+#define I2C_HW_SMBUS_OV519	0x10	/* OV519 USB 1.1 webcam IC	*/
-+#define I2C_HW_SMBUS_OVFX2	0x11	/* Cypress/OmniVision FX2 webcam */
++static struct class_simple *cpuid_class;
++
+ #ifdef CONFIG_SMP
  
- /* --- ISA pseudo-adapter						*/
- #define I2C_HW_ISA 0x00
+ struct cpuid_command {
+@@ -155,17 +158,48 @@
+ 
+ int __init cpuid_init(void)
+ {
++	int i, err = 0;
++	struct class_device *class_err;
++	i = 0;
++
+ 	if (register_chrdev(CPUID_MAJOR, "cpu/cpuid", &cpuid_fops)) {
+ 		printk(KERN_ERR "cpuid: unable to get major %d for cpuid\n",
+ 		       CPUID_MAJOR);
+-		return -EBUSY;
++		err = -EBUSY;
++		goto out;
++	}
++	cpuid_class = class_simple_create(THIS_MODULE, "cpuid");
++	if (IS_ERR(cpuid_class)) {
++		err = PTR_ERR(cpuid_class);
++		goto out_chrdev;
+ 	}
++	for_each_online_cpu(i) {
++		class_err = class_simple_device_add(cpuid_class, MKDEV(CPUID_MAJOR, i), NULL, "cpu%d",i);
++		if (IS_ERR(class_err)) {
++			err = PTR_ERR(class_err);
++			goto out_class;
++		}
++	}
++	err = 0;
++	goto out;
+ 
+-	return 0;
++out_class:
++	i = 0;
++	for_each_online_cpu(i)
++		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
++	class_simple_destroy(cpuid_class);
++out_chrdev:
++	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");	
++out:
++	return err;
+ }
+ 
+ void __exit cpuid_exit(void)
+ {
++	int i = 0;
++	for_each_online_cpu(i)
++		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
++	class_simple_destroy(cpuid_class);
+ 	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
+ }
+ 
 

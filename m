@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270407AbUJUG0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267417AbUJUHbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270407AbUJUG0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270419AbUJTT2b
+	id S267417AbUJUHbF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 03:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270241AbUJUH12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:28:31 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:62987 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S270226AbUJTTT2 (ORCPT
+	Thu, 21 Oct 2004 03:27:28 -0400
+Received: from pat.uio.no ([129.240.130.16]:49377 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S270333AbUJUH04 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:19:28 -0400
-Date: Wed, 20 Oct 2004 14:14:40 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       davem@davemloft.net
-Subject: [patch 2.6.9 1/11] tg3: Add MODULE_VERSION
-Message-ID: <20041020141440.D8775@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, davem@davemloft.net
-References: <20041020141146.C8775@tuxdriver.com>
+	Thu, 21 Oct 2004 03:26:56 -0400
+Subject: Re: [PATCH] sunrpc: replace sleep_on_timeout()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: tglx@linutronix.de
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1098300093.20821.58.camel@thomas>
+References: <1098300093.20821.58.camel@thomas>
+Content-Type: text/plain
+Date: Thu, 21 Oct 2004 09:26:37 +0200
+Message-Id: <1098343597.28394.10.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041020141146.C8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:11:46PM -0400
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.326, required 12,
+	RCVD_NUMERIC_HELO 0.33)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MODULE_VERSION to tg3 driver.
+on den 20.10.2004 Klokka 21:21 (+0200) skreiv Thomas Gleixner:
+> Use wait_event_timeout() instead of the obsolete sleep_on_timeout()
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Acked-by: Ingo Molnar <mingo@elte.hu>
+> ---
+> 
+>  2.6.9-bk-041020-thomas/net/sunrpc/clnt.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff -puN net/sunrpc/clnt.c~sunrpc net/sunrpc/clnt.c
+> --- 2.6.9-bk-041020/net/sunrpc/clnt.c~sunrpc	2004-10-20
+> 15:56:37.000000000 +0200
+> +++ 2.6.9-bk-041020-thomas/net/sunrpc/clnt.c	2004-10-20
+> 15:56:37.000000000 +0200
+> @@ -231,7 +231,8 @@ rpc_shutdown_client(struct rpc_clnt *cln
+>  		clnt->cl_oneshot = 0;
+>  		clnt->cl_dead = 0;
+>  		rpc_killall_tasks(clnt);
+> -		sleep_on_timeout(&destroy_wait, 1*HZ);
+> +		wait_event_timeout(destroy_wait,
+> +			atomic_read(&clnt->cl_users) > 0, 1*HZ);
+>  	}
+>  
 
- drivers/net/tg3.c |    1 +
- 1 files changed, 1 insertion(+)
+No. The above is incorrect, and has the potential for a pretty
+catastrophic hang due to the enclosing loop. Please replace with
 
---- linux-2.6.9/drivers/net/tg3.c.orig
-+++ linux-2.6.9/drivers/net/tg3.c
-@@ -143,6 +143,7 @@ MODULE_DESCRIPTION("Broadcom Tigon3 ethe
- MODULE_LICENSE("GPL");
- MODULE_PARM(tg3_debug, "i");
- MODULE_PARM_DESC(tg3_debug, "Tigon3 bitmapped debugging message enable value");
-+MODULE_VERSION(DRV_MODULE_VERSION);
- 
- static int tg3_debug = -1;	/* -1 == use TG3_DEF_MSG_ENABLE as value */
- 
+	wait_event_timeout(destroy_wait, atomic_read(&clnt->cl_users) == 0,
+1*HZ);
+
+   Trond
+
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

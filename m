@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292406AbSBPQJ4>; Sat, 16 Feb 2002 11:09:56 -0500
+	id <S292402AbSBPQP0>; Sat, 16 Feb 2002 11:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292405AbSBPQJq>; Sat, 16 Feb 2002 11:09:46 -0500
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:53645 "EHLO
-	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S292404AbSBPQJj>; Sat, 16 Feb 2002 11:09:39 -0500
-Date: Sat, 16 Feb 2002 11:14:50 -0500
-To: adilger@turbolabs.com, davej@suse.com
-Cc: linux-kernel@vger.kernel.org
-Subject: ext2_free_blocks: Freeing blocks not in datazone - began with 2.5.3-dj5
-Message-ID: <20020216161450.GA5855@rushmore>
+	id <S292403AbSBPQPQ>; Sat, 16 Feb 2002 11:15:16 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:58374 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S292402AbSBPQPF>;
+	Sat, 16 Feb 2002 11:15:05 -0500
+Date: Sat, 16 Feb 2002 09:14:05 -0700
+From: yodaiken@fsmlabs.com
+To: george anzinger <george@mvista.com>
+Cc: Tyson D Sawyer <tyson@rwii.com>, linux-kernel@vger.kernel.org
+Subject: Re: Missed jiffies
+Message-ID: <20020216091405.D29832@hq.fsmlabs.com>
+In-Reply-To: <3C6E77DE.70FE49DF@rwii.com> <3C6E833F.1A888B3C@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: rwhron@earthlink.net
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C6E833F.1A888B3C@mvista.com>; from george@mvista.com on Sat, Feb 16, 2002 at 08:05:19AM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 16, 2002 at 08:05:19AM -0800, george anzinger wrote:
+> I think the real problem needs to be addressed, i.e. why does the SMI
+> (and/ or other code) keep the interrupt system off so long.  Most
+> interrupts are completed in micro seconds, not milliseconds, lets fix
+> the real problem.
 
-My test system started giving ext2_free_blocks errors on 2.5.3-dj5:
-
-2.5.3-dj5 running tiobench.pl -s 2048 -t 8:
-Feb 10 19:12:40 mountain kernel: EXT2-fs error (device ide1(22,3)): 
-ext2_free_blocks: Freeing blocks not in datazone - block = 2048136, count = 120
-
-2.5.3-dj5 with taskfile i/o enabled running tiobench.pl -s 2048 -t 8
-Feb 13 03:00:15 mountain kernel: EXT2-fs error (device ide1(22,3)): 
-ext2_free_blocks: Freeing blocks not in datazone - block = 2048088, count = 168
-
-2.5.4-dj2 running dbench 128:
-Feb 15 19:49:44 mountain kernel: EXT2-fs error (device ide1(22,3)): 
-ext2_free_blocks: Freeing blocks not in datazone - block = 2048174, count = 82
-
-At this point I did an e2fsck on the filesystem.  e2fsck found some
-Block bitmap differences in the 2048xxx range.  
-
-With help from cdub on #kerneljanitors, I added the debug below to
-ext2_free_blocks in fs/ext2/balloc.c:
-
-ext2_error (sb, "ext2_free_blocks",
-	"Freeing blocks not in datazone - "
-	"first_data_block = %lu, block = %lu "
-	"count = %lu, blocks_count = %lu", le32_to_cpu(es->s_first_data_block),
-	block, count, le32_to_cpu(es->s_blocks_count));
+The SMI is an unbearable abomination and it is an issue that even Microsoft
+has been unable to make Intel respond to properly. It makes Rambus seem brilliant.
+The basic idea: take a high speed well optimized processor that is the most
+critical performance component of your system and arbitrarily divert it to managing
+fans completely outside of OS control is so unbearably stupid, arrogant, ugly and 
+nauseating as to be hard to believe even in this industry.
 
 
-2.5.4-dj2 running tiobench.pl -s 2048 -t 8:
-Feb 16 00:49:21 mountain kernel: EXT2-fs error (device ide1(22,3)): 
-ext2_free_blocks: Freeing blocks not in datazone - first_data_block = 0, 
-block = 2047648 count = 608, blocks_count = 2048256
-
-Based on an earlier suggestion from cdub, I changed:
-
-block + count >= le32_to_cpu(es->s_blocks_count)) {
-to
-block + count > le32_to_cpu(es->s_blocks_count)) {
-
-At this point I did an e2fsck on the filesystem.  e2fsck fixed some
-Block bitmap differences in the -2047648 to -2048255 block range.  
-I re-ran the dbench 128, and tiobench.pl 8 16 32 64 128 and 
-did not get any errors.  Don't know if above is the proper
-fix or not, but it seems to work, and is closer to 2.5.5-pre1.
-
-2.5.4-pre5, 2.5.5-pre1, and 3 other kernels tested after the first
-appearance of the error had no problems.  2.5.3-dj4 was okay too.
-
-Hope this helps.
 -- 
-Randy Hron
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbTDDFKd (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 00:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTDDFFm (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 00:05:42 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:24965 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S263423AbTDDE6W (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 23:58:22 -0500
-Date: Fri, 4 Apr 2003 00:13:35 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Changes for 2.5.66
-Message-ID: <20030404001335.GL11574@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20030404000731.GB11574@neo.rr.com>
+	id S263486AbTDDFMd (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 00:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTDDFLI (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 00:11:08 -0500
+Received: from are.twiddle.net ([64.81.246.98]:33224 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S263423AbTDDFFw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 00:05:52 -0500
+Date: Thu, 3 Apr 2003 21:17:18 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       grundler@parisc-linux.org, matthew@wil.cx, prumpf@tux.org
+Subject: Re: [PATCH] HPUX/OSF4 personality issues in 2.5.
+Message-ID: <20030403211718.A7962@twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+	grundler@parisc-linux.org, matthew@wil.cx, prumpf@tux.org
+References: <20030404024540.4F6F62C15F@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030404000731.GB11574@neo.rr.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030404024540.4F6F62C15F@lists.samba.org>; from rusty@rustcorp.com.au on Fri, Apr 04, 2003 at 12:22:47PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -Nru a/sound/isa/sb/es968.c b/sound/isa/sb/es968.c
---- a/sound/isa/sb/es968.c	Thu Apr  3 23:40:27 2003
-+++ b/sound/isa/sb/es968.c	Thu Apr  3 23:40:27 2003
-@@ -95,7 +95,7 @@
- 					const struct pnp_card_device_id *id)
- {
- 	struct pnp_dev *pdev;
--	struct pnp_resource_table * cfg = kmalloc(GFP_ATOMIC, sizeof(struct pnp_resource_table));
-+	struct pnp_resource_table *cfg = kmalloc(sizeof(*cfg), GFP_KERNEL);
- 	int err;
- 	if (!cfg)
- 		return -ENOMEM;
+On Fri, Apr 04, 2003 at 12:22:47PM +1000, Rusty Russell wrote:
+> 2.4.20's personality.h:
+> 	PER_OSF4 =		0x0010,			 /* OSF/1 v4 */
+> 2.5.66's personality.h:
+> 	PER_OSF4 =		0x000f,			 /* OSF/1 v4 */
+> 
+> So I assume 2.5 should be changed to match 2.4?
+
+Presumably.  No one in userland actually uses PER_OSF4 though.
+It's set by the kernel itself when it detects an osf executable.
+
+
+r~

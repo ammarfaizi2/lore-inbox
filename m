@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSHWWjC>; Fri, 23 Aug 2002 18:39:02 -0400
+	id <S313305AbSHWWwi>; Fri, 23 Aug 2002 18:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSHWWjC>; Fri, 23 Aug 2002 18:39:02 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:2832 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S313113AbSHWWjC>; Fri, 23 Aug 2002 18:39:02 -0400
-Message-ID: <3D66BA7C.6000503@lexus.com>
-Date: Fri, 23 Aug 2002 15:43:08 -0700
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020818
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] sendmail kernel tuning params
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S313558AbSHWWwi>; Fri, 23 Aug 2002 18:52:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28574 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S313305AbSHWWwi>;
+	Fri, 23 Aug 2002 18:52:38 -0400
+Date: Fri, 23 Aug 2002 15:41:14 -0700 (PDT)
+Message-Id: <20020823.154114.99162408.davem@redhat.com>
+To: haveblue@us.ibm.com
+Cc: manand@us.ibm.com, bcrl@redhat.com, alan@lxorguk.ukuu.org.uk,
+       bhartner@us.ibm.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, lse-tech-admin@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D666531.4020909@us.ibm.com>
+References: <OF1AAF39E9.D733B26C-ON87256C1E.004ACC87@boulder.ibm.com>
+	<3D666531.4020909@us.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+   From: Dave Hansen <haveblue@us.ibm.com>
+   Date: Fri, 23 Aug 2002 09:39:13 -0700
 
-We're setting up some new sendmail boxes
-which we intend to keep pretty busy, on the
-order of millions of messages/mo anyway.
+   Where are interrupts disabled?   I just went through a set of kernprof 
+   data and traced up the call graph.  In the most common __kfree_skb 
+   case, I do not believe that it has interupts disabled.  I could be 
+   wrong, but I didn't see it.
 
-The systems are dual processor Dell 2450
-w/ perc raid running Red Hat 7.3 -
+That's completely right.  interrupts should never be disabled when
+__kfree_skb is executed.  It used to be possible when we allowed
+it to be invoked from interrupt handlers, but that is illegal and
+we have kfree_skb_irq which just reschedules the actual __kfree_skb
+to a software interrupt.
 
-Following the best practices from the sendmail
-BOF at Linux World, we've installed sendmail
-8.12.5, and have created 16 queues on reiserfs
-partitions which are mounted -notail, -noatime.
-
-Do any sendmail/kernel gurus have words of
-wisdom on recommended kernel sysctl params
-for such a beast? I mean they look good, but
-I'd like to make sure I'm getting the best possible
-sendmail performance and not missing anything.
-
-The sendmail guy at the BOF lost his laptop or
-something and didn't have the recommended
-params handy -  I haven't been able to raise
-him since then either.
-
-Any pointers, or whacks with clue-by-fours are
-gladly accepted.
-
-Best Regards,
-
-Joe
-
-
+So I agree with you, Mala's claims seem totally bogus and not well
+founded at all.

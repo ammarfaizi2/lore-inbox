@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263076AbVCJUFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263094AbVCJULn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263076AbVCJUFm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 15:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbVCJUAh
+	id S263094AbVCJULn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 15:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbVCJUGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 15:00:37 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33291 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262856AbVCJTxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 14:53:30 -0500
-Date: Thu, 10 Mar 2005 19:53:26 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: Re: Someting's busted with serial in 2.6.11 latest
-Message-ID: <20050310195326.A1044@flint.arm.linux.org.uk>
-Mail-Followup-To: Stephen Hemminger <shemminger@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-References: <20050309155049.4e7cb1f4@dxpl.pdx.osdl.net>
+	Thu, 10 Mar 2005 15:06:15 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:51719 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263081AbVCJUB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 15:01:27 -0500
+Date: Thu, 10 Mar 2005 21:01:13 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make st seekable again
+Message-ID: <20050310200113.GE30052@alpha.home.local>
+References: <fa.i3f7d9s.30m8rg@ifi.uio.no> <fa.l4kuq52.e6001g@ifi.uio.no> <E1D9BmR-00026p-03@be1.7eggert.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050309155049.4e7cb1f4@dxpl.pdx.osdl.net>; from shemminger@osdl.org on Wed, Mar 09, 2005 at 03:50:49PM -0800
+In-Reply-To: <E1D9BmR-00026p-03@be1.7eggert.dyndns.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 03:50:49PM -0800, Stephen Hemminger wrote:
-> Some checkin since 2.6.11 has caused the serial driver to
-> drop characters.  Console output is chopped and messages are garbled.
-> Even the shell prompt gets truncated.
+On Thu, Mar 10, 2005 at 01:43:57AM +0100, Bodo Eggert wrote:
+ 
+> Can the lseek be restricted to seek from 0 to 0 (or even * to 0 aka rewind)?
+> This would re-enable tar and probably other applications depending on this
+> API while not giving them false positives.
 
-There was a problem with 2.6.11-bk1 which should now be resolved.
+This would be good only if we also agree to spit out warning messages every
+time the trick is used, so that people know they are relying on a buggy
+application. Just like tcpdump and AF_PACKET.
 
-Is this still true of the latest bk kernel?  Also, seeing the kernel
-messages may provide some hint.
+willy
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

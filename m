@@ -1,98 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261955AbSJQRlm>; Thu, 17 Oct 2002 13:41:42 -0400
+	id <S261751AbSJQRk0>; Thu, 17 Oct 2002 13:40:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261782AbSJQRlg>; Thu, 17 Oct 2002 13:41:36 -0400
-Received: from viefep12-int.chello.at ([213.46.255.25]:43287 "EHLO
-	viefep12-int.chello.at") by vger.kernel.org with ESMTP
-	id <S261955AbSJQRlO>; Thu, 17 Oct 2002 13:41:14 -0400
-From: Simon Roscic <simon.roscic@chello.at>
-To: GrandMasterLee <masterlee@digitalroadkill.net>
-Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
-Date: Thu, 17 Oct 2002 19:47:03 +0200
-User-Agent: KMail/1.4.7
-References: <200210152120.13666.simon.roscic@chello.at> <200210161838.39824.simon.roscic@chello.at> <1034824086.32333.29.camel@localhost>
-In-Reply-To: <1034824086.32333.29.camel@localhost>
-Cc: linux-kernel@vger.kernel.org
+	id <S261766AbSJQRk0>; Thu, 17 Oct 2002 13:40:26 -0400
+Received: from r2d2.netscape.com ([205.217.237.47]:25012 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id <S261751AbSJQRjs>;
+	Thu, 17 Oct 2002 13:39:48 -0400
+Message-ID: <3DAEF742.7020401@netscape.com>
+Date: Thu, 17 Oct 2002 10:45:38 -0700
+From: jgmyers@netscape.com (John Myers)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200210171947.04255.simon.roscic@chello.at>
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Mark Mielke <mark@mark.mielke.cc>, Benjamin LaHaise <bcrl@redhat.com>,
+       Dan Kegel <dank@kegel.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <Pine.LNX.4.44.0210161705460.1548-100000@blue1.dev.mcafeelabs.com>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050804030205010605000400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 October 2002 05:08, GrandMasterLee <masterlee@digitalroadkill.net> wrote:
-> Do you actually get the lockups then?
+This is a cryptographically signed message in MIME format.
 
-no, i didn't had any lookups, each of the machines currently have an uptime 
-of only 16 day's and that's because we had to shutdown the power in our 
-whole company for a half day. 
-the best uptime i had was approx 40-50 day's, then i got the following
-problem: the lotus domino server processes (not the whole machine) were
-freezing every week, but that is a known problem for heavy loaded domino
-servers, you have to increase the ammount of ipc memory for java or something 
-(of the domino server), and since i did this everything works without problems.
+--------------ms050804030205010605000400
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-the "primary" lotus domino server also got quite swap happy in the last weeks,
-currently he has to serve almost everything that has to do with notes, the 
-second server isn't realy in use yet ...
+Davide Libenzi wrote:
 
-if you are interested, procinfo -a shows this on one of the 3 machines:
-(all 3 are the same, except that the "primary" lotus domino server has 2 cpu's
-and 2 gb ram, the other 2, have 1 cpu and 1 gb ram)
+>The poll()-like code :
+>
+>int my_io(...) {
+>
+>	if (poll(...))
+>		do_io(...);
+>
+>}
+>  
+>
+This is not my example of a correct code scheme.  You're made a strawman 
+argument, which proves nothing.
 
----------------- procinfo ----------------
-Linux 2.4.17-xfs-smp (root@adam-neu) (gcc 2.95.3 20010315 ) #1 2CPU [adam.]
 
-Memory:      Total        Used        Free      Shared     Buffers      Cached
-Mem:       2061272     2050784       10488           0        2328     1865288
-Swap:      1056124      265652      790472
 
-Bootup: Tue Oct  1 17:42:07 2002    Load average: 0.14 0.08 0.02 1/445 11305
+--------------ms050804030205010605000400
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-user  :   1d 20:15:32.03   5.7%  page in :1196633058  disk 1:  1670401r  953006w
-nice  :       0:00:24.69   0.0%  page out:261985556  disk 2: 27762380r11039499w
-system:      13:05:51.19   1.7%  swap in :  5870304  disk 3:        4r       0w
-idle  :  29d 18:09:25.15  92.5%  swap out:  5099371  disk 4:        4r       0w
-uptime:  16d  1:45:36.53         context :2810591591
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
+FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
+3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
+bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
+leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
+ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
+W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
+oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
+f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
+sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
+2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggKmMIICogIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
+AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
+MDE3MTc0NTM4WjAjBgkqhkiG9w0BCQQxFgQUX4fxO0RUrv4U68FByCWT7Ts3+xkwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
+VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
+EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
+AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
+gCLNjnTc+Gcult0Mu3FxIVaIrum1axvFLY3v1uzgjtmlokqOUJr7JMXk5gRgkA5rl4Te/wLk
+nOZCx5BtKUnKAKVlymF3ODWmKgdCBpx2IElIlCbiXaKIGd5bH23jZBJEMtyV8mvbnYtjwbvZ
+WYdDB5Rk24puudwVpNOBGHxgOdlVAAAAAAAA
+--------------ms050804030205010605000400--
 
-irq  0: 138873653 timer                 irq 12:    104970 PS/2 Mouse
-irq  1:      5597 keyboard              irq 14:        54 ide0
-irq  2:         0 cascade [4]           irq 18:   8659653 ips
-irq  3:         1                       irq 20: 421419256 e1000
-irq  4:         1                       irq 24:  38444870 qla2200
-irq  6:         3                       irq 28:     17728 e100
-irq  8:         2 rtc
-
-Kernel Command Line:
-  auto BOOT_IMAGE=Linux ro root=803 BOOT_FILE=/boot/vmlinuz
-
-Modules:
- 24 *sg               6  lp              25  parport         59 *e100
- 48 *e1000          165 *qla2200
-
-Character Devices:                      Block Devices:
-  1 mem              10 misc              2 fd
-  2 pty              21 sg                3 ide0
-  3 ttyp             29 fb                8 sd
-  4 ttyS            128 ptm              65 sd
-  5 cua             136 pts              66 sd
-  6 lp              162 raw
-  7 vcs             254 HbaApiDev
-
-File Systems:
-[rootfs]            [bdev]              [proc]              [sockfs]
-[tmpfs]             [pipefs]            ext3                ext2
-[nfs]               [smbfs]             [devpts]            xfs
----------------- procinfo ----------------
-
-the kernel running on the 3 machines is a "vanilla" 2.4.17
-plus XFS, plus ext3-0.9.17, plus intel ether express 100 and
-and intel ether express 1000 driver (e100 and e1000), and
-the qlogic qla2x00 5.36.3 driver ...
-
-i think i will wait for 2.4.20 and then make a new kernel for the 3 machines ...
-
-simon.
-(please CC me, i'm not subscribed to lkml)

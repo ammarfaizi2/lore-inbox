@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbTDKQ6s (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTDKQ6s (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 12:58:48 -0400
-Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.114.72.97]:1541
-	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
-	id S261308AbTDKQ6r (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 12:58:47 -0400
-Subject: Re: [ANNOUNCE] udev 0.1 release
-From: Jeremy Jackson <jerj@coplanar.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-In-Reply-To: <20030411032424.GA3688@kroah.com>
-References: <20030411032424.GA3688@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050081047.1252.4.camel@contact.skynet.coplanar.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 11 Apr 2003 13:10:47 -0400
+	id S261326AbTDKQ7s (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTDKQ7r (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 12:59:47 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:52143 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S261326AbTDKQ7n (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 12:59:43 -0400
+Message-ID: <20030411171119.21273.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 11 Apr 2003 12:11:18 -0500
+Subject: Re: [PATCH] new syscall: flink
+X-Originating-Ip: 172.153.251.200
+X-Originating-Server: ws3-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What about read-only root fs?  What about the root= kernel command line
-ever working?  What about initrd issues?
+> [David Wagner, "should fail closed", ie with
+the capability to flink()to any given open file
+descriptor disabled by default]
 
-On Thu, 2003-04-10 at 23:24, Greg KH wrote:
-> Hi all,
-> 
-> I'd like to finally announce the previously vapor-ware udev program that
-> I've talked a lot about with a lot of people over the past months.  The
-> first, very rough cut is at:
-> 	kernel.org/pub/linux/utils/kernel/hotplug/udev-0.1.tar.gz
-> 
-> But what is it?  I've included an initial design document below that was
-> originally written by Dan Stekloff, and hacked up a bit by me.  But in
-> short, udev is a userspace replacement for devfs.  It will create and
-> destroy /dev entries based on the current system configuration.  It does
-> this by watching the /sbin/hotplug events on the system, and reading
-> information about these events from sysfs.
-> 
+Ok, that's reasonable. I was imagining that
+guessing when you need to enable it for an
+open fd that is going to be inherited by
+someone else's code that may not even have
+been written yet is rather a vague proposition,
+while guessing when you need to disable it regardless of what the code that you pass it to
+does is likely to be all too clear and made
+much of in online discussions.
 
+But some application author not noticing that a potential flink() vulnerability is there at all will perhaps be the more common failure
+scenario(so I yield the point).
+
+flink() does seem a useful tool that I've wanted in the past (for reasons similar to the linker
+example) if one could get around the implicit
+security risk of a naive implementation.
+
+Regards,
+
+Clayton Weaver
+<mailto: cgweav@email.com>
+
+
+-- 
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 

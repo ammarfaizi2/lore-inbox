@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291014AbSAaTBa>; Thu, 31 Jan 2002 14:01:30 -0500
+	id <S291238AbSAaTKx>; Thu, 31 Jan 2002 14:10:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291235AbSAaTBU>; Thu, 31 Jan 2002 14:01:20 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:19332 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S291014AbSAaTBI>;
-	Thu, 31 Jan 2002 14:01:08 -0500
-Date: Thu, 31 Jan 2002 14:01:06 -0500
+	id <S291237AbSAaTKl>; Thu, 31 Jan 2002 14:10:41 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:45444 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S291236AbSAaTK0>;
+	Thu, 31 Jan 2002 14:10:26 -0500
+Date: Thu, 31 Jan 2002 14:10:25 -0500
 From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        lm@bitmover.com
-Subject: Re: real BK usage (was: A modest proposal -- We need a patch penguin)
-Message-ID: <20020131140106.C669@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com> <1012354692.1777.4.camel@stomata.megapathdsl.net> <20020130080504.JUTO18525.femail19.sdc1.sfba.home.com@there> <20020130034746.K32317@havoc.gtf.org> <a38ekv$1is$1@penguin.transmeta.com> <20020130050708.D11267@havoc.gtf.org> <20020130102458.B763@lynx.adilger.int> <20020130093459.P23269@work.bitmover.com> <20020130130319.G763@lynx.adilger.int> <20020131091110.K1519@work.bitmover.com>
+To: Bruce Harada <harada@mbr.sphere.ne.jp>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Misc ICH ID changes - revised
+Message-ID: <20020131141025.E669@havoc.gtf.org>
+In-Reply-To: <20020131224122.59d1de9e.bruce@ask.ne.jp> <E16WIFn-0002Iy-00@the-village.bc.nu> <20020201022958.7b58493f.harada@mbr.sphere.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020131091110.K1519@work.bitmover.com>; from lm@bitmover.com on Thu, Jan 31, 2002 at 09:11:10AM -0800
+In-Reply-To: <20020201022958.7b58493f.harada@mbr.sphere.ne.jp>; from harada@mbr.sphere.ne.jp on Fri, Feb 01, 2002 at 02:29:58AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 09:11:10AM -0800, Larry McVoy wrote:
-> This thread has been about the idea of being able to send any one of those
-> changes out in isolation, right?  That's the problem we are solving.  But
-> your statement is that you want to test them all at once, testing them one
-> at a time is too much work.
+On Fri, Feb 01, 2002 at 02:29:58AM +0900, Bruce Harada wrote:
+> 
+> Sorry, I could have put that better... all I was talking about there was
+> renaming the #defines to more closely reflect Intel docs, which don't refer
+> to the ICH IDE stuff as PIIX4s. Let me know if I should drop that bit.
+> 
+> Anyway, I've added a little more - some of the ICH3 IDs, and a few user messages.
 
-Maybe, maybe not.  When hacking on filesystems I try to produce
-"viro-style" patches, which are a series of patches, each containing
-a single transformation.  Each one is tested in isolation in addition to
-the final product.  Extremely useful for nipping problems in the bud
-sooner rather than later.
+Would it be possible to produce two patches, the first adding new ids,
+and the second doing the rename you want?
+
+The first can be applied quickly, the second is cleanup and might be
+delayed a bit before going in, if we indeed do want to do the renames.
 
 	Jeff
 

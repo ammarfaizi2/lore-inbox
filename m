@@ -1,40 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbTIRTex (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 15:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTIRTex
+	id S262094AbTIRTmO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 15:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTIRTmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 15:34:53 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:11448 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262080AbTIRTew (ORCPT
+	Thu, 18 Sep 2003 15:42:14 -0400
+Received: from bolyai1.elte.hu ([157.181.72.1]:23481 "EHLO bolyai1.elte.hu")
+	by vger.kernel.org with ESMTP id S262094AbTIRTmL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 15:34:52 -0400
-Date: Thu, 18 Sep 2003 15:34:52 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Dave Poirier <dpoirier@telecomoptions.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VT6410 support
-Message-ID: <20030918193452.GB9605@gtf.org>
-References: <20030918132550.GA18933@telecomoptions.com>
+	Thu, 18 Sep 2003 15:42:11 -0400
+Subject: Loop device and smbmount: I/O error
+From: Kovacs Gabor <kgabor@BOLYAI1.ELTE.HU>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Sep 2003 21:45:56 +0200
+Message-Id: <1063914356.1639.34.camel@warp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030918132550.GA18933@telecomoptions.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 18, 2003 at 08:25:50AM -0500, Dave Poirier wrote:
-> I'm attempting to get the VT6410 controller to work on an Intel P4P800
-> motherboard and I seem to be out of luck with both the 2.4.x and 2.6.x
-> series.
-> 
-> Does anyone has details concerning VT6410 (Via Raid Controller)?
+Hello!
 
-Both libata and drivers/ide support the SATA portion.
+I've tried to mount an ext2 filesystem image (ca. 1GB) stored on a WIN
+computer via the loop device under 2.4.22: 
 
-Ignore the "RAID", it's really software-ish RAID.
+(Initially the file scratch2.img is filled with 0s.)
 
-	Jeff
+#smbmount //win02/scratch /pro -o username=sambadisk,workgroup=MYDOMAIN
+#losetup /dev/loop0 /pro/scratch2.img
+#mke2fs /dev/loop0
+#mount /dev/loop0 /scratch -t ext2
 
+#cp -r linux-2.4.22 /scratch
+cp: cannot create directory `/scratch/linux-2.4.22/drivers/video/sis':
+Input/output error
+cp: cannot create directory `/scratch/linux-2.4.22/drivers/video/aty':
+Input/output error
+
+etc.
+
+#dmesg
+
+EXT2-fs error (device loop(7,0)): read_inode_bitmap: Cannot read inode
+bitmap -
+block_group = 4, inode_bitmap = 131073
+EXT2-fs error (device loop(7,0)): read_block_bitmap: Cannot read block
+bitmap -
+block_group = 4, block_bitmap = 131072
+
+
+
+
+With 'mount /dev/loop0 /scratch -t ext2 -o sync':
+
+#mkdir somedir
+mkdir: cannot create directory `somedir': Input/output error
+
+#dmesg
+IO error syncing ext2 inode [loop(7,0):0001e6cf]
+IO error syncing ext2 inode [loop(7,0):0001e6cf]
+
+I've found a similar problem in the kernel archives with the topic 'Loop
+devices under NTFS' (Aug 27-28 2002) There was mentioned a patch for
+2.5.31 to fix this problem. Hasn't been it applied to stable versions
+since then? Is there a patch for current versions?
+
+
+				Thanks
+------------------------
+Gabor Kovacs, PhD student
+Eotvos University, Budapest, Hungary
 

@@ -1,55 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267688AbTBLVUz>; Wed, 12 Feb 2003 16:20:55 -0500
+	id <S267685AbTBLVUf>; Wed, 12 Feb 2003 16:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267692AbTBLVUz>; Wed, 12 Feb 2003 16:20:55 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:57231 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S267688AbTBLVUx> convert rfc822-to-8bit; Wed, 12 Feb 2003 16:20:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: "Eric Chen" <echen@ateonix.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: changing file copy to support extended attributes
-Date: Wed, 12 Feb 2003 15:30:30 -0600
-User-Agent: KMail/1.4.1
-References: <NFBBIGILIDAABCBKKGMLAECOCCAA.echen@ateonix.com>
-In-Reply-To: <NFBBIGILIDAABCBKKGMLAECOCCAA.echen@ateonix.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302121530.30427.pollard@admin.navo.hpc.mil>
+	id <S267684AbTBLVUf>; Wed, 12 Feb 2003 16:20:35 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:46263 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267678AbTBLVUd> convert rfc822-to-8bit; Wed, 12 Feb 2003 16:20:33 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <Valdis.Kletnieks@vt.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Wed, 12 Feb 2003 13:30:21 -0800
+In-Reply-To: <200302122046.h1CKkXpk009417@turing-police.cc.vt.edu>
+Subject: Re: Monta Vista software license terms
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030212213022.AAA17490@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 February 2003 01:35 pm, Eric Chen wrote:
-> Hi,
->
-> I wanted to modify file copy so it supports extended attributes. I am using
-> extended attributes provided by the XFS filesystem, and right now when I
-> copy a file with an extended attribute bit set on, the copy of the file
-> does not preserve the extended attribute. I could use some help in this
-> area because I am not sure where to start. If anyone has some suggestions
-> or can offer me some help or resources to go to, please let me know.
+On Wed, 12 Feb 2003 15:46:33 -0500, Valdis.Kletnieks@vt.edu wrote:
+>On Wed, 12 Feb 2003 12:18:39 PST, David Schwartz said:
 
-You have to modify "cp" and "mv" (since a "mv" that crosses mount points
-is equivalent to a "cp original destination/copy; rm original".
+[snip]
 
-Now you also need to realize that you might NOT be able to copy all of the 
-extended attributes (XFS supports system and user attributes, and only the
-user attributes can be copied). This is the usual reason extended attributes
-are not copied at all.
+>So you don't even get the right to *CREATE* a derivative work unless
+>it's
+>explicitly given to you.  So you're back to the GPL (clause 2) -
 
-Another is what about applications that may copy files too: cat, tar, cpio, 
-dd, vi, ed, ... and sh (remember the old "shcat" script:
-	while[read v]; do; echo $v; done <original >copy)
+	I already addressed this. There is no way to use source code other 
+than to create derivative works.
 
-And what do you do if the destination is not XFS?
+	Please, explain to me how you use a header file other than to create 
+derivative works. Explain to me how you use the gcc source code other 
+than to compile it into a derivative work. For source code, there is 
+no distinction between use and the creation of derivative works. 
 
-And what about when the user is not the owner of the file, but does have read 
-access?
+	Source code is a recipe. You use it to create some form of end 
+product, which is a derivative work. You can't have the right to use 
+a recipe without the right to produce and eat whatever the recipe is 
+for.
+
+>2. You may modify your copy or copies of the Program or any portion
+>of it, thus forming a work based on the Program, and copy and
+>distribute such modifications or work under the terms of Section 1
+>above, provided that you also meet all of these conditions:
+
+>You can slice-and-dice *YOUR* copy to your heart's content, but if
+>you
+>distribute it, you have to abide by the conditions.  Note that at
+>least
+>in the US, the submission of patches is probably covered by 17 USC
+>107,
+>which is the "fair use" clause - patches are obviously "criticism or
+>comment" ;)
+
+	As I already explained, you don't need this clause to give you the 
+right to distribute modified works because this right is the simple 
+sum of rights you already have.
+
+	You already have the right to produce derivative works. You already 
+have the right to distribute the original work. You already have the 
+right to distribute the modifications. Your recipient already has the 
+right to use and possess the original. There is no additional right 
+to the original work for this section to give you. The right it seeks 
+to give you is the simple sum of rights you already have.
+
+	"Distributing derived works" is not a specific right under any 
+copyright law I know of. It's the sum of other rights. You need some 
+rights to the original and some rights to the derivation. I'm saying 
+you already have all the rights to the original you need without 
+section 2.
 
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+David Schwartz
+<davids@webmaster.com>
 
-Any opinions expressed are solely my own.
+

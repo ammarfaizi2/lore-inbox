@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267705AbTACV5w>; Fri, 3 Jan 2003 16:57:52 -0500
+	id <S267689AbTACWBS>; Fri, 3 Jan 2003 17:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267706AbTACV5w>; Fri, 3 Jan 2003 16:57:52 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:30593 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S267705AbTACV5v>;
-	Fri, 3 Jan 2003 16:57:51 -0500
-Message-ID: <3E160948.1060008@colorfullife.com>
-Date: Fri, 03 Jan 2003 23:06:00 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S267690AbTACWBS>; Fri, 3 Jan 2003 17:01:18 -0500
+Received: from mail5.intermedia.net ([206.40.48.155]:59909 "EHLO
+	mail5.intermedia.net") by vger.kernel.org with ESMTP
+	id <S267689AbTACWBR>; Fri, 3 Jan 2003 17:01:17 -0500
+From: "Ranjeet Shetye" <ranjeet.shetye@zultys.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Nvidia and its choice to read the GPL "differently"
+Date: Fri, 3 Jan 2003 14:09:48 -0800
+Message-ID: <005001c2b374$d4f88430$0100a8c0@zultys.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] extable cleanup
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Importance: Normal
+In-Reply-To: <20030103212817.A11278@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->On Fri, 3 Jan 2003, Rusty Russell wrote:
->>
->> Fairly straightforward consolidation of extable handling.  Sparc64 is
->> trickiest, with its extable range stuff (ideally, the ranges would be
->> in a separate __extable_range section, then the extable walking code
->> could be made common, too).
->> 
->> Only tested on x86: ppc and sparc64 written untested, others broken.
->
->Did you test on a true i386, which needs exception handling very early on 
->to handle the test for broken WP? In other words, are all the exception 
->table data structures properly initialized?
->  
->
-It's the other way around: a real 80386 doesn't need the early exception 
-handling, all other cpus need it.
-The WP test works by writing to a write-protected page while at ring 0. 
-A real 80386 ignores the write-protected bit, later x86 cpus honor it 
-and cause a page fault.
 
-Rusty, against which kernel is the patch you have posted? I've tried 
-both 2.5.54 and the latest bk shapshot from www.kernel.org, I get an 
-patch error in kernel/extable.c.
+Hi RMS,
 
---
-    Manfred
+Saw you here and thought I'd remind you. I got under your skin quite a
+few years back cos I wrote this perl-based cscope which I released for
+free - with a modified BSD licence stating that no one in pakistan or no
+person of pakistani nationality could use it and that this licence could
+not be modified to allow pakis to use it. You might ask why I did that ?
+Well, I am an Indian and I thought I'd just needle some pakis cos they
+are such nincompoops. Anyways, 9/11 proved me right that pakis (+
+saudis) suck ass big time.
+
+Getting back to open-licence software, if you hadn't been such a
+nitpicking ideologue, the free s/w world would have had a cscope at
+least 2 years earlier than it did. I gave you my version of a "free"
+licence, and you didn't like it one bit! That was the OTHER reason I did
+it. To prove a point to you, that EVEN in a Free software world, there
+might be some other price to be paid.
+
+A full-freedom software world might turn out to be a grey tasteless
+odourless flavourless communist world. Even free s/w needs competition
+to keep it on its toes, and money is the best damned motivation for
+normal people! While everyone, including me, appreciates what you've
+achieved in the past, your intransigence over your untenable extreme
+views on software freedom is the primary reason why you are losing
+ground everyday with your own supporters. Think about it.
+
+Ranjeet Shetye
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> Christoph Hellwig
+> Sent: Friday, January 03, 2003 1:28 PM
+> To: Richard Stallman
+> Cc: efault@gmx.de; Hell.Surfers@cwctv.net; 
+> linux-kernel@vger.kernel.org
+> Subject: Re: Nvidia and its choice to read the GPL "differently"
+> 
+> 
+> On Fri, Jan 03, 2003 at 03:31:07PM -0500, Richard Stallman wrote:
+> > If you call the system "Linux", you are misinforming other people: 
+> > teaching them a false picture of the system's history.  
+> Some of them 
+> > may become so attached to the false picture that it distorts their 
+> > thinking.  If you call it "GNU/Linux", this won't happen.
+> 
+> The term Linux for the whole system might be inaccurate, but 
+> it's what is used and as long as the owner of the name Linux 
+> (Linus) doesn't complain that's fine.  Calling it GNU/Linux 
+> is 1984-style changing of history, though.
+> 
 

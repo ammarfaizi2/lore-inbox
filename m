@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbSLFTMF>; Fri, 6 Dec 2002 14:12:05 -0500
+	id <S265647AbSLFTUl>; Fri, 6 Dec 2002 14:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265647AbSLFTMF>; Fri, 6 Dec 2002 14:12:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43791 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265608AbSLFTME>; Fri, 6 Dec 2002 14:12:04 -0500
-Date: Fri, 6 Dec 2002 11:20:26 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: george anzinger <george@mvista.com>
-cc: Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
-       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <Pine.LNX.4.44.0212060944030.23118-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212061111090.1489-100000@home.transmeta.com>
+	id <S265650AbSLFTUl>; Fri, 6 Dec 2002 14:20:41 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:62556 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S265647AbSLFTUk> convert rfc822-to-8bit; Fri, 6 Dec 2002 14:20:40 -0500
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "Linux Kernel Development List" <linux-kernel@vger.kernel.org>
+Subject: INFO REQ: Please Clarify About Memory Management
+Date: Fri, 6 Dec 2002 13:28:13 -0600
+Message-ID: <000001c29d5d$a3bc2110$19415aa6@joe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm a little confused about the way the Linux kernel allocates memory, and
+I'm hoping someone could clarify this for me.
 
-On Fri, 6 Dec 2002, Linus Torvalds wrote:
->
-> I just pushed my version of the system call restart code to the BK trees.
-> It's losely based on Georges code, but subtly different. Also, I didn't
-> actually update any actual system calls to use it, I just did the
-> infrastructure.
+Does the __get_free_pages() function eventually call the kmalloc() function?
+Or does the kmalloc() function eventually call the __get_free_pages()
+function?  Or are these two totally separate functions for different
+purposes?
 
-I did the nanosleep() implementation using the new infrastructure now, and
-am pushing it out as I write this.
+Which of these functions can be called by user process for the purpose of
+allocating memory for that user process?
 
-Ironically (considering the origin of the thread), this actually _breaks_
-the kernel/compat.c nanosleep handling, since the restarting really needs
-to know the type for "struct timespec", and the common "do_nanosleep()"
-was just too stupid and limited to be able to do restarting sanely.
+TIA
 
-Compat people can hopefully fix it up. Either by just copying the
-nanosleep function and not even trying to share code, or by making the
-restart function be a function pointer argument to a new and improved
-common "do_nanosleep()".
+Joseph Wagner
 
-It's been tested, and the only problem I found (which is kind of
-fundamental) is that if the system call gets interrupted by a signal and
-restarted, and then later returns successfully, the partial restart will
-have updated the "remaining time" field to whatever was remaining when the
-restart was started.
-
-That could be fixed by making the restart block contain not just the
-restart pointer, but also a "no restart possible" pointer, which would be
-the one called if the signal handler logic ended up returning -EINTR.
-
-It's a trivial extension, and possibly worth it regardless (it might be
-useful for other system call cases too that may want to undo some
-reservation or whatever), but I would like to hear from the standards
-lawyers whether POSIX/SuS actually cares or not. George?
-
-			Linus
+Flames will be directed to /dev/null
 

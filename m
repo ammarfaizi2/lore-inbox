@@ -1,114 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265321AbUAABcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 20:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265322AbUAABcZ
+	id S265316AbUAAB2J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 20:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUAAB2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 20:32:25 -0500
-Received: from shawmail.shawcable.com ([64.59.128.220]:11705 "EHLO
-	bpd2mo2no.prod.shawcable.com") by vger.kernel.org with ESMTP
-	id S265321AbUAABcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 20:32:21 -0500
-Date: Wed, 31 Dec 2003 18:36:50 -0700
-From: Matthew Mastracci <mmastrac@canada.com>
-Subject: Removable USB device contents cached after removal? [Part 2]
-To: linux-kernel@vger.kernel.org
-Message-id: <3FF379B2.3010301@canada.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6a)
- Gecko/20031030
+	Wed, 31 Dec 2003 20:28:09 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:58553 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S265316AbUAAB2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 20:28:03 -0500
+Message-ID: <3FF377A8.6040302@metaparadigm.com>
+Date: Thu, 01 Jan 2004 09:28:08 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rudi@lambda-computing.de
+Cc: ivern@acm.org, linux-kernel@vger.kernel.org
+Subject: Re: File change notification
+References: <3FF2FC85.5070906@lambda-computing.de> <3FF31366.30206@acm.org> <3FF31A15.4070307@lambda-computing.de>
+In-Reply-To: <3FF31A15.4070307@lambda-computing.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just as a note in regards to my previous post: I'm mostly looking for a 
-way to determine that the device was improperly mounted and use this 
-information to display an error.  I know it's not a good idea to be 
-removing mounted devices without a umount first.  :)
+On 01/01/04 02:48, Rüdiger Klaehn wrote:
+> Javier Fernandez-Ivern wrote:
+> 
+>> Rüdiger Klaehn wrote:
+>>
+>>> I have been wondering for some time why there is no decent file 
+>>> change notification mechanism in linux. Is there some deep 
+>>> philosophical reason for this, or is it just that nobody has found 
+>>> the time to implement it? If it is the latter, I am willing to 
+>>> implement it as long there is a chance to get this accepted into the 
+>>> mainstream kernel.
+>>
+>>
+>>
+>> Well, there's fam.  But AFAIK that's all done in user space, and your 
+>> approach would be significantly more efficient (as a matter of fact, 
+>> fam could be modified to use your change device as a first level of 
+>> notification.)
+>>
+> Fam is a user space library that has some nice features such as network 
+> transparent change notification. It currently uses the dnotify mechanism 
+> if the underlying kernel supports it, but as I mentioned the dnotify 
+> mechanism requires an open file handle and works only for single 
+> directories. If the underlying os does not support dnotify, fam resorts 
+> to polling for file changes (yuk!).
 
-To investigate further, as an experiment, I tried the same thing with 
-fd0.  It turns out that the floppy driver is able to detect the media 
-change and doesn't return any cached data when accessing the raw device. 
-  Accessing the memory device's raw device rather than the partition 
-device (ie: sdd vs. sdd1) also detected the change.
+Have you had a look at dazuko. It provides a consistent file access
+notification mechanism (and also intervention for denying access) across
+linux and freebsd. It is currently being used by various on-access
+virus scanners. It is under active development and supports 2.6 (and 2.4)
 
-Here's an example:
+http://www.dazuko.org/about.shtml
 
-[root@matt mnt]# mount floppy
-[root@matt mnt]# dd if=/dev/fd0 of=/dev/null count=10 bs=1024
-10+0 records in
-10+0 records out
-     (manually ejecting floppy while still mounted)
-[root@matt mnt]# dd if=/dev/fd0 of=/dev/null count=10 bs=1024
-dd: opening `/dev/fd0': No such device or address
-[root@matt mnt]# umount floppy/
-[root@matt mnt]# cat /dev/fd0
-cat: /dev/fd0: No such device or address
+Seems like a good idea. I've always thought it would be nice to use
+something like this to maintain a dynamic locatedb (among many other
+potential uses).
 
-And the memory device as a comparison:
+~mc
 
-[root@matt mnt]# mount /dev/sdd1
-[root@matt mnt]# dd if=/dev/sdd1 of=/dev/null count=10 bs=1024
-10+0 records in
-10+0 records out
-     (manually removing memory card)
-[root@matt mnt]# dd if=/dev/sdd1 of=/dev/null count=10 bs=1024
-10+0 records in
-10+0 records out
-[root@matt mnt]# umount /dev/sdd1
-[root@matt mnt]# dd if=/dev/sdd1 of=/dev/null count=10 bs=1024
-dd: opening `/dev/sdd1': No medium found
-
-And interestingly, accessing the root of the memory device works like 
-the floppy does (note that atech2 = /dev/sdd1):
-
-[root@matt mnt]# mount atech2
-mount: No medium found
-[root@matt mnt]# mount atech2
-[root@matt mnt]# dd if=/dev/sdd of=/dev/null count=10 bs=1024
-10+0 records in
-10+0 records out
-     (manually removing memory card)
-[root@matt mnt]# dd if=/dev/sdd of=/dev/null count=10 bs=1024
-dd: opening `/dev/sdd': No medium found
-[root@matt mnt]# umount atech2
-[root@matt mnt]# dd if=/dev/sdd of=/dev/null count=10 bs=1024
-dd: opening `/dev/sdd': No medium found
-
-An interesting observation is that the floppy will also cache the 
-directory contents, even when the floppy is removed.  As soon as an 
-error occurs, the cached contents are tossed.  I'm not certain of the 
-correct behaviour in this situation, however, but it's here for comparison:
-
-[root@matt mnt]# mount floppy
-[root@matt mnt]# ls -l floppy
-total 388
--rwxr-xr-x    1 root     root           14 Mar 20  2002 autoexec.bat
--rwxr-xr-x    1 root     root        66785 Sep 21  1999 command.com
--rwxr-xr-x    1 root     root           18 Feb 13  2002 config.sys
--rwxr-xr-x    1 root     root         2563 Nov 13 20:30 drvinf.txt
--rwxr-xr-x    1 root     root        14766 Jan  7  1999 himem.sys
--rwxr-xr-x    1 root     root        24810 Sep 21  1999 ibmbio.com
--rwxr-xr-x    1 root     root        30880 Sep 21  1999 ibmdos.com
--rwxr-xr-x    1 root     root       244264 May 20  2003 powermax.exe
--rwxr-xr-x    1 root     root        10041 May  8  2003 PWMXReadme.txt
-     (manually ejecting floppy)
-[root@matt mnt]# ls -l floppy
-total 388
--rwxr-xr-x    1 root     root           14 Mar 20  2002 autoexec.bat
--rwxr-xr-x    1 root     root        66785 Sep 21  1999 command.com
--rwxr-xr-x    1 root     root           18 Feb 13  2002 config.sys
--rwxr-xr-x    1 root     root         2563 Nov 13 20:30 drvinf.txt
--rwxr-xr-x    1 root     root        14766 Jan  7  1999 himem.sys
--rwxr-xr-x    1 root     root        24810 Sep 21  1999 ibmbio.com
--rwxr-xr-x    1 root     root        30880 Sep 21  1999 ibmdos.com
--rwxr-xr-x    1 root     root       244264 May 20  2003 powermax.exe
--rwxr-xr-x    1 root     root        10041 May  8  2003 PWMXReadme.txt
-[root@matt mnt]# cat /dev/fd0
-cat: /dev/fd0: No such device or address
-[root@matt mnt]# ls -l floppy
-total 0
-
-Matt.

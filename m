@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129921AbQKNM3U>; Tue, 14 Nov 2000 07:29:20 -0500
+	id <S130458AbQKNMcU>; Tue, 14 Nov 2000 07:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130458AbQKNM3K>; Tue, 14 Nov 2000 07:29:10 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:12295 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S129921AbQKNM2y>; Tue, 14 Nov 2000 07:28:54 -0500
-Date: Tue, 14 Nov 2000 11:58:52 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: Jakub Jelinek <jakub@redhat.com>
-cc: Malcolm Beattie <mbeattie@sable.ox.ac.uk>, Keith Owens <kaos@ocs.com.au>,
-        Peter Samuelson <peter@cadcamlab.org>,
-        Chris Evans <chris@scary.beasts.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Modprobe local root exploit
-In-Reply-To: <20001114055409.K1514@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.30.0011141157520.10863-100000@ferret.lmh.ox.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131032AbQKNMcK>; Tue, 14 Nov 2000 07:32:10 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:10588
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S130458AbQKNMcE>; Tue, 14 Nov 2000 07:32:04 -0500
+Date: Tue, 14 Nov 2000 13:59:24 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: oops in 2.2.17, not in 2.2.14-5
+Message-ID: <20001114135924.A3649@jaquet.dk>
+In-Reply-To: <20001113180449.A652@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001113180449.A652@jaquet.dk>; from rasmus@jaquet.dk on Mon, Nov 13, 2000 at 06:04:49PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I get this also with 2.2.17pre10 (which was what I was running before
+> encountering this) but not with the stock RH 6.2 kernel (2.2.14-5.0).
+> Unless I get other suggestions I'm going to try with the latest 2.2.18pre
+> and 2.2.16 tomorrow.
+> 
 
-On Tue, 14 Nov 2000, Jakub Jelinek wrote:
+OK, I tried with 2.2.16 and 2.2.18pre21 compiled with egcs-2.91.66
+(the kernels reported yesterday were compiled with 2.95.2).
 
-> > Rather than add sanity checking to modprobe, it would be a lot easier
-> > and safer from a security audit point of view to have the kernel call
-> > /sbin/kmodprobe instead of /sbin/modprobe. Then kmodprobe can sanitise
-> > all the data and exec the real modprobe. That way the only thing that
-> > needs auditing is a string munging/sanitising program.
->
-> Well, no matter what kernel needs auditing as well, the fact that dev_load
-> will without any check load any module the user wants is already problematic
-> and no munging helps with it at all, especially loading old ISA drivers
-> might not be a good idea.
+2.2.16 oopsed faithfully (I could not get hold of the oops as several
+scrolled by and none made it to the log). 2.2.18pre21 does not oops.
+Bzip2 core dumps, but gzip makes it through. So it seems that my
+problem has been solved already and proactively :)
 
-FWIW: A quick look at the kernel source, and dev_load() seems to be the
-only place that does this. Other places apply prefixes to user supplied
-names.
-
-Cheers
-Chris
-
+Regards,
+  Rasmus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131488AbRADUHQ>; Thu, 4 Jan 2001 15:07:16 -0500
+	id <S132968AbRADUKJ>; Thu, 4 Jan 2001 15:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132548AbRADUG7>; Thu, 4 Jan 2001 15:06:59 -0500
-Received: from nrg.org ([216.101.165.106]:23073 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S131315AbRADUGk>;
-	Thu, 4 Jan 2001 15:06:40 -0500
-Date: Thu, 4 Jan 2001 12:06:38 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: ludovic fernandez <ludovic.fernandez@sun.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
-In-Reply-To: <3A53D863.53203DF4@sun.com>
-Message-ID: <Pine.LNX.4.05.10101041157540.4778-100000@cosmic.nrg.org>
+	id <S132975AbRADUJ7>; Thu, 4 Jan 2001 15:09:59 -0500
+Received: from pop.gmx.net ([194.221.183.20]:37212 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S132968AbRADUJu>;
+	Thu, 4 Jan 2001 15:09:50 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: prerelease-_ac6 : make modules with error
+Date: Thu, 4 Jan 2001 21:06:12 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01010421061200.00868@nmb>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, ludovic fernandez wrote:
-> For hackers,
-> The following patch makes the kernel preemptable.
-> It is against 2.4.0-prerelease on for i386 only.
-> It should work for UP and SMP even though I
-> didn't validate it on SMP.
-> Comments are welcome.
+Allan,
 
-Hi Ludo,
+a make modules on 2.4.0-prerelease-ac6 exits with error:
 
-I didn't realise you were still working on this.  Did you know that
-I am also?  Our most recent version is at:
+make[2]: Entering directory `/usr/src/linux-2.4.0ac6/drivers/char'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 
+-fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 
+-march=i586 -DMODULE -DMODVERSIONS -include 
+/usr/src/linux/include/linux/modversions.h   -DEXPORT_SYMTAB -c serial.c
+serial.c: In function `probe_serial_pnp':
+serial.c:5187: structure has no member named `device'
+serial.c:5192: structure has no member named `device'
+make[2]: *** [serial.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.0ac6/drivers/char'
+make[1]: *** [_modsubdir_char] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.0ac6/drivers'
+make: *** [_mod_drivers] Error 2
 
-ftp://ftp.mvista.com/pub/Area51/preemptible_kernel/
+kind regards
 
-although I have yet to put up a 2.4.0-prerelease patch (coming soon).
-We should probably pool our efforts on this for 2.5.
-
-Cheers,
-Nigel
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
+Norbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

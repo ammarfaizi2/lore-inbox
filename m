@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135764AbREBSx3>; Wed, 2 May 2001 14:53:29 -0400
+	id <S135750AbREBSxt>; Wed, 2 May 2001 14:53:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135750AbREBSxT>; Wed, 2 May 2001 14:53:19 -0400
-Received: from viper.haque.net ([66.88.179.82]:5279 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S135760AbREBSxD>;
-	Wed, 2 May 2001 14:53:03 -0400
-Date: Wed, 2 May 2001 14:52:58 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Daniel Howe <dchowe@u.washington.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel build problem (2.4.1)...
-In-Reply-To: <3AF051FC.21AFA1DB@u.washington.edu>
-Message-ID: <Pine.LNX.4.33.0105021452001.30068-100000@viper.haque.net>
+	id <S135725AbREBSxk>; Wed, 2 May 2001 14:53:40 -0400
+Received: from enst.enst.fr ([137.194.2.16]:52406 "HELO enst.enst.fr")
+	by vger.kernel.org with SMTP id <S135760AbREBSx0>;
+	Wed, 2 May 2001 14:53:26 -0400
+Date: Wed, 02 May 2001 20:52:36 +0200
+From: Fabrice Gautier <gautier@email.enst.fr>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: serial console problems with 2.4.4
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1elu7pv0e.fsf@frodo.biederman.org>
+In-Reply-To: <20010502130958.38BB.GAUTIER@email.enst.fr> <m1elu7pv0e.fsf@frodo.biederman.org>
+Message-Id: <20010502201026.CB69.GAUTIER@email.enst.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.00.01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 May 2001, Daniel Howe wrote:
 
-> ld: cannot open binary: No such file or directory
+On 02 May 2001 10:37:21 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Fairly old problem.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98478655301837&w=2
+> Fabrice Gautier <gautier@email.enst.fr> writes:
+> > So this this probably a sulogin/mingetty problem. They should set the
+> > CREAD flag in your tty c_cflag.
+> > 
+> > the patch for busybox repalced the line
+> > 	tty.c_cflag |= HUPCL|CLOCAL
+> > by
+> > 	tty.c_cflag |= CREAD|HUPCL|CLOCAL
+> > 	
+> > Hope this help.
+> 
+> This part is correct.  
+> 
+> However the kernel sets CREAD by default.  
 
-Please check list archives to see if issues have previously been
-addressed.
+Are your sure? Wasn't this the behaviour for 2.4.2  but changed in 2.4.3
+
+> sysvinit (and possibly other inits) clears CREAD.
+
+In my case I was using busybox as init. So there is no sysinit or any other
+init called before this line.
+
+
+> I wish I knew where the breakage actually occured.
+
+Just look at this diff on serial.c between 2.4.2 and 2.4.3:
+
+--- serial.c	Sat Apr 21 17:22:53 2001
++++ ../../../linux-2.4.2/drivers/char/serial.c	Sat Feb 17 01:02:36 2001
+@@ -1764,8 +1765,8 @@
+ 	/*
+ 	 * !!! ignore all characters if CREAD is not set
+ 	 */
+-//	if ((cflag & CREAD) == 0)
+-//		info->ignore_status_mask |= UART_LSR_DR;
++	if ((cflag & CREAD) == 0)
++		info->ignore_status_mask |= UART_LSR_DR;
+ 	save_flags(flags); cli();
+ 	if (uart_config[info->state->type].flags & UART_STARTECH) {
+ 		serial_outp(info, UART_LCR, 0xBF);
+
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+Fabrice Gautier <gautier@email.enstfr>
 

@@ -1,213 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUDTOr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUDTOth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUDTOr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 10:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbUDTOr3
+	id S263015AbUDTOth (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 10:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUDTOtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 10:47:29 -0400
-Received: from smtp.golden.net ([199.166.210.31]:41484 "EHLO
-	newsmtp.golden.net") by vger.kernel.org with ESMTP id S263100AbUDTOrM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 10:47:12 -0400
-Date: Tue, 20 Apr 2004 10:46:59 -0400
-From: Paul Mundt <lethal@linux-sh.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Clean up asm/pgalloc.h include (sh)
-Message-ID: <20040420144659.GE12390@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20040418231720.C12222@flint.arm.linux.org.uk> <20040418232314.A2045@flint.arm.linux.org.uk> <E1BFYjS-00056J-TY@dyn-67.arm.linux.org.uk>
+	Tue, 20 Apr 2004 10:49:36 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:52905
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263015AbUDTOte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 10:49:34 -0400
+Date: Tue, 20 Apr 2004 16:49:37 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>, agruen@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: slab-alignment-rework.patch in -mc
+Message-ID: <20040420144937.GG29954@dualathlon.random>
+References: <1082383751.6746.33.camel@f235.suse.de> <20040419162533.GR29954@dualathlon.random> <4084017C.5080706@colorfullife.com> <20040420002423.469cca01.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1BFYjS-00056J-TY@dyn-67.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040420002423.469cca01.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 20, 2004 at 12:24:23AM -0700, Andrew Morton wrote:
+> So I do think that we should either make "align=0" translate to "pack them
+> densely" or do the big sweep across all kmem_cache_create() callsites.
 
---5I6of5zJg18YgZEa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+agreed.
 
-On Mon, Apr 19, 2004 at 02:22:42PM +0100, Russell King wrote:
-> This patch is part of a larger patch aiming towards getting the
-> include of asm/pgtable.h out of linux/mm.h, so that asm/pgtable.h
-> can sanely get at things like mm_struct and friends.
->=20
-> In the event that any of these files fails to build, chances are
-> you need to include some other header file rather than pgalloc.h.
-> Normally this is either asm/pgtable.h (unlikely), asm/cacheflush.h
-> or asm/tlbflush.h.
->=20
-Failed to compile. sh has ptep_get_and_clear in asm/pgalloc.h.
+> If the latter, while we're there, let's remove SLAB_HWCACHE_ALIGN where it
+> isn't obviously appropriate.  I'd imagine that being able to fit more inodes
+> into memory is a net win over the occasional sharing effect, for example.
 
-This moves it out of the way, and your patch builds fine.
+One warning here, false sharing here isn' the only reason for hw
+alignment, for structures like inodes or other things often are coded
+packing the fields used at the same time together in the same cacheline,
+this pratically can reduce the cache utilization to 1 cacheline instead
+of 2 cachelines at runtime (even if there's no false sharing at all
+because the structure is much bigger than the l1 size anyways).
 
---- orig/arch/sh/mm/tlb-sh4.c
-+++ mod/arch/sh/mm/tlb-sh4.c
-@@ -24,7 +24,6 @@
- #include <asm/system.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
--#include <asm/pgalloc.h>
- #include <asm/hardirq.h>
- #include <asm/mmu_context.h>
- #include <asm/cacheflush.h>
-@@ -95,3 +94,24 @@
- 	back_to_P1();
- }
-=20
-+/*
-+ * For SH-4, we have our own implementation for ptep_get_and_clear
-+ */
-+inline pte_t ptep_get_and_clear(pte_t *ptep)
-+{
-+	pte_t pte =3D *ptep;
-+
-+	pte_clear(ptep);
-+	if (!pte_not_present(pte)) {
-+		struct page *page;
-+		unsigned long pfn =3D pte_pfn(pte);
-+		if (pfn_valid(pfn)) {
-+			page =3D pfn_to_page(pfn);
-+			if (!page->mapping
-+			    || list_empty(&page->mapping->i_mmap_shared))
-+				__clear_bit(PG_mapped, &page->flags);
-+		}
-+	}
-+	return pte;
-+}
-+
---- orig/include/asm-sh/pgtable.h
-+++ mod/include/asm-sh/pgtable.h
-@@ -268,16 +268,6 @@
- #define pte_to_pgoff(pte)	(pte_val(pte) >> 1)
- #define pgoff_to_pte(off)	((pte_t) { ((off) << 1) | _PAGE_FILE })
-=20
--/*
-- * Routines for update of PTE=20
-- *
-- * We just can use generic implementation, as SuperH has no SMP feature.
-- * (We needed atomic implementation for SMP)
-- *
-- */
--
--#define pte_same(A,B)	(pte_val(A) =3D=3D pte_val(B))
--
- typedef pte_t *pte_addr_t;
-=20
- #endif /* !__ASSEMBLY__ */
-@@ -295,12 +285,11 @@
- extern unsigned int kobjsize(const void *objp);
- #endif /* !CONFIG_MMU */
-=20
--#define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
--#define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
-+#ifdef CONFIG_CPU_SH4
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
--#define __HAVE_ARCH_PTEP_SET_WRPROTECT
--#define __HAVE_ARCH_PTEP_MKDIRTY
--#define __HAVE_ARCH_PTE_SAME
-+extern inline pte_t ptep_get_and_clear(pte_t *ptep);
-+#endif
-+
- #include <asm-generic/pgtable.h>
-=20
- #endif /* __ASM_SH_PAGE_H */
---- orig/include/asm-sh/pgalloc.h
-+++ mod/include/asm-sh/pgalloc.h
-@@ -85,71 +85,12 @@
- #define __pmd_free_tlb(tlb,x)		do { } while (0)
- #define pgd_populate(mm, pmd, pte)	BUG()
-=20
--#if defined(CONFIG_CPU_SH4)
--#define PG_mapped	PG_arch_1
-+#define check_pgt_cache()	do { } while (0)
-=20
--/*
-- * For SH-4, we have our own implementation for ptep_get_and_clear
-- */
--static inline pte_t ptep_get_and_clear(pte_t *ptep)
--{
--	pte_t pte =3D *ptep;
-+#ifdef CONFIG_CPU_SH4
-+#define PG_mapped	PG_arch_1
-=20
--	pte_clear(ptep);
--	if (!pte_not_present(pte)) {
--		struct page *page;
--		unsigned long pfn =3D pte_pfn(pte);
--		if (pfn_valid(pfn)) {
--			page =3D pfn_to_page(pfn);
--			if (!page->mapping
--			    || list_empty(&page->mapping->i_mmap_shared))
--				__clear_bit(PG_mapped, &page->flags);
--		}
--	}
--	return pte;
--}
--#else
--static inline pte_t ptep_get_and_clear(pte_t *ptep)
--{
--	pte_t pte =3D *ptep;
--	pte_clear(ptep);
--	return pte;
--}
-+extern inline pte_t ptep_get_and_clear(pte_t *ptep);
- #endif
-=20
--/*
-- * Following functions are same as generic ones.
-- */
--static inline int ptep_test_and_clear_young(pte_t *ptep)
--{
--	pte_t pte =3D *ptep;
--	if (!pte_young(pte))
--		return 0;
--	set_pte(ptep, pte_mkold(pte));
--	return 1;
--}
--
--static inline int ptep_test_and_clear_dirty(pte_t *ptep)
--{
--	pte_t pte =3D *ptep;
--	if (!pte_dirty(pte))
--		return 0;
--	set_pte(ptep, pte_mkclean(pte));
--	return 1;
--}
--
--static inline void ptep_set_wrprotect(pte_t *ptep)
--{
--	pte_t old_pte =3D *ptep;
--	set_pte(ptep, pte_wrprotect(old_pte));
--}
--
--static inline void ptep_mkdirty(pte_t *ptep)
--{
--	pte_t old_pte =3D *ptep;
--	set_pte(ptep, pte_mkdirty(old_pte));
--}
--
--#define check_pgt_cache()	do { } while (0)
--
- #endif /* __ASM_SH_PGALLOC_H */
+So the hardware alignment should be removed with care looking the layout
+of the structures and evaluating if we're losing cacheline packing. For
+example the task_struct definitely must be fully l1 aligned, not because
+of false sharing issues that are probably non existent in the task
+struct anyways, but because most important fileds in the task struct
+are packed to maximize the cache utilization at runtime.
 
---5I6of5zJg18YgZEa
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQFAhTfj1K+teJFxZ9wRAntxAJwIxZ3EBXOTbrYJH44kdxPTzA1pFACeM4Yw
-v8PBU2WZIKEA4QQumILNefI=
-=YPo7
------END PGP SIGNATURE-----
-
---5I6of5zJg18YgZEa--
+For 12 bytes small things including locks like anon-vma the false
+sharing is the biggest issue (but still it doesn't worth to l1 align it
+in the anon-vma case), for buffer headers and task_structs the cacheline
+packing provided by the l1 alignment of the structure is the primary
+reason for wanting an l1 alignment. Each case should be evaluated
+separately.

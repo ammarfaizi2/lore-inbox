@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316678AbSE3PFu>; Thu, 30 May 2002 11:05:50 -0400
+	id <S316679AbSE3PHE>; Thu, 30 May 2002 11:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316679AbSE3PFt>; Thu, 30 May 2002 11:05:49 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:24325 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316678AbSE3PFt>; Thu, 30 May 2002 11:05:49 -0400
-Date: Thu, 30 May 2002 17:05:05 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.18 IDE 73
-Message-ID: <20020530150505.GA6915@louise.pinerecords.com>
-In-Reply-To: <UTC200205300019.g4U0JtH24034.aeb@smtp.cwi.nl> <3CF622F0.4050304@evision-ventures.com> <1022772774.12888.380.camel@irongate.swansea.linux.org.uk> <3CF62F2A.6030009@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.4.19-pre9/sparc SMP
-X-Uptime: 19:33
+	id <S316681AbSE3PHD>; Thu, 30 May 2002 11:07:03 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:29859 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S316679AbSE3PHB>;
+	Thu, 30 May 2002 11:07:01 -0400
+Message-ID: <010001c207ec$9b03f7c0$3d01a8c0@pitzeier.priv.at>
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <000901c20654$0e215440$010b10ac@sbp.uptime.at>
+Subject: Re: kernel 2.5.18 on alpha
+Date: Thu, 30 May 2002 17:13:51 +0200
+Organization: UPtime system solutions
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >On Thu, 2002-05-30 at 14:02, Martin Dalecki wrote:
-> >
-> >>1. util-linux doesn't cover half of the system utilities needed on
-> >>   a sanely actual Linux system.
-> >>2. The Linux vendors have to apply insane number of patches to it
-> >>   util it's moderately usable.
-> >
-> >So now you have nothing better to do than insult someone whose code
-> >works, is shipped in just about every distribution. Someone whose kernel
-> >patches are almost without fail perfect first time.
-> >
-> >You should learn from Andries not mock him.
-> 
-> rpm -i util-linux-xxx.src.rpm
+Is there really nobody who can help me with this error?
 
-... tells you exactly nothing, because redhat people would even patch
-/bin/true if it could be made to do anything extra.
+Greetz,
+  Oliver
 
-util-linux build procedure from SlackBuild in slackware-current:
+----- Original Message -----
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, May 28, 2002 4:29 PM
+Subject: kernel 2.5.18 on alpha
 
-tar xjvf $CWD/util-linux-$VERSION.tar.bz2
-cd util-linux-$VERSION
-zcat $CWD/util-linux.MCONFIG.diff.gz | patch -E --backup -p1 --suffix=.orig
-./configure
-make
-<snip>
 
-T.
+> Hi volks!
+>
+> I get this error when trying to compile kernel 2.5.18 on alpha.
+>
+> Please help me!
+>
+> [ ... ]
+> gcc -D__KERNEL__ -I/root/linux-2.5.18/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe -mno-fp-regs -ffixed-8 -mcpu=ev5 -Wa,-mev6
+> -DKBUILD_BASENAME=do_mounts  -c -o do_mounts.o do_mounts.c
+> In file included from /root/linux-2.5.18/include/linux/thread_info.h:10,
+>                  from /root/linux-2.5.18/include/linux/spinlock.h:7,
+>                  from /root/linux-2.5.18/include/linux/tqueue.h:16,
+>                  from /root/linux-2.5.18/include/linux/sched.h:10,
+>                  from do_mounts.c:4:
+> /root/linux-2.5.18/include/linux/bitops.h: In function
+> `get_bitmask_order':
+> /root/linux-2.5.18/include/linux/bitops.h:77: warning: implicit
+> declaration of function `fls'
+> In file included from do_mounts.c:13:
+> /root/linux-2.5.18/include/linux/suspend.h:4:25: asm/suspend.h: No such
+> file or directory
+> make[1]: *** [do_mounts.o] Error 1
+> make[1]: Leaving directory `/root/linux-2.5.18/init'
+> make: *** [_dir_init] Error 2
+> [ ... ]
+>
+> Greetz,
+>  Oliver
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

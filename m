@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267322AbSKPSFw>; Sat, 16 Nov 2002 13:05:52 -0500
+	id <S267323AbSKPSMs>; Sat, 16 Nov 2002 13:12:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267323AbSKPSFw>; Sat, 16 Nov 2002 13:05:52 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:4100 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S267322AbSKPSFv>; Sat, 16 Nov 2002 13:05:51 -0500
-Message-Id: <200211161812.gAGICj604696@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Arnd Bergmann <ibm.com@arndb.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [RFC][PATCH] move dma_mask into struct device 
-In-Reply-To: Message from Arnd Bergmann <arndb@de.ibm.com> 
-   of "Sat, 16 Nov 2002 20:56:54 +0100." <200211162056.54008.arndb@de.ibm.com> 
+	id <S267326AbSKPSMr>; Sat, 16 Nov 2002 13:12:47 -0500
+Received: from waste.org ([209.173.204.2]:48877 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S267323AbSKPSMr>;
+	Sat, 16 Nov 2002 13:12:47 -0500
+Date: Sat, 16 Nov 2002 12:18:32 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, Stelian Pop <stelian.pop@fr.alcove.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: lan based kgdb
+Message-ID: <20021116181832.GG19061@waste.org>
+References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <3DD57A5F.87119CB4@digeo.com> <1037414103.21922.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Nov 2002 13:12:44 -0500
-From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+In-Reply-To: <1037414103.21922.12.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arndb@de.ibm.com said:
-> You can easily keep out the pci stuff if you do something like this: 
+On Sat, Nov 16, 2002 at 02:35:03AM +0000, Alan Cox wrote:
+> 
+> netdump has polled eepro100 handlers that will plug nicely into this. Of
+> course you still want a protocol on top of it, but there are some tiny
+> tcp implementations that are GPL (eg the Linux 8086 TCP by Harry K)
 
-No...look at what you've done.  Now SCSI has to know about every bus type on 
-every architecture; that's an extreme layering violation.  architecture/bus 
-types are generally only defined for the arch (PCI being the exception), so 
-now the additions have to be #ifdef'd just so it will compile..
+TCP is complete overkill. You don't want to run a debugging protocol
+over a WAN in any case. Let's assume LAN, 1ms or less round-trip,
+let's assume polling ACKs per packet so we don't have to keep a
+window, UDP with hand-specified src/dst/gateway/MACs/ports.
 
-You've done this because you effectively have to pull a common but differently 
-located structure element out of each of these bus specific devices.  That 
-implies to me that dma_mask should be in a common structure, which was the 
-whole basis for the dmaable_device that I outlined previously.  As I said, the 
-only reason I haven't implemented dmaable_device is for expediency.
-
-James
-
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUEOAww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264662AbUEOA5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264627AbUEOAww (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 20:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUEOAsj
+	id S264662AbUEOA5R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 20:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265347AbUEOA5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 20:48:39 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:16570 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264627AbUEOApS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 20:45:18 -0400
-Message-ID: <40A55FB9.2090908@yahoo.com.au>
-Date: Sat, 15 May 2004 10:09:29 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: torvalds@osdl.org, hugh@veritas.com,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] truncate vs add_to_page_cache race
-References: <40A42892.5040802@yahoo.com.au>	<20040513193328.11479d3e.akpm@osdl.org>	<40A43152.4090400@yahoo.com.au>	<40A438AC.9020506@yahoo.com.au>	<40A55647.8020904@yahoo.com.au> <20040514165038.17eb142b.akpm@osdl.org>
-In-Reply-To: <20040514165038.17eb142b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 14 May 2004 20:57:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41101 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264748AbUEOA4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 20:56:50 -0400
+Date: Fri, 14 May 2004 17:59:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, rene.herman@keyaccess.nl,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+Message-Id: <20040514175918.6b9f4c9d.akpm@osdl.org>
+In-Reply-To: <20040514032657.GB704@elf.ucw.cz>
+References: <409F4944.4090501@keyaccess.nl>
+	<200405102125.51947.bzolnier@elka.pw.edu.pl>
+	<409FF068.30902@keyaccess.nl>
+	<200405102352.24091.bzolnier@elka.pw.edu.pl>
+	<20040510215626.6a5552f2.akpm@osdl.org>
+	<20040510221729.3b8e93da.akpm@osdl.org>
+	<20040514032657.GB704@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> > > It's a bit grubby, but we could easily add a fourth state to
+> > >  `system_state': split SYSTEM_SHUTDOWN into SYSTEM_REBOOT and SYSTEM_HALT. 
+> > >  That would be a quite simple change.
+> > 
+> > Like this.  I checked all the SYSTEM_FOO users and none of them seem to
+> > care about the shutdown state at present.  Easy.
 > 
->>I think the entire problem can be fixed by ensuring ->readpage and
->>do_generic_mapping read see the same i_size. This would either mean
->>passing i_size to or from ->readpage, *or* having ->readpage return
->>the number of bytes read, for example.
-> 
-> 
-> Or not check i_size in ->readpage at all?
-> 
+> Perhaps this should be parameter to device_shutdown? This is quite
+> ugly.
 
-It needn't check readpage if it gets the number of bytes to read
-passed to it, or gets i_size passed to it.
+Rather than a parameter to ->shutdown it would be better to add a new
+->restart method to devices and IDE can implement one of those.
 
-With do_generic_mapping_read and ->readpage each having a different
-idea of how much of the page to process(*), bad things can happen.
-They have different ideas about how much they need to process due to
-the each one checking i_size on its own.
+I don't know if it's worth the effort though.  Is any other driver likely
+to want to discriminate between reboot and shutdown?
 
-* That is "copy to userspace" and "read" for do_generic_mapping_read
-   and ->readpages respectively.
-
-> If fixing this is going to cost extra fastpath cycles I'd be inclined to
-> not bother, frankly.
-> 
-
-What I'm thinking of shouldn't cost any cycles, it would require a
-change to ->readpage API though. Preferably one where we can tell it
-how many bytes to read. I can't see how else to fix it.
-
-If this is not acceptable for 2.6, we could use a nicer variation of
-my second patch which at least fixes the truncate problem, and its
-remaining race is *much* more improbable.

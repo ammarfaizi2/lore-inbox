@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312426AbSDEJvH>; Fri, 5 Apr 2002 04:51:07 -0500
+	id <S312431AbSDEJxh>; Fri, 5 Apr 2002 04:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312431AbSDEJu5>; Fri, 5 Apr 2002 04:50:57 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20535 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312426AbSDEJum>; Fri, 5 Apr 2002 04:50:42 -0500
-To: Martin Mares <mj@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
-In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org> <20020405080115.GA409@ucw.cz>
-	<m1k7rmpmyq.fsf@frodo.biederman.org> <20020405084733.GG609@ucw.cz>
-	<m1g02aplmm.fsf@frodo.biederman.org> <20020405090846.GL609@ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Apr 2002 02:44:09 -0700
-Message-ID: <m1bscypjiu.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S312442AbSDEJx2>; Fri, 5 Apr 2002 04:53:28 -0500
+Received: from gold.muskoka.com ([216.123.107.5]:51471 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S312431AbSDEJxX>;
+	Fri, 5 Apr 2002 04:53:23 -0500
+Message-ID: <3CAD6D74.6E834BC5@yahoo.com>
+Date: Fri, 05 Apr 2002 04:25:08 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.18 i586)
 MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <Pine.LNX.4.44L.0204041217290.18660-100000@imladris.surriel.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> writes:
+> As it stands right now it is IMPOSSIBLE to support binary only
+> drivers and I can only see two ways out of this situation:
 
-> Hello!
+Two different things "supporting" and "allowing".  Currently it is that BOM 
+are "allowed".  (I am not entering the discussion on whether this is good 
+or bad.)  Note that you will not find too many volunteer hackers jumping
+in to help "support" users with BOMs - the lk archives will reflect this.
+
+If a vendor decides to release a BOM, then it is implicit in their decision 
+that by doing so, they have voluntarily denied to accept the support that 
+comes from having many different persons auditing their code, if it was 
+available.  Hence the issue of "support" lies on their shoulders entirely.
+
+> (1) don't allow binary only modules at all
 > 
-> > Show me a linker script that can link together bootsect.o and bsetup.o.
-> 
-> I don't have enough time to experiment with it at this very moment
-> and I admit that the linker bugs you've mentioned make it impossible,
-> but the objdump solution I mentioned (and tried a couple of minutes ago)
-> works and although it isn't perfect, it's lovely compared to the
-> "-start" hack.
+> (2) have a stable ABI for binary only modules and don't allow
+>     these binary only modules to use other symbols, so people
+>     in need of binary only modules won't be locked to one
+>     particular version of the kernel (or have two binary only
+>     modules locked to _different_ versions of the kernel)
 
-Given that I want a relative offset, and I have explicitly coded a
-relative offset, I don't see how that is a hack.  I see assembly
-for is telling the machine explicitly what to do and that does.
+One of the great things about linux is that code quality and performance 
+have always taken precedence over keeping an interface carved in stone.  
+We've tried to not make radical inteface changes in stable relases, but 
+where necessary it has been done, and we were free to do so.  If a vendor
+with a BOM can't take the time to appropriately update their code and 
+release a new BOM, then it is clear that they don't really support linux.
 
-The fact the correct way to code the instruction looks ugly is a gas
-bug/deficiency.  Perhaps a gas developer will look at how ugly that
-code is and improve gas.
+If someone has chosen hardware for which a BOM is the only option, then 
+they need to investigate in detail that vendor's support policy, and get 
+things in writing if need be (e.g.  large installation base, etc) detailing 
+just how current bugs and new drivers for future kernels will be handled.
+If a vendor wants $$$ for such a written support policy, then you have to
+factor that into the overall cost of what you are setting up.
 
-One of the other reasons I want to do it this way is in case is to
-make copying code easier.  If you use idioms that work equally well
-everywhere and for every case it is easier to switch between projects
-using the same tool.  And the assume 0 hack isn't useful when
-switching from real to protected mode while using the code segment
-you got from the reset vector.  Although it is kind of fun running
-real mode code with a code segment base of 0xffff0000.
+If someone is stuck with _two_ unsupported BOMs that are for two different 
+kernels, then I'd have to say they didn't do their homework when choosing 
+the hardware and/or determining if the level of support the vendor was 
+offering was adequate for their particular application.  Caveat emptor.
 
-Eric
+Paul.
+
+

@@ -1,38 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265680AbSIRGst>; Wed, 18 Sep 2002 02:48:49 -0400
+	id <S265676AbSIRGso>; Wed, 18 Sep 2002 02:48:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265683AbSIRGst>; Wed, 18 Sep 2002 02:48:49 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:64657 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S265680AbSIRGsr>;
-	Wed, 18 Sep 2002 02:48:47 -0400
-Message-ID: <3D8822F4.6060201@candelatech.com>
-Date: Tue, 17 Sep 2002 23:53:40 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  Networking:  send-to-self
+	id <S265680AbSIRGso>; Wed, 18 Sep 2002 02:48:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62855 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265676AbSIRGsn>;
+	Wed, 18 Sep 2002 02:48:43 -0400
+Date: Tue, 17 Sep 2002 23:44:40 -0700 (PDT)
+Message-Id: <20020917.234440.114538956.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Networking: send-to-self
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D88217A.6070702@candelatech.com>
 References: <3D88217A.6070702@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> This patch allows one to use the SO_BINDTODEVICE and a new ioctl against
-> net_device objects to send and receive regular routed traffic between two
 
-Gack, sorry for the last patch..it seems I screwed up the
-patch process somehow.  Plz don't apply it as is!
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+We saw it the first two times.

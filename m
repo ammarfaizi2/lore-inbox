@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVCKLgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbVCKLjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262678AbVCKLgv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 06:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVCKLgu
+	id S262689AbVCKLjq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 06:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVCKLjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 06:36:50 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:14341 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262678AbVCKLgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 06:36:48 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Simone Piunno <simone.piunno@wseurope.com>, linux-kernel@vger.kernel.org,
-       Fabio Coatti <fabio.coatti@wseurope.com>
-Subject: Re: bonnie++ uninterruptible under heavy I/O load
-Date: Fri, 11 Mar 2005 13:35:56 +0200
-User-Agent: KMail/1.5.4
-References: <200503111208.20283.simone.piunno@wseurope.com>
-In-Reply-To: <200503111208.20283.simone.piunno@wseurope.com>
+	Fri, 11 Mar 2005 06:39:46 -0500
+Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:44455 "EHLO
+	mail.aftek.com") by vger.kernel.org with ESMTP id S262689AbVCKLjA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 06:39:00 -0500
+X-Antivirus-MYDOMAIN-Mail-From: mohanv@aftek.com via plain.ev1servers.net
+X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.0.97):SA:0(-104.9/3.0):. Processed in 1.851976 secs Process 10303)
+Message-ID: <423183DE.3020102@aftek.com>
+Date: Fri, 11 Mar 2005 17:11:18 +0530
+From: Mohan <mohanv@aftek.com>
+Reply-To: mohanv@aftek.com
+Organization: Aftek Infosys Ltd.
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: linux-kernel@vger.kernel.org
+Subject: wait queue sharing..
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503111335.56782.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 March 2005 13:08, Simone Piunno wrote:
-> 
-> Hello,
-> 
-> I'm testing a pair of new servers we just bought.
-> They are HP DL585 dual Opteron 844 with 8G RAM, RAID1 over 2x72G SCSI disks 
-> (HP CISS driver) and running 2.6.11.  In /proc/driver/cciss/cciss0 we have:
-> 
-> cciss0: HP Smart Array 5i Controller
-> Board ID: 0x40800e11
-> Firmware Version: 2.56
-> IRQ: 18
-> Logical drives: 1
-> Current Q depth: 0
-> Current # commands on controller: 0
-> Max Q depth since init: 6
-> Max # commands on controller since init: 190
-> Max SG entries since init: 31
-> cciss/c0d0:       72.83GB       RAID 1(1+0)
-> 
-> As a test, I'm running bonnie++ while two md5sum are checksumming /dev/zero.
-> I see 98% CPU is correctly allocated on the two md5sum processes, but when 
-> bonnie is in the "Writing intelligently phase" the system appears noticeably 
-> unresponsive (high latency) and bonnie and pdflush are uninterruptible almost 
-> all the time (D in top output).  If I try to kill -9 bonnie++, it goes on 
-> consuming I/O bandwith for several tens of seconds, before finally dieing.
-> 
-> Unresponsiveness is not 2.6.11 specific (we've seen the same thing on 2.6.10 
-> and 2.6.8), not I/O scheduler specific ("as" and "deadline" behave the same)
-> and not CPU/SMP specific (reproduced on single P4 HT and single P3), but only 
-> on these two DL585 servers we've seen bonnie++ resisting kill -9 for tens of 
-> seconds.
-> 
-> Of course on request I can provide any other useful info.
-> Any help is appreciated.
+Hello All,
 
-I think Alt-SysRq-T will be interesting to see
---
-vda
+I have a question regarding the wait queues. I have a driver
+pxausb_core.o which is the core driver which does all USB endpoint
+handling and hardware interaction. I have one more driver on top of it
+usb-serial which provides for the user-level interaction(like read,
+write, ioctl).
+I have implemented a blocking ioctl, which sends events about the state
+of USB device(enumerated, suspended, disconnected, etc).
+For this ioctl, i have declared a wait_queue and initialized (using
+init_waitqueue_head() func.) in the usb_ctl.c which is part of
+pxausb_core.o. (it has usb_send.c, usb_recv.c, usb_ctl.c, usb_ep0.c).
+I am using that wait_queue variable in usb-ser.c.
 
+I just wanted to clarify myself whether the wait queues can be shared
+between two driver modules.
+
+Thank you...
+regards,
+mohan

@@ -1,42 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUHSO5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266378AbUHSOyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266386AbUHSO5p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 10:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUHSOy5
+	id S266378AbUHSOyr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 10:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUHSOyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 10:54:57 -0400
-Received: from 213-0-217-234.dialup.nuria.telefonica-data.net ([213.0.217.234]:20615
-	"EHLO localhost") by vger.kernel.org with ESMTP id S266347AbUHSOym
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 10:54:42 -0400
-Date: Thu, 19 Aug 2004 16:54:37 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+	Thu, 19 Aug 2004 10:54:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32406 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266311AbUHSOvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 10:51:48 -0400
+Message-ID: <4124BE89.20909@redhat.com>
+Date: Thu, 19 Aug 2004 10:51:53 -0400
+From: Frank Hirtz <fhirtz@redhat.com>
+User-Agent: Mozilla Thunderbird 0.6 (Macintosh/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Crash using Kernel 2.8.1 and HTB
-Message-ID: <20040819145437.GA7539@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <41249570.20208@apartia.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41249570.20208@apartia.fr>
-User-Agent: Mutt/1.5.6+20040523i
+Subject: [patch] 2.6.8.1:  display committed memory limit and available in
+ meminfo
+Content-Type: multipart/mixed;
+ boundary="------------030103000904070608090505"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 19 August 2004, at 13:56:32 +0200,
-Laurent CARON wrote:
+This is a multi-part message in MIME format.
+--------------030103000904070608090505
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> My computer boots fine, but when I enable HTB (via Fiaif) the computer 
-> hangs.
-> Did anyone get the same problem?
-> 
-It seems you have been bitten by a known bug, which Dave S. Miller
-patched a couple of days ago. See the following thread:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109263832828196&w=2
+The following patch will have the committed memory limit (per the current 
+overcommit ratio) and the amount of memory remaining under this limit displayed 
+in meminfo.
 
-Greetings.
+It's presently somewhat difficult to use the strict memory overcommit settings 
+as it's somewhat difficult to determine the amount of memory remaining under the 
+cap. This patch would make using strict overcommit a good bit simpler. Does such 
+an addition seem reasonable?
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.8.1-vp)
+Thank you,
+
+Frank.
+
+--------------030103000904070608090505
+Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
+ name="linux-2.6.8.1-committedmem.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.8.1-committedmem.patch"
+
+--- linux-2.6.8.1/fs/proc/proc_misc.c		2004-08-18 16:32:07.000000000 -0400
++++ linux-2.6.8.1.new/fs/proc/proc_misc.c	2004-08-18 16:55:47.000000000 -0400
+@@ -153,7 +153,7 @@
+ 				 int count, int *eof, void *data)
+ {
+ 	struct sysinfo i;
+-	int len, committed;
++	int len, committed, allowed;
+ 	struct page_state ps;
+ 	unsigned long inactive;
+ 	unsigned long active;
+@@ -171,6 +171,8 @@
+ 	si_meminfo(&i);
+ 	si_swapinfo(&i);
+ 	committed = atomic_read(&vm_committed_space);
++	allowed = ((totalram_pages - hugetlb_total_pages()) 
++		* sysctl_overcommit_ratio / 100) + total_swap_pages;
+ 
+ 	vmtot = (VMALLOC_END-VMALLOC_START)>>10;
+ 	vmi = get_vmalloc_info();
+@@ -198,7 +200,9 @@
+ 		"Writeback:    %8lu kB\n"
+ 		"Mapped:       %8lu kB\n"
+ 		"Slab:         %8lu kB\n"
++		"CommitLimit:  %8lu kB\n"
+ 		"Committed_AS: %8u kB\n"
++		"CommitAvail:  %8ld kB\n"
+ 		"PageTables:   %8lu kB\n"
+ 		"VmallocTotal: %8lu kB\n"
+ 		"VmallocUsed:  %8lu kB\n"
+@@ -220,7 +224,9 @@
+ 		K(ps.nr_writeback),
+ 		K(ps.nr_mapped),
+ 		K(ps.nr_slab),
++		K(allowed),
+ 		K(committed),
++		K(allowed - committed),
+ 		K(ps.nr_page_table_pages),
+ 		vmtot,
+ 		vmi.used,
+
+--------------030103000904070608090505--

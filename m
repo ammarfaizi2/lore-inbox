@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287647AbSBOIWQ>; Fri, 15 Feb 2002 03:22:16 -0500
+	id <S289136AbSBOIm3>; Fri, 15 Feb 2002 03:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287681AbSBOIWD>; Fri, 15 Feb 2002 03:22:03 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:48655 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S287647AbSBOIVo>; Fri, 15 Feb 2002 03:21:44 -0500
-Message-ID: <3C6CC4D9.C624F4A9@aitel.hist.no>
-Date: Fri, 15 Feb 2002 09:20:41 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.4-dj1 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange disk-write speeds
-In-Reply-To: <Pine.LNX.3.95.1020214111438.31768A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289306AbSBOImU>; Fri, 15 Feb 2002 03:42:20 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:64462 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S289136AbSBOImG>; Fri, 15 Feb 2002 03:42:06 -0500
+Date: Fri, 15 Feb 2002 09:25:57 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: "Mark Staudinger" <mark@staudinger.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.12 on Pentium?
+Message-Id: <20020215092557.053bcd00.kristian.peters@korseby.net>
+In-Reply-To: <200202142104.g1EL4QoX036335@mark.staudinger.net>
+In-Reply-To: <nl5o6u0dfp19th6om3pncipcoigj9dsco1@4ax.com>
+	<200202142104.g1EL4QoX036335@mark.staudinger.net>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: Debian GNU/Linux 2.4.18-pre9-ac3
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.:7UmwMK.R87:4j"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> Weird. I have two identical SCSI drives. They both synchronize
-> at 40 Mb/s on my Buslogic controller. They are the two ...
->     Vendor: SEAGATE  Model: ST318233LWV      Rev: 0002
-> ... drives shown below.
-> 
-> They both have ext2 file-systems occupying a single partition.
-> The time to write a file that fills up the file-system on the
-> "Id: 01" drive is about 1/2 an hour and the time to write a
-> file that fills up the file-system on "Id: 02" is about 1/2 day!
-> 
-> This is with the file created with "O_SYNC". If the file is
-> not created with "O_SYNC", there is no apparent difference in
-> write speed.
-> 
-> If I swap the jumpers on the two drives to isolate the drives
-> from the problem, the slooooo drive is the logical "ID: 02",
-> always... not the physical one!
-> 
+--=.:7UmwMK.R87:4j
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-O_SYNC writes takes different time depending on the scsi ID?
+"Mark Staudinger" <mark@staudinger.net> wrote:
+> That's the first thing I looked at... and my original message references 
+> that.  I've tried Pentium Classic, MMX, and 386.  No such luck.
+> 
+> Thanks....
 
-_Very_ strange, unless your /etc/fstab looks different for
-/dev/sdbX and /dev/sdcX  
-I.e. different mount options that indeed depend on scsi id.
-Also check to make sure nothing else is running and accessing
-any partition on sdc, that might force those sync writes
-to seek more.  (I guess the slow disk is noisy?)
+Can you send me your config ? (Please private. The list has traffic enough.) I'll try to build your kernel and test it with my old Pentium.
 
-Helge Hafting
+*Kristian
+
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :..........................:
+
+--=.:7UmwMK.R87:4j
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjxsxhkACgkQ4aZRDZC2c+JQnACg1+QJ6Pjd9bYCftyKeWb3YGuA
+2ugAoIBEgPR8ez98RmD8T32D4DW7cXsg
+=GAVd
+-----END PGP SIGNATURE-----
+
+--=.:7UmwMK.R87:4j--
+

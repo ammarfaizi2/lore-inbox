@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268435AbTCCIW3>; Mon, 3 Mar 2003 03:22:29 -0500
+	id <S268444AbTCCInU>; Mon, 3 Mar 2003 03:43:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268438AbTCCIW3>; Mon, 3 Mar 2003 03:22:29 -0500
-Received: from srv1.mail.cv.net ([167.206.112.40]:23444 "EHLO srv1.mail.cv.net")
-	by vger.kernel.org with ESMTP id <S268435AbTCCIW2>;
-	Mon, 3 Mar 2003 03:22:28 -0500
-Date: Mon, 03 Mar 2003 03:32:55 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-Subject: Re: mkdep patch in 2.4.21-pre4-ac7 breaks pci/drivers
-In-reply-to: <200303020213.h222DM7O003304@eeyore.valparaiso.cl>
-X-X-Sender: proski@localhost.localdomain
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.51.0303030313450.26129@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <200303020213.h222DM7O003304@eeyore.valparaiso.cl>
+	id <S268445AbTCCInU>; Mon, 3 Mar 2003 03:43:20 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:463
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268444AbTCCInT>; Mon, 3 Mar 2003 03:43:19 -0500
+Date: Mon, 3 Mar 2003 03:51:46 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: ChristopherHuhn <c.huhn@gsi.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Bug at spinlock.h ?!
+In-Reply-To: <3E630E3D.8060405@GSI.de>
+Message-ID: <Pine.LNX.4.50.0303030348130.25240-100000@montezuma.mastecende.com>
+References: <3E630E3D.8060405@GSI.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 3 Mar 2003, ChristopherHuhn wrote:
 
-On Sat, 1 Mar 2003, Horst von Brand wrote:
+> Hi folks,
+> 
+> we have some problems with the 2.4.20 kernel on our linux farm, mainly - but 
+> not exclusivly - on our batch processing 2x2GHz Xeon (with hyperthreading), 
+> Intel e7500 supermicro P4-DPE boxes running - almost plain - Debian woody.
+> 
+> On these boxes (ca. 60) we sometimes get a kernel panic after an uptime of 2 
+> days or more. The process causing the panic is sometimes a users number 
+> crunching process but more often ksoftirqd_CPU0 or swapper.
+> 
+> Today we got this profound error msg:
+> Kernel Bug at /usr/src/kernel-source-2.4.20/include/asm/spinlock.h:105!
 
-> Pavel Roskin <proski@gnu.org> said:
-> > If I compile linux 2.4.21-pre4-ac7, then run "make depend" and "make
-> > clean", then "make bzImage" fails in pci/drivers:
->
-> make drivers/pci/gen-devlist; pushd drivers/pci; ./gen-devlist < pci.ids; popd
->
-> Needed for all 2.4.x I've seen (lately at least).
+Sounds like possible memory corruption (can you vouch for the reliability 
+of your RAM?) Might be worthwhile posting the oops in it's entirety. Is 
+EIP normally in __run_timers? Do you run a heavy networking load?
 
-That shouldn't be needed unless you skip "make depend" completely or do
-something else wrong, or your "make" is buggy.  It shouldn't be necessary.
-
-names.o depends on devlist.h explicitly in drivers/pci/Makefile.
-As explained in the section "Multiple Rules for One Target" of GNU make
-documentation, other rules (i.e. in .depend) don't cancel this dependency.
-
-Further, devlist.h depends on gen-devlist, so whenever drivers/pci/names.o
-is to be compiled, devlist.h will be created before that.
-
-> > This is caused by the patch for scripts/mkdep.c (part of the
-> > 2.4.21-pre4-ac7 patch)
->
-> Nope. It's the same with 2.4 from Marcelo.
-
-Not true.  2.4.20 is fine:
-
-make distclean
-cp ~/local/linux/.config .
-make oldconfig
-make dep
-make bzImage
-
-No problems whatsoever.
-
+	Zwane
 -- 
-Regards,
-Pavel Roskin
+function.linuxpower.ca

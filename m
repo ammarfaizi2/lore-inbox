@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272342AbRH3RMN>; Thu, 30 Aug 2001 13:12:13 -0400
+	id <S272345AbRH3RNx>; Thu, 30 Aug 2001 13:13:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272344AbRH3RMD>; Thu, 30 Aug 2001 13:12:03 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:52897 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S272342AbRH3RLu>; Thu, 30 Aug 2001 13:11:50 -0400
-Date: Thu, 30 Aug 2001 13:12:07 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: Michael E Brown <michael_e_brown@dell.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blkgetsize64 ioctl
-In-Reply-To: <Pine.LNX.4.33.0108301150460.1213-100000@blap.linuxdev.us.dell.com>
-Message-ID: <Pine.LNX.4.33.0108301306300.12593-100000@toomuch.toronto.redhat.com>
+	id <S272346AbRH3RNn>; Thu, 30 Aug 2001 13:13:43 -0400
+Received: from relay1.zonnet.nl ([62.58.50.37]:29337 "EHLO relay1.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S272345AbRH3RN3>;
+	Thu, 30 Aug 2001 13:13:29 -0400
+Message-ID: <3B8E7443.2A66531F@linux-m68k.org>
+Date: Thu, 30 Aug 2001 19:13:39 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Daniel Phillips <phillips@bonn-fries.net>,
+        David Lang <david.lang@digitalinsight.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <Pine.LNX.4.33.0108300909560.7973-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001, Michael E Brown wrote:
+Hi,
 
-> And your response to the rest of the points I raised would be?
+Linus Torvalds wrote:
 
-fs/block_dev.c is not a hot spot in the kernel.  It's been patched maybe 3
-or 4 times over the last year, so I don't buy the argument that it would
-have been difficult to maintain.  (Think if (offset >=
-last_block_start(dev) return read_last_block(offset, buf, len);)
+>         static int unix_mkname(struct sockaddr_un * sunaddr, int len, unsigned *hashp)
+>         {
+>                 if (len <= sizeof(short) || len > sizeof(*sunaddr))
+>                         return -EINVAL;
+>                 ...
+> 
+> Would you agree that the above is _good_ code, and code that makes
+> perfect sense, and code that does exactly the right thing in testing its
+> arguments?
 
-> I'm sorry about e2fsprogs. If I had known a bit better (this was my first
-> kernel patch), I would have added a magic number to the struct you pass
-> in, and that would have prevented this little bit of braindamage.
+Where is the problem to change the type into "unsigned int"?
 
-No, that's not what's got me miffed.  What is a problem here is that an
-obvious next to use ioctl number in a *CORE* kernel api was used without
-reserving it.  AND PEOPLE SHIPPED IT!  I for one don't go about shipping
-new ABIs without reserving at least a placeholder for it in the main
-kernel (or stating that the code is not bearing a fixed ABI).  If the
-ioctl # was in the main kernel, this mess would never have happened even
-with the accidental shipping of the patch in e2fsprogs.  I just hope
-people will remember this in the future.  ABI compatibility is not that
-hard if it's thought about.
+> Face it, you don't know what you're talking about.
 
-		-ben
+Sorry, but what makes you so sure about it?
+Anyway, forget -Wsign-compare, but could you _please_ give me an answer
+to my other arguments? Maybe I'm a stupid idiot, but then please
+enlighten me and show me the right way. So here is the important part of
+my mail again:
 
+This is my last attempt to get things IMO right. Most of the arguments
+for the new macro were about bugs of the past. No question about this,
+this had to be fixed, I'm not arguing about this at all.
+
+I'm trying to get your attention to the bugs of the future. I still
+don't understand why you think the new macro will be any better. Why do
+you think the average kernel hacker will think about the type of the
+compare and will come to the correct conclusion? It's far too easy to
+use an int as type argument and forget about it. gcc won't warn about
+this, so someone first has to hit this bug, before it gets fixed.
+
+Maybe I'm too dumb, but I still fail to see, what sense it should make
+to turn a signed compare into an unsigned one. Either one knows both
+signed values are only positive, then the sign of the compare and the
+destination doesn't matter at all. If the value could be negative,
+better test it explicit:
+
+        if (len < 0 || len > MAX)
+                len = MAX;
+
+First, it's far more readable and makes the intention so clear, that
+even your average kernel hacker understands it. Second, gcc produces
+exactly the same code with this, so there is no need to play type tricks
+with the min macro.
+
+Please reconsider your decision. IMVHO the new macros are a mistake and
+will cause only more trouble than they are worth.
+
+bye, Roman

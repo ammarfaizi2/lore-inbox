@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264505AbUFGNr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264588AbUFGNsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUFGNr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 09:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbUFGNr4
+	id S264588AbUFGNsh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 09:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUFGNsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 09:47:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60599 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264505AbUFGNry
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 09:47:54 -0400
-Message-ID: <40C471FC.3000802@pobox.com>
-Date: Mon, 07 Jun 2004 09:47:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 7 Jun 2004 09:48:37 -0400
+Received: from zork.zork.net ([64.81.246.102]:37610 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S264588AbUFGNse (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 09:48:34 -0400
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Russell Leighton <russ@elegant-software.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <->
+	getpid() bug in 2.6?]
+References: <40C1E6A9.3010307@elegant-software.com>
+	<Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
+	<40C32A44.6050101@elegant-software.com>
+	<40C33A84.4060405@elegant-software.com>
+	<1086537490.3041.2.camel@laptop.fenrus.com>
+	<40C3AD9E.9070909@elegant-software.com>
+	<20040607121300.GB9835@devserv.devel.redhat.com>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Arjan van de Ven <arjanv@redhat.com>, Russell Leighton
+	<russ@elegant-software.com>, Kernel Mailing List
+	<linux-kernel@vger.kernel.org>
+Date: Mon, 07 Jun 2004 14:48:31 +0100
+In-Reply-To: <20040607121300.GB9835@devserv.devel.redhat.com> (Arjan van de
+	Ven's message of "Mon, 7 Jun 2004 14:13:00 +0200")
+Message-ID: <6uu0xn5vio.fsf@zork.zork.net>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
-       perex@suse.cz, torvalds@osdl.org
-Subject: Re: [RFC] ASLA design, depth of code review and lack thereof
-References: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>	<40C107D2.9030301@pobox.com> <s5hekor4i2c.wl@alsa2.suse.de>
-In-Reply-To: <s5hekor4i2c.wl@alsa2.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> At Fri, 04 Jun 2004 19:37:54 -0400,
-> Jeff Garzik wrote:
-> 
->>
->>While we're bitching about ALSA, can we please kill the 
->>subsystem-specific malloc and "magic cast" wrappers?
->>This debug machinery is better done elsewhere...
-> 
-> 
-> Of course we can remove kmalloc/vmalloc wrappers for cast checking
-> once when the kernel core provides a similar debugging mechanism.
-> Do you know any alternative?
+Arjan van de Ven <arjanv@redhat.com> writes:
 
+> On Sun, Jun 06, 2004 at 07:49:50PM -0400, Russell Leighton wrote:
+>> Arjan van de Ven wrote:
+>> 
+>> >Note also that
+>> >
+>> >clone() is not a portable interface even within linux architectures.
+>> >
+>> > 
+>> >
+>> Really???!!! How so?
+>
+> for example ia64 doesn't have it.
 
-CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC.  Other stuff should go 
-into ALSA developer trees or use of a debugger, not be in mainline 
-kernel code.
-
-	Jeff
-
+Then what is the sys_clone2 implementation in arch/is64/kernel/entry.S for?
 

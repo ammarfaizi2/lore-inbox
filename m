@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313789AbSEASGF>; Wed, 1 May 2002 14:06:05 -0400
+	id <S313819AbSEASLz>; Wed, 1 May 2002 14:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313790AbSEASGE>; Wed, 1 May 2002 14:06:04 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:5836 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S313789AbSEASGC>;
-	Wed, 1 May 2002 14:06:02 -0400
-Date: Wed, 1 May 2002 11:05:47 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <20020501180547.GA1212440@sgi.com>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship> <20020429153500.B28887@dualathlon.random> <E172K9n-0001Yv-00@starship> <20020501042341.G11414@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S313824AbSEASLy>; Wed, 1 May 2002 14:11:54 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:19460 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313819AbSEASLx>; Wed, 1 May 2002 14:11:53 -0400
+Message-ID: <3CD02139.3020009@evision-ventures.com>
+Date: Wed, 01 May 2002 19:09:13 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] reworked IDE/general tagged command queueing
+In-Reply-To: <Pine.LNX.4.44.0205010900050.4589-100000@home.transmeta.com> <3CD0119D.1080905@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 01, 2002 at 04:23:41AM +0200, Andrea Arcangeli wrote:
-> What's the advantage? And after you can have more than one mem_map,
-> after you added this "vector", then each mem_map will match a
-> discontigmem pgdat. Tell me a numa machine where there's an hole in the
-> middle of a node. The holes are always intra-node, never within the
-> nodes themself. So the nonlinear-numa should fallback to the stright
+Uz.ytkownik Martin Dalecki napisa?:
+> Uz.ytkownik Linus Torvalds napisa?:
+> 
+>>
+>> On Wed, 1 May 2002, Jens Axboe wrote:
+>>
+>>> I've rewritten parts of the IDE TCQ stuff to be, well, a lot better in
+>>> my oppinion. I had to accept that the ata_request and rq->special usage
+>>> sucked, it was just one big mess.
+>>
+>>
+>>
+>> Looks good.
+> 
+> 
+> Well after a short cross over look at it I agree.
+> The generic interface looks sane for me as well. However
+> I will have to look a bit deeper, becouse at the first sight
+> the double pointer to tag_index looks a bit "overelaborate"
+> to me. But I may change my opinnion after looking at the
+> actual usage - so please take this small bit of critique
+> with a good grain of salt...
+> 
+> +#define BLK_TAGS_PER_LONG    (sizeof(unsigned long) * 8)
+> +#define BLK_TAGS_MASK        (BLK_TAGS_PER_LONG - 1)
+> +
+> +struct blk_queue_tag {
+> + struct request **tag_index;    /* map of busy tags */
+> + unsigned long *tag_map;        /* bit map of free/busy tags */
+> + struct list_head busy_list;    /* fifo list of busy tags */
+> + int busy;            /* current depth */
+> + int max_depth;
+> +};
+> +
 
-Just FYI, there _are_ many NUMA machines with memory holes in the
-middle of a node.  Check out the discontig patch at
-http://sf.net/projects/discontig for more info.
+Well I revoke my objections. tag_index is fine :-).
 
-Jesse

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313976AbSDKDxf>; Wed, 10 Apr 2002 23:53:35 -0400
+	id <S313977AbSDKD5P>; Wed, 10 Apr 2002 23:57:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313977AbSDKDxe>; Wed, 10 Apr 2002 23:53:34 -0400
-Received: from zero.tech9.net ([209.61.188.187]:56837 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S313976AbSDKDxd>;
-	Wed, 10 Apr 2002 23:53:33 -0400
-Subject: Re: [PATCH] 2.4: reserve syscalls from 2.5
-From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1018471223.6524.83.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 10 Apr 2002 23:53:38 -0400
-Message-Id: <1018497219.6524.155.camel@phantasy>
-Mime-Version: 1.0
+	id <S313978AbSDKD5O>; Wed, 10 Apr 2002 23:57:14 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:2831 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S313977AbSDKD5O>;
+	Wed, 10 Apr 2002 23:57:14 -0400
+Date: Wed, 10 Apr 2002 20:57:12 -0700 (PDT)
+From: <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch-2.5.8-pre] swapinfo accounting
+In-Reply-To: <20020411014630.GK23513@matchmail.com>
+Message-ID: <Pine.LNX.4.33.0204102053440.12442-100000@osdlab.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-04-10 at 16:40, Robert Love wrote:
+On Wed, 10 Apr 2002, Mike Fedyk wrote:
 
-> The following patch reserves syscall numbers 239 through 242 which are
-> the calls to date added to 2.5.  I just set them to sys_ni_syscall and
-> note which 2.5 function they correspond to.
+| On Wed, Apr 10, 2002 at 06:20:55PM -0700, Randy.Dunlap wrote:
+| > Anyway, here is the patch that makes it better.
+| > Not perfect, due to possibility of bad blocks, but better
+| > than it was.   Comments?
+| >
+| >
+| > --- linux-258-pre2/mm/swapfile.c.SI	Wed Apr 10 17:50:34 2002
+| > +++ linux-258-pre2/mm/swapfile.c	Wed Apr 10 18:09:46 2002
+| > @@ -1107,8 +1107,8 @@
+| >  			}
+| >  		}
+| >  	}
+| > -	val->freeswap = nr_swap_pages + nr_to_be_unused;
+| > -	val->totalswap = total_swap_pages + nr_to_be_unused;
+| > +	val->freeswap = nr_swap_pages;
+| > +	val->totalswap = total_swap_pages;
+| >  	swap_list_unlock();
+| >  }
+|
+| Shouldn't that be s/+/-/ instead?  If this is badblocks accounting, it
+| should probably be subtracted instead of added.
 
-Ack, typo in the last patch ... resend, sorry.
+Hi-
+This isn't badblocks accounting.  Sorry for the
+confusion...
 
-	Robert Love
+[and yes, I should have looked in one of the other
+kernel branches that are floating around...]
 
-diff -urN linux-2.4.19-pre6/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-2.4.19-pre6/arch/i386/kernel/entry.S	Fri Apr  5 14:53:39 2002
-+++ linux/arch/i386/kernel/entry.S	Wed Apr 10 16:28:17 2002
-@@ -635,6 +635,10 @@
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for lremovexattr */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for fremovexattr */
-  	.long SYMBOL_NAME(sys_tkill)
-+	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sendfile64 */
-+	.long SYMBOL_NAME(sys_ni_syscall)	/* 240 reserved for futex */
-+	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_setaffinity */
-+	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_getaffinity */
- 
- 	.rept NR_syscalls-(.-sys_call_table)/4
- 		.long SYMBOL_NAME(sys_ni_syscall)
-diff -urN linux-2.4.19-pre6/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
---- linux-2.4.19-pre6/include/asm-i386/unistd.h	Fri Apr  5 14:53:56 2002
-+++ linux/include/asm-i386/unistd.h	Wed Apr 10 16:21:00 2002
-@@ -242,8 +242,11 @@
- #define __NR_removexattr	235
- #define __NR_lremovexattr	236
- #define __NR_fremovexattr	237
--
- #define __NR_tkill		238
-+#define __NR_sendfile64		239
-+#define __NR_futex		240
-+#define __NR_sched_setaffinity	241
-+#define __NR_sched_getaffinity	242
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
+-- 
+~Randy
 

@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVBBQsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVBBQxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbVBBQsN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 11:48:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBBQou
+	id S262735AbVBBQxb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVBBQwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 11:44:50 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:40344 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S262601AbVBBQkb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 11:40:31 -0500
-Subject: Re: Patch to add usbmon
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050201215936.029be631@localhost.localdomain>
-References: <20050131212903.6e3a35e5@localhost.localdomain>
-	 <20050201071000.GF20783@kroah.com>
-	 <20050201003218.478f031e@localhost.localdomain>
-	 <1107256383.9652.26.camel@pegasus>
-	 <20050201095526.0ee2e0f4@localhost.localdomain>
-	 <1107293870.9652.76.camel@pegasus>
-	 <20050201215936.029be631@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 17:40:17 +0100
-Message-Id: <1107362417.11944.7.camel@pegasus>
+	Wed, 2 Feb 2005 11:52:50 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:43677 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262299AbVBBQwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 11:52:36 -0500
+Date: Wed, 2 Feb 2005 17:51:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: pageexec@freemail.hu
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Message-ID: <20050202165151.GA1804@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pete,
 
-> > I think if cat is the prefered tool for viewing this file then it should
-> > be more human readable. If not, then a binary format should be choosen.
-> > Maybe we can implement both. Is this possible?
-> 
-> Yes. Now you know why files were split as they were.
+* pageexec@freemail.hu <pageexec@freemail.hu> wrote:
 
-still no reason for me to split things up.
+> your concerns would be valid if this was impossible to achieve by an
+> exploit, sadly, you'd be wrong too, it's possible to force an
+> exploited application to call something like
+> dl_make_stack_executable() and then execute the shellcode. [...]
 
-> > > But if you or someone else were to hack on something like usbdump(1),
-> > > it would be peachy, I think.
-> > 
-> > I can start with usbdump if we agree on an interface. I personally would
-> > prefer a binary interface for that.
-> 
-> If you want to start scoping it, it's fine by me. I was going to concentrate
-> on fixing what's needed first, such as getting control setup packets captured
-> and things like that.
+and how do you force a program to call that function and then to execute
+your shellcode? In other words: i challenge you to show a working
+(simulated) exploit on Fedora (on the latest fc4 devel version, etc.) 
+that does that. 
 
-While I am really thinking about starting usbdump, I may ask why you
-have choosen to use debugfs as interface. This will not be available in
-normal distribution kernels and I think a general USB monitoring ability
-would be great. For example like we have it for Ethernet, Bluetooth and
-IrDA. So my idea is to create some /dev/usbmonX (for each bus one) where
-usbdump can read its information from. What do you think?
+You can simulate the overflow itself so no need to find any real
+application vulnerability, but show me _working code_ (or a convincing
+description) that can call glibc's do_make_stack_executable() (or the
+'many ways of doing this'), _and_ will end up executing your shell code
+as well.
 
-Regards
+if you can do this i fully accept there's a problem.
 
-Marcel
-
-
+	Ingo

@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269299AbUINLkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269312AbUINLkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269299AbUINLkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 07:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269302AbUINLiL
+	id S269312AbUINLkm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 07:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269313AbUINLiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:38:11 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:55246 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S269299AbUINLfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:35:22 -0400
-Date: Tue, 14 Sep 2004 13:34:19 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ray Bryant <raybry@sgi.com>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914113419.GH4180@dualathlon.random>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914044748.GZ9106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914044748.GZ9106@holomorphy.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 14 Sep 2004 07:38:55 -0400
+Received: from outmx015.isp.belgacom.be ([195.238.2.87]:33437 "EHLO
+	outmx015.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S269314AbUINLhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 07:37:24 -0400
+Message-ID: <4146D833.8040703@246tNt.com>
+Date: Tue, 14 Sep 2004 13:38:27 +0200
+From: Sylvain Munaut <tnt@246tNt.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040816)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux PPC Dev <linuxppc-dev@ozlabs.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>
+Subject: [PATCH 0/9] Small updates for Freescale MPC52xx
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13, 2004 at 09:47:48PM -0700, William Lee Irwin III wrote:
-> timer interrupt, usually at boot. The following patch attempts to 
-> amortize the atomic operations done on the profile buffer to address 
-> this stability concern. This patch has nothing to do with performance;
+Hi all,
 
-isn't it *much* simpler and much more efficient to just have a per-cpu
-idle function? I seriously doubt you'll get simultaneous collisions on
-anything but the 'halt' instruction in the idle function.
+Here is a bunch of small updates / fix for Freescale MPC52xx. Some of 
+them are now required for a proper compilation.
+They mostly only modify the mpc52xx specific code and not much common code.
+
+Theses are in my tree since some time now and have been tested by 
+several peoples.
+
+As usual, a BK tree is available with all of theses changes :
+
+bk://bkbits.246tNt.com/linux-2.5-mpc52xx-pending
+
+
+Comments / Reports are welcome.
+
+
+    Sylvain Munaut

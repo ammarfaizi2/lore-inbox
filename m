@@ -1,47 +1,81 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155299AbPFBVQl>; Wed, 2 Jun 1999 17:16:41 -0400
-Received: by vger.rutgers.edu id <S154464AbPFBU0M>; Wed, 2 Jun 1999 16:26:12 -0400
-Received: from mentolat-e0.core.genedata.com ([157.161.173.16]:31684 "EHLO mail.core.genedata.com") by vger.rutgers.edu with ESMTP id <S154679AbPFBSMX>; Wed, 2 Jun 1999 14:12:23 -0400
-Date: Wed, 2 Jun 1999 20:12:05 +0200
-From: Matthew Wilcox <Matthew.Wilcox@genedata.com>
-To: Philip Blundell <pb@nexus.co.uk>
-Cc: Jordan Mendelson <jordy@wserv.com>, linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu via listexpand id <S154604AbPFCAGr>; Wed, 2 Jun 1999 20:06:47 -0400
+Received: by vger.rutgers.edu id <S153938AbPFBXpF>; Wed, 2 Jun 1999 19:45:05 -0400
+Received: from snipe.prod.itd.earthlink.net ([207.217.120.62]:62074 "EHLO snipe.prod.itd.earthlink.net") by vger.rutgers.edu with ESMTP id <S154638AbPFBVpj>; Wed, 2 Jun 1999 17:45:39 -0400
+Message-ID: <3755C2AE.4FFFCA2F@earthlink.net>
+Date: Wed, 02 Jun 1999 16:47:58 -0700
+From: Vince Lo Faso <vincelofaso@earthlink.net>
+X-Mailer: Mozilla 4.51 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: jordy@wserv.com, linux-kernel@vger.rutgers.edu
 Subject: Re: XTP: A better TCP than TCP
-Message-ID: <19990602201205.S1415@mencheca.ch.genedata.com>
-References: <37544C46.C9A1AA12@wserv.com> <E10p6Y7-00008z-00@fountain.nexus.co.uk>
-Mime-Version: 1.0
+References: <37544C46.C9A1AA12@wserv.com> <199906020426.VAA03202@pizda.davem.net>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <E10p6Y7-00008z-00@fountain.nexus.co.uk>; from Philip Blundell on Wed, Jun 02, 1999 at 09:38:59AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Wed, Jun 02, 1999 at 09:38:59AM +0100, Philip Blundell wrote:
-> >I was just reviewing http://www.mentat.com/xtp/xtp.html and
-> >http://www.ca.sandia.gov/xtp/. XTP looks like a very interesting protocol. 
-> 
-> I did some work with XTP a few years back.  It's interesting but it's a very 
-> heavyweight protocol compared to TCP.  It tries to be all things to all men 
-> and it's debatable whether it really succeeds.
-> 
-> It would certainly be worth having in the kernel, however.
+Greetings,
 
-I think a much more interesting protocol to have in the kernel would
-be Bell Labs' IL.  It's implemented in Plan 9, and they say they are
-very happy with its performance.  It's a sequenced packet protocol,
-ideal for NFS, CORBA messages and pretty much anything which currently
-either implements its own out-of-order + retransmit strategy over UDP
-or puts packet boundaries into TCP.
+I've been working on an XTP implementation for Linux for some time
+(and will be the first to admit that I'm order due for releasing
+it publically).
 
-There's a description of the protocol at
-http://plan9.bell-labs.com/plan9/doc/il.html
-I have the barest bones of a start at a linux implementation of it,
-if anyone wants to collaborate :-)
+I recently  ported it to kernel 2.3.x and am in the process of (re)sending
+a patch to David.
 
--- 
-Matthew Wilcox <willy@bofh.ai>
-"Windows and MacOS are products, contrived by engineers in the service of
-specific companies. Unix, by contrast, is not so much a product as it is a
-painstakingly compiled oral history of the hacker subculture." - N Stephenson
+I'm doing this strictly on a volunteer basis, which means I can respond to
+emails
+during the evenings and have limitted time for its development--but unlimitted
+
+interested in its growth and potential.  More info will follow.
+
+Quick synopsis of XTP:
+
+XTP is quite flexible and versatile, capable of offering UDP-like and TCP-like
+
+services--and everything in between--in one protocol stack.  However, its
+flexibility
+is also its weak point.  There is little public
+data-experience-testing-implementation
+on making XTP work in an IP environment, hence this XTP-Linux project.
+There are also several transport issues that need to be explored in an XTP/IP
+environment.
+
+If anyone is really interested in this and wants to help out, let me know
+offline.
+
+Thanks,
+
+Vince.
+
+
+"David S. Miller" wrote:
+
+>    Date:        Tue, 01 Jun 1999 17:10:30 -0400
+>    From: Jordan Mendelson <jordy@wserv.com>
+>
+>    Is there any projects out there to add XTP to the standard linux
+>    kernel?
+>
+> There is someone who is working on XTP/Linux and keeps sending me
+> patches, but they always need massive formatting cleanups before I can
+> apply them and then he disappears again for a few months.
+>
+> This is not necessarily his fault, he may not have the time to finish
+> up and submit patches cleanly, but until _someone_ does this work I
+> cannot even put his work in progress code into the tree.
+>
+> Later,
+> David S. Miller
+> davem@redhat.com
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.rutgers.edu
+> Please read the FAQ at http://www.tux.org/lkml/
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

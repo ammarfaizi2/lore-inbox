@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264929AbTK3P55 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 10:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTK3P55
+	id S264922AbTK3PwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 10:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbTK3PwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 10:57:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18608 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264929AbTK3P54
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 10:57:56 -0500
-Message-ID: <3FCA1371.9090600@pobox.com>
-Date: Sun, 30 Nov 2003 10:57:37 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 30 Nov 2003 10:52:04 -0500
+Received: from mail.gmx.de ([213.165.64.20]:9606 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264922AbTK3PwC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 10:52:02 -0500
+X-Authenticated: #4512188
+Message-ID: <3FCA1220.2040508@gmx.de>
+Date: Sun, 30 Nov 2003 16:52:00 +0100
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Fernando_Alencar_Mar=F3stica?= <famarost@unimep.br>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       RealTek Mailing List <realtek@scyld.com>,
-       Djalma Fadel Junior <fadel@ferasoft.com.br>,
-       Walter Gima <wgima@ferasoft.com.br>,
-       Francois Romieu <romieu@fr.zoreil.com>
-Subject: Re: [PATCH 2.6] RTL8169 Suspend and Resume Stuff
-References: <1070203973.1216.6.camel@oxygenium>
-In-Reply-To: <1070203973.1216.6.camel@oxygenium>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       marcush@onlinehome.de
+Subject: Re: Silicon Image 3112A SATA trouble
+References: <3FC36057.40108@gmx.de> <20031129165648.GB14704@gtf.org> <3FC94F5A.8020900@gmx.de> <200311301547.32347.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200311301547.32347.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fernando Alencar Maróstica wrote:
-> Hi Jeff,
-> 
-> Here's a short patch for the new Realtek RTL8169 PCI Gigabit Driver
-> (drivers/net/r8169.c) in kernel. This patch add new PCI suspend
-> and resume code.
-> 
-> The patch applies against 2.4.23 and 2.6.0-test11. I've tested the 
-> compilation with 2.4.23.
+Bartlomiej Zolnierkiewicz wrote:
+ > Okay, stop bashing IDE driver... three mails is enough...
+ >
+ > Apply this patch and you should get similar performance from IDE driver.
+ > You are probably seeing big improvements with libata driver because 
+you are
+ > using Samsung and IBM/Hitachi drives only, for Seagate it probably 
+sucks just
+ > like IDE driver...
+ >
+ > IDE driver limits requests to 15kB for all SATA drives...
+ > libata driver limits requests to 15kB only for Seagata SATA drives...
 
-Can you please coordinate with Francois Romieu, who is kind enough to do 
-a massive update of r8169.c, merging both RealTek's changes and several 
-bug fixes?
+If you read my message closely then you should have understand that 
+setting the request highr *didn't* help, ie
 
-	Jeff
+echo "max_kb_per_request:128" > /proc/ide/hde/settings
 
+made *no* difference, so I won't even try that patch. As far I have 
+understood this is exactly the thing you changed in the patch. If I am 
+mistaken, then I take it back.
 
+Prakash
 

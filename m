@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276591AbRI2S4A>; Sat, 29 Sep 2001 14:56:00 -0400
+	id <S276595AbRI2TVP>; Sat, 29 Sep 2001 15:21:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276592AbRI2Szu>; Sat, 29 Sep 2001 14:55:50 -0400
-Received: from [203.199.83.142] ([203.199.83.142]:62431 "HELO
-	mailweb18.rediffmail.com") by vger.kernel.org with SMTP
-	id <S276591AbRI2Szh> convert rfc822-to-8bit; Sat, 29 Sep 2001 14:55:37 -0400
-Date: 29 Sep 2001 19:09:37 -0000
-Message-ID: <20010929190937.3792.qmail@mailweb18.rediffmail.com>
+	id <S276594AbRI2TVH>; Sat, 29 Sep 2001 15:21:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15631 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276595AbRI2TUz>; Sat, 29 Sep 2001 15:20:55 -0400
+Date: Sat, 29 Sep 2001 12:21:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10 VM, active cache pages, and OOM
+In-Reply-To: <Pine.LNX.4.33L.0109291545570.19147-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0109291219240.8343-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-From: "S G" <aceunix@rediffmail.com>
-Reply-To: "S G" <aceunix@rediffmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: msdos FS SUPPORT 
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello
- I am getting a strange message for kernel v2.4.9
-whenever i compile.....
-it says no msdos FS SUPPORT 
-ne suggestions
-secondly.......
-what version of gcc and make do i require
-is gcc 3.0.1 and make 3.79.1 the proper version.
-bye
-sachin...........
+On Sat, 29 Sep 2001, Rik van Riel wrote:
+> On Sat, 29 Sep 2001, Linus Torvalds wrote:
+>
+> > (which basically says: we only mark the page accessed if we read the
+> > _beginning_ of the page, or if we just did a seek to it)
+>
+> That should work for linear IO, but I fear what influence
+> such a thing would have on eg. database indexes ;)
 
- 
+Well, for things that seek, the behaviour will be the same as it was
+before: it will always mark the page accessed, because "file->f_reada"
+will always be zero for the first read after a lseek.
+
+That's why we have the "or if we just did a seek to it". You cannot _just_
+test for "did we read the beginning of a page", because that fails for
+seekers, whether database or otherwise.
+
+		Linus
 

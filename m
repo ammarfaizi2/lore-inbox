@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUAZTid (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 14:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbUAZTid
+	id S264602AbUAZTsY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 14:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUAZTsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 14:38:33 -0500
-Received: from hera.kernel.org ([63.209.29.2]:30914 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S265117AbUAZTic (ORCPT
+	Mon, 26 Jan 2004 14:48:23 -0500
+Received: from ra.abo.fi ([130.232.213.1]:19149 "EHLO ra.abo.fi")
+	by vger.kernel.org with ESMTP id S264602AbUAZTsW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 14:38:32 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: PATCH to access old-style FAT fs
-Date: Mon, 26 Jan 2004 19:38:11 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <bv3qb3$4lh$1@terminus.zytor.com>
-References: <20040126173949.GA788@frodo.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1075145891 4785 66.80.2.163 (26 Jan 2004 19:38:11 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 26 Jan 2004 19:38:11 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: hpa@smyrno.(none) (H. Peter Anvin)
+	Mon, 26 Jan 2004 14:48:22 -0500
+Date: Mon, 26 Jan 2004 21:47:57 +0200 (EET)
+From: Marcus Alanen <maalanen@ra.abo.fi>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] copy_namespace check for NULL
+Message-ID: <Pine.LNX.4.44.0401262139400.7855-100000@instlogin.cs.abo.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Checking-Host: melitta.abo.fi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040126173949.GA788@frodo.local>
-By author:    Frodo Looijaard <frodol@dds.nl>
-In newsgroup: linux.dev.kernel
-> 
-> Hi folks,
-> 
-> I have created and attached a new version of my old-style FAT filesystem
-> patch, this time for the 2.6.0 kernel. It can also be found on
-> http://debian.frodo.looijaard.name/. 
-> 
-> Some old implementation of the FAT standard mark the end of the
-> directory file index by inserting a filename beginning with a byte 00.
-> All entries after it should be ignored, even though they are not marked
-> as deleted. At least some EPOC releases (an OS used on Psion PDAs, for
-> example) still use this policy.
-> 
+Hello Andrew,
 
-It's not just "old implementations" -- it's the spec.
+As far as I can see the copy_tree() function can return NULL, so this 
+checks for it. Same thing in 2.4, I'll rediff for Marcelo.
 
-After reaching a filename beginning with 00, no further data should be
-assumed to be in that filesystem.  MS-DOS itself would only do that
-when formatting the filesystem, so *all* the subsequent entries would
-be assumed to start with 00, but that doesn't really seem to be to
-spec.
+Marcus
 
-	-hpa
+#
+# create_patch: fix_copy_namespace-2004-01-26-A.patch
+# Date: Mon Jan 26 21:22:51 EET 2004
+#
+diff -Naurd --exclude-from=/home/msa/linux/base/diff_exclude linus-2.6.2-rc1-mm2/fs/namespace.c fix_copy_namespace-2.6.2-rc1-mm2/fs/namespace.c
+--- linus-2.6.2-rc1-mm2/fs/namespace.c	2004-01-26 19:15:05.000000000 +0000
++++ fix_copy_namespace-2.6.2-rc1-mm2/fs/namespace.c	2004-01-26 19:17:06.000000000 +0000
+@@ -822,12 +822,16 @@
+ 
+ 	atomic_set(&new_ns->count, 1);
+ 	init_rwsem(&new_ns->sem);
+-	new_ns->root = NULL;
+ 	INIT_LIST_HEAD(&new_ns->list);
+ 
+ 	down_write(&tsk->namespace->sem);
+ 	/* First pass: copy the tree topology */
+ 	new_ns->root = copy_tree(namespace->root, namespace->root->mnt_root);
++	if (!new_ns->root) {
++		up_write(&tsk->namespace->sem);
++		kfree(new_ns);
++		goto out;
++	}
+ 	spin_lock(&vfsmount_lock);
+ 	list_add_tail(&new_ns->list, &new_ns->root->mnt_list);
+ 	spin_unlock(&vfsmount_lock);
+

@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUIFORc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268045AbUIFOWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268055AbUIFORc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 10:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268079AbUIFORb
+	id S268045AbUIFOWm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 10:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUIFOWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 10:17:31 -0400
-Received: from asplinux.ru ([195.133.213.194]:2057 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S268069AbUIFOP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 10:15:58 -0400
-Message-ID: <413C73E1.8050808@sw.ru>
-Date: Mon, 06 Sep 2004 18:27:45 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Ian Kumlien <pomac@vapor.com>
-CC: linux-kernel@vger.kernel.org
+	Mon, 6 Sep 2004 10:22:42 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:16288 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S268045AbUIFOWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 10:22:34 -0400
 Subject: Re: [FYI] "kernel BUG at fs/nfs/inode.c:152!"
-References: <1094478972.3318.397.camel@big>
-In-Reply-To: <1094478972.3318.397.camel@big>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ian Kumlien <pomac@vapor.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <413C73E1.8050808@sw.ru>
+References: <1094478972.3318.397.camel@big>  <413C73E1.8050808@sw.ru>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xmelqU21aQBuyOhsiYID"
+Message-Id: <1094480552.3318.400.camel@big>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 06 Sep 2004 16:22:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ian,
 
-This looks very much like the problem in iget() I described today in 
-LKML. Hope I'll post a patch here soon.
+--=-xmelqU21aQBuyOhsiYID
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Kirill
+On Mon, 2004-09-06 at 16:27, Kirill Korotaev wrote:
+> Hello Ian,
+>=20
+> This looks very much like the problem in iget() I described today in=20
+> LKML. Hope I'll post a patch here soon.
 
-> When my networking card died yesterday (sundance based d-link card) i
-> used dhclient to update the route. Unfortunately it caused it to change
-> ip, thus today i had some NFS problems...
-> 
-> fstab entry:
-> blue:/mnt/large /mnt/large      nfs    
-> user,async,soft,rsize=32768,wsize=32768,tcp     0 0
-> 
-> Anyways, i did a bunch of umount -f's and so on and so forth as i have
-> done a million times before, but when i tried remounting it, nothing
-> happened... A quick ps aux |grep revealed:
-> 
-> root     26793  0.0  0.0  1740  696 ?        D    14:23   0:00
-> /bin/umount /mnt/large
-> root     26800  0.0  0.0  1868  828 ?        D    14:23   0:00
-> /bin/mount /mnt/large
-> root     26805  0.0  0.0  1868  828 ?        D    14:23   0:00
-> /bin/mount /mnt/large
-> root     26807  0.0  0.0  1868  828 ?        D    14:23   0:00
-> /bin/mount /mnt/large
-> root     26809  0.0  0.0  1868  828 ?        D    14:23   0:00
-> /bin/mount /mnt/large
-> 
-> And to further my agony a dmesg revealed:
-> 
-> ------------[ cut here ]------------
-> kernel BUG at fs/nfs/inode.c:152!
-> invalid operand: 0000 [#1]
-> Modules linked in: nls_cp437 vfat fat floppy nvidia twofish serpent blowfish sha256 crypto_null ip6table_filter ip6_tables forcedethCPU:    0
-> EIP:    0060:[<c01a8bb0>]    Tainted: P   VLI
-> EFLAGS: 00210286   (2.6.9-rc1-bk7)
-> EIP is at nfs_clear_inode+0x50/0x70
-> eax: ffffffff   ebx: f70595a8   ecx: edc36c60   edx: f710cf60
-> esi: f7059490   edi: 000000ce   ebp: c042792c   esp: c05cbf04
-> ds: 007b   es: 007b   ss: 0068
-> Process umount (pid: 26773, threadinfo=c05ca000 task=df308bb0)
-> Stack: 00000002 f70595a8 c05cbf2c c016058d f70595a8 c01605dc 00000000 c1bff64c
->        c1bff600 c0160736 c05cbf2c c05cbf2c c1bff600 c1bff64c c042a460 c05ca000
->        c01506f5 ef95c000 00000015 c042a5a0 08050278 c0150dd9 f7e8cc00 c01ab2dc
-> Call Trace:
->  [<c016058d>] clear_inode+0x8d/0xa0
->  [<c01605dc>] dispose_list+0x3c/0x70
->  [<c0160736>] invalidate_inodes+0x66/0x80
->  [<c01506f5>] generic_shutdown_super+0x55/0x100
->  [<c0150dd9>] kill_anon_super+0x9/0x20
->  [<c01ab2dc>] nfs_kill_super+0xc/0x70
->  [<c0150623>] deactivate_super+0x43/0x60
->  [<c0162e4b>] sys_umount+0x3b/0x90
->  [<c03a693d>] schedule+0x27d/0x450
->  [<c0103db9>] sysenter_past_esp+0x52/0x71
-> Code: d4 39 43 d4 75 2f 8b 86 b4 00 00 00 85 c0 74 05 e8 f6 f8 1e 00 8b 86 ac 00 00 00 85 c0 75 0c 8b 5c 24 04 8b 74 24 08 83 c4 0c c3 <0f> 0b 98 00 7a 28 3c c0 eb ea 0f 0b 94 00 7a 28 3c c0 eb c7 8d
-> 
-> This is, as stated before, just FYI... Anyone feeling like making nvidia
-> comments can read this and just skip mailing "/me no care".
-> 
-> CC, Since i'm not subbed.
+ahhhh, ok, Must have missed it etc, though i only read lkml trough
+marc.theaimsgroup.com =3DP
+
+I'm looking forward to seeing a patch included =3D)
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-xmelqU21aQBuyOhsiYID
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBPHKo7F3Euyc51N8RAh+3AJ9FTgcyyc6mif5ByiaZp0dDYLgcgACggQqu
+BNuWNq+QI/5G9XpbllgDeOM=
+=c+kc
+-----END PGP SIGNATURE-----
+
+--=-xmelqU21aQBuyOhsiYID--
 

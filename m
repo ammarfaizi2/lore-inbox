@@ -1,80 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUIKSzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268284AbUIKS63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268283AbUIKSzg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 14:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268284AbUIKSzf
+	id S268284AbUIKS63 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 14:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268281AbUIKS62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 14:55:35 -0400
-Received: from scrye.com ([216.17.180.1]:50859 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S268283AbUIKSzM (ORCPT
+	Sat, 11 Sep 2004 14:58:28 -0400
+Received: from cantor.suse.de ([195.135.220.2]:54925 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268289AbUIKS6O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 14:55:12 -0400
-MIME-Version: 1.0
+	Sat, 11 Sep 2004 14:58:14 -0400
+Date: Sat, 11 Sep 2004 20:55:22 +0200
+From: Andi Kleen <ak@suse.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       IWAMOTO Toshihiro <iwamoto@valinux.co.jp>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [Patch 4/4] cpusets top mask just online, not all possible
+Message-ID: <20040911185522.GA493@wotan.suse.de>
+References: <20040911082810.10372.86008.84920@sam.engr.sgi.com> <20040911082834.10372.51697.75658@sam.engr.sgi.com> <20040911141001.GD32755@krispykreme> <20040911100731.2f400271.pj@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Sep 2004 12:55:12 -0600
-From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
-To: linux-kernel@vger.kernel.org
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Subject: Re: FYI: my current bigdiff
-X-Draft-From: ("scrye.linux.kernel" 66891)
-References: <20040909134421.GA12204@elf.ucw.cz>
-	<20040910041320.DF700E7504@voldemort.scrye.com>
-	<200409101646.01558.bjorn.helgaas@hp.com> <41432AD4.2090003@suse.de>
-Message-Id: <20040911185514.D4C524E016@voldemort.scrye.com>
+Content-Disposition: inline
+In-Reply-To: <20040911100731.2f400271.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Sep 11, 2004 at 10:07:31AM -0700, Paul Jackson wrote:
+> Cpusets builds up additional data structures, used to manage a tasks CPU
+> and Memory placement.  If more CPUs or Memory are added later on,
+> cpusets won't know of them nor let you use them.  If CPUs or Memory are
+> removed later on, cpusets will still think it is ok to use them, and
+> potentially starve a task if that tasks cpuset had been configured to
+> _only_ allow using the now departed CPU or Memory.
 
->>>>> "Stefan" == Stefan Seyfried <seife@suse.de> writes:
+MPOL_BIND uses direct pointers to zones, the others just node numbers
+and fall back to other zones.  Lost node numbers should be pretty easy to 
+deal with because there is enough redirection. MPOL_BIND is a bit more
+difficult.
 
-Stefan> Bjorn Helgaas wrote:
+My prefered solution would be to never actually remove the zone datastructure,
+but just make them zero size when their memory is gone. Then the mempolicies 
+could still keep pointers to them, but any allocations will fail.
 
->> I'm completely ignorant about how swsusp works; I guess this is my
->> chance to learn.  "pci=routeirq" just causes us to do all the PCI
->> ACPI IRQ routing at boot-time, before the drivers start up.  This
->> happens in pci_acpi_init(), which is a subsys_initcall that is run
->> at initial boot-time, but (I assume) not during a resume.
+This may require putting them into different memory though (currently
+they are usually in the node itself) 
 
-Stefan> a resume is basically a fresh boot, including hardware
-Stefan> initialization by the compiled-in drivers (but not modules)
-Stefan> but before starting init / entering initrd, the old system
-Stefan> state is read from swap, copied back and somehow we continue
-Stefan> where we left off at suspend time. Now the resume methods of
-Stefan> all device drivers are called, processes are restarted and we
-Stefan> are back in the game. (At least this is how i understood it
-Stefan> all :-)
+This should also allow cpumemset to work.
 
-Stefan> I can easily imagine that a driver with a slightly broken
-Stefan> suspend / resume method may fail without pci=routeirq if it
-Stefan> does not do the irq routing correctly during resume. It may
-Stefan> work with pci=routeirq since then everything is prepared for
-Stefan> it before the resume actually happens.
+Of course the applications may not be very happy when all the memory
+they are allowed to touch is gone, but fixing that is imho more
+a high level user space management problem, nothing the kernel
+should try to resolve.
 
-Yeah, that seems to be the case... the prism54 and usb-hcd drivers
-might expect the irq to already be allocated, and when it's not on
-resume they freak out. 
-
-Stefan> Kevin may get away with unloading the usb host controller and
-Stefan> the prism54 drivers before suspend and reloading them after
-Stefan> resume.
-
-alas, no. 
-
-Unloading and reloading doesn't help. 
-It looks like they don't re-allocate their irq resources on reload, so
-they freak out. 
-
-See the dmesg output I just posted showing the issue. 
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQFBQ0oS3imCezTjY0ERAsMoAJ0dtIycXmMd82WZNMNlHzbDj8/mDwCbBALz
-USBJwZfMKB9W+GA3sVZQHgk=
-=j0ZJ
------END PGP SIGNATURE-----
+-Andi

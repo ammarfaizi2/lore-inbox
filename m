@@ -1,53 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266335AbUAVRaE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 12:30:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUAVRaE
+	id S266466AbUAVWzk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 17:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUAVWzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 12:30:04 -0500
-Received: from dsl-213-023-011-163.arcor-ip.net ([213.23.11.163]:984 "EHLO
-	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S266335AbUAVRaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 12:30:01 -0500
-To: Karol Kozimor <sziwan@hell.org.pl>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] PROBLEM: LCD display dead after ACPI suspend to RAM (S3)
-References: <m3hdyo2kce.fsf@reason.gnu-hamburg>
-	<20040122140155.GC5194@hell.org.pl>
-	<m3d69cj8hb.fsf@reason.gnu-hamburg>
-	<20040122154638.GA11867@hell.org.pl>
-	<m365f3dhtv.fsf@reason.gnu-hamburg>
-From: "Georg C. F. Greve" <greve@gnu.org>
-Organisation: Free Software Foundation Europe - GNU Project
-X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
-X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
-X-Home-Page: http://gnuhh.org
-X-Accept-Language: en, de
-Date: Thu, 22 Jan 2004 18:29:42 +0100
-In-Reply-To: <m365f3dhtv.fsf@reason.gnu-hamburg> (Georg C. F. Greve's
- message of "Thu, 22 Jan 2004 18:16:44 +0100")
-Message-ID: <m31xprdh89.fsf@reason.gnu-hamburg>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Thu, 22 Jan 2004 17:55:39 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64498 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266466AbUAVWzc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 17:55:32 -0500
+Message-ID: <401054BF.2080701@mvista.com>
+Date: Thu, 22 Jan 2004 14:54:55 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Tom Rini <trini@kernel.crashing.org>
+CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+       Matt Mackall <mpm@selenic.com>, discuss@x86-64.org,
+       Daniel Jacobowitz <drow@mvista.com>
+Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
+References: <200401161759.59098.amitkale@emsyssoft.com> <200401211916.49520.amitkale@emsyssoft.com> <400F0490.6000209@mvista.com> <200401221039.14979.amitkale@emsyssoft.com> <20040122172035.GI15271@stop.crashing.org>
+In-Reply-To: <20040122172035.GI15271@stop.crashing.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- || On Thu, 22 Jan 2004 18:16:44 +0100
- || "Georg C. F. Greve" <greve@gnu.org> wrote: 
+Tom Rini wrote:
+> On Thu, Jan 22, 2004 at 10:39:14AM +0530, Amit S. Kale wrote:
+> 
+>>On Thursday 22 Jan 2004 4:30 am, George Anzinger wrote:
+>>
+>>>Amit S. Kale wrote:
+>>>
+>>>>Now back to gdb problem of not being able to locate registers.
+>>>>schedule results in code of this form:
+>>>>
+>>>>schedule:
+>>>>framesetup
+>>>>registers save
+>>>>...
+>>>>...
+>>>>save registers
+>>>>change esp
+>>>>call switchto
+>>>>restore registers
+>>>>...
+>>>
+>>>I have not analyzed this as yet.  However, it does seem to me to be the
+>>>same problem as trying to bt through an interrupt frame.  The correct way
+>>>to do this is to build the dwarf frame descriptors.  I have done this for
+>>>the interrupt frame and intend to send said patch out in a day or so.
+>>
+>>Great! I had to do it this ackward way:
+>>
+>>i386 ->
+> 
+> [snip]
+> 
+>>I guess your patch will fix this problem for i386 only. Any ideas on doing it 
+>>for powerpc too?
+> 
+> 
+> Maybe I'm missing something, but aside from having to re-write the
+> solution in PPC asm, if it's in i386 asm, why wouldn't this work for PPC
+> as well?
+> 
+I think the asm is not the issue.  the only stuff used is constant and pointer 
+generation code, no machine instructions.  All that would have to be done is to 
+describe, in the dwarft language, the interrupt frame.  This is different for 
+different archs so this is where the work would be needed.
 
- kk> If so, try not, i.e. use a simple VGA console -> s3_bios works
- kk> fine for me on a VGA console, but produces a blank (though
- kk> backlit) screen with radeonfb. 
+Daniel has suggested that we could just use the new bin tools where in the gas 
+program will build the call frames.  I am not sure it can handle expressions, 
+however.  And they are needed if you want to tie off the frame if the next step 
+is user land.
 
-Update: This makes no difference for me. 
+By the way, I don't try to build a blow by blow of the frame.  Rather I assume 
+it is only of interest at those points where calls are made out of the interrupt 
+/trap code.  (Or, in some cases, jumps are made back into it.)
 
-Exactly the same behaviour.
-
-Regards,
-Georg
 
 -- 
-Georg C. F. Greve                                       <greve@gnu.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-Brave GNU World	                           (http://brave-gnu-world.org)
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

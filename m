@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRATM7C>; Sat, 20 Jan 2001 07:59:02 -0500
+	id <S129444AbRATNEY>; Sat, 20 Jan 2001 08:04:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRATM6x>; Sat, 20 Jan 2001 07:58:53 -0500
-Received: from medusa.sparta.lu.se ([194.47.250.193]:16983 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S129375AbRATM6p>; Sat, 20 Jan 2001 07:58:45 -0500
-Date: Sat, 20 Jan 2001 12:39:20 +0100 (MET)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-To: Martin MaD Douda <martin@douda.net>
-cc: Michael Lindner <mikel@att.net>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  available
-In-Reply-To: <Pine.LNX.4.21.0101201322110.839-100000@madness.madness.mad>
-Message-ID: <Pine.LNX.3.96.1010120122014.28993A-100000@medusa.sparta.lu.se>
+	id <S129675AbRATNEO>; Sat, 20 Jan 2001 08:04:14 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:1796 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S129444AbRATNED>; Sat, 20 Jan 2001 08:04:03 -0500
+Message-ID: <3A698708.A623EC44@namesys.com>
+Date: Sat, 20 Jan 2001 15:39:36 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: edward@namesys.com
+CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
+        Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: [reiserfs-list] Don't mix reiserfs and RAID5 in linux-2.4.1-pre8, 
+ severe corruption
+In-Reply-To: <3A68B126.7C5B6262@mail.infotel.ru>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jan 2001, Martin MaD Douda wrote:
-> On Fri, 19 Jan 2001, Michael Lindner wrote:
-> > data is generated as a result of data received via a select(),
-> > the next delivery occurs a clock tick later, with the machine
-> > mostly idle.
+Edward wrote:
 > 
-> The machine is in fact not idle - there is a task running - idle task.
-> Could the problem be that scheduler does not preempt this task to run
-> something more useful?
+> Reiserfs in linux-2.4.1-pre8 does not properly with the RAID5 code that
+> is in that kernel.  It is easy to get corrupted filesystem on device in
+> less than 1 minute. Please, do not use it (reiserfs) on RAID5 devices.
+> We are trying to figure out what is wrong.
+> 
+> Edward
 
-Normally, the "idle task" (task[0]) does this pseudo-code:
+There is a report that it is not just reiserfs that has the corruption problem.
 
-   while(1) { 
-      if(need_resched)
-         schedule();
-   }
-
-to minimize latency out of idle so if that actually is running it should
-not be a problem (unless need_resched is not set by the wakeup calls)
-
-Perhaps the kapm-idled kernel thread is killing your latency, you could
-try disabling APM and APM-making-idle-calls especially. Also check ps aux
-and see if anything else is taking your idle CPU %.
-
--BW
-
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

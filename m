@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbREVLwo>; Tue, 22 May 2001 07:52:44 -0400
+	id <S261411AbREVMMt>; Tue, 22 May 2001 08:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261402AbREVLwZ>; Tue, 22 May 2001 07:52:25 -0400
-Received: from biglinux.tccw.wku.edu ([161.6.10.206]:7055 "EHLO
-	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
-	id <S261391AbREVLwS>; Tue, 22 May 2001 07:52:18 -0400
-Date: Tue, 22 May 2001 06:51:57 -0500 (CDT)
-From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-To: "David S. Miller" <davem@redhat.com>
-cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
-        <linux-scsi@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <linux-hams@vger.kernel.org>, <linux-ppp@vger.kernel.org>
-Subject: Re: ECN is on!
-In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261412AbREVMMj>; Tue, 22 May 2001 08:12:39 -0400
+Received: from mgw-x3.nokia.com ([131.228.20.26]:44795 "EHLO mgw-x3.nokia.com")
+	by vger.kernel.org with ESMTP id <S261411AbREVMM2>;
+	Tue, 22 May 2001 08:12:28 -0400
+Date: Tue, 22 May 2001 14:55:53 +0300
+To: linux-kernel@vger.kernel.org
+Subject: Re: Q about ip_local_deliver_finish
+Message-ID: <20010522145553.A619@Hews1193nrc>
+In-Reply-To: <20010522143407.A590@Hews1193nrc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010522143407.A590@Hews1193nrc>; from alexey.vyskubov@nokia.com on Tue, May 22, 2001 at 02:34:07PM +0300
+From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I veto, the whole point of moving to ECN was to make a statement and
-> get people to fix their kit.
->
-Isn't this a problem though because the messge saying that ECN was enabled
-was set after ECN was enabled?  Thus these people have no idea what is
-going on and they probably won't know what to fix until they do.
+> If I understand correctly it means that if we have two different protocols
+> with the same (modulo MAX_INET_PROTOS) protocol number then
+> ip_local_deliver will return the return value of ipprot->handler for the
+> first protocol in the chain
+> inet_protos[protocol number modulo MAX_INET_PROTOS] and *always zero* for the
+> second. Why? Is it a bug or I just do not understand something?
 
-> We will remove these people, that's all.
->
-> Later,
-> David S. Miller
-> davem@redhat.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Of course I mean the return value for protocol handler if the chain contains
+only one protcol and *always zero* if the chain contains several protocols.
 
-Brent Norris
-
-Executive Advisor -- WKU-Linux
-
+--
+Alexey

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLGTJk>; Thu, 7 Dec 2000 14:09:40 -0500
+	id <S129776AbQLGTLJ>; Thu, 7 Dec 2000 14:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQLGTJ3>; Thu, 7 Dec 2000 14:09:29 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129255AbQLGTJR>; Thu, 7 Dec 2000 14:09:17 -0500
-Date: Thu, 7 Dec 2000 13:38:30 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test9 Root no longer permitted to format floppies?
-In-Reply-To: <Pine.LNX.4.21.0012071802050.2182-100000@penguin.homenet>
-Message-ID: <Pine.LNX.3.95.1001207133755.1386A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129778AbQLGTK7>; Thu, 7 Dec 2000 14:10:59 -0500
+Received: from quattro.sventech.com ([205.252.248.110]:27916 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S129776AbQLGTKk>; Thu, 7 Dec 2000 14:10:40 -0500
+Date: Thu, 7 Dec 2000 13:40:14 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB-related lockup in test12-pre5
+Message-ID: <20001207134013.L935@sventech.com>
+In-Reply-To: <11659.976180540@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <11659.976180540@redhat.com>; from David Woodhouse on Thu, Dec 07, 2000 at 09:15:40AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Tigran Aivazian wrote:
+On Thu, Dec 07, 2000, David Woodhouse <dwmw2@infradead.org> wrote:
+> Haven't tried test12-pre7 yet. Is enabling bus mastering likely to make 
+> this magically go away? I doubt it.
 
-> there was an issue with floppy ioctls and permission checks in block
-> device ->open routine recently. Just use test12-pre7 or other sufficiently
-> recent kernel and it will work.
-> 
-> If you _do_ want to know what's going on -- look for the thread where I
-> reported that floppies can't me mounted readonly, then AV proposed the
-> fix, then it turned out that Alain Knaff forgot to put his name in the
-> MAINTAINERS file so we didn't tell him about the fix and it apparently
-> broke some userspace tools. Later on, it was fixed in a way that makes
-> everyone happy.
-> 
-> Regards,
-> Tigran
-> 
+Probably not. Enabling bus mastering is the difference between USB
+working at all (transfering data to the device) and not working.
 
-Okay. Looks like someone is on top of this.
+> This happened when trying to run excel under wine. Dual Celeron with 
+> CONFIG_USB_UHCI.
 
+Could you try the alternate UHCI driver? You may need to disable the
+UHCI driver you have configured for the option to become visible.
 
-Cheers,
-Dick Johnson
+> >>EIP; c0270c21 <stext_lock+4e6d/8f50>   <=====
+> Trace; c01f488e <usb_submit_urb+1e/30>
+> Trace; ca8578be <[audio]usbout_completed+7e/c0>
+> Trace; c01ffc3e <process_urb+1de/230>
+> Trace; c01ffd49 <uhci_interrupt+b9/120>
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+It looks like you were using USB audio? Could you explain what you were
+doing when the oops happened?
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+JE
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

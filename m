@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbRCAAm7>; Wed, 28 Feb 2001 19:42:59 -0500
+	id <S129389AbRCAArK>; Wed, 28 Feb 2001 19:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129424AbRCAAmu>; Wed, 28 Feb 2001 19:42:50 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:50704 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129421AbRCAAmf>; Wed, 28 Feb 2001 19:42:35 -0500
-Date: Thu, 1 Mar 2001 01:39:46 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Alexander Zarochentcev <zam@namesys.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Hans Reiser <reiser@namesys.com>, reiserfs-dev@namesys.com
-Subject: Re: [PATCH] reiserfs patch for linux-2.4.2
-Message-ID: <20010301013946.X25658@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010228222130.A3131@crimson.namesys.com>
+	id <S129399AbRCAAq7>; Wed, 28 Feb 2001 19:46:59 -0500
+Received: from c1262263-a.grapid1.mi.home.com ([24.183.135.182]:6419 "EHLO
+	mail.neruo.com") by vger.kernel.org with ESMTP id <S129389AbRCAAqv>;
+	Wed, 28 Feb 2001 19:46:51 -0500
+Subject: Re: time drift and fb comsole activity
+From: Brad Douglas <brad@neruo.com>
+To: Andrew Morton <morton@nortelnetworks.com>
+Cc: ebuddington@wesleyan.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <3A9D8BC4.45009947@asiapacificm01.nt.com>
+In-Reply-To: <20010228170030.C2122@sparrow.nad.adelphia.net>  
+	<3A9D8BC4.45009947@asiapacificm01.nt.com>
+Content-Type: text/plain
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 28 Feb 2001 16:43:49 -0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010228222130.A3131@crimson.namesys.com>; from zam@namesys.com on Wed, Feb 28, 2001 at 10:21:30PM +0300
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Message-Id: <20010301004657Z129389-407+1@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28, 2001 at 10:21:30PM +0300, Alexander Zarochentcev wrote:
-> 6. Using integer constants from limits.h instead of self made ones
+On 28 Feb 2001 23:37:40 +0000, Andrew Morton wrote:
+> Eric Buddington wrote:
+> > 
+> > I know this has been reported on the list recently, but I think I can
+> > provide better detail. I'm running 2.4.2 with atyfb on a K6-2/266
+> > running at 250. This system has no history of clock problems.
+> > 
+> > adjtimex-1.12 --compare gives me "2nd diff" readings of -0.01 in quiescent
+> > conditions.
+> > 
+> > flipping consoles rapidly cboosts this number to -3 or -4.
+> > 
+> > catting the full documentation to ntpd (seemed appropriate) gives me
+> > "2nd diff" numbers a little over 34. If I read the numbers correctly,
+> > 47 seconds of CMOS time passed while the system clock only passed 13
+> > seconds.
+> > 
+> > The processor and the CMOS clock were moving at zero velocity relative
+> > to each other, and were both in normal Earth gravity.
+> 
+> The kernel blocks interrupts during console output.  fbdev
+> consoles are slow.  Net result: many lost timer interrupts.
+> 
+> I'm working on it.  Slowly.  Should have something next week.
 
-That's a userland header file. Don't use it in the kernel.
+You may want to check out the linuxconsole project on Sourceforge.  I
+believe one of their goals is to remove/minimize the console lock...
 
-> 7. other minor fixes.
+Brad Douglas
+brad@neruo.com
+http://www.linux-fbdev.org
 
-Does this patch contain Chris Mason's "tail conversion" fix that he
-made after my bug report?
 
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,65 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261258AbSJCVSN>; Thu, 3 Oct 2002 17:18:13 -0400
+	id <S261165AbSJCVMu>; Thu, 3 Oct 2002 17:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261302AbSJCVSN>; Thu, 3 Oct 2002 17:18:13 -0400
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.232.94]:2564
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S261258AbSJCVSM>; Thu, 3 Oct 2002 17:18:12 -0400
-Date: Thu, 3 Oct 2002 17:26:05 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Joe Kellner <jdk@kingsmeadefarm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS and 2.4.19
-In-Reply-To: <1033679763.3d9cb3939f610@webmail>
-Message-ID: <Pine.LNX.4.44.0210031722380.11195-100000@coredump.sh0n.net>
+	id <S261207AbSJCVMu>; Thu, 3 Oct 2002 17:12:50 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:8367 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261165AbSJCVMt>;
+	Thu, 3 Oct 2002 17:12:49 -0400
+Message-ID: <3D9CB35D.90503@us.ibm.com>
+Date: Thu, 03 Oct 2002 14:15:09 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [rfc][patch] kernel/sched.c oddness?
+References: <Pine.LNX.4.44.0210030840110.4477-100000@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------040007060009040909060702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040007060009040909060702
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Rmap is the newer VM that Rik van Riel and William Lee Irwin III and
-others have worked on. Rmap (most of it) is in the 2.5 development kernel.
+Ingo Molnar wrote:
+> this was done intentionally, and this scenario (1+2 tasks) is the very
+> worst scenario. The problem is that by trying to balance all 3 tasks we
+> now have 3 tasks that trash their cache going from one CPU to another.  
+> (this is what happens with your patch - even with another approach we'd
+> have to trash at least one task)
+> 
+> By keeping 2 tasks on one CPU and 1 task on the other CPU we avoid
+> cross-CPU migration of threads. Think about the 2+3 or 4+5 tasks case
+> rather, do we want absolutely perfect balancing, or good SMP affinity and
+> good combined performance?
+OK...  But what about the (imbalance / 2) part?  Either the comment 
+needs to change, or the code.  Attatched is a slightly revised patch for 
+the code.  The comment patch would be even easier:
 
-It speeds up XFS's preformance greatly from the tests I've done.
+- 
+/* It needs an at least ~25% imbalance to trigger balancing. */
++ 
+/* It needs an at least ~50% imbalance to trigger balancing. */
 
-Shawn.
+Either way works for me.  I'd like to see something done, as the 
+comments don't match the code right now...
 
-On Thu, 3 Oct 2002, Joe Kellner wrote:
+Cheers!
 
-> I've been slacking on my following of things lately..What exactly is rmap? is it
-> related to XFS?
->
-> Thanks,
-> -Joe
->
->
->
->
->
->
->
-> Quoting Shawn Starr <spstarr@sh0n.net>:
->
-> > You could try my patchse which contains XFS-CVS and rmap support.
-> >
-> > you can get them at http://xfs.sh0n.net/2.4/stable
-> >
-> > (site is currently down).
-> >
-> >
-> >
->
->
->
->
-> -------------------------------------------------
-> sent via KingsMeade secure webmail http://www.kingsmeadefarm.com
->
->
+-Matt
 
---
-Shawn Starr, sh0n.net, <spstarr@sh0n.net>
-Maintainer: -shawn kernel patches: http://xfs.sh0n.net/2.4/
+--------------040007060009040909060702
+Content-Type: text/plain;
+ name="sched_cleanup-2.5.40.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched_cleanup-2.5.40.patch"
+
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.40-vanilla/kernel/sched.c linux-2.5.40-sched_cleanup/kernel/sched.c
+--- linux-2.5.40-vanilla/kernel/sched.c	Tue Oct  1 00:07:35 2002
++++ linux-2.5.40-sched_cleanup/kernel/sched.c	Thu Oct  3 14:09:31 2002
+@@ -689,10 +689,10 @@
+ 	if (likely(!busiest))
+ 		goto out;
+ 
+-	*imbalance = (max_load - nr_running) / 2;
++	*imbalance = max_load - nr_running;
+ 
+ 	/* It needs an at least ~25% imbalance to trigger balancing. */
+-	if (!idle && (*imbalance < (max_load + 3)/4)) {
++	if (!idle && (*imbalance <= (max_load + 3)/4)) {
+ 		busiest = NULL;
+ 		goto out;
+ 	}
+@@ -746,6 +746,11 @@
+ 	task_t *tmp;
+ 
+ 	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance);
++	/*
++	 * We only want to steal a number of tasks equal to 1/2 the imbalance,
++ 	 * otherwise, we'll just shift the imbalance to the new queue.
++	 */
++	imbalance /= 2;
+ 	if (!busiest)
+ 		goto out;
+ 
+
+--------------040007060009040909060702--
 

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261306AbTC0TcK>; Thu, 27 Mar 2003 14:32:10 -0500
+	id <S261313AbTC0T03>; Thu, 27 Mar 2003 14:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261304AbTC0TcK>; Thu, 27 Mar 2003 14:32:10 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:20710 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261296AbTC0TcI>;
-	Thu, 27 Mar 2003 14:32:08 -0500
-Date: Thu, 27 Mar 2003 11:39:33 -0800 (PST)
-Message-Id: <20030327.113933.123322481.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: dane@aiinet.com, shmulik.hen@intel.com,
-       bonding-devel@lists.sourceforge.net,
-       bonding-announce@lists.sourceforge.net, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       mingo@redhat.com, kuznet@ms2.inr.ac.ru
-Subject: Re: BUG or not? GFP_KERNEL with interrupts disabled.
+	id <S261328AbTC0T03>; Thu, 27 Mar 2003 14:26:29 -0500
+Received: from rth.ninka.net ([216.101.162.244]:56476 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S261313AbTC0T01>;
+	Thu, 27 Mar 2003 14:26:27 -0500
+Subject: Re: [PATCH] asm offsets for i386
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0303271120230.31459-100000@home.transmeta.com>
-References: <20030327.111012.23672715.davem@redhat.com>
-	<Pine.LNX.4.44.0303271120230.31459-100000@home.transmeta.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3E833EDD.9050007@didntduck.org>
+References: <mailman.1048773360.3585.linux-kernel2news@redhat.com>
+	 <200303271728.h2RHSDc28540@devserv.devel.redhat.com>
+	 <3E833EDD.9050007@didntduck.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048793857.20907.0.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 27 Mar 2003 11:37:38 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Thu, 27 Mar 2003 11:22:55 -0800 (PST)
+On Thu, 2003-03-27 at 10:11, Brian Gerst wrote:
+> I already caught one bug with this, since someone recently added values 
+> to the feature flags array and didn't fix up the vendor id offset.  What 
+> you propose fails with some non-gcc compilers (Intel's compiler for 
+> example, which supports gcc extensions) that don't optimize it away.
 
-   	if (gfp_mask & __GFP_WAIT)
-   		might_sleep();
-   
-   and might_sleep() should be updated.
-   
-   Anybody want to try that and see whether things break horribly?
+Too f*ing bad, this kind of debug test already exists in other
+places of the kernel.
 
-I hadn't considered this, good idea.  I'm trying this out right now.
-
-Someone should backport the might_sleep() stuff to 2.4.x, it's very
-useful.
+-- 
+David S. Miller <davem@redhat.com>

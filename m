@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261332AbSIZPy0>; Thu, 26 Sep 2002 11:54:26 -0400
+	id <S261340AbSIZQAY>; Thu, 26 Sep 2002 12:00:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261336AbSIZPy0>; Thu, 26 Sep 2002 11:54:26 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:25585 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S261332AbSIZPyZ>;
-	Thu, 26 Sep 2002 11:54:25 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Linus Torvalds" <torvalds@transmeta.com>
-Subject: [RFC] {read,write}s{b,w,l} or iobarrier_*()
-Date: Thu, 26 Sep 2002 17:59:40 +0200
-Message-Id: <20020926155941.3602@192.168.4.1>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261352AbSIZQAY>; Thu, 26 Sep 2002 12:00:24 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:59897
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261340AbSIZQAX>; Thu, 26 Sep 2002 12:00:23 -0400
+Subject: Re: [PATCH][RFC] oprofile 2.5.38 patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Levon <movement@marcelothewonderpenguin.com>
+Cc: linux-kernel@vger.kernel.org, bobm@fc.hp.com, phil.el@wanadoo.fr,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020923222933.GA33523@compsoc.man.ac.uk>
+References: <20020923222933.GA33523@compsoc.man.ac.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 17:08:29 +0100
+Message-Id: <1033056509.11848.61.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Ok comments
 
-Here I need people to agree so we decide once for all what
-we want and move further (this has been discussed several
-times already withotu agreement).
 
-So, the "generic" problem is: reading/writing from/to a FIFO
-that is larger than 8 bits wide on a big endian machine requires
-more than just a loop of reads or writes. Those IO functions
-are doing byteswap (and barriers on every call) while the FIFO
-access wants typically to be not byteswapped nor have barriers
-on every access.
+Security:
+enable_write with a count of 0xFFFFFFFF again repeated everywhere
 
-For "PIO", we already provide the "s" functions {in,out}s{b,w,l}
-that are implemented by every arch and provide drivers with a
-good abstraction to use (see ide_insw/ide_outsw in 2.5 which
-should just be a simple insw/outsw for normal interfaces for
-example).
+Major
+The buffer_read function doesnt seem to be SMP safe
+Doesnt seem to know about Intel pmc errata
+Assumes it will get PM notifiers reliably (it wont)
 
-However, we don't provide a similar abstraction for MMIO.
-Typical cases where we want this is MMIO versions of the
-IDE iops (we probably want to provide generic impl of both
-PIO and MMIO ones in ide-iops, not just PIO); some sound
-cards, etc...
+Minor
+Massive duplication of code in each read/write handler - build some
+helpers which actually do the thing right and you'd also have less bugs
+cpu_type_read doesnt handle partial read
+cpu_type_read scribbles on more data than the user requested
+ (fun to feed as stdin to a setuid app)
+similar errors permeate the rest of that code
 
-A driver needing that today will have to either use a loop
-of {read,write}{b,w,l} and undo byteswapping (ugh), or try
-to re-implement it using raw_{read,write}{b,w,l} and adding
-proper iobarrier_* where needed. But the iobarrier functions
-aren't provided by all archs which means ugly #ifdef salad,
-and I hate having to put the burden of knowing everything
-about barriers one each single driver maintainer.
+Trivial
+In the event of an -EFAULT data is lost (nothing illegal about it)
 
-So we have 2 solutions here (one of which I prefer, but I
-still want the debate open here):
 
- - Have all archs provide {read,write}s{b,w,l} functions.
-Those will hide all of the details of bytewapping & barriers
-from the drivers and can be used as-is for things like IDE
-MMIO iops.
-
- - Have all archs provide iobarrier_* functions. Here, drivers
-would still have to re-implement the transfer loops with
-raw_{read,write}{b,w,l} and do proper use of iobarrier_*.
-
-Ben.
+Basically its a nice prototype, but with the prototype working could do
+with some auditing and a cleanup. I think if you replace all the
+read/write functions with some clean helpers and fix the messes in the
+helpers it'll clean up really nicely
 
 

@@ -1,86 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTJIOWa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 10:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTJIOWa
+	id S262269AbTJIO0n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 10:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbTJIO0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 10:22:30 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:21890 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261965AbTJIOW1 (ORCPT
+	Thu, 9 Oct 2003 10:26:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:33155 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262269AbTJIO0l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 10:22:27 -0400
-Date: Thu, 9 Oct 2003 16:21:48 +0200
+	Thu, 9 Oct 2003 10:26:41 -0400
+Date: Thu, 9 Oct 2003 16:26:32 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davej@redhat.com, arjanv@redhat.com
+To: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       marcelo.tosatti@cyclades.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] laptop mode
-Message-ID: <20031009142148.GH1232@suse.de>
-References: <3F856A7E.2010607@pobox.com> <Pine.LNX.4.44.0310091109010.3040-100000@logos.cnet> <20031009141143.GF1232@suse.de> <3F856E27.1010203@pobox.com>
+Message-ID: <20031009142632.GI1232@suse.de>
+References: <200310091103.h99B31ug014566@hera.kernel.org> <3F856A7E.2010607@pobox.com> <20031009140547.GD1232@suse.de> <20031009141734.GB23545@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F856E27.1010203@pobox.com>
+In-Reply-To: <20031009141734.GB23545@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09 2003, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >On Thu, Oct 09 2003, Marcelo Tosatti wrote:
-> >
-> >>
-> >>On Thu, 9 Oct 2003, Jeff Garzik wrote:
-> >>
-> >>
-> >>>Linux Kernel Mailing List wrote:
-> >>>
-> >>>>ChangeSet 1.1150.1.52, 2003/10/08 10:49:45-03:00, axboe@suse.de
-> >>>>
-> >>>>	[PATCH] laptop mode
-> >>>>	
-> >>>>	Hi Marcelo,
-> >>>>	
-> >>>>	Lots of people have been using this patch with great success, and 
-> >>>>	it's
-> >>>>	been in the SuSE kernel for some months now too. It is also in the 
-> >>>>	-benh
-> >>>>	ppc tree
-> >>>>	
-> >>>>	Basically, it introduces a write back mode of dirty and journal data
-> >>>>	that is more suitable for laptops. At the block layer end, it 
-> >>>>	schedules
-> >>>>	write out of dirty data after the disk has been idle for 5 seconds.
-> >>>>	
-> >>>>	Laptop mode can be switched on and off with /proc/sys/vm/laptop_mode.
-> >>>>	There is also a block_dump sysctl, which if enabled will dump who
-> >>>>	dirties and writes out data. This is very helpful in pinning down 
-> >>>>	who is
-> >>>>	causing unnecessary writes to the disk.
-> >>>
-> >>>Red Hat just dropped this patch since it was suspected of data 
-> >>>corruption ;-(
-> >>
-> >>Uh, oh... Jens? 
-> >
-> >
-> >See my previous mail. I don't see any problems with it, and I've
-> >certainly not heard of (or experienced myself) problems with the patch.
-> >I'm waiting for Jeff to expand on his mail, surely he/RH must know more
-> >about this issue.
+On Thu, Oct 09 2003, Dave Jones wrote:
+> On Thu, Oct 09, 2003 at 04:05:47PM +0200, Jens Axboe wrote:
 > 
+>  > > Red Hat just dropped this patch since it was suspected of data 
+>  > > corruption ;-(
+>  > Eh? Care to explain a bit further? I'm not aware of any data corruption
+>  > issues there, and it's certainly simple enough to easily audit.
 > 
-> That's 100% of my knowledge.  Talk to arjan/davej/sct for more info...
+> 3-4 cases of random data corruption, all using Quantum Fireball drives,
+> all with different IDE chipsets.
+> 
+>  > And how kind of Red Hat to not inform me of any suspicion in this
+>  > regard.
+> 
+> I want to get facts right before crying wolf.
 
-CC'ed
+Fair enough.
 
-> That's what RH's field testing showed us, ignore it if you wish... :)
+> Right now laptopmode/aam is just a suspect. There are still 1-2 other
+> small patches against IDE which could be the reason.  We've dropped
+> laptopmode/aam for the time being to see if the folks seeing repeatable
+> corruption suddenly start behaving again.
 
-As far as I can tell, laptop-mode cannot cause any corruption on it own
-that cannot otherwise happen without laptop mode. So if you see
-corruption, it is most likely exposing some other bug. Or the field
-users run out of battery and 10 minutes of work goes down the drain,
-that's a calcuated risk though.
+aam patch is far more risky, it's a far more likely suspect. That patch
+never reall did go out of beta. Dropping laptop-mode and aam at the same
+time is bad engineering practice :).
+
+laptop-mode cannot cause corruption that cannot show otherwise.
 
 -- 
 Jens Axboe

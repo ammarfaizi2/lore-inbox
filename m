@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130780AbRCEXhq>; Mon, 5 Mar 2001 18:37:46 -0500
+	id <S130791AbRCFAEW>; Mon, 5 Mar 2001 19:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130778AbRCEXhh>; Mon, 5 Mar 2001 18:37:37 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:20702 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S130777AbRCEXhW>;
-	Mon, 5 Mar 2001 18:37:22 -0500
-Message-ID: <3AA4232D.B0175ADC@mandrakesoft.com>
-Date: Mon, 05 Mar 2001 18:37:17 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
-X-Accept-Language: en
+	id <S130792AbRCFAEM>; Mon, 5 Mar 2001 19:04:12 -0500
+Received: from snoopy.apana.org.au ([202.12.87.129]:9477 "HELO
+	snoopy.apana.org.au") by vger.kernel.org with SMTP
+	id <S130791AbRCFAEG>; Mon, 5 Mar 2001 19:04:06 -0500
+To: linux-kernel@vger.kernel.org
+Subject: USAGI IPv6 patches
+From: Brian May <bam@snoopy.apana.org.au>
+X-Home-Page: http://snoopy.apana.org.au/~bam/
+Date: 06 Mar 2001 11:03:51 +1100
+Message-ID: <84snkrvk48.fsf@snoopy.apana.org.au>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-To: glouis@dynamicro.on.ca
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: Re: 3c509 2.4.2-ac12 compilation fails
-In-Reply-To: <20010305181408.A1075@athame.dynamicro.on.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Louis wrote:
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.2ac12/include -Wall
-> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
-> -march=i686    -c -o 3c509.o 3c509.c
-> 3c509.c: In function 'el3_probe':
-> 3c509.c:330: structure has no member named 'name'
+Hello,
 
-hrm, I wonder if a patch got dropped before I sent it to Alan.  It not
-only compiles locally, but works on my router at home :)  
+I wondered if there are any long term plans to merge the USAGI IPv6
+kernel patches into Linux?
 
-> --- drivers/net/3c509.c~        Mon Mar  5 17:41:37 2001
-> +++ drivers/net/3c509.c Mon Mar  5 17:52:57 2001
-> @@ -326,8 +326,8 @@
->                                 return -EBUSY;
->                         irq = idev->irq_resource[0].start;
->                         if (el3_debug > 3)
-> -                               printk ("ISAPnP reports %s at i/o 0x%x, irq %d\n",
-> -                                       el3_isapnp_adapters[i].name, ioaddr, irq);
-> +                               printk ("ISAPnP reports %d at i/o 0x%x, irq %d\n",
-> +                                       el3_isapnp_adapters[i].card_device, ioaddr, 
+See <UTL:http://www.linux-ipv6.org/>
 
-That should be s/name/driver_data/...
+Background:
 
-/me begins to download and merge ac12...
+Currently, if my sources on debian-ipv6 are correct, it is not
+possible to create a IPv6 server that is not broken, as getaddrinfo
+returns both IPv4 and IPv6 addresses, but the bind operation will only
+succeed on the IPv6 address. The suggested work around at the moment
+is to ignore the error returned by bind, but I consider that to be
+broken, because the error might be important.
 
+The only solution we have all agreed to (so far) on debian-ipv6 is to
+use the USAGI patches (which IIRC modify getaddr to return only IPv6
+addresses in the above situation), however, other Debian developers
+are reluctant to require anything that is "non-standard" in the main
+kernel.
+
+Hence my question...
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Brian May <bam@snoopy.apana.org.au>

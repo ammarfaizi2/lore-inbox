@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVCIAJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbVCIAXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVCIAJl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVCIAFt
+	id S262263AbVCIAXn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCIATg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:05:49 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:25840 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S262439AbVCHXvb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:51:31 -0500
-Date: Tue, 08 Mar 2005 23:51:30 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.11-mm2
-To: Robert Love <rlove@rlove.org>
+	Tue, 8 Mar 2005 19:19:36 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55564 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262251AbVCIAQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 19:16:08 -0500
+Date: Wed, 9 Mar 2005 01:16:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm2
+Message-ID: <20050309001604.GC3146@stusta.de>
 References: <20050308033846.0c4f8245.akpm@osdl.org>
-	<1110325018l.6106l.0l@werewolf.able.es>
-	<1110325442.30255.8.camel@localhost>
-In-Reply-To: <1110325442.30255.8.camel@localhost> (from rlove@rlove.org on
-	Wed Mar  9 00:44:02 2005)
-X-Mailer: Balsa 2.3.0
-Message-Id: <1110325890l.6106l.1l@werewolf.able.es>
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20050308033846.0c4f8245.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 08, 2005 at 03:38:46AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.11-mm1:
+>...
+> -fix-buggy-ieee80211_crypt_-selects.patch
+> 
+>  Was wrong.
+>...
 
-On 03.09, Robert Love wrote:
-> On Tue, 2005-03-08 at 23:36 +0000, J.A. Magallon wrote:
-> 
-> > Can cpu affinity really be changed for a running process ?
-> 
-> Yes.
-> 
-> > Does it need something like io or yielding to take effect ?
-> 
-> No.
-> 
-...
-> 
-> Although, you have the syntax wrong.  It should be
-> 
-> 	taskset -c 0 -p 8277
-> 
+I'd say my patch was correct.
 
-That was what I first tried, but:
+If it was buggy, I have yet to see a better patch.
 
-werewolf:~> ps -ef | grep box
-magallon  8638  8629 99 00:47 pts/0    00:01:54 box-d --out box.srf @opt
-magallon  8733  8643  0 00:48 pts/2    00:00:00 grep box
-werewolf:~> taskset -c 0 -p 8638
-execvp: No such file or directory
-failed to execute -p
+With the current dependencies, IEEE80211_CRYPT_CCMP and 
+IEEE80211_CRYPT_TKIP can't be included into Linus' tree since selecting 
+them can result in invalid .config's [1].
 
-> 
-> > The program uses posix threads, 2 in this case. The two threads change from
-> > cpu sometimes (not too often), but do not go into the same processor
-> > immediately as when I start the program directly with runon/taskset.
-> 
-> You have to bind all of the threads individually.
-> 
+cu
+Adrian
 
-Ahh, damn, that explains it. I use a main thread that does nothing but
-wait for the worker threads. So it sure gets moved to CPU0, but as it
-does not waste CPU time, I do not see it...
+[1] no matter how you think to be guilty - from a user's point
+    of view it's simply currently broken
 
-Thanks. Will see what can I do with my threads. cpusets, perhaps...
+-- 
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.11-jam3 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,49 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVBWX2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVBWXSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbVBWX2n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 18:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVBWXYt
+	id S261693AbVBWXSm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 18:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVBWXPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 18:24:49 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28119 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261687AbVBWXX6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 18:23:58 -0500
-Message-ID: <421D11A9.1090708@tmr.com>
-Date: Wed, 23 Feb 2005 18:28:41 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+	Wed, 23 Feb 2005 18:15:01 -0500
+Received: from gw.goop.org ([64.81.55.164]:36802 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S261680AbVBWXKH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 18:10:07 -0500
+Message-ID: <421D0D3F.40902@goop.org>
+Date: Wed, 23 Feb 2005 15:09:51 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
-References: <200502211216.35194.gene.heskett@verizon.net>
-In-Reply-To: <200502211216.35194.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Chris Wright <chrisw@osdl.org>
+Cc: Roland McGrath <roland@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Always send siginfo for synchronous signals
+References: <421C25BE.1090700@goop.org> <20050223201903.GF21662@shell0.pdx.osdl.net>
+In-Reply-To: <20050223201903.GF21662@shell0.pdx.osdl.net>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> Greetings;
-> 
-> Motherboard is a biostar with nforce2 chipset, 2800xp cpu, gig of ram.
-> 
-> I've recently made the observation that while I can view 30fps video 
-> from my firewire equipt movie camera with a minimal cpu hit of 2-3%, 
-> but viewing the video from a webcam on a usb 1.1 circuit takes 30-40% 
-> of the cpu, at half the frame rate.
+Chris Wright wrote:
 
-You have gotten most of an answer, unless someone make a fireware to 
-USB2 adaptor you are going to have to go slow or run firewire.
+>It's not quite inexplicable.  It means that task has hit its limit for
+>pending signals ;-)  But I agree, this should be fixed.  I think I had
+>tested this with broken test cases, thanks for catching.
+>  
+>
+It's particularly confusing for users, because it's a per-user limit
+rather than a per-process one, and its not at all apparent which program
+is causing the problem (/proc/N/status will tell you that a process has
+a signal pending, but it won't tell you how many are pending).
 
-I would think the framerate could be quite slow and still be useful. 
-What software do you use to do the detection (curiousity only)? Of 
-course after you detect motion you probably want to up the framerate, so 
-  you can see what's really happening.
+In fact, bugs with these symptoms have been reported against Valgrind
+from time to time for years, and its only recently I worked out what's
+going on (mostly because I introduced a bug which caused Valgrind to do
+it to itself).
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+>>+static struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags, int always)
+>>    
+>>
+>maybe force_info instead of always?
+>  
+>
+I suppose, but it doesn't "force" it really.  The allocation could still
+fail (it is GFP_ATOMIC after all), and you'd still get no siginfo.  I
+don't care much either way.
+
+>> 	/*
+>> 	 * fast-pathed signals for kernel-internal things like SIGSTOP
+>>@@ -785,6 +793,13 @@ static int send_signal(int sig, struct s
+>> 	if ((unsigned long)info == 2)
+>> 		goto out_set;
+>> 
+>>+	/* Always attempt to send siginfo with an unblocked
+>>+	   fault-generated signal. */
+>>+	always = sig_kernel_sync(sig) &&
+>>+		!sigismember(&t->blocked, sig) &&
+>>    
+>>
+>Aren't these already unblocked?
+>  
+>
+I can't think of a case where they wouldn't be, but I wanted to make
+sure this couldn't be used to create a new DoS.
+
+>>+		(unsigned long)info > 2 &&
+>>+		info->si_code > SI_USER;
+>>    
+>>
+>In what case is != SI_KERNEL OK?
+>  
+>
+Fault signals rarely have an si_code of SI_KERNEL (0x80); they generally
+have a small integer to describe what the fault was really about
+(SEGV_MAPERR, etc).  All si_codes > SI_USER (0) are defined to have come
+from the kernel.  Hm, I see there's a macro, SI_FROMKERNEL, for doing
+this test.
+
+Updated patch attached.
+
+    J

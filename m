@@ -1,51 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbSL3Djd>; Sun, 29 Dec 2002 22:39:33 -0500
+	id <S266645AbSL3DzR>; Sun, 29 Dec 2002 22:55:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266643AbSL3Djd>; Sun, 29 Dec 2002 22:39:33 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:1295 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S266135AbSL3Djc>; Sun, 29 Dec 2002 22:39:32 -0500
-Date: Mon, 30 Dec 2002 14:47:07 +1100
-From: john slee <indigoid@higherplane.net>
-To: Larry McVoy <lm@work.bitmover.com>, Russ Allbery <rra@stanford.edu>,
-       Felix Domke <tmbinc@elitedvb.net>, linux-kernel@vger.kernel.org
-Subject: Re: Indention - why spaces?
-Message-ID: <20021230034707.GD18508@higherplane.net>
-References: <fa.f9m4suv.e6ubgf@ifi.uio.no> <ylfzsgi3jz.fsf@windlord.stanford.edu> <20021230034303.GA11425@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021230034303.GA11425@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+	id <S266649AbSL3DzR>; Sun, 29 Dec 2002 22:55:17 -0500
+Received: from smtp004.mail.tpe.yahoo.com ([202.1.238.135]:11161 "HELO
+	smtp004.mail.tpe.yahoo.com") by vger.kernel.org with SMTP
+	id <S266645AbSL3DzQ>; Sun, 29 Dec 2002 22:55:16 -0500
+Message-ID: <001101c2afb8$6ace8d80$3716a8c0@taipei.via.com.tw>
+From: "Joseph" <jospehchan@yahoo.com.tw>
+To: "Point Free" <shygin@mail.msiu.ru>
+Cc: <linux-kernel@vger.kernel.org>
+References: <002801c2acd2$edf6a870$3716a8c0@taipei.via.com.tw><20021226174653.GA8229@kroah.com><003d01c2ad4a$54eb09f0$3716a8c0@taipei.via.com.tw><3E0BC155.5B291F57@eyal.emu.id.au><004e01c2ad85$d9eeb2b0$3716a8c0@taipei.via.com.tw> <20021227143524.659c6595.shygin@mail.msiu.ru>
+Subject: Re: [USB 2.0 problem] ASUS CD-RW cannot be mounted.
+Date: Mon, 30 Dec 2002 12:02:53 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 29, 2002 at 07:43:03PM -0800, Larry McVoy wrote:
-> On Sun, Dec 29, 2002 at 07:33:20PM -0800, Russ Allbery wrote:
-> > Felix Domke <tmbinc@elitedvb.net> writes:
-> > 
-> > > i don't want to change anything, i just like to know WHY people use
-> > > spaces. are they somehow unportable? (i don't think so)
-> > 
-> > <http://www.jwz.org/doc/tabs-vs-spaces.html>
-> 
-> Quouting from that page:
->     That ensures that, even if I happened to insert a literal tab in the
->     file by hand (or if someone else did when editing this file earlier),
->     those tabs get expanded to spaces when I save. 
-> 
-> If you are using a source management system, pretty much *any* source
-> management system, doing this will cause all the lines to be "rewritten"
-> if they had tabs.  The fact that this person would advocate changing
-> code that they didn't actually change shows a distinct lack of clue.
-> No engineer who works for an even semi-pro company would dream of doing
-> this.  At BitMover, anyone who seriously advocated this for more than
-> a day would be fired.
+> > > Check that you actually have /dev/scd0. I think it should be:
+> > > # mknod /dev/scd0 b 11 0
+> > >
+> >  I've checked the node as follows.
+> > #ls -l /dec/scd0
+> > brw-r----- 1 root  disk 11,  0 Sep 9 13:24 /dev/scd0
 
-well, he DID work at netscape...
+> Ouh, could you post your /proc/devices ?
 
-j.
+Yeah, that is shown below.
+BTW, the ehci-hcd module seems instable. because the CD-RW can work
+sometimes.
+But it cannot work sometimes. So curiously. ?_?
+**
+Character devices:
+  1 mem
+  2 pty
+  3 ttyp
+  4 vc/%d
+  5 ptmx
+  6 lp
+  7 vcs
+ 10 misc
+ 13 input
+ 14 sound
+ 21 sg
+116 alsa
+128 ptm
+136 pts
+180 usb
+226 drm
 
--- 
-toyota power: http://indigoid.net/
+Block devices:
+  2 fd
+  3 ide0
+  8 sd
+ 11 sr
+ 22 ide1
+ 65 sd
+ 66 sd
+ 67 sd
+ 68 sd
+ 69 sd
+ 70 sd
+ 71 sd
+136 sd
+137 sd
+138 sd
+139 sd
+140 sd
+141 sd
+142 sd
+143 sd
+***
+
+-----------------------------------------------------------------
+< ¨C¤Ñ³£ Yahoo!©_¼¯ >  www.yahoo.com.tw

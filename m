@@ -1,35 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266925AbUGMWLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266920AbUGMWOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266925AbUGMWLn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266924AbUGMWLZ
+	id S266920AbUGMWOS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267082AbUGMWOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:11:25 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:57595 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266923AbUGMWLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:11:19 -0400
-From: jmerkey@comcast.net
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andi Kleen <ak@muc.de>, adilger@clusterfs.com,
-       linux-kernel@vger.kernel.org
-Subject: [UPDATE REPORT] Ext3 File System "Too many files" with snort
-Date: Tue, 13 Jul 2004 22:11:15 +0000
-Message-Id: <071320042211.16027.40F45E03000AF97700003E9B2200734840970A059D0A0306@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Jun 24 2004)
-X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
+	Tue, 13 Jul 2004 18:14:17 -0400
+Received: from imap.gmx.net ([213.165.64.20]:12739 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266920AbUGMWOQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 18:14:16 -0400
+X-Authenticated: #20450766
+Date: Wed, 14 Jul 2004 00:13:10 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [Bug 2905] New: Aironet 340 PCMCIA card not working since 2.6.7
+In-Reply-To: <Pine.LNX.4.60.0406232149230.3950@poirot.grange>
+Message-ID: <Pine.LNX.4.60.0407131218300.1444@poirot.grange>
+References: <200406171753.i5HHrx38015816@fire-2.osdl.org>
+ <Pine.LNX.4.60.0406172152310.5847@poirot.grange> <20040623132456.A27549@flint.arm.linux.org.uk>
+ <Pine.LNX.4.60.0406232149230.3950@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I applied both the ext3 htree patches and a system using Reiser FS with snort 
-running with 30,000+ (actually as high s 70,000+) addresses being generated 
-from one of the systems with snort 2.1.3.  I am not able to get the second system out until next week since the customer has to put in a change order, so I tested with a system at only one of the customer sites with ext3 and reiser in very contained manner,  Both the Native Reiser FS and ext3 with the patch seem to work fine on this system with an updated kernel and by creating an isolated ext3 partition and ReiserFS partition on the system.  Thanks for the help to Hans and Andreas.    
+On Wed, 23 Jun 2004, Guennadi Liakhovetski wrote:
 
-Looks fixed. 
+> On Wed, 23 Jun 2004, Russell King wrote:
+>
+>> On Thu, Jun 17, 2004 at 09:58:32PM +0200, Guennadi Liakhovetski wrote:
+>>> Don't think it will help for this specific problem, but this patch fixes
+>>> alignment problem (especially seen on ARM, Russell:-)). Sending as a 
+>>> text attachment, as my setup is known to mangle tabs...
+>>> 
+>>> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+>> 
+>> Can you forward this to Jeff Garzik please?
+>
+> Jeff, please, apply to 2.6. It should also go into 2.4, it is quite trivial 
+> and is actually a bugfix. Don't know if it will aply to 2.4, if not, and if 
+> you prefer me to do it rather than do it yourself, I could rediff it against 
+> 2.4 too.
 
 Jeff
 
+It's not yet in 2.6.7, didn't see it in  2.6.8-rc1 announcement either, 
+didn't check the code though. Have I missed it, or is it still not 
+applied? Are you considering applying it to a later version?
 
-
-
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 

@@ -1,44 +1,72 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269201AbUINImk (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 14 Sep 2004 04:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269202AbUINImk
+	id S268014AbUIPMMe (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 16 Sep 2004 08:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUIPMMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 04:42:40 -0400
-Received: from pD9EA8DF6.dip0.t-ipconnect.de ([217.234.141.246]:35601 "HELO
-	sailpennylane.com") by vger.kernel.org with SMTP id S269201AbUINImg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 04:42:36 -0400
-Date: Tue, 14 Sep 2004 08:52:15 +0000
-From: treacy@libsource.com
-Subject: Microsoft updates
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <LLB851D49C1C43K4@vger.kernel.org>
-In-Reply-To: <LLB851D49C1C43K4@vger.kernel.org>
-Message-ID: <LF8H86HEA5IA6LE3@libsource.com>
+	Thu, 16 Sep 2004 08:12:33 -0400
+Received: from tibet.uoc.es ([213.73.40.45]:21726 "HELO tibet.uoc.es")
+	by vger.kernel.org with SMTP id S268014AbUIPMMa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 08:12:30 -0400
+X-Uoc-Spam: No
+From: cluster iCampus <icampus@campus.uoc.es>
+Message-ID: <72661.1095336748208.JavaMail.root@bahamas>
+Date: Thu, 16 Sep 2004 14:12:02 +0200
+To: linux-kernel@vger.kernel.org
+Subject: hello
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Uoc-Spam: Yes
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Qmail-Scanner-Message-ID: <109533672466313045@nepal>
+Comments: localhost [127.0.0.1]
+X-Uoc-Hops: 2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S269201AbUINImk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S268014AbUIPMMe@vger.kernel.org>
 
-software disc ounts
-Adobe Illustrator 10 - 80
-Maya 6.0 Unlimited - 150
-Pinnacle Studio 9 - 30
-Autodesk software
-Ahead Nero v6.3 Powerpack - 40
-Games X Copy - 25
-Macromedia Studio MX 2004 - 180
-Goldmine Business Contact Manager 6.5 - 59
-SuSe Linux 9.1 Professional Edition - 50
-Borland Optimizeit Suite 6 - 80
-Corel Draw Graphics Suite 11 - 120
-Diskeeper 8 Professional - 25
-QuarkXPress 6 Passport - 120
-DVD Copy Plus - 30
-Adobe Photoshop 7.0 - 60
-3D Home Architect V 6 Deluxe - 15
-and
-and a lot more http://www.ellyw.biz/
+Error found in mail processing.
+Error sending mail to non-existent users: cula.
+
+
+********************************************************
+
+Return-Path:<linux-kernel@vger.kernel.org>
+Received:from unknown (HELO uoc.edu) (80.26.76.187)
+  by nepal.uoc.es with SMTP; 16 Sep 2004 12:12:01 -0000
+Message-ID:<6143813.1095336745497.JavaMail.root@canada>
+Date:Thu, 16 Sep 2004 14:12:02 +0200
+From:linux-kernel@vger.kernel.org
+To:cula@uoc.edu
+Subject:hello
+MIME-Version:1.0
+Content-Type:text/plain; charset=us-ascii
+Content-Transfer-Encoding:7bit
+X-Spam-Status:Yes, hits=5.2 required=5.0
+X-Spam-Level:+++++
+X-Uoc-Spam:Yes
+X-Priority:3
+X-MSMail-Priority:Normal
+X-Qmail-Scanner-Message-ID:<109533672466313045@nepal>
+
+********************************************************
+____________________________________________________________
+This mail had an attached file infected by a virus.
+The system has deleted automatically the attached file.
+___________________________________________________________
+Este correo contenia un fichero adjunto infectado por virus. 
+El sistema ha borrado el fichero automaticamente.
+____________________________________________________________
+Aquest mail contenia un fitxer adjunt infectat per virus.
+El sistema ha esborrat el fitxer automaticament. 
+____________________________________________________________
+********************************************************
+
+Here is it!
+
+
+
+
 

@@ -1,86 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313805AbSDJUnm>; Wed, 10 Apr 2002 16:43:42 -0400
+	id <S313816AbSDJUxW>; Wed, 10 Apr 2002 16:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313816AbSDJUnl>; Wed, 10 Apr 2002 16:43:41 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:53263 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S313805AbSDJUnl>; Wed, 10 Apr 2002 16:43:41 -0400
-Message-ID: <3CB49578.34C34438@zip.com.au>
-Date: Wed, 10 Apr 2002 12:41:44 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeremy Jackson <jerj@coplanar.net>
-CC: lkml <linux-kernel@vger.kernel.org>
+	id <S313818AbSDJUxV>; Wed, 10 Apr 2002 16:53:21 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38825 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S313816AbSDJUxU>;
+	Wed, 10 Apr 2002 16:53:20 -0400
+Date: Wed, 10 Apr 2002 16:53:19 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [prepatch] address_space-based writeback
-In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <004b01c1e0c6$01d690f0$7e0aa8c0@bridge>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3CB48F8A.DF534834@zip.com.au>
+Message-ID: <Pine.GSO.4.21.0204101649450.17078-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Jackson wrote:
+
+
+On Wed, 10 Apr 2002, Andrew Morton wrote:
+
+[I'll answer to the rest when I get some sleep]
+
+> The one thing which does worry me a bit is why __mark_inode_dirty
+> tests for a null ->i_sb.  If the inode doesn't have a superblock
+> then its pages are hidden from the writeback functions.
 > 
-> This sounds like a wonderful piece of work.
-> I'm also inspired by the rmap stuff coming down
-> the pipe.   I wonder if there would be any interference
-> between the two, or could they leverage each other?
-> 
+> This is not fatal per-se.  The pages are still visible to the VM
+> via the LRU, and presumably the filesystem knows how to sync
+> its own stuff.  But for memory-balancing and throttling purposes,
+> I'd prefer that the null ->i_sb not be allowed.  Where can this
+> occur?
 
-well the theory is that rmap doesn't need to know. It just
-calls writepage when it sees dirty pages. That's a minimal
-approach.  But I'd like the VM to aggressively use the
-"write out lots of pages in the same call" APIs, rather
-than the current "send lots of individual pages" approach.
+In rather old kernels.  IOW, these checks are atavisms - these days
+_all_ inodes have (constant) ->i_sb.  The only way to create an
+in-core inode is alloc_inode(superblock) and requires superblock
+to be non-NULL.  After that ->i_sb stays unchanged (and non-NULL)
+until struct inode is freed.
 
-For a number of reasons:
-
-- For delalloc filesystems, and for sparse mappings
-  against "syncalloc" filesystems, disk allocation is
-  performed at ->writepage time.  It's important that
-  the writes be clustered effectively.  Otherwise
-  the file gets fragmented on-disk.
-
-- There's a reasonable chance that the pages on the
-  LRU lists get themselves out-of-order as the aging
-  process proceeds.  So calling ->writepage in lru_list
-  order has the potential to result in fragmented write
-  patterns, and inefficient I/O.
-
-- If the VM is trying to free pages from, say, ZONE_NORMAL
-  then it will only perform writeout against pages from
-  ZONE_NORMAL and ZONE_DMA.  But there may be writable pages
-  from ZONE_HIGHMEM sprinkled amongst those pages within the
-  file. It would be really bad if we miss out on opportunistically
-  slotting those other pages into the same disk request.
-
-- The current VM writeback is an enormous code path.  For each
-  tiny little page, we send it off into writepage, pass it
-  to the filesystem, give it a disk mapping, give it a buffer_head,
-  submit the buffer_head, attach a tiny BIO to the buffer_head,
-  submit the BIO, merge that onto a request structure which
-  contains contiguous BIOs, feed that list-of-single-page-BIOs
-  to the device driver.
-
-  That's rather painful.   So the intent is to batch this work
-  up.  Instead, the VM says "write up to four megs from this
-  page's mapping, including this page".
-
-  That request passes through the filesystem and we wrap 64k
-  or larger BIOs around the pagecache data and put those into
-  the request queue.  For some filesystems the buffer_heads
-  are ignored altogether.  For others, the buffer_head
-  can be used at "build the big BIO" time to work out how to
-  segment the BIOs across sub-page boundaries.
-
-  The "including this page" requirement of the vm_writeback
-  method is there because the VM may be trying to free pages
-  from a specific zone, so it would be not useful if the
-  filesystem went and submitted I/O for a ton of pages which
-  are all from the wrong zone.  This is a bit of an ugly
-  back-compatible placeholder to keep the VM happy before
-  we move on to that part of it.
-
--

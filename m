@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136330AbRDWB51>; Sun, 22 Apr 2001 21:57:27 -0400
+	id <S136334AbRDWCB1>; Sun, 22 Apr 2001 22:01:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136334AbRDWB5S>; Sun, 22 Apr 2001 21:57:18 -0400
-Received: from cdsl18.ptld.uswest.net ([209.180.170.18]:28767 "HELO
-	galen.magenet.net") by vger.kernel.org with SMTP id <S136330AbRDWB5G>;
-	Sun, 22 Apr 2001 21:57:06 -0400
-Date: Sun, 22 Apr 2001 18:57:37 -0700
-From: Joseph Carter <knghtbrd@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: USB fails in 2.4.3-ac6
-Message-ID: <20010422185737.H4009@debian.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DwoPkXS38qd3dnhB"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-X-Operating-System: Linux galen 2.4.3-ac4+lm+bttv
-X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
+	id <S136335AbRDWCBR>; Sun, 22 Apr 2001 22:01:17 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:64523 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S136334AbRDWCBD>; Sun, 22 Apr 2001 22:01:03 -0400
+From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+Message-Id: <200104222138.XAA00666@kufel.dom>
+Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
+To: kufel!mclure.org!manuel@green.mif.pg.gda.pl (Manuel McLure)
+Date: Sun, 22 Apr 2001 23:38:55 +0200 (CEST)
+Cc: kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
+In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org> from "Manuel McLure" at Apr 22, 2001 10:22:34 AM
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> I'm having a problem with "su -" on ac11/ac12. ac5 doesn't show the
+> problem.
+> The problem is easy to reproduce - go to a console, log in as root, do an
+> "su -" (this will succeed) and then another "su -". The second "su -"
+> should hang - ps shows it started bash and that the bash process is
+> sleeping. You need to "kill -9" the bash to get your prompt back.
 
---DwoPkXS38qd3dnhB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No problem here.
 
-With 2.4.3-ac6, USB input doesn't work.  It works with -ac4, and I'm
-waiting for -ac13 or so before I try something later.
+P233MMX
 
-By "doesn't work", I mean that the USB keyboard and mouse are never
-detected.  A config snippet:
+# uname -a
+Linux kufel 2.4.3-ac12 #2 nie kwi 22 15:32:51 CEST 2001 i586 unknown
 
-CONFIG_INPUT=3Dy
-CONFIG_INPUT_KEYBDEV=3Dy
-CONFIG_INPUT_MOUSEDEV=3Dy
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D768
-CONFIG_INPUT_JOYDEV=3Dy
-CONFIG_INPUT_EVDEV=3Dy
+# ls -l /lib/libc-*
+-rwxr-xr-x   1 root     root      1060168 Nov 19 11:17 /lib/libc-2.1.3.so
 
-CONFIG_USB=3Dy
-# CONFIG_USB_DEBUG is not set
+# gcc --version
+egcs-2.91.66
+(kernel with the fix by Niels Kristian Bech Jensen <nkbj@image.dk>)
 
-CONFIG_USB_DEVICEFS=3Dy
-# CONFIG_USB_BANDWIDTH is not set
+# su --version
+su (GNU sh-utils) 2.0
 
-CONFIG_USB_UHCI_ALT=3Dy
+Maybe it is RH7 specyfic ? Or you have some compiler / hardware problem ?
 
-CONFIG_USB_HID=3Dy
+Andrzej
 
-
-Has anyone else seen this problem?  I suspect it is the Alt UHCI driver
-which I read somewhere was preferred for VIA-based systems.  I don't
-really know what the difference is between them - the help in the kernel
-doesn't really say much about how they are different other than that they
-are.
-
-I must compile the USB stuff into the kernel as I do not have legacy input
-devices on this system (and am proud of it!  hehe)
-
---=20
-Joseph Carter <knghtbrd@debian.org>                Free software developer
-
-<Iambe> you are not a nutcase
-<Knghtbrd> You obviously don't know me well enough yet.  =3D>
-
-
---DwoPkXS38qd3dnhB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
-
-iEYEARECAAYFAjrjjBEACgkQj/fXo9z52rOC9gCeLYVHGQhwSnRwqE8fUyyduuHK
-0E0An3LgiyoQ/CXas7Y0/LL0XUjy0jSj
-=gL7z
------END PGP SIGNATURE-----
-
---DwoPkXS38qd3dnhB--

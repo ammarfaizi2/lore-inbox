@@ -1,257 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbTILUG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbTILUG1
+	id S261837AbTILUTL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbTILUTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:06:27 -0400
-Received: from ausadmmsps308.aus.amer.dell.com ([143.166.224.103]:14095 "HELO
-	AUSADMMSPS308.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S261871AbTILUE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:04:59 -0400
-X-Server-Uuid: 5333cdb1-2635-49cb-88e3-e5f9077ccab5
-Message-ID: <36696BAFD8467644ABA0050BE35890591258B0@ausx2kmpc106.aus.amer.dell.com>
-From: Gary_Lerhaupt@Dell.com
+	Fri, 12 Sep 2003 16:19:11 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:47284 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261837AbTILURg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:17:36 -0400
+From: Jan De Luyck <lkml@kcore.org>
 To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: usb uhci I/O errors in 2.4.22
-Date: Fri, 12 Sep 2003 15:04:51 -0500
+Subject: [2.4.23-pre3] Cache size for Centrino CPU incorrect
+Date: Fri, 12 Sep 2003 22:18:16 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 137CF963740938-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309122218.16483.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In using a TEAC usb floppy on a uhci system here running 2.4.22, I am seeing
-multitudes of I/O errors and other weirdness.  In researching this issue, I
-was surprised in not being able to find any other references to this same
-problem, but I have been able to reproduce across a couple different systems
-running various kernels.  Anyone?
+Hello List,
 
-Despite the I/O errors, the floppy is mountable and usable and generally,
-once it is mounted, the I/O errors subside.  
+I just noticed this:
 
-hub.c: new USB device 00:1d.0-1, assigned address 2
-usb.c: USB device 2 (vend/prod 0x644/0x0) is not claimed by any active
-driver.
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-scsi1 : SCSI emulation for USB Mass Storage devices
-  Vendor: TEAC      Model: FD-05PUB          Rev: 1026
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sdc at scsi1, channel 0, id 0, lun 0
-usb-uhci.c: interrupt, status 3, frame# 1220
-SCSI device sdc: 2880 512-byte hdwr sectors (1 MB)
-sdc: Write Protect is off
- sdc: sdc1 sdc2 sdc3 sdc4
-WARNING: USB Mass Storage data integrity not assured
-USB Mass Storage device found at 2
-USB Mass Storage support registered.
- I/O error: dev 08:21, sector 0
- I/O error: dev 08:21, sector 0
- I/O error: dev 08:21, sector 0
- I/O error: dev 08:21, sector 64
-usb-uhci.c: interrupt, status 3, frame# 836
- I/O error: dev 08:22, sector 0
- I/O error: dev 08:22, sector 0
- I/O error: dev 08:22, sector 0
- I/O error: dev 08:22, sector 64
- I/O error: dev 08:23, sector 0
- I/O error: dev 08:23, sector 0
- I/O error: dev 08:23, sector 0
- I/O error: dev 08:23, sector 64
-usb-uhci.c: interrupt, status 3, frame# 1092
- I/O error: dev 08:24, sector 0
- I/O error: dev 08:24, sector 0
- I/O error: dev 08:24, sector 0
- I/O error: dev 08:24, sector 64
- I/O error: dev 08:21, sector 0
- I/O error: dev 08:21, sector 0
- I/O error: dev 08:21, sector 0
- I/O error: dev 08:21, sector 64
-usb-uhci.c: interrupt, status 3, frame# 68
- I/O error: dev 08:22, sector 0
- I/O error: dev 08:22, sector 0
- I/O error: dev 08:22, sector 0
- I/O error: dev 08:22, sector 64
-usb-uhci.c: interrupt, status 3, frame# 1476
- I/O error: dev 08:23, sector 0
- I/O error: dev 08:23, sector 0
- I/O error: dev 08:23, sector 0
- I/O error: dev 08:23, sector 64
- I/O error: dev 08:24, sector 0
- I/O error: dev 08:24, sector 0
- I/O error: dev 08:24, sector 0
- I/O error: dev 08:24, sector 64
-usb.c: USB disconnect on device 00:1d.0-1 address 2
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 24
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 24
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 24
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 24
-sdc: Unit Not Ready, sense:
-Info fld=0xa00 (nonstd), Current 00:00: sense key Not Ready
-sdc : READ CAPACITY failed.
-sdc : status = 1, message = 00, host = 0, driver = 08 
-Info fld=0xa00 (nonstd), Current sd00:00: sense key Not Ready
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
-sdc: test WP failed, assume Write Enabled
- sdc: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
+devilkin@precious:~$ cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 9
+model name      : Intel(R) Pentium(R) M processor 1600MHz
+stepping        : 5
+cpu MHz         : 599.511
+cache size      : 0 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov pat clflush dts acpi mmx fxsr sse sse2 tm pbe tm2 est
+bogomips        : 1196.85
 
-Gary Lerhaupt
-Dell Linux Development
+Somehow, the cache size doesn't seem to be correct. Spec info tells me that this cpu
+has indeed a 1024kb cache.
+
+Any patches to test?
+
+Thankx
+
+Jan
 

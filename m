@@ -1,98 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265316AbTLNA1O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 19:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbTLNA1O
+	id S265321AbTLNBBX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 20:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265322AbTLNBBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 19:27:14 -0500
-Received: from nevyn.them.org ([66.93.172.17]:14720 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S265316AbTLNA1L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 19:27:11 -0500
-Date: Sat, 13 Dec 2003 19:27:09 -0500
-From: Daniel Jacobowitz <dan@debian.org>
+	Sat, 13 Dec 2003 20:01:23 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:3680 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S265321AbTLNBBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 20:01:19 -0500
+Message-ID: <3FDBB651.3080706@yahoo.es>
+Date: Sat, 13 Dec 2003 20:01:05 -0500
+From: Roberto Sanchez <rcsanchez97@yahoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: RAID5 recovery quirk (?) on 2.6.0-test9
-Message-ID: <20031214002708.GA836@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+Subject: Re: 2.4 vs 2.6
+References: <20031201062052.GA2022@frodo> <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet> <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com>
+In-Reply-To: <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com>
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigD645CCB9F8016F81BD3737BB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My desktop, a dual P3 running 2.6.0-test9, just had a lockup.  I don't
-have any useful information on the lockup (I was running the glibc
-testsuite, I think?), but I noticed something really interesting when
-the machine came back up.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigD645CCB9F8016F81BD3737BB
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-My root is ext3, and reported that it was recovering from journal.  But
-it's also on the md array - and md didn't need to reconstruct.  This
-could be a feature, but it's one I've never seen happen before - how
-did it know it didn't need to reconstruct?
+Jan Rychter wrote:
+>>>>>>"Marcelo" == Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
+> 
+> [...]
+>  Marcelo> 2.6 is already stable enough for people to use it.
+> 
+> Yes, that's an old post I'm responding to, but I've just given 2.6 a try
+> on my desktop machine, and the above statement seems even more
+> annoying. I hit the following problems:
+> 
+>   -- I had to wrestle ATI drivers into compiling, they finally did, but
+>      the kernel prints scary-looking warnings with call stacks, about
+>      "sleeping function called from invalid context at mm/slab.c:1856,
+I have an nForce2 w/ Radeon 9000.  No problems w/ DRI drivers (included
+in kernel) or thi ATI supplied drivers, which ATI says successfully
+compiled against 2.6.0-test6.
 
-The lockup was total as far as I can tell, and I had to use the
-physical reset switch.
+>   -- modules don't autoload for some reason (though I'm sure that could
+>      be solved),
+Make sure you have all the different module options turned on.  In 2.6
+there are different options for loading, unloading and force unloading
+modules.
 
-Here's a bit of the log:
+>   -- bttv does not compile, so no video input for me,
+I don't know anything about video input.  Did you try Google?
 
-md: raid5 personality registered as nr 4
-raid5: measuring checksumming speed
-   8regs     :  1824.000 MB/sec
-   8regs_prefetch:  1464.000 MB/sec
-   32regs    :   960.000 MB/sec
-   32regs_prefetch:   892.000 MB/sec
-   pIII_sse  :  1972.000 MB/sec
-   pII_mmx   :  2476.000 MB/sec
-   p5_mmx    :  2644.000 MB/sec
-raid5: using function: pIII_sse (1972.000 MB/sec)
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+>   -- drivers for my telephony card (from Digium) are not 2.6-ready, so
+>      no telephony support for me,
+I don't know anything about telephony.  Did you try Google?
 
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: considering hdg2 ...
-md:  adding hdg2 ...
-md:  adding hde2 ...
-md:  adding hdc2 ...
-md: created md0
-md: bind<hdc2>
-md: bind<hde2>
-md: bind<hdg2>
-md: running: <hdg2><hde2><hdc2>
-raid5: device hdg2 operational as raid disk 1
-raid5: device hde2 operational as raid disk 2
-raid5: device hdc2 operational as raid disk 0
-raid5: allocated 3147kB for md0
-raid5: raid level 5 set md0 active with 3 out of 3 devices, algorithm 2
-RAID5 conf printout:
- --- rd:3 wd:3 fd:0
- disk 0, o:1, dev:hdc2
- disk 1, o:1, dev:hdg2
- disk 2, o:1, dev:hde2
-md: ... autorun DONE.
+>   -- I have just frozen the machine hard by copying files over NFS and
+>      doing a simulation write to an ATAPI CD-RW at the same time.
+What CPU/chipset do you have?  There are timing issues with nForce2
+and AMD CPUs.  A quick search of the LKML archives will yield lots
+of discussion and patcheson this issue.
 
-EXT3-fs: INFO: recovery required on readonly filesystem.
-EXT3-fs: write access will be enabled during recovery.
-hub 1-0:1.0: new USB device on port 1, assigned address 2
-input: USB HID v1.00 Mouse [Logitech USB-PS/2 Trackball] on usb-0000:00:07.2-1
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: md0: orphan cleanup on readonly fs
-ext3_orphan_cleanup: deleting unreferenced inode 16351637
-ext3_orphan_cleanup: deleting unreferenced inode 18056861
-ext3_orphan_cleanup: deleting unreferenced inode 5619863
-ext3_orphan_cleanup: deleting unreferenced inode 13502232
-ext3_orphan_cleanup: deleting unreferenced inode 13502231
-ext3_orphan_cleanup: deleting unreferenced inode 13502230
-ext3_orphan_cleanup: deleting unreferenced inode 13502213
-ext3_orphan_cleanup: deleting unreferenced inode 12853529
-ext3_orphan_cleanup: deleting unreferenced inode 6684899
-EXT3-fs: md0: 9 orphan inodes deleted
-EXT3-fs: recovery complete.
-EXT3-fs: mounted filesystem with ordered data mode.
+> 
+> I haven't even gotten to VMware and user-mode Linux, which I also need,
+> and I'm not even dreaming about getting my scanner to work. Not to
+> mention that on my laptop there would be an entirely different set of
+> issues, and software suspend in 2.6 is, well, still lacking.
+VMWare won't work (according to the VMWare tech support people), but
+they will (probably) support 2.6 kernels in their next point release.
+I assume you are talking about their workstation product.  SWSusp
+works fine on my laptop.
 
+> 
+> So, as for me, 2.6 is a definite no-no. I see no advantage whatsoever in
+> running it, it caused me nothing but pain, and there is no improvement
+> that I could see that would justify the upgrade.
+But there is plenty of improvement for plenty of people.
 
+> 
+> So please be careful when making statements like that. 2.6 is *NOT*
+> stable enough nor ready enough for people to use it, unless those people
+> have a narrow range of hardware on which the 2.6 kernel has actually
+> been tested (translation: they have the same hardware as the main
+> developers do).
+I doubt I have the same hardware as the main developers, but I did
+read the documentation.  Did you?  Even if it is stable enough for
+most people, it is still a beta kernel.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+> 
+> --J.
+
+-Roberto.
+
+--------------enigD645CCB9F8016F81BD3737BB
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQE/27ZeTfhoonTOp2oRAgjxAKCS5Qw8HTyPM0G/53Pw82a0TlFNAgCfZW6m
+EfX77yxMRPyLkOYOjD9qsro=
+=FHlB
+-----END PGP SIGNATURE-----
+
+--------------enigD645CCB9F8016F81BD3737BB--
+

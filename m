@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264483AbTE1DHC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 23:07:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTE1DHC
+	id S264486AbTE1DMT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 23:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTE1DMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 23:07:02 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:29571
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264483AbTE1DHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 23:07:01 -0400
-Date: Tue, 27 May 2003 23:10:03 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Slack Ware <slack_ware@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Printing IDT on Linux 2.4.20
-In-Reply-To: <20030528030639.38916.qmail@web13607.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.50.0305272306140.15323-100000@montezuma.mastecende.com>
-References: <20030528030639.38916.qmail@web13607.mail.yahoo.com>
+	Tue, 27 May 2003 23:12:19 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:58119 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S264486AbTE1DMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 23:12:17 -0400
+Message-ID: <3ED42C48.2060803@snapgear.com>
+Date: Wed, 28 May 2003 13:26:00 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.70-uc0 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003, Slack Ware wrote:
+Hi All,
 
-> Hi everybody!
-> I've a problem with the checkidt utility provided by
-> Phrack Issue #59, I think.
-> The checkidt utility is for 2.4.x kernels, supposedly,
-> but I compiled it under 2.4.20 and it couldn't read
-> /dev/kmem.
-> Anyway, I would like to print the IDT on kernel 2.4.20
-> with checkidt or not.
-> Any suggestions are welcome.
-> Regards,
+An update of the uClinux (MMU-less) fixups against 2.5.70.
+Linus commited a bunch of patches over the last few days,
+but I have a few more fixups to get through yet.
 
-*shrug* I don't know why they would want to check /dev/kmem just for the 
-IDT.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.70-uc0.patch.gz
 
-#include <stdio.h>
 
-struct dt {
-        unsigned short limit;
-        unsigned long address __attribute__((packed));
-        unsigned short padding;
-} __attribute__((packed));
+Change Log:
 
-int main()
-{
-        struct dt foo;
+. patch against 2.5.70                          me
+. merge flat format shared lib support          David McCullough
+. CONFIG_BOOT_PARAM for m68knommu               Bernardo Innocenti
+. avoid ROMfs copy if not enabled               Bernardo Innocenti
+. fix ColdFire serial irq handler return type   me
+. separate m68knommu int setup code             Georges Menie
+. Dragon Engine 2 start code fixups             Georges Menie
+. fixup m68knommu do_fork() calls               me
+. clean up m68knommu access_ok()                me
+. simplify show_process_blocks() for !MMU       Bernardo Innocenti
+. !MMU stubs for proc_pid_maps                  me
 
-        __asm__ __volatile__ ("sidt %0":"=m"(foo));
-        printf("limit=%d address=%lx\n", foo.limit, foo.address);
-        return 0;
-}
+Regards
+Greg
 
-	Zwane
--- 
-function.linuxpower.ca
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+

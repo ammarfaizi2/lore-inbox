@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132072AbRCVQZ0>; Thu, 22 Mar 2001 11:25:26 -0500
+	id <S132084AbRCVQkh>; Thu, 22 Mar 2001 11:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132074AbRCVQZR>; Thu, 22 Mar 2001 11:25:17 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:37351 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132072AbRCVQZG>;
-	Thu, 22 Mar 2001 11:25:06 -0500
-Message-ID: <3ABA2719.C09F835E@mandrakesoft.com>
-Date: Thu, 22 Mar 2001 11:23:53 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Eli Carter <eli.carter@inet.com>
-Cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
-In-Reply-To: <200103220638.HAA16050@green.mif.pg.gda.pl> <3ABA00BB.A9C2DF1B@mandrakesoft.com> <3ABA0E89.D3D965B7@inet.com> <3ABA103A.CB07012D@mandrakesoft.com> <3ABA15F7.6155F0EE@inet.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132085AbRCVQk1>; Thu, 22 Mar 2001 11:40:27 -0500
+Received: from pop.gmx.net ([194.221.183.20]:35237 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S132084AbRCVQkO>;
+	Thu, 22 Mar 2001 11:40:14 -0500
+Date: Thu, 22 Mar 2001 14:15:07 +0100
+From: "Manfred H. Winter" <mahowi@gmx.net>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [2.4.3-pre6] error in "aic7xxx/aicasm"
+Message-ID: <20010322141507.A29689@marvin.mahowi.de>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-Operating-System: Linux 2.4.3-pre2 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter wrote:
-> Mmmm.... documentation.  Yummy.  ;)
-> 
-> When I submitted the original patch, someone wanted to add the ff's
-> check as well... to reduce the number of people who make that
-> suggestion, perhaps the comment should read:
-> 
-> + * Check that the Ethernet address (MAC) is not a multicast address or
-> + * FF:FF:FF:FF:FF:FF (by checking addr[0]&1) and is not
-> 00:00:00:00:00:00.
-> + *
-> 
-> Does that make it clear that both cases are covered by the one test?
+Hi!
 
-yeah
+When I try to build the new aic7xxx modules in kernel 2.4.3-pre6 it
+stops at "/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx/aicasm":
 
-> Hmm... I used __inline__ because the other function in the same
-> headerfile used it...  What is the difference between the two, and is
-> one depricated now?  (And what about in 2.2.x?)
++++ 
 
-since kernel requires gcc, which supports plaine ole 'inline', we don't
-need to use the longer form.
+make -C aic7xxx modules
+make[3]: Entering directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx'
+yacc  aicasm/aicasm_gram.y
+mv -f y.tab.c aicasm/aicasm_gram.c
+lex  -t aicasm/aicasm_scan.l > aicasm/aicasm_scan.c
+make -C aicasm
+make[4]: Entering directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx/aicasm'
+gcc -I/usr/include -ldb1 aicasm_gram.c aicasm_scan.c aicasm.c aicasm_symbol.c -o aicasm
+aicasm/aicasm_gram.y:45: ../queue.h: No such file or directory
+aicasm/aicasm_gram.y:50: aicasm.h: No such file or directory
+aicasm/aicasm_gram.y:51: aicasm_symbol.h: No such file or directory
+aicasm/aicasm_gram.y:52: aicasm_insformat.h: No such file or directory
+aicasm/aicasm_scan.l:44: ../queue.h: No such file or directory
+aicasm/aicasm_scan.l:49: aicasm.h: No such file or directory
+aicasm/aicasm_scan.l:50: aicasm_symbol.h: No such file or directory
+aicasm/aicasm_scan.l:51: y.tab.h: No such file or directory
+make[4]: *** [aicasm] Error 1
+make[4]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx/aicasm'
+make[3]: *** [aicasm/aicasm] Error 2
+make[3]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers/scsi/aic7xxx'
+make[2]: *** [_modsubdir_aic7xxx] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.3-pre6/drivers'
+make: *** [_mod_drivers] Error 2
 
++++ 
+
+The header files it complains about are there.
+
+Bye,
+
+Manfred
 -- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+ /"\                        | PGP-Key available at Public Key Servers
+ \ /  ASCII ribbon campaign | or at "http://www.mahowi.de/"
+  X   against HTML mail     | RSA: 0xC05BC0F5 * DSS: 0x4613B5CA
+ / \  and postings          | GPG: 0x88BC3576 * ICQ: 61597169

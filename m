@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265754AbTBCWNW>; Mon, 3 Feb 2003 17:13:22 -0500
+	id <S266852AbTBCWQ1>; Mon, 3 Feb 2003 17:16:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbTBCWNW>; Mon, 3 Feb 2003 17:13:22 -0500
-Received: from maila.telia.com ([194.22.194.231]:19429 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id <S265754AbTBCWNU>;
-	Mon, 3 Feb 2003 17:13:20 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Message-ID: <006a01c2cbd2$bff0b870$020120b0@jockeXP>
-From: "Joakim Tjernlund" <Joakim.Tjernlund@lumentis.se>
-To: "Ion Badulescu" <ionut@badula.org>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-References: <200302032118.h13LIfqN006832@buggy.badula.org>
-Subject: Re: NETIF_F_SG question
-Date: Mon, 3 Feb 2003 23:22:34 +0100
-Organization: Lumentis AB
+	id <S266917AbTBCWQ1>; Mon, 3 Feb 2003 17:16:27 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:5380 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266852AbTBCWQ0>;
+	Mon, 3 Feb 2003 17:16:26 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302032226.h13MQZXd000225@darkstar.example.net>
+Subject: Re: Help with promise sx6000 card
+To: user_linux@citma.cu (Cuenta de la lista de linux)
+Date: Mon, 3 Feb 2003 22:26:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030203221923.M79151@webmail.citma.cu> from "Cuenta de la lista de linux" at Feb 03, 2003 05:19:23 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 2 Feb 2003 02:39:41 +0100, Joakim Tjernlund <Joakim.Tjernlund@lumentis.se> wrote:
-> > 
-> > I think HW checksumming and SG are independent. Either one of them should
-> > not require the other one in any context.
+> I have installed Red Hat 8 with 2.4.18-14 ,i2o support as module, but i can
+> not find my card anywhere.
 > 
-> They should be independent in general, but they aren't when the particular
-> case of TCP/IPv4 is concerned.
+> Here  i am sending you my dmesg and my modules.conf .
+> Notes I have a  120GB in hda where i have installed red hat , and 5 hardrives
+> in the promise card .
 > 
-> > Zero copy sendfile() does not require HW checksum to do zero copy, right?
-> 
-> Wrong...
-> 
-> > If HW checksum is present, then you get some extra performance as a bonus.
-> 
-> You get zerocopy, yes. :-) No HW cksum, no zerocopy.
+> Why is not my RAID under /dev/i2o/hda ?
 
-OK, but it should be easy to remove HW cksum as a condition to do zerocopy?
+I've got a similar bug report to this in my bug database:
 
-> 
-> Don't let this stop you, however. It's always possible that other networking
-> stacks will eventually make use of SG while not requiring HW TCP/UDP cksums.
-> None of them do right now, but...
+http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=33
 
-zerocopy without requiring HW cksums only OR could for instance the forwarding
-procdure also benefit from SG without  requiring HW cksums?
-
-> 
-> > (hmm, one could make SG mandatory and the devices that don't support it can 
-> > implement it in their driver. Just an idea)
-> 
-> Not really, that way lies driver madness. The less complexity in the driver,
-> the better.
-
-Just a wild idea, forget it. You are right
-   
-         Joakim
-> 
-> Ion
-> [starfire driver maintainer]
+John.

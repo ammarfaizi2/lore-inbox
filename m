@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318730AbSHLPuC>; Mon, 12 Aug 2002 11:50:02 -0400
+	id <S318143AbSHLPvN>; Mon, 12 Aug 2002 11:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318731AbSHLPuC>; Mon, 12 Aug 2002 11:50:02 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:17661 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318730AbSHLPuB>; Mon, 12 Aug 2002 11:50:01 -0400
-Subject: Re: 2.5.31 hda: lost interrupt
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Irwan Hadi <irwanhadi@phxby.engr.usu.edu>
-Cc: Kees Bakker <kees.bakker@altium.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020812153125.GA29884@phxby.com>
-References: <15703.24219.318219.380751@koli.tasking.nl> 
-	<20020812153125.GA29884@phxby.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 12 Aug 2002 16:50:56 +0100
-Message-Id: <1029167456.16421.174.camel@irongate.swansea.linux.org.uk>
+	id <S318734AbSHLPvM>; Mon, 12 Aug 2002 11:51:12 -0400
+Received: from ppp-217-133-217-5.dialup.tiscali.it ([217.133.217.5]:5800 "EHLO
+	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S318733AbSHLPvC>;
+	Mon, 12 Aug 2002 11:51:02 -0400
+Subject: Re: [patch] tls-2.5.31-D5
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jakub Jelinek <jakub@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Alexandre Julliard <julliard@winehq.com>
+In-Reply-To: <Pine.LNX.4.44.0208121939260.22188-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208121939260.22188-100000@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-YMDRLls9mN9QXPaR13Qt"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 12 Aug 2002 17:54:44 +0200
+Message-Id: <1029167684.4531.88.camel@ldb>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-12 at 16:31, Irwan Hadi wrote:
-> Well on my machine, with Maxtor DiamondMax 40 and Asus A7A255 ->
-> AliMagic chipset, and with kernel 2.5.26 I was having the same problem
-> too.
-> It seems the problem might be because I was using ext3fs, which soon I
-> found out corrupt the filesystem because of this lost interrupt thing.
-> Or this problem might occur because my system is an AMD Athlon.
 
-It happened because you ran 2.5. IDE on 2.5 is not stable (especially on
-2.5.26)
+--=-YMDRLls9mN9QXPaR13Qt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> My solution was to move back to ext2fs and kernel 2.4.18, although for
-> this I needed to fsck the hard drive a couple times because of the
-> occured corruption to the filesystem.
+> well, i think i have to agree ... if it wasnt for Wine's 0x40 descriptor.  
+> But it certainly does not come free. We could have 3 TLS entries (0x40
+> will be the last entry), and the copying cost is 9 cycles. (compared to 6
+> cycles in the 2 entries case.) Good enough?
+Or we could leave 0x40 fixed to 0x400 and use only 2.
 
-ext3 is stable on 2.4 systems. 
+This loses flexibility but anyway the only 2 apps that could use it are
+dosemu and wine and I think that they already need to have it mapped at
+0x400 for vm86 (no one uses 16-bit DLLs anymore).
+
+Of course this is only valid if Win32 doesn't use it because otherwise
+we would lose the ability to do null-pointer checking in programs using
+Win32 DLLs (e.g. mplayer).
 
 
+--=-YMDRLls9mN9QXPaR13Qt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9V9pEdjkty3ft5+cRAhtUAKDh/rFbCm/egDWR4OPDLG9Fmnje7gCgpaPw
+HRLMk6HrR5e+Gow2fUKeYZU=
+=z12f
+-----END PGP SIGNATURE-----
+
+--=-YMDRLls9mN9QXPaR13Qt--

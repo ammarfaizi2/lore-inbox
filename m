@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318730AbSG0KdF>; Sat, 27 Jul 2002 06:33:05 -0400
+	id <S318731AbSG0Ko2>; Sat, 27 Jul 2002 06:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318731AbSG0KdF>; Sat, 27 Jul 2002 06:33:05 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:32682 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318730AbSG0KdE>; Sat, 27 Jul 2002 06:33:04 -0400
-Date: Sat, 27 Jul 2002 12:54:02 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5.28] opti621 irq fallout
-Message-ID: <Pine.LNX.4.44.0207271251410.20701-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318732AbSG0Ko2>; Sat, 27 Jul 2002 06:44:28 -0400
+Received: from B5810.pppool.de ([213.7.88.16]:8969 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S318731AbSG0Ko2>; Sat, 27 Jul 2002 06:44:28 -0400
+Subject: Re: Problems assigning IRQs on Sony R505ECK laptop
+From: Daniel Egger <degger@fhm.edu>
+To: Aaron Gaudio <prothonotar@tarnation.dyndns.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020726114157.A11147@tarnation.dyndns.org>
+References: <20020726114157.A11147@tarnation.dyndns.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-03AkXTWIBxUTInjPBA7g"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 27 Jul 2002 12:48:23 +0200
+Message-Id: <1027766903.22179.31.camel@sonja.de.interearth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.28/drivers/ide/opti621.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.28/drivers/ide/opti621.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 opti621.c
---- linux-2.5.28/drivers/ide/opti621.c	26 Jul 2002 18:11:11 -0000	1.1.1.1
-+++ linux-2.5.28/drivers/ide/opti621.c	26 Jul 2002 19:18:00 -0000
-@@ -131,6 +131,7 @@
- #define MISC_REG 6	/* index of Miscellaneous register */
- 
- int reg_base;
-+static spinlock_t opti621_lock = SPIN_LOCK_UNLOCKED;
- 
- #define PIO_NOT_EXIST 254
- #define PIO_DONT_KNOW 255
-@@ -281,8 +282,7 @@
- 		hwif->name, ax, second.data_time, second.recovery_time, drdy);
- #endif
- 
--	save_flags(flags);	/* all CPUs */
--	cli();			/* all CPUs */
-+	spin_lock_irqsave(&opti621_lock, flags);
- 
- 	reg_base = hwif->io_ports[IDE_DATA_OFFSET];
- 	outb(0xc0, reg_base+CNTRL_REG);	/* allow Register-B */
-@@ -307,7 +307,7 @@
- 	write_reg(misc, MISC_REG);	/* set address setup, DRDY timings,   */
- 					/*  and read prefetch for both drives */
- 
--	restore_flags(flags);	/* all CPUs */
-+	spin_unlock_irqrestore(&opti621_lock, flags);
- }
- 
- /*
 
--- 
-function.linuxpower.ca
+--=-03AkXTWIBxUTInjPBA7g
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Am Fre, 2002-07-26 um 17.41 schrieb Aaron Gaudio:
+
+> Hi all. I'm having trouble with linux finding IRQs for several
+> devices on my Sony R505ECK laptop (just got it yesterday :)
+
+I've seen similar troubles on a different Vaio (unfortunately I don't
+have the model number handy). Basically what happens is that the
+Local-APIC seemingly isn't initialised correctly, all bridges in the
+system are treated transparently and all devices get the same IRQ (9)
+assigned. The system works just fine but I guess not as efficient as
+it could go because of the interrupt storm on IRQ 9. I can get get all
+data from this machine if someone wants to debug this problem.
+
+--=20
+Servus,
+       Daniel
+
+--=-03AkXTWIBxUTInjPBA7g
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9Qnp3chlzsq9KoIYRAlFTAKDFedMDKgCsY4pPl+dGjoevX2dheACePZTV
+omxw6Vh8se6EwQ3OdgpAnzc=
+=NFoL
+-----END PGP SIGNATURE-----
+
+--=-03AkXTWIBxUTInjPBA7g--
 

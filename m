@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVCYLbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVCYMQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVCYLbT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 06:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCYLbT
+	id S261253AbVCYMQy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 07:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVCYMQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 06:31:19 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:30081 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261614AbVCYLaZ (ORCPT
+	Fri, 25 Mar 2005 07:16:54 -0500
+Received: from opersys.com ([64.40.108.71]:48654 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261253AbVCYMQx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 06:30:25 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: PCI: remove pci_find_device usage from pci sysfs code.
-Date: Thu, 24 Mar 2005 22:06:11 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-References: <11099696382684@kroah.com> <200503201554.05010.eike-kernel@sf-tec.de> <20050321184020.GA5472@kroah.com>
-In-Reply-To: <20050321184020.GA5472@kroah.com>
+	Fri, 25 Mar 2005 07:16:53 -0500
+Message-ID: <424403CC.1040702@opersys.com>
+Date: Fri, 25 Mar 2005 07:27:56 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200503242206.12914.eike-kernel@sf-tec.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: read() on relayfs channel returns premature 0
+References: <20050323090254.GA10630@aurema.com> <16961.35656.576684.890542@tut.ibm.com> <20050324012948.GC25134@aurema.com> <16963.4331.617958.820012@tut.ibm.com> <Pine.LNX.4.61.0503242032090.8883@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0503242032090.8883@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sun, Mar 20, 2005 at 03:53:58PM +0100, Rolf Eike Beer wrote:
-> > Greg KH wrote:
-> > > ChangeSet 1.1998.11.23, 2005/02/25 08:26:11-08:00, gregkh@suse.de
-> > >
-> > > PCI: remove pci_find_device usage from pci sysfs code.
 
-> > Any reasons why you are not using "for_each_pci_dev(pdev)" here?
->
-> Nope, I forgot it was there :)
+Jan Engelhardt wrote:
+> Hm? Relayfs does not support a `cat /dev/relay/AChannelName` anymore?
 
-Patch is against 2.6.12-rc1-bk1 and does the same think like your one,
-except it uses for_each_pci_dev()
+This was a requirement for it to be included.
 
-Eike
-
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-
---- linux-2.6.11/drivers/pci/pci-sysfs.c	2005-03-21 11:41:56.000000000 +0100
-+++ linux-2.6.12-rc1/drivers/pci/pci-sysfs.c	2005-03-24 19:20:50.000000000 
-+0100
-@@ -481,7 +481,7 @@ static int __init pci_sysfs_init(void)
- 	struct pci_dev *pdev = NULL;
- 	
- 	sysfs_initialized = 1;
--	while ((pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
-+	for_each_pci_dev(pdev)
- 		pci_create_sysfs_dev_files(pdev);
- 
- 	return 0;
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

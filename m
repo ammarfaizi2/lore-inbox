@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263966AbTH1JDM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 05:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTH1JDL
+	id S263848AbTH1Ism (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 04:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTH1Irz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 05:03:11 -0400
-Received: from mail.medav.de ([213.95.12.190]:18827 "EHLO mail.medav.de")
-	by vger.kernel.org with ESMTP id S263966AbTH1JDI convert rfc822-to-8bit
+	Thu, 28 Aug 2003 04:47:55 -0400
+Received: from sol.cc.u-szeged.hu ([160.114.8.24]:13220 "EHLO
+	sol.cc.u-szeged.hu") by vger.kernel.org with ESMTP id S263856AbTH1ISM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 05:03:08 -0400
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Kathy Frazier" <kfrazier@mdc-dayton.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 28 Aug 2003 11:02:43 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
-In-Reply-To: <PMEMILJKPKGMMELCJCIGEEDNCEAA.kfrazier@mdc-dayton.com>
+	Thu, 28 Aug 2003 04:18:12 -0400
+Date: Thu, 28 Aug 2003 10:18:10 +0200 (CEST)
+From: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+To: Chris Cheney <ccheney@debian.org>
+cc: linux-kernel@vger.kernel.org, <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: HPT372 2.344 slow drive issue
+In-Reply-To: <20030827203454.GA1492@cheney.cx>
+Message-ID: <Pine.LNX.4.44.0308281009240.24608-100000@petra.hos.u-szeged.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Linux and PCI bridge
-Message-Id: <20030828090209.E6FFC2823B@mail.medav.de>
-X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.1; AVE: 6.21.0.1; VDF: 6.21.0.29
-	 at mail has not found any known virus in this email.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003 09:51:21 -0500, Kathy Frazier wrote:
+On Wed, 27 Aug 2003, Chris Cheney wrote:
 
->- Can anyone recommend any tools that would be useful in debugging this?
->I've started looking at a couple of PCI bus analyzers, but I'm not sure that
->it will allow me to detect anything with respect to the bridge or the FSB.
+> I have a Soyo P4I875P motherboard that has a HPT372 chip with bios 2.344
+> The hard drive on the controller is a Maxtor DiamondMax Plus 9 200GB. I
+> have tested the drive on ICH5 and it does around 48-52MB/s but on HPT372
+> it does ~ 9MB/s. This still shows up on 2.6.0-test4-bk2 and did on 2.4.x
+> but I haven't tested on 2.4 for several weeks.
 
-In the past couple of years, probably the most valuable asset in
-developping both the hardware and the software of our PCI boards has
-been the VMetro PCI bus analyzer/excerciser. The analyzer allows us to
-watch and trace all PCI signals/cycles in real time, while the
-excerciser gives us the capability to probe/drive all mem/io/config
-address ranges which are visible from the bus which the bus analyzer
-board is sitting on. This excludes everything beyond the PCI bus domain
-unless you are able to hook an additional signal to one of the general
-purpose trace inputs.
+I reported a similar issue some weeks ago (Abit K7D-RAID, integrated
+HPT372 IDE controller), I played with 2.4.22-pre10 for a while. With the
+opensource HPT driver, I reached good speed sometimes (two ATA drives were
+connected to the HPT, one drive on each channel), but not reliable - after
+a reboot, the md synchronisation between the two drives went down to
+1MB/s... The HPT driver uses the drives as SCSI drives, so it's a little
+painful to switch between the kernel and the HPT driver (initrd, mdadm,
+and so on...). Finally I gave up, and disabled the HPT controller in the
+system BIOS. Maybe the problem is a simple IDE autotune problem, I don't
+know.
 
-In fact, I'd never ever develop a driver for whichever OS you like
-without such a tool - it spoils you ;-) As it turned out, it's even
-more valuable in software development than hardware development.
-
-Ciao,
-  Dani
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Daniela Engert, systems engineer at MEDAV GmbH
-Gräfenberger Str. 32-34, 91080 Uttenreuth, Germany
-Phone ++49-9131-583-348, Fax ++49-9131-583-11
-
+  Geller Sandor <wildy@petra.hos.u-szeged.hu>
 

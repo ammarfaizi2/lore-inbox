@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbTJNOfU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 10:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTJNOfU
+	id S262378AbTJNOdC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 10:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbTJNOdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 10:35:20 -0400
-Received: from bay1-f48.bay1.hotmail.com ([65.54.245.48]:269 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262425AbTJNOfO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 10:35:14 -0400
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [qwejohn@hotmail.com]
-From: "sting sting" <qwejohn@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: from where are the devlabel  messages in /var/log/message
-Date: Tue, 14 Oct 2003 16:35:13 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY1-F48dp9oPEtxB230000f33a@hotmail.com>
-X-OriginalArrivalTime: 14 Oct 2003 14:35:13.0823 (UTC) FILETIME=[60FD3AF0:01C39260]
+	Tue, 14 Oct 2003 10:33:01 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:52445 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262378AbTJNOc6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 10:32:58 -0400
+Date: Tue, 14 Oct 2003 11:27:18 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: "Mark Williams (MWP)" <mwp@internode.on.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise Ultra133-TX2 (PCD20269).
+In-Reply-To: <20031012121331.GA665@linux.comp>
+Message-ID: <Pine.LNX.4.44.0310141126250.2790-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I know about the devlabel messages in /var/log/messages ; from where do they 
-stem ?
-; I read about it in the author website (http://www.lerhaupt.com/linux.html)
-but there was very little info , amd also the devlabel tar.gz does not 
-contain much.
 
-I understood that it has to do with symbolic links.
 
-It is installed on my Linux platform (as part of the Linux installation );
-Now , I wat to know what is the origin of the devlabel messages in the
-log file ?
-These  messages consist the following text :  "devlabel: devlabel service 
-started/restarted"
-I had searched under the 2.4.20-8 sources for "devlabel" and could not fnd 
-anything.
+On Sun, 12 Oct 2003, Mark Williams (MWP) wrote:
 
-what is the  kermel origin of these devlabel  messages ?
-regards,
-john
+> Hi all,
+> Sorry if this post to the list is inapropriate, i havnt been on the
+> kernel mailing list for long.
+> 
+> I am having rather ugly problems with this card using the PDC20269 chip.
+> Almost as soon as either of the HDDs on the controller are used, the
+> kernel hangs solid with a dump of debugging info.
 
-_________________________________________________________________
-STOP MORE SPAM with the new MSN 8 and get 2 months FREE* 
-http://join.msn.com/?page=features/junkmail
+> Ive tried moving cards, diff, ram, cpu, etc everything short of changing
+> MB (never been a problem before installing this card), so im sure that
+> its this new IDE controller card that is the problem.
+> I have also tried changing interrupts via the BIOS to remove possible
+> clashes, but it also has not helped.
+> 
+> I am getting this problem with both the 2.4.22 and the 2.6.0-test7
+> kernels (tried different minimal configs).
+> 
+> Can anyone help me with this problem?
+> If any other info is needed, please let me know.
+
+Please copy the exact information after the hang and post it.
+
+Thank you
 

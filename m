@@ -1,110 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVCaUab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVCaUkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVCaUab (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 15:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVCaUaa
+	id S261819AbVCaUkY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 15:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVCaUkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 15:30:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43790 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261787AbVCaUaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 15:30:12 -0500
-Date: Thu, 31 Mar 2005 22:30:10 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Yum Rayan <yum.rayan@gmail.com>, linux-kernel@vger.kernel.org,
-       mvw@planets.elm.net
-Subject: Stack usage tasks
-Message-ID: <20050331203010.GF3185@stusta.de>
-References: <df35dfeb05033023394170d6cc@mail.gmail.com> <20050331150548.GC19294@wohnheim.fh-wedel.de>
+	Thu, 31 Mar 2005 15:40:24 -0500
+Received: from mail.kroah.org ([69.55.234.183]:48271 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261819AbVCaUkT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 15:40:19 -0500
+Date: Thu, 31 Mar 2005 12:25:22 -0800
+From: Greg KH <greg@kroah.com>
+To: Prakash Punnoor <prakashp@arcor.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       sean <seandarcy2@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: BK snapshots removed from kernel.org?
+Message-ID: <20050331202522.GA971@kroah.com>
+References: <200503271414.33415.nbensa@gmx.net> <20050327210218.GA1236@ip68-4-98-123.oc.oc.cox.net> <200503281226.48146.nbensa@gmx.net> <4248258A.1060604@osdl.org> <d2fr2e$lvo$1@sea.gmane.org> <424B72CC.8030801@osdl.org> <424B79E6.90300@pobox.com> <20050331060201.GB25365@kroah.com> <424BE242.1020302@arcor.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050331150548.GC19294@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <424BE242.1020302@arcor.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 05:05:48PM +0200, Jörn Engel wrote:
-> On Wed, 30 March 2005 23:39:40 -0800, Yum Rayan wrote:
+On Thu, Mar 31, 2005 at 01:42:58PM +0200, Prakash Punnoor wrote:
+> Greg KH schrieb:
+> > On Wed, Mar 30, 2005 at 11:17:42PM -0500, Jeff Garzik wrote:
 > > 
-> > Before patch
-> > ------------
-> > check_free_space - 128
-> > do_acct_process - 105
+> >>Should hopefully just be changing get-version.pl ...
 > > 
-> > After patch
-> > -----------
-> > check_free_space - 36
-> > do_acct_process - 44
+> > 
+> > Nah, this simple patch to snapshot fixes it.
+> > 
+> > I've also generated the 2.6.12-rc1-bk3 snapshot and fixed up the
+> > directory on kernel.org so it should now work properly if you apply the
+> > patch.
 > 
-> It is always nice to see enthusiams, but in your case it might be a
-> bit misguided.  None of the functions you worked on appear to be real
-> problems wrt. stack usage.
-> 
-> But if you have time to tackle some of these functions, that may make
-> a real difference:
-> 
-> http://wh.fh-wedel.de/~joern/stackcheck.2.6.11
-> 
-> In principle, all recursive paths should consume as little stack as
-> possible.  Or the recursion itself could be avoided, even better.  And
+> Hi, have the incremental patches been fixes as well? Last is 2.6.11-bk9 to bk10...
 
-Sometimes it's easy to prove that the recursion can't occur more than 
-once.
+incrementals never worked for the -rc bk snapshots, as I don't think
+they were turned on (they are automatically generated with some other
+script somewhere...)
 
-Especially with a moderate stack usage, such cases are not a problem.
+I just make them myself when I need them, I have a script around here
+for that...
 
-But auditing the recursive paths for problematic ones is still an open 
-task.
+bah, drowning in helper scripts, the story of a programmer's life.
 
-> some of the call chains with ~3k of stack consumption may be
-> problematic on other platforms, like the x86-64.  Taking care of those
-> could result in smaller stacks for the respective platform.
-
-There's also something different that can be done:
-
-On i386, unit-at-a-time is disabled (the only currently released version 
-of GNU gcc with unit-at-a-time is gcc 3.4 [1]) since gcc's stack 
-handling isn't very good.
-
-With unit-at-a-time, the highest stack usage within a single function is 
-over 3kB.
-
-While this is technically gcc's fault, workarounds were IMHO worth it 
-since unit-at-a-time gives me kernel images that are smaller by 2% [2] 
-and I was surprised if the speed effect wasn't positive [3].
-
-The task I'm suggesting was therefore:
-- remove the -fno-unit-at-a-time in arch/i386/Makefile in your private
-  kernel sources
-- use gcc 3.4
-- reduce the stack usages in call paths > 3kB
-
-Note that with unit-at-a-time, gcc inline several static functions, so 
-the stack usage you see for a function might be accumulated from several 
-functions.
-
-It's IMHO the best doing this against -mm.
-
-I do currently not have the time for doing this, but it was something 
-with a real advantage for many users.
-
-> Jörn
-
-cu
-Adrian
-
-[1] SuSE "gcc 3.3" also supports this
-[2] with -O2
-[3] I do not claim it has to be measurable positive, but at least not
-    negative
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSHMIQy>; Tue, 13 Aug 2002 04:16:54 -0400
+	id <S312560AbSHMIYG>; Tue, 13 Aug 2002 04:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314284AbSHMIQx>; Tue, 13 Aug 2002 04:16:53 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:19465 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S314277AbSHMIQx>; Tue, 13 Aug 2002 04:16:53 -0400
-Date: Tue, 13 Aug 2002 09:20:43 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] __func__ -> __FUNCTION__
-Message-ID: <20020813092043.A1859@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <3D58A45F.A7F5BDD@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D58A45F.A7F5BDD@zip.com.au>; from akpm@zip.com.au on Mon, Aug 12, 2002 at 11:17:03PM -0700
+	id <S313867AbSHMIYG>; Tue, 13 Aug 2002 04:24:06 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16882 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312560AbSHMIYF>; Tue, 13 Aug 2002 04:24:05 -0400
+Date: Tue, 13 Aug 2002 10:27:52 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Ivan Gyurdiev <ivangurdiev@attbi.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre2
+In-Reply-To: <200208120158.19207.ivangurdiev@attbi.com>
+Message-ID: <Pine.NEB.4.44.0208131026390.14606-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 11:17:03PM -0700, Andrew Morton wrote:
-> 
-> It is a requirement of the SPARC port that Linux be compilable
-> by egcs-1.1.2, aka gcc-2.91.66.
-> 
-> That compiler does not support __func__.
+On Mon, 12 Aug 2002, Ivan Gyurdiev wrote:
 
-Is there any reason to not use __FUNCTION__?  According to the gcc folks
-that there is no plan to retire it, and as long as all known-good kernel
-compilers support it a gccism is a lot better than a standard feature that
-is not supported by most of the kernel compilers.
+> make[3]: Entering directory `/usr/src/linux-2.4.20-pre2/fs/partitions'
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-pre2/include -Wall
+> -Wstrict-prototypes                                -Wno-trigraphs -O2
+> -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -
+> mpreferred-stack-boundary=2 -march=athlon    -nostdinc -I
+> /usr/lib/gcc-lib/athlon-redhat-linux/3.2/include
+> -DKBUILD_BASENAME=check  -DEXPORT_SYMTAB -c check.c
+> check.c: In function `devfs_register_disc':
+> check.c:328: structure has no member named `number'
+> check.c:329: structure has no member named `number'
+> check.c: In function `devfs_register_partitions':
+> check.c:361: structure has no member named `number'
+>...
+
+
+The following patch made by Christoph Hellwig fixes it:
+
+
+--- linux-2.4.20-bk-20020810/include/linux/genhd.h	Sat Aug 10 14:37:16 2002
++++ linux/include/linux/genhd.h	Mon Aug 12 23:40:37 2002
+@@ -62,7 +62,9 @@ struct hd_struct {
+ 	unsigned long start_sect;
+ 	unsigned long nr_sects;
+ 	devfs_handle_t de;              /* primary (master) devfs entry  */
+-
++#ifdef CONFIG_DEVFS_FS
++	int number;
++#endif /* CONFIG_DEVFS_FS */
+ #ifdef CONFIG_BLK_STATS
+ 	/* Performance stats: */
+ 	unsigned int ios_in_flight;
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
 

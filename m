@@ -1,51 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262994AbTIGMKp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 08:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTIGMKp
+	id S261877AbTIGM0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 08:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTIGM0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 08:10:45 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:7381
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S262994AbTIGMKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 08:10:44 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: 2.6.0-test4-mm5 and below: Wine and XMMS problems
-Date: Sun, 7 Sep 2003 22:18:27 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20030902231812.03fae13f.akpm@osdl.org> <20030907100843.GM14436@fs.tum.de>
-In-Reply-To: <20030907100843.GM14436@fs.tum.de>
+	Sun, 7 Sep 2003 08:26:07 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:7001 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S261877AbTIGM0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 08:26:03 -0400
+Date: Sun, 7 Sep 2003 13:27:36 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Ingo Molnar <mingo@redhat.com>
+cc: Jamie Lokier <jamie@shareable.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 2] Little fixes to previous futex patch
+In-Reply-To: <Pine.LNX.4.44.0309070322310.17404-100000@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0309071248510.3022-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309072218.28116.kernel@kolivas.org>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Sep 2003 20:08, Adrian Bunk wrote:
-> On Tue, Sep 02, 2003 at 11:18:12PM -0700, Andrew Morton wrote:
-> >...
-> > . Dropped out Con's CPU scheduler work, added Nick's.  This is to help us
-> >   in evaluating the stability, efficacy and relative performance of
-> > Nick's work.
-> >
-> >   We're looking for feedback on the subjective behaviour and on the usual
-> >   server benchmarks please.
-> >...
->
-> Short story:
->
-> I'm still using 2.5.72, all of the 2.6.0-test?{,-mm?} kernels have
-> problems
+On Sun, 7 Sep 2003, Ingo Molnar wrote:
+> 
+> btw., regarding this fix:
+> 
+>   ChangeSet@1.1179.2.5, 2003-09-06 12:28:20-07:00, hugh@veritas.com
+>     [PATCH] Fix futex hashing bugs
+> 
+> why dont we do this:
+> 
+>                         } else {
+>                                 /* Make sure to stop if key1 == key2 */
+> 				if (head1 == head2)
+> 					break;
+>                                 list_add_tail(i, head2);
+>                                 this->key = key2;
+>                                 if (ret - nr_wake >= nr_requeue)
+>                                         break;
+>                         }
+> 
+> instead of the current:
+> 
+>                         } else {
+>                                 list_add_tail(i, head2);
+>                                 this->key = key2;
+>                                 if (ret - nr_wake >= nr_requeue)
+>                                         break;
+>                                 /* Make sure to stop if key1 == key2 */
+>                                 if (head1 == head2 && head1 != next)
+>                                         head1 = i;
+>                         }
+> 
+> what's the point in requeueing once, and then exiting the loop by changing
+> the loop exit condition variable? You are trying to avoid the lockup but
+> the first one ought to be the most straightforward way to do it.
 
-What's your X and xmms nice values? Many X servers are reniced to -10 and some 
-shells spawn new apps at nice 5. After that the most common thing I find in 
-reports are upgrades to newer kernels losing hard disk dma at some stage (due 
-to config changes/movements) and it not being noticed.
+I think you're reading it as a "list_for_each(i, head1)" loop,
+whereas it is and must be a "list_for_each_safe(i, next, head1)" loop.
 
-Con
+So it won't (in general) terminate after this one requeueing (as
+list_for_each would, finding i->next == head1): termination depends on
+next (already set) and head1, so I repoint head1 to the first requeued.
+
+So it should terminate after one pass down the list, when it reaches the
+first requeued, and can then return the appropriate "ret" count to user.
+
+You may perhaps know that the ret count is not important, but I don't
+know that, so wanted to get it right.  (At the time, I also wanted to
+have the list sorted exactly as intended, but now I can't see that the
+relative positions of different keys could matter at all.)
+
+It may be bad practice to use a familiar macro like list_for_each_safe,
+yet play with its controlling variables within the loop.  I just felt
+safer that way than expanding it, or adding extraneous variables.
+
+Hugh
 

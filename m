@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131472AbRDBXFV>; Mon, 2 Apr 2001 19:05:21 -0400
+	id <S131481AbRDBXGv>; Mon, 2 Apr 2001 19:06:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131480AbRDBXFL>; Mon, 2 Apr 2001 19:05:11 -0400
-Received: from mail6.bigmailbox.com ([209.132.220.37]:31238 "EHLO
-	mail6.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S131472AbRDBXFF>; Mon, 2 Apr 2001 19:05:05 -0400
-Date: Mon, 2 Apr 2001 16:04:12 -0700
-Message-Id: <200104022304.QAA19333@mail6.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
-Mime-Version: 1.0
-X-Originating-Ip: [24.5.157.48]
-From: "Quim K Holland" <qkholland@my-deja.com>
-To: szabi@inf.elte.hu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] 2.4.x nice level
+	id <S131497AbRDBXGn>; Mon, 2 Apr 2001 19:06:43 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:26387 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S131480AbRDBXG1>;
+	Mon, 2 Apr 2001 19:06:27 -0400
+Message-ID: <3AC9058F.580E268B@mountain.net>
+Date: Mon, 02 Apr 2001 19:04:47 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+MIME-Version: 1.0
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, David Lang <dlang@diginsite.com>,
+   Manfred Spraul <manfred@colorfullife.com>,
+   "Albert D. Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
+   linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <Pine.LNX.4.30.0104021436110.24812-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "BS" == BERECZ Szabolcs <szabi@inf.elte.hu> writes:
+Oliver Xymoron wrote:
+> 
+> On Sun, 1 Apr 2001, Jeff Garzik wrote:
+> 
+> > On Sun, 1 Apr 2001, David Lang wrote:
+> > > if we want to get the .config as part of the report then we need to make
+> > > it part of the kernel in some standard way (the old /proc/config flamewar)
+> > > it's difficult enough sometimes for the sysadmin of a box to know what
+> > > kernel is running on it, let alone a bug reporting script.
+> >
+> > Let's hope it's not a flamewar, but here goes :)
+> >
+> > We -need- .config, but /proc/config seems like pure bloat.
+> 
+> As a former proponent of /proc/config (I wrote one of the much-debated
+> patches), I tend to agree. Debian's make-kpkg does the right thing, namely
+> treating .config the same way it treats System-map, putting it in the
+> package and eventually installing it in /boot/config-x.y.z. If Redhat's
+> kernel-install script did the same it would rapidly become a non-issue.
 
-BS> ... a setiathome running at nice level 19, and a bladeenc at
-BS> nice level 0. setiathome uses 14 percent, and bladeenc uses
-BS> 84 percent of the processor. I think, setiathome should use
-BS> max 2-3 percent.  the 14 percent is way too much for me.
-BS> ...
-BS> with kernel 2.2.16 it worked for me.
-BS> now I use 2.4.2-ac20
+How about /lib/modules/$(uname -r)/build/.config ? It's already there.
 
-Would it the case that bladeenc running on 2.4.2 spends more
-time doing I/O?  I am not saying that the userland makes more I/O
-requests, but if the same set of I/O requests are taking longer
-to complete on 2.4.2, then while bladeenc is waiting for their
-completion, it is not so surprising that the other process uses
-the otherwise-idle CPU cycles.
+Tom
 
-
-
-------------------------------------------------------------
---== Sent via Deja.com ==--
-http://www.deja.com/
-
-
+-- 
+The Daemons lurk and are dumb. -- Emerson

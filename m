@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272482AbTHFUmf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272485AbTHFUmf
+	id S274988AbTHFUfg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 16:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270995AbTHFUfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:42:35 -0400
-Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:59279 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S272482AbTHFUme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:42:34 -0400
-Date: Wed, 06 Aug 2003 16:42:26 -0400
-From: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Subject: [PATCH][TRIVIAL] Bugzilla bug # 1043 - help message for
- CONFIG_REISERFS_FS is outdated
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <200308061642.26925.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.2
+	Wed, 6 Aug 2003 16:35:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14804 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274988AbTHFUeZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 16:34:25 -0400
+Date: Wed, 6 Aug 2003 13:34:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adam Belay <ambx1@neo.rr.com>
+Cc: torvalds@osdl.org, misha@nasledov.com, rmk@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5/2.6 PCMCIA Issues
+Message-Id: <20030806133450.31da90e4.akpm@osdl.org>
+In-Reply-To: <20030806114225.GI13275@neo.rr.com>
+References: <20030804232204.GA21763@nasledov.com>
+	<20030805144453.A8914@flint.arm.linux.org.uk>
+	<20030806045627.GA1625@nasledov.com>
+	<200308060559.h765xhI05860@mail.osdl.org>
+	<20030806114225.GI13275@neo.rr.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pretty self explanatory...The URLs should not be pointing to www.reiserfs.org since
-that has been turned into an ad site.
+Adam Belay <ambx1@neo.rr.com> wrote:
+>
+> [PCMCIA] Fix PnP Probing in i82365.c
+>  pnp_x_valid returns 1 if valid.  Therefore we should be using !pnp_port_valid.
+>  Also cleans up some formatting issues.
 
-Josef 'Jeff' Sipek
-
---- linux-2.6.0-test2-vanilla/fs/Kconfig	2003-07-27 13:03:14.000000000 -0400
-+++ linux-2.6.0-test2-js/fs/Kconfig	2003-08-06 16:08:03.000000000 -0400
-@@ -210,7 +210,7 @@
- 
- 	  In general, ReiserFS is as fast as ext2, but is very efficient with
- 	  large directories and small files.  Additional patches are needed
--	  for NFS and quotas, please see <http://www.reiserfs.org/> for links.
-+	  for NFS and quotas, please see <http://www.namesys.com/> for links.
- 
- 	  It is more easily extended to have features currently found in
- 	  database and keyword search systems than block allocation based file
-@@ -218,7 +218,7 @@
- 	  plugins consistent with our motto ``It takes more than a license to
- 	  make source code open.''
- 
--	  Read <http://www.reiserfs.org/> to learn more about reiserfs.
-+	  Read <http://www.namesys.com/> to learn more about reiserfs.
- 
- 	  Sponsored by Threshold Networks, Emusic.com, and Bigstorage.com.
- 
-
+This patch fixes the insertion-time hang on the A21P, with CONFIG_I82365=y

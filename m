@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288326AbSACWPW>; Thu, 3 Jan 2002 17:15:22 -0500
+	id <S288333AbSACWQn>; Thu, 3 Jan 2002 17:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288328AbSACWPN>; Thu, 3 Jan 2002 17:15:13 -0500
-Received: from port29.ds1-rdo.adsl.cybercity.dk ([212.242.196.94]:11058 "HELO
-	xyzzy.adsl.dk") by vger.kernel.org with SMTP id <S288326AbSACWPI>;
-	Thu, 3 Jan 2002 17:15:08 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: The CURRENT macro
-In-Reply-To: <20020103213455.34699.qmail@web14911.mail.yahoo.com>
-X-Home-Page: http://peter.makholm.net/
-Xyzzy: Nothing happens!
-From: Peter Makholm <peter@makholm.net>
-Date: Thu, 03 Jan 2002 23:14:59 +0100
-In-Reply-To: <20020103213455.34699.qmail@web14911.mail.yahoo.com>
- (mylinuxk@yahoo.ca's message of "Thu, 3 Jan 2002 21:36:53 +0000 (UTC)")
-Message-ID: <87u1u3ozdo.fsf@xyzzy.adsl.dk>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
- Intelligence, i386-debian-linux)
+	id <S288336AbSACWQg>; Thu, 3 Jan 2002 17:16:36 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24586 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288333AbSACWQR>; Thu, 3 Jan 2002 17:16:17 -0500
+Subject: Re: ISA slot detection on PCI systems?
+To: mochel@osdl.org (Patrick Mochel)
+Date: Thu, 3 Jan 2002 22:26:39 +0000 (GMT)
+Cc: mail_ker@xarch.tu-graz.ac.at (Alex),
+        vonbrand@inf.utfsm.cl (Horst von Brand), davej@suse.de (Dave Jones),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <Pine.LNX.4.33.0201031017190.837-100000@segfault.osdlab.org> from "Patrick Mochel" at Jan 03, 2002 10:22:37 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16MGJr-0001Gp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mylinuxk@yahoo.ca (Michael Zhu) writes:
+> I don't believe that Win2k does it (it's not from the PnP family, is it?).
+> But, I don't doubt that XP does it on contemporary hardware. It requires
+> ACPI support in the BIOS. And, ACPI enumerates all of the legacy devices
+> in the system.
 
-> blk_dev[MAJOR_NR].request_queue". I know CURRENT is
-> just a macro. Where can I find the definition of this
-> macro?
+PnPBIOS also enumerates the legacy hardware that can be known about (ie
+is soldered down)
 
-Seek, and ye shall find (Matt 7.7):
-
-xyzzy% find -type f | xargs grep "#define CURRENT "
-./include/linux/blk.h:#define CURRENT blkdev_entry_next_request(&blk_dev[MAJOR_NR].request_queue.queue_head)
-xyzzy%     
-
--- 
-Når folk spørger mig, om jeg er nørd, bliver jeg altid ilde til mode
-og svarer lidt undskyldende: "Nej, jeg bruger RedHat".
-                                -- Allan Olesen på dk.edb.system.unix
+Alan

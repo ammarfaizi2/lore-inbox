@@ -1,40 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288149AbSATKiI>; Sun, 20 Jan 2002 05:38:08 -0500
+	id <S288158AbSATKtW>; Sun, 20 Jan 2002 05:49:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288154AbSATKh6>; Sun, 20 Jan 2002 05:37:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35855 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288149AbSATKh5>; Sun, 20 Jan 2002 05:37:57 -0500
-Message-ID: <3C4A9DFA.8070109@zytor.com>
-Date: Sun, 20 Jan 2002 02:37:46 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Rainer krienke <rainer@krienke.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
-In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201181212.g0ICCGq14563@bliss.uni-koblenz.de> <a29tms$s9v$1@cesium.transmeta.com> <200201201033.g0KAXfw20121@robotnik.krienke.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288159AbSATKtM>; Sun, 20 Jan 2002 05:49:12 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30475 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288158AbSATKtI>;
+	Sun, 20 Jan 2002 05:49:08 -0500
+Date: Sun, 20 Jan 2002 11:48:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+Message-ID: <20020120114850.J27835@suse.de>
+In-Reply-To: <20020119164503.H27835@suse.de> <Pine.LNX.4.10.10201191220060.7770-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10201191220060.7770-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rainer krienke wrote:
-
+On Sat, Jan 19 2002, Andre Hedrick wrote:
+> > On Sat, Jan 19 2002, Andre Hedrick wrote:
+> > > On Sat, 19 Jan 2002, Jens Axboe wrote:
+> > > 
+> > > > On Fri, Jan 18 2002, Davide Libenzi wrote:
+> > > > > Guys, instead of requiring an -m8 to every user that is observing this
+> > > > > problem, isn't it better that you limit it inside the driver until things
+> > > > > gets fixed ?
+> > > > 
+> > > > There is no -m8 limit, 2.5.3-pre1 + ata253p1-2 patch handles any set
+> > > > multi mode value.
+> > > > 
+> > > > -- 
+> > > > Jens Axboe
+> > > > 
+> > > 
+> > > And that will generate the [lost interrupt], and I have it fixed at all
+> > > levels too now.
+> > 
+> > How so? I don't see the problem.
 > 
-> You mentioned, you'd probably include this in another V3 release. Does this 
-> mean, that V4 already can do this? What syntax is needed? What about the 
-> logical/physical path problem? Is this already solved by using vfsbinds in V4?
-> 
-> Thanks Rainer
-> 
+> Unlike ATAPI which will generally send you more data than requested on
+> itw own, ATA devices do not like enjoy or play the game.  Additionally the
 
-I don't know about v4.  You have to ask Jeremy about that.
+Unrelated ATAPI fodder :-)
 
-vfsbinds takes care of any "logical/physical" path problem, so it's not 
-an issue there.
+> current code asks for 16 sectors, but we do not do the request copy
+> anymore, and this mean for every 4k of paging we are soliciting for 8k.
 
-	-hpa
+The (now) missing copy is unrelated.
+
+> We only read out 4k thus the device has the the next 4k we may be wanting
+> ready.  Look at it as a dirty prefetch, but eventally the drive is going
+> to want to go south, thus [lost interrupt]
+
+Even if the drive is programmed for 16 sectors in multi mode, it still
+must honor lower transfer sizes. The fix I did was not to limit this,
+but rather to only setup transfers for the amount of sectors in the
+first chunk. This is indeed necessary now that we do not have a copy of
+the request to fool around with.
+
+> Basically as the Block maintainer, you pointed out I am restricted to 4k
+> chunking in PIO.  You decided, in the interest of the block glue layer
+> into the driver, to force early end request per Linus's requirements to
+> return back every 4k completed to block regardless of the size of the
+> total data requested.
+
+Correct. The solution I did (which was one of the two I suggested) is
+still the cleanest, IMHO.
+
+> For the above two condition to be properly satisfied, I have to adjust
+> and apply one driver policy make the driver behave and give the desired
+> results.  We should note this will conform with future IDEMA proposals
+> being submitted to the T committees.
+
+I still don't see a description of why this would cause a lost
+interrupt. What is the flaw in my theory and/or code?
+
+-- 
+Jens Axboe
 

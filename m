@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263251AbUCTItF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 03:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263252AbUCTItF
+	id S263254AbUCTJBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 04:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbUCTJBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 03:49:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55703 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263251AbUCTItD convert rfc822-to-8bit
+	Sat, 20 Mar 2004 04:01:47 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:30875 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263254AbUCTJBq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 03:49:03 -0500
-Date: Sat, 20 Mar 2004 00:49:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?SvZybg==?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com,
-       viro@parcelfarce.linux.theplanet.co.uk, s.b.wielinga@student.utwente.nl
-Subject: Re: [PATCH] cowlinks v2
-Message-Id: <20040320004901.4328c1e1.akpm@osdl.org>
-In-Reply-To: <20040320083411.GA25934@wohnheim.fh-wedel.de>
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 20 Mar 2004 04:01:46 -0500
+Message-ID: <405C0873.6080805@cyberone.com.au>
+Date: Sat, 20 Mar 2004 20:01:39 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>
+CC: Mark Wong <markw@osdl.org>, Andrew Morton <akpm@osdl.org>, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm2
+References: <A6974D8E5F98D511BB910002A50A6647615F5E2B@hdsmsx402.hd.intel.com> <1079756877.7277.644.camel@dhcppc4>
+In-Reply-To: <1079756877.7277.644.camel@dhcppc4>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+
+
+Len Brown wrote:
+
+>On Fri, 2004-03-19 at 23:19, Brown, Len wrote:
 >
-> +static long fcntl_setcow(struct file *filp, unsigned long arg)
->  +{
->  +	struct inode *inode = filp->f_dentry->d_inode;
->  +
->  +	spin_lock(&inode->i_lock);
->  +	if (arg)
->  +		inode->i_flags |= S_COWLINK;
->  +	else
->  +		inode->i_flags &= ~S_COWLINK;
->  +	mark_inode_dirty_sync(inode);
->  +	spin_unlock(&inode->i_lock);
->  +	return 0;
->  +}
->  +
+>>CONFIG_X86_HT=y does not enable HT.
+>>CONFIG_X86_HT=n does not disable HT.
+>>It only controls if the cpu_sibling_map[] etc. are initialized.
+>>
+>>acpi=off does not disable HT
+>>
+>
+>oops, that line incorrect.
+>we fixed "acpi=off" to _really_ mean ACPI off -- table parsing
+>and all, so it does disable HT, along w/ all the other stuff
+>that depends on ACPI.
+>
+>
 
-i_lock is an innermost lock.  No locks should be taken inside i_lock.
-
-Here, not only is inode_lock being taken inside i_lock but ->dirty_inode
-may be called as well, and dirty_inode() may not be called under any
-spinlock.
+So how come oprofile seems to think there is a sibling?
+Can you verify both cases use physical only CPUs?
 

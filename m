@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbTDTP7X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbTDTP7X
+	id S263621AbTDTQHD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 12:07:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbTDTQHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:59:23 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:31236 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263620AbTDTP7W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:59:22 -0400
-Date: Sun, 20 Apr 2003 18:13:06 +0200
-To: Andrei Ivanov <andrei.ivanov@ines.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops in 2.5.68-mm1
-Message-ID: <20030420161306.GA16656@hh.idb.hist.no>
-References: <Pine.LNX.4.50L0.0304201843300.1931-200000@webdev.ines.ro> <Pine.LNX.4.50L0.0304201850130.1931-100000@webdev.ines.ro>
+	Sun, 20 Apr 2003 12:07:03 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:25871 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263621AbTDTQHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 12:07:02 -0400
+Date: Sun, 20 Apr 2003 18:18:12 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+Subject: Re: ISDN massive packet drops while DVD burn/verify
+Message-Id: <20030420181812.44844175.skraw@ithnet.com>
+In-Reply-To: <1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk>
+References: <20030416151221.71d099ba.skraw@ithnet.com>
+	<Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu>
+	<20030419193848.0811bd90.skraw@ithnet.com>
+	<1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50L0.0304201850130.1931-100000@webdev.ines.ro>
-User-Agent: Mutt/1.5.3i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 20, 2003 at 06:58:33PM +0300, Andrei Ivanov wrote:
-[...]
-> -r--------    1 root     root        48281 Apr 11 21:05 Cats & Dogs (RO).txt
-> -r--------    1 root     root     730341376 Apr 11 21:04 Cats And Dogs.avi
+On 19 Apr 2003 23:01:32 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> On Sad, 2003-04-19 at 18:38, Stephan von Krawczynski wrote:
+> > I don't buy that explanation. Reason is simple: during this all network
+> > connections work flawlessly, and they do have quite a lot of interrupts
+> > compared to ISDN. ISDN is so slow and has so few interrupts that it is
+> > quite unlikely in a SMP-beyond-GHz-limit box that you loose some. The
+> > ancient hardware days are long gone ...
 > 
-> I typed less Cats<tab>, and then &<tab>, and here it was stuck, and the 
-> kernel oopsed. If I type less Cats<tab>, and then \&<tab>, it works, but 
-> without the \ in front of the &, the shell gets stuck in D state.
+> I'd suggest buying his explanation, because he's right. You are
+> confusing quantity and latency.
 
-Typing 
-<any command> &<TAB>
-gives the shell and the fs some work to do.  The "&" ends one
-command and starts a new one (similiar to ";") so typing
-nothing more after "&" and pressing <TAB> makes the shell search the entire
-path and consider all the commands available.
-(Press tab some more times and see the list, 2078 possibilities
-in my case. :-)  This sort of thing can easily
-take some time (in D state) if your PATH includes network drives.
+Sorry Alan, "been there, done that"
+I made ISDN work on just about anything that you would call an OS on sometimes
+quite ancient hardware (compared to nowadays), and I really cannot imagine that
+the combined (though sometimes confusing) efforts of you, Andre, Pavel, name-one
+on IDE made a dual 1.4 GHz PIII slower (responding) than a M68k 7,14 MHz with a
+polling IDE interface - which happens to be the slowest thing I ever did ISDN
+programming on _flawlessly_.
 
-Helge Hafting
+Regards,
+Stephan

@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbUKQKZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbUKQK1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbUKQKZG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 05:25:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbUKQKZF
+	id S262084AbUKQK1A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:27:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbUKQK07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:25:05 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:20132 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S261930AbUKQKY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:24:59 -0500
-Date: Wed, 17 Nov 2004 11:24:57 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: about /proc/*/stat
-Message-ID: <20041117102457.GA6760@cirrus.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041117092847.GA961@cirrus.madduck.net>
+	Wed, 17 Nov 2004 05:26:59 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1472 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262042AbUKQK0m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 05:26:42 -0500
+Date: Wed, 17 Nov 2004 02:26:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: chris@tebibyte.org, andrea@novell.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, piggin@cyberone.com.au, riel@redhat.com,
+       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+Message-Id: <20041117022622.04e0e7d7.akpm@osdl.org>
+In-Reply-To: <20041117060852.GB19107@logos.cnet>
+References: <4193E056.6070100@tebibyte.org>
+	<4194EA45.90800@tebibyte.org>
+	<20041113233740.GA4121@x30.random>
+	<20041114094417.GC29267@logos.cnet>
+	<20041114170339.GB13733@dualathlon.random>
+	<20041114202155.GB2764@logos.cnet>
+	<419A2B3A.80702@tebibyte.org>
+	<419B14F9.7080204@tebibyte.org>
+	<20041117012346.5bfdf7bc.akpm@osdl.org>
+	<20041117060648.GA19107@logos.cnet>
+	<20041117060852.GB19107@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Content-Disposition: inline
-In-Reply-To: <20041117092847.GA961@cirrus.madduck.net>
-X-OS: Debian GNU/Linux 3.1 kernel 2.6.8-cirrus i686
-X-Mailer: Mutt 1.5.6+20040907i (CVS)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> Before the swap token patches went in you remember spurious OOM reports  
+>  or things were working fine then?
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hard to say, really.  Yes, I think the frequency of reports has increased a
+bit in the last month or two.  But it's always been a really small number
+of people so that may not be statistically significant.
 
-also sprach martin f krafft <madduck@madduck.net> [2004.11.17.1028 +0100]:
-> If not, I have a shell script that works well and which I would then
-> publicise. I just don't want to push yet another software doing
-> The Same Thing out there...
+umm,
 
-FWIW: http://madduck.net/~madduck/scratch/pstat
+there was one report in January		(seems to be a kernel memory leak)
+One in February				(ditto)
+One in June
+Two in July (one was with no swap, one with laptop_mode)
+A few in August, but mainly due to the CDROM memory leak.
+On August 23 the thrashing control was added.
+After that, two or three people have been reporting it.
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-spamtraps: madduck.bogus@madduck.net
-=20
-"he gave me his card
- he said, 'call me if they die'
- i shook his hand and said goodbye
- ran out to the street
- when a bowling ball came down the road
- and knocked me off my feet"
-                                                        -- bob dylan
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBmyb5IgvIgzMMSnURAmioAKCki1lpccFG+sK7mA9k9ekS1+/MtgCaAmIG
-s9pl7szZnonW/Hhe4HbapeA=
-=2wGT
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
+So yes, we do seem to have gone from basically zero reports up to a trickle.

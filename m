@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUGAQ0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266014AbUGAQb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUGAQ0G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 12:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266042AbUGAQ0G
+	id S266014AbUGAQb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 12:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266027AbUGAQb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 12:26:06 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:10245 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id S266009AbUGAQ0A
+	Thu, 1 Jul 2004 12:31:58 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:56319 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266014AbUGAQb4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 12:26:00 -0400
-Message-ID: <40E43BDE.85C5D670@tv-sign.ru>
-Date: Thu, 01 Jul 2004 20:29:18 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       David Gibson <david@gibson.dropbear.id.au>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [BUG] hugetlb MAP_PRIVATE mapping vs /dev/zero
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Jul 2004 12:31:56 -0400
+Date: Thu, 1 Jul 2004 11:31:16 -0500
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linas@austin.ibm.com, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64: lockfix for rtas error log
+Message-Id: <20040701113116.72a25ed0.moilanen@austin.ibm.com>
+In-Reply-To: <16611.18350.530425.178652@cargo.ozlabs.ibm.com>
+References: <20040629175007.P21634@forte.austin.ibm.com>
+	<16610.41869.78636.349800@cargo.ozlabs.ibm.com>
+	<20040630125027.T21634@forte.austin.ibm.com>
+	<16611.18350.530425.178652@cargo.ozlabs.ibm.com>
+Organization: LTC
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+> As far as I can see, the ameslab tree has _never_ contained those
+> lines.  The last change to chrp_setup.c was on 1 May 2004, and neither
+> that version nor any of the earlier versions that I looked at have
+> those lines.  Are you sure you don't have that as a local change in
+> your copy?  Do a bk sfiles -i and a bk push -n and see if it shows up.
 
-Hugetlbfs mmap with MAP_PRIVATE becomes MAP_SHARED
-silently, but vma->vm_flags have no VM_SHARED bit.
-I think it make sense to forbid MAP_PRIVATE in
-hugetlbfs_file_mmap() because it may confuse user
-space applications. But the real bug is that reading
-from /dev/zero into hugetlb will do:
-
-read_zero()
-	read_zero_pagealigned()
-		if (vma->vm_flags & VM_SHARED)
-			break;	// OK if MAP_PRIVATE
-		zap_page_range();
-		zeromap_page_range();
-
-We can fix hugetlbfs_file_mmap() or read_zero_pagealigned()
-or both.
-
-Oleg.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
-diff -urp 2.6.7-clean/drivers/char/mem.c 2.6.7-mmap/drivers/char/mem.c
---- 2.6.7-clean/drivers/char/mem.c	2004-05-30 13:25:49.000000000 +0400
-+++ 2.6.7-mmap/drivers/char/mem.c	2004-07-01 19:51:52.000000000 +0400
-@@ -417,7 +417,7 @@ static inline size_t read_zero_pagealign
+Back on May 6th, Nathan Fontenot posted a patch to linuxppc64, that had
+this fixed when he noticed it got removed.  It looks like the patch was
+never merged.
  
- 		if (vma->vm_start > addr || (vma->vm_flags & VM_WRITE) == 0)
- 			goto out_up;
--		if (vma->vm_flags & VM_SHARED)
-+		if (vma->vm_flags & (VM_SHARED | VM_HUGETLB))
- 			break;
- 		count = vma->vm_end - addr;
- 		if (count > size)
-diff -urp 2.6.7-clean/fs/hugetlbfs/inode.c 2.6.7-mmap/fs/hugetlbfs/inode.c
---- 2.6.7-clean/fs/hugetlbfs/inode.c	2004-05-24 14:16:11.000000000 +0400
-+++ 2.6.7-mmap/fs/hugetlbfs/inode.c	2004-07-01 19:54:16.000000000 +0400
-@@ -28,6 +28,7 @@
- #include <linux/security.h>
- 
- #include <asm/uaccess.h>
-+#include <asm/mman.h>
- 
- /* some random number */
- #define HUGETLBFS_MAGIC	0x958458f6
-@@ -52,6 +53,9 @@ static int hugetlbfs_file_mmap(struct fi
- 	loff_t len, vma_len;
- 	int ret;
- 
-+	if (!(vma->vm_flags & VM_MAYSHARE))
-+		return -EINVAL;
-+
- 	if (vma->vm_start & ~HPAGE_MASK)
- 		return -EINVAL;
+> As for the RTAS messages being printk'd, the only possible
+> justification would be if there was a userspace tool to analyse them.
+> I don't know if such a thing exists, and if it does, I certainly don't
+> have a copy.  Is anyone working on that?
+
+I pushed a patch to remove the log_error messages from going to the
+console by default.  The error logs still should be put in
+/proc/ppc64/rtas/error_log for rtas_errd to pick them up and send it to
+ELA for decode.  These apps are already done and can be found on IBM's
+diagnostic service website.
+
+http://techsupport.services.ibm.com/server/lopdiags/suselinux/pseries
+
+Thanks,
+Jake

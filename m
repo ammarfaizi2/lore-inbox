@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269039AbUJQDmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269040AbUJQDo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269039AbUJQDmj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 23:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269046AbUJQDmj
+	id S269040AbUJQDo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 23:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269048AbUJQDo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 23:42:39 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:43986 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269039AbUJQDmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 23:42:24 -0400
-Subject: Re: Memory leak in 2.4.27 kernel, using mmap raw packet sockets
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: bgagnon@coradiant.com,
+	Sat, 16 Oct 2004 23:44:56 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:16596 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269049AbUJQDoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 23:44:08 -0400
+Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Machek <pavel@ucw.cz>, M <mru@mru.ath.cx>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041015182352.GA4937@logos.cnet>
-References: <OFDDC77A23.4D34536B-ON85256F2D.00514F15-85256F2D.00517F52@coradiant.com>
-	 <20041015182352.GA4937@logos.cnet>
+In-Reply-To: <1097979705.13269.9.camel@localhost.localdomain>
+References: <41650CAF.1040901@unimail.com.au>
+	 <20041007103210.GA32260@atrey.karlin.mff.cuni.cz>
+	 <yw1x7jq2n6k3.fsf@mru.ath.cx>  <20041007143245.GA1698@openzaurus.ucw.cz>
+	 <1097956343.2148.17.camel@krustophenia.net>
+	 <1097963167.13226.4.camel@localhost.localdomain>
+	 <1097976283.2148.34.camel@krustophenia.net>
+	 <1097979705.13269.9.camel@localhost.localdomain>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097980764.13226.21.camel@localhost.localdomain>
+Message-Id: <1097984002.2148.44.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 17 Oct 2004 03:39:26 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 16 Oct 2004 23:33:23 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-10-15 at 19:23, Marcelo Tosatti wrote:
-> I prefer doing the "if (PageReserved(page)) put_page_testzero(page)" as
-> you propose instead of changing get_user_pages(), as there are several
-> users which rely on its behaviour.
+On Sat, 2004-10-16 at 22:21, Alan Cox wrote:
+> On Sul, 2004-10-17 at 02:24, Lee Revell wrote:
+> > > And heavily reduced accuracy on a lot of laptops where 1000Hz
+> > > is enough to make the clock slide every time the battery state is
+> > > queried or an SMM event triggers.
+> > Wouldn't such a laptop be horribly broken?  1ms is a LONG time to
+> > disable interrupts.  That's millions of CPU cycles...
 > 
-> I have applied your fix to the 2.4 BK tree.
+> Yes, and most laptops have this problem. They use SMM traps to talk to
+> the battery including huge delay loops and during those SMM traps no
+> interrupt code runs.
+> 
 
-That isnt sufficient. Consider anything else taking a reference to the
-page and the refcount going negative. And yes 2.6.x has this problem and
-far worse in some ways, but it also has the mechanism to fix it.
+Ugh!  I was under the impression that mostly older machines had this
+problem and it was a minority of laptops.  I could not find a lot of 
+info on SMM  - several of the links I found were DDJ "Undocumented
+Corner" articles.
 
-2.6.x uses VM_IO as a VMA flag which tells the kernel two things
-a) get_user_pages fails on it
-b) core dumping of it is forbidden
+Anyway this explains probably half the weird bug reports on the linux
+audio user list.
 
-2.6.x is missing a whole pile of these (fixed in the 2.6.9-ac tree I'm
-putting together). I *think* remap_page_range() in 2.6.x can just set
-VM_IO, but older kernels didn't pass the vma so all the users would need
-fixing (OSS audio, media/video, usb audio, usb video, frame buffer
-etc).
-
-Alan
+Lee
 

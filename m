@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288946AbSATTB7>; Sun, 20 Jan 2002 14:01:59 -0500
+	id <S289058AbSAUFty>; Mon, 21 Jan 2002 00:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288932AbSATTBu>; Sun, 20 Jan 2002 14:01:50 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:3596 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S288930AbSATTBm>;
-	Sun, 20 Jan 2002 14:01:42 -0500
-Date: Fri, 18 Jan 2002 23:01:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-Message-ID: <20020118220132.GE6918@elf.ucw.cz>
-In-Reply-To: <20020112063412.F511@toy.ucw.cz> <m26669olcu.fsf@goliath.csn.tu-chemnitz.de> <E16Oocq-0005tX-00@the-village.bc.nu> <3535.1011375513@redhat.com>
-Mime-Version: 1.0
+	id <S289063AbSAUFsA>; Mon, 21 Jan 2002 00:48:00 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43535
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S289066AbSAUFrA>; Mon, 21 Jan 2002 00:47:00 -0500
+Date: Fri, 18 Jan 2002 11:26:49 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+In-Reply-To: <Pine.LNX.4.40.0201180928500.934-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.10.10201181123530.4260-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3535.1011375513@redhat.com>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >  RPM does not help. Think new machine failed, but you still have some
-> > trash with 386 on it, so you connect your disk to it, boot from
-> > floppy, and expect it to work.
+
+Since we are limited to 4k pages or 8 sectors transfers in multimode
+for now, please set hdparm -m8 /dev/hdX.
+
+http://www.kernel.org/pub/linux/kernel/people/hedrick/acb-io-2.5.3/ata-253p1-2+axboe1+fixes.patch.bz2
+
+This should be a valid patch and it includes some extras for Jens.
+
+On Fri, 18 Jan 2002, Davide Libenzi wrote:
+
+> On Fri, 18 Jan 2002, Anton Altaparmakov wrote:
 > 
-> What if my spare machine is an ARM? Should I still expect it to work?
+> > Since the new IDE core from Andre is now solid as reported by various
+> > people on IRC, here is my local patch (stable for me) which you can apply
+> > to play with the shiny new IDE core (IDE core fix is same as
+> > ata-253p1-2.bz2 from Jens). (-:
+> 
+> I would like to say the same. I worked with the fixed kernel
+> 2.5.3-pre1+ata-253p1-2 yesterday w/out problems. I rebootedt the machine
+> before leaving the office yesterday night and this morning it had a full
+> screen :
+> 
+> hda: lost interrupt
+> hda: lost interrupt
+> hda: lost interrupt
+> hda: lost interrupt
+> hda: lost interrupt
+> 
+> I have to say that something like :
+> 
+> All work and no play makes Jack a dull boy ...
+> All work and no play makes Jack a dull boy ...
+> All work and no play makes Jack a dull boy ...
+> 
+> would have scared me more, but still i think there's some tuning to play
+> with ...
+> 
+> 
+> 
+> 
+> - Davide
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Let's say "It is easy in 386 case and hard in ARM case". Besides, we
-do FPU emulation already. Way harder than CMOV emulation, and serves
-exactly same purpose.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

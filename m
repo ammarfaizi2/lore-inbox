@@ -1,32 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUFEW5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUFEW7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUFEW5f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 18:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUFEW5e
+	id S262370AbUFEW7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 18:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUFEW7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 18:57:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27337 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262356AbUFEW5d (ORCPT
+	Sat, 5 Jun 2004 18:59:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54217 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262370AbUFEW7g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 18:57:33 -0400
-Date: Sat, 5 Jun 2004 15:55:02 -0700
+	Sat, 5 Jun 2004 18:59:36 -0400
+Date: Sat, 5 Jun 2004 15:57:09 -0700
 From: "David S. Miller" <davem@redhat.com>
-To: Olaf Hering <olh@suse.de>
-Cc: schwab@suse.de, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] compat bug in sys_recvmsg, MSG_CMSG_COMPAT check
- missing
-Message-Id: <20040605155502.3afe43cd.davem@redhat.com>
-In-Reply-To: <20040605223723.GA32360@suse.de>
-References: <20040605204334.GA1134@suse.de>
-	<20040605140153.6c5945a0.davem@redhat.com>
-	<20040605140544.0de4034d.davem@redhat.com>
-	<jer7st7lam.fsf@sykes.suse.de>
-	<20040605143649.3fd6c22b.davem@redhat.com>
-	<jen03h7k45.fsf@sykes.suse.de>
-	<20040605145333.11c80173.davem@redhat.com>
-	<jeise57j95.fsf@sykes.suse.de>
-	<20040605152949.785a9e41.davem@redhat.com>
-	<20040605223723.GA32360@suse.de>
+To: Robert Love <rml@ximian.com>
+Cc: cw@f00f.org, arjanv@redhat.com, torvalds@osdl.org,
+       russ@elegant-software.com, linux-kernel@vger.kernel.org
+Subject: Re: clone() <-> getpid() bug in 2.6?
+Message-Id: <20040605155709.10fd917d.davem@redhat.com>
+In-Reply-To: <1086475663.7940.50.camel@localhost>
+References: <40C1E6A9.3010307@elegant-software.com>
+	<Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
+	<20040605205547.GD20716@devserv.devel.redhat.com>
+	<20040605215346.GB29525@taniwha.stupidest.org>
+	<1086475663.7940.50.camel@localhost>
 X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
@@ -35,14 +30,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jun 2004 00:37:23 +0200
-Olaf Hering <olh@suse.de> wrote:
+On Sat, 05 Jun 2004 18:47:43 -0400
+Robert Love <rml@ximian.com> wrote:
 
-> > Sorry, thought I had put enough caffeine in my system.
-> > Aparently not :)
-> 
-> Lets agree on this version.
+> It is almost certainly done to improve the speed of some stupid
+> microbenchmark - say, one that just calls getpid() repeatedly (simple
+> because it is NOT slow) to measure system call overhead.
 
-Yep, patch applied.
-
-Thanks.
+Luckily lmbench and friends use getppid() specifically because it
+is impossible to cache that (as far as I can tell).

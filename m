@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264725AbUFPUDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUFPUI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264725AbUFPUDN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 16:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbUFPUDN
+	id S264717AbUFPUI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 16:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbUFPUI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 16:03:13 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:2755 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S264725AbUFPUDL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 16:03:11 -0400
-Subject: Re: Programtically tell diff between HT and real
-From: Robert Love <rml@ximian.com>
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: David van Hoose <david.vanhoose@comcast.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040616200102.93550.qmail@web51807.mail.yahoo.com>
-References: <20040616200102.93550.qmail@web51807.mail.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 16 Jun 2004 16:03:08 -0400
-Message-Id: <1087416188.7869.5.camel@localhost>
+	Wed, 16 Jun 2004 16:08:27 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:15848 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S264717AbUFPUIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 16:08:25 -0400
+Date: Wed, 16 Jun 2004 13:08:24 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
+Subject: Re: [PATCH 0/5] kbuild
+Message-ID: <20040616200824.GF24479@smtp.west.cox.net>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org> <20040615190951.C7666@flint.arm.linux.org.uk> <20040615191418.GD2310@mars.ravnborg.org> <20040615204616.E7666@flint.arm.linux.org.uk> <20040615205557.GK2310@mars.ravnborg.org> <20040615220646.I7666@flint.arm.linux.org.uk> <20040616194919.GA4384@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040616194919.GA4384@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-16 at 13:01 -0700, Phy Prabab wrote:
+On Wed, Jun 16, 2004 at 09:49:19PM +0200, Sam Ravnborg wrote:
 
-> So, if I understand correctly, there is no way to know
-> definitively if a cpu is HT or not?
+> What about this much simpler approach?
+> 
+> One extra assignment for each architecture added to get access to the
+> kernel image (at least the default one) for that architecture.
 
-I'd do both of the things I said: test for HT, and then look for another
-processor with the same physical id but a different processor value.
+Will it also include the 'vmlinux' ?  And would I be right in assuming
+that it will accept (a) globs and (b) can be defined inside of
+arch/ppc/boot/foo/Makefile ?
 
-	Robert Love
-
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

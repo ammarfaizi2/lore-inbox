@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315758AbSE3AKG>; Wed, 29 May 2002 20:10:06 -0400
+	id <S315760AbSE3AMB>; Wed, 29 May 2002 20:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315760AbSE3AKF>; Wed, 29 May 2002 20:10:05 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:37321 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S315758AbSE3AKE>;
-	Wed, 29 May 2002 20:10:04 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 30 May 2002 02:09:53 +0200 (MEST)
-Message-Id: <UTC200205300009.g4U09ri18210.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, mathieu@newview.com
-Subject: Re: 2.4.19-pre9, IDE on Sparc, Big Disks
-Cc: andre@linux-ide.org, dalecki@evision-ventures.com
+	id <S315805AbSE3AMA>; Wed, 29 May 2002 20:12:00 -0400
+Received: from ns.suse.de ([213.95.15.193]:30225 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315760AbSE3AL7>;
+	Wed, 29 May 2002 20:11:59 -0400
+Date: Thu, 30 May 2002 02:11:59 +0200
+From: Dave Jones <davej@suse.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] intel-x86 model config cleanup
+Message-ID: <20020530021159.B26821@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <3CF53C34.2080300@mandrakesoft.com> <200205292205.g4TM5e8348005@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    I just pulled a copy of Marcello's tree from bk and compiled it on my sparc
-    (that's a sun ultra 5). Everything went well but the IDE.
-    I have a large ide disk connected to this guy (around 120GB if memory
-    serves) and it used to work properly in the 2.4.17 era.
-    Now when I boot, I got this:
+On Wed, May 29, 2002 at 06:05:40PM -0400, Albert D. Cahalan wrote:
+ > 
+ > This is still a mess. It's better to have one boolean
+ > per processor, and order the processors by the year
+ > in which they were most commonly sold.
 
-    hdc: -612473816857182208 sectors
+The information hiding of irrelevant options was one of the
+motivations behind that original patch. If I know I have
+an AMD Athlon, showing me all the Intel CPUs just gets in the way.
+A zillion options in a scrolly list is no better than what
+we currently have imo.
 
-Well, clearly your bug is here.
-This number is F7800E4F00000000 hex.
-On the other hand, your disk has 240121728 sectors, which is 0E4FF780 hex.
-
-So, someone assumed somewhere that the world is little-endian
-with long the same size as int.
-
-Precisely what happened is easiest to trace with the identify data in hand.
-For example, maybe the sparc code still has to be extended to fix the
-order of lba_capacity48 or so (in ide_fix_driveid).
-
-Andries
-
-
-[So, if you cannot find the culprit yourself, please give the identify data.
-On some old kernel, the real, clean, identify data, as read directly from
-the disk; not the stuff modified by the kernel. Maybe "cat /proc/ide/hdc/identify"
-or so works.]
-
-BTW, this fixing in-place of the driveid is a very bad idea.
-Nobody should ever touch driveid. It is a read-only variable.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

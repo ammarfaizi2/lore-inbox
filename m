@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129377AbRBOQIu>; Thu, 15 Feb 2001 11:08:50 -0500
+	id <S129702AbRBOQLK>; Thu, 15 Feb 2001 11:11:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129598AbRBOQIk>; Thu, 15 Feb 2001 11:08:40 -0500
-Received: from ns-inetext.inet.com ([199.171.211.140]:37281 "EHLO
-	ns-inetext.inet.com") by vger.kernel.org with ESMTP
-	id <S129377AbRBOQId>; Thu, 15 Feb 2001 11:08:33 -0500
-Message-ID: <3A8BFEFE.11EA457C@inet.com>
-Date: Thu, 15 Feb 2001 10:08:30 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S129723AbRBOQKu>; Thu, 15 Feb 2001 11:10:50 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:62225 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129702AbRBOQKp>;
+	Thu, 15 Feb 2001 11:10:45 -0500
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
+        becker@scyld.com
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <157828DC5517@vcnet.vc.cvut.cz>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 15 Feb 2001 17:09:47 +0100
+In-Reply-To: "Petr Vandrovec"'s message of "Wed, 14 Feb 2001 16:54:22 MET-1"
+Message-ID: <d366ic0vxw.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-To: Diwakar Sharma <diwa@sasken.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Documentation required for TCP / IP stack implementation
-In-Reply-To: <3A8BEC5C.9C81C788@sasken.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diwakar Sharma wrote:
-> I require linux tcp/ip stack implementation details for a project i am
-> involved in .
-> can somebody please point out an online documentation site for the same.
+>>>>> "Petr" == Petr Vandrovec <VANDROVE@vc.cvut.cz> writes:
 
-Not online, but "LINUX IP Stacks" by Satchell & Clifford from
-CoriolisOpen Press may be helpful to you.
+Petr> On 14 Feb 01 at 16:35, Jes Sorensen wrote:
+>>  What else is sending out 802.3 frames these days? I really don't
+>> care about IPX when it comes to performance.
+>> 
+>> I am just advocating that we optimize for the common case which is
+>> DIX frames and not 802.3.
 
-Eli
---------------------.              Rule of Accuracy: When working toward
-Eli Carter          |               the solution of a problem, it always 
-eli.carter@inet.com `--------------------- helps if you know the answer.
+Petr> Pardon me, but IPX in 802.3 and IPX in DIX are exactly same
+Petr> frames on wire, except that IPX/802.3 contains frame length in
+Petr> bytes 0x0C/0x0D, while IPX/DIX contains 0x8137 here. They have
+Petr> same length, and same length of media header, so I really do not
+Petr> understand.
+
+Petr> If you are talking about encapsulation which is known as
+Petr> `ethernet_802.2' in IPX world, then it is true, it has odd bytes
+Petr> in header. But nobody sane except Appletalk uses 802.2
+Petr> now... Our Suns already died due to this couple of years ago ;-)
+
+My point is that you rarely see Ethernet frames with 802.3 except for
+places running IPX.
+
+Jes

@@ -1,219 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVC3Kmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVC3Kq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbVC3Kmk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 05:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVC3Kmk
+	id S261859AbVC3Kq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 05:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVC3Kqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 05:42:40 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:8646 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261857AbVC3Km2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 05:42:28 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: smp/swsusp done right
-Date: Wed, 30 Mar 2005 12:42:37 +0200
-User-Agent: KMail/1.7.1
-Cc: kernel list <linux-kernel@vger.kernel.org>, seife@suse.de,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-References: <20050323204019.GA11616@elf.ucw.cz>
-In-Reply-To: <20050323204019.GA11616@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503301242.38280.rjw@sisk.pl>
+	Wed, 30 Mar 2005 05:46:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47071 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261859AbVC3Kqv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 05:46:51 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com> 
+References: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com>  <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> <4243A257.8070805@yahoo.com.au> <20050325092312.4ae2bd32.davem@davemloft.net> <20050325162926.6d28448b.davem@davemloft.net> 
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Ian Molton <spyro@f2s.com>,
+       nickpiggin@yahoo.com.au, akpm@osdl.org, tony.luck@intel.com,
+       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Wed, 30 Mar 2005 11:46:17 +0100
+Message-ID: <22627.1112179577@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wednesday, 23 of March 2005 21:40, Pavel Machek wrote:
-> Hi!
+Hugh Dickins <hugh@veritas.com> wrote:
+
+> On Fri, 25 Mar 2005, David S. Miller wrote:
 > 
-> This is against -mm kernel; it is smp swsusp done right, and it
-> actually works for me. Unlike previous hacks, it uses cpu hotplug
-> infrastructure. Disable CONFIG_MTRR before you try this...
+> [ of flush_tlb_pgtables ]
 > 
-> Test this if you can, and report any problems. If not enough people
-> scream, this is going to -mm.
-> 								Pavel
+> > Since sparc64 is the only user of this thing...
 > 
-> --- clean-mm/drivers/pci/pci.c	2005-03-21 11:39:32.000000000 +0100
-> +++ linux-mm/drivers/pci/pci.c	2005-03-22 01:41:48.000000000 +0100
-> @@ -376,11 +376,13 @@
->  	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
->  		return PCI_D0;
->  
-> +#if 0
->  	if (platform_pci_choose_state) {
->  		ret = platform_pci_choose_state(dev, state);
->  		if (ret >= 0)
->  			state = ret;
->  	}
-> +#endif
->  	switch (state) {
->  	case 0: return PCI_D0;
->  	case 3: return PCI_D3hot;
+> Not quite.  sparc64 is the only user which makes any use of the
+> addresses passed to it, but frv does a little assembler with it,
+> and arm26 does a printk - eh? I'd take that to mean that it never
+> gets called there, but I don't see what prevents it, before or now.
+> Ian, does current -mm give you "flush_tlb_pgtables" printks?
 
-You probably don't want the above change to go in the final patch?
+That bit of assembly invalidates some data cached by the TLB-miss handler in
+registers SCR0 and SCR1 to improve performance in the next TLB-miss event.
 
+What happens is that the TLB-miss handler sets a static mapping for a page
+table and stores the base virtual address for the region covered by that page
+table in SCR0 (ITLB) or SCR1 (DTLB). Then when dealing with the next TLB-miss
+event we can do:
 
-> --- clean-mm/kernel/power/Kconfig	2005-01-22 21:24:53.000000000 +0100
-> +++ linux-mm/kernel/power/Kconfig	2005-03-23 11:40:14.000000000 +0100
-> @@ -28,7 +28,7 @@
->  
->  config SOFTWARE_SUSPEND
->  	bool "Software Suspend (EXPERIMENTAL)"
-> -	depends on EXPERIMENTAL && PM && SWAP
-> +	depends on EXPERIMENTAL && PM && SWAP && (HOTPLUG_CPU || !SMP)
->  	---help---
->  	  Enable the possibility of suspending the machine.
->  	  It doesn't need APM.
-> --- clean-mm/kernel/power/smp.c	2005-03-19 00:32:32.000000000 +0100
-> +++ linux-mm/kernel/power/smp.c	2005-03-23 15:38:30.000000000 +0100
-> @@ -7,79 +7,53 @@
->   * This file is released under the GPLv2.
->   */
->  
-> -#undef DEBUG
-> -
->  #include <linux/smp_lock.h>
->  #include <linux/interrupt.h>
->  #include <linux/suspend.h>
->  #include <linux/module.h>
->  #include <asm/atomic.h>
->  #include <asm/tlbflush.h>
-> +#include <asm/cpu.h>
->  
-> -static atomic_t cpu_counter, freeze;
-> -
-> -
-> -static void smp_pause(void * data)
-> -{
-> -	struct saved_context ctxt;
-> -	__save_processor_state(&ctxt);
-> -	printk("Sleeping in:\n");
-> -	dump_stack();
-> -	atomic_inc(&cpu_counter);
-> -	while (atomic_read(&freeze)) {
-> -		/* FIXME: restore takes place at random piece inside this.
-> -		   This should probably be written in assembly, and
-> -		   preserve general-purpose registers, too
-> -
-> -		   What about stack? We may need to move to new stack here.
-> -
-> -		   This should better be ran with interrupts disabled.
-> -		 */
-> -		cpu_relax();
-> -		barrier();
-> -	}
-> -	atomic_dec(&cpu_counter);
-> -	__restore_processor_state(&ctxt);
-> -}
-> -
-> -static cpumask_t oldmask;
-> +cpumask_t frozen_cpus;
->  
->  void disable_nonboot_cpus(void)
->  {
-> -	printk("Freezing CPUs (at %d)", smp_processor_id());
-> -	oldmask = current->cpus_allowed;
-> -	set_cpus_allowed(current, cpumask_of_cpu(0));
-> -	current->state = TASK_INTERRUPTIBLE;
-> -	schedule_timeout(HZ);
-> -	printk("...");
-> -	BUG_ON(smp_processor_id() != 0);
-> -
-> -	/* FIXME: for this to work, all the CPUs must be running
-> -	 * "idle" thread (or we deadlock). Is that guaranteed? */
-> +	int cpu, error;
->  
-> -	atomic_set(&cpu_counter, 0);
-> -	atomic_set(&freeze, 1);
-> -	smp_call_function(smp_pause, NULL, 0, 0);
-> -	while (atomic_read(&cpu_counter) < (num_online_cpus() - 1)) {
-> -		cpu_relax();
-> -		barrier();
-> +	error = 0;
-> +	cpus_clear(frozen_cpus);
-> +	printk("Freezing cpus ...\n");
-> +	for_each_online_cpu(cpu) {
-> +		if (cpu == 0)
-> +			continue;
-> +		error = cpu_down(cpu);
-> +		if (!error) {
-> +			cpu_set(cpu, frozen_cpus);
-> +			printk("CPU%d is down\n", cpu);
-> +			continue;
-> +		}
-> +		printk("Error taking cpu %d down: %d\n", cpu, error);
->  	}
-> -	printk("ok\n");
-> +	BUG_ON(smp_processor_id() != 0);
-> +	if (error)
-> +		panic("cpus not sleeping");
->  }
+	((SCRx ^ virtaddr) >> 26) == 0
 
-I'm not sure whether we should panic() here.  It may be better to make
-suspend fail and print a "please reboot immediately" message for the user.
-In that case, the user may be able to reboot without loosing data ...
+to very quickly work out whether we can re-use the static mapping left from
+the previous TLB-miss event.
 
+However, if the mapping from virtual address to page table changes, then the
+cached static mappings may no longer be valid. We can invalidate them simply
+by zapping SCR0 and SCR1.
 
->  void enable_nonboot_cpus(void)
->  {
-> -	printk("Restarting CPUs");
-> -	atomic_set(&freeze, 0);
-> -	while (atomic_read(&cpu_counter)) {
-> -		cpu_relax();
-> -		barrier();
-> -	}
-> -	printk("...");
-> -	set_cpus_allowed(current, oldmask);
-> -	schedule();
-> -	printk("ok\n");
-> +	int cpu, error;
->  
-> +	printk("Thawing cpus ...\n");
-> +	for_each_cpu_mask(cpu, frozen_cpus) {
-> +		if (cpu == 0)
-> +			continue;
-> +		error = cpu_up(cpu);
-> +		if (!error) {
-> +			printk("CPU%d is up\n", cpu);
-> +			continue;
-> +		}
-> +		printk("Error taking cpu %d up: %d\n", cpu, error);
-> +		panic("Not enough cpus");
-> +	}
->  }
-> -
-> -
-> --- clean-mm/kernel/power/swsusp.c	2005-03-21 11:39:33.000000000 +0100
-> +++ linux-mm/kernel/power/swsusp.c	2005-03-23 15:34:53.000000000 +0100
-> @@ -1194,8 +1194,11 @@
->  		return "version";
->  	if (strcmp(swsusp_info.uts.machine,system_utsname.machine))
->  		return "machine";
-> +#if 0
-> +	/* We can't use number of CPUs when we use hotplug to remove them ;-))) */
->  	if(swsusp_info.cpus != num_online_cpus())
->  		return "number of cpus";
-> +#endif
->  	return NULL;
->  }
->  
+It occurs to me that:
+
+	#define flush_tlb_pgtables(mm,start,end) \
+		asm volatile("movgs gr0,scr0 ! movgs gr0,scr1");
+
+is actually wrong. It doesn't actually invalidate anything; it just changes
+the virtual range for that page table to be 0x00000000-0x04000000, no matter
+whether that page table should be backing that region or not. It should
+instead be:
+
+	#define flush_tlb_pgtables(mm,start,end) \
+		asm volatile("movgs %0,scr0 ! movgs %0,scr1" :: "r"(-1));
+
+Because the addresses in the range 0xFC000000-0xFFFFFFFF are all statically
+mapped to the Boot ROM chip select.
+
+This doesn't matter for most programs as they never use more than the bottom
+page table anyway (which covers 64MB).
+
+> > Let's make it so that the flush can be queued up
+> > at pmd_clear() time, as that's what we really want.
+> > 
+> > Something like:
+> > 
+> > 	pmd_clear(mm, vaddr, pmdp);
+> > 
+> > I'll try to play with something like this later.
 > 
-> -- 
+> Depends really on what DavidH wants there, not clear to me.
+> I suspect Ian can live without his printk!
 
-I'll test it when I get the CPU hotplug on x86-64 done.
+I could do the zapping in pmd_clear() instead, I suppose. It's just that it
+only needs to be done once when tearing down the page tables; not for every
+PMD.
 
-Greets,
-Rafael
- 
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+David

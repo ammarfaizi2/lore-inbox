@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268040AbUH3NlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUH3NnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268040AbUH3NlW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 09:41:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUH3NlW
+	id S268039AbUH3NnC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 09:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUH3NnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 09:41:22 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:16065 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S268040AbUH3NlJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 09:41:09 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 30 Aug 2004 15:32:05 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
+	Mon, 30 Aug 2004 09:43:02 -0400
+Received: from gepard.lm.pl ([212.244.46.42]:17316 "EHLO gepard.lm.pl")
+	by vger.kernel.org with ESMTP id S268039AbUH3Nm5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 09:42:57 -0400
+Subject: Re: 2.6.9-rc1-mm1 kjournald: page allocation failure. order:1,
+	mode:0x20
+From: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Luca Risolia <luca.risolia@studio.unibo.it>,
-       Kernel List <linux-kernel@vger.kernel.org>,
-       video4linux list <video4linux-list@redhat.com>
-Subject: Re: [PATCH 2.6.9-rc1-mm1] Disable colour conversion in the CPiA Video Camera driver
-Message-ID: <20040830133205.GC1727@bytesex>
-References: <20040830013201.7d153288.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040829160257.3b881fef.akpm@osdl.org>
+References: <1093794970.1751.10.camel@rakieeta>
+	 <20040829160257.3b881fef.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-2
+Organization: o2.pl Sp z o.o.
+Message-Id: <1093873300.1789.13.camel@rakieeta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040830013201.7d153288.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 30 Aug 2004 15:41:40 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Given that colour conversion is not allowed in kernel space, this patch
-> disables it in the CPiA driver. The routines implementing the conversions
-> can be removed at all by the maintainers of the driver; however, this
-> patch is a good starting point and makes someone happy.
+W li¶cie z pon, 30-08-2004, godz. 01:02, Andrew Morton pisze: 
+> Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl> wrote:
+> >
+> > after creating several GB of data in small files on the SMP highmem box
+> >  the
+> > 
+> >  kjournald: page allocation failure. order:1, mode:0x20
+> > 
+> > 
+> >  start flooding the logs, load goes to sth around 1k, writing processes
+> >  get stuck in D state and the system needs hard reset.
+> > 
+> >  Anyone else is experiencing that kind of problems?
+> > 
+> >  Im running sw raid1 on that box, not preemtible kernel.
+> 
+> There should have been a stack trace as well.  Please send it.
 
-Yes, colorspace conversion shouldn't be done by the kernel but by the
-applications.  I don't like the idea to just disable them through:
+Sadly I don't have the stack for kjournald process however I have
+similiar traces, please see the attached file. 2.6.9-rc1-mm1 SMP,
+highmem.
 
-First: there should be a reasonable warning time for the current users.
-Some printk message telling them they are using a depricated feature.
-Maybe even a insmod option to enable/disable it, with the default being
-software conversion disabled.
+Hope that can give you some more information.
 
-Second: IMHO it would be a very good idea to port the driver to the v4l2
-API before ripping the in-kernel colorspace conversion support.  v4l2
-provides a sane API to get a list of supported color formats, whereas
-with v4l1 it is dirty trial-and-error + guesswork for the applications.
+Krzysztof
 
-While thinking about it: due to the v4l1 trial-and-error mess a printk
-likely generates alot of false positives, so a insmod option
-(+rate-limited printk) is likely the better way to figure how much
-userspace software breaks.  Maybe it isn't that much as other drivers
-don't offer in-kernel conversion in the first place, so apps already
-have to deal with that ...
-
-  Gerd
-
--- 
-return -ENOSIG;

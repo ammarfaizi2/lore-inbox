@@ -1,88 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265737AbUFILnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265740AbUFILxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265737AbUFILnz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 07:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUFILnz
+	id S265740AbUFILxe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 07:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUFILxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 07:43:55 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:20747 "HELO
-	scice.schottelius.org") by vger.kernel.org with SMTP
-	id S265737AbUFILnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 07:43:40 -0400
-Date: Wed, 9 Jun 2004 13:46:15 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: GCS <gcs@lsc.hu>
-Cc: Nico Schottelius <nico-kernel@schottelius.org>,
-       Chris Wright <chrisw@osdl.org>, Amon Ott <ao@rsbac.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dev@grsecurity.net
-Subject: Re: security patches / lsm
-Message-ID: <20040609114615.GK601@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	GCS <gcs@lsc.hu>, Chris Wright <chrisw@osdl.org>,
-	Amon Ott <ao@rsbac.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	dev@grsecurity.net
-References: <20040122191158.GA1207@schottelius.org> <20040122150937.A8720@osdlab.pdx.osdl.net> <20040609090346.GG601@schottelius.org> <20040609112235.GA1088@pooh>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="j/HO4hzKTNbM1mOX"
+	Wed, 9 Jun 2004 07:53:34 -0400
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:1371 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S265743AbUFILx1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 07:53:27 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: aacraid does not work on dual opteron box - 2.6.7-rc2
+Date: Wed, 9 Jun 2004 12:50:25 +0100
+User-Agent: KMail/1.6.1
+Cc: Sergiusz Pawlowicz <ser@gnu.org>, linux-scsi@vger.kernel.org
+References: <20040609083142.GB23062@szafa>
+In-Reply-To: <20040609083142.GB23062@szafa>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040609112235.GA1088@pooh>
-X-MSMail-Priority: (u_int) -1
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-Organization: http://nerd-hosting.net/
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.6
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406091250.25860.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---j/HO4hzKTNbM1mOX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-GCS [Wed, Jun 09, 2004 at 01:22:35PM +0200]:
-> * Nico Schottelius <nico-kernel@schottelius.org> [2004-06-09 11:03:46 +02=
-00]:
->=20
-> > Who decides whether to integrate them or not?
->  Linus? AFAIK he already said no to grsecurity.
+> Hello linux friends,
+> sorry for bothering you, but  current aacraid still does not
+> work properly on  my fresh dual opteron box  & Adaptec 2120S
+> RAID controler. It hungs  always after modprobing sd_mod and
+> disk access try.
+>
 
-I heard about that, but I wanted to know whether this statement is still
-true. I think with grsecurity you get a great security enhanced kernel.
+<snip>
 
-And if the performance is really getting worse, why not add grsecurity
-patches with #ifdef GRSECURITY_ENABLED?=20
+Not sure if this helps but I'm running a Dual Opteron 248 with 2 (two) Adaptec 
+AAR-2410SA cards in PCI-X slots on a Tyan S2885 board.
 
-Nico
 
---=20
-Keep it simple & stupid, use what's available.
-Please use pgp encryption: 8D0E 27A4 is my id.
-http://nerd-hosting.net | http://nico.schotteli.us
+# uname -a
+Linux localhost 2.6.3-7mdk-p3-smp-64GB #1 SMP Wed Mar 17 15:34:39 CET 2004 
+i686 unknown unknown GNU/Linux
 
---j/HO4hzKTNbM1mOX
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Red Hat/Adaptec aacraid driver (1.1.2-lk1 Mar 17 2004)
+AAC0: kernel 4.1.4 build 5934
+AAC0: monitor 4.1.4 build 5934
+AAC0: bios 4.1.0 build 5934
+AAC0: serial ba7127fafaf001
+scsi0 : aacraid
+  Vendor: ADAPTEC   Model: AAR-2410SA RAID5  Rev: V1.0
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+AAC1: kernel 4.1.4 build 5934
+AAC1: monitor 4.1.4 build 5934
+AAC1: bios 4.1.0 build 5934
+AAC1: serial bab51afafaf001
+scsi1 : aacraid
+  Vendor: ADAPTEC   Model: AAR-2410SA Mirro  Rev: V1.0
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 216790272 512-byte hdwr sectors (110997 MB)
+sda: Write Protect is off
+sda: Mode Sense: 03 00 00 00
+SCSI device sda: drive cache: write through
+ /dev/scsi/host0/bus0/target0/lun0: p1
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+SCSI device sdb: 72263424 512-byte hdwr sectors (36999 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 03 00 00 00
+SCSI device sdb: drive cache: write through
+ /dev/scsi/host1/bus0/target0/lun0: p1 p2 < p5 p6 >
+Attached scsi removable disk sdb at scsi1, channel 0, id 0, lun 0
+
+AAC0 is a 4x36GB raid5 array with WD Raptor SATA drives
+AAC1 is a 2x36GB raid1 mirror with the same drives
+
+- From lsmod:
+
+sd_mod                 18592  6
+aacraid                45248  4
+scsi_mod              121552  2 sd_mod,aacraid
+
+# uptime
+ 13:55:38 up 22 days, 21:47,  1 user,  load average: 0.00, 0.00, 0.00
+
+This is a Mandrake 10.0 Official system.
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iQIVAwUBQMb4hbOTBMvCUbrlAQIOJRAAhWUaWLXdmpkaz/ZuRc3sDGWlLS//3sQo
-2z3T8mkMxyzR28v0g49Cjwqdpy3w2e5rr7dcaO6lCjEHBG894i4Gs37wQodAm9tT
-A2+sQwTM45/cqMwkAsvVFhxhpz8/TPZfw4whZYCtvUAD90Zx7JsTrlUR192yn6we
-QjQP1uoSmkh8NtCwYWJ5xynUCF4K2KzO+msu+IlSiAspPxQuIOSmxm5SfX5mQrIG
-RpCOR2DQ7n1IeafZbicfMIaSOps4lxcd50gwoQvlWGCcXnZGQGAtBpuXZAs0h6x5
-XVyRgNUYpei5btw0KOYEry5Xab7IidzPBMSMnvHAKni0nzD+96f8y24MIDQDa601
-m1GtRpwQCRCnw53aAXTQhUzE0Tx3k/p1w2224rWataC9/kpgl0gtCZvSiBCQsAaI
-AQ18nP2GVUCTrv/F8eCFz9f5/UzFUBEpkJbZ1qC8kS4tCbWlGFwOxpNJel7dPJgg
-QvB+XUlE9xKcur31tZLa7peCC13TizT9O+WGJrDbzlvQh+LMWg7SWKuQeNbsYCAa
-OEN/F+KgIuXDfSnEcyqAC1bnMAcY2gIOUenj+WfEKJKpsFVUMiuE359SMxahiIT3
-IsKJSRL+zAK/HFI03y6bFq8N+KkhHJzbhfh3EJztJqmjRijT1ptrZblgNwn9/kdl
-e4FInRhGIOA=
-=X2hr
+iD8DBQFAxvmBBn4EFUVUIO0RAobNAJ9VrbE2/gBxonNEw0kOyAGgXaU0+gCgimxx
+gci7EWybhvIRmaStjcS5FLI=
+=LyFx
 -----END PGP SIGNATURE-----
-
---j/HO4hzKTNbM1mOX--

@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268570AbRHRWE1>; Sat, 18 Aug 2001 18:04:27 -0400
+	id <S268792AbRHRWE5>; Sat, 18 Aug 2001 18:04:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268792AbRHRWES>; Sat, 18 Aug 2001 18:04:18 -0400
-Received: from ns.suse.de ([213.95.15.193]:15625 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S268570AbRHRWEH>;
-	Sat, 18 Aug 2001 18:04:07 -0400
-To: Ralf Baechle <ralf@uni-koblenz.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Aliases
-In-Reply-To: <00df01c127a8$c354ad20$bb1cfa18@JimWS.suse.lists.linux.kernel> <Pine.LNX.4.33.0108180245070.27721-100000@kobayashi.soze.net.suse.lists.linux.kernel> <20010818143232.A11687@bacchus.dhis.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 19 Aug 2001 00:04:18 +0200
-In-Reply-To: Ralf Baechle's message of "18 Aug 2001 14:44:48 +0200"
-Message-ID: <oupy9ohqb31.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S268809AbRHRWEs>; Sat, 18 Aug 2001 18:04:48 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:53005 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S268792AbRHRWEf>;
+	Sat, 18 Aug 2001 18:04:35 -0400
+Date: Sat, 18 Aug 2001 23:04:41 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Dewet Diener <dewet@dewet.org>
+cc: Stephen C Tweedie <sct@redhat.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 partition unmountable
+In-Reply-To: <20010818235211.A24646@darkwing.flatlit.net>
+Message-ID: <Pine.LNX.4.33.0108182257490.9206-100000@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle <ralf@uni-koblenz.de> writes:
-> 
-> For various reasons interfaces aliases are deprecated.  The recommended
-> way of doing things these days is just adding more addresses to an
-> interface with the ip(8) program from the iproute package.  It works like:
-> 
->   ip addr add 192.168.2.0/24 broadcast 192.168.2.255 scope host dev eth0
+Hi Dewet.
 
-Newer ifconfig also supports "add" for IPv4 (older supported it only for 
-v6)
+ >> If I'm reading the files right it looks like:
+ >> #define EXT3_FEATURE_INCOMPAT_COMPRESSION 0x0001
 
-The problem of the original poster is also likely to have an too old ifconfig;
-older ones had some O(n^2) algorithms with hurt with many interfaces.
+ >> Did you compress the file system?
 
--Andi
+ > Not knowingly, no. Is that a mount option?
+
+The relevant mount option is to specify the ext3 rather than the ext2
+file system, and the flag you refer to gets set if ANYBODY sets the
+"COMPRESS THIS FILE" flag on ANY file on that file system. As far as I
+can tell, nothing ever resets that flag, even if the last file that
+was compressed gets uncompressed.
+
+I suggested a while back that fsck should check whether there are any
+compressed files on the filesystem, and reset that flag if not, but as
+far as I can tell, nothing was ever done to implement that suggestion.
+
+ > I'm mounting them the same on both sides, so its rather
+ > strange...
+
+ >> Do a "tune2fs -l /dev/hdc" and see what features are set.
+
+ > Heh, not much more useful:
+
+ > # tune2fs -l /dev/hdd1
+ > tune2fs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
+ > tune2fs: Filesystem has unsupported feature(s) while trying to open /dev/hdd1
+ > Couldn't find valid filesystem superblock.
+
+You have an old version of tune2fs, and need to get the one that knows
+about ext3 or alternatively apply the patch that was distributed some
+time ago and recompile - I'm not sure which.
+
+Stephen: What's the current status regarding tune2fs and ext3, I'm a
+tad out of date in this respect?
+
+ > I'll probably have to take the drive back, and see if it now mounts
+ > in the original system :-/
+
+That might help...
+
+Best wishes from Riley.
+

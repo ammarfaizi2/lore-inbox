@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129346AbRBIQak>; Fri, 9 Feb 2001 11:30:40 -0500
+	id <S129688AbRBIQdK>; Fri, 9 Feb 2001 11:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129321AbRBIQab>; Fri, 9 Feb 2001 11:30:31 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:33422 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S129311AbRBIQaL>; Fri, 9 Feb 2001 11:30:11 -0500
-Message-Id: <l0313030eb6a9c97163a0@[192.168.239.101]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 9 Feb 2001 16:29:40 +0000
-To: linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: ISA-PnP and Passing options to non-modules
+	id <S129713AbRBIQdA>; Fri, 9 Feb 2001 11:33:00 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:48835 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129688AbRBIQcv>;
+	Fri, 9 Feb 2001 11:32:51 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Vojtech Pavlik <vojtech@suse.cz>
+Date: Fri, 9 Feb 2001 17:29:52 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [preview] VIA IDE 4.0 and AMD IDE 2.0 with automatic PC
+CC: linux-kernel@vger.kernel.org, gandalf@winds.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <1500B3C52526@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two questions:
+On  9 Feb 01 at 16:58, Vojtech Pavlik wrote:
 
-1) ISA-PnP detection in the kernel doesn't work properly on my Abit KT7
-(the card in question is a SoundBlaster AWE64), but userspace ISA-PnP works
-fine...
+> Unfortunately the PCI speed measuring code needs help from the chipset
+> itself, so it isn't possible to implement in generic code. Maybe a
+> callback could be added to the chipset-specific drivers, though ...
+> 
+> I do have some plans with ide-pci.c, so ...
 
-2) I'm trying to pass options to the SoundBlaster driver using LILO - it's
-built into the kernel - but can't figure out the correct syntax to use the
-append = "..." option in this context.  I need to do the equivalent of
-"options sb io=0x220 dma=1,6 irq=7", which is what the BIOS reports
-configuring the card as at boot time.  Yes, i've tried using it as a
-module, but it stopped working when I recompiled the kernel with Radeon DRM
-support and K7 optimisations.
-
-Any pointers?
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
-
-
+Is not PCI speed determined by host-bridge setting (and not by IDE 
+interface)? In that case we should determine bus speed on PCI bus scan 
+using chipset specific drivers. Other non IDE devices, such as matroxfb, 
+may be interested in PCI speed too.
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,117 +1,170 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290710AbSAROrr>; Fri, 18 Jan 2002 09:47:47 -0500
+	id <S290712AbSAROzh>; Fri, 18 Jan 2002 09:55:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290712AbSAROri>; Fri, 18 Jan 2002 09:47:38 -0500
-Received: from at8.tphys.uni-linz.ac.at ([140.78.103.8]:36877 "EHLO
-	mail.tphys.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S290710AbSAROr1>; Fri, 18 Jan 2002 09:47:27 -0500
-Message-Id: <200201181447.g0IElG400913@at18.tphys.uni-linz.ac.at>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Alexander Puchmayr <alexander.puchmayr@jku.at>
-Reply-To: alexander.puchmayr@jku.at
-Organization: University Linz, Austria
-To: linux-atm-general-request@lists.sourceforge.net
-Subject: ATM ENI Problems with SMP
-Date: Fri, 18 Jan 2002 15:47:16 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+	id <S290707AbSAROz2>; Fri, 18 Jan 2002 09:55:28 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:30481 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290712AbSAROzN>; Fri, 18 Jan 2002 09:55:13 -0500
+Message-ID: <3C48366D.20502@namesys.com>
+Date: Fri, 18 Jan 2002 17:51:25 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        Oleg Drokin <green@namesys.com>
+Subject: [Fwd: [PATCH] rename bug patch]
+Content-Type: multipart/mixed;
+ boundary="------------020304040301040001010408"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+This is a multi-part message in MIME format.
+--------------020304040301040001010408
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have an Efficient ENI 155 ATM adapter running with Linux 2.4.16/17.
-When I turn on SMP support (The board is an ASUS P2B-DS with two P3/800), the 
-eni driver crashes with "driver error - ident mismatch"-Error.
+Others besides Marcelo are likely to be interested in this.  I think 
+this might be the fix to a longtime eluding us bug.
 
-Without SMP support activated in the kernel, the card works fine.
+Hans
 
-
-Is there a problem with SMP-Support for ATM?
-
-
-I turned on the ENI_DEBUG-option, the output is:
-
-Jan 17 18:16:06 atm73 kernel: eni(itf 0): driver error - ident mismatch
-Jan 17 18:16:06 atm73 kernel: ---recent events---
-Jan 17 18:16:06 atm73 kernel: poll_rx.slow
-Jan 17 18:16:06 atm73 kernel: rx_vcc(1)
-Jan 17 18:16:06 atm73 kernel: rx_vcc(2: host dsc=0x12a1, nic dsc=0x1ab2)
-Jan 17 18:16:06 atm73 kernel: rx_aal5
-Jan 17 18:16:06 atm73 kernel: rx_vcc(3)
-Jan 17 18:16:06 atm73 kernel: poll_rx done
-Jan 17 18:16:06 atm73 kernel: INT: RX DMA complete, starting dequeue_rx
-Jan 17 18:16:06 atm73 kernel: dequeued (size=2065,pos=0x1ab2)
-Jan 17 18:16:06 atm73 kernel: pushing (len=8216)
-Jan 17 18:16:06 atm73 kernel: dequeue_rx done, starting poll_rx
-Jan 17 18:16:06 atm73 kernel: poll_rx done
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf529eca0, 80 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x352948c8+0x50
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
-Jan 17 18:16:06 atm73 kernel: INT: service, starting get_service
-Jan 17 18:16:06 atm73 kernel: getting from service
-Jan 17 18:16:06 atm73 kernel: get_service done, starting poll_rx
-Jan 17 18:16:06 atm73 kernel: poll_rx.slow
-Jan 17 18:16:06 atm73 kernel: rx_vcc(1)
-Jan 17 18:16:06 atm73 kernel: rx_vcc(2: host dsc=0x1ae1, nic dsc=0x1b1e)
-Jan 17 18:16:06 atm73 kernel: rx_aal5
-Jan 17 18:16:06 atm73 kernel: rx_vcc(3)
-Jan 17 18:16:06 atm73 kernel: poll_rx done
-Jan 17 18:16:06 atm73 kernel: INT: RX DMA complete, starting dequeue_rx
-Jan 17 18:16:06 atm73 kernel: dequeued (size=61,pos=0x1b1e)
-Jan 17 18:16:06 atm73 kernel: pushing (len=202)
-Jan 17 18:16:06 atm73 kernel: dequeue_rx done, starting poll_rx
-Jan 17 18:16:06 atm73 kernel: poll_rx done
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf52c30c0, 9188 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x35314008+0x23e4
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf52c2b80, 9188 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x35308008+0x23e4
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf5299180, 9188 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x35318008+0x23e4
-Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf529ede0, 9188 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x3530c008+0x23e4
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf529f140, 9188 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x35310008+0x23e4
-Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf5299180, 47 bytes
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf53269a0, 9188 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x353a4c60+0x2f
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x37e94000+0x1
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x35320008+0x23e4
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf5299680, 9188 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x352dc008+0x23e4
-Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf543f520, 1416 bytes
-Jan 17 18:16:06 atm73 kernel: put_dma: 0x357c7808+0x588
-Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
-Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
-Jan 17 18:16:06 atm73 last message repeated 2 times
-Jan 17 18:16:06 atm73 kernel: bug interrupt
-Jan 17 18:16:06 atm73 kernel: ---dump ends here---
+--------------020304040301040001010408
+Content-Type: message/rfc822;
+ name="[PATCH] rename bug patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="[PATCH] rename bug patch"
 
 
-Thanks in advance
-	Alexander Puchmayr
+>From - Fri Jan 18 14:41:10 2002
+X-Mozilla-Status2: 00000000
+Message-ID: <3C4809D6.8040908@namesys.com>
+Date: Fri, 18 Jan 2002 14:41:10 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] rename bug patch
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
--- 
----
-Alexander Puchmayr 
-Institut für Theoretische Physik     Altenbergerstr. 69, A-4040 Linz
-Johannes-Kepler Universitaet         Phone: ++43 732/2468-8633
-A-4040 Linz, Austria                 Fax:   ++43 732/2468-8585
-E-Mail: alexander.puchmayr@jku.at
+Please apply and credit Oleg.  It is tested by three persons and read/reviewed by Saveliev, so it should be good.
 
+Hans
+
+
+
+Hello!
+
+     A-rename_stale_item_bug-1.diff
+     This patch fixes 2 bugs in reiserfs_rename(). First one being attempt to access item before verifying it was
+     not moved since last access. Second is a window, where old filename may be written to disk with 'visible'
+     flag unset without these changes be journaled.
+
+Bye,
+     Oleg
+
+--- linux/fs/reiserfs/namei.c.orig	Thu Jan 17 14:05:11 2002
++++ linux/fs/reiserfs/namei.c	Thu Jan 17 17:09:23 2002
+@@ -1057,7 +1057,7 @@
+      INITIALIZE_PATH (old_entry_path);
+      INITIALIZE_PATH (new_entry_path);
+      INITIALIZE_PATH (dot_dot_entry_path);
+-    struct item_head new_entry_ih, old_entry_ih ;
++    struct item_head new_entry_ih, old_entry_ih, dot_dot_ih ;
+      struct reiserfs_dir_entry old_de, new_de, dot_dot_de;
+      struct inode * old_inode, * new_inode;
+      int windex ;
+@@ -1151,6 +1151,8 @@
+
+  	copy_item_head(&old_entry_ih, get_ih(&old_entry_path)) ;
+
++ 
+reiserfs_prepare_for_journal(old_inode->i_sb, old_de.de_bh, 1) ;
++
+  	// look for new name by reiserfs_find_entry
+  	new_de.de_gen_number_bit_string = 0;
+  	retval = reiserfs_find_entry (new_dir, new_dentry->d_name.name, new_dentry->d_name.len,
+@@ -1167,6 +1169,7 @@
+  	if (S_ISDIR(old_inode->i_mode)) {
+  	    if (search_by_entry_key (new_dir->i_sb, &dot_dot_de.de_entry_key, &dot_dot_entry_path, &dot_dot_de) != NAME_FOUND)
+  		BUG ();
++ 
+     copy_item_head(&dot_dot_ih, get_ih(&dot_dot_entry_path)) ;
+  	    // node containing ".." gets into transaction
+  	    reiserfs_prepare_for_journal(old_inode->i_sb, dot_dot_de.de_bh, 1) ;
+  	}
+@@ -1183,23 +1186,33 @@
+  	** of the above checks could have scheduled.  We have to be
+  	** sure our items haven't been shifted by another process.
+  	*/
+- 
+if (!entry_points_to_object(new_dentry->d_name.name,
++ 
+if (item_moved(&new_entry_ih, &new_entry_path) ||
++ 
+     !entry_points_to_object(new_dentry->d_name.name,
+  	                            new_dentry->d_name.len,
+  	 
+		    &new_de, new_inode) ||
+- 
+     item_moved(&new_entry_ih, &new_entry_path) ||
+  	    item_moved(&old_entry_ih, &old_entry_path) ||
+  	    !entry_points_to_object (old_dentry->d_name.name,
+  	                             old_dentry->d_name.len,
+  	 
+		     &old_de, old_inode)) {
+  	    reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
++ 
+     reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
+  	    if (S_ISDIR(old_inode->i_mode))
+  		reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
+  	    continue;
+  	}
++ 
+if (S_ISDIR(old_inode->i_mode)) {
++ 
+     if ( item_moved(&dot_dot_ih, &dot_dot_entry_path) ||
++ 
+	 !entry_points_to_object ( "..", 2, &dot_dot_de, old_dir) ) {
++ 
+	reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
++ 
+	reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
++ 
+	reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
++ 
+	continue;
++ 
+     }
++ 
+}
++
+
+  	RFALSE( S_ISDIR(old_inode->i_mode) &&
+- 
+	(!entry_points_to_object ("..", 2, &dot_dot_de, old_dir) ||
+- 
+	 !reiserfs_buffer_prepared(dot_dot_de.de_bh)), "" );
++ 
+	!reiserfs_buffer_prepared(dot_dot_de.de_bh), "" );
+
+  	break;
+      }
+@@ -1212,6 +1225,7 @@
+      journal_mark_dirty (&th, old_dir->i_sb, new_de.de_bh);
+
+      mark_de_hidden (old_de.de_deh + old_de.de_entry_num);
++    journal_mark_dirty (&th, old_dir->i_sb, old_de.de_bh);
+      old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
+      new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
+
+
+
+
+
+--------------020304040301040001010408--
 

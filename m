@@ -1,93 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUE1NzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUE1N5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUE1NzR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 09:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUE1NzR
+	id S263107AbUE1N5u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 09:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUE1N5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 09:55:17 -0400
-Received: from pD9FFA005.dip.t-dialin.net ([217.255.160.5]:54700 "EHLO
-	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
-	id S263100AbUE1Ny5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 09:54:57 -0400
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Enable suspend/resuming of e1000
-Date: Fri, 28 May 2004 14:04:03 +0200
-User-Agent: KMail/1.6.2
-X-Ignorant-User: yes
+	Fri, 28 May 2004 09:57:50 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:28589 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263107AbUE1N5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 09:57:37 -0400
+Message-ID: <40B74533.1060608@colorfullife.com>
+Date: Fri, 28 May 2004 15:57:07 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zqytApaO7WK4fHj"
-Message-Id: <200405281404.10538@zodiac.zodiac.dnsalias.org>
+To: paulmck@us.ibm.com
+CC: Manfred Spraul <manfred@dbl.q-ag.de>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [RFC, PATCH] 2/5 rcu lock update: Use a sequence lock
+ for starting batches
+References: <200405250535.i4P5ZLiR017599@dbl.q-ag.de> <20040527232210.GA2558@us.ibm.com>
+In-Reply-To: <20040527232210.GA2558@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul E. McKenney wrote:
 
---Boundary-00=_zqytApaO7WK4fHj
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+>Hello, Manfred,
+>
+>I am still digging through these, and things look quite good in general,
+>but I have a question on your second patch.
+>  
+>
+Let's assume that
 
-=2D----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+batch.completed = 5;
+batch.cur = 5;
+batch.next_pending = 0;
 
-Hi,
+>Given the following sequence of events:
+>
+>1.	CPU 0 executes the
+>
+>		rcu_ctrlblk.batch.next_pending = 1;
+>  
+>
+batch.next_pending = 1.
 
-suspending of the e1000 in my Thinkpad did not work, so I jst started some=
-=20
-hacking. The attached patch does the trick for me, it just disables/enables=
-=20
-the device. I used 2.6.7-rc1-mm1, but it should apply to rc1 also. If it's=
-=20
-correct (Hey, I'm just beginning..), it could perhaps be=20
-applied to mainline / mm?
+>	at the beginning of rcu_start_batch().
+>
+>2.	CPU 1 executes the read_seqcount code sequence in
+>	rcu_process_callbacks(), setting RCU_batch(cpu) to
+>	the next batch number, and setting next_pending to 1.
+>  
+>
+RCU_batch(1) is now 6.
+next_pending is 1, rcu_process_callbacks continues without calling 
+rcu_start_batch().
 
-regards
-Alex
-=2D --=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+>3.	CPU 0 executes the remainder of rcu_start_batch(),
+>	setting rcu_ctrlblk.batch.next_pending to 0 and
+>	incrementing rcu_ctrlblk.batch.cur.
+>  
+>
+batch.cur = 6.
 
+>4.	CPU 1's state is now as if the grace period had already
+>	completed for the callbacks that were just moved to
+>	RCU_curlist(), which would be very bad.
+>  
+>
+AFAICS: No. RCU_batch(1) is 6 and rcu_ctrlblk.batch.completed is still 
+5. The test for grace period completed is
 
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+>  if (!list_empty(&RCU_curlist(cpu)) &&
+>             
+> !rcu_batch_before(rcu_ctrlblk.batch.completed,RCU_batch(cpu))) {
+>          __list_splice(&RCU_curlist(cpu), &list);
+>          INIT_LIST_HEAD(&RCU_curlist(cpu));
+>  }
 
-iD8DBQFAtyq4/aHb+2190pERAmXwAKCTQ15yCP8KhcIE437od8v2IrqndwCeMW1w
-BeOJRrYbRJHeu4NDdwXxrLE=3D
-=3DqIVX
-=2D----END PGP SIGNATURE-----
+5 is before 6, thus the callbacks won't be processed.
 
---Boundary-00=_zqytApaO7WK4fHj
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="e1000-suspend-resume.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="e1000-suspend-resume.patch"
+The only write operation to rcu_ctrlblk.batch.completed is in cpu_quiet, 
+after checking that the cpu bitmap is empty and under 
+spin_lock(rcu_ctrlblk.state.mutex).
 
---- linux-2.6.7-rc1-ag1/drivers/net/e1000/e1000_main.c	2004-05-26 23:25:40.000000000 +0200
-+++ linux-2.6.7-rc1-mm1/drivers/net/e1000/e1000_main.c	2004-05-27 23:53:54.000000000 +0200
-@@ -2864,6 +2864,8 @@
- 		}
- 	}
- 
-+	pci_disable_device(pdev);
-+	
- 	state = (state > 0) ? 3 : 0;
- 	pci_set_power_state(pdev, state);
- 
-@@ -2874,6 +2876,8 @@
- static int
- e1000_resume(struct pci_dev *pdev)
- {
-+        pci_enable_device(pdev);
-+
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct e1000_adapter *adapter = netdev->priv;
- 	uint32_t manc;
+Thanks for looking at my patches,
 
---Boundary-00=_zqytApaO7WK4fHj--
+--
+    Manfred
 

@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVALTok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVALTsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVALTok (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVALTmX
+	id S261354AbVALTsl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVALTlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:42:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34994 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261349AbVALThJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:37:09 -0500
-Date: Wed, 12 Jan 2005 14:12:27 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050112161227.GF32024@logos.cnet>
-References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	Wed, 12 Jan 2005 14:41:23 -0500
+Received: from hqemgate03.nvidia.com ([216.228.112.143]:49673 "EHLO
+	HQEMGATE03.nvidia.com") by vger.kernel.org with ESMTP
+	id S261337AbVALTid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 14:38:33 -0500
+Date: Wed, 12 Jan 2005 13:37:27 -0600
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Terence Ripperda <tripperda@nvidia.com>,
+       Brian Gerst <bgerst@didntduck.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@linux.ie>
+Subject: Re: inter_module_get and __symbol_get
+Message-ID: <20050112193727.GM1933@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <20050106213225.GJ6184@hygelac> <41DDB465.8000705@didntduck.org> <20050106225140.GO6184@hygelac> <9e4733910501072000491d6c04@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <9e4733910501072000491d6c04@mail.gmail.com>
+User-Agent: Mutt/1.4i
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.6.7 
+X-OriginalArrivalTime: 12 Jan 2005 19:37:22.0214 (UTC) FILETIME=[22B82C60:01C4F8DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 11:01:42AM -0800, Linus Torvalds wrote:
+
+it would seem like the old mechanism was preferable, but perhaps I'm
+missing something. in this particular case, there are times when a user
+wants to avoid using agp at all for testing purposes, but if I
+understand correctly, we'll be forced to load agpgart anyways due to
+unresolved symbols.
+
+but I think Keith Owens was correct in his larger picture view that
+this mechanism is useful for much more than just agp. I'm just
+confused why it was regressed from a non-gpl symbol to a gpl symbol
+(or more appropriately why the non-gpl symbol was regressed in favor
+of a gpl-only symbol).
+
+Thanks,
+Terence
+
+
+On Fri, Jan 07, 2005 at 11:00:09PM -0500, jonsmirl@gmail.com wrote:
+> The inter_module_xxx free DRM is already in Linus BK. Sooner or later
+> the inter_module_xx exports in the AGP driver should disappear too.
 > 
+> DRM now handles things at compile time. If AGP is enabled at compile
+> time, AGP support gets built into the DRM module. If AGP is not
+> enabled, AGP does not get compiled in. If you try to take a DRM that
+> was built for AGP and move it to a system without, it's not going to
+> load because it will need the AGP symbols.
 > 
-> On Wed, 12 Jan 2005, Greg KH wrote:
-> > 
-> > So you would be for a closed list, but there would be no incentive at
-> > all for anyone on the list to keep the contents of what was posted to
-> > the list closed at any time?  That goes against the above stated goal of
-> > complying with RFPolicy.
-> 
-> There's already vendor-sec. I assume they follow RFPolicy already. If it's 
-> just another vendor-sec, why would you put up a new list for it?
-> 
-> In other words, if you allow embargoes and vendor politics, what would the 
-> new list buy that isn't already in vendor-sec.
-> 
-> When I saw how vendor-sec worked, I decided I will never be on an embargo 
-> list. Ever. That's not to say that such a list can't work - I just 
-> personally refuse to have anything to do with one. Whether that matters or
-> not is obviously an open question.
-
-Of course it matters Linus - vendors need time to prepare their updates. You 
-can't ignore that, and you can't "have nothing to do with it". 
-
-You seem to dislike the way embargos have been done on vendorsec, fine. They can
-be done on a different way, but you have to understand that you and Andrew
-need to follow and agree with the embargo.
-
-How you feel about having short fixed time embargo's (lets say, 3 or 4 days) ? 
-
-The only reason for this is to have "time for the vendors to catch up", which 
-can be defined by the kernel security office. Nothing more - no vendor politics
-involved.
-
-It is a simple matter of synchronization.
-
+> -- 
+> Jon Smirl
+> jonsmirl@gmail.com

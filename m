@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262599AbSJDRKX>; Fri, 4 Oct 2002 13:10:23 -0400
+	id <S262109AbSJDPrt>; Fri, 4 Oct 2002 11:47:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbSJDRKX>; Fri, 4 Oct 2002 13:10:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13318 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262599AbSJDRKV>;
-	Fri, 4 Oct 2002 13:10:21 -0400
-Date: Fri, 4 Oct 2002 18:15:55 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: RAID backup
-Message-ID: <20021004171555.GH710@gallifrey>
-References: <Pine.LNX.3.96.1021004041421.5688A-100000@Maggie.Linux-Consulting.com> <1033735943.31839.12.camel@irongate.swansea.linux.org.uk> <20021004132419.GF710@gallifrey> <20021004150752.B16727@flint.arm.linux.org.uk>
+	id <S262111AbSJDPrt>; Fri, 4 Oct 2002 11:47:49 -0400
+Received: from angband.namesys.com ([212.16.7.85]:48003 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S262109AbSJDPrq>; Fri, 4 Oct 2002 11:47:46 -0400
+Date: Fri, 4 Oct 2002 19:53:15 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [STUPID TESTCASE] ext3 htree vs. reiserfs on 2.5.40-mm1
+Message-ID: <20021004195315.A14062@namesys.com>
+References: <20021001195914.GC6318@stingr.net> <20021001204330.GO3000@clusterfs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20021004150752.B16727@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 18:11:26 up 2 days, 19:38,  1 user,  load average: 0.00, 0.12, 0.39
+In-Reply-To: <20021001204330.GO3000@clusterfs.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Russell King (rmk@arm.linux.org.uk) wrote:
+Hello!
 
-> However, drive in caddy or no caddy, the accidental drop test would
-> probably be more favourable to the DLT tape surviving over the drive.
-> Physical accidents do happen.
+On Tue, Oct 01, 2002 at 02:43:30PM -0600, Andreas Dilger wrote:
 
-While I guess a good caddy might put a lump of rubber in to help. But
-there again I'm not sure if I have that much confidence in the DLT tapes
-either; the instructions in the insert for HP DLT tapes tell you to
-rattle them and listen to hear if you can hear anything loose
-before putting them into your drive!
+> As a result, if the size of the directory + inode table blocks is larger
+> than memory, and also larger than 1/4 of the journal, you are essentially
+> seek-bound because of random block dirtying.
+> You should see what the size of the directory is at its peak (probably
+> 16 bytes * 300k ~= 5MB, and add in the size of the directory blocks
+> (128 bytes * 300k ~= 38MB) and make the journal 4x as large as that,
+> so 192MB (mke2fs -j -J size=192) and re-run the test (I assume you have
+> at least 256MB+ of RAM on the test system).
 
-Anyway, from the side of data integrity the drop test doesn't worry me -
-for critical data I have a lot more than one backup; and users perform
-an important part of the backup test system by regularly deleting files
-to be restored.
+Hm. But all of that won't help if you need to read inodes from disk first,
+right? (until that inode allocation in chunks implemented, of course).
 
-Dave
+BTW, in case of inode allocation in chunks attached to directory blocks,
+you won't get any benefit in case if application creates file in some
+tempoarry dir and then rename()s it to its proper place, or am I missing
+something?
 
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+> What is very interesting from the above results is that the CPU usage
+> is _much_ smaller for ext3+htree than for reiserfs.  It looks like
+
+This is only in case of deletion, probably somehow related to constant item
+shifting when some of the items are deleted.
+
+Bye,
+    Oleg

@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264463AbRGEV6e>; Thu, 5 Jul 2001 17:58:34 -0400
+	id <S264769AbRGEWBE>; Thu, 5 Jul 2001 18:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264673AbRGEV6Z>; Thu, 5 Jul 2001 17:58:25 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:21262
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S264463AbRGEV6N>; Thu, 5 Jul 2001 17:58:13 -0400
-Date: Thu, 5 Jul 2001 18:03:31 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: Guest section DW <dwguest@win.tue.nl>,
-        Stephen C Burns <sburns@farpointer.net>, linux-kernel@vger.kernel.org,
-        83710@bugs.debian.org
-Subject: Re: [OT] Re: LILO calling modprobe?
-Message-ID: <20010705180331.A10315@animx.eu.org>
-In-Reply-To: <20010705224245.A1789@win.tue.nl> <20010705140330.C22723@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20010705140330.C22723@vitelus.com>; from Aaron Lehmann on Thu, Jul 05, 2001 at 02:03:30PM -0700
+	id <S264680AbRGEWAy>; Thu, 5 Jul 2001 18:00:54 -0400
+Received: from hose.mail.pipex.net ([158.43.128.58]:26544 "HELO
+	hose.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S264475AbRGEWAn>; Thu, 5 Jul 2001 18:00:43 -0400
+To: linux-kernel@vger.kernel.org
+From: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
+Date: Thu, 05 Jul 2001 21:42:38
+Subject: Re: pcmcia lockup inserting or removing cards in 2.4.5-ac{13,22}
+X-Mailer: ProNews/2 V1.51.ib104
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010705220051Z264475-17720+11254@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >     cache_add("/dev/hda",0x300);
-> >     for (i = 1; i <= 8; i++) {
-> >         sprintf(tmp,"/dev/hda%d",i);
-> >         cache_add(tmp,0x300+i);
-> > 
-> > Before doing anything LILO v21 collects the hda, hdb, sda, sdb info.
-> > There is no problem, certainly no kernel problem.
-> 
-> Sure it isn't a problem, but it's really annoying if it won't need to
-> touch hda anyway.
-> 
-> Is there a reason that it does this?
+On Thu, 5 Jul 2001 03:06:11, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> 
+wrote:
 
-I believe there is.  It wants to find what drive is bios drive 80h.  Really
-annoying since there's no way (correct me if I'm wrong) to read bios from
-linux.  If there is, lilo should do that.  But since it's an old copy, this
-probably was fixed.
+> Hmm, Cardbus and USB problems... you probably have both Cardbus and
+> i82365 support in your kernel configuration. 
 
-I had a machine at work with both ide and scsi.  ide hdd was hdc and ide
-cdrom was hda just to keep lilo from thinking hdc is the first bios drive
-which infact sda was
+Once I have the BIOS set to "cardbus/16 bit" instead of "auto-detect" 
+I don't have a problem with having both Cardbus and i82365 support 
+compiled in. If the BIOS is set to auto then the PCI tables don't have
+an IRQ specified and yenta.c uses IRQ 0!
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Trevor Hemsley, Brighton, UK.
+Trevor-Hemsley@dial.pipex.com

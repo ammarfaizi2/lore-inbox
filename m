@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129219AbRBBGnd>; Fri, 2 Feb 2001 01:43:33 -0500
+	id <S129243AbRBBGoX>; Fri, 2 Feb 2001 01:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129243AbRBBGnY>; Fri, 2 Feb 2001 01:43:24 -0500
-Received: from venus.illtel.denver.co.us ([64.22.49.69]:4104 "EHLO
-	mercury.illtel.denver.co.us") by vger.kernel.org with ESMTP
-	id <S129219AbRBBGnM>; Fri, 2 Feb 2001 01:43:12 -0500
-Date: Thu, 1 Feb 2001 22:43:54 -0800 (PST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: Joe deBlaquiere <jadb@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial device with very large buffer
-In-Reply-To: <3A7A4992.5070303@redhat.com>
-Message-ID: <Pine.LNX.4.10.10102012240170.991-100000@mercury>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129605AbRBBGoN>; Fri, 2 Feb 2001 01:44:13 -0500
+Received: from [213.237.80.42] ([213.237.80.42]:26973 "EHLO udgaard.com")
+	by vger.kernel.org with ESMTP id <S129243AbRBBGoG>;
+	Fri, 2 Feb 2001 01:44:06 -0500
+Date: Fri, 2 Feb 2001 07:45:03 +0100
+From: Peter Rasmussen (udgaard) <plr@udgaard.com>
+Message-Id: <200102020645.HAA00206@udgaard.com>
+To: axboe@suse.de, vraalsen@cs.uiuc.edu
+Subject: Re: [Patch] DVD bugfix in ide-cd.c
+Cc: linux-kernel@vger.kernel.org, livid-dev@linuxvideo.org, plr@udgaard.com,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Joe deBlaquiere wrote:
+This patch made it work for me watching DVDs that used to stop, ie. oms
+crashed. So I'll approve the patch :-)
 
-> >> 	I'm a little confused here... why are we overrunning? This thing is 
-> >> running externally at 19200 at best, even if it does all come in as a 
-> >> packet.
-> > 
-> > 
-> >   Different Merlin -- original Merlin is 19200, "Merlin for Ricochet" is
-> > 128Kbps (or faster), and uses Metricom/Ricochet network.
+Peter
+
+Fredrik Vraalsen <vraalsen@cs.uiuc.edu> on 01 Feb 2001 23:12:44 wrote:
+>
+>
+>This is a small patch to Linux kernel 2.4.1 that fixes a problem with
+>DVD playback in OMS (Open Media System).  With the stock 2.4.1 kernel
+>OMS will only play up to a certain point on the DVD before it complains
+>about no more data left on input (basically read() returns 0).  This
+>patch reverts a change between 2.4.0 and 2.4.1.
+>
+>
+>diff -u --recursive --new-file v2.4.0/linux/drivers/ide/ide-cd.c linux/drivers/ide/ide-cd.c
+>--- v2.4.0/linux/drivers/ide/ide-cd.c	Tue Jan  2 16:59:17 2001
+>+++ linux/drivers/ide/ide-cd.c	Sun Jan 28 13:37:50 2001
+>@@ -1872,6 +1872,9 @@
+> 	   If it is, just return. */
+> 	(void) cdrom_check_status(drive, sense);
 > 
-> so can you still limit the mru?
-
-  No. And even if I could, there is no guarantee that it won't fill the
-whole buffer anyway by attaching head of the second packet after the tail
-of the first one -- this thing treats interface as asynchronous and
-ignores PPP packets boundaries.
-
--- 
-Alex
-
+>+	if (CDROM_STATE_FLAGS(drive)->toc_valid)
+>+		return 0;
+>+
+> 	/* First read just the header, so we know how long the TOC is. */
+> 	stat = cdrom_read_tocentry(drive, 0, 1, 0, (char *) &toc->hdr,
+> 				    sizeof(struct atapi_toc_header), sense);
+>
+>
+>-- 
+>Fredrik Vraalsen  -  Research Assistant, Pablo research group
+>Department of Computer Science, University of Illinois at U-C
+>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

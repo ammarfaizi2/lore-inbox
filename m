@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSK1Pqf>; Thu, 28 Nov 2002 10:46:35 -0500
+	id <S262648AbSK1PvE>; Thu, 28 Nov 2002 10:51:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbSK1Pqf>; Thu, 28 Nov 2002 10:46:35 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:7319 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261541AbSK1Pqf>; Thu, 28 Nov 2002 10:46:35 -0500
-Subject: Re: drivers/pci/quirks.c / Re: Linux v2.5.50
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Sebastian Benoit <benoit-lists@fb12.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20021128111528.A28437@turing.fb12.de>
-References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com> 
-	<20021128111528.A28437@turing.fb12.de>
-Content-Type: text/plain
+	id <S262667AbSK1PvE>; Thu, 28 Nov 2002 10:51:04 -0500
+Received: from hermes.dur.ac.uk ([129.234.4.9]:60394 "EHLO hermes.dur.ac.uk")
+	by vger.kernel.org with ESMTP id <S262648AbSK1PvD>;
+	Thu, 28 Nov 2002 10:51:03 -0500
+Message-ID: <3DE63E1C.70404@durham.ac.uk>
+Date: Thu, 28 Nov 2002 16:02:36 +0000
+From: simon farnsworth <simon.farnsworth@durham.ac.uk>
+Reply-To: kernel@farnz.org.uk
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-GB; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-gb, en
+MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: LKCD slides from http://lkcd.sourceforge.net/ in .ppc format
+ only?
+References: <200211281559.32056.roy@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Nov 2002 16:25:43 +0000
-Message-Id: <1038500743.10021.1.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-MailScanner: Found to be clean, Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-28 at 10:15, Sebastian Benoit wrote:
+Roy Sigurd Karlsbakk wrote:
+> hi
 > 
-> with CONFIG_X86_IO_APIC=y I get
+> at http://lkcd.sourceforge.net/, there's a link to "Slides from the LKCD talk 
+> during LinuxWorld Expo 2000 (OLD)" 
+> (http://lkcd.sourceforge.net/docs/linuxworld2000), and "Slides from the Linux 
+> and RAS talk during LinuxWorld Expo 2002" 
+> (http://lkcd.sourceforge.net/docs/linuxworld2002), but all the slides are in 
+> microsoft powerpoint format. Anyone that cares to convert them into something 
+> readable?
 > 
->   gcc -Wp,-MD,drivers/pci/.quirks.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=quirks -DKBUILD_MODNAME=quirks   -c -o drivers/pci/quirks.o drivers/pci/quirks.c
-> drivers/pci/quirks.c: In function `quirk_ioapic_rmw':
-> drivers/pci/quirks.c:354: `sis_apic_bug' undeclared (first use in this function)
-> drivers/pci/quirks.c:354: (Each undeclared identifier is reported only once
-> drivers/pci/quirks.c:354: for each function it appears in.)
-> make[2]: *** [drivers/pci/quirks.o] Error 1
-> make[1]: *** [drivers/pci] Error 2
-> make: *** [drivers] Error 2
->
 
-I'll send Linus the code I actually originally meant to send him, that
-tidies this stuff up IMHO a lot better
+I've placed .pdf versions of the files at 
+http://compsoc.dur.ac.uk/~sf/lkcd/ - the  directory structure mirrors 
+that at http://lkcd.sourceforge.net/docs/
 

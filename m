@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbRAENEr>; Fri, 5 Jan 2001 08:04:47 -0500
+	id <S130225AbRAEN0L>; Fri, 5 Jan 2001 08:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAENEh>; Fri, 5 Jan 2001 08:04:37 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:8714 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129523AbRAENE0>; Fri, 5 Jan 2001 08:04:26 -0500
-Date: Fri, 5 Jan 2001 14:04:08 +0100
-From: Claas Langbehn <claas@bigfoot.com>
-To: Chris Mason <mason@suse.com>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: reiserfs patch for 2.4.0-final
-Message-ID: <20010105140408.A2812@villariba.2y.net>
-In-Reply-To: <244070000.978645169@tiny>
+	id <S129757AbRAENZw>; Fri, 5 Jan 2001 08:25:52 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:2308 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129387AbRAENZq>;
+	Fri, 5 Jan 2001 08:25:46 -0500
+Date: Fri, 5 Jan 2001 13:22:28 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        Daniel Phillips <phillips@innominate.de>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+Message-ID: <20010105132228.Y1290@redhat.com>
+In-Reply-To: <200101050800.f0580He12396@webber.adilger.net> <E14EWGE-0007bW-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <244070000.978645169@tiny>; from mason@suse.com on Thu, Jan 04, 2001 at 04:52:49PM -0500
+User-Agent: Mutt/1.2i
+In-Reply-To: <E14EWGE-0007bW-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 05, 2001 at 12:46:19PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 04:52:49PM -0500, Chris Mason wrote:
-> This patch is meant to be applied on top of the reiserfs
-> 3.6.23 patch to get everything working in the new prerelease
-> kernels.  The order is:
+Hi,
+
+On Fri, Jan 05, 2001 at 12:46:19PM +0000, Alan Cox wrote:
+> > recovery.  Because the ext3 journal is just a series of data blocks to
+> > be copied into the filesystem (rather than "actions" to be done), it
+> > doesn't matter how many times it is done.  The recovery flags are not
+> > reset until after the journal replay is completed.
 > 
-> untar linux-2.4.0-prerelease.tar.bz2
-> apply linux-2.4.0-test12-reiserfs-3.6.23.gz
-> apply this patch
-> apply the fs/super.c patch to make sure fsync_dev is called
-> when unmounting /.  This was already sent to l-k, I'll send
-> to the reiserfs list as well.
+> Which means an ext3 volume cannot be recovered on a hard disk error. 
 
-Is this still correct for the final 2.4.0-kernel ?
+Depends on the error.  If the disk has gone hard-readonly, then we
+need to recover in core, and that's something which is not yet
+implemented but is a known todo item.  Otherwise, it's not worse than
+an error on ext2: you don't have a guaranteed safe state to return to
+so you fall back to recovering what you can from the journal and then
+running an e2fsck pass.  e2fsck groks the journal already.
 
-Could someone create one single patch for the 2.4.0 ?
+And yes, a badly faulty drive can mess this up, but it can mess it for
+ext2 just as badly.
 
-Bye,
-Claas
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

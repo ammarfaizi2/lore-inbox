@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287828AbSAIQsq>; Wed, 9 Jan 2002 11:48:46 -0500
+	id <S287863AbSAIQv0>; Wed, 9 Jan 2002 11:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287850AbSAIQsg>; Wed, 9 Jan 2002 11:48:36 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:11020 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S287828AbSAIQsZ>; Wed, 9 Jan 2002 11:48:25 -0500
-Date: Wed, 9 Jan 2002 17:48:17 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Patrick Mochel <mochel@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-        Greg KH <greg@kroah.com>, felix-dietlibc@fefe.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109174817.A24072@devcon.net>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	Patrick Mochel <mochel@osdl.org>,
-	Anton Altaparmakov <aia21@cam.ac.uk>, Greg KH <greg@kroah.com>,
-	felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20020109155608.GG21317@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0201090802390.865-100000@segfault.osdlab.org> <20020109162951.GA24175@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020109162951.GA24175@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Wed, Jan 09, 2002 at 05:29:51PM +0100
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+	id <S287862AbSAIQvV>; Wed, 9 Jan 2002 11:51:21 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:5135 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S287860AbSAIQvE>;
+	Wed, 9 Jan 2002 11:51:04 -0500
+Date: Wed, 09 Jan 2002 17:51:03 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Simple local DOS
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3C3C74F7.FE41CD0E@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 05:29:51PM +0100, Pavel Machek wrote:
-> 
-> But that means that I'll need partition discovery code twice. Once on
-> initrd, and once on my root, because if I insert PCMCIA harddrive on
-> runtime, I'll need same detection.
 
-Where is the problem? Generally I think you will have /every/ piece of
-code on the initramfs also somewhere on your normal fs, to build the
-initramfs image from. Also, who says that you have to abandon your
-initramfs after the switch to the real root fs?
+log in on some virtual terminal, then run the following line
+in a bourne type shell, like bash :
 
-Andreas
+X 2>&1 | less
+
+A reboot "fixes" it. We want to reach windows level quality on desktop
+after all, don't we ?
+
 -- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+David Balazic
+--------------
+"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,83 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265285AbSLMTYV>; Fri, 13 Dec 2002 14:24:21 -0500
+	id <S265306AbSLMTdT>; Fri, 13 Dec 2002 14:33:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbSLMTYU>; Fri, 13 Dec 2002 14:24:20 -0500
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:19643 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S265285AbSLMTYT> convert rfc822-to-8bit; Fri, 13 Dec 2002 14:24:19 -0500
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Margit Schubert-While <margitsw@t-online.de>
-Subject: Re: Intel P6 vs P7 system call performance
-Date: Fri, 13 Dec 2002 20:32:00 +0100
-User-Agent: KMail/1.5
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S265320AbSLMTdT>; Fri, 13 Dec 2002 14:33:19 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:55992 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265306AbSLMTdS> convert rfc822-to-8bit; Fri, 13 Dec 2002 14:33:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sys_epoll for 2.4
+Date: Fri, 13 Dec 2002 20:40:45 +0100
+User-Agent: KMail/1.4.3
+References: <200212122303.gBCN3O721003@eng2.beaverton.ibm.com>
+In-Reply-To: <200212122303.gBCN3O721003@eng2.beaverton.ibm.com>
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Janet Morgan <janetmor@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200212132032.00505.Dieter.Nuetzel@hamburg.de>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212132038.23469.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, in the 2.4.x kernels, the P4 gets compiled as a I686 with NO special
-> treatment :-) (Not even prefetch, because of an ifdef bug)
-> The P3 at least gets one level of prefetch and the AMD's get special compile
-> options(arch=k6,athlon), full prefetch and SSE.
->
-> >From Mike Hayward
-> >Dual Pentium 4 Xeon 2.4Ghz 2.4.19 kernel 33661.9 lps (10 secs, 6 samples)
->
-> Hmm, P4 2.4Ghz , also gcc -O3 -march=i686
->
-> margit:/disk03/bytebench-3.1/src # ./hanoi 10
-> 576264 loops
-> margit:/disk03/bytebench-3.1/src # ./hanoi 10
-> 571001 loops
-> margit:/disk03/bytebench-3.1/src # ./hanoi 10
-> 571133 loops
-> margit:/disk03/bytebench-3.1/src # ./hanoi 10
-> 570517 loops
-> margit:/disk03/bytebench-3.1/src # ./hanoi 10
-> 571019 loops
-> margit:/disk03/bytebench-3.1/src # ./hanoi 10
-> 582688 loops
+On Friday 13 December 2002 00:03, Janet Morgan wrote:
 
-Apples and oranges? ;-)
+Hi Janet,
 
-dual AMD Athlon MP 1900+, 1.6 GHz
-(but single threaded app)
-2.4.20-aa1
-gcc-2.95.3
+> The attached patch is a port of Davide's sys_epoll from 2.5.51 to 2.4.20.
+I get this while make modules:
 
-unixbench-4.1.0/src> gcc -O -mcpu=k6 -march=i686 -fomit-frame-pointer 
--mpreferred-stack-boundary=2 -malign-functions=4 -o hanoi hanoi.c
-unixbench-4.1.0/src> sync
-unixbench-4.1.0/src> ./hanoi 10                                                            
-565338 loops
-unixbench-4.1.0/src> ./hanoi 10
-565379 loops
-unixbench-4.1.0/src> ./hanoi 10
-565448 loops
-unixbench-4.1.0/src> ./hanoi 10
-565218 loops
-unixbench-4.1.0/src> ./hanoi 10
-565148 loops
-unixbench-4.1.0/src> ./hanoi 10
-565136 loops
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include  -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE -DSMBFS_PARANOIA -nostdinc 
+-iwithprefix include -DKBUILD_BASENAME=sock  -c -o sock.o sock.c
+sock.c: In function `smb_receive_poll':
+sock.c:323: warning: passing arg 1 of `poll_initwait' from incompatible 
+pointer type
+sock.c:328: warning: passing arg 1 of `poll_freewait' from incompatible 
+pointer type
+sock.c:334: warning: passing arg 1 of `poll_freewait' from incompatible 
+pointer type
+sock.c:337: structure has no member named `error'
+sock.c:338: structure has no member named `error'
+make[2]: *** [sock.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.20/fs/smbfs'
+make[1]: *** [_modsubdir_smbfs] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.20/fs'
+make: *** [_mod_fs] Error 2
 
-You should run "./Run hanoi"...
+This is SMBfs as module.
 
-Recursion Test--Tower of Hanoi            58404.5 lps   (19.3 secs, 3 samples)
+The code is this starting at line 333:
 
-Regards,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
+                timeout = schedule_timeout(timeout);
+                poll_freewait(&wait_table);
+                set_current_state(TASK_RUNNING);
 
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)
+                if (wait_table.error) {
+                        result = wait_table.error;
+                        break;
+                }
+
+                if (signal_pending(current)) {
+
+
+ciao, Marc

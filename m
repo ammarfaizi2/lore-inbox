@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVC0NwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVC0Nxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVC0NwT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 08:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVC0NwT
+	id S261655AbVC0Nxw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 08:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVC0Nxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 08:52:19 -0500
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:38793 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261640AbVC0NwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 08:52:14 -0500
-Subject: inotify issue: iput called atomically
-From: Christophe Saout <christophe@saout.de>
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oHYSHtf55eTNJdK/vtgK"
-Date: Sun, 27 Mar 2005 15:52:06 +0200
-Message-Id: <1111931527.20371.8.camel@leto.cs.pocnet.net>
+	Sun, 27 Mar 2005 08:53:52 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:30924 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261655AbVC0Nxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 08:53:42 -0500
+Date: Sun, 27 Mar 2005 15:53:38 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Sean <seanlkml@sympatico.ca>
+Cc: Mark Fortescue <mark@mtfhpc.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Message-ID: <20050327135338.GB14696@wiggy.net>
+Mail-Followup-To: Sean <seanlkml@sympatico.ca>,
+	Mark Fortescue <mark@mtfhpc.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk> <1824.10.10.10.24.1111927362.squirrel@linux1>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1824.10.10.10.24.1111927362.squirrel@linux1>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Previously Sean wrote:
+> On Sat, March 26, 2005 12:52 pm, Mark Fortescue said:
+> > In order to be able to use SYSFS to debug the driver during development
+> > the way I would like to be able to do, I will have to temporally change
+> > the module licence line to "GPL". When the development is finnished I
+> > then need to remove all the code that accesses the SYSFS stuf in the
+> > Kernel and change the module back to a "Proprietry" licence in order to
+> > comply with other requirements. This will then hinder any debugging if
+> > future issues arise.
+> 
+> Likely this won't be enough to keep you or your company from being sued.
 
---=-oHYSHtf55eTNJdK/vtgK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Are you sure? It is perfectly legal to relicense things if you own the
+copyright. As long as he never distributes his GPL version I don't see
+why he should have a problem.
 
-Hi Robert,
+Wichert.
 
-it looks like you shouldn't call iput with spinlocks held. iput might
-call down into the filesystem to delete the inode and this can sleep.
-
-Mar 27 14:38:18 server Debug: sleeping function called from invalid
-context at include/asm/semaphore.h:102
-Mar 27 14:38:18 server in_atomic():1, irqs_disabled():0
-Mar 27 14:38:18 server [<c0103e37>] dump_stack+0x17/0x20
-Mar 27 14:38:18 server [<c0118973>] __might_sleep+0xa3/0xb0
-Mar 27 14:38:18 server [<c03fc5ab>] lock_kernel+0x2b/0x50
-Mar 27 14:38:18 server [<c019fc33>] reiserfs_delete_inode+0x13/0x100
-Mar 27 14:38:18 server [<c0172c64>] generic_delete_inode+0xa4/0x160
-Mar 27 14:38:18 server [<c0172f16>] iput+0x56/0x80
-Mar 27 14:38:18 server [<c017f9bd>] remove_watch_no_event+0x8d/0x100
-Mar 27 14:38:18 server [<c01805f9>] inotify_ignore+0x49/0x90
-Mar 27 14:38:18 server [<c018070d>] inotify_ioctl+0xcd/0x110
-Mar 27 14:38:18 server [<c016ac26>] do_ioctl+0x76/0x90
-Mar 27 14:38:18 server [<c016adb9>] vfs_ioctl+0x59/0x1c0
-Mar 27 14:38:18 server [<c016af59>] sys_ioctl+0x39/0x60
-Mar 27 14:38:18 server [<c0102f6b>] sysenter_past_esp+0x54/0x75
-
-I've looked through the code and iput can usually be called after
-releasing spinlocks. It doesn't look trivial to implement though.
-
-
---=-oHYSHtf55eTNJdK/vtgK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCRrqGZCYBcts5dM0RAjG7AJ4uGMi9dhnPqTE4RSmPVAXhi+2S/QCeLRgd
-D4odjY8ywK87b1RZMAYbmjc=
-=30eh
------END PGP SIGNATURE-----
-
---=-oHYSHtf55eTNJdK/vtgK--
-
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

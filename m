@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279272AbRJWIkJ>; Tue, 23 Oct 2001 04:40:09 -0400
+	id <S279326AbRJWIzp>; Tue, 23 Oct 2001 04:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279320AbRJWIj7>; Tue, 23 Oct 2001 04:39:59 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:51468 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S279272AbRJWIjq>;
-	Tue, 23 Oct 2001 04:39:46 -0400
-Message-ID: <20011023124759.A3949@castle.nmd.msu.ru>
-Date: Tue, 23 Oct 2001 12:47:59 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Julian Anastasov <ja@ssi.bg>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
-In-Reply-To: <Pine.LNX.4.33.0110201937020.23322-100000@u.domain.uli>
+	id <S279324AbRJWIzg>; Tue, 23 Oct 2001 04:55:36 -0400
+Received: from [62.116.8.197] ([62.116.8.197]:32386 "HELO
+	ghanima.endorphin.org") by vger.kernel.org with SMTP
+	id <S279323AbRJWIz0>; Tue, 23 Oct 2001 04:55:26 -0400
+From: "clemens" <therapy@endorphin.org>
+Date: Tue, 23 Oct 2001 10:55:53 +0200
+To: Volker Dierks <vd@mwi-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA 686b Bug - once again :(
+Message-ID: <20011023105553.A1891@ghanima.endorphin.org>
+In-Reply-To: <200110211326.PAA01192@mail.mwi-online.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.4.33.0110201937020.23322-100000@u.domain.uli>; from "Julian Anastasov" on Sat, Oct 20, 2001 at 07:56:47PM
+Content-Disposition: inline
+In-Reply-To: <200110211326.PAA01192@mail.mwi-online.de>
+User-Agent: Mutt/1.3.23i
+X-Delivery-Agent: TMDA v0.37/Python 2.0.1 (linux2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Oct 21, 2001 at 01:26:11PM -0000, Volker Dierks wrote:
 
-On Sat, Oct 20, 2001 at 07:56:47PM +0000, Julian Anastasov wrote:
-> 
-> Andrey Savochkin wrote:
-> 
-> > Well, what I want is to make the host an arp "proxy" on all interfaces for
-> > all addresses reachable through devX.  I do not want to mess with how
-> > customer configures all other interfaces.
-> > Right now all routes to devX are /32, for all of them proxy arp entries are
-> > created by the same script, and all are happy.
-> >
-> > How can it be done better?
-> > New mechanism of fine-grained control over proxy arp? :-)
-> 
-> 	I can tell you what Alexey and Andrey will answer on netdev :)
-> Make proxyarp a route flag. When arp_filter is not suitable for filtering
+> I searched 1 hour on google but
+> the only solution seems to be a
+> fix with loadlin and pciset from
+> Thilo <Free.Spirit@gmx.net>
 
-I may end up doing it, but I don't share Alexey's enthusiasm about
-removing the options from ip and moving to some fine-grained control over
-proxy arp.
+have a look at:
 
-I certainly prefer simpler solutions.
-Solutions based on static configuration, without dynamic resolution
-protocols, are simpler.
-That is what I have now: I add entries, which I want to expose and to be used
-for answering arp requests, one by one by `ip proxy neigh add'.
-Simpler solutions are less error-prone and more easy to debug.
+http://www.viahardware.com/686bfaq.shtm
+http://www.au-ja.org/review-kt133a-1.phtml (german)
 
-	Andrey
+basically you have to find a way to set some specific PCI registers of the
+northbridge. 
+check out the write handler of this is /proc/bus/pci/00/00.0
+it's at linux/drivers/pci/proc.c:proc_bus_pci_write
 
-> non-local input routes you can also solve the problem with the route's
-> noarp flag (known in netdev). The proxyarp flag for route can allow
-> the feature to work even on one device (indev==outdev) may be for NAT
-> purposes), probably running send_redirects=0 (send_redirects is another
-> candidate for a route flags). Of course, the target hosts should filter
-> these ARP probes with a simple rp_filter policy, only our box should
-> reply. We need only space for route flags and imagination :)
+basically it looks like you have to seek to the "register" via lseek and
+then write the control value.
+shouldn't be that hard.
+
+in worst case you could write a 20-line linux kernel module to set the
+few required pci registers.
+
+clemens

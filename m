@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265193AbRGPQzP>; Mon, 16 Jul 2001 12:55:15 -0400
+	id <S265475AbRGPRG7>; Mon, 16 Jul 2001 13:06:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265449AbRGPQy4>; Mon, 16 Jul 2001 12:54:56 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:56051 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S265193AbRGPQyr>;
-	Mon, 16 Jul 2001 12:54:47 -0400
-To: Rolf Fokkens <FokkensR@vertis.nl>
-Cc: "'alan@lxorguk.ukuu.org.uk'" <alan@lxorguk.ukuu.org.uk>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: /proc/sys/kernel/hz
-In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C48DA@vts007.vertis.nl>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 16 Jul 2001 09:50:35 -0700
-In-Reply-To: Rolf Fokkens's message of "Mon, 16 Jul 2001 18:11:14 +0200"
-Message-ID: <m38zhorf6s.fsf@otr.mynet>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
-MIME-Version: 1.0
+	id <S265449AbRGPRGi>; Mon, 16 Jul 2001 13:06:38 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:32587 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265452AbRGPRGb>; Mon, 16 Jul 2001 13:06:31 -0400
+Date: Mon, 16 Jul 2001 19:06:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Gianluca Anzolin <g.anzolin@inwind.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7-pre6 can't complete e2fsck
+Message-ID: <20010716190653.E11978@athlon.random>
+In-Reply-To: <20010716132933.A216@fourier.home.intranet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010716132933.A216@fourier.home.intranet>; from g.anzolin@inwind.it on Mon, Jul 16, 2001 at 01:29:33PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rolf Fokkens <FokkensR@vertis.nl> writes:
+On Mon, Jul 16, 2001 at 01:29:33PM +0200, Gianluca Anzolin wrote:
+> I've upgraded to 2.4.7-pre6aa1 and I'm seeing a strange behaviour:
+> 
+> e2fsck /dev/hda3 never finishes: I can't even stop the process with
+> CTRL+C. Alt+SysRQ works and it tells me that the number of inactive dirty
+> pages increases, while the active and free pages decrease.
+> 
+> Alt+SYSRQ+P says the kernel loops mainly in page_launder
+> 
+> Is there a patch to solve this problem?
 
-> Some software (like procps) needs the HZ constant in the kernel. It's
-> sometimes determined by counting jiffies during a second. The attached patch
-> just "publishes" the HZ constant in /proc/sys/kernel/hz.
+The problem will go away if you backout this patch:
 
-And what is wrong with
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.7pre6aa1/40_blkdev-pagecache-5
 
-  getconf CLK_TCK
+I can reproduce so it will be fixed in the next release. thanks for the
+feedback.
 
-or programmatically
-
-  hz = sysconf (_SC_CLK_TCK);
-
-
-Update your libc and this info will come from the kernel.
-
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+Andrea

@@ -1,202 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVBUOwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVBUOxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVBUOwK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 09:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVBUOvK
+	id S262007AbVBUOxW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 09:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVBUOuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 09:51:10 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:46604 "HELO
+	Mon, 21 Feb 2005 09:50:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44556 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262000AbVBUOsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 09:48:35 -0500
-Date: Mon, 21 Feb 2005 15:48:32 +0100
+	id S261998AbVBUOs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 09:48:26 -0500
+Date: Mon, 21 Feb 2005 15:48:23 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/smc-mca.c: cleanups
-Message-ID: <20050221144832.GG3187@stusta.de>
-References: <20050219083431.GN4337@stusta.de> <421938D2.3030302@pobox.com>
+Subject: [2.6 patch] drivers/net/seeq8005.c: cleanups
+Message-ID: <20050221144823.GE3187@stusta.de>
+References: <20050219000543.GJ4337@stusta.de> <42193B34.3000106@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <421938D2.3030302@pobox.com>
+In-Reply-To: <42193B34.3000106@pobox.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 20, 2005 at 08:26:42PM -0500, Jeff Garzik wrote:
+On Sun, Feb 20, 2005 at 08:36:52PM -0500, Jeff Garzik wrote:
+> this patch needlessly eats formfeeds
 
-> these tables should be const-ified
-
-
-Updated patch:
+Sorry, updated patch:
 
 
 <--  snip  -->
 
 
 This patch contains the following cleanups:
-- make a needlessly global function static
-- make three needlessly global structs static const
-
-Since after moving the now-static stucts to smc-mca.c the file smc-mca.h 
-was empty except for two #define's, I've also killed the rest of 
-smc-mca.h .
+- make the needlessly global function seeq8005_init static
+- kill an ancient version variable
+- remove some outdated Emacs settings
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/net/smc-mca.c |   60 +++++++++++++++++++++++++++++++++++++++--
- drivers/net/smc-mca.h |   61 ------------------------------------------
- 2 files changed, 58 insertions(+), 63 deletions(-)
+ drivers/net/seeq8005.c |   23 ++---------------------
+ 1 files changed, 2 insertions(+), 21 deletions(-)
 
---- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.h	2004-12-24 22:35:23.000000000 +0100
-+++ /dev/null	2004-11-25 03:16:25.000000000 +0100
-@@ -1,61 +0,0 @@
+--- linux-2.6.11-rc3-mm2-full/drivers/net/seeq8005.c.old	2005-02-16 18:18:56.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/seeq8005.c	2005-02-21 15:19:11.000000000 +0100
+@@ -12,12 +12,6 @@
+ 	This file is a network device driver for the SEEQ 8005 chipset and
+ 	the Linux operating system.
+ 
+-*/
+-
+-static const char version[] =
+-	"seeq8005.c:v1.00 8/07/95 Hamish Coleman (hamish@zot.apana.org.au)\n";
+-
 -/*
-- * djweis weisd3458@uni.edu
-- * most of this file was taken from ps2esdi.h
-- */
--
--struct {
--  unsigned int base_addr;
--} addr_table[] = {
--    { 0x0800 },
--    { 0x1800 },
--    { 0x2800 },
--    { 0x3800 },
--    { 0x4800 },
--    { 0x5800 },
--    { 0x6800 },
--    { 0x7800 },
--    { 0x8800 },
--    { 0x9800 },
--    { 0xa800 },
--    { 0xb800 },
--    { 0xc800 },
--    { 0xd800 },
--    { 0xe800 },
--    { 0xf800 }
--};
--
--#define MEM_MASK 64
--
--struct {
--  unsigned char mem_index;
--  unsigned long mem_start;
--  unsigned char num_pages;
--} mem_table[] = {
--    { 16, 0x0c0000, 40 },
--    { 18, 0x0c4000, 40 },
--    { 20, 0x0c8000, 40 },
--    { 22, 0x0cc000, 40 },
--    { 24, 0x0d0000, 40 },
--    { 26, 0x0d4000, 40 },
--    { 28, 0x0d8000, 40 },
--    { 30, 0x0dc000, 40 },
--    {144, 0xfc0000, 40 },
--    {148, 0xfc8000, 40 },
--    {154, 0xfd0000, 40 },
--    {156, 0xfd8000, 40 },
--    {  0, 0x0c0000, 20 },
--    {  1, 0x0c2000, 20 },
--    {  2, 0x0c4000, 20 },
--    {  3, 0x0c6000, 20 }
--};
--
--#define IRQ_MASK 243
--struct {
--   unsigned char new_irq;
--   unsigned char old_irq;
--} irq_table[] = {
--   {  3,  3 },
--   {  4,  4 },
--   { 10, 10 },
--   { 14, 15 }
--};
---- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c.old	2005-02-16 18:44:29.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c	2005-02-16 18:47:24.000000000 +0100
-@@ -49,7 +49,6 @@
- #include <asm/system.h>
+   Sources:
+   	SEEQ 8005 databook
+   	
+@@ -91,7 +85,7 @@
+ /* Example routines you must write ;->. */
+ #define tx_done(dev)	(inw(SEEQ_STATUS) & SEEQSTAT_TX_ON)
+ static void hardware_send_packet(struct net_device *dev, char *buf, int length);
+-extern void seeq8005_init(struct net_device *dev, int startp);
++static  void seeq8005_init(struct net_device *dev, int startp);
+ static inline void wait_for_buffer(struct net_device *dev);
  
- #include "8390.h"
--#include "smc-mca.h"
+ 
+@@ -150,7 +144,6 @@
  
- #define DRV_NAME "smc-mca"
- 
-@@ -100,6 +99,63 @@
- MODULE_PARM_DESC(ultra_io, "SMC Ultra/EtherEZ MCA I/O base address(es)");
- MODULE_PARM_DESC(ultra_irq, "SMC Ultra/EtherEZ MCA IRQ number(s)");
- 
-+static const struct {
-+  unsigned int base_addr;
-+} addr_table[] = {
-+    { 0x0800 },
-+    { 0x1800 },
-+    { 0x2800 },
-+    { 0x3800 },
-+    { 0x4800 },
-+    { 0x5800 },
-+    { 0x6800 },
-+    { 0x7800 },
-+    { 0x8800 },
-+    { 0x9800 },
-+    { 0xa800 },
-+    { 0xb800 },
-+    { 0xc800 },
-+    { 0xd800 },
-+    { 0xe800 },
-+    { 0xf800 }
-+};
-+
-+#define MEM_MASK 64
-+
-+static const struct {
-+  unsigned char mem_index;
-+  unsigned long mem_start;
-+  unsigned char num_pages;
-+} mem_table[] = {
-+    { 16, 0x0c0000, 40 },
-+    { 18, 0x0c4000, 40 },
-+    { 20, 0x0c8000, 40 },
-+    { 22, 0x0cc000, 40 },
-+    { 24, 0x0d0000, 40 },
-+    { 26, 0x0d4000, 40 },
-+    { 28, 0x0d8000, 40 },
-+    { 30, 0x0dc000, 40 },
-+    {144, 0xfc0000, 40 },
-+    {148, 0xfc8000, 40 },
-+    {154, 0xfd0000, 40 },
-+    {156, 0xfd8000, 40 },
-+    {  0, 0x0c0000, 20 },
-+    {  1, 0x0c2000, 20 },
-+    {  2, 0x0c4000, 20 },
-+    {  3, 0x0c6000, 20 }
-+};
-+
-+#define IRQ_MASK 243
-+static const struct {
-+   unsigned char new_irq;
-+   unsigned char old_irq;
-+} irq_table[] = {
-+   {  3,  3 },
-+   {  4,  4 },
-+   { 10, 10 },
-+   { 14, 15 }
-+};
-+
- static short smc_mca_adapter_ids[] __initdata = {
- 	0x61c8,
- 	0x61c9,
-@@ -126,7 +182,7 @@
- 
- static int ultra_found = 0;
- 
--int __init ultramca_probe(struct device *gen_dev)
-+static int __init ultramca_probe(struct device *gen_dev)
+ static int __init seeq8005_probe1(struct net_device *dev, int ioaddr)
  {
- 	unsigned short ioaddr;
- 	struct net_device *dev;
-
+-	static unsigned version_printed;
+ 	int i,j;
+ 	unsigned char SA_prom[32];
+ 	int old_cfg1;
+@@ -291,9 +284,6 @@
+ 	}
+ #endif
+ 
+-	if (net_debug  &&  version_printed++ == 0)
+-		printk(version);
+-
+ 	printk("%s: %s found at %#3x, ", dev->name, "seeq8005", ioaddr);
+ 
+ 	/* Fill in the 'dev' fields. */
+@@ -637,7 +627,7 @@
+ #endif
+ }
+ 
+-void seeq8005_init(struct net_device *dev, int startp)
++static void seeq8005_init(struct net_device *dev, int startp)
+ {
+ 	struct net_local *lp = netdev_priv(dev);
+ 	int ioaddr = dev->base_addr;
+@@ -758,12 +748,3 @@
+ }
+ 
+ #endif /* MODULE */
+-
+-/*
+- * Local variables:
+- *  compile-command: "gcc -D__KERNEL__ -I/usr/src/linux/net/inet -Wall -Wstrict-prototypes -O6 -m486 -c skeleton.c"
+- *  version-control: t
+- *  kept-new-versions: 5
+- *  tab-width: 4
+- * End:
+- */
 

@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266943AbSKUXwx>; Thu, 21 Nov 2002 18:52:53 -0500
+	id <S267207AbSKUXt4>; Thu, 21 Nov 2002 18:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267213AbSKUXww>; Thu, 21 Nov 2002 18:52:52 -0500
-Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:58067 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S266943AbSKUXwv>; Thu, 21 Nov 2002 18:52:51 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 21 Nov 2002 15:59:47 -0800
-Message-Id: <200211212359.PAA16061@adam.yggdrasil.com>
-To: zippel@linux-m68k.org
-Subject: Re: [RFC] module fs or how to not break everything at once
-Cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz
+	id <S267210AbSKUXt4>; Thu, 21 Nov 2002 18:49:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12810 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267207AbSKUXtz>; Thu, 21 Nov 2002 18:49:55 -0500
+Date: Thu, 21 Nov 2002 15:56:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill i_dev
+In-Reply-To: <UTC200211212346.gALNkem21004.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0211211548530.5779-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Here are some more comments on modfs or modules in general:
 
-	4. Regarding what I said about leaving symbol tracking to
-user space, I'd like to add a note about reliability.  It is not
-necessary for rmmod to reliably remove symbols from these tables.
-insmod can check for symbols that map to places that are no longer
-allocated to modules and remove stale symbols before attempting to
-load a new module.
+On Fri, 22 Nov 2002 Andries.Brouwer@cwi.nl wrote:
+> 
+> The i_dev field is deleted and the few uses are replaced
+> by i_sb->s_dev.
 
-	5. You should not need to do anything special in modfs
-to support init sections.  That can be done by loading two separate
-modules and then removing the one corresponding to an init section.
+Applied.
 
-	6. For module_init functions, consider taking a pointer to
-an array of init functions and a count.  That would be compatible
-with the system for built-in kernel object files, so it would
-eliminate a difference in linux/include/init.h.  You could also do
-the same for module_exit functions.  This change would also
-allow linking .o's together more or less arbitrarily into single
-modules, which would allow loading of modules that have reference
-loops among them.
+> There is a single side effect: a stat on a socket now sees
+> a nonzero st_dev. There is nothing against that - FreeBSD
+> has a nonzero value as well - but there is at least one
+> utility (fuser) that will need an update.
 
-	7. Instead of module parameters, consider just supporting
-__setup() declarations used in kernel objects.  These would then
-process a string that you'd pass.  insmod might want to prepend the
-contents of /proc/cmdline to that string so that people could pass
-command lines at the boot prompt even if the driver they wanted to
-talk to were a module.  This change would eliminate another difference
-between module and core kernel objects.  Ultimately, I would like
-eliminate any compilation difference between kernel and module
-objects.  This would allow deferring the decision about what should be
-in modules and what should be in the kernel until link time.  Not only
-would this slightly simplify the build process and modules' source
-code, but it would also allow binary distributions for a wider
-variety of uses.
+Looking at the patch (not testing it), as far as I can tell we'll return a 
+basically random number that is just whatever the anonymous super-block 
+was allocated, right?
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+I'm not convinced that returning random numbers to user space is
+necessarily a great idea.. That said, I think we already do it for unnamed
+pipes anyway, so I'm more wondering if we should have some way to map
+these numbews (in user space) to a valid thing, so that they wouldn't just
+be random numbers.
+
+(In other words: I like the patch, and I'm not really complaining about
+this new behavour at all. It's just the "randomness" as far as user space
+goes that bothers me a bit, since it seems to imply bad interface design).
+
+		Linus
+

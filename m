@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313572AbSDJTXD>; Wed, 10 Apr 2002 15:23:03 -0400
+	id <S313599AbSDJTYX>; Wed, 10 Apr 2002 15:24:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313599AbSDJTXD>; Wed, 10 Apr 2002 15:23:03 -0400
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:47844 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S313572AbSDJTXB>; Wed, 10 Apr 2002 15:23:01 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
-In-Reply-To: <200204052027.g35KRc002869@bitshadow.namesys.com>
-	<Pine.LNX.4.33.0204051347500.1746-100000@penguin.transmeta.com>
-	<20020405171001.C6087@work.bitmover.com>
-	<3CAEE365.4020301@namesys.com>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Wed, 10 Apr 2002 21:21:49 +0200
-Message-ID: <87wuvfxstu.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313606AbSDJTYW>; Wed, 10 Apr 2002 15:24:22 -0400
+Received: from ns.suse.de ([213.95.15.193]:2574 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313599AbSDJTYV>;
+	Wed, 10 Apr 2002 15:24:21 -0400
+To: Dominik Kubla <kubla@sciobyte.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: implementing soft-updates
+In-Reply-To: <20020409184605.A13621@cecm.usp.br.suse.lists.linux.kernel> <200204100041.g3A0fSj00928@saturn.cs.uml.edu.suse.lists.linux.kernel> <20020410092807.GA4015@duron.intern.kubla.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 10 Apr 2002 21:24:20 +0200
+Message-ID: <p73adsbpdaz.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> writes:
+Dominik Kubla <kubla@sciobyte.de> writes:
 
-> Another model you might consider, one which would probably make you
-> more money, make us happier, and better avoid "freeloaders", would be
-> to make bitkeeper free for use with free software only.  This would be
-> rather similar to what I use for reiserfs, which is free for use with
-> free operating systems only,
+> The background  fsck capability, just  like journalling or  logging, are
+> typically only in needed in 24/7 systems (sure, they are nice to have in
+> your home  system, but do  you _REALLY_ need  them? i don't!)  and those
+> system  typically are  run on  proven  hardware which  is operated  well
+> within the specs. So please don't construct these kinds of arguments.
 
-Really?  I thought ReiserFS was released under the GPL.  Is this no
-longer the case?
+You can already do background fsck on a linux system today. Just do it on
+a LVM/EVMS snapshot.
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+
+-Andi
+

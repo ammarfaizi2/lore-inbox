@@ -1,132 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbUKDHoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbUKDHpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbUKDHoK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 02:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbUKDHoK
+	id S262119AbUKDHpS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 02:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbUKDHpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 02:44:10 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:2472 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262108AbUKDHnf (ORCPT
+	Thu, 4 Nov 2004 02:45:18 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:8616 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262119AbUKDHoh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 02:43:35 -0500
-Date: Thu, 4 Nov 2004 16:43:30 +0900
+	Thu, 4 Nov 2004 02:44:37 -0500
+Date: Thu, 4 Nov 2004 16:44:35 +0900
 From: Tejun Heo <tj@home-tj.org>
 To: rusty@rustcorp.com.au, mochel@osdl.org, greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.10-rc1 0/4] driver-model: manual device attach
-Message-ID: <20041104074330.GG25567@home-tj.org>
+Subject: Re: [PATCH 2.6.10-rc1 1/4] driver-model: sysctl node dev.autoattach
+Message-ID: <20041104074435.GH25567@home-tj.org>
+References: <20041104074330.GG25567@home-tj.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041104074330.GG25567@home-tj.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, again. :-)
+ ma_01_sysctl_dev_autoattach.patch
 
- These are the manual device attach patches I was talking about in the
-previous posting.  These patches need devparam patches to be applied
-first.  It's composed of two parts.
+ This patch implements sysctl node dev.autoattach.
 
- 1. sysctl node dev.autoattach
 
- dev.autoattach is read/write integer sysctl node which controls
-driver-model's behavior regarding device - driver association.
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
- 0: autoattach disabled.  devices are not associated with drivers
-    automatically.  i.e. insmod'ing e100.ko won't cause it to attach to the
-    actual e100 devices.
- 1: autoattach enabled.  The default value.  This is the same as the
-    current driver model behavior.  Driver model automatically associates
-    devices to drivers.
- 2: rescan command.  If this value is written, bus_rescan_devices() is
-    invoked for all the registered bus types; thus attaching all
-    devices to available drivers.  After rescan is complete, the
-     autoattach value is set to 1.
 
- 2. per-device attach and detach sysfs node.
-
- Two files named attach and detach are created under each device's
-sysfs directory.  Reading attach node shows the name of applicable
-drivers.  Writing a driver name attaches the device to the driver.
-Also, per-device parameters can be specified when writing to an attach
-node.  Writing anything to the write-only detach node detaches the
-driver from the currently associated driver.
-
-========= So, for example, on my machine which has two e100's...
-
-# pwd
-/sys/bus/pci/devices/0000:00:04.0
-# sysctl dev.autoattach
-dev.autoattach = 1
-# modprobe e100
-e100: Intel(R) PRO/100 Network Driver, 3.2.3-k2-NAPI
-e100: Copyright(c) 1999-2004 Intel Corporation
-e100: eth0: e100_probe: addr 0xfeafe000, irq 20, MAC addr 00:E0:81:01:7F:F3
-e100: eth1: e100_probe: addr 0xfeafd000, irq 21, MAC addr 00:E0:81:01:7F:F4
-# modprobe eepro100
-eepro100.c:v1.09j-t 9/29/99 Donald Becker http://www.scyld.com/network...
-eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin...
-# ls -l driver
-lrwxrwxrwx  1 root root 0 Nov  4 16:26 driver -> ../../../bus/pci/drivers/e100
-# rmmod e100
-# rmmod eepro100
-# sysctl -w dev.autoattach=0
-dev.autoattach = 0
-# modprobe e100
-e100: Intel(R) PRO/100 Network Driver, 3.2.3-k2-NAPI
-e100: Copyright(c) 1999-2004 Intel Corporation
-# modprobe eepro100
-eepro100.c:v1.09j-t 9/29/99 Donald Becker http://www.scyld.com/network...
-eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin...
-# ls -l driver
-ls: driver: No such file or directory
-# cat attach
-e100
-eepro100
-# echo eepro100 > attach
-eth0: OEM i82557/i82558 10/100 Ethernet, 00:E0:81:01:7F:F3, IRQ 20.
-  Receiver lock-up bug exists -- enabling work-around.
-  Board assembly 123456-120, Physical connectors present: RJ45
-  ...
-# ls -l driver
-lrwxrwxrwx  1 root root 0 Nov  4 16:27 driver -> ../../../bus/pci/drivers/eepro100
-# sysctl -w dev.autoattach=2
-e100: eth1: e100_probe: addr 0xfeafd000, irq 21, MAC addr 00:E0:81:01:7F:F4
-dev.autoattach = 2
-
-======== And, drivers can accept per-device parameters like the following.
-
-# pwd
-/sys/bus/dp/devices/dp_dev1
-# ls -l
-total 0
--rw-r--r--  1 root root 4096 Nov  4 16:34 attach
---w-------  1 root root 4096 Nov  4 16:34 detach
--rw-r--r--  1 root root 4096 Nov  4 16:34 detach_state
-# cat attach
-babo
-# echo babo n=15 opts=0,9,8 dp_class.integer=12 > attach
-dp_bus: 0 1 2 1,2,3,0,0,0 cnt=3
-dp_drv: 15 0,9,8,0 cnt=3
-dp_class: 12 120 "dp_class"
-# ls -l driver
-lrwxrwxrwx  1 root root 0 Nov  4 16:35 driver -> ../../bus/dp/drivers/babo
-# ls parameters/
-a  ar  b  byte  c  charp  integer  n  opts
-
-===========
-
- We'll need to expand user-space hotplug facility to make full use of
-manualattach feature.  I think with a bit more information exported to
-userland and some standardized parameters (i.e. `name' parameter for
-all class devices), we'll be able to give high-granuality control over
-driver-model to users.
-
- What do you guys think?  I think this can be quite useful with right
-user-space tools.
-
- Thanks.
-
---
-tejun
+Index: linux-export/drivers/base/bus.c
+===================================================================
+--- linux-export.orig/drivers/base/bus.c	2004-11-04 11:04:13.000000000 +0900
++++ linux-export/drivers/base/bus.c	2004-11-04 11:04:14.000000000 +0900
+@@ -17,6 +17,12 @@
+ #include "base.h"
+ #include "power/power.h"
+ 
++int dev_autoattach = 1, dev_autoattach_min = 0, dev_autoattach_max = 2;
++
++static LIST_HEAD(all_buses);
++static spinlock_t all_buses_lock = SPIN_LOCK_UNLOCKED;
++static DECLARE_MUTEX(all_buses_traverse_mutex);
++
+ #define to_dev(node) container_of(node, struct device, bus_list)
+ #define to_drv(node) container_of(node, struct device_driver, kobj.entry)
+ 
+@@ -329,7 +335,7 @@ int device_attach(struct device * dev)
+ 		return 1;
+ 	}
+ 
+-	if (bus->match) {
++	if (dev_autoattach && bus->match) {
+ 		list_for_each(entry, &bus->drivers.list) {
+ 			struct device_driver * drv = to_drv(entry);
+ 			error = driver_probe_device(drv, dev);
+@@ -366,7 +372,7 @@ void driver_attach(struct device_driver 
+ 	struct list_head * entry;
+ 	int error;
+ 
+-	if (!bus->match)
++	if (!dev_autoattach || !bus->match)
+ 		return;
+ 
+ 	list_for_each(entry, &bus->devices.list) {
+@@ -723,6 +729,10 @@ int bus_register(struct bus_type * bus)
+ 		goto bus_drivers_fail;
+ 	bus_add_attrs(bus);
+ 
++	spin_lock(&all_buses_lock);
++	list_add_tail(&bus->node, &all_buses);
++	spin_unlock(&all_buses_lock);
++
+ 	pr_debug("bus type '%s' registered\n", bus->name);
+ 	return 0;
+ 
+@@ -745,12 +755,61 @@ out:
+ void bus_unregister(struct bus_type * bus)
+ {
+ 	pr_debug("bus %s: unregistering\n", bus->name);
++
++	spin_lock(&all_buses_lock);
++	list_del(&bus->node);
++	spin_unlock(&all_buses_lock);
++
+ 	bus_remove_attrs(bus);
+ 	kset_unregister(&bus->drivers);
+ 	kset_unregister(&bus->devices);
+ 	subsystem_unregister(&bus->subsys);
+ }
+ 
++
++/**
++ *	dev_autoattach_handler - proc_handler for sysctl node dev.autoattach
++ */
++int dev_autoattach_handler(ctl_table *table, int write, struct file *filp,
++			   void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	int ret;
++
++	ret = proc_dointvec_minmax(table, write, filp, buffer, lenp, ppos);
++
++	down(&all_buses_traverse_mutex);
++
++	if (dev_autoattach == 2) {
++		struct list_head marker;
++
++		spin_lock(&all_buses_lock);
++		list_add(&marker, &all_buses);
++		while (marker.next != &all_buses) {
++			struct bus_type *bus;
++			bus = container_of(marker.next, struct bus_type, node);
++			if (!(bus = get_bus(bus)))
++				continue;
++			/* Okay, we have the next bus, move it ahead
++			   of the marker and perform rescan. */
++			list_del(&bus->node);
++			list_add_tail(&bus->node, &marker);
++			spin_unlock(&all_buses_lock);
++
++			bus_rescan_devices(bus);
++
++			put_bus(bus);
++			spin_lock(&all_buses_lock);
++		}
++		list_del(&marker);
++		spin_unlock(&all_buses_lock);
++		dev_autoattach = 1;
++	}
++
++	up(&all_buses_traverse_mutex);
++
++	return ret;
++}
++
+ int __init buses_init(void)
+ {
+ 	return subsystem_register(&bus_subsys);
+Index: linux-export/include/linux/device.h
+===================================================================
+--- linux-export.orig/include/linux/device.h	2004-11-04 11:04:12.000000000 +0900
++++ linux-export/include/linux/device.h	2004-11-04 11:04:14.000000000 +0900
+@@ -20,6 +20,7 @@
+ #include <linux/module.h>
+ #include <linux/pm.h>
+ #include <linux/deviceparam.h>
++#include <linux/sysctl.h>
+ #include <asm/semaphore.h>
+ #include <asm/atomic.h>
+ 
+@@ -54,6 +55,7 @@ struct bus_type {
+ 	struct subsystem	subsys;
+ 	struct kset		drivers;
+ 	struct kset		devices;
++	struct list_head	node;
+ 
+ 	struct bus_attribute	* bus_attrs;
+ 	struct device_attribute	* dev_attrs;
+@@ -414,6 +416,12 @@ extern void device_shutdown(void);
+ extern int firmware_register(struct subsystem *);
+ extern void firmware_unregister(struct subsystem *);
+ 
++/* dev.autoattach sysctl node */
++extern int dev_autoattach, dev_autoattach_min, dev_autoattach_max;
++extern int dev_autoattach_handler(ctl_table *table, int write,
++				  struct file *filp, void __user *buffer,
++				  size_t *lenp, loff_t *ppos);
++
+ /* debugging and troubleshooting/diagnostic helpers. */
+ #define dev_printk(level, dev, format, arg...)	\
+ 	printk(level "%s %s: " format , (dev)->driver ? (dev)->driver->name : "" , (dev)->bus_id , ## arg)
+Index: linux-export/include/linux/sysctl.h
+===================================================================
+--- linux-export.orig/include/linux/sysctl.h	2004-11-04 10:25:58.000000000 +0900
++++ linux-export/include/linux/sysctl.h	2004-11-04 11:04:14.000000000 +0900
+@@ -691,6 +691,7 @@ enum {
+ 	DEV_RAID=4,
+ 	DEV_MAC_HID=5,
+ 	DEV_SCSI=6,
++	DEV_AUTOATTACH=7,
+ };
+ 
+ /* /proc/sys/dev/cdrom */
+Index: linux-export/kernel/sysctl.c
+===================================================================
+--- linux-export.orig/kernel/sysctl.c	2004-11-04 10:25:58.000000000 +0900
++++ linux-export/kernel/sysctl.c	2004-11-04 11:04:14.000000000 +0900
+@@ -41,6 +41,7 @@
+ #include <linux/limits.h>
+ #include <linux/dcache.h>
+ #include <linux/syscalls.h>
++#include <linux/device.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+@@ -936,6 +937,16 @@ static ctl_table debug_table[] = {
+ };
+ 
+ static ctl_table dev_table[] = {
++	{
++		.ctl_name	= DEV_AUTOATTACH,
++		.procname	= "autoattach",
++		.data		= &dev_autoattach,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &dev_autoattach_handler,
++		.extra1		= &dev_autoattach_min,
++		.extra2		= &dev_autoattach_max,
++	},
+ 	{ .ctl_name = 0 }
+ };  
+ 

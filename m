@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbTDKRq7 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTDKRq7 (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 13:46:59 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:37841 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S261300AbTDKRqy (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 13:46:54 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Date: Fri, 11 Apr 2003 10:55:31 -0700 (PDT)
-Subject: Re: kernel support for non-english user messages
-In-Reply-To: <3E96ADB0.2080206@aitel.hist.no>
-Message-ID: <Pine.LNX.4.44.0304111050340.8422-100000@dlang.diginsite.com>
+	id S261328AbTDKRvt (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbTDKRvt (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 13:51:49 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:43535 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261328AbTDKRvs (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 13:51:48 -0400
+Date: Fri, 11 Apr 2003 20:02:41 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, <linux-hotplug-devel@lists.sourceforge.net>,
+       <message-bus-list@redhat.com>, Daniel Stekloff <dsteklof@us.ibm.com>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+In-Reply-To: <20030411032424.GA3688@kroah.com>
+Message-ID: <Pine.LNX.4.44.0304111939310.12110-100000@serv>
+References: <20030411032424.GA3688@kroah.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Apr 2003, Helge Hafting wrote:
+Hi,
 
-> Richard B. Johnson wrote:
-> >
-> > When somebody is writing a driver, if they have any experience,
-> > they write debugging messages in their native language. But, once
-> > the driver is written, these debugging messages should be removed
-> > or #defined out. A properly functioning driver should never complain
-> > about anything.
->
-> It shouldn't complain, but I see no problem with the driver
-> saying "ok, found 3 scsi adapers and 8 disks"  This is
-> particularly useful if I expected it to find all 4 adapters.
-> The driver saw no problem but I still did.
->
+On Thu, 10 Apr 2003, Greg KH wrote:
 
-the problem is one of noise, while it is sometimes useful to see these
-messages (back when I was a PC tech working on windows systems I kept a
-set of slackware disks handy to boot from and see what hardware was really
-installed in the machines before hunting for the windows drivers) we are
-also getting to a point where so many things are flashing by on the screen
-that it's very hard to see them (especially with todays nice fast
-machines).
+> I'd like to finally announce the previously vapor-ware udev program that
+> I've talked a lot about with a lot of people over the past months.  The
+> first, very rough cut is at:
+> 	kernel.org/pub/linux/utils/kernel/hotplug/udev-0.1.tar.gz
 
-it's like network Intrusion Detection systems, a lot of people install
-them and gain no value from them becouse they send out so many alerts that
-they get ignored.
+Is there a special reason why you call mknod?
+Otherwise you could simply do:
 
-I definantly don't want the verbose mode to go away, but it may be time to
-make the default be the quiet mode that only prints actual errors instead
-of the current verbosity.
+	syscall(SYS_mknod, name, S_IFBLK | mode, dev); 
 
-David Lang
+This way you don't have to care about major/minor/glibc issues.
+
+> Yes, I know there's still a lot of work to do (serialization, symlinks,
+> hooking hotplug so that others can also use it, etc.) but it's a first
+> step :)
+
+To help serialization and perfomance issues, it might help to add a daemon 
+mode to hotplug. The kernel calls hotplug with a pipe from which it reads 
+the event data, after a certain timeout it can close the pipe and exit.
+
+bye, Roman
+

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266274AbTBHEEs>; Fri, 7 Feb 2003 23:04:48 -0500
+	id <S266968AbTBHGGO>; Sat, 8 Feb 2003 01:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266453AbTBHEEs>; Fri, 7 Feb 2003 23:04:48 -0500
-Received: from smtp02.fields.gol.com ([203.216.5.132]:13460 "EHLO
-	smtp02.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S266274AbTBHEEr>; Fri, 7 Feb 2003 23:04:47 -0500
-To: jmjones@jmjones.com
-Cc: hch@infradead.org, sds@epoch.ncsc.mil, greg@kroah.com,
-       torvalds@transmeta.com, linux-security-module@wirex.com,
+	id <S266971AbTBHGGO>; Sat, 8 Feb 2003 01:06:14 -0500
+Received: from dp.samba.org ([66.70.73.150]:9122 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266968AbTBHGGN>;
+	Sat, 8 Feb 2003 01:06:13 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-In-Reply-To: <Pine.LNX.3.96.1030207205056.31221A-100000@dixie>
-References: <Pine.LNX.3.96.1030207205056.31221A-100000@dixie>
-	    <20030206151820.A11019@infradead.org>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-From: Miles Bader <miles@gnu.org>
-Date: 08 Feb 2003 13:13:56 +0900
-Message-ID: <87of5n76kb.fsf@tc-1-100.kawasaki.gol.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Abuse-Complaints: abuse@gol.com
+Subject: Re: [PATCH] Restore module support. 
+In-reply-to: Your message of "Fri, 07 Feb 2003 10:05:40 -0000."
+             <20030207100540.B23442@flint.arm.linux.org.uk> 
+Date: Sat, 08 Feb 2003 15:32:39 +1100
+Message-Id: <20030208061554.E75892C04C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmjones@jmjones.com writes:
-> What's your REAL problem?  Somebody stepping on your territory?
+In message <20030207100540.B23442@flint.arm.linux.org.uk> you write:
+> On Fri, Feb 07, 2003 at 07:26:50PM +1100, Rusty Russell wrote:
+> > Actually, I must be really confused.  I thought ARM was already
+> > complete.
+> > 
+> > Anyway, here's a version which simply does what the usermode one did,
+> > if you decide to take the "fix it later" approach.
+> 
+> Rusty, as I said, I already have a patch for this approach.  Its the
+> second approach that I'd prefer to get working.
 
-Come on, don't be an ass.
+Sure, but you complained that I hadn't made life easier for the arch
+maintainers.  I'm sorry if you feel this way, but I felt that the
+least I could do, at the first complaint I was aware of, was to
+provide you with a solution.
 
-Perhaps there are people on this mailing list who play silly territorial
-games, but I don't think Christoph is one of them.  If he suggests that
-there's a problem with something, the likely reason is that there's a
-problem.
-
--Miles
--- 
-Come now, if we were really planning to harm you, would we be waiting here, 
- beside the path, in the very darkest part of the forest?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284677AbRLEUS1>; Wed, 5 Dec 2001 15:18:27 -0500
+	id <S284675AbRLEUVS>; Wed, 5 Dec 2001 15:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284663AbRLEUQ7>; Wed, 5 Dec 2001 15:16:59 -0500
-Received: from leeloo.zip.com.au ([203.12.97.48]:20232 "EHLO
+	id <S284652AbRLEUTu>; Wed, 5 Dec 2001 15:19:50 -0500
+Received: from leeloo.zip.com.au ([203.12.97.48]:7177 "EHLO
 	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
-	id <S284645AbRLEUQq>; Wed, 5 Dec 2001 15:16:46 -0500
-Message-ID: <3C0E809B.49D659A4@zip.com.au>
-Date: Wed, 05 Dec 2001 12:16:27 -0800
+	id <S284645AbRLEUTa>; Wed, 5 Dec 2001 15:19:30 -0500
+Message-ID: <3C0E813D.F5B1F84E@zip.com.au>
+Date: Wed, 05 Dec 2001 12:19:09 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: io scheduling / serializing io requests / readahead
-In-Reply-To: <Pine.LNX.4.30.0112051824120.2754-100000@mustard.heime.net>
+To: Derek Glidden <dglidden@illusionary.com>
+CC: linux-kernel@vger.kernel.org, bugs@linux-ide.org
+Subject: Re: Random "File size limit exceeded" under 2.4
+In-Reply-To: <1007573331.1809.6.camel@two>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
+Derek Glidden wrote:
 > 
-> hi
-> 
-> Are there any ways to tell Linux to use some sort of readahead
-> functionality that'll give me the ability to schedule I/O more loosely, so
-> some 100 files can be read concurrently without ruining the system by
-> seeking all the time?
+> I've been experiencing random and occasional encounters with "File size
+> limit exceeded" errors under 2.4 kernels when trying to make
+> filesystems.
 
-There's a new system call sys_readhead() which may provide what you
-want.
+I don't know if anyone has come forth to fix this yet.
 
-A simple alternative is to just cat each file, one at a time
-onto /dev/null before the application starts up.
+Apparently it's something to do with your shell setting
+rlimits, and block devices are (bogusly) honouring those
+settings.
 
-> I've tried to alter /proc/sys/vm/(min|max)-readahead, but it doesn't have
-> any effect...
-> 
-
-Yup.  We covered that in the other thread.
+The word is that if you log in as `root' at the login
+prompt, rather than using `su', the problem goes away.

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbSL3PPK>; Mon, 30 Dec 2002 10:15:10 -0500
+	id <S266981AbSL3PtZ>; Mon, 30 Dec 2002 10:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267005AbSL3PPK>; Mon, 30 Dec 2002 10:15:10 -0500
-Received: from bitmover.com ([192.132.92.2]:63392 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266999AbSL3PPH>;
-	Mon, 30 Dec 2002 10:15:07 -0500
-Date: Mon, 30 Dec 2002 07:23:25 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Hannes Reinecke <mail@hannes-reinecke.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Alpha port still maintained in 2.5
-Message-ID: <20021230152325.GB8766@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Hannes Reinecke <mail@hannes-reinecke.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <3E10611D.10108@hannes-reinecke.de> <20021230151531.GA1863@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266989AbSL3PtZ>; Mon, 30 Dec 2002 10:49:25 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:39616 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S266981AbSL3PtY>; Mon, 30 Dec 2002 10:49:24 -0500
+Message-ID: <20021230155739.76748.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20021230151531.GA1863@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Luca z" <luca22@mail.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 30 Dec 2002 10:57:39 -0500
+Subject: 2-4-18 crash trying to blank a CD
+X-Originating-Ip: 151.29.249.112
+X-Originating-Server: ws1-11.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a spare Alpha box (in theory I made need it some day if we ever
-decide to support Tru64 but that seems like a small market).  I don't 
-know how useful it is but I could put it up outside our firewall if 
-that helped.  I'd have to install Linux on it and I'm booked up until
-Jan 9th but if you still need it then let me know.
+Hello,
 
-On Mon, Dec 30, 2002 at 04:15:31PM +0100, Sam Ravnborg wrote:
-> On Mon, Dec 30, 2002 at 04:07:09PM +0100, Hannes Reinecke wrote:
-> > Hi all,
-> > 
-> > appearently there are some secret channels by which one has to post his 
-> > messages for them to actually being _read_ by someone ...
-> 
-> I follow lkml, but has no particular Alpha interest, so foregive me ;-)
-> That I do some Alpha patching is from a kbuild persepctive, not
-> particulary Alpha. I'm do not have tools to do so, nor any machine.
-> 
-> 	Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I have this CD burner: Vendor: ARTEC Model: WRR-4848,
+ide-scsi is loaded and it burns CDs fine, but it can't blank
+them.
+
+I do cdrecord -blank=<foo> dev=x,y,z
+and i got this in the log, it repeats every second:
+
+Dec 30 16:19:46 koala kernel: scsi : aborting command due to timeout : pid 5233
+8, scsi0, channel 0, id 1, lun 0 Read (10) 00 00 13 80 dd 00 00 01 00 
+Dec 30 16:19:46 koala kernel: SCSI host 0 abort (pid 52338) timed out - resetti
+ng
+
+after a while:
+Dec 30 16:32:47 koala kernel: SCSI bus is being reset for host 0 channel 0.
+Dec 30 16:32:48 koala kernel: scsi : aborting command due to timeout : pid 5234
+0, scsi0, channel 0, id 0, lun 0 Test Unit Ready 00 00 00 00 00 
+Dec 30 16:32:48 koala kernel: SCSI host 0 abort (pid 52340) timed out - resetti
+ng
+
+and after some time it hard freezes, nothing responds, i can't switch numlock
+off and i can't change to console (i am in XWindow).
+
+I can reproduce it every time, the kernel is from the kernel-image-2.4.18-686 debian package (sid).
+
+I can provide more informations if you want. 
 
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Meet Singles
+http://corp.mail.com/lavalife
+

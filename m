@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbUKMWWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUKMWjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbUKMWWL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 17:22:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbUKMWWL
+	id S261184AbUKMWjd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 17:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbUKMWjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 17:22:11 -0500
-Received: from ctb-mesg5.saix.net ([196.25.240.77]:41690 "EHLO
-	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S261189AbUKMWWH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 17:22:07 -0500
-Subject: Re: 2.6.10-rc1-mm5 [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041113132232.5c201000.akpm@osdl.org>
-References: <20041111012333.1b529478.akpm@osdl.org>
-	 <1100368553.12239.3.camel@nosferatu.lan>
-	 <1100380593.12663.1.camel@nosferatu.lan>
-	 <20041113132232.5c201000.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3/f9JdZ4hHG9afBGn5bX"
-Date: Sun, 14 Nov 2004 00:22:13 +0200
-Message-Id: <1100384533.12195.3.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8bit
+	Sat, 13 Nov 2004 17:39:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61579 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261184AbUKMWj1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 17:39:27 -0500
+Message-ID: <41968CBC.2050301@osdl.org>
+Date: Sat, 13 Nov 2004 14:37:48 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] scsi/mesh: module_param corrections
+References: <200411112325.iABNPsWo013185@hera.kernel.org> <Pine.GSO.4.61.0411121232570.27077@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.61.0411121232570.27077@waterleaf.sonytel.be>
+Content-Type: multipart/mixed;
+ boundary="------------020607040401080206070107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-3/f9JdZ4hHG9afBGn5bX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 2004-11-13 at 13:22 -0800, Andrew Morton wrote:
-> "Martin Schlemmer [c]" <azarah@nosferatu.za.org> wrote:
-> >
-> > > I want to imagine there is some reason why some threading apps will h=
-ave
-> >  > issues?  I have since rc1-mm4 issues with evolution - some threads d=
-o
-> >  > not seem to come out of sleep or get running time for some reason.
-> >  > Unfortunately I cannot find the thread again.  Is there a patch I ca=
-n
-> >  > apply/revert to get it to work for now?
-> >  >=20
-> >=20
-> >  I should note that if I killall -STOP and then killall -CONT all
-> >  evolution processes (evolution-data-server-1.0, evolution-alarm-notify
-> >  and evolution-2.0) it works again for a while.  The issue happens pret=
-ty
-> >  quick after I start evo ...
->=20
-> Could you please try:
->=20
-> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10=
--rc1/2.6.10-rc1-mm5/broken-out/futex_wait-fix.patch
-> patch -R -p1 < futex_wait-fix.patch
->=20
-> the retest?
-
-Yep, this seems to fix it (usually one thread at least have already hung
-at start for evo, now fine after a few mail fetches).
-
-Is this a regression, or as in the other thread an issue with evolution
-that should be fixed ?  (Note:  gnome-btdownload also seemed to hang
-overnight with -mm[45], but I do not know if its related)
+This is a multi-part message in MIME format.
+--------------020607040401080206070107
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-Thanks,
+Correct MODULE_PARM to module_param (somehow I changed the
+macro parameters but not the macro invocation).
 
---=20
-Martin Schlemmer
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+
+diffstat:=
+  drivers/scsi/mesh.c |   10 +++++-----
+  1 files changed, 5 insertions(+), 5 deletions(-)
 
 
---=-3/f9JdZ4hHG9afBGn5bX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+--------------020607040401080206070107
+Content-Type: text/x-patch;
+ name="mesh_modprm.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mesh_modprm.patch"
 
-iD8DBQBBlokVqburzKaJYLYRApocAJ9VtmByBYG6jt5uQZTzsVCDV6vZeACdFbm6
-f6SaLtxgCw6EH0vdivDoR7g=
-=bzmc
------END PGP SIGNATURE-----
+diff -Naurp ./drivers/scsi/mesh.c~mesh_modprm ./drivers/scsi/mesh.c
+--- ./drivers/scsi/mesh.c~mesh_modprm	2004-11-13 14:19:12.141219000 -0800
++++ ./drivers/scsi/mesh.c	2004-11-13 14:31:47.915324320 -0800
+@@ -66,15 +66,15 @@ static int resel_targets = 0xff;
+ static int debug_targets = 0;	/* print debug for these targets */
+ static int init_reset_delay = CONFIG_SCSI_MESH_RESET_DELAY_MS;
+ 
+-MODULE_PARM(sync_rate, int, 0);
++module_param(sync_rate, int, 0);
+ MODULE_PARM_DESC(sync_rate, "Synchronous rate (0..10, 0=async)");
+-MODULE_PARM(sync_targets, int, 0);
++module_param(sync_targets, int, 0);
+ MODULE_PARM_DESC(sync_targets, "Bitmask of targets allowed to set synchronous");
+-MODULE_PARM(resel_targets, int, 0);
++module_param(resel_targets, int, 0);
+ MODULE_PARM_DESC(resel_targets, "Bitmask of targets allowed to set disconnect");
+-MODULE_PARM(debug_targets, int, 0644);
++module_param(debug_targets, int, 0644);
+ MODULE_PARM_DESC(debug_targets, "Bitmask of debugged targets");
+-MODULE_PARM(init_reset_delay, int, 0);
++module_param(init_reset_delay, int, 0);
+ MODULE_PARM_DESC(init_reset_delay, "Initial bus reset delay (0=no reset)");
+ 
+ static int mesh_sync_period = 100;
 
---=-3/f9JdZ4hHG9afBGn5bX--
-
+--------------020607040401080206070107--

@@ -1,100 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272191AbRIVU4M>; Sat, 22 Sep 2001 16:56:12 -0400
+	id <S272137AbRIVU7c>; Sat, 22 Sep 2001 16:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272197AbRIVU4C>; Sat, 22 Sep 2001 16:56:02 -0400
-Received: from maile.telia.com ([194.22.190.16]:202 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S272191AbRIVUzx>;
-	Sat, 22 Sep 2001 16:55:53 -0400
-Message-Id: <200109222056.f8MKu8K24322@maile.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: ksoftirqd? (Was: Re: [PATCH] Preemption Latency Measurement Tool)
-Date: Sat, 22 Sep 2001 22:51:16 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Robert Love <rml@tech9.net>, Andre Pang <ozone@algorithm.com.au>,
-        linux-kernel@vger.kernel.org, safemode@speakeasy.net,
-        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
-        george@mvista.com
-In-Reply-To: <1000939458.3853.17.camel@phantasy> <200109221301.f8MD1n129687@mailc.telia.com> <20010922151453.B976@athlon.random>
-In-Reply-To: <20010922151453.B976@athlon.random>
-MIME-Version: 1.0
+	id <S272242AbRIVU7W>; Sat, 22 Sep 2001 16:59:22 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:26381 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S272197AbRIVU7G>;
+	Sat, 22 Sep 2001 16:59:06 -0400
+Message-ID: <XFMail.20010922140302.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010922142847.A20641@dea.linux-mips.net>
+Date: Sat, 22 Sep 2001 14:03:02 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Ralf Baechle <ralf@conectiva.com.br>
+Subject: Re: Purpose of the mm/slab.c changes
+Cc: torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Rik van Riel <riel@conectiva.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 September 2001 15.14, Andrea Arcangeli wrote:
-> On Sat, Sep 22, 2001 at 02:56:58PM +0200, Roger Larsson wrote:
-> > Hi,
-> >
-> > We have a new kid on the block since we started thinking of a preemptive
-> > kernel.
-> >
-> > ksoftirqd...
-> >
-> > Running with nice 19 (shouldn't it really be -19?)
 
-I repeat this question - should it be nice 19 and not nice -19 (not nice)?
+On 22-Sep-2001 Ralf Baechle wrote:
+> On Sun, Sep 09, 2001 at 01:58:44PM -0700, Davide Libenzi wrote:
+> 
+>> >> Do You see it as a plus ?
+>> >> The new allocated slab will be very likely written ( w/o regard
+>> >> about the old content ) and an L2 mapping will generate
+>> >> invalidate traffic.
+>> > 
+>> > If your invalidates are slower than your RAM, you should
+>> > consider getting another computer.
+>> 
+>> You mean a Sun, that uses a separate bus for snooping ? :)
+>> Besides to not under estimate the cache coherency traffic ( that on many CPUs
+>> uses the main memory bus ) there's the fact that the old data eventually
+>> present in L2 won't be used by the new slab user.
+> 
+> That's actually what having a slab cache of pre-initialized elements tries
+> to achieve.
+> 
+> On anything that uses a MESI-like cache coherence protocol a cached dirty
+> cache line that is written to will not cause any coherency traffic and
+> thus be faster.
 
-> > Or have a RT setting? (maybe not since one of the reasons for
-> > softirqd would be lost - would be scheduled in immediately)
-> > Can't a high prio or RT process be starved due to missing
-> > service (bh) after an interrupt?
->
-> It cannot be starved, if ksoftirqd is never scheduled the do_softirq()
-> will be run by the next timer irq or apic_timer irq.
->
+MESI is a bit more complicated than clean/dirty status.
+This is a very good state machine graph for MESI :
 
-Then could you please explain the output after adding a printk in
-ksoftirqd like this.
+http://odin.ee.uwa.edu.au/~morris/CA406/cache_coh.html
 
---- kernel/softirq.c~   Mon Sep 17 22:37:34 2001
-+++ kernel/softirq.c    Sat Sep 22 21:46:49 2001
-@@ -387,6 +387,7 @@
-                __set_current_state(TASK_RUNNING);
-
-                while (softirq_pending(cpu)) {
-+                       printk("ksoftirqd: do_softirq\n");
-                        do_softirq();
-                        if (current->need_resched)
-                                schedule();
+Besides this, i don't get how a LIFO could help you.
+>From a cache point of view if the slab-free code run on processor A and
+the slab-alloc code will run on a processor B, if these two ops are
+executed very close in time ( due LIFO ) there's a good probability of
+modified->shared migration that will result in pushback ops.
+A FIFO will result in more time between free and alloc with a good probability
+that the interlock will be relaxed.
 
 
-Output like this:
 
-Sep 22 22:37:38 jeloin logger: *** ./stress_dbench begin ***
-Sep 22 22:37:42 jeloin kernel: ksoftirqd: do_softirq
-Sep 22 22:37:44 jeloin last message repeated 2 times
-Sep 22 22:37:48 jeloin kernel: Latency   8ms PID     7 %% kupdated
-Sep 22 22:37:49 jeloin kernel: ksoftirqd: do_softirq
-Sep 22 22:38:19 jeloin last message repeated 18 times
-Sep 22 22:38:20 jeloin su: (to root) roger on /dev/pts/2
-Sep 22 22:38:20 jeloin PAM-unix2[988]: session started for user root, service 
-su
-Sep 22 22:38:23 jeloin kernel: ksoftirqd: do_softirq
-Sep 22 22:38:24 jeloin modprobe: modprobe: Can't locate module net-pf-10
-Sep 22 22:38:24 jeloin kernel: ksoftirqd: do_softirq
-Sep 22 22:38:58 jeloin last message repeated 20 times
-Sep 22 22:39:05 jeloin last message repeated 4 times
-Sep 22 22:42:03 jeloin kernel: ksoftirqd: do_softirq
-Sep 22 22:43:58 jeloin logger: *** ./stress_dbench end ***
 
-> > This will not show up in latency profiling patches since
-> > the kernel does what is requested...
-> >
-> > Previously it was run directly after interrupt,
-> > before returning to the interrupted process...
->
-> It is still the case, that's also the common case actually.
->
+- Davide
 
-Possibly but the other case is quite common too...
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden

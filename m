@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131771AbRCUUxG>; Wed, 21 Mar 2001 15:53:06 -0500
+	id <S131775AbRCUVCz>; Wed, 21 Mar 2001 16:02:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131775AbRCUUw4>; Wed, 21 Mar 2001 15:52:56 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:35200 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S131764AbRCUUwk>; Wed, 21 Mar 2001 15:52:40 -0500
-Importance: Normal
-Subject: Announcing Journaled  File System (JFS)  release 0.2.1 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Wed, 21 Mar 2001 15:51:48 -0500
-Message-ID: <OF3D0039DF.2862FC19-ON85256A16.00723877@raleigh.ibm.com>
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 03/21/2001 03:51:49 PM
+	id <S131776AbRCUVCp>; Wed, 21 Mar 2001 16:02:45 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:64917 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131775AbRCUVCh>;
+	Wed, 21 Mar 2001 16:02:37 -0500
+Date: Wed, 21 Mar 2001 16:01:54 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: James Lewis Nance <jlnance@intrex.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlock usage - ext2_get_block, lru_list_lock
+In-Reply-To: <20010321131559.A28454@bessie.dyndns.org>
+Message-ID: <Pine.GSO.4.21.0103211513330.739-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest drop of JFS was made available today.
-
-The file system has fixes included. Also, file system has
-been cleaned up to use standard types.
-
-Joe Nuspl patches have been included in this drop. Joe thanks
-for your changes.
-
-For more details about the problems fixed, please see the README.
 
 
-Steve
-JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
+On Wed, 21 Mar 2001, James Lewis Nance wrote:
+
+> On Wed, Mar 21, 2001 at 12:16:47PM -0500, Alexander Viro wrote:
+> 
+> > Obext2: <plug>
+> > Guys, help with testing directories-in-pagecache patch. It works fine
+> > here and I would really like it to get serious beating.
+> > Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch-b-S2.gz (against
+> > 2.4.2, but applies to 2.4.3-pre* too).
+> > </plug>
+> 
+> I would love to test this patch, but I really dont want it touching my other
+> ext2 file systems (like /).  I assume it would be possible to copy the ext2
+> code over to something like linux/fs/extnew, patch that, and then mount my
+> scratch partitions as extnew.  I can try an cook something like this up, but
+> I thought you might already have it, so I am posting here to see.
+
+cp -a fs/ext{2,69}
+cp -a include/linux/ext{2,69}_fs.h
+cp -a include/linux/ext{2,69}_fs_i.h
+cp -a include/linux/ext{2,69}_fs_sb.h
+for i in fs/ext69/* include/linux/ext69*; do
+	vi '-cse ext|%s/(ext|EXT)2/\169/g|x' $i;
+done
+vi '-c/EXT/|y|pu|s/2/69/|s/Second/FUBAR/|x' fs/Config.in
+vi '-c/ext2/|y|pu|s/ext2/ext69/g|//|y|pu|&g|//|y|pu|&g|//|y|pu|&g|x' include/linux/fs.h
+
+had done the trick last time I needed something like that, but that was long
+time ago...
+							Cheers,
+									Al
 

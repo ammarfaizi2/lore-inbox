@@ -1,89 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264274AbTEJOeU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 10:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTEJOeT
+	id S264262AbTEJObI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 10:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTEJObI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 10:34:19 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:18068 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264274AbTEJOeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 10:34:18 -0400
-Subject: Re: Can't find CDR device in -mm only
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <20030510092041.GN812@suse.de>
-References: <1052537820.2441.113.camel@mars.goatskin.org>
-	 <20030510092041.GN812@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1052578016.2369.7.camel@mars.goatskin.org>
+	Sat, 10 May 2003 10:31:08 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:9989 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264262AbTEJObH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 10:31:07 -0400
+Date: Sat, 10 May 2003 15:43:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+Cc: Francois Romieu <romieu@fr.zoreil.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one() (and an iphase patch too!)
+Message-ID: <20030510154346.A4032@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	chas williams <chas@locutus.cmf.nrl.navy.mil>,
+	Francois Romieu <romieu@fr.zoreil.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20030510062015.A21408@infradead.org> <200305101352.h4ADqoGi014392@locutus.cmf.nrl.navy.mil>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 10 May 2003 10:46:57 -0400
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200305101352.h4ADqoGi014392@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Sat, May 10, 2003 at 09:52:49AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+On Sat, May 10, 2003 at 09:52:49AM -0400, chas williams wrote:
+> class/usb-midi.c:       if ( u ) kfree(u);
+> class/usblp.c:          if (usblp->statusbuf) kfree(usblp->statusbuf);
+> class/usblp.c:          if (usblp->device_id_string) kfree(usblp->device_id_string);
+> image/mdc800.c:#define try_free_mem(A)  if (A != 0) { kfree (A); A=0; }
 
-On Sat, 2003-05-10 at 05:20, Jens Axboe wrote:
-> On Fri, May 09 2003, Shane Shrybman wrote:
-> > Hi,
-> > 
-> > The problem first appeared in 2.5.68-mm3 and is not in mainline 2.5.69.
-> > It is present in all -mm releases since.
-> 
-> Curious. Looking at patches between .68-mm2 and -mm3 reveals nothing
-> major, in fact the only thing touching anything in that area seems to be
-> the dynamic request allocation patch. Could you try 2.5.69 with the
-> attached patch to verify that it still works (or doesn't)? There might
-> be a small offset in deadline-iosched.c, should be nothing to worry
-> about.
-
-Still doesn't work with 2.5.69 + rq_dyn. The output from cdrecord is
-below.
-
-BTW, I also tried a 2.5.68-mm3 with 64bit_dev_t, blockdev-aio-support,
-and disk_name-size-check backed out but still encountered the problem.
-
-scsidev: '/dev/hdc'
-devname: '/dev/hdc'
-scsibus: -2 target: -2 lun: -2
-scg__open(/dev/hdc) -2,-2,-2
-Warning: Open by 'devname' is unintentional and not supported.
-l1: 0x0 l2: 0x10
-Bus: 0 Target: 0 Lun: 0 Chan: 0 Ino: 0
-Linux sg driver version: 3.5.27
-l1: 0x0 l2: 0x3
-Bus: 0 Target: 0 Lun: 0 Chan: 0 Ino: 0
-Target (0,0,0): DMA max 129024 old max: 64512
-SCSI buffer size: 64512
-Target (0,0,0): DMA max 129024 old max: 64512
-scgo_getbuf: 64512 bytes
-ioctl ret: 0
-host_status: 00 driver_status: 00
-ioctl ret: 0
-host_status: 00 driver_status: 00
-ioctl ret: 0
-host_status: 00 driver_status: 00
-dev: '/dev/hdc' speed: -1 fs: 4194304 driveropts '(NULL POINTER)'
-Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
-TOC Type: 1 = CD-ROM
-Using libscg version 'schily-0.7'
-atapi: 1
-Device type    : Disk
-Version        : 2
-Response Format: 2
-Capabilities   : 
-Vendor_info    : 'ADAPTEC '
-Identifikation : 'ACB-5500        '
-Revision       : 'FAKE'
-Device seems to be: Adaptec 5500.
-
-Regards,
-
-Shane
-
+It's wrong there, too.  usb is not exactly the right example if you look
+for code that matches the style guidelines..

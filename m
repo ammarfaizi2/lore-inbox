@@ -1,85 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269163AbUINGnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269169AbUINGrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269163AbUINGnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 02:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269169AbUINGnP
+	id S269169AbUINGrY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 02:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269166AbUINGrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 02:43:15 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:3327 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269163AbUINGjh (ORCPT
+	Tue, 14 Sep 2004 02:47:24 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:12678 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269169AbUINGpJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 02:39:37 -0400
-Date: Tue, 14 Sep 2004 12:11:53 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: jBeulich@novell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hardware breakpoints questions
-Message-ID: <20040914064153.GE32365@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
+	Tue, 14 Sep 2004 02:45:09 -0400
+Date: Tue, 14 Sep 2004 08:44:03 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040914064403.GB20929@k3.hellgate.ch>
+Mail-Followup-To: Albert Cahalan <albert@users.sf.net>,
+	Stephen Smalley <sds@epoch.ncsc.mil>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton OSDL <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+	James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
+References: <20040908184130.GA12691@k3.hellgate.ch> <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil> <20040909172200.GX3106@holomorphy.com> <20040909175342.GA27518@k3.hellgate.ch> <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil> <20040909205531.GA17088@k3.hellgate.ch> <20040909212507.GA32276@k3.hellgate.ch> <1094942212.1174.20.camel@cube>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <1094942212.1174.20.camel@cube>
+X-Operating-System: Linux 2.6.9-rc1-mm4nproc on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan,
+On Sat, 11 Sep 2004 18:36:53 -0400, Albert Cahalan wrote:
+> > I forgot to mention that you can see the remnants of that approach in
+> > <linux/nproc.h>: I used two bits of the field ID to define per-field
+> > access restrictions (NPROC_PERM_USER, NPROC_PERM_ROOT).
+> 
+> Besides the low-security and high-security choices,
+> I'd like to see a medium-security choice.
+> 
+> low: everybody sees everything
+> medium: everybody sees something; privileged user sees all
+> high: must be privileged
+> 
+> This might mean that asking for stuff like EIP and WCHAN
+> causes you to see fewer processes.
 
-> Why is it that user mode has to have knowledge about the layout and
->number of debug registers?
-	User should know the number of debug registers,to use them efficiently.
-On i386 architecture the primary function of the debug registers is to set 
-up and monitor from 1 to 4 breakpoints, numbered 0 though 3. 
-For each breakpoint, the following information can be specified and 
-detected with the debug registers: 
+I'm not sure I understand you correctly, but the combination of
+NPROC_PERM_USER and NPROC_PERM_ROOT already seems to fit your
+description:
 
-1.The linear address where the breakpoint is to occur. 
-2.The length of the breakpoint location (1, 2, or 4 bytes). 
-3.The operation that must be performed at the address for a debug exception 
-to be generated. 
-4.Whether the breakpoint is enabled. 
-5.Whether the breakpoint condition was present when the debug exception 
-was generated.
+- If the access control bits for a field are cleared, any process/user
+  can get that field information for any process.
 
->- Why is it that (on i386/x86-64) one can't, say, set a byte-range
->breakpoint on TASK_SIZE - 1 (whatever this may be good for)?
+- If the access control bits are set to NPROC_PERM_USER, only root and
+  the owner of a process can read the field for that process.
 
-On i386 Bits 18, 19, 22, 23, 26, 27, 30, and 31 in DR7 register specify the 
-size of the memory location at the address specified in the corresponding 
-breakpoint address register (DR0 through DR3). These fields are interpreted 
-as follows: 
+- For NPROC_PERM_ROOT, only root can ever read such a field.
 
-00 1-byte length 
-01 2-byte length 
-10 Undefined 
-11 4-byte length
-	that's why you cant set a byte-range to the size of TASK_SIZE.
+I picked that design because it captures the essence of what /proc
+does today.
 
->- Why is it that (on i386/x86-64) one can't set 2- or 4-byte-range
->execution breakpoints, but one can (on x86-64) set 8-byte-range ones?
+> If partial info is returned for a process, I'd like to
+> also get a bitmap of valid fields. Special "not valid"
+> values are a pain to deal with.
 
-refere x86_64 architecure manuals. 
+If an app asks for a field it has no or partial permission for, the set
+of processes returned is trimmed accordingly. Since an application will
+expect this behavior based on the access control bits, no guessing is
+involved here.
 
-More information can be found in i386/x86_64 manuals.
+If an app asks for a non-existant field (not supported on this
+architecture or obsolete), it will get an error back. No guessing
+involved here, either. We could report the bad field ID back, but it's
+easy for user-space to figure out and it's not in the fast path (for
+user space).
 
-Also Kprobes provides interface to set and remove watchpoints.
-Kernel watchpoints information can be found at URL:
-http://www-124.ibm.com/developerworks/oss/linux/projects/kprobes/
-Let me know if you need more information on kernel watchpoint probes.
+The tricky case is if an app asks for an offered field without permission
+problems, but the field is not available in that particular context. The
+only instance of this that comes to mind are mm_struct related fields
+and kernel threads. Neither returning an error nor skipping affected
+processes seems a good solution. In this special case, the current
+nproc code returns 0, but that's probably not optimal. Currently,
+my preferred solution would be to return ~(0).
 
->Thanks, Jan
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+I'm not convinced yet that making message formats more complex (adding
+bitmaps or lists of applicaple fields or something) for one special
+case is a better idea.
 
-Thanks
-Prasanna
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+Roger

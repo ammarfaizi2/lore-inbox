@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288932AbSATTPt>; Sun, 20 Jan 2002 14:15:49 -0500
+	id <S288950AbSATTZJ>; Sun, 20 Jan 2002 14:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288948AbSATTPj>; Sun, 20 Jan 2002 14:15:39 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:44810 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S288932AbSATTPd>; Sun, 20 Jan 2002 14:15:33 -0500
-Date: Sun, 20 Jan 2002 20:16:03 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Justin Cormack <kernel@street-vision.com>, linux-kernel@vger.kernel.org
-Subject: Re: performance of O_DIRECT on md/lvm
-Message-ID: <20020120201603.L21279@athlon.random>
-In-Reply-To: <200201181743.g0IHhO226012@street-vision.com> <3C48607C.35D3DDFF@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3C48607C.35D3DDFF@redhat.com>; from arjanv@redhat.com on Fri, Jan 18, 2002 at 05:50:53PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S288952AbSATTZA>; Sun, 20 Jan 2002 14:25:00 -0500
+Received: from femail45.sdc1.sfba.home.com ([24.254.60.39]:8374 "EHLO
+	femail45.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S288951AbSATTYy>; Sun, 20 Jan 2002 14:24:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Pavel Machek <pavel@suse.cz>, Helge Hafting <helgehaf@aitel.hist.no>
+Subject: Re: Preempt & how long it takes to interrupt (was Re: [2.4.17/18pre] VM and swap - it's really unusable)
+Date: Sun, 20 Jan 2002 06:22:47 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <3C42CA59.F070C2B8@aitel.hist.no> <20020118224140.GI6918@elf.ucw.cz>
+In-Reply-To: <20020118224140.GI6918@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020120192453.GVRA23469.femail45.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 18, 2002 at 05:50:53PM +0000, Arjan van de Ven wrote:
-> Justin Cormack wrote:
-> > 
-> > Reading files with O_DIRECT works very nicely for me off a single drive
-> > (for video streaming, so I dont want cacheing), but is extremely slow on
-> > software raid0 devices, and striped lvm volumes. Basically a striped
-> > raid device reads at much the same speed as a single device with O_DIRECT,
-> > while reading the same file without O_DIRECT gives the expected performance
-> > (but with unwanted cacheing).
-> > 
-> > raw devices behave similarly (though if you are using them you can probably
-> > do your own raid0).
-> > 
-> > My guess is this is because of the md blocksizes being 1024, rather than
-> > 4096: is this the case and is there a fix (my quick hack at md.c to try
-> > to make this happen didnt work).
-> 
-> well not exactly. Raid0 is faster due to readahead (eg you read one
-> block and the kernel 
-> sets the OTHER disk also working in parallel in anticipation of you
-> using that). O_DIRECT
-> is of course directly in conflict with this as you tell the kernel that
-> you DON'T want
-> any optimisations....
+On Friday 18 January 2002 05:41 pm, Pavel Machek wrote:
 
-if you read in chunks of a few mbytes per read syscall, the lack of
-readahead shouldn't make much difference (this is true for both raid and
-standalone device). If there's a relevant difference it's more liekly an
-issue with the blocksize.
+> So... how long do you have to stay in interrupt for it to be a bug?
+>
+> There's *no* requirement that says "it may not take second to handle
+> an interrupt". Actually I guess that some nasty conditions (UHCI needs
+> reset?) may take that long in interrupt. Oh and actually few releases
+> ago, console switching was done from interrupt and it *did* take 2
+> seconds for me.
+>
+> If someone assumes interrupts are "short", he has broken code already.
 
-Andrea
+That kinda defeats the entire purpose of low-latency patches, doesn't it?
+
+I'm not entirely certain what Alan's smoking if he's raising the straw man 
+argument of a two second delay dropping 300 packets and causing connections 
+to abort (my sister's on DSL, 5 second dropouts every time the phone rings, 
+but connections continue just fine.  Wouldn't want to play quake under those 
+circumstances, but would I really have the ~200 CPU-hog background threads 
+while playing quake as per Alan's example, and even then the argument is just 
+that either the network driver or the network card is bad...)
+
+Still not as bad an example as Aunt Tillie, I'll grant you...
+
+Rob

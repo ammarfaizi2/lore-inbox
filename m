@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbTEFMBg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 08:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbTEFMBg
+	id S262642AbTEFMDu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 08:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbTEFMDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 08:01:36 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:59558
+	Tue, 6 May 2003 08:03:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60838
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262609AbTEFMBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 08:01:34 -0400
-Subject: Re: Binary firmware in the kernel - licensing issues.
+	id S262642AbTEFMDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 08:03:49 -0400
+Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Simon Kelley <simon@thekelleys.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EB79ECE.4010709@thekelleys.org.uk>
-References: <3EB79ECE.4010709@thekelleys.org.uk>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Andrew Morton <akpm@digeo.com>, Shane Shrybman <shrybman@sympatico.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0305060636560.13957-100000@montezuma.mastecende.com>
+References: <1052141029.2527.27.camel@mars.goatskin.org>
+	 <20030505143006.29c0301a.akpm@digeo.com>
+	 <1052213733.28797.1.camel@dhcp22.swansea.linux.org.uk>
+	 <Pine.LNX.4.50.0305060636560.13957-100000@montezuma.mastecende.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1052219735.28796.28.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1052219863.28797.30.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 May 2003 12:15:36 +0100
+Date: 06 May 2003 12:17:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-06 at 12:38, Simon Kelley wrote:
-> This software is copyrighted by and is the sole property of Atmel
-> Corporation.  All rights, title, ownership, or other interests
-> in the software remain the property of Atmel Corporation.  This
-> software may only be used in accordance with the corresponding
-> license agreement.  Any un-authorized use, duplication, transmission,
-> distribution, or disclosure of this software is expressly forbidden. 
-
-So you can't distribute it at all unless there is other paperwork
-involved.
-
-> Given the current SCO-IBM situation I don't want to be responsible for
-> introducing any legally questionable IP into the kernel tree.
+On Maw, 2003-05-06 at 11:41, Zwane Mwaikambo wrote:
+> > For anything where you get pairs of close IRQ's
 > 
-> This situation must have come up before, how was it solved then?
+> Shouldn't this also be observed more easily on P4/xAPIC since you can have 
+> a pending vector in the IRR and ISR whilst the core processes one.
 
-The easiest approach is to do the firmware load from userspace - which
-also keeps the driver size down and makes updating the firmware images
-easier for end users.
-
-(Debian as policy will rip the firmware out anyway regardless of what
-Linus does btw)
-
-The hotplug interface can be used to handle this.
+I don't know enough about the pending vector stuff. For the older APIC the
+IRQ's go via a suprisingly slow seperate APIC bus (4 wire if I remember
+rightly). 
 

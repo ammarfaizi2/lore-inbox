@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbULPP6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbULPP7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbULPP6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 10:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbULPP5j
+	id S261622AbULPP7X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 10:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbULPP63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 10:57:39 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11678 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261541AbULPPzP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 10:55:15 -0500
-Message-ID: <41C1B018.2090903@tmr.com>
-Date: Thu, 16 Dec 2004 10:56:08 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Chandler <alan@chandlerfamily.org.uk>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: ide-cd problem revisited - more brainpower needed
-References: <200412121334.55460.alan@chandlerfamily.org.uk><200412121334.55460.alan@chandlerfamily.org.uk> <200412140020.18114.alan@chandlerfamily.org.uk>
-In-Reply-To: <200412140020.18114.alan@chandlerfamily.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Dec 2004 10:58:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:52697 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261629AbULPP5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 10:57:18 -0500
+Date: Thu, 16 Dec 2004 07:56:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.10-rc2 start_udev very slow
+Message-ID: <20041216155643.GB27421@kroah.com>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <200411171932.47163.andrew@walrond.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411171932.47163.andrew@walrond.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Chandler wrote:
-> On Sunday 12 December 2004 13:34, Alan Chandler wrote:
+On Wed, Nov 17, 2004 at 07:32:47PM +0000, Andrew Walrond wrote:
+> I noticed that when upgrading from 2.6.8.1 to rc2, start_udev now takes 10-15s 
+> after printing
 > 
->>On Sunday 12 December 2004 11:39, Alan Cox wrote:
->>
->>>Thanks ok so it moves with the drive. I'm beginning to wonder if it is
->>>just a dud drive.
->>
->>I do too and am almost ready to throw in the towel (and I seem to be almost
->>unique in experiencing these problems) - except
-> 
-> 
-> Towel now thrown.
-> 
-> ...
-> 
-> 
->>and
->>linux 2.4 (using the ide-scsi module) the drive works perfectly.
-> 
-> 
-> Drive is obviously degrading, I tried it "one more time" today with 2.4, and 
-> it only just managed to work.  It managed to finish the task, but there were 
-> several resets and error messages very similar to the ones in 2.6.
+> "Creating initial udev device nodes:"
 
-Is it? Or did the firmware "upgrade" make it worse? Can you reflash back 
-to the original firmware and see if 2.4 works correctly?
+udevstart should be used instead of start_udev.  It goes a lot faster
+and fixes odd startup dependancies that are needed.
 
-> My apologies to others time that I might have wasted, although it personally 
-> was a good learning experience on how the kernel works.
+> Any known reason? should I upgrade udev? (030 installed)
 
+That's a very old version of udev.  049 is the current release.  Lots of
+stuff has changed since then that might help you out :)
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+good luck,
+
+greg k-h

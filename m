@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316214AbSFDEXH>; Tue, 4 Jun 2002 00:23:07 -0400
+	id <S316217AbSFDE0Y>; Tue, 4 Jun 2002 00:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316217AbSFDEXG>; Tue, 4 Jun 2002 00:23:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:27011 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316214AbSFDEXF>;
-	Tue, 4 Jun 2002 00:23:05 -0400
-Date: Mon, 3 Jun 2002 21:23:00 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Lightweight patch manager <patch@luckynet.dynu.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: linux-2.5.20-ct1
-Message-ID: <20020604042300.GA8263@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Lightweight patch manager <patch@luckynet.dynu.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-In-Reply-To: <Pine.LNX.4.44.0206032154470.17873-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316221AbSFDE0X>; Tue, 4 Jun 2002 00:26:23 -0400
+Received: from marc2.theaimsgroup.com ([63.238.77.172]:41993 "EHLO
+	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
+	id <S316217AbSFDE0W>; Tue, 4 Jun 2002 00:26:22 -0400
+Date: Tue, 4 Jun 2002 00:26:23 -0400
+Message-Id: <200206040426.g544QNA28367@marc2.theaimsgroup.com>
+From: Hank Leininger <linux-kernel@progressive-comp.com>
+Reply-To: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: please kindly get back to me
+X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
+X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
+X-Warning: Report any violation of list policy to abuse@progressive-comp.com
+X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03, 2002 at 09:58:32PM -0600, Lightweight patch manager wrote:
-> <wli@holomorphy.com>:
->   o remove mixture of non-atomic operations with page->flags which requires atomic operations to access
->   o repetitive reinitialization of active_list and inactive_list in free_area_init_core()
->   o make balance_classzone() use list.h
->   o complete comment regarding inner workings of buddy system
->   o duplicate declaration of rq in sched_init()
->   o Re: forget_pte()
->   o remove antiquated comment from page_alloc.c
->   o convert page_alloc.c bugchecks to BUG_ON()
->   o remove MARK_USED() macros
->   o remove memlist_* macros from page_alloc.c
->   o correct inaccurate comment regarding zone_table's usage
+On 2002-06-03, J Sloan <joe@tmsusa.com> wrote:
 
-There were discussions about a number of these patches resulting in
-changes, would you mind letting me know what versions of these things
-you're pushing upstream and let me hand you updates?
+> The thing with linux/unix "virii" is, they
+> are actually for the most part trojans -
+> they've been in labs for years, the problem
+> is that there is no suitable transport vector!
 
+> You'd have to dupe an unwitting superuser
+> (now there's a dangerous combination) into
+> running the "virus" by hand - sort of like
+> the "honor system" virus....
 
-Thanks,
-Bill
+...You mean like, get them to run './configure' ?[1][2]
+...Or installing an RPM with trojanned binaries or install-time scripts,
+without checking a signature?[3]
+
+Unfortunately that's all too easy.  Viruses, no.  Malware, you bet.  We
+can't get too complacent while laughing at the virus phenomenon.
+
+[1] http://marc.theaimsgroup.com/?l=bugtraq&m=102233939226053&w=2
+    http://marc.theaimsgroup.com/?l=bugtraq&m=102285523803434&w=2
+[2] They don't have to do this as root, either.  If they do it from an
+    account that can escalate privileges (i.e. is allowed to su or sudo)
+    then it's game over anyway, albeit with more steps.
+[3] And of course signatures are useless if the signer was owned first.
+    Probably major distros are reasonably safe[4], but not Joe Random who
+    produces packages and distributes them...
+[4] They're not out to get you; they've already got you:
+    http://www.acm.org/classics/sep95/
+
+--
+Hank Leininger <hlein@progressive-comp.com>
+ALL YOUR BASE ARE BELONG TO KEN THOMPSON

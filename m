@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264622AbUEPRsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUEPRte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264622AbUEPRsa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 13:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264681AbUEPRs3
+	id S264652AbUEPRte (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 13:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbUEPRtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 13:48:29 -0400
-Received: from wingding.demon.nl ([82.161.27.36]:42116 "EHLO wingding.demon.nl")
-	by vger.kernel.org with ESMTP id S264622AbUEPRsU (ORCPT
+	Sun, 16 May 2004 13:49:33 -0400
+Received: from main.gmane.org ([80.91.224.249]:52146 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264683AbUEPRt3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 13:48:20 -0400
-Date: Sun, 16 May 2004 19:49:23 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
-Message-ID: <20040516174923.GA16257@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <200405132232.01484.elenstev@mesatop.com> <Pine.LNX.4.58.0405152147220.25502@ppc970.osdl.org> <20040516052220.GU3044@dualathlon.random> <200405160928.22021.elenstev@mesatop.com>
+	Sun, 16 May 2004 13:49:29 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: libata Promise driver regression 2.6.5->2.6.6
+Date: Sun, 16 May 2004 21:49:17 +0400
+Message-ID: <pan.2004.05.16.17.49.14.823495@altlinux.ru>
+References: <40A7A278.7010405@wasp.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405160928.22021.elenstev@mesatop.com>
-Organization: M38c
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213.177.124.23
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Cc: acpi-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > An easy way to verify for Steven is to give a quick spin to 2.6.5-aa5
-> > and see if it's slow too, that will rule out the anon-vma changes
-> > (for completeness: there's a minor race in 2.6.5-aa5 fixed in my current
-> > internal tree, I posted the fix to l-k separately, but you can ignore
-> > the fix for a simple test, it takes weeks to trigger anyways and you
-> > need threads to trigger it and I've never seen threaded version control
-> > systems so I doubt BK is threaded).
+On Sun, 16 May 2004 21:18:48 +0400, Brad Campbell wrote:
+
+> I have been using 2.6.5 happily for a while now on this machine.
+> It's an Asus A7V600 with 3 Promise SATA150-TX4 SATA cards.
 > 
-> I'm getting the linux-2.6.5.tar.bz2 file (already got 2.6.5-aa2) via ppp,
-> while running the bk test script on 2.6.6-current and no PREEMPT.
-> That takes a while on 56k dialup.  I'll leave all that running while
-> I go hiking.
+> With 2.6.6 (and 2.6.6-bk3) it hangs with a dma timeout on boot detecting the 9th sata drive (there 
+> are 10). I left it for about 10 minutes to see if anything else transpired but it just sat there.
+> I'm on a serial console to this machine at the moment and I could not get it to respond to the magic 
+> sysrq key over serial either.
+> 
+> I have placed all relevant info including a capture of 2.6.5 boot and 2.6.6 boot, plus all requested 
+> info from linux/REPORTING-BUGS on my webpage
+> 
+> Normal working dmesg
+> http://www.wasp.net.au/~brad/2.6.5.log
+> 
+> Hung up dmesg
+> http://www.wasp.net.au/~brad/2.6.6.log
+> 
+> .config and all other info I could gather.
+> http://www.wasp.net.au/~brad/2.6.6.config
+> Much as I'd love to be subscribed, I just can't keep up with the volume so please cc: me.
+> Willing to try patches/hacks/suggestions
 
-ketchup should get you faster to 2.6.5 vanilla...
+Looks like ACPI problems.  First, for some reason ACPI in 2.6.6 decided to
+use PIC mode, while 2.6.5 used IOAPIC mode.  Second, IRQ 12 was chosen for
+the Promise controller which failed; this is a known problem in 2.6.6,
+the patch at http://bugzilla.kernel.org/show_bug.cgi?id=2665 should fix it.
 
--- 
-Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------
+

@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132281AbRADJ7M>; Thu, 4 Jan 2001 04:59:12 -0500
+	id <S132340AbRADKHe>; Thu, 4 Jan 2001 05:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132483AbRADJ7C>; Thu, 4 Jan 2001 04:59:02 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:21855 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S132281AbRADJ6p>; Thu, 4 Jan 2001 04:58:45 -0500
-Message-ID: <3A54494D.C7DA0455@linux.com>
-Date: Thu, 04 Jan 2001 01:58:37 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-prerelease i686)
-X-Accept-Language: en
+	id <S132411AbRADKHX>; Thu, 4 Jan 2001 05:07:23 -0500
+Received: from [204.143.97.92] ([204.143.97.92]:64270 "EHLO arisen.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S132340AbRADKHM>;
+	Thu, 4 Jan 2001 05:07:12 -0500
+Date: Thu, 4 Jan 2001 16:09:52 +0600 (LKT)
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: brian@worldcontrol.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: soffice, 2.2.18, cpu 97% idle, loadavg 6.05
+In-Reply-To: <20010104003147.A10345@top.worldcontrol.com>
+Message-ID: <Pine.LNX.4.04.10101041609280.30212-100000@hantana.pdn.ac.lk>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-release (and a few priors) stalls
-Content-Type: multipart/mixed;
- boundary="------------94382961CC0941B74C2ABEF4"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------94382961CC0941B74C2ABEF4
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Recently, about test 12 I believe, I started experiencing stalls.
-I believe it has to do with VM pressure but I'm not sure.
+Can you reproduce the same error on GCC 2.72?
 
-What happens:  5-60 second instant dead stall, nothing at all happens.
-No sound/key/disk/anything activity, screen updates stop in the middle
-of an update.  Until recently I was mistaking this as a lockup and
-rebooting (thank you reiserfs).  Now I just wait it out.  I'm away for
-holiday/vacation so I can't hookup kbd. :(
+Anuradha
 
-Environment: normally swap is full -but- buffers can have any amount of
-free listed, sometimes well over 100 megs.
+On Thu, 4 Jan 2001 brian@worldcontrol.com wrote:
 
-After the stall resumes, everything starts right up and sings along
-fine.  There aren't any kernel messages indicating something was funny.
-
-This is different from running out of normal pages, the system starts to
-thrash and slows considerably, almost unusable, but over a period of
-10-20 seconds.  If I add swap quickly, X won't get killed.
-(unfortunately, X seems to get killed 9/10 times because netscape took
-too long to die so the kernel kept killing).
-
--d
-
-
---------------94382961CC0941B74C2ABEF4
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-url:www.blue-labs.org
-adr:;;;;;;
-version:2.1
-email;internet:david@blue-labs.org
-title:Blue Labs Developer
-note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
-x-mozilla-cpt:;9952
-fn:David Ford
-end:vcard
-
---------------94382961CC0941B74C2ABEF4--
+> On Thu, Jan 04, 2001 at 01:54:17PM +0600, Anuradha Ratnaweera wrote:
+> > 
+> > What is the compiler?
+> 
+> % gcc -v
+> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/specs
+> gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+> 
+> Linux distribution is Redhat 6.2, with all updates.
+> 
+> -- 
+> Brian Litzinger <brian@worldcontrol.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

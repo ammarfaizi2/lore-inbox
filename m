@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVCPI4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVCPJAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbVCPI4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 03:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVCPI4X
+	id S262130AbVCPJAr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 04:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVCPJAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 03:56:23 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:7648 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261904AbVCPI4S (ORCPT
+	Wed, 16 Mar 2005 04:00:47 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:41351 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262130AbVCPJAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 03:56:18 -0500
-Message-ID: <4237F4B0.2040509@dgreaves.com>
-Date: Wed, 16 Mar 2005 08:56:16 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Matt Mackall <mpm@selenic.com>, Pavel Machek <pavel@ucw.cz>,
-       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, chrisw@osdl.org,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-References: <4231E75A.4090203@tmr.com><4231E75A.4090203@tmr.com> <20050311190825.GW3120@waste.org> <423747BC.2080703@tmr.com>
-In-Reply-To: <423747BC.2080703@tmr.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Mar 2005 04:00:43 -0500
+Date: Wed, 16 Mar 2005 10:00:24 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org,
+       Shai Fultheim <Shai@Scalex86.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] del_timer_sync: proof of concept
+Message-ID: <20050316090024.GB11582@elte.hu>
+References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net> <42371941.CCBAB134@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42371941.CCBAB134@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
 
-> Matt Mackall wrote:
->
->> In your world, do you want to do:
->>
->> cp -rl linux-2.6.11 linux-2.6.11.5
->> cd linux-2.6.11.5
->> bzcat ../Patches/patch-2.6.11.1.bz2 | patch -p1
->> bzcat ../Patches/patch-2.6.11.2.bz2 | patch -p1
->> bzcat ../Patches/patch-2.6.11.3.bz2 | patch -p1
->> bzcat ../Patches/patch-2.6.11.4.bz2 | patch -p1
->> bzcat ../Patches/patch-2.6.11.5.bz2 | patch -p1
->>
->> I suspect you might find that tedious, especially if only the last one
->> addressed a bug that affected you.
->
->
-> Being lazy, I would do
-> bzcat ../Patches/patch-2.6.11.*.bz | patch -p1
-> (or similar). But as I posted long ago when this discussion started it 
-> is desirable to have both.
->
-being super lazy I'd type:
-scripts/patch-kernel . ../Patches
+* Oleg Nesterov <oleg@tv-sign.ru> wrote:
 
-nb it's currently broke as mentioned in another thread:
-Re: [BUG] Re: [PATCH] scripts/patch-kernel: use EXTRAVERSION
-being fixed though. It will (I assume!) embody whatever rules are needed 
-to revoke patches to go from 2.6.11.5 to 2.6.12 (and since I think the 
-new version has d/l facilities, that should assist in the case of a base 
-kernel d/l of 2.6.11.3 for which no local patches exist to revert prior 
-to patching to 2.6.12)
+> New rules:
+> 	->_base &  1	: is timer pending
+> 	->_base & ~1	: timer's base
 
-David
+how would it look like if we had a separate timer->pending field after
+all? Would it be faster/cleaner?
 
+(we dont need to keep them small _that_ bad - if there's a good reason
+we should rather add a clean new field than to encode two fields into
+one field and complicate the code.)
 
+	Ingo

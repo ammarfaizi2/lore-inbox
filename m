@@ -1,43 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUF0Wlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUF0Wpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUF0Wlf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 18:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUF0Wlb
+	id S264503AbUF0Wpb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 18:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUF0Wpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 18:41:31 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:4276 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264524AbUF0Wla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 18:41:30 -0400
-Date: Sun, 27 Jun 2004 15:41:15 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
-Message-ID: <20040627224115.GA22532@taniwha.stupidest.org>
-References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <20040626221802.GA12296@taniwha.stupidest.org> <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org> <1088290477.3790.2.camel@localhost.localdomain> <20040627000541.GA13325@taniwha.stupidest.org> <pan.2004.06.27.12.00.03.857572@smurf.noris.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2004.06.27.12.00.03.857572@smurf.noris.de>
+	Sun, 27 Jun 2004 18:45:31 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:59341 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264503AbUF0Wp2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 18:45:28 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 27 Jun 2004 15:45:23 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Steve G <linux_4ever@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.x signal handler bug
+In-Reply-To: <20040627221612.GA16664@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0406271539340.19865@bigblue.dev.mdolabs.com>
+References: <20040626143326.50865.qmail@web50607.mail.yahoo.com>
+ <Pine.LNX.4.58.0406260839460.10038@bigblue.dev.mdolabs.com>
+ <20040627221612.GA16664@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 27, 2004 at 02:00:03PM +0200, Matthias Urlichs wrote:
+On Mon, 28 Jun 2004, Andries Brouwer wrote:
 
-> <heretic>
->
-> #define jiffies __get_jiffies()
->
-> </heretic>
+> On Sat, Jun 26, 2004 at 09:05:34AM -0700, Davide Libenzi wrote:
+> 
+> > You're receiving a SIGSEGV while SIGSEGV is blocked (force_sig_info). The 
+> > force_sig_info call wants to send a signal that the task can't refuse 
+> > (kinda The GodFather offers ;). The kernel will noticed this and will 
+> > restore the handler to SIG_DFL.
+> 
+> Yes.
+> 
+> So checking whether this is POSIX conforming:
+> 
+> - Blocking a signal in its signal handler is explicitly allowed.
+>   (signal(3p))
+> - It is unspecified what longjmp() does with the signal mask.
+>   (longjmp(3p))
+> - The SIGSEGV that occurs during a stack overflow is of the GodFather kind.
+>   (getrlimit(3p))
+> - If SIGSEGV is generated while blocked, the result is undefined
+>   (sigprocmask(3p))
+> 
+> So, maybe the restoring to SIG_DFL was not required, but it doesnt seem
+> incorrect either. It may be a bit surprising.
 
-Well, I have that but it's only part of the story.
-
-The real issue seems to be that a suitable clean API for drivers to
-use rather than intenral knowledge of jiffies is lacking.
-
-As Alan pointed out a suitable API could also make it easier to work
-towards a clock-less system for embedded targets.
+I think so. Maybe the attached patch?
 
 
-   --cw
+
+- Davide
+
+
+
+
+--- a/kernel/signal.c	2004-06-27 15:42:26.000000000 -0700
++++ b/kernel/signal.c	2004-06-27 15:43:28.000000000 -0700
+@@ -820,8 +820,9 @@
+ 	int ret;
+ 
+ 	spin_lock_irqsave(&t->sighand->siglock, flags);
+-	if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
+-		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
++	if (sigismember(&t->blocked, sig)) {
++		if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN)
++			t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
+ 		sigdelset(&t->blocked, sig);
+ 		recalc_sigpending_tsk(t);
+ 	}

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263097AbUCMOFg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 09:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUCMOFc
+	id S263098AbUCMOKy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 09:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263099AbUCMOKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 09:05:32 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:33943 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S263097AbUCMOF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 09:05:28 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 13 Mar 2004 14:05:26 -0000
-MIME-Version: 1.0
+	Sat, 13 Mar 2004 09:10:54 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:30731 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id S263098AbUCMOKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 09:10:53 -0500
+Date: Sat, 13 Mar 2004 15:10:51 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.local
+To: Nick Warne <nick@ukfsn.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Build problem smbfs/file.c
-Message-ID: <40531526.2716.2357E62B@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+In-Reply-To: <40530C9D.31619.23368E43@localhost>
+Message-ID: <Pine.LNX.4.44.0403131452150.2749-100000@cola.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I got a build warning:
-> 
-> ... type character `z'...
-> fs/smbfs/file.c: 272 too many arguments for format.
-> 
-> Line 272:
-> 
+On Sat, 13 Mar 2004, Nick Warne wrote:
+
 > PARANOIA("%s/%s validation failed, error=%zd\n"
 > 
 > Ummm.  I removed the `z' from error=%zd\n" - it appears to be rogue, 
 > but what do I know ;)
-> 
-> And no warnings now. Is this as it should be?
 
-OK, replying to myself.
+I think someone meant to change my %d into a %Zd, like in smb_file_read.
+Or not, since my gcc's understand them both.
 
-it should be (I believe from looking at other code):
+Compiler version?
 
-PARANOIA("%s/%s validation failed, error=%Zd\n"
-
-Nick
-
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+/Urban
 

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311930AbSCXUl0>; Sun, 24 Mar 2002 15:41:26 -0500
+	id <S311938AbSCXUoG>; Sun, 24 Mar 2002 15:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311934AbSCXUlH>; Sun, 24 Mar 2002 15:41:07 -0500
-Received: from gw.chygwyn.com ([62.172.158.50]:64772 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S311930AbSCXUkw>;
-	Sun, 24 Mar 2002 15:40:52 -0500
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200203242016.UAA05010@gw.chygwyn.com>
-Subject: Re: NBD client/server broken?
-To: aia21@cam.ac.uk (Anton Altaparmakov)
-Date: Sun, 24 Mar 2002 20:16:38 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, linux-fsdevel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020324183746.0452cec0@pop.cus.cam.ac.uk> from "Anton Altaparmakov" at Mar 24, 2002 06:46:11 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311937AbSCXUn4>; Sun, 24 Mar 2002 15:43:56 -0500
+Received: from stingr.net ([212.193.33.37]:28086 "HELO hq.stingr.net")
+	by vger.kernel.org with SMTP id <S311938AbSCXUnu>;
+	Sun, 24 Mar 2002 15:43:50 -0500
+Date: Sun, 24 Mar 2002 23:43:45 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
+Message-ID: <20020324204345.GF3199@stingr.net>
+Mail-Followup-To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C9E1BD1.6040405@freenet.de> <E16pE0U-00073m-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Tanya
+X-Mailer: Roxio Easy CD Creator 5.0
+X-RealName: Stingray Greatest Jr
+Organization: Bedleham International
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Replying to Alan Cox:
+> Thats up to the process. If a program doesn't handle malloc/mmap/etc
+> failures then its junk anyway
 
-> 
-> Just to keep interested parties informed:
-> 
-> Thanks to Steven Whitehouse I found out that the latest nbd client/server 
-> user space programs are in CVS on Sourceforge (the kernel nbd documentation 
-> needs updating to point to http://sf.net/projects/nbd)...
-> 
-> And I have just submitted a patch to Steven to make the nbd-server 64-bit 
-> clean on 32-bit machines and to allow proper auto detection of device size. 
-> Hopefully we will see it entering the CVS soon. Otherwise patch is 
-> available on request from me. (-:
-> 
-Its all there now and as you suggested I've added the configure script so
-autoconf is no longer required to build it.
+The recent junk I fighting with to take full advantage of overcommit
+accounting is squid.
+Very popular junk. Maybe rsync uses same 'secret technique' to handle malloc
+failures? :)))
 
-> Mounting a NTFS 15GiB partition over nbd (using ntfs tng driver) gave me a 
-> data throughput of 7-10MiB/sec over 100MBit ethernet (going via switch and 
-> a hub) which is quite impressive. (-:
-> 
-Also there is the zerocopy nbd patch I did for my UKUUG talk last year on my 
-patches page: http://www.chygwyn.com/~steve/kpatch/ its out of date now
-but my plan is to update and sumbit it for 2.5 in the next few weeks or so. 
-It should make things even faster or at least more efficient if we are maxing 
-out the network already :-)
+Btw. Overcommit handling not very good yet.
+Squid hits the limit, then bails out. Then shell script trying to start new
+instance of squid (actually trying to sleep before restart), but gets 
+'fork - cannot allocate memory'. seems that memory isn't dealloced 
+from already exited process space :(
 
-Steve.
-
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
+  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4

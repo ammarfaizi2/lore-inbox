@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbQKHOyU>; Wed, 8 Nov 2000 09:54:20 -0500
+	id <S129094AbQKHOzJ>; Wed, 8 Nov 2000 09:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbQKHOyJ>; Wed, 8 Nov 2000 09:54:09 -0500
-Received: from mailhub.icx.net ([206.96.250.12]:13832 "EHLO icx.net")
-	by vger.kernel.org with ESMTP id <S129094AbQKHOyE>;
-	Wed, 8 Nov 2000 09:54:04 -0500
-Message-ID: <3A092269.9020501@edge.net>
-Date: Wed, 08 Nov 2000 09:52:41 +0000
-From: Anthony Chatman <anthony@edge.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10 i686; en-US; m18) Gecko/20000929 Netscape6/6.0b3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Nvidia GeForce2 kernel driver - kernel 2.4.0 test-10
-In-Reply-To: <3A08F5E9.61F424A0@ihug.co.nz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129130AbQKHOyu>; Wed, 8 Nov 2000 09:54:50 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:86 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S129094AbQKHOyS>; Wed, 8 Nov 2000 09:54:18 -0500
+Date: Wed, 8 Nov 2000 08:53:19 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200011081453.IAA340590@tomcat.admin.navo.hpc.mil>
+To: riel@conectiva.com.br, Szabolcs Szakacsits <szaka@f-secure.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Looking for better VM
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Speaking of Nvidia, I have a Nvidia GeForce2, and had problems loading 
-the NV kernel module with a patched test10 kernel (i was running test9 
-before).  I took a look at the test10 patch, and noticed the following 2 
-lines were taken out of  <linux_dir>/include/linux/wrapper.h:
-
-#define mem_map_inc_count(p) atomic_inc(&(p->count))
-#define mem_map_dec_count(p) atomic_dec(&(p->count))
-
-I added those two defines back into wrapper.h and then was able to load 
-the NVdriver successfully, with no problems. This doesn't appear to 
-break compiliation of the test10 kernel either. I thought I'd let 
-everyone know if anyone was having problems with the NV kernel driver. 
-Please note, I am not a C programmer, but more of a C hacker, and this 
-worked for me on my Slackware 7.1 machine. I have no idea what this may 
-have broken in the kernel or whatnot. I only know that this fixed the 
-problem on this particular box with the NV kernel driver, so proceed at 
-your own risk ;-)
-
-
-
-
-
-david wrote:
-
-> hi i am writing a video kernel driver for linux lexos and have got stuck
+------
+> On Wed, 8 Nov 2000, Szabolcs Szakacsits wrote:
+> > On Mon, 6 Nov 2000, Rik van Riel wrote:
+[snip]
+> > You could ask, so what's the point for non-overcommit if we use
+> > process killing in the end? And the answer, in *practise* this almost
+> > never happens, root can always clean up and no processes are lost
+> > [just as when disk is "full" except the reserved area for root]. See?
+> > Human get a chance against hard-wired AI.
+> > 
+> > I also didn't say non-overcommit should be used as default and a
+> > patch http://www.cs.helsinki.fi/linux/linux-kernel/2000-13/1208.html,
+> > developed for 2.3.99-pre3 by Eduardo Horvath and unfortunately was
+> > ignored completely, implemented it this way. 
 > 
-> this is how NVIDIA do their regs
+> OK. This is a lot more reasonable. I'm actually looking
+> into putting non-overcommit as a configurable option in
+> the kernel.
 > 
+> However, this does not save you from the fact that the
+> system is essentially deadlocked when nothing can get
+> more memory and nothing goes away. Non-overcommit won't
+> give you any extra reliability unless your applications
+> are very well behaved ... in which case you don't need
+> non-overcommit.
 
+Applications are not usually the problem, users are. If a user starts
+one "well behaved" process, and then starts another, and another....
+The system WILL go OOM, and with unpredictable results (as far as the user
+is concerned).
+
+The Eduardo Horvath patch works exactly as he designed. It allowed overcommit
+by root, disallowed user generating overcommit. or it could disallow
+overcommit by all, or operate the same as without the patch (but it did
+accumulate some statistics).
+
+The problem is that unless user memory resource controls are available to
+the administrator to establish some policy, system deadlock will always
+occur, OR you have random shutdowns, or random process aborts. The resource
+controls should allow an administrator defined policy, established in user
+space, and enforced by the kernel. The kernel should be able to enforce any
+policy from no memory restriction (current, and reasonable for single user
+workstations), to fully disabled overcommit (dedicated multi-user batch
+processing in clustered environments).
+
+I know the patch was an early prototype. It did provide some identification
+of the locations that resource controls could/should be done (this should be a
+2.5 developement item).
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

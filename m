@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130216AbRABOzM>; Tue, 2 Jan 2001 09:55:12 -0500
+	id <S130480AbRABOzY>; Tue, 2 Jan 2001 09:55:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130645AbRABOzD>; Tue, 2 Jan 2001 09:55:03 -0500
-Received: from renata.irb.hr ([161.53.129.148]:8708 "EHLO renata.irb.hr")
-	by vger.kernel.org with ESMTP id <S130216AbRABOy5>;
-	Tue, 2 Jan 2001 09:54:57 -0500
-From: Vedran Rodic <vedran@renata.irb.hr>
-Date: Tue, 2 Jan 2001 15:24:09 +0100
-To: Daniel Phillips <phillips@innominate.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-prerelease problems (it corrupted my ext2 filesystem)
-Message-ID: <20010102152409.A10863@renata.irb.hr>
-In-Reply-To: <20010102131507.A7573@renata.irb.hr> <3A51D9BF.23C42DFE@innominate.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A51D9BF.23C42DFE@innominate.de>; from phillips@innominate.de on Tue, Jan 02, 2001 at 02:38:07PM +0100
+	id <S130645AbRABOzN>; Tue, 2 Jan 2001 09:55:13 -0500
+Received: from cannet.com ([206.156.188.2]:28939 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S130480AbRABOzD>;
+	Tue, 2 Jan 2001 09:55:03 -0500
+Message-ID: <005001c074c7$ad43f5c0$7930000a@hcd.net>
+From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Good mailing list.
+Date: Tue, 2 Jan 2001 09:24:11 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2001 at 02:38:07PM +0100, Daniel Phillips wrote:
-> Could you provide details of your configuration?
-> 
+Hello,
 
-I put the complete kernel log of that session at http://quark.fsb.hr/~vrodic/kern.log
+    Since it takes quite a it of time for me to deal with news groups, could
+someone please point me to a _LINUX_ news group that could help me with
+password sync between Unix and Windows.  I am using Microsofts password sync
+tool that comes with SFU 1.2.  I know I sould ask Micr$loth, but I have been
+for two mounths and thay refuse to help me.  I get ignored in the Micro$loth
+list, and I have a deadline.  Besides, I have found that most linux hackers
+know more about Micro$loth then the _GOOD_ people at Micro$sloth.
 
-I scanned my swap device several times today with badblocks -w, and
-it didn't show any errors. I also did some RAM tests with memtest86, 
-again with no errors.
+Thanks, and sorry for any disturbance!
 
-If you need more details, just ask.
+--
+Kind Regards,
+Timothy A. DeWees
 
-> Vedran Rodic wrote:
-> > I was using 2.4.0-prerelease without extra patches and I experienced some
-> > heavy (ext2) file system corruption. I was grabbing some video using bttv at
-> > the time. Kernel didn't oops, but processess just started terminating.
-> > 
-> > Here is a the interesting part from my logs:
-> > 
-> > Bad swap file entry 5c5b6256
-> > VM: killing process qtvidcap
-> > swap_free: Trying to free nonexistent swap-page
-> > last message repeated 23 times
-> > swap_free: Trying to free swap from unused swap-device
-> > swap_free: Trying to free nonexistent swap-page
-> > last message repeated 266 times
-> > Bad swap file entry 272c2e24
-> > VM: killing process pppd
-> > swap_free: Trying to free nonexistent swap-page
-> > last message repeated 30 times
-> 
-> --
-> Daniel
-
-Vedran
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316042AbSEJP2F>; Fri, 10 May 2002 11:28:05 -0400
+	id <S316046AbSEJP3L>; Fri, 10 May 2002 11:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316043AbSEJP2E>; Fri, 10 May 2002 11:28:04 -0400
-Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:57814 "HELO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
-	id <S316042AbSEJP2D>; Fri, 10 May 2002 11:28:03 -0400
-Date: Fri, 10 May 2002 18:37:21 +0300 (EEST)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: mmap, SIGBUS, and handling it
-Message-ID: <Pine.LNX.4.33.0205101832080.9661-100000@ahriman.bucharest.roedu.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316048AbSEJP3K>; Fri, 10 May 2002 11:29:10 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:56070 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316046AbSEJP3I>; Fri, 10 May 2002 11:29:08 -0400
+Date: Fri, 10 May 2002 16:29:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to redirect serial console to telnet session?
+Message-ID: <20020510162902.C7165@flint.arm.linux.org.uk>
+In-Reply-To: <3CDBC5A5.A1844CC0@nortelnetworks.com> <20020510160945.B7165@flint.arm.linux.org.uk> <3CDBD9EA.1826BB48@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Fri, May 10, 2002 at 10:32:10AM -0400, Chris Friesen wrote:
+> I found some patches by Ingo Molnar, but they look like kernel mods.
 
-One change in kernel 2.4.x is to send a SIGBUS signal to the process
-trying to read a mmap section that is invalid.
+That's the one.
 
-Ex, if we have a file server, and that program gets a request for a file,
-it does a mmap. After that starts serving the file to the client (by
-write()-ing to the socket fd). If in the meantime some other process
-truncates the file which was mmap-ed , our program will receive a SIGBUS
-in write().
+> What I'm really looking for is a way to redirect this from userspace in
+> a stock kernel.
 
-If I understand right this is more POSIX compliant.
+There isn't anything in the stock kernel that will let you do this
+without some form of patches being applied.
 
-Is there a clean/good way of handling this ?
+> I want the serial console as normal, but then for just debugging this
+> one thing I want to telnet in over ethernet and basically redirect /dev/ttyS0
+> onto my telnet session.
 
-PS: why signal(SIGBUS,SIG_IGN) doesnt work, but a user handler its called
-if set with signal(SIGBUS,handle_sigbus) ?
+telnet (and its associated protocol) is a completely different beast to
+serial consoles - in fact any network connection is.
 
-Thanks
+If you really want to get at the kernel message data, there's dmesg
+or a simple cat /proc/kmsg.  The problem with these is, when the kernel
+crashes, you won't get the last messages.  Also, if you're generating
+more than 16K of messages before allowing the kernel to continue (and
+thus user space) you're also going to loose messages.
 
-----------------------------
-Mihai RUSU
-
-Disclaimer: Any views or opinions presented within this e-mail are solely
-those of the author and do not necessarily represent those of any company,
-unless otherwise specifically stated.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272712AbRHaOmm>; Fri, 31 Aug 2001 10:42:42 -0400
+	id <S272713AbRHaOmm>; Fri, 31 Aug 2001 10:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272713AbRHaOmd>; Fri, 31 Aug 2001 10:42:33 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:10401 "EHLO
+	id <S272714AbRHaOmc>; Fri, 31 Aug 2001 10:42:32 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:11937 "EHLO
 	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S272712AbRHaOmS>; Fri, 31 Aug 2001 10:42:18 -0400
-Date: Fri, 31 Aug 2001 16:49:34 +0200 (CEST)
+	id <S272713AbRHaOmT>; Fri, 31 Aug 2001 10:42:19 -0400
+Date: Fri, 31 Aug 2001 16:03:16 +0200 (CEST)
 From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: Tim Moore <timothymoore@bigfoot.com>
+To: Thiago Vinhas de Moraes <tvlists@networx.com.br>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: System crashes with via82cxxx ide driver
-In-Reply-To: <3B8ED6D7.CE237CE2@bigfoot.com>
-Message-ID: <Pine.LNX.4.33.0108311647250.810-100000@neptune.sol.net>
+Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same
+ mountpoint
+In-Reply-To: <200108310122.f7V1Mas12778@jupter.networx.com.br>
+Message-ID: <Pine.LNX.4.33.0108311602310.1039-100000@neptune.sol.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001, Tim Moore wrote:
+On Thu, 30 Aug 2001, Thiago Vinhas de Moraes wrote:
 
-> 2. The rejects didn't make any difference.  init/main.c.rej was SCSI
-> hd[m-t] addresses which were easy to drop in by hand,
-> drivers/block/ide.c.rej was comments & spacing, and the others were in
-> Configure.help or Makefile EXTRAVERSION conflicts.  These don't matter
-> in most cases where the ide patch makes sense.
-Did that and tested. 2.2.20pre9 with ide-05042001 patch still crashes at
-the same point with the same symptoms. I even have to pull out the power
-chord for a few seconds before the system can be started again.
-
-> I've another machine that uses the same kernel+ide:
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-> 02)
-So it works for you with revision 02 and 10, but doesn't work for me with
-revision 06. Strange.
+> I think it should be reinstated. We must have in mind, that currently, the
+> most part of end-users are newbies, and if we want Linux to be a true Desktop
+> Enviroment, we must allow people that do not want to understand it, to run it.
+Couldn't this be implemented in mount instead of the kernel? Should be
+easy to check /proc/mounts whether anything is already mounted on a given
+mountpoint.
 
 -- 
 Ciao, Pascal

@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314504AbSEVOXT>; Wed, 22 May 2002 10:23:19 -0400
+	id <S314553AbSEVOXd>; Wed, 22 May 2002 10:23:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSEVOXS>; Wed, 22 May 2002 10:23:18 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:22725 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314504AbSEVOXR>;
-	Wed, 22 May 2002 10:23:17 -0400
-Date: Wed, 22 May 2002 09:19:34 -0500
+	id <S314571AbSEVOXd>; Wed, 22 May 2002 10:23:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:55237 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314553AbSEVOXb>;
+	Wed, 22 May 2002 10:23:31 -0400
+Date: Wed, 22 May 2002 09:14:53 -0500
 From: Dave McCracken <dmccr@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] POSIX personality
-Message-ID: <13860000.1022077174@baldur.austin.ibm.com>
-In-Reply-To: <Pine.LNX.4.33.0205211603340.15094-100000@penguin.transmeta.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>
+cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.17
+Message-ID: <10810000.1022076893@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0205212013020.5712-100000@home.transmeta.com>
 X-Mailer: Mulberry/2.2.0 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,36 +23,27 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---On Tuesday, May 21, 2002 04:08:52 PM -0700 Linus Torvalds
+--On Tuesday, May 21, 2002 08:21:56 PM -0700 Linus Torvalds
 <torvalds@transmeta.com> wrote:
 
->> 
->> One reason for it would be that it would be more efficient. All the
->> various shared state needed for POSIX thread group emulation could be
->> put into a  single structure with a single reference count.
+> The problem is just finding a _good_ context to switch to. We can do this
+> two different ways:
 > 
-> Now, that's a separate issue - the issue of the exact _granularity_ of
-> the  bits, and how you group things together.
+> (...)
 > 
-> On that front, I don't have any strong feelings - but I suspect that it 
-> almost always ends up being fairly obvious when it is "right" to group 
-> things together, and when it isn't.
+>  - my preferred solution: speculatively find _some_ process (preferably
+>    one that we are likely to schedule next), and use that process's
+>    "active_mm" to do a "switch_mm()" into (and set that to "current->mm")
 > 
-> For example, we probably could have had just one bit for (FS | FILES),
-> and  the same is probably true of (SIGHAND | THREAD), but on the whole we 
-> haven't really had any gray areas when it comes to the grouping. And I 
-> don't see any coming up.
+> The speculative thing has the problem of finding a good process, but I
+> would suggest something along the lines of:
 > 
-> Does that mean that we might have a CLONE_POSIXDAMAGE that just covers all
-> the strange POSIX stuff that make no sense anywhere else? Maybe. But I'd
-> want that to be just another bit with the same semantic behaviour as the
-> existing ones, _not_ be some external "POSIX personality".
+>  - take the first process in the run-queue on the current CPU.
+>  - if there is no process on th erun-queue, take our parent
 
-I've been thinking along those lines myself.  At this point I'd suggest we
-implement them as separate, then if in the future no one ever uses them
-separately we can consider combining them.  I know this can raise some
-backward compatibility issues but in theory if anyone cares we wouldn't do
-it.
+What would be the incremental cost of just switching to init_mm?  Granted,
+it's likely to require switching again when you schedule, but this is the
+exit path.  It could be a fallback if nothing else looks good.
 
 Dave McCracken
 

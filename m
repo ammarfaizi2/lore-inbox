@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317063AbSFAUxE>; Sat, 1 Jun 2002 16:53:04 -0400
+	id <S317066AbSFAVOC>; Sat, 1 Jun 2002 17:14:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317065AbSFAUxD>; Sat, 1 Jun 2002 16:53:03 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:56818 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317063AbSFAUxC>; Sat, 1 Jun 2002 16:53:02 -0400
-Date: Sat, 1 Jun 2002 14:51:24 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 9/16] direct-to-BIO writeback for writeback-mode ext3
-Message-ID: <20020601205124.GB7905@turbolinux.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CF88903.E253A075@zip.com.au> <20020601191514.GA7905@turbolinux.com> <3CF92B1D.E466B743@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S317067AbSFAVOC>; Sat, 1 Jun 2002 17:14:02 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:11526 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S317066AbSFAVOB>;
+	Sat, 1 Jun 2002 17:14:01 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200206012113.g51LDur14462@oboe.it.uc3m.es>
+Subject: Re: Kernel deadlock using nbd over acenic driver
+In-Reply-To: <200205241011.LAA26311@gw.chygwyn.com> from Steven Whitehouse at
+ "May 24, 2002 11:11:22 am"
+To: Steve Whitehouse <Steve@ChyGwyn.com>
+Date: Sat, 1 Jun 2002 23:13:56 +0200 (MET DST)
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 01, 2002  13:14 -0700, Andrew Morton wrote:
-> Andreas Dilger wrote:
-> > On Jun 01, 2002  01:42 -0700, Andrew Morton wrote:
-> > > Turn on direct-to-BIO writeback for ext3 in data=writeback mode.
-> > 
-> > A minor note on this (especially minor since I believe data=journal
-> > doesn't even work in 2.5), but you should probably also change the
-> > address ops in ext3/ioctl.c if you enable/disable per-inode data
-> > journaling.
-> 
-> hrm.  Actually, changing journalling mode against a file while
-> modifications are happening against it is almost certain to explode
-> if the timing is right.  ISTR that we have seen bug reports against
-> this on ext3-users.  This is just waaaay too hard to do.
+"Steven Whitehouse wrote:"
 
-Actually, if you look at the code in ioctl.c for changing the journaling
-mode of a file, it basically stops _all_ I/O to the filesystem and waits
-for it to complete before changing the journal data flag, so it should
-also be possible to change the aops pointer at the same time.  The "stop
-all I/O" is one of the reasons why enabling data journaling on files is
-only allowed for root/privileged users.
+(somethiung about kernel nbd)
 
-> But we can fix it by doing the opposite: create three separate
-> a_ops instances, one for each journalling mode.  Assign it at
-> new_inode/read_inode time.
+BTW, are you maintaining kernel nbd? If so, I'd like to propose
+some unifications that would make it possible to run either
+enbd or nbd daemons on the same driver, at least in a "compatibility
+mode".
 
-Sure, as long as this doesn't increase the amount of code duplication.
+The starting point would be
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+1) make the over-the-wire data formats the same, which means
+   enlarging kernel nbd's nbd_request and nbd_reply structs
+   to match enbd's, or some compromise.
 
+2) less important .. make the driver structs the same. enbd has more
+   fields there too, for accounting purposes. That's the nbd_device struct.
+
+Later on one can add some cross-ioctls.
+
+Peter

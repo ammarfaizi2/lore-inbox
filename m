@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132037AbRDGVwu>; Sat, 7 Apr 2001 17:52:50 -0400
+	id <S131985AbRDGVz7>; Sat, 7 Apr 2001 17:55:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131988AbRDGVwk>; Sat, 7 Apr 2001 17:52:40 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:2486 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S131985AbRDGVwc>;
-	Sat, 7 Apr 2001 17:52:32 -0400
-Message-ID: <3ACF8C1C.7CFF675A@mandrakesoft.com>
-Date: Sat, 07 Apr 2001 17:52:28 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-Cc: no To-header on input <"unlisted-recipients:;"@havoc.gtf.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de> <20010407200340.C3280@redhat.com> <3ACF6920.465635A1@mandrakesoft.com> <3ACF790B.72171236@t-online.de>
+	id <S131988AbRDGVzt>; Sat, 7 Apr 2001 17:55:49 -0400
+Received: from cogent.ecohler.net ([216.135.202.106]:40379 "EHLO
+	cogent.ecohler.net") by vger.kernel.org with ESMTP
+	id <S131985AbRDGVzg>; Sat, 7 Apr 2001 17:55:36 -0400
+From: lists@sapience.com
+Date: Sat, 7 Apr 2001 17:55:05 -0400
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: aic7xxx 6.1.10 and 2.4.4-pre1
+Message-ID: <20010407175505.A25801@sapience.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gunther Mayer wrote:
-> 
-> Jeff Garzik wrote:
-> >
->  Like I mentioned in a
-> > previous message, the Via parport code is ugly and should go into a Via
-> > superio driver.  It is simply not scalable to consider the alternative
-> > -- add superio code to parport_pc.c for each ISA bridge out there.  I
-> > think the same principle applies to this discussion as well.
-> 
-> Yes, superio will go away and replaced by user level utility:
-> http://home.t-online.de/home/gunther.mayer/lssuperio-0.61.tar.bz2
+   I had tried 6.1.8 + 2.4.3 and had problems which included messages like 
+   'aic7xxx_abort returns 8194' and machine froze up shortly after X started.
+   This on redhat 7.0. Sorry but since I was unable to even boot back the
+   prev kernel (2.4.0) I cant provide any more detailed information. I have
+   been following to see a few other folks have had some issues with scsi as well.
 
-The entire point of superio is -not- configuration.  That's what your
-BIOS setup does, and/or user-level utilities.
+   I have 2 lvd scsi disks and one ide, AH 2940U2 - top of lilo included below -
+   and bios boot order is scsi first.
 
-The point of superio support is that you can obtain 100% accurate probe
-information for legacy ISA devices, by looking at the information
-exported by the ISA bridge.  There is no need for "probing" per se,
-because you know whether or not the parallel port is enabled, exactly
-what IRQ it's on, and exactly what DMA channel it uses.
+   So I started again - installed redhat 7.0.9.
+   took 2.4.4-pre1  and patched it with 
+   linux-aic7xxx-6.1.10-2.4.3.patch
 
-So, a superio probe occurs first because it provides the maximum
-information at the least cost.  Since ISA devices must still be
-supported, the ISA probe should come after the PCI probe (which includes
-PCI superio stuff).  ISA probes to ports already registered via the
-superio probe fail at the request_region level, avoiding any unnecessary
-hardware access at those ports.  There are tertiary benefits to such a
-scheme as well, I'll be glad to elaborate on if people are interested in
-the nitty gritty (read: boring) details.
+   Patch applied cleanly but when I compile it complains a little:
 
-	Jeff
+   In file included from aic7xxx_linux.c:131:
+   aic7xxx_osm.h: In function `ahc_pci_read_config':
+   aic7xxx_osm.h:862: warning: control reaches end of non-void function
+   
+   (for several .c files but always refers to 'ahc_pci_read_config')
+
+   In file included from ... include/linux/raid/md.h:50,
+   from init/main.c:24: ..include/linux/raid/md_k.h: In function `pers_to_level':
+   raid/md_k.h:39: warning: control reaches end of non-void function
+
+   Do I need to be concerned here?  I dont whether the presumed missing return is
+   a bad thing or not. 
+
+   I have not yet tried to boot this kernel.
+
+   Also
 
 
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+# lilo.conf
+boot=/dev/sda
+disk=/dev/sda
+     bios=0x80
+disk=/dev/sdb
+     bios=0x81
+disk=/dev/hda
+     bios=0x82
+map=/boot/map
+install=/boot/boot.b
+prompt
+timeout=50
+message=/boot/message
+lba32
+default=linux
+
+...
+

@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVA1ILf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVA1IKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVA1ILf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 03:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVA1ILS
+	id S261165AbVA1IKo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 03:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVA1IKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 03:11:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28875 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261169AbVA1ILD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 03:11:03 -0500
-Message-ID: <41F9F386.7070501@pobox.com>
-Date: Fri, 28 Jan 2005 03:10:46 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Fri, 28 Jan 2005 03:10:44 -0500
+Received: from mail.joq.us ([67.65.12.105]:13498 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261165AbVA1IKj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 03:10:39 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
+	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
+	<87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu>
+	<87fz0neshg.fsf@sulphur.joq.us>
+	<1106782165.5158.15.camel@npiggin-nld.site>
+	<874qh3bo1u.fsf@sulphur.joq.us>
+	<1106796360.5158.39.camel@npiggin-nld.site>
+	<20050128063857.GA32658@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 28 Jan 2005 02:09:38 -0600
+In-Reply-To: <20050128063857.GA32658@elte.hu> (Ingo Molnar's message of
+ "Fri, 28 Jan 2005 07:38:57 +0100")
+Message-ID: <87acqu2cvx.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Doug Maxey <dwm@maxeymade.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] scsi/sata write barrier support
-References: <200501272242.j0RMgoP5016154@falcon30.maxeymade.com> <41F97299.2070909@pobox.com> <20050128065358.GA4800@suse.de>
-In-Reply-To: <20050128065358.GA4800@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Jan 27 2005, Jeff Garzik wrote:
-> 
->>Doug Maxey wrote:
->>
->>>On Thu, 27 Jan 2005 13:02:48 +0100, Jens Axboe wrote:
->>>
->>>
->>>>Hi,
->>>>
->>>>For the longest time, only the old PATA drivers supported barrier writes
->>>>with journalled file systems. This patch adds support for the same type
->>>>of cache flushing barriers that PATA uses for SCSI, to be utilized with
->>>>libata. 
->>>
->>>
->>>What, if any mechanism supports changing the underlying write cache?  
->>>
->>>That is, assuming this is common across PATA and SCSI drives, and it is 
->>>possible to turn the cache off on the IDE drives, would switching the 
->>>cache underneath require completing the inflight IO?
->>
->>[ignoring your question, but it made me think...]
->>
->>
->>I am thinking the barrier support should know if the write cache is 
->>disabled (some datacenters do this), and avoid flushing if so?
-> 
-> 
-> Ehm it does, read the code :)
+Ingo Molnar <mingo@elte.hu> writes:
 
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+>> But the important elements are lost. The standard provides a
+>> deterministic scheduling order, and a deterministic scheduling latency
+>> (of course this doesn't mean a great deal for Linux, but I think we're
+>> good enough for a lot of soft-rt applications now).
+>> 
+>> >  [1] http://www.opengroup.org/onlinepubs/007908799/xsh/realtime.html
+>
+> no, the patch does not break POSIX. POSIX compliance means that there is
+> an environment that meets POSIX. Any default install of Linux 'breaks'
+> POSIX in a dozen ways, you have to take a number of steps to get a
+> strict, pristine POSIX environment. The only thing that changes is that
+> now you have to add "set RT_CPU ulimit to 0 or 100" to that (long) list
+> of things.
 
-I did.  I see nowhere that handles the case where the user uses a util 
-(hdparm or blktool) to switch off write cache after sd.c has probed the 
-disk.  sd only sets its WCE bit at probe time, and doesn't appear to 
-notice state changes.
-
-Since nobody snoops the MODE SELECT on the caching page, nobody knows 
-past probe the state of write caching.
-
-Thus my comment...   I think barrier support should know about that sort 
-of thing :)
-
-	Jeff
-
-
+I agree.  Is the rest of this list documented somewhere?
+-- 
+  joq

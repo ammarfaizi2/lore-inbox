@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278561AbRJSRdG>; Fri, 19 Oct 2001 13:33:06 -0400
+	id <S278566AbRJSSDk>; Fri, 19 Oct 2001 14:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278562AbRJSRcr>; Fri, 19 Oct 2001 13:32:47 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:53472 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278561AbRJSRcl>; Fri, 19 Oct 2001 13:32:41 -0400
-Date: 19 Oct 2001 19:09:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8B9P9PwHw-B@khms.westfalen.de>
-In-Reply-To: <20011018220604.23253@smtp.wanadoo.fr>
-Subject: Re: [RFC] New Driver Model for 2.5
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S278568AbRJSSDa>; Fri, 19 Oct 2001 14:03:30 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:29068 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S278566AbRJSSDV>;
+	Fri, 19 Oct 2001 14:03:21 -0400
+Importance: Normal
+Subject: Preliminary results of using multiblock raw I/O
+To: lse-tech@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF3D1910E9.F8DA0202-ON85256AEA.0062AC09@pok.ibm.com>
+From: "Shailabh Nagar" <nagar@us.ibm.com>
+Date: Fri, 19 Oct 2001 14:03:46 -0400
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 10/19/2001 02:03:48 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.LNX.4.21.0110180826240.16868-100000@marty.infinity.powertie.org> <Pine.LNX.4.21.0110180826240.16868-100000@marty.infinity.powertie.org> <20011018220604.23253@smtp.wanadoo.fr>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-benh@kernel.crashing.org (Benjamin Herrenschmidt)  wrote on 19.10.01 in <20011018220604.23253@smtp.wanadoo.fr>:
 
-> collisions between uuid's of different devices types. In the case of
-> ethernet hardware, the MAC address seems to be the best type of uuid
-> available, so it would be something like "ethaddr,xx:xx:xx:xx:xx:xx",
-> FireWire has a generic uuid allocation scheme as well, it could be
-> "ieee1394,xxxxxx...", etc...
+Following up on the previous mail with patches for doing multiblock raw I/O
+:
 
-I have no idea what Firewire uses, but there are two generic kinds of  
-numbers that the IEEE allocates (actually, they're two different views on  
-a single id space).
+Experiments on a 2-way, 850MHz PIII, 256K cache, 256M memory
+Running bonnie (modified to allow specification of O_DIRECT option,
+target file etc.)
+Only the block tests (rewrite,read,write) have been run. All tests
+are single threaded.
 
-Those are the MAC-48 address used by ethernet, fddi, and various other  
-protocols, and the EUI-64 used by more modern designs (and referenced by  
-IPv6; in fact, there's an algorithm that lets you create an EUI-64 from a  
-MAC-48 via bit stuffing).
+BW  = bandwidth in kB/s
+cpu = %CPU use
+abs = size of each I/O request
+      (NOT blocksize used by underlying raw I/O mechanism !)
 
-Both of these depend on a 24 bit id called company_id or OUI which you can  
-buy from the IEEE for US$1.250,00 (for 16 million MAC-48's or 1 trillion  
-EUI-64's).
+pre2 = using kernel 2.4.13-pre2aa1
+multi = 2.4.13-pre2aa1 kernel with multiblock raw I/O patches applied
+        (both /dev/raw and O_DIRECT)
 
-The list of public OUIs is at <URL:http://standards.ieee.org/regauth/oui/ 
-oui.txt> (there are "unlisted numbers" in that namespace, too).
+                  /dev/raw (uses 512 byte blocks)
+               ===============================
 
-Ah, I see IEEE 1394 *does* use OUIs. Not at all surprising, of course.
+         rewrite              write                   read
+------------------------------------------------------------------
+     pre2      multi       pre2     multi         pre2     multi
+------------------------------------------------------------------
+abs BW  cpu   BW  cpu     BW  cpu   BW  cpu      BW  cpu   BW  cpu
+------------------------------------------------------------------
+ 4k 884 0.5   882 0.1    1609 0.3  1609 0.2     9841 1.5  9841 0.9
+ 6k 884 0.5   882 0.2    1609 0.5  1609 0.1     9841 1.8  9841 1.2
+16k 884 0.6   882 0.2    1609 0.3  1609 0.0     9841 2.7  9841 1.4
+18k 884 0.4   882 0.2    1609 0.4  1607 0.1     9841 2.4  9829 1.2
+64k 883 0.5   882 0.1    1609 0.4  1609 0.3     9841 2.0  9841 0.6
+66k 883 0.5   882 0.2    1609 0.5  1609 0.2     9829 3.4  9829 1.0
 
-So, the namespace should be used, not the appliation. In fact, given the  
-standard conversion from MAC-48 to EUI-64, we should probably just use one  
-namespace for both: my current ethernet card 00:50:FC:0C:63:69 would thus  
-be named "eui-64,00:50:fc:ff:ff:0c:63:69".
 
-More than you ever wanted to know about this stuff: <URL:http:// 
-standards.ieee.org/regauth/oui/>.
+               O_DIRECT : on filesystem with 1K blocksize
+            ===========================================
 
-Of course, there *are* other namespaces.
+         rewrite              write                   read
+------------------------------------------------------------------
+     pre2      multi       pre2     multi         pre2     multi
+------------------------------------------------------------------
+abs BW  cpu   BW  cpu     BW  cpu   BW  cpu      BW  cpu   BW  cpu
+------------------------------------------------------------------
+ 4k 854 0.8   880 0.4    1527 0.5  1607 0.1     9731 2.5  9780 1.3
+ 6k 856 0.4   882 0.3    1527 0.4  1607 0.1   9732 1.6  9780 0.7
+16k 857 0.4   881 0.1     1527 0.3  1608 0.0  9732 2.2  9780 1.2
+18k 857 0.3   882 0.2     1527 0.4  1607 0.1  9731 1.9  9780 1.0
+64k 857 0.3   881 0.1     1526 0.4  1607 0.2  9732 1.6  9780 1.6
+66k 856 0.4   882 0.2     1527 0.4  1607 0.2  9731 2.7  9780 1.2
 
-MfG Kai
+
+Shailabh Nagar
+Enterprise Linux Group, IBM TJ Watson Research Center
+(914) 945 2851, T/L 862 2851
+

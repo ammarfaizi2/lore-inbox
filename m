@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbTH3U3k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 16:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTH3U3j
+	id S262113AbTH3VJg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 17:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbTH3VJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 16:29:39 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13784 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S262092AbTH3U3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 16:29:39 -0400
-Date: Sat, 30 Aug 2003 17:25:20 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Freeze with HPT370 2.4.22-rc2 and dxr3
-Message-ID: <Pine.LNX.4.55L.0308301721390.31768@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Aug 2003 17:09:36 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:50444 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262113AbTH3VJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 17:09:32 -0400
+Date: Sat, 30 Aug 2003 23:09:13 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: Claas Langbehn <claas@rootdir.de>
+Cc: kernel list <linux-kernel@vger.kernel.org>, andrew.grover@intel.com,
+       paul.s.diefenbaugh@intel.com
+Subject: Re: 2.6.0-test4 acpi problems
+Message-ID: <20030830210913.GA5809@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <20030830203353.GA967@rootdir.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030830203353.GA967@rootdir.de>
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Claas Langbehn <claas@rootdir.de>
+Date: Sat, Aug 30, 2003 at 10:33:53PM +0200
+> Hello!
+> 
+> 
+> I have got an Epox 8K9A9i mainboard with an Athlon XP 1800+ CPU. The
+> chipset is an VIA KT400A. The bios is dated 12.05.2003.
+> When booting with ACPI enabled, the interrupts dont get enumerated
+> properly. with acpi=ht it works, but i dont have enough features.
+> Below you see my bootlog with acpi and further down the bootlog with 
+> acpi=off. Is there a way to use full acpi support and "normal"
+> interrupts? pci=noacpi was not really successful.
+> 
+> How can I help acip development and do more debugging?
+> 
+> kernel: pci_link-0263 [17] acpi_pci_link_get_curr: No IRQ resource found
+> kernel: ACPI: PCI Interrupt Link [ALKA] (IRQs 20, disabled)
+> kernel: pci_link-0263 [19] acpi_pci_link_get_curr: No IRQ resource found
 
-> When I play a movie through the dxr3 (driver form dxr3.sf.net) it used
-> to work just fine for quite a long time.
-> However now that I use a software raid (one via ide on asus a7v8x and 2
-> hpt370) I can reproducably get the system to freeze when I mplayer -vo
-> dxr3 <file_on_sw_raid> after less than 10 minutes.
+Lots of people have problems with KT400 chipsets and ACPI. A mr. Quincey
+is busy devising a patch, and according to his last post at the
+acpi-support mailinglist from sourceforge, things are getting better.
+There are also several bugs postet at bugzilla.kernel,org.
 
-> Then the IDE lid is continuously on until I reset the machine.
+So either wait, or join acpi-support and read more there.
 
-> I found out that when I copy the file to a ram disk and then play it
-> through dxr3 it works just fine (no freeze). This happens even when I
-> boot with init=/bin/sh (so no nvidia or other binary only modules).
-
-> Any ideas on what to try out ?
-
-Does the same happen with 2.4.20 or 2.4.21? (try with no binary modules
-please)
+Hope this helps,
+Jurriaan
+-- 
+I mean, if the musician thought "WOOOHOOO! YEAH! ANI RUUULES!" sounded better
+than the actual lyrics she would have put them on there.
+	Steve in rec.music.artists.ani-difranco.
+Debian (Unstable) GNU/Linux 2.6.0-test4-mm2 4276 bogomips 4.40 2.63

@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265322AbRFVDdr>; Thu, 21 Jun 2001 23:33:47 -0400
+	id <S265323AbRFVDrl>; Thu, 21 Jun 2001 23:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265323AbRFVDdi>; Thu, 21 Jun 2001 23:33:38 -0400
-Received: from imo-m10.mx.aol.com ([64.12.136.165]:47556 "EHLO
-	imo-m10.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S265322AbRFVDdZ>; Thu, 21 Jun 2001 23:33:25 -0400
-Date: Thu, 21 Jun 2001 23:33:11 -0400
-From: hunghochak@netscape.net (Ho Chak Hung)
-To: linux-kernel@vger.kernel.org
-Subject: Using page cache without a file system 
-Mime-Version: 1.0
-Message-ID: <72AE45C3.2DE2C328.0F76C228@netscape.net>
-X-Mailer: Franklin Webmailer 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S265324AbRFVDrc>; Thu, 21 Jun 2001 23:47:32 -0400
+Received: from [213.97.199.90] ([213.97.199.90]:13440 "HELO fargo")
+	by vger.kernel.org with SMTP id <S265323AbRFVDrW> convert rfc822-to-8bit;
+	Thu, 21 Jun 2001 23:47:22 -0400
+From: "David Gomez" <davidge@jazzfree.com>
+Date: Fri, 22 Jun 2001 05:44:41 +0200 (CEST)
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Comment in sched.c
+Message-ID: <Pine.LNX.4.21.0106220530280.1168-100000@fargo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Is it possible to allocate and add pages to the page cache without a underlying file system in Linux 2.4? I know that the host pointer to inode structure inside the address_space structure can be NULL, but does this mean that we can still make use of page cache operations like readpage or writepage if we do not back up the cache with a file system? I am currently developing a driver that wants to make use of the page cache, however, I want to save myself with the heavy load of kmalloc.
+I know this is maybe stupid, but...
 
-Any hint would be greatly appreciated.
+At the beggining of sched.c, this commentary appears:
 
-Thanks
-__________________________________________________________________
-Get your own FREE, personal Netscape Webmail account today at http://webmail.netscape.com/
+/*
+ * 'sched.c' is the main kernel file. It contains scheduling primitives
+ * (sleep_on, wakeup, schedule etc) as well as a number of simple system
+ * call functions (type getpid()), which just extract a field from
+ * current-task
+ */
+
+Shouldn't be ommited the last part ? It has several system calls, but
+sys_getpid is in timer.c, not in sched.c.
+
+
+
+David Gómez
+
+
+

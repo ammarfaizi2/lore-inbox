@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280585AbRKSSgH>; Mon, 19 Nov 2001 13:36:07 -0500
+	id <S280586AbRKSSd1>; Mon, 19 Nov 2001 13:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280570AbRKSSfy>; Mon, 19 Nov 2001 13:35:54 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:30731 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S280547AbRKSSed>; Mon, 19 Nov 2001 13:34:33 -0500
-Date: Mon, 19 Nov 2001 13:34:32 -0500
-Message-Id: <200111191834.fAJIYWK30800@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
-X-Newsgroups: linux.kernel
-In-Reply-To: <20011108170740.B14468@mikef-linux.matchmail.com>
-In-Reply-To: <20011108153749.A14468@mikef-linux.matchmail.com> <Pine.LNX.4.40.0111081632400.1501-100000@blue1.dev.mcafeelabs.com>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S280556AbRKSSdU>; Mon, 19 Nov 2001 13:33:20 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:45042 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S280572AbRKSSdH>; Mon, 19 Nov 2001 13:33:07 -0500
+Message-ID: <3BF95037.EEE6F7C3@mvista.com>
+Date: Mon, 19 Nov 2001 10:32:23 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Mike Kravetz <kravetz@us.ibm.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        lse-tech@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: Real Time Runqueue
+In-Reply-To: <20011116154701.G1152@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0111161620050.998-100000@blue1.dev.mcafeelabs.com> <20011116163224.H1152@w-mikek2.des.beaverton.ibm.com> <20011119173022.A19740@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011108170740.B14468@mikef-linux.matchmail.com> mfedyk@matchmail.com wrote:
+Andi Kleen wrote:
+> 
+> On Fri, Nov 16, 2001 at 04:32:24PM -0800, Mike Kravetz wrote:
+> > The reason I ask is that we went through the pains of a separate
+> > realtime RQ in our MQ scheduler.  And yes, it does hurt the common
+> > case, not to mention the extra/complex code paths.  I was hoping
+> > that someone in the know could enlighten us as to how RT semantics
+> > apply to SMP systems.  If the semantics I suggest above are required,
+> > then it implies support must be added to any possible future
+> > scheduler implementations.
+> 
+> It seems a lot of applications/APIs do not care about global RT semantics,
+> but about RT semantics for groups of threads or processes (e.g. java
+> or ada applications). Linux currently simulates this only for root
+> and with a global runqueue. 
 
-| Running one niced copy of cpuhog on a 2x366 mhz celeron box did pretty well.
-| Instead of switching several times in one second, it only switched a few
-| times per minute.
-| 
-| I was also able to merge it with just about everything else I was testing
-| (ext3, freeswan, elevator updates, -ac) except for the preempt patch.  Well, I
-| was able to manually merge it, but the cpu afinity broke.  (it wouldn't use
-| the second processor for anything except for interrupt processing...)
+Why do you say only root?  Since the schedule type and priority are
+inherited one only needs to be root to set the progenitors real time
+priority.  Also, a programs priority/ schedule type can be set by
+another (root) program without the target program being root.  I
+routinely set inetd to real time, for example, to let telnet sessions
+run at real time.
 
-  The problem with processor affinity is that for some *typical* loads
-the things which make things better for one load make it worse for
-another. If you wait longer for the "right" processor to be available
-then you increase the chances that the cache is mostly filled with what
-the CPU was doing in other processes, and affinity has done nothing but
-delay the scheduling of the process, since the cache is going to be of
-small use anyway.
+> I don't think it makes too much sense to have
+> an global rt queue on a multi processor system, but there should be some
+> way to define "scheduling groups" where rt semantics are followed inside.
 
-  The item of interest for making decisions about affinity would be
-number of cache misses (and obviously cache changes to satisfy them).
-This would allow a better estimate of how much of the cache is still
-useful if affinity is preserved. Given the number of processor types on
-which Linux runs this is not something likely to be included on all of
-them, and is related to cache size as well. So the things being done in
-the scheduler are not really measuring "how much of the cache is still
-useful to process X," which would be the best predictor of the value of
-affinity. I apologise to those who find this an old thought, not
-everyone on this list has noted this, I believe.
+Still, the customer is king.
 
-  I'm not surprised that you find the preempt doesn't work, it is
-somewhat counter to the process of affinity. Given the choice of better
-performance for cpu hogs or more responsive preformance and in some
-cases much higher network performance, I will take preempt. But it would
-be nice to have a choice at runtime or in /proc/sys so that systems
-could be tuned to optimize the characteristics most needed.
+> Such a scheduling group could be a clone flag or default to CLONE_VM for
+> example for compatibility.  A scheduling group would also make it possible
+> to support simple rt semantics for thread groups as non root.  Then one
+> could run a rt queue per scheduling group, and simulate global rt run queue
+> or per cpu rt run queue as needed by appropiate setup.
+
+My first thought is that this is fairly high overhead to put in the
+schedule path.  May be if I knew more....
+
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

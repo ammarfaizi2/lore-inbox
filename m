@@ -1,96 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUC1W0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 17:26:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbUC1W0A
+	id S262427AbUC1WcH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 17:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbUC1WcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 17:26:00 -0500
-Received: from mail3.absamail.co.za ([196.35.40.69]:60297 "EHLO absamail.co.za")
-	by vger.kernel.org with ESMTP id S262418AbUC1WZx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 17:25:53 -0500
-Subject: [2.6.4] STIME confusion after ACPI/APM resume
-From: Niel Lambrechts <antispam@absamail.co.za>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1080512680.1743.25.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 00:24:41 +0200
+	Sun, 28 Mar 2004 17:32:07 -0500
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:22989 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S262427AbUC1WcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 17:32:05 -0500
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 1.2  (F2.71; T1.001; A1.51; B2.12; Q2.03)
+From: "ben" <name773@fastmail.fm>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 28 Mar 2004 14:29:31 -0800
+X-Sasl-Enc: /+xQtKqMqgyEHRCURJCA4A 1080512971
+Message-Id: <1080512971.16166.183465861@webmail.messagingengine.com>
+Subject: swab.h byteorder.h broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+more specifically
+/usr/include/linux/byteorder/swab.h
+/usr/include/asm-i386/byteorder.h
+are broken, as in throwing errors when used to compile programs and
+causing make to exit error 1 
+browsing the net, plenty of people have had this problem.
+i replaced the broken headers with equivalent ones from 2.4.19 and those
+were broken too.
+that leads me to believe that this is an old problem
+anybody have a 2.6.4 patch for those files?
+-- 
+  
+  name773@fastmail.fm
 
-Wondering if anyone else is getting this wrong behaviour?
-
-<apm -s OR echo 3 > /proc/acpi/sleep>
-<resume after a while>
-notebook:~ # date
-Thu Mar 18 12:26:41 SAST 2004
-
-notebook:~ # ps -ef|grep nothing
-UID        PID  PPID  C STIME TTY          TIME CMD
-root      2291  1550  0 12:24 pts/34   00:00:00 grep nothing
-
-You can clearly see STIME column lagging behind the real system time by
-2 minutes...
-
-It seems to be behind exactly the amount of time that the notebook was
-suspended for.
-
-BTW, hwclock and system time is in sync.
-
-I have tried recompiling with disabling HPET - made no difference. also
-updated ps (rpm) to ps-2004.1.24-3, same story.  
-
-Is ps broken or is this an obscure kernel issue?
-
--Niel
-
-Equipment:
-IBM R50P Thinkpad, SuSE 9.0 Pro, kernel 2.6.4 w/APM.
-
-CONFIG_X86_TSC=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-# CONFIG_X86_PM_TIMER is not set
-# CONFIG_HANGCHECK_TIMER is not set
-CONFIG_SND_RTCTIMER=m
-# Power management options (ACPI, APM)
-# APM (Advanced Power Management) BIOS Support
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_APM_DISPLAY_BLANK=y
-CONFIG_APM_RTC_IS_GMT=y
-CONFIG_APM_ALLOW_INTS=y
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-# Power management options (ACPI, APM)
-# ACPI (Advanced Configuration and Power Interface) Support
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_BATTERY=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_ASUS=m
-CONFIG_ACPI_TOSHIBA=m
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_ACPI_CPUFREQ=m
-# CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
-CONFIG_HOTPLUG_PCI_ACPI=m
-# CONFIG_SERIAL_8250_ACPI is not set
-
+-- 
+http://www.fastmail.fm - Does exactly what it says on the tin

@@ -1,71 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269501AbUI3VCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269507AbUI3VBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269501AbUI3VCI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 17:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269474AbUI3VCI
+	id S269507AbUI3VBj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 17:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269498AbUI3VBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 17:02:08 -0400
-Received: from mh57.com ([217.160.185.21]:54461 "EHLO mithrin.mh57.de")
-	by vger.kernel.org with ESMTP id S269520AbUI3U64 (ORCPT
+	Thu, 30 Sep 2004 17:01:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20688 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269531AbUI3VAD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:58:56 -0400
-Date: Thu, 30 Sep 2004 22:58:51 +0200
-From: Martin Hermanowski <martin@mh57.de>
-To: Roland Dreier <roland.list@gmail.com>
-Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: Re: Hard lockup on IBM ThinkPad T42
-Message-ID: <20040930205851.GA6911@mh57.de>
-References: <f8ca0a1504093011206230ddea@mail.gmail.com>
+	Thu, 30 Sep 2004 17:00:03 -0400
+Subject: Re: Compiling a 2.4 driver under 2.6
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Brian McGrew <Brian@doubledimension.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E6456D527ABC5B4DBD1119A9FB461E35019397@constellation.doubledimension.com>
+References: <E6456D527ABC5B4DBD1119A9FB461E35019397@constellation.doubledimension.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dJFI9Wr6AwBpfolyhIJ4"
+Organization: Red Hat UK
+Message-Id: <1096577995.2788.36.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
-In-Reply-To: <f8ca0a1504093011206230ddea@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040722i
-X-Broken-Reverse-DNS: no host name found for IP address 2001:8d8:81:4d0:8000::1
-X-Spam-Score: -2.5 (--)
-X-Authenticated-ID: martin
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 30 Sep 2004 22:59:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-dJFI9Wr6AwBpfolyhIJ4
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 30, 2004 at 11:20:17AM -0700, Roland Dreier wrote:
-> Hi, I just got an IBM ThinkPad T42 (model 2378FVU) with
-> Centrino/Pentium M 735 and a Radeon 9600.  I'm running 2.6.9-rc3 (with
-> ipw2200 0.9 wireless drivers) and I've experienced several hard
-> lockups over the past few days.
+On Thu, 2004-09-30 at 22:31, Brian McGrew wrote:
+
+> =3D=3D=3D[ Begin Error Output ]=3D=3D=3D
 >=20
-> The system seems to be completely unresponsive to keyboard and
-> network, and even "nmi_watchdog=3D2" didn't produce anything.  I'm not
-> sure what triggers the lockup -- I've had them happen while the system
-> was idle running an X screensaver, and also while I've been on the
-> console (non-X) doing nothing but typing through an ssh connection.=20
-> Generally it takes a couple of hours for the lockup to happen.
+> 119_ mk
+> /usr/bin/gcc -D__SMP__
 
-I have lockups in X running xlock with my T41p about once a month,
-running 2.6.7-rc3-mm1 with atheros and the XFree4.3 radeon driver.
+oh boy; __SMP__ doesn't exist for 2.4 let alone 2.6
 
-The only thing I noticed is that the hdd-led is constantly on when this
-happens.
 
-LLAP, Martin
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+>  -DMODVERSIONS -DEXPORT_SYMTAB=20
+
+this is very broken for 2.6
+
+
+> -O1
+
+any reason you're not using -O2
+
+> -DCONFIG_MODVERSIONS=20
+
+WTF???
+
+> /usr/include/linux/config.h:5:2: #error Incorrectly using glibc headers f=
+or a kernel module
+
+you are using glibc headers for kernel modules. don't do this.
+
+
+This makefile is quite broken; it needs converting to kbuild
+
+> #ifndef __KERNEL__
+> #define __KERNEL__
+> #endif
+
+this shouldn't be in modules
+
+>=20
+> #ifndef MODULE
+> #define MODULE
+> #endif
+
+this shouldn't be there either
+
+> #if defined(CONFIG_MODVERSIONS) && !defined(MODVERSIONS)
+> # define MODVERSIONS /* force it on */
+> #endif
+
+this is broken
+
+>=20
+> #if defined(MODVERSIONS) && !defined(__GENKSYMS__)
+> #include <linux/modversions.h>
+> #include "ibb.ver"
+> #endif
+
+never include modversions.h directly
+never ever include a .ver directly
+
+>=20
+> #ifndef EXPORT_SYMTAB
+> #  define EXPORT_SYMTAB /* need this one cause we export ibb_rtc_wakeup *=
+/
+> #endif
+
+dont do this
+
+>  */
+> #define TYPE(dev)   (MINOR(dev) >> 4)  /* high nibble */
+> #define NUM(dev)    (MINOR(dev) & 0xf) /* low  nibble */
+
+this doesn't work with 2.7
+
+>=20
+> static void ibb_intr(int irq, void *dev_id, struct pt_regs *regs);
+
+this is wrong for 2.6
+
+I stop here because I don't want to get IP contaminated and I just had
+something to eat that I don't want to see again ;)
+but it's not looking good.
+
+
+given that this is (really bad) proprietary code, I think you want to
+contact the vendor of this code and get him to fix it up.
+
+
+--=-dJFI9Wr6AwBpfolyhIJ4
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFBXHOLmGb6Npij0ewRAmDFAJ9w1YTqkYGFXdKAkb3Cbqnl2mSM0gCeNby7
-h2usi7mw5j3ZlTh1nrrfXog=
-=xfD/
+iD8DBQBBXHPLxULwo51rQBIRAjMEAJ4gZ1d2LX/ArDwBPWPiiinaS7vFTgCdGz2D
+aOLMD7CJHdcSt+xMAQYffMw=
+=osj9
 -----END PGP SIGNATURE-----
 
---X1bOJ3K7DJ5YkBrT--
+--=-dJFI9Wr6AwBpfolyhIJ4--
+

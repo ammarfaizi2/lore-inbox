@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264228AbUEMOKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264239AbUEMOMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264228AbUEMOKW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 10:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUEMOKW
+	id S264239AbUEMOMd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 10:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUEMOKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 10:10:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12534 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264228AbUEMOJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 10:09:47 -0400
-Date: Thu, 13 May 2004 16:09:39 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Chris Mason <mason@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm2
-Message-ID: <20040513140939.GF22202@fs.tum.de>
-References: <20040513032736.40651f8e.akpm@osdl.org> <20040513114520.A8442@infradead.org> <20040513035134.2e9013ea.akpm@osdl.org> <20040513121206.A8620@infradead.org> <20040513042540.073478ea.akpm@osdl.org> <20040513131842.GC22202@fs.tum.de> <1084455572.2583.395.camel@watt.suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1084455572.2583.395.camel@watt.suse.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 13 May 2004 10:10:42 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:34825 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264226AbUEMOKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 10:10:08 -0400
+Date: Thu, 13 May 2004 22:08:34 +0800 (WST)
+From: raven@themaw.net
+To: Paul Jakma <paul@clubi.ie>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux autofs <autofs@linux.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [autofs] Badness in interruptible_sleep_on
+In-Reply-To: <Pine.LNX.4.58.0405081324440.2371@donald.themaw.net>
+Message-ID: <Pine.LNX.4.58.0405132202340.13693@donald.themaw.net>
+References: <Pine.LNX.4.58.0405070532500.1979@fogarty.jakma.org>
+ <Pine.LNX.4.58.0405071426500.11299@wombat.indigo.net.au>
+ <Pine.LNX.4.58.0405072321530.1979@fogarty.jakma.org>
+ <Pine.LNX.4.58.0405081324440.2371@donald.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 13, 2004 at 09:39:32AM -0400, Chris Mason wrote:
-> On Thu, 2004-05-13 at 09:18, Adrian Bunk wrote:
-> > On Thu, May 13, 2004 at 04:25:40AM -0700, Andrew Morton wrote:
-> > >...
-> > > Wim explained that any application changes now won't be widely deployed for
-> > > another year.  During that period the ability to run existing Oracle setups
-> > > requires that hugepage allocation be available to unprivileged
-> > > applications.
-> > >...
-> > > It means that if people install a kernel.org machine on their database
-> > > server, the database *just won't work*.  This is not good for those users,
-> > > for the kernel developers or for Linux's reputation in general.
-> > >...
-> > 
-> > That sounds silly when talking about Oracle.
-> > 
-> > Oracle says:
-> >   Which Kernels are supported?
-> > 
-> >   Oracle does not support modified or recompiled kernels. Recompiled 
-> >   kernels are not supported with or without source modifications.
-> > 
-> > 
-> > I doubt there are many "existing Oracle setups" that will risk to lose 
-> > all Oracle support by installing a different kernel.
-> > 
-> No, I doubt so as well.  Then again, why force them into a vendor
-> kernel?  At the very least, it would be nice to be able to benchmark
-> vanilla against the vendors.
->...
+On Sat, 8 May 2004 raven@themaw.net wrote:
 
-I think I recall times when code contributions to the kernel were only 
-judged by their quality and not by the needs of some non-free apps or 
-what vendors did.
+> > 
+> > PS: Arjan, any chance of a kernel with davej's NFS stack fixes and 
+> > the autofs badness fixes? would be much appreciated!
+> 
+> While I have some patch sets around for earlier 2.6 kernels I advise 
+> against using them.
+> 
+> I'm in the process of making "single file" patches for the earlier kernels 
+> with all the updates that are in 2.6.6-rc3-mm2.
+> 
+> As an aside the same goes for the 2.4 patches.
+> 
+> I'll let you know when it's done. I expect to finish this weekend.
 
-Either my memory is wrong, or these times are gone now...
+Sorry to take so long to get back.
 
-> -chris
+The patches have been at
+http://www.kernel.org/pub/linux/kernel/people/raven
+for a while.
 
-cu
-Adrian
+There is one for 2.6.0 and the 2.6.4 one caters a change that was made.
+The autofs4-2.6.6-rc3-mm2-compat_ioctls.patch is to update the 32 <-> 
+64 bit ioctl emulation and should apply with a small offset.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Ian
 

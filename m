@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbTJHOTF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 10:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTJHOTF
+	id S261625AbTJHOUV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 10:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTJHOUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 10:19:05 -0400
-Received: from lucidpixels.com ([66.45.37.187]:8926 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261546AbTJHOTA (ORCPT
+	Wed, 8 Oct 2003 10:20:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20945 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261601AbTJHOUP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 10:19:00 -0400
-Date: Wed, 8 Oct 2003 10:18:49 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
-To: linux-kernel@vger.kernel.org
-cc: technical@abit-usa.com, sales@abit-usa.com
-Subject: ABIT IC7-G Motherboard Does Not Power Off In Linux 2.4.2[1-2]
-Message-ID: <Pine.LNX.4.58.0310081006240.27118@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Oct 2003 10:20:15 -0400
+Date: Wed, 8 Oct 2003 07:11:59 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Tobias DiPasquale <toby@cbcg.net>
+Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, coreteam@netfilter.org,
+       netfilter@lists.netfilter.org, akpm@zip.com.au, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, jmorris@intercode.com.au, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH] kfree_skb() bug in 2.4.22
+Message-Id: <20031008071159.586c5d3c.davem@redhat.com>
+In-Reply-To: <1065622303.1512.41.camel@localhost>
+References: <1065617075.1514.29.camel@localhost>
+	<3F840C9C.9050704@pobox.com>
+	<1065622303.1512.41.camel@localhost>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# shutdown -i 0 -g 0 -y
+On Wed, 08 Oct 2003 10:11:43 -0400
+Tobias DiPasquale <toby@cbcg.net> wrote:
 
-On the first revision of the bios (3/27, 1.0) it would power off with no
-problems.
+> Well, I certainly have done that already ;-) But I have checked kfree()
+> and vfree() and they have a sanity check for NULL before processing, as
+> well as those are also the well-known semantics for the userspace free()
+> call.
 
-On the newest revision of the bios (8/28, 1.7) it gets to Power Down and
-then hangs (does not fully power off).
+So what?  Those are totally different APIs and they in no way determine
+how other interfaces should behave.
 
-I've asked on newsgroups and forums, people who run windows have no
-problems shutting down, it seems to be a linux-specific problem.
+Passing NULL pointers around usually indicates poorly designed
+software anyways (unless the NULL pointer is being returned by
+a routine to indicate an allocation failure).
 
-I've used 2.4.21, 2.4.21 with this motherboard.
-
-I do not want to use the old BIOS because I get occasional kernel panics,
-why, I have no idea, although I would venture to guess it has something to
-do with the i8xxx random number generator driver, hw support.
-
-I have e-mailed abit and lkml in the past but received no response.
-
-With the new BIOS, I never experience any lockups or kernel panics, but I
-cannot power off the machine except by pressing the button.
-
-After executing: shutdown -i 0 -g 0 -y
-Gets to:
-Flushing hda hdb hdc, etc, then
-Power Down.
-
-But then it stays here, everything stays on, the video, the box, etc.
-
-The most important to kernel developers(?) is probably the bios changelog:
-http://www.abit-usa.com/downloads/bios/bios_revision.php?categories=1&model=4
-
-Something, I do not know what changed so shutting down is just not
-possible anymore, I would like to get to the root of the problem.
-
-The motherboard is based on the Intel 875P chipset, further specifications
-are availible from their site:
-http://www.abit-usa.com/products/mb/products.php?categories=1&model=4
-
-The manual is here:
-http://salebios.tiger2.net/vendor/ABIT/manual/english/ic7-g.pdf
-
-I do believe this is a kernel related issue somewhat, due to reviewing the
-abit forums and not finding anyone with this problem, although most users
-are windows users.  As well as asking on the abit newsgroup and not
-getting any helpful response either.
-
-I'd run the old bios but I cannot deal with random kernel panics when I am
-trying to get work done.
-
-Does anyone have any suggestions how to debug or fix this problem?
-
-
+This isn't even worth discussing anymore.

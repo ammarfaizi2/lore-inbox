@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264619AbSKDBip>; Sun, 3 Nov 2002 20:38:45 -0500
+	id <S262901AbSKDCEG>; Sun, 3 Nov 2002 21:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264621AbSKDBip>; Sun, 3 Nov 2002 20:38:45 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:40115 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264619AbSKDBio>;
-	Sun, 3 Nov 2002 20:38:44 -0500
-Date: Sun, 3 Nov 2002 17:40:37 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Jos Hulzink <josh@stack.nl>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Petition against kernel configuration options madness...
-In-Reply-To: <200211032325.28397.josh@stack.nl>
-Message-ID: <Pine.LNX.4.33L2.0211031738400.10796-100000@dragon.pdx.osdl.net>
+	id <S264618AbSKDCEG>; Sun, 3 Nov 2002 21:04:06 -0500
+Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:56336 "EHLO
+	net.cc.swin.edu.au") by vger.kernel.org with ESMTP
+	id <S262901AbSKDCEG>; Sun, 3 Nov 2002 21:04:06 -0500
+Date: Mon, 4 Nov 2002 13:10:36 +1100 (EST)
+From: Tim Connors <tconnors@astro.swin.edu.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: small memory machine, large reserved memory
+Message-ID: <Pine.LNX.4.33.0211041304010.16003-100000@hexane.ssi.swin.edu.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Nov 2002, Jos Hulzink wrote:
+In light of the recent discussions about config_tiny, etc, I decided to
+install 2.4.19 on my old 8MB 486, to see whether it performed any better
+than my previous attempts with 2.2.* and 2.4.*
 
-| On Sunday 03 November 2002 21:13, Vojtech Pavlik wrote:
-| >
-| > All the needed options ARE enabled by default. (check arch/i386/defconfig)
-|
-| Now all you need is the users to know "make defconfig". I compile kernels since 1.2.13, but I didn't know the option till today. Sure, my fault, but I'm sure I'm not the only one.
-|
-| Detail: IMHO the USB keyboard and mouse support should be on, and DRI should be enabled for all video cards, but that is a minor issue...
+The strange thing is, the memory init line at bootup (eg Memory:
+255296k/261996k available (1584k kernel code, 5972k reserved, 1353k data
+, 108k init, 0k highmem)) says that only about 5 or 6MB are availabel,
+with a whopping 2.x MB reserved. I have done a web search, and the only
+answer I have come up with is that the top 384kb of the 1MB lower
+portion of RAM should be here, but what else could be eating up all my
+RAM?
 
-so while some people are attempting to "fix" this with
-defconfig or mostlikelyconfig, I'd like to remind people
-of the post-halloween doc from Dave Jones.  He addresses
-this stuff in there.  Does it possibly need even more
-emphasis there?  and stronger hints for people to at
-least browse it before using 2.5.x for the first time?
+There is nothgin suspicious in the BIOS - all BIOS and video caching is
+turned off. The machine only (natually) has ISA slots in it, most are
+empty. What else could possibly be wrong?
+
+Is there something I can hack in the kernel to get it to use that, or can
+anyone give me pointers as to what else I can change? I would really love
+to regain that 2MB - its a pain when the shell gets swapped out after
+doing an `ls` :)
 
 -- 
-~Randy
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+
+            Computer screens simply ooze buckets of yang.
+    To balance this, place some women around the corners of the room.
+                                        -- Kaz Cooke, Dumb Feng Shui
 

@@ -1,167 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbUDWUNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbUDWUO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbUDWUNp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUDWUNp
+	id S261258AbUDWUO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUDWUO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:13:45 -0400
-Received: from 66.159.164.68.adsl.snet.net ([66.159.164.68]:35507 "EHLO
-	mail.bscnet.com") by vger.kernel.org with ESMTP id S261248AbUDWUNj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:13:39 -0400
-Message-ID: <028501c4296f$74da0390$0900a8c0@bobhitt>
-From: "Bobby Hitt" <Bob.Hitt@bscnet.com>
-To: "James Simmons" <jsimmons@infradead.org>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0404231755300.3997-100000@phoenix.infradead.org>
-Subject: Re: Graphics Mode Woes
-Date: Fri, 23 Apr 2004 16:13:32 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 23 Apr 2004 16:14:58 -0400
+Received: from linux-bt.org ([217.160.111.169]:10372 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S261258AbUDWUOi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 16:14:38 -0400
+Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>
+In-Reply-To: <20040423205504.B2896@flint.arm.linux.org.uk>
+References: <200404230142.46792.dtor_core@ameritech.net>
+	 <1082723147.1843.14.camel@merlin>
+	 <20040423205504.B2896@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1082751264.4294.1.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 23 Apr 2004 22:14:24 +0200
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Russell,
 
-I've since gotten this working, thanks to the help of Dmitry Torokhov:
------
-This is what I have for my GeForce2 Go. Actually I think what hurts you is
-FB_VGA16, not RIVA.. Still, if you using vesa like I do there is no point
-compiling rivafb (and If you using nVIDIA's binary driver rivafb usually
-conflicts with it).
------
- I had the wrong drivers loaded.. My question now is where would I have been
-able to disable the "native driver"? I don't recall seeing this in the
-.config file.
+> > I haven't tested it yet, but the same problem should apply to the
+> > bt3c_cs driver for the 3Com Bluetooth card. Are there any patches
+> > available that integrates the PCMCIA subsystem into the driver model, so
+> > we don't have to hack around it if a firmware download is needed?
+> 
+> Not yet.  It's something we're working towards, but its going to be
+> some time yet.  There's a fair queue of long outstanding patches
+> which need to be processed first.
+> 
+> Plus, before we can consider driver model in PCMCIA, we need to get
+> the object lifetimes properly sorted.
 
-TIA,
+should we apply the pcmcia_get_sys_device() patch from Dmitry for now to
+fix the current drivers that need a device for loading the firmware?
 
-Bobby
+Regards
 
------ Original Message ----- 
-From: "James Simmons" <jsimmons@infradead.org>
-To: "Bobby Hitt" <Bob.Hitt@bscnet.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Sent: Friday, April 23, 2004 12:56 PM
-Subject: Re: Graphics Mode Woes
+Marcel
 
-
->
-> That is because the native driver takes priority over the vesafb driver.
-> Disable the native driver if you don't want ot use it.
->
->
-> On Thu, 22 Apr 2004, Bobby Hitt wrote:
->
-> > Hello,
-> >
-> > I'm attempting to get linux 2.6.5 to go into 1024x768x64k mode with my
-> > NVidia GEForce card. Under 2.4.25, it works fine with "vga=791" in my
-> > lilo.conf file. Here's what's in the log:
-> >
-> > Apr 22 17:19:09 gateway kernel: vesafb: framebuffer at 0xf0000000,
-mapped to
-> > 0xe080d000, size 3072k
-> > Apr 22 17:19:09 gateway kernel: vesafb: mode is 1024x768x16,
-> > linelength=2048, pages=0
-> > Apr 22 17:19:09 gateway kernel: vesafb: protected mode interface info at
-> > c000:c590
-> > Apr 22 17:19:09 gateway kernel: vesafb: scrolling: redraw
-> > Apr 22 17:19:09 gateway kernel: vesafb: directcolor: size=0:5:6:5,
-> > shift=0:11:5:0
-> > Apr 22 17:19:09 gateway kernel: Console: switching to colour frame
-buffer
-> > device 128x48
-> > Apr 22 17:19:09 gateway kernel: fb0: VESA VGA frame buffer device
-> >
-> > Under 2.6.5:
-> >
-> > Apr 22 17:57:58 gateway kernel: rivafb: nVidia device/chipset 10DE0110
-> > Apr 22 17:57:58 gateway kernel: rivafb: Detected CRTC controller 0 being
-> > used
-> > Apr 22 17:57:58 gateway kernel: rivafb: RIVA MTRR set to ON
-> > Apr 22 17:57:58 gateway kernel: rivafb: PCI nVidia NV10 framebuffer ver
-> > 0.9.5b (nVidiaGeForce2-M, 32MB @ 0xF0000000)
-> > Apr 22 17:57:58 gateway kernel: vga16fb: initializing
-> > Apr 22 17:57:58 gateway kernel: vga16fb: mapped to 0xc00a0000
-> > Apr 22 17:57:58 gateway kernel: fb1: VGA16 VGA frame buffer device
-> >
-> > Totally different output and no references to vesafb. With "vga=791" on
-> > bootup the screen goes blank then switches to the normal graphics mode.
-Even
-> > when I use "vga=ask" and I put in a valid number, the screen switches to
-> > text mode momentarily then goes back to the normal graphics mode.
-> >
-> > Here's the related portion of my .config file:
-> >
-> >  #
-> > # Graphics support
-> > #
-> > CONFIG_FB=y
-> > # CONFIG_FB_PM2 is not set
-> > # CONFIG_FB_CYBER2000 is not set
-> > # CONFIG_FB_IMSTT is not set
-> > CONFIG_FB_VGA16=y
-> > CONFIG_FB_VESA=y
-> > CONFIG_VIDEO_SELECT=y
-> > # CONFIG_FB_HGA is not set
-> > CONFIG_FB_RIVA=y
-> > # CONFIG_FB_I810 is not set
-> > # CONFIG_FB_MATROX is not set
-> > # CONFIG_FB_RADEON_OLD is not set
-> > # CONFIG_FB_RADEON is not set
-> > # CONFIG_FB_ATY128 is not set
-> > # CONFIG_FB_ATY is not set
-> > # CONFIG_FB_SIS is not set
-> > # CONFIG_FB_NEOMAGIC is not set
-> > # CONFIG_FB_KYRO is not set
-> > # CONFIG_FB_3DFX is not set
-> > # CONFIG_FB_VOODOO1 is not set
-> > # CONFIG_FB_TRIDENT is not set
-> > # CONFIG_FB_VIRTUAL is not set
-> >
-> > #
-> > # Console display driver support
-> > #
-> > CONFIG_VGA_CONSOLE=y
-> > # CONFIG_MDA_CONSOLE is not set
-> > CONFIG_DUMMY_CONSOLE=y
-> > CONFIG_FRAMEBUFFER_CONSOLE=y
-> > CONFIG_PCI_CONSOLE=y
-> > CONFIG_FONTS=y
-> > CONFIG_FONT_8x8=y
-> > CONFIG_FONT_8x16=y
-> > # CONFIG_FONT_6x11 is not set
-> > CONFIG_FONT_PEARL_8x8=y
-> > CONFIG_FONT_ACORN_8x8=y
-> > # CONFIG_FONT_MINI_4x6 is not set
-> > # CONFIG_FONT_SUN8x16 is not set
-> > # CONFIG_FONT_SUN12x22 is not set
-> >
-> > #
-> > # Logo configuration
-> > #
-> > CONFIG_LOGO=y
-> > CONFIG_LOGO_LINUX_MONO=y
-> > CONFIG_LOGO_LINUX_VGA16=y
-> > CONFIG_LOGO_LINUX_CLUT224=y
-> >
-> > Any help or suggestions are appreciated,
-> >
-> > Bobby
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
 

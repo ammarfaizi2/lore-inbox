@@ -1,82 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTJHJ63 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 05:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTJHJ63
+	id S261336AbTJHKCK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 06:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTJHKCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 05:58:29 -0400
-Received: from gprs150-16.eurotel.cz ([160.218.150.16]:49536 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261240AbTJHJ61 (ORCPT
+	Wed, 8 Oct 2003 06:02:10 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:52748 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261336AbTJHKCG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 05:58:27 -0400
-Date: Wed, 8 Oct 2003 11:58:14 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Len Brown <len.brown@intel.com>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI blacklisting: move year blacklist into acpi/blacklist.c
-Message-ID: <20031008095814.GB288@elf.ucw.cz>
-References: <20031001101826.GA3503@elf.ucw.cz> <1065595181.3370.478.camel@dhcppc4>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065595181.3370.478.camel@dhcppc4>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 8 Oct 2003 06:02:06 -0400
+Date: Wed, 8 Oct 2003 12:01:01 +0200 (CEST)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: "Tian, Kevin" <kevin.tian@intel.com>
+cc: Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@osdl.org>,
+       "Sharma, Arun" <arun.sharma@intel.com>, <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>
+Subject: RE: [PATCH] incorrect use of sizeof() in ioctl definitions
+In-Reply-To: <571ACEFD467F7749BC50E0A98C17CDD8F3283B@pdsmsx403.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.44.0310081153400.31957-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> 	Maybe I got something wrong, but could someone please help me to
+> understand why introduce _IOR_BAD here? Thanks first! :)
 
-> Re: dmi_check_blacklist()
-> 
-> Something like MATCH(DMI_BOARD_NAME, "P2B-DS") boils down to a strstr(a,
-> b) -- probably something that can be fooled by substring, say "PB2-D"...
-> 
-> But more to the point, there is no way to compare before/after dates,
-> say BEFORE(DMI_BIOS_DATE, "1/3/2002")
-> 
-> This is needed to blacklist things like the Toshiba Tecra 8100 which
-> supplies a DMI date, but no other useful version info.
-> 
-> If we such a date comparison function, we could also use it to make the
-> year-compare code below somewhat cleaner.
+So as not to break userspace we must still support old values, at the same 
+time we want new programs to start using the new correct values - hence 
+the introduction of _backward compatibility_ values.
 
-Well, my main problem is with having two blacklists at diferent places.
+> (old)	#define MATROXFB_SET_OUTPUT_MODE
+> _IOW('n',0xFA,sizeof(struct matroxioc_output_mode))
+> (now)	#define MATROXFB_SET_OUTPUT_MODE        _IOW('n',0xFA,size_t)
 
-> Re: externs
-> looks like using externs in the function protos in include/linux is
-> common practice, so acpi.h should probably do it too -- even if it is
-> just for consistent style.
+the old was bad since it was sizeof(sizeof(...)) - it so happens that by 
+def sizeof(anything) is a size_t - thus replacing sizeof(sizeof(..)) with 
+sizeof(size_t) changes nothing - just shortens the code...
+Of course what we probably should really have is the above (now) code 
+defined as "BAD" and the previous (old) define without the sizeof as the 
+current (no BAD prefix).
 
-Do you want me to submit patch or will you add externs?
+> 	The size of matroxioc_output_mode is 8 bytes on all platforms,
+> however size_t will be calculated as 4 bytes on 32bit arch and 8 bytes
+> on 64bit arch. So this is also like using sizeof(), which imposes the
+> difference between 32bit ioctl number and 64bit ioctl number. However in
+> standard manner, I mean:
+> 	#define MATROXFB_SET_OUTPUT_MODE        _IOW('n',0xFA,struct
+> matroxioc_output_mode)
+>  	The value should be identical on all platforms, which save our
+> efforts to do useless conversion when running 32bit apps on 64bit
+> platform.
 
-> Re: diffs
-> I couldn't get patch to digest this format w/o manual intervention
-> --- /usr/src/tmp/linux/arch/...
-> +++ /usr/src/linux/arch/...
+Precisely - unfortunately due to coding errors (the erroneous double 
+sizeof invocation) this isn't the way it is - and for backwards 
+compatibility it can't be broken... sad, really...
+
 > 
-> and had to edit it into
-> 
-> --- a/arch/...
-> +++ b/arch/...
-> 
-> for patch -Np1
+> 	The most important is: to use sizeof() or size_t here both
+> messed the ioctl definition, which violate the initial motivation of
+> _IO**, is it?
 
-Sorry. (I fixed generating script).
+Yap, both violate.  It is a mess and there is no easy fix due to the need
+to retain the old invalid ioctl's as well... and the real 'tough' mess is
+on platforms where due to type sizes both the OLD and the NEW defines
+result in the same IOCTL define value... that'll probably screw over
+switch statements (I'm not sure - but I think you can't have the same
+value twice in a case statement).  If this happens on all platforms than 
+the conversion OLD==BAD to NEW can be done quietly - otherwise... we've 
+got hell.
 
-> Re: acpi_bios_year() definition
-> note that CONFIG_ACPI_BOOT may be defined when CONFIG_ACPI is not.  Ie.
-> in the case where just the ACPI boot code is used to enumerate LAPICs,
-> say for HT, but ACPI_INTERPRETER is not even built in.
-> 
-> In this case, blacklist.c is not built into the kernel, but dmi_scan.c
-> always is.
+Cheers,
+MaZe.
 
-Okay, in such case is it feasible to move blacklist.c functionality
-into dmi_scan.c? i386 blacklist is probably useless for ia64,
-anyway... And 2 places seem like bad idea.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286925AbSANPcz>; Mon, 14 Jan 2002 10:32:55 -0500
+	id <S286934AbSANPdP>; Mon, 14 Jan 2002 10:33:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSANPcp>; Mon, 14 Jan 2002 10:32:45 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:5126 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286925AbSANPcg>; Mon, 14 Jan 2002 10:32:36 -0500
-Date: Mon, 14 Jan 2002 07:38:24 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Jeff Dike <jdike@karaya.com>, Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: The O(1) scheduler breaks UML
-In-Reply-To: <Pine.LNX.4.33.0201141043320.2248-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.40.0201140737520.1486-100000@blue1.dev.mcafeelabs.com>
+	id <S286895AbSANPdG>; Mon, 14 Jan 2002 10:33:06 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:52145 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S286934AbSANPc4>; Mon, 14 Jan 2002 10:32:56 -0500
+Date: Mon, 14 Jan 2002 17:31:23 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jim Studt <jim@federated.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
+In-Reply-To: <Pine.GSO.3.96.1020114162242.16706F-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.33.0201141729370.11028-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Ingo Molnar wrote:
+On Mon, 14 Jan 2002, Maciej W. Rozycki wrote:
 
+> On Mon, 14 Jan 2002, Alan Cox wrote:
 >
-> On Sun, 13 Jan 2002, Davide Libenzi wrote:
+> > noapic seems to be needed by a measurable number of boxes, many of which the
+> > BIOS vendor will never fix or has refused to fix or assist in correcting.
 >
-> > > So, is it possible to enable IRQs across the call to _switch_to?
-> >
-> > Yes, this should work :
-> >
-> >     if (likely(prev != next)) {
-> >         rq->nr_switches++;
-> >         rq->curr = next;
-> >         next->cpu = prev->cpu;
-> >         spin_unlock_irq(&rq->lock);
-> >         context_switch(prev, next);
-> >     } else
-> >         spin_unlock_irq(&rq->lock);
->
-> this change is incredibly broken on SMP - eg. what protects 'prev' from
-> being executed on another CPU prematurely. It's even broken on UP:
-> interrupt context that changes current->need_resched needs to be aware of
-> nonatomic context switches. See my previous mail.
+>  That's exactly why I consider the removal a Good Thing. ;-)  The only
+> drawback I see is it would require an actively-maintained SMP hw
+> compatibility list.
 
-yup, true. no more schedule_tail()
+And an even more fervishly maintained procmailrc!!! ;)
 
-
-
-- Davide
-
+/me watches Maciej get broiled!!
 

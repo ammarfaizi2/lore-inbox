@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265335AbUAEDmp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 22:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265868AbUAEDmp
+	id S265870AbUAEDr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 22:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265871AbUAEDr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 22:42:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46491 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265335AbUAEDmn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 22:42:43 -0500
-Date: Mon, 5 Jan 2004 03:42:42 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, Rob Love <rml@ximian.com>,
-       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040105034242.GC4176@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <20040104223710.GY4176@parcelfarce.linux.theplanet.co.uk> <20040105032901.A11459@pclin040.win.tue.nl>
-Mime-Version: 1.0
+	Sun, 4 Jan 2004 22:47:26 -0500
+Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:30419 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265870AbUAEDrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 22:47:25 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040105032901.A11459@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16376.56858.132710.846819@wombat.chubb.wattle.id.au>
+Date: Mon, 5 Jan 2004 14:46:34 +1100
+Cc: Soeren Sonnenburg <kernel@nn7.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+To: Willy TARREAU <willy@w.ods.org>
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+In-Reply-To: <20040104205411.GA219@pcw.home.local>
+References: <1073075108.9851.16.camel@localhost>
+	<20040103191901.GC3728@alpha.home.local>
+	<16376.31727.114173.311369@wombat.chubb.wattle.id.au>
+	<20040104205411.GA219@pcw.home.local>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 03:29:01AM +0100, Andries Brouwer wrote:
-> On Sun, Jan 04, 2004 at 10:37:10PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> Hi Al - a happy 2004 to you too!
-> 
-> > Now, care to explain how preserving aforementioned common Unix idiom
-> > is related to your expostulations?
-> 
-> Hmm. You sound like you agree that random device numbers and NFS
-> are a bad combination, but don't see why my example might be
-> relevant.
+>>>>> "Willy" == Willy TARREAU <willy@w.ods.org> writes:
+> >> So it is like 30 times slower on 2.6. when running for the first
+> >> time...  this also happens if I do e.g. find ./ and watch the
+> >> output pass by...
+>> 
+>> For some processes, allowing interrupts back on (hdparm -u1) helps;
+>> for others, switching to the deadline elevator helps; neither are
+>> complete solutions.
 
-No.  I don't see what the fuck does it have to POSIX compliance, ability
-to determine whether two files are identical by st_ino/st_dev and common
-UNIX idioms.
- 
-> There is a great variation here in what various servers and clients do,
-> but roughly speaking filehandles tend to contain a fsid, and this fsid
-> often (no fsid= given) involves (major,minor,ino).
+Willy> This is not I/O related since the problem happens even with
+Willy> simple programs such as dmesg and seq.
 
-Now, _that_ is true.  And yes, I agree that setups with unstable device
-numbers do need explicit actions on part of admin.  In particular, editing
-/etc/exports to add fsid= in each relevant entry.
+Yes ... the first time you run a program it's fetched from disc and
+shows a significant slowdown.  Second and subsequent times, it runs at
+normal speed.  At least, that's what *I'm* seeing.
 
-Which means that *in* *setups* *where* *numbers* *are* *currently* *stable*
-we should not make them random without admin's knowledge.  And /etc/exports
-is not the only problem - RAID, journaling filesystems with device number of
-log stored on-disk, etc.
+Peter C
 
-*However*, if we are talking about new classes of devices, all bets are off
-and proper fix is to stop using unsuitable interfaces for those devices.
-For exports it means "use explicit fsid".  For RAID we both agreed, IIRC,
-that raidtools will need to switch to saner API, etc.
+

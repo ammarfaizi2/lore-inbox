@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262165AbSJARyI>; Tue, 1 Oct 2002 13:54:08 -0400
+	id <S262244AbSJARKV>; Tue, 1 Oct 2002 13:10:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262205AbSJARyI>; Tue, 1 Oct 2002 13:54:08 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:37853 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP
-	id <S262165AbSJARyH>; Tue, 1 Oct 2002 13:54:07 -0400
-Message-Id: <200210011811.g91IBt5Y000464@pool-141-150-241-241.delv.east.verizon.net>
-Date: Tue, 1 Oct 2002 14:11:53 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: KDSETKEYCODE work with new input layer?
-References: <200209301440.g8UEeBOp000435@pool-141-150-241-241.delv.east.verizon.net> <20021001115413.B9131@ucw.cz> <200210011231.g91CVCdG000289@pool-141-150-241-241.delv.east.verizon.net> <20021001151722.A11750@ucw.cz> <200210011532.g91FW4fG000308@pool-141-150-241-241.delv.east.verizon.net> <20021001174129.A12995@ucw.cz> <200210011649.g91GnDfG000953@pool-141-150-241-241.delv.east.verizon.net> <20021001185154.A13641@ucw.cz> <200210011741.g91HfR5Y000241@pool-141-150-241-241.delv.east.verizon.net> <20021001193938.A14179@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021001193938.A14179@ucw.cz>; from vojtech@suse.cz on Tue, Oct 01, 2002 at 07:39:38PM +0200
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out001.verizon.net from [141.150.241.241] at Tue, 1 Oct 2002 12:59:27 -0500
+	id <S262250AbSJARIy>; Tue, 1 Oct 2002 13:08:54 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:32991 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S262244AbSJARHu>; Tue, 1 Oct 2002 13:07:50 -0400
+Date: Tue, 1 Oct 2002 18:14:04 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 
+In-Reply-To: <35FD2132190@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.44.0210011804001.1783-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Tue, Oct 01, 2002 at 01:41:27PM -0400, Skip Ford wrote:
-> > Vojtech Pavlik wrote:
-> > > On Tue, Oct 01, 2002 at 12:49:08PM -0400, Skip Ford wrote:
-> > > >
-> > > > The new AT driver
-> > > > doesn't log any 'unknown scancode' messages for the same buttons the
-> > > > old XT driver did.
-> > > 
-> > > That means it understands them. If it did not, showkey -s wouldn't work.
-> > > 
-> > > Just update the keymap - you don't need to change the scancode table if
-> > > the keys are working.
-> > 
-> > How do I make use of these keycodes in a map file?
-> > 
-> > 0  press
-> > 1  release
-> > 14 release
-> > 
-> > 0  press
-> > 1  release
-> > 15 release
+On Tue, 1 Oct 2002, Petr Vandrovec wrote:
 > 
-> 0,1,14 is keycode 142 (Sleep) and 0,1,15 is keycode 143 (WakeUp),
-> encoded because medium raw mode cannot handle keycodes above 128. If
-> loadkeys doesn't allow keycodes 142 and 143, well, I'll have to fix it.
+> You are my hero!
 
-You'll have to fix it.  I tried those before I asked.  Actually I tried
-141 and 142 but I was close.  loadkeys rejects anything >= NR_KEYS (128)
+Aww, shucks!  I guess I'd better have a go at your next problem...
 
-All of my keys are recognized so I don't need any setkeycodes
-functionality at all.  I can probably get loadkeys to load my map so I
-should be ok now.  I was making things a lot harder than they had to be.
+> Unfortunately it did not fixed another problem I have with sys_mprotect.
+> If I start X, system stops to do anything useful. After SAK I could
+> do remote connect and running 'w' and 'ps axf' moved them to 'D' state.
 
--- 
-Skip
+> Oct  1 17:47:55 vana kernel:  [<c0107ec9>]error_code+0x2d/0x38
+> Oct  1 17:47:55 vana kernel:  [<c011216f>]flush_tlb_mm+0x1b/0x70
+> Oct  1 17:47:55 vana kernel:  [<c0133ed1>]change_protection+0x1a1/0x1dc
+> Oct  1 17:47:55 vana kernel:  [<c01341ed>]mprotect_fixup+0x16d/0x188
+
+Looks to me like flush_tlb_mm is faulting on the vma->vm_mm given it.
+And looks to me like mprotect_fixup, in the merge case, may be passing
+an already freed vma to change_protection.  I'm not as confident about
+this patch as the earlier one, but I believe it's correct: please
+give it a try, and maybe Christoph will confirm or deny it.
+
+Hugh
+
+--- 2.5.40/mm/mprotect.c	Fri Sep 27 23:56:45 2002
++++ linux/mm/mprotect.c	Tue Oct  1 18:00:31 2002
+@@ -186,8 +186,10 @@
+ 		/*
+ 		 * Try to merge with the previous vma.
+ 		 */
+-		if (mprotect_attempt_merge(vma, *pprev, end, newflags))
++		if (mprotect_attempt_merge(vma, *pprev, end, newflags)) {
++			vma = *pprev;
+ 			goto success;
++		}
+ 	} else {
+ 		error = split_vma(mm, vma, start, 1);
+ 		if (error)
+

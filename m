@@ -1,55 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSJPTFM>; Wed, 16 Oct 2002 15:05:12 -0400
+	id <S261338AbSJPTFz>; Wed, 16 Oct 2002 15:05:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbSJPTFM>; Wed, 16 Oct 2002 15:05:12 -0400
-Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:16618 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S261333AbSJPTFK> convert rfc822-to-8bit; Wed, 16 Oct 2002 15:05:10 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Con Kolivas <conman@kolivas.net>
-Subject: Re: [BENCHMARK] 2.5.43 with contest
-Date: Wed, 16 Oct 2002 21:11:03 +0200
-User-Agent: KMail/1.4.7
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S261337AbSJPTFx>; Wed, 16 Oct 2002 15:05:53 -0400
+Received: from ra.abo.fi ([130.232.213.1]:56041 "EHLO ra.abo.fi")
+	by vger.kernel.org with ESMTP id <S261335AbSJPTFN>;
+	Wed, 16 Oct 2002 15:05:13 -0400
+Date: Wed, 16 Oct 2002 22:11:07 +0300 (EEST)
+From: Marcus Alanen <maalanen@ra.abo.fi>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
+Subject: [patch, 2.5] highmem.c HASHED_PAGE_VIRTUAL unnecessary pool_lock
+Message-ID: <Pine.LNX.4.44.0210162157051.14143-100000@tuxedo.abo.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200210162111.03912.Dieter.Nuetzel@hamburg.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Oct 2002 14:56, Con Kolivas wrote:
-> On Thu, 17 Oct 2002 12:49 am, John Stoffel wrote:
-> > Con,
-> >
-> > Why are you bothering to show the older 2.5.3x series of kernels, but
-> > dropping the 2.4.18 results?  Wouldn't it make sense to see how the
-> > latest kernels in each section were doing?
->
-> My main interest in doing these is to help 2.5 development as 2.4 is not
-> changing dramatically anywhere in the near future. As the number of data
-> points increase the ability to sift through the information will decrease.
-> The comparison to 2.4 kernels has been made in the past and I felt that
-> showing the progression of 2.5 would be more helpful as the change made by
-> each step could be quantified. I dont mind posting a full set of benchmarks
-> but people are less likely to read through a huge set of data trying to find
-> he relevant information.  If someone feels I am in error I would be happy to
-> change what I'm doing.
+pool_lock is equivalent to kmap_lock, so remove pool_lock.
 
-But please keep a 2.4.19 (2.4.20.pre-latest/-AA) for comparison.
-The -AA VM is so GREAT for 2.4 that times can come porting some stuff to 
-2.5...;-)
+When kmap_lock is taken, so will pool_lock be taken in 
+set_page_address => we are already protected by kmap_lock. 
+set_page_address must be made static due to this, but this is no 
+problem since all callers are in highmem.c anyway.
 
-Thanks,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
+Note, flush_all_zero_pkmaps and especially map_new_virtual are a bit 
+slow due to linear scanning of pkmap_count. map_new_virtual could be 
+done in O(1). But perhaps it's not worth the trouble to create two 
+sets of very different highmem.c routines for some speedup in the 
+HASHED_PAGE_VIRTUAL configuration...
 
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)
+Marcus
+
+
+diff -Naurd --exclude-from=/home/maalanen/linux/base/diff_exclude linus-2.5.43/include/linux/mm.h msa-2.5.43/include/linux/mm.h
+--- linus-2.5.43/include/linux/mm.h	Wed Oct 16 16:31:16 2002
++++ msa-2.5.43/include/linux/mm.h	Wed Oct 16 17:55:58 2002
+@@ -308,7 +308,6 @@
+ 
+ #if defined(HASHED_PAGE_VIRTUAL)
+ void *page_address(struct page *page);
+-void set_page_address(struct page *page, void *virtual);
+ void page_address_init(void);
+ #endif
+ 
+diff -Naurd --exclude-from=/home/maalanen/linux/base/diff_exclude linus-2.5.43/mm/highmem.c msa-2.5.43/mm/highmem.c
+--- linus-2.5.43/mm/highmem.c	Mon Oct  7 22:25:30 2002
++++ msa-2.5.43/mm/highmem.c	Wed Oct 16 18:51:35 2002
+@@ -48,9 +48,18 @@
+  *    since the last TLB flush - so we can't use it.
+  *  n means that there are (n-1) current users of it.
+  */
++
++#if defined(HASHED_PAGE_VIRTUAL)
++void set_page_address(struct page *page, void *virtual);
++#endif
++
+ #ifdef CONFIG_HIGHMEM
+ static int pkmap_count[LAST_PKMAP];
+ static unsigned int last_pkmap_nr;
++/*
++ * protects pkmap_count
++ * protects page_address_pool if hashed virtual pages
++ */
+ static spinlock_t kmap_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
+ 
+ pte_t * pkmap_page_table;
+@@ -503,7 +512,6 @@
+  * page_address_map freelist, allocated from page_address_maps.
+  */
+ static struct list_head page_address_pool;	/* freelist */
+-static spinlock_t pool_lock;			/* protects page_address_pool */
+ 
+ /*
+  * Hash table bucket
+@@ -545,7 +553,7 @@
+ 	return ret;
+ }
+ 
+-void set_page_address(struct page *page, void *virtual)
++static void set_page_address(struct page *page, void *virtual)
+ {
+ 	unsigned long flags;
+ 	struct page_address_slot *pas;
+@@ -557,11 +565,9 @@
+ 	if (virtual) {		/* Add */
+ 		BUG_ON(list_empty(&page_address_pool));
+ 
+-		spin_lock_irqsave(&pool_lock, flags);
+ 		pam = list_entry(page_address_pool.next,
+ 				struct page_address_map, list);
+ 		list_del(&pam->list);
+-		spin_unlock_irqrestore(&pool_lock, flags);
+ 
+ 		pam->page = page;
+ 		pam->virtual = virtual;
+@@ -575,9 +581,7 @@
+ 			if (pam->page == page) {
+ 				list_del(&pam->list);
+ 				spin_unlock_irqrestore(&pas->lock, flags);
+-				spin_lock_irqsave(&pool_lock, flags);
+ 				list_add_tail(&pam->list, &page_address_pool);
+-				spin_unlock_irqrestore(&pool_lock, flags);
+ 				goto done;
+ 			}
+ 		}
+@@ -600,7 +604,6 @@
+ 		INIT_LIST_HEAD(&page_address_htable[i].lh);
+ 		spin_lock_init(&page_address_htable[i].lock);
+ 	}
+-	spin_lock_init(&pool_lock);
+ }
+ 
+ #endif	/* defined(CONFIG_HIGHMEM) && !defined(WANT_PAGE_VIRTUAL) */
+

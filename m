@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271719AbTHDMtL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 08:49:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271720AbTHDMtL
+	id S271721AbTHDMyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 08:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271722AbTHDMyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 08:49:11 -0400
-Received: from main.gmane.org ([80.91.224.249]:22436 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S271719AbTHDMtI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 08:49:08 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: FS: hardlinks on directories
-Date: Mon, 04 Aug 2003 14:45:58 +0200
-Message-ID: <yw1xsmohioah.fsf@users.sourceforge.net>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
+	Mon, 4 Aug 2003 08:54:16 -0400
+Received: from trappist.elis.UGent.be ([157.193.204.1]:17358 "EHLO
+	trappist.elis.UGent.be") by vger.kernel.org with ESMTP
+	id S271721AbTHDMyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 08:54:15 -0400
+Subject: [PATCH] get/put_task_struct
+From: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 04 Aug 2003 14:54:13 +0200
+Message-Id: <1060001653.1271.5.camel@tom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:01LlKTfoB6qIwdc6cPDhkzNYB8k=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski <skraw@ithnet.com> writes:
+Hi,
 
-> although it is very likely I am entering (again :-) an ancient
-> discussion I would like to ask why hardlinks on directories are not
-> allowed/no supported fs action these days. I can't think of a good
-> reason for this, but can think of many good reasons why one would
-> like to have such a function, amongst those:
+In order to be able to safely manipulate a task_struct from within a
+module one should use get/put_task_struct. This is currently not
+possible because __put_task_struct is not exported. Next patch solves
+this issue.
 
-I don't know the exact reasons it isn't allowed, but you can always
-use "mount --bind" to get a similar effect.
+Frank.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+--- linux-2.6.0-test2.orig/kernel/ksyms.c	2003-07-29 10:04:45.000000000 +0200
++++ linux-2.6.0-test2/kernel/ksyms.c	2003-07-29 14:11:40.000000000 +0200
+@@ -495,6 +495,7 @@
+ #if !defined(__ia64__)
+ EXPORT_SYMBOL(loops_per_jiffy);
+ #endif
++EXPORT_SYMBOL(__put_task_struct);
+ 
+
+ /* misc */
+
 

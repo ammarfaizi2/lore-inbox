@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbTEFMRv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 08:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTEFMQv
+	id S262694AbTEFMPx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 08:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbTEFMPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 08:16:51 -0400
-Received: from ns.suse.de ([213.95.15.193]:58128 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262700AbTEFMQN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 08:16:13 -0400
-From: Marcus Meissner <meissner@suse.de>
-Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
-To: =?ISO-8859-15?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Date: Tue, 06 May 2003 14:28:44 +0200
-References: <20030505210811.GC7049@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <1052218090.28792.15.camel@dhcp22.swansea.linux.org.uk.suse.lists.linux.kernel> <20030506120939.GB15261@wohnheim.fh-wedel.de.suse.lists.linux.kernel>
-Organization: SuSE Linux AG
-User-Agent: KNode/0.7.2
+	Tue, 6 May 2003 08:15:53 -0400
+Received: from filesrv1.system-techniques.com ([199.33.245.55]:28308 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S262694AbTEFMPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 08:15:50 -0400
+Date: Tue, 6 May 2003 08:28:17 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Adam Sulmicki <adam@cfar.umd.edu>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: about bios
+In-Reply-To: <20030505193733.T76699-100000@www.missl.cs.umd.edu>
+Message-ID: <Pine.LNX.4.55.0305060823470.21072@filesrv1.baby-dragons.com>
+References: <20030505193733.T76699-100000@www.missl.cs.umd.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030506122844.95332D872@Hermes.suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > My reasons for this patch:
-> 
-> - Even if x86 is not the only platform that uses MSDOS partitions,
-> this should be a positive list, not a negative list. Else every new
-> platform has to explicitly express, *not* to use MSDOS partitions.
-> Seems awkward.
-> 
-> - Any platform needing MSDOS partitions but not explicitly listed can
-> still turn that option on through the advanced partitioning.
-> Currently, allnoconfig gives you MSDOS partitioning, which is not very
-> intuitive.
+	Hello Adam ,
 
-Every platform that supports USB will be able to read USB Storage
-Devices which almost everytime have FAT filesystems with MSDOS partitions.
+On Mon, 5 May 2003, Adam Sulmicki wrote:
+> 'was working'? The project is alive and well.
+> It is much more than just embedded systems. In fact with recent addition
+> of legacy bios support we are able to boot other operating systems (BSD,
+> Win, etc). Being able to boot Windows provides easy migration patch to
+> Linux :-)
+> By the way. Yes you can burn the linux kernel into flash (together with
+> linuxBIOS) and boot it this way. But given that many motherboards limit
+> your flash size to 256KiB you probably want to put the kernel on the
+> CompactFlash over ide nevertheless. Interestingly enough if not this size
+> limit we might have ended up using Linux Kernel as hardware initalizator
+> to some degree.
+	Thank you for the update .  I had been to the site every so often
+	looking for updates to the chipsets known to be usable .  Just do
+	not have a system I can spare if I foobar the flash .
 
-So short of S/390 you get like every platform.
+> <shameless plug>
+> In fact we are presenting a paper on LinuxBIOS booting other operating
+> systems this summer during Usenix 03.
+> </shameless plug>
+	I am hoping that  after  the usenix conferences there will be
+	a URL for the rest of us to view this paper ?  Tnx ,  JimL
 
-Ciao, Marcus
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

@@ -1,29 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278151AbRJ1LTf>; Sun, 28 Oct 2001 06:19:35 -0500
+	id <S278159AbRJ1Lb0>; Sun, 28 Oct 2001 06:31:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278159AbRJ1LTZ>; Sun, 28 Oct 2001 06:19:25 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:64526 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278151AbRJ1LTU>;
-	Sun, 28 Oct 2001 06:19:20 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S278163AbRJ1LbQ>; Sun, 28 Oct 2001 06:31:16 -0500
+Received: from fw2.aub.dk ([195.24.1.195]:56814 "EHLO Princess")
+	by vger.kernel.org with ESMTP id <S278159AbRJ1LbK>;
+	Sun, 28 Oct 2001 06:31:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Allan Sandfeld <linux@sneulv.dk>
 To: linux-kernel@vger.kernel.org
-Subject: More 2.4.13 warnings
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 28 Oct 2001 22:19:46 +1100
-Message-ID: <28466.1004267986@ocs3.intra.ocs.com.au>
+Subject: Re: What is standing in the way of opening the 2.5 tree?
+Date: Sun, 28 Oct 2001 12:28:44 +0100
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <1004219488.11749.19.camel@stomata.megapathdsl.net> <3BDB91D7.C7975C44@mandrakesoft.com>
+In-Reply-To: <3BDB91D7.C7975C44@mandrakesoft.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15xo7Q-000191-00@Princess>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the special files needed to check the kbuild 2.5-2.4.13 code on
-the sound drivers.  A few more 2.4.13 warnings.
+On Sunday 28 October 2001 06:04, Jeff Garzik wrote:
+> Miles Lane wrote:
+> > Dear Linus,
+> >
+> > It seems like there has been the expectation that the 2.5
+> > tree was about to be opened for at least the last two months.
+>
+> Most likely we are
+> (a) waiting for stuff to get merged from Alan's tree, and
+> (b) waiting for new VM and blkdev stuff in Linus tree to settle down and
+> prove itself stable
+>
+> Personally I am still fixing bugs (2.4 stuff) so I could care less :)
 
-drivers/sound/bin2hex.c: In function `main':
-drivers/sound/bin2hex.c:21: warning: implicit declaration of function `exit'
-drivers/sound/msndperm.c:723: warning: `msndpermLen' defined but not used
-drivers/sound/msndinit.c:158: warning: `msndinitLen' defined but not used
-drivers/sound/pndsperm.c:723: warning: `pndspermLen' defined but not used
-drivers/sound/pndspini.c:158: warning: `pndspiniLen' defined but not used
+Basicly you could restate it like this:
+2.5 will be when:
+(a) Linus is satisfied with the patches from Alan's tree
+(b) Alan is satisfied with the patches in Linux's tree. (Most notably VM 
+stuff)
 
+Since some of the stuff in Alan's tree is for special features/hardware, it 
+might get droped when Alan gets the responsiblity for a truly stable kernel. 
+So (b) is the most important condition.
+
+The latest ac patch was getting smaller, watch for it for reach 0 :)
+
+It might be an idea to consider a two or three tiered release model like 
+debian. E.g. experimental/testing/stable.. Right now 2.2 is stable, 2.4 is 
+testing closing to stable, but we lack an experimental branch, although Alan 
+has taken some stable "experimental" stuff. A truly experimental 2.4 would 
+nice even if the source incompatable changes was still postponed for 2.5. And 
+offical post-patches for the stable releases could also be usefull, instead 
+of people recomminding kernels from Redhat/Suse. Official post-patches would 
+IMHO have saved 2.4.11 and 12.
+
+Disclaimer: But releasemodels are religius questions and hard to argue or 
+prove. :-)
+
+regards
+`Allan

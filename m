@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbUJXIvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbUJXIxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbUJXIvd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 04:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbUJXIvd
+	id S261394AbUJXIxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 04:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUJXIxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 04:51:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8625 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261393AbUJXIv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 04:51:29 -0400
-Date: Sun, 24 Oct 2004 01:49:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: linux-kernel@vger.kernel.org, ebiederm@xmission.com, rddunlap@osdl.org
-Subject: Re: 2.6.9-mm1
-Message-Id: <20041024014929.1f303eb8.akpm@osdl.org>
-In-Reply-To: <1098522510.626.47.camel@boxen>
-References: <20041022032039.730eb226.akpm@osdl.org>
-	<1098522510.626.47.camel@boxen>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 24 Oct 2004 04:53:25 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:4801 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S261394AbUJXIxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 04:53:22 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: The naming wars continue...
+Date: Sun, 24 Oct 2004 10:52:29 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.10.24.08.52.28.631272@smurf.noris.de>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: server.smurf.noris.de 1098607949 5195 192.109.102.35 (24 Oct 2004 08:52:29 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Sun, 24 Oct 2004 08:52:29 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg <alexn@dsv.su.se> wrote:
->
-> >   - kexec and crashdump: this all allegedly works, but I want to *see* it
-> >     work first.
-> 
-> - sys_reboot() calls device_shutdown() which naturally makes my disks go
-> to sleep and immediatly after spin up when the disk initialization code
-> comes in. Is there some specific reason why this is needed? Appears to
-> work for me just removing the function call.
+Hi, Linus Torvalds wrote:
 
-There's special-case code in the IDE driver to prevent this.  The kexec
-code manages to defeat it.  This should fix:
+> However, for some reason four numbers just looks visually too obnoxious to
+> me
 
---- 25/kernel/sys.c~kexec-ide-spindown-fix	2004-10-24 01:46:52.028277048 -0700
-+++ 25-akpm/kernel/sys.c	2004-10-24 01:47:20.911886072 -0700
-@@ -531,8 +531,9 @@ asmlinkage long sys_reboot(int magic1, i
- 			return -EINVAL;
- 		}
- 		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
--		system_state = SYSTEM_BOOTING;
-+		system_state = SYSTEM_RESTART;
- 		device_shutdown();
-+		system_state = SYSTEM_BOOTING;
- 		printk(KERN_EMERG "Starting new kernel\n");
- 		machine_shutdown();
- 		machine_kexec(image);
-_
+If you do something Really Big it's time to call the kernel 3.whatever.
+If not, the new release management scheme suggests that the release
+numbers are likely to stay within the 2.6 frame anyway.
 
-> - 3c59x driver together with my 3c509C-TX card hits:
-> "ff:ff:ff:ff:ff:ff<3>*** EEPROM MAC address invalid"
-> after doing a kexec-reboot. I tried reseting it at bootup but I couldn't
-> get it kicking. I couldn't find any specs nor maintainer for this one...
-> 
+Thus, the .6 is superfluous and can be dropped. Bingo, you have three
+numbers again.
 
-3c59x power management is a bit flakey.  I'll have a poke at this when I
-get onto playing with kexec.
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
 

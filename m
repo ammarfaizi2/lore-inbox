@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVCLQYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVCLQ2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVCLQYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 11:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVCLQYh
+	id S261949AbVCLQ2g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 11:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVCLQ2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 11:24:37 -0500
-Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:60296 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261812AbVCLQYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 11:24:35 -0500
-Date: Sat, 12 Mar 2005 09:25:13 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: George Anzinger <george@mvista.com>
-cc: Andrew Morton <akpm@osdl.org>, "J. Bruce Fields" <bfields@fieldses.org>,
-       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: spin_lock error in arch/i386/kernel/time.c on APM resume
-In-Reply-To: <4233111A.5070807@mvista.com>
-Message-ID: <Pine.LNX.4.61.0503120918130.2166@montezuma.fsmlabs.com>
-References: <20050312131143.GA31038@fieldses.org> <4233111A.5070807@mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 12 Mar 2005 11:28:35 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:19884 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261949AbVCLQ23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 11:28:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Pv3VqMPPOT3Y7oERMWm53BOpyOUj1D3/B+2OeBL9Ma0yiCUHmSh8gO7iTHb+vHxas8MjIrPKmxMtTxjuoZ63JbNUzDkHYrJDt96BocaHOVKgSBuDk3daJf0eqQK+wyF/zhy7yutlLdMP6tMrSUIHQueK/d6Gq4ogOXoP3E4M0jI=
+Message-ID: <9e473391050312082777a02001@mail.gmail.com>
+Date: Sat, 12 Mar 2005 11:27:25 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050311102920.GB30252@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+	 <20050311102920.GB30252@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Mar 2005, George Anzinger wrote:
-
-> Looks like we need the irq on the read clock also.  This is true both before
-> and  after the prior cmos_time changes.
+On Fri, 11 Mar 2005 11:29:20 +0100, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
 > 
-> The attached replaces the patch I sent yesterday.
+> > As many of you will be aware, we've been working on infrastructure for
+> > user-mode PCI and other drivers.  The first step is to be able to
+> > handle interrupts from user space. Subsequent patches add
+> > infrastructure for setting up DMA for PCI devices.
+> >
+> > The user-level interrupt code doesn't depend on the other patches, and
+> > is probably the most mature of this patchset.
 > 
-> For those wanting to fix the kernel with out those patches, all that is needed
-> its the chunk that applies, i.e. the _irq on the get_cmos_time() spinlocks.
+> Okay, I like it; it means way easier PCI driver development.
+
+It won't help with PCI driver development. I tried implementing this
+for UML. If your driver has any bugs it won't get the interrupts
+acknowledged correctly and you'll end up rebooting.
+
+Xen just posted patches for using kgdb between two instances but I
+don't see how they get out of the interrupt acknowledge problem
+either.
+
 > 
-> And more... That this occures implies we are attempting to update the cmos
-> clock on resume seems wrong.  One would presume that the time is wrong at this
-> time and we are about to save that wrong time.  Possibly the APM code should
-> change time_status to STA_UNSYNC on the way into the sleep (or what ever it is
-> called).  Who should we ping with this?
+> But... how do you handle shared PCI interrupts?
+> 
+> > This patch adds a new file to /proc/irq/<nnn>/ called irq.  Suitably
+> > privileged processes can open this file.  Reading the file returns the
+> > number of interrupts (if any) that have occurred since the last read.
+> > If the file is opened in blocking mode, reading it blocks until
+> > an interrupt occurs.  poll(2) and select(2) work as one would expect, to
+> > allow interrupts to be one of many events to wait for.
+> > (If you didn't like the file, one could have a special system call to
+> > return the file descriptor).
+> 
+> This should go into Documentation/ somewhere.
+>                                                                 Pavel
+> 
+> --
+> People were complaining that M$ turns users into beta-testers...
+> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-timer_resume, which appears to be the problem, wants to calculate amount 
-of time was spent suspended, also your unconditional irq enable in 
-get_cmos_time breaks the atomicity of device_power_up and would deadlock 
-in sections of code which call get_time_diff() with xtime_lock held. I 
-sent a patch subject "APM: fix interrupts enabled in device_power_up" 
-which should address this.
 
-Thanks,
-	Zwane
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

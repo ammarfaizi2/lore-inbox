@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318510AbSGaVnT>; Wed, 31 Jul 2002 17:43:19 -0400
+	id <S318393AbSGaVqv>; Wed, 31 Jul 2002 17:46:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318502AbSGaVnT>; Wed, 31 Jul 2002 17:43:19 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:8669 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S318510AbSGaVnS>; Wed, 31 Jul 2002 17:43:18 -0400
-X-KENId: 00001BF0KEN47E0FDF8
-Date: Wed, 31 Jul 2002 23:41:26 +0200
-From: Thomas <thomas@mierau.org>
-Subject: Re: Tyan K7X with AMD MP 2.4.19-rc3-ac4
-To: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Cc: Thomas Mierau <tmi@wikon.de>, linux-kernel@vger.kernel.org
-Message-Id: <3D485986.3010101@mierau.org>
-References: <5.1.0.14.0.20020730142822.009ef030@mail.science.uva.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-User-Agent: Mozilla/5.0 (Windows; U; Win98; de-DE; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: de-DE
+	id <S318519AbSGaVqv>; Wed, 31 Jul 2002 17:46:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:31723 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S318393AbSGaVqv>;
+	Wed, 31 Jul 2002 17:46:51 -0400
+Subject: Re: [PATCH] 2.5.29: some compilation fixes for irq frenzy [OSS +
+	i8x0 audio]
+From: Andy Pfiffer <andyp@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1028069255.8510.46.camel@irongate.swansea.linux.org.uk>
+References: <1028062608.964.6.camel@andyp> 
+	<1028067951.8510.44.camel@irongate.swansea.linux.org.uk> 
+	<1028063953.964.13.camel@andyp> 
+	<1028069255.8510.46.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 31 Jul 2002 14:50:02 -0700
+Message-Id: <1028152202.964.84.camel@andyp>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank's Rudmer
+On Tue, 2002-07-30 at 15:47, Alan Cox wrote:
+> On Tue, 2002-07-30 at 22:19, Andy Pfiffer wrote:
+> > As luck would have it, I booted the kernel and played the tunes on a
+> > 2-way P4 Xeon system.  Nothing wedged, but then again, I didn't try to
+> > break it.
+> > 
+> > So, what did I break?
+> 
+> SMP support I think. A lot of the save_flags/cli stuff you changed looks
+> like it needs to also lock out interrupts on the other processors,
+> otherwise you can get a DMA pointer being updated under you.
 
-Actually it is disabbled intentionally. The eth0 will install itself on 
-the IRQ11 and I didn't find a way to get it somewhere else. IRQ11 is 
-used by the SCSI Raid Controller already whic is fixed in the 66Mhz 
-64Bit slot(and later on by another onbord AIC7xxx device which I am also 
-unable to reroute up to now)
-And even the eth1 is not working properly
+After reading the code in question, it appears to me that the existing
+save_flags/cli constructs are being used to atomically query/modify
+elements of an audio_devs[N] entry.  I can see how it might be possible
+for the patch to break SMP.
 
-Rudmer van Dijk wrote:
+Would a spinlock_t for each "struct audio_operations" be the preferred
+solution over, say, a global spinlock_t for all "struct
+audio_operations?"
 
-> At 14:21 30-7-02, Thomas Mierau wrote:
-> 
->> Hi
->>
->> I am trying to get the above board to work. Somehow it doesn't.
->> I tried kernel  2.4.18, 2.4.19-rc3, 2.4.19-rc3-ac3 and of course the 
->> latest
->> 2.4.19-rc3-ac4
->>
->> The machine itself is "working" stable under 2.4.18 with a limited
->> functionality (no network, no additional scsi ports, no printer, no 
->> usb ...)
->>
->> The problem is always the same. The eth1 is not working properly and 
->> the IRQ's
->> are not setup correctly. The I/O-APIC reports ok.
-> 
-> 
-> i don't know about the IRQ's but the second nic can be enabled by 
-> entering 'ether=0,0,eth1' at the kernel commandline. see also the file 
-> for your networkcard in Documentation/networking or see section 2.3 of 
-> the Ethernet HOWTO.
-> 
->         Rudmer
-> 
-> 
-> 
+And while I'm asking: I'm a bit perplexed by the "naked" sti()'s in
+audio_write() and audio_read() for the case where CNV_MU_LAW conversion
+is required.  The intent appears to be to force interrupts back on
+during the format conversion.  I don't see any corresponding cli() on
+the return path, however.
+
+Does anyone have any idea why those sti()'s just seem to be stuck there?
+
+Regards,
+Andy
 
 

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317649AbSGZKj5>; Fri, 26 Jul 2002 06:39:57 -0400
+	id <S317671AbSGZKno>; Fri, 26 Jul 2002 06:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317651AbSGZKj5>; Fri, 26 Jul 2002 06:39:57 -0400
-Received: from 62-190-216-46.pdu.pipex.net ([62.190.216.46]:59652 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S317649AbSGZKj4>; Fri, 26 Jul 2002 06:39:56 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200207261048.g6QAmEaK001850@darkstar.example.net>
-Subject: Re: Linux Weekly News dying - any help?
-To: ahu@ds9a.nl (bert hubert)
-Date: Fri, 26 Jul 2002 11:48:13 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-In-Reply-To: <20020726103522.GB4048@outpost.ds9a.nl> from "bert hubert" at Jul 26, 2002 12:35:23 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317673AbSGZKno>; Fri, 26 Jul 2002 06:43:44 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:2323 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317671AbSGZKnm>;
+	Fri, 26 Jul 2002 06:43:42 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Marcin Dalecki <dalecki@evision.ag>
+Date: Fri, 26 Jul 2002 12:46:15 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: IDE lockups with 2.5.28...
+CC: lkml <linux-kernel@vger.kernel.org>, axboe@suse.de, torvalds@transmeta.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <32F26B48A5@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 26 Jul 02 at 12:30, Marcin Dalecki wrote:
+> Petr Vandrovec wrote:
 > 
-> On Fri, Jul 26, 2002 at 11:22:09AM +0100, Russell King wrote:
-> > On Fri, Jul 26, 2002 at 11:07:30AM +0100, jbradford@dial.pipex.com wrote:
-> > > If somebody buys up the domain, I'll hapily spare some time to contribute
-> > > to it. Just drop me an E-Mail.
-> > 
-> > I'm sure someone has a server with some space available to host the site.
+> > Well, no. Both of these loop have completely different terminating conditions.
+> > You exit when IDE hardware is busy, while SCSI exits if hardware is busy,
+> > or when there is nothing to do. Fundamental difference.
 > 
-> It is not the server. I have a server for them. I think many do not realise
-> how much time Jon & friends spend on making LWN, and it is precisely this
-> *time* that sets them apart from everything else.
-> 
-> Compare them to a Linux dedicated Theregister.co.uk - real journalism with
-> analyses that go beyond what is provided by CmdrTaco (entertaining though he
-> may be) and their like.
-> 
-> In order to make LWN, they need to find a way to give them the time to work
-> on it. They can't do it next to a day job.
+> Shit - you are right. We look until the next request sets IDE_BUSY as a 
+> side effect.... I just wanted to close the window between clear we clear
+> IDE_BUSY in ata_irq_handler just before recalling do_request to set it 
+> immediately on again.
+> Should be both of course.
 
-I do understand the level of the work-load, and obviously wouldn't want to do it completely on my own for ever, and if I did, the quality would not be very good.
+Most of IDE code access IDE_BUSY flag when queue lock is held. So just 
+move it inside lock everywhere... As side benefit you do not have to use 
+atomic test_and_set then, you can use faster non-atomic (without lock prefix) 
+equivalents.
 
-However, my situation at the moment, is that I am a freelance "general Unix and PHP/MySQL programming bloke", without enough work.  I have time on my hands, and am quite happy to put some of it towards doing something like a Linux version of The Register, (excellent description of what I had in mind), in return for being able to say - "CV?  I don't need one, see http://foobar - that's me".
-
-John.
+In fact it looks to me like that only tcq's udma_tcq_start accesses
+IDE_BUSY without holding queue lock, and it is only read access to print
+some BUG()-like message.
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz
+                                                                       

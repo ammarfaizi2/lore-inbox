@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263732AbTLSXge (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 18:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTLSXge
+	id S263695AbTLSXgG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 18:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbTLSXgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 18:36:34 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:19987 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S263732AbTLSXgc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 18:36:32 -0500
-Date: Sat, 20 Dec 2003 00:35:24 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Arnaud Fontaine <arnaud@andesi.org>
-cc: Mike Fedyk <mfedyk@matchmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with 2.4.23
-In-Reply-To: <20031219224402.GA1284@scrappy>
-Message-ID: <Pine.LNX.4.44.0312200034560.15516-100000@gaia.cela.pl>
+	Fri, 19 Dec 2003 18:36:06 -0500
+Received: from locke.ispvip.biz ([209.118.182.151]:31422 "HELO
+	mail0.ispvip.biz") by vger.kernel.org with SMTP id S263695AbTLSXgE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 18:36:04 -0500
+Message-ID: <3FE351CA.3010902@325i.org>
+Date: Fri, 19 Dec 2003 14:30:18 -0500
+From: "Michael J. Cohen" <mjc@325i.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sean Reifschneider <jafo@tummy.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6 Kernel Pool Results
+References: <20031219190903.GA28010@tummy.com>
+In-Reply-To: <20031219190903.GA28010@tummy.com>
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So i have just tested to run memtest86 on my box and i have had no error
-> with this. I have also tested cpuburn without any result. Have you some
-> others ideas ?
+Sean Reifschneider wrote:
 
-you did run memtest for a minimum dozen hours? sometimes it takes that 
-long to find errors...
+>teve Ratcliffe, Master Software Project Estimator, has most correctly
+>estimated the release of the Linux version 2.6 kernel. On January 6,
+>2001 (within 4 hours of when the 2.6 kernel pool was opened), he entered
+>a guess which was accurate within 15 hours. Check the results for some
+>interesting statistics and submit your guess for the 2.8 pool.
+>
+>   http://kernelpool.tummy.com/kernelpool/results.html
+>   http://kernelpool.tummy.com/kernelpool/
+>
+>Sean
+>
+>(A friend who's a subscriber suggested I send the announcement to LKML.
+>I'm not on it, so copy me if you reply and want a response from me.  :-)
+>  
+>
+Neat, I'll have to submit a prediction. :)
 
-Cheers,
-MaZe.
-
+Michael
 

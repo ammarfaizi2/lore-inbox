@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317790AbSGPMok>; Tue, 16 Jul 2002 08:44:40 -0400
+	id <S317786AbSGPMkl>; Tue, 16 Jul 2002 08:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317808AbSGPMoj>; Tue, 16 Jul 2002 08:44:39 -0400
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:28433 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S317790AbSGPMoi>; Tue, 16 Jul 2002 08:44:38 -0400
-Date: Tue, 16 Jul 2002 14:47:03 +0200
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: nejhdeh <nejhdeh@aimedics.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Basic question
-Message-ID: <20020716124703.GG1003@arthur.ubicom.tudelft.nl>
-References: <200207161108.39689.nejhdeh@aimedics.com>
+	id <S317790AbSGPMkk>; Tue, 16 Jul 2002 08:40:40 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:46520 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S317786AbSGPMkj>; Tue, 16 Jul 2002 08:40:39 -0400
+Date: Tue, 16 Jul 2002 14:43:31 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: linux-kernel@vger.kernel.org, Sam Vilain <sam@vilain.net>,
+       dax@gurulabs.com
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020716124331.GJ7955@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	linux-kernel@vger.kernel.org, Sam Vilain <sam@vilain.net>,
+	dax@gurulabs.com
+References: <1026490866.5316.41.camel@thud> <1026679245.15054.9.camel@thud> <E17U1BD-0000m0-00@hofmann> <1026736251.13885.108.camel@irongate.swansea.linux.org.uk> <E17U4YE-0000TL-00@hofmann> <20020715160357.GD442@clusterfs.com> <E17U9x9-0001Dc-00@hofmann> <20020716081531.GD7955@tahoe.alcove-fr> <20020716122756.GD4576@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200207161108.39689.nejhdeh@aimedics.com>
-User-Agent: Mutt/1.3.28i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <20020716122756.GD4576@merlin.emma.line.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16, 2002 at 11:08:39AM +1000, nejhdeh wrote:
-> I end up getting all the required source codes from kernel-source-2.4.18-5.RPM
-> > 
-> 
-> > Now, it appears for me to use the kernel routines such as enable_irq 
-> (defined 
-> > in (/usr/src/linux-2.4.18-5/arch/i386/kernel/irq.c) I have to make the 
-> entire 
-> > kernel.o, since there are a lot of dependencies.
-> > 
-> 
-> > Do I need to go this far?? 
-> > 
-> 
-> > What is a simpler way to use these routines (in irq.c) with my application??
-> > 
-> 
-> > How do I link this module (i.e irq.o) with my application?? I get heaps of 
-> > unresoleved errors.
+On Tue, Jul 16, 2002 at 02:27:56PM +0200, Matthias Andree wrote:
 
-You can't link kernel sources against applications and expect that it
-just works. The kernel is a separate piece of software, all kernel
-communication with the kernel goes through the file IO and system call
-APIs.
+> > Come on, who REALLY expects to have consistent backups without
+> > either unmounting the filesystem or using some snapshot techniques ?
+> 
+> The who uses [s|g]tar, cpio, afio, dsmc (Tivoli distributed storage
+> manager), ...
+> 
+> Low-level snapshots don't do any good, they just freeze the "halfway
+> there" on-disk structure.
 
+But [s|g]tar, cpio, afio (don't know about dsmc) also freeze the
+"halfway there" data, but at the file level instead (application
+instead of filesystem)...
 
-Erik
-
+Stelian.
 -- 
-J.A.K. (Erik) Mouw
-Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

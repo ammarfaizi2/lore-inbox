@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265620AbUBGAUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 19:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265648AbUBGAUW
+	id S266476AbUBGAOU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 19:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266567AbUBGAOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 19:20:22 -0500
-Received: from mail.shareable.org ([81.29.64.88]:19920 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265620AbUBGAUS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 19:20:18 -0500
-Date: Sat, 7 Feb 2004 00:20:10 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: the grugq <grugq@hcunix.net>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-Message-ID: <20040207002010.GF12503@mail.shareable.org>
-References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <200402040320.i143KCaD005184@turing-police.cc.vt.edu>
+	Fri, 6 Feb 2004 19:14:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:6600 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266476AbUBGAON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 19:14:13 -0500
+Date: Fri, 6 Feb 2004 16:14:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Need help about scanner (2.6.2-mm1)
+Message-ID: <20040207001410.GA4492@kroah.com>
+References: <20040206235749.19346.qmail@web10408.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402040320.i143KCaD005184@turing-police.cc.vt.edu>
+In-Reply-To: <20040206235749.19346.qmail@web10408.mail.yahoo.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> Actually, I have encountered file systems where two successive
-> write() calls from userspace to the same offset in the file wouldn't
-> end up in the same physical location on the disk (AIX's JFS with compression).
+On Sat, Feb 07, 2004 at 10:57:49AM +1100, Steve Kieu wrote:
+> Hi,
+> 
+> I noticed that 2.6.2-mm1, usb scanner is removed. With
+> vanilla 2.6.2, this modules always OOP and somebody
+> said we should use libusb instead. However after
+> googling for a while I can not find any documentation
+> how to use that even in the libusb homepage. Please
+> help me , or pinpoint some place I could have some
+> guides. Thank
+> you.
 
-See also:
 
-    - ext3 with data journalling
+Get the latest version of xsane and use it.  It should have the libusb
+support built into it already.
 
-    - reiser4 with wandering logs
+If you have any problems, try asking on the xsane mailing lists.
 
-    - experimental ext? patches for tail-packing small files
+Good luck,
 
--- Jamie
+greg k-h

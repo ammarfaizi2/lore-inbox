@@ -1,232 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266144AbUFXQee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266140AbUFXQek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266144AbUFXQee (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 12:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266148AbUFXQee
+	id S266140AbUFXQek (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 12:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFXQek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 12:34:34 -0400
-Received: from outmx007.isp.belgacom.be ([195.238.3.234]:41183 "EHLO
-	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S266144AbUFXQeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 12:34:21 -0400
-Subject: [PATCH 2.6.7-mm1] dirent merge
-From: FabF <fabian.frederick@skynet.be>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-56IjHbEeGAu30pG71vbZ"
-Message-Id: <1088100200.2211.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 24 Jun 2004 20:03:20 +0200
+	Thu, 24 Jun 2004 12:34:40 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:54158 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266145AbUFXQeW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 12:34:22 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH]2.6.7 MSI-X Update
+Date: Thu, 24 Jun 2004 09:29:47 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240584453D@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]2.6.7 MSI-X Update
+Thread-Index: AcRZvMSlgtGQjYAOTC6fHpfJ+MOkQQARTNKQ
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Roland Dreier" <roland@topspin.com>,
+       "Zwane Mwaikambo" <zwane@linuxpower.ca>
+Cc: <ak@muc.de>, <akpm@osdl.org>, <greg@kroah.com>, <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>, <eli@mellanox.co.il>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 24 Jun 2004 16:29:49.0500 (UTC) FILETIME=[7822C7C0:01C45A08]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ON Thursday, June 24, 2004 Roland Dreier wrote:
+>    Roland> I could imagine hardware where the driver does not know
+>    Roland> exactly how many vectors it will use until it starts up.
+>    Roland> As a hypothetical example, imagine some storage networking
+>    Roland> host adapter that supports an interrupt vector per storage
+>    Roland> target.  The driver does not know how many vectors it will
+>    Roland> actually use until it has logged into the storage fabric;
+>    Roland> in fact, the driver may want to keep some vectors "in
+>    Roland> reserve" in case a new target is added to the fabric
+>    Roland> later.
+>
+>    Roland> I think it would be better to preserve maximum flexibility
+>    Roland> for devices and drivers, and not mandate that every
+>    Roland> allocated MSI-X vector is always used.
+>
+>    Zwane> The MSI subsystem should at most reserve and the driver
+>    Zwane> make a request.  There may be a limit per PCI device as
+>    Zwane> specified by the MSI subsystem for some reason or
+>    Zwane> other. Isn't this what we're all saying?
+>
+>No, Long is actually saying that a driver must actually call
+>request_irq() on all the vectors that it is allocated.  I am saying
+>that this requirement is too stringent, since there may be devices and
+>drivers that cannot predict exactly how many MSI-X vectors they will
+>use during driver initialization.
 
---=-56IjHbEeGAu30pG71vbZ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+That is what we're all saying.
 
-Hi,
+>    Roland> It seems in the code right now you are able to tell if any
+>    Roland> MSI-X vectors are hooked, since you wait for the last
+>    Roland> vector to be unhooked to disable MSI-X.  I would just have
+>    Roland> it be a WARN_ON() (or maybe BUG_ON()) if a driver calls
+>    Roland> pci_disable_msix() without calling free_irq for all its
+>    Roland> MSI-X vectors.
+>
+>    Roland> Right now there is an issue if a driver is unloaded
+>    Roland> without freeing all its IRQs -- the device will be left in
+>    Roland> MSI-X mode and can not be recovered without rebooting.
+>
+>    Zwane> This sounds like a case of bad driver bug generally the
+>    Zwane> kernel would oops when the ISR text gets unloaded. What
+>    Zwane> kind of behaviour do you expect here?
+>
+>Yes, I agree, it is a bad driver bug if the driver is unloaded without
+>doing free_irq() on all the vectors it has done request_irq() on.
+>However, with Long's API, there is a problem if for example a device
+>driver does pci_enable_msix() and is allocated 2 vectors, then
+>correctly does request_irq()/free_irq() on one vector and doesn't
+>touch the second vector, and then is unloaded.  The device will be
+>left with MSI-X enabled and leak its vectors.
 
-	Here's a dirent struct merge to dirent.h.
-btw, I don't see any diff. between old_linux_dirent & linux_dirent (?)
+It's very convincing. The addition of the pci_disable_msi() and 
+pci_disable_msix() functions are what is needed to handle this issue.
 
-Regards,
-FabF
-
---=-56IjHbEeGAu30pG71vbZ
-Content-Disposition: attachment; filename=dirent1.diff
-Content-Type: text/x-patch; name=dirent1.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -Naur orig~dirent/arch/ppc64/kernel/sys_ppc32.c edited~dirent/arch/ppc64/kernel/sys_ppc32.c
---- orig~dirent/arch/ppc64/kernel/sys_ppc32.c	2004-06-16 07:19:42.000000000 +0200
-+++ edited~dirent/arch/ppc64/kernel/sys_ppc32.c	2004-06-24 19:21:53.000000000 +0200
-@@ -18,6 +18,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/fs.h> 
-+#include <linux/dirent.h>
- #include <linux/mm.h> 
- #include <linux/file.h> 
- #include <linux/signal.h>
-@@ -77,17 +78,6 @@
- 
- #include "pci.h"
- 
--/* readdir & getdents */
--#define NAME_OFFSET(de) ((int) ((de)->d_name - (char __user *) (de)))
--#define ROUND_UP(x) (((x)+sizeof(u32)-1) & ~(sizeof(u32)-1))
--
--struct old_linux_dirent32 {
--	u32		d_ino;
--	u32		d_offset;
--	unsigned short	d_namlen;
--	char		d_name[1];
--};
--
- struct readdir_callback32 {
- 	struct old_linux_dirent32 __user * dirent;
- 	int count;
-diff -Naur orig~dirent/arch/s390/kernel/compat_linux.c edited~dirent/arch/s390/kernel/compat_linux.c
---- orig~dirent/arch/s390/kernel/compat_linux.c	2004-06-16 07:19:51.000000000 +0200
-+++ edited~dirent/arch/s390/kernel/compat_linux.c	2004-06-24 19:25:59.000000000 +0200
-@@ -20,6 +20,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/fs.h> 
-+#include <linux/dirent.h>
- #include <linux/mm.h> 
- #include <linux/file.h> 
- #include <linux/signal.h>
-@@ -355,18 +356,6 @@
- 		return sys_ftruncate(fd, (high << 32) | low);
- }
- 
--/* readdir & getdents */
--
--#define NAME_OFFSET(de) ((int) ((de)->d_name - (char *) (de)))
--#define ROUND_UP(x) (((x)+sizeof(u32)-1) & ~(sizeof(u32)-1))
--
--struct old_linux_dirent32 {
--	u32		d_ino;
--	u32		d_offset;
--	unsigned short	d_namlen;
--	char		d_name[1];
--};
--
- struct readdir_callback32 {
- 	struct old_linux_dirent32 * dirent;
- 	int count;
-@@ -414,13 +403,6 @@
- 	return error;
- }
- 
--struct linux_dirent32 {
--	u32		d_ino;
--	u32		d_off;
--	unsigned short	d_reclen;
--	char		d_name[1];
--};
--
- struct getdents_callback32 {
- 	struct linux_dirent32 * current_dir;
- 	struct linux_dirent32 * previous;
-diff -Naur orig~dirent/fs/readdir.c edited~dirent/fs/readdir.c
---- orig~dirent/fs/readdir.c	2004-06-16 07:19:22.000000000 +0200
-+++ edited~dirent/fs/readdir.c	2004-06-24 19:29:49.000000000 +0200
-@@ -50,18 +50,9 @@
-  * anyway. Thus the special "fillonedir()" function for that
-  * case (the low-level handlers don't need to care about this).
-  */
--#define NAME_OFFSET(de) ((int) ((de)->d_name - (char __user *) (de)))
--#define ROUND_UP(x) (((x)+sizeof(long)-1) & ~(sizeof(long)-1))
- 
- #ifdef __ARCH_WANT_OLD_READDIR
- 
--struct old_linux_dirent {
--	unsigned long	d_ino;
--	unsigned long	d_offset;
--	unsigned short	d_namlen;
--	char		d_name[1];
--};
--
- struct readdir_callback {
- 	struct old_linux_dirent __user * dirent;
- 	int result;
-@@ -122,12 +113,6 @@
-  * New, all-improved, singing, dancing, iBCS2-compliant getdents()
-  * interface. 
-  */
--struct linux_dirent {
--	unsigned long	d_ino;
--	unsigned long	d_off;
--	unsigned short	d_reclen;
--	char		d_name[1];
--};
- 
- struct getdents_callback {
- 	struct linux_dirent __user * current_dir;
-@@ -141,7 +126,7 @@
- {
- 	struct linux_dirent __user * dirent;
- 	struct getdents_callback * buf = (struct getdents_callback *) __buf;
--	int reclen = ROUND_UP(NAME_OFFSET(dirent) + namlen + 2);
-+	int reclen = ROUND_UPL(NAME_OFFSET(dirent) + namlen + 2);
- 
- 	buf->error = -EINVAL;	/* only used if we fail.. */
- 	if (reclen > buf->count)
-@@ -211,8 +196,6 @@
- 	return error;
- }
- 
--#define ROUND_UP64(x) (((x)+sizeof(u64)-1) & ~(sizeof(u64)-1))
--
- struct getdents_callback64 {
- 	struct linux_dirent64 __user * current_dir;
- 	struct linux_dirent64 __user * previous;
-diff -Naur orig~dirent/include/linux/dirent.h edited~dirent/include/linux/dirent.h
---- orig~dirent/include/linux/dirent.h	2004-06-16 07:19:44.000000000 +0200
-+++ edited~dirent/include/linux/dirent.h	2004-06-24 19:32:51.000000000 +0200
-@@ -1,11 +1,17 @@
- #ifndef _LINUX_DIRENT_H
- #define _LINUX_DIRENT_H
- 
-+/* readdir & getdents */
-+#define NAME_OFFSET(de) ((int) ((de)->d_name - (char __user *) (de)))
-+#define ROUND_UP(x) (((x)+sizeof(u32)-1) & ~(sizeof(u32)-1))
-+#define ROUND_UPL(x) (((x)+sizeof(long)-1) & ~(sizeof(long)-1))
-+#define ROUND_UP64(x) (((x)+sizeof(u64)-1) & ~(sizeof(u64)-1))
-+
- struct dirent {
- 	long		d_ino;
- 	__kernel_off_t	d_off;
- 	unsigned short	d_reclen;
--	char		d_name[256]; /* We must not include limits.h! */
-+	char		d_name[256];
- };
- 
- struct dirent64 {
-@@ -16,6 +22,34 @@
- 	char		d_name[256];
- };
- 
-+struct old_linux_dirent {
-+	unsigned long	d_ino;
-+	unsigned long	d_offset;
-+	unsigned short	d_namlen;
-+	char		d_name[1];
-+};
-+
-+struct old_linux_dirent32 {
-+	u32		d_ino;
-+	u32		d_offset;
-+	unsigned short	d_namlen;
-+	char		d_name[1];
-+};
-+
-+struct linux_dirent {
-+	unsigned long	d_ino;
-+	unsigned long	d_off;
-+	unsigned short	d_reclen;
-+	char		d_name[1];
-+};
-+
-+struct linux_dirent32 {
-+	u32		d_ino;
-+	u32		d_off;
-+	unsigned short	d_reclen;
-+	char		d_name[1];
-+};
-+
- #ifdef __KERNEL__
- 
- struct linux_dirent64 {
-@@ -28,5 +62,4 @@
- 
- #endif	/* __KERNEL__ */
- 
--
- #endif
-
---=-56IjHbEeGAu30pG71vbZ--
-
+Thanks,
+Long

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137038AbREKCjs>; Thu, 10 May 2001 22:39:48 -0400
+	id <S137039AbREKClJ>; Thu, 10 May 2001 22:41:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137039AbREKCji>; Thu, 10 May 2001 22:39:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:28676 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S137038AbREKCjY>; Thu, 10 May 2001 22:39:24 -0400
-Date: Thu, 10 May 2001 22:01:00 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Chris Mason <mason@suse.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] writepage method changes
-In-Reply-To: <1537180000.989506272@tiny>
-Message-ID: <Pine.LNX.4.21.0105102200110.23350-100000@freak.distro.conectiva>
+	id <S137040AbREKClF>; Thu, 10 May 2001 22:41:05 -0400
+Received: from [206.14.214.140] ([206.14.214.140]:51474 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S137039AbREKCkh>; Thu, 10 May 2001 22:40:37 -0400
+Date: Thu, 10 May 2001 19:40:00 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Sean Swallow <sean@swallow.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Riva console frame buffer
+In-Reply-To: <Pine.LNX.4.33.0105101813220.1140-100000@lsd.nurk.org>
+Message-ID: <Pine.LNX.4.10.10105101936330.30870-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 10 May 2001, Chris Mason wrote:
+> Right now when I bootup it's in 640x480, and I change it to 1024x768 @70Hz
+> w/ fbset in /etc/rc.local . I would like to give the kernel an arg to
+> startup in 1024x768; eg video=riva:mode:1024x768-70,ypan,vc:1-8
+> 
+> Is there a way to do this w/ the riva frame buffer? Is there a list of
+> kernel args for the riva frame buffer?
 
-> 
-> 
-> On Wednesday, May 09, 2001 10:51:17 PM -0300 Marcelo Tosatti
-> <marcelo@conectiva.com.br> wrote:
-> 
-> > 
-> > 
-> > On Wed, 9 May 2001, Marcelo Tosatti wrote:
-> > 
-> >> Locked for the "not wrote out case" (I will fix my patch now, thanks)
-> > 
-> > I just found out that there are filesystems (eg reiserfs) which write out
-> > data even if an error ocurred, which means the unlocking must be done by
-> > the filesystems, always. 
-> 
-> I'm not horribly attached to the way reiserfs is doing it right now.  If
-> reiserfs writepage manages to map any blocks, it writes them to disk, even
-> if mapping other blocks in the page failed.  These are only data blocks, so
-> there are no special consistency rules.  If we need to change this, it is
-> not a big deal.
+Yes. Most fbdev drivers use modedb which provides a standard easy way to
+select a video resolution. 
 
-No need for that.
+    video=riva:<xres>x<yres>[-<bpp>][@refresh]
 
-Its saner leaving this control to the filesystems.
 

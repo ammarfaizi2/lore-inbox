@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265105AbVBDPTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264565AbVBDPWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265105AbVBDPTw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 10:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265367AbVBDPTv
+	id S264565AbVBDPWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 10:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbVBDPWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 10:19:51 -0500
-Received: from www2.muking.org ([216.231.42.228]:35634 "HELO www2.muking.org")
-	by vger.kernel.org with SMTP id S265105AbVBDPTZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 10:19:25 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-References: <20050204100347.GA13186@elte.hu>
-From: Kevin Hilman <kevin@hilman.org>
-Organization: None to speak of.
-Date: 04 Feb 2005 07:19:19 -0800
-In-Reply-To: <20050204100347.GA13186@elte.hu>
-Message-ID: <83hdksxsi0.fsf@www2.muking.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 4 Feb 2005 10:22:10 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30473 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S265572AbVBDPV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 10:21:56 -0500
+Date: Fri, 4 Feb 2005 16:21:53 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Neil Whelchel <koyama@firstlight.net>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: CREDITS
+Message-ID: <20050204152153.GB19408@stusta.de>
+References: <Pine.LNX.4.44.0502021706290.31288-100000@kishna.firstlight.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0502021706290.31288-100000@kishna.firstlight.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the proper way to setup a real counting semaphore under the
--RT kernel?
+On Wed, Feb 02, 2005 at 05:17:01PM -0800, Neil Whelchel wrote:
 
-I've noticed that just using a struct semaphore, normal counting
-semaphore usage[*] can trigger the "lock recursion deadlock" in
-kernel/rt.c since 'struct semaphore' now uses an rt_mutex.  
+> Hello,
 
-What I've done for now is to use sema_init_nocheck() to disable the
-checking in the case of a counting semaphore, but I remember seeing
-discussion in an earlier thread about creating a separate counting
-semaphore type.  Is this still planned?
+Hi Neil,
 
-Kevin
-http://hilman.org/kevin/
+> I just thought that in case anyone wants to contact me it would be easier
+> if I was listed in the CREDITS file...
+> 
+> N: Neil Whelchel
+> E: koyama@firstlight.net
+> W: http://firstlight.net/~koyama
+> D: Cypress M8 driver, PMD-1280LS driver, USB patches
+> S: P.O. Box 2082
+> S: Joshua Tree, CA 92252
 
-[*] For example, an open semaphore being down'ed and thus acquired and
-the same thread doing a down() again before another thread has a
-chance to up() the semaphore.  
+if you want to be included in the CREDITS file, send a patch to Greg 
+he can include in the next bunch of USB patches he pushes to Linus.
 
+> -Neil Whelchel-
 
-Ingo Molnar <mingo@elte.hu> writes:
+cu
+Adrian
 
-> i have released the -V0.7.38-01 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
-> Changes since -37-03:
-> 
->  - merged to 2.6.11-rc3
-> 
->  - deadlock-tracer fix from Eugeny S. Mints
-> 
->  - converted an oprofile spinlock to raw, which should fix the bug 
->    reported by Peter Zijlstra.
-> 
-> to create a -V0.7.38-01 tree from scratch, the patching order is:
-> 
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
->   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.11-rc3.bz2
->   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.11-rc3-V0.7.38-01
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280956AbRKYSKn>; Sun, 25 Nov 2001 13:10:43 -0500
+	id <S280961AbRKYSRD>; Sun, 25 Nov 2001 13:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280957AbRKYSKd>; Sun, 25 Nov 2001 13:10:33 -0500
-Received: from 217-125-101-55.uc.nombres.ttd.es ([217.125.101.55]:60363 "EHLO
-	jep.dhis.org") by vger.kernel.org with ESMTP id <S280956AbRKYSKW>;
-	Sun, 25 Nov 2001 13:10:22 -0500
-Message-ID: <3C013407.7C639D34@jep.dhis.org>
-Date: Sun, 25 Nov 2001 19:10:15 +0100
-From: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16-pre1 i686)
-X-Accept-Language: ca, en, es
-MIME-Version: 1.0
+	id <S280966AbRKYSQx>; Sun, 25 Nov 2001 13:16:53 -0500
+Received: from haybaler.sackheads.org ([205.158.174.201]:55053 "HELO
+	haybaler.sackheads.org") by vger.kernel.org with SMTP
+	id <S280961AbRKYSQl>; Sun, 25 Nov 2001 13:16:41 -0500
+Date: Sun, 25 Nov 2001 10:20:49 -0800
+From: Jimmie Mayfield <mayfield+kernel@sackheads.org>
 To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.16-pre1 not compiling without SMP
+Subject: 2.4.16pre1 missing cmd64x I/O stats
+Message-ID: <20011125102049.A8590@sackheads.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-just the subject :-)
+Hi.  I've noticed that in non-AC kernels including 2.4.16pre1, /proc/stat 
+does not contain disk_io statistics for my CMD649 IDE interface.  
 
---
-Salutacions...Josep
-http://www.geocities.com/SiliconValley/Horizon/1065/
---
+2.4.10ac12:
+disk_io: (2,0):(5,5,10,0,0) (11,0):(4,4,16,0,0) (34,0):(5820,2968,44458,2852,16024) (34,1):(7068,7067,56530,1,8) 
+
+2.4.16pre1:
+disk_io: (2,0):(79,60,1444,19,1334) (11,0):(147,147,4732,0,0) 
 
 
+Jimmie
 

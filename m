@@ -1,87 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbTLJTy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 14:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTLJTy6
+	id S263909AbTLJTvP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 14:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTLJTvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 14:54:58 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:24992 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263923AbTLJTy4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 14:54:56 -0500
-Message-ID: <3FD77A0E.7000909@namesys.com>
-Date: Wed, 10 Dec 2003 22:54:54 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Wed, 10 Dec 2003 14:51:15 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:50352 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S263909AbTLJTvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 14:51:09 -0500
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Linus Torvalds'" <torvalds@osdl.org>, "'Larry McVoy'" <lm@bitmover.com>
+Cc: "'Andre Hedrick'" <andre@linux-ide.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>, <Valdis.Kletnieks@vt.edu>,
+       "'Kendall Bennett'" <KendallB@scitechsoft.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Linux GPL and binary module exception clause?
+Date: Wed, 10 Dec 2003 11:51:05 -0800
+Organization: Cisco Systems
+Message-ID: <00bf01c3bf56$f2cbefd0$d43147ab@amer.cisco.com>
 MIME-Version: 1.0
-To: Vitaly Fertman <vitaly@namesys.com>
-CC: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org
-Subject: Re: forwarded message from Jan De Luyck
-References: <16343.2023.525418.637117@laputa.namesys.com> <200312101604.15299.vitaly@namesys.com>
-In-Reply-To: <200312101604.15299.vitaly@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <Pine.LNX.4.58.0312100959180.29676@home.osdl.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vitaly Fertman wrote:
+> No it wouldn't.
+> 
+> Microsoft very much _has_ a binary API to their drivers, in a way that
+> Linux doesn't.
+> 
+> MS has to have that binary API exactly because they live in a 
+> binary-only world. They've basically put that requirement on
+themselves 
+> by having binary-only distributions.
+> 
+> So your argument doesn't fly. To Microsoft, a "driver" is just another
+> external entity, with documented API's, and they indeed ship 
+> their _own_ drivers that way too. And all third-party drivers do the
+same 
+> thing.
+> 
+> So there is no analogy to the Linux case. In Linux, no fixed 
+> binary API exists, and the way normal drivers are distributed are as 
+> GPL'd source code.
 
->Hello, 
->
->  
->
->>Hello,
->>
->>Today I discovered this in my syslogs, after something strange
->>happening to XFree86 (hung at startup, then dumped me back to the console)
->>
->>is_leaf: free space seems wrong: level=1, nr_items=41, free_space=65224
->>rdkey vs-5150: search_by_key: invalid format found in block 283191. Fsck?
->>vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find
->>stat data of [11 12795 0x0 SD] is_leaf: free space seems wrong: level=1,
->>nr_items=41, free_space=65224 rdkey vs-5150: search_by_key: invalid format
->>found in block 283191. Fsck? vs-13070: reiserfs_read_locked_inode: i/o
->>failure occurred trying to find stat data of [11 12798 0x0 SD]
->>    
->>
->
->this all about fs corruptions. fsck is needed.
->  
->
-is this a failure due to bad sector on the drive?
+With all due respect, I find the above hardly convincing.
 
->  
->
->>I've never seen these before, and I've been digging through my syslogs but
->>am unable to find any other references of this.
->>Does this mean the disk is dying? Or just the filesystem is corrupt?
->>Unfortunately, I'm not able to rebuild the tree at this time because I
->>haven't got a 'rescue' disk with me and the errors are on my root
->>partition...
->>
->>Any other pointers?
->>    
->>
->
->reiserfsck from the 3.6.12-pre1 package is able to recover mounted ro 
->partitions.
->
->--
->Thanks,
->Vitaly Fertman
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+With your own argument, how would you convince a judge to believe it
+without understanding all the subtle technical differences? (and we're
+just taking what you said about "one offers stable ABI the other not"
+for granted for now)
+
+Both Windows and Linux are operating systems, that's the first thing.
+Whether they are open source or not is just a secondary difference. How
+could this fundamentally change the question "if a driver is a derived
+work of the OS or not"?
+
+In either case the driver would not work "without the host OS". In
+either case, the same driver binary would probably not work across
+versions. Both are pretty strong points in your argument. Moreover, in
+the Windows world, a non-trivial user space application very possibly
+havs different binaries for different versions - hey, Windows may have a
+less stable user space ABI than Linux, so they could very well claim
+more rights over user space applications, can't they?
+
+I'm not arguing because I am afraid of being sued, just to clarify. To
+be frank the chance that I'm sued by kernel copyright holders for
+writing a binary only module is slimer than being sued by SCO for using
+Linux freely. The chance that I would lose is also slimer than IBM would
+lose to SCO.
+
+Hua
 
 
--- 
-Hans
 
 

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVCXA6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVCXBBC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVCXA6R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 19:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVCXA6R
+	id S261606AbVCXBBC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 20:01:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVCXBBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 19:58:17 -0500
-Received: from smtpout.mac.com ([17.250.248.97]:62432 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262187AbVCXA6N (ORCPT
+	Wed, 23 Mar 2005 20:01:02 -0500
+Received: from fmr16.intel.com ([192.55.52.70]:13209 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261606AbVCXBA5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 19:58:13 -0500
-In-Reply-To: <20050323143405.502c1c84.akpm@osdl.org>
-References: <20050323130628.3a230dec.akpm@osdl.org> <29204.1111608899@redhat.com> <30327.1111613194@redhat.com> <20050323143405.502c1c84.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <5c0472408f4aec762f6f20d3b3dbd687@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: David Howells <dhowells@redhat.com>, mahalcro@us.ibm.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 1/3] Keys: Pass session keyring to call_usermodehelper()
-Date: Wed, 23 Mar 2005 19:58:03 -0500
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.619.2)
+	Wed, 23 Mar 2005 20:00:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 0/6] freepgt: free_pgtables shakeup
+Date: Wed, 23 Mar 2005 17:00:06 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F032455F2@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 0/6] freepgt: free_pgtables shakeup
+Thread-Index: AcUwCB0OB/daBqbcQ6i7Cb1gPBqn7QAAtFZw
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "David S. Miller" <davem@davemloft.net>
+Cc: "Hugh Dickins" <hugh@veritas.com>, <akpm@osdl.org>,
+       <benh@kernel.crashing.org>, <ak@suse.de>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Mar 2005 01:00:07.0755 (UTC) FILETIME=[D265B9B0:01C5300C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 23, 2005, at 17:34, Andrew Morton wrote:
-> Well one question is "does it make sense to make a keyring session a 
-> part
-> of the call_usermodehelper() API?".  As it appears that only one caller
-> will ever want to do that then I'd say no, and that it should be some
-> specialised thing private to the key code and the call_usermodehelper()
-> implementation.
+>OK, attached is my first cut at slimming down the boundary tests.
+>I have only had a chance to try it on i386, so I hate to drop it
+>on you like this - but I *have* put a bit of thought into it....
+>Treat it as an RFC, and I'll try to test it on a wider range of
+>things in the next couple of days.
 >
-> So unless you think that a significant number of callers will appear 
-> who
-> are actually using the new capability then it would be better to keep 
-> the
-> existing call_usermodehelper() API.
+>Not that there is anything really nasty with your system David,
+>so I don't think it will be a big disaster if I can't get this to
+>work.
+>
+>Goes on top of Hugh's 6 patches.
 
-I'm fairly sure that OpenAFS or other AFS clients will need to make use 
-of
-this when they move to the kernel keyring system.  I had a discussion 
-with
-Jeffrey Hutzelman on this topic a couple days ago on OpenAFS-Devel.  The
-OpenAFS cache manager would want to call into userspace to convert 
-between
-Kerberos and AFS tickets/tokens.
+Runs on ia64.  Looks much cleaner too.
 
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
-
+-Tony

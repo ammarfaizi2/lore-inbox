@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264628AbUGFVjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUGFVuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264628AbUGFVjo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 17:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUGFVjl
+	id S264629AbUGFVuH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 17:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUGFVuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 17:39:41 -0400
-Received: from hera.kernel.org ([63.209.29.2]:38017 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S264628AbUGFVje (ORCPT
+	Tue, 6 Jul 2004 17:50:07 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:6343 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S264584AbUGFVuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 17:39:34 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH 1/2] Spinlock timeout
-Date: Tue, 6 Jul 2004 14:39:21 -0700
-Organization: Open Source Development Lab
-Message-ID: <20040706143921.3abfef5f@dell_ss3.pdx.osdl.net>
-References: <20040706161627.00f51cb0.moilanen@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 6 Jul 2004 17:50:02 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1089149962 10372 172.20.1.60 (6 Jul 2004 21:39:22 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 6 Jul 2004 21:39:22 +0000 (UTC)
-X-Newsreader: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Message-ID: <16619.7814.759319.469038@napali.hpl.hp.com>
+Date: Tue, 6 Jul 2004 14:49:58 -0700
+To: Peter Martuccelli <peterm@redhat.com>
+Cc: akpm@osdl.org, faith@redhat.com, davidm@hpl.hp.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       ray.lanza@hp.com
+Subject: Re: [PATCH] IA64 audit support
+In-Reply-To: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
+References: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jul 2004 16:16:27 -0500
-Jake Moilanen <moilanen@austin.ibm.com> wrote:
+The patch is mostly fine with me (it looks identical to me as the last
+version I saw from Ray; but my memory may be fuzzy).
 
-> This will cause a BUG() when a spinlock is held for longer then X
-> seconds.  It is useful for catching deadlocks since not all archs
-> have a NMI watchdog.
-> 
-> It is also helpful to find locks that are held too long.
-> 
-> Please comment or apply.
-> 
-> Thanks,
+There are two minor things I'd like to see changed, though:
 
-Just don't ever run on a production or benchmark system because there are
-cases where a lock can get hot and statistically take a real long time.
+ - Use IS_IA32_PROCESS() instead of testing psr.is directly (the macro
+   gets defined by system.h and using it ensures that the
+   IA-32-specific code will go away if the ia32 subsystem is not
+   compiled into the kernel).
+
+ - Remove trailing white-space.
+
+Thanks,
+
+	--david

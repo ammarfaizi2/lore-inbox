@@ -1,43 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265832AbRFYA4Z>; Sun, 24 Jun 2001 20:56:25 -0400
+	id <S265828AbRFYBAZ>; Sun, 24 Jun 2001 21:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265831AbRFYA4Q>; Sun, 24 Jun 2001 20:56:16 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:33978 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S265829AbRFYA4B>;
-	Sun, 24 Jun 2001 20:56:01 -0400
-Message-ID: <XFMail.20010624175903.davidel@xmailserver.org>
+	id <S265833AbRFYBAP>; Sun, 24 Jun 2001 21:00:15 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:18883 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265828AbRFYBAC>;
+	Sun, 24 Jun 2001 21:00:02 -0400
+Message-ID: <XFMail.20010624180312.davidel@xmailserver.org>
 X-Mailer: XFMail 1.4.7 on Linux
 X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.10.10106241726460.14567-100000@innerfire.net>
-Date: Sun, 24 Jun 2001 17:59:03 -0700 (PDT)
+Date: Sun, 24 Jun 2001 18:03:12 -0700 (PDT)
 From: Davide Libenzi <davidel@xmailserver.org>
-To: Gerhard Mack <gmack@innerfire.net>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>,
-        Timur Tabi <ttabi@interactivesi.com>,
-        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        landley@webofficenow.com, Larry McVoy <lm@bitmover.com>,
-        "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Collapsing RT signals ...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 25-Jun-2001 Gerhard Mack wrote:
->> BTW, after all I have read all POSIX threads library should be no more than
->> a wrapper over fork(), clone and so on. Why are they so bad then ?
->> I am going to get glibc source to see what is inside pthread_create...
-> 
-> If I recall it had to do with problems in signal delivery...
+I'm making some test with RT signals and looking at how they're implemented
+inside the kernel.
+After having experienced frequent queue overflow signals I looked at how
+signals are queued inside the task_struct.
+There's no signals optimization inside and this make the queue length depending
+on the request rate instead of the number of connections.
+It can happen that two ( or more ) POLL_IN signals are queued with a single
+read() that sweep the buffer leaving other signals to issue reads ( read this
+as user-mode / kernel-mode switch ) that will fail due lack of data.
+So for every "superfluous" signal we'll have two user-mode / kernel-mode
+switches, one for signal delivery and one for a failing read().
+I'm just thinking at a way to optimize the signal delivery that is ( draft ) :
 
-1) pthread_create() does not create the thread, it write through a pipe to a
-        thread manager that will create a thread
 
-2) pthread ( in linux ) is signal intensive
+struct sigqueue {
+        struct sigqueue *next;
+        struct sigqueue **fsig;
+        siginfo_t info;
+};
+
+
+struct fown_struct {
+        int pid;                /* pid or -pgrp where SIGIO should be sent */
+        uid_t uid, euid;        /* uid/euid of process setting the owner */
+        int signum;             /* posix.1b rt signal to be delivered on IO */
+        struct sigqueue *sig_hint;
+};
+
+
+
+At the end we'll have ( where fsig = &file->fown.sig_hint ) :
+
+
+static int send_signal_hint(int sig, struct siginfo *info,
+        struct sigpending *signals, struct sigqueue **fsig) {
+
+        if (*fsig != NULL)
+                merge_info(&(*fsig)->info, info);
+        else {
+                *fsig = allog_sig_queue();
+
+                (*fsig)->fsig = fsig;
+
+                copy_info(&(*fsig)->info, info);
+
+                ...
+                add-to-queue();
+                ...
+        }
+
+        ...
+
+}
+
+
+When the message is delivered we'll have :
+
+void clean_sig_hint(struct sigqueue *qsig) {
+
+        if (qsig->fsig != NULL) {
+                *(qsig->fsig) = NULL;
+                qsig->fsig = NULL;
+        }
+
+}
+
+
+When the file is closed :
+
+void clean_fown_sighint(struct fown_struct *fown) {
+
+        if (fown->sig_hint != NULL) {
+                fown->sig_hint->fsig = NULL;
+                fown->sig_hint = NULL;
+        }
+
+}
+
+
+All these ops must be done under  sigmask_lock  lock ( send_signal() and signal
+dequeue already does ).
+This will make multiple signal from the same file to be stocked inside the same
+slot reducing the RT signal traffic.
+
+Comments ?
+
+
 
 
 

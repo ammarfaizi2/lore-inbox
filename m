@@ -1,76 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129344AbRCUAw7>; Tue, 20 Mar 2001 19:52:59 -0500
+	id <S129486AbRCUBYf>; Tue, 20 Mar 2001 20:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129359AbRCUAws>; Tue, 20 Mar 2001 19:52:48 -0500
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:15876 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S129344AbRCUAwh>;
-	Tue, 20 Mar 2001 19:52:37 -0500
-Date: Tue, 20 Mar 2001 19:52:08 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Wouter Verhelst <wouter.verhelst@advalvas.be>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: CDROM and harddisk fighting over DMA
-In-Reply-To: <Pine.LNX.4.21.0103201018080.370-100000@rock.dezevensprong.local>
-Message-ID: <Pine.LNX.4.30.0103201950530.1354-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129524AbRCUBYZ>; Tue, 20 Mar 2001 20:24:25 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:31800 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129486AbRCUBYH>; Tue, 20 Mar 2001 20:24:07 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: nigel@nrg.org
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel 
+In-Reply-To: Your message of "Tue, 20 Mar 2001 16:48:01 -0800."
+             <Pine.LNX.4.05.10103201625430.26853-100000@cosmic.nrg.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 21 Mar 2001 12:23:20 +1100
+Message-ID: <16074.985137800@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Mar 2001 16:48:01 -0800 (PST), 
+Nigel Gamble <nigel@nrg.org> wrote:
+>On Tue, 20 Mar 2001, Keith Owens wrote:
+>> The preemption patch only allows preemption from interrupt and only for
+>> a single level of preemption.  That coexists quite happily with
+>> synchronize_kernel() which runs in user context.  Just count user
+>> context schedules (preempt_count == 0), not preemptive schedules.
+>
+>If you're looking at preempt_schedule(), note the call to ctx_sw_off()
+>only increments current->preempt_count for the preempted task - the
+>higher priority preempting task that is about to be scheduled will have
+>a preempt_count of 0.
 
-Some CDROMS can do this, My old Acer 12x cdrom was fighting with DMA with
-my new Fujitsu drive, I disabled the cd-rom and no more DMA errors ;-)
+I misread the code, but the idea is still correct.  Add a preemption
+depth counter to each cpu, when you schedule and the depth is zero then
+you know that the cpu is no longer holding any references to quiesced
+structures.
 
-You might also be able to fix this by rearranging the CD-ROM and drives:
-move the CD-ROM off the HD's IDE chain and put it separate (if its not
-already).
+>So, to make sure I understand this, the code to free a node would look
+>like:
+>
+>	prev->next = node->next; /* assumed to be atomic */
+>	synchronize_kernel();
+>	free(node);
+>
+>So that any other CPU concurrently traversing the list would see a
+>consistent state, either including or not including "node" before the
+>call to synchronize_kernel(); but after synchronize_kernel() all other
+>CPUs are guaranteed to see a list that no longer includes "node", so it
+>is now safe to free it.
+>
+>It looks like there are also implicit assumptions to this approach, like
+>no other CPU is trying to use the same approach simultaneously to free
+>"prev".
 
-Shawn.
+Not quite.  The idea is that readers can traverse lists without locks,
+code that changes the list needs to take a semaphore first.
 
-On Tue, 20 Mar 2001, Wouter Verhelst wrote:
+Read
+	node = node->next;
 
-> (I'm not subscribed to linux-kernel, so please CC any answers. TIA)
->
-> Hello
->
-> Since I bought my new harddisk (a Maxtor 40GB of about a half year old
-> now), I've had errors over my console like this:
->
-> hda: timeout waiting for DMA
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
->
-> hda is my harddisk. The CDROM was first connected to hdb, but I changed
-> that to hdc, trying to get rid of these errors. This did not resolve the
-> issue.
-> After playing around a bit, I found out that these errors occur when both
-> the CDROM and the harddisk are being accessed at the same time (well,
-> almost; it's not an SMP system ;-). I managed to fix it by disabling DMA
-> on the harddisk, using hdparm. Disabling DMA on the CDROM, by contrast,
-> did not resolve the issue.
->
-> However, as this slows down my data throughput speed quite drastically,
-> I'd like to do this differently.
->
-> I first posted this to comp.os.linux.setup, but did not get any useful
-> information. I believe it's not some misconfiguration from my side, so I
-> sent this here since this mailinglist is listed as relevant mailinglist
-> for the IDE subsystem; however, if this is the wrong place to ask, please
-> redirect.
->
-> --
-> wouter dot verhelst at advalvas in belgium
->
-> Real men don't take backups.
-> They put their source on a public FTP-server and let the world mirror it.
-> 					-- Linus Torvalds
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+Update
+	down(&list_sem);
+	prev->next = node->next;
+	synchronize_kernel();
+	free(node);
+	up(&list_sem);
+
+Because the readers have no locks, other cpus can have references to
+the node being freed.  The updating code needs to wait until all other
+cpus have gone through at least one schedule to ensure that all
+dangling references have been flushed.  Adding preemption complicates
+this slightly, we have to distinguish between the bottom level schedule
+and higher level schedules for preemptive code.  Only when all
+preemptive code on a cpu has ended is it safe to say that there are no
+dangling references left on that cpu.
+
+This method is a win for high read, low update lists.  Instead of
+penalizing the read code every time on the off chance that somebody
+will update the data, speed up the common code and penalize the update
+code.  The classic example is module code, it is rarely unloaded but
+right now everything that *might* be entering a module has to grab the
+module spin lock and update the module use count.  So main line code is
+being slowed down all the time.
 

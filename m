@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318241AbSGQLoK>; Wed, 17 Jul 2002 07:44:10 -0400
+	id <S315928AbSGQLmM>; Wed, 17 Jul 2002 07:42:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318248AbSGQLoJ>; Wed, 17 Jul 2002 07:44:09 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:3815 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S318241AbSGQLoI>; Wed, 17 Jul 2002 07:44:08 -0400
-Message-ID: <3D355940.96EE8327@delusion.de>
-Date: Wed, 17 Jul 2002 13:47:12 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.26 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 Input Core Support
-References: <3D35435F.E5CFA5E2@delusion.de> <20020717122000.A12529@ucw.cz>
+	id <S315946AbSGQLmL>; Wed, 17 Jul 2002 07:42:11 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:23303 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S315928AbSGQLmL>; Wed, 17 Jul 2002 07:42:11 -0400
+Date: Wed, 17 Jul 2002 13:45:01 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020717114501.GB28284@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020716152231.B6254@q.mn.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On Tue, 16 Jul 2002, Shawn wrote:
+
+> In this case, can you use a RAID mirror or something, then break it?
 > 
-> It's a bug. This patch should fix it:
+> Also, there's the LVM snapshot at the block layer someone already
+> mentioned, which when used with smaller partions is less overhead.
+> (less FS delta)
 
-Hello,
-
-With this patch I can now properly scroll down. But scrolling the
-mouse wheel up doesn't do any scrolling up in X.
-
--Udo.
+All these "solutions" don't work out, I cannot remount R/O my partition,
+and LVM low-level snapshots or breaking a RAID mirror simply won't work
+out. I would have to remount r/o the partition to get a consistent image
+in the first place, so the first step must fail already...

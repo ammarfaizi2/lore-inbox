@@ -1,46 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268486AbTGOOI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 10:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268626AbTGOOI0
+	id S267874AbTGOOE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 10:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267978AbTGOOE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 10:08:26 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:696
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S268486AbTGOOIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 10:08:24 -0400
-Date: Tue, 15 Jul 2003 10:23:14 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver poll method
-Message-ID: <20030715142314.GA13207@gtf.org>
-References: <7A25937D23A1E64C8E93CB4A50509C2A0179B6E2@stca204a.bus.sc.rolm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Jul 2003 10:04:29 -0400
+Received: from leviathan.ele.uri.edu ([131.128.51.64]:33424 "EHLO
+	leviathan.ele.uri.edu") by vger.kernel.org with ESMTP
+	id S267874AbTGOOEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 10:04:25 -0400
+From: mingz <mingz@ele.uri.edu>
+Reply-To: mingz@ele.uri.edu
+To: linux-kernel@vger.kernel.org
+Subject: defunc thread?
+Date: Tue, 15 Jul 2003 09:54:42 -0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <7A25937D23A1E64C8E93CB4A50509C2A0179B6E2@stca204a.bus.sc.rolm.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200307150954.42253.mingz@ele.uri.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 07:03:23AM -0700, Bloch, Jack wrote:
-> I am implementing a poll method in a driver. I have defined a queue which I
-> put into a wait table with a call to poll_wait. I also have my own DMA input
-> list which is very specific to my device. I want my application to sleep in
-> a suspended state until my device writes some data into the input list. Is
-> it not so that the Kernel should periodically call my poll routine after my
-> application calls select (until the select timer expires or as in my case, I
-> specify a NULL value for the timeout). Please CC me directly on any
-> responses.
+I code a smal example about kernel thread. But when I 
+insmod thrtest.o &
+more /proc/testthread
+ps aux
 
-drivers/sounds/via82cxxx_audio and several other audio drivers have
-excellent examples of working poll(2) support.
+then i can see my thread become defunc. if i 
+insmod (and wait till it return, )
+more /proc/testthread, 
+ps aux, 
 
-The basic idea is that you set up the poll table, then the kernel does
-the waiting...
+the thread status is correct. can anybody tell me why? thx
 
-	Jeff
+ming
+---------------------------------------------------------------------------------
+#include <linux/errno.h>    /* Miscellaneous error codes */
+#include <linux/stddef.h>   /* NULL */
+#include <linux/slab.h>     /* kmalloc() */
+#include <linux/module.h>   /* EXPORT_SYMBOL */
+#include <linux/pci.h>
+#include <linux/smp_lock.h>
+#include <linux/proc_fs.h>
+#include <asm/uaccess.h>
+#include <linux/interrupt.h>
+
+DECLARE_WAIT_QUEUE_HEAD(test_wait);
+
+int t_thread(void *startup)
+{
+	int i = 0;
+	
+	lock_kernel();
+	daemonize();
+	current->tty = NULL;
+	strcpy(current->comm, "testthread");
+	unlock_kernel();
+
+	spin_lock_irq(&current->sigmask_lock);
+	sigfillset(&current->blocked);
+	recalc_sigpending(current);
+	spin_unlock_irq(&current->sigmask_lock);
+
+	complete((struct completion *)startup);
+
+	printk("test thread up and call complete\n");
+	interruptible_sleep_on(&test_wait);
+	printk("thread wake up %d times\n", ++i);
+
+	printk("test thread do cleanup work\n");
+
+	return 0;
+}
+
+int test_read_procmem(char *buf, char **start, off_t offset, int count, int 
+*eof, void *data)
+{
+        int len = 0;
+
+        len += sprintf(buf+len,"test v0.1 Dragonfly, ELE, URI\n");
+        *eof = 1;
+
+	wake_up_interruptible(&test_wait);
+        return len;
+}
+
+static struct completion startup = COMPLETION_INITIALIZER(startup);
+
+int test_init(void)
+{
+	kernel_thread(t_thread, &startup, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
+	wait_for_completion(&startup);
+
+	create_proc_read_entry("testthread", 0, NULL, test_read_procmem, NULL);
+	
+	set_current_state (TASK_INTERRUPTIBLE);
+	schedule_timeout (30*HZ);
+	__set_current_state (TASK_RUNNING);
+
+	return 0;
+}
+
+void test_clean(void)
+{
+	remove_proc_entry("helpm", NULL);
+}
+
+module_init(test_init);
+module_exit(test_clean);
+
+MODULE_DESCRIPTION("Test Thread");
+MODULE_LICENSE("GPL");
 
 
 

@@ -1,64 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130416AbRBBWgv>; Fri, 2 Feb 2001 17:36:51 -0500
+	id <S130339AbRBBWjB>; Fri, 2 Feb 2001 17:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130378AbRBBWgl>; Fri, 2 Feb 2001 17:36:41 -0500
-Received: from mail002.syd.optusnet.com.au ([203.2.75.245]:35283 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S130416AbRBBWgY>; Fri, 2 Feb 2001 17:36:24 -0500
-Date: Sat, 3 Feb 2001 08:35:39 +1000
-Message-Id: <200102022235.f12MZdi21961@borogoves.yi.org>
-From: Derek Benson <derek@borogoves.yi.org>
-Subject: Ethernet dies after one hour
-Reply-to: derek@borogoves.yi.org
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S130417AbRBBWiv>; Fri, 2 Feb 2001 17:38:51 -0500
+Received: from arthur.runestig.com ([195.67.47.226]:28432 "EHLO
+	arthur.runestig.com") by vger.kernel.org with ESMTP
+	id <S130339AbRBBWik>; Fri, 2 Feb 2001 17:38:40 -0500
+Message-ID: <003e01c08d68$fd5b53f0$0201010a@runestig.com>
+From: "Peter 'Luna' Runestig" <peter@runestig.com>
+To: "Linux Kernel Mailing list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <003c01c08633$9839c1f0$0201010a@runestig.com>
+Subject: Re: PROBLEM: 2.2.19pre7 opps on low mem machine
+Date: Fri, 2 Feb 2001 23:39:22 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a box with: 
-  a couple of analog ISA modem cards in it which have 8 modems a piece 
-  the modems use devices ttyS4-19 
-  a realtek 8039 pci ethernet card (100 mbit)
-  486 dx
+----- Original Message -----
+From: "Peter 'Luna' Runestig" <peter@runestig.com>
+To: "Linux Kernel Mailing list" <linux-kernel@vger.kernel.org>
+Sent: Wednesday, January 24, 2001 7:29 PM
+Subject: PROBLEM: 2.2.19pre7 opps on low mem machine
 
-Its running redhat 6.2 and a 2.2.17 kernel with ppp ip-forwarding
-ip aliasing and ip masq support. 
-The kernel is patched with a rastel driver (serial.c and dummy.h from
-memory)  Although this is 2.2 kernel it has support for proxy arp after
-the patch. 
 
-I am running portslave terminal server.  And I use proxy arp on dialin
-connections to add an entry in the arp table (I don't like this but ppp
-won't work otherwise with this particular kernel after the patch)
-I am using iputils-20001010-1.6x.i386.rpm ppp-2.3.11-4.i386.rpm
+> [1.] One line summary of the problem:
+> Oops with 2.2.19pre7 on memory stressed, old PC.
+>
+> [2.] Full description of the problem/report:
+> An old 486/66 with 20 Meg memory runs a a firewall at home. Probably runs
+> too much for that amount of memory (sendmail, bind, ntpd and FreeSWAN
+VPN),
+> but I can't find any more memory modules! I have gotten four or five oops
+> the last week or so (in different processes), running 2.2.18. Stepped up
+to
+> 2.2.19pre7 and hooked up a serial console two days ago, now I got one
+again.
+>
+> [4.] Kernel version (from /proc/version):
+> Linux version 2.2.19pre7 (root@r2.runestig.com) (gcc version 2.95.2
+19991024
+> (release)) #1 Mon Jan 22 11:57:12 CET 2001
 
-When I ping I get a warning saying that time goes back and taking precautions.
-I have tried changing the time on the hwclock and clock but doesn't seem to 
-make any difference.  These warnings occur even when I ping the loopback 
-interface.
+OK, following the reiserfs/compiler thread, I can see now that my bug report
+may have been ignored since I was using a non-kosher compiler (although I
+have used it since late October -99 without any problems). Or, it might not
+have been ignored, just nobody told me he/she wasted some time on it. Since
+it seems to be hardware related; that oops wasn't the only one, and after
+some more strange behaviour, I moved the hard drive to another, almost
+identical, PC, with even less memory, 16 MB (but this one I have the chips
+to run 48 MB, but I wanted to stress it). And it's been running for a week
+now, like a clock.
 
-After the box is up for an hour (in which times it functions perfectly)
-it ceases to be on the network.  Its almost as if the cable has been 
-unplugged.  
-If I go down into single user mode and come back up it reappears
-on the network for about 5 seconds and then disappears again.  
-After a 'shutdown -r now' it comes up and is on the network for another hour.
-The log files only contain messages like: radius server not responding etc
-which you would expect if the ethernet was down.  
-ifconfig shows nothing unusual, that is it is still up.
-I can ping the loopback and the ip address from the box itself to itself after
-it's ethernet has ceased to function.
-The ethernet hub shows a slow blink for the box (corresponding to the volume
-of traffic) after it has ceased to function.
+So, sorry for the false alarm!
 
-Is this a kernel problem? 
-A portslave problem?
-An iputils-20001010-1.6x problem?
-Buggey ethernet card?
-
-thanks 
-derek
-
+Cheers,
+Peter
+----------------------------------------------------------------
+Peter 'Luna' Runestig (fd. Altberg), Sweden <peter@runestig.com>
+PGP Key ID: 0xD07BBE13
+Fingerprint: 7B5C 1F48 2997 C061 DE4B  42EA CB99 A35C D07B BE13
+AOL Instant Messenger Screenname: PRunestig
 
 
 -

@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290503AbSAYBjJ>; Thu, 24 Jan 2002 20:39:09 -0500
+	id <S290490AbSAYBjT>; Thu, 24 Jan 2002 20:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290496AbSAYBjI>; Thu, 24 Jan 2002 20:39:08 -0500
-Received: from coffee.Psychology.McMaster.CA ([130.113.218.59]:2764 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S290503AbSAYBiS>; Thu, 24 Jan 2002 20:38:18 -0500
-Date: Thu, 24 Jan 2002 20:39:33 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
-To: J Sloan <jjs@lexus.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Testing the effects of the low latency patch
-In-Reply-To: <3C50B28A.8080607@lexus.com>
-Message-ID: <Pine.LNX.4.33.0201242036470.29313-100000@coffee.psychology.mcmaster.ca>
+	id <S290504AbSAYBjG>; Thu, 24 Jan 2002 20:39:06 -0500
+Received: from mx1.sac.fedex.com ([199.81.208.10]:7942 "EHLO mx1.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S290496AbSAYBiE>;
+	Thu, 24 Jan 2002 20:38:04 -0500
+Date: Fri, 25 Jan 2002 09:38:20 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: ivan <ivan@es.usyd.edu.au>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Physical memory versus detected memory 2.4.7-10
+In-Reply-To: <Pine.LNX.4.33.0201251110180.31632-100000@dipole.es.usyd.edu.au>
+Message-ID: <Pine.LNX.4.44.0201250938070.13223-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/25/2002
+ 09:37:58 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/25/2002
+ 09:38:02 AM,
+	Serialize complete at 01/25/2002 09:38:02 AM
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ftp://wintermute.toyota.com/pub/graphs
 
-I found it hard to grasp the separate graphs, so:
-http://hahn.mcmaster.ca/~hahn/feel.png
+On Fri, 25 Jan 2002, ivan wrote:
+> My server detects less memory than it available.
+>       Available memory according to the BIOS 4049MB.
+>
+>       System sees only 3.7GB ???
+>       Mem:  3799580K av, 1606816K used, 2192764K free, 468K shrd,
+376972K buff
+>       Swap: 8192992K av, 0K used, 8192992K free 1037532K cached
 
-also, I noticed that there were 30% more counts in ll;
-I hope that means you simply enjoyed the game more, and played it longer ;)
+I think you need to recompile the kernel to support 64GB mem.
+
+You current config seems to support up to 4GB only (but it is a bit
+less than 4GB). I had a similar problem where I had 1GB, but saw only
+9xxGB.
+
+Jeff
+
 

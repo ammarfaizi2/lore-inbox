@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264822AbTAEOrG>; Sun, 5 Jan 2003 09:47:06 -0500
+	id <S264842AbTAEOrI>; Sun, 5 Jan 2003 09:47:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbTAEOrG>; Sun, 5 Jan 2003 09:47:06 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:19433 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S264822AbTAEOrF>;
-	Sun, 5 Jan 2003 09:47:05 -0500
-Date: Sun, 5 Jan 2003 15:55:34 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-cc: Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: [PATCH] duplicate extern char _stext
-Message-ID: <Pine.GSO.4.21.0301051553420.10519-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264836AbTAEOrI>; Sun, 5 Jan 2003 09:47:08 -0500
+Received: from bitmover.com ([192.132.92.2]:15068 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S264842AbTAEOrG>;
+	Sun, 5 Jan 2003 09:47:06 -0500
+Date: Sun, 5 Jan 2003 06:55:39 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Jochen Friedrich <jochen@scram.de>, Andreas Dilger <adilger@turbolabs.com>,
+       sam@ravnborg.org,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Documentation/BK-usage/bksend problems?
+Message-ID: <20030105145539.GE1889@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jochen Friedrich <jochen@scram.de>,
+	Andreas Dilger <adilger@turbolabs.com>, sam@ravnborg.org,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20030105015444.GE29511@merlin.emma.line.org> <Pine.LNX.4.44.0301050839340.19683-100000@gfrw1044.bocc.de> <20030105075842.GA1256@mars.ravnborg.org> <20030105120029.GC5686@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030105120029.GC5686@merlin.emma.line.org>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 05, 2003 at 01:00:29PM +0100, Matthias Andree wrote:
+> Sam Ravnborg schrieb am Sonntag, den 05. Januar 2003:
+> 
+> > I will submit this with bk sendbug now.
+> 
+> Thank you. It looks as though the bkbugs stuff expected the list of
+> interested parties in a different syntax; when I added my findings, it
+> complained about the real names in that list, such as "user Jochen not
+> found" or something like that. Looks like it's not RFC-822 "To:" header
+> syntax but just a set of mail addresses.
 
-Kill duplicate extern char _stext (already declared globally 14 lines before)
-
---- linux-2.5.54/include/asm-i386/hw_irq.h.orig	Thu Jan  2 12:55:06 2003
-+++ linux-2.5.54/include/asm-i386/hw_irq.h	Thu Jan  2 15:16:02 2003
-@@ -76,7 +76,6 @@
- {
- 	unsigned long eip;
- 	extern unsigned long prof_cpu_mask;
--	extern char _stext;
- #ifdef CONFIG_PROFILING
- 	extern void x86_profile_hook(struct pt_regs *);
-  
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Right.  We'll fix the validation code.  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

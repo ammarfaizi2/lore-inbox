@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313181AbSDOTLz>; Mon, 15 Apr 2002 15:11:55 -0400
+	id <S312987AbSDOTRC>; Mon, 15 Apr 2002 15:17:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313182AbSDOTLy>; Mon, 15 Apr 2002 15:11:54 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:51468 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S313181AbSDOTLx>;
-	Mon, 15 Apr 2002 15:11:53 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Jens Axboe <axboe@suse.de>
-Date: Mon, 15 Apr 2002 21:11:34 +0200
+	id <S313019AbSDOTRB>; Mon, 15 Apr 2002 15:17:01 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13061
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S312987AbSDOTRA>; Mon, 15 Apr 2002 15:17:00 -0400
+Date: Mon, 15 Apr 2002 12:16:42 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Josh McKinney <forming@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]
+In-Reply-To: <20020415190946.GA1383@cy599856-a>
+Message-ID: <Pine.LNX.4.10.10204151216110.1699-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] IDE TCQ #4
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <276280417F3@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Apr 02 at 21:00, Jens Axboe wrote:
+
+Please send me your .config cause this built clean ...
+
+On Mon, 15 Apr 2002, Josh McKinney wrote:
+
+> On approximately Mon, Apr 15, 2002 at 11:39:14AM -0700, Andre Hedrick wrote:
 > > 
-> > NULL pointer ...
+> > http://www.linuxdiskcert.org/ide-2.4.19-p6.all.convert.3.patch.bz2
+> > 
+> Just got this when compiling...
 > 
-> Could you decode that? It doesn't look like any of your drives support
-> TCQ, it should have enabled them right here:
+> drivers/ide/idedriver.o: In function `task_no_data_intr':
+> drivers/ide/idedriver.o(.text+0x9f1): undefined reference to `ide__sti'
+> drivers/ide/idedriver.o: In function `flagged_task_no_data_intr':
+> drivers/ide/idedriver.o(.text+0x14c7): undefined reference to `ide__sti'
+> drivers/ide/idedriver.o: In function `ide_cmd_ioctl':
+> drivers/ide/idedriver.o(.text+0x23e0): undefined reference to `set_transfer'
+> drivers/ide/idedriver.o(.text+0x23fc): undefined reference to `ide_ata66_check'
+> drivers/ide/idedriver.o(.text+0x24a7): undefined reference to `ide_driveid_update'
+> drivers/ide/idedriver.o: In function `check_dma_crc':
+> drivers/ide/idedriver.o(.text+0x2fc3): undefined reference to `ide_auto_reduce_xfer'
+> drivers/ide/idedriver.o: In function `ide_dump_status':
+> drivers/ide/idedriver.o(.text+0x34c8): undefined reference to `ide__sti'
+> drivers/ide/idedriver.o: In function `drive_cmd_intr':
+> drivers/ide/idedriver.o(.text+0x3b21): undefined reference to `ide__sti'
+> drivers/ide/idedriver.o: In function `ide_wait_stat':
+> drivers/ide/idedriver.o(.text+0x3cd5): undefined reference to `ide__sti'
+> drivers/ide/idedriver.o: In function `ide_do_request':
+> drivers/ide/idedriver.o(.text+0x42c9): undefined reference to `ide__sti'
+> drivers/ide/idedriver.o: In function `ide_intr':
+> drivers/ide/idedriver.o(.text+0x48f3): undefined reference to `ide__sti'
+> drivers/ide/idedriver.o: In function `report_drive_dmaing':
+> drivers/ide/idedriver.o(.text+0x784a): undefined reference to `eighty_ninty_three'
+> drivers/ide/idedriver.o(.text+0x789e): undefined reference to `eighty_ninty_three'
+> drivers/ide/idedriver.o: In function `config_drive_for_dma':
+> drivers/ide/idedriver.o(.text+0x79ce): undefined reference to `eighty_ninty_three'
+> drivers/ide/idedriver.o(.text+0x79fe): undefined reference to `eighty_ninty_three'
+> drivers/ide/idedriver.o: In function `via_set_drive':
+> drivers/ide/idedriver.o(.text+0x91a8): undefined reference to `ide_config_drive_speed'
+> drivers/ide/idedriver.o: In function `actual_try_to_identify':
+> drivers/ide/idedriver.o(.text+0xaaec): undefined reference to `ide__sti'
+> make: *** [vmlinux] Error 1
+> 
+> This comes at the final linking stage.
+> 
+> Thanks for the great stuff Andre.
+> 
+> Josh McKinney
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-They were already decoded... Also others reported that - after accessing
-/proc/ide/ide0/hda/identify system dies... I believe that passing
-hand-created request to ide_raw_taskfile corrupts drive->free_req,
-and so subsequent drive command after this cat finds that 
-drive->free_req.next is NULL and dies.
- 
-> > Uniform Multi-Platform E-IDE driver ver.:7.0.0
-> > ide: system bus speed 33MHz
-> > VIA Technologies, Inc. Bus Master IDE: IDE controller on PCI slot 00:07.1
-> > VIA Technologies, Inc. Bus Master IDE: chipset revision 16
-> > VIA Technologies, Inc. Bus Master IDE: not 100%% native mode: will probe irqs later
-> > VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:07.1
-> >     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-> >     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-> > hda: WDC WD1200JB-00CRA0, ATA DISK drive
-> > hdc: TOSHIBA MK6409MAV, ATA DISK drive
-> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > ide1 at 0x170-0x177,0x376 on irq 15
-> > ide: unexpected interrupt
-> 
-> hda: tagged command queueing enabled, command queue depth 8
-> 
-> is missing, TCQ is not supported on this drive.
+Andre Hedrick
+LAD Storage Consulting Group
 
-I expected that too, but I thought that unexpected interrupt may
-have something related with this. Strange. I'll try to find some 
-better identify parser than my eyes.
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                

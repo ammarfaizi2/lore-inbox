@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262933AbTDRIQC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 04:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTDRIQC
+	id S262934AbTDRI0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 04:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbTDRI0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 04:16:02 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54790 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262933AbTDRIQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 04:16:00 -0400
-Date: Fri, 18 Apr 2003 09:27:55 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Kernel<->Userspace API issue
-Message-ID: <20030418092755.A25177@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+	Fri, 18 Apr 2003 04:26:18 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:17129 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262934AbTDRI0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 04:26:17 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 18 Apr 2003 10:38:12 +0200 (MEST)
+Message-Id: <UTC200304180838.h3I8cCO25742.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, adilger@clusterfs.com
+Subject: Re: [PATCH] struct loop_info
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A problem has recently been reported on the ARM lists regarding RT signal
-handling.  It appears that there is an issue between glibc and the kernel,
-in that glibc has a different idea of the layout of structures passed
-from the kernel than the kernel itself.
+    From: Andreas Dilger <adilger@clusterfs.com>
 
-I think this is a case in point that our policy on "userspace must not
-include kernel headers" is completely wrong when it comes to user
-space interfaces.  I believe we need is a clear set of defined user
-space interface headers which contain the definition of structures and
-numbers shared between user space and kernel space.  ie, include/abi
-or some such.
+    > In this struct the occurrences of dev_t have been replaced by their
+    > actual values (short int / int / long int).
 
-No, glibckernheaders (or whatever it is) is NOT the solution - that
-just creates yet another set of header files to potentially go out
-of sync.
+    Even better, have specific sized types (__u16, __u32, __u64) for the
+    fields, so there is no ambiguity (e.g. sparc64, or 32-bit code running
+    on x86-64).
 
-Comments?
+I replaced the dev_t's by the actual thing they were typedef'd to.
+That is guaranteed to preserve correctness.
 
-On Thu, Apr 17, 2003 at 10:23:51PM -0400, Josh Fryman wrote:
-> any insights?  is this an implementation issue, program error, or am i 
-> missing some arm-centric trick?  or am i just stupid and doing something
-> completely wrong?
+    > In the patch below I remove the definition for this struct from
+    > <linux/loop.h> and put it in <asm/loopinfo.h>.
 
-Sigh.  glibc seems to have a bug.  This is the kernel's idea of ucontext:
+    Great.  Now we have 20 copies of asm-foo/loopinfo.h.  Couldn't you
+    just have asm-generic/loopinfo.h and each of the arch-specific
+    pieces just include that?
 
-struct ucontext {
-        unsigned long     uc_flags;
-        struct ucontext  *uc_link;
-        stack_t           uc_stack;
-        struct sigcontext uc_mcontext;
-        sigset_t          uc_sigmask;   /* mask last for extensibility */
-};
+Yes, a bit ugly. I could have saved kernel source (20 small files)
+by using __legacy_dev_t in loop.h, with a typedef of __legacy_dev_t
+in <asm/posix_types.h>.
 
-and glibc's idea:
+Maybe I should have done that. The reason I did what I did is
+that all these defined types give lots of complications in
+user space code. Maintainability of the union of kernel and
+user space source is increased by just saying explicitly
+what these types are.
 
-typedef struct ucontext
-  {
-    unsigned long int uc_flags;
-    struct ucontext *uc_link;
-    __sigset_t uc_sigmask;
-    stack_t uc_stack;
-    mcontext_t uc_mcontext;
-    long int uc_filler[5];
-  } ucontext_t;
-
-God knows where glibc got this from - it hasn't changed certainly since
-2.2 kernels.  I suspect glibc has been wrong for some time.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Andries

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTKYJkO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 04:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTKYJkO
+	id S262190AbTKYJoY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 04:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTKYJoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 04:40:14 -0500
-Received: from main.gmane.org ([80.91.224.249]:25730 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262174AbTKYJkL (ORCPT
+	Tue, 25 Nov 2003 04:44:24 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:9375 "HELO lgb.hu")
+	by vger.kernel.org with SMTP id S262190AbTKYJoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 04:40:11 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 25 Nov 2003 04:44:22 -0500
+Date: Tue, 25 Nov 2003 10:44:19 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Copy protection of the floppies
-Date: Tue, 25 Nov 2003 10:40:07 +0100
-Message-ID: <yw1xu14sdbwo.fsf@kth.se>
-References: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com> <20031125.182844.46174767.yoshfuji@linux-ipv6.org>
+Subject: hyperthreading
+Message-ID: <20031125094419.GB339@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:7MsjtgpwGpXxf8oMdSlMQ+sqN3c=
+X-Operating-System: vega Linux 2.6.0-test9 i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YOSHIFUJI Hideaki / .$B5HF#1QL@.(B <yoshfuji@linux-ipv6.org> writes:
+Hi,
 
-> Basically, it depends on what kind of equipment you and the enemy
-> have.  If you have special equipment and technique to write a
-> floppy, you can make a floppy which is not copiable by normal PCs.
-> But, if the enemy has similar equipment, he can do it.
->
-> About 15 years ago, there were many gaming softwares which were procected,
-> for example, by checking "gap" between sectors.
+A somewhat stupid question from me, but I have no documentation about
+this topic, namely, how can I enable hyperthreading with 2.6.0 test
+kernels?
 
-Can't that be done with a regular floppy drive and some special
-software?
+My /proc/cpuinfo shows:
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 1
+model name      : Intel(R) Pentium(R) 4 CPU 1.70GHz
+stepping        : 2
+cpu MHz         : 1694.605
+cache size      : 256 KB
+[...]
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3334.14
+
+I built kernel, with SMP, ACPI, APIC, etc etc etc support, but I don't see
+any change. The only description I could find in Documentation/ is "acpi=ht"
+about this topic saying that it's enabled enough ACPI just for enabling
+HT. But I would like to have full ACPI and HT.
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+- Gábor (larta'H)

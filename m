@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQJZXFj>; Thu, 26 Oct 2000 19:05:39 -0400
+	id <S129805AbQJZXGT>; Thu, 26 Oct 2000 19:06:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129805AbQJZXF3>; Thu, 26 Oct 2000 19:05:29 -0400
-Received: from ra.lineo.com ([207.179.37.37]:44969 "EHLO thor.lineo.com")
-	by vger.kernel.org with ESMTP id <S129314AbQJZXFY>;
-	Thu, 26 Oct 2000 19:05:24 -0400
-Message-ID: <39F8B966.E7757A34@lineo.com>
-Date: Thu, 26 Oct 2000 17:08:22 -0600
-From: pierre@lineo.com
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Miles Lane <miles@speakeasy.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre5 won't boot on my Athlon machine (Irongate and Viper chip 
- sets)
-In-Reply-To: <39F8ADF0.5050400@speakeasy.org>
-X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 10/26/2000
- 05:05:23 PM,
-	Serialize complete at 10/26/2000 05:05:23 PM
-Content-Transfer-Encoding: 7bit
+	id <S130318AbQJZXGJ>; Thu, 26 Oct 2000 19:06:09 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:11096 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129805AbQJZXFw>; Thu, 26 Oct 2000 19:05:52 -0400
+Date: Fri, 27 Oct 2000 01:05:39 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ian Jackson <ijackson@chiark.greenend.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.2.18pre17 + VM-global -7 = `Negative d_count' oops
+Message-ID: <20001027010539.B1282@athlon.random>
+In-Reply-To: <39F4AB91.72F2C300@transmeta.com> <20001025050631.A6817@athlon.random> <14840.27617.448792.438567@chiark.greenend.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14840.27617.448792.438567@chiark.greenend.org.uk>; from ijackson@chiark.greenend.org.uk on Thu, Oct 26, 2000 at 06:37:37PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
+On Thu, Oct 26, 2000 at 06:37:37PM +0100, Ian Jackson wrote:
+>  Negative d_count (-805538369) for [binary garbage]/<NULL>
+> 
+> followed by an oops.  Kernel logfile extract below, uuencoded.
 
-> Perhaps this is related to the PCI issues that are being debated on the list now.
-> Would someone look at my bus configuration and let me know what to test or what patch to apply to get my kernel booting?
+Thanks for the feedback.
 
-My Athlon box has a MSI A6195KMS bios. The motherboard has the IronGate and the Viper chipsets, and test10-pre5 works great on it.
+The oops is forced by the kernel after it sees then wrong negative d_count.
 
-One possible caveats :
+I'd say it's memory corruption, but it doesn't look like a memory bitflip.
 
-- USB doesn't work too well, because of a bug in the Viper USB controller. You may want to try to disable "PnP aware OS" in the bios. You may also try to download the latest rev of the A6195KMS bios
-available here :
+I'm almost certain that it's not caused by the VM-global patch.
 
-http://www.amdzone.com/files/bios/msi/a6195kms173.zip
+Which device driver and compiler are you using?
 
-- Even when USB finally works, the ohci USB driver sends this kind of message all the time :
-
-usb-ohci.c: bogus NDP=64 for OHCI usb-00:07.4
-usb-ohci.c: rereads as NDP=4
-
-but it shouldn't kill your machine. In any doubt, just disable USB.
-
-Otherwise, let me know if you want me to send you my .config and my BIOS settings, it you think they can help you.
-
-Take care !
-
---
- ______
- _____   /      /   |   /  ___/   _  /
- ____   /      /    |  /  /      /  /
- ___   /      /  /    /  __/    /  /
- __   /      /  /    /  /      /  /
- _  _____/ _/ _/   _/ _____/ ____/
-
-                ////\
-                (@ @)
-------------oOOo-(_)-oOOo-------------
-Pierre-Philippe Coupard
-Software Engineer, Lineo, Inc.
-Email : pierre@lineo.com
-Phone : (801) 426-5001 x 208
---------------------------------------
-
-A door is what a dog is perpetually on the wrong side of.
-                -- Ogden Nash
-
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

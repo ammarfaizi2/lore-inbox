@@ -1,56 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269295AbUJKWFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269290AbUJKWFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269295AbUJKWFN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 18:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbUJKWFM
+	id S269290AbUJKWFk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 18:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269289AbUJKWFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 18:05:12 -0400
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:62905 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S269295AbUJKWEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 18:04:51 -0400
-Date: Mon, 11 Oct 2004 15:04:49 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>, Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
-Message-ID: <20041011220449.GC8121@smtp.west.cox.net>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+	Mon, 11 Oct 2004 18:05:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:11929 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269301AbUJKWFK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 18:05:10 -0400
+Date: Tue, 12 Oct 2004 00:05:08 +0200
+From: Andi Kleen <ak@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1 HPET compile problems on AMD64
+Message-ID: <20041011220508.GD5461@wotan.suse.de>
+References: <1097509362.12861.334.camel@dyn318077bld.beaverton.ibm.com> <20041011125421.106eff07.akpm@osdl.org> <1097526413.12861.374.camel@dyn318077bld.beaverton.ibm.com> <20041011212529.GB31731@wotan.suse.de> <1097530924.12861.392.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1097530924.12861.392.camel@dyn318077bld.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 10, 2004 at 08:22:54PM -0700, Linus Torvalds wrote:
+On Mon, Oct 11, 2004 at 02:42:05PM -0700, Badari Pulavarty wrote:
+> On Mon, 2004-10-11 at 14:25, Andi Kleen wrote:
+> > On Mon, Oct 11, 2004 at 01:26:53PM -0700, Badari Pulavarty wrote:
+> > > On Mon, 2004-10-11 at 12:54, Andrew Morton wrote:
+> > > 
+> > > > 
+> > > > I assume you have CONFIG_HPET=n and CONFIG_HPET_TIMER=n?
+> > > > 
+> > > > Andi, what's going on here?  Should the hpet functions in
+> > > > arch/x86_64/kernel/time.c be inside CONFIG_HPET_TIMER?
+> > > 
+> > > I haven't enable HPET, but autoconf.h gets 
+> > > 
+> > > # grep HPET autoconf.h
+> > > #define CONFIG_HPET_TIMER 1
+> > > #define CONFIG_HPET_EMULATE_RTC 1
+> > > 
+> > > # grep HPET .config
+> > > # CONFIG_HPET is not set
+> > 
+> > It should be inside CONFIG_HPET. Badari's patch was correct.
+> 
+> make clean and oldconfig cleaned up little, but I still get
+> following linking error (without my patch).
+> 
+> # grep HPET .config
+> # CONFIG_HPET is not set
+> 
+> # grep HPET autoconf.h
+> #undef CONFIG_HPET
+> 
+>   LD      .tmp_vmlinux1
+> arch/x86_64/kernel/built-in.o(.init.text+0x2071): In function
+> `late_hpet_init':
+> arch/x86_64/kernel/entry.S:259: undefined reference to `hpet_alloc'
+> 
+> Andi, one thing I am not sure is - do you want entire routine
+> late_hpet_init() under CONFIG_HPET or only parts of it ?
 
->  trying to make ready for the real 2.6.9 in a week or so, so please give
-> this a beating, and if you have pending patches, please hold on to them
-> for a bit longer, until after the 2.6.9 release. It would be good to have
-> a 2.6.9 that doesn't need a dot-release immediately ;)
+The entire function. As in this patch.
 
-With 2.6.9-rc4, using matroxfb, I can no longer pass
-video=1280x1024-8@85.  This worked on 2.6.8.1, and I'm trying kernels
-inbetween now.
-$ cat /proc/cmdline 
-root=/dev/hda1 ro video=1280x1024-8@85 elevator=cfq 
-$ zgrep -E CONFIG_\(FB\|VIDEO\).*= /proc/config.gz 
-CONFIG_FB=y
-CONFIG_FB_MODE_HELPERS=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_G450=y
-CONFIG_FB_MATROX_G100=y
-CONFIG_FB_MATROX_I2C=y
-$ dmesg | grep matrox
-matroxfb: Matrox G450 detected
-matroxfb: MTRR's turned on
-matroxfb: 640x480x8bpp (virtual: 640x26214)
-matroxfb: framebuffer at 0xCC000000, mapped to 0xe0880000, size 33554432
-matroxfb_crtc2: secondary head of fb0 was registered as fb1
+------------------------------------------------------------
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Fix linking with CONFIG_HPET off
+
+Index: linux/arch/x86_64/kernel/time.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/time.c	2004-10-06 02:00:23.%N +0200
++++ linux/arch/x86_64/kernel/time.c	2004-10-11 23:25:14.%N +0200
+@@ -724,6 +724,7 @@
+ 	return (end - start) / 50;
+ }
+ 
++#ifdef CONFIG_HPET
+ static __init int late_hpet_init(void)
+ {
+ 	struct hpet_data	hd;
+@@ -770,6 +771,7 @@
+ 	return 0;
+ }
+ fs_initcall(late_hpet_init);
++#endif
+ 
+ static int hpet_init(void)
+ {
+
+

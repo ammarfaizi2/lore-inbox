@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVDCF2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVDCFrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbVDCF2k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 00:28:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVDCF2k
+	id S261178AbVDCFrx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 00:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVDCFrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 00:28:40 -0500
-Received: from weber.sscnet.ucla.edu ([128.97.42.3]:1695 "EHLO
-	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
-	id S261172AbVDCF2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 00:28:38 -0500
-Message-ID: <424F7EC4.1000107@cogweb.net>
-Date: Sat, 02 Apr 2005 21:27:32 -0800
-From: David Liontooth <liontooth@cogweb.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: venza@brownhat.org, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: ICS1883 LAN PHY not detected
-References: <424EF19B.7030105@cogweb.net> <424F45F0.1000504@pobox.com>
-In-Reply-To: <424F45F0.1000504@pobox.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Apr 2005 00:47:53 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:30728 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261178AbVDCFrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 00:47:51 -0500
+Date: Sun, 3 Apr 2005 07:47:46 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: jmerkey <jmerkey@utah-nac.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9 Adaptec 4 Port Starfire Sickness
+Message-ID: <20050403054746.GA7858@alpha.home.local>
+References: <424F73F8.8020108@utah-nac.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424F73F8.8020108@utah-nac.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Hi Jeff,
 
-> David Liontooth wrote:
->
->> 0000:02:0b.0 Ethernet controller: Marvell Technology Group Ltd. Yukon 
->> Gigabit Ethernet 10/100/1000Base-T Adapter (rev 13)
->
-> You want the sk98lin or skge drivers.
+I've also experienced those messages under 2.4, but they were harmless,
+and I never had a machine hang even after weeks of full load (the adapter
+was mounted on a stress test machine before being used in firewalls for
+months).
 
-Correct -- that one worked already in Debian-Installer. What was 
-confusing is that the Gigabyte K8NS Ultra-939 board has a second 
-gigabyte NIC, identified in the motherboard manual as a 100/10 ICS1883 
-LAN PHY, that is in fact an nforce gigabyte controller, part of the 
-nforce3 250 chipset (cf. 
-http://cogweb.net/owens/Images/Gigabyte-K8NS-Ultra-939.jpg line 5). For 
-some reason the PCI ID 00E6 doesn't show up in lspci, so I thought it 
-was not detected by the kernel. However, the forcedeth driver brought it 
-to life.
+So I wonder how you can be sure that it is this driver which finally locks
+the bus. Perhaps the system locks for any other reason (eg: race condition).
+Have you tried with any other 4-port NIC (tulip or sun for example) ? Sun
+QFE would be the most interesting to test as it also supports 64 bits /
+66 MHz.
 
-Dave
+Regards,
+Willy
 
+On Sat, Apr 02, 2005 at 09:41:28PM -0700, jmerkey wrote:
+> With linux 2.6.9 running at 192 MB/S network loading and protocol 
+> splitting drivers routing packets out of
+> a 2.6.9 device at full 100 mb/s (12.5 MB/S) simultaneously over 4 ports, 
+> the adaptec starfire driver goes into
+> constant Tx FIFO reconfiguration mode and after 3-4 days of constantly 
+> resetting the Tx FIFO window and
+> generating a deluge of messages such as:
+> 
+> ethX:  PCI bus congestion, resetting Tx FIFO window to X bytes
+> 
+> pouring into the system log file at a rate of a dozen per minute.  After 
+> several days, the PCI bus totally locks up
+> and hangs the system.  Need a config option to allow the starfire to 
+> disable this feature.  At very
+> high bus loading rates, the starfire card will completely lock the bus 
+> after 3-4 days
+> of constant Tx FIFO reconfiguration at very high data rates with 
+> protocol splitting and routing.
+> 
+> Jeff
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

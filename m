@@ -1,101 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbTKCGig (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 01:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbTKCGig
+	id S261936AbTKCHM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 02:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKCHM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 01:38:36 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:48388 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261930AbTKCGie
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 01:38:34 -0500
-Date: Mon, 3 Nov 2003 08:38:15 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide write cache issue? [Re: Something corrupts raid5 disks slightly during reboot]
-Message-ID: <20031103063815.GV4640@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20031102082827.GO4868@niksula.cs.hut.fi> <Pine.LNX.4.10.10311022124480.23682-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10311022124480.23682-100000@master.linux-ide.org>
-User-Agent: Mutt/1.4i
+	Mon, 3 Nov 2003 02:12:58 -0500
+Received: from scanmail1.cableone.net ([24.116.0.121]:29715 "EHLO
+	scanmail1.cableone.net") by vger.kernel.org with ESMTP
+	id S261936AbTKCHM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 02:12:57 -0500
+Message-ID: <3FA5FFF7.2020006@cableone.net>
+Date: Mon, 03 Nov 2003 00:12:55 -0700
+From: Gary Wolfe <gpwolfe@cableone.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [crash/panic] Linux-2.6.0-test9
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SMTP-HELO: cableone.net
+X-SMTP-MAIL-FROM: gpwolfe@cableone.net
+X-SMTP-PEER-INFO: 24-116-194-85.cpe.cableone.net [24.116.194.85]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 02, 2003 at 09:34:30PM -0800, you [Andre Hedrick] wrote:
->
-> >   - How long can the unwritten data linger in the drive cache if the drive
-> >     is otherwise idle? (Without an explicit flush and with write caching
-> >     enabled.)
-> 
-> Basically forever, until a read is issued to a range of lba's which starts
-> smaller than the uncommitted contents's lba, and includes the content in
-> question.  Or if a flush cache or disable write-back cache is issued.
+Greetings,
 
-Huh. Sounds stunning.
+I have:
 
-I mean if the drive is otherwise idle, why would it hold the data in cache
-without trying to write it onto platter? But I'll take your word for it.
- 
-> >     I had unmounted the fs an raidstopped the md minutes before the boot.
-> 
-> The problem imho, is a break down of fundamental cascading callers.
-> 
-> Unmount MD -> flush MD
-> 
-> 	MD is a fakie device :-/
-> 
-> MD fakie calls for flush of R_DEV's
-> 
-> Likewise unloading or stopping MD operations should repeat regardless of
-> mount or not.
+Asus P4C800 Deluxe w/2.4GHz P4 (no HT and not 800Mhz bus)
 
-Yep. You wouldn't happen to know if it could make difference if the md
-consists of raw devices (hdb,hdc,hdg) instead of partitions (hdc1,hb1,hdg1)
-wrt. how and when the IDE flushes get triggered? Is there code that does it
-for partitions but is lacking for whole devices? 
+Tried test8 and, now, test9 and both exhibit same problem.
 
-(The other MDs on the same box that consist of partitions do not get
-corrupted, but they are on Maxtors, not Samsungs.)
- 
-> >   - Can this corruption happen on warmboot or only on poweroff?
-> 
-> Given POST (assume x86 for only a brief moment) will issue execute
+The issue seems to be related to the PnPBIOS support under the Plug and 
+Play Kconfig category.  When enabled I get a crash of the form:
 
-x86 in this case, yes.
+Linux Plug and Play Support v0.97 (c) Adam Belay
+PnPBIOS: Scanning system for PnP BIOS support...
+PnPBIOS: Found PnP BIOS installation structure at 0xc00f5350
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x5f3a, dseg 0xf0000
+general protection fault: 0000 [#1]
+CPU: 0
+EIP: 0098:[<00002b60>] Not tainted
+EFLAGS: 00010083
+EIP is at 0x2b60
+eax: 000023d6  ebx: 0000007a  ecx: 00010000  edx: 00000001
+esi: dfed244e  edi: 0000006d  ebp: dfed0000  esp: dfed9eda
+ds: 00b0  es: 00b0  ss: 0068
+Process Swapper (pid:1 threadinfo=dfed8000 task=c151b900)
+Stack: 000003d6 23d629d2 00000000 815d006d 0000d3ff 00010001 9f2c80fc 
+006dd408
+9f2c0000 d3ff9f08 00060001 61f990c0c 010c010c 007b6054 0000007b 00a08000
+601000b0 00a85fd6 00000082 000b0000 00010090 00a80000 00b00000 00a00001
+Call Trace:
 
-> diagnositics to hunt for signatures on the ribbon, that basically wacks
-> the content.  Cool cycle obviously wacks the buffer.
+Code: Bad EIP value.
+<0>Kernel panic: Attempted to kill init!
 
-Ack.
- 
-> >   - What kind of corruption can one see the if boot takes place "too fast"
-> >     and drive hasn't got enough time to flush its cache?
-> 
-> erm, I am lost with the above.
-> Flush Cache is a hold and wait on completion, period.
-> However, a cache error at this point is a wasted effort to attempt
-> recovery.
+....blinking  cursor and nothing else.
 
-I meant: if the drive does not flush it cache before reboot, is it likely to
-see the sectors either up-to-date or having the old data? Or can one see
-half-written or otherwise corrupted sectors?
+If I remove the PNPBIOS option I get past this point.  I would be happy 
+to email my full .config should anyone wish to look at it.  I'd also be 
+happy to test any patches anyone may have for this issue.
 
-The corruption I saw didn't look like the sector just had the old data, but
-I'm not sure.
-
-Then again, this may very well be something completely unrelated to ide
-write caching.
- 
-> Not sure I helped or not ...
-
-Yes you did, thanks!
+Thanks,
+Gary
 
 
--- v --
 
-v@iki.fi

@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271372AbRHOTZq>; Wed, 15 Aug 2001 15:25:46 -0400
+	id <S271376AbRHOTXg>; Wed, 15 Aug 2001 15:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271380AbRHOTZg>; Wed, 15 Aug 2001 15:25:36 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:59407 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S271379AbRHOTZ1>; Wed, 15 Aug 2001 15:25:27 -0400
-Date: Wed, 15 Aug 2001 22:28:01 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <1021327779.20010815222801@port.imtp.ilyichevsk.odessa.ua>
-To: Joshua Schmidlkofer <menion@srci.iwpsd.org>
-CC: linux-kernel@vger.kernel.org, samba@lists.samba.org
-Subject: Re: smbfs mount failures
-In-Reply-To: <01081512490000.01309@widmers.oce.srci.oce.int>
-In-Reply-To: <563618943.20010815205612@port.imtp.ilyichevsk.odessa.ua>
- <01081512490000.01309@widmers.oce.srci.oce.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271375AbRHOTX0>; Wed, 15 Aug 2001 15:23:26 -0400
+Received: from postfix2-2.free.fr ([213.228.0.140]:51206 "HELO
+	postfix2-2.free.fr") by vger.kernel.org with SMTP
+	id <S271372AbRHOTXI> convert rfc822-to-8bit; Wed, 15 Aug 2001 15:23:08 -0400
+Date: Wed, 15 Aug 2001 21:20:17 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <axboe@suse.de>, <linux-kernel@vger.kernel.org>, <andrea@suse.de>
+Subject: Re: [patch] zero-bounce highmem I/O
+In-Reply-To: <20010815.032218.55508716.davem@redhat.com>
+Message-ID: <20010815205954.A1159-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JS> What is the actual string you are using to mount?
 
-smbmount //nt/e /mnt -o username=admin,password=secret
-smbmount //nt/e /mnt -o username=admin,password=secret,ip=N.N.N.N
 
-fails as described below.
-Note! smbclient WORKS with these machine/username/pass!
-I conclude it is a smbfs or smbmount problem, not a badly/unusually configured
-NT or network problem. Also note that log messages are spewed by smbfs kernel
-code.
+On Wed, 15 Aug 2001, David S. Miller wrote:
 
-Tried to mount to locally running Samba:
+>    From: Jens Axboe <axboe@suse.de>
+>    Date: Wed, 15 Aug 2001 11:26:21 +0200
+>
+>    Ok, here's an updated version. Maybe modulo the struct scatterlist
+>    changes, I'd like to see this included in 2.4.x soonish. Or at least the
+>    interface we agree on -- it'll make my life easier at least. And finally
+>    provide driver authors with something not quite as stupid as struct
+>    scatterlist.
+>
+> Jens, have a look at the patch I have below.  What do you
+> think about it?  Specifically the set of interfaces.
+>
+> Andrea, I am very much interested in your input as well.
 
-smbmount //linuxbox/in /mnt -o username=guest,password=
+Here is some input you donnot seem interested in. Too bad for you! :-)
 
-Works fine.
+Some drivers may want to allocate internal DMAable data structures in a 32
+bit DMAable address range but also may want to support 64 bit DMA
+addressing for user data. This applies to the sym53c8xx driver (which is
+not quite ready for 64 bit DMA adressing for now) and to the aic7xxx
+driver which seems to be ready. The reason is for simplicity and may-be
+feasibility and given that driver internal data structures donnot require
+that much memory, this should not make memory pressure at all on the 32
+bit DMAable range.
 
-How I can help to investigate this problem?
-Please CC me. I'm not on the list.
+The current solution consists in tampering the dma_mask in the pci_dev
+structure prior to allocating DMAable memory. Not really clean...
+Some interface that would allow to provide some masks as argument would be
+cleaner, in my opinion. Btw, the pci_set_* interface does not seem cleaner
+to me than hacking the corresponding field in the pcidev structure directly.
 
-JS> On Wednesday 15 August 2001 11:56 am, VDA wrote:
->> I'm having trouble mounting SMB shares residing on a WinNT machine.
->> smbclient works fine, but after mounting the same share with the
->> same username,passwd etc with smbmount and trying to enter
->> newly mounted dir I see repeating msgs in the logs:
->>
->> ...
->> smb_catch_keepalive: already done                 [<- this is KERN_ERR!]
->> smb_retry: successful, new pid=PID, generation=N  [PID is the same, N grows
->> (N++)] smb_dont_catch_keepalive: server->data_ready == NULL
->> smb_trans2_request: result=-22, setting invalid
->> smb_close_socket: still catching keepalives!
->> smb_catch_keepalive: already done
->> smb_retry: successful, new pid=PID, generation=N+1
->> ...
->>
->> Since smbclient is working I presume it is a kernel smbfs bug or some
->> version mismatch between kernel and smbmount.
->>
->> smbmount: 2.2.0a
->> kernel: 2.4.5
 
+> I would like to kill two birds with one stone here if
+> we can.   The x86 versions of the asm/pci.h and
+> asm/scatterlist.h bits are pretty mindless and left as
+> an exercise to the reader :-)
+
+[... b****ed patch removed since reader should already have it :) ...]
+
+Later,
+  Gérard.
 

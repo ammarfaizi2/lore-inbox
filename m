@@ -1,87 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbUK3UsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbUK3Urj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbUK3UsK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 15:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbUK3UsJ
+	id S262324AbUK3Urj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 15:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbUK3Uri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 15:48:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31163 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262309AbUK3Urk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 15:47:40 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
-	<19865.1101395592@redhat.com>
-	<20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
-	<1101406661.8191.9390.camel@hades.cambridge.redhat.com>
-	<20041127032403.GB10536@kroah.com>
-	<16810.24893.747522.656073@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
-	<ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>
-	<8219.1101828816@redhat.com>
-	<Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 30 Nov 2004 18:47:17 -0200
-In-Reply-To: <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
-Message-ID: <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Nov 2004 15:47:38 -0500
+Received: from grendel.firewall.com ([66.28.58.176]:36565 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S262309AbUK3UrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 15:47:10 -0500
+Date: Tue, 30 Nov 2004 21:47:08 +0100
+From: Marek Habersack <grendel@caudium.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, Jeff Dike <jdike@addtoit.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: user- vs kernel-level resource sandbox for Linux?
+Message-ID: <20041130204708.GB14080@beowulf.thanes.org>
+Reply-To: grendel@caudium.net
+References: <20041129101919.GB9419@beowulf.thanes.org> <200411292000.iATK0qOF004026@ccure.user-mode-linux.org> <16811.40687.892939.304185@wombat.chubb.wattle.id.au> <20041130023947.GI5378@beowulf.thanes.org> <1101840505.25628.105.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nVMJ2NtxeReIH9PS"
+Content-Disposition: inline
+In-Reply-To: <1101840505.25628.105.camel@localhost.localdomain>
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 30, 2004, Linus Torvalds <torvalds@osdl.org> wrote:
 
-> I object sternuously to your "the header files". If you can't even say 
-> _which_ header file, I'm not interested.
+--nVMJ2NtxeReIH9PS
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-How about this formulation then:
+On Tue, Nov 30, 2004 at 06:48:27PM +0000, Alan Cox scribbled:
+> On Maw, 2004-11-30 at 02:39, Marek Habersack wrote:
+> > per-process isn't enough. I specifically need something to limit the me=
+mory
+> > usage on a more global scale - per user ID or per process group or a si=
+milar
+> > way of grouping related processes. That's the only way to tame processes
+> > like apache. At this point the option I'm considering is Xen, unless I =
+can
+> > find a userland solution to the problem...
+>=20
+> I'd suggest playing with Xen - its very efficient and it really does
+> come close to perfect constraint for resources.
+That's my current impression. I also considered writing a simple kernel
+module to intercept sys_brk, but that seemed to be a bit clumsy. We have
+been running a test installation of Xen with 2 VMs under quite high load and
+it performs outstandingly well in "laboratory environment".
+Also, I seem to recall there used to be a patch for the linux kernel to imp=
+lement=20
+BSD-like jail environment, which would suit my purpose too, do you know wha=
+t happened
+to the project/where it can be found? It would be a great addition to the
+kernel, just like the Zones in Solaris 10 are (which are based on the BSD
+jail concept as well).
 
-- move anything that is not protected by #ifdef __KERNEL__ to the
-ukabi header tree, adding an include in the beginning of the original
-header that includes the ukabi header.  Since ukabi stuff can't depend on
-kernel-internal stuff, having this include as the first thing in the
-existing header should work.
+regards,
 
-- figure out what should have been protected by #ifdef __KERNEL__ but
-wasn't, and move it back
+marek
 
-- wait for bug reports from the world and deal with them
+--nVMJ2NtxeReIH9PS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-- repeat until you feel you got it right
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
+iD8DBQFBrNxMq3909GIf5uoRAvS0AJ0YUeqXlhcd5eqhPBnOS74tPYTGnwCfZ8xP
+y5B0ryX00UlZ6E+Uk4b6B8E=
+=yNNG
+-----END PGP SIGNATURE-----
 
-> See what I'm saying? Whole-sale "move things around because we want to" 
-> I'm not interested in. Specific problems, yes.
-
-The specific problem we're trying to address is the creation of header
-files that define the ABI between userland and kernel, that both
-kernel and userland can use.
-
->> Personally, I'd prefer us to move to using standard C99 types in lieu of u32
->> and co at least for the interface to userspace because they are just that:
->> standard.
-
-> No. I told you why it cannot and MUST NOT be done. Repeat after me:
-
-> 	WE MUST NOT POLLUTE THE NAMESPACE!
-
-David, Linus is right.  Using standard types is not an option because
-they're not built in type names; you have to include a header to bring
-them in, and ideally you shouldn't gratuitously get the names defined
-just because you include some unrelated header, although the C
-Standard grants standard headers freedom to include other headers or
-something along these lines; I don't recall the exact passage of the
-Standard that says so, but we should strive to not pollute the user
-namespace anyway.
-
--- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+--nVMJ2NtxeReIH9PS--

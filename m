@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267184AbSLKPWs>; Wed, 11 Dec 2002 10:22:48 -0500
+	id <S267182AbSLKPTA>; Wed, 11 Dec 2002 10:19:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267185AbSLKPWs>; Wed, 11 Dec 2002 10:22:48 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:46274
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267184AbSLKPWr>; Wed, 11 Dec 2002 10:22:47 -0500
-Subject: Re: Linux 2.4.21-pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021211090829.GD8741@charite.de>
-References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> 
-	<20021211090829.GD8741@charite.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 16:07:47 +0000
-Message-Id: <1039622867.17709.31.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267183AbSLKPTA>; Wed, 11 Dec 2002 10:19:00 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:58622 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267182AbSLKPS7>; Wed, 11 Dec 2002 10:18:59 -0500
+Date: Wed, 11 Dec 2002 08:19:50 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Framebuffer problems, 2.4.20-rc2, 2.5.51
+In-Reply-To: <200212110955.39586.ivg2@cornell.edu>
+Message-ID: <Pine.LNX.4.33.0212110818490.28554-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 09:08, Ralf Hildebrandt wrote:
-> 00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 04)
-> 00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 04)
-> 00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02)
-> 00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02)
-> 00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 02)
 
-Drive and controllers are what ?
+> 2.5.51:
+> 	Kernel freezes upon loading the ATYFB driver.
+> 	No error messages. Sysrq has no effect.
+>
+> 	Riva (tested without atyfb) shows a black screen, apparently
+> 	followed by a kernel freeze since Sysrq has no effect.
+>
+> 	Kernel without boots without framebuffer, so the framebuffer causes the
+> freeze.
+
+Did you enable framebuffer console in the console sub menu?
+
+
 

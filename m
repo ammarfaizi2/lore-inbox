@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267567AbUHWVzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264419AbUHWVw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267567AbUHWVzc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267628AbUHWVzC
+	id S264419AbUHWVw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267567AbUHWViU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:55:02 -0400
-Received: from server18.wavepath.com ([63.247.70.66]:29076 "EHLO
-	bradgoodman.com") by vger.kernel.org with ESMTP id S267567AbUHWVwm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:52:42 -0400
-Date: Mon, 23 Aug 2004 17:57:48 -0400
-From: "bradgoodman.com" <bkgoodman@bradgoodman.com>
-Message-Id: <200408232157.i7NLvmB30968@bradgoodman.com>
-To: akpm@zip.com.au, Atul.Mukker@lsil.com, bgoodman@acopia.com,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-       torvalds@osdl.org
-Subject: [PATCH] 2.6.8.1 MegaRAID Driver Race
+	Mon, 23 Aug 2004 17:38:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23551 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267591AbUHWVZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 17:25:10 -0400
+Date: Mon, 23 Aug 2004 23:25:02 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Ryan Cumming <ryan@spitfire.gotdns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm2
+Message-ID: <20040823212501.GC22419@fs.tum.de>
+References: <20040819014204.2d412e9b.akpm@osdl.org> <200408190210.53408.ryan@spitfire.gotdns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408190210.53408.ryan@spitfire.gotdns.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] 2.6.8.1 to LSI Logic MegaRAID Adapter - ioctl function calls 
-mega_internal_command, which uses wait_event, which calls schedule.
-This means schedule() is called while big kernel_lock is held.
+On Thu, Aug 19, 2004 at 02:10:50AM -0700, Ryan Cumming wrote:
+> On Thursday 19 August 2004 01:42, you wrote:
+> > - Added the reiser4 filesystem.  Please give it a whizz.  Please Cc
+> From the help text:
+> "ReiserFS V3 is the stablest Linux filesystem, and V4 is the fastest.
+> 
+> In regards to claims by ext2 that they are the de facto
+> standard Linux filesystem, the most polite thing to say is that
+> many persons disagree, and it is interesting that those persons
+> seem to include the distros that are growing in market share.
+>...
 
-Locks/Unlocks were done here because 
+Where is this claimed by ext2 in 2.6.8.1-mm2?
 
-1. There are a lot of return()s in the ioctl function to dodge.
-2. mega_internal_command is also called by read and writes,
-   which don't hold big kernel_lock
+> -Ryan
 
-Brad Goodman <brad@bradgoodman.com>
+cu
+Adrian
 
+-- 
 
---- drivers/scsi/megaraid.c.orig	Mon Aug 23 15:57:09 2004
-+++ drivers/scsi/megaraid.c	Mon Aug 23 15:18:48 2004
-@@ -38,6 +38,7 @@
- #include <linux/blkdev.h>
- #include <asm/uaccess.h>
- #include <asm/io.h>
-+#include <linux/smp_lock.h>
- #include <linux/delay.h>
- #include <linux/proc_fs.h>
- #include <linux/reboot.h>
-@@ -3622,7 +3623,9 @@
- 			/*
- 			 * Issue the command
- 			 */
-+			unlock_kernel();
- 			mega_internal_command(adapter, LOCK_INT, &mc, pthru);
-+			lock_kernel();
- 
- 			rval = mega_n_to_m((void __user *)arg, &mc);
- 
-@@ -3705,7 +3708,9 @@
- 			/*
- 			 * Issue the command
- 			 */
-+			unlock_kernel();
- 			mega_internal_command(adapter, LOCK_INT, &mc, NULL);
-+			lock_kernel();
- 
- 			rval = mega_n_to_m((void __user *)arg, &mc);
- 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTLIXsH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 18:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbTLIXsG
+	id S261262AbTLJAHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 19:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTLJAHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 18:48:06 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:420 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S263475AbTLIXr7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 18:47:59 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Dale Whitchurch" <dalew@sealevel.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause?
-Date: Tue, 9 Dec 2003 15:47:53 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCELIIJAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1070979148.16262.63.camel@oktoberfest>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Tue, 9 Dec 2003 19:07:16 -0500
+Received: from gprs145-126.eurotel.cz ([160.218.145.126]:38786 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261262AbTLJAHN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 19:07:13 -0500
+Date: Wed, 10 Dec 2003 01:07:59 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Phillip Lougher <phillip@lougher.demon.co.uk>,
+       Matthew Wilcox <willy@debian.org>, Erez Zadok <ezk@cs.sunysb.edu>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: partially encrypted filesystem
+Message-ID: <20031210000759.GA618@elf.ucw.cz>
+References: <20031205191447.GC29469@parcelfarce.linux.theplanet.co.uk> <200312051947.hB5Jlupp030878@agora.fsl.cs.sunysb.edu> <20031205202838.GD29469@parcelfarce.linux.theplanet.co.uk> <3FD127D4.9030007@lougher.demon.co.uk> <1070883425.31993.80.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1070883425.31993.80.camel@hades.cambridge.redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> > Of course, all this is at the logical file level, and ignores the 
+> > physical blocks on disk.  All filesystems assume physical data blocks 
+> > can be updated in place.  With compression it is possible a new physical 
+> > block has to be found, especially if blocks are highly packed and not 
+> > aligned to block boundaries.  I expect this is at least partially why 
+> > JFFS2 is a log structured filesystem.
+> 
+> Not really. JFFS2 is a log structured file system because it's designed
+> to work on _flash_, not on block devices. You have an eraseblock size of
+> typically 64KiB, you can clear bits in that 'block' all you like till
+> they're all gone or you're bored, then you have to erase it back to all
+> 0xFF again and start over.
+> 
+> Even if you were going to admit to having a block size of 64KiB to the
+> layers above you, you just can't _do_ atomic replacement of blocks,
+> which is required for normal file systems to operate correctly.
 
-> Is the GPL in effect for the kernel so that anybody can enhance the
-> current drivers and add support for any other device?  If two companies
-> develop competing products and those products (albeit a few slight
-> differences) perform the same operations using almost the same hardware,
-> do we want one company to use the others driver?
+Are those assumptions needed for something else than recovery after
+crash/powerdown? [i.e., afaics 64K ext2 should work on flash, but fsck
+might have some troubles...]
 
-	Assuming all the drivers are offered under the GPL, the kernel inclusion
-process is a meritocracy. In other words, good code gets added and bad code
-doesn't.
-
-	The GPL provides unrestricted joinder and severance, so if the driver is
-GPL and the kernel is GPL, anyone who wants to can join them together under
-the GPL can do so. Linus would likely do this officially if the driver is
-reasonable, and anyone who cares enough can do the work needed to get it
-suitable for inclusion if the original company that offered the driver
-doesn't want to.
-
-	DS
-
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

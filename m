@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316614AbSHVTpL>; Thu, 22 Aug 2002 15:45:11 -0400
+	id <S316672AbSHVTrK>; Thu, 22 Aug 2002 15:47:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316623AbSHVTpL>; Thu, 22 Aug 2002 15:45:11 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:49643 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S316614AbSHVTpK>; Thu, 22 Aug 2002 15:45:10 -0400
-Subject: Re: MM patches against 2.5.31
-From: Steven Cole <elenstev@mesatop.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-In-Reply-To: <2631076918.1030007179@[10.10.2.3]>
-References: <1030031958.14756.479.camel@spc9.esa.lanl.gov> 
-	<2631076918.1030007179@[10.10.2.3]>
+	id <S316673AbSHVTrK>; Thu, 22 Aug 2002 15:47:10 -0400
+Received: from host.greatconnect.com ([209.239.40.135]:11791 "EHLO
+	host.greatconnect.com") by vger.kernel.org with ESMTP
+	id <S316672AbSHVTrJ>; Thu, 22 Aug 2002 15:47:09 -0400
+Subject: Re: 2.4.20-pre2-ac4 IDE is slow
+From: Samuel Flory <sflory@rackable.com>
+To: rob@twcny.rr.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020822175945.GA743@twcny.rr.com>
+References: <20020822175945.GA743@twcny.rr.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 22 Aug 2002 13:45:52 -0600
-Message-Id: <1030045552.3954.10.camel@spc9.esa.lanl.gov>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Aug 2002 12:50:28 -0700
+Message-Id: <1030045828.14545.26.camel@flory.corp.rackablelabs.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-22 at 10:06, Martin J. Bligh wrote:
-> > kjournald: page allocation failure. order:0, mode:0x0
+  Can you send the ide section of dmesg?  What are the results of hdparm
+-t /dev/hda on both kernels?
+
+
+On Thu, 2002-08-22 at 10:59, Rob Speer wrote:
+> I think I remember someone else bringing up this same issue, in which
+> case I'm sorry to have to ask again, but I can't find the message.
 > 
-> I've seen this before, but am curious how we ever passed
-> a gfpmask (aka mode) of 0 to __alloc_pages? Can't see anywhere
-> that does this?
+> I'm going from 2.4.19 to 2.4.20-pre2-ac4 and the hard drive is noticably
+> slower in the new version. (It doesn't use DMA in either version - I
+> wish it did in ac4, but that's a separate problem.)
 > 
-> Thanks,
+> What I seem to remember from the other message is that there's some
+> parameter that can be changed to bring the speed back up. Could someone
+> tell me what it is?
 > 
-> M.
+> 
+> If it helps: output of hdparm /dev/hda
+> 
+> /dev/hda:
+>  multcount    =  0 (off)
+>  IO_support   =  0 (default 16-bit)
+>  unmaskirq    =  0 (off)
+>  using_dma    =  0 (off)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    =  8 (on)
+>  geometry     = 77557/16/63, sectors = 78177792, start = 0
+> 
+> -- 
+> Rob Speer
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I ran dbench 1..128 on 2.5.31-mm1 several more times with nothing
-unusual happening, and then got this from pdflush with dbench 96.
-
-pdflush: page allocation failure. order:0, mode:0x0
-
-FWIW, this 2.5.31-mm1 kernel is SMP, HIGHMEM4G, no PREEMPT.
-
-Steven
 

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262107AbUCITwo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbUCITwn
+	id S262109AbUCITvY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUCITvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:52:43 -0500
-Received: from pop.gmx.net ([213.165.64.20]:52893 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262107AbUCITwc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:52:32 -0500
-X-Authenticated: #13243522
-Message-ID: <404E206A.266ABD1C@gmx.de>
-Date: Tue, 09 Mar 2004 20:52:10 +0100
-From: Michael Schierl <schierlm@gmx.de>
-X-Mailer: Mozilla 4.75 [de]C-CCK-MCD QXW0324v  (Win95; U)
-X-Accept-Language: de,en
-MIME-Version: 1.0
-To: Antony Dovgal <tony2001@phpclub.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: APM & device_power_up/down
-References: <1uQOH-4Z1-9@gated-at.bofh.it>
-		<S261722AbUCFWoa/20040306224430Z+905@vger.kernel.org> <20040309101110.50b55786.tony2001@phpclub.net>
+	Tue, 9 Mar 2004 14:51:21 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37371 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262110AbUCITuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 14:50:46 -0500
+Date: Tue, 9 Mar 2004 20:50:37 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Lee Howard <faxguy@howardsilvan.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: error compiling 2.6.3
+Message-ID: <20040309195037.GM14833@fs.tum.de>
+References: <20040309192252.GG11378@bilbo.x101.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040309192252.GG11378@bilbo.x101.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antony Dovgal schrieb:
-> 
-> On Sat, 06 Mar 2004 23:44:08 +0100
-> Michael Schierl <schierlm-usenet@gmx.de> wrote:
-> 
-> > Hmm. Can you try unapplying it and applying the one in
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=107506063605497&w=2
-> > instead? Does it work for you as well as with no patch?
-> 
-> Yes, it works ok for me with this patch.
+On Tue, Mar 09, 2004 at 11:22:52AM -0800, Lee Howard wrote:
+> ....
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   CC      init/do_mounts.o
+>   CC      init/do_mounts_rd.o
+>   CC      init/do_mounts_initrd.o
+>   LD      init/mounts.o
+>   CC      init/initramfs.o
+>   LD      init/built-in.o
+>   HOSTCC  usr/gen_init_cpio
+>   CPIO    usr/initramfs_data.cpio
+>   GZIP    usr/initramfs_data.cpio.gz
+>   AS      usr/initramfs_data.o
+> /tmp/ccFjeWhS.s: Assembler messages:
+> /tmp/ccFjeWhS.s:3: Error: Unknown pseudo-op:  `.incbin'
+> make[1]: *** [usr/initramfs_data.o] Error 1
+> make: *** [usr] Error 2
+> [root@bilbo linux-2.6.3]# 
 
-Are you using any modules or patches that are not in the main line
-kernel?
-Does your problem also occur when you build a "minimal" kernel (i.e.
-remove all things from it you don't really need for booting up, e.g.
-local apic, pcmcia, network support, framebuffer, mouse)?
+Please update your binutils.
 
-can you boot with init=/bin/bash (or another shell) and then do 
+Documentation/Changes lists version 2.12 as the minimum required 
+version.
 
-mount /proc
-apm -s
+cu
+Adrian
 
-does suspending work there? (this all against a "vanilla" kernel).
+-- 
 
-The thing above was just a guess, the only difference between the 2
-patches i know is that the patch which is in kernel also informs all
-device drivers. So i guess there must be a "broken" device driver that
-makes your supend come to a halt.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Michael

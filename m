@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312917AbSD2RAZ>; Mon, 29 Apr 2002 13:00:25 -0400
+	id <S312931AbSD2RMF>; Mon, 29 Apr 2002 13:12:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312920AbSD2RAY>; Mon, 29 Apr 2002 13:00:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:9186 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S312917AbSD2RAX>;
-	Mon, 29 Apr 2002 13:00:23 -0400
-Subject: Re: The tainted message
-From: Brian Beattie <alchemy@us.ibm.com>
-To: Robert Love <rml@tech9.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Richard Thrapp <rthrapp@sbcglobal.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1019926629.2045.698.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 29 Apr 2002 09:59:40 -0700
-Message-Id: <1020099580.5131.14.camel@w-beattie1>
-Mime-Version: 1.0
+	id <S312939AbSD2RME>; Mon, 29 Apr 2002 13:12:04 -0400
+Received: from conn6m.toms.net ([64.32.246.219]:494 "EHLO conn6m.toms.net")
+	by vger.kernel.org with ESMTP id <S312931AbSD2RME>;
+	Mon, 29 Apr 2002 13:12:04 -0400
+Date: Mon, 29 Apr 2002 13:11:37 -0400 (EDT)
+From: Tom Oehser <tom@toms.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: I made a bzip2 bootloader and ramdisk patch, ?useful/not?
+In-Reply-To: <Pine.LNX.4.44.0204290923490.2423-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0204291233420.32489-100000@conn6m.toms.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-27 at 09:57, Robert Love wrote:
-> On Sat, 2002-04-27 at 11:20, Alan Cox wrote:
-> 
-> > How about
-> > 
-> > Warning: The module you have loaded (%s) does not seem to have an open
-> > 	 source license. Please send any kernel problem reports to the
-> > 	 author of this module, or duplicate them from a boot without
-> > 	 ever loading this module before reporting them to the community
-> > 	 or your Linux vendor
-> 
-> Perfect.  A little long, but otherwise nails it.
-> 
-Warning: The module (%s) does not seem to have a compatible license.
-         Please contact the supplier of this module regarding any
-         problems, or reproduce the problem after rebooting without
-         ever loading this module.
 
-shorter?
+(First, I apologize for getting a 'vger.rutgers.org' into a mail header
+instead of 'vger.kernel.org', probably causing every reply to bounce...)
 
-> Maybe we want to s/open source/GPL-compatible/ though?
-> 
-> 	Robert Love
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Mon, 29 Apr 2002, Linus Torvalds wrote:
+
+> On Mon, 29 Apr 2002, Tom Oehser wrote:
+> >
+> >               Speed    Memory
+> >
+> > Gzip      Lightning   Thimble
+> >
+> > Bzip2      Molasses   Bathtub
+>
+> While I appreciate the extensive scientific testing and regression that
+> went into these numbers, I think that the main thing that matters is
+> whether the bathtub of memory makes it harder to boot on a 4-8MB system,
+> and whether the molassic speed makes the boot noticeably slower on older
+> 486-class machines despite a faster load phase..
+>
+> Do you have any statistics for this? Can you answer that age-old question
+> of how many bathtubs can dance on the head of a 4MB machine?
+>
+> 		Linus
+
+It fits and works on a 4MB machine with no problems, my 831K-compressed bzip2
+-9 kernel works on a 4MB box, ... *if* I'm not also loading a 4MB ramdisk ...
+
+Specifically, the window allocated in misc.c is 32K, bzip2 using 'small'
+varies between 350K for a -1 compressed file and 2350K for a -9 compressed
+file.  (My previously posted compression numbers are for -9.)
+
+The decompress time for bzip2 -d -s is about 14 times slower than gzip.
+If you are booting a 386 from striped U2W arrays, it would for sure be
+'noticably slower'.  If, however, as is more common with tomsrtbt, you are
+booting for the purpose of rescue and recovery, from a grinding floppy drive,
+it is probably never slower enough to matter, even on a 486.  I certainly
+only consider it appropriate for situations where this trade off makes sense.
+Floppies and flash memory come to mind, but not hard drives.
+
+	-Tom
 
 

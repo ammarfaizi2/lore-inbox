@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269761AbUH0Axf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269663AbUHZXsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269761AbUH0Axf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269794AbUH0AuV
+	id S269663AbUHZXsO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 19:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269674AbUHZXno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:50:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9951 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269871AbUH0AnE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:43:04 -0400
-Date: Thu, 26 Aug 2004 17:42:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, steved@redhat.com,
-       dwmw2@redhat.com
-Subject: Re: [PATCH] CacheFS - general filesystem cache
-In-Reply-To: <17777.1093566183@redhat.com>
-Message-ID: <Pine.LNX.4.58.0408261730070.2304@ppc970.osdl.org>
-References: <17777.1093566183@redhat.com>
+	Thu, 26 Aug 2004 19:43:44 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19687 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269670AbUHZXkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:40:43 -0400
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <412E73C9.6020104@namesys.com>
+Date: Thu, 26 Aug 2004 16:35:37 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Christophe Saout <christophe@saout.de>, Jamie Lokier <jamie@shareable.org>,
+       Jonathan Abbey <jonabbey@arlut.utexas.edu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Diego Calleja <diegocg@teleline.es>, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>	<200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>	<20040826193617.GA21248@arlut.utexas.edu>	<20040826201639.GA5733@mail.shareable.org>	<1093551956.13881.34.camel@leto.cs.pocnet.net>	<16686.23053.559951.815883@thebsh.namesys.com>	<1093556917.13881.78.camel@leto.cs.pocnet.net> <16686.25191.635556.817958@gargle.gargle.HOWL>
+In-Reply-To: <16686.25191.635556.817958@gargle.gargle.HOWL>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nikita Danilov wrote:
 
-
-On Fri, 27 Aug 2004, David Howells wrote:
-> 
->     (4) cachefs-doc-2681mm4.diff
-> 
-> 	Documentation about using cachefs.
-
-Heh:
-
-      Three levels of indirection are currently supported:
-
-       - single indirection
-       - double indirection
-
-somebody has trouble counting.
-
-More seriously, I'd _really_ love to see something like a "swapfs", ie 
-tmpfs with cachefs as a backing store. It would be a lot more useful for 
-testing that AFS+cachefs, and would hopefully also act as a example of how 
-to use it _without_ having to worry about AFS.
-
-Is that possible?
-
-		Linus
+>Christophe Saout writes:
+> > Am Freitag, den 27.08.2004, 01:45 +0400 schrieb Nikita Danilov:
+> > 
+> > >  > At least in reiser4 they don't have, or at least you can't access them.
+> > > 
+> > > They do.
+> > > 
+> > >  > ln -s foo bar; cd bar/metas shows me the content of foo/metas.
+> > > 
+> > > That's because lookup for "bar" performs symlink resolution.
+> > 
+> > So I can't access them and it is pointless. ;-)
+> > 
+> > BTW, I can do a cd metas/metas/metas/metas/plugin/metas... I don't think
+> > this makes sense. :)
+>
+>Why? foo/metas is a file system object just like foo. It has owner,
+>permission bits, so access to its meta-data should be provided, and
+>uniform way to provide access to the file system object meta-data is to
+>have these little magic files inside metas directory, which is a file
+>system object just like metas. It has owner^@^@^@^@*** - Lisp stack
+>overflow. RESET
+>
+>Nikita.
+>
+> > 
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+I think Christophe is a bit right here.  While in general having 
+meta-meta objects makes sense, in this particular instance, I don't see 
+the functional need for it.  Can you supply an example of where it would 
+be useful?

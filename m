@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310146AbSCGIMO>; Thu, 7 Mar 2002 03:12:14 -0500
+	id <S310139AbSCGIQ5>; Thu, 7 Mar 2002 03:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310139AbSCGIME>; Thu, 7 Mar 2002 03:12:04 -0500
-Received: from smtp.actcom.co.il ([192.114.47.13]:60609 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S293553AbSCGILv>; Thu, 7 Mar 2002 03:11:51 -0500
-Message-Id: <200203070811.g278BwL19069@lmail.actcom.co.il>
-From: Itai Nahshon <nahshon@actcom.co.il>
-Reply-To: nahshon@actcom.co.il
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: [PATCH] via82cxxx recording bug
-Date: Thu, 7 Mar 2002 10:11:47 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S310228AbSCGIQr>; Thu, 7 Mar 2002 03:16:47 -0500
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:26037 "EHLO
+	stargazer.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S310139AbSCGIQl>; Thu, 7 Mar 2002 03:16:41 -0500
+Date: Thu, 7 Mar 2002 00:16:05 -0800 (PST)
+From: Kelsey Hudson <khudson@compendium-tech.com>
+To: janvapan <jvp@wanadoo.es>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Recommendations about a 100/10 NIC
+In-Reply-To: <3C82148E.E530824@wanadoo.es>
+Message-ID: <Pine.LNX.4.44.0203070015580.21838-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_N3GLF3RRIM7VXLG01HMB"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 3 Mar 2002, janvapan wrote:
 
---------------Boundary-00=_N3GLF3RRIM7VXLG01HMB
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Get the intel.
 
-This fixes a recording problem that I experienced
-on an Asus CUV4X mainboard (via686a + cs4299 rev D).
+> 
+> What ethernet cards I should use for Linux 2.4?.
+> I am looking for a NIC based on stability and performance.
+> In short, Intel PRO/100 S Desktop Adapter(e100 driver) or
+> 3Com 10/100 3C905C-TX-M(3c59x driver) ?
+> 
+> thank you,
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Recording resulted in bad noise when using frags
-smaller than a page size (either using default params
-with low sample rate or explicit with
-SNDCTL_DSP_SETFRAGMENT ioctl).
-
-Some apps that use the sound card (eg, gnomemeeting)
-were completely useless.
-
-Patch is against 2.4.19-pre1.
-
-Jeff, I'll appreciate if you could give it at least a
-visual inspection - thanks.
-
--- Itai
+-- 
+ Kelsey Hudson                                           khudson@ctica.com 
+ Associate Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
+==== 0100101101001001010000110100101100100000010010010101010000100001 =====
 
 
---------------Boundary-00=_N3GLF3RRIM7VXLG01HMB
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="via82cxxx_audio.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="via82cxxx_audio.diff"
-
-LS0tIGRyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1ZGlvLmMub3JpZwlUaHUgTWFyICA3IDA5OjA3
-OjMxIDIwMDIKKysrIGRyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1ZGlvLmMJVGh1IE1hciAgNyAw
-OTowNjo0NCAyMDAyCkBAIC0yMDUxLDcgKzIwNTEsNyBAQAogCXdoaWxlICgoY291bnQgPiAwKSAm
-JiAoY2hhbi0+c2xvcF9sZW4gPCBjaGFuLT5mcmFnX3NpemUpKSB7CiAJCXNpemVfdCBzbG9wX2xl
-ZnQgPSBjaGFuLT5mcmFnX3NpemUgLSBjaGFuLT5zbG9wX2xlbjsKIAkJdm9pZCAqYmFzZSA9IGNo
-YW4tPnBndGJsW24gLyAoUEFHRV9TSVpFIC8gY2hhbi0+ZnJhZ19zaXplKV0uY3B1YWRkcjsKLQkJ
-dW5zaWduZWQgb2ZzID0gbiAlIChQQUdFX1NJWkUgLyBjaGFuLT5mcmFnX3NpemUpOworCQl1bnNp
-Z25lZCBvZnMgPSAobiAlIChQQUdFX1NJWkUgLyBjaGFuLT5mcmFnX3NpemUpKSAqIGNoYW4tPmZy
-YWdfc2l6ZTsKIAogCQlzaXplID0gKGNvdW50IDwgc2xvcF9sZWZ0KSA/IGNvdW50IDogc2xvcF9s
-ZWZ0OwogCQlpZiAoY29weV90b191c2VyICh1c2VyYnVmLAo=
-
---------------Boundary-00=_N3GLF3RRIM7VXLG01HMB--

@@ -1,82 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVAYTf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVAYTkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbVAYTf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVAYTf3
+	id S262088AbVAYTkc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVAYTkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:35:29 -0500
-Received: from pat.uio.no ([129.240.130.16]:38873 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262086AbVAYTec (ORCPT
+	Tue, 25 Jan 2005 14:40:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58244 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262097AbVAYTi0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:34:32 -0500
-Subject: Re: [patch 1/13] Qsort
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Olaf Kirch <okir@suse.de>, Andi Kleen <ak@muc.de>,
-       Nathan Scott <nathans@sgi.com>,
-       Mike Waychison <Michael.Waychison@sun.com>,
-       Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Buck Huppmann <buchk@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Tim Hockin <thockin@hockin.org>
-In-Reply-To: <1106676722.9607.61.camel@winden.suse.de>
-References: <20050122203326.402087000@blunzn.suse.de>
-	 <41F570F3.3020306@sun.com> <20050125065157.GA8297@muc.de>
-	 <200501251112.46476.agruen@suse.de> <20050125120023.GA8067@muc.de>
-	 <20050125120507.GH19199@suse.de>
-	 <1106671920.11449.11.camel@lade.trondhjem.org>
-	 <1106672028.9607.33.camel@winden.suse.de>
-	 <1106672637.11449.24.camel@lade.trondhjem.org>
-	 <1106673415.9607.36.camel@winden.suse.de>
-	 <1106674620.11449.43.camel@lade.trondhjem.org>
-	 <1106676722.9607.61.camel@winden.suse.de>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 11:33:57 -0800
-Message-Id: <1106681637.11449.101.camel@lade.trondhjem.org>
+	Tue, 25 Jan 2005 14:38:26 -0500
+Date: Tue, 25 Jan 2005 14:38:22 -0500
+From: Dave Jones <davej@redhat.com>
+To: Brice.Goglin@ens-lyon.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050125193822.GC9267@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Brice.Goglin@ens-lyon.org,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr> <20050124185258.GB27570@redhat.com> <20050124204458.GD27570@redhat.com> <41F56949.3010505@ens-lyon.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.098, required 12,
-	autolearn=disabled, AWL 0.10)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41F56949.3010505@ens-lyon.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 25.01.2005 Klokka 19:12 (+0100) skreiv Andreas Gruenbacher:
+On Mon, Jan 24, 2005 at 10:31:53PM +0100, Brice Goglin wrote:
+ > Dave Jones a écrit :
+ > >Here's the most obvious bug fixed. There still seems to be
+ > >something wrong however. It only successfully boots 50% of the
+ > >time for me, (it reboots when starting X otherwise), and when
+ > >it does boot, I get a flood of ...
+ > >Warning: kfree_skb on hard IRQ cf7b5800
+ > >Warning: kfree_skb on hard IRQ cf7b5800
+ > >Warning: kfree_skb on hard IRQ cf7b5800
+ > >
+ > >I think there may be some stupid memory corruptor bug in there still.
+ > 
+ > Thanks, your patch makes X work again with DRI.
+ > Actually, it successfully booted 100% of the time here.
+ > I tried 6 or 7 times without seeing any problem like yours.
+ > Let me know if you want me to try something special.
 
-> Ah, I see now what you mean. The setxattr syscall only accepts
-> well-formed acls (that is, sorted plus a few other restrictions), and
-> user-space is expected to take care of that. In turn, getxattr returns
-> only well-formed acls. We could lift that guarantee specifically for
-> nfs, but I don't think it would be a good idea.
+It's quite remarkable that it works at all.
+This is needed too on top of -mm1.
 
-Note that if you really want to add a qsort to the kernel you might as
-well drop the setxattr sorting requirement too. If the kernel can qsort
-for getxattr, then might as well do it for the case of setxattr too.
+		Dave
 
-> Entry order in POSIX acls doesn't convey a meaning by the way.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/25 14:27:39-05:00 davej@redhat.com 
+#   [AGPGART] Silly thinko in reserve bit masking.
+#   
+#   Stupid inversion meant we passed '0' to userspace, and madness
+#   ensued resulting in very funky visuals.
+#   
+#   Signed-off-by: Dave Jones <davej@redhat.com>
+# 
+diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
+--- a/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
++++ b/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
+@@ -324,9 +324,9 @@
+ 	info->chipset = agp_bridge->type;
+ 	info->device = agp_bridge->dev;
+ 	if (check_bridge_mode(agp_bridge->dev))
+-		info->mode = agp_bridge->mode & AGP3_RESERVED_MASK;
++		info->mode = agp_bridge->mode & ~AGP3_RESERVED_MASK;
+ 	else
+-		info->mode = agp_bridge->mode & AGP2_RESERVED_MASK;
++		info->mode = agp_bridge->mode & ~AGP2_RESERVED_MASK;
+ 	info->aper_base = agp_bridge->gart_bus_addr;
+ 	info->aper_size = agp_return_size();
+ 	info->max_memory = agp_bridge->max_memory_agp;
 
-Precisely. Are there really any existing programs out there that are
-using the raw xattr output and making assumptions about entry order?
-
-> The server must have sorted lists.
-
-So, I realize that the on-disk format is already defined, but looking at
-routines like posix_acl_permission(), it looks like the only order the
-kernel (at least) actually cares about is that of the "e_tag" field.
-Unless I missed something, nothing there cares about the order of the
-"e_id" fields.
-Given that you only have 6 possible values there, it seems a shame in
-hindsight that we didn't choose to just use a 6 bucket hashtable (the
-value of e_id being the hash value), and leave the order of the e_id
-fields undefined. 8-(
-
-Cheers,
-  Trond
-
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
 

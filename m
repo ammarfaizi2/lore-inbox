@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUHWNma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264298AbUHWNoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbUHWNma (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 09:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUHWNma
+	id S264298AbUHWNoO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 09:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUHWNoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 09:42:30 -0400
-Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:43753 "EHLO
-	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S264286AbUHWNm3
+	Mon, 23 Aug 2004 09:44:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39101 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264298AbUHWNoK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 09:42:29 -0400
-Message-ID: <4129F41A.3070805@ttnet.net.tr>
-Date: Mon, 23 Aug 2004 16:41:46 +0300
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 2.4] gcc-3.4 more fixes
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
-Content-Transfer-Encoding: 7bit
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Mon, 23 Aug 2004 09:44:10 -0400
+Date: Mon, 23 Aug 2004 09:25:17 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.4.28-pre1] more gcc3.4 inline fixes [9/10]
+Message-ID: <20040823122516.GC4569@logos.cnet>
+References: <41222195.3020108@ttnet.net.tr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41222195.3020108@ttnet.net.tr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Ozkan,
->>
->> This are just warning fixes right?
->>
->> I dont like this patches, that is, I'm not confident about them.
->>
->>  Let the warnings be.
- >
- > For gcc-3.4 they're warnings. For gcc-3.5 they'll cause compiler
- > failures (that's what mikpe says on cset-1.1490, too)
+On Tue, Aug 17, 2004 at 06:17:41PM +0300, O.Sezer wrote:
 
-As a side note, almost all of them are in 2.6 anyway (can't
-honestly remember which aren't)
+> --- 28p1/include/linux/fs.h~	2004-08-16 20:23:00.000000000 +0300
+> +++ 28p1/include/linux/fs.h	2004-08-17 13:02:49.000000000 +0300
+> @@ -1528,7 +1528,7 @@
+>  extern int generic_file_mmap(struct file *, struct vm_area_struct *);
+>  extern int file_read_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
+>  extern ssize_t generic_file_read(struct file *, char *, size_t, loff_t *);
+> -extern inline ssize_t do_generic_direct_read(struct file *, char *, size_t, loff_t *);
+> +extern ssize_t do_generic_direct_read(struct file *, char *, size_t, loff_t *);
+>  extern int precheck_file_write(struct file *, struct inode *, size_t *, loff_t *);
+>  extern ssize_t generic_file_write(struct file *, const char *, size_t, loff_t *);
+>  extern void do_generic_file_read(struct file *, loff_t *, read_descriptor_t *, read_actor_t);
+
+And what about the actual function declaration in mm/ ?
 

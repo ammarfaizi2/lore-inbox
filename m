@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUDJTAN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 15:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUDJTAN
+	id S261232AbUDJTFM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 15:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUDJTFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 15:00:13 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:17617 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261225AbUDJTAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 15:00:06 -0400
-Message-ID: <4078440A.9050909@stanford.edu>
-Date: Sat, 10 Apr 2004 11:59:22 -0700
-From: Andy Lutomirski <luto@stanford.edu>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-CC: Andy Lutomirski <luto@myrealbox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH, local root on 2.4, 2.6?] compute_creds race
-References: <4076F02E.1000809@myrealbox.com> <87fzbc19d5.fsf@goat.bogus.local>	<40781588.7080503@stanford.edu> <87isg7zndy.fsf@goat.bogus.local>
-In-Reply-To: <87isg7zndy.fsf@goat.bogus.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Apr 2004 15:05:12 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:30602 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S261232AbUDJTFD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 15:05:03 -0400
+Date: Sat, 10 Apr 2004 20:02:30 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: "J. Ryan Earl" <heretic@clanhk.org>, linux-kernel@vger.kernel.org
+Subject: Re: amd64 questions
+Message-ID: <20040410190230.GD1056@selene>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Andi Kleen <ak@muc.de>, "J. Ryan Earl" <heretic@clanhk.org>,
+	linux-kernel@vger.kernel.org
+References: <1Ijzw-4ff-5@gated-at.bofh.it> <1Ijzv-4ff-3@gated-at.bofh.it> <1IntE-7wn-39@gated-at.bofh.it> <m3isgb69xx.fsf@averell.firstfloor.org> <407826DF.9030506@clanhk.org> <20040410184904.GA12924@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3Pql8miugIZX0722"
+Content-Disposition: inline
+In-Reply-To: <20040410184904.GA12924@colin2.muc.de>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--3Pql8miugIZX0722
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Olaf Dietsche wrote:
-> Andy Lutomirski <luto@stanford.edu> writes:
->>Olaf Dietsche wrote:
->>>Andy Lutomirski <luto@myrealbox.com> writes:
->>>
->>>
->>>>The setuid program is now running with uid=euid=500 but full permitted
->>>>capabilities.  There are two (or three) ways to effectively get local
->>>>root now:
->>>
->>>What about this slightly shorter fix?
->>>diff -urN a/fs/exec.c b/fs/exec.c
->>>--- a/fs/exec.c	Fri Mar 12 01:19:06 2004
->>>+++ b/fs/exec.c	Sat Apr 10 10:54:20 2004
->>>@@ -942,6 +942,9 @@
->>> 			if(!capable(CAP_SETUID)) {
->>> 				bprm->e_uid = current->uid;
->>> 				bprm->e_gid = current->gid;
->>>+				cap_clear (bprm->cap_inheritable);
->>>+				cap_clear (bprm->cap_permitted);
->>>+				cap_clear (bprm->cap_effective);
->>> 			}
->>> 		}
->>> 	}
->>
->>This makes the bprm_compute_creds hook even less sane than now
->>(i.e. it assumes that all LSMs will work like the current capability
->>modules).  The hook should allow LSM to change this functionality
->>without reintroducing the race.  For example, it breaks my work on
->>fixing capabilities.
+On Sat, Apr 10, 2004 at 08:49:04PM +0200, Andi Kleen wrote:
+> > So let me get this straight, we can't use LVM with AMD64 under the 2.6 
 > 
+> No, you completely misunderstood.
 > 
-> This patch fixes the problem without moving and renaming huge amounts
-> of code. And the hook is still in place, so I don't see your problems.
+> > line either?  Or we can if we use AMD64 [DM] libraries with a AMD64 
+> > kernel?  DM = Device Mapper right?
 > 
-> If you look at the code - as seen in 2.4 and early 2.5 - that's (more
-> or less) the place where the fix should be.
+> You can't use Device Mapper with 32bit user tools on a 64bit kernel
+> right now.
 
-With your patch, compute_creds tries assumes that, if a program is not setuid, 
-it should clear all capabilities.  This would be very wrong if capabilities 
-worked right.
+   Well, you can, because that's what I'm doing on this machine. Joe
+Thornber posted a patch[1] here a few weeks ago which fixes the
+problem in a "sealing-wax-and-string" kind of way. It Works For
+Me(tm), which is about all you can say about it -- it's not the
+prettiest piece of code, even to my non-kernel eyes. :)
 
-It may also be wrong with the current caps code.  If root execs a setuid-nonroot 
-program from a thread, your patch looks like the program will start up as root 
-but without capabilities.  I don't see a trivial fix for it, short of moving 
-some code.
+   Hugo.
 
---Andy
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=107908531723751&w=2
 
-> 
-> Anyway, I don't really object against moving code around.
-> 
-> Regards, Olaf.
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+             --- Ceci est un travail pour l'Australien. ---              
+
+--3Pql8miugIZX0722
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAeETGssJ7whwzWGARAsiUAJ96cIeObwsDbBAEdKD4VPXFP91T8wCffwti
+dfvu2py35CURqmBEJiRJgcw=
+=qnbA
+-----END PGP SIGNATURE-----
+
+--3Pql8miugIZX0722--

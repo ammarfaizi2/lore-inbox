@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131850AbRAIT4S>; Tue, 9 Jan 2001 14:56:18 -0500
+	id <S130231AbRAIT46>; Tue, 9 Jan 2001 14:56:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbRAITz7>; Tue, 9 Jan 2001 14:55:59 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:33296 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130231AbRAITz0>; Tue, 9 Jan 2001 14:55:26 -0500
-Date: Tue, 9 Jan 2001 20:54:20 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Christoph Hellwig <hch@caldera.de>,
-        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <20010109205420.H29904@athlon.random>
-In-Reply-To: <20010109183808.A12128@suse.de> <Pine.LNX.4.30.0101091935461.7155-100000@e2>
+	id <S131876AbRAIT4m>; Tue, 9 Jan 2001 14:56:42 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:23286 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S131848AbRAIT4U>; Tue, 9 Jan 2001 14:56:20 -0500
+Date: Tue, 9 Jan 2001 16:05:24 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] ide-features.c: unchecked kmalloc
+Message-ID: <20010109160524.B24523@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0101091935461.7155-100000@e2>; from mingo@elte.hu on Tue, Jan 09, 2001 at 07:38:28PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 07:38:28PM +0100, Ingo Molnar wrote:
-> 
-> On Tue, 9 Jan 2001, Jens Axboe wrote:
-> 
-> > > > ever seen, this is why i quoted it - the talk was about block-IO
-> > > > performance, and Stephen said that our block IO sucks. It used to suck,
-> > > > but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
-> > >
-> > > Thats fine. Get me 128K-512K chunks nicely streaming into my raid controller
-> > > and I'll be a happy man
-> >
-> > No problem, apply blk-13B and you'll get 512K chunks for SCSI and RAID.
-> 
-> i cannot agree more - Jens' patch did wonders to IO performance here. It
+Hi,
 
-BTW, I noticed what is left in blk-13B seems to be my work (Jens's fixes for
-merging when the I/O queue is full are just been integrated in test1x). The
-512K SCSI command, wake_up_nr, elevator fixes and cleanups and removal of the
-bogus 64 max_segment limit in scsi.c that matters only with the IOMMU to allow
-devices with sg_tablesize <64 to do SG with 64 segments were all thought and
-implemented by me. My last public patch with most of the blk-13B stuff in it
-was here:
+	Please consider applying.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/2.4.0-test7/blkdev-3
+- Arnaldo
 
-I sumbitted a later revision of the above blkdev-3 to Jens and he kept nicely
-maintaining it in sync with 2.4.x-latest.
-
-My blkdev tree is even more advanced but I didn't had time to update with 2.4.0
-and marge it with Jens yet (I just described to Jens what "more advanced"
-means though, in practice it means something like a x2 speedup in tiotest seek
-write numbers, streaming I/O doesn't change on highmem boxes but it doesn't
-hurt lowmem boxes anymore). Current blk-13B isn't ok for integration yet
-because it hurts with lowmem (try with mem=32m with your scsi array that gets
-512K*512 requests in flight :) and it's not able to exploit the elevator as
-well as my tree even on highmemory machines. So I'd wait until I merge the last
-bits with Jens (I raised the QUEUE_NR_REQUESTS to 3000) before inclusion.
-
-Confirm Jens?
-
-Andrea
+--- linux-2.4.0-ac4/drivers/ide/ide-features.c	Mon Jan  8 20:39:17 2001
++++ linux-2.4.0-ac4.acme/drivers/ide/ide-features.c	Tue Jan  9 16:02:11 2001
+@@ -189,6 +189,10 @@
+ 	__cli();		/* local CPU only; some systems need this */
+ 	SELECT_MASK(HWIF(drive), drive, 0);
+ 	id = kmalloc(SECTOR_WORDS*4, GFP_ATOMIC);
++	if (!id) {
++		__restore_flags(flags);	/* local CPU only */
++		return 0;
++	}
+ 	ide_input_data(drive, id, SECTOR_WORDS);
+ 	(void) GET_STAT();	/* clear drive IRQ */
+ 	ide__sti();		/* local CPU only */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

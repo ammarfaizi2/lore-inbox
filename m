@@ -1,46 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbUDEXHj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 19:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbUDEXHj
+	id S263225AbUDEXId (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 19:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUDEXI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 19:07:39 -0400
-Received: from waste.org ([209.173.204.2]:17566 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262399AbUDEXHh (ORCPT
+	Mon, 5 Apr 2004 19:08:28 -0400
+Received: from frontend-1.hamburg.de ([212.1.41.126]:15782 "EHLO
+	flut.int-rz.hamburg.de") by vger.kernel.org with ESMTP
+	id S263225AbUDEXIS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 19:07:37 -0400
-Date: Mon, 5 Apr 2004 18:07:23 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] Drop exported symbols list if !modules
-Message-ID: <20040405230723.GK6248@waste.org>
-References: <20040405205539.GG6248@waste.org> <1081205099.15272.7.camel@bach>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 Apr 2004 19:08:18 -0400
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Linux-Kernel List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
+Date: Tue, 6 Apr 2004 01:08:19 +0200
+User-Agent: KMail/1.6.1
+Cc: Francois Romieu <romieu@fr.zoreil.com>, Andrew Morton <akpm@osd.org>,
+       Manfred Spraul <manfred@colorfullife.com>, netdev@oss.sgi.com,
+       jgarzik@pobox.com
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1081205099.15272.7.camel@bach>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404060108.19488.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 08:45:01AM +1000, Rusty Russell wrote:
-> On Tue, 2004-04-06 at 06:55, Matt Mackall wrote:
-> > Drop ksyms if we've built without module support
-> > 
-> > From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-> > Subject: Re: 2.6.1-rc1-tiny2
+Francois Romieu <romieu@fr.zoreil.com> wrote:
+> Manfred Spraul <manfred@colorfullife.com> :
+> [...]
+> > tx_left counts packets submitted by hard_xmit_start to the hardware. 
+> > Initially OWNbit is set, the packet is owned by the nic. The OWNbit is 
+> > cleared by the hardware after the packet was sent. A packet with OWNbit 
+> > set means that the nic didn't send it yet to the wire. I think the "else 
+> > break;" patch is correct, but someone with docs should confirm that.
 > 
-> Other than saving a little compile time, does this actually do anything?
+> Realtek Gigabit Ethernet Media Access Controller with power management R8169
+> Rev.1.21, p.54
+> [...]
+> Ownership: This bit, when set, indicates that the descriptor is owned by
+> the NIC. When cleared, it indicates that the descriptor is owned by the host
+> system. NIC clears this bit when the relative buffer data is already
+> transmitted. In this case, OWN=0.
 > 
-> I'm not against it, I just don't think I see the point.
+> [...]
+> > Perhaps gcc optimized away the reload from memory and loops on a 
+> 
+> Point taken.
 
-Well it obviously saves memory and image size too; I'm in the process
-of merging bits from my -tiny tree. As bloat has a way of being
-well-distributed across the code base, it's going to take many small
-trimmings to cut it back. Most of the 150 or so patches I've got now
-save between 1 and 8k. Doesn't sound like much, but it adds up.
+Isn't the "current" RTL8169s (32/64) driver much outdated?
+
+I got a version # 1.6 with all my cards.
+Anyone what a copy?
+
+/*
+=========================================================================
+ r8169.c: A RealTek RTL8169s/8110s Gigabit Ethernet driver for Linux kernel 
+2.4.x.
+ --------------------------------------------------------------------
+
+ History:
+ Feb  4 2002	- created initially by ShuChen <shuchen@realtek.com.tw>.
+ May 20 2002	- Add link status force-mode and TBI mode support.
+=========================================================================
+  1. The media can be forced in 5 modes.
+	 Command: 'insmod r8169 media = SET_MEDIA'
+	 Ex:	  'insmod r8169 media = 0x04' will force PHY to operate in 100Mpbs 
+Half-duplex.
+
+	 SET_MEDIA can be:
+ 		_10_Half	= 0x01
+ 		_10_Full	= 0x02
+ 		_100_Half	= 0x04
+ 		_100_Full	= 0x08
+ 		_1000_Full	= 0x10
+
+  2. Support TBI mode.
+//=========================================================================
+RTL8169_VERSION "1.1"	<2002/10/4>
+
+	The bit4:0 of MII register 4 is called "selector field", and have to be
+	00001b to indicate support of IEEE std 802.3 during NWay process of
+	exchanging Link Code Word (FLP).
+
+RTL8169_VERSION "1.2"	<2003/6/17>
+	Update driver module name.
+	Modify ISR.
+        Add chip mac_version.
+
+RTL8169_VERSION "1.3"	<2003/6/20>
+        Add chip phy_version.
+	Add priv->phy_timer_t, rtl8169_phy_timer_t_handler()
+	Add rtl8169_hw_PHY_config()
+	Add rtl8169_hw_PHY_reset()
+
+RTL8169_VERSION "1.4"	<2003/7/14>
+	Add tx_bytes, rx_bytes.
+
+RTL8169_VERSION "1.5"	<2003/7/18>
+	Set 0x0000 to PHY at offset 0x0b.
+	Modify chip mac_version, phy_version
+	Force media for multiple card.
+RTL8169_VERSION "1.6"	<2003/8/25>
+	Modify receive data buffer.
+*/
+
+Greetings,
+	Dieter
+
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Dieter Nützel
+@home: <Dieter.Nuetzel () hamburg ! de>

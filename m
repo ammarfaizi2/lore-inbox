@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVC2JRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVC2JQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbVC2JRb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 04:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVC2JRb
+	id S262276AbVC2JQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 04:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVC2JQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 04:17:31 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:4074 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262270AbVC2JRN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 04:17:13 -0500
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       Jay Lan <jlan@engr.sgi.com>, Erich Focht <efocht@hpce.nec.com>,
-       Ram <linuxram@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-In-Reply-To: <20050329004915.27cd0edf.pj@engr.sgi.com>
-References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
-	 <20050328134242.4c6f7583.pj@engr.sgi.com> <1112079856.5243.24.camel@uganda>
-	 <20050329004915.27cd0edf.pj@engr.sgi.com>
-Date: Tue, 29 Mar 2005 11:17:02 +0200
-Message-Id: <1112087822.8426.46.camel@frecb000711.frec.bull.fr>
+	Tue, 29 Mar 2005 04:16:41 -0500
+Received: from fire.osdl.org ([65.172.181.4]:48828 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262271AbVC2JQM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 04:16:12 -0500
+Date: Tue, 29 Mar 2005 01:15:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: davej@redhat.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] optimization: defer bio_vec deallocation
+Message-Id: <20050329011547.249167e7.akpm@osdl.org>
+In-Reply-To: <200503290307.j2T37Yg25879@unix-os.sc.intel.com>
+References: <20050329025932.GC435@redhat.com>
+	<200503290307.j2T37Yg25879@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/03/2005 11:26:43,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/03/2005 11:26:45,
-	Serialize complete at 29/03/2005 11:26:45
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 00:49 -0800, Paul Jackson wrote:
->   This
-> amortizes the cost of almost all the handling, and of all the disk i/o,
-> over many data collection events.  Correct me if I'm wrong, but
-> fork_connector doesn't do this merging of events into a consolidated
-> data buffer, so is at a distinct disadvantage, for this use, because the
-> data merging is delayed, and a separate, user level process, is required
-> to accomplish the merging and conversion to writable blocks of data
-> suitable for storing on the disk.
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> On Mon, Mar 28, 2005 at 06:38:23PM -0800, Chen, Kenneth W wrote:
+>  > We have measured that the following patch give measurable performance gain
+>  > for industry standard db benchmark.  Comments?
+> 
+>  Dave Jones wrote on Monday, March 28, 2005 7:00 PM
+>  > If you can't publish results from that certain benchmark due its stupid
+>  > restrictions, could you also try running an alternative benchmark that
+>  > you can show results from ?
+>  >
+>  > These nebulous claims of 'measurable gains' could mean anything.
+>  > I'm assuming you see a substantial increase in throughput, but
+>  > how much is it worth in exchange for complicating the code?
+> 
+>  Are you asking for micro-benchmark result?
 
-  The goal of the fork connector is to inform a user space application
-that a fork occurs in the kernel. This information (cpu ID, parent PID
-and child PID) can be used by several user space applications. It's not
-only for accounting. Accounting and fork_connector are two different
-things and thus, fork_connector doesn't do the merge of any kinds of
-data (and it will never do). 
+There are a number of test tools floating about.  reaim, orasim, osdb, others.
 
-  One difference with relayfs is the amount of datas that are
-transfered. The relayfs is done, like Evgeniy said, for large amount of
-datas. So I think that it's not suitable for what we want to achieve
-with the fork connector.
+A number of them are fairly crufty and toy-like, but still more useful than
+microbenchmarks, and they permit others to evaluate patches and to perform
+further optimisation. 
 
-
-I hope this help,
-Regards,
-Guillaume
-
+It's in everyone's interest that we get away from a test which has such
+dopey restrictions.

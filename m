@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUK2L67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbUK2MDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUK2L67 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 06:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbUK2L67
+	id S261692AbUK2MDO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 07:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbUK2MDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 06:58:59 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:44676 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261693AbUK2L6w
+	Mon, 29 Nov 2004 07:03:13 -0500
+Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:8969 "EHLO
+	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP id S261692AbUK2MDE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 06:58:52 -0500
-Date: Mon, 29 Nov 2004 13:02:20 +0100
-From: DervishD <lkml@dervishd.net>
-To: Umar Draz <kernel_org@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Help Me
-Message-ID: <20041129120220.GB496@DervishD>
-Mail-Followup-To: Umar Draz <kernel_org@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <BAY16-F1684D11982DDA41B94DFEEF1BD0@phx.gbl>
+	Mon, 29 Nov 2004 07:03:04 -0500
+Date: Mon, 29 Nov 2004 13:02:59 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org
+Subject: Re: raid1 oops in 2.6.9 (debian package 2.6.9-1-686-smp)
+Message-ID: <20041129120259.GA23970@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20041128142840.GA4119@mur.org.uk> <20041129100707.GX4469@unthought.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <BAY16-F1684D11982DDA41B94DFEEF1BD0@phx.gbl>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20041129100707.GX4469@unthought.net>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Umar
+From: Jakob Oestergaard <jakob@unthought.net>
+Date: Mon, Nov 29, 2004 at 11:07:08AM +0100
+> Why oh why, do we need raid10 ?
 
- * Umar Draz <kernel_org@hotmail.com> dixit:
-> i want help about kernel recompile
+Raid-10 allows things currently not possible with raid-0/raid-1, like
+spreading 2 pieces of data over 3 pieces of harddisk.
 
-    You don't specify your kernel version, nor your architecture,
-distribution (if any), if you have already tried the documentation,
-if you have already compiled a kernel (since you talk about
-recompiling), etc.
+Their was an introductory message on the linux-raid mailinglist, but
+it's more than one month old so I don't have a local copy.
 
-    A single tense is not enough to get help ;)
+> And; if raid10 does not provide new functionality that was not possible
+> with raid1 + raid0, why oh why does this get accepted in a stable kernel
+> series? 
 
-    Raúl Núñez de Arenas Coronado
+New drivers that are not enabled by default have always been allowed in
+stable kernels, since they don't have an impact on stability for the
+average user.
 
+My $0.02,
+Jurriaan
 -- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
+If something was not wrong things would not be right.
+        Sergeant Ortega - Zorro
+Debian (Unstable) GNU/Linux 2.6.10-rc2-mm3 2x6078 bogomips load 1.44

@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269211AbUHZQsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269165AbUHZQoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269211AbUHZQsr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 12:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269201AbUHZQqY
+	id S269165AbUHZQoF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 12:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269188AbUHZQk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 12:46:24 -0400
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:13233 "EHLO
-	yoda.timesys") by vger.kernel.org with ESMTP id S269145AbUHZQjq
+	Thu, 26 Aug 2004 12:40:58 -0400
+Received: from mail.bifgv.com.br ([200.243.172.130]:38584 "EHLO
+	mail.bifgv.com.br") by vger.kernel.org with ESMTP id S269165AbUHZQjf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 12:39:46 -0400
-Date: Thu, 26 Aug 2004 12:38:13 -0400
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Scott Wood <scott@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       manas.saksena@timesys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       nando@ccrma.stanford.edu
-Subject: Re: [patch] PPC/PPC64 port of voluntary preempt patch
-Message-ID: <20040826163813.GA14963@yoda.timesys>
-References: <20040823221816.GA31671@yoda.timesys> <20040824195122.GA9949@yoda.timesys> <1093490252.5678.56.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093490252.5678.56.camel@krustophenia.net>
-User-Agent: Mutt/1.5.4i
-From: Scott Wood <scott@timesys.com>
+	Thu, 26 Aug 2004 12:39:35 -0400
+Message-ID: <006601c48bad$00c4b130$0700a8c0@ti10>
+From: "Rodrigo FGV" <rodrigof@bifgv.com.br>
+To: <linux-kernel@vger.kernel.org>
+Subject: Reiser 4
+Date: Thu, 26 Aug 2004 13:40:59 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-bifgv.com.br-MailScanner-Information: Please contact the ISP for more information
+X-bifgv.com.br-MailScanner: Found to be clean
+X-MailScanner-From: rodrigof@bifgv.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 11:17:32PM -0400, Lee Revell wrote:
-> I think Scott may be on to something.  There are several reports that P9
-> does not work on SMP machines at all - it either doesn't boot, locks up
-> the first time there is heavy IRQ activity (starting KDE), or locks up
-> as soon as the first RT process is run.  This is exactly the behavior
-> that would be expected if Scott is correct.  See this thread:
-> 
-> http://ccrma-mail.stanford.edu/pipermail/planetccrma/2004-August/005899.html
-> 
-> Does anyone have P9 working on SMP?  Fernando, can you see if M5 works
-> on SMP?  If this works it would seem that the preemptible IRQs are the
-> problem.
-
-It worked for me on an SMP G5, but it would depend on which drivers
-are used; some use synchronize_irq() more than others.
-
-IIRC, though, M5 didn't have the IO-APIC fixes, so that's not likely
-to work well on SMP either.
-
--Scott
+how i convert reiser3.6 to reiser4. this update is safe???
+the reiser4 have any critical bug?? anyone recommend this update???

@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbUDAUkU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 15:40:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUDAUkU
+	id S263157AbUDAUlv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 15:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbUDAUlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 15:40:20 -0500
-Received: from nevyn.them.org ([66.93.172.17]:47537 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S263152AbUDAUkP (ORCPT
+	Thu, 1 Apr 2004 15:41:51 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:58771 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263157AbUDAUlg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 15:40:15 -0500
-Date: Thu, 1 Apr 2004 15:39:23 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>, gcc@gcc.gnu.org,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-Message-ID: <20040401203923.GA32177@nevyn.them.org>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>,
-	gcc@gcc.gnu.org, linux-kernel@vger.kernel.org,
-	schwidefsky@de.ibm.com
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de> <20040401220957.5f4f9ad2.ak@suse.de>
+	Thu, 1 Apr 2004 15:41:36 -0500
+Subject: Re: [PATCH] mask ADT: replace cpumask_t implementation [3/22]
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Paul Jackson <pj@sgi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <20040401072232.798d98c8.pj@sgi.com>
+References: <20040329041256.0f27e8c4.pj@sgi.com>
+	 <1080611340.6742.147.camel@arrakis>  <20040401072232.798d98c8.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1080852024.9787.87.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040401220957.5f4f9ad2.ak@suse.de>
-User-Agent: Mutt/1.5.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Apr 2004 12:40:25 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 10:09:57PM +0200, Andi Kleen wrote:
-> On Thu, 1 Apr 2004 21:28:20 +0200 (CEST)
-> Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de> wrote:
+On Thu, 2004-04-01 at 07:22, Paul Jackson wrote:
+> > >  #define	cpu_online_map			cpumask_of_cpu(0)
+> > >  #define	cpu_possible_map		cpumask_of_cpu(0)
+> > >  ...
+> > Might it make more sense to actually define a cpu_online_map &
+> > cpu_possible_map for UP, rather than generating this code:
+> > 
+> > #define mask_of_bit(bit, T)                                            \
+> > ({                                                                     \
+> >        typeof(T) m;                                                    \
+> >        mask_clearall(m);                                               \
+> >        mask_setbit((bit), m);                                          \
+> >        m;                                                              \
+> > })
+> > 
+> > every time some code references cpu_online_map?  It'll only cost us 2
+> > unsigned longs on 32-bit == 8 bytes...
 > 
-> > However, I'd say that this should probably be fixed in the kernel,
-> > e.g. by not reporting high-precision time stamps in the first
-> > place if the file system cannot store them ...
+> Perhaps.
 > 
-> Interesting. We discussed the case as a theoretical possibility when
-> the patch was merged, but it seemed to unlikely to make it worth
-> complicating the first version.
-> 
-> The solution from back then I actually liked best was to just round
-> up to the next second instead of rounding down when going from 1s 
-> resolution to ns.
-> 
-> -Andi
-> 
-> e.g. like this for ext3 (untested). Does that fix your problem?
+> When I looked at the code just now, this only seemed to take a
+> couple of instructions.  Do you think that there is much to gain?
+> Better a couple of inline instructions than a possible uncached
+> memory reference, I suspect.
 
-(I haven't tested anything but...) why should this fix it?  Ulrich's
-problem happens when the .o file is flushed from the cache, and then
-stat'd; it now appears to be older than the .c file.  With a change to
-round up instead, if the .c file is flushed from the cache before the
-.o, the .c will still suddenly appear to be newer than the .o.
+Yeah, you may be right about that.
 
+On UP it should compile as such:
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+cpu_online_map => cpumask_of_cpu(0) => 
+mask_of_bit(0, _unused_cpumask_arg_) => 
+({ typeof(_unused_cpumask_arg_) m; mask_clearall(m); mask_setbit(0, m);
+m; }) => 
+({ cpumask_t m; m._m[0] = 0UL; set_bit(0, m._m); m; }) 
+
+Maybe we could #define it better on UP.  Something along the lines of:
+
+#define cpu_online_map	({ cpumask_t up_cpu_map = { 1UL }; })
+
+That way we'll get this inlined, plus very little code to execute?
+
+Cheers!
+
+-Matt
+

@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261533AbTCZKY0>; Wed, 26 Mar 2003 05:24:26 -0500
+	id <S261538AbTCZKbf>; Wed, 26 Mar 2003 05:31:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261538AbTCZKYZ>; Wed, 26 Mar 2003 05:24:25 -0500
-Received: from pine.compass.com.ph ([202.70.96.37]:43528 "HELO
-	pine.compass.com.ph") by vger.kernel.org with SMTP
-	id <S261533AbTCZKXp>; Wed, 26 Mar 2003 05:23:45 -0500
+	id <S261545AbTCZKbf>; Wed, 26 Mar 2003 05:31:35 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:63946 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S261538AbTCZKbe>;
+	Wed, 26 Mar 2003 05:31:34 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Antonino Daplas <adaplas@pol.net>
+Date: Wed, 26 Mar 2003 11:42:35 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Subject: Re: [Linux-fbdev-devel] [BK FBDEV] A few more updates.
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
+Cc: jsimmons@infradead.org,
+       Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0303260519380.12718-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0303260519380.12718-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1048673964.1025.37.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Mar 2003 18:20:19 +0800
+X-mailer: Pegasus Mail v3.50
+Message-ID: <84D3825146@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-26 at 13:34, James Simmons wrote:
+On 26 Mar 03 at 17:53, Antonino Daplas wrote:
+> On Wed, 2003-03-26 at 13:34, James Simmons wrote:
+> > 
+> > > 5.  softcursor should not concern itself with memory bookkeeping, and
+> > > must be able to function with just the parameter passed to it in order
+> > > to keep it as simple as possible.  These tasks are moved to
+> > > accel_cursor.
+> > 
+> > We do if we make a ioctl for cursors. I'm trying to avoid reprogramming 
+> > the hardware over and over again if the properties of the cursor don't 
+> > change. The idea is similar to passing in var and comparing it to the var 
+> > in struct fb_info. 
 > 
-> > 3.  BTW, there are too many kmalloc's/kfree's in accel_cursor() and
-> > softcursor().  Personally, I would rather have 2 64-byte buffers for the
-> > mask and the data in the info->cursor structure than allocating/freeing
-> > memory each time the cursor flashes.  However, if you prefer doing it
-> > this way, the patch also includes changes so kmallocs are only done when
-> > necessary.  Still, accel_cursor() has unnecessary work being done, such
-> > as always creating the mask bitmap, when a simple flag to monitor cursor
-> > shape changes could prevent all this.
+> Of course, that's what the fb_cursor.set field is for, and drivers have
+> the option of ignoring or not ignoring bits in this field. Whoever calls
+> fb_cursor has the responsibility of setting any cursor state changes. 
 > 
-> I agree. The problem is the upper layer of the console system is to brain 
-> dead. Its either erase the cursor or redraw it again. There is no way to 
-> just say cursor just moved. There is a CM_MOVE but the upper layer doesn't 
-> even use it :-( If you look at vgacon and friends you will see they 
-> recreate the cursor every time the cursor blinks. Yes even vgacon.c does 
-> this. It is stupid and brain dead but that is the way the upper layers of 
-> the console work. The correct solution would be to use actually use 
-> CM_MOVE in the upper layers.
+> Unlike fb_set_var(), cursor states change very frequently (ie, each
+> blink or movement of the cursor are considered state changes), so just
+> forego the memcmp() and call fb_cursor unconditionally.  Let the
+> low-level method sort it out by checking bits in fb_cursor.set.
 
-Even so, (and I don't really fault the console cursor as it only needs
-to show, hide and move the cursor), accel_cursor() can easily monitor
-shape changes.  We can use a bitfield somewhere in fb_cursor(perhaps the
-high 8 bits of info->fb_cursor.set?) to "remember" the current cursor
-shape.
+accel_cursor unconditionally sets FB_CUR_SETPOS. Can you write it
+down to the TODO list to eliminate this? Cursor position lives 
+in different registers than cursor enable/disable on my hardware...
 
-Tony
+And if we could rename FB_CUR_SETCUR to FB_CUR_SETVISIBILITY and
+leave cursor->enable setting on accel_cursor's caller, it would
+be even better.
 
+And if we could change enable value to 0: disable; 1: enable;
+2: disable due to blink (called from vbl), it would be even better,
+as then fbdev which does hardware blinking could just completely
+ignore changes which set only FB_CUR_SETVISIBILITY with enable == 2.
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
 

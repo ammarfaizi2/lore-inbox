@@ -1,23 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbTCCKre>; Mon, 3 Mar 2003 05:47:34 -0500
+	id <S263342AbTCCKuE>; Mon, 3 Mar 2003 05:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbTCCKre>; Mon, 3 Mar 2003 05:47:34 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:10731 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S262500AbTCCKr1>;
-	Mon, 3 Mar 2003 05:47:27 -0500
-Date: Mon, 3 Mar 2003 11:57:34 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: [patch] remap-file-pages-2.5.63-A0
-Message-ID: <Pine.LNX.4.44.0303031142190.24967-100000@localhost.localdomain>
+	id <S263366AbTCCKuE>; Mon, 3 Mar 2003 05:50:04 -0500
+Received: from Ganesh.hcltech.com ([202.54.64.2]:10505 "EHLO
+	ganesh.ctd.hctech.com") by vger.kernel.org with ESMTP
+	id <S263342AbTCCKty>; Mon, 3 Mar 2003 05:49:54 -0500
+Message-ID: <60F922ABE8BE9C428E806F43C0EC736811EFB8@HARITHA>
+From: "Somshekar. C. Kadam - CTD, Chennai." <som_kadam@ctd.hcltech.com>
+To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: RE: [patch] remap-file-pages-2.5.63-A0
+Date: Mon, 3 Mar 2003 16:30:09 +0530 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+hi i have a problem in kernel mmm
+
+-----Original Message-----
+From: Ingo Molnar [mailto:mingo@elte.hu]
+Sent: Monday, March 03, 2003 4:28 PM
+To: Linus Torvalds
+Cc: Andrew Morton; linux-mm@kvack.org; linux-kernel@vger.kernel.org
+Subject: [patch] remap-file-pages-2.5.63-A0
 
 
 the attached patch, against BK-curr, is a preparation to make
@@ -49,21 +59,31 @@ platform, on a larger than 1-2 TB file.
 @@ -136,7 +136,7 @@ struct vm_operations_struct {
  	void (*open)(struct vm_area_struct * area);
  	void (*close)(struct vm_area_struct * area);
- 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int unused);
--	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, unsigned long prot, unsigned long pgoff, int nonblock);
-+	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
+ 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long
+address, int unused);
+-	int (*populate)(struct vm_area_struct * area, unsigned long address,
+unsigned long len, unsigned long prot, unsigned long pgoff, int nonblock);
++	int (*populate)(struct vm_area_struct * area, unsigned long address,
+unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
  };
  
  /* forward declaration; pte_chain is meant to be internal to rmap.c */
 @@ -419,7 +419,7 @@ extern int vmtruncate(struct inode * ino
- extern pmd_t *FASTCALL(__pmd_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address));
- extern pte_t *FASTCALL(pte_alloc_kernel(struct mm_struct *mm, pmd_t *pmd, unsigned long address));
- extern pte_t *FASTCALL(pte_alloc_map(struct mm_struct *mm, pmd_t *pmd, unsigned long address));
--extern int install_page(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long addr, struct page *page, unsigned long prot);
-+extern int install_page(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long addr, struct page *page, pgprot_t prot);
- extern int handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma, unsigned long address, int write_access);
+ extern pmd_t *FASTCALL(__pmd_alloc(struct mm_struct *mm, pgd_t *pgd,
+unsigned long address));
+ extern pte_t *FASTCALL(pte_alloc_kernel(struct mm_struct *mm, pmd_t *pmd,
+unsigned long address));
+ extern pte_t *FASTCALL(pte_alloc_map(struct mm_struct *mm, pmd_t *pmd,
+unsigned long address));
+-extern int install_page(struct mm_struct *mm, struct vm_area_struct *vma,
+unsigned long addr, struct page *page, unsigned long prot);
++extern int install_page(struct mm_struct *mm, struct vm_area_struct *vma,
+unsigned long addr, struct page *page, pgprot_t prot);
+ extern int handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma,
+unsigned long address, int write_access);
  extern int make_pages_present(unsigned long addr, unsigned long end);
- extern int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
+ extern int access_process_vm(struct task_struct *tsk, unsigned long addr,
+void *buf, int len, int write);
 --- linux/include/linux/swapops.h.orig	
 +++ linux/include/linux/swapops.h	
 @@ -51,6 +51,7 @@ static inline swp_entry_t pte_to_swp_ent
@@ -84,21 +104,29 @@ platform, on a larger than 1-2 TB file.
 --- linux/include/asm-i386/pgtable.h.orig	
 +++ linux/include/asm-i386/pgtable.h	
 @@ -112,6 +112,7 @@ void pgtable_cache_init(void);
- #define _PAGE_PSE	0x080	/* 4 MB (or 2MB) page, Pentium+, if present.. */
+ #define _PAGE_PSE	0x080	/* 4 MB (or 2MB) page, Pentium+, if
+present.. */
  #define _PAGE_GLOBAL	0x100	/* Global TLB entry PPro+ */
  
 +#define _PAGE_FILE	0x040	/* pagecache or swap? */
  #define _PAGE_PROTNONE	0x080	/* If not present */
  
- #define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_USER | _PAGE_ACCESSED | _PAGE_DIRTY)
+ #define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_USER |
+_PAGE_ACCESSED | _PAGE_DIRTY)
 @@ -189,6 +190,7 @@ static inline int pte_exec(pte_t pte)		{
- static inline int pte_dirty(pte_t pte)		{ return (pte).pte_low & _PAGE_DIRTY; }
- static inline int pte_young(pte_t pte)		{ return (pte).pte_low & _PAGE_ACCESSED; }
- static inline int pte_write(pte_t pte)		{ return (pte).pte_low & _PAGE_RW; }
-+static inline int pte_file(pte_t pte)		{ return (pte).pte_low & _PAGE_FILE; }
+ static inline int pte_dirty(pte_t pte)		{ return (pte).pte_low &
+_PAGE_DIRTY; }
+ static inline int pte_young(pte_t pte)		{ return (pte).pte_low &
+_PAGE_ACCESSED; }
+ static inline int pte_write(pte_t pte)		{ return (pte).pte_low &
+_PAGE_RW; }
++static inline int pte_file(pte_t pte)		{ return (pte).pte_low &
+_PAGE_FILE; }
  
- static inline pte_t pte_rdprotect(pte_t pte)	{ (pte).pte_low &= ~_PAGE_USER; return pte; }
- static inline pte_t pte_exprotect(pte_t pte)	{ (pte).pte_low &= ~_PAGE_USER; return pte; }
+ static inline pte_t pte_rdprotect(pte_t pte)	{ (pte).pte_low &=
+~_PAGE_USER; return pte; }
+ static inline pte_t pte_exprotect(pte_t pte)	{ (pte).pte_low &=
+~_PAGE_USER; return pte; }
 @@ -286,7 +288,7 @@ typedef pte_t *pte_addr_t;
  #define update_mmu_cache(vma,address,pte) do { } while (0)
  
@@ -106,13 +134,17 @@ platform, on a larger than 1-2 TB file.
 -#define __swp_type(x)			(((x).val >> 1) & 0x3f)
 +#define __swp_type(x)			(((x).val >> 1) & 0x1f)
  #define __swp_offset(x)			((x).val >> 8)
- #define __swp_entry(type, offset)	((swp_entry_t) { ((type) << 1) | ((offset) << 8) })
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
+ #define __swp_entry(type, offset)	((swp_entry_t) { ((type) << 1) |
+((offset) << 8) })
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) {
+(pte).pte_low })
 --- linux/include/asm-i386/pgtable-2level.h.orig	
 +++ linux/include/asm-i386/pgtable-2level.h	
 @@ -63,4 +63,14 @@ static inline pmd_t * pmd_offset(pgd_t *
- #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
- #define pfn_pmd(pfn, prot)	__pmd(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) |
+pgprot_val(prot))
+ #define pfn_pmd(pfn, prot)	__pmd(((pfn) << PAGE_SHIFT) |
+pgprot_val(prot))
  
 +/*
 + * Bits 0, 6 and 7 are taken, split up the 29 bits of offset
@@ -122,13 +154,15 @@ platform, on a larger than 1-2 TB file.
 +	((((pte).pte_low >> 1) & 0x1f ) + (((pte).pte_low >> 8) << 5 ))
 +
 +#define pgoff_to_pte(off) \
-+	((pte_t) { (((off) & 0x1f) << 1) + (((off) >> 5) << 8) + _PAGE_FILE })
++	((pte_t) { (((off) & 0x1f) << 1) + (((off) >> 5) << 8) + _PAGE_FILE
+})
 +
  #endif /* _I386_PGTABLE_2LEVEL_H */
 --- linux/include/asm-i386/pgtable-3level.h.orig	
 +++ linux/include/asm-i386/pgtable-3level.h	
 @@ -115,4 +115,11 @@ static inline pmd_t pfn_pmd(unsigned lon
- 	return __pmd(((unsigned long long)page_nr << PAGE_SHIFT) | pgprot_val(pgprot));
+ 	return __pmd(((unsigned long long)page_nr << PAGE_SHIFT) |
+pgprot_val(pgprot));
  }
  
 +/*
@@ -253,10 +287,12 @@ platform, on a larger than 1-2 TB file.
 -		if (pgprot_val(vma->vm_page_prot) != pgprot_val(__S000))
 -			vma->vm_page_prot = __S000;
 -		err = vma->vm_ops->populate(vma, start, size, prot,
--						pgoff, flags & MAP_NONBLOCK);
+-						pgoff, flags &
+MAP_NONBLOCK);
 -	}
 +				end <= vma->vm_end)
-+		err = vma->vm_ops->populate(vma, start, size, vma->vm_page_prot,
++		err = vma->vm_ops->populate(vma, start, size,
+vma->vm_page_prot,
 +				pgoff, flags & MAP_NONBLOCK);
  
  	up_read(&mm->mmap_sem);
@@ -323,11 +359,14 @@ platform, on a larger than 1-2 TB file.
 +++ linux/mm/memory.c	
 @@ -281,7 +281,8 @@ skip_copy_pte_range:
  					goto cont_copy_pte_range_noset;
- 				/* pte contains position in swap, so copy. */
+ 				/* pte contains position in swap, so copy.
+*/
  				if (!pte_present(pte)) {
--					swap_duplicate(pte_to_swp_entry(pte));
+-
+swap_duplicate(pte_to_swp_entry(pte));
 +					if (!pte_file(pte))
-+						swap_duplicate(pte_to_swp_entry(pte));
++
+swap_duplicate(pte_to_swp_entry(pte));
  					set_pte(dst_pte, pte);
  					goto cont_copy_pte_range_noset;
  				}
@@ -371,7 +410,8 @@ platform, on a larger than 1-2 TB file.
 +	pte_unmap(pte);
 +	spin_unlock(&mm->page_table_lock);
 +
-+	err = vma->vm_ops->populate(vma, address & PAGE_MASK, PAGE_SIZE, vma->vm_page_prot, pgoff, 0);
++	err = vma->vm_ops->populate(vma, address & PAGE_MASK, PAGE_SIZE,
+vma->vm_page_prot, pgoff, 0);
 +	if (err == -ENOMEM)
 +		return VM_FAULT_OOM;
 +	if (err)
@@ -393,10 +433,18 @@ platform, on a larger than 1-2 TB file.
 -		 * drop the lock.
 -		 */
  		if (pte_none(entry))
- 			return do_no_page(mm, vma, address, write_access, pte, pmd);
+ 			return do_no_page(mm, vma, address, write_access,
+pte, pmd);
 +		if (pte_file(entry))
-+			return do_file_page(mm, vma, address, write_access, pte, pmd);
- 		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
++			return do_file_page(mm, vma, address, write_access,
+pte, pmd);
+ 		return do_swap_page(mm, vma, address, pte, pmd, entry,
+write_access);
  	}
  
 
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>

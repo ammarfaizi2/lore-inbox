@@ -1,51 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUH1C1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268114AbUH1CrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266155AbUH1C1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 22:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268102AbUH1C1s
+	id S268114AbUH1CrO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 22:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUH1CrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 22:27:48 -0400
-Received: from 67.107.199.112.ptr.us.xo.net ([67.107.199.112]:51192 "EHLO
-	hathawaymix.org") by vger.kernel.org with ESMTP id S266155AbUH1C1r
+	Fri, 27 Aug 2004 22:47:14 -0400
+Received: from science.horizon.com ([192.35.100.1]:35657 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S268114AbUH1CrN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 22:27:47 -0400
-From: Shane Hathaway <shane@hathawaymix.org>
-To: Chris Leech <chris.leech@gmail.com>
-Subject: Re: [PATCH] e1000 rx buffer allocation
-Date: Fri, 27 Aug 2004 20:27:48 -0600
-User-Agent: KMail/1.6.2
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.60.0408261727170.9545@orangutan.jungle> <20040826181843.342da7a3.davem@redhat.com> <41b516cb04082711363a009dbc@mail.gmail.com>
-In-Reply-To: <41b516cb04082711363a009dbc@mail.gmail.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408272027.49059.shane@hathawaymix.org>
+	Fri, 27 Aug 2004 22:47:13 -0400
+Date: 28 Aug 2004 02:47:12 -0000
+Message-ID: <20040828024712.29061.qmail@science.horizon.com>
+From: linux@horizon.com
+To: jlcooke@engsoc.org, linux-kernel@vger.kernel.org
+Subject: Re: Preliminary paper on collisions in SHA-2 Family
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 August 2004 12:36 pm, Chris Leech wrote:
-> As for moving the allocations out of the hard interrupt context, e1000
-> was one of several drivers that tried that a few years back by using
-> tasklets.  What I found is that if you split the allocation from the
-> receive processing, it's far to easy to generate an interrupt load
-> which starves the skb allocations.  The result is that you
-> continuously use all of the buffers then stall while they all get
-> replaced, and performance is horrible.  But if the patch works for
-> your network load ...
+The paper is NOT reporting a collision or attack; it's just reporting
+a flaw in a previous security claim.  An attack was claimed to be
+ineffective on SHA-2 because one step was computationally very expensive.
 
-We're getting 6000 interrupts per second, but the box handles it with ease.  
-We're getting zero loss now, but I guess with slower hardware or fewer 
-buffers, scheduling would be a problem.
-
-> A better approach for improving jumbo frame allocations might be to
-> use multiple smaller buffers for each receive, something the PRO/1000
-> hardware can do but the e1000 driver has never taken advantage of.
-
-Yes, that would be a far better solution.  I had no idea the card could do 
-that.  Are there specs on this hardware somewhere?  Although my patch works, 
-I don't want to stick with a temporary solution.
-
-Shane
+This paper shows that it's not all that expensive, so the security claim
+needs to be re-examined; perhaps the attack can be made to work after all.

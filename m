@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbUKOWHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbUKOWI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbUKOWHN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 17:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUKOWHN
+	id S261447AbUKOWI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUKOWI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 17:07:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23531 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261441AbUKOWHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:07:05 -0500
-Message-ID: <41992590.4060004@osdl.org>
-Date: Mon, 15 Nov 2004 13:54:24 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Mon, 15 Nov 2004 17:08:58 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:64207 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261473AbUKOWIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 17:08:05 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-rc2: strange behavior on dual Opteron w/ NUMA
+Date: Mon, 15 Nov 2004 23:06:15 +0100
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Brian Gerst <bgerst@quark.didntduck.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Regparm for x86 machine check handlers
-References: <4198EA70.202@quark.didntduck.org> <Pine.LNX.4.58.0411151201580.2222@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411151201580.2222@ppc970.osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200411152306.15606.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 15 Nov 2004, Brian Gerst wrote:
-> 
->>The patch to change traps and interrupts to the fastcall convention 
->>missed the machine check handlers.
-> 
-> 
-> Thanks, that was silly.
-> 
-> Anybody want to write a script that verifies that the only remaining 
-> "asmlinkage" entries are of the type "sys_xxxx()"? 
+Hi,
 
-Is part of the problem definition missing here?
-or I missed it?
+I am observing a strange behavior of the 2.6.10-rc1-mm5 and 2.6.10-rc2 kernels 
+on a dual-Opteron box with NUMA (Tyan Thunder K8W).  It occurs in specific 
+conditions, but seems to be 100% reproducible.
 
-E.g., printk() and vprint() are asmlinkage but not sys_xyz()...
-but I have a suspicion that they are OK.
+The situation is the following: I run X with KDE 3.3.1 (SuSE binaries) on SuSE 
+9.1 (x86-64), I run gkrellm in the background, I edit a text file using Kate, 
+there's a Konqueror window open and at the same time I play OGG files using 
+Noatun (not so unusual, I'd guess).  Then, after some time (variable), Kate 
+suddenly starts to repeat the most recently typed character (I have to leave 
+its window to stop this), Noatun stops playing and arts reports CPU overload.  
+gkrellm also shows the sudden increase of CPU load (apparently, only one CPU 
+is almost 100% loaded and the load sometimes "flows" from one CPU to the 
+other).  It all takes about 10 seconds.  Then it calms down, and I can start 
+playing music and typing again.  Sometimes Kate behaves normally, but every 
+time it happens a CPU gets overloaded which causes Noatun to stop playing and 
+CPU overload is reported (in such cases, the CPU is overloaded with _system_ 
+load).  So far, it's happened every time I ran the box with one of the said 
+kernels, and it can happen several times in a row (at random times).
 
-> "grep" shows that there's a number of incorrect ones left, but most of 
-> them seem to take no arguments, so ir doesn't matter. And there's the FP 
-> emulation stuff, which really -does- use the old interfaces.
+It doesn't occur on the 2.6.10-rc1 kernel (for sure) and, AFAICT, it doesn't 
+occur on the previous -mm kernels (I must admit I haven't tested them 
+thoroughly on the dual box, though).  I also do not observe this kind of 
+problems on a single-CPU box with a similar setup, but I usually don't use 
+Noatun on it.
 
-so ignore the FP emulation, ignore functions with no arguments, right?
+I suspect that this has been intorduced in 2.6.10-rc1-mm5, so if you have any 
+ideas, please let me know.  If you need more information, please let me know 
+too.
 
-and omit "asmlinkage.*sys_xyz".  that leaves a handful of functions
-which are <asm>, like:
-
-acpi_status asmlinkage acpi_enter_sleep_state(u8 sleep_state);
-csum_partial(), csum_partial_copy_generic(),
-schedule_tail(), aes_enc_blk(), aes_dec_blk().
-
-I don't see others than need to be fixed, but a script
-would be a safer way to check, so I'm trying to nail down
-the requirements ... and what tool to use, like is there
-already a PERL [or python or xyz] script that parses C,
-or would you *coff* recommend sparse?
+Greets,
+RJW
 
 -- 
-~Randy
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

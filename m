@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288919AbSBRXWf>; Mon, 18 Feb 2002 18:22:35 -0500
+	id <S288921AbSBRX0f>; Mon, 18 Feb 2002 18:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288921AbSBRXWZ>; Mon, 18 Feb 2002 18:22:25 -0500
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:41089 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S288919AbSBRXWR>;
-	Mon, 18 Feb 2002 18:22:17 -0500
-Message-ID: <3C718C99.9030909@tmsusa.com>
-Date: Mon, 18 Feb 2002 15:22:01 -0800
-From: J Sloan <joe@tmsusa.com>
-Organization: J S Concepts
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-CC: Oliver Hillmann <oh@novaville.de>, linux-kernel@vger.kernel.org
+	id <S288923AbSBRX0Z>; Mon, 18 Feb 2002 18:26:25 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:55987 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S288921AbSBRX0P>; Mon, 18 Feb 2002 18:26:15 -0500
+Date: Tue, 19 Feb 2002 00:26:14 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: jiffies rollover, uptime etc.
-In-Reply-To: <Pine.LNX.4.33.0202182305390.10354-100000@gans.physik3.uni-rostock.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020219002614.A27210@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C717DEA.7090309@candelatech.com> <E16cwUx-00073d-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16cwUx-00073d-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 18, 2002 at 10:31:34PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many will be grateful if this finally allows
-the correct uptime to be generated after
-497 days - my busy mail/dns servers now
-have 611 days uptime, but to outsiders it
-appears they only have 114 days uptime,
-and there are bizarre items in the process
-table, e.g. programs that were apparently
-started in the year 2003...
+On Mon, Feb 18, 2002 at 10:31:34PM +0000, Alan Cox wrote:
+> > I wonder, is it more expensive to write all drivers to handle the
+> > wraps than to take the long long increment hit?  The increment is
+> 
+> Total cost of handling it right - 0 clocks. Its simply about maths order
+> and sign 
 
-Joe
+$ uname -a ; uptime
+Linux newyork-1 2.2.18 #3 Mon Dec 11 15:57:33 EST 2000 i686 unknown
+  6:22pm  up 425 days,  1:35,  3 users,  load average: 0.10, 0.05, 0.01
 
-Tim Schmielau wrote:
+This server is pretty remote and hard to reach, and not sure to reboot
+properly unattended - are there predictions about how well 2.2.18 will
+survive jiffy wraparound?
 
->On Mon, 18 Feb 2002, Oliver Hillmann wrote:
->
->>Hello,
->>
->>yes, I know this is defenitely no new issue (maybe its none to you
->>anyway), since I found posts about this dating from 1998: the
->>jiffies counter rolls over after approx. 497 days uptime, which
->>causes the uptime to roll over as well, and seems to cause some
->>other irretation in the system itself (my pc speaker starting
->>beeping constantely...)
->>
->
->See 
->http://www.lib.uaa.alaska.edu/linux-kernel/archive/2001-Week-47/0736.html
->for a patch.
->I intend to submit this for 2.4.19pre after some more testing and 
->feedback.
->
->Also note that several patches for jiffies rollover bugs have gone into 
->2.4.18pre, maybe one of them fixes the speaker driver.
->
->Tim
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+Would you consider it worth rebooting for? By the way, this is our second
+most important production server, I'm exceedingly pleased with the
+stability. We've abused it no end.
 
+Thanks.
 
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc

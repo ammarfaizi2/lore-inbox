@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290981AbSAaJIQ>; Thu, 31 Jan 2002 04:08:16 -0500
+	id <S290988AbSAaJMg>; Thu, 31 Jan 2002 04:12:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290987AbSAaJIG>; Thu, 31 Jan 2002 04:08:06 -0500
-Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:18438 "EHLO
-	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S290981AbSAaJIA>; Thu, 31 Jan 2002 04:08:00 -0500
-Date: Wed, 30 Jan 2002 23:09:54 +0000
-To: linux-lvm@sistina.com, linux-kernel@vger.kernel.org, lvm-devel@sistina.com
-Subject: Re: [lvm-devel] [ANNOUNCE] LVM reimplementation ready for beta testing
-Message-ID: <20020130230954.E7763@fib011235813.fsnet.co.uk>
-In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk> <20020130145408.I763@lynx.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020130145408.I763@lynx.adilger.int>; from adilger@turbolabs.com on Wed, Jan 30, 2002 at 02:54:08PM -0700
-From: Joe Thornber <thornber@fib011235813.fsnet.co.uk>
+	id <S290987AbSAaJM0>; Thu, 31 Jan 2002 04:12:26 -0500
+Received: from dark.pcgames.pl ([195.205.62.2]:41929 "EHLO dark.pcgames.pl")
+	by vger.kernel.org with ESMTP id <S289037AbSAaJMP>;
+	Thu, 31 Jan 2002 04:12:15 -0500
+Date: Thu, 31 Jan 2002 10:12:05 +0100 (CET)
+From: Krzysztof Oledzki <ole@ans.pl>
+X-X-Sender: <ole@dark.pcgames.pl>
+To: Tim Moore <timothymoore@bigfoot.com>
+cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.21pre2; ide_set_handler; DMA timeout
+In-Reply-To: <3C56FF07.304AFB48@bigfoot.com>
+Message-ID: <Pine.LNX.4.33.0201310959510.21465-100000@dark.pcgames.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 02:54:08PM -0700, Andreas Dilger wrote:
-> On Jan 30, 2002  20:22 +0000, Joe Thornber wrote:
-> > Sistina is pleased to announce that the LVM2 software is ready for
-> > beta testing.
-> > 
-> > This is a complete reimplementation of the existing LVM system, both
-> > driver and userland tools.
-> 
-> What is the current and future licensing of the LVM2 code?  Given the
-> GFS events, I think people will be hesitant to accept an all-Sistina
-> reimplementation of LVM.
 
 
-LVM2 is GPL/LGPL-licensed - just like the original version of LVM.
-This means the whole Linux community benefits from this aspect of
-Sistina's work.  The device-mapper and LVM2 packages will *always* be
-GPL/LGPL.
+On Tue, 29 Jan 2002, Tim Moore wrote:
 
-As those who have been following LVM development closely will be aware,
-the decision to rewrite was taken for sound technical - not licensing -
-reasons, and of course we welcome and encourage contributions to LVM2
-from outside Sistina.
+> > driver. You may check some more recent version of IDE backport from
+> > 2.4.x: http://www.ans.pl/ide/testing - the latest is ide.2.2.21.01282002-Ole,
+> > but the new version of hpt driver has not been yet backported. I'm going
+> > to do it tomorrow.
+> I'll test the backport hpt driver when available.
 
-- Joe
+OK, please try this:
+http://www.ans.pl/ide/testing/ide.2.2.21.01312002-Ole.patch.gz
+
+ide.2.2.21.01302002-Ole for linux kernel 2.2.21pre2: (test version)
+o       new file: drivers/ide/idecomp.h with:
+                create_proc_read_entry() for ide-proc.c
+                pci_for_each_dev() for ide-pci.c and cs5530.c
+                ARRAY_SIZE() for sis5513.c
+                cpu_relax() for serverworks.c
+o       backport from linux-2.4.17+ide.2.4.16.12102001.patch:
+                alim15x3.c - 0.10
+                hpt366.c - 0.22
+                slc90e66.c
+o       enable 80-pin cable detection for DELL and SUN in serverworks.c
+o       use create_proc_info_entry() and proc_mkdir() in ide-proc.c.
+o       enable "IDE Taskfile Access" and "IDE Taskfile IO" in Config.in
+
+Is there any reason why you compiled kernel with IDE SCSI emulation?
+
+BTW: Do you really have 36MHz PCI clock?
+
+Best regards,
+
+				Krzysztof Oledzki
+

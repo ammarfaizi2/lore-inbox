@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131332AbQKJSZ5>; Fri, 10 Nov 2000 13:25:57 -0500
+	id <S130217AbQKJSa2>; Fri, 10 Nov 2000 13:30:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131451AbQKJSZr>; Fri, 10 Nov 2000 13:25:47 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:55672 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S131450AbQKJSZg>; Fri, 10 Nov 2000 13:25:36 -0500
+	id <S130819AbQKJSaS>; Fri, 10 Nov 2000 13:30:18 -0500
+Received: from smtp.alacritech.com ([209.10.208.82]:51977 "EHLO
+	smtp.alacritech.com") by vger.kernel.org with ESMTP
+	id <S130217AbQKJSaO>; Fri, 10 Nov 2000 13:30:14 -0500
+Message-ID: <3A0C402F.8F0BA261@alacritech.com>
+Date: Fri, 10 Nov 2000 10:36:31 -0800
+From: "Matt D. Robinson" <yakker@alacritech.com>
+Organization: Alacritech, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Christoph Rohland <cr@sap.com>
+CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>, richardj_moore@uk.ibm.com,
+        Paul Jakma <paulj@itg.ie>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+In-Reply-To: <200011101624.LAA22004@tsx-prime.MIT.EDU> <qww7l6bpyuv.fsf@sap.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14860.15798.651952.347977@somanetworks.com>
-Date: Fri, 10 Nov 2000 13:25:58 -0500 (EST)
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compiling 2.4.0-test10 kernel 
-In-Reply-To: <7531.973877015@ocs3.ocs-net>
-In-Reply-To: <14860.8449.485106.841805@somanetworks.com>
-	<7531.973877015@ocs3.ocs-net>
-X-Mailer: VM 6.75 under 21.2  (beta35) "Nike" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "KO" == Keith Owens <kaos@ocs.com.au> writes:
+Christoph Rohland wrote:
+> 
+> Hi Theodore,
+> 
+> On Fri, 10 Nov 2000, Theodore Y. Ts'o wrote:
+> > P.S.  There are some such RAS features which I wouldn't be surprised
+> > there being interest in having integrated into the kernel directly
+> > post-2.4, with no need to put in "kernel hooks" for that particular
+> > feature.  A good example of that would be kernel crash dumps.  For
+> > all Linux houses which are doing support of customers remotely,
+> > being able to get a crash dump so that developers can investigate a
+> > problem remotely instead of having to fly a developer out to the
+> > customer site is invaluable.  In fact, it might be considerd more
+> > valuable than the kernel debugger....
+> 
+> *Yes* :-)
 
- KO> On Fri, 10 Nov 2000 11:23:29 -0500 (EST), "Georg Nikodym"
- KO> <georgn@somanetworks.com> wrote:
- C> i've manged to successfully compile 2.4.0-test10 kernel. however,
- C> upon startup there are some failed/error messages:
- C> 1. finding module dependencies: depmod *** Unresolved symbols in
- C> /lib/modules/2.4.0-test10/kernel/arch/i386/kernel/apm.o
- >>
- >> There are two things you can do about this:
- >>
- >> 1. Disable module versioning.
- >> 2. Copy the System.map file that's made during the kernel build to
- >> /boot/System.map-2.4.0-test10.
+As soon as I finish writing raw write disk routines (not using kiobufs),
+we can _maybe_ get LKCD accepted one of these days, especially now that we
+don't have to build 'lcrash' against a kernel revision.  I'm in the
+middle of putting together raw IDE functions now -- see LKCD mailing
+list for details if you're curious.
 
- KO> System.map has nothing, repeat nothing to do with depmod at
- KO> startup.  Yes, you can run depmod reading from a System.map but
- KO> that only makes sense before you boot the new kernel.  Once you
- KO> have booted your new kernel, depmod -a reads from kernel memory,
- KO> not System.map.
+IMHO, GKHI is a good thing -- it would be great to see this used for
+ASSERT() cases (something you can turn on by 'insmod assert.o', which
+would then trigger assert conditionals throughout the kernel ...) I
+realize it would mean some bloat, and I doubt Linus would accept it,
+but it's a nifty concept for enterprise Linux servers (especially
+those that want quick answers to system crashes).
 
-OK.  Makes sense.  My first kicks at building and running a kernel had
-these problems (with module loading) until I added the copying of
-System.map to my installation procedure.  I was led to this by
-messages in /var/log/messages...  Thanks for the additional pointers.
+--Matt
 
- KO> Q.  Why do I get unresolved symbols like foo__ver_foo in modules?
-
- KO> A.  If /proc/ksyms or the output from depmod -ae contains symbols
- KO>     like
- KO> "foo__ver_foo" then you have been bitten by the broken Makefile
- KO> code for symbol versioning.  The only safe way to recover is save
- KO> your config, delete everything, restore the config and recompile.
-
- KO> mv .config ..  make mrproper mv ../.config .  make oldconfig make
- KO> dep clean bzImage modules install, boot
-
-OK, but I guess my question wasn't very clear.  I have a kernel tree,
-I add a printk to maestro.c and make modules.  I cannot load the
-module until I rebuild and reinstall everything.  Is there a way to
-avoid this headache, or, stated differently:  What's the prescribed
-way to be able to load, unload, build, test modules?
+> Greetings
+>                 Christoph
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

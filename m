@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264551AbTDYXup (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 19:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbTDYXup
+	id S263365AbTDYX77 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 19:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTDYX77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 19:50:45 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:27409 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S264551AbTDYXuo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 19:50:44 -0400
-Date: Sat, 26 Apr 2003 02:02:51 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: John Meyers <meyers@sdf-eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: statvfs()
-Message-ID: <20030426000251.GA21996@win.tue.nl>
-References: <20030425121138.GA999@SDF-EU.ORG>
-Mime-Version: 1.0
+	Fri, 25 Apr 2003 19:59:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27921 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263365AbTDYX76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 19:59:58 -0400
+Message-ID: <3EA9CEB2.7090804@zytor.com>
+Date: Fri, 25 Apr 2003 17:11:30 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org
+Subject: Re: TASK_UNMAPPED_BASE & stack location
+References: <459930000.1051302738@[10.10.2.4]> <b8c7no$u59$1@cesium.transmeta.com> <1750000.1051305030@[10.10.2.4]> <3EA9B061.600@techsource.com> <3280000.1051308382@[10.10.2.4]> <3EA9C19E.9020205@zytor.com> <10000000.1051312797@[10.10.2.4]>
+In-Reply-To: <10000000.1051312797@[10.10.2.4]>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030425121138.GA999@SDF-EU.ORG>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25, 2003 at 12:11:38PM +0000, John Meyers wrote:
-> Wheere can i find documentation for statvfs ? 
-> Any explanation or links would be helpful.
+Martin J. Bligh wrote:
+> 
+> Right ... I was just suggesting changing it by default. Was wondering if
+> anyone knew of anything it'd break. Your issue with NULL pointers is
+> interesting, but I'm not sure this would really affect that much ... the
+> stack is normally tiny in comparison.
+> 
 
-% man statfs
-...
-       Solaris and POSIX 1003.1-2001 have a system  call  statvfs
-       that returns a struct statvfs (defined in <sys/statvfs.h>)
-       containing an unsigned long f_fsid.  Linux,  SunOS,  HPUX,
-       4.4BSD  have  a  system  call statfs that returns a struct
-       statfs  (defined  in  <sys/vfs.h>)  containing  a   fsid_t
-       f_fsid, where fsid_t is defined as struct { int val[2]; }.
-       The same holds  for  FreeBSD,  except  that  it  uses  the
-       include file <sys/mount.h>.
-...
+Normally, yes, but there are applications which use very large stacks.
+
+	-hpa
+
 

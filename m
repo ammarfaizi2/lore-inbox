@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVAKR7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVAKSDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVAKR7N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVAKR62
+	id S261806AbVAKSDd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 13:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVAKSDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 12:58:28 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:49108 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261352AbVAKRnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 12:43:49 -0500
-Subject: Re: Proper procedure for reporting possible security
-	vulnerabilities?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Chris Wright <chrisw@osdl.org>, Steve Bergman <steve@rueb.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
-References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
-	 <41E2F6B3.9060008@rueb.com>
-	 <Pine.LNX.4.61.0501102309270.2987@dragon.hygekrogen.localhost>
-	 <20050110164001.Q469@build.pdx.osdl.net>
-	 <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
-Content-Type: text/plain
+	Tue, 11 Jan 2005 13:03:00 -0500
+Received: from penguin.cohaesio.net ([212.97.129.34]:19392 "EHLO
+	mail.cohaesio.net") by vger.kernel.org with ESMTP id S261806AbVAKRxF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 12:53:05 -0500
+From: Anders Saaby <as@cohaesio.com>
+Organization: Cohaesio A/S
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: Linux NFS vs NetApp
+Date: Tue, 11 Jan 2005 18:53:35 +0100
+User-Agent: KMail/1.7.2
+References: <200501111711.50218.as@cohaesio.com> <20050111162113.GE23849@fieldses.org>
+In-Reply-To: <20050111162113.GE23849@fieldses.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105461562.16168.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 11 Jan 2005 16:39:23 +0000
+Content-Disposition: inline
+Message-Id: <200501111853.36025.as@cohaesio.com>
+X-OriginalArrivalTime: 11 Jan 2005 17:53:04.0494 (UTC) FILETIME=[666A20E0:01C4F806]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-01-11 at 17:05, Jesper Juhl wrote:
-> Problem is that the info can then get stuck at a vendor or maintainer 
-> outside of public view and risk being mothballed. It also limits the 
-> number of people who can work on a solution (including peole getting to 
-> work on auditing other code for similar issues). It also prevents admins 
-> from taking alternative precautions prior to availability of a fix (you 
-> have to assume the bad guys already know of the bug, not just the good 
-> guys).
+Hi,
 
-The evidence is that for the most part the bad guys don't know about the
-bug and the majority of the bad guys are not skilled enough to write
-some of the complex exploits. They also automate extensively so given an
-exploit can make very fast very effective use of it. There is an entire
-field of economics and game theory tied up in this as well as papers by
-some in the field who look at computer security models this way.
+Thanks for the tip - it actually seems that it is fixed in 2.6.10.
 
-If you are a member of the full disclosure camp then fine, but please cc
-vendor-sec when you publish the hole just in case Linus loses the email
-and so vendors know too and can plan appropriately.
+I am now subscribed to linux-nfs :)
 
-Alan
 
+On Tuesday 11 January 2005 17:21, you wrote:
+> On Tue, Jan 11, 2005 at 05:11:50PM +0100, Anders Saaby wrote:
+> > In which kernel version should this have been fixed?
+>
+> 2.6.10, I believe; see
+>
+> http://marc.theaimsgroup.com/?l=linux-nfs&m=110021733807921&w=2
+>
+> --Bruce Fields
+
+-- 
+Med venlig hilsen - Best regards - Meilleures salutations
+
+Anders Saaby
+Systems Engineer
+------------------------------------------------
+Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
+Phone: +45 45 880 888 - Fax: +45 45 880 777
+Mail: as@cohaesio.com - http://www.cohaesio.com
+------------------------------------------------

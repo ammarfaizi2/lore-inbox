@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275707AbRI0AI5>; Wed, 26 Sep 2001 20:08:57 -0400
+	id <S275716AbRI0AKr>; Wed, 26 Sep 2001 20:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275715AbRI0AIr>; Wed, 26 Sep 2001 20:08:47 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:28676
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S275707AbRI0AIa>; Wed, 26 Sep 2001 20:08:30 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200109262349.f8QNnju14536@www.hockin.org>
-Subject: Re: Question: Etherenet Link Detection
-To: rddunlap@osdlab.org (Randy.Dunlap)
-Date: Wed, 26 Sep 2001 16:49:44 -0700 (PDT)
-Cc: mdharm-kernel@one-eyed-alien.net (Matthew Dharm),
-        peter@zaphod.nu (Peter Sandstrom), robert@tux.cs.ou.edu (Robert Cantu),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3BB26983.29B37F4E@osdlab.org> from "Randy.Dunlap" at Sep 26, 2001 04:49:23 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S275714AbRI0AKh>; Wed, 26 Sep 2001 20:10:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43022 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275712AbRI0AKY>; Wed, 26 Sep 2001 20:10:24 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: newsgroup of all mailing lists ?
+Date: 26 Sep 2001 17:10:37 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9otqpt$6q7$1@cesium.transmeta.com>
+In-Reply-To: <B7D7DFB1.8013%little.jones.family@ntlworld.com> <20010927013522.I11046@mea-ext.zmailer.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's traditionally been defined as MII information, but that's
-> awfully slow, so some Ethernet controllers make it available
-> in a quicker manner.
+Followup to:  <20010927013522.I11046@mea-ext.zmailer.org>
+By author:    Matti Aarnio <matti.aarnio@zmailer.org>
+In newsgroup: linux.dev.kernel
 > 
-> ethtool might do this (http://sourceforge.net/projects/gkernel/);
-> I don't know for sure.
+>   It is not trivial.
+> 
+>   We ( postmaster@vger.kernel.org ) don't recommend making bidirectional
+>   gateways -- one mistake there, and the system causes duplication of
+>   messages at the list it is linked with.   When we detect that mistake,
+>   the usual court-martial is swift, and feed from VGER to the GW is
+>   removed instantly.
+> 
+>   I think these loop problems were one of the reasons why one of us
+>   (DaveM) strongly opposes list<->news gateways.  I am somewhat less
+>   in opposition, and my thinking is that the only way we can have
+>   reliable (hah!) list<->news gw is by running it centralized at VGER.
+>   Modern VGER has muscle for it, but don't expect it to happen any
+>   time soon.
+> 
 
-The only interface to this is through MII, unless we want to add an ETHTOOL
-style ioctl to get the link status.  This means, however, that every driver
-that wants to report this needs to support at least a subset of ethtool
-ioctls, which VERY FEW do.
+I actually had such a centralized gateway ran at one time.  It's still
+running locally at Transmeta.
 
+The only sane way to do this is in a centralized fashion, distributed
+outbound via the standard news mechanisms.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

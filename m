@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283245AbRLHSDm>; Sat, 8 Dec 2001 13:03:42 -0500
+	id <S283501AbRLHSR1>; Sat, 8 Dec 2001 13:17:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283668AbRLHSDW>; Sat, 8 Dec 2001 13:03:22 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:10256
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S283245AbRLHSCE>; Sat, 8 Dec 2001 13:02:04 -0500
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and
-	benchmarks
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Ragnar =?ISO-8859-1?Q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>,
-        Hans Reiser <reiser@namesys.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        reiserfs-dev@namesys.com
-In-Reply-To: <E16CNHk-0000u4-00@starship.berlin>
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin>
-	<3C0EE8DD.3080108@namesys.com> <20011206122753.A9253@vestdata.no> 
-	<E16CNHk-0000u4-00@starship.berlin>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 08 Dec 2001 10:02:02 -0800
-Message-Id: <1007834523.2566.2.camel@ixodes.goop.org>
+	id <S283516AbRLHSRQ>; Sat, 8 Dec 2001 13:17:16 -0500
+Received: from chmls06.mediaone.net ([24.147.1.144]:3017 "EHLO
+	chmls06.mediaone.net") by vger.kernel.org with ESMTP
+	id <S283501AbRLHSRG>; Sat, 8 Dec 2001 13:17:06 -0500
+Date: Sat, 8 Dec 2001 13:17:04 -0500
+From: James Moss <moss@brutesquad.org>
+To: linux-kernel@vger.kernel.org
+Subject: fstat issues
+Message-ID: <20011208181704.GA25104@acmeunix.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 07:51, Daniel Phillips wrote:
-> I did try R5 in htree, and at least a dozen other hashes.  R5 was the worst 
-> of the bunch, in terms of uniformity of distribution, and caused a measurable 
-> slowdown in Htree performance.  (Not an order of magnitude, mind you, 
-> something closer to 15%.)
+I noticed recently that the following no longer works.  I was wondering if
+this is internal to the kernel or if perhaps this is a glibc issue.  Also
+wondering if this was an intential change.  It did 'used to work' but I
+realize that may hold little to no ground since it does seem to be on a per
+implementation basis.  Anyway looking forward to hearing back, feel free to
+show a better way to go about doing what I'm attempting to do.
+     -James Moss
 
-Did you try the ReiserFS teahash?  I wrote it specifically to address
-the issue you mentioned in the paper of an attacker deliberately
-generating collisions; the intention was that each directory (or maybe
-filesystem) have its own distinct hashing key.
+-------foo.c------------
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/errno.h>
+#include <fcntl.h>
 
-	J
+main(argc, argv)
+int argc;
+char **argv;
+{
+    struct stat sb;
+    if (0 == fstat( fileno(stdin), &sb )) {
+        printf( "size %d\n", sb.st_size );
+    } else {
+        printf( "size %d\n", sb.st_size );
+    }
+    exit( 0 );
+}
 
+-------------------
+				    
+On HP, Solaris, etc...
+cc foo.c
+echo "abc" > ftext.txt
+./a.out < ftext.txt
+size 4
+cat ftext.txt | ./a.out
+size 4
+			    
+On Debian Unstable, latest release of Suse, and latest release of Redhat...
+gcc foo.c
+echo "abc" > ftext.txt
+./a.out < ftext.txt
+size 4
+cat ftext.txt | ./a.out
+size 0
+
+Page 90, 4.12 "File Size"
+Advanced Programming in the UNIX Environment states that it's posix compliant
+in SVR4 to have the ability to read file size from a pipe and the st_size of
+the sb struct is defined.... does Linux break SVR4 compliance?  Is there a
+better or new way to do this?
+
+SVID Vol: 1a Version 4
+
+Since a pipe is bi-directional, there are two separate flows of data.
+Therefore, the size (st_size) returned by a call to fstat with argument
+fildes[0] or fildes[1] is the number of bytes available for reading from
+fildes[0] or fildes[1] respectively.
+
+FINAL COPY
+June 15, 1995
+File: ba_os/pipe
+svid
+Page: 219

@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272407AbRIVWKx>; Sat, 22 Sep 2001 18:10:53 -0400
+	id <S272415AbRIVW3i>; Sat, 22 Sep 2001 18:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272413AbRIVWKn>; Sat, 22 Sep 2001 18:10:43 -0400
-Received: from fep01-svc.mail.telepac.pt ([194.65.5.200]:23967 "EHLO
-	fep01-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id <S272407AbRIVWKf>; Sat, 22 Sep 2001 18:10:35 -0400
-Message-ID: <3BAD0B7A.2000306@yahoo.com>
-Date: Sat, 22 Sep 2001 23:06:50 +0100
-From: Paulo da Silva <psdasilva@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9 performance issue
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S272417AbRIVW33>; Sat, 22 Sep 2001 18:29:29 -0400
+Received: from jalon.able.es ([212.97.163.2]:49110 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S272415AbRIVW3X>;
+	Sat, 22 Sep 2001 18:29:23 -0400
+Date: Sun, 23 Sep 2001 00:29:41 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: PTRACE_SINGLESTEP x86 vs alpha
+Message-ID: <20010923002941.A8177@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi everyrone.
 
-I used to listen mp3 files, using mpg123 -b 2048 -z (nice -15, for ex. -
-sometimes I forget this!), without any interruption, even with
-an relatively overloaded system! This was one
-of my arguments when advertising Linux performance.
+I'm trying to solve rejects when applying bproc-3.0.1 (designed for 2.4.7)
+to 2.4.10-pre14. Everything is solved but this.
 
-Now I'm getting, from times to times, some interruptions,
-without any relevant workload.
-I have noticed that when this happens, the kswapd task is allways
-on the top of "top" program, CPU sorted.
+In arch/[i386,alpha]/kernel/ptrace.c:sys_ptrace,
+code looks a bit different between i386 and alpha:
 
-I'm not sure at what kernel this began to happen, since I am
-changing the recent kernels (2.4.x) at the same rate they are
-released. Currently I'm using 2.4.9.
+x86:
+    case PTRACE_SINGLESTEP: {  /* set the trap flag. */
+        long tmp;
 
-If you need any further information, please email me, because
-I'm not sure what info is pertinent for an eventual analisys.
-I'm also able to perform any test you may find useful even
-to change and recompile the sources.
+        ret = -EIO;
+        if ((unsigned long) data > _NSIG)
+            break;
+        child->ptrace &= ~PT_TRACESYS;
+        if ((child->ptrace & PT_DTRACE) == 0) {
+            /* Spurious delayed TF traps may occur */
+            child->ptrace |= PT_DTRACE;
+        }
+        tmp = get_stack_long(child, EFL_OFFSET) | TRAP_FLAG;
+        put_stack_long(child, EFL_OFFSET, tmp);
+        child->exit_code = data;
+        /* give it a chance to run. */
+        wake_up_process(child);
+        ret = 0;
+        break;
+    }
 
-Best regards,
-Paulo da Silva
+alpha:
+    case PTRACE_SINGLESTEP:  /* execute single instruction. */
+        ret = -EIO;
+        if ((unsigned long) data > _NSIG)
+            goto out;
+        child->thread.bpt_nsaved = -1;  /* mark single-stepping */
+        child->ptrace &= ~PT_TRACESYS;
+        wake_up_process(child);          <==========0
+        child->exit_code = data;         <==========0 different
+												order than x86
+        /* give it a chance to run. */
+        ret = 0;
+        goto out;                        <==========0 so bad are
+										breaks in alpha gcc ??
 
+Is it safe to reorder wake_up_process(child) and put it just before the goto ?
 
+TIA
+
+--
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.1 (Cooker) for i586
+Linux werewolf 2.4.10-pre14 #1 SMP Sat Sep 22 11:04:31 CEST 2001 i686

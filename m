@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264841AbRGEWKz>; Thu, 5 Jul 2001 18:10:55 -0400
+	id <S264779AbRGEWPP>; Thu, 5 Jul 2001 18:15:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264829AbRGEWKg>; Thu, 5 Jul 2001 18:10:36 -0400
-Received: from pille.addcom.de ([62.96.128.34]:24590 "HELO pille.addcom.de")
-	by vger.kernel.org with SMTP id <S264764AbRGEWK3>;
-	Thu, 5 Jul 2001 18:10:29 -0400
-Date: Fri, 6 Jul 2001 00:03:24 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux/macros.h(new) and linux/list.h(mod) ...
-In-Reply-To: <XFMail.20010705135733.davidel@xmailserver.org>
-Message-ID: <Pine.LNX.4.33.0107052357190.1054-100000@vaio>
+	id <S264791AbRGEWPF>; Thu, 5 Jul 2001 18:15:05 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:35844 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S264779AbRGEWO4>;
+	Thu, 5 Jul 2001 18:14:56 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107052214.f65ME2q61970@saturn.cs.uml.edu>
+Subject: Re: [OT] Re: LILO calling modprobe?
+To: wakko@animx.eu.org (Wakko Warner)
+Date: Thu, 5 Jul 2001 18:14:02 -0400 (EDT)
+Cc: aaronl@vitelus.com (Aaron Lehmann), dwguest@win.tue.nl (Guest section DW),
+        sburns@farpointer.net (Stephen C Burns), linux-kernel@vger.kernel.org,
+        83710@bugs.debian.org
+In-Reply-To: <20010705180331.A10315@animx.eu.org> from "Wakko Warner" at Jul 05, 2001 06:03:31 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2001, Davide Libenzi wrote:
+Wakko Warner writes:
 
-> This patch add a new linux/macros.h that is supposed to host utility macros
-> that otherwise developers are forced to define in their files.
-> This version contain only min(), max() and abs().
+> I believe there is.  It wants to find what drive is bios drive 80h.  Really
+> annoying since there's no way (correct me if I'm wrong) to read bios from
+> linux.  If there is, lilo should do that.  But since it's an old copy, this
+> probably was fixed.
+>
+> I had a machine at work with both ide and scsi.  ide hdd was hdc and ide
+> cdrom was hda just to keep lilo from thinking hdc is the first bios drive
+> which infact sda was
 
-It's a good old tradition to put macros in uppercase letters. This would 
-have avoided one fatal error in your patch, the conflict with the gcc 
-built-in 
-	
-	int abs(int);
+The easy way to handle this is to md5 checksum the disks at boot.
+Read the first and last track of the first and last cylinder of
+every BIOS drive. Then match up the disks when partition tables
+get scanned.
 
-which has it's prototype in include/linux/kernel.h. There's places which 
-depend on this and would break with your macro.
+The hard way involves running the BIOS in virtual-8088 mode to
+trap IO accesses, then mapping to drivers by IO region later.
 
-Also, unless you have more macros in mind, it may make sense to just place 
-MIN, MAX in kernel.h and of course to remove similar macro definitions 
-throughout the kernel and replace them by the commonly defined ones.
-
---Kai
-
+Neither way is 100% reliable, but the current guess is worse.

@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbTEFKMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 06:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbTEFKMJ
+	id S262498AbTEFKVj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 06:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTEFKVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 06:12:09 -0400
-Received: from [217.157.19.70] ([217.157.19.70]:6416 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S262497AbTEFKMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 06:12:08 -0400
-Date: Tue, 6 May 2003 12:24:39 +0200 (CEST)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: marcelo@conectiva.com.br
-cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined
- (trivial)
-In-Reply-To: <20030506110259.A29633@infradead.org>
-Message-ID: <Pine.LNX.4.40.0305061216060.13598-100000@jehova.dsm.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 May 2003 06:21:39 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44198
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262498AbTEFKVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 06:21:38 -0400
+Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Shane Shrybman <shrybman@sympatico.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030505143006.29c0301a.akpm@digeo.com>
+References: <1052141029.2527.27.camel@mars.goatskin.org>
+	 <20030505143006.29c0301a.akpm@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052213733.28797.1.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 May 2003 10:35:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Llu, 2003-05-05 at 22:30, Andrew Morton wrote:
+> Shane Shrybman <shrybman@sympatico.ca> wrote:
+> >
+> > Hi,
+> > 
+> > I am getting a lot of these in the logs. This is with the ALSA emu10k1
+> > driver for a SB live card. This is a x86, UP, KT133 system with preempt
+> > enabled. The system seems to be running fine.
+> > 
+> > handlers:
+> > [<d8986540>] (gcc2_compiled.+0x0/0x390 [snd_emu10k1])
+> > irq 7: nobody cared!
+> 
+> Beats me.  Does this fix it up?
 
-Here is a patch to fix the following problem (revised as Christoph
-suggested): In 2.4.21-rc1 some inline functions are added to
-asm-i386/byteorder.h. When __STRICT_ANSI__ is defined, __u64 doesn't get
-defined by asm-i386/types.h, but it is used in one of the new inline
-functions, __arch__swab64() - this causes a compile error for any program
-that includes linux/cdrom.h and is built with -ansi. See also Christoph's
-other comments on the list.
+With APIC at least it doesnt suprise me the least. The IRQ hack seems
+extremely racey. Remember on most systems (especially with PIII type
+APIC) IRQ delivery is asynchronous to the bus so you get
 
-On Tue, 6 May 2003, Christoph Hellwig wrote:
-> [..]
-> You might want to reorder the code a bit to have only one
-> __STRICT_ANSI__ ifdef, but else it looks fine.
+IRQ arrives
+			sound card
+			loop
+				clean up IRQ
+IRQ sent
+				still more work, do it
+			done
+			HANDLED
 
-// Thomas
+IRQ arrives
+			sound card
+			Umm duh no work for me
+			NOT HANDLED
 
+		Whine
 
---- linux-2.4.21-rc1-orig/include/asm-i386/byteorder.h	2003-05-06 09:52:33.000000000 +0100
-+++ linux-2.4.21-rc1-ac4/include/asm-i386/byteorder.h	2003-05-06 11:20:01.000000000 +0100
-@@ -34,7 +34,7 @@
- 		return x;
- }
-
--
-+#ifndef __STRICT_ANSI__
- static inline __u64 ___arch__swab64(__u64 val)
- {
- 	union {
-@@ -54,12 +54,14 @@
- 	return v.u;
- }
-
-+#define __BYTEORDER_HAS_U64__
- #define __arch__swab64(x) ___arch__swab64(x)
-+
-+#endif /* !__STRICT_ANSI__ */
-+
- #define __arch__swab32(x) ___arch__swab32(x)
- #define __arch__swab16(x) ___arch__swab16(x)
-
--#define __BYTEORDER_HAS_U64__
--
- #endif /* __GNUC__ */
-
- #include <linux/byteorder/little_endian.h>
+For anything where you get pairs of close IRQ's
 

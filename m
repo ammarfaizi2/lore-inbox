@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267975AbUGaQzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265492AbUGaRBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267975AbUGaQzR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 12:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUGaQzR
+	id S265492AbUGaRBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 13:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUGaRBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 12:55:17 -0400
-Received: from zero.aec.at ([193.170.194.10]:49420 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S267971AbUGaQzK (ORCPT
+	Sat, 31 Jul 2004 13:01:13 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:39053 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S265492AbUGaRBK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 12:55:10 -0400
-To: "Walker, Bruce J" <bruce.walker@hp.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
-References: <2o4AV-18E-27@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 31 Jul 2004 18:54:53 +0200
-In-Reply-To: <2o4AV-18E-27@gated-at.bofh.it> (Bruce J. Walker's message of
- "Sat, 31 Jul 2004 18:10:09 +0200")
-Message-ID: <m3zn5g2k2q.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Sat, 31 Jul 2004 13:01:10 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: Solving suspend-level confusion
+Date: Sat, 31 Jul 2004 19:01:16 +0200
+User-Agent: KMail/1.6.2
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+References: <20040730164413.GB4672@elf.ucw.cz> <1091252962.7387.14.camel@gaston> <200407310723.12137.david-b@pacbell.net>
+In-Reply-To: <200407310723.12137.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407311901.17390.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Walker, Bruce J" <bruce.walker@hp.com> writes:
-> leveraging devfs was quite economic, efficient and has been very stable.
-> I'm not sure who you mean by "that's what WE want".  If you mean the
-> current worldwide users of OpenSSI on 2.4, they are a very happy group
-> with a kick-ass clustering capability.
 
-[...]
+> > Disks in general are an example (IDE beeing the one that is currently
+> > implemented, but we'll probably have to do the same for SATA and SCSI
+> > at one point), you want to spin them off (with proper cache flush
+> > etc...) when suspending to RAM, while you don't when suspending to
+> > disk, as you really don't want them to be spun up again right away to
+> > write the suspend image.
+> 
+> So suspend-to-RAM more or less matches PCI D3hot, and
+> suspend-to-DISK matches PCI D3cold.  If those power states
+> were passed to the device suspend(), the disk driver could act
+> appropriately.  In my observation, D3cold was never passed
+> down, it was always D3hot.
 
-Do you have plans to contribute any pieces of it to the main kernel? 
+Maybe a better approach would be to describe the required features to
+the drivers rather than encoding them in a single integer. Rather
+like passing a request that states "lowest power level with device state
+retained, must not do DMA, enable remote wake up"
+ 
+[..]
+> Though the PM core doesn't cooperate at all there.  Neither the
+> suspend nor the resume codepaths cope well with disconnect
+> (and hence device removal), the PM core self-deadlocks since
+> suspend/resume outcalls are done while holding the semaphore
+> that device_pm_remove() needs, ugh.
 
--Andi
+Shouldn't we deal with this like a failed resume?
 
+	Regards
+		Oliver

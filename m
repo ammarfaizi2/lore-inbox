@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266623AbUF3LgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266624AbUF3LiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266623AbUF3LgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 07:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUF3LgZ
+	id S266624AbUF3LiG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 07:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUF3Lg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 07:36:25 -0400
-Received: from ozlabs.org ([203.10.76.45]:4320 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266623AbUF3LgV (ORCPT
+	Wed, 30 Jun 2004 07:36:28 -0400
+Received: from ozlabs.org ([203.10.76.45]:4832 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266625AbUF3LgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Jun 2004 07:36:21 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16610.36478.725698.303353@cargo.ozlabs.ibm.com>
-Date: Wed, 30 Jun 2004 19:57:18 +1000
+Message-ID: <16610.41869.78636.349800@cargo.ozlabs.ibm.com>
+Date: Wed, 30 Jun 2004 21:27:09 +1000
 From: Paul Mackerras <paulus@samba.org>
-To: will schmidt <will_schmidt@vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, anton@samba.org
-Subject: Re: [PATCH][PPC64] lparcfg seq_file update
-In-Reply-To: <40E1F6FC.3030405@vnet.ibm.com>
-References: <40E1F6FC.3030405@vnet.ibm.com>
+To: linas@austin.ibm.com
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64: lockfix for rtas error log
+In-Reply-To: <20040629175007.P21634@forte.austin.ibm.com>
+References: <20040629175007.P21634@forte.austin.ibm.com>
 X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-will schmidt writes:
+Linas,
 
-> Hi All,
->     This patch includes updates and cleanup for the PPC64 proc/lparcfg 
-> interface.
-> 	- use seq_file's seq_printf for output
-> 	- remove redundant e2a function. (use viopath.c's instead)
-> 	- change to Kconfig to allow building as a module.
-> 	- export required symbols from LparData.c
-> 
-> Please apply.   (or make constructive comments, as necessary.. :-)  )
+> This patch moves the location of a lock in order to protect
+> the contents of a buffer until it has been copied to its final
+> destination. Prior to this, a race existed whereby the buffer
+> could be filled even while it was being emptied.
 
-Could you take out the vpurr stuff please?  I know that it is all
-inside #ifdef CONFIG_PPC_VPURR, and there is currently no way for that
-to be defined, but it would be cleaner without it.
+Given that log_error() seems to be a no-op at the moment AFAICT, and
+that Ben H was concerned about possible deadlocks if log_error
+actually did do something, I'd like to see a resolution of (a) what
+log_error should be doing and (b) whether there is in fact any
+possibility of deadlock with this patch once (a) is resolved.
 
-The vpurr stuff in ameslab is a bit problematic at present since it
-will interact badly with hotplug cpu, according to Anton.  I think
-the vpurr stuff could be done very simply with a couple of lines of
-code in timer_interrupt.
-
+Thanks,
 Paul.

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbTERRxb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 13:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTERRxa
+	id S262151AbTERSBV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 14:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTERSBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 13:53:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5385 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262145AbTERRx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 13:53:29 -0400
-Date: Sun, 18 May 2003 20:06:24 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nathan Neulinger <nneul@umr.edu>
-Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
-       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
-Message-ID: <20030518180623.GA8035@atrey.karlin.mff.cuni.cz>
-References: <8812.1052841957@warthog.warthog> <Pine.LNX.4.44.0305130929340.1678-100000@home.transmeta.com> <20030513172029.GB25295@delft.aura.cs.cmu.edu> <20030517123044.GG686@zaurus.ucw.cz> <1053267749.23613.14.camel@nneul-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053267749.23613.14.camel@nneul-laptop>
-User-Agent: Mutt/1.3.28i
+	Sun, 18 May 2003 14:01:21 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:41856 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262151AbTERSBU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 14:01:20 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 18 May 2003 11:13:18 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: recursive spinlocks. Shoot.
+In-Reply-To: <200305180921.h4I9LdD13274@oboe.it.uc3m.es>
+Message-ID: <Pine.LNX.4.55.0305181109540.3568@bigblue.dev.mcafeelabs.com>
+References: <200305180921.h4I9LdD13274@oboe.it.uc3m.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > ? If he has same uid as you *and* you
-> > have >=1 process running, what prevents
-> > him from gdb attach <that process>,
-> > and force it to do whatever he needs
-> > by forcing syscall?
-> > 				Pavel
-> 
-> That's a good point, and perhaps it should be an option to not allow
-> ptrace or other potentially dangerous operations between processes in
-> different pags. But leave that optional, as it might still be useful -
-> for example, logging in and diagnosing a daemon running in a separate
-> pag.
-> 
-> It's not clear if this would be best as a per-pag flag or a global one
-> though. 
+On Sun, 18 May 2003, Peter T. Breuer wrote:
 
-Well, at that point you are getting quite far away from unix....
-And this decision is pretty fundamental.
+>
+> Here's a before-breakfast implementation of a recursive spinlock. That
+> is, the same thread can "take" the spinlock repeatedly. This is crude -
+> I just want to focus some attention on the issue (while I go out and
+> have breakfast :'E).
+>
+> The idea is to implement trylock correctly, and then get lock and
+> unlock from that via the standard algebra. lock is a loop doing
+> a trylock until it succeeds. We emerge from a successful trylock
+> with the lock notionally held.
+>
+> The "spinlock" is a register of the current pid, plus a recursion
+> counter, with atomic access.  The pid is either -1 (unset, count is
+> zero) or some decent value (count is positive).
+>
+> The trylock will succeed and set the pid if it is currently unset.  It
+> will succeed if the pid matches ours, and increment the count of
+> holders.
+>
+> Unlock just decrements the count.  When we've unlocked enough times,
+> somebody else can take the lock.
 
-> 
-> -- Nathan
-> 
-> ------------------------------------------------------------
-> Nathan Neulinger                       EMail:  nneul@umr.edu
-> University of Missouri - Rolla         Phone: (573) 341-4841
-> Computing Services                       Fax: (573) 341-4216
+A looong time ago I gave to someone a recursive spinlock implementation
+that they integrated in the USB code. I don't see it in the latest
+kernels, so I have to guess that they found a better solution to do their
+things. I'm biased to say that it must not be necessary to have the thing
+if you structure your code correctly.
 
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+
+
+- Davide
+

@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVACQKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVACQMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVACQKN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 11:10:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVACQKN
+	id S261491AbVACQMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 11:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVACQMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 11:10:13 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:58844 "EHLO
+	Mon, 3 Jan 2005 11:12:51 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:62684 "EHLO
 	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261484AbVACQKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 11:10:05 -0500
-Date: Mon, 3 Jan 2005 17:10:03 +0100
+	id S261491AbVACQMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 11:12:42 -0500
+Date: Mon, 3 Jan 2005 17:12:34 +0100
 From: Martin Waitz <tali@admingilde.org>
-To: selvakumar nagendran <kernelselva@yahoo.com>
+To: tony osborne <tonyosborne_a@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Getting inode no from current process file descriptor table
-Message-ID: <20050103161003.GY31835@admingilde.org>
-Mail-Followup-To: selvakumar nagendran <kernelselva@yahoo.com>,
+Subject: Re: Main CPU- I/O CPU interaction
+Message-ID: <20050103161234.GZ31835@admingilde.org>
+Mail-Followup-To: tony osborne <tonyosborne_a@hotmail.com>,
 	linux-kernel@vger.kernel.org
-References: <20050103053724.43669.qmail@web60606.mail.yahoo.com>
+References: <BAY14-F83B94FD7D13C5D19883F795900@phx.gbl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1fZJyN7nFm/tosmV"
+	protocol="application/pgp-signature"; boundary="4hmTAJAngH+SZkLl"
 Content-Disposition: inline
-In-Reply-To: <20050103053724.43669.qmail@web60606.mail.yahoo.com>
+In-Reply-To: <BAY14-F83B94FD7D13C5D19883F795900@phx.gbl>
 X-Habeas-SWE-1: winter into spring
 X-Habeas-SWE-2: brightly anticipated
 X-Habeas-SWE-3: like Habeas SWE (tm)
@@ -38,31 +38,32 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1fZJyN7nFm/tosmV
+--4hmTAJAngH+SZkLl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-hoi :)
-
-On Sun, Jan 02, 2005 at 09:37:24PM -0800, selvakumar nagendran wrote:
->    How can we get the inode number for a file provided
-> we have the corresponding file descriptor. Can we use
-> files_struct -> fd[fd] to get struct file ?. From that
-> how can we get the corresponding inode number?
-
-#include <linux/dcache.h>
-#include <linux/file.h>
-#include <linux/fs.h>
-
-struct file * file =3D fget(fd);
-inode_number =3D file->f_dentry->d_inode->i_ino;
-fput(file);
+On Mon, Jan 03, 2005 at 12:44:36AM +0000, tony osborne wrote:
+> The I/O devices are equipped with dedicated processor to free the  main C=
+PU=20
+> from doing the low level I/O operations. However, if i am editing and=20
+                 ^^^^^^^^^^^^^
+> updating a big size file and i want to save
+> it afterwards, i  notice my PC getting blocked while saving the file whic=
+h=20
+> theoritically should NOT happen as it is up to the I/O device processor a=
+nd=20
+> not the main CPU to save the data into the disk; the main CPU could switc=
+h=20
+> to another process after giving the high level command -save-to the devic=
+e=20
+                                      ^^^^^^^^^^^^^^^^^^
+> processor; so why the main CPU is blocked while saving such big size files
 
 --=20
 Martin Waitz
 
---1fZJyN7nFm/tosmV
+--4hmTAJAngH+SZkLl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -70,9 +71,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFB2W5bj/Eaxd/oD7IRAmhuAJwNkl7cNa9P2pjmbqlHFxz5+wuS0QCfR7sh
-PJsAkZjrGdNgid1W94bwRjw=
-=KfOc
+iD8DBQFB2W7yj/Eaxd/oD7IRAgt8AJ4mnDnVplLaIOpR/t5ztZf9JYbdNQCcCkwU
+5BeC+y1oNF0g7UbcACXqDoQ=
+=jTKB
 -----END PGP SIGNATURE-----
 
---1fZJyN7nFm/tosmV--
+--4hmTAJAngH+SZkLl--

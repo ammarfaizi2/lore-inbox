@@ -1,102 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129595AbRBJWy0>; Sat, 10 Feb 2001 17:54:26 -0500
+	id <S129068AbRBJXSa>; Sat, 10 Feb 2001 18:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129027AbRBJWyQ>; Sat, 10 Feb 2001 17:54:16 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:6639 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129595AbRBJWyI>; Sat, 10 Feb 2001 17:54:08 -0500
-Date: Sat, 10 Feb 2001 20:53:59 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: linux-mm@kvack.org
-cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] 2.4.0-ac8/9  page_launder() fix
-Message-ID: <Pine.LNX.4.21.0102102051450.2378-100000@duckman.distro.conectiva>
+	id <S129075AbRBJXSV>; Sat, 10 Feb 2001 18:18:21 -0500
+Received: from mercury.nildram.co.uk ([195.112.4.37]:6160 "EHLO
+	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
+	id <S129068AbRBJXSH>; Sat, 10 Feb 2001 18:18:07 -0500
+Message-ID: <3A85CC1A.7020309@magenta-netlogic.com>
+Date: Sat, 10 Feb 2001 23:17:46 +0000
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+Organization: Magenta Logic
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; 0.8) Gecko/20010209
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+CC: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: spelling of disc (disk) in /devfs
+In-Reply-To: <Pine.LNX.4.21.0102091639400.26669-100000@sol.compendium-tech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dr. Kelsey Hudson wrote:
 
-the patch below should make page_launder() more well-behaved
-than it is in -ac8 and -ac9 ... note, however, that this thing
-is still completely untested and only in theory makes page_launder
-behave better ;)
-
-Since there seems to be a lot of VM testing going on at the
-moment I thought I might as well send it out now so I can get
-some feedback before I get into the airplane towards sweden
-tomorrow...
-
-cheers,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
-
-
---- linux-2.4.1-ac8/mm/vmscan.c.orig	Fri Feb  9 15:04:16 2001
-+++ linux-2.4.1-ac8/mm/vmscan.c	Sat Feb 10 20:50:40 2001
-@@ -413,7 +413,7 @@
-  * This code is heavily inspired by the FreeBSD source code. Thanks
-  * go out to Matthew Dillon.
-  *
-- * XXX: restrict number of pageouts in flight...
-+ * XXX: restrict number of pageouts in flight by ->writepage...
-  */
- #define MAX_LAUNDER 		(1 << page_cluster)
- int page_launder(int gfp_mask, int user)
-@@ -514,7 +514,10 @@
- 			spin_unlock(&pagemap_lru_lock);
+> It had always been my assumption that non-optical storage media used the
+> 'disk' spelling, whereas optical media, such as CDs, DVDs, and MO, were
+> reffered to using the 'disc' spelling.
  
- 			writepage(page);
--			flushed_pages++;
-+			/* XXX: all ->writepage()s should use nr_async_pages */
-+			if (!PageSwapCache(page))
-+				flushed_pages++;
-+			maxlaunder--;
- 			page_cache_release(page);
- 
- 			/* And re-start the thing.. */
-@@ -636,14 +639,16 @@
- 		 * with the paging load in the system and doesn't have
- 		 * the IO storm problem, so it just flushes all pages
- 		 * needed to fix the free shortage.
--		 *
--		 * XXX: keep track of nr_async_pages like the old swap
--		 * code did?
- 		 */
--		if (user)
-+		maxlaunder = shortage;
-+		maxlaunder -= flushed_pages;
-+		maxlaunder -= atomic_read(&nr_async_pages);
-+	
-+		if (maxlaunder <= 0)
-+			goto out;
-+
-+		if (user && maxlaunder > MAX_LAUNDER)
- 			maxlaunder = MAX_LAUNDER;
--		else
--			maxlaunder = shortage;
- 
- 		/*
- 		 * If we are called by a user program, we need to free
-@@ -667,6 +672,7 @@
- 	/*
- 	 * Return the amount of pages we freed or made freeable.
- 	 */
-+out:
- 	return freed_pages + flushed_pages;
- }
- 
+I can remember having this argument back in the days of the BBC Micro.  The
+BBC is the only machine I have ever seen that used 'disc'...  In those days
+I assumed it was correct.  Over time, I came to accept that we used 'disk' for
+the same reasons we use 'program' rather than 'programme'.
+
+I haven't heard anyone in the UK spell it 'disc' for years....
+
+When I last tried devfs (around the 2.4.0test era - a short and painful experience, but
+that's another story) I was confused by the use of 'disc'.  IMHO it should be changed,
+because it's simply wrong, even in england (so please stop blaming us for it!).
+
+Tony
+
+-- 
+"User DATA\tmh cannot be created because DATA\tmh does not exist."
+Windows -- Great UI huh?
+
+tmh@magenta-netlogic.com        http://www.nothing-on.tv
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

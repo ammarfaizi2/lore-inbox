@@ -1,104 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132526AbREBKOt>; Wed, 2 May 2001 06:14:49 -0400
+	id <S132536AbREBKXU>; Wed, 2 May 2001 06:23:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132527AbREBKOk>; Wed, 2 May 2001 06:14:40 -0400
-Received: from [195.50.100.22] ([195.50.100.22]:8370 "HELO
-	emasgn01.eu.rabobank.com") by vger.kernel.org with SMTP
-	id <S132526AbREBKOa>; Wed, 2 May 2001 06:14:30 -0400
-X-Server-Uuid: df2cf700-468c-11d4-860a-00508b951a52
-Message-ID: <1E8992B3CD28D4119D5B00508B08EC5627E8A4@sinxsn02.ap.rabobank.com>
-From: "Sim, CT (Chee Tong)" <CheeTong.Sim@sin.rabobank.com>
-To: "'Michel Wilson'" <michel@procyon14.yi.org>,
-        "Sim, CT (Chee Tong)" <CheeTong.Sim@sin.rabobank.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Linux NAT questions- (kernel upgrade??)
-Date: Wed, 2 May 2001 18:14:50 +0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 16F1028E81948-01-02
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S132540AbREBKXL>; Wed, 2 May 2001 06:23:11 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:63992 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S132536AbREBKWx>; Wed, 2 May 2001 06:22:53 -0400
+Date: Wed, 2 May 2001 12:22:50 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Maximum files per Directory
+Message-ID: <20010502122250.J3305@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <272800000.988750082@hades> <E14uhI2-0002NH-00@the-village.bc.nu> <9cnbs0$uk3$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <9cnbs0$uk3$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, May 01, 2001 at 03:03:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.. I follow your instruction, but I encounter this issue, my kernel need
-to be upgrade? MAy I know how to determine the current kernel version and
-how to upgrade it?? 
+On Tue, May 01, 2001 at 03:03:44PM -0700, H. Peter Anvin wrote:
+> > Bit of both. You exceeded the max link count, and your
+> > performance would have been abominable too. cyrus should be
+> > using heirarchies of directories for very large amounts of
+> > stuff.
+Right.
 
+> But also showing, once again, that this particular scalability problem
+> really is a headache for some people.
 
-[root@guava /root]# iptables -t nat -A PREROUTING -p tcp --dst 1.1.1.160 -i
-eth1 -j D
-NAT --to-destination 192.168.200.2
-iptables v1.1.1: can't initialize iptables table `nat': iptables who? (do
-you need to insm
-od?)
-Perhaps iptables or your kernel needs to be upgraded.
+If you do ls on that directory as an admin, you'll see, what the
+REAL cause of this headache is: 
 
+            The application doing such stupid thing!
 
-[root@guava simc]# rpm -ivh iptables-1_2_0-6_i386.rpm
-error: failed dependencies:
-        kernel >= 2.4.0 is needed by iptables-1.2.0-6
+People (writing applications) building up such large directories
+should be forced to read every entry of it aloud. 
 
+Then they'll learn[1] and the problem is solved.
 
------Original Message-----
-From: Michel Wilson [mailto:michel@procyon14.yi.org]
-Sent: Wednesday, May 02, 2001 5:13 PM
-To: Sim, CT (Chee Tong)
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Linux NAT questions
+Regards
 
+Ingo Oeser
 
-> what I am trying to do is this. I have a genuine network, say 1.1.1.x, and
-> my Linux host is on it, as 1.1.1.252 (eth0). I also have a second
-> network at
-> the back of the Linux box, 192.168.200.x, and a web server on
-> that network,
-> 192.168.200.2. The Linux address is 192.168.200.1 on eth1.
->
-> What I want to do is make the web server appear on the 1.1.1.x network as
-> 1.1.1.160. I have done this before with Firewall-1 on NT, by
-> putting an arp
-> entry for 1.1.1.160 to point to the Linux machine eth0. The packets get
-> redirected into the Linux machine, then translated, and then routed out of
-> eth1.
->
-> The benefit is that there is no routing change to the 1.1.1.x network, and
-> the Linux box isn't even seen as a router.
->
-> I would appreciate any help with this. Any command to do this?
->
-> Chee Tong
-This isn't really a kernel question. I think you'd better ask it on some
-linux network list/newsgroup. But here's an answer anyway....
-
-You could add 1.1.1.160 to eth0:
-   ip addr add 1.1.1.160 dev eth0
-and then use NAT to redirect these to the webserver:
-   iptables -t nat -A PREROUTING -p tcp --dst 1.1.1.160 -i eth1 -j
-DNAT --to-destination 192.168.200.2
-
-This should work, AFAIK, but i didn't try it myself. You could also try to
-use the arp command (see 'man arp'), but i don't know exactly how that
-works.
-
-Good luck!
-
-Michel Wilson.
-
-
-==================================================================
-De informatie opgenomen in dit bericht kan vertrouwelijk zijn en 
-is uitsluitend bestemd voor de geadresseerde. Indien u dit bericht 
-onterecht ontvangt wordt u verzocht de inhoud niet te gebruiken en 
-de afzender direct te informeren door het bericht te retourneren. 
-==================================================================
-The information contained in this message may be confidential 
-and is intended to be exclusively for the addressee. Should you 
-receive this message unintentionally, please do not use the contents 
-herein and notify the sender immediately by return e-mail.
-
-
-==================================================================
-
+[1] If not, let them repeat until they do.
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

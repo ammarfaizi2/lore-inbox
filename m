@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319406AbSH3Deq>; Thu, 29 Aug 2002 23:34:46 -0400
+	id <S319407AbSH3Diq>; Thu, 29 Aug 2002 23:38:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319409AbSH3Deq>; Thu, 29 Aug 2002 23:34:46 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:49679
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319406AbSH3Deo>; Thu, 29 Aug 2002 23:34:44 -0400
-Date: Thu, 29 Aug 2002 20:36:14 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: ide-2.4.20-pre4-ac2.patch
-In-Reply-To: <1030661741.1326.7.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10208292034210.24156-100000@master.linux-ide.org>
+	id <S319409AbSH3Diq>; Thu, 29 Aug 2002 23:38:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2821 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319407AbSH3Dip>;
+	Thu, 29 Aug 2002 23:38:45 -0400
+Message-ID: <3D6EEC88.F6D0E6D6@zip.com.au>
+Date: Thu, 29 Aug 2002 20:54:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@surriel.com
+Subject: Re: statm_pgd_range() sucks!
+References: <20020830015814.GN18114@holomorphy.com> <3D6EDDC0.F9ADC015@zip.com.au> <20020830031208.GK888@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Deal, undoing the moves.
-
-Parsing out all the summitted stuff first for send.
-Then the breakdown of the rest.
-
-Gemme a bit to catch on to your request, Viro is trying to teach the ways
-of mad patcher and not the patch bomber.
-
-Cheers,
-
-On 29 Aug 2002, Alan Cox wrote:
-
-> On Tue, 2002-08-27 at 23:17, Andre Hedrick wrote:
-> > 
-> > This is out and has been forwarded to AC for review.
+William Lee Irwin III wrote:
 > 
-> Rejected. I found several errors, a couple of strange reverts and some
-> files being moved to clearly wrong places. It also mixes up multiple
-> changes.
+> William Lee Irwin III wrote:
+> >> (1) shared, lib, text, & total are now reported as what's mapped
+> >>         instead of what's resident. This actually fixes two bugs:
 > 
-> Andre to make this work I need
-> 	- One change per patch (within reason)
-> 	- An explanation of what it does
+> On Thu, Aug 29, 2002 at 07:51:44PM -0700, Andrew Morton wrote:
+> > hmm.  Personally, I've never believed, or even bothered to try to
+> > understand what those columns are measuring.  Does anyone actually
+> > find them useful for anything?  If so, what are they being used for?
+> > What info do we really, actually want to know?
 > 
-> For example I've got files you moved and changed, looking at that in
-> diff is a right pita. I've got a big diff with errors in it (eg gayle in
-> ppc) I can't easily be sure I can cleanly drop parts of.
-> 
-> Lets start with the file moving. Send me a diff for the Config/Makefile
-> and a lit of the files to move and where. Gayle I think should be m68k
-> not ppc (actually Im pretty sure), CMD640 is PCI so why file it in
-> legacy. "legacy" I took to mean pre PCI rather than "I think its junk"
-> 8)
-> 
-> 
+> I'm basically looking for VSZ, RSS, %cpu, & pid -- after that I don't
+> care.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Well statistics coming out of the kernel can be quite vital in the tuning
+of real world applications - they're not just for kernel developers.  The
+stats contribute to the bottom-line performance and stability of the things
+for which people are actually using the kernel.  That's a motherhood statement,
+I know, but I think it's important.
 
+> ...
+> 
+> Per-vma RSS is trivial, just less self-contained. Everywhere the
+> mm->rss is touched, the vma to account that to is also known, except
+> for put_dirty_page(), and that can be repaired as its caller knows.
+
+This would provide useful information at a justifiable cost, don't you
+think?
+
+(ho-hum, all right.  I'll code it ;))

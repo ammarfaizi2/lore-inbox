@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUKGXrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbUKGXyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbUKGXrE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 18:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbUKGXrE
+	id S261714AbUKGXyl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 18:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUKGXyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 18:47:04 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:9733 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261711AbUKGXqs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 18:46:48 -0500
-Date: Mon, 8 Nov 2004 00:46:40 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: EFI partition code broken..
-Message-ID: <20041107234640.GA21051@pclin040.win.tue.nl>
-References: <Pine.LNX.4.58.0411070959560.2223@ppc970.osdl.org> <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org> <20041107215204.GB3169@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041107215204.GB3169@lists.us.dell.com>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: CollegeOfNewCaledonia: mailhost.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
+	Sun, 7 Nov 2004 18:54:41 -0500
+Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:26023 "EHLO
+	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261714AbUKGXyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 18:54:39 -0500
+Message-ID: <418EB58A.7080309@kolivas.org>
+Date: Mon, 08 Nov 2004 10:53:46 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gregoire Favre <Gregoire.Favre@freesurf.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+References: <20041107224621.GB5360@magma.epfl.ch>
+In-Reply-To: <20041107224621.GB5360@magma.epfl.ch>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig618123829AFCB19BFDFAE86A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 07, 2004 at 03:52:04PM -0600, Matt Domsch wrote:
-> On Sun, Nov 07, 2004 at 11:30:18AM -0800, Linus Torvalds wrote:
-> > There's a few reports of various USB storage devices locking up. The last 
-> > one was an iPod, but there's apparently others too.
-> > 
-> > The reason? They are unhappy if you access them past the end, and they 
-> > seem to have problems reporting their true size.
-> > 
-> > And the EFI partitioning code will happily just blindly try to access the 
-> > last sector, because that's where the EFI partition is. Boom. Immediately 
-> > dead iPod/whatever.
-> 
-> Another train of thought, and copying gregkh for inspiration.  Is there
-> any way to know which devices lie about their size, and fix that with
-> quirk code in the device discovery routines?  While I can fix
-> fs/partitions/efi.c to not to always do I/O to the end of the
-> purported size of the device, userspace and 'dd' can't.  If we could
-> quirk down the reported size for devices known to lie, then everything
-> which uses that value wouldn't have to have its own rules for such.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig618123829AFCB19BFDFAE86A
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-You see, Linux does automatic partition reading - nothing the user
-can do about that - and goes Boom. One has to be more careful with
-things that happen fully automatically than with things that happen
-from user space. Perhaps the user learns not to do certain things.
+Gregoire Favre wrote:
+> I use DVB with VDR, but I can do the crash all the time without VDR, all
+> I have to do is to have xawtv running and having a process that write
+> fast enough data to an HD (I tested xfs, reiserfs, ext2 and ext3 with
+> same result). If I don't have xawtv running I can't make crashing my
+> system which is rock stable :-)
 
-The reason things go wrong is confusion about the result of asking
-for the capacity. The SCSI way is to report the highest available address,
-so that one has to add 1 to get the capacity. The ATA way is to give the
-capacity. Some USB devices (that should use the SCSI way) get it wrong,
-and thus give an off-by-1 answer, making the device one sector too large.
-I introduced the US_FL_FIX_CAPACITY flag for that (in unusual_devs.h),
-so once it is known that a device is bad it can be added to the list
-with quirks. But it is better to be careful, and only do I/O to the last
-sector when the user really asks for that.
+Is xawtv running as root or with real time privileges? That could do it.
 
-Andries
+Cheers,
+Con
+
+--------------enig618123829AFCB19BFDFAE86A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBjrWKZUg7+tp6mRURAsczAJwLDoMidSojxjwIaG0I3+btqNC0JQCgheIM
+ftDbrVMHzIHWnfXomiA5TYs=
+=c1mq
+-----END PGP SIGNATURE-----
+
+--------------enig618123829AFCB19BFDFAE86A--

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbSK1Owc>; Thu, 28 Nov 2002 09:52:32 -0500
+	id <S265567AbSK1Ovn>; Thu, 28 Nov 2002 09:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265603AbSK1Owc>; Thu, 28 Nov 2002 09:52:32 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:8613 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S265589AbSK1Owa>;
-	Thu, 28 Nov 2002 09:52:30 -0500
-Date: Thu, 28 Nov 2002 17:13:51 -0500
+	id <S265581AbSK1Ovm>; Thu, 28 Nov 2002 09:51:42 -0500
+Received: from tolkor.SGI.COM ([198.149.18.6]:4261 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S265567AbSK1Ovm>;
+	Thu, 28 Nov 2002 09:51:42 -0500
+Date: Thu, 28 Nov 2002 17:13:03 -0500
 From: Christoph Hellwig <hch@sgi.com>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix io_apic_bug_finalize() prototype
-Message-ID: <20021128171351.B6592@sgi.com>
+Subject: [PATCH] cure compiler warning in acct.h
+Message-ID: <20021128171303.A6592@sgi.com>
 Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -21,23 +21,16 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*_initcall() expects int callbacks
+Don't ask me why, but since 2.5.50 we need this forward-declaration
 
-
---- 1.33/arch/i386/kernel/io_apic.c	Wed Nov 20 16:20:10 2002
-+++ edited/arch/i386/kernel/io_apic.c	Thu Nov 28 14:22:44 2002
-@@ -1749,10 +1749,12 @@
-  *	APIC bugs then we can allow the modify fast path
-  */
-  
--static void __init io_apic_bug_finalize(void)
-+static int __init io_apic_bug_finalize(void)
- {
--	if(sis_apic_bug == -1)
-+	if (sis_apic_bug == -1)
- 		sis_apic_bug = 0;
-+
-+	return 0;
- }
+--- 1.2/include/linux/acct.h	Tue Feb  5 16:23:04 2002
++++ edited/include/linux/acct.h	Thu Nov 28 14:23:25 2002
+@@ -75,6 +75,8 @@
  
- late_initcall(io_apic_bug_finalize);
+ #include <linux/config.h>
+ 
++struct super_block;
++
+ #ifdef CONFIG_BSD_PROCESS_ACCT
+ extern void acct_auto_close(struct super_block *sb);
+ extern int acct_process(long exitcode);

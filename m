@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUJATpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUJATnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUJATpc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUJAToD
+	id S266233AbUJATnp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUJATlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:44:03 -0400
-Received: from deepthot.org ([68.14.232.127]:23445 "EHLO dent.deepthot.org")
-	by vger.kernel.org with ESMTP id S266274AbUJATl1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:41:27 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: denebeim@deepthot.org (Jay Denebeim)
-Newsgroups: linux.kernel
-Subject: Re: system clock...
-Date: Fri, 1 Oct 2004 19:41:16 +0000 (UTC)
-Organization: deep thought
-Message-ID: <cjkbss$kkb$1@dent.deepthot.org>
-References: <2KzRy-1BD-13@gated-at.bofh.it>
-NNTP-Posting-Host: dent.deepthot.org
-X-Trace: dent.deepthot.org 1096659676 21131 192.168.12.1 (1 Oct 2004 19:41:16 GMT)
-X-Complaints-To: news@deepthot.org
-NNTP-Posting-Date: Fri, 1 Oct 2004 19:41:16 +0000 (UTC)
-Originator: denebeim@deepthot.org (Jay Denebeim)
+	Fri, 1 Oct 2004 15:41:13 -0400
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:32206 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S266233AbUJATi1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 15:38:27 -0400
+Date: Fri, 1 Oct 2004 22:38:25 +0300
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS Mailing List <reiserfs-list@namesys.com>
+Subject: Re: Linux-2.6.9-rc2-bk7 Oops - ReiserFS: warning: vs-500: unknown uniqueness 126844928
+Message-ID: <20041001193825.GA6441@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+	ReiserFS Mailing List <reiserfs-list@namesys.com>
+References: <20040922225859.GA12833@m.safari.iki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040922225859.GA12833@m.safari.iki.fi>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Hopefully this will work, I haven't posted to the LKML with this
-configuration.)
+On Thu, Sep 23, 2004 at 01:58:59AM +0300, Sami Farin wrote:
+> I got no replies for messages <20040713110437.GA4571@m.safari.iki.fi>
+> and <20040714214146.GA23531@m.safari.iki.fi> to LKML,
+> so I try again with latest releases.  Now using 2.6.9-rc2-bk7, and I
 
-In article <2KzRy-1BD-13@gated-at.bofh.it>,
-Ankit Jain  <ankitjain1580@yahoo.com> wrote:
+Now I compiled kernel with gcc-2.95.3 and:
+ 22:37:12 up 7 days, 22:34,  2 users,  load average: 0.40, 0.41, 0.43
 
->whenever i reboot or start my system my clock is
->incremented by around 6 hrs. after that its alright
->i.e if i correct the time it dosent mis behave but i
->dont know whats wrong in reboot or booting the sys?
->
->if somebody can help or faced this kinda situation?
+So, gcc 3.4 and kernel 2.6 do not like each others.
+Finding the actual bug (in kernel or compiler) left as an exercise
+for some brave hacker.
 
-This is one of two things.  First off, are you sure you're updating
-the CMOS clock as part of your reboot process?  During initialization
-the system reads the CMOS clock, so if you don't keep it updated the
-time will always be incorrect.  You might want to look at the clock
-from your BIOS to see what time it is.
+I know what Documentation/Changes says about GCC versions.
+It's just that I am stubborn and I hoped 3.4.x would just work,
+since 3.0, 3.1, 3.2 and 3.3 series have produced perfectly working
+2.4.x kernels (and 3.4.x has produced perfectly working non-kernel
+stuffs).
 
-The second issue is time zone.  Unless you have a dual boot system
-this probably isn't an issue though.  If you have your CMOS clock set
-to UTC and you use and unadulterated Windows then every time you boot
-the other operating system your clock will be wrong.  Since you appear
-to live in Italy though you shouldn't be at UTC +/- 6 hours, so this
-is probably not the problem.
-
-Hope this helps
-Jay
 -- 
-* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
-* newsgroup submission address: b5mod@deepthot.org                *
-* moderator contact address:    b5mod-request@deepthot.org        *
-* personal contact address:     denebeim@deepthot.org             *
+Recursive die() failure while reading ~/.signature.
+

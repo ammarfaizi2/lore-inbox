@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131429AbRCPWts>; Fri, 16 Mar 2001 17:49:48 -0500
+	id <S130733AbRCPXFT>; Fri, 16 Mar 2001 18:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131426AbRCPWti>; Fri, 16 Mar 2001 17:49:38 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:34933 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131409AbRCPWtc>; Fri, 16 Mar 2001 17:49:32 -0500
-Message-ID: <3AB2998F.EC58C3E5@redhat.com>
-Date: Fri, 16 Mar 2001 17:54:07 -0500
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
+	id <S131424AbRCPXFK>; Fri, 16 Mar 2001 18:05:10 -0500
+Received: from gadolinium.btinternet.com ([194.73.73.111]:64923 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S130733AbRCPXEu>; Fri, 16 Mar 2001 18:04:50 -0500
+Reply-To: <lar@cs.york.ac.uk>
+From: "Laramie Leavitt" <laramie.leavitt@btinternet.com>
+To: "Sane, Purushottam" <Sane_Purushottam@emc.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: fork and pthreads
+Date: Fri, 16 Mar 2001 23:11:14 -0000
+Message-ID: <JKEGJJAJPOLNIFPAEDHLGEBJCKAA.laramie.leavitt@btinternet.com>
 MIME-Version: 1.0
-To: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: scsi_scan problem.
-In-Reply-To: <3AB028BE.E8940EE6@redhat.com> <3AB29636.64C90827@neuronet.pitt.edu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <93F527C91A6ED411AFE10050040665D0560667@corpusmx1.us.dg.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael E. Herrera" wrote:
+> Nitin Sane Wrote:
+> > On Fri, Mar 16, 2001 at 06:52:26PM +0100, Richard Guenther wrote:
+> > > Well, using pthreads and forking in them seems to trigger libc
+> > > bugs (read: SIGSEGvs) here under certain conditions (happens,
+> > > after I introduced signal handlers and using pthread_sigmask,
+> > > I think), so hangs should be definitely possible, too...
+> > 
+> > You must pretty much avoid using signal handlers with pthreads.
+> > In stead, you need to carefully setup things such that most signals
+> > are blocked in most threads and a single thread (or selected set
+> > of threads) does a sigwait for signals of interest.  Most good
+> > pthreads books talk about this issue, as does the DCE documentation.
 > 
-> I applied the first hunk to version 2.4.3-pre4, as by email with Doug.
-> The output for the scsi devices follows and is identical with and
-> without the patch.
+> I am not using any signals. All the signals are blocked with SIG_IGN
+> 
 
-Thank you Rafael.  This is what I suspected.  I'm not sure when we starting
-considering devices with a peripheral qualifier of 1 as being valid, but I
-suspect it happened when the scsi_scan.c code was separated out of scsi.c.  In
-any case, I'm pretty positive that it is the wrong thing to do.  This report
-at least alleviates one of my fears about broken device possibilities and
-starts to confirm my position.
+You know, I have been running into that exact same problem, except that
+I don't fork at all.  I start up my process and nearly immediately try
+and spawn a few threads.  The calling thread blocks indefinately in
+a __sigsuspend(), but is apparently delivered an unknown signal.
+The spawned thread executes normally.
 
-> Maybe someone can explain the meaning of the illegal
-> requests at the end. Nevertheless, I can use the drive fine.
+It appears to be fixed when I compile with -D_REENTRANT, but I am not
+certain...
 
-As to the illegal request messages, I'm not sure what those are about ;-)
+Laramie
 
--- 
-
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems

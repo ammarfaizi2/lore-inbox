@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUC2TLs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 14:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUC2TLs
+	id S263098AbUC2TLK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 14:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUC2TLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 14:11:48 -0500
-Received: from dh132.citi.umich.edu ([141.211.133.132]:45697 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263095AbUC2TLP convert rfc822-to-8bit
+	Mon, 29 Mar 2004 14:11:09 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:24292 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263091AbUC2TLG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 14:11:15 -0500
-Subject: Re: [patch] silence nfs mount messages
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andries.Brouwer@cwi.nl
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <UTC200403291900.i2TJ0sC14336.aeb@smtp.cwi.nl>
-References: <UTC200403291900.i2TJ0sC14336.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1080587480.2410.61.camel@lade.trondhjem.org>
+	Mon, 29 Mar 2004 14:11:06 -0500
+Date: Mon, 29 Mar 2004 15:54:14 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Hasso Tepper <hasso@estpak.ee>
+Cc: Phil Oester <kernel@linuxace.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org,
+       dlstevens@ibm.com, davem@redhat.com
+Subject: Re: Kernel panic in 2.4.25
+Message-ID: <20040329185414.GB23917@logos.cnet>
+References: <200403260035.09821.hasso@estpak.ee> <200403282033.16204.hasso@estpak.ee> <20040328182522.GA22382@linuxace.com> <200403282217.54539.hasso@estpak.ee>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 14:11:20 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403282217.54539.hasso@estpak.ee>
+User-Agent: Mutt/1.5.5.1i
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 29/03/2004 klokka 14:00, skreiv Andries.Brouwer@cwi.nl:
-> People complain about the kernel messages when mounting NFS.
-> (Just like last time a new NFS version was introduced.)
-> It is perfectly normal to have mount newer than the kernel,
-> or the kernel newer than mount. No messages are needed or useful.
 
-I disagree...
+IIRC a similar problem was in v2.6.
 
-We should fix the printk to be KERN_NOTIFY so that you can filter them,
-but otherwise there is *no way* to know whether or not you have support
-for the features you are attempting to use.
-People might get somewhat confused if they try to enable strong
-security, and the kernel happily mounts the partition with AUTH_SYS, and
-does nothing to warn them...
+I'll dig it up.
 
-Cheers,
-  Trond
+On Sun, Mar 28, 2004 at 10:17:54PM +0300, Hasso Tepper wrote:
+> Phil Oester wrote:
+> > Do you have CONFIG_IP_MULTICAST enabled in your .config?
+> 
+> Yes.
+> 
+> > I don't, and a couple of the changes in this changeset depend upon
+> > it. 
+> >
+> > I also run ospfd, so maybe you've hit upon something here...cc'ing
+> > linux-net for comment

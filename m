@@ -1,26 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289124AbSAVBDK>; Mon, 21 Jan 2002 20:03:10 -0500
+	id <S287631AbSAVBKK>; Mon, 21 Jan 2002 20:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289121AbSAVBDA>; Mon, 21 Jan 2002 20:03:00 -0500
-Received: from [24.131.1.59] ([24.131.1.59]:26549 "EHLO
-	mnmai05.mn.mediaone.net") by vger.kernel.org with ESMTP
-	id <S289119AbSAVBCw> convert rfc822-to-8bit; Mon, 21 Jan 2002 20:02:52 -0500
-From: Steve Brueggeman <brewgyman@mediaone.net>
-To: linux-kernel@vger.kernel.org
+	id <S288092AbSAVBKA>; Mon, 21 Jan 2002 20:10:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44722 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S287631AbSAVBJq>;
+	Mon, 21 Jan 2002 20:09:46 -0500
+Date: Mon, 21 Jan 2002 17:07:45 -0800 (PST)
+Message-Id: <20020121.170745.52090023.davem@redhat.com>
+To: andrea@suse.de
+Cc: reid.hekman@ndsu.nodak.edu, linux-kernel@vger.kernel.org, akpm@zip.com.au,
+        alan@lxorg.ukuu.org
 Subject: Re: Athlon PSE/AGP Bug
-Date: Mon, 21 Jan 2002 19:02:39 -0600
-Message-ID: <hbep4uka8q6t1tfv6694sjtvfrulipg3a4@4ax.com>
-In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com>, <20020121.053724.124970557.davem@redhat.com>; from davem@redhat.com on Mon, Jan 21, 2002 at 05:37:24AM -0800 <20020121175410.G8292@athlon.random> <3C4C5B26.3A8512EF@zip.com.au> <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
-In-Reply-To: <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020122013743.M8292@athlon.random>
+In-Reply-To: <20020121175410.G8292@athlon.random>
+	<20020121.141931.105134927.davem@redhat.com>
+	<20020122013743.M8292@athlon.random>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot to mention, I got the segfaults compiling kernels while running
-linux-2.4.17, I was in console, and did not have Frame Buffer, or drm drivers
-loaded.  I did have the SiS AGP compiled into the kernel though.
+   From: Andrea Arcangeli <andrea@suse.de>
+   Date: Tue, 22 Jan 2002 01:37:43 +0100
 
+   On Mon, Jan 21, 2002 at 02:19:31PM -0800, David S. Miller wrote:
+   > That's not true, see the ptrace() helper code.  Russell King pointed
+   > this out to me last week and it's on my TODO list to fix it up.
+   
+   Where? :) ptrace doesn't change pagetables, no need to flush any tlb in
+   ptrace.
+   
+egrep flush_*_page kernel/ptrace.c:access_process_vm()

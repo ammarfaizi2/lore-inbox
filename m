@@ -1,37 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbULMPwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbULMQAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbULMPwX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 10:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbULMPwX
+	id S261251AbULMQAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 11:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbULMQAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 10:52:23 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:62444 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261248AbULMPwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 10:52:21 -0500
-Date: Mon, 13 Dec 2004 16:52:08 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Con Kolivas <kernel@kolivas.org>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 13 Dec 2004 11:00:16 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30481 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261251AbULMQAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 11:00:07 -0500
+Date: Mon, 13 Dec 2004 15:59:55 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
+       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+       Andrea Arcangeli <andrea@suse.de>
 Subject: Re: dynamic-hz
-Message-ID: <20041213155208.GI16322@dualathlon.random>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <1102939243.2478.17.camel@localhost.localdomain>
+Message-ID: <20041213155955.D24748@flint.arm.linux.org.uk>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
+	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+	Andrea Arcangeli <andrea@suse.de>
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <41BD483B.1000704@suse.de> <20041213135820.A24748@flint.arm.linux.org.uk> <Pine.LNX.4.61.0412130808010.22212@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1102939243.2478.17.camel@localhost.localdomain>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0412130808010.22212@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Mon, Dec 13, 2004 at 08:30:51AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 12:00:44PM +0000, Alan Cox wrote:
-> - Laptops tend to lose ticks on battery status queries at 1Khz
+On Mon, Dec 13, 2004 at 08:30:51AM -0700, Zwane Mwaikambo wrote:
+> Hi Russell,
+> 
+> On Mon, 13 Dec 2004, Russell King wrote:
+> 
+> > This is an easy thing to grab hold of, but rather pointless in the
+> > overall scheme of things.  Those of us who have done power usage
+> > measurements know this already.
+> > 
+> > The only case where this really makes sense is where the CPU power
+> > usage outweighs the power consumption of all other peripherals by
+> > at least an order of magnitude such that the rest of the system is
+> > insignificant compared to the CPU power.
+> > 
+> > Note: the above CPU power consumption figures were taken from
+> > the Intel PXA255 processor electrical specifications, and the
+> > "rest of the system" current consumption taken from a real life
+> > device.  The timer interrupt taking 2us is probably an over-
+> > estimation.  Only the battery lifetime of 24 hours is ficticious.
+> 
+> While i do not disagree with your research and resultant conclusions for 
+> the PXA255 processor i think it may not be as representative of some of 
+> the target systems we're interested in, that is, x86 (cringe, cringe). A 
+> number of i386 systems enter model defined partial suspend states when 
+> execution of the hlt instruction takes place, resuming from these suspend 
+> states draws more power for a short period of time thus doing this every 
+> millisecond is going to be detrimental to total power consumption over 
+> time. But this isn't only an i386 trait as other desktop/workstation 
+> processors are similar.
 
-The lost-tick adjustment code should in theory cope with it, however in
-my firewall with USB adsl modem taking 3msec-long-irqs, it makes the
-system time go in the future pretty quick (instead of losing time
-without tick compensation code). I guess the same would happen with the
-battery status checks.
+I think you missed the emphasis of my mail - one on measurement to
+validate if this technology actually buys you anything.
+
+The second thing you missed is that drawing a lot of power for a short
+time may result in a rather negligable reduction in the overall scheme
+of things.  Until you measure it and do the calculation, you'll never
+know.
+
+I can make the same comments as you above about the PXA255 processor.
+"The PXA255 has a special idle mode which reduces power consumption
+via the use of a special instruction.  Resuming from this state to
+service the timer interrupt results in more power being drawed for
+a short period of time, thus doing this every millisecond is going
+to be determental to the total power consumption over time."
+
+See?  Measurements in reality give the true story.  Words are just
+that - words - which may not reflect reality.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

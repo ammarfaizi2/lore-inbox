@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbTKTXfp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 18:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbTKTXfp
+	id S264105AbTKTXpR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 18:45:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbTKTXpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 18:35:45 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:28335 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264110AbTKTXfk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 18:35:40 -0500
-Message-ID: <3FBD4F6E.3030906@cyberone.com.au>
-Date: Fri, 21 Nov 2003 10:34:06 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Markus_H=E4stbacka?= <midian@ihme.org>
-CC: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's scheduler v19a
-References: <3FB62608.4010708@cyberone.com.au> <1069361130.13479.12.camel@midux>
-In-Reply-To: <1069361130.13479.12.camel@midux>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 20 Nov 2003 18:45:17 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:45731 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264163AbTKTXpL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 18:45:11 -0500
+Date: Thu, 20 Nov 2003 15:45:10 -0800
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031120234510.GA17685@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <Pine.LNX.3.96.1031120180225.11021C-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1031120180225.11021C-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 20, 2003 at 06:04:51PM -0500, Bill Davidsen wrote:
+> On Wed, 19 Nov 2003, Jean Tourrilhes wrote:
+> 
+> > 	Even better :
+> > 		1) go to the Wireless LAN Howto
+> > 		2) find a card are supported under Linux that suit your needs
+> > 		3) buy this card
+> > 	I don't see the point of giving our money to vendors that
+> > don't care about us when there are vendors making a real effort toward
+> > us.
+> 
+> You left out the step of "remove or disable the existing hardware in the
+> system." Not everyone has a choice unlimited by budget and politics.
 
+	Why did you buy a bogus card in the first place ? That's
+wasting money.
 
-Markus Hästbacka wrote:
-
->Hi nick! here's some feedback.
->This one day last week, I thougt I could test your scheduler patch.
->I noticed something really good with it. My X had really fast startup.
->everything worked really fast. Even games worked much better than any in
->kernel before (I've tested all from 2.5.74).
->
->So I hope you'll port this patch for test10> if this one wont patch
->clearly.
->
-
-Hi Markus,
-Thanks for testing. That sounds quite remarkable, is it possible that
-some other change has made the difference? What kernel version did
-you patch against, and did you try that same kernel and .config without
-my patch? Anyway, I'm glad you're having good results.
-
-Yes, this one will probably apply to test10 should it ever apper. If not
-I will port it.
-
-Nick
-
-
+	Jean

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265227AbSKEVlV>; Tue, 5 Nov 2002 16:41:21 -0500
+	id <S264940AbSKEV7A>; Tue, 5 Nov 2002 16:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265229AbSKEVlU>; Tue, 5 Nov 2002 16:41:20 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:16143 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265227AbSKEVlU>; Tue, 5 Nov 2002 16:41:20 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB182C@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: Manish Lachwani <manish@Zambeel.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'linux@3ware.com'" <linux@3ware.com>,
-       "'acme@conectiva.com'" <acme@conectiva.com>
-Subject: RE: 0x40 errors reported by 3ware controllers ...
-Date: Tue, 5 Nov 2002 13:47:44 -0800 
+	id <S265028AbSKEV7A>; Tue, 5 Nov 2002 16:59:00 -0500
+Received: from nameservices.net ([208.234.25.16]:41534 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S264940AbSKEV67>;
+	Tue, 5 Nov 2002 16:58:59 -0500
+Message-ID: <3DC8418D.A0B8E752@opersys.com>
+Date: Tue, 05 Nov 2002 17:09:17 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
+References: <20021030161912.E2613@in.ibm.com> <20021031162330.B12797@in.ibm.com> <3DC32C03.C3910128@digeo.com> <20021102144306.A6736@dikhow> <1025970000.1036430954@flay> <20021105000010.GA21914@pegasys.ws> <1118170000.1036458859@flay>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, I made a mistake here. I am making use of the latest driver with
-the 2.2.16 kernel. Older drivers with version 1.02.00.018 also show the same
-issues ...
 
-Thanks
-Manish
+I'm not sure why people are trying to make pigs fly, but if you
+really need in-depth information regarding a process or a set
+of processes, you should be looking at something that's been
+designed from the ground up to actually carry this weight, which
+is exactly what LTT is about. Using this approach, all the
+accounting gets to be done in user-space. It's like using
+"top -q" without the actual disadvantage of killing your system.
 
->  -----Original Message-----
-> From: 	Manish Lachwani  
-> Sent:	Tuesday, November 05, 2002 1:43 PM
-> To:	'linux-kernel@vger.kernel.org'
-> Cc:	Manish Lachwani
-> Subject:	0x40 errors reported by 3ware controllers ...
-> 
-> Hello,
-> We are making use of 3ware 7x50 controllers with Maxtor and Seagate
-> drives. In one such setup, the operating temperature of the
-> drives/controllers is between 45-55 C. Numerous 0x40 Error messages are
-> reported by the 3ware firmware. We are making use of 7.5 latest firmware
-> and the latest 3ware driver with the 2.4.17 kernel. 
-> I spoke with Maxtor and Seagate support and they claim that ECC errors are
-> rarely seen on their drives at even higher temperatures. Are there any
-> issues with the 3ware controllers/firmware that may cause it to misreport
-> ECC errors? Maxtor even claimed that it could be errors with the SRAM on
-> the controller. Could that be possible? Has this been seen? I noticed that
-> the operating temperature of the controllers is 40C. What kind of errors
-> can occur because of these ambient conditions?
-> We are seeing these errors accross different types of drives too ...
-> Thanks
-> 
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbULAXWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbULAXYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbULAXWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 18:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbULAXWm
+	id S261495AbULAXYw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 18:24:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbULAXYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 18:22:42 -0500
-Received: from users.ccur.com ([208.248.32.211]:21510 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S261493AbULAXW1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 18:22:27 -0500
-Date: Wed, 1 Dec 2004 18:22:04 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: waitid breaks telnet
-Message-ID: <20041201232204.GA29829@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20041130202730.6ceab259.akpm@osdl.org> <200412011920.iB1JKlug004542@magilla.sf.frob.com> <20041201114141.7f3347a1.akpm@osdl.org> <20041201223014.GA3271@tsunami.ccur.com> <20041201224906.GA11963@tsunami.ccur.com>
-Mime-Version: 1.0
+	Wed, 1 Dec 2004 18:24:52 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:54416 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S261490AbULAXXm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 18:23:42 -0500
+Date: Wed, 01 Dec 2004 22:58:55 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: cd burning, capabilities and available modes
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <1101908433l.8423l.0l@werewolf.able.es>
+	<41AE47F3.7090502@tmr.com>
+In-Reply-To: <41AE47F3.7090502@tmr.com> (from davidsen@tmr.com on Wed Dec  1
+	23:38:43 2004)
+X-Mailer: Balsa 2.2.6
+Message-Id: <1101941935l.7651l.0l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041201224906.GA11963@tsunami.ccur.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 05:49:06PM -0500, Joe Korty wrote:
-> On Wed, Dec 01, 2004 at 05:30:14PM -0500, Joe Korty wrote:
-> > On Wed, Dec 01, 2004 at 11:41:41AM -0800, Andrew Morton wrote:
-> > > Roland McGrath <roland@redhat.com> wrote:
-> > > >
-> > > > I've had no luck reproducing that, so there isn't much I can do.
-> > > 
-> > > Did you try bare 2.6.10-rc2?
-> > > 
-> > > >  The last
-> > > > time someone thought the waitid change broke something random, it was the
-> > > > perturbation of the compiled code vs the issue that the kernel's assembly
-> > > > code doesn't follow the same calling conventions the compiler expects.
-> > > 
-> > > Could be that, but I was able to reproduce it on 2.6.10-rc2 with
-> > > gcc-2.95.4, with which -mregparm is disabled.
-> > > 
-> > > Still.  It would be interesting if Joe could retest with CONFIG_REGPARM=n?
+
+On 2004.12.01, Bill Davidsen wrote:
+> J.A. Magallon wrote:
+> > Hi...
 > > 
-> > CONFIG_REGPARM is not set in all of my kernels (just verified).
+> > Following my little oddisey to let cd-burning easy for my users,
+> > I think I have found another problem.
+> > 
+> > It looks like the formats available to cdrecord depend on being root
+> > (cdrecord is not suid, if it is it complains it cant reserve some
+> > buffers).
+> > 
+> > As root:
+...
+> > Driver flags   : MMC-3 SWABAUDIO BURNFREE 
+> > Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P RAW/R96R
+> > 
+> > As user:
+> > Driver flags   : MMC-3 SWABAUDIO BURNFREE 
+> > Supported modes: 
+...
 > 
-> More info: I exclusively use CONFIG_SMP and CONFIG_PREEMPT.
-> If it is a race either or both of these is likely to
-> be involved.
+> I get that all the time, because one of my drives doesn't support TAO 
+> burning. I suspect your firmware sucks, and you will have to use session 
+> at a time rather than track at a time, option "-sao" works for me. Are 
+> you running standard cdrecord or one of the hacks?
+> 
 
-Ok, I rebuilt 2.6.9 with CONFIG_PREEMPT=n and telnet failed
-the one time I tried it.
+Look at what I quoted above. It is the same box, just running cdrecord
+as root or as user. The 'Supported modes:' line is empty.
+What has the firmware to do with that ?
 
-Then I built with CONFIG_PREEMPT=n and CONFIG=SMP=n and
-the first telnet attempt succeeded.  I then tried six
-more telnet attempts, two of those failed and the rest
-succeeded.
+A guess: perhaps the problem is:
 
-Since my earlier testing usually was of only 1 (sometimes
-2) telnet attempts per boot, they too may have had some
-ratio of success/failure other than 100% or 0%.
+WARNING ! Cannot gain SYS_RAWIO capability ! 
+: Operation not permitted
 
-Joe
+as user, so system does not allow the user to query the drive at low
+level via some ioctl() or the liketo get the supported modes.
+
+BTW, using the LSM realtime module for group cdwriter (80 in my box)
+killed this messages:
+
+cdrecord: Cannot allocate memory. WARNING: Cannot do mlockall(2).
+cdrecord: WARNING: This causes a high risk for buffer underruns.
+cdrecord: Operation not permitted. WARNING: Cannot set RR-scheduler
+cdrecord: Permission denied. WARNING: Cannot set priority using setpriority().
+cdrecord: WARNING: This causes a high risk for buffer underruns.
+
+so at least this is good (TM).
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-rc2-jam4 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #2
+
+

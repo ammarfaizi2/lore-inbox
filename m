@@ -1,41 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbTLWRJt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTLWRJt
+	id S261885AbTLWR0B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:26:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbTLWR0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:09:49 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:15564 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261837AbTLWRIa (ORCPT
+	Tue, 23 Dec 2003 12:26:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64490 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261967AbTLWRZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:08:30 -0500
-Date: Tue, 23 Dec 2003 12:08:30 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: various issues with ACPI sleep and 2.6
-Message-ID: <20031223170829.GA7726@gtf.org>
-References: <20031223165739.GA28356@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031223165739.GA28356@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+	Tue, 23 Dec 2003 12:25:58 -0500
+Date: Tue, 23 Dec 2003 09:25:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+cc: "Giacomo A. Catenazzi" <cate@pixelized.ch>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: SCO's infringing files list
+In-Reply-To: <20031223163926.GC45620@gaz.sfgoth.com>
+Message-ID: <Pine.LNX.4.58.0312230914090.14184@home.osdl.org>
+References: <1072125736.1286.170.camel@duergar> <200312221519.04677.tcfelker@mtco.com>
+ <Pine.LNX.4.58.0312221337010.6868@home.osdl.org> <20031223002641.GD28269@pegasys.ws>
+ <20031223092847.GA3169@deneb.enyo.de> <3FE811E3.6010708@debian.org>
+ <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch>
+ <20031223160425.GB45620@gaz.sfgoth.com> <20031223163926.GC45620@gaz.sfgoth.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 11:57:39AM -0500, Bill Nottingham wrote:
-> Testing ACPI sleep under 2.6, I noticed the following issues
-> (Thinkpad T40, i855PM chipset):
 
-Do you have the latest BIOS?  There were some ACPI problems IBM
-corrected (due to responses from Linux users!).
+Bingo!
 
+On Tue, 23 Dec 2003, Mitchell Blank Jr wrote:
+> 
+> This does seem to be the case - from an FAQ that H J Lu posted about that time:
+> 
+> | From: hlu@yoda.eecs.wsu.edu (H.J. Lu)
+> | Subject: FAQ about gcc (how to compile program under Linux)
+> | Date: Sun, 19 Jul 92 06:40:05 GMT
+> | [...]
+> | Another file, XXXXinc.tar.Z, where XXXX is the current version number
+> | of Linux kernel, has all the header files to replace the header files 
+> | from kernel. YOU MUST INSTALL IT. Please read README for details.
 
-> - USB fails on resume (sent to linux-usb-devel)
-> - DRI being loaded at all causes X to fail on resume
+Ok, this is the source.
 
-X power management is sorta "hope and pray" AFAIK :)
+In particular, I can re-create _exactly_ the linux-0.97 "errno.h" file by 
+using the "sys_errlist[]" contents from "libc-2.2.2". In particular, this 
+trivial loop will generate the exact (byte-for-byte) list that is in the 
+kernel:
 
-	Jeff
+        int i;
 
+        for (i = 1; i < 122; i++) {
+                const char *name = names[i];
+                int n = strlen(name);
+                char *tabs = "\t\t"+(n > 7);
+                const char *expl = libc222_errlist[i];
+                printf("#define\t%s%s%2d\t/* %s */\n",
+                        name, tabs, i, expl);
+        }
 
+here, the "names[]" array was filled in with the error names, ie
+
+	const char *names[] = { "none",
+	"EPERM", "ENOENT", "ESRCH", "EINTR", "EIO", "ENXIO", "E2BIG",
+	...
+
+and the "libc222_errlist[]" array was filled in with the strings found by 
+just downloading the old "libc-2.2.2" binary that can still be found at
+
+	http://www.ibiblio.org/pub/Linux/libs/oldlibs/libc-2.2.2/
+
+and then just doing a "strings - libc-2.2.2" and "sys_errlist[]" will be 
+obvious:
+
+	static char *libc222_errlist[] = {
+	        "Unknown error",
+	        "Operation not permitted",
+	...
+
+This was literally a five-minute hack (I wrote the silly loop yesterday to
+see what it does with the current "strerror()" - there is very good
+correlation even today, but using the libc-2.2.2 sys_nerrlist[] you get
+_exactly_ the same result).
+
+So this is definitely the source of the kernel error header. It's either a
+file from the libc sources, or it is literally auto-generated like the
+above (I actually suspect the latter - now that I did the auto-generation
+it all felt very familiar, but that may just be my brain rationalizing
+things. Humans are good at rationalizing reality.).
+
+Can anybody find the actual libc _sources_? Not the kernel headers that
+hjl mentions (those are the old ones from _before_ the change), but the
+file "libc-2.2.2.tar.Z"?
+
+Anyway, we know where the kernel header comes from. Let's figure out where 
+the libc data comes from.
+
+				Linus

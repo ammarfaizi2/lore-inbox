@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbULNCTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbULNC3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbULNCTS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 21:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbULNCTS
+	id S261369AbULNC3B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 21:29:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbULNC3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 21:19:18 -0500
-Received: from pop-a065c10.pas.sa.earthlink.net ([207.217.121.184]:28379 "EHLO
-	pop-a065c10.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S261366AbULNCTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 21:19:14 -0500
-From: Bill Chimiak <bchimiak@earthlink.net>
-To: linux-kernel@vger.kernel.org
-Subject: visor.ko freezes on dlpsh list
-Date: Mon, 13 Dec 2004 21:19:52 -0500
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 13 Dec 2004 21:29:01 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:23056 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261369AbULNC27
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 21:28:59 -0500
+Date: Tue, 14 Dec 2004 11:30:23 +0900 (JST)
+Message-Id: <20041214.113023.65866789.yoshfuji@linux-ipv6.org>
+To: roland@topspin.com
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH][v3][16/21] IPoIB IPv6 support
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20041213109.iziHvQZqtmP83gmx@topspin.com>
+References: <20041213109.5NKezuGE9PMejMSM@topspin.com>
+	<20041213109.iziHvQZqtmP83gmx@topspin.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412132119.52402.bchimiak@earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: Handspring visor does not  fully sync with kpilot or jpilot
-or with pilot-xfer.
-With dlpsh, the user, and df work but it freezes with a ls command
-after completing about 75% to 80% of the actually listing.
+In article <20041213109.iziHvQZqtmP83gmx@topspin.com> (at Mon, 13 Dec 2004 10:09:46 -0800), Roland Dreier <roland@topspin.com> says:
 
-Stupid attempts to get it to work better:
-I have tried different settings in the /etc/udev/rules.d and permissions.d
-opening the permission wide open and making the user the full owner -
-no joy.  I tried a previous visor.c from another kernel and the compiler puked
-at me.
+>  }
+> @@ -1794,6 +1801,7 @@
+>  	if ((dev->type != ARPHRD_ETHER) && 
+>  	    (dev->type != ARPHRD_FDDI) &&
+>  	    (dev->type != ARPHRD_IEEE802_TR) &&
+> +	    (dev->type != ARPHRD_INFINIBAND) &&
+>  	    (dev->type != ARPHRD_ARCNET)) {
+>  		/* Alas, we support only Ethernet autoconfiguration. */
+>  		return;
 
-Other info:
-Nothing here looks wierd:
-13 21:14:25 kernel: usb 4-2: new full speed USB device using address 29
-13 21:14:25 kernel: usb 4-2: Handspring Visor / Palm OS: port 1, is for
- Generic use
-13 21:14:25 kernel: usb 4-2: Handspring Visor / Palm OS: port 2, is for
- HotSync use
-13 21:14:25 kernel: usb 4-2: Handspring Visor / Palm OS: Number of port
-s: 2
-13 21:14:25 kernel: visor 4-2:1.0: Handspring Visor / Palm OS converter
- detected
-13 21:14:25 kernel: usb 4-2: Handspring Visor / Palm OS converter now a
-ttached to ttyUSB0
-13 21:14:25 kernel: usb 4-2: Handspring Visor / Palm OS converter now a
-ttached to ttyUSB1
-13 21:15:02 crond(pam_unix)[26693]: session closed for user root
-13 21:15:10 kernel: usb 4-2: USB disconnect, address 29
-13 21:15:10 kernel: visor ttyUSB0: Handspring Visor / Palm OS converter
- now disconnected from ttyUSB0
+Please put ARPHRD_INFINIBAND after ARPHRD_ARCNET like other places.
 
-Thnx
-bill chimiak
-w.chimiak@computer.org
+--yoshfuji

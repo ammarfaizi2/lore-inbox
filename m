@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbQKFSj7>; Mon, 6 Nov 2000 13:39:59 -0500
+	id <S129597AbQKFSlT>; Mon, 6 Nov 2000 13:41:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129653AbQKFSjt>; Mon, 6 Nov 2000 13:39:49 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:14736 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S129597AbQKFSjh>;
-	Mon, 6 Nov 2000 13:39:37 -0500
-Date: Mon, 6 Nov 2000 18:39:22 +0000 (GMT)
-From: Paul Jakma <paulj@itg.ie>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "James A. Sutherland" <jas88@cam.ac.uk>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, Dan Hollis <goemon@anime.net>,
-        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <E13spou-0006P0-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0011061837590.31802-100000@rossi.itg.ie>
+	id <S129653AbQKFSlJ>; Mon, 6 Nov 2000 13:41:09 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:3845 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129597AbQKFSlA>;
+	Mon, 6 Nov 2000 13:41:00 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011061840.VAA20563@ms2.inr.ac.ru>
+Subject: Re: [patch] NE2000
+To: comandante@zaralinux.COM (Jorge Nerin)
+Date: Mon, 6 Nov 2000 21:40:37 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A069762.CBF6272B@zaralinux.com> from "Jorge Nerin" at Nov 6, 0 08:45:04 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, Alan Cox wrote:
+Hello!
 
-> Which is part of what persistent module data lets you do. And without having
-> to mess with dont_screw_with_mixer (which if you get it wrong btw can be 
-> fatal and hang the hardware)
-> 
+>         if ((current->state & (TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE))
+> == 0)
+>                 BUG();
 
-the sound card case for persistent modules is contentious i think.
+The Puzzle... 8) It is truly impossible.
 
-what other good reasons are there for persistent data?
-
---paulj
-
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,138 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266682AbUHXHhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUHXHlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266682AbUHXHhw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 03:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUHXHhw
+	id S266708AbUHXHlS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 03:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUHXHlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 03:37:52 -0400
-Received: from eagle-s17.mtl.enter-net.com ([216.252.75.209]:58130 "EHLO abc")
-	by vger.kernel.org with ESMTP id S266682AbUHXHhk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 03:37:40 -0400
-From: formationun@netcourrier.com
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=C9laboration=20d'un=20plan=20de=20formation?=
-Date: Mon, 23 Aug 2004 21:43:44 -0400
-MIME-Version: 1.0 (produced by Synapse)
-x-mailer: Synapse - Delphi & Kylix TCP/IP library by Lukas Gebauer
-Content-type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Content-Description: Message text
-Message-Id: <S266682AbUHXHhk/20040824073740Z+290@vger.kernel.org>
+	Tue, 24 Aug 2004 03:41:18 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:21606 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266708AbUHXHlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 03:41:10 -0400
+Message-ID: <412AF113.6000804@yahoo.com.au>
+Date: Tue, 24 Aug 2004 17:41:07 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>	<20040808113930.24ae0273.akpm@osdl.org>	<200408100012.08945.gene.heskett@verizon.net>	<200408102342.12792.gene.heskett@verizon.net>	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>	<20040810211849.0d556af4@laptop.delusion.de>	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>	<Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org>	<20040812180033.62b389db@laptop.delusion.de>	<Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org>	<20040820000238.55e22081@laptop.delusion.de>	<20040820001154.0a5cf331.akpm@osdl.org>	<20040820001905.27a9ff8f@laptop.delusion.de>	<4125AD23.4000705@yahoo.com.au> <20040823230824.3c937d88@laptop.delusion.de>
+In-Reply-To: <20040823230824.3c937d88@laptop.delusion.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ÉLABORATION D'UN PLAN DE FORMATION
+Udo A. Steinberg wrote:
 
-Formation: 
+>On Fri, 20 Aug 2004 17:49:55 +1000 Nick Piggin (NP) wrote:
+>
+>NP> Can you reproduce the OOM with the following patch please? Then
+>NP> send the output.
+>
+>I reproduced the problem using a slightly different setup to trigger the
+>problem faster:  128 MB RAM, 188992 KB swap
+>
+>Here's the output of the OOM killer with your patch applied:
+>
+>oom-killer: gfp_mask=0x1d2
+>DMA per-cpu:
+>cpu 0 hot: low 2, high 6, batch 1
+>cpu 0 cold: low 0, high 2, batch 1
+>Normal per-cpu:
+>cpu 0 hot: low 14, high 42, batch 7
+>cpu 0 cold: low 0, high 14, batch 7
+>HighMem per-cpu: empty
+>
+>Free pages:        1316kB (0kB HighMem)
+>Active:5281 inactive:23611 dirty:0 writeback:0 unstable:0 free:329 slab:1403 mapped:12232 pagetables:167
+>DMA free:712kB min:44kB low:88kB high:132kB active:5076kB inactive:5332kB present:16384kB pages_scanned:10112 all_unreclaimable? yes
+>protections[]: 22 178 178
+>Normal free:604kB min:312kB low:624kB high:936kB active:16048kB inactive:89112kB present:114688kB pages_scanned:62432 all_unreclaimable? yes
+>protections[]: 0 156 156
+>HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+>protections[]: 0 0 0
+>DMA: 0*4kB 3*8kB 13*16kB 1*32kB 1*64kB 1*128kB 1*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 712kB
+>Normal: 1*4kB 1*8kB 1*16kB 0*32kB 1*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 604kB
+>HighMem: empty
+>Swap cache: add 90886, delete 74524, find 4659/4974, race 0+0
+>Out of Memory: Killed process 1217 (gphoto2).
+>
+>
 
-Atelier d'un jour - Le 27 Septembre 2004 à Montréal 
-et le 24 Septembre 2004 à Québec
+OK, all_unreclaimable caused the scanner to virtually stop. If 
+all_unreclaimable
+gets set, it throttles the scanning of that zone right back, which in 
+turn greatly
+lowers the chance that all_unreclaimable will get cleared.
 
-"Pour ceux qui pensent que la formation coûte cher... essayez l'ignorance".
-
-CETTE FORMATION S'ADRESSE AUX DIRECTEURS FORMATION, DIRECTEURS 
-DES
-RESSOURCES HUMAINES, GESTIONNAIRES D'ENTREPRISE ET DIRECTEURS 
-DE
-DÉPARTEMENT GÉRANT LEUR FORMATION.
-  
-Suivez cette formation pour :
- 
-Apprendre à développer un plan de formation en lien direct avec les
-objectifs stratégiques de votre entreprise 
-Gérer les compétences : outils d'analyse d'écart de compétences et mise à
-niveau 
-Améliorer la productivité et la compétitivité 
-Comprendre le processus pédagogique
-
-Mieux placer votre entreprise sur son marché 
-Accroître le retour sur investissement de la formation 
-Mieux gérer votre budget formation vis-à-vis de la loi 90 
-Vous assurer que les méthodes apprises sont correctement appliquées et
-implantées dans votre entreprise
-
-OBJECTIFS:
-Développer une démarche permettant d'analyser les besoins en formation et
-de planifier les actions significatives.
-Acquérir des compétences et connaître des méthodes afin de planifier les
-achats de formation en fonction des objectifs stratégiques de l'entreprise.
-Connaître les outils d'évaluation et de gestion de compétences.
-Connaître les enjeux et l'importance de la planification de la formation
-dans le contexte de la mondialisation.
- 
-
-PLAN DE COURS:
-
-Introduction:  Dans le contexte de la globalisation des marchés - la
-formation aujourd'hui
-
-Présentation de la démarche en 5 points:
-
-Le diagnostic:  analyser les besoins en formation 
-L'objectif stratégique 
-L'objectif opérationnel 
-Les objectifs de formation 
-L'entretien avec le commanditaire du projet de formation 
-Impact de la formation sur ... 
-La compétence 
-La motivation 
-L'environnement de travail 
-Étude de faisabilité 
-Analyse stratégique 
-Analyse de risque 
-L'action de formation:  concevoir la réponse au besoin 
-Le processus pédagogique 
-Inscription 
-Implication 
-Action de formation 
-Suivi 
-Évaluation 
-Conception de l'action de formation 
-Le plan de formation:  la planification des actions 
-Les acteurs 
-Planification 
-Aides 
-Le plan de formation 
-La fiche d'action de formation 
-Sélection des prestataires:  les moyens 
-Classification des achats en formation 
-Sélection des prestataires 
-Le cahier des charges 
-Critères de sélection 
-Coût de la formation 
-Le marché de la formation 
-Évaluation des projets de formation 
-Évaluation du processus 
-Évaluation des résultats 
-Typologie 
-Évaluation à froid 
-Évaluation à chaud 
-Évaluation individuelle 
-Évaluation collective 
-
-Date de la formation:  27 Septembre 2004 à Montréal et le 24 Septembre à
-Québec
-Lieu de la formation: Hôtel Plaza Québec  3031, Boul Laurier Ste-Foy 
-Lieu de la formation:  Best Western Laval, 3655, Aut. des Laurentides, Laval
-
-Pour inscription, veuillez contacter Mme Maryse Morin au 1-800-861-6618
- 
-
-Conseillers en sciences de gestion et technologies avancées
-450-226-2238 ou le 1-800-861-6618
-
-www.compufinder.com
-
-
-Pour vous désabonner de notre liste d'envoi écrire à 
- 
-info.compufinder@quebecemail.com
- 
-merci
- 
-
-
- 
+When we get to priority = 0 in try_to_free_pages (ie. close to OOM), it 
+might be
+worth clearing each zone's all_unreclaimable for this last time 'round 
+the loop.
 

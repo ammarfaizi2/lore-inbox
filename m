@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265485AbTF1XMq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 19:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTF1XMp
+	id S265470AbTF1XMU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 19:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265468AbTF1XMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 19:12:45 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:10119 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265472AbTF1XMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 19:12:33 -0400
-Date: Sun, 29 Jun 2003 01:26:42 +0200
-From: Rudo Thomas <thomr9am@ss1000.ms.mff.cuni.cz>
-To: "Luca T." <luca-t@libero.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/random broken?
-Message-ID: <20030629012641.A23587@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: "Luca T." <luca-t@libero.it>,
-	linux-kernel@vger.kernel.org
-References: <3EFE2231.2050707@libero.it>
+	Sat, 28 Jun 2003 19:12:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38849 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265453AbTF1XMN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 19:12:13 -0400
+Date: Sat, 28 Jun 2003 16:20:02 -0700 (PDT)
+Message-Id: <20030628.162002.48522400.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: greearb@candelatech.com, davidel@xmailserver.org, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1056842138.6753.16.camel@dhcp22.swansea.linux.org.uk>
+References: <1056827972.6295.28.camel@dhcp22.swansea.linux.org.uk>
+	<20030628.150328.74739742.davem@redhat.com>
+	<1056842138.6753.16.camel@dhcp22.swansea.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EFE2231.2050707@libero.it>; from luca-t@libero.it on Sun, Jun 29, 2003 at 01:18:09AM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is this a bug?
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 29 Jun 2003 00:15:38 +0100
+   
+   You might not care but some of us do. Capturing the data matters for
+   lots of things. That you don't have the time to be the filter for that
+   info for networking is also fine.
+   
+Alan, you really stretch yourself thin doing this stuff
+all the time.
 
-No, it is not. If there's not enough random data available, reading from
-/dev/random will block. Moving the mouse around will generate some interrupts
-(or other stuff) that contribute to the entropy...
+Now imagine if you invested this effort in educating people
+and getting them to be better bug reporters, sending the
+right info to the right place?
 
-Rudo.
+I think that, along with some actual development I actually miss
+seeing you be able to do that, is a much better allocation of your
+time and talents.
+
+You're grovelling at the bottom of the barrel, it's time to start
+skimming from the top instead.  Things that matters will come back, it
+doesn't disappear.

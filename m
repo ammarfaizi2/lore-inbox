@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUIJAim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUIJAqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUIJAim (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 20:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUIJAil
+	id S265795AbUIJAqr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 20:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUIJAqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 20:38:41 -0400
-Received: from ozlabs.org ([203.10.76.45]:62410 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262329AbUIJAik (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 20:38:40 -0400
-Date: Fri, 10 Sep 2004 10:35:05 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-Message-ID: <20040910003505.GG11358@krispykreme>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com> <20040909154259.GE11358@krispykreme> <20040909171954.GW3106@holomorphy.com> <16704.52551.846184.630652@cargo.ozlabs.ibm.com> <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Sep 2004 20:46:47 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:23205 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S265795AbUIJAqp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 20:46:45 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Petr Vandrovec <vandrove@vc.cvut.cz>, adaplas@pol.net
+Subject: Re: [PATCH 7/7] fbdev: Add Tile Blitting support
+Date: Fri, 10 Sep 2004 08:47:55 +0800
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+References: <200409100534.56680.adaplas@hotpop.com> <20040910001113.GA19132@vana.vc.cvut.cz>
+In-Reply-To: <20040910001113.GA19132@vana.vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040818i
+Message-Id: <200409100847.56034.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+On Friday 10 September 2004 08:11, Petr Vandrovec wrote:
+> On Fri, Sep 10, 2004 at 05:34:56AM +0800, Antonino A. Daplas wrote:
+> > In my case at least, the cleanup did produce an unexpected but beneficial
+> > side effect, a little more speedup.  Not much, < 5%.
+> >
+> > Petr, if you have comments, suggestions, or you think this is a bad idea,
+> > let me know.
+>
+> It looks like good idea to me.  Though I still do not see benefits
+> 2.6.x fbcon provides over 2.4.x.
 
-> Why do we care about profile_pc() here? It should do the right thing 
-> as-is.
+Too late for that :-).  Personally, minus the stability and bugs, I
+prefer 2.6 over 2.4.
 
-With preempt off profile_pc works as expected, timer ticks in spinlocks
-are apportioned to the calling function. Turn preempt on and you end up
-with one big bucket called __preempt_spin_lock where most of the
-spinlock ticks end up.
+>
+> BTW, there is still bad bug with software scrollback and multihead
+> (it is here since I remember): redraw_screen sets redraw to 0 when
+> old_console == new_console, but fbcon uses con_switch() method for
+> deciding whether software scrollback should be reinitialized or not.
+> As software scrollback is per-system and not per-fbdev thing, this
+> has rather nasty consequences - when both fbdevs have different xres,
+> console user can crash system (con2fb /dev/fb1 /dev/tty11; set xres
+> fb0 != xres fb1; chvt 11; chvt 10; chvt 11; hit alt-shift-pgup
+> or force vt11 to scroll; crash, some kernel data structures were
+> overwritten with 0x0720...).
 
-> What you care about is wchan, and stack unwiding _over_ the spinlocks. 
-> Since a spinlock can never be part of the wchan callchain, I vote we just 
-> change "in_sched_functions()" to claim that anything in the spinlock 
-> section is also a scheduler function as far as it's concerned.
-> 
-> That makes wchan happy, and profile_pc() really never should care.
+I just tried it now, but can't elicit a crash (2.6.9-rc1-mm4 + my patches).
+I'll try to examine this in more detail this weekend.
 
-At the moment profile_pc is simple and only looks at the timer interrupt
-pt_regs. With 2 levels of locks (_spin_lock -> __preempt_spin_lock) we
-now have to walk the stack. Obviously fixable, it just a bit more work
-in profile_pc. We would also need to move __preempt_spin_lock into the 
-lock section which should be fine if we change wchan backtracing to do
-as you suggest.
+Tony
 
-Anton
+

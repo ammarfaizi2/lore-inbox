@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbTEMQGr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 12:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbTEMQFK
+	id S262247AbTEMQLq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbTEMQLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 12:05:10 -0400
-Received: from main.gmane.org ([80.91.224.249]:30402 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262000AbTEMQDI (ORCPT
+	Tue, 13 May 2003 12:11:45 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:31399 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262227AbTEMQLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 12:03:08 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Happe <andreashappe@gmx.net>
-Subject: [dri] x startup hangs again... ~2.5.69-bk5
-Date: Tue, 13 May 2003 17:55:18 +0200
-Message-ID: <slrnbc25b6.e5.andreashappe@flatline.ath.cx>
-Reply-To: Andreas Happe <andreashappe@gmx.net>
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	Tue, 13 May 2003 12:11:43 -0400
+Subject: OSDL CGL v2 Clustering public draft now available
+From: Mika Kukkonen <mika@osdl.org>
+To: cgl_discussion@osdl.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: OSDL
+Message-Id: <1052843066.26772.45.camel@miku-t21-redhat.koti>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 May 2003 12:24:27 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-downloaded 2.5.69, tried X, no more crashes on startup... life was good
-downloaded 2.5.69-bk5, started X (4.3.0, DRI enabled)... instant screen
-corruption and lockup. Same happens with today's bk snapshot.
+Hello,
 
-used hardware:
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility
-M6 LY
+After some serious wear and tear on the CGL Specs-subgroup, I am finally
+able to announce immediate availability of the third and final section
+of public drafts of our version 2 specification. All three sections can
+be found at OSDL web site:
+http://developer.osdl.org/cgi-bin/eidetic.cgi?modulename=folders&command=display&on=3
 
-andreas
+To refresh your mind, the two earlier sections are named "General OS
+requirements" and "Security". We have also made HTML versions of these
+documents available at SourceForge: 
+	http://sourceforge.net/docman/?group_id=48444
+
+Again we invite everybody to download the specs and comment. We have an open
+mail list, cgl_discussion@osdl.org, for detailed discussion and comment.
+You can also mail the feedback directly to me (mika@osdl.org), if you
+so prefer, and of course we will read the LKML also. Your choice.
+
+Please keep in mind that these are draft documents, and the final content
+might differ. The final public draft of the combined version 2 specification
+is scheduled to be ready by the end of June, but now is the best time for
+you to influence this specification. Thanks for comments in advance!
+
+On the behalf of OSDL CGL-WG,
+   Mika Kukkonen
+   CGL Roadmap Coordinator
+   mika@osdl.org
+
 

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263398AbTFPFsx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 01:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTFPFsx
+	id S263418AbTFPFva (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 01:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTFPFv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 01:48:53 -0400
-Received: from relay3.softcomca.com ([168.144.1.70]:22541 "EHLO
-	relay3.softcomca.com") by vger.kernel.org with ESMTP
-	id S263398AbTFPFsv convert rfc822-to-8bit (ORCPT
+	Mon, 16 Jun 2003 01:51:29 -0400
+Received: from [81.80.245.157] ([81.80.245.157]:63148 "EHLO smtp.alcove-fr")
+	by vger.kernel.org with ESMTP id S263418AbTFPFv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 01:48:51 -0400
-Message-ID: <29950-2200361166243968@M2W028.mail2web.com>
-X-Priority: 3
-Reply-To: dpsmiles@turing.acm.org
-X-Originating-IP: 203.197.117.229
-X-URL: http://mail2web.com/
-From: "dpsmiles@turing.acm.org" <dpsmiles@turing.acm.org>
-To: linux-kernel@vger.kernel.org
-Subject: Driver for dlink DFE-538TX for Linux 8.0 query..
-Date: Mon, 16 Jun 2003 02:02:43 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 16 Jun 2003 06:02:44.0177 (UTC) FILETIME=[E7339C10:01C333CC]
+	Mon, 16 Jun 2003 01:51:29 -0400
+Date: Mon, 16 Jun 2003 08:05:04 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Michael Buesch <fsdeveloper@yahoo.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.21] meye driver update
+Message-ID: <20030616060504.GA3066@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Michael Buesch <fsdeveloper@yahoo.de>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030615163138.GD1857@deep-space-9.dsnet> <200306151906.57099.fsdeveloper@yahoo.de> <20030615212935.GA1582@deep-space-9.dsnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030615212935.GA1582@deep-space-9.dsnet>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks,
-I am new to this list, and am looking for some help.
+On Sun, Jun 15, 2003 at 11:29:35PM +0200, Stelian Pop wrote:
+> 
+> Unused of ix86 because bus addresses are the same as virtual addresses.
 
-I have D-link TFE-538TX 10/100 adapter on my computer, and have RedHat
-Linux 8.0 as the OS. 
+Of course I meant that bus addresses are the same as the _physical_
+addresses...
 
-The network driver that is provided is for Linux 6.x and it is returning an
-error when I try to install it. COuld someone please send me the updated
-driver, or suggest changes/patch that I make to the old one so that it
-works on Linux 8.0?
+I should really sleep first, then reply, not the other way around...
 
-Durga
-
---
-Durga Prasad Pandey
-Assistant Online Editor
-ACM Crossroads, www.acm.org/crossroads/
-
-
---------------------------------------------------------------------
-mail2web - Check your email from the web at
-http://mail2web.com/ .
-
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

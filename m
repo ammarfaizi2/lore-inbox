@@ -1,74 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311808AbSCNVmA>; Thu, 14 Mar 2002 16:42:00 -0500
+	id <S311809AbSCNVoK>; Thu, 14 Mar 2002 16:44:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311813AbSCNVlu>; Thu, 14 Mar 2002 16:41:50 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:5248 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S311808AbSCNVla>; Thu, 14 Mar 2002 16:41:30 -0500
-Date: Thu, 14 Mar 2002 16:41:26 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-cc: John Heil <kerndev@sc-software.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-In-Reply-To: <3C9121EB.11632.26F0805@localhost>
-Message-ID: <Pine.LNX.3.95.1020314163533.382A-100000@chaos.analogic.com>
+	id <S311820AbSCNVoA>; Thu, 14 Mar 2002 16:44:00 -0500
+Received: from squeaker.ratbox.org ([63.216.218.7]:49425 "EHLO
+	squeaker.ratbox.org") by vger.kernel.org with ESMTP
+	id <S311809AbSCNVns>; Thu, 14 Mar 2002 16:43:48 -0500
+Date: Thu, 14 Mar 2002 16:21:55 -0500 (EST)
+From: Aaron Sethman <androsyn@ratbox.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: beezly@beezly.org.uk, <linux-kernel@vger.kernel.org>
+Subject: Re: Sun GEM card looses TX on x86 32bit PCI
+In-Reply-To: <Pine.LNX.4.44.0203141542500.17641-100000@simon.ratbox.org>
+Message-ID: <Pine.LNX.4.44.0203141621370.17728-100000@simon.ratbox.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Mar 2002, Pedro M. Rodrigues wrote:
+Just an FYI, this does resolve the problem on sparc as well.
 
-> 
->    This piece of code is taken from an old Minix source code tree, the file being 
-> boothead.s . Notice the port 0xED usage and the comment.
-> 
-> 
-> ! Enable (ah = 0xDF) or disable (ah = 0xDD) the A20 address line.
-> gate_A20:
->         call    kb_wait
->         movb    al, #0xD1       ! Tell keyboard that a command is coming
->         outb    0x64
->         call    kb_wait
->         movb    al, ah          ! Enable or disable code
->         outb    0x60
->         call    kb_wait
-> 
-> 
->         mov     ax, #25         ! 25 microsec delay for slow keyboard chip
-> 0:      out     0xED            ! Write to an unused port (1us)
->         dec     ax
->         jne     0b
-> 
->         ret
-> kb_wait:
->         inb     0x64
->         testb   al, #0x02       ! Keyboard input buffer full?
->         jnz     kb_wait         ! If so, wait
->         ret
-> 
-> 
-> 
-> /Pedro
-> 
+Regards,
 
-Well I see the comment. Writing to IO Space where there are no devices
-is basically a no-op. The ISA/PC/AT bus is asynchronous, it is not
-clocked. If there's is no contention due to bus activity from some
-hardware read, it's just some address lines and data bits that are
-eventually sinked by the bus capacity. The CPU isn't forced to wait
-for anything. Since it's in I/O space, you don't even get the delay
-from a cache-line reload. No thanks, it's bogus as a delay mechanism.
+Aaron
 
+On Thu, 14 Mar 2002, Aaron Sethman wrote:
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+> I am having the same problem on sparc.  I will try the patch myself and
+> let you know if it helps.
+>
+> Regards,
+>
+> Aaron
+>
+> On Tue, 12 Mar 2002, David S. Miller wrote:
+>
+> >    From: Beezly <beezly@beezly.org.uk>
+> >    Date: 11 Mar 2002 22:51:42 +0000
+> >
+> >    Ok, I've been fiddling around with the driver tonight and have managed
+> >    to get a little further by forcing the driver to do a full reset of the
+> >    chip when the RX buffer over flows. I achieved this by sticking a return
+> >    1; at the top of gem_rxmac_reset().
+> >
+> >    I'm guessing this isn't an "optimal" reset for the situation but so far
+> >    it's having /reasonable/ results (i.e. I don't have to bring the
+> >    interface up and down every 30 seconds!).
+> >  ...
+> >    Hope this helps,
+> >
+> > I'll follow up on this and figure out why my RX reset code
+> > isn't working after I finish up some 2.5.x work.
+> >
+> > But looking quickly I think I see what is wrong.  Please give
+> > this a try (and remember to remove your hacks before testing
+> > this :-):
+> >
+> > --- drivers/net/sungem.c.~1~	Mon Mar 11 04:24:13 2002
+> > +++ drivers/net/sungem.c	Tue Mar 12 09:30:38 2002
+> > @@ -357,6 +357,7 @@ static int gem_rxmac_reset(struct gem *g
+> >
+> >  		rxd->status_word = cpu_to_le64(RXDCTRL_FRESH(gp));
+> >  	}
+> > +	gp->rx_new = gp->rx_old = 0;
+> >
+> >  	/* Now we must reprogram the rest of RX unit. */
+> >  	desc_dma = (u64) gp->gblock_dvma;
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+>
 

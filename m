@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVABM3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVABMeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVABM3O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 07:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVABM3O
+	id S261214AbVABMeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 07:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVABMeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 07:29:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38531 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261214AbVABM3H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 07:29:07 -0500
-Date: Sun, 2 Jan 2005 07:33:25 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: jgarzik@logos.cnet
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make libata for 2.4 compile on alpha
-Message-ID: <20050102093325.GA29158@logos.cnet>
-References: <200412270043.52692.stkn@gentoo.org>
-Mime-Version: 1.0
+	Sun, 2 Jan 2005 07:34:18 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:18123 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261214AbVABMeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 07:34:13 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: the umount() saga for regular linux desktop users
+To: Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sun, 02 Jan 2005 13:38:29 +0100
+References: <fa.iji5lco.m6nrs@ifi.uio.no> <fa.fv0gsro.143iuho@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412270043.52692.stkn@gentoo.org>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1Cl509-0000TI-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andy Lutomirski wrote:
 
-Hi Jeff!
+> I have this complaint too, and MNT_DETACH doesn't really do it.
+> Sometimes I want to "unmount cleanly, damnit, and I don't care if
+> applications that are currently accessing it lose data."  Windows can do
+> this, and it's _useful_.
 
-Got that one? 
+I have an additional feature request: The umount -l will currently not work
+for unmounting the cwd of something like the midnight commander without
+closing it. On the other hand, rmdiring the cwd of running application
+works just fine.
 
-On Mon, Dec 27, 2004 at 12:43:48AM +0100, Stefan Knoblich wrote:
-> Hi,
-> 
-> linux-2.4.28 + 2.4.28-rc3-libata1 patch won't compile on alpha, attached patch 
-> fixes that.
-> 
-> 
-> Error messages:
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.28/include -Wall -Wstrict-prototypes 
-> -Wno-trigraphs -O2
->  -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mno-fp-regs 
-> -ffixed-8 -mcpu=ev5 -Wa,-mev6
->  -nostdinc -iwithprefix include -DKBUILD_BASENAME=libata_core  -DEXPORT_SYMTAB 
-> -c libata-core.c
-> In file included from /usr/src/linux-2.4.28/include/linux/highmem.h:5,
->                  from libata-core.c:31:
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h: In function `flush_tlb_other':
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:63: error: dereferencing pointer 
-> to incomplete type
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:63: warning: implicit declaration 
-> of function `smp_processor_id'
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h: In function 
-> `flush_icache_user_range':
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:84: error: dereferencing pointer 
-> to incomplete type
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:84: error: `VM_EXEC' undeclared 
-> (first use in this function)
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:84: error: (Each undeclared 
-> identifier is reported only once
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:84: error: for each function it 
-> appears in.)
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:85: error: dereferencing pointer 
-> to incomplete type
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:86: error: `current' undeclared 
-> (first use in this function)
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h:89: error: dereferencing pointer 
-> to incomplete type
-> /usr/src/linux-2.4.28/include/asm/pgalloc.h: In function 
-> `ev4_flush_tlb_current_page':
-> <SNIP>
-
-> --- linux-2.4.28/drivers/scsi/libata-core.c.orig	2004-12-26 22:19:31.389841557 +0100
-> +++ linux-2.4.28/drivers/scsi/libata-core.c	2004-12-26 22:19:48.910349155 +0100
-> @@ -28,6 +28,7 @@
->  #include <linux/pci.h>
->  #include <linux/init.h>
->  #include <linux/list.h>
-> +#include <linux/mm.h>
->  #include <linux/highmem.h>
->  #include <linux/spinlock.h>
->  #include <linux/blkdev.h>
+Maybe it's possible to extend the semantics of umount -l to change all
+cwds under that mountpoint to be deleted directories which will no
+longer cause the mountpoint to be busy (e.g. by redirecting them to a
+special inode on initramfs). Most applications can cope with that (if
+not, they're buggy), and it will do 90% of the usural cases while still
+avoiding data loss.
 
 
+
+Pseudocode:
+
+on boot:
+mkdir("/deleteddirectory");
+deleted_dir_fd=open("/deleteddirectory");
+rmdir("/deleteddirectory");
+
+on umount -l:
+if mountpoints - mountpoints_in_lazy_unmount_state == 0
+then for each process
+do if process->cwd->device == umount_device
+then process->fchdir(deleted_dir_fd)
 

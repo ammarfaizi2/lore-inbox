@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUKXWiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbUKXWk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUKXWiA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 17:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbUKXWiA
+	id S262820AbUKXWk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 17:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUKXWk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 17:38:00 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:56251 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262794AbUKXWhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 17:37:05 -0500
-Subject: Re: Suspend 2 merge: 10/51: Exports for suspend built as modules.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041124144429.GA18515@elte.hu>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101294252.5805.228.camel@desktop.cunninghams>
-	 <20041124144429.GA18515@elte.hu>
-Content-Type: text/plain
-Message-Id: <1101329204.3895.2.camel@desktop.cunninghams>
+	Wed, 24 Nov 2004 17:40:57 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:2568 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262820AbUKXWi3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 17:38:29 -0500
+Date: Wed, 24 Nov 2004 14:39:57 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@oss.sgi.com, akpm@osdl.org, jgarzik@pobox.com
+Subject: [patch netdev-2.6] 3c59x: Add EEPROM_RESET for 3c900 Boomerang
+Message-ID: <20041124143956.A24342@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	akpm@osdl.org, jgarzik@pobox.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 07:46:44 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Add 3c900 Boomerang to list of devices needing EEPROM_RESET
 
-On Thu, 2004-11-25 at 01:44, Ingo Molnar wrote:
-> * Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> 
-> > New exports for suspend. I've cut them down some as a result of the
-> > last review, but could perhaps do more? Would people prefer to see a
-> > single struct wrapping exported functions?
-> 
-> > --- 400-exports-old/kernel/sched.c	2004-11-06 09:23:53.364977120 +1100
-> > +++ 400-exports-new/kernel/sched.c	2004-11-06 09:23:56.627481144 +1100
-> > @@ -3798,6 +3798,7 @@
-> >  
-> >  	read_unlock(&tasklist_lock);
-> >  }
-> > +EXPORT_SYMBOL(show_state);
-> 
-> this one is ok i think, but make it EXPORT_SYMBOL_GPL() please.
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-Okay. Will do.
+ drivers/net/3c59x.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+===== drivers/net/3c59x.c 1.66 vs edited =====
+--- 1.66/drivers/net/3c59x.c	2004-10-30 10:22:13 -04:00
++++ edited/drivers/net/3c59x.c	2004-11-24 14:31:49 -05:00
+@@ -492,9 +492,9 @@
+ 	{"3c595 Vortex 100base-MII",
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_VORTEX, 32, },
+ 	{"3c900 Boomerang 10baseT",
+-	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG, 64, },
++	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|EEPROM_RESET, 64, },
+ 	{"3c900 Boomerang 10Mbps Combo",
+-	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG, 64, },
++	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|EEPROM_RESET, 64, },
+ 	{"3c900 Cyclone 10Mbps TPO",						/* AKPM: from Don's 0.99M */
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
+ 	{"3c900 Cyclone 10Mbps Combo",

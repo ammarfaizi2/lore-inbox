@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVCJWUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263276AbVCJWLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbVCJWUy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbVCJWNw
+	id S263276AbVCJWLd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbVCJWDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:13:52 -0500
-Received: from A.painless.aaisp.net.uk ([81.187.81.51]:31159 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S263272AbVCJWIU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 17:08:20 -0500
-Subject: Problem with 2.6.11-bk[3456]
-From: Andrew Clayton <andrew@digital-domain.net>
-To: lkml <linux-kernel@vger.kernel.org>
+	Thu, 10 Mar 2005 17:03:37 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:55269 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263179AbVCJVw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 16:52:59 -0500
+Subject: Re: 2.6.11 low latency audio test results
+From: Lee Revell <rlrevell@joe-job.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       "Jack O'Quin" <joq@io.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <422F07C2.7080900@cybsft.com>
+References: <1110324852.6510.11.camel@mindpipe>
+	 <422F07C2.7080900@cybsft.com>
 Content-Type: text/plain
-Date: Thu, 10 Mar 2005 22:08:19 +0000
-Message-Id: <1110492499.2666.8.camel@alpha.digital-domain.net>
+Date: Thu, 10 Mar 2005 16:52:57 -0500
+Message-Id: <1110491577.14297.19.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2005-03-09 at 08:27 -0600, K.R. Foley wrote:
+> Lee Revell wrote:
+>  
+> > Of course all of the above settings provide flawless xrun-free
+> > performance with 2.6.11-rc4 + PREEMPT_RT.
+> > 
+> 
+> The above mentioned patch will apply (and build and run) just fine to 
+> 2.6.11 if you fix the EXTRAVERSION portion of the patch to not expect -rc4.
+> 
 
-Got a problem here with the last few Linus -bk releases.
+Right, it sure does.  No rejects except the Makefile.
 
-2.6.11-bk2 is running fine.
+Looks like the release candidate process is getting tighter.
 
-2.6.11-bk3 - 2.6.11-bk6 has the following problem:
-
-Everything is fine while the machine is booting. However as soon as X
-starts up the screen goes blank as normal but stays blank, no gdm login
-screen and the hard disk and floppy drive lights are on continuously.
-The machine is now locked up solid and needs a hard reset.
-
-I tried a serial console but get nothing after the kernel messages and
-the agetty login.
-
-The machine is question is an UP Athlon 1800+ XP with 768MB RAM, the
-graphics card is an AGP ATI Radeon 9200SE using the kernel AGP/DRM
-drivers and the Xorg radeon driver.
-
-It's running FC3.
-
-
-I've put 2.6.11-bk2 and 2.6.11-bk6 config's, dmesg's and an lspc -vv up
-on the web.
-
-http://digital-domain.net/kernel/2.6.11-bk2.config
-http://digital-domain.net/kernel/2.6.11-bk6.config
-http://digital-domain.net/kernel/2.6.11-bk2.dmesg
-http://digital-domain.net/kernel/2.6.11-bk6.dmesg
-http://digital-domain.net/kernel/lspci-vv
-
-
-When looking at this the other day I did get a message on the serial
-console after X started and the machine locked, about uhci host
-controller being disabled or something. Unfortunately I didn't make a
-note of it and didn't get it today for when I was preparing this report.
-
-Looking at the two dmesg's there is some difference in the usb messages.
-
-
-Anyway, thanks for your time and if you need any more info just let me
-know.
-
-
-Cheers,
-
-Andrew Clayton
- 
+Lee
 

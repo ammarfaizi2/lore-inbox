@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268933AbUIHIKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268916AbUIHIJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268933AbUIHIKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 04:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268928AbUIHIKZ
+	id S268916AbUIHIJw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 04:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268933AbUIHIJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 04:10:25 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:13965 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S268937AbUIHIKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 04:10:19 -0400
-From: Lorenzo Allegrucci <l_allegrucci@yahoo.it>
-Organization: -ENOENT
-To: Nathan Bryant <nbryant@optonline.net>
-Subject: Re: 2.6.9-rc1-mm4
-Date: Wed, 8 Sep 2004 10:15:00 +0200
-User-Agent: KMail/1.7
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-References: <20040907020831.62390588.akpm@osdl.org> <200409072201.55025.l_allegrucci@yahoo.it> <413E18CB.7020305@optonline.net>
-In-Reply-To: <413E18CB.7020305@optonline.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409081015.00114.l_allegrucci@yahoo.it>
+	Wed, 8 Sep 2004 04:09:52 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:22261 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268916AbUIHIJt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 04:09:49 -0400
+Message-Id: <200409080809.i8889ih29276@owlet.beaverton.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] schedstats additions 
+In-reply-to: Your message of "Sat, 04 Sep 2004 15:07:05 +1000."
+             <41394D79.40205@yahoo.com.au> 
+Date: Wed, 08 Sep 2004 01:09:44 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 September 2004 22:23, Nathan Bryant wrote:
-> Lorenzo Allegrucci wrote:
-> > On Tuesday 07 September 2004 11:08, Andrew Morton wrote:
-> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2
-> >>.6 .9-rc1-mm4/
-> >
-> > My PS/2 keyboard doesn't work, I tried "pci=routeirq" but it didn't help.
-> >
-> > Sep  7 21:39:00 odyssey kernel: i8042: ACPI  [PS2K] at I/O 0x0, 0x0, irq
-> > 1 Sep  7 21:39:00 odyssey kernel: i8042: ACPI  [PS2M] at irq 12
-> > Sep  7 21:39:00 odyssey kernel: i8042.c: Can't read CTR while
-> > initializing i8042.
->
-> Try i8042.noacpi on the kernel command line
+    I have a patch here to provide more useful statistics for me. Basically
+    it moves a lot more of the balancing information into the domains instead
+    of the runqueue, where it is nearly useless on multi-domain setups (eg.
+    SMT+SMP, SMP+NUMA).
+    
+    It requires a version number bump, but that isn't much of an issue because
+    I think we're about the only two using it at the moment. But your tools
+    will need a little bit of work.
+    
+    What do you think?
 
-i8042.noacpi=1 fixed it, thanks.
+The idea of moving some counters from runqueues to domains is fine in
+general, but I've some questions about a couple of specific changes in
+your patch.
 
--- 
-Lorenzo
+    It looks to me like there are some changes in try_to_wake_up() that
+	aren't schedstats related, although schedstats code is among some
+	that is moved around.  Is there some code there that should be
+	broken out separately?
+
+    alb_cnt
+	by moving this, we won't get an accurate look at the number of
+	times we called active_load_balance and returned immediately
+	because nr_running had slipped to 0 or 1.  how about we add
+	another counter to count that too, and/or change the name of
+	this one?
+
+    lb_balanced
+	are you sure lb_balanced[idle] can't be deduced from lb_cnt[idle]
+	and lb_failed[idle]?
+
+    ttwu_attempts
+    ttwu_moved
+	removing these makes it harder to determine how successful
+	try_to_wake_up() was at moving a process.  What counters would
+	I use to get this information if these were removed?
+
+    ttwu_remote
+    ttwu_wake_remote
+	so what's the one line description of what these count now?
+
+    smt_cnt
+    sbe_cnt
+	how might I see how often sched_migrate_task() and sched_exec()
+	were called if these were deleted?
+
+    lb_pulled
+	Rather than add another counter here, would it be as effective
+	to make pt_gained a domain counter? Looks like you're collecting
+	the same information.  pt_lost would have to remain a runqueue
+	counter, though, since losing a task has nothing to do with a
+	particular domain.
+
+Rick

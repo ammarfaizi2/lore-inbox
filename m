@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266475AbUGKB76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUGKCJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266475AbUGKB76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 21:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUGKB76
+	id S266477AbUGKCJr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 22:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266478AbUGKCJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 21:59:58 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:39809 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266475AbUGKB74
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 21:59:56 -0400
-Date: Sat, 10 Jul 2004 21:59:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Qiuyu Zhang <qiuyu.zhang@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about copy_from_user/copy_to_user
-In-Reply-To: <c26fd82804071013442f4c1447@mail.gmail.com>
-Message-ID: <Pine.LNX.4.53.0407102153400.5590@chaos>
-References: <c26fd82804071013442f4c1447@mail.gmail.com>
+	Sat, 10 Jul 2004 22:09:46 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:44219 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266477AbUGKCJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 22:09:44 -0400
+Message-ID: <40F0A165.9090203@comcast.net>
+Date: Sat, 10 Jul 2004 22:09:41 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vlobanov <vlobanov@speakeasy.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Quick question.
+References: <Pine.LNX.4.58.0407101826040.19771@shell1.speakeasy.net>
+In-Reply-To: <Pine.LNX.4.58.0407101826040.19771@shell1.speakeasy.net>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jul 2004, Qiuyu Zhang wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hi all,
->
-> I am working on a module driver. A user application alloc a bunch of
-> memory for storing packet. And module driver can read /write data
-> from/into the memory in user space. I use ioctl function to pass the
-> pointer of memory of user space to module driver.  What I want to do
-> is to store the pointer in kernel space and when I need to write or
-> read data from memory of user space, I try to use copy_from_user or
-> copy_to_user to get/put data. But I always get wrong data. I don't
-> know the reason. Would you guys give me some help?
->
-> Simple description of the code:
->
-> device_ioctl() {
->      // get the pointer of memory of user space, and assign the
-> pointer to kernel variable.
-> }
->
->
->
-> device_xmit(){
->      // when upper layer send a packet to this device.
->      //  I try to use the copy_from_user to get some information from
-> user space buf
->      // but I cannot get correct information.
-> }
->
-> Thx
-> -
+I believe that terminating the thread executing main() terminates the
+program.
 
-The kernel executes functions upon behalf of the caller. The
-caller's pointer is only valid when the caller calls the
-kernel. At another time, the kernel has its data-segment
-set to KERNEL_DS and other times set to the virtual address
-space of other callers.
+vlobanov wrote:
+| Hi,
+|
+| I have a quick question about a supposed scenario.
+|
+| Suppose you have two pthreads - a main pthread and a utility pthread -
+| both running in the same application. The utility pthread is currently
+| in the middle of doing a recv() call on a network socket. At the same
+time,
+| the main pthread decides that it's time to exit, and either returns or
+| does a series of fork()/execv() calls. Is the behavior of the utility
+| pthread in such a case deterministic, and if so, what is it?
+|
+| Thanks in advance for the help.
+|
+| -Vadim Lobanov
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+|
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Anything written like you propose is likely to vomit and
-take your corner of the galaxy with it. Please get a good
-book about kernel device drivers first before you start.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+iD8DBQFA8KFkhDd4aOud5P8RAgr6AJ9wxIQzbxQfsuucbVT/362Mjaz+NgCgjYYd
+VCJKlbnXyAAjQhOlZeqypwM=
+=Ys+h
+-----END PGP SIGNATURE-----

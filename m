@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264582AbUFUTWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266425AbUFUTeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264582AbUFUTWf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 15:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266421AbUFUTWf
+	id S266425AbUFUTeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 15:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266422AbUFUTeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 15:22:35 -0400
-Received: from main.gmane.org ([80.91.224.249]:23715 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264582AbUFUTWd (ORCPT
+	Mon, 21 Jun 2004 15:34:17 -0400
+Received: from smtpout.ev1.net ([207.44.129.135]:58116 "EHLO smtpout.ev1.net")
+	by vger.kernel.org with ESMTP id S266431AbUFUTeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 15:22:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: Re: can TSC tick with different speeds on SMP?
-Date: Mon, 21 Jun 2004 19:22:30 +0000 (UTC)
-Message-ID: <slrncdedbm.a4u.psavo@varg.dyndns.org>
-References: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
-User-Agent: slrn/0.9.8.0 (Linux)
+	Mon, 21 Jun 2004 15:34:06 -0400
+Date: Mon, 21 Jun 2004 14:32:53 -0500
+From: Michael Langley <nwo@hacked.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with psmouse detecting generic ImExPS/2
+Message-Id: <20040621143253.759e21c1.nwo@hacked.org>
+In-Reply-To: <20040621183459.GA1969@ucw.cz>
+References: <20040621021651.4667bf43.nwo@hacked.org>
+	<20040621082831.GC1200@ucw.cz>
+	<20040621124506.18b1f67a.nwo@hacked.org>
+	<20040621183459.GA1969@ucw.cz>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kirill Korotaev <kksx@mail.ru>:
-> Hello,
->
-> I've got some stupid question to SMP gurus and would be very thankful
-> for the details. I suddenly faced an SMP system where different P4 cpus
-> were installed (with different steppings). This resulted in different
-> CPU clock speeds and different speeds of time stamp counters on these
-> CPUs. I faced the problem during some timings I measured in the kernel.
->   
-> So the question is "is such system compliant with SMP specification?".
+On Mon, 21 Jun 2004 20:34:59 +0200
+Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-Well, I can't tell if it's SMP-compliant, but I can tell that it's
-certainly not rare to have such a situation.
+> On Mon, Jun 21, 2004 at 12:45:06PM -0500, Michael Langley wrote:
+> > On Mon, 21 Jun 2004 10:28:31 +0200
+> > Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > 
+> > > On Mon, Jun 21, 2004 at 02:16:51AM -0500, Michael Langley wrote:
+> > > > I noticed this after upgrading 2.6.6->2.6.7
+> > > > 
+> > > > Even after building psmouse as a module, and specifying the protocol,
+> > > > all I get is an ImPS/2 Generic Wheel Mouse.
+> > > > 
+> > > > [root@purgatory root]# modprobe psmouse proto=exps
+> > > > Jun 21 01:51:57 purgatory kernel: input: ImPS/2 Generic Wheel Mouse on
+> > > > isa0060/serio1
+> > > > 
+> > > > My ImExPS/2 was detected correctly in <=2.6.6 and after examining the
+> > > > current psmouse code, and the changes in patch-2.6.7, I can't figure out
+> > > > what's breaking it.  A little help?
+> > >  
+> > > Maybe your mouse needs the ImPS/2 init before the ExPS/2 one. You can
+> > > try to copy and-paste the ImPS/2 init once more in the code, without a
+> > > return, of course.
+> > > 
+> > > -- 
+> > > Vojtech Pavlik
+> > > SuSE Labs, SuSE CR
+> > 
+> > 
+> > Right.  That did the trick.
+> 
+> > [root@purgatory root]# modprobe psmouse proto=exps
+> > Jun 21 12:41:36 purgatory kernel: input: ImExPS/2 Generic Wheel Mouse on isa0060/serio1
+> > 
+> > Much thanks for the help.  I couldn't live without the extra buttons in X.
+> 
+> Can you check if this patch fixes it for you as well?
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+> 
 
-For example on AMD K7-SMP system when using powersaving mode which
-basically 'turns CPU off' for a while, TSC's become desynchronized. At
-the moment 2.6 -kernels handle this very well. (I haven't got problems
-with it for more than half a year).
-
-Now, I don't know what will happen if the become desynchronized because
-of totally different _length_ of single tick. Is this what you
-experience?
-
-FWIW, this is what I get for timer in dmesg:
-- -
- ...
-Using pmtmr for high-res timesource
- ...
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1545.0689 MHz.
-..... host bus clock speed is 268.0815 MHz.
-checking TSC synchronization across 2 CPUs: passed.
- ...
-- -
-
-
--- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
-
+Indeed, it does.  And much more efficiently.  Thanks again.

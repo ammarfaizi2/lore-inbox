@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277722AbRKJQ4Z>; Sat, 10 Nov 2001 11:56:25 -0500
+	id <S274434AbRKJRKA>; Sat, 10 Nov 2001 12:10:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278163AbRKJQ4P>; Sat, 10 Nov 2001 11:56:15 -0500
-Received: from pl475.nas921.ichikawa.nttpc.ne.jp ([210.165.235.219]:38946 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S277722AbRKJQz7>;
-	Sat, 10 Nov 2001 11:55:59 -0500
-Date: Sun, 11 Nov 2001 01:55:50 +0900
-From: Bruce Harada <harada@mbr.sphere.ne.jp>
-To: Martin Fischer <martin.fischer@netsurf.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: outcommand error 2
-Message-Id: <20011111015550.02796f48.harada@mbr.sphere.ne.jp>
-In-Reply-To: <20011109222654Z280251-17408+12782@vger.kernel.org>
-In-Reply-To: <20011109222654Z280251-17408+12782@vger.kernel.org>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
+	id <S277532AbRKJRJv>; Sat, 10 Nov 2001 12:09:51 -0500
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:62733 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S274434AbRKJRJf>; Sat, 10 Nov 2001 12:09:35 -0500
+X-Apparently-From: <quintaq@yahoo.co.uk>
+Date: Sat, 10 Nov 2001 17:09:40 +0000
+From: quintaq@yahoo.co.uk
+To: linux-kernel@vger.kernel.org
+Subject: Problems creating filsystems and with dd
+Reply-To: quintaq@yahoo.co.uk
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Message-Id: <20011110170944Z274434-17408+13076@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Nov 2001 23:23:44 +0100
-Martin Fischer <martin.fischer@netsurf.de> wrote:
+Responding to my own post under this heading, I googled my way to Peter
+Seiderers recent posts under "What is the difference between 'login: root'
+and 'su -' ?".  I find that dd works when I login as root rather than su. 
+FWIW I also worked out that, when using su, dd was failing on the 2GB
+boundary.  Anyway, whatever the causes, that seems to solve my problem from
+a practical point of view.
 
-> Could someone please help me to understand
-> the following error messages. They messages 
-> appeared after upgrading from 256 to 512 MB RAM.
-> 
-[SNIP]
-> 
-> Some ideas?
+Regards,
 
-Try memtest86 (http://www.teresaudio.com/memtest86/).
+Geoff
 
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

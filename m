@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266023AbUFWB7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266052AbUFWCAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266023AbUFWB7c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 21:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbUFWB7c
+	id S266052AbUFWCAX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 22:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266058AbUFWCAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 21:59:32 -0400
-Received: from ool-44c2c4d7.dyn.optonline.net ([68.194.196.215]:29195 "HELO
-	methods.co.za") by vger.kernel.org with SMTP id S266023AbUFWB7b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 21:59:31 -0400
-Message-ID: <d80901c458c5$b9d53784$7eced70b@methods.co.za>
-From: "Elton Hendricks" <eltonhendricks_xz@sound-server.de>
-To: linux-kernel@vger.kernel.org
-Subject: Get $200 bonus at our Casino!
-Date: Wed, 23 Jun 2004 02:00:50 +0000
-MIME-Version: 1.0
+	Tue, 22 Jun 2004 22:00:23 -0400
+Received: from mx2.redhat.com ([66.187.237.31]:20379 "EHLO mx2.redhat.com")
+	by vger.kernel.org with ESMTP id S266052AbUFWCAT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 22:00:19 -0400
+Date: Tue, 22 Jun 2004 18:58:47 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org, rddunlap@osdl.org,
+       akpm@osdl.org
+Subject: Re: [profile]: [0/23] mmap() support for /proc/profile
+Message-Id: <20040622185847.39c8384d.davem@redhat.com>
+In-Reply-To: <20040622231646.GA17387@krispykreme>
+References: <0406220816.1a3aYaLbLbXaKbKb1aWa4a1a3a2a3aIb2a0aZaWaHb4aXaXaZa1aKbZaWa5aHb3a15250@holomorphy.com>
+	<20040622231646.GA17387@krispykreme>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I have a special offer available for you at our casino.
+On Wed, 23 Jun 2004 09:16:46 +1000
+Anton Blanchard <anton@samba.org> wrote:
 
-$20 to try our internet casino, no deposit is necessary!
-At the casino software's cashier enter bonus code: FR93P
+> Considering how rarely timer based profiling is used, perhaps RCU
+> or even just a profiling_enabled sysctl flag would help here.
 
-$200 bonus on your first deposit!
-At the casino software's cashier enter bonus code: FMJKU
-
-Allow us to show you our quality operation, fast payouts,
-generous bonuses, and super friendly around-the-clock
-customer support.
-
-Click here: http://gozealgaming.com
-
-Best regards,
-Jamie Zawinsky
-
-
-
-No thanks: http://izealgaming.biz/u
-
+RCU seems very appropriate for this.

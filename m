@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270795AbRIVNnC>; Sat, 22 Sep 2001 09:43:02 -0400
+	id <S271108AbRIVObA>; Sat, 22 Sep 2001 10:31:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271005AbRIVNmw>; Sat, 22 Sep 2001 09:42:52 -0400
-Received: from CPE-61-9-150-176.vic.bigpond.net.au ([61.9.150.176]:8946 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S270795AbRIVNmh>; Sat, 22 Sep 2001 09:42:37 -0400
-Message-ID: <3BAC94BF.EFCA9404@eyal.emu.id.au>
-Date: Sat, 22 Sep 2001 23:40:15 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S271278AbRIVOav>; Sat, 22 Sep 2001 10:30:51 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:35598 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S271108AbRIVOaf>; Sat, 22 Sep 2001 10:30:35 -0400
+Date: Sat, 22 Sep 2001 10:31:00 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
-In-Reply-To: <20010921134402.A975@gerg.ca> <20010921205356.A1104@suse.cz> <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca> <20010921215622.A1282@suse.cz> <20010921164304.A545@gerg.ca> <20010922100451.A2229@suse.cz> <OE3183UV8wAddX47sFo00001649@hotmail.com>
+Subject: Re: Whats in the wings for 2.5 (when it opens)
+Message-ID: <20010922103100.C9352@mueller.datastacks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010921155806.B8188@mueller.datastacks.com> <17588.1001127560@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <17588.1001127560@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sat, Sep 22, 2001 at 12:59:20PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the pleasure of a visit from the DMA fairy before. I found two
-things that sometimes help.
+++ 22/09/01 12:59 +1000 - Keith Owens:
+> On Fri, 21 Sep 2001 15:58:06 -0400, 
+> Crutcher Dunnavant <crutcher@datastacks.com> wrote:
+> >A cleaner handling of module parameters/cmd line options.
+> 
+> That comes out as a side effect of kernel build 2.5, every object gets
+> -DKBUILD_OBJECT to define the name it is known by.  From
+> Documentation/kbuild/kbuild-2.5.
+> 
+>       -DKBUILD_OBJECT=module, the name of the module the object is
+>         linked into, without the trailing '.o' and without any paths.
+>         If the object is a free standing module or is linked into
+>         vmlinux then the "module" name is the object itself.
+>         Automatically generated.
+> 
+> Post kbuild 2.5 I will be writing a generic parameter/command line
+> interface so you can insmod foo bar=99 or boot with foo.bar=99.  You
+> will even be able to boot with foo.bar=99 when foo is a module, insmod
+> will use the command line as a default set of values.
 
-1) reorganize the PCI cards to alter the interrupt sharing. This is
-   a tiresome trial-and-error process that worked for me. When you
-   find a working setup, close the case and use it [1].
+Well, that certainly is clean. How deep does it go? For instance, can
+we you define it as:
 
-2) Are you using APIC? try booting "noapic" and see how it goes
+	foo.bar.baz.bat.quux=99 -> mod 'foo.bar.baz.bat', parm 'quux'
 
-[1] The good old ham radio method of fixing a radio. Poke around with
-a screwdriver, pushing the bits (these was in the days of valves and
-such)
-around until at some point, touching some object, the problem (whistle,
-noise, cracking) stops. Solder the screwdriver to that object.
+so we get naming schemes like:
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+	net.3com.3c501.i=5
+
+This would help much with keeping some of the namespaces cleaner. Do you
+want any help with this?
+
+-- 
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

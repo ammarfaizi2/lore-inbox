@@ -1,124 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267876AbUIJVJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267882AbUIJVX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267876AbUIJVJh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 17:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUIJVJh
+	id S267882AbUIJVX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 17:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267891AbUIJVX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 17:09:37 -0400
-Received: from pimout6-ext.prodigy.net ([207.115.63.78]:58592 "EHLO
-	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S267876AbUIJVHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 17:07:53 -0400
-Message-ID: <414217AC.8010807@ameritech.net>
-Date: Fri, 10 Sep 2004 16:07:56 -0500
-From: watermodem <aquamodem@ameritech.net>
-Reply-To: aquamodem@ameritech.net
-Organization: not at all
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Fri, 10 Sep 2004 17:23:26 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:1290 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S267882AbUIJVXX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 17:23:23 -0400
+Date: Fri, 10 Sep 2004 23:23:20 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386 reduce spurious interrupt noise
+In-Reply-To: <20040902192820.GA6427@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.58L.0409102306420.20057@blysk.ds.pg.gda.pl>
+References: <20040902192820.GA6427@taniwha.stupidest.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: tigran@veritas.com
-Subject: Re: Latest microcode data from Intel
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A bit of a bug somewhere here...   If it is my mistake by having
-the linux link pointing to ...
-   linux -> linux-2.6.8.1/
-sorry...  (I don't remember which libs were proper)
-If it is not that... then the package has a bug.
+On Thu, 2 Sep 2004, Chris Wedgwood wrote:
 
-Error:
+> i386 hardware can (and does) see spurious interrupts from time to
+> tome.  Ideally I would like the printk removed completely but this is
+> probably good enough for now.
+> 
+> Singed-of-By: Chris Wedgwood <cw@f00f.org>
+> 
+> ===== arch/i386/kernel/apic.c 1.58 vs edited =====
+> --- 1.58/arch/i386/kernel/apic.c	2004-08-26 23:30:31 -07:00
+> +++ edited/arch/i386/kernel/apic.c	2004-09-02 12:19:19 -07:00
+> @@ -1190,7 +1190,7 @@
+>  	   6: Received illegal vector
+>  	   7: Illegal register address
+>  	*/
+> -	printk (KERN_INFO "APIC error on CPU%d: %02lx(%02lx)\n",
+> +	printk (KERN_DEBUG "APIC error on CPU%d: %02lx(%02lx)\n",
+>  	        smp_processor_id(), v , v1);
+>  	irq_exit();
+>  }
 
-rpm -U /usr/src/RPM/RPMS/i586/microcode_ctl-1.09-1.i586.rpm
-error: %preun(microcode_ctl-1.06-6mdk) scriptlet failed, exit status 1
+ This should probably be KERN_ERR even.  This is a serious condition -- if
+you ever get such a message, then inter-APIC messages get corrupted and
+this affects system's stability.  E.g. with a badly corrupted message you
+may get one or more of your processors halted if the matching destinations
+misinterpret the delivery mode as a result.  You certainly want to know
+about these errors and perhaps get your hardware replaced (starting with
+the PSU as they've been repeatedly reported to be the causers).
 
+> ===== arch/i386/kernel/i8259.c 1.36 vs edited =====
+> --- 1.36/arch/i386/kernel/i8259.c	2004-08-23 12:48:32 -07:00
+> +++ edited/arch/i386/kernel/i8259.c	2004-09-02 12:20:49 -07:00
+> @@ -226,7 +226,7 @@
+>  		 * lets ACK and report it. [once per IRQ]
+>  		 */
+>  		if (!(spurious_irq_mask & irqmask)) {
+> -			printk("spurious 8259A interrupt: IRQ%d.\n", irq);
+> +			printk(KERN_DEBUG "spurious 8259A interrupt: IRQ%d.\n", irq);
+>  			spurious_irq_mask |= irqmask;
+>  		}
+>  		atomic_inc(&irq_err_count);
 
-Leading up to this was:
-rpmbuild -ta microcode_ctl-1.09.tar.gz
-Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.76578
-+ umask 022
-+ cd /usr/src/RPM/BUILD
-+ cd /usr/src/RPM/BUILD
-+ rm -rf microcode_ctl-1.09
-+ /usr/bin/gzip -dc /home/watermod/Documents/microcode_ctl-1.09.tar.gz
-+ tar -xf -
-+ STATUS=0
-+ '[' 0 -ne 0 ']'
-+ cd microcode_ctl-1.09
-+ exit 0
-Executing(%build): /bin/sh -e /var/tmp/rpm-tmp.76578
-+ umask 022
-+ cd /usr/src/RPM/BUILD
-+ cd microcode_ctl-1.09
-+ make
-gcc -g -Wall -O2 -I /usr/src/linux/include -o microcode_ctl microcode_ctl.c
-In file included from /usr/src/linux/include/asm/processor.h:18,
-                  from microcode_ctl.c:30:
-/usr/src/linux/include/asm/system.h: In function `__set_64bit_var':
-/usr/src/linux/include/asm/system.h:193: warning: dereferencing 
-type-punned pointer will break strict-aliasing rules
-/usr/src/linux/include/asm/system.h:193: warning: dereferencing 
-type-punned pointer will break strict-aliasing rules
-In file included from microcode_ctl.c:30:
-/usr/src/linux/include/asm/processor.h: In function `load_esp0':
-/usr/src/linux/include/asm/processor.h:453: warning: implicit 
-declaration of function `unlikely'
-echo "/etc/init.d/microcode_ctl" > microcode-filelist
-+ exit 0
-Executing(%install): /bin/sh -e /var/tmp/rpm-tmp.91789
-+ umask 022
-+ cd /usr/src/RPM/BUILD
-+ cd microcode_ctl-1.09
-+ '[' /var/tmp/microcode_ctl-1.09-root '!=' / ']'
-+ '[' -d /var/tmp/microcode_ctl-1.09-root ']'
-+ make DESTDIR=/var/tmp/microcode_ctl-1.09-root PREFIX=/usr install clean
-install -d      /var/tmp/microcode_ctl-1.09-root/usr/sbin 
-/var/tmp/microcode_ctl-1.09-root/etc \
-                 /var/tmp/microcode_ctl-1.09-root/usr/man/man8 
-/var/tmp/microcode_ctl-1.09-root/etc/init.d \
-                 /var/tmp/microcode_ctl-1.09-root
-install -s -m 755 microcode_ctl /var/tmp/microcode_ctl-1.09-root/usr/sbin
-install -m 644 intel-ia32microcode-02Sep2004.txt 
-/var/tmp/microcode_ctl-1.09-root/etc/microcode.dat
-install -m 644 microcode_ctl.8 /var/tmp/microcode_ctl-1.09-root/usr/man/man8
-gzip -9f /var/tmp/microcode_ctl-1.09-root/usr/man/man8/microcode_ctl.8
-install -m 755 microcode_ctl.start 
-/var/tmp/microcode_ctl-1.09-root/etc/init.d/microcode_ctl
-echo "MAKE: Skipping chkconfig operation (rpm build?)"
-MAKE: Skipping chkconfig operation (rpm build?)
-rm -f microcode_ctl
-+ /usr/lib/rpm/brp-mandrake
-Cleaning files...done
-Compressing files...done
-Stripping files...done
-Relativisation of symlinks...done
-Clean perl...done
-Building libraries symlinks...done
-Gprintifying init scripts...done
-Processing files: microcode_ctl-1.09-1
-Finding  Provides: /usr/lib/rpm/filter.sh ' ' /usr/lib/rpm/find-provides
-Using BuildRoot: /var/tmp/microcode_ctl-1.09-root to search libs
-Finding  Requires: /usr/lib/rpm/filter.sh ' ' /usr/lib/rpm/find-requires 
-/var/tmp/microcode_ctl-1.09-root i586
-Requires(interp): /bin/sh /bin/sh
-Requires(rpmlib): rpmlib(PayloadFilesHavePrefix) <= 4.0-1 
-rpmlib(CompressedFileNames) <= 3.0.4-1
-Requires(post): /bin/sh
-Requires(preun): /bin/sh
-Requires: bash libc.so.6 libc.so.6(GLIBC_2.0) libc.so.6(GLIBC_2.1)
-Checking for unpackaged file(s): /usr/lib/rpm/check-files 
-/var/tmp/microcode_ctl-1.09-root
-Wrote: /usr/src/RPM/SRPMS/microcode_ctl-1.09-1.src.rpm
-Wrote: /usr/src/RPM/RPMS/i586/microcode_ctl-1.09-1.i586.rpm
-Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.99129
-+ umask 022
-+ cd /usr/src/RPM/BUILD
-+ cd microcode_ctl-1.09
-+ '[' /var/tmp/microcode_ctl-1.09-root '!=' / ']'
-+ '[' -d /var/tmp/microcode_ctl-1.09-root ']'
-+ rm -r /var/tmp/microcode_ctl-1.09-root
-+ exit 0
+ You may ever get a single message per system boot from this line.  It
+encourages to have a look at the ERR counter in /proc/interrupts to check
+for possible problems, though admittedly the suggestion isn't especially
+clear.
+
+  Maciej

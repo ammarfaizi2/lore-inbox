@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262729AbTCTW07>; Thu, 20 Mar 2003 17:26:59 -0500
+	id <S262708AbTCTW0C>; Thu, 20 Mar 2003 17:26:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262695AbTCTW0L>; Thu, 20 Mar 2003 17:26:11 -0500
-Received: from port-212-202-173-211.reverse.qdsl-home.de ([212.202.173.211]:53632
-	"EHLO jackson.localnet") by vger.kernel.org with ESMTP
-	id <S262684AbTCTW0A> convert rfc822-to-8bit; Thu, 20 Mar 2003 17:26:00 -0500
-Date: Thu, 20 Mar 2003 23:39:18 +0100 (CET)
-Message-Id: <20030320.233918.730551503.rene.rebe@gmx.net>
-To: ncunningham@clear.net.nz
-Cc: linux-kernel@vger.kernel.org, swsusp@lister.fornax.hu,
-       rock-linux@rocklinux.org
-Subject: Re: Testers wanted: Software Suspend for 2.4
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <1048023854.2163.16.camel@laptop-linux.cunninghams>
-References: <1048023854.2163.16.camel@laptop-linux.cunninghams>
-X-Mailer: Mew version 3.1 on XEmacs 21.4.12 (Portable Code)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S262695AbTCTWZL>; Thu, 20 Mar 2003 17:25:11 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:43525 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262708AbTCTWVk>;
+	Thu, 20 Mar 2003 17:21:40 -0500
+Subject: Re: [PATCH] i2c driver changes for 2.5.65
+In-reply-to: <1048199573405@kroah.com>
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Mime-version: 1.0
+Date: Thu, 20 Mar 2003 14:32 -0800
+Message-id: <1048199574195@kroah.com>
+X-mailer: gregkh_patchbomb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+ChangeSet 1.1143.1.14, 2003/03/20 11:28:11-08:00, greg@kroah.com
 
-Thanks for your work!
+i2c i2c-amd8111.c: change the pci driver name to have "2" in it based on previous comments.
 
-I just manged to suspend and resume a freshly booted 2.4.20 + "your
-latest patch" system ;-)
 
-I had to read the kernel source a hour to do so, because I use devfs
-and naively used resume=/dev/ide/host0/.... which obiously does not
-work.
+ drivers/i2c/busses/i2c-amd8111.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-For now you might add to the docs that devfs users simply have to use
-the corresponding old /dev/hdX name. If I have too much time I'll take
-a look to make swsuspend devfs aware. But this might not be that soon
-:-(
 
-I'll report after more testing.
+diff -Nru a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+--- a/drivers/i2c/busses/i2c-amd8111.c	Thu Mar 20 12:53:26 2003
++++ b/drivers/i2c/busses/i2c-amd8111.c	Thu Mar 20 12:53:26 2003
+@@ -392,7 +392,7 @@
+ }
+ 
+ static struct pci_driver amd8111_driver = {
+-	.name		= "amd8111 smbus",
++	.name		= "amd8111 smbus 2",
+ 	.id_table	= amd8111_ids,
+ 	.probe		= amd8111_probe,
+ 	.remove		= __devexit_p(amd8111_remove),
 
-On: Wed, 19 Mar 2003 09:44:15 +1200,
-    Nigel Cunningham <ncunningham@clear.net.nz> wrote:
-> Hi all.
-> 
-> If you're using a 2.4 kernel and haven't tried software suspend, or
-> haven't tried it in a while, would you please consider giving it a try?
-> The patches can be found on sourceforge.net/projects/swsusp. You'll want
-> to download beta19 and then add the patches from the devel section
-> beta19-0[1-8]. All feedback is welcome on the swsusp list. You'll find a
-> link to it by going to the homepage from there.
-> 
-> This is the code I'm currently completing a port of to 2.5, so I'll
-> shortly (DV) be after testers for the 2.5 version too.
-> 
-> Regards,
-> 
-> Nigel
-
-Have fun,
-- René
-
---  
-René Rebe - Europe/Germany/Berlin
-e-mail:   rene@rocklinux.org, rene.rebe@gmx.net
-web:      http://www.rocklinux.org/people/rene http://gsmp.tfh-berlin.de/rene/
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

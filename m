@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVBBNFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbVBBNNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbVBBNFP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 08:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVBBNFP
+	id S262397AbVBBNNh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 08:13:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVBBNNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 08:05:15 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:50173 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262432AbVBBNFC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 08:05:02 -0500
-Subject: [PATCH] Minor Kexec bug fix (2.6.11-rc2-mm2)
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       fastboot <fastboot@lists.osdl.org>
-Content-Type: multipart/mixed; boundary="=-26Rfb7gATS1Xf5ynPvNi"
-Organization: 
-Message-Id: <1107352593.11609.146.camel@2fwv946.in.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 Feb 2005 19:26:34 +0530
+	Wed, 2 Feb 2005 08:13:37 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:36309 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262397AbVBBNNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 08:13:31 -0500
+From: Peter Busser <busser@m-privacy.de>
+Organization: m-privacy
+To: pageexec@freemail.hu
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Date: Wed, 2 Feb 2005 14:13:26 +0100
+User-Agent: KMail/1.7.1
+References: <200501311015.20964.arjan@infradead.org> <200501311357.59630.busser <420151B3.27974.D9F79C@localhost>
+In-Reply-To: <420151B3.27974.D9F79C@localhost>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502021413.26960.busser@m-privacy.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-26Rfb7gATS1Xf5ynPvNi
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> one thing that paxtest didn't get right in the 'kiddie' mode is that
+> it still ran with an executable stack, that was not the intention but
+> rather an oversight, it'll be fixed in the next release. still, this
+> shouldn't leave you with a warm and fuzzy feeling about the security
+> of intrusion prevention systems that 'pass' the 'kiddie' mode but fail
+> the 'blackhat' mode, in the real life out there, only the latter matters
+> (if for no other reason, then for natural evolution/adaptation of
+> exploit writers).
 
-Hi Andrew,
+I apologise for this bug. If someone had pointed this out in a clear and 
+to-the-point kind of way, then this would have been fixed a long time ago.
 
-This patch has been generated against 2.6.11-rc2-mm2. This fixes a very
-minor bug in kexec.
+Anyways, if anyone else has any suggestions, fixes, or special wishes for 
+PaXtest (some exec-shield specific tests perhaps?), then please speak up now. 
+I'd rather not bother this list again about PaXtest related issues.
 
-Thanks
-Vivek
-
-
---=-26Rfb7gATS1Xf5ynPvNi
-Content-Disposition: attachment; filename=kexec_minor_bug_fix.patch
-Content-Type: text/plain; name=kexec_minor_bug_fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-
-This patch fixes a minor bug in kexec. Changing the data type of flags makes 
-sure proper control flow of code during crash event.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- linux-2.6.11-rc2-mm2-kdump-vivek/include/linux/kexec.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN include/linux/kexec.h~kexec_minor_bug_fix include/linux/kexec.h
---- linux-2.6.11-rc2-mm2-kdump/include/linux/kexec.h~kexec_minor_bug_fix	2005-02-02 16:28:18.000000000 +0530
-+++ linux-2.6.11-rc2-mm2-kdump-vivek/include/linux/kexec.h	2005-02-02 16:29:01.000000000 +0530
-@@ -79,7 +79,7 @@ struct kimage {
- 	unsigned long control_page;
- 
- 	/* Flags to indicate special processing */
--	int type : 1;
-+	unsigned int type : 1;
- #define KEXEC_TYPE_DEFAULT 0
- #define KEXEC_TYPE_CRASH   1
- };
-_
-
---=-26Rfb7gATS1Xf5ynPvNi--
-
+Groetjes,
+Peter.

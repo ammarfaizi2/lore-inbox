@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266148AbUGIMVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266144AbUGIMU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266148AbUGIMVn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 08:21:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266151AbUGIMVn
+	id S266144AbUGIMU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 08:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUGIMU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 08:21:43 -0400
-Received: from mail.zelnet.ru ([80.92.97.13]:37306 "HELO zelnet.ru")
-	by vger.kernel.org with SMTP id S266148AbUGIMVj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 08:21:39 -0400
-Message-Id: <200001011731.e01HVoNu001908@altair.deep.net>
-To: linux-kernel@vger.kernel.org
-cc: kernel@kolivas.org, akpm@osdl.org
-Subject: Re: Autoregulate swappiness & inactivation
-X-Mailer: MH-E 7.4.3; nmh 1.1; GNU Emacs 21.3.1
-Date: Sat, 01 Jan 2000 18:31:50 +0100
-From: deepfire@zelnet.ru
+	Fri, 9 Jul 2004 08:20:26 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6528 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266144AbUGIMUY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 08:20:24 -0400
+Date: Fri, 9 Jul 2004 08:18:22 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Harish K Harshan <harish@amritapuri.amrita.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Interrupt Handling in linux
+In-Reply-To: <40916.203.197.150.195.1089366068.squirrel@203.197.150.195>
+Message-ID: <Pine.LNX.4.53.0407090808130.919@chaos>
+References: <40916.203.197.150.195.1089366068.squirrel@203.197.150.195>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Jul 2004, Harish K Harshan wrote:
 
-Andrew Morton <akpm@osdl.org> wrote at Thu, 8 Jul 2004 09:44:06 -0700:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> >
-> > Here is another try at providing feedback to tune the vm_swappiness.
-> 
-> I spent some time yesterday trying to demonstrate performance improvements
-> from those two patches.  Using
-> 
-> 	make -j4 vmlinux with mem=64m
-> 
-> and
-> 
-> 	qsbench -p 4 -m 96 with mem=256m
-> 
-> and was not able to do so, which is what I expected.
-> 
-> We do need more quantitative testing on this work.
+> Hi.
+>
+>  Can Interrupt handlers in linux, be interrupted by other running
+> processes??? to make it more clear, im developing a driver for and ADC
+> card, and would like to know if the CPU can or rather WILL schedule
+> wnother running process in the middle of the ISR, when a timer interrupt
+> comes in. If thats the case, then we need to use spinlocks or other
+> mechanisms in our ISR, right?? im new to this, so if theres something not
+> clear, it just just that my understanding of this topic is not very deep.
+>
+> Harish.
+>
+>
 
-i`ve done some of my favorite under-bridge-crafted tests, so to speak.
+The usual case is that a hardware interrupt occurs, gets dispatched
+by the kernel to the interrupt service routine, and is quickly
+executed without interruption.
 
-the test looked like this:
+If you don't design your interrupt service code to be interrupted,
+it won't be interrupted. However, another CPU may be executing
+so you need to protect critical sections of code, including
+your ISR, with spin-locks.
 
-time find / -xdev | \
-bzcat --compress | bzcat --decompress | \
-bzcat --compress | bzcat --decompress | \
-bzcat --compress | bzcat --decompress | \
-cat > /dev/null
+If you design your ISR to be interrupted, generally it will because,
+especially on a network, there is always something that needs
+interrupt service. There are so-called bottom-half handlers that
+can be dispatched by your ISR to finish up what could be done
+with interrupts enabled.
 
-The patches applied were Con`s autoswap + autoregulate
-
-it was performed on a p3-600, 10krpm scsi in two following scenarios:
-
-
-1. mem=48M, swap=off
-
-2.4.20-pre9:		3m20
-2.6.7-con:		4m09
-2.6.7-vanilla:		4m09
+If your ADC board requires periodic service at a regular
+interval as many do, (perhaps for an IIR filter) you might
+think about writing code that executes on a timer queue,
+rather than an interrupt.
 
 
-2. mem=32M, swap=on
-
-2.4.20-pre9:		5m37
-2.6.7-con:		6m37
-2.6.7-vanilla:		7m31
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-which still leaves 2.4 the leader.
-
-
-regards, Samium "2.4" Gromoff

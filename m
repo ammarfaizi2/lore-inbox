@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbSK0KwQ>; Wed, 27 Nov 2002 05:52:16 -0500
+	id <S262312AbSK0K5K>; Wed, 27 Nov 2002 05:57:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbSK0KwQ>; Wed, 27 Nov 2002 05:52:16 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:668 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262201AbSK0KwP> convert rfc822-to-8bit; Wed, 27 Nov 2002 05:52:15 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: FS-corrupting IDE bug still in 2.4.20-rc3
-Date: Wed, 27 Nov 2002 11:59:23 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: nconway_kernel@yahoo.co.uk
+	id <S262314AbSK0K5K>; Wed, 27 Nov 2002 05:57:10 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:47376 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262312AbSK0K5J>; Wed, 27 Nov 2002 05:57:09 -0500
+Message-ID: <3DE4A6CF.F62CFF41@aitel.hist.no>
+Date: Wed, 27 Nov 2002 12:04:47 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.49 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211271158.13771.m.c.p@wolk-project.de>
+To: James Simmons <jsimmons@infradead.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fbdev 2.5.49 BK fixes.
+References: <Pine.LNX.4.44.0211262306070.30451-100000@phoenix.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil,
+James Simmons wrote:
 
-> I've been off-list and not paying much attention since Andre
-> acknowledged it was a bug (and didn't like my patch).
-I can imagine why ...
+> Perfect. I found the problem and I'm about to commit to BK. I posted the
+> latest patch against 2.5.49 at
+> 
+> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-> Let me be very clear: this bug has corrupted filesystems on three
-> machines of mine.  All of these had PIIX chipsets.  I have also
-> reproduced it on a VIA chipset, but since that machine was production I
-> didn't try very hard to corrupt the fs.
-You may try that patch with a VIA boxen and I am quite sure you may experience 
-a bug that none of your harddisks may be recognized and result in a 
-panic();
+I tried this patch, but it crashed during boot.
 
-> The patch is not a real fix, merely a workaround.  But since 6 months
-> have already elapsed, can I request that the patch be applied now, and
-> when Andre creates a proper fix we can use that.
-I had the same Fix in WOLK some time ago and many users with VIA chipset 
-complained that with the fix their mashine does not recognize any harddisks 
-and after trying to recognize they had a panic();
+I have a 
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP
+1X/2X (rev 5c)
 
-Maybe it's working for you with some VIA chipsets but I removed that fix and 
-after removal all users with VIA were happy. I've never heard of a FS 
-corruption of them.
+and use this in lilo.conf:
+image=/boot/2.5.49fb
+        label=2.5.49fb
+        append="video=atyfb:1280x1024-16@85"
 
-ciao, Marc
+This got me a 160x64 framebuffer with yellow text on
+blue background.  Nice, but only got about 10 lines before
+the kernel hung. The disk light got stuck on and there were
+no response to things like sysrq.  
+The few lines displayed was about the fb, drm, and finally
+the 3com network adapter.  Then nothing more.
+
+2.5.49 without this patch works.  I use devfs & preempt,
+the machine is UP and I use gcc-2.95.4 for compiling.
+
+Helge Hafting

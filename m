@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316519AbSEUFYt>; Tue, 21 May 2002 01:24:49 -0400
+	id <S316523AbSEUF6z>; Tue, 21 May 2002 01:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316521AbSEUFYs>; Tue, 21 May 2002 01:24:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62661 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316519AbSEUFYr>;
-	Tue, 21 May 2002 01:24:47 -0400
-Date: Mon, 20 May 2002 22:10:55 -0700 (PDT)
-Message-Id: <20020520.221055.106159485.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.16
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0205202143010.949-100000@home.transmeta.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316524AbSEUF6y>; Tue, 21 May 2002 01:58:54 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:45837 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S316523AbSEUF6x>; Tue, 21 May 2002 01:58:53 -0400
+Message-Id: <200205210555.g4L5tfY29889@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+Date: Tue, 21 May 2002 08:57:28 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <mailman.1021642692.12772.linux-kernel2news@redhat.com> <200205191212.g4JCCLY25867@Port.imtp.ilyichevsk.odessa.ua> <20020520112232.A8983@devserv.devel.redhat.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Mon, 20 May 2002 22:10:31 -0700 (PDT)
-   
-   I tried to make the interface fairly generic, so that people could easily
-   do any (or none, like on x86) of these optimizations with little or no
-   overhead.
+On 20 May 2002 13:22, you wrote:
+> > Can you tell me what's wrong with copy_from_user? How did you used it
+> > wrongly?
+>
+> Denis, I agree with the essense of Rusty's argument, which is that
+> copy_to_user is easy to misuse in the following way:
+>
+> xxx_ioctl (..., cmd, arg) {
+> 	return copy_to_user(....);
+> }
+>
+> Since copy_to_user returns a number of residue bytes instead of
+> -EINVAL, such statement confuses the caller.
+> Rusty found something about 54 instances of this.
 
-It still needs to handle the "unmapping entire address space"
-vs. "unmapping munmap-like operation".  Currently we'll flush
-excessively when doing exit_mmap().
+Oh. Do you think a pair of
 
-I'll go and hack this into your new stuff.
+copy_to_user_or_EINVAL(...)
+copy_to_user_return_residue(...)
 
-I guess you didn't read my emails from today for some reason,
-I explained all of this.
+will help avoid such bugs?
+It is possible to audit kernel once, move it to new functions
+and deprecate/delete old one.
+--
+vda

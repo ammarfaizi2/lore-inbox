@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313485AbSC2R2J>; Fri, 29 Mar 2002 12:28:09 -0500
+	id <S313486AbSC2R3T>; Fri, 29 Mar 2002 12:29:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313486AbSC2R2A>; Fri, 29 Mar 2002 12:28:00 -0500
-Received: from [65.201.154.134] ([65.201.154.134]:19948 "EHLO
-	EXCHANGE01.domain.ecutel.com") by vger.kernel.org with ESMTP
-	id <S313485AbSC2R1u> convert rfc822-to-8bit; Fri, 29 Mar 2002 12:27:50 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: kernel notification to user space task
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Fri, 29 Mar 2002 12:27:28 -0500
-Message-ID: <AF2378CBE7016247BC0FD5261F1EEB210B6AA5@EXCHANGE01.domain.ecutel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel notification to user space task
-Thread-Index: AcHXRcaF0jjxX4QSTrOnb1tLEG44igAAcOZw
-From: "Hari Gadi" <HGadi@ecutel.com>
-To: "Amol Kumar Lad" <amolk@ishoni.com>, <linux-kernel@vger.kernel.org>
+	id <S313487AbSC2R3P>; Fri, 29 Mar 2002 12:29:15 -0500
+Received: from relay.publinet.it ([151.99.137.5]:57550 "EHLO relay.publinet.it")
+	by vger.kernel.org with ESMTP id <S313486AbSC2R3A>;
+	Fri, 29 Mar 2002 12:29:00 -0500
+Date: Fri, 29 Mar 2002 18:28:54 +0100
+From: Luca Maranzano <liuk@publinet.it>
+To: arrays@compaq.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Compaq Smart2 driver bug with Linux 2.4.18 and HIGHMEM ?
+Message-ID: <20020329172854.GA28895@publinet.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+Organization: SIR s.r.l. - PublinetWork(tm)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-You can use signals like the example in the book rubini (see the asynchronous notification section).
-http://www.xml.com/ldd/chapter/book/index.html
 
-Be sure to download the examples (especially the "scull" example).
-thanks,
-Hari.
+we've tryed to compile Linux Kernel 2.4.18 on a Compaq Proliant ML370 G2, 
+Pentium III 1.13Ghz, 1GB RAM, 2x36.4GB HD and SCSI Controller Compaq Smart2 5i,
+firmware version 1.80. The problem is that if we enable the
+CONFIG_NOHIGHMEM to 4GB in order to enable full 1GB support, the kernel
+will panic saying that it cannot correctly access the 
+/dev/cciss/c0d0p1 root partition. Disabling the CONFIG_NOHIGHMEM support
+all works fine.
 
------Original Message-----
-From: Amol Kumar Lad [mailto:amolk@ishoni.com]
-Sent: Friday, March 29, 2002 12:20 PM
-To: 'linux-kernel@vger.kernel.org'
-Subject: kernel notification to user space task
+Is this a known issue?
+
+More info about our setup:
+
+Debian 3.0
+gcc version 2.95.4
+
+Let me know if you need more info.
+
+TIA.
+
+Kind regards,
+Luca
 
 
-Hi,
-  I have a user task running ...
-I want my driver running in kernel to send a notification to this task when
-it detects some event.
 
-for example..if my driver detects that interface 'eth0' is coming up, it
-should send a indication to user task saying 'network interface eth0 is up'
-
-please cc me..
-
-thanks
-Amol
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

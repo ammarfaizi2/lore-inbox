@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317457AbSF1Qnv>; Fri, 28 Jun 2002 12:43:51 -0400
+	id <S317463AbSF1RAu>; Fri, 28 Jun 2002 13:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317464AbSF1Qnu>; Fri, 28 Jun 2002 12:43:50 -0400
-Received: from hh1102007.direcpc.com ([206.71.102.7]:260 "EHLO
-	oscar.hatestheinter.net") by vger.kernel.org with ESMTP
-	id <S317457AbSF1Qnt>; Fri, 28 Jun 2002 12:43:49 -0400
-Subject: Re: #kernelnewbies moves
-From: Disconnect <lkml@sigkill.net>
+	id <S317464AbSF1RAu>; Fri, 28 Jun 2002 13:00:50 -0400
+Received: from ip68-9-71-221.ri.ri.cox.net ([68.9.71.221]:31570 "EHLO
+	mailhub.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S317463AbSF1RAt>; Fri, 28 Jun 2002 13:00:49 -0400
+Message-ID: <3D1C96C3.9000500@blue-labs.org>
+Date: Fri, 28 Jun 2002 13:02:59 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020622
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020627163804.GI9519@ns>
-References: <Pine.LNX.4.44L.0206261923460.27768-100000@imladris.surriel.com>
-	<20020627123214.27e016f9.arodland@noln.com>  <20020627163804.GI9519@ns>
-Content-Type: text/plain
+Subject: broken flock()
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 28 Jun 2002 12:47:18 -0400
-Message-Id: <1025282838.17107.9.camel@oscar>
-Mime-Version: 1.0
+X-Bmilter: Processing completed, Bmilter version 0.1.0 build 758; timestamp 2002-06-28 13:03:09, message serial number 66993
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-06-27 at 12:38, Stephen Frost wrote:
-> * Andrew Rodland (arodland@noln.com) wrote:
-> > You realize that if you weren't _forcing_ people not to go to the
-> > channel on OPN, by making it useless, everyone would go there anyway.
-> 
-> Uh, I believe you have the OPN ircops to thank for making it +m.  I know
-> that it was done by Chanserv directly after riel had left.
+>From http://sendmail.org/
 
-Chanserv.. as in when the channel owner (Riel) told it to, just after
-leaving...
+NOTE: Linux appears to have broken flock() again.  Unless
+	the bug is fixed before sendmail 8.13 is shipped,
+	8.13 will change the default locking method to
+	fcntl() for Linux kernel 2.4 and later.  You may
+	want to do this in 8.12 by compiling with
+	-DHASFLOCK=0.  Be sure to update other sendmail
+	related programs to match locking techniques.
 
-If the irc ops had done it it would have been completely blocked - you
-join, it gives a message and kicks you out..
+Is it really broken or is sendmail smoking crack like when they said that itimers in Linux didn't work?
 
-> 
-> > Why?
-> > Because a #kn that isn't on OPN is no #kn at all.
-> 
-> That's silly and if #kn had to be on OPN then it wouldn't exist due to
-> the policies as riel pointed out.
-> 
-> > I hope the other one dies a slow, painful death, for the good of
-> > everyone.
-> 
-> The good of everyone?  You're very silly.
-> 
-> 	Stephen
+David
 
 
 

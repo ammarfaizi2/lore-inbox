@@ -1,37 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278152AbRJRVkd>; Thu, 18 Oct 2001 17:40:33 -0400
+	id <S278149AbRJRVox>; Thu, 18 Oct 2001 17:44:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278149AbRJRVkY>; Thu, 18 Oct 2001 17:40:24 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:37204 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S278136AbRJRVkH>; Thu, 18 Oct 2001 17:40:07 -0400
-Date: Thu, 18 Oct 2001 17:40:39 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Petr Konecny <pekon@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel compilation problems - ld: bvmlinux
-Message-ID: <20011018174039.N25384@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <qwwpu7kejz4.fsf@decibel.fi.muni.cz>
+	id <S278171AbRJRVon>; Thu, 18 Oct 2001 17:44:43 -0400
+Received: from nature.Berkeley.EDU ([128.32.175.19]:38273 "EHLO
+	nature.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id <S278168AbRJRVoc>; Thu, 18 Oct 2001 17:44:32 -0400
+Date: Thu, 18 Oct 2001 14:45:05 -0700
+From: "Brian C. Thomas" <bcthomas@nature.Berkeley.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: severe performance degradation on serverworks with high mem
+Message-ID: <20011018144504.B134@nature.Berkeley.edu>
+Mail-Followup-To: "Brian C. Thomas" <bcthomas@nature.Berkeley.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011018125714.A360@nature.Berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <qwwpu7kejz4.fsf@decibel.fi.muni.cz>; from pekon@informatics.muni.cz on Thu, Oct 18, 2001 at 11:06:39PM +0200
+In-Reply-To: <20011018125714.A360@nature.Berkeley.edu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 11:06:39PM +0200, Petr Konecny wrote:
-> Hi,
+Hi
+
+I don't know if this helps, but I seem to have stumbled onto a
+possible "fix" for this...
+
+With 64GB high memory enabled in kernel 2.4.12-ac3, and mtrr turned
+on, I was able to see all 8GB RAM on my machine by using the old
+'append="mem=8000M"' command in my lilo.conf file... AND WITH NO LOSS
+OF PERFORMANCE!
+
+Does that help anyone with defining where this problem is coming from?
+
+BCT
+
+____________________________
+Brian C. Thomas
+bcthomas@nature.berkeley.edu
+
+On Thu, Oct 18, 2001 at 12:57:15PM -0700, Brian C. Thomas wrote:
+> Hi
 > 
-> I am having trouble compiling 2.4.12 vanilla on i386 box, it ends with this:
-> ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o piggy.o
-> ld: bvmlinux: Not enough room for program headers (allocated 2, need 3)
-> ld: final link failed: Bad value
-
-Either add -z nocombreloc to ld's command line, or make sure you have
-http://sources.redhat.com/ml/binutils/2001-10/msg00309.html
-patch installed.
-
-	Jakub
+> I have a Supermicro S2QR6 board, which has the "Serverworks serverset
+> III HE" chipset.  (Also, i have 8GB RAM, 4 Xeon P3 700MHz processors,
+> and an Adaptec Ultra160 SCSI system - aix7xxx, built onto the 
+> motherboard)
+> 
+> In all the 2.4.x series kernels (even up to 2.4.12-ac3 or
+> 2.4.13-pre4), as soon as the high memory, 64GB option is enabled, the
+> server slows down to a crawl, with no load showing.  (A "crawl"
+> example is a kernel recompile time going from ~5 min to >2 hr!)
+> 
+> I have tried numerous kernel config options, removing scsi support,
+> networking, and have narrowed the problem down to the serverworks
+> chipset- on a SC440NX mb, also with 8GB and everything else in the
+> system, all the new kernels work with no slowdown.
+> 
+> I've tried...
+> kernels: 2.4.1, 2.4.3, 2.4.5, 2.4.7-ac9, 2.4.9, 2.4.12 (-pre4, -ac3)
+> with and w/o mtrr support kernel config
+> 
+> Any ideas?
+> 
+> Thanks,
+> 
+> BCT
+> 
+> ____________________________
+> Brian C. Thomas
+> bcthomas@nature.berkeley.edu
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

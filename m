@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbULJVs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbULJVuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbULJVs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 16:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbULJVs4
+	id S261836AbULJVuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 16:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbULJVuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 16:48:56 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:2266 "EHLO
+	Fri, 10 Dec 2004 16:50:24 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:4570 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261828AbULJVrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 16:47:21 -0500
-Subject: Re: Mach Speed motherboard w/onboard video
+	id S261830AbULJVt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 16:49:59 -0500
+Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: gene.heskett@verizon.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200412082032.22619.gene.heskett@verizon.net>
-References: <200412081140.33199.gene.heskett@verizon.net>
-	 <200412081248.57255.gene.heskett@verizon.net>
-	 <Pine.LNX.4.61.0412081409350.14310@twin.uoregon.edu>
-	 <200412082032.22619.gene.heskett@verizon.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Kylene Hall <kjhall@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       greg@kroah.com, sailer@watson.ibm.com, leendert@watson.ibm.com,
+       emilyr@us.ibm.com, toml@us.ibm.com, tpmdd-devel@lists.sourceforge.net
+In-Reply-To: <1102607309.2784.40.camel@laptop.fenrus.org>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
+	 <1102607309.2784.40.camel@laptop.fenrus.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1102711303.3271.64.camel@localhost.localdomain>
+Message-Id: <1102711541.3264.67.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Dec 2004 20:41:45 +0000
+Date: Fri, 10 Dec 2004 20:45:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I did place the order for the board, and a cheap Chaintech Gforce 5200
-> video card in case the onboard doesn't work out for this app.  The
-> existing card, a 4 meg rage based card, apparently is not well
-> supported by xorg's code, if the blanker is allowed to kick in, the
-> recovery when the mouse is moved or a key is hit, is to a totally
-> trashed screen & one must find the pager and switch screens to effect
-> a redraw.  Minor detail, but a pita anyway.
+On Iau, 2004-12-09 at 15:48, Arjan van de Ven wrote:
+> > +	/* wait for status */
+> > +	add_timer(&status_timer);
+> > +	do {
+> > +		schedule();
+> > +		status = inb(chip->base + NSC_STATUS);
+> > +		if (status & NSC_STATUS_OBF)
+> > +			status = inb(chip->base + NSC_DATA);
+> > +		if (status & NSC_STATUS_RDY) {
+> > +			del_singleshot_timer_sync(&status_timer);
+> > +			return 0;
+> > +		}
+> > +	} while (!expired);
+> 
+> same comment. Also the timer handling looks suspect... can you guarantee
+> 100% sure that the timer is gone when the while falls through ?
 
-An external video card will give you materially better performance
-anyway and if you are doing real time stuff help in a few other ways.
+Yes but you can't be sure it ever will - needs an "rmb()" barrier so
+that the compiler doesn't sneak off and optimise expired
+
 

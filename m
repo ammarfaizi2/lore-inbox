@@ -1,76 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbTJATQI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 15:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTJATQI
+	id S262283AbTJATbb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 15:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTJATbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 15:16:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60291 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261946AbTJATQE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 15:16:04 -0400
-Date: Wed, 1 Oct 2003 12:15:36 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: sys_vserver
-Message-ID: <20031001121536.J14398@osdlab.pdx.osdl.net>
-References: <20031001115127.A14425@osdlab.pdx.osdl.net> <Pine.LNX.4.44.0310011454530.19538-100000@chimarrao.boston.redhat.com>
+	Wed, 1 Oct 2003 15:31:31 -0400
+Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:33801 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S262283AbTJATb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 15:31:29 -0400
+Date: Wed, 1 Oct 2003 15:34:25 -0400
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix 2.4.x incorrect argv[0] for init
+Message-ID: <20031001193425.GA19793@rivenstone.net>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0310011434400.6488-100000@dmt.cyclades> <20031001185613.GA13945@codepoet.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0310011454530.19538-100000@chimarrao.boston.redhat.com>; from riel@redhat.com on Wed, Oct 01, 2003 at 02:58:43PM -0400
+In-Reply-To: <20031001185613.GA13945@codepoet.org>
+User-Agent: Mutt/1.5.4i
+From: <jhf@rivenstone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rik van Riel (riel@redhat.com) wrote:
-> On Wed, 1 Oct 2003, Chris Wright wrote:
-> 
-> > Multiplexing, future functionality, etc...this reasoning was shot down
-> > before. The preferred method was to have well-typed interfaces that 
-> > are simple and not overloaded.  Any chance some of these needs could be
-> > met with existing infrastructure in 2.6?  For example, similar to the
-> > sys_new_s_context issue was resolved for LSM with the /proc/pid/attr/
-> > interface, could this be reused?
-> 
-> OK, a few comments here:
-> 
-> 1) the vserver functionality definately is not "future functionality",
->    people have been using it in production for a few years already
 
-Sorry, I don't mean to imply core vserver is all new, just reacting to
-one of the justifciations being "people are planning future
-functionality."
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 2) currently vserver only runs on 2.4 (and I think 2.2), it hasn't
->    been ported to 2.6 yet and I definately plan to port it in such
->    a way that we will be reusing other infrastructure whereever
->    possible ... it's just that vserver needs some infrastructure
->    that is not possible inside LSM
-> 
-> 3) the needs that can be met with existing infrastructure, like
->    CLONE_NEWNS or LSM should definately move out of the vserver
->    patch in the port to 2.6
+On Wed, Oct 01, 2003 at 12:56:13PM -0600, Erik Andersen wrote:
+> In 2.4.x when someone specifies "init=3D/bin/foo" to select an
+> alternative binary to run instead of /sbin/init, argv[0] is not
+> to the correct value.  This is a problem for programs such as
+> busybox that multiplex applications based on the value of
+> argv[0].  For example, even if you specify init=3D/bin/sh" on the
+> kernel command line, busybox will still receive "/sbin/init" as
+> argv[0], and will therefore run init rather than /bin/sh...
+>=20
+> This problem was recently fixed in 2.6.x.  This patch applies
+> the same fix to 2.4.x.
 
-Glad to hear it.  I haven't looked closely at vserver since about 2.4.14,
-but I had hoped to find ways to minimize the vserver patch by reusing
-some of the LSM infrastructure.  The biggest issue was the ability to
-virtualize the results of something like the hostname to be ctx
-specific, which was deemed too much to do for the LSM interfaces.
+    I didn't know that got merged.  Great!
 
-> 4) I'm all for generalising the interface, how about sys_virtual_context ?
+    Debian users running 2.6: go install busybox-static, then make a
+link from /sbin/sh to /bin/busybox.  If something bad happens to your
+file system or libc or something like that, you can still boot with
+init=3D/sbin/sh and get a shell prompt and all the important utilities
+as long as /bin/busybox is okay.  It's a nice failsafe, especially
+when testing kernels or running an unstable distribution.
 
-I _think_ this can be done with /proc/[pid]/attr/.  This allows you to
-set the security attributes of a process.  IIRC, the sys_s_new_context
-was something helpers would run before execve'ing a process into the new
-context (sorry if my details are off).  Same can be acheived with
-/proc/[pid]/attr/exec, but writing the new context to that file, then
-execve'ing.  Here's a link with more details on the API:
+   If this patch gets merged in 2.4, 2.4 users will be able to do this
+too.
 
-http://mail.wirex.com/pipermail/linux-security-module/2003-April/4264.html       
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+"That's all I have to say about that." -- Forrest Gump.
+
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/eyxAWv4KsgKfSVgRAuYbAJ4j+dsDL+VwPQSWYMySx0nrBMZmWgCfZGz0
+f2P3xMEky1SGuOQYJB+8Zww=
+=gKL5
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

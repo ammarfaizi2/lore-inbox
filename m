@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbTA3Skp>; Thu, 30 Jan 2003 13:40:45 -0500
+	id <S267588AbTA3SqI>; Thu, 30 Jan 2003 13:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267605AbTA3Skp>; Thu, 30 Jan 2003 13:40:45 -0500
-Received: from mail.gmx.net ([213.165.65.60]:31100 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S267602AbTA3Sko>;
-	Thu, 30 Jan 2003 13:40:44 -0500
-Date: Thu, 30 Jan 2003 19:53:03 +0100
-From: "Lars 'Cebewee' Noschinski" <CebeWee@gmx.de>
-X-Mailer: The Bat! (v1.53t) Educational
-X-Priority: 3 (Normal)
-Message-ID: <961914102.20030130195303@gmx.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: John Bradford <john@grabjohn.com>, wa1hco@adelphia.net ((jeff millar)),
-       Raphael_Schmid@CUBUS.COM, <rob@r-morris.co.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Scaring the non-geeks (was Bootscreen)
-In-Reply-To: <200301291409.57213.roy@karlsbakk.net>
-References: <200301281440.h0SEeBS8001126@darkstar.example.net>
- <200301291409.57213.roy@karlsbakk.net>
-MIME-Version: 1.0
+	id <S267598AbTA3SqI>; Thu, 30 Jan 2003 13:46:08 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57033 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267588AbTA3SqH>; Thu, 30 Jan 2003 13:46:07 -0500
+Date: Thu, 30 Jan 2003 13:55:28 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Konrad Eisele <eiselekd@web.de>
+Cc: PeteZaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: perl (Was: Adding sparc-leon linux to sourcetree)
+Message-ID: <20030130135528.C12226@devserv.devel.redhat.com>
+References: <200301301353.h0UDrxO24129@mailgate5.cinetic.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200301301353.h0UDrxO24129@mailgate5.cinetic.de>; from eiselekd@web.de on Thu, Jan 30, 2003 at 02:53:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy wrote:
-[Bootscreen]
-> I don't know about you, but most non-technical people DO NOT LIKE verbose
-> messages they can't understand. My father was scared by the linux bootup when 
-> I installed Linux on their PC. I beleive most non-techies like the 'windows 
-> is now hopefully starting' screen. It shields the info they don't want.
->
-> So please - don't scare the 'normal' people with (in their eyes) verbose crap.
+> Date: Thu, 30 Jan 2003 14:53:59 +0100
+> From: Konrad Eisele <eiselekd@web.de>
 
-Till Windows Me, every Windows user got textmode messages at boot time.
-And they survived it.
+> There is also one change I have made on the buildsystem. Because
+> I'm using some perl inline scripts in the $cmd_xxx the >'<  and >$<
+> signs in the inline perl scripts cause trouble (perl -e '...$x=....'),
+> the >'< because of the echo command, the >$< when rereading from
+> the xxx..cmd files. Could this be applied to the original file?
 
+First, send a patch, not a chunk of a Makefile.
 
+Second, this is something I defer to Kai, Sam, & Co.
 
+Personally, I am opposed to a use of perl, because it's not
+installed in my sparc userland, so I would not be able to
+self-compile a leon or joint kernel. But ultimately this is
+not my call to decide. At one point, Linus approved Python
+into the toolchain. So, present good evidence of need and post
+to lists.
 
--- 
-CU Lars
-
+-- Pete

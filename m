@@ -1,126 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbUCAKU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 05:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUCAKTV
+	id S261179AbUCAKaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 05:30:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbUCAKaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 05:19:21 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:35292 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261168AbUCAKSa
+	Mon, 1 Mar 2004 05:30:12 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:15561 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261179AbUCAKaA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 05:18:30 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>, George Anzinger <george@mvista.com>
-Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
-Date: Mon, 1 Mar 2004 15:48:15 +0530
-User-Agent: KMail/1.5
-Cc: kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       kgdb-bugreport@lists.sourceforge.net
-References: <20040225213626.GF1052@smtp.west.cox.net> <403FC0AA.6040205@mvista.com> <20040227225026.GL1052@smtp.west.cox.net>
-In-Reply-To: <20040227225026.GL1052@smtp.west.cox.net>
+	Mon, 1 Mar 2004 05:30:00 -0500
+Message-ID: <40431084.2060708@cyberone.com.au>
+Date: Mon, 01 Mar 2004 21:29:24 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403011548.15601.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+To: mfedyk@matchmail.com
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.4-rc1-mm1: vm-kswapd-incremental-min (was Re: MM
+ VM patches was: 2.6.3-mm4)
+References: <20040225185536.57b56716.akpm@osdl.org>	<4042F38B.8020307@matchmail.com>	<4042F7E6.1050904@cyberone.com.au>	<4042FE0D.5030603@cyberone.com.au>	<404307D7.8090102@cyberone.com.au> <20040301021855.0c0f994e.akpm@osdl.org>
+In-Reply-To: <20040301021855.0c0f994e.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------060508050209070100070008"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 Feb 2004 4:20 am, Tom Rini wrote:
-> On Fri, Feb 27, 2004 at 02:11:54PM -0800, George Anzinger wrote:
-> > Tom Rini wrote:
-> > >On Thu, Feb 26, 2004 at 05:57:27PM -0800, George Anzinger wrote:
-> > >>Tom Rini wrote:
-> > >>>On Thu, Feb 26, 2004 at 03:30:08PM -0800, George Anzinger wrote:
-> > >>>>Amit S. Kale wrote:
-> > >>>>>On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
-> > >>>>>>The following patch fixes a number of little issues here and there,
-> > >>>>>>and
-> > >>>>>>ends up making things more robust.
-> > >>>>>>- We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
-> > >>>>>>GDB attaching is GDB attaching, we haven't preserved any of the
-> > >>>>>>previous context anyhow.
-> > >>>>>
-> > >>>>>If gdb is restarted, kgdb has to remove all breakpoints. Present
-> > >>>>> kgdb does that in the code this patch removes:
-> > >>>>>
-> > >>>>>-		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] ==
-> > >>>>>'c') {
-> > >>>>>-			remove_all_break();
-> > >>>>>-			atomic_set(&kgdb_killed_or_detached, 0);
-> > >>>>>-			ok_packet(remcom_out_buffer);
-> > >>>>>
-> > >>>>>If we don't remove breakpoints, they stay in kgdb without gdb not
-> > >>>>>knowing it and causes consistency problems.
-> > >>>>
-> > >>>>I wonder if this is worth the trouble.  Does kgdb need to know about
-> > >>>>breakpoints at all?  Is there some other reason it needs to track
-> > >>>> them?
-> > >>>
-> > >>>I don't know if it's strictly needed, but it's not the hard part of
-> > >>> this particular issue (as I suggested in another thread,
-> > >>> remove_all_break() on a ? packet works).
-> > >>>
-> > >>>>>>- Don't try and look for a connection in put_packet, after we've
-> > >>>>>> tried to put a packet.  Instead, when we receive a packet, GDB has
-> > >>>>>> connected.
-> > >>>>>
-> > >>>>>We have to check for gdb connection in putpacket or else following
-> > >>>>>problem occurs.
-> > >>>>>
-> > >>>>>1. kgdb console messages are to be put.
-> > >>>>>2. gdb dies
-> > >>>>>3. putpacket writes the packet and waits for a '+'
-> > >>>>
-> > >>>>Oops!  Tom, this '+' will be sent under interrupt and while kgdb is
-> > >>>> not connected.  Looks like it needs to be passed through without
-> > >>>> causing a breakpoint.  Possible salvation if we disable interrupts
-> > >>>> while waiting for the '+' but I don't think that is a good idea.
-> > >>>
-> > >>>I don't think this is that hard of a problem anymore.  I haven't
-> > >>> enabled console messages, but I've got the following being happy now:
-> > >>
-> > >>console pass through is the hard one as it is done outside of kgdb
-> > >> under interrupt control.  Thus the '+' will come to the interrupt
-> > >> handler.
-> > >>
-> > >>There is a bit of a problem here WRT hiting a breakpoint while waiting
-> > >>for this '+'.  Should only happen on SMP systems, but still....
-> > >
-> > >Here's why I don't think it's a problem (I'll post the new patch
-> > >shortly, getting from quilt to a patch against previous is still a
-> > >pain).  What happens is:
-> > >1. kgdb console tried to send a packet.
-> > >2. before ACK'ing the above, gdb dies.
-> >
-> > What I am describing does not have anything to do with gdb going away. 
-> > It is that in "normal" operation the console output is done with the
-> > interrupts on (i.e. we are not in kgdb as a result of a breakpoint, but
-> > only to do console output).  This means that the interrupt that is
-> > generated by the '+' from gdb may well happen and the kgdb interrupt
-> > handler will see the '+' and, with the interrupt handler changes,
-> > generate a breakpoint.  All we really want to do is to pass the '+'
-> > through to putpacket.  In a UP machine, I think the wait for the '+' is
-> > done with the interrupt system off, however, in an SMP machine, other
-> > cpus may see it and interrupt...  At the very least, the interrupt code
-> > needs to be able to determine that no character came in and ignore the
-> > interrupt.
+This is a multi-part message in MIME format.
+--------------060508050209070100070008
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+
+Andrew Morton wrote:
+
+>Nick Piggin <piggin@cyberone.com.au> wrote:
 >
-> Today might not be a "smart day" for me, so perhaps I'm just not doing
-> what's need to trigger this, or I'm misreading (but if you can trigger
-> it, w/ Amit's patches in CVS and my 1/2 from yesterday and then my 7
-> from today, I'd be grateful) but UP and SMP on a UP box both have
-> KGDB_CONSOLE behaving correctly.
+>>Andrew, I think you had kswapd scanning in the direction opposite the
+>> one indicated by your comments. Or maybe I've just confused myself?
+>>
+>>
+>
+>Nope, the node_zones[] array is indexed by
+>
+>
 
-You may not have seen the race. I too believe that the race pointed out by 
-George exists.
+OK. Mike, could you try this patch instead after testing rc1-mm1.
+Thanks.
 
--Amit
 
+--------------060508050209070100070008
+Content-Type: text/plain;
+ name="vm-kswapd-incremental-min.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vm-kswapd-incremental-min.patch"
+
+ linux-2.6-npiggin/mm/vmscan.c |   34 +++++++++++++++++++++++-----------
+ 1 files changed, 23 insertions(+), 11 deletions(-)
+
+diff -puN mm/vmscan.c~vm-kswapd-incremental-min mm/vmscan.c
+--- linux-2.6/mm/vmscan.c~vm-kswapd-incremental-min	2004-03-01 20:29:18.000000000 +1100
++++ linux-2.6-npiggin/mm/vmscan.c	2004-03-01 21:27:24.000000000 +1100
+@@ -889,6 +889,8 @@ out:
+ 	return ret;
+ }
+ 
++extern int sysctl_lower_zone_protection;
++
+ /*
+  * For kswapd, balance_pgdat() will work across all this node's zones until
+  * they are all at pages_high.
+@@ -907,12 +909,9 @@ out:
+  * dead and from now on, only perform a short scan.  Basically we're polling
+  * the zone for when the problem goes away.
+  *
+- * kswapd scans the zones in the highmem->normal->dma direction.  It skips
+- * zones which have free_pages > pages_high, but once a zone is found to have
+- * free_pages <= pages_high, we scan that zone and the lower zones regardless
+- * of the number of free pages in the lower zones.  This interoperates with
+- * the page allocator fallback scheme to ensure that aging of pages is balanced
+- * across the zones.
++ * balance_pgdat tries to coexist with the INFAMOUS "incremental min" by
++ * trying to free lower zones a bit harder if higher zones are low too.
++ * See mm/page_alloc.c
+  */
+ static int balance_pgdat(pg_data_t *pgdat, int nr_pages, struct page_state *ps)
+ {
+@@ -930,8 +929,10 @@ static int balance_pgdat(pg_data_t *pgda
+ 	}
+ 
+ 	for (priority = DEF_PRIORITY; priority; priority--) {
++		unsigned long min;
+ 		int all_zones_ok = 1;
+ 		int pages_scanned = 0;
++		min = 0; /* Shut up gcc */
+ 
+ 		for (i = pgdat->nr_zones - 1; i >= 0; i--) {
+ 			struct zone *zone = pgdat->node_zones + i;
+@@ -939,15 +940,26 @@ static int balance_pgdat(pg_data_t *pgda
+ 			int max_scan;
+ 			int reclaimed;
+ 
+-			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
+-				continue;
+-
+ 			if (nr_pages == 0) {	/* Not software suspend */
+-				if (zone->free_pages <= zone->pages_high)
+-					all_zones_ok = 0;
++				/* "incremental min" right here */
+ 				if (all_zones_ok)
++					min = zone->pages_high;
++				else
++					min += zone->pages_high;
++
++				if (zone->free_pages <= min)
++					all_zones_ok = 0;
++				else
+ 					continue;
++
++				min += zone->pages_high *
++						sysctl_lower_zone_protection;
+ 			}
++
++			/* Note: this is checked *after* min is incremented */
++			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
++				continue;
++
+ 			zone->temp_priority = priority;
+ 			max_scan = zone->nr_inactive >> priority;
+ 			reclaimed = shrink_zone(zone, max_scan, GFP_KERNEL,
+
+_
+
+--------------060508050209070100070008--

@@ -1,39 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284931AbRLFCP7>; Wed, 5 Dec 2001 21:15:59 -0500
+	id <S284935AbRLFCPT>; Wed, 5 Dec 2001 21:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284934AbRLFCPt>; Wed, 5 Dec 2001 21:15:49 -0500
-Received: from [202.135.142.195] ([202.135.142.195]:49924 "EHLO wagner")
-	by vger.kernel.org with ESMTP id <S284931AbRLFCPf>;
-	Wed, 5 Dec 2001 21:15:35 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch] scalable timers implementation, 2.4.16, 2.5.0 
-In-Reply-To: Your message of "Wed, 05 Dec 2001 14:13:17 -0800."
-             <3C0E9BFD.BC189E17@zip.com.au> 
-Date: Thu, 06 Dec 2001 13:15:42 +1100
-Message-Id: <E16Bo4c-00031f-00@wagner>
+	id <S284931AbRLFCPK>; Wed, 5 Dec 2001 21:15:10 -0500
+Received: from web20308.mail.yahoo.com ([216.136.226.89]:24586 "HELO
+	web20308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S284935AbRLFCOx>; Wed, 5 Dec 2001 21:14:53 -0500
+Message-ID: <20011206021449.70021.qmail@web20308.mail.yahoo.com>
+Date: Wed, 5 Dec 2001 18:14:49 -0800 (PST)
+From: Q A <qarce_mail_lists@yahoo.com>
+Subject: Re: ARP shows client is given wrong MAC Address for system with 2 NICs
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org, qarce@yahoo.com
+In-Reply-To: <Pine.LNX.3.95.1011205135505.8200A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3C0E9BFD.BC189E17@zip.com.au> you write:
-> Rusty Russell wrote:
-> > 
-> > PS.  Also would be nice to #define del_timer del_timer_sync, and have a
-> >      del_timer_async for those (very few) cases who really want this.
+
+
+Thanks, but I am not moving the IP from one to the
+other.  I am just saying it doesn't matter _(A) does
+not have to be eth0.  Try setting up a system with 2
+NICs and follow my notes.  I have checked another
+system with a normal 2.4.3 kernel.
+
+Thanks for yours and everyone elses help.
+
+Q
+
+
+--- "Richard B. Johnson" <root@chaos.analogic.com>
+wrote:
 > 
-> That could cause very subtle deadlocks.   I'd prefer to do:
+> [SNIPPED...]
+> There is an ARP cache, always has been, always will
+> be. This is so
+> an ARP (Address Resolution Protocol) probe doesn't
+> have to occur for
+> every data transmission. It is presumed that an IP
+> address, including
+> your own, won't jump around from device-to-device.
 > 
-> #define del_timer_async	del_timer
+> You are moving your IP address to another device
+> (MAC address). What
+> do you expect?
+> 
+> You can delete the old entries from your ARP cache,
+> but it has to
+> be done for every system that would be affected or
+> you can just wait
+> for the ARP cache entry to expire.
+> 
+>     /sbin/arp -d ipaddress
+> 
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.4.1 on an i686 machine
+> (799.53 BogoMips).
+> 
+>     I was going to compile a list of innovations
+> that could be
+>     attributed to Microsoft. Once I realized that
+> Ctrl-Alt-Del
+>     was handled in the BIOS, I found that there
+> aren't any.
+> 
+> 
 
-I'd prefer to audit them all, create a patch, and remove del_timer.
-Doing it slowly usually means things just get forgotten, then hacked
-around when it finally gets ripped out.
 
-The deadlock you're referring to is, I assume, del_timer_sync() called
-inside the timer itself?  Can you think of any other dangerous cases?
-
-Rusty.
---
-  Anyone who quotes me is an idiot. -- Rusty Russell.
+__________________________________________________
+Do You Yahoo!?
+Send your FREE holiday greetings online!
+http://greetings.yahoo.com

@@ -1,73 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317590AbSINWiP>; Sat, 14 Sep 2002 18:38:15 -0400
+	id <S317597AbSINWuC>; Sat, 14 Sep 2002 18:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317592AbSINWiP>; Sat, 14 Sep 2002 18:38:15 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18705
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317590AbSINWiO>; Sat, 14 Sep 2002 18:38:14 -0400
-Date: Sat, 14 Sep 2002 15:40:52 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA problems w/ PIIX3 IDE, 2.4.20-pre4-ac2
-In-Reply-To: <200209141525.22349.jan-hinnerk_reichert@hamburg.de>
-Message-ID: <Pine.LNX.4.10.10209141539550.6925-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317602AbSINWuC>; Sat, 14 Sep 2002 18:50:02 -0400
+Received: from mail.uklinux.net ([80.84.72.21]:17682 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S317597AbSINWuB>;
+	Sat, 14 Sep 2002 18:50:01 -0400
+Envelope-To: <linux-kernel@vger.kernel.org>
+Date: Sat, 14 Sep 2002 23:53:16 +0100
+From: Mark Hindley <mark@hindley.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: oops in 2.4.19
+Message-ID: <20020914235316.A768@titan.home.hindley.uklinux.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="EeQfGwPcQSOJBaQU"
+User-Agent: Mutt/1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Yep I had that problem too and fixed it.
-Please try a newer pre5-acX
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+
+I have been getting recurrent lockup over the past few days. Just managed to catch an oops on a serial console. See,s to happen a while (20mins to 4 hours) after the system is idle. Alt-SysRq usually unresponsive. Hard reset is only way out.
+
+oops passed though ksymoops is below. Let me know if other info would be useful.
+
+Thanks
 
 
-On Sat, 14 Sep 2002, Jan-Hinnerk Reichert wrote:
+Mark
+-- 
 
-> Florian Hinzmann wrote:
-> 
-> > Hi!
-> > 
-> > I have problems with DMA mode at one of my boxes ( more technical
-> > details at the end of this mail ).
-> [...] 
-> > But I do issue a "hdparm -d0" for each of them at bootup currently and
-> > they are running fine then. Enabling DMA with "hdparm -d1" (or not using
-> > hdparm at all) leads to errors like the following quite fast and
-> > reproducable:
-> > 
-> > kernel: hdb: dma_timer_expiry: dma status == 0x60
-> > kernel: hdb: timeout waiting for DMA
-> > kernel: hdb: timeout waiting for DMA
-> > kernel: hdb: (__ide_dma_test_irq) called while not waiting
-> > kernel: hdb: status error: status=0x58 { DriveReady SeekComplete
-> > DataRequest } kernel:
-> > kernel: hdb: drive not ready for command
-> > 
-> > Turning DMA off again stops these.
-> > 
-> > 
-> > I'd love to hear any experience other people have with this mainboard
-> > or even some statement if DMA is supposed to work with my setup.
-> 
-> I had some problems like this using 2.4.17 on a PIIX3 board (don't know the 
-> board type). The problems disappeared after switching to 2.4.19. 
-> Unforunately I had to change the processor and processor fan about the same 
-> time.
-> 
-> I tend to believe that this problem was related to CPU temperature not to 
-> kernel bugs. I don't have any means of measuring CPU temperature on this 
-> board. But the old CPU certainly burnt out, because the fan was not 
-> working too well ;-(((
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
-Andre Hedrick
-LAD Storage Consulting Group
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain
+Content-Disposition: attachment; filename="oops.txt"
 
+ksymoops 2.3.7 on i586 2.4.19.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19/ (default)
+     -m /boot/System.map-2.4.19 (specified)
+
+Sep 14 20:10:11 titan kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep 14 20:10:11 titan kernel: c01099c2
+Sep 14 20:10:11 titan kernel: *pde = 00000000
+Sep 14 20:10:11 titan kernel: Oops: 0000
+Sep 14 20:10:11 titan kernel: CPU:    0
+Sep 14 20:10:11 titan kernel: EIP:    0010:[do_IRQ+106/168]    Not tainted
+Sep 14 20:10:11 titan kernel: EFLAGS: 00010046
+Sep 14 20:10:11 titan kernel: eax: 20000001   ebx: 00000000   ecx: c024bc88   edx: c0252a80
+Sep 14 20:10:11 titan kernel: esi: 00000000   edi: 00000000   ebp: c3b33f88   esp: c3b33f6c
+Sep 14 20:10:11 titan kernel: ds: 0018   es: 0018   ss: 0018
+Sep 14 20:10:11 titan kernel: Process hopalong (pid: 4753, stackpage=c3b33000)
+Sep 14 20:10:11 titan kernel: Stack: 00000000 c3b33f90 c0202684 c1f3b9a0 00000002 00000003 c0202684 bffff5ec 
+Sep 14 20:10:11 titan kernel:        c010bad8 c1f3b9a0 00000000 c3b32000 00000002 00000003 bffff5ec 00000000 
+Sep 14 20:10:11 titan kernel:        00000018 00000018 ffffff00 c01085a0 00000010 00000246 00000003 bffff6a4 
+Sep 14 20:10:11 titan kernel: Call Trace:    [call_do_IRQ+5/13] [ret_from_sys_call+0/17]
+Sep 14 20:10:11 titan kernel: Code: 8b 46 00 83 c4 0c a8 04 74 07 24 fb 89 46 00 eb e1 80 66 00 
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 46 00                  mov    0x0(%esi),%eax
+Code;  00000003 Before first symbol
+   3:   83 c4 0c                  add    $0xc,%esp
+Code;  00000006 Before first symbol
+   6:   a8 04                     test   $0x4,%al
+Code;  00000008 Before first symbol
+   8:   74 07                     je     11 <_EIP+0x11> 00000011 Before first symbol
+Code;  0000000a Before first symbol
+   a:   24 fb                     and    $0xfb,%al
+Code;  0000000c Before first symbol
+   c:   89 46 00                  mov    %eax,0x0(%esi)
+Code;  0000000f Before first symbol
+   f:   eb e1                     jmp    fffffff2 <_EIP+0xfffffff2> fffffff2 <END_OF_CODE+3b6a5093/????>
+Code;  00000011 Before first symbol
+  11:   80 66 00 00               andb   $0x0,0x0(%esi)
+
+00000000 <_EIP>:
+
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=uname
+
+Linux titan.home.hindley.uklinux.net 2.4.19 #4 Tue Aug 27 11:07:59 BST 2002 i586 unknown
+
+--EeQfGwPcQSOJBaQU--

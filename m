@@ -1,51 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318009AbSHQOJH>; Sat, 17 Aug 2002 10:09:07 -0400
+	id <S317986AbSHQOgq>; Sat, 17 Aug 2002 10:36:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318013AbSHQOJH>; Sat, 17 Aug 2002 10:09:07 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:35542 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S318009AbSHQOJG>;
-	Sat, 17 Aug 2002 10:09:06 -0400
-Date: Sat, 17 Aug 2002 16:12:03 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: Re: Linux 2.4.20-pre3
-In-Reply-To: <Pine.LNX.4.44.0208162231060.8044-100000@freak.distro.conectiva>
-Message-ID: <Pine.GSO.4.21.0208171603260.12155-100000@vervain.sonytel.be>
+	id <S318013AbSHQOgq>; Sat, 17 Aug 2002 10:36:46 -0400
+Received: from windsormachine.com ([206.48.122.28]:31505 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S317986AbSHQOgp>; Sat, 17 Aug 2002 10:36:45 -0400
+Date: Sat, 17 Aug 2002 10:39:43 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: IDE?
+In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0208171039020.16625-100000@router.windsormachine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Aug 2002, Marcelo Tosatti wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
->   o files_init - set file limit based on ram
+>    IDE-TNG would:
 
-Add missing prototype (cfr. 2.5.x).
-BTW, the one is 2.5.x is wrong because it lacks the __init
+As long as we don't have IDE-Voy, or IDE-DS9, this should be good.
 
---- linux-2.4.20-pre3/include/linux/fs.h	Sat Aug 17 14:11:08 2002
-+++ linux-m68k-2.4.20-pre3/include/linux/fs.h	Sat Aug 17 15:58:51 2002
-@@ -206,6 +206,7 @@
- extern void buffer_init(unsigned long);
- extern void inode_init(unsigned long);
- extern void mnt_init(unsigned long);
-+extern void __init files_init(unsigned long mempages);
- 
- /* bh state bits */
- enum bh_state_bits {
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Mike
 

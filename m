@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274937AbRIXUJN>; Mon, 24 Sep 2001 16:09:13 -0400
+	id <S274936AbRIXUIN>; Mon, 24 Sep 2001 16:08:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274938AbRIXUJG>; Mon, 24 Sep 2001 16:09:06 -0400
-Received: from 136-252.yello-by-call.net ([213.182.136.252]:16257 "EHLO
-	lara.leun.net") by vger.kernel.org with ESMTP id <S274937AbRIXUIu>;
-	Mon, 24 Sep 2001 16:08:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S274937AbRIXUID>; Mon, 24 Sep 2001 16:08:03 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:54148 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S274935AbRIXUHu>; Mon, 24 Sep 2001 16:07:50 -0400
+Date: Mon, 24 Sep 2001 16:22:13 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.10 + ext3
+In-Reply-To: <20010924204946.C9688@kushida.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.40.0109241621100.12894-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-Message-ID: <XFMail.20010924220354.ml@lara.leun.net>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com>
-Date: Mon, 24 Sep 2001 22:06:07 +0200 (CEST)
-Organization: Not Organized
-From: Michael Leun <ml@newton.leun.net>
-To: Arjan van de Ven <arjanv@redhat.com>
-Subject: RE: Binary only module overview
-Cc: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 24 Sep 2001, Jamie Lokier wrote:
 
-On 24-Sep-2001 Arjan van de Ven wrote:
+> I did have a big disaster once when I compiled ext3 into a kernel and
+> not ext2 (which I left as a module).  You can guess, it couldn't mount
+> the root filesystem.
 
-> I'm composing a list of all existing binary only modules, 
+What exactly did you do?  I have several machines that only have ext3
+compiled in, no ext2 at all, module or otherwise.  They all boot fine.
 
-> Hardware drivers
-> ----------------
-Samsung         - wireless lan driver (prism2 chipset, binary core with source
-                  for interface layer)
-                  see www.magiclan.com
-
+-Chris
 -- 
-bye,
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 
-
-Michael Leun

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbTIOOW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbTIOOW6
+	id S261403AbTIOOTi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbTIOOTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:22:58 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:671 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261400AbTIOOW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:22:56 -0400
-Message-ID: <3F65CB30.9040003@nortelnetworks.com>
-Date: Mon, 15 Sep 2003 10:22:40 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Harald Welte <laforge@gnumonks.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: firewalling PPPOE stream without terminating it
-References: <3F61D8E4.6020309@nortelnetworks.com> <20030915101826.GH777@obroa-skai.de.gnumonks.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Sep 2003 10:19:38 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:4482 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S261403AbTIOOTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:19:37 -0400
+Date: Mon, 15 Sep 2003 16:19:33 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test5-mm2
+Message-ID: <20030915141933.GA1246@rootdir.de>
+References: <20030914234843.20cea5b3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030914234843.20cea5b3.akpm@osdl.org>
+Reply-By: Thu Sep 18 16:18:38 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test5-mm2 i686
+X-No-archive: yes
+X-Uptime: 16:18:38 up 10 min,  1 user,  load average: 0.09, 0.51, 0.35
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte wrote:
+Hi,
 
-> So how is this question related to either 
-> 1) network development (netdev@oss.sgi.com)
-> 2) linux-kernel development (linux-kernel@vger.kernel.org)
-> 
-> I would like to ask you this question at an apropriate mailinglist
-> (netfilter@lists.netfilter.org, or the lartc mailinglist
+there is an error, after make modules_install
+/lib/modules/2.6.0-test5-mm2/build points to ".",
+but it should point to /usr/src/linux-2.6.0-test5-mm5/
 
-Sorry, my bad.
-
-Thread continued on other list as suggested.
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+bye, claas

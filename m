@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316459AbSE0AUS>; Sun, 26 May 2002 20:20:18 -0400
+	id <S316465AbSE0Adw>; Sun, 26 May 2002 20:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316461AbSE0AUR>; Sun, 26 May 2002 20:20:17 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:59663
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316459AbSE0AUR>; Sun, 26 May 2002 20:20:17 -0400
-Date: Sun, 26 May 2002 17:17:43 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] New driver for Artop [Acard] controllers.
-In-Reply-To: <1022460150.11859.187.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10205261716410.3010-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S316471AbSE0Adv>; Sun, 26 May 2002 20:33:51 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:57611 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S316465AbSE0Adu>; Sun, 26 May 2002 20:33:50 -0400
+Message-Id: <200205270033.g4R0Xfh02221@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+cc: davej@suse.de, James.Bottomley@HansenPartnership.com
+Subject: [PATCH] i386 arch subdivision into machine types for 2.5.18
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Sun, 26 May 2002 20:33:41 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 May 2002, Alan Cox wrote:
+This code rearranges the arch/i386 directory structure to allow for sliding 
+additional non-pc hardware in here in an easily separable (and thus easily 
+maintainable) fashion.  The idea is that all the code for the particular 
+problem hardware should be able to go in a separate directory with only 
+additional build options in config.in.
 
-> On Mon, 2002-05-27 at 00:08, Andre Hedrick wrote:
-> > All of the original code described how to make the hardware operate.  If
-> > your code makes the hardware operate, then it uses material copyrighted 
-> > and owned by me.
-> 
-> Really. You think if I read a GPL'd example of a piece of code I can't
-> write a non GPL'd one. Companies use two sets of people to ensure that
+The current patch really only pulls out the visws code from the core and 
+places it into a separate directory (sort of a simple example case).
 
-It is one thing to take and read a GPL code and write non-GPL.
-This is different from taking GPL code and writing another GPL code.
+This code is essentially just an up-port of the previously announced 2.5.15 
+version.  In particular, I haven't added the extra documentation that I need 
+to make the way the hooks work transparent to the interested user.  I'm 
+currently marking time until Linus applies the Mochel setup/cpu split patches 
+from the -dj tree and I can merge my code with it.
 
+The 144k diff file is at:
 
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.18.diff
 
-> there are no questions (one set write the spec, the other to write from
-> that spec in a different building).
-> 
-> > I suggest you think real hard and long about your decisions to go about
-> > calling derived works from stolen/deleted Copyrights. 
-> 
-> Rude yes, but derived work.. open question. I guess Eben can give you a
-> reasonably sane opinion if its so important.
-> 
+There's also a bitkeeper repository with all this in at
 
-Andre Hedrick
-LAD Storage Consulting Group
+http://linux-voyager.bkbits.net/arch-split-2.5
+
+James Bottomley
+
 

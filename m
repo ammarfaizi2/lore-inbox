@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268342AbTBNJfU>; Fri, 14 Feb 2003 04:35:20 -0500
+	id <S268211AbTBNJ30>; Fri, 14 Feb 2003 04:29:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268328AbTBNJ2F>; Fri, 14 Feb 2003 04:28:05 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:1364
+	id <S268201AbTBNJ2L>; Fri, 14 Feb 2003 04:28:11 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:2388
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268200AbTBNJ0t>; Fri, 14 Feb 2003 04:26:49 -0500
-Date: Fri, 14 Feb 2003 04:35:19 -0500 (EST)
+	id <S268211AbTBNJ0y>; Fri, 14 Feb 2003 04:26:54 -0500
+Date: Fri, 14 Feb 2003 04:34:48 -0500 (EST)
 From: Zwane Mwaikambo <zwane@zwane.ca>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5][6/14] smp_call_function_on_cpu - PPC32
-Message-ID: <Pine.LNX.4.50.0302140402190.3518-100000@montezuma.mastecende.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH][2.5][9/14] smp_call_function_on_cpu - s390x
+Message-ID: <Pine.LNX.4.50.0302140406140.3518-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- smp.c |   81 +++++++++++++++++++++++++++++++++++++++++-------------------------
- 1 files changed, 51 insertions(+), 30 deletions(-)
+ smp.c |   52 ++++++++++++++++++++++++++++++++++------------------
+ 1 files changed, 34 insertions(+), 18 deletions(-)
 
-Index: linux-2.5.60/arch/ppc/kernel/smp.c
+Index: linux-2.5.60/arch/s390x/kernel/smp.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/ppc/kernel/smp.c,v
+RCS file: /build/cvsroot/linux-2.5.60/arch/s390x/kernel/smp.c,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/ppc/kernel/smp.c	10 Feb 2003 22:14:40 -0000	1.1.1.1
-+++ linux-2.5.60/arch/ppc/kernel/smp.c	14 Feb 2003 06:54:53 -0000
-@@ -65,8 +65,6 @@
- int start_secondary(void *);
- extern int cpu_idle(void *unused);
- void smp_call_function_interrupt(void);
--static int __smp_call_function(void (*func) (void *info), void *info,
--			       int wait, int target);
- 
- /* Since OpenPIC has only 4 IPIs, we use slightly different message numbers.
-  * 
-@@ -188,40 +186,35 @@
+--- linux-2.5.60/arch/s390x/kernel/smp.c	10 Feb 2003 22:15:48 -0000	1.1.1.1
++++ linux-2.5.60/arch/s390x/kernel/smp.c	14 Feb 2003 07:34:43 -0000
+@@ -101,28 +101,34 @@
   * in the system.
   */
  
--int smp_call_function(void (*func) (void *info), void *info, int nonatomic,
--		      int wait)
+-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+-			int wait)
  /*
 - * [SUMMARY] Run a function on all other CPUs.
 - * <func> The function to run. This must be fast and non-blocking.
@@ -64,102 +56,58 @@ diff -u -r1.1.1.1 smp.c
   * You must not call this function with disabled interrupts or from a
   * hardware interrupt handler or from a bottom half handler.
   */
--{
--	/* FIXME: get cpu lock with hotplug cpus, or change this to
--           bitmask. --RR */
--	if (num_online_cpus() <= 1)
--		return 0;
--	return __smp_call_function(func, info, wait, MSG_ALL_BUT_SELF);
--}
- 
--static int __smp_call_function(void (*func) (void *info), void *info,
--			       int wait, int target)
-+static int smp_call_function_on_cpu(void (*func) (void *info), void *info,
-+					int wait, unsigned long mask)
++
++int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
++				unsigned long mask)
  {
  	struct call_data_struct data;
- 	int ret = -1;
- 	int timeout;
--	int ncpus = 1;
-+	int i, cpu, num_cpus;
+-	int cpus = num_online_cpus()-1;
+-
+-	/* FIXME: get cpu lock -hc */
+-	if (cpus <= 0)
+-		return 0;
++	int cpu, i, num_cpus;
  
--	if (target == MSG_ALL_BUT_SELF)
--		ncpus = num_online_cpus() - 1;
--	else if (target == MSG_ALL)
--		ncpus = num_online_cpus();
 +	cpu = get_cpu();
-+	num_cpus = hweight32(mask);
++	mask &= ~(1UL << cpu);
++	num_cpus = hweight64(mask);
 +	if (num_cpus == 0) {
 +		put_cpu_no_resched();
 +		return -EINVAL;
 +	}
- 
  	data.func = func;
  	data.info = info;
-@@ -233,14 +226,23 @@
+ 	atomic_set(&data.started, 0);
+@@ -133,18 +139,28 @@
  	spin_lock(&call_lock);
  	call_data = &data;
  	/* Send a message to all other CPUs and wait for them to respond */
--	smp_message_pass(target, PPC_MSG_CALL_FUNCTION, 0, 0);
-+	if (mask == cpu_online_map) {
-+		smp_message_pass(MSG_ALL, PPC_MSG_CALL_FUNCTION, 0, 0);
-+	} else if (mask == (cpu_online_map & ~(1UL <<  cpu))) {
-+		smp_message_pass(MSG_ALL_BUT_SELF, PPC_MSG_CALL_FUNCTION, 0, 0);
-+	} else {
-+		for (i = 0; i < NR_CPUS; i++) {
-+			if (cpu_online(i) && ((1UL << i) & mask))
-+				smp_message_pass(i, PPC_MSG_CALL_FUNCTION, 0, 0);
-+		}
+-        smp_ext_bitcall_others(ec_call_function);
++	for (i = 0; i < NR_CPUS; i++) {
++		if (cpu_online(i) && ((1UL << i) & mask))
++			smp_ext_bitcall(i, ec_call_function);
 +	}
  
  	/* Wait for response */
- 	timeout = 1000000;
--	while (atomic_read(&data.started) != ncpus) {
-+	while (atomic_read(&data.started) != num_cpus) {
- 		if (--timeout == 0) {
- 			printk("smp_call_function on cpu %d: other cpus not responding (%d)\n",
--			       smp_processor_id(), atomic_read(&data.started));
-+			       cpu, atomic_read(&data.started));
- 			goto out;
- 		}
+-	while (atomic_read(&data.started) != cpus)
++	while (atomic_read(&data.started) != num_cpus)
  		barrier();
-@@ -249,10 +251,10 @@
  
- 	if (wait) {
- 		timeout = 1000000;
--		while (atomic_read(&data.finished) != ncpus) {
-+		while (atomic_read(&data.finished) != num_cpus) {
- 			if (--timeout == 0) {
- 				printk("smp_call_function on cpu %d: other cpus not finishing (%d/%d)\n",
--				       smp_processor_id(), atomic_read(&data.finished), atomic_read(&data.started));
-+				       cpu, atomic_read(&data.finished), atomic_read(&data.started));
- 				goto out;
- 			}
+ 	if (wait)
+-		while (atomic_read(&data.finished) != cpus)
++		while (atomic_read(&data.finished) != num_cpus)
  			barrier();
-@@ -263,7 +265,26 @@
+-	spin_unlock(&call_lock);
  
-  out:
- 	spin_unlock(&call_lock);
-+	pu_cpu_no_resched();
- 	return ret;
++	spin_unlock(&call_lock);
++	put_cpu_no_resched();
+ 	return 0;
 +}
 +
-+/*
-+ * [SUMMARY] Run a function on all other CPUs.
-+ * <func> The function to run. This must be fast and non-blocking.
-+ * <info> An arbitrary pointer to pass to the function.
-+ * <retry> unused
-+ * <wait> If true, wait (atomically) until function has completed on other CPUs.
-+ * [RETURNS] 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-+ *
-+ * You must not call this function with disabled interrupts or from a
-+ * hardware interrupt handler or from a bottom half handler.
-+ */
-+
-+int smp_call_function(void (*func) (void *info), void *info, int retry, int wait)
++int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
++			int wait)
 +{
 +	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
  }
  
- void smp_call_function_interrupt(void)
+ static inline void do_send_stop(void)

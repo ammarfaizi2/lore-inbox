@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264407AbRF1Vq0>; Thu, 28 Jun 2001 17:46:26 -0400
+	id <S264564AbRF1Vrq>; Thu, 28 Jun 2001 17:47:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264496AbRF1VqQ>; Thu, 28 Jun 2001 17:46:16 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:44444 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264407AbRF1VqO>;
-	Thu, 28 Jun 2001 17:46:14 -0400
-Message-ID: <3B3BA5CA.51E988CB@mandrakesoft.com>
-Date: Thu, 28 Jun 2001 17:46:50 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
+	id <S264550AbRF1Vrg>; Thu, 28 Jun 2001 17:47:36 -0400
+Received: from [216.102.46.130] ([216.102.46.130]:30782 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S264506AbRF1VrX>; Thu, 28 Jun 2001 17:47:23 -0400
+To: Pekka Pietikainen <pp@evil.netppl.fi>
+Cc: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux and system area networks
+In-Reply-To: <20010627154140.A14908@netppl.fi> <Pine.LNX.4.33.0106281918560.32296-100000@kenzo.iwr.uni-heidelberg.de> <20010628221227.A24517@netppl.fi>
+From: Roland Dreier <roland@topspincom.com>
+Date: 28 Jun 2001 14:46:49 -0700
+In-Reply-To: Pekka Pietikainen's message of "Thu, 28 Jun 2001 22:12:27 +0300"
+Message-ID: <52d77o46ra.fsf@love-boat.topspincom.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-Cc: John R Lenton <john@grulic.org.ar>, linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <Pine.LNX.4.33.0106280921460.10308-100000@localhost.localdomain> <31074.993745533@redhat.com> <20010628183040.E7494@grulic.org.ar> <3B3BA303.2807E1E6@mandrakesoft.com> <20010628234305.A4175@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
-> kde.o. 2.5?
+    Pekka> If you used sockets, I believe the normal way to use SAN
+    Pekka> boards is to just make them look like network cards with a
+    Pekka> large MTU Sure it works, but it's not very efficient :) (I
+    Pekka> have to admit I've not played with that kind of toys at
+    Pekka> all, though)
 
-Good idea!  Graphics needs to be in the kernel to be fast.  Windows
-proved that.
+We seem to have come full circle.  My original question was about
+providing a better way for sockets applications to take advantage of
+SAN hardware.  W2K Datacenter introduces "Winsock Direct," which will
+bypass the protocol stack when appropriate.  The Infiniband people are
+working on a "Sockets Direct" standard, which is a similar idea.  No
+one seems to care about this for Linux.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+Roland

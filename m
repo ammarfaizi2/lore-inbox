@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275907AbSIUMGb>; Sat, 21 Sep 2002 08:06:31 -0400
+	id <S275908AbSIUMYU>; Sat, 21 Sep 2002 08:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275908AbSIUMGb>; Sat, 21 Sep 2002 08:06:31 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:51873 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S275907AbSIUMGb>;
-	Sat, 21 Sep 2002 08:06:31 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 21 Sep 2002 14:11:38 +0200 (MEST)
-Message-Id: <UTC200209211211.g8LCBcW16848.aeb@smtp.cwi.nl>
+	id <S275909AbSIUMYU>; Sat, 21 Sep 2002 08:24:20 -0400
+Received: from quechua.inka.de ([212.227.14.2]:34172 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S275908AbSIUMYU>;
+	Sat, 21 Sep 2002 08:24:20 -0400
+From: Bernd Eckenfels <ecki-news2002-09@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.37 oopses at boot in ide_toggle_bounce
+Subject: Re: [PATCH] __KERNEL__ pasting in drivers/net/wan/cycx_x25.c
+In-Reply-To: <20020921112245.27021.qmail@unibar>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E17sjO4-00008j-00@sites.inka.de>
+Date: Sat, 21 Sep 2002 14:29:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.37 oopses at boot in ide_toggle_bounce().
-With
+In article <20020921112245.27021.qmail@unibar> you wrote:
+> This patch cleans up the __FUNCTION__ pasting to the new
+> standard.
 
---- linux-2.5.37/linux/drivers/ide/ide-lib.c    Sat Sep 21 11:39:48 2002
-+++ linux-2.5.37a/linux/drivers/ide/ide-lib.c   Sat Sep 21 14:06:45 2002
-@@ -394,7 +394,7 @@
-        if (on && drive->media == ide_disk) {
-                if (!PCI_DMA_BUS_IS_PHYS)
-                        addr = BLK_BOUNCE_ANY;
--               else
-+               else if (HWIF(drive)->pci_dev)
-                        addr = HWIF(drive)->pci_dev->dma_mask;
-        }
+is this normal, that we dont have a rate limit in those functions? And even
+worse, that there is no error handling like signalling this back to the
+channel? In this case this looks especially annoying, since it is a state
+changing event, if when lost may totally screw up the state engine (if i
+understand the comment "Send event (connection, disconnection, etc) to X.25
+socket layer" right.
 
-it boots for me. I have not investigated a proper fix.
-
-Andries
+Greetings
+Bernd

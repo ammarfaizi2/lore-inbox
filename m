@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318202AbSIJWrf>; Tue, 10 Sep 2002 18:47:35 -0400
+	id <S318198AbSIJWqt>; Tue, 10 Sep 2002 18:46:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318203AbSIJWrf>; Tue, 10 Sep 2002 18:47:35 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:63722 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S318202AbSIJWre>; Tue, 10 Sep 2002 18:47:34 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Oktay Akbal <oktay.akbal@s-tec.de>
-Date: Wed, 11 Sep 2002 08:51:56 +1000
+	id <S318202AbSIJWqt>; Tue, 10 Sep 2002 18:46:49 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25331 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318198AbSIJWqs>; Tue, 10 Sep 2002 18:46:48 -0400
+Date: Wed, 11 Sep 2002 00:51:28 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, <hch@lst.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre5
+In-Reply-To: <Pine.LNX.4.44.0208281946150.5234-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0209110048250.26432-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15742.30604.313336.285853@notabene.cse.unsw.edu.au>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: md multipath with disk missing ?
-In-Reply-To: message from Oktay Akbal on Monday September 9
-References: <20020909132713.GA29@marowsky-bree.de>
-	<Pine.LNX.4.44.0209091537020.12771-100000@omega.s-tec.de>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday September 9, oktay.akbal@s-tec.de wrote:
-> > > Does this only work with raid-autodetection ?
-> > > When no autodetection is done and a drive is missing, would a raidstart
-> > > kill the raid, since the drives are now available with other devices (sda
-> > > instead of former sdb...) ?
-> >
-> > I don't understand your question, sorry.
-> 
-> Example:
-> 
-> We have sda - sdb (8 drives) and setup up a raidtab to tell linux that
-> sda and sde are the same sdc - sdd etc.
-> Now for some random error the server restarts and the former sda (path to
-> that drive) is no longer available. So now we have sda,sdb...sdg.
-> We do not use autodetect, but raidstart to activate the raid.
+On Wed, 28 Aug 2002, Marcelo Tosatti wrote:
 
-raidstart is broken by design and cannot cope with devices that change
-device number (whether name in /dev is preserved or not.  There are
-device numbers in the superblock which raidstart trusts).
+>...
+> <hch@lst.de>:
+>   o Merge ETHTOOL_GDRVINFO support for several pcmcia net drivers
+>...
 
-This is one of the reasons that I wrote mdadm
-   http://www.cse.unsw.edu.au/~neilb/source/mdadm/
+This change broke the compilation of wavelan_cs.c. The following error is
+still present in -pre6:
 
-This affects all raid levels, not just multipath.
+<--  snip  -->
 
-NeilBrown
+...
+gcc -D__KERNEL__
+-I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include -Wall -
+Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=wavelan_cs  -c -o wavelan_cs.o wavelan_cs.c
+In file included from wavelan_cs.c:66:
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/ethtool.h:18:
+parse error before `u32'
+...
+make[4]: *** [wavelan_cs.o] Error 1
+make[4]: Leaving directory
+`/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/net/pcmcia'
+
+<--  snip  -->
+
+
+The following patch (stolen from -ac) fixes it:
+
+
+--- linux.20pre5/drivers/net/pcmcia/wavelan_cs.c	2002-08-29 18:39:55.000000000 +0100
++++ linux.20pre5-ac4/drivers/net/pcmcia/wavelan_cs.c	2002-08-30 13:45:09.000000000 +0100
+@@ -63,6 +63,7 @@
+  *
+  */
+
++#include <linux/types.h>
+ #include <linux/ethtool.h>
+ #include <asm/uaccess.h>
+ #include "wavelan_cs.h"		/* Private header */
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

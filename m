@@ -1,147 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131408AbRCKNt1>; Sun, 11 Mar 2001 08:49:27 -0500
+	id <S131419AbRCKNeZ>; Sun, 11 Mar 2001 08:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131411AbRCKNtS>; Sun, 11 Mar 2001 08:49:18 -0500
-Received: from orbita.don.sitek.net ([213.24.25.98]:52236 "EHLO
-	orbita.don.sitek.net") by vger.kernel.org with ESMTP
-	id <S131408AbRCKNtB>; Sun, 11 Mar 2001 08:49:01 -0500
-Date: Sun, 11 Mar 2001 16:47:47 +0300
-From: Andrey Panin <pazke@orbita.don.sitek.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] /drivers/char/cyclades.c: panic() call removal
-Message-ID: <20010311164747.A332@debian>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
-User-Agent: Mutt/1.0.1i
+	id <S131420AbRCKNeQ>; Sun, 11 Mar 2001 08:34:16 -0500
+Received: from d148.as5200.mesatop.com ([208.164.122.148]:35979 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S131419AbRCKNeF>; Sun, 11 Mar 2001 08:34:05 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Sun, 11 Mar 2001 06:37:10 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, Keith Owens <kaos@ocs.com.au>
+In-Reply-To: <15167.984293552@ocs3.ocs-net> <3AAB245F.A98004D9@mandrakesoft.com>
+In-Reply-To: <3AAB245F.A98004D9@mandrakesoft.com>
+Subject: Re: List of recent (2.4.0 to 2.4.2-ac18) CONFIG options needing Configure.help text.
+MIME-Version: 1.0
+Message-Id: <01031106371001.29664@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 11 March 2001 00:08, Jeff Garzik wrote:
+> Keith Owens wrote:
+> > On Sat, 10 Mar 2001 23:03:19 -0700,
+> >
+> > Steven Cole <elenstev@mesatop.com> wrote:
+> > >With the 2.4.0 kernel, there were 476 CONFIG options which had
+> > >no help entry in Configure.help.  With 2.4.2-ac18, this number is now
+> > > 547, which has been kept this low with 54 options getting
+> > > Configure.help text.
+> >
+> > If any of these CONFIG_ options are always derived (i.e. the user never
+> > sees them on a config menu) then please add the suffix _DERIVED to such
+> > options.  They still need to start with CONFIG_ to suit the kernel
+> > build dependency generator so we cannot change the start of the name.
+> > Appending _DERIVED will make it obvious that the options require no
+> > help text.
+>
+> Yow.  That is very cumbersome.  Can't you just keep a list somewhere,
+> instead of making such options longer?
 
---neYutvxvOLaeuPCA
-Content-Type: multipart/mixed; boundary="x+6KMIRAuhnl3hBn"
+BTW, the script I used (originally written by Paul Gortmaker), does pass the
+lines in [C,c]onfig.in through grep -v define_ to catch items which are defined
+with define_bool or define_int.  Here is a short list of new CONFIG_ items which
+got filtered out:
 
+CONFIG_ARCH_S390X
+CONFIG_CRIS_LOW_MAP
+CONFIG_FBCON_STI
+CONFIG_FUSION_BOOT
+CONFIG_IP_NF_NAT_FTP
+CONFIG_MTD_AMDSTD
+CONFIG_PARISC32
+CONFIG_SPARC32
+CONFIG_SPARC64
+CONFIG_TQM8xxL
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+As far as appending _DERIVED is concerned, I like the idea, but there might be
+quite a time where it was only partially implemented, just confusing things.  Unless
+those CONFIG_XXX_DERIVED items all got renamed at once like the great redo
+300+ Makefiles adventure last fall.
 
-Hi all,
-
-this patch removes panic() calls and adds MODULE_DEVICE_TABLE to cyclades d=
-river.
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-cyclades
-Content-Transfer-Encoding: quoted-printable
-
---- /linux/drivers/char/cyclades.c.orig	Sun Mar 11 19:50:00 2001
-+++ /linux/drivers/char/cyclades.c	Sun Mar 11 20:09:08 2001
-@@ -866,17 +866,21 @@
- static unsigned short	cy_isa_nboard;
- static unsigned short	cy_nboard;
- #ifdef CONFIG_PCI
--static unsigned short	cy_pci_dev_id[] =3D {
--			    PCI_DEVICE_ID_CYCLOM_Y_Lo,	/* PCI < 1Mb */
--			    PCI_DEVICE_ID_CYCLOM_Y_Hi,	/* PCI > 1Mb */
--			    PCI_DEVICE_ID_CYCLOM_4Y_Lo,	/* 4Y PCI < 1Mb */
--			    PCI_DEVICE_ID_CYCLOM_4Y_Hi,	/* 4Y PCI > 1Mb */
--			    PCI_DEVICE_ID_CYCLOM_8Y_Lo,	/* 8Y PCI < 1Mb */
--			    PCI_DEVICE_ID_CYCLOM_8Y_Hi,	/* 8Y PCI > 1Mb */
--			    PCI_DEVICE_ID_CYCLOM_Z_Lo,	/* Z PCI < 1Mb */
--			    PCI_DEVICE_ID_CYCLOM_Z_Hi,	/* Z PCI > 1Mb */
--			    0				/* end of table */
--			};
-+#define CYCLADES_DEVICE(x) { PCI_VENDOR_ID_CYCLADES, PCI_DEVICE_ID_CYCLOM_=
-##x##, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }
-+
-+static struct pci_device_id cy_pci_dev_id[] =3D {
-+	CYCLADES_DEVICE(Y_Lo),		/* PCI < 1Mb */
-+	CYCLADES_DEVICE(Y_Hi),		/* PCI > 1Mb */
-+	CYCLADES_DEVICE(4Y_Lo),		/* 4Y PCI < 1Mb */
-+	CYCLADES_DEVICE(4Y_Hi),		/* 4Y PCI > 1Mb */
-+	CYCLADES_DEVICE(8Y_Lo),		/* 8Y PCI < 1Mb */
-+	CYCLADES_DEVICE(8Y_Hi),		/* 8Y PCI > 1Mb */
-+	CYCLADES_DEVICE(Z_Lo),		/* Z PCI < 1Mb */
-+	CYCLADES_DEVICE(Z_Hi),		/* Z PCI > 1Mb */
-+	{ 0, }				/* end of table */
-+};
-+
-+MODULE_DEVICE_TABLE(pci, cy_pci_dev_id);
- #endif
-=20
- static void cy_start(struct tty_struct *);
-@@ -4970,7 +4974,7 @@
-=20
-         for (i =3D 0; i < NR_CARDS; i++) {
-                 /* look for a Cyclades card by vendor and device id */
--                while((device_id =3D cy_pci_dev_id[dev_index]) !=3D 0) {
-+                while((device_id =3D cy_pci_dev_id[dev_index].device) !=3D=
- 0) {
-                         if((pdev =3D pci_find_device(PCI_VENDOR_ID_CYCLADE=
-S,
-                                         device_id, pdev)) =3D=3D NULL) {
-                                 dev_index++;    /* try next device id */
-@@ -5478,6 +5482,15 @@
-     extra ports are ignored.
-  */
-=20
-+static void __init cy_cleanup_after_failure(struct tty_driver *tty)
-+{
-+	unsigned long flags;
-+	save_flags(flags); cli();
-+	remove_bh(CYCLADES_BH);
-+	if (tty) tty_unregister_driver(tty);
-+	restore_flags(flags);
-+}
-+
- int __init
- cy_init(void)
- {
-@@ -5544,10 +5557,16 @@
-     cy_callout_driver.proc_entry =3D 0;
-=20
-=20
--    if (tty_register_driver(&cy_serial_driver))
--	     panic("Couldn't register Cyclades serial driver\n");
--    if (tty_register_driver(&cy_callout_driver))
--	     panic("Couldn't register Cyclades callout driver\n");
-+    if ((i =3D tty_register_driver(&cy_serial_driver))) {
-+	    printk(KERN_ERR "cyclades: Couldn't register Cyclades serial driver\n=
-");
-+	    cy_cleanup_after_failure(NULL);
-+	    return i;
-+    }
-+    if ((i =3D tty_register_driver(&cy_callout_driver))) {
-+	    printk(KERN_ERR "cyclades: Couldn't register Cyclades callout driver\=
-n");
-+	    cy_cleanup_after_failure(&cy_serial_driver);
-+	    return i;
-+    }
-=20
-     for (i =3D 0; i < NR_CARDS; i++) {
-             /* base_addr=3D0 indicates board not found */
-
---x+6KMIRAuhnl3hBn--
-
---neYutvxvOLaeuPCA
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD4DBQE6q4IDBm4rlNOo3YgRAoQRAJiWvd6MtxxmHudjINJ+sNE3VYBkAJ0Upvvn
-q7kXf4StCj9O2Z4pPB163g==
-=7ril
------END PGP SIGNATURE-----
-
---neYutvxvOLaeuPCA--
+Steven

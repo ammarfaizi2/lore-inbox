@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282554AbRKZVWL>; Mon, 26 Nov 2001 16:22:11 -0500
+	id <S282574AbRKZV0L>; Mon, 26 Nov 2001 16:26:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282560AbRKZVWB>; Mon, 26 Nov 2001 16:22:01 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55303 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S282554AbRKZVVs>; Mon, 26 Nov 2001 16:21:48 -0500
-Date: Mon, 26 Nov 2001 16:15:26 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-In-Reply-To: <4.3.2.7.2.20011126120940.00b41b20@mail.osagesoftware.com>
-Message-ID: <Pine.LNX.3.96.1011126160539.27112J-100000@gatekeeper.tmr.com>
+	id <S282572AbRKZV0B>; Mon, 26 Nov 2001 16:26:01 -0500
+Received: from fepB.post.tele.dk ([195.41.46.145]:33533 "EHLO
+	fepB.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S282569AbRKZVZs>; Mon, 26 Nov 2001 16:25:48 -0500
+Message-ID: <004d01c17709$0737e840$0b00a8c0@runner>
+From: "Rune" <runner@mail.tele.dk>
+To: <linux-kernel@vger.kernel.org>
+Subject: "SIS-360" - "Olicom CrossFire 8720 switch" problem on kernel 2.4.4+
+Date: Mon, 26 Nov 2001 22:01:57 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, David Relson wrote:
+Hi there I've got a problem I'd like to share with:
 
-> At 12:22 PM 11/26/01, Chris Meadors wrote:
-> 
-> >Aren't all the -pre's pre-finals?  And what if there is a big bug found in
-> >the -final, it will obviously be followed up with a -final-final?
+When my SIS-360 derived labtop to my Crossfire 8720 switch the
+auto-negotiation will fail (timeout) under the following conditions:
+                - using the drivers from Kernel 2.4.4+  (I have tried
+2.4.14)
+                - auto-negotiation is enabled ;)
+                - using DHCP
+                - netcard-revision: 0x80 (haven't tried others)
+                -the netcard must be directly connected to the switch
 
-All the -pre's are before the final, but not release candidates. I think
-the rc until recently has been the one where someone said "we've put a
-hell of a lot of new stuff in this..." and concentrated on reported bugs,
-if any.
+all other configurations works, and everything works on other switches...
 
-> >I like the ISC's release methods.  The do -rc's (-pre's would be fine for
-> >the kernel as it is already established), each -rc fixes problems found
-> >with the previous.  When an -rc has been out long enough with no more bug
-> >reports they release that code, WITHOUT changes.
- 
-> I think of -pre releases as beta code - testable and likely broken.  An -rc 
-> release would be "possibly broken".  If problems are encountered, fix ONLY 
-> those problems to generate the next -rc.  If it's O.K., then make it "final".
+This switch has also been sold in the US, but under another name, but
+its still called CrossFire 8720.
 
-Other than some quibbling about nomenclature, that's how I see it. We
-always had an alpha version for in-house testing only, then a beta for
-selected users, which for Linux would be those who have the guts to run
-the downloads, and then a release.
+I have talked to Hui-Fen (SIS), who has made the driver, but he can't
+reproduce the conditions because SIS don't own such a switch.
 
-I did commenrcial software development for a few decades and that was
-usually the practice, and that's what people like Microsoft were doing
-when I did a few beta tests for them. I think it's a good model for Linux
-stable kernel series.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Since I'm not capable of fixing it myself, I thought I'd try my luck here:
+
+Are there anyone here capable of "fixing" the driver who owns a
+SIS360-chipset and Olicom CrossFire 8720 or can get their hands them.
+Or just reproduce it..
+
+Rune Petersen
+
 

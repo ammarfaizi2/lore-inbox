@@ -1,72 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUCXSws (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 13:52:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUCXSws
+	id S263100AbUCXSzv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 13:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUCXSzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 13:52:48 -0500
-Received: from ASte-Genev-Bois-101-1-1-195.w193-252.abo.wanadoo.fr ([193.252.54.195]:30226
-	"EHLO slartibartfast.qube.net") by vger.kernel.org with ESMTP
-	id S263802AbUCXSwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 13:52:46 -0500
-Date: Wed, 24 Mar 2004 19:52:43 +0100
-From: Ignacy Gawedzki <ig@lri.fr>
-To: linux-kernel@vger.kernel.org
-Cc: USAGI users <usagi-users@linux-ipv6.org>
-Subject: IPv6 multicast in 2.4.25 broken?
-Message-ID: <20040324185243.GB27409@zenon.mine.nu>
-Mail-Followup-To: Ignacy Gawedzki <ig@lri.fr>, linux-kernel@vger.kernel.org,
-	USAGI users <usagi-users@linux-ipv6.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 24 Mar 2004 13:55:50 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:37319 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263100AbUCXSzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 13:55:47 -0500
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: VMware-workstation-4.5.1 on linux-2.6.4-x86_64 host fai
+Date: Wed, 24 Mar 2004 19:55:38 +0100
+User-Agent: KMail/1.5.4
+References: <19772436779@vcnet.vc.cvut.cz>
+In-Reply-To: <19772436779@vcnet.vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200403241955.38489.hpj@urpla.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 24 March 2004 12:59, Petr Vandrovec wrote:
+> On 24 Mar 04 at 11:43, Hans-Peter Jansen wrote:
+> >
+> > Am I right, that you're running on i586, while the problem expose
+> > on x86_64 arch?
+>
+> Not only. It builds & runs without patches if you use "right"
+> x86_64 kernels. Patch you posted is needed on SuSE (AFAIK) 2.4.x
+> kernels and on 2.6.x kernels, while RedHat 2.4.x kernels works
+> without patch. On other side ffs(0) returns 33 on RedHat's 2.4.x
+> kernels (at least on one...) which can cause machine lockup in
+> endless loop waiting until ffs(0) will become 0...
 
-It seems that simple multicast support in IPv6 has ceased working
-starting at kernel version 2.4.25-pre4.  More specifically, receiving
-multicast packets (those with destination address ff05::1 or ff02::1) is
-broken (read: sending is okay).  The same binary run on kernels 2.4.24
-and earlier works with no problem.
+Hmm, it's a SuSE issue then, nice to know (and easily fixable ;-).
 
-I tried as many combinations of USAGI patches and kernel versions as I
-could, but cannot figure the exact source of the problem.  I did not
-inspect the diffs with enough attention, though.
+> On 2.6.x kernels additionally (problem you are hitting now)
+> SIO*BRIDGE ioctls were moved from "compatible" to "not so
+> compatible" group. If you'll just mark them as "compatible", it
+> will work sufficiently well to get networking in VMware.
 
-Another funny thing is that the changelog for version 2.4.25-pre4
-doesn't mention any change to IPv6 code.
+I found it. Fixed it with this patch:
 
-Did anyone have similar experience and or suggestions?
+--- include/linux/compat_ioctl.h~	2004-03-12 18:37:26.000000000 +0100
++++ include/linux/compat_ioctl.h	2004-03-24 12:34:30.000000000 +0100
+@@ -247,10 +247,10 @@
+ COMPATIBLE_IOCTL(SIOCSIFENCAP)
+ COMPATIBLE_IOCTL(SIOCGIFENCAP)
+ COMPATIBLE_IOCTL(SIOCSIFNAME)
+-/* FIXME: not compatible
++/* FIXME: not compatible */
+ COMPATIBLE_IOCTL(SIOCSIFBR)
+ COMPATIBLE_IOCTL(SIOCGIFBR)
+-*/
++/* reactivated for vmware */
+ COMPATIBLE_IOCTL(SIOCSARP)
+ COMPATIBLE_IOCTL(SIOCGARP)
+ COMPATIBLE_IOCTL(SIOCDARP)
 
-I have not subscribed to the linux-kernel list, because of its high
-traffic, so please CC me the replies.
+> Unfortunately I'm not aware about any way how to issue x86_64
+> ioctls from 32bit ia32 program, and spawning external program just
+> to perform one ioctl on some file descriptor looks like overkill.
 
-Thanks,
+Since networking works as expected, I don't see any reason for this
+(I probably missing some aspect..)
 
-Ignacy
+> I'll start supporting x86_64 in vmware-any-any- patches as soon as
+> someone donates x86_64 system to me, or after ~ September 2004,
+> whatever comes first. Until then you have to get it to work
 
-PS: The detailed way in which I prepare the socket is the following:
+Well, I cannot spend you a machine atm, sorry.
 
-  Open a UDP socket in IPv6 protocol family.
+As it appears to me, VMware Inc. owes you __at least__ one ;-)
 
-  Bind it to network interface using SO_BINDTODEVICE.
+> yourself - change you made is already done in
+> vmware-any-any-update55, unfortunately other parts of that update
+> do not build on x86_64 yet...
 
-  Set the multicast network interface using IPV6_MULTICAST_IF.
-  
-  Bind it to the network interface's address (which is set manually to
-  fec0::1).
-  
-  Set the multicast hops with IPV6_MULTICAST_HOPS to 1.
-  
-  Set the multicast membership to ff02::1 (or ff05::1) using
-  IPV6_ADD_MEMBERSHIP.
-  
-  Unset the multicast loop using IPV6_MULTICAST_LOOP.
+Oh, well...
 
-Note: the same socket is used to send and receive multicast packets.
+>                                                 Petr Vandrovec
 
--- 
-To err is human, to moo bovine.
+My last issue is a cosmetical one. Is it expected, that in VMware GUI,
+the menu and all edit fields are rendered in a fixed space font (looks
+like "ETL Fixed"), which looks quite strange?
+
+Thanks for your help,
+Pete
+

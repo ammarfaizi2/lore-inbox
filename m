@@ -1,126 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131935AbQLVSyc>; Fri, 22 Dec 2000 13:54:32 -0500
+	id <S131934AbQLVSzW>; Fri, 22 Dec 2000 13:55:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131934AbQLVSyM>; Fri, 22 Dec 2000 13:54:12 -0500
-Received: from shoe.tuxtops.com ([208.184.141.200]:49928 "EHLO
-	shoe.tuxtops.com") by vger.kernel.org with ESMTP id <S130425AbQLVSyE>;
-	Fri, 22 Dec 2000 13:54:04 -0500
-Date: Fri, 22 Dec 2000 09:54:44 -0800 (PST)
-From: Brad Douglas <brad@tuxtops.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.2.19pre3
-Message-ID: <Pine.LNX.4.10.10012220952290.26628-100000@shoe.tuxtops.com>
+	id <S132009AbQLVSzN>; Fri, 22 Dec 2000 13:55:13 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:42492 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S132008AbQLVSy5>; Fri, 22 Dec 2000 13:54:57 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012221824.eBMIOEN27293@webber.adilger.net>
+Subject: Re: max number of ide controllers?
+In-Reply-To: <01e401c06c12$44aeee60$2b6e60cf@pcscs.com> "from Charles Wilkins
+ at Dec 22, 2000 07:25:28 am"
+To: Charles Wilkins <chas@pcscs.com>
+Date: Fri, 22 Dec 2000 11:24:13 -0700 (MST)
+CC: Andrzej Krzysztofowicz <ankry@pg.gda.pl>, linux-raid@vger.kernel.org,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Charles Wilkins writes:
+> I added this to lilo.conf:
+> append="ide2=0x168,10" and ran lilo
+> 
+> This is what I got:
+> ide_setup: ide2=0x168,10
+> .
+> .
+> ide2: ports already in use, skipping probe
+> 
+> The promise controllers then setup as ide3 and ide4, but the SB32 still does
+> not report.
+> Any ideas?
 
-Alan,
+Maybe set the new dual controller to be IDE 2,3 and have the SB32 as IDE4.
+Also, you can check /proc/ioports and /proc/interrupts to see if there
+actually are conflicts with the port ranges or interrupts of your card.
+I'm guessing not, because it worked before, but you never know.
 
-Here's a patch that fixes the Makefile and Config.in for drivers/video in
-regard to the ATI Rage128.  This will allow it to properly be compiled as
-a module with proper defaults.
+IDE cards actually have 2 port ranges, so it may be that with the new card
+you are getting conflicts.  My system shows:
 
-No idea what happened to this...  Looks like it's been broke for some
-time.
+0170-0177 : ide1
+01e8-01ef : ide2
+01f0-01f7 : ide0
 
-Brad Douglas
-brad@tuxtops.com
-brad@neruo.com
+0376-0376 : ide1
+03ee-03ee : ide2
+03f6-03f6 : ide0
 
+The second ide2 port is in the same place as ttyS2 (com3)...
 
-diff -urN linux-2.2.19pre3/drivers/video/Config.in linux/drivers/video/Config.in
---- linux-2.2.19pre3/drivers/video/Config.in	Sun Dec 10 16:49:44 2000
-+++ linux/drivers/video/Config.in	Fri Dec 22 09:56:35 2000
-@@ -188,7 +188,8 @@
- 	 "$CONFIG_FB_VALKYRIE" = "y" -o "$CONFIG_FB_PLATINUM" = "y" -o \
-          "$CONFIG_FB_IGA" = "y" -o "$CONFIG_FB_MATROX" = "y" -o \
- 	 "$CONFIG_FB_CT65550" = "y" -o "$CONFIG_FB_PM2" = "y" -o \
--	 "$CONFIG_FB_SGIVW" = "y" -o "$CONFIG_FB_CYBER2000" = "y" ]; then
-+	 "$CONFIG_FB_SGIVW" = "y" -o "$CONFIG_FB_CYBER2000" = "y" -o \
-+	 "$CONFIG_FB_ATY128" = "y" ]; then
-       define_bool CONFIG_FBCON_CFB8 y
-     else
-       if [ "$CONFIG_FB_ACORN" = "m" -o "$CONFIG_FB_ATARI" = "m" -o \
-@@ -202,14 +203,15 @@
- 	   "$CONFIG_FB_VALKYRIE" = "m" -o "$CONFIG_FB_PLATINUM" = "m" -o \
-            "$CONFIG_FB_IGA" = "m" -o "$CONFIG_FB_MATROX" = "m" -o \
- 	   "$CONFIG_FB_CT65550" = "m" -o "$CONFIG_FB_PM2" = "m" -o \
--	   "$CONFIG_FB_SGIVW" = "m" -o "$CONFIG_FB_CYBER2000" = "m" ]; then
-+	   "$CONFIG_FB_SGIVW" = "m" -o "$CONFIG_FB_CYBER2000" = "m" -o \
-+	   "$CONFIG_FB_ATY128" = "m" ]; then
- 	define_bool CONFIG_FBCON_CFB8 m
-       fi
-     fi
-     if [ "$CONFIG_FB_ATARI" = "y" -o "$CONFIG_FB_ATY" = "y" -o \
- 	 "$CONFIG_FB_MAC" = "y" -o "$CONFIG_FB_VESA" = "y" -o \
- 	 "$CONFIG_FB_VIRTUAL" = "y" -o "$CONFIG_FB_TBOX" = "y" -o \
--	 "$CONFIG_FB_Q40" = "y" -o \
-+	 "$CONFIG_FB_Q40" = "y" -o "$CONFIG_FB_ATY128" = "y" -o \
- 	 "$CONFIG_FB_CONTROL" = "y" -o "$CONFIG_FB_CLGEN" = "y" -o \
- 	 "$CONFIG_FB_VIRGE" = "y" -o "$CONFIG_FB_CYBER" = "y" -o \
- 	 "$CONFIG_FB_VALKYRIE" = "y" -o "$CONFIG_FB_PLATINUM" = "y" -o \
-@@ -221,7 +223,7 @@
-       if [ "$CONFIG_FB_ATARI" = "m" -o "$CONFIG_FB_ATY" = "m" -o \
- 	   "$CONFIG_FB_MAC" = "m" -o "$CONFIG_FB_VESA" = "m" -o \
- 	   "$CONFIG_FB_VIRTUAL" = "m" -o "$CONFIG_FB_TBOX" = "m" -o \
--	 "$CONFIG_FB_Q40" = "m" -o \
-+	   "$CONFIG_FB_Q40" = "m" -o "$CONFIG_FB_ATY128" = "m" -o \
- 	   "$CONFIG_FB_CONTROL" = "m" -o "$CONFIG_FB_CLGEN" = "m" -o \
- 	   "$CONFIG_FB_VIRGE" = "m" -o "$CONFIG_FB_CYBER" = "m" -o \
-  	   "$CONFIG_FB_VALKYRIE" = "m" -o "$CONFIG_FB_PLATINUM" = "m" -o \
-@@ -234,13 +236,13 @@
-     if [ "$CONFIG_FB_ATY" = "y" -o "$CONFIG_FB_VIRTUAL" = "y" -o \
- 	 "$CONFIG_FB_CLGEN" = "y" -o "$CONFIG_FB_VESA" = "y" -o \
- 	  "$CONFIG_FB_MATROX" = "y" -o "$CONFIG_FB_PM2" = "y" -o \
--	 "$CONFIG_FB_CYBER2000" = "y" ]; then
-+	 "$CONFIG_FB_CYBER2000" = "y" -o "$CONFIG_FB_ATY128" = "y" ]; then
-       define_bool CONFIG_FBCON_CFB24 y
-     else
-       if [ "$CONFIG_FB_ATY" = "m" -o "$CONFIG_FB_VIRTUAL" = "m" -o \
- 	   "$CONFIG_FB_CLGEN" = "m" -o "$CONFIG_FB_VESA" = "m" -o \
- 	   "$CONFIG_FB_MATROX" = "m" -o "$CONFIG_FB_PM2" = "m" -o \
--	   "$CONFIG_FB_CYBER2000" = "m" ]; then
-+	   "$CONFIG_FB_CYBER2000" = "m" -o "$CONFIG_FB_ATY128" = "m" ]; then
- 	define_bool CONFIG_FBCON_CFB24 m
-       fi
-     fi
-@@ -249,7 +251,8 @@
- 	 "$CONFIG_FB_CONTROL" = "y" -o "$CONFIG_FB_CLGEN" = "y" -o \
- 	 "$CONFIG_FB_TGA" = "y" -o "$CONFIG_FB_PLATINUM" = "y" -o \
- 	 "$CONFIG_FB_MATROX" = "y" -o "$CONFIG_FB_PM2" = "y" -o \
--	 "$CONFIG_FB_FM2" = "y" -o "$CONFIG_FB_SGIVW" = "y" ]; then
-+	 "$CONFIG_FB_FM2" = "y" -o "$CONFIG_FB_SGIVW" = "y" -o \
-+	 "$CONFIG_FB_ATY128" = "y" ]; then
-       define_bool CONFIG_FBCON_CFB32 y
-     else
-       if [ "$CONFIG_FB_ATARI" = "m" -o "$CONFIG_FB_ATY" = "m" -o \
-@@ -257,7 +260,7 @@
- 	   "$CONFIG_FB_CONTROL" = "m" -o "$CONFIG_FB_CLGEN" = "m" -o \
- 	   "$CONFIG_FB_TGA" = "m" -o "$CONFIG_FB_PLATINUM" = "m" -o \
- 	   "$CONFIG_FB_MATROX" = "m" -o "$CONFIG_FB_PM2" = "m" -o \
--           "$CONFIG_FB_SGIVW" = "m" ]; then
-+           "$CONFIG_FB_SGIVW" = "m" -o "$CONFIG_FB_ATY128" = "m" ]; then
- 	define_bool CONFIG_FBCON_CFB32 m
-       fi
-     fi
-diff -urN linux-2.2.19pre3/drivers/video/Makefile linux/drivers/video/Makefile
---- linux-2.2.19pre3/drivers/video/Makefile	Sun Dec 10 16:49:44 2000
-+++ linux/drivers/video/Makefile	Fri Dec 22 09:53:00 2000
-@@ -106,6 +106,10 @@
- 
- ifeq ($(CONFIG_FB_ATY128),y)
-   L_OBJS += aty128fb.o
-+else
-+  ifeq ($(CONFIG_FB_ATY128),m)
-+  M_OBJS += aty128fb.o
-+  endif
- endif
- 
- ifeq ($(CONFIG_FB_IGA),y)
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

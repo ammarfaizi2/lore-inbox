@@ -1,32 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268534AbUIQJAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUIQJGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268534AbUIQJAm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 05:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268581AbUIQJAl
+	id S268511AbUIQJGW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 05:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268581AbUIQJGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 05:00:41 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:55819 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S268534AbUIQJAk (ORCPT
+	Fri, 17 Sep 2004 05:06:22 -0400
+Received: from math.ut.ee ([193.40.5.125]:21667 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S268511AbUIQJGU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 05:00:40 -0400
+	Fri, 17 Sep 2004 05:06:20 -0400
+Date: Fri, 17 Sep 2004 12:06:16 +0300 (EEST)
 From: Meelis Roos <mroos@linux.ee>
-To: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: CD-ROM can't be ejected
-In-Reply-To: <20040917084302.GA2911@suse.de>
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.9-rc2n (i686))
-Message-Id: <E1C8Ebe-0000rf-75@rhn.tartu-labor>
-Date: Fri, 17 Sep 2004 12:00:38 +0300
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Keyboard problem with 2.6.9-rc* and X
+Message-ID: <Pine.GSO.4.44.0409171201070.12456-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JA> Exactly the same issue, read the thread - your tray is locked, because
-JA> someone else has the drive open.
+I'm running up to date Debian unstable and BK kernels (one or two
+updates a week) on an x86 (i815 chipset), ps2 keyboard, usb mouse.
 
-In my case it's kscd thats' keeping the device open. kscd is in D state,
-wchan is ide_do_drive_cmd.
+Somewhere after 2.6.8 a keyboard problem appeared. After boot, kdm
+starts X and the keyboard is dead in X (even no Ctrl-Alt-F1 for console
+switching). Keyboard works fine on console before X startup. The mouse
+still works even in X, I can select console login from kdm menu, X is
+stopped, the keyboard works again on the console so I can log in as root
+and restart kdm - this time the keyboard works too. This is 100%
+reproducible.
 
-Perhaps it's in D state because I once forced the CD open using cdrecod
--eject.
+This might also be an X problem (recently X server was updated too).
 
 -- 
-Meelis Roos
+Meelis Roos (mroos@linux.ee)
+

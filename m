@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317413AbSFRNpq>; Tue, 18 Jun 2002 09:45:46 -0400
+	id <S317410AbSFRNpl>; Tue, 18 Jun 2002 09:45:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317414AbSFRNpp>; Tue, 18 Jun 2002 09:45:45 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:50304 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317413AbSFRNpo>; Tue, 18 Jun 2002 09:45:44 -0400
-Date: Tue, 18 Jun 2002 09:47:36 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Roberto Nibali <ratz@drugphish.ch>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Firewire Disks. (fwd)
-In-Reply-To: <Pine.LNX.3.95.1020617130745.2163A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.95.1020618093121.3483A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317413AbSFRNpl>; Tue, 18 Jun 2002 09:45:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50446 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317410AbSFRNpk>;
+	Tue, 18 Jun 2002 09:45:40 -0400
+Date: Tue, 18 Jun 2002 14:45:41 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove sync_timers
+Message-ID: <20020618144541.G9435@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Richard B. Johnson wrote:
 
-> On Mon, 17 Jun 2002, Roberto Nibali wrote:
-> [SNIPPED...]
-> 
-> > 
-> > Could you try with the latest 2.4.19preX tree and also replace the 
-> > ../drivers/ieee1394 with the CVS one?
-> > 
-> > [1] http://linux1394.sourceforge.net/svn.html
-> > 
-> > Best regards,
-> > Roberto Nibali, ratz
-> > 
-> > p.s.: You have to hurry up, since I'm not online very often the next few 
-> > weeks. Of course you could also show up at OLS with the disk ;).
-> 
-> Okay. I did that now. However, `depmod -ae` shows some unresolved
-> symbols:
-> 
-[SNIPPED...]
+Nobody's using it any more, kill:
 
+diff -urNX dontdiff linux-2.5.22/include/linux/timer.h linux-2.5.22-bh/include/linux/timer.h
+--- linux-2.5.22/include/linux/timer.h	Thu Jun  6 06:57:51 2002
++++ linux-2.5.22-bh/include/linux/timer.h	Mon Jun 17 16:02:04 2002
+@@ -25,10 +25,8 @@
+ 
+ #ifdef CONFIG_SMP
+ extern int del_timer_sync(struct timer_list * timer);
+-extern void sync_timers(void);
+ #else
+ #define del_timer_sync(t)	del_timer(t)
+-#define sync_timers()		do { } while (0)
+ #endif
+ 
+ /*
+diff -urNX dontdiff linux-2.5.22/kernel/timer.c linux-2.5.22-bh/kernel/timer.c
+--- linux-2.5.22/kernel/timer.c	Sun Jun  9 06:09:49 2002
++++ linux-2.5.22-bh/kernel/timer.c	Tue Jun 18 05:13:51 2002
+@@ -231,11 +232,6 @@
+ }
+ 
+ #ifdef CONFIG_SMP
+-void sync_timers(void)
+-{
+-	spin_unlock_wait(&global_bh_lock);
+-}
+-
+ /*
+  * SMP specific function to delete periodic timer.
+  * Caller must disable by some means restarting the timer
 
-
-Okay. I tried the ieee1394-508.tar.gz tar-ball at home, replacing
-../linux/drivers/ieee1394 directory contents of Linux version 2.4.18.
-
-I have sbp2.o inserted by initrd. It initializes, but doesn't find
-any devices. If, once the machine is up, I remove the module and then
-re-install it, it finds the two devices that I have on the Firewire.
-
-I have been able to make an e2fs file-system on the 80 Gb drive.
-I can also create a large file on the drive. But... The following
-will lock up... `cp /dev/sdd /dev/null`, the raw device being /dev/sdd.
-The disk drive light comes on, then stays on forever. I get error
-messages about "resetting the drive", and I can't get control from
-any terminal. If I power off the drive, then power it back on, the
-process reading from the drive, enters the 'D' state (forever), but
-I can get control from another virtual terminal and reboot the machine.
-There is something, probably in SCSI, that won't allow the root file-
-system to be unmounted so there is a long fsck upon reboot.
-
-Anyway. I have a setup at home that can be used to test anything.
-I think the hangup comes from the raw-read length being greater
-than the "payload", but I'm not sure.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+-- 
+Revolutions do not require corporate support.

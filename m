@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVCYSmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVCYSmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVCYSmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 13:42:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVCYSmV
+	id S261744AbVCYSmq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 13:42:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVCYSmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 13:42:21 -0500
-Received: from fire.osdl.org ([65.172.181.4]:21988 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261745AbVCYSkp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 13:40:45 -0500
-Date: Fri, 25 Mar 2005 10:40:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS running "ls -l /sys/class/i2c-adapter/*"-- 2.6.12-rc1-mm2
-Message-Id: <20050325104032.786c4257.akpm@osdl.org>
-In-Reply-To: <a44ae5cd05032504521e0db1d4@mail.gmail.com>
-References: <20050324044114.5aa5b166.akpm@osdl.org>
-	<a44ae5cd05032420122cd610bd@mail.gmail.com>
-	<20050324202215.663bd8a9.akpm@osdl.org>
-	<20050325073846.A18596@flint.arm.linux.org.uk>
-	<20050324234544.135a1eb2.akpm@osdl.org>
-	<20050325075032.B18596@flint.arm.linux.org.uk>
-	<20050325081359.C18596@flint.arm.linux.org.uk>
-	<a44ae5cd05032504521e0db1d4@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 25 Mar 2005 13:42:37 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:5286 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261744AbVCYSkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 13:40:04 -0500
+Subject: Re: megaraid driver (proposed patch)
+From: James Bottomley <jejb@steeleye.com>
+To: Bruno Cornec <Bruno.Cornec@hp.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, tvignaud@mandrakesoft.com
+In-Reply-To: <20050325182252.GA4268@morley.grenoble.hp.com>
+References: <20050325182252.GA4268@morley.grenoble.hp.com>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 12:39:52 -0600
+Message-Id: <1111775992.5692.25.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane <miles.lane@gmail.com> wrote:
->
-> Ahem.  In this case, I think it was operator error.  I reproduced the
-> problem and have included the entire output of ksymoops below.
+On Fri, 2005-03-25 at 19:22 +0100, Bruno Cornec wrote:
+> Would you consider to apply the following patch proposed by Thierry
+> Vignaud as a solution for the MandrakeSoft kernel in the mainstream 2.6 
+> kernel ?
 
-Please don't use ksymoops.  2.6 kernels decode oopses internally and
-ksymoops actually removes a little info.
+Well, to be considered you'd need to cc the megaraid maintainers and the
+linux-scsi mailing list.
 
-> Andrew, this command causes the Oops for me:
-> 
-> root@Monkey100:/sys/class/i2c-adapter/i2c-1# ls
-> ./  ../  device@
-> root@Monkey100:/sys/class/i2c-adapter/i2c-1# ls -l
-> Segmentation fault
+> -if MEGARAID_NEWGEN=n
 
-What device is that, and which driver is handling it?
+No, this is wrong it would break allyes configs and I'd get shot.
+
+James
+
+

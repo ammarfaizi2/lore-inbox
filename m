@@ -1,78 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261211AbSJLOSK>; Sat, 12 Oct 2002 10:18:10 -0400
+	id <S261208AbSJLOR2>; Sat, 12 Oct 2002 10:17:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261218AbSJLOSK>; Sat, 12 Oct 2002 10:18:10 -0400
-Received: from services.cam.org ([198.73.180.252]:56791 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S261211AbSJLOSI>;
-	Sat, 12 Oct 2002 10:18:08 -0400
+	id <S261211AbSJLOR2>; Sat, 12 Oct 2002 10:17:28 -0400
+Received: from services.cam.org ([198.73.180.252]:54231 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S261208AbSJLOR0>;
+	Sat, 12 Oct 2002 10:17:26 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Ed Tomlinson <tomlins@cam.org>
 Organization: me
 To: lkml <linux-kernel@vger.kernel.org>,
        "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.x opps stopping serial
-Date: Sat, 12 Oct 2002 10:18:45 -0400
+Subject: Re: 2.5.41+ shutdown problems
+Date: Sat, 12 Oct 2002 10:18:00 -0400
 User-Agent: KMail/1.4.3
-References: <3DA683F4.944DFC11@digeo.com> <200210110845.24687.tomlins@cam.org>
-In-Reply-To: <200210110845.24687.tomlins@cam.org>
+References: <3DA683F4.944DFC11@digeo.com> <200210110840.37464.tomlins@cam.org>
+In-Reply-To: <200210110840.37464.tomlins@cam.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200210121018.45115.tomlins@cam.org>
+Message-Id: <200210121018.00741.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 11, 2002 08:45 am, Ed Tomlinson wrote:
+On October 11, 2002 08:40 am, Ed Tomlinson wrote:
 
-Still happening with 2.5.42-mm2 (email problems - using different smtp server)
+This is happening with 2.5.42-mm2 too (tunneling to another smtp server...)
 
 > Hi,
 >
-> I have been seeing this during shutdown ever since I started using 2.5. 
-> Figured I really should report it...   There are three serial ports.  One
-> for a serial console, the second for a backUPS ups, the third for a (real)
-> modem.  Dist is debian sid.
+> All version of 2.5.41-mm and 2.5.41-bk are giving me an oops like the
+> following during shutdown:
 >
-> Saving state of known serial devices... Unable to handle kernel NULL
-> pointer dereference at virtual addres s 00000114
->  printing eip:
-> c0191f73
+> Sending all processes the KILL signal... done.
+> Saving random seed... done.
+> Unmounting remote filesystems... done.
+> Deconfiguring network interfaces... done.
+> Deactivating swap... done.
+> Unmounting local filesystems... done.
+> raidtools2 init script failed; RAID drivers not available.
+> Rebooting...  printing eip:
+> c015e0fe
 > *pde = 00000000
-> Oops: 0000
-> af_packet snd-seq-midi snd-seq-oss snd-seq-midi-event snd-seq snd-pcm-oss
-> snd-mixer-oss snd-cs46xx snd-pcm snd-timer snd-rawmidi snd-seq-device
-> snd-ac97-codec snd soundcore gameport softdog matroxfb_base matroxfb _g450
-> matroxfb_DAC1064 g450_pll matroxfb_accel fbcon-cfb24 fbcon-cfb8 fbcon-cfb32
-> fbcon-cfb16 matroxfb_mis c mga agpgart pppoe pppox ipchains msdos fat
-> sd_mod floppy dummy bsd_comp ppp_generic slhc parport_pc lp p arport ipip
-> smbfs nls_cp850 nls_cp437 nfs lockd sunrpc binfmt_aout autofs4 cdrom
-> via-rhine mii tulip crc32 usb-storage scsi_mod pl2303 usbserial hid
-> CPU:    0
-> EIP:    0060:[<c0191f73>]    Not tainted
+> Oops: 0002
+> isofs ide-cd af_packet gameport softdog matroxfb_base matroxfb_g450
+> matroxfb_DAC1064 g450_pll matroxfb_acc el fbcon-cfb16 fbcon-cfb8
+> fbcon-cfb24 fbcon-cfb32 matroxfb_misc mga agpgart pppoe pppox ipchains
+> msdos fat sd_mod floppy dummy bsd_comp ppp_generic slhc parport_pc lp
+> parport ipip smbfs nls_cp850 nls_cp437 nfs lo ckd sunrpc binfmt_aout
+> autofs4 cdrom via-rhine mii tulip crc32 scsi_mod CPU:    0
+> EIP:    0060:[<c015e0fe>]    Not tainted
 > EFLAGS: 00010246
-> EIP is at uart_block_til_ready+0x15b/0x1a4
-> eax: 00000000   ebx: d9cd4000   ecx: dffe381c   edx: c17a5114
-> esi: d9cd5e84   edi: 00000202   ebp: c17a50c0   esp: d9cd5e58
+> EIP is at driverfs_remove_file+0x22/0x80
+> eax: 00000001   ebx: 00000000   ecx: 0000005c   edx: 00000001
+> esi: 0000005c   edi: c1796ef0   ebp: 00000001   esp: dcf25e18
 > ds: 0068   es: 0068   ss: 0068
-> Process bkupsd (pid: 1096, threadinfo=d9cd4000 task=dc75a160)
-> Stack: c0284800 d9b75000 c17a50c0 00000000 c0356804 dffe381c 00000000
-> dc75a160 c0110868 00000000 00000000 00000000 dc75a160 c0110868 c17a5114
-> c17a5114 c0192269 d9e64d20 c17a50c0 00000000 00000100 00000000 dec0b3b4
-> d9cd4000 Call Trace:
->  [<c0110868>] default_wake_function+0x0/0x2c
->  [<c0110868>] default_wake_function+0x0/0x2c
->  [<c0192269>] uart_open+0x1d9/0x220
->  [<c0199d72>] tty_open+0x1e6/0x39c
->  [<c0199da3>] tty_open+0x217/0x39c
->  [<c0139759>] get_chrfops+0xa1/0x164
->  [<c0139a03>] chrdev_open+0x5b/0x94
->  [<c01382f9>] dentry_open+0xb9/0x16c
->  [<c0138237>] filp_open+0x43/0x4c
->  [<c01385d8>] sys_open+0x34/0x70
+> Process reboot (pid: 30446, threadinfo=dcf24000 task=d0467920)
+> Stack: c0226736 0000007e c1796e50 00000000 c1796e00 c0196369 c1796ef0
+> c0226581 c1796e50 c1796e50 c015ca35 c1796e50 c025d25c c1796e00 c1796e00
+> 00000001 c015cf93 c1796e00 c03701ec c01bce06 c1796e00 c03701ec 00000001
+> c01ba4d5 Call Trace:
+>  [<c0196369>] device_remove_file+0x21/0x2c
+>  [<c015ca35>] driverfs_remove_partitions+0x71/0x94
+>  [<c015cf93>] del_gendisk+0xb/0x3c
+>  [<c01bce06>] idedisk_cleanup+0x5e/0x70
+>  [<c01ba4d5>] ide_notify_reboot+0x8d/0xb8
+>  [<c011d76a>] notifier_call_chain+0x1e/0x38
+>  [<c011dc0e>] sys_reboot+0xd2/0x2a4
+>  [<c012435d>] do_no_page+0x219/0x288
+>  [<c012444c>] handle_mm_fault+0x80/0x120
+>  [<c01db98b>] sock_destroy_inode+0x13/0x70
+>  [<c014bdc2>] destroy_inode+0x3a/0x64
+>  [<c014ca1f>] generic_forget_inode+0xf7/0x100
+>  [<c014ca46>] generic_drop_inode+0x1e/0x24
+>  [<c014caad>] iput+0x61/0x68
+>  [<c014a5b6>] dput+0x1a/0x1b8
+>  [<c01393d6>] __fput+0xba/0xdc
+>  [<c013931b>] fput+0x13/0x14
+>  [<c0137c65>] filp_close+0x99/0xa4
+>  [<c0137cc8>] sys_close+0x58/0x80
 >  [<c0106ef7>] syscall_call+0x7/0xb
 >
-> Code: f6 80 14 01 00 00 02 75 34 8b 44 24 44 50 e8 6a 6b 00 00 83
->  backing up serial.conf done.
+> Code: ff 4b 5c 0f 88 a3 01 00 00 83 c4 08 ff 74 24 14 ff 77 04 e8
+>  /etc/rc6.d/S90reboot: line 11: 30446 Segmentation fault      reboot -d -f
+> -i Give root password for maintenance
+> (or type Control-D for normal startup):
 >
 > Ideas?
 > Ed Tomlinson

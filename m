@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129129AbQJ3HYM>; Mon, 30 Oct 2000 02:24:12 -0500
+	id <S129071AbQJ3H2D>; Mon, 30 Oct 2000 02:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129150AbQJ3HYC>; Mon, 30 Oct 2000 02:24:02 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:63493 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129129AbQJ3HXl>; Mon, 30 Oct 2000 02:23:41 -0500
-Date: Mon, 30 Oct 2000 00:20:19 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001030002019.B19136@vger.timpanogas.org>
-In-Reply-To: <20001030080858.A32204@gruyere.muc.suse.de> <Pine.LNX.4.21.0010300924140.1270-100000@elte.hu>
+	id <S129114AbQJ3H1w>; Mon, 30 Oct 2000 02:27:52 -0500
+Received: from wiiusc.wii.ericsson.net ([192.36.108.17]:21062 "EHLO
+	hell.wii.ericsson.net") by vger.kernel.org with ESMTP
+	id <S129071AbQJ3H1i>; Mon, 30 Oct 2000 02:27:38 -0500
+Message-Id: <200010300727.IAA12250@hell.wii.ericsson.net>
+X-Mailer: exmh version 2.2_20001026 06/23/2000 with nmh-1.0.3
+To: linux-kernel@vger.kernel.org
+From: Anders Eriksson <aer-list@mailandnews.com>
+Subject: / on ramfs, possible?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0010300924140.1270-100000@elte.hu>; from mingo@elte.hu on Mon, Oct 30, 2000 at 09:26:59AM +0100
+Content-Type: multipart/signed; boundary="==_Exmh_17293564P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 30 Oct 2000 08:27:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 09:26:59AM +0100, Ingo Molnar wrote:
-> 
-> On Mon, 30 Oct 2000, Andi Kleen wrote:
-> 
-> > One problem in Linux 2.2 is that kernel threads reload their VM on
-> > context switch (that would include the nfsd thread), this should be
-> > fixed in 2.4 with lazy mm. Hmm actually it should be only fixed for
-> > true kernel threads that have been started with kernel_thread(), the
-> > "pseudo kernel threads" like nfsd uses probably do not get that
-> > optimization because they don't set their MM to init_mm.
-> 
-> yes, but for this there is an explicit mechanizm to lazy-MM during lengthy
-> system calls, an example is in buffer.c:
-> 
->                 user_mm = start_lazy_tlb();
->                 error = sync_old_buffers();
->                 end_lazy_tlb(user_mm);
-> 
-> > > to get disproportiantely higher in Linux than NetWare 5.x and when it hits
-> > > 60% of total clock cycles, Linux starts dropping off.  NetWare 5.x is 1/8 
-> > 
-> > I think that can be explained by the copying.
-> 
-> yes. Constant copying contaminates the L1/L2 caches and creates dirty
-> cachelines all around the place. Fixed in 2.4 + TUX ;-)
-> 
-
-Ingo, we need a build option to completely disable multiple address spaces
-for a start, and just map everything to a linear address space.  This 
-will eliminate the overhead of the CR3 activity.  The use of segment registers
-for copy_to_user, etc. causes segment register reloads, which are very 
-heavyweight on Intel.  
-
-Is there an option to map Linux into a flat address space like NetWare so
-I can do an apples to apples comparison of raw LAN I/O scaling?   
+--==_Exmh_17293564P
+Content-Type: text/plain; charset=us-ascii
 
 
-> 	Ingo
+I want my / to be a ramfs filesystem. I intend to populate it from an 
+initrd image, and then remount / as the ramfs filesystem. Is that at 
+all possible? The way I see it the kernel requires / on a device 
+(major,minor) or nfs.
+
+Am I out of luck using ramfs as /? If it's easy to fix, how do I fix it?
+
+/Anders
+
+
+
+
+--==_Exmh_17293564P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: Exmh version 2.2_20000822 06/23/2000
+
+iD8DBQE5/SLi/X4RQObd8qERAlS3AJ0c4gDkwVxsIMZGcuXXXEV/ID4TuACglQh5
+0f8CRp7dH3/Wc6D/ge1j164=
+=ucbp
+-----END PGP SIGNATURE-----
+
+--==_Exmh_17293564P--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbTFZOcH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 10:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTFZOcH
+	id S261688AbTFZOda (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 10:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTFZOcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 10:32:07 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:56961 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261785AbTFZObH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 10:31:07 -0400
-Date: Thu, 26 Jun 2003 07:45:12 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-Cc: Larry McVoy <lm@bitmover.com>, David Schwartz <davids@webmaster.com>,
-       Robert White <rwhite@casabyte.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030626144512.GA1916@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Scott Robert Ladd <coyote@coyotegulch.com>,
-	Larry McVoy <lm@bitmover.com>,
-	David Schwartz <davids@webmaster.com>,
-	Robert White <rwhite@casabyte.com>, linux-kernel@vger.kernel.org
-References: <20030625210944.GB11956@work.bitmover.com> <MDEHLPKNGKAHNMBLJOLKMEOBDOAA.davids@webmaster.com> <20030626011440.GB17417@work.bitmover.com> <3EFAE4F2.3040403@coyotegulch.com>
+	Thu, 26 Jun 2003 10:32:13 -0400
+Received: from B55b8.pppool.de ([213.7.85.184]:11392 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id S261688AbTFZOcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 10:32:08 -0400
+Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
+From: Daniel Egger <degger@fhm.edu>
+To: Michael Bellion and Thomas Heinz <nf@hipac.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <3EFB0143.7000606@hipac.org>
+References: <200306252248.44224.nf@hipac.org>
+	 <1056634720.5423.83.camel@sonja>  <3EFB0143.7000606@hipac.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aOY37NhVanfwwvqe0Iu0"
+Message-Id: <1056638729.4962.86.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EFAE4F2.3040403@coyotegulch.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=1.9,
-	required 7, AWL, DATE_IN_PAST_06_12, NO_EXPERIENCE)
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 26 Jun 2003 16:45:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 26, 2003 at 08:20:02AM -0400, Scott Robert Ladd wrote:
-> Larry McVoy wrote:
-> >The part you don't seem to want to accept is that 
-> >I don't agree with the merits of the arguments presented.  And my view
-> >is based on real world experience versus the theoretical views of the
-> >people making the arguments.
-> 
-> What you don't want to accept is that some of us speak from practical 
-> experience, too. Just because you have not walked my road does not mean 
-> my road is non-existent.
 
-Here's a suggestion: instead of arguing that you are right, prove it.
-Put your time where your theories and go start companies based on 
-those theories and show up with all sorts of new things that you've
-built for pennies on the dollar compared to the commercial companies.
-I've suggested this before and I get "well, I don't want to run a 
-company, I have no experience doing that, but you should run your 
-company based on my untested theories".
+--=-aOY37NhVanfwwvqe0Iu0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'll start listening when you start doing.  Until then, you are just
-flapping your gums.  Flap away if it makes you feel good.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Am Don, 2003-06-26 um 16.20 schrieb Michael Bellion and Thomas Heinz:
+
+> Taking a look at nfhp_com.h and evt. nf-hipac.c gives you some clue
+> on how to build valid command packets.
+
+Thanks. Your reply made me somewhat curious and I'll definitely have a
+look, hoping the interface is much better than libiptables which is
+merely a bunch of convience functions for use of the iptables utility
+but unusable for real world applications which need to deal with=20
+firewall rules.
+
+--=20
+Servus,
+       Daniel
+
+--=-aOY37NhVanfwwvqe0Iu0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA++wcJchlzsq9KoIYRAi03AKDfHluFMhoZiFpxSQpw+i6XYPj1DQCfaf29
+X50vfIvp0Zg4OIgFx/ZhkQE=
+=QoaY
+-----END PGP SIGNATURE-----
+
+--=-aOY37NhVanfwwvqe0Iu0--
+

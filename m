@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbUJYTod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbUJYTqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbUJYTod (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 15:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUJYTo3
+	id S261271AbUJYTqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 15:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbUJYTqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 15:44:29 -0400
-Received: from web12204.mail.yahoo.com ([216.136.173.88]:29803 "HELO
-	web12204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261219AbUJYTna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 15:43:30 -0400
-Message-ID: <20041025194327.88284.qmail@web12204.mail.yahoo.com>
-Date: Mon, 25 Oct 2004 21:43:27 +0200 (CEST)
-From: karsten wiese <annabellesgarden@yahoo.de>
-Subject: Re: [PATCH]Uncompressing Linux... Out of memory: fixed by increased HEAP_SIZE
-To: Ingo Molnar <mingo@elte.hu>
+	Mon, 25 Oct 2004 15:46:34 -0400
+Received: from cantor.suse.de ([195.135.220.2]:33723 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261259AbUJYTpA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 15:45:00 -0400
+To: Corey Minyard <minyard@acm.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041025143014.GA14992@elte.hu>
+Subject: Re: Race betwen the NMI handler and the RTC clock in practially all kernels
+References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 25 Oct 2004 21:44:57 +0200
+In-Reply-To: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
+Message-ID: <p73u0sik2fa.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Ingo Molnar <mingo@elte.hu> schrieb: 
+Corey Minyard <minyard@acm.org> writes:
+
+> I had a customer on x86 notice that sometimes offset 0xf in the CMOS
+> RAM was getting set to invalid values.  Their BIOS used this for
+> information about how to boot, and this caused the BIOS to lock up.
 > 
-> > booting newest 2.6.9 experimental kernels, I frequently
-> encountered 
-> > "Uncompressing Linux... Out of memory --System halted"
-> > In some mail archive I found the (obvious ;-) solution:
-> Increase HEAP_SIZE.
-> > 
-> > Here in line 122 of arch/i386/boot/compressed/misc.c
-> this
-> > 	#define HEAP_SIZE             0x4000
-> > instead of 
-> > 	#define HEAP_SIZE             0x3000
-> > made 2.6.9-mm1-RT-U10.3 boot again.
+> They traced it down to the following code in arch/kernel/traps.c (now
+> in include/asm-i386/mach-default/mach_traps.c):
 > 
-> ah! Makes sense. Did you have LATENCY_TRACE enabled? That
-> compiles the
-> kernel with -pg which creates a fatter stackframe.
-> 
-Only the malloc() called by gunzip() called by
-decompress_kernel() is influenced by this HEAP_SIZE.
-gunzip()'s internal work data is stored in that heap.
-This only is in effect before the kernel "really" boots,
-no?
-LATENCY_TRACE is indeed off, ...but can gunzip()'s heap
-needs be easier answered by a fatter stackframe (at
-decompression time!)?
+>     outb(0x8f, 0x70);
+>     inb(0x71);              /* dummy */
+>     outb(0x0f, 0x70);
+>     inb(0x71);              /* dummy */
 
-Thanks,
-Karsten
+Just use a different dummy register, like 0x80 which is normally used
+for delaying IO (I think that is what the dummy access does) 
 
+But I'm pretty sure this NMI handling is incorrect anyways, its
+use of bits doesn't match what the datasheets say of modern x86
+chipsets say. Perhaps it would be best to just get rid of 
+that legacy register twiddling completely.
 
-	
+I will also remove it from x86-64.
 
-	
-		
-___________________________________________________________
-Gesendet von Yahoo! Mail - Jetzt mit 100MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+-Andi

@@ -1,89 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290492AbSAYBxW>; Thu, 24 Jan 2002 20:53:22 -0500
+	id <S290494AbSAYB7x>; Thu, 24 Jan 2002 20:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290494AbSAYBxN>; Thu, 24 Jan 2002 20:53:13 -0500
-Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:62434 "EHLO
-	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S290492AbSAYBw6>; Thu, 24 Jan 2002 20:52:58 -0500
-Date: Thu, 24 Jan 2002 20:52:48 -0500
-To: knobo@linpro.no
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compile error -rmap12a and 2.4.18-pre7
-Message-ID: <20020125015248.GA27418@opeth.ath.cx>
-In-Reply-To: <ujpadv3tj87.fsf@false.linpro.no>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Content-Disposition: inline
-In-Reply-To: <ujpadv3tj87.fsf@false.linpro.no>
-User-Agent: Mutt/1.3.27i
-From: Dan Chen <crimsun@email.unc.edu>
+	id <S290495AbSAYB7e>; Thu, 24 Jan 2002 20:59:34 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10756 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290494AbSAYB71>;
+	Thu, 24 Jan 2002 20:59:27 -0500
+Date: Thu, 24 Jan 2002 22:29:53 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <rwhron@earthlink.net>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18pre4aa1
+In-Reply-To: <20020124191927.A809@earthlink.net>
+Message-ID: <Pine.LNX.4.33L.0201242226360.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 24 Jan 2002 rwhron@earthlink.net wrote:
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
+> >
+> > Even when mostly uncached, dbench still produces flaky results.
 
-I believe you applied this in the reverse order. Patch
-=2E17->.18-pre7->rmap12a. Use
-http://www.cs.unc.edu/~chenda/Other/2.4.18-pre7_to_rmap12a.diff
+> Below are results from a couple of aa releases, and a few rmap
+> releases.
 
-I did a sanity build, and the kernel did compile and link correctly
-using default config (though I did not reboot as I'm running tied up at
-the moment).
+  [snip results:  -aa twice as fast as -rmap for dbench,
+                  -rmap twice as fast as -aa for tiobench]
 
-On Fri, Jan 25, 2002 at 12:36:08AM +0100, knobo@linpro.no wrote:
-> Hi
->=20
-> I applied first rmap12a ant then 2.4.18-pre7
->=20
-> then I removed line 502 (i think) "nr_pages--" from
-> linux/mm/vmscan.c. (thanx to mjc)
->=20
-> Then I did  make dep clean bzImage.=20
->=20
-> then I got some warnings:
-> In file included from /usr/src/linux/include/linux/modversions.h:144,
->                  from /usr/src/linux/include/linux/module.h:21,
->                  from dec_and_lock.c:1:
-> /usr/src/linux/include/linux/modules/ksyms.ver:249: warning: `__ver_waitf=
-or_one_page' redefined
-> /usr/src/linux/include/linux/modules/buffer.ver:13: warning: this is the =
-location of the previous definition
->=20
-> And finally:
->=20
-> fs/fs.o(__ksymtab+0x38): multiple definition of `__ksymtab_waitfor_one_pa=
-ge'
-> kernel/kernel.o(__ksymtab+0x548): first defined here
-> fs/fs.o(.kstrtab+0xfb): multiple definition of `__kstrtab_waitfor_one_pag=
-e'
-> kernel/kernel.o(.kstrtab+0x10fa): first defined here
-> make: *** [vmlinux] Error 1
->=20
->=20
->=20
-> Then I turned off loadable module support, and the kernel compiled ok.
+What would be interesting here are the dbench dots, where
+a '+' indicates that a program exits.
 
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+It's possible that under one of the kernels the programs
+are getting throttled differently and some of the dbench
+processes exit _way_ earlier than the others, leaving a
+much lighter load on the rest of the system for the second
+part of the test.
 
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+It would be interesting to see the dbench dots from both
+-aa and -rmap ;)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+regards,
 
-iD8DBQE8ULpwMwVVFhIHlU4RAgXdAJ9r6NIOl8MfIC64qOPj41335+tyUACfax4F
-ELFfOi7OfNaieTGlfc1WCho=
-=tQUK
------END PGP SIGNATURE-----
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
---EeQfGwPcQSOJBaQU--
+http://www.surriel.com/		http://distro.conectiva.com/
+

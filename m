@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288165AbSACD1B>; Wed, 2 Jan 2002 22:27:01 -0500
+	id <S288167AbSACD1B>; Wed, 2 Jan 2002 22:27:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288163AbSACD0w>; Wed, 2 Jan 2002 22:26:52 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:43908 "EHLO
-	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S288166AbSACD0m>; Wed, 2 Jan 2002 22:26:42 -0500
-Message-ID: <3C33CF71.4060202@videotron.ca>
-Date: Wed, 02 Jan 2002 22:26:41 -0500
-From: Roger Leblanc <r_leblanc@videotron.ca>
-Organization: General DataComm
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
-X-Accept-Language: en-us
+	id <S288165AbSACD0w>; Wed, 2 Jan 2002 22:26:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:59921 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288163AbSACD0l>;
+	Wed, 2 Jan 2002 22:26:41 -0500
+Date: Thu, 3 Jan 2002 04:26:40 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020102220333.A26713@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0201030420160.6449-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock in kernel on USB shutdown
-In-Reply-To: <3C33A22F.40906@videotron.ca> <20020103001816.GB4162@kroah.com> <3C33A4EC.1040300@videotron.ca> <20020103002827.GA4462@kroah.com> <3C33AF4F.7000703@videotron.ca> <20020103013231.GA4952@kroah.com> <3C33BD88.3010903@videotron.ca> <20020103030356.GA5313@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Wed, 2 Jan 2002, Eric S. Raymond wrote:
 
->On Wed, Jan 02, 2002 at 09:10:16PM -0500, Roger Leblanc wrote:
->
->>umount seg-faults while unmounting /proc/bus/usb! Then modprobe also 
->>seg-faults while unloading usb-uhci!!! But the system stays up.
->>After that, I cannot make my scanner to work even if I run 
->>".../init.d/usb start".
->>
->
->Can you run that first oops through ksymoops and send it.  Actually do
->it for both oopses.
->
-Oops? I know about cores but I don't know about oopses. I'm only a C++, 
-hight level, OO developer. Sorry ;-). Can you explain please?
+> One of my background assumptions is that the older a machine is, the
+> more likely it is that the person doing the config will have a clue about
+> what they're doing.
 
->>B.T.W. Did I tell you that I can bring the kernel down just by turning 
->>the scanner off and then back again?
->>
+Bzzzzt. See Greg Hennessy's post.
+(Not that I'm implying he hasn't a clue, but he makes a good point)
+
+> These days hardware is so cheap that only geeks try to cram Linux onto
+> old systems
+
+Bzzzzzt.
+Linux is getting deployed in lots of small businesses running
+mailservers/firewalls etc on old P90's and the likes. Not because
+they're run by geeks, but because they're running on a low budget.
+
+> Thus I'm not very worried about DMI read failing on older hardware.
+
+It fails on newer hardware too. The Vaio I quoted is less than a year old.
+The CyrixIII BIOS is less than 6 months old.
+
+> My main objective is to make configuration painless on modern PCI-only
+> hardware -- which is why I want to be able to tell when there are no
+> ISA slots, so I can deep-six questions about ISA drivers.
+
+Go down the DMI path, and get it right _sometimes_, or take a zero.
+Getting it right sometimes is likely to do more harm than good.
+
+> > o  The geek next door who wants to tinker and learn about the kernel.
+> >    Said geek is going to learn a damn sight more currently than he will
+> >    with a dumbed down pointy clicky "build me a kernel" button.
 >
->Hm, sounds like the scanner driver has some problems :)
->You might email the author with this info and see if he has any ideas.
->
-I'll do that
+> Your "they must show willingness to suffer pain, otherwise they're not worthy"
+> attitude is really showing here.
 
-Thanks
+Crap. I'm implying that there should be a learning curve to everything
+no matter how small it may be. You're trying to remove the curve
+altogether.
 
-Roger
+> Yes. But *I* want Aunt Tilley to be able to download the latest kernel
+> sources and build/install them herself, without ever feeling that the task
+> is beyond her capabilities.
 
+*shakes head*, ok I'm all done trying to argue this one.
+
+> I believe we need to learn the discipline of useability and take it seriously.
+> Because talk plus code is much more convincing than just talk, I'm trying
+> to demonstrate this by coding.  But I'll talk about it too :-).
+
+And write a book perchance ? SCNR  8-)
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263975AbUDNIgW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 04:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263978AbUDNIgW
+	id S263972AbUDNIm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 04:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263974AbUDNIm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 04:36:22 -0400
-Received: from mail.shareable.org ([81.29.64.88]:9376 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S263975AbUDNIgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 04:36:12 -0400
-Date: Wed, 14 Apr 2004 09:35:50 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@au.ibm.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Kurt Garloff <garloff@suse.de>,
-       linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: PowerPC exec page protection
-Message-ID: <20040414083550.GB8303@mail.shareable.org>
-References: <9AB83E4717F13F419BD880F5254709E5011EBABA@scsmsx402.sc.intel.com> <20040414082355.GA8303@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040414082355.GA8303@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Apr 2004 04:42:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24197 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263972AbUDNIm4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 04:42:56 -0400
+Message-ID: <407CF97F.7090903@pobox.com>
+Date: Wed, 14 Apr 2004 04:42:39 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] conditionalize some boring buffer_head checks
+References: <407CEB91.1080503@pobox.com> <20040414082950.GD12558@suse.de>
+In-Reply-To: <20040414082950.GD12558@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<asm-ppc/pgtable.h> and <asm-ppc64/pgtable.h> both define the
-following map of protection bits:
+Jens Axboe wrote:
+> On Wed, Apr 14 2004, Jeff Garzik wrote:
+>>===== fs/buffer.c 1.237 vs edited =====
+>>--- 1.237/fs/buffer.c	Wed Apr 14 03:18:09 2004
+>>+++ edited/fs/buffer.c	Wed Apr 14 03:39:15 2004
+>>@@ -2688,6 +2688,7 @@
+>> {
+>> 	struct bio *bio;
+>> 
+>>+#ifdef BH_DEBUG
+>> 	BUG_ON(!buffer_locked(bh));
+>> 	BUG_ON(!buffer_mapped(bh));
+>> 	BUG_ON(!bh->b_end_io);
+> 
+> 
+> The last one will be 'caught' at the other end of io completion, so I
+> guess that could be killed (even though you already lost the context of
+> the error, then). The first two are buffer state errors, I think those
+> should be kept unconditionally.
+> 
+> 
+>>@@ -2698,6 +2699,7 @@
+>> 		buffer_error();
+>> 	if (rw == READ && buffer_dirty(bh))
+>> 		buffer_error();
+>>+#endif
+> 
+> 
+> I'm fine with killing the buffer_error(), maybe
+> 
+> 	if (rw == WRITE && !buffer_uptodate(bh))
+> 		buffer_error();
+> 
+> should be kept though.
 
-    #define __P000  PAGE_NONE
-    #define __P001  PAGE_READONLY_X
-    #define __P010  PAGE_COPY
-    #define __P011  PAGE_COPY_X
-    #define __P100  PAGE_READONLY
-    #define __P101  PAGE_READONLY_X
-    #define __P110  PAGE_COPY
-    #define __P111  PAGE_COPY_X
 
-    #define __S000  PAGE_NONE
-    #define __S001  PAGE_READONLY_X
-    #define __S010  PAGE_SHARED
-    #define __S011  PAGE_SHARED_X
-    #define __S100  PAGE_READONLY
-    #define __S101  PAGE_READONLY_X
-    #define __S110  PAGE_SHARED
-    #define __S111  PAGE_SHARED_X
+Well, all of these are buffer state (and programmer) errors...
 
-The _X flags seem wrongly placed, as bit 2 is the PROT_EXEC bit, not
-bit 0.  Is the above intentional?
+	Jeff
 
--- Jamie
+
+

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264766AbSLTSuJ>; Fri, 20 Dec 2002 13:50:09 -0500
+	id <S264788AbSLTTDD>; Fri, 20 Dec 2002 14:03:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264786AbSLTSuJ>; Fri, 20 Dec 2002 13:50:09 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:2312 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264766AbSLTSuJ>;
-	Fri, 20 Dec 2002 13:50:09 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212201909.gBKJ9xWY002166@darkstar.example.net>
-Subject: Re: Right, I tried flashing the BIOS, as suggested, and /still/ can't enable SMART
-To: marvin@synapse.net (D.A.M. Revok)
-Date: Fri, 20 Dec 2002 19:09:58 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200212201338.45492.marvin@synapse.net> from "D.A.M. Revok" at Dec 20, 2002 01:38:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S264797AbSLTTDC>; Fri, 20 Dec 2002 14:03:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30731 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264788AbSLTTDC>; Fri, 20 Dec 2002 14:03:02 -0500
+Date: Fri, 20 Dec 2002 11:11:58 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: davidm@hpl.hp.com, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+In-Reply-To: <20021220215029.A22996@jurassic.park.msu.ru>
+Message-ID: <Pine.LNX.4.44.0212201108540.2035-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I can't boot without having my boot-system on /dev/hde, rather than 
-> /dev/hda...
 
-rm /dev/hda
-rm /dev/hde
-mknod hda b 33 0
-mknod hde b 3 0
 
-John.
+On Fri, 20 Dec 2002, Ivan Kokshaysky wrote:
+>
+> On Fri, Dec 20, 2002 at 09:05:53AM -0800, Linus Torvalds wrote:
+> > One solution in the long term may be to not even probe the BAR's at all in
+> > generic code, and only do it in the pci_enable_dev() stuff. That way it
+> > would literally only be done by the driver, who can hopefully make sure
+> > that the device is ok with it.
+>
+> I don't think that generic BAR probing is ever avoidable - too often
+> it's the only way to build a consistent resource tree. Without that
+> the driver cannot know whether the BAR setting is safe or there is a
+> conflict with something else.
 
-> I /think/ that if the BIOS can initialize the Promise chip, that it is 
-> (theoretically) possible for the kernel to initialize the chip to 
-> function correctly, but if Promise /won't allow/ paid-for chips to 
-> function in a way that gives us the reliability-system we paid-for, then 
-> the simplest solution is:
+Well, generic BAR probing certainly isn't avoidable right now, that's for
+sure. But we might make it less common, by doing it only "on demand", and
+having default drivers for pci-pci bus bridges, for example (where the
+default driver would do what we do now, but perhaps a way to register
+specific bus drivers that know more about their specifics).
 
-To do what I did with my Promise card - use the IDE ribbon cable that
-came with it, and leave the card in the box on the shelf :-).
+I don't think there are any real reasons to change what we do now - it
+sounds like even David doesn't actually have any devices that actually
+_need_ the disable as-is.
 
-John.
+		Linus
+

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292897AbSBVPXJ>; Fri, 22 Feb 2002 10:23:09 -0500
+	id <S292891AbSBVP0j>; Fri, 22 Feb 2002 10:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292896AbSBVPWu>; Fri, 22 Feb 2002 10:22:50 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:16558 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S292891AbSBVPWn>; Fri, 22 Feb 2002 10:22:43 -0500
-Message-Id: <200202221434.HAA16547@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Werner Almesberger <wa@almesberger.net>
-Subject: [PATCH] 2.5.5-dj1 add one help text to drivers/atm/Config.help
-Date: Fri, 22 Feb 2002 08:20:48 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S292901AbSBVP03>; Fri, 22 Feb 2002 10:26:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61707 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292891AbSBVP0X>;
+	Fri, 22 Feb 2002 10:26:23 -0500
+Message-ID: <3C76631C.E685815D@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 10:26:20 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Jes Sorensen <jes@trained-monkey.org>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>, Troy Benjegerdes <hozer@drgw.net>,
+        wli@holomorphy.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
+In-Reply-To: <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk>
+		<20020207234555.N17426@altus.drgw.net>
+		<5.1.0.14.2.20020208181656.03862ec0@pop.cus.cam.ac.uk>
+		<d37kp5v9y5.fsf@lxplus050.cern.ch>
+		<3C7660F5.FC238A7E@mandrakesoft.com> <15478.25001.512565.628500@trained-monkey.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a help text for CONFIG_ATM_LANAI in drivers/atm/Config.help.
+Jes Sorensen wrote:
+> 
+> >>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+> 
+> Jeff> Jes Sorensen wrote:
+> >> __mc68000__ is the correct define, I don't know who put in
+> >> CONFIG_M68K but it doesn't belong there.
+> 
+> Jeff> I disagree -- look at arch/*/config.in.
+> 
+> Jeff> Each arch needs to define a CONFIG_$ARCH.
+> 
+> Why? CONFIG_$ARCH only makes sense if you can enable two architectures
+> in the same build. What does CONFIG_M68K give you that __mc68000__
+> doesn't provide?
 
-Patch is made against 2.5.5-dj1.
+1) it is a Linux kernel standard.  all arches save two define
+CONFIG_$arch.
 
-Steven
+2) you have two tests, "ARCH==m68k" in config.in and "__mc68000__" in C
+code.  CONFIG_M68K means you only test one symbol, the same symbol, in
+all code.
 
---- linux-2.5.5-dj1/drivers/atm/Config.help.orig        Thu Feb 21 15:32:01 2002
-+++ linux-2.5.5-dj1/drivers/atm/Config.help     Thu Feb 21 15:34:37 2002
-@@ -2,6 +2,12 @@
-   ATM over TCP driver. Useful mainly for development and for
-   experiments. If unsure, say N.
+3) as this thread shows, due to #1, users -expect- that CONFIG_M68K will
+exist
 
-+CONFIG_ATM_LANAI
-+  Supports ATM cards based on the Efficient Networks "Lanai"
-+  chipset such as the Speedstream 3010 and the ENI-25p.  The
-+  Speedstream 3060 is currently not supported since we don't
-+  have the code to drive the on-board Alcatel DSL chipset (yet).
-+
- CONFIG_ATM_ENI
-   Driver for the Efficient Networks ENI155p series and SMC ATM
-   Power155 155 Mbps ATM adapters. Both, the versions with 512KB and
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

@@ -1,46 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266548AbUGUROl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266552AbUGURVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266548AbUGUROl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 13:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266552AbUGUROl
+	id S266552AbUGURVH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 13:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266553AbUGURVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 13:14:41 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:45473 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266548AbUGUROk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 13:14:40 -0400
-Subject: Re: 2.6.8-rc2: 'Invalid MAC address' error with via-rhine driver
-From: Lee Revell <rlrevell@joe-job.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040721112803.GB9537@k3.hellgate.ch>
-References: <1090369207.841.1.camel@mindpipe>
-	 <20040721112803.GB9537@k3.hellgate.ch>
-Content-Type: text/plain
-Message-Id: <1090430081.901.56.camel@mindpipe>
+	Wed, 21 Jul 2004 13:21:07 -0400
+Received: from berrymount.xs4all.nl ([82.92.47.16]:56934 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S266552AbUGURU7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 13:20:59 -0400
+Date: Wed, 21 Jul 2004 19:20:42 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+To: Shesha Sreenivasamurthy <shesha@inostor.com>
+Cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: O_DIRECT
+Message-Id: <20040721192042.11f9c3f5.robn@verdi.et.tudelft.nl>
+In-Reply-To: <40FEA382.8050700@inostor.com>
+References: <40FD561D.1010404@inostor.com>
+	<20040721020520.4d171db7.robn@verdi.et.tudelft.nl>
+	<40FEA382.8050700@inostor.com>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 21 Jul 2004 13:14:41 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-21 at 07:28, Roger Luethi wrote:
-> On Tue, 20 Jul 2004 20:20:17 -0400, Lee Revell wrote:
-> > I get the following error trying to load the via-rhine module with
-> > kernel 2.6.8-rc2.  I did not get this error with 2.6.8-rc1-mm1.
-> > 
-> > Jul 20 20:11:13 mindpipe kernel: via-rhine.c:v1.10-LK1.1.20-2.6 May-23-2004 Written by Donald Becker
-> > Jul 20 20:11:13 mindpipe kernel: Invalid MAC address for card #0
-> > Jul 20 20:11:13 mindpipe kernel: via-rhine: probe of 0000:00:12.0 failed with error -5
+On Wed, 21 Jul 2004 10:10:26 -0700
+Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
+
+Hi Shesha,
+
+You don't mention what the *size* of your read()/write() is.
+Besides a requirement on the alignment of the read/write buffer
+the size of the read()/write() must also be OK.
+
+	greetings,
+	Rob van Nieuwkerk
+
+> This is what I found ....
 > 
-> The problem is known (see my other postings), but the cause is not. I
-> cannot reproduce the problem, if you are willing to conduct a binary
-> search with no more than 4 steps, I'll send you the relevant patches.
+> Our driver sets the block size to be 4096. so BLKBSZGET will return 
+> 4096. So if I allin the memory at 4096 boundary, I cannot read using 
+> O_DIRECT. But, if I set the block size to 512.  I can read/write 
+> successfully. It also works with 1024, but no with 4096
 > 
-
-Yes, send them to me, I should be able to nail this down.  Probably
-won't have time for a day or two.
-
-Lee
-
+> So the recepie what I am following is ...
+> 
+> BLKBSZGET -> Get original block size
+> BLKBSZSET ->  Set the block size to 512
+> READ | WRITE Successfully ;)
+> BLKBSZSET ->  Set back to the original block size
+> 
+> -Shesha
+> 
+> Rob van Nieuwkerk wrote:
+> 
+> >On Tue, 20 Jul 2004 10:27:57 -0700
+> >Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
+> >
+> >Hi Shesha,
+> >
+> >  
+> >
+> >>I am having trouble with O_DIRECT. Trying to read or write from a block 
+> >>device partition.
+> >>
+> >>1. Can O_DIRECT be used on a plain block device partition say 
+> >>"/dev/sda11" without having a filesystem on it.
+> >>    
+> >>
+> >
+> >yes.
+> >
+> >  
+> >
+> >>2. If no file system is created then what should be the softblock size. 
+> >>I am using the IOCTL "BLKBSZGET". Is this correct?
+> >>    
+> >>
+> >
+> >yes.
+> >
+> >  
+> >
+> >>3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
+> >>    
+> >>
+> >
+> >yes.
+> >
+> >I'm using these exact things in an application.
+> >
+> >Note that with 2.4 kernels the "granularity" you can use for offset
+> >and r/w size is the softblock size (*).  For 2.6 the requirements are
+> >much more relaxed: it's the device blocksize (typically 512 byte).
+> >
+> >(*): actually one of offset or r/w size has a smaller minimum if
+> >I remember correctly.  Don't remember which one.  But if you assume
+> >the softblock size as a minimum for both you're allways safe.
+> >
+> >	greetings,
+> >	Rob van Nieuwkerk
+> >
+> >--
+> >Kernelnewbies: Help each other learn about the Linux kernel.
+> >Archive:       http://mail.nl.linux.org/kernelnewbies/
+> >FAQ:           http://kernelnewbies.org/faq/
+> >
+> >
+> >.
+> >
+> >  
+> >
+> 

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132403AbQL1M7I>; Thu, 28 Dec 2000 07:59:08 -0500
+	id <S129226AbQL1NnL>; Thu, 28 Dec 2000 08:43:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132424AbQL1M66>; Thu, 28 Dec 2000 07:58:58 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:47344 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132403AbQL1M6r>; Thu, 28 Dec 2000 07:58:47 -0500
-Date: Thu, 28 Dec 2000 13:25:56 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Joe deBlaquiere <jadb@redhat.com>
-cc: Ralf Baechle <ralf@uni-koblenz.de>,
-        the list <linux-kernel@vger.kernel.org>, linux-mips@oss.sgi.com,
-        linux-mips@fnet.fr
-Subject: Re: sysmips call and glibc atomic set
-In-Reply-To: <3A48CC1D.9000204@redhat.com>
-Message-ID: <Pine.GSO.3.96.1001228132356.21148C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S129228AbQL1NnA>; Thu, 28 Dec 2000 08:43:00 -0500
+Received: from laxmls02.socal.rr.com ([24.30.163.11]:13724 "EHLO
+	laxmls02.socal.rr.com") by vger.kernel.org with ESMTP
+	id <S129226AbQL1Nms>; Thu, 28 Dec 2000 08:42:48 -0500
+From: Shane Nay <shane@agendacomputing.com>
+Reply-To: shane@agendacomputing.com
+Organization: Agenda Computing
+To: linux-kernel@vger.kernel.org
+Subject: Booting from a non block device
+Date: Thu, 28 Dec 2000 02:14:10 +0000
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0012280214100G.32196@www.easysolutions.net>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Dec 2000, Joe deBlaquiere wrote:
+I need to get rid of the abstraction that a block device brings because I 
+need to run things in XIP (execute in place) mode from our cramfs partition.  
+(We have uncompressed and aligned files inter mingled with our cramfs stuff 
+so that the entire distro can be updated in a single flash)  The only thing 
+that's keeping me from finishing at this point is I can't seem to figure out 
+a smart way to accomplish file system direct booting.
 
-> > Read the ISA manual; sc will fail if the LL-bit in c0_status is cleared
-> > which will be cleared when the interrupt returns using the eret instruction.
-> 
-> I tried to find a MIPSIII manual from mips.com but all I could find was 
-> mips32 and mips64 (which are not the same as MIPSII/MIPSIII/MIPSIV).
+The main.c file is hardwired to boot from a block device, and as such I can't 
+think of a good way to get around it and put in a filesystem instead.  Should 
+I just cheat and put in a fake block device?  Or am I going about this in an 
+imbecilic fashion?
 
- Get "IDT MIPS Microprocessor Software Reference Manual" from
-http://decstation.unix-ag.org/docs/ic_docs/3715.pdf (the original is no
-longer available from IDT servers).
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Any ideas, criticisms are welcome...
+Thanks,
+Shane Nay.
+(BTW: XIP implementation is by another fellow..., I'm just trying to put 
+together the linear addressing and his pieces into one nice unit, and get rid 
+of the dev rom copying and unneeded buffering)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

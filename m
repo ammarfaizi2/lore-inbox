@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318184AbSG3Bq1>; Mon, 29 Jul 2002 21:46:27 -0400
+	id <S318189AbSG3C1j>; Mon, 29 Jul 2002 22:27:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318188AbSG3Bq1>; Mon, 29 Jul 2002 21:46:27 -0400
-Received: from zero.tech9.net ([209.61.188.187]:24074 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S318184AbSG3Bq0>;
-	Mon, 29 Jul 2002 21:46:26 -0400
+	id <S318190AbSG3C1j>; Mon, 29 Jul 2002 22:27:39 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:16109 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318189AbSG3C1i>;
+	Mon, 29 Jul 2002 22:27:38 -0400
+Date: Mon, 29 Jul 2002 19:19:31 -0700 (PDT)
+Message-Id: <20020729.191931.45561787.davem@redhat.com>
+To: rml@tech9.net
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] spinlock.h cleanup
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0207291845470.945-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0207291845470.945-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8.99 
-Date: 29 Jul 2002 18:49:48 -0700
-Message-Id: <1027993788.1617.411.camel@sinai>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1027989220.1016.273.camel@sinai>
+References: <Pine.LNX.4.33.0207291725580.1722-100000@penguin.transmeta.com>
+	<1027989053.929.263.camel@sinai>
+	<1027989220.1016.273.camel@sinai>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-29 at 18:46, Linus Torvalds wrote:
+   From: Robert Love <rml@tech9.net>
+   Date: 29 Jul 2002 17:33:39 -0700
 
-> Check that again. The old check was for "(__GNUC__ > 2)", ie it would only
-> trigger for gcc-3 and up.
+   On Mon, 2002-07-29 at 17:30, Robert Love wrote:
+   
+   > On Mon, 2002-07-29 at 17:26, Linus Torvalds wrote:
+   > 
+   > > Hmm.. Why did you remove the gcc workaround? Are all gcc's > 2.95 known to 
+   > > be ok wrt empty initializers?
+   > 
+   > If I recall correctly, the fix was for older egcs compilers.
+   
+   To better answer your question, I just checked and indeed it seems all
+   gcc's >= 2.95 are OK.
 
-Err, right.
+Some platforms (sparc64) are still using things like egcs-2.92.x
+vintage compilers as their main supported kernel build compiler.
 
-> > If I recall correctly, the fix was for older egcs compilers.
-> 
-> I've got this memory of fairly recent gcc's messing up on sparc, for
-> example.
+init/main.c allows 2.91 or greater to pass so that should be the rule
+enforced kernel wide.
 
-The problem is indeed fixed in 2.95... the problem is not with those
-compilers on sparc but that sparc64 uses an old compiler (DaveM
-recommends 2.91.66 for sparc64).
-
-Consequently, I sent you a rediff of the patch - this time without
-removing the compiler workaround.  It should be acceptable.
-
-	Robert Love
-
+I don't remember when the empty initializer thing was fixed.

@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268352AbUIGS4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268529AbUIGS4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268352AbUIGS4y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 14:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268355AbUIGSOQ
+	id S268529AbUIGS4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 14:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUIGShI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 14:14:16 -0400
-Received: from verein.lst.de ([213.95.11.210]:61853 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S268314AbUIGSLg (ORCPT
+	Tue, 7 Sep 2004 14:37:08 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:45489 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268506AbUIGSef (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 14:11:36 -0400
-Date: Tue, 7 Sep 2004 20:11:30 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] unexport get_wchan
-Message-ID: <20040907181130.GA12595@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040907144539.GA8808@lst.de> <1094576868.9607.7.camel@localhost.localdomain>
+	Tue, 7 Sep 2004 14:34:35 -0400
+Date: Tue, 7 Sep 2004 13:33:32 -0500
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Michael.Waychison@Sun.COM,
+       plars@linuxtestproject.org, Brian.Somers@Sun.COM,
+       linux-kernel@vger.kernel.org
+Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
+Message-Id: <20040907133332.4ceb3b5a@localhost>
+In-Reply-To: <52ekljq6l2.fsf@topspin.com>
+References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
+	<200408162049.FFF09413.8592816B@anet.ne.jp>
+	<20040816143824.15238e42.davem@redhat.com>
+	<412CD101.4050406@sun.com>
+	<20040825120831.55a20c57.davem@redhat.com>
+	<412CF0E9.2010903@sun.com>
+	<20040825175805.6807014c.davem@redhat.com>
+	<412DC055.4070401@sun.com>
+	<20040830161126.585a6b62.davem@davemloft.net>
+	<1094238777.9913.278.camel@plars.austin.ibm.com>
+	<4138C3DD.1060005@sun.com>
+	<52acw7rtrw.fsf@topspin.com>
+	<20040903133059.483e98a0.davem@davemloft.net>
+	<52ekljq6l2.fsf@topspin.com>
+Organization: LTC
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094576868.9607.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 06:07:49PM +0100, Alan Cox wrote:
-> On Maw, 2004-09-07 at 15:45, Christoph Hellwig wrote:
-> > only usedby procfs which certainly can't be modular
-> 
-> And multiple out of tree debuggers. Christoph - do some basic homework.
-> Also save the "so merge it" crap for someone else before you come up
-> with that comment. Given the choice between a few exports of relevant
-> functionality and merging some of the open source stuff that uses it we
-> are far far better off with the export.
-> 
-> Plus Linus has a random personal and unreasonable hatred of debugging
-> tools so they'll never get merged anyway without forking the kernel.
 
-Which debuging tool?  Both kdb and xmon don't use it.
+>     Setting up network interfaces:
+>         lo
+>         lo        IP address: 127.0.0.1/8                                 done
+>         dummy0
+>         dummy0    No configuration found for dummy0                       unused
+>         eth0      device: Broadcom Corporation NetXtreme BCM5
+>     system>
+>     system> console -T system:blade[11]
+>     SOL is not ready
+
+Whenever an adapter reset is done (eg ifconfig up) on the same adapter
+that SoL is using, you'll lose SoL.  SoL usually comes back, although
+I've not had much luck ever since the Sun auto negotiation patch went
+in.  One fix/workaround to not losing your SoL connection is having the
+network go only over eth1 (assuming you have two switch modules).
+
+Thanks,
+Jake

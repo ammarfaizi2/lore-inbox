@@ -1,76 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279986AbRJ3Pkn>; Tue, 30 Oct 2001 10:40:43 -0500
+	id <S279976AbRJ3Pnn>; Tue, 30 Oct 2001 10:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279974AbRJ3Pk1>; Tue, 30 Oct 2001 10:40:27 -0500
-Received: from lightning.hereintown.net ([207.196.96.3]:62888 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S279986AbRJ3PkO>; Tue, 30 Oct 2001 10:40:14 -0500
-Date: Tue, 30 Oct 2001 10:56:30 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: bert hubert <ahu@ds9a.nl>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nasty suprise with uptime
-In-Reply-To: <20011030104751.A11623@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.40.0110301030220.12319-100000@rc.priv.hereintown.net>
+	id <S279989AbRJ3Pne>; Tue, 30 Oct 2001 10:43:34 -0500
+Received: from longsword.omniti.com ([216.0.51.134]:38666 "EHLO
+	longsword.omniti.com") by vger.kernel.org with ESMTP
+	id <S279985AbRJ3PnW>; Tue, 30 Oct 2001 10:43:22 -0500
+Message-ID: <3BDECBDD.DEE796EE@omniti.com>
+Date: Tue, 30 Oct 2001 10:48:45 -0500
+From: Robert Scussel <rscuss@omniti.com>
+Reply-To: rscuss@omniti.com
+Organization: OmniTI, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pablo Ninja <pablo.ninja@uol.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.13 high SWAP
+In-Reply-To: <3BDE3174.7718D64B@omniti.com> <20011030082806.14e60268.pablo.ninja@uol.com.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, bert hubert wrote:
+Pablo Ninja wrote:
+> 
+> Hi Robert,
+> 
+> I'm just a regular user of sgi xfs on my desktop and I noted It eats up all memory (maybe cos it caches too much). Don't know if it matters but have you ever tried to umount/mount these partitions ?
+>
 
-> Having huge uptimes is by the way not adviseable operational policy
-> according to many. Chances are you will be in for a nasty surprise when you
-> reboot - do you remember after a year which daemons you 'started by hand'
-> and how?
+Yes, I have tried to unmount the partition, however, it is impossible
+once the machine gets into this state. 
 
-While this isn't exactly on topic for l-k, I just thought that I would
-share my recent pain as it does fit in this thread.
+One thing that I have noticed is that when the load starts to increase,
+a manual sync, although it takes a long time, appears to keep off an
+immediate hang of the system. Once the load gets above 25 however, the
+machines spiral out of control.
 
-I had a box that I inherited.  It just did its job.  Actually most of my
-co-workers didn't even know which box performed this function, and when
-they saw the physical box, they didn't know what it did.
+Robert
 
-It was running a 2.0.x kernel.  One day after running for a long time (I'm
-guessing close to 500 days) it just went wacky.  I tried getting into the
-machine by ssh, but nothing was really working right at all.  So I figured
-a reboot was in order.
 
-This was a crappy 486/66, with no reset button.  So a power cycle was
-called for.  When I started the machine back up, it did the file system
-has not been checked in a long time thing, and it started the fsck.
+> []'s
+> Pablo
+> 
+> On Mon, 29 Oct 2001 23:49:56 -0500
+> Robert Scussel <rscuss@omniti.com> wrote:
+> 
+> > Just thought that I would add our experience.
+> >
+> > We have experienced the same kind of swap symptoms described, however we
+> > have no mounted tmpfs, or ramfs partitions. We have, in fact,
+> > experienced the same symptoms on the 2.4.2,2.4.5,2.4.7 and 2.4.12
+> > kernel, haven't yet tried the 2.4.13 kernel.  The symptoms include hung
+> > processes which can not be killed, system cannot right to disk, and
+> > files accessed during this time are filled with binary zeros.  As sync
+> > does not work as well, the only resolution is to do a reboot -f -n.
+> >
+> > All systems are comprised of exclusively SGI XFS partitions, with dual
+> > pentium II/III processors.
+> >
+> > Any insight would be helpful,
+> >
+> > Robert Scussel
+> > --
+> > Robert Scussel
+> > 1024D/BAF70959/0036 B19E 86CE 181D 0912  5FCC 92D8 1EA1 BAF7 0959
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+> Pablo Borges                                pablo.borges@uol.com.br
+> -------------------------------------------------------------------
+>   ____                                               Tecnologia UOL
+>  /    \    Debian:
+>  |  =_/      The 100% suck free linux distro.
+>   \
+>     \      SETI is lame. http://www.distributed.net
+>                                                      Dnetc is XNUG!
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-After a bit I saw read errors start to spew to the screen, tons of bad
-blocks.  Then the machine squealed for a few seconds, clicked, and then
-all was silent, except for the steady stream of errors on the console.
-
-A second power cycle confermed what I already knew.  The BIOS reported a
-failure in the disk controller (the drive would spin up for 2 seconds
-squeal and click a little bit as it spun back down).
-
-This machine was configured to do a task, just forward messages to a
-paging terminal.  It's configuration was never changed.  It had a one of
-those floppy-tape drives in it.  I knew were the backup tape was, it was
-made 3 years ago when the machine was first put into action.
-
-Of course the tape was unreadble at this point.  So the installation and
-configuration was recreated from my memory.  Luckly I have a good memory,
-but it did take me 2 days to get everything running right again.
-
-So the moral of the story is.  Reboot every-so-often.  Set your fsck to
-run at around 2 months, x number of reboots is good too.  I like to
-stagger my partitions with 5 reboots between each, even on journaled
-filesystems.  And verify your backups even if the machine isn't changing.
-
-I usually follow those rules, but the cute little 486 in the corner with
-the 240MB hard drive, 16MB of RAM, and the monster uptimes was just too
-much fun to brag about.  I'm not bragging anymore, and it is disassembled
-on the floor in my office.
-
--Chris
--- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
-
+--
+Robert Scussel
+1024D/BAF70959/0036 B19E 86CE 181D 0912  5FCC 92D8 1EA1 BAF7 0959

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261747AbTCLBSF>; Tue, 11 Mar 2003 20:18:05 -0500
+	id <S261707AbTCLBWg>; Tue, 11 Mar 2003 20:22:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261716AbTCLBSF>; Tue, 11 Mar 2003 20:18:05 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:18664
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261694AbTCLBSE>; Tue, 11 Mar 2003 20:18:04 -0500
-Date: Tue, 11 Mar 2003 20:25:40 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, David Miller <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "" <linux-net@vger.kernel.org>
-Subject: Re: [PATCH] (5/8) Eliminate brlock from netfilter
-In-Reply-To: <1047428094.15872.105.camel@dell_ss3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.50.0303112016580.6957-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
- <1047428094.15872.105.camel@dell_ss3.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261716AbTCLBWg>; Tue, 11 Mar 2003 20:22:36 -0500
+Received: from packet.digeo.com ([12.110.80.53]:53397 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261707AbTCLBWf>;
+	Tue, 11 Mar 2003 20:22:35 -0500
+Date: Tue, 11 Mar 2003 17:28:15 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Luben Tuikov <luben@splentec.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH] fix kernel oops in generic_unplug_device() for md
+Message-Id: <20030311172815.46ac305d.akpm@digeo.com>
+In-Reply-To: <3E6E8B6D.1000501@splentec.com>
+References: <3E6E8B6D.1000501@splentec.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Mar 2003 01:33:08.0960 (UTC) FILETIME=[565D5E00:01C2E837]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Mar 2003, Stephen Hemminger wrote:
+Luben Tuikov <luben@splentec.com> wrote:
+>
+> The following patch fixes a kernel oops when doing
+> blk_unplug_work() (oopses in generic_unplug_device()) for md.
+> 
+> The oops and the original report are here:
+> http://MARC.10East.com/?l=linux-kernel&m=104706400705154&w=2
+> 
 
->  void nf_unregister_hook(struct nf_hook_ops *reg)
->  {
-> -	br_write_lock_bh(BR_NETPROTO_LOCK);
-> +	spin_lock_bh(&nf_lock);
->  	list_del(&reg->list);
-> -	br_write_unlock_bh(BR_NETPROTO_LOCK);
-> +	spin_unlock_bh(&nf_lock);
-> +
-> +	synchronize_kernel();
->  }
+Yup, is a bug.  I received the below fix from Neil today which looks
+simpler.
 
-Won't that have to be list_del_rcu there?
+diff -puN drivers/block/ll_rw_blk.c~auto-unplugging-fix drivers/block/ll_rw_blk.c
+--- 25/drivers/block/ll_rw_blk.c~auto-unplugging-fix	Tue Mar 11 15:04:00 2003
++++ 25-akpm/drivers/block/ll_rw_blk.c	Tue Mar 11 15:04:00 2003
+@@ -1004,7 +1004,8 @@ void generic_unplug_device(void *data)
+ 
+ static void blk_unplug_work(void *data)
+ {
+-	generic_unplug_device(data);
++	request_queue_t *q = data;
++	q->unplug_fn(q);
+ }
+ 
+ static void blk_unplug_timeout(unsigned long data)
 
-	Zwane
--- 
-function.linuxpower.ca
+_
+

@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264775AbUFPUor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUFPUq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264775AbUFPUor (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 16:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUFPUor
+	id S264782AbUFPUq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 16:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbUFPUq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 16:44:47 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:14685 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S264775AbUFPUof
+	Wed, 16 Jun 2004 16:46:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12932 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264782AbUFPUq1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 16:44:35 -0400
-Date: Wed, 16 Jun 2004 22:54:16 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
-Subject: Re: [PATCH 0/5] kbuild
-Message-ID: <20040616205415.GA2096@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org> <20040615190951.C7666@flint.arm.linux.org.uk> <20040615191418.GD2310@mars.ravnborg.org> <20040615204616.E7666@flint.arm.linux.org.uk> <20040615205557.GK2310@mars.ravnborg.org> <20040615220646.I7666@flint.arm.linux.org.uk> <20040616194919.GA4384@mars.ravnborg.org> <20040616200824.GF24479@smtp.west.cox.net>
+	Wed, 16 Jun 2004 16:46:27 -0400
+Date: Wed, 16 Jun 2004 10:57:22 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nuno Monteiro <nuno@itsari.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4] build error with latest BK
+Message-ID: <20040616135722.GA2056@logos.cnet>
+References: <40CFB2A1.8070104@yahoo.com.au> <20040615164848.GA8276@hobbes.itsari.int> <3473.1087374022@redhat.com> <40D00828.8020303@yahoo.com.au> <16592.3188.448186.438659@alkaid.it.uu.se> <40D00D1F.8070109@yahoo.com.au> <20040616134036.GA2969@hobbes.itsari.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040616200824.GF24479@smtp.west.cox.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040616134036.GA2969@hobbes.itsari.int>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 01:08:24PM -0700, Tom Rini wrote:
-> On Wed, Jun 16, 2004 at 09:49:19PM +0200, Sam Ravnborg wrote:
+On Wed, Jun 16, 2004 at 02:40:36PM +0100, Nuno Monteiro wrote:
+> On 2004.06.16 10:04, Nick Piggin wrote:
+> > Just simply replace put_task_struct with free_task_struct.
 > 
-> > What about this much simpler approach?
-> > 
-> > One extra assignment for each architecture added to get access to the
-> > kernel image (at least the default one) for that architecture.
-> 
-> Will it also include the 'vmlinux' ?
-Today the rpm does not include vmlinux - but thats a trivial thing to add.
-I assume the same is tru for .deb
-tar.gz is not written yet...
+> Like this, maybe? It applies on top of what's currently in BK -- it fixed 
+> it for me, compiled and boot tested, running for the last 20 minutes. 
+> Also, linux/mm.h is needed because of free_pages().
 
->  And would I be right in assuming
-> that it will accept (a) globs and (b) can be defined inside of
-> arch/ppc/boot/foo/Makefile ?
-Yes, and yes.
-
-	Sam
+Ok, applied, thanks everyone. Should be releasing -pre6 in a few moments with 
+this.

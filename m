@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbRAEBlq>; Thu, 4 Jan 2001 20:41:46 -0500
+	id <S129477AbRAECEc>; Thu, 4 Jan 2001 21:04:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131078AbRAEBlg>; Thu, 4 Jan 2001 20:41:36 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:61161 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129610AbRAEBld>; Thu, 4 Jan 2001 20:41:33 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Chris Mason <mason@suse.com>, reiserfs-list@namesys.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] reiserfs patch for 2.4.0-prerelease
-Date: Thu, 4 Jan 2001 20:41:13 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-In-Reply-To: <244070000.978645169@tiny>
-In-Reply-To: <244070000.978645169@tiny>
-MIME-Version: 1.0
-Message-Id: <01010420411300.00624@oscar>
-Content-Transfer-Encoding: 8bit
+	id <S130085AbRAECEW>; Thu, 4 Jan 2001 21:04:22 -0500
+Received: from cd168990-a.ctjams1.mb.wave.home.com ([24.108.112.42]:3974 "EHLO
+	cd168990-a.ctjams1.mb.wave.home.com") by vger.kernel.org with ESMTP
+	id <S129477AbRAECEL>; Thu, 4 Jan 2001 21:04:11 -0500
+Date: Thu, 4 Jan 2001 20:04:09 -0600
+From: Evan Thompson <evaner@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Can I submit a bug report on this mailing list?
+Message-ID: <20010104200409.A23766@evaner.penguinpowered.com>
+Reply-To: evaner@bigfoot.com
+Mail-Followup-To: Evan Thompson <evaner@bigfoot.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10101041546120.1153-100000@penguin.transmeta.com> <Pine.LNX.4.21.0101042050421.1453-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0101042050421.1453-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Jan 04, 2001 at 09:06:34PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alright.
 
-I have been doing some dbench runs with the original and latest (Jan 4 22:xx) 
-prerelease.diff kernels.  Looks like both the latest kernels and the reiserfs 
-patch both are costing some performance.
+I hear about the 2.4.0 release.  I have, in my mailbox, many messages
+titled "Re: And oh, btw...", BUT NO ORIGINAL MESSAGE!  What happened?
+Is my stupid mailserver selective or something?
 
-prerelease
-	MB/s	user	system	cpu	time	
-ext2	14.6	50.5s	 76.4s	29%	 7:14.9m
-ext2	12.6	50.9s 	 76.7s	25%	 8:23.6m
-
-reiser	14.5	53.8s	149.2s	46%	 7:16.1m
-reiser	10.7	54.1s	154.5s	35%	 9:49.9m
-
-prerelease (2.4.0 jan 4 22:xx)
-	MB/s	user	system	cpu	time
-ext2	10.5	52.8s	 81.5s	22%	10:02.3m
-
-reiser	 5.8	54.6s	198.5s	23%	18:12.5m
-reiser	 6.4	55.1s	188.7s	24%	16.19.3m
-
-Using the notail reiserfs mount option improves the reiserfs numbers 10-20% 
-with both kernels.
-
-All benchmarks run on a K6-III 400 with 128M just after boot with no X 
-running.
-
-Comments?
-Ed Tomlinson
+Anyways.  My bug report is: "linux-kernel@vger.kernel.org does not send
+me important mails that are important and that should be sent due to
+their high importancy."
+-- 
++----------------------------------+-----------------------------------+
+| Evan Thompson                    |            POWERED BY:            |
+| evaner@bigfoot.com               | Linux cd168990-a 2.4.0-prerelease |
+| Freelance Computer Nerd          |  #1 Wed Jan 3 16:30:45 CST 2001   |
+| http://evaner.penguinpowered.com |   i686 unknown (2001/01/02 19:35) |
++----------------------------------+-----------------------------------+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

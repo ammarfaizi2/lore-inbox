@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129434AbQLEGBs>; Tue, 5 Dec 2000 01:01:48 -0500
+	id <S129524AbQLEG3W>; Tue, 5 Dec 2000 01:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129588AbQLEGBh>; Tue, 5 Dec 2000 01:01:37 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:63887 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129434AbQLEGBX>; Tue, 5 Dec 2000 01:01:23 -0500
-Message-ID: <3A2C7D8F.5BC3B33@haque.net>
-Date: Tue, 05 Dec 2000 00:30:55 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129588AbQLEG3M>; Tue, 5 Dec 2000 01:29:12 -0500
+Received: from main.cyclades.com ([209.128.87.2]:64261 "EHLO cyclades.com")
+	by vger.kernel.org with ESMTP id <S129524AbQLEG25>;
+	Tue, 5 Dec 2000 01:28:57 -0500
+Date: Mon, 4 Dec 2000 21:58:29 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+cc: Philip Blundell <philb@gnu.org>, netdev@oss.sgi.com
+Subject: [RFC-2] Configuring Synchronous Interfaces in Linux
+Message-ID: <Pine.LNX.4.10.10012042135090.5269-100000@main.cyclades.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre5
-In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following fixes to many arguments error in fs/udf/inode.c for
-test12-pre5
 
---- fs/udf/inode.c.orig Mon Dec  4 23:34:23 2000
-+++ fs/udf/inode.c      Tue Dec  5 00:26:59 2000
-@@ -202,7 +202,7 @@
-        mark_buffer_dirty(bh);
-        udf_release_data(bh);
- 
--       inode->i_data.a_ops->writepage(NULL, page);
-+       inode->i_data.a_ops->writepage(page);
-        UnlockPage(page);
-        page_cache_release(page);
- 
+Hello,
 
--- 
+Thanks to all of you who responded to my first RFC on this subject. The
+discussion ended up going in the Ethernet direction, and I frankly don't
+know whether that applies to this case, or even if it _should_ apply or
+they should really be separate config. subsystems. This is another thing
+that you may wanna throw your opinions on.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Anyhow, the parameters we currently need to configure on our board (the
+PC300) are as follows:
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+- Media: V.35, RS-232, X.21, T1, E1
+- Protocol: Frame Relay, (Cisco)-HDLC, PPP, X.25 (not sure whether that is
+            already supported by the 'hw' option)
+- Clock: 'ext' (or 0, which implies external clock) or some numeric value
+         > 0 (which implies internal clock); setting it to 'int' would set
+         it to some fixed numeric value > 0 (useful for T1/E1 links, just
+         to indicate master clock as opposed to slave or 'ext' clock) 
+- Frame Relay only: 
+	- End type: DCE or DTE (maybe this applies to other interface
+                    types as well)
+	- DLCI: DLC number for the interface
+- T1/E1 only:
+	- Line code: 
+	- Frame mode:
+	- LBO (T1 only): line-build-out
+	- Rx Sensitivity: short-haul or long-haul
+	- Active channels: mask that represents the possible 24/32
+                           channels (timeslots) on a T1/E1 line
+
+I'm sure that _all_ the other sync cards need to configure the _same_
+parameters (or a subset of them), and there may be cards that need even
+more parameters (but we have to start somewhere ... ;). So having a
+unified interface and making the drivers compliant to it is not that hard
+and surely would help users to dump the currently ridiculous set of
+individual config. tools for these cards (yes, we currently have our own
+pc300cfg, along with the -- not absolute -- "standard" sethdlc utility).
+
+I'm willing to go for this implementation, but I wanted to know first:
+- whether ifconfig is the right place to do it;
+- where I should create the new ioctl's to handle these new parameters.
+
+Suggestions / comments are more than welcome.
+
+Later,
+Ivan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

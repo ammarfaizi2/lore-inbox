@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272723AbRIPTwQ>; Sun, 16 Sep 2001 15:52:16 -0400
+	id <S272736AbRIPTyg>; Sun, 16 Sep 2001 15:54:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272730AbRIPTwG>; Sun, 16 Sep 2001 15:52:06 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59663 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S272723AbRIPTv5>;
-	Sun, 16 Sep 2001 15:51:57 -0400
-Date: Sun, 16 Sep 2001 16:52:02 -0300 (BRST)
+	id <S272732AbRIPTy1>; Sun, 16 Sep 2001 15:54:27 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:16 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S272730AbRIPTyQ>;
+	Sun, 16 Sep 2001 15:54:16 -0400
+Date: Sun, 16 Sep 2001 16:54:28 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <200109161919.f8GJJwA25036@smtp-server3.tampabay.rr.com>
-Message-ID: <Pine.LNX.4.33L.0109161636310.21279-100000@imladris.rielhome.conectiva>
+To: Jeremy Zawodny <Jeremy@Zawodny.com>
+Cc: Phillip Susi <psusi@cfl.rr.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH]  Re: broken VM in 2.4.10-pre9
+In-Reply-To: <20010916123309.A15108@peach.zawodny.com>
+Message-ID: <Pine.LNX.4.33L.0109161652480.21279-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,22 +21,20 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Sep 2001, Phillip Susi wrote:
+On Sun, 16 Sep 2001, Jeremy Zawodny wrote:
+> On Sun, Sep 16, 2001 at 03:19:29PM +0000, Phillip Susi wrote:
+>
+> > Maybe I'm missing something here, but it seems to me that these
+> > problems are due to the cache putting pressure on VM, so process
+> > pages get swapped out.
+>
+> That's what it felt like in the cases that I ran into it.  It was
+> trying to treat all memory equally, when it probably shouldn't have.
 
-> Maybe I'm missing something here, but it seems to me that these
-> problems are due to the cache putting pressure on VM, so process pages
-> get swapped out.  The obvious solution to this is to limit the size of
-> the cache, or implement some sort of algorithm to slow its growth and
-> reduce the pressure on VM.
-
-> Am I way off base here?
-
-You're absolutely right and it's only a tiny patch to
-implement this thing.  I've attached a completely
-untested (I haven't even compiled this thing) patch
-which implements this thing. I suspect it'll apply to
-any recent -ac kernel, porting it to -linus should be
-easy.
+Indeed, it should treat all memory equally, except when we
+really have far too much cache.  I'll resend the patch with
+the subject clearly marked since this trivial thing really
+does need testers ;)
 
 regards,
 
@@ -45,9 +43,6 @@ Rik
 IA64: a worthy successor to i860.
 
 http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
 
 
 --- mm/vmscan.c.orig	Sun Sep 16 16:44:14 2001

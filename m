@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263797AbREYQpD>; Fri, 25 May 2001 12:45:03 -0400
+	id <S263805AbREYQrn>; Fri, 25 May 2001 12:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263803AbREYQox>; Fri, 25 May 2001 12:44:53 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:63109 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id <S263798AbREYQon>;
-	Fri, 25 May 2001 12:44:43 -0400
-Date: Fri, 25 May 2001 09:44:36 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Greg Johnson <gjohnson@research.canon.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Big-ish SCSI disks
-In-Reply-To: <20010525000502.B998037530@zapff.research.canon.com.au>
-Message-ID: <Pine.LNX.4.33.0105250941110.20171-100000@twin.uoregon.edu>
+	id <S263804AbREYQrd>; Fri, 25 May 2001 12:47:33 -0400
+Received: from smtp-server1.cfl.rr.com ([65.32.2.68]:32405 "EHLO
+	smtp-server1.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S263798AbREYQr2>; Fri, 25 May 2001 12:47:28 -0400
+Message-ID: <3B0E8B9F.CFBEAC59@evcom.net>
+Date: Fri, 25 May 2001 12:43:11 -0400
+From: Randy <randys@evcom.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Dedicated Interrupt handling on SMP
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-75GB 80GB 180GB all work fine...
+I'm trying to find the easiest way to to deidcate one CPU to responding
+to a specific Interrupt request.
+That CPU should only listen for that request while all other CPU should
+ignore the interrupt.
 
-your issues are:
+Any suggestions? Do I have to muck with the IO_APIC or is there a
+simpler way which I just missed?
 
-location of kernel, below 8GB until you have the chance to turn on lba32
-in your lilo.conf...
+Any help would be appreciated!
 
-2GB  filesize limit bites people who use large disks more often (well at
-least in my app), use reiserfs.
+Thank you!
 
-joelja
-
-On Fri, 25 May 2001, Greg Johnson wrote:
-
-> Hi kernel poeple,
->
-> Can anyone out there say for certain that 76GB SCSI disks should
-> just work with kernel versions 2.2 and/or 2.4? We need to get some
-> big disk space and have heard reports of problems with disks
-> bigger than 30GB under linux.
->
-> Thanks.
->
-> Greg.
->
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+Randy Schumm
+Please CC: answer to randys@evcom.net
 
 

@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284762AbRLKAnc>; Mon, 10 Dec 2001 19:43:32 -0500
+	id <S284755AbRLKAmm>; Mon, 10 Dec 2001 19:42:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284765AbRLKAnN>; Mon, 10 Dec 2001 19:43:13 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:16498 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S284762AbRLKAnF>; Mon, 10 Dec 2001 19:43:05 -0500
-Date: Tue, 11 Dec 2001 01:43:46 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16 & OOM killer screw up (fwd)
-Message-ID: <20011211014346.C4801@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0112101705281.25362-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0112101705281.25362-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Dec 10, 2001 at 05:08:44PM -0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S284762AbRLKAmd>; Mon, 10 Dec 2001 19:42:33 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:13261 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S284755AbRLKAmX>; Mon, 10 Dec 2001 19:42:23 -0500
+Message-ID: <3C15566B.7010803@redhat.com>
+Date: Mon, 10 Dec 2001 19:42:19 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011010 Netscape6/6.1b1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andris Pavenis <pavenis@latnet.lv>
+CC: Nathan Bryant <nbryant@optonline.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i810_audio fix for version 0.11
+In-Reply-To: <Pine.A41.4.05.10112081022560.23064-100000@ieva06> <200112080925.fB89PJ200926@hal.astr.lu.lv> <3C11DF15.1020107@redhat.com> <200112080945.fB89jAC00998@hal.astr.lu.lv>
+Content-Type: text/plain; charset=ISO-8859-13; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 05:08:44PM -0200, Marcelo Tosatti wrote:
-> 
-> Andrea, 
-> 
-> Could you please start looking at any 2.4 VM issues which show up ?
+Andris Pavenis wrote:
 
-well, as far I can tell no VM bug should be present in my latest -aa, so
-I think I'm finished. At the very least I know people is using 2.4.15aa1
-and 2.4.17pre1aa1 in production on multigigabyte boxes under heavy VM
-load and I didn't got any bugreport back yet.
+> Why returning non zero from __start_dac() and similar procedures when 
+> something real has been done there is so bad. 
 
-> 
-> Just please make sure that when sending a fix for something, send me _one_
-> problem and a patch which fixes _that_ problem.
 
-I will split something for you soon, at the moment I was doing some
-further benchmark.
+Personal preference.
 
-> 
-> I'm tempted to look at VM, but I think I'll spend my limited time in a
-> better way if I review's others people work instead.
+> Using such return code would
+> ensure we never try to wait for results of __start_dac() if nothing is done 
+> by this procedure.
 
-until I split something out, you can see all the vm related changes in
-the 10_vm-* patches in my ftp area.
 
-Andrea
+That's part of the point.  In this driver, I try to control when things are 
+done and keep track of them in a deterministic way.  Using a return code to 
+tell us a function we called did nothing when we shouldn't have called it in 
+the first place if it wasn't going to do anything is backwards from the way 
+I prefer to handle things.  Namely, find out why the function was called 
+when it shouldn't have been and solve the problem.  Note: I don't follow 
+that philosophy on all functions, only on very simple ones like this, there 
+are a lot of complex functions where you want the function to make those 
+decisions.  So, like I said, personal preference on how to handle these things.
+
+> I think such way is also more safe against possible future 
+> modifications as real conditions are only in a single place. Keeping them in 
+> 2 places is possible source of bitrot if driver will be updated in future.
+
+
+It's intended to do exactly that.  A lot of what makes this driver work 
+properly right now is the LVI handling.  That was severly busted when I 
+first got hold of the driver.  I *want* things to break if the LVI handling 
+is changed by someone else because that will alert me to the fact that the 
+LVI handling is then busted (at least, if they change it incorrectly, if 
+they do things right then they will catch problems like this and fix them 
+properly and I won't have to do anything).
+
+
+
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
+

@@ -1,49 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263784AbUD0GCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263793AbUD0GFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263784AbUD0GCF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 02:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUD0GCF
+	id S263793AbUD0GFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 02:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263799AbUD0GFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 02:02:05 -0400
-Received: from [194.89.250.117] ([194.89.250.117]:59531 "EHLO
-	kimputer.holviala.com") by vger.kernel.org with ESMTP
-	id S263784AbUD0GCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 02:02:02 -0400
-From: Kim Holviala <kim@holviala.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Load hid.o module synchronously?
-Date: Tue, 27 Apr 2004 09:02:01 +0300
-User-Agent: KMail/1.6.1
-References: <s5g8ygi4l3q.fsf@patl=users.sf.net>
-In-Reply-To: <s5g8ygi4l3q.fsf@patl=users.sf.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 27 Apr 2004 02:05:15 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:13715 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263793AbUD0GFD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 02:05:03 -0400
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org>
+References: <408DC0E0.7090500@gmx.net>
+	 <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1083045844.2150.105.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 27 Apr 2004 16:04:06 +1000
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404270902.01011.kim@holviala.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 April 2004 22:10, Patrick J. LoPresti wrote:
+On Tue, 2004-04-27 at 14:31, Linus Torvalds wrote:
+> Anyway, I suspect that rather than blacklist bad people, I'd much prefer
+> to have the module tags be done as counted strings instead. It should be
+> easy enough to do by just having the macro prepend a "sizeof(xxxx)"  
+> thing or something.
+> 
+> Hmm. At least with -sdt=c99 it should be trivial, with something like
+> 
+> 	#define __MODULE_INFO(tag, name, info)		\
+> 	static struct { int len; const char value[] }	\
+> 	__module_cat(name,__LINE__) __attribute_used__	\
+> 	__attribute__((section(".modinfo"),unused)) =	\
+> 		{ sizeof(__stringify(tag) "=" info),	\
+> 		__stringify(tag) "=" info }
+> 
+> doing the job.
 
-> For example, I invoke "modprobe hid" to make my USB keyboard work.
-> This loads the module and exits immediately, causing my script to
-> proceed, before the USB keyboard is probed and ready.
->
-> I want to wait until the driver is finished initializing (i.e., a USB
-> keyboard is either found or not found) before my script continues.
-> How can I do that?
->
-> I seem to be having similar problems loading certain other modules
-> (PCMCIA, Ethernet), but hid.o is the only one for which I have not
-> found a convenient workaround.
+Cute, but breaks the "modinfo" tool unfortunately.  I'd prefer not to do
+that.  Since they want to circumvent this, almost anything we want to do
+is a waste of time.
 
-Well, this isn't what you wanted to hear :-) but I use sleep on my 
-PCMCIA/nfsroot boot initrds. Sleeping for 3-5 seconds is enough for the 
-modules to load properly and it won't slow down the boot too much either...
+Rusty.
+
+Name: Stop most obvious abuse of MODULE_LICENSE
+Status: Tested on 2.6.6-rc2-bk4
+
+Arms race forces bloat upon module users.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31262-linux-2.6.6-rc2-bk4/include/linux/module.h .31262-linux-2.6.6-rc2-bk4.updated/include/linux/module.h
+--- .31262-linux-2.6.6-rc2-bk4/include/linux/module.h	2004-04-22 08:03:55.000000000 +1000
++++ .31262-linux-2.6.6-rc2-bk4.updated/include/linux/module.h	2004-04-27 15:52:19.000000000 +1000
+@@ -16,6 +16,9 @@
+ #include <linux/kmod.h>
+ #include <linux/elf.h>
+ #include <linux/stringify.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/compiler.h>
+ #include <asm/local.h>
+ 
+ #include <asm/module.h>
+@@ -61,7 +64,14 @@ void sort_main_extable(void);
+ #ifdef MODULE
+ #define ___module_cat(a,b) __mod_ ## a ## b
+ #define __module_cat(a,b) ___module_cat(a,b)
++/* Some sick fucks embeded NULs in MODULE_LICENSE to circumvent checks. */
++#define __MODULE_INFO_CHECK(info)					  \
++	static void __init __attribute_used__				  \
++	__module_cat(__mc_,__LINE__)(void) {				  \
++		BUILD_BUG_ON(__builtin_strlen(info) + 1 != sizeof(info)); \
++	}
+ #define __MODULE_INFO(tag, name, info)					  \
++__MODULE_INFO_CHECK(info);						  \
+ static const char __module_cat(name,__LINE__)[]				  \
+   __attribute_used__							  \
+   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
 
 
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-
-Kim

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265257AbTGCSjg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 14:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbTGCSjg
+	id S265239AbTGCS6R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 14:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbTGCS6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 14:39:36 -0400
-Received: from holomorphy.com ([66.224.33.161]:62913 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265257AbTGCSjf (ORCPT
+	Thu, 3 Jul 2003 14:58:17 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:16777 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265239AbTGCS6R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 14:39:35 -0400
-Date: Thu, 3 Jul 2003 11:53:41 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 3 Jul 2003 14:58:17 -0400
+Date: Thu, 3 Jul 2003 12:06:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: wli@holomorphy.com, mbligh@aracnet.com, mel@csn.ul.ie, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030703185341.GJ20413@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rik van Riel <riel@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030703125839.GZ23578@dualathlon.random> <Pine.LNX.4.44.0307030904260.16582-100000@chimarrao.boston.redhat.com>
+Message-Id: <20030703120658.4fb1e407.akpm@osdl.org>
+In-Reply-To: <20030703113144.GY23578@dualathlon.random>
+References: <20030702171159.GG23578@dualathlon.random>
+	<461030000.1057165809@flay>
+	<20030702174700.GJ23578@dualathlon.random>
+	<20030702214032.GH20413@holomorphy.com>
+	<20030702220246.GS23578@dualathlon.random>
+	<20030702221551.GH26348@holomorphy.com>
+	<20030702222641.GU23578@dualathlon.random>
+	<20030702231122.GI26348@holomorphy.com>
+	<20030702233014.GW23578@dualathlon.random>
+	<20030702235540.GK26348@holomorphy.com>
+	<20030703113144.GY23578@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307030904260.16582-100000@chimarrao.boston.redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jul 2003, Andrea Arcangeli wrote:
->> even if you don't use largepages as you should, the ram cost of the pte
->> is nothing on 64bit archs, all you care about is to use all the mhz and
->> tlb entries of the cpu.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> Yet another issue is that mlock at max locks in half of the physical
+> ram,
 
-On Thu, Jul 03, 2003 at 09:06:32AM -0400, Rik van Riel wrote:
-> That depends on the number of Oracle processes you have.
-> Say that page tables need 0.1% of the space of the virtual
-> space they map.  With 1000 Oracle users you'd end up needing
-> as much memory in page tables as your shm segment is large.
-> Of course, in this situation either the application should
-> use large pages or the kernel should simply reclaim the
-> page tables (possible while holding the mmap_sem for write).
-
-No, it is not true that pagetable space can be wantonly wasted
-on 64-bit.
-
-Try mmap()'ing something sufficiently huge and accessing on average
-every PAGE_SIZE'th virtual page, in a single-threaded single process.
-e.g. various indexing schemes might do this. This is 1 pagetable page
-per page of data (worse if shared), which blows major goats.
-
-There's a reason why those things use inverted pagetables... at any
-rate, compacting virtualspace with remap_file_pages() solves it too.
-
-Large pages won't help, since the data isn't contiguous.
-
-
--- wli
+I deleted that bit.

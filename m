@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262428AbSJESCz>; Sat, 5 Oct 2002 14:02:55 -0400
+	id <S262433AbSJESEy>; Sat, 5 Oct 2002 14:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262430AbSJESCz>; Sat, 5 Oct 2002 14:02:55 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:37903
+	id <S262434AbSJESEy>; Sat, 5 Oct 2002 14:04:54 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:41743
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262428AbSJESCy>; Sat, 5 Oct 2002 14:02:54 -0400
-Subject: Re: [IDE] sleeping function called from illegal context at
-	slab.c:1347
+	with ESMTP id <S262433AbSJESEx> convert rfc822-to-8bit; Sat, 5 Oct 2002 14:04:53 -0400
+Subject: Re: Unable to kill processes in D-state
 From: Robert Love <rml@tech9.net>
-To: Andrey Panin <pazke@orbita1.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43341.172.173.28.251.1033807005.squirrel@mail.orbita1.ru>
-References: <43341.172.173.28.251.1033807005.squirrel@mail.orbita1.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20021005090705.GA18475@stud.ntnu.no>
+References: <20021005090705.GA18475@stud.ntnu.no>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Oct 2002 14:08:26 -0400
-Message-Id: <1033841307.1247.3706.camel@phantasy>
+Date: 05 Oct 2002 14:11:02 -0400
+Message-Id: <1033841462.1247.3716.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 04:36, Andrey Panin wrote:
+On Sat, 2002-10-05 at 05:07, Thomas Langås wrote:
 
-> looks like i tracked down yet another instance of this already famous 
-> message, :)
-> but i don't know how to fix it.
-> 
-> This message produced by IDE driver is IMHO 
-> caused by ide_init_queue() function called while holding
-> ide_lock spinlock in the 
-> init_irq() function (ide-probe.c).
-> 
-> Then ide_init_queue() calls blk_init_queue() 
-> and we have a this call chain:
->     ide_init_queue() -> blk_init_queue() -> 
-> blk_init_free_list() -> kmem_cache_alloc()
+> We have a fairly large installation on-campus, and we have some problems
+> with the current linux-kernel (and older ones) - namely that processes
+> entering D-state will stay there forever (given that the right event got
+> them there in the first place).  This right event is killing the 
+> autofs-daemon.  Doing this will result in heavy load because of lots
+> of D-state processes, and you can't kill any of the D-state processes.
+> Why shouldn't one be able to kill processes that has entered D-state?
+> We have to reboot our servers to get rid of this problem, and it's
+> rather annoying.
 
-This is known, but thank you anyhow.
+Because they are in uninterruptible sleep.  They are doing something
+important, presumably in a critical section, and have no wake-up path
+for signals or errors.
 
-> What can we do to fix this ?
+Finally, they probably hold a semaphore.  In short, you cannot kill
+them, nor would you want to.
 
-Question of the year :)
+I would simplify the question and ask why are you killing the autofs
+daemon?  Clearly this is a recipe for disaster.
 
 	Robert Love
+
 

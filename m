@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317445AbSFHU3A>; Sat, 8 Jun 2002 16:29:00 -0400
+	id <S317450AbSFHU3t>; Sat, 8 Jun 2002 16:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317447AbSFHU27>; Sat, 8 Jun 2002 16:28:59 -0400
-Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:18382 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S317445AbSFHU26>;
-	Sat, 8 Jun 2002 16:28:58 -0400
-Message-ID: <3D01307C.4090503@candelatech.com>
-Date: Fri, 07 Jun 2002 15:15:24 -0700
+	id <S317448AbSFHU3q>; Sat, 8 Jun 2002 16:29:46 -0400
+Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:20430 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S317447AbSFHU3j>;
+	Sat, 8 Jun 2002 16:29:39 -0400
+Message-ID: <3D00518D.6040601@candelatech.com>
+Date: Thu, 06 Jun 2002 23:24:13 -0700
 From: Ben Greear <greearb@candelatech.com>
 Organization: Candela Technologies
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-In-Reply-To: <3CFFB9F8.54455B6E@nortelnetworks.com> <20020606.202108.52904668.davem@redhat.com>
+To: ET Sales <sales@etinc.com>
+CC: nick@snowman.net, Benjamin LaHaise <bcrl@redhat.com>,
+        linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Loosing packets with Dlink DFE-580TX and SMC 9462TX
+In-Reply-To: <vewutgw4n1.fsf@inigo.ingate.se> <5.1.0.14.0.20020606091713.021f0730@mail.etinc.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Datagram sockets are the ones that drop data though (tcp will
-deal with it via re-transmits).
+Isn't the DFE-580tx a 4-port 10/100bt NIC?  If so, why the
+talk about Gigabit speed?
 
-I have not looked at his patch in detail, but I would welcome anything
-that gets us closer to being able to account for every packet that enters
-the NIC, or enters the kernel from user-space via send(to), etc...
+ET Sales wrote:
 
-David S. Miller wrote:
-
-> Your idea is totally useless for non-datagram sockets.
-> Only datagram sockets use the interfaces where you bump
-> the counters.
+> At 07:56 PM 6/3/02 -0400, you wrote:
 > 
-> I don't like the patch, nor the idea behind it, at all.
+> Uh..aren't those 32-bit cards? There isn't enough bus bandwidth on a 
+> 32bit PCI bus to do gigabit, so its more likely that the cards are 
+> overrunning their buffers....
 > 
-> 
+> Dennis
 
 
 -- 

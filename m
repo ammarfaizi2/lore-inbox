@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261863AbSIYAOS>; Tue, 24 Sep 2002 20:14:18 -0400
+	id <S261854AbSIXX5X>; Tue, 24 Sep 2002 19:57:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261864AbSIYAOR>; Tue, 24 Sep 2002 20:14:17 -0400
-Received: from holomorphy.com ([66.224.33.161]:10653 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261863AbSIYAOR>;
-	Tue, 24 Sep 2002 20:14:17 -0400
-Date: Tue, 24 Sep 2002 17:18:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.38-mm2 dbench $N times
-Message-ID: <20020925001826.GM6070@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20020924132031.GJ6070@holomorphy.com> <3D90A532.4B95C06B@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D90A532.4B95C06B@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S261855AbSIXX5W>; Tue, 24 Sep 2002 19:57:22 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:4778 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261854AbSIXX5W>;
+	Tue, 24 Sep 2002 19:57:22 -0400
+Message-ID: <3D90FC6C.2060301@us.ibm.com>
+Date: Tue, 24 Sep 2002 16:59:40 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Erich Focht <efocht@ess.nec.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
+References: <200209211159.41751.efocht@ess.nec.de> <73440311.1032684750@[10.10.2.3]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Taken on 32x/32G NUMA-Q:
->> Throughput 67.3949 MB/sec (NB=84.2436 MB/sec  673.949 MBit/sec)  16 procs
->> dbench 16  11.72s user 122.21s system 422% cpu 31.733 total
-
-On Tue, Sep 24, 2002 at 10:47:30AM -0700, Andrew Morton wrote:
-> Taken on 2x/0.8G el-scruffo PC:
-> Throughput 135.02 MB/sec (NB=168.775 MB/sec  1350.2 MBit/sec)
-> ./dbench 16  12.11s user 16.29s system 181% cpu 15.646 total
-> What's up with that?
-
-Not sure. This is boot bay SCSI crud, but single-disk FC looks
-*worse* for no obvious reason. Multiple disk tests do much better
-(about matching the el-scruffo PC numbers above).
+Martin J. Bligh wrote:
+> A few comments ... mainly just i386 arch things (which aren't
+> really your fault, was just a lack of the mechanisms being in
+> mainline), and a request to push a couple of things down into
+> the arch trees from rearing their ugly head into generic code ;-)
 
 
-Cheers,
-Bill
+<SNIP>
+
+>>+extern int pnode_to_lnode[NR_NODES];
+>>+extern char lnode_number[NR_CPUS] __cacheline_aligned;
+> 
+> Can't you push all this down into the arch ....
+> 
+>>+#define CPU_TO_NODE(cpu) lnode_number[cpu]
+> 
+> ... by letting them define cpu_to_node() themselves?
+> (most people don't have lnodes and pnodes, etc).
+Yep... Sorry to get into the thread late, but Erich, you should really 
+look at the latest in-kernel topology API stuff in the mm tree.  I'd be 
+happy to discuss it with you over email...  Plus, I'd get another user 
+of the topology (to help push it into mainline) and ia64 support, and 
+you'd get a generic topology mechanism that works (err, will work?) for 
+all architectures.  Email me for more info, or just check out the patch 
+that Martin pointed to! :)
+
+Cheers!
+
+-Matt
+

@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUFJUwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUFJVBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUFJUwo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 16:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUFJUwn
+	id S263032AbUFJVBD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 17:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUFJVBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 16:52:43 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20097 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263024AbUFJUwk
+	Thu, 10 Jun 2004 17:01:03 -0400
+Received: from 178.80-203-227.nextgentel.com ([80.203.227.178]:40551 "EHLO
+	gandalf.hex.no") by vger.kernel.org with ESMTP id S263032AbUFJVAw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 16:52:40 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Lars <terraformers@gmx.net>
-Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
-Date: Thu, 10 Jun 2004 15:58:54 +0200
-User-Agent: KMail/1.5.3
-References: <ca9jj9$dr$1@sea.gmane.org> <200406101459.45750.bzolnier@elka.pw.edu.pl> <ca9nid$bnc$1@sea.gmane.org>
-In-Reply-To: <ca9nid$bnc$1@sea.gmane.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jun 2004 17:00:52 -0400
+Date: Thu, 10 Jun 2004 23:00:42 +0200
+From: Matias Hermanrud Fjeld <mhf@hex.no>
+To: linux-kernel@vger.kernel.org
+Subject: Re: timer + fpu stuff locks my console race
+Message-ID: <20040610210042.GL31653@mail.hex.no>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IoFIGPN1N3g1Ryqz"
 Content-Disposition: inline
-Message-Id: <200406101558.54240.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <1701.83.109.60.63.1086814977.squirrel@nepa.nlc.no>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 of June 2004 15:26, Lars wrote:
-> hi
 
-Hi,
+--IoFIGPN1N3g1Ryqz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> thanks for answering!
->
-> rc2 worked completely stable with c1 disconnect halt enabled and low
-> cpu temp.
-> rc3 has no C1 enabled after booting, so the cpu temp rises, but its
-> stable.
-> when enabling the c1 disconnect halt after this with something like
-> "setpci -v -H1 -s 0:0.0 6F=$(printf %x $((0x$(setpci -H1 -s 0:0.0 6F) |
-> 0x10)))"
-> (from
-> http://www.tldp.org/HOWTO/Athlon-Powersaving-HOWTO/approaches.html#commandl
->ine) the cpu is getting cool again but the system locks up frequently.
-> so it would be great to have the fixup re-enabled at boottime.
-> maybe a switch to force the fixup on boards without c1 disconnect
-> bios-settings would do it ?
+ACK
 
-We can't do that, some older boards hang if C1 disconnect is used.
+mhf@bilbo:~$ uname -a=20
+Linux bilbo 2.6.6-1-k7 #1 Wed May 12 18:19:40 EST 2004 i686 GNU/Linux
 
-However you can enable fixup and then C1 Halt Disconnect yourself. :-)
+--=20
+Matias Hermanrud Fjeld
+http://www.hex.no/mhf
 
-setpci -v -H1 -s 0:0.0 6C.L=$(printf %x $((0x$(setpci -H1 -s 0:0.0 6C.L) & 0x9F01FF01)))
 
-- to enable fixup first
+--IoFIGPN1N3g1Ryqz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-setpci -v -H1 -s 0:0.0 6F=$(printf %x $((0x$(setpci -H1 -s 0:0.0 6F) | 0x10)))
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-- to enable C1 Halt Disconnect
+iD8DBQFAyMv6InG+hz/aOQARAsY8AJwPqsuZvZaLM4WIwSEXH7J8LqUPeQCgkXj/
+dHEwqvvoA1qruZj8wbWv1NA=
+=GWGL
+-----END PGP SIGNATURE-----
 
-[ this is untested as I don't have nForce2 board ]
-
-> thanks,
-> lars
->
-> Bartlomiej Zolnierkiewicz wrote:
-> > Do you get lockups with -rc3 and not with -rc2?
-
+--IoFIGPN1N3g1Ryqz--

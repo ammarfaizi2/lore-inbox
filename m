@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267456AbTBUOiH>; Fri, 21 Feb 2003 09:38:07 -0500
+	id <S267459AbTBUOkz>; Fri, 21 Feb 2003 09:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267457AbTBUOiH>; Fri, 21 Feb 2003 09:38:07 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:21694 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267456AbTBUOiG>;
-	Fri, 21 Feb 2003 09:38:06 -0500
-Date: Fri, 21 Feb 2003 14:58:03 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Edward Killips <camber@yakko.cs.wmich.edu>
-Cc: Samium Gromoff <deepfire@ibe.miee.ru>, toptan@eunet.eu,
-       linux-kernel@vger.kernel.org
-Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
-Message-ID: <20030221145803.GA22285@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Edward Killips <camber@yakko.cs.wmich.edu>,
-	Samium Gromoff <deepfire@ibe.miee.ru>, toptan@eunet.eu,
-	linux-kernel@vger.kernel.org
-References: <20030221122051.20942f70.deepfire@ibe.miee.ru> <Pine.LNX.4.44.0302210926250.8764-100000@yakko.cclub.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302210926250.8764-100000@yakko.cclub.net>
-User-Agent: Mutt/1.5.3i
+	id <S267463AbTBUOkz>; Fri, 21 Feb 2003 09:40:55 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:54145 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S267459AbTBUOkx>; Fri, 21 Feb 2003 09:40:53 -0500
+Date: Fri, 21 Feb 2003 14:52:38 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c w
+ ith flush_tlb_all()
+In-Reply-To: <20030221142039.GA21532@codemonkey.org.uk>
+Message-ID: <Pine.LNX.4.44.0302211439590.1669-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 09:27:55AM -0500, Edward Killips wrote:
- > On my GA-7VAXP (KT400) with an AIW 9700 Pro Radeon the agpgart module 
- > would not load. It could not set the apeture size.
+On Fri, 21 Feb 2003, Dave Jones wrote:
+> It would probably clean things up a lot if we had a function to do..
+> 
+> static inline void on_each_cpu(void *func)
+> {      
+> #ifdef CONFIG_SMP
+> 	preempt_disable();
+> 	smp_call_function(func, NULL, 1, 1);
+> 	func(NULL);
+> 	preempt_enable();
+> #else
+> 	func(NULL);
+> #endif
+> }
 
-Looks like the backport was based on too early a snapshot.
-The via-agp.c in 2.5.62 should work fine.
+Of course that's much much better.  But I think rather better as
+static inline void on_each_cpu(void (*func) (void *info), void *info)
+passing info to func instead of assuming NULL.  inline? maybe.
 
-		Dave
+Hugh
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

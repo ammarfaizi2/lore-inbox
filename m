@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262250AbSJQWiC>; Thu, 17 Oct 2002 18:38:02 -0400
+	id <S262213AbSJQWfR>; Thu, 17 Oct 2002 18:35:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262253AbSJQWiC>; Thu, 17 Oct 2002 18:38:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:192 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262250AbSJQWiB>;
-	Thu, 17 Oct 2002 18:38:01 -0400
-Date: Thu, 17 Oct 2002 15:36:27 -0700 (PDT)
-Message-Id: <20021017.153627.132905359.davem@redhat.com>
-To: daw@mozart.cs.berkeley.edu
-Cc: linux-kernel@vger.kernel.org
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] remove sys_security
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <aonbj9$pun$1@abraham.cs.berkeley.edu>
-References: <20021017185352.GA32537@kroah.com>
-	<20021017.131830.27803403.davem@redhat.com>
-	<aonbj9$pun$1@abraham.cs.berkeley.edu>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262218AbSJQWfQ>; Thu, 17 Oct 2002 18:35:16 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:1038 "EHLO
+	ns.higherplane.net") by vger.kernel.org with ESMTP
+	id <S262213AbSJQWfQ>; Thu, 17 Oct 2002 18:35:16 -0400
+Date: Fri, 18 Oct 2002 08:39:00 +1000
+From: john slee <indigoid@higherplane.net>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Padraig Brady <padraig.brady@corvil.com>, garrett@tbaytel.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE, TRIVIAL, RFC] Linux source strip/bundle script
+Message-ID: <20021017223900.GP19055@higherplane.net>
+References: <200210010734.14949.garrett@tbaytel.net> <3D998C95.9060606@corvil.com> <E17wQCI-0005v4-00@starship>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17wQCI-0005v4-00@starship>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: daw@mozart.cs.berkeley.edu (David Wagner)
-   Date: 17 Oct 2002 21:54:49 GMT
-   
-   For example, the LSM folks have several performance
-   measurements that show that the performance overhead of LSM is
-   basically negligible, so that's one way that users won't notice it
-   is there.
+On Tue, Oct 01, 2002 at 06:48:34PM +0200, Daniel Phillips wrote:
+> On Tuesday 01 October 2002 13:52, Padraig Brady wrote:
+> > 3. What's the difference in size between 2.4.19.tar.bz2 and
+> >     2.4.19-bastardized.tar.bz2 ?
+> 
+> Surely you meant "bowdlerized"?
 
-How about size measurements?  As in, the kernel is at a minimum
-several Kb larger than if CONFIG_SECURITY=n
+nup, my understanding of that term is (in the cloak+dagger sense)
+blacking out the sensitive bits with a big marker pen, typically before
+showing them to people who shouldn't see the sensitive bits.
 
-And about prospective usage of LSM, it can be judged even though it
-isn't in the tree yet.  That's how we decide what to put into the
-kernel to begin with.
+a quasi-sane way to do this bastardisation of the kernel sources would
+be to do a make allyesconfig and remove anything that doesn't match up.
+but given the amount of kernel source dedicated to generic drivers or
+subsystems on any arch i think its a total waste of time, and i'm not
+alone :-)
 
-Look at your average user, he doesn't really care about LSM.  He wants
-to be able to play his music, play quake3, surf the web, write emails
-and compose documents.  If he's a developer he also wants to compile
-programs and source management tools.  If he's an artist or
-professional photographer, he wants something like the GIMP.
+j.
 
-Sure, it might become popular on multi-user machines to use
-some sort of LSM module for this purpose or that.
-
-But as far as raw seats are concerned, the majority will not use
-LSM.  They simply have no need for it on their workstation.
+-- 
+toyota power: http://indigoid.net/

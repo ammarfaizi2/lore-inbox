@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVAZBO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVAZBSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbVAZBO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 20:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVAYXke
+	id S262264AbVAZBSu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 20:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVAYXka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 18:40:34 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:49165 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262230AbVAYXUE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 18:20:04 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: bdschuym@pandora.be (Bart De Schuymer)
-Subject: Re: 2.6.11-rc2: Badness in local_bh_enable at kernel/softirq.c:140
-Cc: earny@net4u.de, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <1106685033.5418.0.camel@localhost.localdomain>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CtZxd-0000s1-00@gondolin.me.apana.org.au>
-Date: Wed, 26 Jan 2005 10:19:01 +1100
+	Tue, 25 Jan 2005 18:40:30 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:6099 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262246AbVAYXQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 18:16:57 -0500
+Subject: [PATCH] fix broken cross compiles
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       sam@ravnborg.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 17:16:23 -0600
+Message-Id: <1106694984.6434.54.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart De Schuymer <bdschuym@pandora.be> wrote:
-> 
-> Thanks for posting this. I was just about to go on a wild goose chase.
-> Any idea what patch fixed it?
+This patch:
 
-It's this one:
+kbuild: Use -isystem `gcc -print-file-name=include`
 
-http://article.gmane.org/gmane.linux.kernel/273477
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+broke our parisc crosscompile (and presumably everyone else's).
+
+The reason is that you have a := in the NOSTDINC_FLAGS rule, which is
+evaluated in situ (i.e. before we've had a chance to set CROSSCOMPILE on
+CC) so the gcc include path is actually the native one not the
+crosscompiler one.  On parisc this causes us to be unable to handle
+_builtin_va functions, but I bet there are a heap of other problems.
+
+The fix is below
+
+James
+
+===== Makefile 1.561 vs edited =====
+--- 1.561/Makefile	2005-01-21 19:45:34 -06:00
++++ edited/Makefile	2005-01-25 17:13:51 -06:00
+@@ -331,7 +331,7 @@
+ PERL		= perl
+ CHECK		= sparse
+ 
+-NOSTDINC_FLAGS := -nostdinc -isystem $(shell $(CC) -print-file-name=include)
++NOSTDINC_FLAGS  = -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__
+ CHECKFLAGS     += $(NOSTDINC_FLAGS)
+ MODFLAGS	= -DMODULE
+
+

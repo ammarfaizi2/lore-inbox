@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264412AbUFEFMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUFEFbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264412AbUFEFMR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 01:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUFEFMQ
+	id S263204AbUFEFbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 01:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUFEFbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 01:12:16 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:32726 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S264412AbUFEFMP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 01:12:15 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: removable media support on 2.6.x
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Sat, 5 Jun 2004 10:38:27 +0530
-Message-ID: <1118873EE1755348B4812EA29C55A9722AF023@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: removable media support on 2.6.x
-Thread-index: AcRKt9zlgHmSa3RQQS6Zkud5GHTUmAAAw8Vw
-From: "Jinu M." <jinum@esntechnologies.co.in>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>,
-       "Surendra I." <surendrai@esntechnologies.co.in>
+	Sat, 5 Jun 2004 01:31:09 -0400
+Received: from smtp-out5.xs4all.nl ([194.109.24.6]:21767 "EHLO
+	smtp-out5.xs4all.nl") by vger.kernel.org with ESMTP id S263204AbUFEFbF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 01:31:05 -0400
+Date: Sat, 5 Jun 2004 07:30:52 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: shutdown problem with 2.6.7-rc2 / 2.6.7-rc2-mm2
+Message-ID: <20040605053052.GA7825@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> afaik we don't really support hot unplug like this.
-> 
-> Changes were made a few months ago (make the VFS use file->f_mapping
-> rather
-> than file->f_dentry->d_inode->i_mapping) which set some of the
-> pieces in
-> place but I think there's a way to go yet.
-> 
-> umm, the general idea is that when the disk vanishes your driver
-> should
-> then return -EIO for all future I/O requests.  The block_device, the
-> queue,
-> the inode and all that stuff remains in-core.
+Both 2.6.7-rc2 and 2.6.7-rc2-mm2 don't shut down my systems anymore.
+They print 'System halted.' but don't switch off.
 
-What we do with our 2.4 version of the driver is something on this
-lines. When the media is removed we invalidate the buffers and then
-set the card absent bit. Now on when read/write requests arrive we
-return error status to the file system since card is absent. This worked
-for 2.4.x.
+This happens on a P4 (i875 chipset), a dual P3 (BX chipset) and a P3
+Tualatin (830 laptop chipset).
 
-Is there some existing driver which addresses removable media on 2.6.x
-Kernel? I would like to see how it addresses this.. then I will have
-a better idea to address it with the kernel support we have now.
+I use Debian/Unstable (updated as of yesterday), and this worked on all
+these systems with 2.6.6-mm4, mm3, mm2 and so forth, since a long time.
 
--Jinu
+The last thing Debian executes is
+
+halt -d -f -i -p
+
+Compiling with ACPI Debugging on gives no interesting output. I've tried
+searching lkml for similar problems, but I didn't found related reports.
+Since I have it on three systems, I strongly suspect some change in the
+kernel. If nobody pipes up and says 'see this post .....' I'll post my
+.config, dmesg etc. but let's try this small post first.
+
+Thanks,
+Jurriaan
+-- 
+Uhm, well, what we are talking about in privy terms, is the very latest
+in front-wall fresh air orifices combined with a wide capacity gutter
+installation below.
+You mean crap out of the window?
+	Blackadder II
+Debian (Unstable) GNU/Linux 2.6.7-rc2-mm2 2x6062 bogomips load 0.12

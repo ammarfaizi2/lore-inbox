@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312702AbSCVG6s>; Fri, 22 Mar 2002 01:58:48 -0500
+	id <S291766AbSCVHaK>; Fri, 22 Mar 2002 02:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312703AbSCVG6i>; Fri, 22 Mar 2002 01:58:38 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:43781 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S312702AbSCVG6V>; Fri, 22 Mar 2002 01:58:21 -0500
-Message-ID: <3C9AD531.C2C8C178@zip.com.au>
-Date: Thu, 21 Mar 2002 22:54:41 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Amit S. Kale" <akale@veritas.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, Hari Gadi <HGadi@ecutel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: module (kernel) debugging
-In-Reply-To: <AF2378CBE7016247BC0FD5261F1EEB210B6A93@EXCHANGE01.domain.ecutel.com> <20020322000823.GD785@holomorphy.com> <3C9AD0EB.C56CE9B7@veritas.com>
+	id <S292482AbSCVHaA>; Fri, 22 Mar 2002 02:30:00 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:10745 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S291766AbSCVH3p>; Fri, 22 Mar 2002 02:29:45 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3C9A758D.103@acm.org> 
+To: Corey Minyard <minyard@acm.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tom Rini <trini@kernel.crashing.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zlib double-free bug 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 22 Mar 2002 07:26:20 +0000
+Message-ID: <8274.1016781980@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Amit S. Kale" wrote:
-> 
-> William Lee Irwin III wrote:
-> >
-> > On Thu, Mar 21, 2002 at 05:15:48PM -0500, Hari Gadi wrote:
-> > > Hi,
-> > > I am new to kernel level development. What are the best ways to debug
-> > > runtime kernel (module). Are there any third party tools for debugging
-> > > the kernel.
-> >
-> > http://www.arium.com
-> > http://oss.sgi.com/projects/kdb
-> > http://oss.sgi.com/projects/kgdb
-> 
-> SGI's kgdb is for 2.2 kernels only.
-> kgdb for 2.4 kernels resides at http://kgdb.sourceforge.net/
-> You'll find there scripts for debugging modules with kgdb.
-> 
 
-I have 2.5 kgdb stub patches too.  Various versions can be discovered
-by poking around in http://www.zip.com.au/~akpm/linux/patches/
+minyard@acm.org said:
+> > 2.4.19ac has the shared zlib already. The zlib sharing stuff wasnt a
+> > 2.5 patch backported - its a 2.4 fix that went forward
 
-The version I use is a bit thinner than Amit's - I took out the
-assertion checks from various places because they cause patching pain.
-The assertion mechanism is still there, but the *uses* of it I took
-out.
+> Since I did the original shared zlib patch and I did it to 2.5, either
+> we have two patches floating around or you are incorrect.  If we have 
+> two patches, we need to resolve the situation. 
 
-Of course, I may not be feature- or bugfix-current against Amit's
-version.
+The patch that's now in the -ac tree is a backport of the 2.5 code, after we
+actually made the 2.5 code _work_, that is.
 
--
+Alan's right that there was at least _some_ work on a shared zlib in 2.4, 
+though.
+
+
+--
+dwmw2
+
+

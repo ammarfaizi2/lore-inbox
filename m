@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266453AbUBFEdc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:33:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266462AbUBFEdb
+	id S266462AbUBFEp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 23:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUBFEp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:33:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22914 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266453AbUBFEdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:33:18 -0500
-Date: Thu, 5 Feb 2004 20:30:41 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Greg Norris <haphazard@kc.rr.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb mouse/keyboard problems under 2.6.2
-Message-Id: <20040205203041.416ecf2a.rddunlap@osdl.org>
-In-Reply-To: <20040206011531.GA2084@yggdrasil.localdomain>
-References: <20040204174748.GA27554@yggdrasil.localdomain>
-	<20040205142155.GA606@ucw.cz>
-	<20040205160226.GA13471@yggdrasil.localdomain>
-	<20040205230304.GA2195@yggdrasil.localdomain>
-	<20040206011531.GA2084@yggdrasil.localdomain>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Feb 2004 23:45:29 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:16078 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S266462AbUBFEp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 23:45:27 -0500
+Date: Thu, 05 Feb 2004 20:45:15 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com, lord@xfs.org
+Subject: Re: Limit hash table size
+Message-ID: <91090000.1076042714@[10.10.2.4]>
+In-Reply-To: <20040205193008.25bd922b.akpm@osdl.org>
+References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel><20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel><p73isilkm4x.fsf@verdi.suse.de><20040205190904.0cacd513.akpm@osdl.org><20040206031834.GA24890@wotan.suse.de> <20040205193008.25bd922b.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2004 19:15:31 -0600 Greg Norris <haphazard@kc.rr.com> wrote:
+>> > But I've been telling poeple for a year that they should set
+>>  > /proc/sys/vm/swappiness to zero during the updatedb run and afaik nobody has
+>>  > bothered to try it...
+>> 
+>>  I do not think such hacks are the right way to do. If updatedb does not
+>>  do that backup will or maybe your nightly tripwire run or some other
+>>  random application that walks file systems. Hacking all of them is just not 
+>>  realistic.
+> 
+> You need some way of not slowing down real-world applications by a factor
+> of 1000.  That is unacceptable, and the problems which updatedb and friends
+> cause (just once per day!) pale in comparison.
 
-| On Thu, Feb 05, 2004 at 05:03:04PM -0600, Greg Norris wrote:
-| > Here's the output from dmesg, after rebuilding with CONFIG_USB_DEBUG
-| > enabled.  It doesn't seem to be producing any output from after the
-| > initialization completed (and the problem has recurred several times
-| > since then), so please let me know if I should be going about this
-| > differently.
-| > 
-| > Thanx!
-| 
-| The problem appears to have been introduced in 2.6.2-rc2.  Can anyone
-| tell me how to find the individual patches which were added between
-| -rc1 and -rc2?  I can diff the trees easily enough, of course, but it
-| would be much easier if I had a collection of discrete patches to work
-| with.
+I still think this needs to be on a per-process basis, rather than system
+wide - it's updatedb that's the problem here, not the time of day. Personally, 
+I'd just trigger on processes that were niced to hell, but I'm sure other
+people have other ways.
 
-I don't see an easy way to see all of those changesets.
-Changesets used to be available at
-  http://www.kernel.org/pub/linux/kernel/v2.6/testing/cset/
-but what's there now is only for after 2.6.2 was released.
+M.
 
-You can also see the changesets listed at
-  http://linux.bkbits.net:8080/linux-2.5/ChangeSet@-4w?nav=index.html
-(that's all changesets for the last 4 weeks) and then just look
-at all of the changes between the v2.6.2-rc1 and v2.6.2-rc2 tags
-(which are highlighted in yellow).
-
---
-~Randy

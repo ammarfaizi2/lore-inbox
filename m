@@ -1,183 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290671AbSBOTRK>; Fri, 15 Feb 2002 14:17:10 -0500
+	id <S290662AbSBOTUZ>; Fri, 15 Feb 2002 14:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290664AbSBOTQT>; Fri, 15 Feb 2002 14:16:19 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:40205 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S290662AbSBOTQH>; Fri, 15 Feb 2002 14:16:07 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A769F@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'alexis raynaud'" <araynaud@alphalink.fr>
-Cc: "'linux-serial@vger.kernel.org'" <linux-serial@vger.kernel.org>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: Problem to use a Oxford semiconductor Intelligent DUAL Channe
-	l UA RT (OX16PCI952)
-Date: Fri, 15 Feb 2002 11:17:02 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S290666AbSBOTUH>; Fri, 15 Feb 2002 14:20:07 -0500
+Received: from [208.151.48.2] ([208.151.48.2]:10702 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S290662AbSBOTUC>; Fri, 15 Feb 2002 14:20:02 -0500
+Subject: Re: funny console prob w/2.4.18-pre[479]+kpreempt+sched-o(1)
+From: "Samuel M. Stringham" <sams@e-sa.com>
+To: Jorge Nerin <comandante@zaralinux.com>
+Cc: =?ISO-8859-1?Q?J=F6rn?= Nettingsmeier 
+	<nettings@folkwang-hochschule.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C6D34B5.3050900@zaralinux.com>
+In-Reply-To: <3C66743C.9BA03219@folkwang-hochschule.de> 
+	<3C6D34B5.3050900@zaralinux.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-U2EbvEHUOsU7Un4P9EUY"
+X-Mailer: Evolution/1.0.2 (1.0.2-1) 
+Date: 15 Feb 2002 14:07:47 -0500
+Message-Id: <1013800067.6448.11.camel@linux-admin.esa-hq.e-sa.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexis,
 
-There is no matching entry for this board in the serial driver's pci_boards
-table. The 9521 device code is a new one. The driver is looking for 950A for
-16PCI952 UART.
-
-Since you are getting data output, I suspect your card's oscillator does not
-match the driver's default. What is the highest supported baud rate that
-this card? (the rate you get when UART divisor reg is = 1) Default is 115200
-bps. If your card's oscillator rate is not 1.8432 MHz, then the default baud
-rate calculation will be wrong. 
-
-If you can find out the maximum baud rate, try adjusting the it for the port
-with setserial's baud_base parameter. Two common base baud rates for 95X
-based cards are 921600 and 3125000. 
-
-If you cannot be sure what the card's baud rate clock base is, then
-calculate the actual data rate by cat'ing a large file out the port and
-timing it. Calculate the bytes per second and multiply by the number of
-bit-times for your async config (usually 10, 1 start, 8 data, 1 stop). This
-will tell you for sure if the base_baud value needs to be adjusted.
-
-let me know what happens.
-
-Good luck,
-Ed Vance
-
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
-
------Original Message-----
-From: alexis raynaud [mailto:araynaud@alphalink.fr]
-Sent: Friday, February 15, 2002 7:42 AM
-To: 'linux-serial@vger.kernel.org'
-Subject: Problem to use a Oxford semiconductor Intelligent DUAL Channel
-UA RT (OX16PCI952)
+--=-U2EbvEHUOsU7Un4P9EUY
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
 
-Hello, I hope U can help me...
+On Fri, 2002-02-15 at 11:17, Jorge Nerin wrote:
+> J=F6rn Nettingsmeier wrote:
+> > hello *
+> >=20
+> > it happens to me regularly that the x server dies without any
+> > obvious reason.
+>=20
+> I remeber that some time ago, around XFree 4.0 I also had this issues.
+>=20
+> > funny thing is, it takes the virtual text consoles with it, which is
+> > why i'm posting here.
+> >=20
+>=20
+> Yes, the same issues, now it almost never dies, and if it dies the=20
+> consoles work ok (I'm using FB at 1024x768 and Xfree at 1152x864)
+>=20
+hmm... I had the same problem as the original poster with 4.0, not with
+4.1 and rawhides 4.2 XFree86 packages won't even let me start up with
+dri+OpenGL (different problem).  I will try to rebuild X from source
+tonight see if I can garner some insight.
+> > i end up in kdm and i can restart x alright, but when i switch vc's,
+> > all i see is a frozen image of the x screen. i can switch back to x,
+> > and it runs.
+> >=20
+>=20
+> When this happened to me I saw garbage from the X screen from the time=20
+> it died, let's see, X dies, I get dropped to the console (seeing garbage=20
+> colors of the scren) gdm restarts, everything seems ok, but going back=20
+> to the console you see the same garbage as before.
+>=20
+yes, I get/got this too, hasn't happened recently, but then again X
+hasn't crashed recently.  Another thing (I believe was fbdev related)
+was the screwing up of the fonts (! missing the dot at the bottom,
+etc.).  I believe that was fixed circa 2.4.17/2.5.2 .
+> > all tasks i started on the vc's before keep running, the mingettys
+> > are there, the bashes are there, and i can even blind-type commands
+> > that will run correctly. only the display is messed up.
+> > a blind-typed "reset" has no effect.
+> >=20
+>=20
+> I also found that enebling the xv extension in my XFree causes the=20
+> consoles to be lost, but in a different way.
+>=20
+> After enabling it and entering X if I switch to a console I see the=20
+> console image, but no matter what I do the console stays the same, as=20
+> you say I can type blindly.
+>=20
+> > any clues ?
+> > i'm using x version 4.2.0 with a voodoo3 card (dri and agp enabled).
+> > this is an smp box with 2 p3/600 katmai.
+> > might this be not a kernel issue, but an x11 problem ?
+> >=20
+>=20
+> We have too many things in common to stablish a pattern, I'm using XFree=20
+> 4.2.0, a voodoo 3 2000 pci card, and I also have a smp box, but it's a=20
+> 2x200mmx.
+>=20
+> I think it's a X issue by not leaving the console state consitent.
+>=20
+yes, same as above, this is a rather coincidental about the HW configs.
+I have a dual celeron (famous bp6 config) with vodoo3 with dri and agp
+enabled.
+> > best wishes,
+> >=20
+> > j=F6rn
+> >=20
+> >=20
+> > please keep be cc:ed, i only read lkml archives.
+> >=20
+>=20
+> I'm doing
+>=20
+>=20
+> --=20
+> Jorge Nerin
+> <comandante@zaralinux.com>
+>=20
+> -
 
-here is my configuration :
+Samuel Stringham
+Network Administrator
+www.e-sa.com
 
-I have a Intel motherboard AL440LX, with a PII 400 + a OX16PCI952.
-My system is a RedHat 7.1 seawolf (and I also try on a Mandrake 8.1)
-with a kernel 2.4.2-2.
-Here are my version of serial's rpm :
-		statserial-1.1-20
-		setserial-2.17-2
+--=-U2EbvEHUOsU7Un4P9EUY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Here is the lspci -v :
-	00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX
-Host bridge (rev 03)
-	        Flags: bus master, medium devsel, latency 32
-	        Memory at f8000000 (32-bit, prefetchable) [size=64M]
-	        Capabilities: [a0] AGP version 1.0
-	
-	00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP
-bridge (rev 03) (prog-if 00 [Normal decode])
-	        Flags: bus master, 66Mhz, medium devsel, latency 64
-	        Bus: primary=00, secondary=01, subordinate=01,
-sec-latency=64
-	
-	00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 01)
-	        Flags: bus master, medium devsel, latency 0
-	
-	00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev
-01) (prog-if 80 [Master])
-	        Flags: bus master, medium devsel, latency 64
-	        I/O ports at fc90 [size=16]
-	
-	00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev
-01) (prog-if 00 [UHCI])
-	        Flags: bus master, medium devsel, latency 64, IRQ 9
-	        I/O ports at fcc0 [size=32]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-	00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 01)
-	        Flags: medium devsel, IRQ 9
-	
-	00:0d.0 VGA compatible controller: ATI Technologies Inc 3D Rage
-I/II 215GT [Mach64 GT] (rev 41) (prog-if 00 [VGA])
-	        Subsystem: ATI Technologies Inc 3D Rage I/II 215GT
-[Mach64 GT]
-	        Flags: bus master, stepping, medium devsel, latency 66
-	        Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
-	        I/O ports at f800 [size=256]
-	        Memory at fedff000 (32-bit, non-prefetchable) [size=4K]
-	        Expansion ROM at <unassigned> [disabled] [size=128K]
-	
-	00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-RTL-8139 (rev 10)
-	        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-	        Flags: bus master, medium devsel, latency 64, IRQ 11
-	        I/O ports at f400 [size=256]
-	        Memory at fedfec00 (32-bit, non-prefetchable) [size=256]
-	        Capabilities: [50] Power Management version 2
-	        Capabilities: [60] Vital Product Data
+iD8DBQA8bVyDAHsuhBrdlT0RAo91AJ9Ot744XwSYv6WJT83bkH/lQzUKqgCfZedZ
+oveJEQ2qZ+Dmr4f87pdOKUE=
+=Bs/6
+-----END PGP SIGNATURE-----
 
-	00:0f.0 Serial controller: Oxford Semiconductor Ltd: Unknown
-device 9521 (prog-if 06 [16950])
-	        Subsystem: Oxford Semiconductor Ltd: Unknown device 0001
-	        Flags: medium devsel, IRQ 10
-	        I/O ports at fc78 [size=8]
-	        I/O ports at fc88 [size=8]
-	        I/O ports at fce0 [size=32]
-	        Memory at fedfc000 (32-bit, non-prefetchable) [size=4K]
-	        Memory at fedfd000 (32-bit, non-prefetchable) [size=4K]
-	        Capabilities: [40] Power Management version 1
-	
-	00:0f.1 Parallel controller: Oxford Semiconductor Ltd: Unknown
-device 9523 (prog-if 01 [BiDir])
-	        Subsystem: Oxford Semiconductor Ltd: Unknown device 0001
-	        Flags: medium devsel, IRQ 10
-	        I/O ports at fc68 [size=8]
-	        I/O ports at fc74 [size=4]
-	        I/O ports at fca0 [size=32]
-	        Memory at fedfb000 (32-bit, non-prefetchable) [size=4K]
-	        Capabilities: [40] Power Management version 1
-
-
-I also make a :	setserial /dev/ttyS2 port 0xfc78 irq 10 that returns 
-
-	/dev/ttyS2, UART: 16950/954, Port: 0xfc78, IRQ: 10
-witch seems to be good
-
-but when I connect a modem (UsRobotics 56k FaxModem ext)on the Serial
-port and run the commande "wvdialconf", 
-I can seen the modem light blinking (Rd, Sd) but not detect it
-here is the result of the wvdialconf : 
-
-	ttyS2<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1
-	ttyS2<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1
-	ttyS2<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1
-	ttyS2<*1>: nothing.
-	ttyS0<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1 -- ATQ0 V1 E1 -- nothing.
-	ttyS1<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1 -- ATQ0 V1 E1 -- nothing.
-	Port Scan<*1>: S3   S4   S5   S6   S7   S8   S9   S10
-	Port Scan<*1>: S11  S12  S13  S14  S15  S16  S17  S18
-	Port Scan<*1>: S19  S20  S21  S22  S23  S24  S25  S26
-	Port Scan<*1>: S27  S28  S29  S30  S31  SA0  SA1  SA2
-	Port Scan<*1>: SC0  SC1  SC2  SC3  SI0  SI1  SI2  SI3
-	Port Scan<*1>: SI4  SI5  SI6  SI7  SI8  SI9  SI10 SI11
-	Port Scan<*1>: SI12 SI13 SI14 SI15 SR0  SR1  SR2  SR3
-	Port Scan<*1>: SR4  SR5  SR6  SR7  SR8  SR9  SR10 SR11
-	Port Scan<*1>: SR12 SR13 SR14 SR15 SR16 SR17 SR18 SR19
-	Port Scan<*1>: SR20 SR21 SR22 SR23 SR24 SR25 SR26 SR27
-	Port Scan<*1>: SR28 SR29 SR30 SR31 SR256 SR257 SR258 SR259
-	Port Scan<*1>: SR260 SR261 SR262 SR263 SR264 SR265 SR266 SR267
-	Port Scan<*1>: SR268 SR269 SR270 SR271 SR272 SR273 SR274 SR275
-	Port Scan<*1>: SR276 SR277 SR278 SR279 SR280 SR281 SR282 SR283
-	Port Scan<*1>: SR284 SR285 SR286 SR287
-
-In advance, 
-Thank a lot 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-serial" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=-U2EbvEHUOsU7Un4P9EUY--

@@ -1,31 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129761AbQLPLIz>; Sat, 16 Dec 2000 06:08:55 -0500
+	id <S131309AbQLPLNG>; Sat, 16 Dec 2000 06:13:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131380AbQLPLIp>; Sat, 16 Dec 2000 06:08:45 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:24329 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129761AbQLPLIg>;
-	Sat, 16 Dec 2000 06:08:36 -0500
+	id <S131380AbQLPLMz>; Sat, 16 Dec 2000 06:12:55 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:29961 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131309AbQLPLMn>;
+	Sat, 16 Dec 2000 06:12:43 -0500
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: f5ibh <f5ibh@db0bm.ampr.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test13-pre2, unresolved symbols 
-In-Reply-To: Your message of "Sat, 16 Dec 2000 11:32:44 BST."
-             <200012161032.LAA16091@db0bm.ampr.org> 
+To: Jon Akers <jka@ufbi.ufl.edu>
+cc: "'Kernel Mailing List '" <linux-kernel@vger.kernel.org>
+Subject: Re: Problems compiling test13-pre2 
+In-Reply-To: Your message of "Sat, 16 Dec 2000 00:24:01 CDT."
+             <4504FB4A84EFD31196070050DA7E89D003BD15@admin-serv.ufbi.ufl.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Dec 2000 21:38:03 +1100
-Message-ID: <14735.976963083@ocs3.ocs-net>
+Date: Sat, 16 Dec 2000 21:42:04 +1100
+Message-ID: <14752.976963324@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2000 11:32:44 +0100, 
-f5ibh <f5ibh@db0bm.ampr.org> wrote:
->/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o
->/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_wake_up_task
-
-Does this fix it?
+On Sat, 16 Dec 2000 00:24:01 -0500, 
+Jon Akers <jka@ufbi.ufl.edu> wrote:
+>This appears to be a problem with the Makefile changes and NFS/NFSD/lockd
+>and module compilation.
 
 Index: 0-test13-pre2.1/fs/lockd/svc.c
 --- 0-test13-pre2.1/fs/lockd/svc.c Mon, 02 Oct 2000 15:28:44 +1100 kaos (linux-2.4/e/b/39_svc.c 1.1.1.2 644)

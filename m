@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262807AbSKDWQw>; Mon, 4 Nov 2002 17:16:52 -0500
+	id <S262805AbSKDWPq>; Mon, 4 Nov 2002 17:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262811AbSKDWQw>; Mon, 4 Nov 2002 17:16:52 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:3465 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262807AbSKDWQv>;
-	Mon, 4 Nov 2002 17:16:51 -0500
-Subject: [PATCH] aacraid compile problem 2.5.45+
-From: Mark Haverkamp <markh@osdl.org>
+	id <S262807AbSKDWPq>; Mon, 4 Nov 2002 17:15:46 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:3267 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262805AbSKDWPp>;
+	Mon, 4 Nov 2002 17:15:45 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
 To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 04 Nov 2002 14:23:38 -0800
-Message-Id: <1036448619.24054.9.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
+Date: Mon, 4 Nov 2002 23:21:58 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Floppy disk change detection in 2.4.19 and 2.5.45...
+X-mailer: Pegasus Mail v3.50
+Message-ID: <6962D7F5148@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes some compile problems in aachba.c
+Hi,
+  when floppy driver changes in 2.3.99 happened, I was told that
+if /dev/fd0 is opened with O_EXCL | O_SYNC, read()/write() after
+disk change will fail with error, and so app is notified about change.
 
-Mark.
+But today it was pointed to me that this does not work anymore: both
+2.4.19 and 2.5.45 do not report disk change when used this way (2.4.5
+does). When I use O_EXCL | O_NDELAY, I can detect that disk change 
+happened since last close, but subsequent disk changes are not reported 
+to the app, so it is unusable too...
 
+I stared at floppy.c code (in 2.5.45) for an hour, but I cannot find what's
+proper way to do that: after disk change I need that read or write fails
+(preferred) or that I can call some ioctl() before read/write and this
+ioctl will tell me that disk change happened (I did not found such call,
+sorry).
+                                     Thanks,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                                                                        
 
-===== drivers/scsi/aacraid/aachba.c 1.4 vs edited =====
---- 1.4/drivers/scsi/aacraid/aachba.c	Fri Nov  1 04:28:15 2002
-+++ edited/drivers/scsi/aacraid/aachba.c	Mon Nov  4 14:14:26 2002
-@@ -1113,12 +1113,12 @@
- 	qd.locked = fsa_dev_ptr->locked[qd.cnum];
- 	qd.deleted = fsa_dev_ptr->deleted[qd.cnum];
- 
--	if (fsa_dev_ptr->devno[qd.cnum][0] == '\0')
-+	if (fsa_dev_ptr->devname[qd.cnum][0] == '\0')
- 		qd.unmapped = 1;
- 	else
- 		qd.unmapped = 0;
- 
--	strncpy(dq.name, fsa_dev_ptr->devname[qd.cnum], 8);
-+	strncpy(qd.name, fsa_dev_ptr->devname[qd.cnum], 8);
- 
- 	if (copy_to_user(arg, &qd, sizeof (struct aac_query_disk)))
- 		return -EFAULT;
-@@ -1170,7 +1170,7 @@
- 		 *	Mark the container as no longer being valid.
- 		 */
- 		fsa_dev_ptr->valid[dd.cnum] = 0;
--		fsa_dev_ptr->devno[dd.cnum][0] = '\0';
-+		fsa_dev_ptr->devname[dd.cnum][0] = '\0';
- 		return 0;
- 	}
- }
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <linux/fd.h>
+#include <sys/ioctl.h>
 
+int main(void) {
+    int fd;
+    char b[512];
+    int r;
 
-
+    fd = open("/dev/fd0", O_EXCL | O_SYNC | O_RDWR);
+    if (fd == -1) {
+        perror("Open");
+        return 100;
+    }
+    printf("FD opened, %u\n", fd);
+    r = ioctl(fd, FDCLRPRM, 0);
+    if (r) {
+        perror("Error clearing disk change notification");
+    }
+    r = read(fd, b, sizeof(b));
+    if (r == -1) {
+        perror("Read");
+        return 99;
+    }
+    printf("%u bytes was read\n", r);
+    getpass("Now replace disk and hit ENTER");
+    r = read(fd, b, sizeof(b));
+    if (r == -1) {
+        perror("Read after disk change failed, ok");
+        return 0;
+    }
+    printf("%u bytes was read, your kernel and/or drive is buggy, or you did not swap diskette\n", r);
+    close(fd);
+    return 98;
+}

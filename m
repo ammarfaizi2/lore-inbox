@@ -1,213 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbUKSWAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbUKSXTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbUKSWAK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 17:00:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUKSV7B
+	id S261657AbUKSXTy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 18:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbUKSXSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:59:01 -0500
-Received: from mail.kroah.org ([69.55.234.183]:13463 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261622AbUKSV5E (ORCPT
+	Fri, 19 Nov 2004 18:18:44 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:39878 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261678AbUKSXQi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:57:04 -0500
-Date: Fri, 19 Nov 2004 13:56:41 -0800
-From: Greg KH <greg@kroah.com>
+	Fri, 19 Nov 2004 18:16:38 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PCI fixes for 2.6.10-rc2
-Message-ID: <20041119215640.GB15863@kroah.com>
-References: <20041119215618.GA15863@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041119215618.GA15863@kroah.com>
-User-Agent: Mutt/1.5.6i
+cc: Ian.Pratt@cl.cam.ac.uk, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
+Subject: Xen VMM patch set - take 2
+Date: Fri, 19 Nov 2004 23:16:33 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ChangeSet 1.2164, 2004/11/19 10:01:54-08:00, bunk@stusta.de
+OK folks, this is my second attempt to post the arch xen patches,
+this time against 2.6.10-rc2.
 
-[PATCH] PCI Hotplug: remove unused drivers/pci/hotplug/pciehp_sysfs.c
+We need 6 core patches and a bug fix:
 
-Remove unused the drivers/pci/hotplug/pciehp_sysfs.c
+ 1. add ptep_establish_new to make va available
+ 2. return code for arch_free_page
+ 3. runtime disable of VT console
+ 4. /dev/mem io_remap_page_range for CONFIG_XEN
+ 5. split free_irq into teardown_irq
+ 6. alloc_skb_from_cache
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Bug fix:
+ 7. handle fragemented skbs correctly in icmp_filter
 
+The actual new architecture, arch xen, is too big to post to the list,
+so here's a link:
+ http://www.cl.cam.ac.uk/netos/xen/downloads/arch-xen.patch
 
- drivers/pci/hotplug/pciehp_sysfs.c |  143 -------------------------------------
- drivers/pci/hotplug/Makefile       |    1 
- drivers/pci/hotplug/pciehp.h       |    3 
- 3 files changed, 147 deletions(-)
+Likewise for the virtual block, network, and console drivers:
+ http://www.cl.cam.ac.uk/netos/xen/downloads/drivers-xen.patch
 
+Applying the above 9 patches should give you everything you need to
+build full-featured arch xen kernels.
 
-diff -Nru a/drivers/pci/hotplug/Makefile b/drivers/pci/hotplug/Makefile
---- a/drivers/pci/hotplug/Makefile	2004-11-19 13:20:15 -08:00
-+++ b/drivers/pci/hotplug/Makefile	2004-11-19 13:20:15 -08:00
-@@ -51,7 +51,6 @@
- pciehp-objs		:=	pciehp_core.o	\
- 				pciehp_ctrl.o	\
- 				pciehp_pci.o	\
--				pciehp_sysfs.o	\
- 				pciehp_hpc.o
- ifdef CONFIG_ACPI_BUS
- 	pciehp-objs += pciehprm_acpi.o
-diff -Nru a/drivers/pci/hotplug/pciehp.h b/drivers/pci/hotplug/pciehp.h
---- a/drivers/pci/hotplug/pciehp.h	2004-11-19 13:20:15 -08:00
-+++ b/drivers/pci/hotplug/pciehp.h	2004-11-19 13:20:15 -08:00
-@@ -207,9 +207,6 @@
- #define msg_button_cancel	"PCI slot #%d - action canceled due to button press.\n"
- #define msg_button_ignore	"PCI slot #%d - button press ignored.  (action in progress...)\n"
- 
--/* sysfs function for the hotplug controller info */
--extern void pciehp_create_ctrl_files	(struct controller *ctrl);
--
- /* controller functions */
- extern int	pciehprm_find_available_resources	(struct controller *ctrl);
- extern int	pciehp_event_start_thread	(void);
-diff -Nru a/drivers/pci/hotplug/pciehp_sysfs.c b/drivers/pci/hotplug/pciehp_sysfs.c
---- a/drivers/pci/hotplug/pciehp_sysfs.c	2004-11-19 13:20:15 -08:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,143 +0,0 @@
--/*
-- * PCI Express Hot Plug Controller Driver
-- *
-- * Copyright (C) 1995,2001 Compaq Computer Corporation
-- * Copyright (C) 2001,2003 Greg Kroah-Hartman (greg@kroah.com)
-- * Copyright (C) 2001 IBM Corp.
-- *
-- * All rights reserved.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or (at
-- * your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-- * NON INFRINGEMENT.  See the GNU General Public License for more
-- * details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- *
-- * Send feedback to <greg@kroah.com>
-- *
-- */
--
--#include <linux/config.h>
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/types.h>
--#include <linux/proc_fs.h>
--#include <linux/workqueue.h>
--#include <linux/pci.h>
--#include "pciehp.h"
--
--
--/* A few routines that create sysfs entries for the hot plug controller */
--
--static ssize_t show_ctrl (struct device *dev, char *buf)
--{
--	struct pci_dev *pci_dev;
--	struct controller *ctrl;
--	char * out = buf;
--	int index;
--	struct pci_resource *res;
--
--	pci_dev = container_of (dev, struct pci_dev, dev);
--	ctrl = pci_get_drvdata(pci_dev);
--
--	out += sprintf(buf, "Free resources: memory\n");
--	index = 11;
--	res = ctrl->mem_head;
--	while (res && index--) {
--		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--		res = res->next;
--	}
--	out += sprintf(out, "Free resources: prefetchable memory\n");
--	index = 11;
--	res = ctrl->p_mem_head;
--	while (res && index--) {
--		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--		res = res->next;
--	}
--	out += sprintf(out, "Free resources: IO\n");
--	index = 11;
--	res = ctrl->io_head;
--	while (res && index--) {
--		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--		res = res->next;
--	}
--	out += sprintf(out, "Free resources: bus numbers\n");
--	index = 11;
--	res = ctrl->bus_head;
--	while (res && index--) {
--		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--		res = res->next;
--	}
--
--	return out - buf;
--}
--static DEVICE_ATTR (ctrl, S_IRUGO, show_ctrl, NULL);
--
--static ssize_t show_dev (struct device *dev, char *buf)
--{
--	struct pci_dev *pci_dev;
--	struct controller *ctrl;
--	char * out = buf;
--	int index;
--	struct pci_resource *res;
--	struct pci_func *new_slot;
--	struct slot *slot;
--
--	pci_dev = container_of (dev, struct pci_dev, dev);
--	ctrl = pci_get_drvdata(pci_dev);
--
--	slot=ctrl->slot;
--
--	while (slot) {
--		new_slot = pciehp_slot_find(slot->bus, slot->device, 0);
--		if (!new_slot)
--			break;
--		out += sprintf(out, "assigned resources: memory\n");
--		index = 11;
--		res = new_slot->mem_head;
--		while (res && index--) {
--			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--			res = res->next;
--		}
--		out += sprintf(out, "assigned resources: prefetchable memory\n");
--		index = 11;
--		res = new_slot->p_mem_head;
--		while (res && index--) {
--			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--			res = res->next;
--		}
--		out += sprintf(out, "assigned resources: IO\n");
--		index = 11;
--		res = new_slot->io_head;
--		while (res && index--) {
--			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--			res = res->next;
--		}
--		out += sprintf(out, "assigned resources: bus numbers\n");
--		index = 11;
--		res = new_slot->bus_head;
--		while (res && index--) {
--			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
--			res = res->next;
--		}
--		slot=slot->next;
--	}
--
--	return out - buf;
--}
--static DEVICE_ATTR (dev, S_IRUGO, show_dev, NULL);
--
--void pciehp_create_ctrl_files (struct controller *ctrl)
--{
--	device_create_file (&ctrl->pci_dev->dev, &dev_attr_ctrl);
--	device_create_file (&ctrl->pci_dev->dev, &dev_attr_dev);
--}
+Arch xen will be maintained by myself, Keir Fraser, Christian Limpach
+and Steve hand. 
+
+Cheers,
+Ian
+

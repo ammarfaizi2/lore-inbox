@@ -1,30 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284973AbRLFEty>; Wed, 5 Dec 2001 23:49:54 -0500
+	id <S284979AbRLFFBq>; Thu, 6 Dec 2001 00:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284974AbRLFEtf>; Wed, 5 Dec 2001 23:49:35 -0500
-Received: from zok.sgi.com ([204.94.215.101]:53483 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S284973AbRLFEt2>;
-	Wed, 5 Dec 2001 23:49:28 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: erich@uruk.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Loadable drivers [was SMP/cc Cluster description ] 
-In-Reply-To: Your message of "Wed, 05 Dec 2001 11:40:07 -0800."
-             <E16Bhtn-0004xf-00@trillium-hollow.org> 
+	id <S284980AbRLFFBh>; Thu, 6 Dec 2001 00:01:37 -0500
+Received: from TYO202.gate.nec.co.jp ([202.247.6.41]:8208 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S284979AbRLFFBY>; Thu, 6 Dec 2001 00:01:24 -0500
+To: akpm@zip.com.au
+Cc: j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processor
+ initializationcheck)
+From: j-nomura@ce.jp.nec.com
+In-Reply-To: <3C0C2AAF.6141D797@zip.com.au>
+In-Reply-To: <3C0B43DC.7A8F582A@zip.com.au>
+	<20011203193235S.nomura@hpc.bs1.fc.nec.co.jp>
+	<3C0C2AAF.6141D797@zip.com.au>
+X-Mailer: Mew version 1.94.2 on XEmacs 21.4 (Copyleft)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 06 Dec 2001 15:49:13 +1100
-Message-ID: <11219.1007614153@kao2.melbourne.sgi.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011206140102Z.nomura@hpc.bs1.fc.nec.co.jp>
+Date: Thu, 06 Dec 2001 14:01:02 +0900
+X-Dispatcher: imput version 20000414(IM141)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Dec 2001 11:40:07 -0800, 
-erich@uruk.org wrote:
->Build a framework for an external "drivers" source/binary tree that can be
->(via a single command) rebuilt for a different Linux kernel version.  This
->is arguably a Linux distribution thing.
+Hi,
+excuse me for not prompt response. I've been off-line for 2 days.
 
-kbuild 2.5.  Already done.
+> > The reason I put it in release_console_sem() is that release_console_sem()
+> > can be called from other functions than printk(), e.g. console_unblank().
+> > I agree with you that it is clearer but I think it is not sufficient.
+> 
+> I really doubt if any of those paths could be called before
+> even the MMU is set up.
 
+I didn't have any intention to say that console_unblank() is called so early.
+
+OK. Here is revised patch which checks if cpu initialization is done
+just before down_trylock(). This works for me.
+
+diff -u -r1.1.1.8 printk.c
+--- kernel/printk.c	2001/11/27 04:41:49	1.1.1.8
++++ kernel/printk.c	2001/12/06 04:54:50
+@@ -438,7 +438,13 @@
+ 			log_level_unknown = 1;
+ 	}
+ 
+-	if (!down_trylock(&console_sem)) {
++	if (!(cpu_online_map & 1UL << smp_processor_id())) {
++		/*
++		 * The cpu has not been initialized completely
++		 * enough to call console drivers.
++		 */
++		spin_unlock_irqrestore(&logbuf_lock, flags);
++	} else if (!down_trylock(&console_sem)) {
+ 		/*
+ 		 * We own the drivers.  We can drop the spinlock and let
+ 		 * release_console_sem() print the text
+
+
+
+Best regards.
+--
+NOMURA, Jun'ichi <j-nomura@ce.jp.nec.com, nomura@hpc.bs1.fc.nec.co.jp>
+HPC Operating System Group, 1st Computers Software Division,
+Computers Software Operations Unit, NEC Solutions.

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267180AbTBDIHb>; Tue, 4 Feb 2003 03:07:31 -0500
+	id <S267149AbTBDISp>; Tue, 4 Feb 2003 03:18:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267185AbTBDIHb>; Tue, 4 Feb 2003 03:07:31 -0500
-Received: from packet.digeo.com ([12.110.80.53]:37583 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267180AbTBDIHa>;
-	Tue, 4 Feb 2003 03:07:30 -0500
-Date: Tue, 4 Feb 2003 00:17:09 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.59-mm8
-Message-Id: <20030204001709.5e2942e8.akpm@digeo.com>
-In-Reply-To: <167540000.1044346173@[10.10.2.4]>
-References: <20030203233156.39be7770.akpm@digeo.com>
-	<167540000.1044346173@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Feb 2003 08:16:57.0375 (UTC) FILETIME=[C8C11AF0:01C2CC25]
+	id <S267153AbTBDISp>; Tue, 4 Feb 2003 03:18:45 -0500
+Received: from pc2-alde1-3-cust225.glfd.cable.ntl.com ([213.107.78.225]:9297
+	"EHLO mayday.local") by vger.kernel.org with ESMTP
+	id <S267149AbTBDISo>; Tue, 4 Feb 2003 03:18:44 -0500
+Date: Tue, 4 Feb 2003 08:27:38 +0000 (GMT)
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] use 64 bit jiffies
+In-Reply-To: <200302040643.h146gps10473@Port.imtp.ilyichevsk.odessa.ua>
+X-URL: <http://www.cix.co.uk/~mayday>
+X-Dev86-Version: 0.16.10
+Reply-By: 01 jan 2001 00:00:00
+X-Message-Flag: Linux: The choice of a GNU generation.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert de Bath <robert$@mayday.cix.co.uk>
+Message-ID: <6789aaded8e91844@mayday.cix.co.uk>
+X-Mailer: Pine for Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+
+On Tue, 4 Feb 2003, Denis Vlasenko wrote:
+
+> 		Jiffy Wrap Bugs
 >
-> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm8/
-> 
-> Booted to login prompt, then immediately oopsed 
-> (16-way NUMA-Q, mm6 worked fine). At a wild guess, I'd suspect 
-> irq_balance stuff.
-> 
+> There were reports of machines hanging on jiffy wrap.
+> This is typically a result of incorrect jiffy use in some driver.
+> Ask Tim - he is hunting those problems regularly, but he is outnumbered
+> by buggy driver authors. :(
+>
+> There is a better solution to ensure correct jiffy wrap handling in
+> *ALL* kernel code: make jiffy wrap in first five minutes of uptime.
+> Tim has a patch for such config option. This is almost right.
+> This MUST NOT be a config option, it MUST be mandatory in every
+> kernel. Driver writers would be bitten by their own bugs and will
+> fix it themself. Tim, what do you think?
 
-There are a lot of scsi updates in Linus's tree.  Can you please
-test just
+How about an option, either the jiffy timer wraps at 5 minutes or
+process 1 gets sent a SIGINT after 24 hours ? That way a driver
+with an MIA author can still be used even if it's buggy, just not
+for very long.
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm8/broken-out/linus.patch
+Okay ... perhaps it should be just an option of jiffy wrap at 5 mins
+or 24 hours, but I still think reboot is better :-) :-P
+
+-- 
+Rob.                          (Robert de Bath <robert$ @ debath.co.uk>)
+                                       <http://www.cix.co.uk/~mayday>
+Google Homepage:   http://www.google.com/search?btnI&q=Robert+de+Bath
+

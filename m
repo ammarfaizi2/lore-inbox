@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbTICXSu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 19:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTICXSu
+	id S264294AbTICXWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 19:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbTICXWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 19:18:50 -0400
-Received: from h002.c000.snv.cp.net ([209.228.32.66]:54473 "HELO
-	c000.snv.cp.net") by vger.kernel.org with SMTP id S264428AbTICXSt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 19:18:49 -0400
-X-Sent: 3 Sep 2003 23:18:48 GMT
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Sep 2003 19:22:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17603 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264294AbTICXWk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 19:22:40 -0400
+Date: Wed, 3 Sep 2003 16:20:10 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Pavel Machek <pavel@suse.cz>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up power managment in 2.6
+In-Reply-To: <20030903174904.GH30629@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0309031618390.944-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-From: admin@brien.com
-Subject: SATA probe delay on boot
-X-Sent-From: admin@brien.com
-Date: Wed, 03 Sep 2003 19:18:47 -0400 (EDT)
-X-Mailer: Web Mail 5.5.0-3_sol28
-Message-Id: <20030903161848.2109.h004.c000.wm@mail.brien.com.criticalpath.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have a Sil3112A SATA controller, which linux works OK
-with. It supports RAID (up to 4 devices), but I'm using
-BASE option -- only 1 hard drive.
+> > > -void software_resume(void)
+> > > +int __init swsusp_restore(void)
+> > >  {
+> > > -       if (num_online_cpus() > 1) {
+> > > -               printk(KERN_WARNING "Software Suspend has
+> > > malfunctioning SMP support. Disabled :(\n");
+> > > -               return;
+> > > -       }
+> > > 
+> > > I can not easily see where you moved this check.
+> > 
+> > Read the rest of the patches, and the changelogs (I do believe it's in 
+> > them). It's in kernel/power/main.c::enter_state(), so all PM handlers can 
+> > use it. 
+> 
+> Notice that this is done during resume. You are free to suspend with 1
+> cpu, then attempt to resume with 2 cpus. Not *too* likely to happen,
+> but....
 
-My question is regarding a 15-20 second delay which
-normally occurs every time I boot, unless I pass the
-options ide3=0 - ide9=0 to fill up the device table. I
-think I have to do this because if I do only ide3=0
-(where the device would be), it uses ide4, and so on. I
-have GRUB set up to do this automatically, but it's not
-exactly adequate (,is it?). So I was wondering if
-there're any other ways to get the same affect. Is or
-could there be an option to simply disable the probing
-of the one specific device/channel every time?
+That's a silly thing to do, though I don't support the notion of letting 
+people find out the hard way. Why not just fail on CONFIG_SMP until it's 
+done right? 
 
-Thanks,
 
-Brien
+
+	Pat
+

@@ -1,62 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288685AbSAUWDo>; Mon, 21 Jan 2002 17:03:44 -0500
+	id <S288548AbSAUWDy>; Mon, 21 Jan 2002 17:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288671AbSAUWDf>; Mon, 21 Jan 2002 17:03:35 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:44552 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S287490AbSAUWDZ>; Mon, 21 Jan 2002 17:03:25 -0500
-Date: Mon, 21 Jan 2002 18:52:18 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Robert Love <rml@tech9.net>
-Cc: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
-        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <1011650506.850.483.camel@phantasy>
-Message-ID: <Pine.LNX.4.21.0201211851390.1461-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288671AbSAUWDo>; Mon, 21 Jan 2002 17:03:44 -0500
+Received: from mnh-1-01.mv.com ([207.22.10.33]:7687 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S288548AbSAUWD3>;
+	Mon, 21 Jan 2002 17:03:29 -0500
+Message-Id: <200201212204.RAA03719@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: bulb@ucw.cz
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 OOPS in tty code. 
+In-Reply-To: Your message of "Mon, 21 Jan 2002 15:10:37 +0100."
+             <20020121151037.A21622@ucw.cz> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 21 Jan 2002 17:04:52 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+bulb@ucw.cz said:
+> Tty device code causes oopses when closing /dev/console and devfs is
+> used. The bug is reproducible on 2.4.17 UML port.
 
+How do you reproduce it?
 
-On 21 Jan 2002, Robert Love wrote:
+UML config, command line, a backtrace, etc would be nice.
 
-> On Mon, 2002-01-21 at 16:49, yodaiken@fsmlabs.com wrote:
-> 
-> > > (average of 4 runs of `dbench 16')
-> > > 2.5.3-pre1:		25.7608 MB/s
-> > > 2.5.3-pre1-preempt:	32.341 MB/s
-> > > 
-> > > (old, average of 4 runs of `dbench 16')
-> > > 2.5.2-pre11:		24.5364 MB/s
-> > > 2.5.2-pre11-preempt:	27.5192 MB/s
-> 
-> > Robert, with all due respect, my tests of dbench show such high
-> > variation that 4 miserable runs prove exactly nothing.
-> 
-> Well you asked for dbench.  Would you prefer 10 runs each?  There were,
-> however, no statistical anomalies and the variation was low enough such
-> that I suspect I could construct a reasonable confidence interval from
-> these 16 runs.
-> 
-> I've run these tests over and over again sufficiently that the
-> repeatability of obtaining improved marks under a preemptive kernel is
-> evident to me.
-> 
-> You can see very old (2.4.6) yet still positive results from Nigel, too:
-> http://kpreempt.sourceforge.net.
-> 
-> I guess the point is, everyone argues preemption is detrimental to
-> throughput.  I'm not going to argue that we aren't adding complexity,
-> because clearly we are.  But now we have tests showing throughput is
-> improved and people still argue.  I've seen the same behavior under
-> bonnie, timing kernel compiles, etc ...
-
-Sure, you've seen it. But _why_ it happens ?
-
-That is the point.
+				Jeff
 

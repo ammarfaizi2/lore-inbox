@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269548AbRGaXvT>; Tue, 31 Jul 2001 19:51:19 -0400
+	id <S269546AbRGaX63>; Tue, 31 Jul 2001 19:58:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269546AbRGaXvJ>; Tue, 31 Jul 2001 19:51:09 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:58948 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S269548AbRGaXvD>;
-	Tue, 31 Jul 2001 19:51:03 -0400
-Message-ID: <20010801015116.B11060@win.tue.nl>
-Date: Wed, 1 Aug 2001 01:51:16 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Riley Williams <rhw@memalpha.cx>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] Virii (sic)
-In-Reply-To: <OE23osJ3Ih7jtrSByh1000034b5@hotmail.com> <Pine.LNX.4.33.0108010007480.31582-100000@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.33.0108010007480.31582-100000@infradead.org>; from Riley Williams on Wed, Aug 01, 2001 at 12:19:28AM +0100
+	id <S269558AbRGaX6T>; Tue, 31 Jul 2001 19:58:19 -0400
+Received: from b0rked.dhs.org ([216.99.196.11]:26753 "HELO b0rked.dhs.org")
+	by vger.kernel.org with SMTP id <S269557AbRGaX6K>;
+	Tue, 31 Jul 2001 19:58:10 -0400
+Date: Tue, 31 Jul 2001 16:58:06 -0700 (PDT)
+From: Chris Vandomelen <chrisv@b0rked.dhs.org>
+X-X-Sender: <chrisv@linux.local>
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Cc: Guest section DW <dwguest@win.tue.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: Re[2]: cannot copy files larger than 40 MB from CD
+In-Reply-To: <200107312346.BAA1546019@mail.takas.lt>
+Message-ID: <Pine.LNX.4.31.0107311656420.10245-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, Aug 01, 2001 at 12:19:28AM +0100, Riley Williams wrote:
+> Tried vfat, ext2 and reiserfs.
+>
+> BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
+                               ^^^^^^^^^^^
+> that matters.
 
-> on average, there's a timelapse of 53 hours from a virii first
+Have you tried compiling your kernel using kgcc?
 
-For some reason, seeing "virii" is somewhat painful to my eye.
-I know, people invent fantasy plurals, like Vaxen and Unices/Unixen,
-but somehow this is worse, yes indeed, it is badder.
+gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
+used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
 
-[The singular is virus. The plural in English is viruses.
-In Latin there is no plural - it is even debatable whether
-virus is a noun in Latin - in any case it is indeclinable.]
+Chris
+

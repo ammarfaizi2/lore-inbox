@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132683AbRDQO0s>; Tue, 17 Apr 2001 10:26:48 -0400
+	id <S132681AbRDQO11>; Tue, 17 Apr 2001 10:27:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132681AbRDQO02>; Tue, 17 Apr 2001 10:26:28 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:52697 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S132664AbRDQO0R>; Tue, 17 Apr 2001 10:26:17 -0400
-Message-ID: <3ADC5238.DA984996@nortelnetworks.com>
-Date: Tue, 17 Apr 2001 10:24:56 -0400
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sampsa Ranta <sampsa@netsonic.fi>
-CC: linux-net <linux-net@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ARP responses broken!
-In-Reply-To: <Pine.LNX.4.33.0104162335170.30406-100000@nalle.netsonic.fi>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@americasm01.nt.com>
+	id <S132674AbRDQO1A>; Tue, 17 Apr 2001 10:27:00 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:54898 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S132664AbRDQO0b>; Tue, 17 Apr 2001 10:26:31 -0400
+Date: Tue, 17 Apr 2001 09:26:26 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200104171426.JAA76050@tomcat.admin.navo.hpc.mil>
+To: ebrunet@quatramaran.ens.fr, linux-kernel@vger.kernel.org
+Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
+In-Reply-To: <200104170915.LAA00596@quatramaran.ens.fr>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sampsa Ranta wrote:
-
-> I have two interfaces that share same subnet, I call eth0 194.29.192.37
-> and eth1 194.29.192.38. I have forwarding turned on, proxy arp is not
-> neighter are redirects.
+Brunet <ebrunet@quatramaran.ens.fr>:
+> >"Adam J. Richter" <adam@yggdrasil.com> said:
+> >
+> >> 	I suppose that running the child first also has a minor
+> >> advantage for clone() in that it should make programs that spawn lots
+> >> of threads to do little bits of work behave better on machines with a
 > 
-> When I flush local neighbor table in other machine I use to observe the
-> response and ping the router I get response like:
+> There is another issue with this proposition. I have begun to write (free
+> time, slow pace) an userland sandbox which allows me to prevent a process
+> and its childs to perform some given actions, like removing files or
+> writing in some directories. This works by ptrace-ing the process,
+> modifying system calls and faking return values. It also needs,
+> obviously, to ptrace-attach childs of the sandboxed process. When the
+> parent in a fork runs first, the sandbox program has time to
+> ptrace-attach the child before it does any system call. Obviously, if the
+> child runs first, this is no longer the case.
 > 
-> 23:38:25.278848 > arp who-has 194.29.192.38 tell 194.29.192.10 (0:50:da:82:ae:9f)
-> 23:38:25.278988 < arp reply 194.29.192.38 is-at 0:1:2:dc:d2:64 (0:50:da:82:ae:9f)
-> 23:38:25.279009 < arp reply 194.29.192.38 is-at 0:1:2:dc:d2:6c (0:50:da:82:ae:9f)
+> If it is decided that the child should run first in a fork, there should
+> be a way to reliably ptrace-attach it before it can do anything.
 > 
-> The second one is the valid one, but both interfaces seem to answer to the
-> broadcasted packet with their own ARP addresses.
+> By the way, I tried to solve this problem in my sandbox program by
+> masqerading any fork call into a clone system call with the flag
+> CLONE_PTRACE. I had hoped that the child would in this way start already
+> ptraced. However, this didn't work as expected. The child did start in a
+> ptraced state, but the owner of the trace was its parent (which issued
+> the fork), and not my sandbox process which was ptracing this parent. I
+> find that this behaviour is really weird and useless. I could simulate
+> the current behaviour simply by calling ptrace(TRACE_ME,..) in the child.
+> What is the real use of the CLONE_PTRACE flag ?
 
-This is the default Linux behaviour.  It can be turned off by running the
-following command as root:
+I believe it allows the debugger to start the process to be debugged.
 
-echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-This ensures that interfaces will only respond to arp requests for IP addresses
-which are configured as belonging to that particular interface.
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Any opinions expressed are solely my own.

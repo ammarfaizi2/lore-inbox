@@ -1,73 +1,248 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267204AbTAPT3k>; Thu, 16 Jan 2003 14:29:40 -0500
+	id <S267214AbTAPTb2>; Thu, 16 Jan 2003 14:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267212AbTAPT3j>; Thu, 16 Jan 2003 14:29:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:23190 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S267204AbTAPT3i>;
-	Thu, 16 Jan 2003 14:29:38 -0500
-Date: Thu, 16 Jan 2003 20:44:01 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Robert Love <rml@tech9.net>, Erich Focht <efocht@ess.nec.de>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [PATCH 2.5.58] new NUMA scheduler: fix
-In-Reply-To: <20030116191009.A25749@infradead.org>
-Message-ID: <Pine.LNX.4.44.0301162025300.9563-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267215AbTAPTb2>; Thu, 16 Jan 2003 14:31:28 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:1284 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267214AbTAPTbQ>; Thu, 16 Jan 2003 14:31:16 -0500
+Date: Thu, 16 Jan 2003 20:39:59 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: oops in 2.5.58
+Message-ID: <20030116193959.GA1406@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+eth1: Setting full-duplex based on MII#1 link partner capability of 05e1.
+Unable to handle kernel NULL pointer dereference at virtual address 00000015
+ printing eip:
+c011ff2f
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c011ff2f>]    Not tainted
+EFLAGS: 00010202
+EIP is at copy_files+0x25f/0x3c0
+eax: 00000001   ebx: dffdb520   ecx: decb14b0   edx: 000000d4
+esi: dffdba40   edi: c17f30b4   ebp: dfa7bf2c   esp: dfa7bee8
+ds: 007b   es: 007b   ss: 0068
+Process S70nviboot (pid: 304, threadinfo=dfa7a000 task=dfbbd2c0)
+Stack: dffdb520 000000ff 000001d0 000001d0 00000008 00000400 dfa7bf0c c013a646 
+       dffdba04 00000000 00000100 decb14b0 c17f30b4 dffdba00 df7e8720 00000000 
+       00000011 dfa7bf60 c0120433 00000011 df7e8720 df7458a0 00000354 00000004 
+Call Trace:
+ [<c013a646>] __get_free_pages+0x26/0x60
+ [<c0120433>] copy_process+0x383/0x8f0
+ [<c01209ed>] do_fork+0x4d/0x150
+ [<c0107d68>] sys_fork+0x38/0x50
+ [<c01099f7>] syscall_call+0x7/0xb
 
-On Thu, 16 Jan 2003, Christoph Hellwig wrote:
+Code: f0 ff 40 14 8b 4d e8 89 01 83 c1 04 4a 89 4d e8 75 df 8b 7d 
+ <6>note: S70nviboot[304] exited with preempt_count 1
 
-> > well, it needs to settle down a bit more, we are technically in a
-> > codefreeze :-)
-> 
-> We're in feature freeze.  Not sure whether fixing the scheduler for one
-> type of hardware supported by Linux is a feature 8)
-> 
-> Anyway, patch 1 should certainly merged ASAP, for the other we can wait
-> a bit more to settle, but I don't think it's really worth the wait.
+.config:
 
-agreed, the patch is unintrusive, but by settling down i mean things like
-this:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_SWAP=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT_16=y
+CONFIG_MODULES=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PREFETCH=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_TULIP=y
+CONFIG_DE2104X=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+# ISDN subsystem
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_I2C=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_PROC=y
+CONFIG_WATCHDOG=y
+CONFIG_SOFT_WATCHDOG=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_MGA=y
+CONFIG_RAW_DRIVER=y
+CONFIG_REISERFS_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_NTFS_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=y
+CONFIG_FS_MBCACHE=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=y
+# Open Sound System
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_EMU10K1=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_SCANNER=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_KALLSYMS=y
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
 
-+/* XXX(hch): this should go into a struct sched_node_data */
 
-should be decided one way or another.
+Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.2/specs
+Configured with: ../src/configure -v --enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared --with-system-zlib --enable-nls --without-included-gettext --enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm --enable-objc-gc i386-linux
+Thread model: posix
+gcc version 3.2.2 20030109 (Debian prerelease)
 
-i'm also not quite happy about the conceptual background of
-rq->nr_balanced. This load-balancing rate-limit is arbitrary and not
-neutral at all. The way this should be done is to move the inter-node
-balancing conditional out of load_balance(), and only trigger it from the
-timer interrupt, with a given rate. On basically all NUMA hardware i
-suspect it's much better to do inter-node balancing only on a very slow
-scale. Making it dependnet on an arbitrary portion of the idle-CPU
-rebalancing act makes the frequency of inter-node rebalancing almost
-arbitrarily high.
-
-ie. there are two basic types of rebalancing acts in multiprocessor
-environments: 'synchronous balancing' and 'asynchronous balancing'.  
-Synchronous balancing is done whenever a CPU runs idle - this can happen
-at a very high rate, so it needs to be low overhead and unintrusive. This
-was already so when i did the SMP balancer. The asynchronous blancing
-component (currently directly triggered from every CPU's own timer
-interrupt), has a fixed frequency, and thus can be almost arbitrarily
-complex. It's the one that is aware of the global scheduling picture. For
-NUMA i'd suggest two asynchronous frequencies: one intra-node frequency,
-and an inter-node frequency - configured by the architecture and roughly
-in the same proportion to each other as cachemiss latencies.
-
-(this all means that unless there's empirical data showing the opposite,
-->nr_balanced can be removed completely, and fixed frequency balancing can
-be done from the timer tick. This should further simplify the patch.)
-
-	Ingo
-
+Kind regards,
+Jurriaan
+-- 
+I still believe in the power of truth
+That the fire of freedom can burn in the heart of a song
+	Triumph - Surveillance : Never say never.
+GNU/Linux 2.5.53 SMP/ReiserFS 2x2752 bogomips load av: 1.51 0.63 0.27

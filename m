@@ -1,73 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265745AbTFSJug (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 05:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265749AbTFSJug
+	id S265751AbTFSJxa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 05:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265752AbTFSJxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 05:50:36 -0400
-Received: from dialup-221.157.221.203.acc50-nort-cbr.comindico.com.au ([203.221.157.221]:35334
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S265745AbTFSJue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 05:50:34 -0400
-Message-ID: <3EF18A1F.5050008@cyberone.com.au>
-Date: Thu, 19 Jun 2003 20:02:07 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: How do I make this thing stop laging?  Reboot?  Sounds like 
- Windows!
-References: <200306172030230870.01C9900F@smtp.comcast.net> <3EF0214A.3000103@aitel.hist.no> <bcrqq4$edi$1@cesium.transmeta.com> <3EF189D2.6080207@aitel.hist.no>
-In-Reply-To: <3EF189D2.6080207@aitel.hist.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 19 Jun 2003 05:53:30 -0400
+Received: from pub237.cambridge.redhat.com ([213.86.99.237]:24798 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S265751AbTFSJx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 05:53:26 -0400
+Subject: matroxfb console oops in 2.4.2x
+From: David Woodhouse <dwmw2@infradead.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056017187.27851.154.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
+Date: Thu, 19 Jun 2003 11:06:28 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If you have matroxfb with acceleration enabled but no other console, and
+set console=tty0 on the command line, it dies because its putcs
+functions are called before matroxfb_init_putc() is called.
+
+Below is a workaround which lets the machine boot. It's obviously not a
+fix.
+
+--- drivers/video/matrox/matroxfb_accel.c~	Wed Jun 18 17:16:40 2003
++++ drivers/video/matrox/matroxfb_accel.c	Thu Jun 19 10:57:54 2003
+@@ -487,6 +487,9 @@
+ 
+ 	DBG_HEAVY("matroxfb_cfb8_putc");
+ 
++	if (!ACCESS_FBINFO(curr.putc))
++		return;
++
+ 	fgx = attr_fgcol(p, c);
+ 	bgx = attr_bgcol(p, c);
+ 	fgx |= (fgx << 8);
+@@ -504,6 +507,9 @@
+ 
+ 	DBG_HEAVY("matroxfb_cfb16_putc");
+ 
++	if (!ACCESS_FBINFO(curr.putc))
++		return;
++
+ 	fgx = ((u_int16_t*)p->dispsw_data)[attr_fgcol(p, c)];
+ 	bgx = ((u_int16_t*)p->dispsw_data)[attr_bgcol(p, c)];
+ 	fgx |= (fgx << 16);
+@@ -519,6 +525,9 @@
+ 
+ 	DBG_HEAVY("matroxfb_cfb32_putc");
+ 
++	if (!ACCESS_FBINFO(curr.putc))
++		return;
++
+ 	fgx = ((u_int32_t*)p->dispsw_data)[attr_fgcol(p, c)];
+ 	bgx = ((u_int32_t*)p->dispsw_data)[attr_bgcol(p, c)];
+ 	ACCESS_FBINFO(curr.putc)(fgx, bgx, p, c, yy, xx);
+@@ -662,6 +671,9 @@
+ 
+ 	DBG_HEAVY("matroxfb_cfb8_putcs");
+ 
++	if (!ACCESS_FBINFO(curr.putcs))
++		return;
++
+ 	c = scr_readw(s);
+ 	fgx = attr_fgcol(p, c);
+ 	bgx = attr_bgcol(p, c);
+@@ -681,6 +693,9 @@
+ 
+ 	DBG_HEAVY("matroxfb_cfb16_putcs");
+ 
++	if (!ACCESS_FBINFO(curr.putcs))
++		return;
++
+ 	c = scr_readw(s);
+ 	fgx = ((u_int16_t*)p->dispsw_data)[attr_fgcol(p, c)];
+ 	bgx = ((u_int16_t*)p->dispsw_data)[attr_bgcol(p, c)];
+@@ -697,6 +712,9 @@
+ 	MINFO_FROM_DISP(p);
+ 
+ 	DBG_HEAVY("matroxfb_cfb32_putcs");
++
++	if (!ACCESS_FBINFO(curr.putcs))
++		return;
+ 
+ 	c = scr_readw(s);
+ 	fgx = ((u_int32_t*)p->dispsw_data)[attr_fgcol(p, c)];
 
 
-Helge Hafting wrote:
 
-> H. Peter Anvin wrote:
-> [...]
->
->>> Whenever they quit one big app to run another big one,
->>> everything is pulled in from swap before the next
->>> big app start.  Then it starts, and push everything out
->>> again.  The current system lets you quit one app,
->>> the stuff in swap remains there until someone actually use it,
->>> and lots of free memory remain in case it is needed.
->>>
->>> The "intelligent" thing is to leave stuff in swap until
->>> some app needs it, and pull it in then.  Perhaps with
->>> some read-ahead/clustering to minimize io load.
->>>
->>
->>
->> This is why you pull things in from swap, but keep tabs on the fact
->> that it's clean against swap and therefore can be culled at will if
->> you don't need it.  In other words -- it's present *both* in swap and
->> RAM.
->
->
->
-> Good point.
-> The question is still what to pull in.  Stuff in swap
-> is one option.  It has been used before, and might
-> be needed again.
->
-> Contents of memory mapped files (executables and others) are another.
-> We can't know what we will need next, but at least the already opened
-> files ought to be as likely as swap.
->
-> Pulling other files into cache is a third option.  Going for open
-> files (readahead) or recently used ones might be smart.
->
-I think the pauses that desktop people notice and disagree to
-is when mapped memory is paged out. If it is paged back in when
-there is plenty of memory free, and ide disk, it might be useful
-for a desktop load.
 
+
+-- 
+dwmw2
 

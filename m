@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267267AbTCEPlP>; Wed, 5 Mar 2003 10:41:15 -0500
+	id <S267131AbTCEPjM>; Wed, 5 Mar 2003 10:39:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267268AbTCEPlP>; Wed, 5 Mar 2003 10:41:15 -0500
-Received: from main.gmane.org ([80.91.224.249]:55223 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S267261AbTCEPkp>;
-	Wed, 5 Mar 2003 10:40:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jason Lunz <lunz@reflexsecurity.com>
-Subject: Re: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
-Date: Wed, 5 Mar 2003 15:46:20 +0000 (UTC)
-Organization: PBR Streetgang
-Message-ID: <slrnb6c6vb.rm1.lunz@stoli.localnet>
-References: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com> <3E657F33.4000304@pobox.com>
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	id <S267135AbTCEPjL>; Wed, 5 Mar 2003 10:39:11 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:59852 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S267131AbTCEPiV>; Wed, 5 Mar 2003 10:38:21 -0500
+Message-ID: <3E661C56.5090503@zytor.com>
+Date: Wed, 05 Mar 2003 07:48:38 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Reserving physical memory at boot time
+References: <Pine.LNX.3.95.1021204115837.29419B-100000@chaos.analogic.com>	<Pine.LNX.4.33L2.0212040905230.8842-100000@dragon.pdx.osdl.net>	<b442s0$pau$1@cesium.transmeta.com>	<32981.4.64.238.61.1046844111.squirrel@www.osdl.org>	<b453mj$qpi$1@cesium.transmeta.com> <20030305074327.673e2432.rddunlap@osdl.org>
+In-Reply-To: <20030305074327.673e2432.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jgarzik@pobox.com said:
-> Further, for NAPI and networking in general, it is recommended to bind
-> each NIC to a single interrupt, and never change that binding. 
+Randy.Dunlap wrote:
+> | 
+> | Unfortunately last time I commented on this the response was roughly
+> | "well, the patch already made it into Linus' kernel, it's too late to
+> | fix it now."  That isn't exactly a very helpful response.
+> 
+> I don't see why it's too late.  How can it be too late?
+> Ah, because it's already made it into 2.4?
+> 
 
-I assume you mean "bind each NIC interrupt to a single CPU" here. I've
-done quite a lot of benchmarking on dual SMP that shows that for
-high-load networking, you basically have two cases:
+More because people don't want to fix their mistakes, I suspect :(
 
- - the irq load is less than what can be handled by one CPU. This is the
-   case, for example, using a NAPI e1000 driver under any load on a
-   > 1 GHz SMP machine. even with two e1000 cards under extreme load,
-   one CPU can run the interrupt handlers with cycles to spare (thanks
-   to NAPI).  This config (all NIC interrupts on CPU0) is optimal as
-   long as CPU doesn't become saturated. Trying to distribute the
-   interrupt load across multiple CPUs incurs measurable performance
-   loss, probably due to cache effects.
- 
- - the irq load is enough to livelock one CPU. It's easy for this to
-   happen with gigE NICs on a non-NAPI kernel, for example. In this
-   case, you're better off binding each heavy interrupt source to a
-   different CPU.
+I don't know who originally started adding stuff to "mem=", but I still 
+feel it needs to be backed out and renamed.
 
-2.4's default behavior isn't optimal in either case.
+> | The mem= parameter has the semantic in the i386/PC boot protocol that
+> | it specifies the top address of the usable memory region that begins
+> | at 0x100000.  It's a bit of a wart that the boot loaders have to be
+> | aware of this, but it's so and it's been so for a very long time.
+> 
+> So it's the top of the 0x100000-mem physical linear memory region
+> (i.e., no gaps)?
 
-> Delivering a single NIC's interrupts to multiple CPUs leads to a 
-> noticeable performance loss.  This is why some people complain that 
-> their specific network setups are faster on a uniprocessor kernel than 
-> an SMP kernel.
-
-This is what I've seen as well. The good news is that you can pretty
-much recapture the uniprocessor performance by binding all heavy
-interrupt sources to one CPU, as long as that CPU can handle it. And any
-modern machine with a NAPI kernel _can_ handle any realistic gigE load.
-
-I should mention that these results are all measurements of gigabit
-bridge performance, where every frame needs to be received on one NIC
-and sent on the other. So there are obvious cache benefits to doing it
-all on one CPU.
-
--- 
-Jason Lunz			Reflex Security
-lunz@reflexsecurity.com		http://www.reflexsecurity.com/
+Correct.
 

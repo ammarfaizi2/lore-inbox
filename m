@@ -1,157 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291520AbSBAEEW>; Thu, 31 Jan 2002 23:04:22 -0500
+	id <S291531AbSBAEMo>; Thu, 31 Jan 2002 23:12:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291522AbSBAEEO>; Thu, 31 Jan 2002 23:04:14 -0500
-Received: from apollo.wang.co.nz ([210.55.244.9]:19218 "EHLO apollo.wang.co.nz")
-	by vger.kernel.org with ESMTP id <S291520AbSBAEDz>;
-	Thu, 31 Jan 2002 23:03:55 -0500
-Message-ID: <11DB9C500CC7D5119A8B00805F5AD3101435F7@chx0.wang.co.nz>
-From: Ross Wakelin <Ross.Wakelin@gen-i.co.nz>
-To: "'Alan@redhat.com'" <Alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: kernel 2.5.3 and i810 audio, bug and fix
-Date: Fri, 1 Feb 2002 17:04:27 +1300 
+	id <S291530AbSBAEMd>; Thu, 31 Jan 2002 23:12:33 -0500
+Received: from mx3.fuse.net ([216.68.1.123]:52677 "EHLO mta03.fuse.net")
+	by vger.kernel.org with ESMTP id <S291529AbSBAEM1>;
+	Thu, 31 Jan 2002 23:12:27 -0500
+Message-ID: <3C5A159F.2010108@fuse.net>
+Date: Thu, 31 Jan 2002 23:12:15 -0500
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-	protocol="application/x-pkcs7-signature";
-	micalg=SHA1;
-	boundary="----=_NextPart_000_0006_01C1AB42.B98C3790"
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Re: Linux 2.5.3-dj1]
+Content-Type: multipart/mixed;
+ boundary="------------060308010404020802020801"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
-
-------=_NextPart_000_0006_01C1AB42.B98C3790
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_001_0007_01C1AB42.B98C3790"
-
-
-------=_NextPart_001_0007_01C1AB42.B98C3790
-Content-Type: text/plain;
-	charset="us-ascii"
+--------------060308010404020802020801
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hello
-
-I have found and compile problem in the 2.5.3 source
-
-	File:
-				drivers/sound/i810_audio.c
-
-	Line:			1672
-
-	Reads:		....remap_page_range(vma->vm_start.....
-	Should read:	....remap_page_range(vma, vma->vm_start....
-
-Thanks for the code
 
 
-Ross Wakelin
-Senior Technical Consultant
-gen-i Limited
-			
-250 Oxford Terrace	Phone: +64 (0)3 353 0800
-PO Box 1460		Fax:   +64 (0)3 379 5768
-Christchurch 		Mob:   +64 (0)21 334 380
+--------------060308010404020802020801
+Content-Type: message/rfc822;
+ name="Re: Linux 2.5.3-dj1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Re: Linux 2.5.3-dj1"
 
-mailto:ross.wakelin@gen-i.co.nz
-http://www.gen-i.co.nz
 
-------=_NextPart_001_0007_01C1AB42.B98C3790
-Content-Type: text/x-vcard;
-	name="Ross Wakelin.vcf"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="Ross Wakelin.vcf"
+>From - Thu Jan 31 23:07:29 2002
+X-Mozilla-Status2: 00000000
+Message-ID: <3C5A147F.6040800@fuse.net>
+Date: Thu, 31 Jan 2002 23:07:27 -0500
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+Subject: Re: Linux 2.5.3-dj1
+In-Reply-To: <20020201013930.A24971@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-BEGIN:VCARD
-VERSION:2.1
-N:Wakelin;Ross
-FN:Ross Wakelin
-ORG:gen-i Limited
-TITLE:Senior Technical Consultant
-TEL;WORK;VOICE:+64 (0)3 353 0800
-TEL;CELL;VOICE:+64 (0)21 334 380
-TEL;WORK;FAX:+64 (0)3 379 5768
-ADR;WORK;ENCODING=3DQUOTED-PRINTABLE:;;250 Oxford Terrace=3D0D=3D0APO =
-Box 160;Christchurch;;;New Zealand
-LABEL;WORK;ENCODING=3DQUOTED-PRINTABLE:250 Oxford Terrace=3D0D=3D0APO =
-Box 160=3D0D=3D0AChristchurch=3D0D=3D0ANew Zealand
-URL;WORK:http://www.gen-i.co.nz
-EMAIL;PREF;INTERNET:Ross.Wakelin@gen-i.co.nz
-REV:20020109T210033Z
-END:VCARD
+Dave Jones wrote:
 
-------=_NextPart_001_0007_01C1AB42.B98C3790--
+>And we start all over again.. Sync against 2.5.3, and merge some
+>more pending items. Hopefully this fixes the reiserfs issues
+>that popped up in -dj7 (but mysteriously not in mainline).
+>please report reiserfs success/failure stories.
+>
+>Patch against 2.5.3 vanilla is available from:
+>ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+>
+> -- Davej.
+>
+[snip]
 
-------=_NextPart_000_0006_01C1AB42.B98C3790
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
+Compiling with ZISOFS I get an undefined reference to "zisofs_cleanup":
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII+zCCAoow
-ggHzoAMCAQICAwZJzzANBgkqhkiG9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
-c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
-FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
-MC44LjMwMB4XDTAxMTIxMDIzNTA0N1oXDTAyMTIxMDIzNTA0N1owSjEfMB0GA1UEAxMWVGhhd3Rl
-IEZyZWVtYWlsIE1lbWJlcjEnMCUGCSqGSIb3DQEJARYYcm9zcy53YWtlbGluQGdlbi1pLmNvLm56
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDajR7zvpHuowM9Ndp40oU6sonQ6itl2GOxey2L
-UhnNJ16U7HPikR4pAVqYgdMPWXmt1XUYd7lmDYAINAj06rjRqPSzpXZd6q6+m8QCBET1BXNKLnbi
-A471f2QsNHJN4q13NkwhYL32RBkCsiTeXVm+UyrquXR8HW75qjUgXoPZowIDAQABozUwMzAjBgNV
-HREEHDAagRhyb3NzLndha2VsaW5AZ2VuLWkuY28ubnowDAYDVR0TAQH/BAIwADANBgkqhkiG9w0B
-AQIFAAOBgQCYeIncgCfujAIHtNhLi7kFbtkbdvDzAh1pKcKOW8oaNWH3zfQ8h/+4REtpsWfaISG/
-yXkZuwNIlJ+JyoP4bP3ueVKct+oDGzVquFOTWy1UTZX9NRBxh9rlr1DSxLWn/SSAM74eXtUq6DbR
-VrdpYEj1X7TSSPBOKy1HPat0v5jwHzCCAy0wggKWoAMCAQICAQAwDQYJKoZIhvcNAQEEBQAwgdEx
-CzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEa
-MBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2Vydmlj
-ZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqG
-SIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw05NjAxMDEwMDAwMDBaFw0y
-MDEyMzEyMzU5NTlaMIHRMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYD
-VQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0
-aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9uMSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJl
-ZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEWHHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wgZ8w
-DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANRp19SwlGRbcelH2AxRtupykbCEXn0tDY97Et+FJXUo
-dDpCLGMnn5V7S+9+GYcdhuqj3bnOlmQawhRuRKx85o/oTQ9xH0A4pgCjh3j2+ZSGXq3qwF5269kU
-o11uenwMpUtVfwYZKX+emibVars4JAhqmMex2qOYkf152+VaxBy5AgMBAAGjEzARMA8GA1UdEwEB
-/wQFMAMBAf8wDQYJKoZIhvcNAQEEBQADgYEAx+ySfk749ZalZ2IqpPBNEWDQb41gWGGsJrtSNVwI
-zzD7qEqWih9iQiOMFw/0umScF6xHKd+dmF7SbGBxXKKs3Hnj524ARx+1DSjoAp3kmv0T9KbZfLH4
-3F8jJgmRgHPQFBveQ6mDJfLmnC8Vyv6mq4oHdYsM3VGEa+T40c53ooEwggM4MIICoaADAgECAhBm
-RXK3zHT1z2N2RYTQLpEBMA0GCSqGSIb3DQEBBAUAMIHRMQswCQYDVQQGEwJaQTEVMBMGA1UECBMM
-V2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0ZSBDb25zdWx0
-aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9uMSQwIgYDVQQDExtU
-aGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEWHHBlcnNvbmFsLWZyZWVt
-YWlsQHRoYXd0ZS5jb20wHhcNMDAwODMwMDAwMDAwWhcNMDQwODI3MjM1OTU5WjCBkjELMAkGA1UE
-BhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQK
-EwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25h
-bCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDeMzKm
-Y8cJJUU+0m54J2eBxdqIGYKXDuNEKYpjNSptcDz63K737nRvMLwzkH/5NHGgo22Y8cNPomXbDfpL
-8dbdYaX5hc1VmjUanZJ1qCeu2HL5ugL217CR3hzpq+AYA6h8Q0JQUYeDPPA5tJtUihOH/7ObnUlm
-AC0JieyUa+mhaQIDAQABo04wTDApBgNVHREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVs
-MS0yOTcwEgYDVR0TAQH/BAgwBgEB/wIBADALBgNVHQ8EBAMCAQYwDQYJKoZIhvcNAQEEBQADgYEA
-MbFLR135AXHl9VNsXXnWPZjAJhNigSKnEvgilegbSbcnewQ5uvzm8iTrkfq97A0qOPdQVahs9w2t
-TBu8A/S166JHn2yiDFiNMUIJEWywGmnRKxKyQF1q+XnQ6i4l3Yrk/NsNH50C81rbyjz2ROomaYd/
-SJ7OpZ/nhNjJYmKtBcYxggNpMIIDZQIBATCBmjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
-c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
-FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
-MC44LjMwAgMGSc8wCQYFKw4DAhoFAKCCAiQwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkq
-hkiG9w0BCQUxDxcNMDIwMjAxMDQwNjAxWjAjBgkqhkiG9w0BCQQxFgQU/oweN6OBzMMOrwGPAUXm
-/FvXL60wZwYJKoZIhvcNAQkPMVowWDAKBggqhkiG9w0DBzAHBgUrDgMCGjAOBggqhkiG9w0DAgIC
-AIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwCgYIKoZIhvcNAgUwgasG
-CSsGAQQBgjcQBDGBnTCBmjCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
-MBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRl
-IFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwAgMGSc8w
-ga0GCyqGSIb3DQEJEAILMYGdoIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBD
-YXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlm
-aWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAC
-AwZJzzANBgkqhkiG9w0BAQEFAASBgDTJ6zSKQIarLyGLa7oAY4kgrTfJsVvwcKlPl+oKDfIVQ3C4
-N7ZaOpHmMFBcO6zMma5BwUyXjlyd4DiPbZMkHRIPlzu0MHzi+paePTdRHic4MB+5uF8jSuOK0x0Z
-IK9FtAPLOv4f8u7JILjFIB3IIKspJS3khXbyxizNndnbD+TdAAAAAAAA
+ld -m elf_i386 -T 
+/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/arch/i386/vmlinux.lds 
+-e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o 
+init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
+mm/mm.o fs/fs.o ipc/ipc.o \
+        
+/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/arch/i386/lib/lib.a 
+/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/lib/lib.a 
+/home/expsoft/src/linux-kernel/linux-2.5/linux-2.5.3-dj1-nwf/arch/i386/lib/lib.a 
+\
+         drivers/acpi/acpi.o drivers/base/base.o drivers/char/char.o 
+drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
+drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o 
+drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o 
+drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o 
+drivers/pnp/pnp.o drivers/video/video.o drivers/input/inputdrv.o 
+drivers/input/serio/seriodrv.o \
+        net/network.o \
+        --end-group \
+        -o vmlinux
+fs/fs.o: In function `init_iso9660_fs':
+fs/fs.o(.text.init+0xe71): undefined reference to `zisofs_cleanup'
+make: *** [vmlinux] Error 1
 
-------=_NextPart_000_0006_01C1AB42.B98C3790--
+Kernel is patched thus:
+2.5.3
+2.5.3-dj1
+preempt-kernel-2.5.3-1
+acpi-2.4.17 (again missing some Configure.help entries, manually deleted 
+acpitable.c from arch/i386/kernel)
+acpi-pci-irq-routing patch
+
+Thanks!
+
+--Nathan
+
+
+
+--------------060308010404020802020801--
+
 

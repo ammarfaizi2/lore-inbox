@@ -1,91 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSLFCpk>; Thu, 5 Dec 2002 21:45:40 -0500
+	id <S261411AbSLFCwl>; Thu, 5 Dec 2002 21:52:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261411AbSLFCpk>; Thu, 5 Dec 2002 21:45:40 -0500
-Received: from dp.samba.org ([66.70.73.150]:40592 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261398AbSLFCpj>;
-	Thu, 5 Dec 2002 21:45:39 -0500
-Date: Fri, 6 Dec 2002 13:53:03 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: davem@redhat.com, James.Bottomley@steeleye.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, miles@gnu.org
-Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021206025303.GC17829@zax.zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	"Adam J. Richter" <adam@yggdrasil.com>, davem@redhat.com,
-	James.Bottomley@steeleye.com, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org, miles@gnu.org
-References: <200212060208.SAA05756@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212060208.SAA05756@adam.yggdrasil.com>
-User-Agent: Mutt/1.4i
+	id <S267514AbSLFCwl>; Thu, 5 Dec 2002 21:52:41 -0500
+Received: from smtprelay6.dc2.adelphia.net ([64.8.50.38]:13961 "EHLO
+	smtprelay6.dc2.adelphia.net") by vger.kernel.org with ESMTP
+	id <S261411AbSLFCwk>; Thu, 5 Dec 2002 21:52:40 -0500
+Message-ID: <007301c29cd3$95ad99d0$6a01a8c0@wa1hco>
+From: "jeff millar" <wa1hco@adelphia.net>
+To: "Frank van Maarseveen" <F.vanMaarseveen@inter.nl.net>,
+       <linux-kernel@vger.kernel.org>
+References: <F6E1228667B6D411BAAA00306E00F2A51539BA@pdc2.nestec.net> <200212041526.57501.shanehelms@eircom.net> <01c301c29bf5$201a9120$6a01a8c0@wa1hco> <20021206005510.A7411@iapetus.localdomain>
+Subject: Re: is KERNEL developement finished, yet ???
+Date: Thu, 5 Dec 2002 22:00:06 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 06:08:22PM -0800, Adam J. Richter wrote:
-> David Gibson wrote:
-> >On Thu, Dec 05, 2002 at 03:57:53AM -0800, Adam J. Richter wrote:
-> >> David Gibson wrote:
-> >> >Since, with James's approach you'd need a dma sync function (which
-> >> >might compile to NOP) in pretty much the same places you'd need
-> >> >map/sync calls, I don't see that it does make the source noticeably
-> >> >simpler.
-> >> 
-> >>         Because then you don't have to have a branch for
-> >> case where the platform *does* support consistent memory.
-> 
-> >Sorry, you're going to have to explain where this extra branch is, I
-> >don't see it.
-> 
-> 	In linux-2.5.50/drivers/net/lasi_82596.c, the macros
-> CHECK_{WBACK,INV,WBACK_INV} have definitions like:
-> 
-> #define  CHECK_WBACK(addr,len) \
-> 	do { if (!dma_consistent) dma_cache_wback((unsigned long)addr,len); } while (0)
-> 
-> 	These macros are even used in IO paths like i596_rx().  The
-> "if()" statement in each of these macros is the extra branch that
-> disappears on most architectures under James's proposal.
+Harnessing energy (rockets, nukes, etc) is fundamentally an unlimited
+engineering opportunity.  But kernel development is mostly an attempt to
+reduce overhead to zero. If a kernel runs 90% efficient now, then there's
+only 10% additional improvement possible.
 
-Erm... I have no problem with the macros that James's proposal would
-use to take away this branch - I would expect to use exactly the same
-ones.  It's just the notion of "try to get consistent memory, but get
-me any old memory otherwise" that I'm not so convinced by.
+On the other hand application software is fundamentally unlimited.
 
-In any case, on platforms where the dma_malloc() could really return
-either consistent or non-consistent memory, James's sync macros would
-have to have an equivalent branch within.
+So if you want to work on reliability, portability, maintainability, and
+adaptation to new hardware then kernels make a good career.  But if you want
+to break new ground, then it's either application space or hardware.
 
-> [...]
-> >What performance advantages of consistent memory?  Can you name any
-> >non-fully-consistent platform where consistent memory is preferable
-> >when it is not strictly required?  For, all the non-consistent
-> >platforms I'm aware of getting consistent memory means disabling the
-> >cache and therefore is to be avoided wherever it can be.
-> 
-> 	I believe that the cache synchronization operations for
-> nonconsistent memory are often expensive enough so that consistent
-> memory is faster on many platforms for small reads and writes, such as
-> dealing with control and status fields and hardware DMA lists.  For
-> example, pci_sync_single is 55 lines of C code in
-> linux-2.5.50/arch/sparc64/kernel/pci_iommu.c.
+jeff
 
-Hmm... fair enough.  Ok, I can see the point of a fall back to
-non-consistent approach given that.  So I guess the idea makes sense,
-so long as dma_malloc() (without the consistent flag) is taken to be
-"give me DMAable memory, consistent or not, whichever is cheaper for
-this platform" rather than "give me DMAable memory, consistent if
-possible".  It was originally presented as the latter which misled me.
 
-I think the change to the parameters which I suggested in a reply to
-James makes this a bit clearer.
+----- Original Message -----
+From: "Frank van Maarseveen" <F.vanMaarseveen@inter.nl.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, December 05, 2002 6:55 PM
+Subject: Re: is KERNEL developement finished, yet ???
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+
+> On Wed, Dec 04, 2002 at 07:27:40PM -0500, jeff millar wrote:
+> > My opinion...
+> >
+> > Kernels are getting mature in the sense the there's not that many ways
+to do
+> > tasking and hardware interface.  It no longer a game of invention but a
+game
+> > of polishing.
+>
+> no
+>
+> Everytime once in a while someone thinks that everything which can
+> be invented has been invented. Books like "The end of science". It's
+> pure hubris.
+>
+> Around 1930 it was proven that is was impossible to travel to the
+> moon. Then mankind discovered multi stage rockets and nuclear energy
+> (not even needed for that).
+>
+> It's incredible how narrow-minded established science sometimes is today
+> (and often has been past centuries). There is too much conservatism and
+> a general lack of imagination (though I must admit that no SF writer
+> could come up with something as bizarre as quantum mechanics, QED,
+> string theory and a few other things).
+>
+> Software and more specific kernel development has quite a short history
+> compared to all of that. So, let's be humble and accept that what we
+> do today will most likely be considered a trivial joke when the next
+> century arrives.
+>
+> You don't know what you do now know today.
+>
+> --
+> Frank
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

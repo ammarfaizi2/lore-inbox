@@ -1,44 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbTBNSw2>; Fri, 14 Feb 2003 13:52:28 -0500
+	id <S263760AbTBNTA0>; Fri, 14 Feb 2003 14:00:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266958AbTBNSw2>; Fri, 14 Feb 2003 13:52:28 -0500
-Received: from inmail.compaq.com ([161.114.1.205]:23819 "EHLO
-	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S264716AbTBNSw1>; Fri, 14 Feb 2003 13:52:27 -0500
-Date: Fri, 14 Feb 2003 13:03:17 +0600
-From: steve cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.60, cciss, fix array bounds overrun
-Message-ID: <20030214070317.GA12692@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
+	id <S264711AbTBNTA0>; Fri, 14 Feb 2003 14:00:26 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:58887 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S263760AbTBNTAZ>; Fri, 14 Feb 2003 14:00:25 -0500
+Date: Fri, 14 Feb 2003 19:11:14 +0000 (UTC)
+Message-Id: <20030214.191114.88638984.yoshfuji@linux-ipv6.org>
+To: usagi-stable-announcement:;
+CC: usagi@linux-ipv6.org
+Subject: USAGI STABLE RELEASE 4.1
+From: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Happy St. Valentine's Day!
 
-Fix overrun if you have more than 16 attached tape drives + tape changers.
-Thanks to Mike Anderson for pointing this out.
+We are glad to announce the [1]USAGI STABLE RELEASE 4.1, dated on the
+February 14th, 2003. This is the maintenance release of the STABLE
+RELEASE 4 dated on October 7th, 2002. People who use previous releases
+are encouraged to upgrade to this release.
 
--- steve
+Changes from the STABLE RELEASE 4 are:
+  * based on latest kernel linux-2.4.20.
+  * glibc-2.3.x friendly.
+  * IPsec tunnel mode support and DH Group 1 support in Pluto.
+  * fixed (possible) panic in rawv6_recvmsg().
+  * fixed memory leakages in getifaddrs() and if_nameindex().
+  * fixed NI message format of ping6.
 
---- lx2560/drivers/block/cciss_scsi.c~currentsd_overrun	2003-02-14 12:53:35.000000000 +0600
-+++ lx2560-scameron/drivers/block/cciss_scsi.c	2003-02-14 12:59:34.000000000 +0600
-@@ -1106,6 +1106,12 @@ cciss_update_non_disk_devices(int cntl_n
- 		{
- 		  case 0x01: /* sequential access, (tape) */
- 		  case 0x08: /* medium changer */
-+			if (ncurrent >= CCISS_MAX_SCSI_DEVS_PER_HBA) {
-+				printk(KERN_INFO "cciss%d: %s ignored, "
-+					"too many devices.\n", cntl_num,
-+					DEVICETYPE(devtype));
-+				break;
-+			}
- 			memcpy(&currentsd[ncurrent].scsi3addr[0], 
- 				&scsi3addr[0], 8);
- 			currentsd[ncurrent].devtype = devtype;
+and so on.
 
-_
+You can get our complete kit which includes kernel tree, library and
+applications from <ftp://ftp.linux-ipv6.org/pub/usagi/stable/kit/>.
+
+We also provide separate patches against the main-line kernel and the
+tools <ftp://ftp.linux-ipv6.org/pub/usagi/stable/split/>.
+
+We have a plan to provide the binary packages for some distributions.
+They will appear under
+<ftp://ftp.linux-ipv6.org/pub/usagi/stable/package/> within several
+weeks.
+
+Some of our efforts are already in mainline kernel tree. We continue
+working spliting our changes into reasonable size and trying merging
+it into mainline kernel tree.
+
+We announce the latest information on our web pages. Please check our
+web site <http://www.linux-ipv6.org>.
+
+We also manage the mailing list for USAGI users. If you have
+questions, please join the mailing list. Comments and advises are also
+welcome on that mailing list. Please visit
+<http://www.linux-ipv6.org/ml/> for further information.
+
+Thanks.
+
+About USAGI Project
+
+The USAGI Project is managed by volunteers and aims to provide better
+IPv6 environment on Linux freely. We are tightly collaborating with
+[2]WIDE Project, [3]KAME Project and [4]TAHI Project, and trying to
+improve Linux kernel, IPv6 related libraries and IPv6 applications.
+Our snapshots are released every two weeks and stable release is
+released several times a year. Please check our web site
+http://www.linux-ipv6.org for the latest information.
+
+References
+
+[1] USAGI Project       <http://www.linux-ipv6.org>
+[2] WIDE Project        <http://www.wide.ad.jp>
+[3] KAME Project        <http://www.kame.net>
+[4] TAHI Project        <http://www.tahi.org>
+
+Sincerely,
+
+-- 
+USAGI Project Members
+

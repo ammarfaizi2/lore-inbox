@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbULAV1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbULAV3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbULAV1g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 16:27:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbULAV1g
+	id S261453AbULAV3v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 16:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbULAV3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 16:27:36 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:20915 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261477AbULAV1Z (ORCPT
+	Wed, 1 Dec 2004 16:29:51 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:63971 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261453AbULAV3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 16:27:25 -0500
-Date: Wed, 1 Dec 2004 22:25:38 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.29-pre1] radeonfb: don't try to ioreamp the entire
- VRAM [was: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but
- not in 2.4.29-pre1?]
-In-Reply-To: <20041201203711.GA21008@dreamland.darkstar.lan>
-Message-ID: <Pine.GSO.4.61.0412012221420.2595@waterleaf.sonytel.be>
-References: <20041128184606.GA2537@middle.of.nowhere>
- <20041201161455.GA14817@dreamland.darkstar.lan>
- <Pine.GSO.4.61.0412011724010.26820@waterleaf.sonytel.be>
- <20041201203711.GA21008@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Dec 2004 16:29:44 -0500
+Date: Wed, 1 Dec 2004 22:29:25 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
+Message-ID: <20041201212925.GA23410@elte.hu>
+References: <20041129152344.GA9938@elte.hu> <48590.195.245.190.94.1101810584.squirrel@195.245.190.94> <20041130131956.GA23451@elte.hu> <17532.195.245.190.94.1101829198.squirrel@195.245.190.94> <20041201103251.GA18838@elte.hu> <32831.192.168.1.5.1101905229.squirrel@192.168.1.5> <20041201154046.GA15244@elte.hu> <20041201160632.GA3018@elte.hu> <20041201162034.GA8098@elte.hu> <33059.192.168.1.5.1101927565.squirrel@192.168.1.5>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <33059.192.168.1.5.1101927565.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Dec 2004, Kronos wrote:
-> Il Wed, Dec 01, 2004 at 05:25:52PM +0100, Geert Uytterhoeven ha scritto: 
-> > > Make fb layer aware of the difference between the ioremap()'ed VRAM and
-> > > total available VRAM.
-> > > smem_len in struct fb_fix_screeninfo still contains the amount of
-> > > physical VRAM (reported to userspace via FBIOGET_FSCREENINFO ioctl) and
-> > > the new field mapped_vram contains the amount of VRAM actually
-> > > ioremap()'ed by drivers (used in read/write/mmap operations).
-> > > Since there was unused padding at the end of struct fb_fix_screeninfo
-> > > binary compatibility with userspace utilities is retained.
-> > > If mapped_vram is not set it's assumed that the entire framebuffer is
-> > > mapped, thus other drivers are unaffected by this patch.
-> > > 
-> > > The patch has been tested by Jurriaan <thunder7@xs4all.nl>.
-> > > 
-> > > Signed-off-by: Luca Tettamanti <kronos@people.it>
-> > > 
-> > > --- a/include/linux/fb.h	2004-11-30 18:30:08.000000000 +0100
-> > > +++ b/include/linux/fb.h	2004-11-30 18:33:00.000000000 +0100
-> > > @@ -126,7 +126,8 @@
-> > >  					/* (physical address) */
-> > >  	__u32 mmio_len;			/* Length of Memory Mapped I/O  */
-> > >  	__u32 accel;			/* Type of acceleration available */
-> > > -	__u16 reserved[3];		/* Reserved for future compatibility */
-> > > +	__u32 mapped_vram;		/* Amount of ioremap()'ed VRAM */
-> > > +	__u16 reserved[1];		/* Reserved for future compatibility */
-> > >  };
-> > 
-> > I don't really like this patch. mapped_vram doesn't matter for user space at
-> > all, so it does not belong to fb_fix_screeninfo.
+
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> > i think i found the bug - it's an upstream ACPI bug. Does the patch
+> > below (or the -31-19 kernel, which i've just uploaded) fix the xruns?
+> >
 > 
-> Hmm, it looked sensible to me since it's the max amount of data that
-> userspace can read (or write) from /dev/fb%d.
+> So far so good.
+> 
+> I have now an armed RT-V0.31-19 on my laptop, running for about 30
+> minutes already, running the usual 'jackd -R -dalsa -dhw:0 -r44100
+> -p64 -n2 -S -P' from qjackctl, several qsynth (fluidsynth) engines are
+> up and running, normal desktop janitor work (KDE) and yes, ACPI is on.
+> Oh, wi-fi is also pumping nice :)
+> 
+> Guess what? No XRUNs, not even one to show you a single latency trace.
+> 
+> I'll keep you posted, if anything goes less right than it is :).
 
-That's not really a user space limitation, but a kernel `bug'.
+great - it seems the ACPI fix made a difference. If there are no xruns
+then you might want to try the # of engines at which point xruns show
+up. (can the soundcard period size / buffering be reduced further, to
+make it more sensitive to scheduling latencies?)
 
-I.e. it could be solved in the kernel if larger ioremap()s would be allowed, or
-if some sliding window mapping would be used. User space shouldn't need to know
-about this.
-
-> Putting mapped_vram in fb_info would be acceptable?
-
-That would make sure this stays in-kernel, but my other reasoning stays the
-same: it's some kind of kernel bug.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	Ingo

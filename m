@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262663AbTDARBS>; Tue, 1 Apr 2003 12:01:18 -0500
+	id <S262650AbTDAQ5S>; Tue, 1 Apr 2003 11:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262670AbTDARBS>; Tue, 1 Apr 2003 12:01:18 -0500
-Received: from rth.ninka.net ([216.101.162.244]:8120 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S262663AbTDARBR> convert rfc822-to-8bit;
-	Tue, 1 Apr 2003 12:01:17 -0500
-Subject: Re: assertion failed in tcp.c & af_inet.c
-From: "David S. Miller" <davem@redhat.com>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+	id <S262649AbTDAQ5R>; Tue, 1 Apr 2003 11:57:17 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:1416 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262650AbTDAQ5M>;
+	Tue, 1 Apr 2003 11:57:12 -0500
+Date: Tue, 01 Apr 2003 09:04:10 -0800 (PST)
+Message-Id: <20030401.090410.84707397.davem@redhat.com>
+To: ink@jurassic.park.msu.ru
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <yw1xy92wxt8c.fsf@zaphod.guide>
-References: <yw1xy92wxt8c.fsf@zaphod.guide>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1049217138.3938.0.camel@rth.ninka.net>
+Subject: Re: [patch 2.5] net: severe bug in icmp stats
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030401185707.A955@jurassic.park.msu.ru>
+References: <20030401185707.A955@jurassic.park.msu.ru>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Apr 2003 09:12:18 -0800
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-30 at 16:41, Måns Rullgård wrote:
-> I keep getting these messages in the kernel log:
-> 
-> KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
-> KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
-> 
-> It seems to be related to accepting an incoming connection.
-> 
-> The kernel is 2.4.21-pre4 on Alpha.  The machine is behind a firewall
-> that forwards connections so some ports to this machine.
+   From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+   Date: Tue, 1 Apr 2003 18:57:07 +0400
 
-Fixed in 2.4.21-pre5 and later.
-
--- 
-David S. Miller <davem@redhat.com>
+   I believe many of those weird crash reports with recent 2.5
+   kernels can be explained by wrong pointer arithmetic in
+   ICMP_INC_STATS_xx_FIELD macros.
+   
+   (*((long *)((void *)ptr) + offt))++
+   
+Thanks a lot Ivan, patch applied.

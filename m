@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267518AbTAQPQ6>; Fri, 17 Jan 2003 10:16:58 -0500
+	id <S267530AbTAQPXB>; Fri, 17 Jan 2003 10:23:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267520AbTAQPQ6>; Fri, 17 Jan 2003 10:16:58 -0500
-Received: from fmf01.fwn.rug.nl ([129.125.22.50]:1802 "EHLO fmf01.fwn.rug.nl")
-	by vger.kernel.org with ESMTP id <S267518AbTAQPQ5>;
-	Fri, 17 Jan 2003 10:16:57 -0500
-Date: Fri, 17 Jan 2003 16:26:02 +0100 (CET)
-From: Erik Logtenberg <erik@fmf.nl>
-To: linux-kernel@vger.kernel.org
-Subject: flaw in documentation drivers/net/dummy.c
-Message-ID: <Pine.LNX.4.44.0301171614330.5369-100000@fmf01.fwn.rug.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267547AbTAQPXB>; Fri, 17 Jan 2003 10:23:01 -0500
+Received: from msg.vodafone.pt ([212.18.167.162]:57983 "EHLO msg.vodafone.pt")
+	by vger.kernel.org with ESMTP id <S267530AbTAQPXA>;
+	Fri, 17 Jan 2003 10:23:00 -0500
+Subject: Re: radeonfb almost there.. but not quite! :)
+From: "Paulo Andre'" <fscked@netvisao.pt>
+To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200301162108.WAA22987@post.webmailer.de>
+References: <20030115182012$25b7@gated-at.bofh.it>
+	 <20030116134006$783d@gated-at.bofh.it>
+	 <200301162108.WAA22987@post.webmailer.de>
+Content-Type: text/plain
+Organization: Corleone Hacking Corp.
+Message-Id: <1042817507.251.4.camel@nostromo.orion.int>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 17 Jan 2003 15:31:47 +0000
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Jan 2003 15:31:04.0901 (UTC) FILETIME=[72DAA750:01C2BE3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Kernel developers,
+On Thu, 2003-01-16 at 21:07, Arnd Bergmann wrote:
 
-I noticed that the documentation of dummy.c (the dummy network device) is 
-somewhat flawed. In the help you can pop up in 'make menuconfig' it says:
+> I also have a small problem when switching to and from X. Most of 
+> the time everything is fine, but sometimes it is unreadable and
+> I have to switch back and forth again.
+> 
+> This is on an IBM Thinkpad A30p with 1600x1200 local display.
+> radeonfb_pci_register BEGIN
+> radeonfb: ref_clk=2700, ref_div=60, xclk=16600 from BIOS
+> radeonfb: probed DDR SGRAM 32768k videoram
+> radeon_get_moninfo: bios 4 scratch = 1000004
+> radeonfb: panel ID string: 1600x1200
+> radeonfb: detected DFP panel size from BIOS: 1600x1200
+> radeonfb: ATI Radeon M6 LY DDR SGRAM 32 MB
+> radeonfb: DVI port LCD monitor connected
+> radeonfb: CRT port no monitor connected
+> radeonfb_pci_register END
 
-> This is essentially a bit-bucket device (i.e. traffic you send to
-> this device is consigned into oblivion)
+Do you have CONFIG_DRM=y ?
 
-While in fact it seems to behave as a loopback device, so traffic is not 
-at all consigned into oblivion, it simply loops back, just like the 'lo' 
-network device.
+I'd _really_ like to have some feedback from James Simmons on this.
 
-Furthermore it says:
-
-> It won't enlarge your kernel either. What a deal.
-
-While in fact ofcourse it does. (I mean dummy.c does contain some code 
-after all) In my case, it added 144 bytes to my kernel.
-
-And in dummy.c itself, the comments say:
-
->        [when not running slip]
->                ifconfig dummy slip.addr.ess.here up
->        [to go to slip]
->                ifconfig dummy down
->                dip whatever
-
-While in fact, one would have to call the device 'dummy0' instead of 
-'dummy'. Not a very big issue, but it did take me a while before I noticed 
-it. (I usually assume it's my own error, before I start looking for 
-possible errors in the howto's)
-
-I hope someone could fix up these tiny flaws, when he or she has a minute 
-to spare.
-
-
-Kind regards,
-
-Erik Logtenberg.
-
-
-
+	../Paulo
 

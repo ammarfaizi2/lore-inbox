@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262644AbUKLWeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbUKLWgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262644AbUKLWeq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 17:34:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262646AbUKLWeq
+	id S262646AbUKLWgO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 17:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUKLWgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 17:34:46 -0500
-Received: from fsmlabs.com ([168.103.115.128]:21382 "EHLO musoma.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262644AbUKLWep (ORCPT
+	Fri, 12 Nov 2004 17:36:14 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:2294 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262646AbUKLWfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 17:34:45 -0500
-Date: Fri, 12 Nov 2004 15:34:01 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Matt Mackall <mpm@selenic.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] include ordering breaks sysrq on 8250 serial
-In-Reply-To: <20041112222710.GD8040@waste.org>
-Message-ID: <Pine.LNX.4.61.0411121532440.3388@musoma.fsmlabs.com>
-References: <20041112222710.GD8040@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Nov 2004 17:35:37 -0500
+Date: Fri, 12 Nov 2004 14:02:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Tim Hockin <thockin@google.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: small PCI probe patch for odd 64 bit BARs
+Message-ID: <20041112220210.GA5316@kroah.com>
+References: <20041111044809.GE19615@google.com> <20041110215142.3a81b426.akpm@osdl.org> <20041111173901.GH19615@google.com> <20041111175418.GA18811@kroah.com> <20041111205852.GP19615@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041111205852.GP19615@google.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Nov 2004, Matt Mackall wrote:
-
-> This has been pestering me for a couple days, finally dug into it:
+On Thu, Nov 11, 2004 at 12:58:52PM -0800, Tim Hockin wrote:
+> On Thu, Nov 11, 2004 at 09:54:19AM -0800, Greg KH wrote:
+> > I'll wait till you test this on 2.6 before applying it.
 > 
-> serial_8250.h was including serial_core.h before SUPPORT_SYSRQ was
-> getting set up. I suspect this problem exists elsewhere. Tested
-> against latest bk snapshot.
+> OK.  Tested now on real hardware in 32 bit and 64 bit kernels.  32 bit
+> found another dumbness, that we can fix up.
+> 
+> Some PCI bridges default their UPPER prefetch windows to an unused state
+> of base > limit.  We should not use those values if we find that.  It
+> might be nice to reprogram them to 0, in fact.
+> 
+> Yes, BIOS should fix that up, but apparently, some do not.
+> 
+> Tim
+> 
+> Signed-Off-By: Tim Hockin <thockin@google.com>
 
-Thanks! I tried using it and thought perhaps i had finally conceded to the 
-little men in my head!
+Applied, thanks.
+
+greg k-h

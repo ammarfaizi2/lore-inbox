@@ -1,111 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVBUJty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVBUJv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbVBUJty (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 04:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVBUJty
+	id S261936AbVBUJv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 04:51:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVBUJvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 04:49:54 -0500
-Received: from canardo.mork.no ([148.122.252.1]:40890 "EHLO canardo.mork.no")
-	by vger.kernel.org with ESMTP id S261933AbVBUJtt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 04:49:49 -0500
-From: =?iso-8859-1?Q?Bj=F8rn_Mork?= <bmork@dod.no>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad G41 PCMCIA problems
-Organization: Delighted of Daredevils
-References: <3zVzJ-1GD-5@gated-at.bofh.it> <3zVzM-1GD-17@gated-at.bofh.it>
-	<3zW2R-1Yl-15@gated-at.bofh.it> <3zWvU-2tS-25@gated-at.bofh.it>
-	<3zWYX-2Ob-23@gated-at.bofh.it>
-Date: Mon, 21 Feb 2005 10:49:46 +0100
-In-Reply-To: <3zWYX-2Ob-23@gated-at.bofh.it> (David =?iso-8859-1?Q?H=E4rde?=
- =?iso-8859-1?Q?man's?= message of
-	"Sun, 20 Feb 2005 12:00:19 +0100")
-Message-ID: <87ekfa8cp1.fsf@obelix.mork.no>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 21 Feb 2005 04:51:21 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48816 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261934AbVBUJvG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 04:51:06 -0500
+Date: Mon, 21 Feb 2005 01:47:28 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: johnpol@2ka.mipt.ru, akpm@osdl.org, greg@kroah.com,
+       linux-kernel@vger.kernel.org, elsa-devel@lists.sourceforge.net,
+       gh@us.ibm.com, efocht@hpce.nec.com
+Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
+Message-Id: <20050221014728.6106c7e1.pj@sgi.com>
+In-Reply-To: <1108969656.8418.59.camel@frecb000711.frec.bull.fr>
+References: <1108652114.21392.144.camel@frecb000711.frec.bull.fr>
+	<1108655454.14089.105.camel@uganda>
+	<1108969656.8418.59.camel@frecb000711.frec.bull.fr>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I might have a new datapoint to add to this discussion:
-I've got a IBM Thinkpad T42 with 1 GB RAM.  Never had any problems
-with PCMCIA, but that's probably just because another PCI device has
-been mapped into the hole in the BIOS memory map:
+Guillaume wrote:
+> The problem is the following: I have a user space daemon that manages
+> group of processes. The main idea is, if a parent belongs to a group
+> then its child belongs to the same group.  To achieve this I need to know
+> when a fork occurs and which processes are involved. I don't see how to
+> do this without a hook in the do_fork() routine...
 
-bjorn@obelix:~$ grep e820 /var/log/dmesg 
- BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
- BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000d2000 - 00000000000d4000 (reserved)
- BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003ff50000 (usable)
- BIOS-e820: 000000003ff50000 - 000000003ff67000 (ACPI data)
- BIOS-e820: 000000003ff67000 - 000000003ff79000 (ACPI NVS)
- BIOS-e820: 000000003ff80000 - 0000000040000000 (reserved)
- BIOS-e820: 00000000ff800000 - 0000000100000000 (reserved)
+How is what you need, for process grouping, any more complex than
+another sort of {bank, job, aggregate, session, group, ...} integer id
+field in the task struct, that is copied on fork, and can be queried and
+manipulated from user space, in accordance with whatever rules you
+implement?
 
-bjorn@obelix:~$ cat /proc/iomem 
-00000000-0009efff : System RAM
-0009f000-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000cffff : Video ROM
-000d0000-000d0fff : Adapter ROM
-000d1000-000d1fff : Adapter ROM
-000d2000-000d3fff : reserved
-000e0000-000effff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-3ff4ffff : System RAM
-  00100000-002d4013 : Kernel code
-  002d4014-00399f3f : Kernel data
-3ff50000-3ff66fff : ACPI Tables
-3ff67000-3ff78fff : ACPI Non-volatile Storage
-3ff79000-3ff793ff : 0000:00:1f.1
-3ff80000-3fffffff : reserved
-40000000-403fffff : PCI CardBus #03
-40400000-407fffff : PCI CardBus #03
-40800000-40bfffff : PCI CardBus #07
-40c00000-40ffffff : PCI CardBus #07
-b0000000-b0000fff : 0000:02:00.0
-  b0000000-b0000fff : yenta_socket
-b1000000-b1000fff : 0000:02:00.1
-  b1000000-b1000fff : yenta_socket
-c0000000-c00003ff : 0000:00:1d.7
-  c0000000-c00003ff : ehci_hcd
-c0000800-c00008ff : 0000:00:1f.5
-  c0000800-c00008ff : Intel 82801DB-ICH4
-c0000c00-c0000dff : 0000:00:1f.5
-  c0000c00-c0000dff : Intel 82801DB-ICH4
-c0100000-c01fffff : PCI Bus #01
-  c0100000-c010ffff : 0000:01:00.0
-    c0100000-c010ffff : radeonfb
-c0200000-c020ffff : 0000:02:01.0
-  c0200000-c020ffff : e1000
-c0210000-c021ffff : 0000:02:02.0
-  c0210000-c021ffff : ath
-c0220000-c023ffff : 0000:02:01.0
-  c0220000-c023ffff : e1000
-d0000000-dfffffff : 0000:00:00.0
-e0000000-e7ffffff : PCI Bus #01
-  e0000000-e7ffffff : 0000:01:00.0
-    e0000000-e7ffffff : radeonfb
-ff800000-ffffffff : reserved
+When I look at the elsacct_process_copy() routine, which is called from
+fork, in your patch-2.6.8.1-elsa, I'm not sure what it does, but it sure
+looks like it could cause scaling and performance problems.  Linux works
+really hard to keep fork costs low.  Copying another integer field, as
+part of the block copy of the task struct at fork, sure would be cheaper
+than this.  Not only does this hook look too expensive, I don't even see
+the need for any such explicit code hook in fork for accounting at all.
 
-bjorn@obelix:~$ lspci -vv -s 0:1f.1
-0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller (rev 01) (prog-if 8a [Master SecP PriP])
-        Subsystem: IBM: Unknown device 052d
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at <unassigned>
-        Region 1: I/O ports at <unassigned>
-        Region 2: I/O ports at <unassigned>
-        Region 3: I/O ports at <unassigned>
-        Region 4: I/O ports at 1860 [size=16]
-        Region 5: Memory at 3ff79000 (32-bit, non-prefetchable) [size=1K]
+Does your user space daemon require to know about each task as it is
+forked, in near real time? Is it trying to do something with this
+accounting information while the tasks being accounted for are
+necessarily still alive?  The classic accounting that I am familiar
+with, from years ago, only did post-mortem analysis.  So long as enough
+entrails were left around so that it could piece together the story, it
+didn't require any immediate notice of anything.  You need to clear a
+couple of accounting accumulators directly in the task struct at fork,
+and write a record to a specified open file at exit.  That's about it.
 
+The main problems I was aware of with that classic accounting (which
+is probably what is now known as BSD accounting) are:
+  1) The fixed length accounting record didn't allow for added or
+     longer fields.  A little bit more flexible and extensible format
+     is desired, but some effort should be made to keep the format
+     still reasonably tight and compressed.  No full spec XML.
+     The format should allow for some form of resyncronization after
+     a chunk of data is lost.
+  2) An additional bank/job/aggregate/session/group/... id seems desired.
+     I have yet to understand why this need be anything fancier than
+     another integer field in the task struct.
+  3) Probably some more data items are worth collecting -- which could
+     be placed in the outgoing compressed data stream, along with the
+     existing records written on task exit.  Over time, appropriate
+     hooks should be proposed to collect such data as seems needed.
+  4) The current mechanism of collecting per-task data only on exit
+     makes it difficult to account for long running jobs.  Perhaps we
+     could use a leisurely background task that slowly scans the tasks
+     looking for those that have been present since the last scan, and
+     causes an intermediate accounting record to be written for them.
 
+What other essential deficiencies are there that you need to address?
 
-Bjørn
+I don't see any need for explicit hooks in fork to resolve the above
+deficiencies.
+
 -- 
-You have the lack of intelligence of a sadist.  
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUGVXHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUGVXRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267353AbUGVXHa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 19:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUGVXH3
+	id S267368AbUGVXRm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 19:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267369AbUGVXRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 19:07:29 -0400
-Received: from pop.gmx.de ([213.165.64.20]:20907 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267353AbUGVXH2 (ORCPT
+	Thu, 22 Jul 2004 19:17:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56969 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267368AbUGVXRj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 19:07:28 -0400
-X-Authenticated: #4399952
-Date: Fri, 23 Jul 2004 01:16:05 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Andrew McGregor <andrew@indranet.co.nz>
-Cc: "The Linux Audio Developers' Mailing List" 
-	<linux-audio-dev@music.columbia.edu>,
-       rlrevell@joe-job.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel
- Preemption Patch
-Message-Id: <20040723011605.62995d78@mango.fruits.de>
-In-Reply-To: <848056B606F178CF9FBDDAC2@[192.168.1.247]>
-References: <20040712163141.31ef1ad6.akpm@osdl.org>
-	<1090306769.22521.32.camel@mindpipe>
-	<20040720071136.GA28696@elte.hu>
-	<200407202011.20558.musical_snake@gmx.de>
-	<1090353405.28175.21.camel@mindpipe>
-	<40FDAF86.10104@gardena.net>
-	<1090369957.841.14.camel@mindpipe>
-	<20040721125352.7e8e95a1@mango.fruits.de>
-	<848056B606F178CF9FBDDAC2@[192.168.1.247]>
-X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 22 Jul 2004 19:17:39 -0400
+Date: Thu, 22 Jul 2004 19:16:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ryan Arnold <rsa@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: [announce] HVCS for inclusion in 2.6 tree
+Message-Id: <20040722191637.52ab515a.akpm@osdl.org>
+In-Reply-To: <1090528007.3161.7.camel@localhost>
+References: <1089819720.3385.66.camel@localhost>
+	<16633.55727.513217.364467@cargo.ozlabs.ibm.com>
+	<1090528007.3161.7.camel@localhost>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004 10:25:07 +1200
-Andrew McGregor <andrew@indranet.co.nz> wrote:
+Ryan Arnold <rsa@us.ibm.com> wrote:
+>
+> hvcs_to_mainline_draft2.patch  text/x-patch (80516 bytes)
+>
+> +int khvcsd(void *unused)
+> +{
+> +	struct hvcs_struct *hvcsd = NULL;
+> +	struct list_head *element;
+> +	struct list_head *safe_temp;
+> +	int hvcs_todo_mask;
+> +
+> +	daemonize("khvcsd");
+> +
+> +	allow_signal(SIGTERM);
+> +
+> +	do {
+> +		wait_queue_t wait = __WAITQUEUE_INITIALIZER(wait, current);
+> +		hvcs_todo_mask = 0;
+> +		hvcs_kicked = 0;
+> +		wmb();
+> +		list_for_each_safe(element, safe_temp, &hvcs_structs) {
+> +			hvcsd = list_entry(element, struct hvcs_struct, next);
+> +				hvcs_todo_mask |= hvcs_io(hvcsd);
+> +		}
+> +
+> +		/* If any of the hvcs adapters want to try a write or quick read
+> +		 * don't schedule(), yield a smidgen then execute the hvcs_io
+> +		 * thread again for those that want the write. */
+> +		 if (hvcs_todo_mask & (HVCS_TRY_WRITE | HVCS_QUICK_READ)) {
+> +			yield();                 
+> +			continue;
+> +		}
+> +
+> +		add_wait_queue(&hvcs_wait_queue, &wait);
+> +		set_current_state(TASK_INTERRUPTIBLE);
+> +		if (!hvcs_kicked)
+> +			schedule();
+> +		set_current_state(TASK_RUNNING);
+> +		remove_wait_queue(&hvcs_wait_queue, &wait);
+> +
+> +	} while (!signal_pending(current));
+> +
+> +	complete_and_exit(&hvcs_exited,0);
+> +}
+>
+ 
+I'm not a big fan of using signals for in-kernel IPC.  (What happens if
+root accidentally does `kill -TERM $(pidof khvcsd)', btw?) And daemonize()
+is deprecated.
 
-> It is a PCI bus issue.  You simply don't have enough PCI bus cycles 
-> available to do what you want to do.  The resource you're running out of is 
-> bus bandwidth, and there's nothing to be done about it, other than remove 
-> the PCI gfx card from the system.
-> 
-> If you get another dualhead AGP graphics card (anything will do), the 
-> problem should go away.  We have a developer who does lowlatency 
-> multichannel sound stuff on a machine with a Matrox G450 dualhead card no 
-> problem.  I expect my own system (Radeon 9800 Pro and M-Audio 1010LT audio) 
-> would be fine dualhead too, although I only run it singlehead at the 
-> moment.  The 1010LT is 10 channels in and out of 24-bit 96kHz audio and 
-> works great down to 1.5ms buffers, so it is no small bus load itself.
+It should be possible to use the kthread infrastructure here - it does most
+of this stuff for you.  Use kthread_stop() in the killer and
+kthread_should_stop() within khvcsd().  kthread_stop() is synchronous, so
+you don't need to do the complete() stuff here.
 
-Hi,
+It should not be necessary to re-add to the wait queue head on each pass
+around the loop.
 
-thanks for the advice. I have tried some more pci cards and a very slow Virge 64 or something actually reduced the problem. Not completely though. I think i'll get me one of those G450 dual head cards..  
+khvcsd() can have static scope.
 
-Florian Schmidt
-
--- 
-Palimm Palimm!
-http://affenbande.org/~tapas/
 

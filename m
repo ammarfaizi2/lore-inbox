@@ -1,40 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261679AbRFLPDU>; Tue, 12 Jun 2001 11:03:20 -0400
+	id <S261800AbRFLPLB>; Tue, 12 Jun 2001 11:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261771AbRFLPDL>; Tue, 12 Jun 2001 11:03:11 -0400
-Received: from smtpde01.sap-ag.de ([194.39.131.52]:34449 "EHLO
-	smtpde01.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S261679AbRFLPDD>; Tue, 12 Jun 2001 11:03:03 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Peter Niemayer <niemayer.viag@isg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unused shared memory is written into core dump - bug or feature?
-In-Reply-To: <3B262158.29EFC01A@isg.de>
-Organisation: SAP LinuxLab
-Date: 12 Jun 2001 16:56:29 +0200
-In-Reply-To: Peter Niemayer's message of "Tue, 12 Jun 2001 16:04:08 +0200"
-Message-ID: <m3ae3d7nmq.fsf@linux.local>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+	id <S261840AbRFLPKv>; Tue, 12 Jun 2001 11:10:51 -0400
+Received: from ns.snowman.net ([63.80.4.34]:38414 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S261800AbRFLPKo>;
+	Tue, 12 Jun 2001 11:10:44 -0400
+Date: Tue, 12 Jun 2001 11:09:33 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Russell King <rmk@arm.linux.org.uk>, Jeremy Sanders <jss@ast.cam.ac.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: rsync hangs on RedHat 2.4.2 or stock 2.4.4
+Message-ID: <20010612110933.G11136@ns>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	Russell King <rmk@arm.linux.org.uk>,
+	Jeremy Sanders <jss@ast.cam.ac.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106121417130.10732-100000@xpc1.ast.cam.ac.uk> <20010612154735.B17905@flint.arm.linux.org.uk> <15142.11907.782662.581523@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s8iJYNYVA1fg3NyN"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15142.11907.782662.581523@pizda.ninka.net>; from davem@redhat.com on Tue, Jun 12, 2001 at 08:00:19AM -0700
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.2.16 (i686)
+X-Uptime: 11:07am  up 299 days, 13:36, 11 users,  load average: 2.00, 2.00, 2.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
 
-On Tue, 12 Jun 2001, Peter Niemayer wrote:
-> I just noticed that when I attach some SYSV shared memory segments
-> to my process and then that process dies from a SIGSEGV that _all_
-> the shared memory is dumped into the core file, even if it was never
-> used and therefore didn't show up in any of the memory statistics.
+--s8iJYNYVA1fg3NyN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixed in recent kernel versions (2.2 and 2.4). It will create sparse
-files and not touch the unused address space.
+* David S. Miller (davem@redhat.com) wrote:
+>=20
+> Russell King writes:
+>  > At the time I suggested it was because of a missing wakeup in 2.4.2 ke=
+rnels,
+>  > but I was shouted down for using 2.2.15pre13.  Since then I've seen th=
+ese
+>  > reports appear on lkml several times, each time without a solution nor
+>  > explaination.
+>  >=20
+>  > Oh, and yes, we're still using the same setup here at work, and its ru=
+nning
+>  > fine now - no rsync lockups.  I'm not sure why that is. ;(
+>=20
+> Look everyone, it was determined to be a deadlock because of some
+> interaction between how rsync sets up it's communication channels
+> with the ssh subprocess, readas: userland bug.
+>=20
+> I don't remember if the specific problem was in rsync itself or some
+> buggy version of ssh.  One can search the list archives to discover
+> Alexey's full analysis of the problem.  I don't have a URL handy.
 
-Greetings
-		Christoph
+	I have to say I find this likely to be the case for those who are
+	having issues with rsync over ssh.  I was recently playing with
+	rsync over ssh (newer openssh to older openssh) and was just using
+	it as a pass-through to another machine.
 
+	When I replaced ssh with rinetd, everything worked fine.  I havn't
+	had a chance yet (though I'd like to) to try with two recent versions
+	of ssh but I'm curious what the result will be.  It may be that the
+	problem has been fixed in later versions of ssh.
 
+			Stephen
+
+--s8iJYNYVA1fg3NyN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7JjCtrzgMPqB3kigRAkllAJ9WMEGs0flGG5qVr9DkF8GT6KQLuACfQBuM
+mdZ/J6LqqLcpWHIIvcrhZQo=
+=LsMX
+-----END PGP SIGNATURE-----
+
+--s8iJYNYVA1fg3NyN--

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265637AbSJSReJ>; Sat, 19 Oct 2002 13:34:09 -0400
+	id <S265638AbSJSReW>; Sat, 19 Oct 2002 13:34:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265638AbSJSReJ>; Sat, 19 Oct 2002 13:34:09 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25351 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265637AbSJSReB>; Sat, 19 Oct 2002 13:34:01 -0400
-Date: Sat, 19 Oct 2002 13:39:16 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dave Olien <dmo@osdl.org>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.43 disk repartitioning problems
-In-Reply-To: <20021018151724.A6207@acpi.pdx.osdl.net>
-Message-ID: <Pine.LNX.3.96.1021019133657.28500A-100000@gatekeeper.tmr.com>
+	id <S265639AbSJSReW>; Sat, 19 Oct 2002 13:34:22 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:49111
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S265638AbSJSReU>; Sat, 19 Oct 2002 13:34:20 -0400
+Date: Sat, 19 Oct 2002 13:40:19 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: David Brownell <david-b@pacbell.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Zaurus support for usbnet.c
+In-Reply-To: <3DB18DE1.3060003@pacbell.net>
+Message-ID: <Pine.LNX.4.44.0210191336430.5873-100000@xanadu.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, Dave Olien wrote:
+On Sat, 19 Oct 2002, David Brownell wrote:
 
-> Hmm.  
+> Zaurus doesn't have a stock www.handhelds.org kernel; there's a
+> different usb slave/target device driver, which uses different
+> framing for the Ethernet packets.  Pavel's patch teaches "usbnet"
+> about one of those protocols.  (The other is MSFT-friendly.)
 > 
-> The disks I'm working with aren't mounted and are not being used for
-> swap.  There are no applications holding any partitions open.
-> At the time I'm modifying a disk's partition tables, there are no users
-> of any partitions on that disk.
-> 
-> I experimented removing and adding partitions in 2.4.18, and repeating
-> those experiemnts in 2.5.43.  The two versions of OS definately
-> behave differently.  
+> It's worth mentioning the Yopy here too:  Zaurus isn't the only
+> SA-1110 based Linux PDA, and its distro is evidently closer to
+> the iPAQ distros (but you won't need a WinCE-ectomy).  Current
+> versions of "usbnet" have support for a recent YOPY version; they
+> use different USB vendor and product IDs "out of the box".
 
-Okay, just wanted to clarify, since the stable 2.4 kernels do hold the
-partition table once they use it. Of course recent ones only use the first
-one in any case, but hopefully that's going to be fixed (or may have in
-2.5.43-mm2, don't remember).
+Why not using the same (the best which ever it is) driver instead of 
+reinventing the wheel for every SA1110-based devides out there?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+Nicolas
 

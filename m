@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTLYMhU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 07:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLYMhU
+	id S264300AbTLYMey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 07:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTLYMey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 07:37:20 -0500
-Received: from waste.org ([209.173.204.2]:1727 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264301AbTLYMhS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 07:37:18 -0500
-Date: Thu, 25 Dec 2003 06:36:37 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: George Anzinger <george@mvista.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       dilinger@voxel.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/7] more CardServices() removals (drivers/net/wireless)
-Message-ID: <20031225123637.GK18208@waste.org>
-References: <1072229780.5300.69.camel@spiral.internal> <20031223182817.0bd3dd3c.akpm@osdl.org> <3FE8FC2E.3080701@pobox.com> <20031223184827.4cfb87e2.akpm@osdl.org> <3FE9022A.7010604@pobox.com> <20031223202305.489c409f.akpm@osdl.org> <20031224043349.GI18208@waste.org> <3FEAB1D6.9030209@mvista.com>
-Mime-Version: 1.0
+	Thu, 25 Dec 2003 07:34:54 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:17415 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S264300AbTLYMew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 07:34:52 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Laptop and CPU fan
+Mail-Copies-To: nobody
+From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
+Organization: HurdFr - http://hurdfr.org
+X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+Date: Thu, 25 Dec 2003 13:34:36 +0100
+Message-ID: <plopm3brpx3wkj.fsf@drizzt.kilobug.org>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FEAB1D6.9030209@mvista.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 25, 2003 at 01:45:58AM -0800, George Anzinger wrote:
-> 
-> By the way, in my looking at the network link stuff, I started wondering if 
-> it could not be done without modifying the card stuff.  Here is what I see:
-> 
-> The poll routine just calls the interrupt handler.  We only need the 
-> address of that routine and a generic poll function to do the indirect 
-> call.  That address, once the link is up, can be found in the interrupt 
-> tables using the irq.
 
-Netpoll did exactly this in an earlier incarnation, but Jeff
-eventually convinced me it was problematic.
+Hello and merry X-mas !
+
+I have  a problem with  teh CPU  fan of my  laptop, and it  seems very
+weird to me. Basically,  when I boot Linux, if the CPU  fan was off at
+boot time, it remains off forever (until the laptop turns off, and I'm
+afraid  this would  damage it  one day).  If the  CPU fan  was  on, it
+remains always on, using battery, but at least not damaging anything.
+
+I tried to enable APM, ACPI, both of them, neither of them, it doesn't
+change anything (with 2.4.21 and  2.6.0). ACPI doesn't not see the fan
+(it sees CPU and AC adapter, but no battery nor fan).
+
+I can disable PM at the BIOS level, and then the fan is always on, but
+at full  power (if I  just wait  in grub until  the fan starts  at low
+speed and boot  Linux, the fan stays at low  speed and everything goes
+fine).
+
+Then began two very weird things:
+
+- if I boot a non-APM non-ACPI  kernel like GNU Mach, the fan is still
+  controlled  by the  BIOS, and  everything goes  fine. This  does not
+  happen if I  compile 2.6.0 with no APM nor ACPI  support. I tried to
+  play with APM options like "enable  PM at boot time" too, it doesn't
+  change anything.
+
+- if I  boot a Debian kernel (kernel-image-2.4.21-5-686)  then the fan
+  works well,  I tried  to recopy the  PM-related options  from Debian
+  kernel to vanilla kernel, but then the fan doesn't work...
+
+I'll try to find a newer BIOS  for my laptop, but if you have any clue
+to help  me to  understand what's  happening, or any  trick to  use my
+laptop as best as possible, I'ld be thankfull.
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
+GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+
+Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org

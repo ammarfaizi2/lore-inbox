@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbTLBUrH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:47:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTLBUrG
+	id S264343AbTLBUxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbTLBUxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:47:06 -0500
-Received: from lenin.net ([192.31.21.154]:14260 "HELO lenin.nu")
-	by vger.kernel.org with SMTP id S264386AbTLBUq6 (ORCPT
+	Tue, 2 Dec 2003 15:53:21 -0500
+Received: from mx1.verat.net ([217.26.64.139]:56012 "EHLO mx1.verat.net")
+	by vger.kernel.org with ESMTP id S264343AbTLBUxT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:46:58 -0500
-Date: Tue, 2 Dec 2003 12:46:56 -0800
-From: "Peter C. Norton" <spacey-linux-kernel@lenin.nu>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Ian Kent <raven@themaw.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
+	Tue, 2 Dec 2003 15:53:19 -0500
+From: snpe <snpe@snpe.co.yu>
+To: Linus Torvalds <torvalds@osdl.org>, Jan-Benedict Glaw <jbglaw@lug-owl.de>
 Subject: Re: Linux 2.4 future
-Message-ID: <20031202204656.GZ18176@lenin.nu>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net> <20031201153316.B3879@infradead.org> <20031201213651.GK18176@lenin.nu> <1070322894.5260.5.camel@laptop.fenrus.com> <20031202201040.GX18176@lenin.nu> <20031202201800.GB2030@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Tue, 2 Dec 2003 19:59:53 +0000
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <20031202063912.GD16507@lug-owl.de> <Pine.LNX.4.58.0312020956120.1519@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312020956120.1519@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031202201800.GB2030@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312021959.53095.snpe@snpe.co.yu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 09:18:00PM +0100, Arjan van de Ven wrote:
-> On Tue, Dec 02, 2003 at 12:10:40PM -0800, Peter C. Norton wrote:
-> > On Tue, Dec 02, 2003 at 12:54:54AM +0100, Arjan van de Ven wrote:
-> > > On Mon, 2003-12-01 at 22:36, Peter C. Norton wrote:
-> > > `
-> > > > encouraging the distros to get behind autofs4 (hint hint, redhat,
-> > > > hint).
-> > > 
-> > > I suspect you'll have a really hard time finding ANY distro that still
-> > > wants to actively develop new products on a 2.4 codebase.
-> > 
-> > Perhaps, but some rather large customers of AS2.1, would like it if
-> > redhat could deliver the large outstanding automounting features for
-> > their (mainly sun) environments.  Since these environments resist
-> > change, upgrading a kernel to include a newer autofs4 is more likely
-> > than upgrading the whole system.
-> 
-> and putting a feature into 2.4.23 is going to help/change that... how ?
-
-The autofs4 kernel code is already in the mainline kernel and in
-redhat's AS kernels.  However:
-
-1) In the mainline its not complete (no direct mounts) 
-2) In redhats AS kernels its not supported or complete.  A newer version 
-   seems to only make sense.
-
-Putting an upgrade to autofs4 in the mainline kernel once its proven
-would give users the option of having a much more feature-complete and
-un-broken automounter to use.  If its not hurting anything else then
-why leave broken code in the kernel?  
-
-Please correct me if I'm making too big a leap, because I have a
-thought.  It seems that new hardware gets this sort of treatment - new
-drivers for a NIC, scsi, or FC card will be included in a stable
-series because with out it some subsystem of a computer "doesn't
-work" completely.  What makes this case different?
-
--Peter
-
--- 
-The 5 year plan:
-In five years we'll make up another plan.
-Or just re-use this one.
+Does anyone work on transfer linux-abi to kernel 2.6 ?
+regards
+On Tuesday 02 December 2003 06:04 pm, Linus Torvalds wrote:
+> On Tue, 2 Dec 2003, Jan-Benedict Glaw wrote:
+> > On Tue, 2003-12-02 02:23:55 +0000, snpe <snpe@snpe.co.yu>
+> >
+> > wrote in message <200312020223.55505.snpe@snpe.co.yu>:
+> > > Is there linux-abi for 2.6 kernel ?
+> >
+> > Nobody really cares about ABI (at least, not enough to keep one stable)
+> > while there's a good API. That requires sources, though, but that's a
+> > good thing...
+>
+> People care _deeply_ about the user-visible Linux ABI - I personally think
+> backwards compatibility is absolutely _the_ most important issue for any
+> kernel, and breaking user-land ABI's is simply not done.
+>
+> Sometimes we tweak user-visible stuff (for example, removing truly
+> obsolete system calls), but even then we're very very careful. Like
+> printing out warning messages for several _years_ before actually removing
+> the functionality.
+>
+> The one exception tends to be "system management" ABI's, ie stuff that
+> normal programs don't use. So kernel updates do sometimes require new
+> utilities for doing things like firewall configuration, hardware setup
+> (ethernet tools, ifconfig etc), or - in the case of 2.6 - module loading
+> and unloading. Even that is frowned upon, and there has to be a good
+> reason for it.
+>
+> At times, we've modified semantics of existing system behaviour subtly:
+> either to conform to standards, or because of implementation issues. It
+> doesn't happen often, and if it is found to break existing applications it
+> is not done at all (and the thing is fixed by adding a new system call
+> with the proper semantics, and leaving the old one broken).
+>
+> You are, however, correct when it comes to internal kernel interfaces: we
+> care not at all about ABI's, and even API's are fluid and are freely
+> changed if there is a real technical reason for it. But that is only true
+> for the internal kernel stuff (where source is obviously a requirement
+> anyway).
+>
+> 		Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135860AbRDZU5R>; Thu, 26 Apr 2001 16:57:17 -0400
+	id <S135920AbRDZU7H>; Thu, 26 Apr 2001 16:59:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136010AbRDZU5I>; Thu, 26 Apr 2001 16:57:08 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11443 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135956AbRDZU46>;
-	Thu, 26 Apr 2001 16:56:58 -0400
-Date: Thu, 26 Apr 2001 16:55:37 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.LNX.3.95.1010426163144.20158A-100000@chaos.analogic.com>
-Message-ID: <Pine.GSO.4.21.0104261651110.15385-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135926AbRDZU6l>; Thu, 26 Apr 2001 16:58:41 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:128 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S135919AbRDZU6N>;
+	Thu, 26 Apr 2001 16:58:13 -0400
+Date: Thu, 26 Apr 2001 13:18:46 -0700
+From: Mike Panetta <mpanetta@applianceware.com>
+To: linux-kernel@vger.kernel.org
+Subject: HPT366 IDE DMA error question.
+Message-ID: <20010426131846.A29148@tetsuo.applianceware.com>
+Mail-Followup-To: Mike Panetta <mpanetta@applianceware.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: ApplianceWare
+X-Mailer: mutt (ruff!  ruff!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+What could cause this error?
 
-On Thu, 26 Apr 2001, Richard B. Johnson wrote:
+hdi: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdi: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdi: DMA disabled
+ide4: reset: success
 
-> The disk image, raw.bin, does NOT contain the image of the floppy.
-> Most of boot stuff added by lilo is missing. It will eventually
-> get there, but it's not there now, even though the floppy was
-> un-mounted!
+I get this message on all my off board HPT366 based controller
+cards.  I am using these cards with seagate Barracuda ATA III
+Model ST320414A 20GB drives.  Are there any known issues with 
+these drives and the HPT366 based controllers?  Are there any
+known issues with using 2-3 HPT366 cards in one system?  There
+is only 1 drive per channel (2 per card).  I am using this setup
+with Software RAID and needless to say no DMA=slow as hell.
+Just so you know the onboard IDE controller works fine.  The
+drives report no errors on the onboard controllers and they
+have UDMA enabled (it was not disabled by the kernel).
 
-I doubt that you can reproduce that on anything remotely recent.
-All buffers are flushed when last user closes device.
+If there is any other info that is needed I will be glad
+to provide it.
 
+Thanks,
+Mike
+-- 

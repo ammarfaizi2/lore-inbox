@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270094AbTG3KrI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 06:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270218AbTG3KrI
+	id S270630AbTG3KzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 06:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270648AbTG3KzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 06:47:08 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:44217
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270094AbTG3KrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 06:47:05 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Voluspa <lista1@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O11int for interactivity
-Date: Wed, 30 Jul 2003 20:51:33 +1000
-User-Agent: KMail/1.5.2
-References: <20030730123122.3970c7bf.lista1@telia.com>
-In-Reply-To: <20030730123122.3970c7bf.lista1@telia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 30 Jul 2003 06:55:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4026 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270630AbTG3KzC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 06:55:02 -0400
+Date: Wed, 30 Jul 2003 03:55:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stefano Rivoir <s.rivoir@gts.it>
+Cc: lista1@telia.com, linux-kernel@vger.kernel.org
+Subject: Re: Disk performance degradation
+Message-Id: <20030730035524.65cfc39a.akpm@osdl.org>
+In-Reply-To: <3F2786E9.9010808@gts.it>
+References: <20030729182138.76ff2d96.lista1@telia.com>
+	<3F2786E9.9010808@gts.it>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307302051.33503.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003 20:31, Voluspa wrote:
-> On 2003-07-30 8:41:46 Felipe Alfaro Solana wrote:
-> > Wops! Wait a minute! O11.1 is great, but I've had a few XMMS skips
-> > that I didn't have with O10. They're really difficult to reproduce,
+Stefano Rivoir <s.rivoir@gts.it> wrote:
 >
-> Can't reproduce your skips here with my light environment and O11.1 (on
-> a PII 400, 128 meg mem, no desktop, Enlightenment as wm). Even as I
-> write this my machine is under the most extreme load that I have -
-> natural, not artificial:
+> Voluspa wrote:
+> 
+> > On 2003-07-29 12:00:06 Stefano Rivoir wrote:
+> > 
+> > 
+> >>Is there something I'm missing?!
+> > 
+> > 
+> > No, you are not ;-) You can reclaim some speed by doing a "hdparm -a
+> > 512". See thread for explanation (it's the borked value for readahead):
+> 
+> Thanks for the hint. This seems to make things a little better, but I'm
+> still far away from 2.4 performances. I thought that anticipatory sched
+> could be part of the problem, and booting with elevator=deadline
+> does a little better... but using 2.4 is completely another thing.
+> By the way, -a 512 vs -a 8 is a kernel "change" or an hdpam one?
 
-Good test. Thanks.
+What makes you think it is a disk performance problem at all?  All we know
+is that KDE applications take longer to start up, yes?
 
-> As to difference between O10 and O11.1 in feel... No comment. I'm too
-> old to catch such small variations.
-
-That's good, most of the difference was supposed to be in extremely unusual 
-circumstances. Felipe's issue is something I was concerned might happen (not 
-specifically an audio issue per se but audio is a sensitive way to pick it 
-up) which is why all testing is important.
-
-Con
+How much memory is in that machine?  Can you run a `vmstat 1' trace during
+the "slow" operations?
 

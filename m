@@ -1,65 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271377AbTHDErd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 00:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271378AbTHDErd
+	id S271189AbTHDFOa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 01:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271378AbTHDFOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 00:47:33 -0400
-Received: from adsl-67-121-153-186.dsl.pltn13.pacbell.net ([67.121.153.186]:44496
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S271377AbTHDErc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 00:47:32 -0400
-Date: Sun, 3 Aug 2003 21:47:28 -0700
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2-mm3-1: Badness in class_dev_release followed by 5 NFS server hangs
-Message-ID: <20030804044728.GC5786@triplehelix.org>
-References: <20030803135641.49d6316e.akpm@osdl.org> <200308040953.42110.mflt1@micrologica.com.hk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
-Content-Disposition: inline
-In-Reply-To: <200308040953.42110.mflt1@micrologica.com.hk>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	Mon, 4 Aug 2003 01:14:30 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:25050 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S271189AbTHDFO2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 01:14:28 -0400
+Date: Sun, 3 Aug 2003 23:14:22 -0600 (MDT)
+From: James Bourne <jbourne@hardrock.org>
+To: "Ian S. Nelson" <nelsonis@earthlink.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dell 2650 Dual Xeon freezing up frequently
+In-Reply-To: <3F283E3A.7060200@earthlink.net>
+Message-ID: <Pine.LNX.4.44.0308032311290.32298-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 Jul 2003, Ian S. Nelson wrote:
 
---3uo+9/B/ebqu+fSQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I'm running a RedHat 2.4.20 kernel on some 2650's   all dual xeon 
+> (pentium 4 jacksonized  so it looks like 4 procsessors)  2 have 1GB of 
+> RAM and 1 has 2GB of RAM.   THey all wedge, some times after a few 
+> minutes,  sometimes after hours.
+> 
+> I hooked up a serial consol to capture a kernel panic or something else 
+> that would be fun to debug,  no such luck..  It just locks up.  No nothing.
+> 
+> 
+> I'm looking at the 2.4.21 change logs and I'm not seeing aynthing that 
+> sounds like it would fix this, a couple possible SMP issues but nothing 
+> that identifies Pentium 4 Xeon problems.
+> I've added one networking module but the problem happens without it 
+> being loaded,    so my crap doesn't smell bad, yet ;-)
+> 
+> I'm spinning stuff on it in uniprocessor mode at the moment, seeing if 
+> that fixes anything.
 
-On Mon, Aug 04, 2003 at 11:10:08AM +0800, Michael Frank wrote:
-> OK, What about the NFS hangs there are more now, also some short in durat=
-ion=20
->=20
-> Aug  4 04:22:02 mhfl4 kernel: nfs: server mhfl2 not responding, still try=
-ing
-> Aug  4 04:22:02 mhfl4 kernel: nfs: server mhfl2 OK
-> Aug  4 04:23:59 mhfl4 kernel: nfs: server mhfl2 not responding, still try=
-ing
-> Aug  4 04:23:59 mhfl4 kernel: nfs: server mhfl2 OK
+Try replacing the tg3 driver with the one found in newer kernels (2.4.22pre
+or 2.4.21) or make sure you are using the latest RH kernel with the updated
+tg3 driver.  Do not use the bcm5700.o driver BTW, it has problems.
 
-Interesting, I also see *many* of these on my laptop running
-2.6.0-test2-mm2. The NFS server is running 2.4.21.
+Another problem could be the aacraid controller, but they normally have a
+lot of noise associated with a hang.  Unfortunately it's unclear at this
+time if that is a hardware problem, firmware problem, or driver problem.
 
--Josh
+Regards
+James Bourne
 
---=20
-Joshua Kwan
+> 
+> any free clues?
+> 
+> 
+> thanks,
+> Ian
+> 
+> 
 
---3uo+9/B/ebqu+fSQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/LeVgT2bz5yevw+4RAgF0AKC9LWu9565wNQEsMnDL4zSGVx7DrgCdFJ5w
-T2FyeeZ2TTgf+mT5VqE9MvA=
-=HpMP
------END PGP SIGNATURE-----
-
---3uo+9/B/ebqu+fSQ--

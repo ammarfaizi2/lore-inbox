@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311239AbSDDHFp>; Thu, 4 Apr 2002 02:05:45 -0500
+	id <S311244AbSDDHMs>; Thu, 4 Apr 2002 02:12:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311244AbSDDHFf>; Thu, 4 Apr 2002 02:05:35 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:25233 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S311239AbSDDHFZ>;
-	Thu, 4 Apr 2002 02:05:25 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Robin Johnson <robbat2@fermi.orbis-terrarum.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug in compiling 
-In-Reply-To: Your message of "Wed, 03 Apr 2002 21:34:59 PST."
-             <Pine.LNX.4.43.0204032116410.25829-100000@fermi.orbis-terrarum.net> 
+	id <S311247AbSDDHM2>; Thu, 4 Apr 2002 02:12:28 -0500
+Received: from zero.tech9.net ([209.61.188.187]:8452 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S311244AbSDDHM0>;
+	Thu, 4 Apr 2002 02:12:26 -0500
+Subject: Re: [PATCH] 2.5.8-pre1 wavelan_cs
+From: Robert Love <rml@tech9.net>
+To: flaniganr@intel.co.jp
+Cc: linux-kernel@vger.kernel.org, jt@hpl.hp.com, dhinds@zen.stanford.edu
+In-Reply-To: <87vgb8x8bt.fsf@hazuki.jp.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 04 Apr 2002 02:11:33 -0500
+Message-Id: <1017904326.22304.458.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Apr 2002 17:04:45 +1000
-Message-ID: <22591.1017903885@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002 21:34:59 -0800 (PST), 
-Robin Johnson <robbat2@fermi.orbis-terrarum.net> wrote:
->On Wed, 3 Apr 2002, Keith Owens wrote:
->> On Wed, 3 Apr 2002 00:57:06 -0800 (PST),
->> Robin Johnson <robbat2@fermi.orbis-terrarum.net> wrote:
->> >gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre4-ac3/include -Wall
->> >-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
->> >-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
->> >-march=i686   -DKBUILD_BASENAME=exec_domain  -DEXPORT_SYMTAB -c
->> >exec_domain.c
->> >exec_domain.c:234: parse error before `register_exec_domain'
->> >exec_domain.c:235: parse error before `unregister_exec_domain'
->> >exec_domain.c:236: parse error before `__set_personality'
->> >exec_domain.c:287: parse error before `abi_defhandler_coff'
->> >...
->>
->> All EXPORT_SYMBOL.  You would get that behaviour if gcc did not
->> recognise EXPORT_SYMBOL as a macro.  Probably random data corruption.
->Of the pair of machines, I upgraded one of them to GCC 3.0.4, while
->leaving the other at 2.95.3.
+On Thu, 2002-04-04 at 01:54, flaniganr@intel.co.jp wrote:
 
-On the failing system,
+> wavelan_cs.p.h:495:33: warning: extra tokens at end of #undef directive
 
-cd /usr/src/linux-2.4.19-pre4-ac3/kernel
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre4-ac3/include -Wall \
-        -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer \
-        -fno-strict-aliasing -fno-common -pipe \
-        -mpreferred-stack-boundary=2 -march=i686 \
-        -DKBUILD_BASENAME=exec_domain -DEXPORT_SYMTAB \
-	-E -c exec_domain.c -o exec_domain.i
+Good ... and the attached patch will fix the warning wrt trailing tokens
+after the undef.
 
-and send exec_domain.i to kaos@ocs.com.au (not the list).
+	Robert Love
+
+diff -urN linux-2.5.8-pre1/drivers/net/wireless/wavelan_cs.p.h linux/drivers/net/wireless/wavelan_cs.p.h
+--- linux-2.5.8-pre1/drivers/net/wireless/wavelan_cs.p.h	Wed Apr  3 20:57:23 2002
++++ linux/drivers/net/wireless/wavelan_cs.p.h	Thu Apr  4 02:06:49 2002
+@@ -492,7 +492,7 @@
+ #undef DEBUG_RX_INFO		/* Header of the transmitted packet */
+ #undef DEBUG_RX_FAIL		/* Normal failure conditions */
+ #define DEBUG_RX_ERROR		/* Unexpected conditions */
+-#undef DEBUG_PACKET_DUMP	32	/* Dump packet on the screen */
++#undef DEBUG_PACKET_DUMP	/* Dump packet on the screen */
+ #undef DEBUG_IOCTL_TRACE	/* Misc call by Linux */
+ #undef DEBUG_IOCTL_INFO		/* Various debug info */
+ #define DEBUG_IOCTL_ERROR	/* What's going wrong */
 

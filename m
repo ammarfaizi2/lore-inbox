@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130308AbQLHAwz>; Thu, 7 Dec 2000 19:52:55 -0500
+	id <S129314AbQLHAxp>; Thu, 7 Dec 2000 19:53:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQLHAwg>; Thu, 7 Dec 2000 19:52:36 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15118 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129477AbQLHAwW>; Thu, 7 Dec 2000 19:52:22 -0500
-Subject: Re: io_request_lock question (2.2)
-To: baettig@scs.ch
-Date: Fri, 8 Dec 2000 00:24:18 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200012080017.QAA00379@k2.llnl.gov> from "Reto Baettig" at Dec 07, 2000 04:17:30 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E144BKn-0003EO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129450AbQLHAxf>; Thu, 7 Dec 2000 19:53:35 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13321 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129314AbQLHAx0>; Thu, 7 Dec 2000 19:53:26 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: kernel BUG at buffer.c:827 in test12-pre6 and 7
+Date: 7 Dec 2000 16:22:39 -0800
+Organization: Transmeta Corporation
+Message-ID: <90p9kf$5p3$1@penguin.transmeta.com>
+In-Reply-To: <3A30125D.5F71110D@cheek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I looked at the implementation of the nbd which just calls 
-> 
-> 	spin_unlock_irq(&io_request_lock);
-> 	... do network io ...
-> 	spin_lock_irq(&io_request_lock);
-> 
-> This seems to work but it looks very dangerous to me (and ugly, too). Isn't there a better way to do this?
+In article <3A30125D.5F71110D@cheek.com>,
+Joseph Cheek  <joseph@cheek.com> wrote:
+>copying files off a loopback-mounted vfat filesystem exposes this bug.
+>test11 worked fine.
 
-It is only dangerous if you unlock it in the wrong place, unlocking it as much
-as possible is good behaviour. You need it locked until you get the actual
-request off the queue, you need it locked when you complete the request. The
-rest of the time you can be polite
+It's not a new bug - it's an old bug that apparently is uncovered by a
+new stricter test.
 
+Apparently loopback unlocks an already unlocked page - which has always
+been a serious offense, but has never been detected before.
+
+test12-pre6+ detects it, and thus the BUG().
+
+Your stack trace isn't symbolic (see Documentation/oops-tracing.txt), so
+it's impossible to debug, but it's already interesting information to
+see that it seems to be either loopback of vfat.
+
+Can you test some more? In particular, I'd love to hear if this happens
+with vfat even without loopback, or with loopback even without vfat
+(make an ext2 filesystem or similar instead). That woul dnarrow down the
+bug further.
+
+		Thanks,
+				Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317755AbSIOEbL>; Sun, 15 Sep 2002 00:31:11 -0400
+	id <S317767AbSIOEnJ>; Sun, 15 Sep 2002 00:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSIOEbL>; Sun, 15 Sep 2002 00:31:11 -0400
-Received: from packet.digeo.com ([12.110.80.53]:13699 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S317755AbSIOEbK>;
-	Sun, 15 Sep 2002 00:31:10 -0400
-Message-ID: <3D8411E3.5A26621D@digeo.com>
-Date: Sat, 14 Sep 2002 21:51:47 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S317772AbSIOEnJ>; Sun, 15 Sep 2002 00:43:09 -0400
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.232.94]:4
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S317767AbSIOEnI> convert rfc822-to-8bit; Sun, 15 Sep 2002 00:43:08 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCEMENT: 2.4.20-pre7-rmap14a-xfs-uml-shawn12d released - dont use 12c
+Date: Sun, 15 Sep 2002 00:48:15 -0400
+User-Agent: KMail/1.4.6
+References: <200209141726.26264.spstarr@sh0n.net>
+In-Reply-To: <200209141726.26264.spstarr@sh0n.net>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Nicholas Miell <nmiell@attbi.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] dump_stack(): arch-neutral stack trace
-References: <Pine.LNX.4.33.0209091714330.2069-100000@penguin.transmeta.com> <1031618129.1403.12.camel@entropy> <3D7D447B.D7BD1C33@digeo.com> <E17qR7T-0001qf-00@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Sep 2002 04:35:58.0786 (UTC) FILETIME=[635C7A20:01C25C71]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200209150048.15143.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On Tuesday 10 September 2002 03:01, Andrew Morton wrote:
-> > From Christoph Hellwig, also present in 2.4.
-> >
-> > Create an arch-independent `dump_stack()' function.  So we don't need to do
-> >
-> > #ifdef CONFIG_X86
-> >       show_stack(0);          /* No prototype in scope! */
-> > #endif
-> >
-> > any more.
-> >
-> > The whole dump_stack() implementation is delegated to the architecture.
-> > If it doesn't provide one, there is a default do-nothing library
-> > function.
-> 
-> Is there a reason for not calling it "backtrace()" ?
+xfs-2.4.20-pre7-rmap14a-uml-shawn12d against 2.4.19 vanilla. (September 15th, 2002)
 
-In retrospect, no.  But it's called dump_stack() in 2.4 now.
+Bug fixes:
 
--
+- Quota fixups
+- elevator fixups (caused hanging)
+
+Don't bother to use -shawn12c =)
+
+xfs-2.4.20-pre7-rmap14a-uml-shawn12c against 2.4.19 vanilla. (September 14th, 2002)
+
+On September 14, 2002 05:26 pm, Shawn Starr wrote:
+> It's been a while since my last release. AFAIK -shawn11 is stable for use.
+>
+> Please test this, works for me =)
+>
+> -shawn12c (a, b blew up on me) might be coming this weekend.  Sept 14, 2002
+>
+> xfs-2.4.20-pre7-rmap14a-uml-shawn12c against 2.4.19 vanilla. (September
+> 14th, 2002)
+>
+> 2.4.20-pre7					(Marcelo Tosatti)
+>
+> rmap-14a						(Rik van Riel
+> 				 			William Lee Irwin III)
+>
+> uml-2.4.19-4					(User Mode Linux Team)
+>
+> September 13/14th, XFS CVS		(me)
+>
+> * NOTE: If If I can get Alan's patches to work I'll have another release
+> tonight.
+

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKOQii>; Wed, 15 Nov 2000 11:38:38 -0500
+	id <S129045AbQKOQrK>; Wed, 15 Nov 2000 11:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129045AbQKOQi2>; Wed, 15 Nov 2000 11:38:28 -0500
-Received: from 213-1-124-214.btconnect.com ([213.1.124.214]:50562 "EHLO
-	saturn.homenet") by vger.kernel.org with ESMTP id <S129148AbQKOQiN>;
-	Wed, 15 Nov 2000 11:38:13 -0500
-Date: Wed, 15 Nov 2000 16:09:33 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Aamir Dogar <u970001@giki.edu.pk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Newbie
-In-Reply-To: <00ba01c04def$821f8480$0f32a8c0@hostel5.giki.edu.pk>
-Message-ID: <Pine.LNX.4.21.0011151607350.2376-100000@saturn.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129061AbQKOQrA>; Wed, 15 Nov 2000 11:47:00 -0500
+Received: from et-gw.etinc.com ([207.252.1.2]:19462 "EHLO etinc.com")
+	by vger.kernel.org with ESMTP id <S129045AbQKOQq5>;
+	Wed, 15 Nov 2000 11:46:57 -0500
+Message-Id: <5.0.0.25.0.20001115111100.03572eb0@mail.etinc.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Wed, 15 Nov 2000 11:15:21 -0500
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff), linux-kernel@vger.kernel.org
+From: Dennis <dennis@etinc.com>
+Subject: Re: 2.4. continues after Aieee...
+In-Reply-To: <200011150753.IAA05451@cave.bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000, Aamir Dogar wrote:
+At 02:53 AM 11/15/2000, Rogier Wolff wrote:
 
-> Hi There,
-> 
-> i am new to kernal development.
-                  ~
+>Shouldn't the system be "halted" after an "Aiee, killing interrupt
+>handler"?
+>
 
-> i just need a good Kernal Programming-HowTo.
-                         ~
+This brings another question. Has there been any work done to force linux 
+to reboot on all panics? Linux's propensity to crash drivers (say the 
+network card driver) and leave the system running make linux unusable in 
+unattended environments as the machine is functionally dead.
 
-> could someone please let me know about this and about other useful info
-> about kernal programming that can help me to start kernal programming.
-            ~                                            ~
+a simple switch that forces reboot on panic would do much to alleviate the 
+problem.
 
-Hi Aamir,
-
-There are two things you need to do, in this order:
-
-a) learn how to spell the word "kernel" (absolutely essential :)
-
-b) read the resources mentioned in the
-/usr/src/linux/Documentation/kernel-docs.txt
-
-Regards,
-Tigran
+DB
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

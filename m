@@ -1,74 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264886AbTA2P4g>; Wed, 29 Jan 2003 10:56:36 -0500
+	id <S266010AbTA2QFH>; Wed, 29 Jan 2003 11:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265725AbTA2P4g>; Wed, 29 Jan 2003 10:56:36 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:3091 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S264886AbTA2P4f>;
-	Wed, 29 Jan 2003 10:56:35 -0500
-Date: Wed, 29 Jan 2003 17:05:54 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: no more MTRRs available ?
-Message-Id: <20030129170554.08dc6393.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0301291046490.18828-100000@coffee.psychology.mcmaster.ca>
-References: <20030129164552.182e0cb8.skraw@ithnet.com>
-	<Pine.LNX.4.44.0301291046490.18828-100000@coffee.psychology.mcmaster.ca>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S266175AbTA2QFH>; Wed, 29 Jan 2003 11:05:07 -0500
+Received: from u156n240.eastlink.ca ([24.224.156.240]:33169 "EHLO
+	ns1.danicar.net") by vger.kernel.org with ESMTP id <S266010AbTA2QFF>;
+	Wed, 29 Jan 2003 11:05:05 -0500
+Message-ID: <39160.207.34.24.8.1043856846.squirrel@www.danicar.net>
+Date: Wed, 29 Jan 2003 12:14:06 -0400 (AST)
+Subject: Adaptec scsi issue kernel 2.4.19/20
+From: "Joe Gofton" <jgofton@danicar.net>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+Reply-To: jgofton@danicar.net
+X-Mailer: SquirrelMail (version 1.2.10)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jan 2003 10:51:03 -0500 (EST)
-Mark Hahn <hahn@physics.mcmaster.ca> wrote:
+Anyone know if this will be fixed in 2.4.21?
 
-> > > > what exactly does
-> > > > 
-> > > > 	mtrr: no more MTRRs available
-> > > > 	mtrr: no more MTRRs available
-> > > > 
-> > > > during boot mean? What can I do against this? This comes up while
-> > > > booting a system with 6GB and P-III 1.4 GHz (Serverworks chipset).
-> > > > Kernel is 2.4.20.
-> > > 
-> > > you need to look at /proc/mtrr.
-> > 
-> > Thanks for your hint, but what does this tell me?
-> 
-> that your bios is stupid, I think.  mtrr's handle areas that are 
-> powers of two in size (and >= 1M, I think).  the problem here is that
-> the bios is trying to represent 4G of write-back ram and a 16M of 
-> uncachable IO area (AGP aperture, I'm guessing).  the correct way
-> to do this is a single 4G mtrr with an overlapping 16M one.
+My box:
 
-Ah, I see. So getting the above two messages would simply mean that there is no
-table space left to add yet another two entries kernel gets from bios?
+Dual PIII 1Ghz Coppermine processors on a Tyan Tiger 230 motherboard.
 
-> do you have >4G ram?  that would explain the latter two.
+512MB PC-100 ram
 
-Yes, this box has 6GB.
+Adaptec 2949U2W SCSI Card with 2 x 18gig SCSI HDDs at 80MBs/sec
 
-> note that you can fairly freely add/delete mtrr's from userspace.
-> as long as you do it infrequently, I don't see why there would be 
-> any risk or performance problem.
+ATI 4MB Rage PCI
 
-So the conclusion is that it does not look nice currently, but does not do any
-harm (performance loss) either. I can live with that.
-Thanks for your comments.
+-------- Original Message --------
+Subject: Adaptec scsi issue kernel 2.4.19/20
+From: "Joe Gofton" <jgofton@danicar.net>
+Date: Mon, January 27, 2003 13:47
+To: <linux-kernel@vger.kernel.org>
 
-> > # cat /proc/mtrr
-> > reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-> > reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
-> > reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
-> > reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
-> > reg04: base=0xf0000000 (3840MB), size= 128MB: write-back, count=1
-> > reg05: base=0xf7000000 (3952MB), size=  16MB: uncachable, count=1
-> > reg06: base=0x100000000 (4096MB), size=4096MB: write-back, count=1
-> > reg07: base=0x200000000 (8192MB), size=8192MB: write-back, count=1
+I am having an issue with my scsi card.  Here is some info.
+
+jgofton@ns1:/var/log$ lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo
+PRO133x] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
+MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+(rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev
+40) 00:08.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro
+215GP (rev 5c)
+00:09.0 SCSI storage controller: Adaptec AHA-2940U2/W
+00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
+04) 00:0a.1 Input device controller: Creative Labs SB Live! (rev 01)
+00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21140
+[FasterNet] (rev 20)
+00:0c.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
+(rev 64)
+
+
+This is what shows in the messages.log file: 2.4.20
+
+Dec  1 11:10:32 ns1 kernel: SCSI subsystem driver Revision: 1.00
+Dec  1 11:10:32 ns1 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
+HBA DRIVER, Rev 6.2.8
+Dec  1 11:10:32 ns1 kernel:         <Adaptec 2940 Ultra2 SCSI adapter>
+Dec  1 11:10:32 ns1 kernel:         aic7890/91: Ultra2 Wide Channel A,
+SCSI Id=7, 32/253 SCBs
+Dec  1 11:10:32 ns1 kernel:
+Dec  1 11:10:32 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS
+Rev: 0230
+Dec  1 11:10:32 ns1 kernel:   Type:   Direct-Access
+ANSI SCSI revision: 03
+Dec  1 11:10:32 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS
+Rev: 0230
+Dec  1 11:10:32 ns1 kernel:   Type:   Direct-Access
+ANSI SCSI revision: 03
+Dec  1 11:10:32 ns1 kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth
+253 Dec  1 11:10:32 ns1 kernel: scsi0:A:1:0: Tagged Queuing enabled.
+Depth 253 Dec  1 11:10:32 ns1 kernel: scsi: <fdomain> Detection failed
+(no card) Dec  1 11:10:32 ns1 kernel: PCI: Enabling device 00:09.0 (0006
+-> 0007) Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at
+seqaddr = 0x8 Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
+Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
+Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
+Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+
+and this is one that works. 2.4.18:
+
+
+Dec  1 11:16:16 ns1 kernel: SCSI subsystem driver Revision: 1.00
+Dec  1 11:16:16 ns1 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
+HBA DRIVER, Rev 6.2.4
+Dec  1 11:16:16 ns1 kernel:         <Adaptec 2940 Ultra2 SCSI adapter>
+Dec  1 11:16:16 ns1 kernel:         aic7890/91: Ultra2 Wide Channel A,
+SCSI Id=7, 32/253 SCBs
+Dec  1 11:16:16 ns1 kernel:
+Dec  1 11:16:16 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS
+Rev: 0230
+Dec  1 11:16:16 ns1 kernel:   Type:   Direct-Access
+ANSI SCSI revision: 03
+Dec  1 11:16:16 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS
+Rev: 0230
+Dec  1 11:16:16 ns1 kernel:   Type:   Direct-Access
+ANSI SCSI revision: 03
+Dec  1 11:16:16 ns1 kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth
+253 Dec  1 11:16:16 ns1 kernel: scsi0:A:1:0: Tagged Queuing enabled.
+Depth 253 Dec  1 11:16:16 ns1 kernel: scsi: <fdomain> Detection failed
+(no card) Dec  1 11:16:16 ns1 kernel: PCI: Enabling device 00:09.0 (0006
+-> 0007) Dec  1 11:16:16 ns1 kernel: Attached scsi disk sda at scsi0,
+channel 0, id 0, lun 0
+Dec  1 11:16:16 ns1 kernel: Attached scsi disk sdb at scsi0, channel 0,
+id 1, lun 0
+Dec  1 11:16:16 ns1 kernel: (scsi0:A:0): 80.000MB/s transfers
+(40.000MHz, offset 63, 16bit)
+Dec  1 11:16:16 ns1 kernel: SCSI device sda: 35861388 512-byte hdwr
+sectors (18361 MB)
+Dec  1 11:16:16 ns1 kernel: Partition check:
+Dec  1 11:16:16 ns1 kernel:  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 >
+Dec  1 11:16:16 ns1 kernel: (scsi0:A:1): 80.000MB/s transfers
+(40.000MHz, offset 63, 16bit)
+Dec  1 11:16:16 ns1 kernel: SCSI device sdb: 35861388 512-byte hdwr
+sectors (18361 MB)
+Dec  1 11:16:16 ns1 kernel:  sdb: sdb1 sdb2 sdb3 sdb4 < sdb5 sdb6 sdb7 >
+
+Is there a known problem and is there a fix?  I can't seem to upgrade my
+kernel without scsi issues.
+
+
+
 -- 
-Regards,
-Stephan
+Joe
+
+***
+I can only please one person a day.
+Today is not your day and tomorrow doesn't look good either.
+***
+
+
+-- 
+Joe
+
+***
+I can only please one person a day.
+Today is not your day and tomorrow doesn't look good either.
+***
+
+
+

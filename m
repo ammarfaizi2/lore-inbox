@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269350AbRHCIby>; Fri, 3 Aug 2001 04:31:54 -0400
+	id <S269351AbRHCIkE>; Fri, 3 Aug 2001 04:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269349AbRHCIbo>; Fri, 3 Aug 2001 04:31:44 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:46833 "EHLO
-	dukat.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S269345AbRHCIbe>; Fri, 3 Aug 2001 04:31:34 -0400
-Date: Fri, 3 Aug 2001 09:30:57 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+	id <S269352AbRHCIjz>; Fri, 3 Aug 2001 04:39:55 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:50194 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S269351AbRHCIjr>; Fri, 3 Aug 2001 04:39:47 -0400
+Date: Fri, 3 Aug 2001 10:39:54 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
 Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-Message-ID: <20010803093057.Y12470@redhat.com>
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010801170230.B7053@redhat.com> <20010802110341.B17927@emma1.emma.line.org> <01080219261601.00440@starship> <20010802193750.B12425@emma1.emma.line.org>
+Message-ID: <20010803103954.A11584@emma1.emma.line.org>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010802193750.B12425@emma1.emma.line.org> <Pine.LNX.4.33.0108030051070.1703-100000@fogarty.jakma.org> <20010803021642.B9845@emma1.emma.line.org> <m1puady69t.fsf@frodo.biederman.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010802193750.B12425@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Thu, Aug 02, 2001 at 07:37:50PM +0200
+In-Reply-To: <m1puady69t.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 03 Aug 2001, Eric W. Biederman wrote:
 
-On Thu, Aug 02, 2001 at 07:37:50PM +0200, Matthias Andree wrote:
+> Actually given that this thread keeps coming up, but no one does anything
+> about it.  I'm tempted to suggest we remove chatrr +S support from ext2.
+> Then there will be enough pain that someone will fix the MTA instead of
+> moaning that kernel is slow...
 
-> So this part is covered.
-> 
-> The other thing is, that Linux is the only known system that does
-> asynchronous rename/link/unlink/symlink -- people have claimed it might
-> not be the only one, but failed to name systems.
+They'd just drop Linux from the list of supported OS's, Linux will
+disappoint people who trusted it, nothing is gained. Deliberate breakage
+will not happen, because it would not help anyone except people with
+twisted minds.
 
-Not true.  There are tons of others.
+NO-ONE, including you, has come up with SERIOUS objections against a
+dirsync option, except "is it really so much slower than chattr +S? show
+figures" -- ext3 is being tuned to be fast in spite of chattr +S.
 
-The issue was that synchronous directory updates are *optional* on
-many systems (Linux included), but that Linux's support for that is
-really inefficient since it ends up syncing file metadata updates too
-(and it's much more efficient to use fsync for that.)
+Reconsider your position.
 
-> Still, some people object to a dirsync mount option.
+Stop trolling please.
 
-Who?  People who have discussed this in the past have certainly not
-objected to my knowledge.  It would clearly help situations like this
-(as would a dirsync chattr option.)
-
-> > The prescription for symlinks is, if you want them safely on disk you 
-> > have to explicitly fsync the containing directory.
-> 
-> Yes, and it doesn't matter, since MTAs don't use symlinks (symlinks
-> waste inodes on most systems).
-
-Irrelevant.   We're talking about what makes sensible semantics, not
-what assumptions any specific application makes.  It makes no sense to
-say that dirsync won't affect symlinks just because some existing
-applications don't rely on that!
-
-Cheers,
- Stephen
+-- 
+Matthias Andree

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130362AbRA3Oay>; Tue, 30 Jan 2001 09:30:54 -0500
+	id <S130368AbRA3OcY>; Tue, 30 Jan 2001 09:32:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130368AbRA3Oao>; Tue, 30 Jan 2001 09:30:44 -0500
-Received: from h0000f8512160.ne.mediaone.net ([24.128.252.23]:57082 "EHLO
-	dragon.universe") by vger.kernel.org with ESMTP id <S130362AbRA3Oah>;
-	Tue, 30 Jan 2001 09:30:37 -0500
-Date: Tue, 30 Jan 2001 09:30:36 -0500
-From: newsreader@mediaone.net
-To: linux-kernel@vger.kernel.org
-Subject: klogd is acting strange with 2.4
-Message-ID: <20010130093035.A31970@dragon.universe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S131156AbRA3OcO>; Tue, 30 Jan 2001 09:32:14 -0500
+Received: from helena.mi.uni-erlangen.de ([131.188.103.20]:44436 "EHLO
+	mi.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S130368AbRA3OcA>; Tue, 30 Jan 2001 09:32:00 -0500
+Date: Tue, 30 Jan 2001 15:31:30 +0100 (MET)
+From: Walter Hofmann <snwahofm@mi.uni-erlangen.de>
+To: Antonio Miguel Trindade <trindade@dei.uc.pt>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RTC hardware clock option
+In-Reply-To: <01013014004308.23105@polaris>
+Message-ID: <Pine.GSO.3.96.1010130152855.1494A-100000@charybdis>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-celeron 433 intel i810.  320MB ram.
 
-Before 2.2.18.  Now I've tested with both
-2.4.1-pre12 and 2.4.1.  2.4 kernel klogd is
-always using 99% cpu.  What gives?
+On Tue, 30 Jan 2001, Antonio Miguel Trindade wrote:
 
-I've three other less powerful boxes running
-2.4.x kernels and none of them behave
-like this.  This server isn't taking any
-more hits than it usually does.
+> I just would like to ask all of you what has the option "RTC stores time in 
+> GMT" have to do with APM... The hardware clock in my machine stores time in 
+> GMT, but I do not want APM, so why do I have to have APM just to have that 
+> option enabled...
+> 
+> Perhaps the intention is to remove that depency, but it has not been done out 
+> of lazyness... (no pun intended, Linus).
 
-What more information I should post here?
-I've two apache servers, pgsql and sendmail
-and some other processes running on this
-server.
+There is no dependency: APM needs to know this to restore the clock after
+returning from stand-by.
 
-Thanks in advance
+Without APM there is no need to know this (for the kernel). You can still
+run your hardware clock with GMT.
+
+Walter
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

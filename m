@@ -1,330 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUIGL4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUIGL4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267869AbUIGL4D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 07:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUIGLzq
+	id S267893AbUIGL4b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 07:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUIGL4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 07:55:46 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:37641 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S267869AbUIGLzZ
+	Tue, 7 Sep 2004 07:56:31 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:27864 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S267893AbUIGLzd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 07:55:25 -0400
-Message-ID: <20040907155522.A21423@castle.nmd.msu.ru>
-Date: Tue, 7 Sep 2004 15:55:22 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Chris Mason <mason@suse.com>, Andrew Morton <akpm@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] EXT3: problem with copy_from_user inside a transaction
-References: <20040903150521.B1834@castle.nmd.msu.ru> <20040903123541.GB8557@x30.random> <1094213179.16078.19.camel@watt.suse.com>
-Mime-Version: 1.0
+	Tue, 7 Sep 2004 07:55:33 -0400
+To: David Masover <ninja@slaphack.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Spam <spam@tnonline.net>,
+       Tonnerre <tonnerre@thundrix.ch>,
+       Christer Weinigel <christer@weinigel.se>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+	<413D4C18.6090501@slaphack.com>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 07 Sep 2004 13:55:32 +0200
+In-Reply-To: <413D4C18.6090501@slaphack.com>
+Message-ID: <m3d60yjnt7.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <1094213179.16078.19.camel@watt.suse.com>; from "Chris Mason" on Fri, Sep 03, 2004 at 08:06:20AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 08:06:20AM -0400, Chris Mason wrote:
-> On Fri, 2004-09-03 at 08:35, Andrea Arcangeli wrote:
-> > On Fri, Sep 03, 2004 at 03:05:21PM +0400, Andrey Savochkin wrote:
-> > > Hi Andrew,
-> > > 
-> > > filemap_copy_from_user() between prepare_write() and commit_write()
-> > > appears to be a problem for ext3.
-> > > 
-> And reiserv3, and maybe the other journaled filesystems.
-> 
-> > yes, Chris is working on it for a few months.
-> > 
-> Working is a generous term, I've somewhat been waiting for a better
-> solution to pop into my head.  In the end, I think all we can do is not
-> allow filesystems to take locks (or implicit locks like starting a
-> transaction) inside the prepare_write call.
-> 
-> This would mean that all the work is done during the commit_write
-> stage.  The trick is that we would have to handle -ENOSPC since we might
-> not know we've run out of room until after the data has been copied from
-> userland.
-> 
-> prepare_write could reserve blocks, which brings us half way to a
-> generic delayed allocation layer.  But for a quick and dirty start,
-> doing it all in commit_write should work.
+David Masover <ninja@slaphack.com> writes:
 
-Ok, so here is the patch moving journal_start() together with space
-allocation from ext3_prepare_write() to commit_write().
+> |>Second, there are quite a few things which I might want to do, which can
+> |>be done with this interface and without patching programs,
+> | Such as?
+> They've been mentioned.
 
-ENOSPC is handled in ext3_map_write() called from commit_write().
-In ENOSPC or other error case, the data copied from the userspace is zeroed,
-but only if the buffers and the whole page are not up to date.
-Answering my previous questions, if
- - the inode page is modified through mmap and then by write,
- - the file has holes and
- - there is no space on disk,
-the page cache will have the new content (provided by write) not written to
-disk.  Similarly to modifications through pure mmap.
+> | Haven't seen any that made sense to me, sorry.
+> Sorry if they don't make sense to you, but I don't feel like discussing
+> them now.  Either you get it or you don't, either you agree or you
+> don't.  Read the archives.
 
-It's interesting that block_prepare_write() zeroes the page content in case
-of error even if the page has been modified through mmap()...
+Great argument.  Not.  There has been so much shit thrown around here
+so that it's impossible to keep track of all examples.
 
-Comments?
+Could you please try summarize a few of the arguments that you find
+especially compelling?  This thread has gotten very confused since
+there are a bunch of different subjects all being intermixed here.
 
-	Andrey
+What are we discussing?
 
-Signed-off-by: Andrey Savochkin <saw@saw.sw.com.sg>
+1. Do we want support for named streams?
 
-===== fs/buffer.c 1.255 vs edited =====
---- 1.255/fs/buffer.c	2004-08-27 10:31:38 +04:00
-+++ edited/fs/buffer.c	2004-09-06 14:57:01 +04:00
-@@ -2025,8 +2025,9 @@ static int __block_prepare_write(struct 
- 				goto out;
- 			if (buffer_new(bh)) {
- 				clear_buffer_new(bh);
--				unmap_underlying_metadata(bh->b_bdev,
--							bh->b_blocknr);
-+				if (buffer_mapped(bh))
-+					unmap_underlying_metadata(bh->b_bdev,
-+								bh->b_blocknr);
- 				if (PageUptodate(page)) {
- 					set_buffer_uptodate(bh);
- 					continue;
-===== fs/ext3/inode.c 1.101 vs edited =====
---- 1.101/fs/ext3/inode.c	2004-08-27 10:31:38 +04:00
-+++ edited/fs/ext3/inode.c	2004-09-07 13:00:36 +04:00
-@@ -782,6 +782,7 @@ reread:
- 	if (!partial) {
- 		clear_buffer_new(bh_result);
- got_it:
-+		clear_buffer_delay(bh_result);
- 		map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
- 		if (boundary)
- 			set_buffer_boundary(bh_result);
-@@ -1065,11 +1066,13 @@ static int walk_page_buffers(	handle_t *
-  * and the commit_write().  So doing the journal_start at the start of
-  * prepare_write() is the right place.
-  *
-- * Also, this function can nest inside ext3_writepage() ->
-- * block_write_full_page(). In that case, we *know* that ext3_writepage()
-- * has generated enough buffer credits to do the whole page.  So we won't
-- * block on the journal in that case, which is good, because the caller may
-- * be PF_MEMALLOC.
-+ * [2004/09/04 SAW] journal_start() in prepare_write() causes different ranking
-+ * violations if copy_from_user() triggers a page fault (mmap_sem, may be page
-+ * lock, plus __GFP_FS allocations).
-+ * Now we read in not up-to-date buffers in prepare_write(), and do the rest
-+ * including hole instantiation and inode extension in commit_write().
-+ *
-+ * Other notes.
-  *
-  * By accident, ext3 can be reentered when a transaction is open via
-  * quota file writes.  If we were to commit the transaction while thus
-@@ -1084,6 +1087,66 @@ static int walk_page_buffers(	handle_t *
-  * write.  
-  */
- 
-+static int ext3_get_block_delay(struct inode *inode, sector_t iblock,
-+			struct buffer_head *bh, int create)
-+{
-+	int ret;
-+
-+	ret = ext3_get_block_handle(NULL, inode, iblock, bh, 0, 0);
-+	if (ret)
-+		return ret;
-+	if (!buffer_mapped(bh)) {
-+		set_buffer_delay(bh);
-+		set_buffer_new(bh);
-+	}
-+	return ret;
-+}
-+
-+static int ext3_get_block_delay_uptodate(handle_t *handle,
-+		struct buffer_head *bh)
-+{
-+	struct page *page;
-+	struct inode *inode;
-+	sector_t block;
-+	int ret;
-+
-+	page = bh->b_page;
-+	inode = page->mapping->host;
-+	block = (sector_t)page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
-+	ret = ext3_get_block_handle(NULL, inode, block, bh, 0, 0);
-+	if (ret)
-+		return ret;
-+	if (!buffer_uptodate(bh))
-+		set_buffer_uptodate(bh); /* PageUptodate */
-+	if (!buffer_mapped(bh)) {
-+		set_buffer_delay(bh);
-+		set_buffer_new(bh);
-+	} else {
-+		unmap_underlying_metadata(bh->b_bdev, bh->b_blocknr);
-+	}
-+	return ret;
-+}
-+
-+static int ext3_prepare_write(struct file *file, struct page *page,
-+		unsigned from, unsigned to)
-+{
-+	int ret;
-+
-+	if (PageUptodate(page)) {
-+		/* simplified version of block_prepare_write */
-+		struct inode *inode = page->mapping->host;
-+		if (!page_has_buffers(page))
-+			create_empty_buffers(page, 1 << inode->i_blkbits, 0);
-+		ret = walk_page_buffers(NULL, page_buffers(page),
-+				from, to, NULL, ext3_get_block_delay_uptodate);
-+		if (ret) /* XXX: really should do this? */
-+			ClearPageUptodate(page);
-+	} else
-+		ret = block_prepare_write(page, from, to,
-+				ext3_get_block_delay);
-+	return ret;
-+}
-+
- static int do_journal_get_write_access(handle_t *handle, 
- 				       struct buffer_head *bh)
- {
-@@ -1092,8 +1155,52 @@ static int do_journal_get_write_access(h
- 	return ext3_journal_get_write_access(handle, bh);
- }
- 
--static int ext3_prepare_write(struct file *file, struct page *page,
--			      unsigned from, unsigned to)
-+/*
-+ * This function zeroes buffers not mapped to disk.
-+ * We do it similarly to the error path in __block_prepare_write() to avoid
-+ * keeping garbage in the page cache.
-+ * Here we check BH_delay state.  We know that if the buffer appears
-+ * !buffer_mapped then
-+ *   - it was !buffer_mapped at the moment of ext3_prepare_write, and
-+ *   - ext3_get_block failed to map this buffer (e.g., ENOSPC).
-+ * If this !mapped buffer is not up to date (it can be up to date if
-+ * PageUptodate), then we zero its content.
-+ */
-+static void ext3_clear_delayed_buffers(struct page *page,
-+		unsigned from, unsigned to)
-+{
-+	struct buffer_head *bh, *head, *next;
-+	unsigned block_start, block_end;
-+	unsigned blocksize;
-+	void *kaddr;
-+
-+	head = page_buffers(page);
-+	blocksize = head->b_size;
-+	for (	bh = head, block_start = 0;
-+		bh != head || !block_start;
-+	    	block_start = block_end, bh = next)
-+	{
-+		next = bh->b_this_page;
-+		block_end = block_start + blocksize;
-+		if (block_end <= from || block_start >= to)
-+			continue;
-+		if (!buffer_delay(bh))
-+			continue;
-+		J_ASSERT_BH(bh, !buffer_mapped(bh));
-+		clear_buffer_new(bh);
-+		clear_buffer_delay(bh);
-+		if (!buffer_uptodate(bh)) {
-+			kaddr = kmap_atomic(page, KM_USER0);
-+			memset(kaddr + block_start, 0, bh->b_size);
-+			kunmap_atomic(kaddr, KM_USER0);
-+			set_buffer_uptodate(bh);
-+			mark_buffer_dirty(bh);
-+		}
-+	}
-+}
-+
-+static int ext3_map_write(struct file *file, struct page *page,
-+		unsigned from, unsigned to)
- {
- 	struct inode *inode = page->mapping->host;
- 	int ret, needed_blocks = ext3_writepage_trans_blocks(inode);
-@@ -1106,19 +1213,19 @@ retry:
- 		ret = PTR_ERR(handle);
- 		goto out;
- 	}
--	ret = block_prepare_write(page, from, to, ext3_get_block);
--	if (ret)
--		goto prepare_write_failed;
- 
--	if (ext3_should_journal_data(inode)) {
-+	ret = block_prepare_write(page, from, to, ext3_get_block);
-+	if (!ret && ext3_should_journal_data(inode)) {
- 		ret = walk_page_buffers(handle, page_buffers(page),
- 				from, to, NULL, do_journal_get_write_access);
- 	}
--prepare_write_failed:
--	if (ret)
--		ext3_journal_stop(handle);
-+	if (!ret)
-+		goto out;
-+
-+	ext3_journal_stop(handle);
- 	if (ret == -ENOSPC && ext3_should_retry_alloc(inode->i_sb, &retries))
- 		goto retry;
-+	ext3_clear_delayed_buffers(page, from, to);
- out:
- 	return ret;
- }
-@@ -1153,10 +1260,15 @@ static int commit_write_fn(handle_t *han
- static int ext3_ordered_commit_write(struct file *file, struct page *page,
- 			     unsigned from, unsigned to)
- {
--	handle_t *handle = ext3_journal_current_handle();
-+	handle_t *handle;
- 	struct inode *inode = page->mapping->host;
- 	int ret = 0, ret2;
- 
-+	ret = ext3_map_write(file, page, from, to);
-+	if (ret)
-+		return ret;
-+	handle = ext3_journal_current_handle();
-+
- 	ret = walk_page_buffers(handle, page_buffers(page),
- 		from, to, NULL, ext3_journal_dirty_data);
- 
-@@ -1182,11 +1294,15 @@ static int ext3_ordered_commit_write(str
- static int ext3_writeback_commit_write(struct file *file, struct page *page,
- 			     unsigned from, unsigned to)
- {
--	handle_t *handle = ext3_journal_current_handle();
-+	handle_t *handle;
- 	struct inode *inode = page->mapping->host;
- 	int ret = 0, ret2;
- 	loff_t new_i_size;
- 
-+	ret = ext3_map_write(file, page, from, to);
-+	if (ret)
-+		return ret;
-+	handle = ext3_journal_current_handle();
- 	new_i_size = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
- 	if (new_i_size > EXT3_I(inode)->i_disksize)
- 		EXT3_I(inode)->i_disksize = new_i_size;
-@@ -1200,11 +1316,16 @@ static int ext3_writeback_commit_write(s
- static int ext3_journalled_commit_write(struct file *file,
- 			struct page *page, unsigned from, unsigned to)
- {
--	handle_t *handle = ext3_journal_current_handle();
-+	handle_t *handle;
- 	struct inode *inode = page->mapping->host;
- 	int ret = 0, ret2;
- 	int partial = 0;
- 	loff_t pos;
-+
-+	ret = ext3_map_write(file, page, from, to);
-+	if (ret)
-+		return ret;
-+	handle = ext3_journal_current_handle();
- 
- 	/*
- 	 * Here we duplicate the generic_commit_write() functionality
-===== fs/jbd/transaction.c 1.87 vs edited =====
---- 1.87/fs/jbd/transaction.c	2004-08-07 21:59:49 +04:00
-+++ edited/fs/jbd/transaction.c	2004-09-04 16:17:15 +04:00
-@@ -1870,6 +1870,7 @@ zap_buffer_unlocked:
- 	clear_buffer_mapped(bh);
- 	clear_buffer_req(bh);
- 	clear_buffer_new(bh);
-+	clear_buffer_delay(bh);
- 	bh->b_bdev = NULL;
- 	return may_free;
- }
+   I belive the answer is yes, since both NTFS and HFS (that's the
+   MacOS filesystem, isn't it?) supports streams we want Linux to
+   support this if possible.
+
+   Anyone disagreeing?
+
+2. How do we want to expose named streams?
+
+   One suggestion is file-as-directory in some form.
+
+   Another suggestion made is to expose named streams somewhere under
+   /proc/self/fd.
+
+   Yet another suggestion is to use the openat(3) API from solaris.
+
+   Some filesystems exposes extra data in a special directory in the
+   same directory as the file, such as netapps .snapshot directories
+   or the extra directories that netatalk expects.  This has the
+   advantage that it even works on non-named stream capable
+   filesystems, but it has a lot of problems too.
+
+   Linux already has limited support for names streams via the xattr
+   interface, but it's not a good interface for people wanting to
+   have large files as named streams.
+
+4. What belongs in the generic VFS, what belongs in Reiser4?
+
+   Some things reiser4 do, such as files-as-directories need changes
+   to the VFS because it breaks assumptions that the VFS makes
+   (i.e. a deadlock or an oops when doing a hard link out of one).
+
+   Some other things reiser4 can do would be better if they were in
+   the VFS since other filesystems might want to support the same
+   functionality. 
+
+   Or Linux may not support some of the things reiserfs at all.
+
+5. What belongs in the kernel, what belongs in userspace?
+
+   This is mostly what I have been trying to argue about.
+
+So, to try to summarize my opinion, regarding file-as-directory, I
+belive it's fatally flawed because it breaks a lot of assumptions that
+existing code make.  One example of an application that will break is
+a web server that tries to filter out accesses to "bad" files,
+files-as-directories suddenly means that part of those files will be
+accessible (and there are a _lot_ of CERT reports on just this kind of
+problems with Windows web servers due to access to named streams not
+being restricted or ways to access files with non-canonical names that
+also managed to bypass access restrictions).
+
+Files-as-directories also does not give us named streams on
+directories.  The suggestion to have dir/metas access the named
+streams means that if someone already has a file named metas in a
+directory that file will be lost.  (Does anyone remember the
+discussions about the linux kernel having a directory named "core" and
+the problems this caused for some people?)
+
+All this suggests to me that named streams must live in another
+namespace than the normal one.  To me, openat(3) seems like a good
+choice for an API and it has the advantage that someone else, Solaris,
+already has implemented it.
+
+Additionally, files-as-directores does not solve the problem of 
+"cp a b" losing named streams.  There is curently no copyfile syscall
+in the Linux kernel, "cp a b" essentially does "cat a >b".  So unless
+cp is modified we don't gain anything.  If cp is modified to know
+about named streams, it really does not matter if named streams are
+accessed as file-as-directories, via openat(3) or via a shared library
+with some other interface.
+
+Regarding the kernel or userspace discussion.  In my opinion anything
+that can be done in user space should be done in userspace.  If the
+performance sucks, or it has security problems, or needs caching that
+cant be solved in userspace it can be moved to the kernel, but in that
+case the smallest and cleanest API possible should be implemented.
+
+If, for historical reasons, an API must be in the kernel, there is not
+much we can do about it either.  It'll have to stay there, but we can
+avoid making the same mistakes again.
+
+So, for all the examples of the kernel having plugins that
+automatically lets an application see a tar-file as a directory, I
+really, really don't belive this belongs in the kernel.  First of all,
+this is the file-as-directory discussion again, I belive it is a
+mistake to expose the contents as a directory on top of the file
+because it breaks a lot of assumptions that unix programs make.
+
+It's much better to expose the contents at another place in the
+filesystem by doing a temporary mount of the file with the proper
+filesystem.  As Pavel Machek pointed out, this has the problem of who
+cleans up the mount if the application crashes.  One way to handle
+this could be something like this:
+
+    mount -t tarfs -o loop bar.tar /tmp/bar-fabb50509
+    chdir /tmp/bar-fabb50509
+    umount -f /tmp/bar-fabb50509
+
+This will require the ability to unmount busy filesystems (but I
+belive Alexander Viro already has implemented the infrastructure
+needed for this).
+
+Or for files that we don't have a real filesystem driver (or on other
+systems where userspace mounts are not allowed), we could just unpack
+the contents into /tmp.  For cleanup we could let whatever cleans up
+/tmp anyways handle it, or have a cache daemon that keeps track of
+untarred directories and removes them after a while.
+
+Another way is to completely forget about presenting the contents of a
+tar file as a real files, and just use a shared library to get at the
+contents (now we just have to convince everyone to use the shared
+library).  This would also be portable to other systems.
+
+If we do this right, it could all be hidden in a shared library, and
+if the system below it supports more advanced features, it can use it.
+
+Regarding the "I want a realtime index of all files".  I belive that a
+notifier that can tell me when a file has been changed and a userspace
+daemon ought to handle most of the cases that have been mentioned.
+The suggested problems of not getting an up to date query response can
+be handled by just asking the daemon "are you done with indexing yet".
+The design of such a daemon and the support it needs from the kernel
+can definitely be discussed.  But to put the indexer itself in the
+kernel sounds like a bad idea.  Even adding an API to query the
+indexer into the kernel sounds pointless, why do that instead of just
+opening a Unix socket to the indexer and asking it directly?
+
+  /Christer
+
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

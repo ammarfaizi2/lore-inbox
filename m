@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTLJRyr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbTLJRyr
+	id S263795AbTLJRs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbTLJRs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:54:47 -0500
-Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:36508
-	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S263834AbTLJRyq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:54:46 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Wed, 10 Dec 2003 18:54:44 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0312081754480.2034-100000@ida.rowland.org> <200312101749.17173.baldrick@free.fr> <3FD7591A.8020100@pacbell.net>
-In-Reply-To: <3FD7591A.8020100@pacbell.net>
+	Wed, 10 Dec 2003 12:48:57 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:40196 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id S263795AbTLJRsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 12:48:54 -0500
+Date: Wed, 10 Dec 2003 18:48:47 +0100 (CET)
+From: venom@sns.it
+To: Joe Thornber <thornber@sistina.com>
+cc: Paul Jakma <paul@clubi.ie>, Jens Axboe <axboe@suse.de>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Device-mapper submission for 2.4
+In-Reply-To: <20031210174418.GF476@reti>
+Message-ID: <Pine.LNX.4.43.0312101846290.24503-100000@cibs9.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312101854.44636.baldrick@free.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 December 2003 18:34, David Brownell wrote:
-> > Unfortunately, usb_physical_reset_device calls usb_set_configuration
-> > which takes dev->serialize.
+On Wed, 10 Dec 2003, Joe Thornber wrote:
+
 >
-> Not since late August it doesn't ...
+> The LVM1 driver was removed because dm covered the same functionality
+> + lots more, and is more flexible.  The LVM2 tools still understand
+> the LVM1 metadata format, so there is no problem about not being able
+> to read data in 2.6.
 
-In current 2.5 bitkeeper it does.
+So I was right. Well, if back compatibility works, this solves most of the
+problem.
 
-Duncan.
+> The main reason for submitting dm to 2.4 was
+> that there are a lot of people out there who want to use LVM2/EVMS
+> tools with 2.4, and kept asking me to do it.  If this is against
+> Marcelos current policy then so be it; I probably should have checked
+> with him before spamming lkml with the submission.
 
-int usb_set_configuration(struct usb_device *dev, int configuration)
-{
-        int i, ret;
-        struct usb_host_config *cp = NULL;
+This is a good point, but patches are available, so those people can stil use
+it, am I wrong?
 
-        /* dev->serialize guards all config changes */
-        down(&dev->serialize);
+Luigi
+

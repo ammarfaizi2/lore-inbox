@@ -1,88 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319000AbSHFGKk>; Tue, 6 Aug 2002 02:10:40 -0400
+	id <S319005AbSHFGR4>; Tue, 6 Aug 2002 02:17:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319002AbSHFGKk>; Tue, 6 Aug 2002 02:10:40 -0400
-Received: from pc132.utati.net ([216.143.22.132]:48525 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S319000AbSHFGKj>; Tue, 6 Aug 2002 02:10:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Greg KH <greg@kroah.com>
-Subject: Policy vs API (was Re: [PATCH] integrate driverfs and devfs (2.5.28))
-Date: Mon, 5 Aug 2002 19:51:21 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207291431381.22697-100000@cherise.pdx.osdl.net> <200208051225.g75CP4v316564@pimout4-ext.prodigy.net> <20020805231914.GF29396@kroah.com>
-In-Reply-To: <20020805231914.GF29396@kroah.com>
+	id <S319006AbSHFGR4>; Tue, 6 Aug 2002 02:17:56 -0400
+Received: from pl204.dhcp.adsl.tpnet.pl ([217.98.31.204]:13696 "EHLO
+	bzzzt.slackware.pl") by vger.kernel.org with ESMTP
+	id <S319005AbSHFGRx>; Tue, 6 Aug 2002 02:17:53 -0400
+Date: Tue, 6 Aug 2002 08:24:35 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+X-X-Sender: <pkot@bzzzt.slackware.pl>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] add missing symbol exports
+Message-ID: <Pine.LNX.4.33.0208060815400.24592-100000@bzzzt.slackware.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020806055922.26D48644@merlin.webofficenow.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 August 2002 07:19 pm, Greg KH wrote:
+Hi,
 
-> > By the way, why doesn't imposing consistent predefined major/minor
-> > numbers (0x0301 instead of "hda1") count as "policy"?   I'm honestly
-> > curious...
->
-> It does.  I want to get rid of it too :)  But that's still a ways away...
+During the work on the NTFS backport I found that some sympols are missing
+in ksyms exports. The following patch add the missing symbols. This is
+against 2.4.19, as I can't find 2.4.20pre1 patch anywhere.
 
-The user needs some kind of API.  Some way for a program to say "Could I 
-please talk to the slave drive on the second IDE controller".  What I'm 
-wondering is where's the line between "policy" and "API"?  You can't have a 
-standard API without SOME level of "policy".
+diff -Nur linux/arch/i386/kernel/i386_ksyms.c linux-2.4.19/arch/i386/kernel/i386_ksyms.c
+--- linux/arch/i386/kernel/i386_ksyms.c	Sat Aug  3 23:14:47 2002
++++ linux-2.4.19/arch/i386/kernel/i386_ksyms.c	Wed Jul 31 07:00:39 2002
+@@ -14,6 +14,7 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <linux/tty.h>
++#include <linux/highmem.h>
 
-Major/minor device numbers suck because the namespace is too small (for 
-historical reasons), it's randomly organized (again for historical reasons), 
-it's almost exhausted (due to the first two), making it bigger will just help 
-the clutter breed, and it's almost impossible to recycle old numbers as long 
-as three people out there are still using the floppy tape controller or 
-whatever.  Plus humans really do think in words (or at least text strings), 
-hence the phone book and DNS to access numbers via strings.  (And the /dev 
-directory.)
+ #include <asm/semaphore.h>
+ #include <asm/processor.h>
+@@ -144,6 +145,11 @@
 
-There already ARE standardized text based APIs, and internationalization 
-people object to them for political correctness reasons and that's just 
-stupid.  If somebody is REALLY stupid enough to translate the standard C 
-library function names into chinese unicode, and then try to actually link a 
-program against it, they deserve what they get.  Same with the standard unix 
-commands: awk, grep, and sed aren't english.  (They're posix.  :)
-Internationalizing the data going through an API is one thing, trying to 
-internationalize the API itself is just silly.  Might as well encourage 
-non-english posts on linux-kernel...
+ /* TLB flushing */
+ EXPORT_SYMBOL(flush_tlb_page);
++#endif
++
++#ifdef CONFIG_HIGHMEM
++EXPORT_SYMBOL(kmap_pte);
++EXPORT_SYMBOL(kmap_prot);
+ #endif
 
-I've noticed a bias against actually using strings to interface the kernel 
-with userspace (the module autoloader being one relatively obvious example), 
-but it's still done in a bunch of places anyway ("/sbin/init", "linuxrc", 
-"hotplug", "modprobe", the text command line for kernel booting with "init=", 
-"root=", "initrd="...).  The kernel talks to other parts of the kernel by 
-exporting text symbols, userspace talks to userspace with strings, why is 
-kernel to userspace fundamentally different?  The problem with the horror 
-that is /proc is that it's not ORGANIZED, not that it's text.  People put so 
-much stuff into /proc because they WANT a text API, and for a long time that 
-was their only real outlet.
+ #ifdef CONFIG_X86_IO_APIC
+diff -Nur linux/arch/mips/kernel/mips_ksyms.c linux-2.4.19/arch/mips/kernel/mips_ksyms.c
+--- linux/arch/mips/kernel/mips_ksyms.c	Sat Aug  3 23:14:53 2002
++++ linux-2.4.19/arch/mips/kernel/mips_ksyms.c	Wed Jul 31 07:01:45 2002
+@@ -16,6 +16,7 @@
+ #include <linux/in6.h>
+ #include <linux/pci.h>
+ #include <linux/ide.h>
++#include <linux/highmem.h>
 
-The problems with devfs are, well, numerous, but the fundamental idea of 
-automatically mounting a /dev directory with the available devices into it 
-rather than a MAKEDEV script to create 8 zillion nodes for devices you might 
-conceivably want to borrow from a museum someday...  Implementation issues 
-aside, what was wrong with the idea itself?  The rebellion against using the 
-existing names there makes devfs a lot less interesting to me, I know that 
-much.  It doesn't provide the same API the /dev directory does, and half the 
-software I use won't compile against it without a chainsaw and a bullwhip, or 
-the daemon kludge.  Code quality aside, the new devfs api never struck me as 
-an improvement over the old one.  (I STILL don't know why a change of 
-implementation mandated a change of API.)
+ #include <asm/bootinfo.h>
+ #include <asm/checksum.h>
+@@ -110,6 +111,14 @@
+ EXPORT_SYMBOL(hpc3c0);
+ EXPORT_SYMBOL(hpc3c1);
+ EXPORT_SYMBOL(mcmisc_regs);
++#endif
++
++/*
++ * Highmem
++ */
++#ifdef CONFIG_HIGHMEM
++EXPORT_SYMBOL(kmap_pte);
++EXPORT_SYMBOL(kmap_prot);
+ #endif
 
-I'm under the vague impression that devicefs may somehow become the new 
-driver API at some point after Buck Rogers returns from his frozen orbit.  
-The whole POINT of devicefs seems to be to expose new data through a fresh 
-API that's designed to grow without getting disorganized.  This implies (to 
-me) a move towards a device API defined in the context of a text namespace.
+ /*
+diff -Nur linux/arch/ppc/kernel/ppc_ksyms.c linux-2.4.19/arch/ppc/kernel/ppc_ksyms.c
+--- linux/arch/ppc/kernel/ppc_ksyms.c	Sat Aug  3 23:14:57 2002
++++ linux-2.4.19/arch/ppc/kernel/ppc_ksyms.c	Wed Jul 31 07:00:10 2002
+@@ -17,6 +17,7 @@
+ #include <linux/irq.h>
+ #include <linux/pci.h>
+ #include <linux/delay.h>
++#include <linux/highmem.h>
 
-If there's some move underway to avoid doing so (because any standard API is 
-"policy"), what exactly is the better alternative?
+ #include <asm/page.h>
+ #include <asm/semaphore.h>
+@@ -100,6 +101,11 @@
+ EXPORT_SYMBOL(kernel_flag);
+ #endif /* CONFIG_SMP */
 
-Rob
++#ifdef CONFIG_HIGHMEM
++EXPORT_SYMBOL(kmap_pte);
++EXPORT_SYMBOL(kmap_prot);
++#endif
++
+ EXPORT_SYMBOL(ISA_DMA_THRESHOLD);
+ EXPORT_SYMBOL_NOVERS(DMA_MODE_READ);
+ EXPORT_SYMBOL(DMA_MODE_WRITE);
+@@ -344,6 +350,8 @@
+ EXPORT_SYMBOL(request_8xxirq);
+ EXPORT_SYMBOL(cpm_install_handler);
+ EXPORT_SYMBOL(cpm_free_handler);
++#else
++EXPORT_SYMBOL(local_flush_tlb_page);
+ #endif /* CONFIG_8xx */
+
+ EXPORT_SYMBOL(ret_to_user_hook);
+diff -Nur linux/arch/sparc/kernel/sparc_ksyms.c linux-2.4.19/arch/sparc/kernel/sparc_ksyms.c
+--- linux/arch/sparc/kernel/sparc_ksyms.c	Sat Aug  3 23:14:59 2002
++++ linux-2.4.19/arch/sparc/kernel/sparc_ksyms.c	Wed Jul 31 07:02:17 2002
+@@ -23,6 +23,7 @@
+ #include <linux/pci.h>
+ #endif
+ #include <linux/pm.h>
++#include <linux/highmem.h>
+
+ #include <asm/oplib.h>
+ #include <asm/delay.h>
+@@ -145,6 +146,12 @@
+ EXPORT_SYMBOL(smp_num_cpus);
+ EXPORT_SYMBOL(__cpu_number_map);
+ EXPORT_SYMBOL(__cpu_logical_map);
++#endif
++
++/* Highmem */
++#ifdef CONFIG_HIGHMEM
++EXPORT_SYMBOL(kmap_pte);
++EXPORT_SYMBOL(kmap_prot);
+ #endif
+
+ EXPORT_SYMBOL(udelay);
+diff -Nur linux/kernel/ksyms.c linux-2.4.19/kernel/ksyms.c
+--- linux/kernel/ksyms.c	Sat Aug  3 23:15:53 2002
++++ linux-2.4.19/kernel/ksyms.c	Mon Aug  5 01:03:41 2002
+@@ -162,7 +162,8 @@
+ EXPORT_SYMBOL(d_lookup);
+ EXPORT_SYMBOL(__d_path);
+ EXPORT_SYMBOL(mark_buffer_dirty);
+-EXPORT_SYMBOL(set_buffer_async_io); /* for reiserfs_writepage */
++EXPORT_SYMBOL(end_buffer_io_sync);
++EXPORT_SYMBOL(set_buffer_async_io);
+ EXPORT_SYMBOL(__mark_buffer_dirty);
+ EXPORT_SYMBOL(__mark_inode_dirty);
+ EXPORT_SYMBOL(fd_install);
+
+pkot
+-- 
+Pawel Kot <pkot@linuxnews.pl>
+http://www.gnokii.org/ :: http://www.slackware.pl/
+http://kt.linuxnews.pl/ -- Kernel Traffic po polsku
+

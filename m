@@ -1,44 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130182AbRBSNMU>; Mon, 19 Feb 2001 08:12:20 -0500
+	id <S130158AbRBSNQU>; Mon, 19 Feb 2001 08:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130158AbRBSNMK>; Mon, 19 Feb 2001 08:12:10 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:20742 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130182AbRBSNMD>;
-	Mon, 19 Feb 2001 08:12:03 -0500
-Date: Mon, 19 Feb 2001 14:11:52 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: "Henning P . Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [LONG RANT] Re: Linux stifles innovation...
-Message-ID: <20010219141152.H6494@almesberger.net>
-In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>, <E14TtEx-0004Lr-00@the-village.bc.nu> <96lrau$dcd$1@forge.intermeta.de> <20010219115314.A6724@almesberger.net> <20010219125945.C16663@forge.intermeta.de>
+	id <S130230AbRBSNQK>; Mon, 19 Feb 2001 08:16:10 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:14092 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130158AbRBSNQG>;
+	Mon, 19 Feb 2001 08:16:06 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Philipp Rumpf <prumpf@mandrakesoft.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac15 
+In-Reply-To: Your message of "Mon, 19 Feb 2001 06:15:22 MDT."
+             <Pine.LNX.3.96.1010219055750.16489G-100000@mandrakesoft.mandrakesoft.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010219125945.C16663@forge.intermeta.de>; from hps@intermeta.de on Mon, Feb 19, 2001 at 12:59:45PM +0100
+Date: Tue, 20 Feb 2001 00:15:58 +1100
+Message-ID: <30512.982588558@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henning P . Schmiedehausen wrote:
-> No, I don't. I don't at all. But I prefer a more pragmatic approach to
-> the developers and companies who don't.
+On Mon, 19 Feb 2001 06:15:22 -0600 (CST), 
+Philipp Rumpf <prumpf@mandrakesoft.com> wrote:
+>Unless I'm mistaken, we need both use counts and SMP magic (though not
+>necessarily as extreme as what the "freeze all other CPUs during module
+>unload" patch did).
+>
+>I think something like this would work (in addition to use counts)
+>
+>int callin_func(void *p)
+>{
+>	int *cpu = p;
+>
+>	while (*cpu != smp_processor_id()) {
+>		current->cpus_allowed = 1 << *cpu;
+>		schedule();
+>	}
+>
+>	return 0;
+>}
+>
+>void callin_other_cpus(void)
+>{
+>	int cpus[smp_num_cpus];
+>	int i;
+>
+>	for (i=0; i<smp_num_cpus; i++) {
+>		cpus[i] = i;
+>
+>		kernel_thread(callin_func, &cpus[i], ...);
+>	}
+>}
+>
+>and call callin_other_cpus() before unloading a module.
+>
+>I'm not sure how you could make exception handling safe without locking
+>all accesses to the module list - but that sounds like the sane thing to
+>do anyway.
 
-I actually think it's good if we appear to be a little more "hard-liners"
-than we really are. If companies assume that only open source will get
-them anywhere, they'll err on the safe side. In the end, this is likely
-to be to their own benefit: they won't waste time designing not-quite
-open models that fail in the end (and may generate a lot of bad blood),
-and can focus directly on options that make everybody happy.
+No need for a callin routine, you can get this for free as part of
+normal scheduling.  The sequence goes :-
 
-> And yes, there _is_ IMHO a difference in telling someone on LKM,
-> especially someone without deeper knowledge that is lookin for help:
+if (use_count == 0) {
+  module_unregister();
+  wait_for_at_least_one_schedule_on_every_cpu();
+  if (use_count != 0) {
+    module_register();	/* lost the unregister race */
+  }
+  else {
+    /* nobody can enter the module now */
+    module_release_resources();
+    unlink_module_from_list();
+    wait_for_at_least_one_schedule_on_every_cpu();
+    free_module_storage();
+  }
+}
 
-Yes, also rejection can be delivered in a civilized way.
+wait_for_at_least_one_schedule_on_every_cpu() prevents the next
+operation until at least one schedule has been executed on every cpu.
+Whether this is done as a call back or a separate kernel thread that
+schedules itself on every cpu or the current process scheduling itself
+on every cpu is an implementation detail.  All that matters is that any
+other cpu that might have been accessing the module has gone through
+schedule and therefore is no longer accessing the module's data or
+code.
 
-- Werner
+The beauty of this approach is that the rest of the cpus can do normal
+work.  No need to bring everything to a dead stop.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

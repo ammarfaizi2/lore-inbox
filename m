@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318502AbSIPB1N>; Sun, 15 Sep 2002 21:27:13 -0400
+	id <S318503AbSIPBaz>; Sun, 15 Sep 2002 21:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSIPB1N>; Sun, 15 Sep 2002 21:27:13 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:39932
+	id <S318599AbSIPBaz>; Sun, 15 Sep 2002 21:30:55 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:41468
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318502AbSIPB1M>; Sun, 15 Sep 2002 21:27:12 -0400
-Subject: Re: 2.5.34-mm4
+	id <S318503AbSIPBay>; Sun, 15 Sep 2002 21:30:54 -0400
+Subject: Re: [patch] thread-exec-2.5.34-B1, BK-curr
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andrew Morton <akpm@digeo.com>, "M. Edward Borasky" <znmeb@aracnet.com>,
-       Axel Siebenwirth <axel@hh59.org>, Con Kolivas <conman@kolivas.net>,
-       lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       lse-tech@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.44L.0209151554520.1857-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0209151554520.1857-100000@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209151137490.10830-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0209151137490.10830-100000@home.transmeta.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 16 Sep 2002 02:33:36 +0100
-Message-Id: <1032140016.26857.24.camel@irongate.swansea.linux.org.uk>
+Date: 16 Sep 2002 02:37:56 +0100
+Message-Id: <1032140276.27001.27.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-15 at 19:56, Rik van Riel wrote:
-> On Sun, 15 Sep 2002, Andrew Morton wrote:
+On Sun, 2002-09-15 at 19:38, Linus Torvalds wrote:
 > 
-> > - In -ac, there are noticeable stalls during heavy writeout.  This
-> >   may be an ext3 thing, but I can't think of any IO scheduling
-> >   differences in -ac ext3.  I'd be guessing that it is due to
-> >   bdflush/kupdate lumpiness.
-
-I think so. I've always been conservative, I need rmap to pass cerberus
-still. But the rmap in -ac is out of date a little with the 2.5 tuning
-
-> This is also due to the fact that -ac has an older -rmap
-> VM. As in current 2.5, rmap can write out all inactive
-> pages ... and it did in some worst case situations.
+> On Sun, 15 Sep 2002, Ingo Molnar wrote:
+> > 
+> > i dont like those semantics either - will verify whether thread-specific
+> > exec() works via a helper thread (or vfork) - it really should.
 > 
-> This is fixed in rmap14.
-> 
-> (I hope Alan is done playing with IDE soon so I can push
-> him a VM update)
+> As long as it works with something sane (and vfork() is sane), I'm happy 
+> with the posix behaviour by default. After all, the execve() really _does_ 
+> need to "de-thread" anyway, and if we need to make that explicit (with the 
+> vfork()) then that's fine.
 
-The big one left to fix is the simplex device bug - which is an "I know
-why". The great mystery is the affair of taskfile pio write. Other than
-that its annoying glitches not big problems now.
+An execve can be setuid code so it really represents a whole new
+security domain. Thats why the thread signal protection refuses to let
+strange child exit signals cross it.
 
-So send me rmap-14a patches by all means
+There is code that depends on clone()/exec() not killing other threads
+in the group - some threaded web servers for example.
 

@@ -1,68 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129789AbQLNPMS>; Thu, 14 Dec 2000 10:12:18 -0500
+	id <S130142AbQLNPWV>; Thu, 14 Dec 2000 10:22:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131404AbQLNPMI>; Thu, 14 Dec 2000 10:12:08 -0500
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:56068 "HELO
-	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
-	id <S129789AbQLNPL4>; Thu, 14 Dec 2000 10:11:56 -0500
-Message-Id: <m146ZZQ-0005keC@gherkin.sa.wlk.com>
-From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: Re: test12 lockups -- need feedback
-In-Reply-To: <3A38B9C8.B11C4ABC@haque.net> "from Mohammad A. Haque at Dec 14,
- 2000 07:15:04 am"
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Date: Thu, 14 Dec 2000 08:41:20 -0600 (CST)
-CC: dep <dennispowell@earthlink.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S130388AbQLNPWC>; Thu, 14 Dec 2000 10:22:02 -0500
+Received: from main.cornernet.com ([209.98.65.1]:56589 "EHLO
+	main.cornernet.com") by vger.kernel.org with ESMTP
+	id <S130142AbQLNPVx>; Thu, 14 Dec 2000 10:21:53 -0500
+Date: Thu, 14 Dec 2000 08:51:42 -0600 (CST)
+From: Chad Schwartz <cwslist@main.cornernet.com>
+To: Igmar Palsenberg <maillist@chello.nl>
+cc: Mark Orr <markorr@intersurf.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Dropping chars on 16550
+In-Reply-To: <Pine.LNX.4.21.0012141529580.2159-100000@server.serve.me.nl>
+Message-ID: <Pine.LNX.4.30.0012140833520.14206-100000@main.cornernet.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mohammad A. Haque wrote:
-> Were you connected to a network or receiving/sending anything?
-> 
-> dep wrote:
-> > 
-> > okay. got it here this morning, too. solid lock -- no dumping out of
-> > x, no changing terminals, no mouse, no keyboard.
-> > 
-> > k6-2-550 @ 500; 256mb memory, fic 503a mb with via chipset.
+> > This is where a 654 or an 854 (I'm only listing startech design chips.
+> > there are others that would do the job.)  come in handy. They can pause
+> > their transmitter WITH bytes in their fifo. (Automated hardware/software
+> > flow control.)
+>
+> Indeed. Most chips I've seen are 1 16550, or pretend to be. Probably an
+> issue of cost (At least, I think :))
 
-This one is going to be fun to track down.  So far, with a personal
-sample size of three machines, 2.4.0-test12 is stable on two, locks
-up in a predictable and repeatable manner on one.  First, the stable
-machines:
+Yeah. most of this crap is manufactured as all-in-1 chips. (IDE, FDC, SER,
+PAR, etc.) and right along with that, you get 2 16550AFN's. Now. they
+hyped the heck out of 16550's when they came out, because "You can use
+your 28.8kbps modem without overruns!". Yeah. clocking it at 38400 or
+57600 on a system doing NOTHING ELSE BUT SERIAL.
 
-(1) P150 MMX Toshiba Tecra 730XCDT notebook, egcs-2.91.66, openwin
-    with XFree86 3.3.6.
+For a little extra cost - approx. $2.50 (this number could skew a bit,
+depending on in what quantity they buy), they could put 16652's in there.
 
-(2) Cyrix 6x86 MII 233, egcs-2.91.66, AfterStep with XFree86 4.0.1,
-    NVIDIA-0.9-5 video driver.
+Not much support for it on an enduser system yet (our serial.c does, but
+the MS folks dont support 'em in their generic driver, I dont think) so I
+think this has some weight in why it doesn't become defacto standard,
+either.
 
-The unstable machine:
+> Well.. Why is the i386 the defacto standard ? There architectures that are
+> a lot better. Reason it is that the some big company used it, and it got
+> populair.
 
-Gateway PII 333, egcs-2.91.66, AfterStep with XFree86 3.3.6.
-Running "startx" as "root" --> ok: no problem.
-Running "startx" as normal user --> I get as far as the grey moire
-pattern with the black "X" cursor in the center of the screen, and
-the machine locks up solid.  Cannot switch consoles, machine doesn't
-respond to pings (much less remote access attempts), no disk activity,
-no "oops" messages in any of the logfiles.  Absolutely repeatable.
-Machine works fine with earlier kernels.
+Heh. Well, serial doesn't even have anything to do with architecture. As
+long as the machine supports addressable I/O, its capable of running a
+UART.
 
-Does anyone have a feeling one way or the other as far as this being
-related to the CPU type?  I can try building a pre-PII CPU kernel on
-the unstable machine and see if that makes any difference.
+And what kind of serial ports do you find on your Alpha?  16550's!  Your
+PowerPC?  16550's!  Your PA-RISC box? 16550's!  Hey! Even RS/6000's use
+16550's!
 
--- 
-Bob Tracy                                            rct@frus.com
------------------------------------------------------------------
- "We might not be in hell, but we can see the gates from here."
- --Phoenix resident, Summer of 2000
+So while i concur with your statement,  it still doesn't explain why the
+business hasn't chosen to move on yet.
+
+NOTE: The same can also be stated about FLOPPY DRIVES.  Why on EARTH would
+we want 1.44mb media - on a drive that costs $15, and media that costs
+$.10/ea - when there are things like Zipdrives, where you can get
+100mb internal drives for $50, and media for $4? (Thats what FLOPPY DRIVES
+used to cost!!  $60 for the drive, $1-2/ea for the media.)
+
+> Indeed.. Why do they save $15 bucks on a modem chipset, and replace it
+> with a buggy software driven solution... Making things as cheap as
+> possible, to make sure the're chaper then their compatitor.
+
+Good point.  But in this particular model, it obviously explains why
+electronics technology expands in the particular way that it does.
+
+In the year 1970, everyone thought that we'd have transporter beams and
+spaceships and computers named Hal in the year 2000.  What do we *REALLY*
+have?  Technology that makes things more CONVENIENT for people.  They also
+CATER to people who don't want to spend any money.
+
+Celphones. Pagers. Microwaves.
+
+Hey. we even have Web-based grocery delivery guys that
+arrive in pretty vans. and all you had to do was click!
+
+Our computers use parts that were designed 10 years previous, because
+nobody wants to spend the money on newer and better stuff.
+
+Chad
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

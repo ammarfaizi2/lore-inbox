@@ -1,81 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266755AbSLDAdf>; Tue, 3 Dec 2002 19:33:35 -0500
+	id <S266765AbSLDAzr>; Tue, 3 Dec 2002 19:55:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbSLDAdf>; Tue, 3 Dec 2002 19:33:35 -0500
-Received: from [203.167.79.9] ([203.167.79.9]:50697 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S266755AbSLDAde>; Tue, 3 Dec 2002 19:33:34 -0500
-Subject: Re: [STATUS] fbdev api.
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.33.0212031417520.10097-100000@maxwell.earthlink.net>
-References: <Pine.LNX.4.33.0212031417520.10097-100000@maxwell.earthlink.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1038972718.1086.17.camel@localhost.localdomain>
+	id <S266767AbSLDAzr>; Tue, 3 Dec 2002 19:55:47 -0500
+Received: from holomorphy.com ([66.224.33.161]:41858 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266765AbSLDAzr>;
+	Tue, 3 Dec 2002 19:55:47 -0500
+Date: Tue, 3 Dec 2002 17:03:07 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Christoph Hellwig <hch@sgi.com>,
+       marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+Message-ID: <20021204010307.GA9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Christoph Hellwig <hch@sgi.com>,
+	marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
+	linux-kernel@vger.kernel.org
+References: <20021202192652.A25938@sgi.com> <1919608311.1038822649@[10.10.2.3]> <3DEBB4BD.F64B6ADC@digeo.com> <20021202195003.GC28164@dualathlon.random> <3DED18CC.5770EA90@digeo.com> <20021204000618.GG11730@dualathlon.random> <3DED4CA4.5B9A20EA@digeo.com> <20021204004234.GL11730@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Dec 2002 08:32:07 +0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021204004234.GL11730@dualathlon.random>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-04 at 03:18, James Simmons wrote:
-> 
-> > Attached is a patch against linux-2.5.50 + your fbdev.diff.
-> 
-> Applied :-)
-> 
-> > b.  Another rewrite of fbcon_show_logo() so it's more understandable
-> > (hopefully).  I also added support for the rest of the visuals, but
-> > untested yet.
-> > Not tested:
-> > static psuedocolor, mono01, and mono10.
-> 
-> I have a mono hga card.
-> 
-Can you apply the following patch to include logo drawing support for all formats :-)?
+On Tue, Dec 03, 2002 at 04:30:28PM -0800, Andrew Morton wrote:
+>> load is just one or more busywaits.  It has to be a compilation.  It
+>> could be something to do with all the short-lived processes, or gcc -pipe)
 
-diff -Naur linux-2.5.50-js/drivers/video/cfbimgblt.c linux/drivers/video/cfbimgblt.c
---- linux-2.5.50-js/drivers/video/cfbimgblt.c	2002-12-04 03:14:19.000000000 +0000
-+++ linux/drivers/video/cfbimgblt.c	2002-12-04 03:13:57.000000000 +0000
-@@ -123,11 +123,11 @@
- 			shift = start_index;
- 		}
- 		while (n--) {
--			if (p->fix.visual == FB_VISUAL_PSEUDOCOLOR)
--				color = *src & bitmask; 
- 			if (p->fix.visual == FB_VISUAL_TRUECOLOR ||
- 			    p->fix.visual == FB_VISUAL_DIRECTCOLOR )
- 				color = palette[*src] & bitmask;
-+			else
-+				color = *src & bitmask; 
- 			val |= SHIFT_HIGH(color, shift);
- 			if (shift >= null_bits) {
- 				FB_WRITEL(val, dst++);
+On Wed, Dec 04, 2002 at 01:42:34AM +0100, Andrea Arcangeli wrote:
+> could be that we think they're very interactive or something like that.
 
-> > c.  prevent fbcon module from loading if no fbdev is registered.  Also
-> > made fbcon module unsafe to unload (for now).  This is optional, of course.
-> 
-> It is a good idea until we have the ability to switch back to text mode.
-> 
-It's not the switch back to text mode, that's very doable (see my other
-reply).  It's during give_up_console() at fbcon module exit.  At this
-point, the console suddenly disappears and freezes the system.  Maybe we
-can save the global "conswitchp" during fbcon module init, then
-something like this at fbcon module exit:
+The pipe issue is observable without involving gcc or kernel compiles.
+Cooperating processes are consistently granted excessive priorities.
 
-void __exit fb_console_exit(void)
-{	
-	give_up_console(&fbcon);
-	take_over_console(saved_conswitchp, ...);	
-}
 
-Is this feasible?
-
-Tony
-
+Bill

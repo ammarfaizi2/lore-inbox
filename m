@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTDMTTY (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 15:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTDMTTX (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 15:19:23 -0400
-Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:8198 "HELO
-	ritz.dnsalias.org") by vger.kernel.org with SMTP id S261893AbTDMTTV convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 15:19:21 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: BUG: sleeping function called from illegal context
-Date: Sun, 13 Apr 2003 21:31:03 +0200
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200304132131.03545.daniel.ritz@gmx.ch>
+	id S261694AbTDMTPP (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 15:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbTDMTPP (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 15:15:15 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:19425 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261694AbTDMTPN (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 15:15:13 -0400
+Date: Sun, 13 Apr 2003 15:23:54 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix nodemgr.c compile (was Re: 2.5.67-mm2: ieee1394/nodemgr.c doesn't compile)
+Message-ID: <20030413192354.GD16706@phunnypharm.org>
+References: <20030412180852.77b6c5e8.akpm@digeo.com> <20030413125744.GN9640@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030413125744.GN9640@fs.tum.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i saw that one after modprobe snd-sb16...
-kernel 2.5.67-bk
+> The following compile error #ifdef CONFIG_IEEE1394_VERBOSEDEBUG seems to 
+> come from Linus' tree:
 
-rgds
--daniel
+Thanks, here's a patch.
 
-
-Debug: sleeping function called from illegal context at mm/slab.c:1664
-Call Trace:
- [<c0120777>] __might_sleep+0x5f/0x68
- [<c0148f35>] kmalloc+0x61/0x174
- [<c01292f7>] __request_region+0x1b/0xb4
- [<c01293aa>] __check_region+0x1a/0x40
- [<c01dc533>] pnp_check_port+0x5f/0x13c
- [<c01de28b>] pnp_manual_config_dev+0x12b/0x2fc
- [<c88c01f7>] snd_card_sb16_pnp+0x123/0x1bc [snd_sb16]
- [<c88c2580>] sb16_pnpc_driver+0x0/0xb4 [snd_sb16]
- [<c889906f>] +0x6f/0x59c [snd_sb16]
- [<c88c249c>] snd_sb16_pnpids+0x3dc/0x474 [snd_sb16]
- [<c88c2580>] sb16_pnpc_driver+0x0/0xb4 [snd_sb16]
- [<c88c249c>] snd_sb16_pnpids+0x3dc/0x474 [snd_sb16]
- [<c88c2580>] sb16_pnpc_driver+0x0/0xb4 [snd_sb16]
- [<c88c02c5>] snd_sb16_pnp_detect+0x35/0x64 [snd_sb16]
- [<c88c249c>] snd_sb16_pnpids+0x3dc/0x474 [snd_sb16]
- [<c01dae4b>] card_probe+0x3f/0x68
- [<c88c249c>] snd_sb16_pnpids+0x3dc/0x474 [snd_sb16]
- [<c88c2580>] sb16_pnpc_driver+0x0/0xb4 [snd_sb16]
- [<c01db8ff>] pnp_register_card_driver+0x17f/0x19c
- [<c88c2580>] sb16_pnpc_driver+0x0/0xb4 [snd_sb16]
- [<c88c1fc0>] port+0x0/0x20 [snd_sb16]
- [<c88996a7>] alsa_card_sb16_init+0x83/0xbc [snd_sb16]
- [<c88c2580>] sb16_pnpc_driver+0x0/0xb4 [snd_sb16]
- [<c88c2634>] possible_ports.1451+0x0/0x2c [snd_sb16]
- [<c889959c>] snd_sb16_probe_legacy_port+0x0/0x88 [snd_sb16]
- [<c88c2660>] +0x0/0xe0 [snd_sb16]
- [<c013f366>] sys_init_module+0x222/0x2d8
- [<c010b65f>] syscall_call+0x7/0xb
-
-pnp: res: The resources requested do not match those set for the PnP device '01:01.00'.
-sb16: no OPL device at 0x388-0x38a
-
-
+Index: nodemgr.c
+===================================================================
+--- linux/drivers/ieee1394/nodemgr.c	(revision 862)
++++ linux/drivers/ieee1394/nodemgr.c	(working copy)
+@@ -1010,34 +1010,7 @@
+ 		kfree(ud);
+ }
+ 
+-static void dump_directories (struct node_entry *ne)
+-{
+-#ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+-	struct list_head *l;
+ 
+-	HPSB_DEBUG("vendor_id=0x%06x [%s], capabilities=0x%06x",
+-		   ne->vendor_id, ne->vendor_name ?: "Unknown",
+-		   ne->capabilities);
+-	list_for_each (l, &ne->unit_directories) {
+-		struct unit_directory *ud = list_entry (l, struct unit_directory, node_list);
+-		HPSB_DEBUG("unit directory:");
+-		if (ud->flags & UNIT_DIRECTORY_VENDOR_ID)
+-			HPSB_DEBUG("  vendor_id=0x%06x [%s]",
+-				   ud->vendor_id,
+-				   ud->vendor_name ?: "Unknown");
+-		if (ud->flags & UNIT_DIRECTORY_MODEL_ID)
+-			HPSB_DEBUG("  model_id=0x%06x [%s]",
+-				   ud->model_id,
+-				   ud->model_name ?: "Unknown");
+-		if (ud->flags & UNIT_DIRECTORY_SPECIFIER_ID)
+-			HPSB_DEBUG("  sw_specifier_id=0x%06x ", ud->specifier_id);
+-		if (ud->flags & UNIT_DIRECTORY_VERSION)
+-			HPSB_DEBUG("  sw_version=0x%06x ", ud->version);
+-	}
+-#endif
+-	return;
+-}
+-
+ static void nodemgr_process_root_directory(struct host_info *hi, struct node_entry *ne)
+ {
+ 	octlet_t address;
+@@ -1104,8 +1077,6 @@
+ 			break;
+ 		}
+ 	}
+-
+-	dump_directories(ne);
+ }
+ 
+ #ifdef CONFIG_HOTPLUG

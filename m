@@ -1,63 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbUEJUWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUEJUZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbUEJUWj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 16:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUEJUWj
+	id S261505AbUEJUZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 16:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUEJUZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 16:22:39 -0400
-Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:4781 "HELO
-	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261498AbUEJUWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 16:22:34 -0400
-Subject: Re: ptrace in 2.6.5
-From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
-To: Andi Kleen <ak@muc.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m365b4kth8.fsf@averell.firstfloor.org>
-References: <1UlcA-6lq-9@gated-at.bofh.it>
-	 <m365b4kth8.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Message-Id: <1084220684.1798.3.camel@slack.domain.invalid>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 10 May 2004 17:24:44 -0300
-Content-Transfer-Encoding: 7bit
+	Mon, 10 May 2004 16:25:26 -0400
+Received: from qfep04.superonline.com ([212.252.122.160]:30661 "EHLO
+	qfep04.superonline.com") by vger.kernel.org with ESMTP
+	id S261505AbUEJUZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 16:25:13 -0400
+Message-ID: <409FE528.3050705@superonline.com>
+Date: Mon, 10 May 2004 23:25:12 +0300
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOPS :  2.4.27-pre2 + latest ACPI
+References: <409D50AE.2020908@superonline.com> <409D52D3.5080500@superonline.com> <409DE596.8000808@superonline.com> <pan.2004.05.10.17.34.01.383608@altlinux.ru>
+In-Reply-To: <pan.2004.05.10.17.34.01.383608@altlinux.ru>
+Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-10 at 15:49, Andi Kleen wrote:
-> Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
-> 
-> > Hi All.
-> >
-> >      Is ptrace(), in singlestep mode, required to stop after a int 0x80?
-> >     When tracing a sequence like
-> >
-> > 	mov ...
-> > 	int 0x80
-> > 	mov ....
-> >
-> >     ptrace would notify the tracer after the two movs, but not after the
-> > int 0x80. I want to know if it is a bug or the expected behaviour.
-> 
-> What happens is that after the int 0x80 the CPU is in ring 0 (you
-> don't get an trace event in that mode unless you use a kernel debugger). 
-> Then when the kernel returns the last instruction executed before it is an 
-> IRET. But the IRET is also executed still in ring 0 and you should not get 
-> an event for it (you can not even access its code from user space).
-> 
-> So it's expected behaviour.
-> 
-> -Andi
-
-I got it. But I need it to stop after the instruction. I am a newbie,
-so is it trivial to patch the kernel so that it STOPS after the int
-0x80? Can  you give me some light on it?
+Sergey Vlasov wrote:
 
 > 
+> Looks like a free memory access - at acpi_button_remove() button->handle
+> was trashed by 0x5a5a5a5a.
+> 
+> Does the patch below (on top of the new ACPI changes) fix this?  Seems
+> that the special handling for fixed-feature buttons is unneeded at least
+> for 2.4.x - acpi_bus_unregister_driver() works for them.
+> 
+> 
+> --- linux/drivers/acpi/button.c.button-rmmod-oops	2004-05-09 19:45:09 +0400
+> +++ linux/drivers/acpi/button.c	2004-05-10 21:18:56 +0400
+> @@ -69,8 +69,6 @@
+>     -------------------------------------------------------------------------- */
+>  
+>  static struct proc_dir_entry	*acpi_button_dir;
+> -extern struct acpi_device 	*acpi_fixed_pwr_button;
+> -extern struct acpi_device	*acpi_fixed_sleep_button;
+>  
+>  static int
+>  acpi_button_read_info (
+> @@ -514,12 +512,6 @@
+>  {
+>  	ACPI_FUNCTION_TRACE("acpi_button_exit");
+>  
+> -	if(acpi_fixed_pwr_button) 
+> -		acpi_button_remove(acpi_fixed_pwr_button, ACPI_BUS_TYPE_POWER_BUTTON);
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> -	if(acpi_fixed_sleep_button)
+> -		acpi_button_remove(acpi_fixed_sleep_button, ACPI_BUS_TYPE_SLEEP_BUTTON);
+> -
+>  	acpi_bus_unregister_driver(&acpi_button_driver);
+>  
+>  	remove_proc_entry(ACPI_BUTTON_CLASS, acpi_root_dir);
+> --- linux/drivers/acpi/bus.c.button-rmmod-oops	2004-05-09 19:45:09 +0400
+> +++ linux/drivers/acpi/bus.c	2004-05-10 21:21:06 +0400
+> @@ -1769,23 +1769,15 @@
+>  }
+>  
+>  
+> -struct acpi_device *acpi_fixed_pwr_button;
+> -struct acpi_device *acpi_fixed_sleep_button;
+> -
+> -EXPORT_SYMBOL(acpi_fixed_pwr_button);
+> -EXPORT_SYMBOL(acpi_fixed_sleep_button);
+> -
+>  static int
+>  acpi_bus_scan_fixed (
+>  	struct acpi_device	*root)
+>  {
+>  	int			result = 0;
+> +	struct acpi_device	*device = NULL;
+>  
+>  	ACPI_FUNCTION_TRACE("acpi_bus_scan_fixed");
+>  
+> -	acpi_fixed_pwr_button = NULL;
+> -	acpi_fixed_sleep_button = NULL;
+> -
+>  	if (!root)
+>  		return_VALUE(-ENODEV);
+>  
+> @@ -1793,11 +1785,11 @@
+>  	 * Enumerate all fixed-feature devices.
+>  	 */
+>  	if (acpi_fadt.pwr_button == 0)
+> -		result = acpi_bus_add(&acpi_fixed_pwr_button, acpi_root, 
+> +		result = acpi_bus_add(&device, acpi_root, 
+>  			NULL, ACPI_BUS_TYPE_POWER_BUTTON);
+>  
+>  	if (acpi_fadt.sleep_button == 0)
+> -		result = acpi_bus_add(&acpi_fixed_sleep_button, acpi_root, 
+> +		result = acpi_bus_add(&device, acpi_root, 
+>  			NULL, ACPI_BUS_TYPE_SLEEP_BUTTON);
+>  
+>  	return_VALUE(result);
+
+
+Yes, this patch cures the oops. Thank you very much.
+
+Best regards;
+Özkan Sezer
 

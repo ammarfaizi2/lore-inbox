@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbUJaXRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbUJaXYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbUJaXRO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUJaXRN
+	id S261689AbUJaXYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUJaXYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:17:13 -0500
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:28432 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261688AbUJaXQz
+	Sun, 31 Oct 2004 18:24:11 -0500
+Received: from washoe.rutgers.edu ([165.230.95.67]:30147 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261689AbUJaXYH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:16:55 -0500
-Message-ID: <4185724B.8090802@stud.feec.vutbr.cz>
-Date: Mon, 01 Nov 2004 00:16:27 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-References: <1099165925.1972.22.camel@krustophenia.net> <20041030221548.5e82fad5@mango.fruits.de> <1099167996.1434.4.camel@krustophenia.net> <20041030231358.6f1eeeac@mango.fruits.de> <1099171567.1424.9.camel@krustophenia.net> <20041030233849.498fbb0f@mango.fruits.de> <20041031120721.GA19450@elte.hu> <20041031124828.GA22008@elte.hu> <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu>
-In-Reply-To: <20041031134016.GA24645@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  identified this incoming email as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (0.6 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -0.1 BAYES_20               BODY: Bayesian spam probability is 20 to 30%
-                              [score: 0.2565]
-  ____
+	Sun, 31 Oct 2004 18:24:07 -0500
+Date: Sun, 31 Oct 2004 18:24:05 -0500
+From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ipod vfat
+Message-ID: <20041031232405.GB31975@washoe.rutgers.edu>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041031213523.GO1530@washoe.rutgers.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031213523.GO1530@washoe.rutgers.edu>
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've just uploaded V0.6.2 that fixes a console-unblanking-timer thinko. 
-> This bug was present for quite some time, but this is the first time it 
-> triggered on my testbox - might be more common on others.
-> 
-> 	Ingo
+I'm sorry guys - it seems that the necessary steps were taken in the
+last kernel version:
 
-Hi Ingo,
-I finally got to test your patch again. Now I've been running -V0.6.2 
-for almost two hours and have not yet encountered a single deadlock.
-So it seems that the netfilter deadlock, that I could easily reproduce 
-in -V0.4.1, is solved.
+        /*
+         * The low byte of FAT's first entry must have same value with
+         * media-field.  But in real world, too many devices is
+         * writing wrong value.  So, removed that validity check.
+         *
+         * if (FAT_FIRST_ENT(sb, media) != first)
+         */
 
-There is one strange thing, though:
-michich@k4-912b:~$ uptime
-  00:09:17 up  1:49,  7 users,  load average: 707.72, 706.40, 682.16
+So I will give it a spin :-)
 
-In fact my computer is mostly idle.
-ps shows no zombies nor any D-state processes. The system runs fine.
+Sorry once again
 
-Michal
+-- 
+Yarik
+
+On Sun, Oct 31, 2004 at 04:35:23PM -0500, Yaroslav Halchenko wrote:
+> Dear Kernel Developers,
+
+> Is it possible to incorporate the next patch which I had to introduce to
+> have the vfat fs of my ipod to get mounted under Linux.
+
+> Originally its vfat was mounting ok, but then at some point which I
+> didn't clearly mentioned, it stopped... probably it happened after I
+> attached ipod to some windows box, because now windows still can easily
+> mount it whenever vanilla linux kernel refuses...
+
+> Or should I just adjust my ipod's fs definition?
+
+> Thank you in advance
+-- 
+                                                  Yaroslav Halchenko
+                  Research Assistant, Psychology Department, Rutgers
+          Office  (973) 353-5440 x263  Fax (973) 353-1171
+   Ph.D. Student  CS Dept. NJIT
+             Key  http://www.onerussian.com/gpg-yoh.asc
+ GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+

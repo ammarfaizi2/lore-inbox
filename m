@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262481AbSJEToK>; Sat, 5 Oct 2002 15:44:10 -0400
+	id <S262500AbSJETub>; Sat, 5 Oct 2002 15:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbSJEToK>; Sat, 5 Oct 2002 15:44:10 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:62103 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S262481AbSJEToI>;
-	Sat, 5 Oct 2002 15:44:08 -0400
-Message-ID: <3D9F4255.3060600@candelatech.com>
-Date: Sat, 05 Oct 2002 12:49:41 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S262504AbSJETub>; Sat, 5 Oct 2002 15:50:31 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37393
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262500AbSJETuZ>; Sat, 5 Oct 2002 15:50:25 -0400
+Date: Sat, 5 Oct 2002 12:53:37 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
 To: Gigi Duru <giduru@yahoo.com>
-CC: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: The end of embedded Linux?
-References: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gigi Duru wrote:
+
+Well have a nice day and go pay for windriver licenses, or use the source
+to adopt to your needs, or hire somebody who can do it for you.
+Whinning will not help, doing will.
+
+Regards,
+
+On Sat, 5 Oct 2002, Gigi Duru wrote:
+
 > Trivial experiment: configure out _ALL_ the options on
 > 2.5.38 and build bzImage. My result? A totally useless
 > 270KB kernel (compressed). 
-
-Maybe you could explain the options you had to add to make
-it useful to you?  That may help folks figure out where the
-thing can be slimmed down.
-
+> 
 > Now try to put in some useful stuff and the
 > _compressed_ image will cheerfully approach 1MB. Where
 > are the days when a 200KB kernel would be fully
 > equipped?
+> 
+> I know you guys are struggling to bring "world class
+> VM & IO" to Linux, going for SMPs and other big toys,
+> but you are about to lose what you already have: the
+> embedded market.
+> 
+> As an embedded developer, I can't stand bloat. I think
+> an OS designer should feel the same, and develop in a
+> fully modular and configurable manner, going for both
+> speed and size. For a long time I've felt that Linux
+> has got it right, but lately I'm not that sure
+> anymore. 
+> 
+> Gigi Duru
+> 
+> __________________________________________________
+> Do you Yahoo!?
+> Faith Hill - Exclusive Performances, Videos & More
+> http://faith.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Gone too are the days where you could easily buy something
-as small as a 2MB flash chip :)
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+Andre Hedrick
+LAD Storage Consulting Group
 

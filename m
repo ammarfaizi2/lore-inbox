@@ -1,39 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264588AbTDPUWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 16:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbTDPUWv
+	id S264580AbTDPUkK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 16:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264581AbTDPUkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 16:22:51 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:17793 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S264585AbTDPUWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 16:22:50 -0400
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F10F@EXA-ATLANTA.se.lsil.com>
-From: "Mukker, Atul" <atulm@lsil.com>
-To: "'alan@redhat.com'" <alan@redhat.com>,
-       "'James.Bottomley@steeleye.com'" <James.Bottomley@steeleye.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>,
-       "'linux-megaraid-announce@dell.com'" 
-	<linux-megaraid-announce@dell.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Subject: [ANNOUNCE]: version 2.00.3 megaraid driver for 2.4.x and 2.5.67 kernels
-Date: Wed, 16 Apr 2003 16:34:22 -0400
+	Wed, 16 Apr 2003 16:40:10 -0400
+Received: from h002.c000.snv.cp.net ([209.228.32.66]:59083 "HELO
+	c000.snv.cp.net") by vger.kernel.org with SMTP id S264580AbTDPUkI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 16:40:08 -0400
+X-Sent: 16 Apr 2003 20:52:01 GMT
+Message-ID: <006a01c3045a$037f54b0$6901a8c0@athialsinp4oc1>
+From: "Brien" <admin@brien.com>
+To: "John Bradford" <john@grabjohn.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <200304161928.h3GJSopS001481@81-2-122-30.bradfords.org.uk>
+Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
+Date: Wed, 16 Apr 2003 16:51:53 -0400
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New megaraid driver 2.00.3 is now available at
-ftp://ftp.lsil.com/pub/linux-megaraid For this driver, a patch is also
-available for 2.5.67 kernel.
+> OK...  Do you get the same locations failing with one pair of DIMMs as
+> with another identical pair of DIMMs, or is it just randomly flakey?
 
-Regards
-Atul Mukker
-Storage Systems
-LSI Logic Corporation
-U.S.A.
+never seems to be the same
+(maybe a few are, but they've never all been the same--I'd have to look
+closely to match any addresses)
+
+> Are you sure it's not the power supply?  If the voltages are only just
+> within spec, you could concievably get the behavior you describe.
+
+well, I have a 450 watt power supply that's rated for more than I'm
+using--it very rarely even becomes warm after hours of use
+
+the voltages go much higher than they need to; I've also tried adjusting
+them and had the same problem
+
+> I wouldn't even bothing trying to run anything on a machine until it
+> runs Memtest86 for a couple of hours successfully.
+
+I can with single modules, but not with 2..
+
+I don't know what to do...
+
+thanks for all of the comments/suggestions
+
+----- Original Message -----
+From: "John Bradford" <john@grabjohn.com>
+To: "Brien" <admin@brien.com>
+Cc: "John Bradford" <john@grabjohn.com>; <linux-kernel@vger.kernel.org>
+Sent: Wednesday, April 16, 2003 3:28 PM
+Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
+
+
+> > I've now tried running the following configurations
+>
+> [snip]
+>
+> > and all of them have the same problem: black screen after kernel loads
+> > they all do seem to test with errors when ran with another module, but
+they
+> > also DO NOT test as errors when they're alone
+>
+> OK...  Do you get the same locations failing with one pair of DIMMs as
+> with another identical pair of DIMMs, or is it just randomly flakey?
+>
+> > I'm starting to think it's a problem with my motherboard rather than
+with
+> > the RAM, because I've tried so many different ways and with different
+RAM
+> > modules.. but I don't know for sure..
+>
+> Are you sure it's not the power supply?  If the voltages are only just
+> within spec, you could concievably get the behavior you describe.
+>
+> > basically every time I try to run any linux distribution, even if I
+> > type (mem=XXXM), it just doesn't work...
+>
+> I wouldn't even bothing trying to run anything on a machine until it
+> runs Memtest86 for a couple of hours successfully.
+>
+> John.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+
+

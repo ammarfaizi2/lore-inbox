@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281765AbRKQQdW>; Sat, 17 Nov 2001 11:33:22 -0500
+	id <S281754AbRKQQky>; Sat, 17 Nov 2001 11:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281775AbRKQQdN>; Sat, 17 Nov 2001 11:33:13 -0500
-Received: from hermes.toad.net ([162.33.130.251]:11239 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S281765AbRKQQdD>;
-	Sat, 17 Nov 2001 11:33:03 -0500
-Subject: Re: 2.4.13-ac8: crash on IBM Thinkpad 600x
-From: Thomas Hood <jdthood@mail.com>
+	id <S281775AbRKQQkp>; Sat, 17 Nov 2001 11:40:45 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:45213 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S281754AbRKQQkc>; Sat, 17 Nov 2001 11:40:32 -0500
+Message-Id: <200111171640.RAA22409@post.webmailer.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Florian Schmitt <florian@galois.de>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 17 Nov 2001 11:33:31 -0500
-Message-Id: <1006014813.1183.0.camel@thanatos>
-Mime-Version: 1.0
+Subject: Re: Linux-2.4.15-pre5 - probably something wrong with /proc/cpuinfo.
+Date: Sat, 17 Nov 2001 17:40:27 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20011117144242Z281758-17408+15441@vger.kernel.org>
+In-Reply-To: <20011117144242Z281758-17408+15441@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.13-ac8 unfortunately crashes on my IBM Thinkpad 600x every now and
-> then by a kernel panic.  Unfortunately, not syncing.
-> Does anyone has similar experienes and managed a workaround?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I got these crashes.  Every time it happened, the caps-lock
-and scroll-lock lights would turn on and the machine would
-freeze.  I went back to -ac7.
+Same problem here... I just removed this part of the boot script - it works 
+for me now. But anyway, this is a kernel issue: a stable kernel shouldn´t 
+break userspace apps.
 
+Flo
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE79pL7H7Gei80C0lQRAp8xAKCTu1cUX1/yUovibbp2t9de7tqENwCgw/1x
+pY09AxkOwbgB6NHFnmQLk3k=
+=0wT2
+-----END PGP SIGNATURE-----

@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbUL0W4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUL0XA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbUL0W4S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 17:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbUL0WyQ
+	id S262009AbUL0XA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 18:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUL0XA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 17:54:16 -0500
-Received: from wildsau.idv.uni.linz.at ([193.170.194.34]:39567 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S261996AbUL0Ww5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 17:52:57 -0500
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
-Message-Id: <200412272248.iBRMmsgP021883@wildsau.enemy.org>
-Subject: Re: SG_GET_VERSION_NUM rejected on scsi device?
-To: linux-kernel@vger.kernel.org
-Date: Mon, 27 Dec 2004 23:48:54 +0100 (MET)
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Dec 2004 18:00:56 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29700 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261999AbUL0W64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 17:58:56 -0500
+Date: Mon, 27 Dec 2004 23:58:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "prem.de.ms" <prem.de.ms@gmx.de>
+Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: [2.6 patch] let VIDEO_CX88 select FW_LOADER
+Message-ID: <20041227225854.GG5345@stusta.de>
+References: <41D08611.9000004@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D08611.9000004@gmx.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 27, 2004 at 11:00:49PM +0100, prem.de.ms wrote:
 
-> good evening,
+> Hello,
 > 
-> I have a old Plextor CD-R, native scsi, attached to an AHA_2940.
-> ...
-> now, I do an ioctl(SG_GET_VERSION_NUM) (0x2282), and that fails:
+> I get the following error message when I try to compile the new 
+> 2.6.10-kernel:
 > 
->     open("/dev/sr0", O_RDONLY)              = 3
->     ioctl(3, 0x2282, 0xbffff660)            = -1 EINVAL (Invalid argument)
+> [...]
+> CHK     include/linux/compile.h
+>  UPD     include/linux/compile.h
+>  CC      init/version.o
+>  LD      init/built-in.o
+>  LD      .tmp_vmlinux1
+> drivers/built-in.o(.text+0x8a3b2): In function `blackbird_load_firmware':
+> : undefined reference to `request_firmware'
+> drivers/built-in.o(.text+0x8a454): In function `blackbird_load_firmware':
+> : undefined reference to `release_firmware'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> Seems like the Conexant drivers are broken because the kernel compiles 
+> when I uncheck them.
+> 
+> Any suggestions?
 
-on the other hand, this ioctl works perfectly with 2.6.10:
 
-    bash-2.05# ./sg_simple /dev/sr0
-    v30527
-    Some of the INQUIRY command's response:
-        PLEXTOR   CD-R   PX-W124TS  1.00
-    INQUIRY duration=1 millisecs, resid=40
+Thanks for this report.
 
-unfortunately, I cannot switch to 2.6 easily. one reason
-is that the pcnet32 driver does not work. at least, with
-2.6.10, it does not crash the machine anymore (as it did with
-2.6.7), however
-NETDEV WATCHDOG: eth1: transmit timed out
-eth1: transmit timed out, status 03f3, resetting.
+The patch below should fix it.
 
-and I do *not* want to buy a new network card just because
-I switch kernels.
 
-/herp
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc3-mm1-full/drivers/media/video/Kconfig.old	2004-12-27 23:53:33.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/drivers/media/video/Kconfig	2004-12-27 23:54:09.000000000 +0100
+@@ -304,8 +304,9 @@
+ config VIDEO_CX88
+ 	tristate "Conexant 2388x (bt878 successor) support"
+ 	depends on VIDEO_DEV && PCI && EXPERIMENTAL
+ 	select I2C_ALGOBIT
++	select FW_LOADER
+ 	select VIDEO_BTCX
+ 	select VIDEO_BUF
+ 	select VIDEO_TUNER
+ 	---help---
 

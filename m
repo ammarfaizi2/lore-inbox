@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271239AbRH2M5t>; Wed, 29 Aug 2001 08:57:49 -0400
+	id <S271230AbRH2MtJ>; Wed, 29 Aug 2001 08:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271957AbRH2M5j>; Wed, 29 Aug 2001 08:57:39 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:46610 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S271239AbRH2M53>;
-	Wed, 29 Aug 2001 08:57:29 -0400
-Date: Wed, 29 Aug 2001 14:57:44 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: linux 2.4.9 make menuconfig bug
-To: ankry@green.mif.pg.gda.pl
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3B8CE6C8.ED4F163B@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <200108291207.f7TC7SQ06387@sunrise.pg.gda.pl>
+	id <S271239AbRH2MtA>; Wed, 29 Aug 2001 08:49:00 -0400
+Received: from www.heureka.co.at ([195.64.11.111]:4107 "EHLO www.heureka.co.at")
+	by vger.kernel.org with ESMTP id <S271230AbRH2Msr>;
+	Wed, 29 Aug 2001 08:48:47 -0400
+Date: Wed, 29 Aug 2001 14:48:34 +0200
+From: David Schmitt <david@heureka.co.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ISSUE: DFE530-TX REV-A3-1 times out on transmit
+Message-ID: <20010829144834.A32319@www.heureka.co.at>
+In-Reply-To: <20010828154540.A23296@www.heureka.co.at> <Pine.LNX.4.30.0108282034210.1851-200000@cola.teststation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0108282034210.1851-200000@cola.teststation.com>
+User-Agent: Mutt/1.3.20i
+Organization: Heureka - Der EDV-Dienstleister
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz wrote:
+On Tue, Aug 28, 2001 at 09:46:18PM +0200, Urban Widmark wrote:
+> I'm ignoring that for now (if you don't mind) and have made a patch with
+> some possible improvements. Someone found a modified driver on some dlink
+> server that contains (claimed) workarounds for various chip peculiarities
+> (bugs).
 > 
-> "David Balazic wrote:"
-> > kernel 2.4.9
-> >
-> > make menuconfig
-> > on menu point "Fusion MPT device support" "Select" does nothing !
-> > it should go into a submenu
+> I also added a "force software reset" that is described in the datasheet.
+> Not sure what the difference is, but it can't hurt trying that if the
+> normal reset fails.
 > 
-> Normal behaviour for empty menu.
-> 
-> All "fusion" options depend on CONFIG_SCSI and CONFIG_BLK_DEV_SD.
+> Perhaps this helps, probably not.
 
-But if empty then it should no be listed at all, no ?
-That would make more sense IMHO.
+under 'normal loads' (ie one tcp d/l at max, few other traffic) the
+situation didn' get better, it hangs as often as with the original
+via-rhine, at least it feels so. No hard figures here. But even
+writing this mail (via ssh) here parallel to a download over the lan
+(from the same server) triggers resets.
 
+under heavy loads (ie with multiple flood pings) it resets often but I
+couldn't push it over the edge anymore. I have it running now for
+several minutes under multiple pingfloods and it always recovered
+(from quite a amount of resets).
+
+At least it recovers now. Thank you for your time and work!
+
+
+
+Regards, David Schmitt
 -- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+Signaturen sind wie Frauen. Man findet selten eine Vernuenftige
+	-- gesehen in at.linux

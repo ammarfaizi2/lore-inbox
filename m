@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADWmg>; Thu, 4 Jan 2001 17:42:36 -0500
+	id <S131131AbRADWog>; Thu, 4 Jan 2001 17:44:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131552AbRADWm0>; Thu, 4 Jan 2001 17:42:26 -0500
-Received: from host156.207-175-42.redhat.com ([207.175.42.156]:32520 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129348AbRADWmN>; Thu, 4 Jan 2001 17:42:13 -0500
-Date: Thu, 4 Jan 2001 17:42:12 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: alan@redhat.com
-Subject: Re: prerelease-ac6 compile problem in serial.c
-Message-ID: <20010104174212.A27418@devserv.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, alan@redhat.com
-In-Reply-To: <Pine.GSO.4.21.0101050022210.9014-100000@madli.ut.ee>
+	id <S131552AbRADWo0>; Thu, 4 Jan 2001 17:44:26 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:8723 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131131AbRADWoO>;
+	Thu, 4 Jan 2001 17:44:14 -0500
+Date: Thu, 4 Jan 2001 22:42:34 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Asang K Dani <asang@yahoo.com>, linux-kernel@vger.kernel.org,
+        sct@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: generic_file_write code segment in 2.2.18
+Message-ID: <20010104224234.B1290@redhat.com>
+In-Reply-To: <20010104052948.12042.qmail@web2303.mail.yahoo.com> <20010104085137.A18532@gruyere.muc.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0101050022210.9014-100000@madli.ut.ee>; from mroos@linux.ee on Fri, Jan 05, 2001 at 12:23:48AM +0200
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010104085137.A18532@gruyere.muc.suse.de>; from ak@suse.de on Thu, Jan 04, 2001 at 08:51:37AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Meelis Roos (mroos@linux.ee) said: 
-> 2.4.0-prerelease-ac6 doesn't compile serial on x86 with pnp enabled:
+Hi,
+
+On Thu, Jan 04, 2001 at 08:51:37AM +0100, Andi Kleen wrote:
+> On Wed, Jan 03, 2001 at 09:29:48PM -0800, Asang K Dani wrote:
 > 
-> serial.c: In function `probe_serial_pnp':
-> serial.c:5187: structure has no member named `device'
-> serial.c:5192: structure has no member named `device'
+> The code is buggy as far as I can see. copy_from_user doesn't return the 
+> number of bytes copied, but the number of bytes not copied when an error
+> occurs (or 0 on success).  
 
-Doh. I swear this did build when I tried it, although I don't see how.
+But in this case, _any_ non-zero number of bytes copied is a success,
+because it indicates that we have dirtied a portion of the page cache.
 
-Bill
+> Correct would be:
+> 
+> 	
+> --- linux-work/mm/filemap.c-o	Wed Jan  3 17:37:27 2001
+>  		dest = (char *) page_address(page) + offset;
+>  		if (dest != buf) { /* See comment in update_vm_cache_cond. */
+> -			bytes -= copy_from_user(dest, buf, bytes);
+> +			if (copy_from_user(dest, buf, bytes))
+> +				status = -EFAULT; 
+>  			flush_dcache_page(page_address(page));
+>  		}
+> -		status = -EFAULT;
+> -		if (bytes)
+> +		if (!status)
+>  			status = inode->i_op->updatepage(file, page, offset, bytes, sync);
 
---- linux/drivers/char/serial.c.foo	Thu Jan  4 17:31:43 2001
-+++ linux/drivers/char/serial.c	Thu Jan  4 17:32:38 2001
-@@ -5184,12 +5184,12 @@
- 	       
- 	       for (pnp_board = pnp_devices; pnp_board->vendor; pnp_board++)
- 		       if ((dev->vendor == pnp_board->vendor) &&
--			   (dev->device == pnp_board->device))
-+			   (dev->device == pnp_board->function))
- 			       break;
- 
- 	       if (pnp_board->vendor) {
- 		       board.vendor = pnp_board->vendor;
--		       board.device = pnp_board->device;
-+		       board.device = pnp_board->function;
- 		       /* Special case that's more efficient to hardcode */
- 		       if ((board.vendor == ISAPNP_VENDOR('A', 'K', 'Y') &&
- 			    board.device == ISAPNP_DEVICE(0x1021)))
+No, because then you'd be skipping the updatepage() call if we took a
+fault mid-copy after copying some data.  That would imply you had
+dirtied the page cache without an updatepage().
+
+The current behaviour should just result in a short IO, which should
+be fine.
+
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

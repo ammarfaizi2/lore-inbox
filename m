@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269217AbUHZSDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269175AbUHZSD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269217AbUHZSDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 14:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269175AbUHZSBT
+	id S269175AbUHZSD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 14:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269138AbUHZSBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:01:19 -0400
-Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:2182 "EHLO
-	linuxfarms.com") by vger.kernel.org with ESMTP id S269232AbUHZR4g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 13:56:36 -0400
-Date: Thu, 26 Aug 2004 13:56:59 -0400 (EDT)
-From: Arthur Perry <kernel@linuxfarms.com>
-X-X-Sender: kernel@tiamat.perryconsulting.net
-To: "Mauricio R. Perez - Centro de Computos" 
-	<mauricio_perez@pergamino.gov.ar>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel argument list too long
-In-Reply-To: <008601c48b84$d7211530$643caf0a@pergamino.gov.ar>
-Message-ID: <Pine.LNX.4.58.0408261347340.11625@tiamat.perryconsulting.net>
-References: <008601c48b84$d7211530$643caf0a@pergamino.gov.ar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Aug 2004 14:01:07 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:21153 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S269217AbUHZRzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 13:55:35 -0400
+Date: Thu, 26 Aug 2004 19:55:14 +0200
+From: Christophe Saout <christophe@saout.de>
+To: Diego Calleja <diegocg@teleline.es>
+Cc: Rik van Riel <riel@redhat.com>, jamie@shareable.org,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826175512.GA16785@leto.cs.pocnet.net>
+References: <20040826190548.3e67726f.diegocg@teleline.es> <Pine.LNX.4.44.0408261315240.27909-100000@chimarrao.boston.redhat.com> <20040826194010.548e4a4c.diegocg@teleline.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826194010.548e4a4c.diegocg@teleline.es>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, Mauricio R. Perez - Centro de Computos wrote:
+On Thu, Aug 26, 2004 at 07:40:10PM +0200, Diego Calleja wrote:
 
-> Kernel limitation of argument list it's a problem, not for things I do, else
-> is for things that others do, i "need" to compile aubit4gl, but configure
-> gives me Argument List Too long, and I need to have more memory for
-> arguments, how can y solve this?
-> kernel: 2.6.7
-> gcc: 3.3.2
->
-> Thanks
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> > So all I need to do is "cat /bin | gzip -9 > /path/to/backup.tar.gz" ?
+> 
+> /bin could be separated (like linus said) but cat /bin/.compound could do
+> it. This is the /etc/passwd Hans' example, I think:
 
+Yes, but what about locking? If we have compound files with
+individually accessible components a lock on the compound files
+could lock its components at the same time.
 
-Hi Mauricio,
+But what with /usr/.compound? Is it read-only? What if you truncate it?
+Does it atomically delete the whole /usr directory tree? What about reading?
+It has to go through all these independent files, what if they change while
+you are reading the compound file? Does it lock everything? Point-in-time
+snapshot? If reiser4 can't do this. ;-)
 
-Here is a canned answer to that age-old question:
-http://lists.gnu.org/archive/html/bug-fileutils/2001-10/msg00048.html
-
-
-Now in your case, I would find some way to get configure to do what you want it to without that long argument list.
-Maybe you can find some files to modify manually to "hard code" your options in the tree of aubit4gl.
-Perhaps there are a few Makefile variables that can be hardcoded.
-I probably would not bother recompiling the kernel in order to get a larger environment space just to pass this huge tank of a command line for a single build.
-
-
-Arthur Perry
-Linux Systems/Software Architect
-Lead Linux Engineer
-
+I don't say that it's impossible to do but I think it's a lot harder than
+doing it the other way round.

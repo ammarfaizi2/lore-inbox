@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263643AbSJHUW3>; Tue, 8 Oct 2002 16:22:29 -0400
+	id <S263633AbSJHUOI>; Tue, 8 Oct 2002 16:14:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261476AbSJHUVY>; Tue, 8 Oct 2002 16:21:24 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:13662 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S263267AbSJHUU3>;
-	Tue, 8 Oct 2002 16:20:29 -0400
-Message-ID: <3DA33F70.7050504@acm.org>
-Date: Tue, 08 Oct 2002 15:26:24 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] IPMI driver for Linux, version 4
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S263505AbSJHUMx>; Tue, 8 Oct 2002 16:12:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63142 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261441AbSJHUM0>;
+	Tue, 8 Oct 2002 16:12:26 -0400
+Date: Tue, 08 Oct 2002 13:11:00 -0700 (PDT)
+Message-Id: <20021008.131100.47229080.davem@redhat.com>
+To: zaitcev@redhat.com
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: kbuild news
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200210081442.g98EgeH11258@devserv.devel.redhat.com>
+References: <mailman.1034070360.25457.linux-kernel2news@redhat.com>
+	<200210081442.g98EgeH11258@devserv.devel.redhat.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have put a new version of the IPMI driver on my home page 
-(http://home.attbi.com/~minyard) that fixes a bug.  A previous 
-unannounce version is there (v3) that adds IPMB broadcast support and 
-fixes a bug.  If you are using this driver, you want to update to the 
-newest version.  These are only supplied as a patches against the 
-previous version since the patches are small and apply to all kernel 
-versions.  If someone wants a full patch, I can do that, too.
+   From: Pete Zaitcev <zaitcev@redhat.com>
+   Date: Tue, 8 Oct 2002 10:42:40 -0400
+   
+   Let's face it, both btfixup and kallsyms "want" to be the last,
+   so something has to give.
 
-I was toying with the idea of adding a socket interface to the IPMI 
-driver.  This way, it would naturally handle separation of addressing 
-and data, and it wouldn't take up a character device.  I think I could 
-map everything the driver does into standard network calls, and the IPMB 
-bus is sort of a network, anyway.  Does anyone have any opinions on this?
+No, btfixup does not care about anything that will go into
+kallsyms.o, no BTFIXUP objects may appear in kallsyms.
 
--Corey
-
-PS - In case you don't know, IPMI is a standard for system management, 
-it provides ways to detect the managed devices in the system and sensors 
-attached to them.  You can get more information at 
-http://www.intel.com/design/servers/ipmi/spec.htm
-
+So btfixup may be next to last just fine.

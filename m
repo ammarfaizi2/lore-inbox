@@ -1,115 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266920AbUHIUIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266921AbUHIUMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266920AbUHIUIu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267171AbUHIUD0
+	id S266921AbUHIUMb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUHIULi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:03:26 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:51610 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266921AbUHIUBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:01:09 -0400
-Message-Id: <200408092001.i79K1weQ045966@northrelay04.pok.ibm.com>
-Subject: [PATCH 1/3] blk_queue_free_tags
-To: akpm@osdl.org
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, brking@us.ibm.com
-From: brking@us.ibm.com
-Date: Mon, 09 Aug 2004 15:00:53 -0500
+	Mon, 9 Aug 2004 16:11:38 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:13707 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266921AbUHIUHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:07:40 -0400
+Message-ID: <4117D98C.2030203@comcast.net>
+Date: Mon, 09 Aug 2004 16:07:40 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Bug zapper?  :)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(Assuming this accurately falls under [RFC]; I *am* requesting comments 
+on this method)
 
-This is a resend of three ll_rw_blk patches related to tagged queuing.
+A pondering of all the bugs in the linux kernel-- and yes, we all know 
+there are bugs, stable or not-- always leads me to attempt to figure a 
+way to get rid of them.  In the past I'd thought of taking just an 
+unstructured "Tell the list to take a month to try and kill all bugs" 
+approach; but decided that that would be a rediculous idea.  Since then 
+I've been pondering, trying to figure a good and reliable way to do it 
+other than rewriting from scratch (a very effective method of delousing 
+a huge codebase).
 
-Currently blk_queue_free_tags cannot be called with ops outstanding. The
-scsi_tcq API defined to LLD scsi drivers allows for scsi_deactivate_tcq
-to be called (which calls blk_queue_free_tags) with ops outstanding. Change
-blk_queue_free_tags to no longer free the tags, but rather just disable
-tagged queuing and also modify blk_queue_init_tags to handle re-enabling
-tagged queuing after it has been disabled.
+I recently read a few pages in a book on exploiting software, skimming 
+it in the bookstore to see if it was worth the buy.  For those 
+interested, it's ISBN 0201786958, "Exploiting Software:  How to Break 
+Code."  This gave me some insight into possible solutions.
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
-Signed-off-by: Brian King <brking@us.ibm.com>
----
+The book covered several exploit types, although it didn't seem from the 
+glance I took to indicate strong separation between those that exist by 
+design (the ILoveYou bug used this type) and those that exist by 
+screw-up (MSBlast and Sasser used these).  It discussed typical buffer 
+overflows and software bugs, though.
 
- linux-2.6.8-rc3-mm2-bjking1/drivers/block/ll_rw_blk.c |   35 ++++++++++++++----
- 1 files changed, 28 insertions(+), 7 deletions(-)
+What I found interesting was that it described bugs as 
+pseudo-quantitative based on the KLOC (thousands of lines of code) for a 
+code body.  The basic theory boils down to 5-50 bugs per 1000 LOC, 
+approaching 5 for QA audited code.  Thus, 10000 LOC executable, 50 bugs.
 
-diff -puN drivers/block/ll_rw_blk.c~blk_queue_free_tags drivers/block/ll_rw_blk.c
---- linux-2.6.8-rc3-mm2/drivers/block/ll_rw_blk.c~blk_queue_free_tags	2004-08-09 14:10:50.000000000 -0500
-+++ linux-2.6.8-rc3-mm2-bjking1/drivers/block/ll_rw_blk.c	2004-08-09 14:48:18.000000000 -0500
-@@ -521,15 +521,14 @@ struct request *blk_queue_find_tag(reque
- EXPORT_SYMBOL(blk_queue_find_tag);
- 
- /**
-- * blk_queue_free_tags - release tag maintenance info
-+ * __blk_queue_free_tags - release tag maintenance info
-  * @q:  the request queue for the device
-  *
-  *  Notes:
-  *    blk_cleanup_queue() will take care of calling this function, if tagging
-- *    has been used. So there's usually no need to call this directly, unless
-- *    tagging is just being disabled but the queue remains in function.
-+ *    has been used. So there's no need to call this directly.
-  **/
--void blk_queue_free_tags(request_queue_t *q)
-+static void __blk_queue_free_tags(request_queue_t *q)
- {
- 	struct blk_queue_tag *bqt = q->queue_tags;
- 
-@@ -553,6 +552,19 @@ void blk_queue_free_tags(request_queue_t
- 	q->queue_flags &= ~(1 << QUEUE_FLAG_QUEUED);
- }
- 
-+/**
-+ * blk_queue_free_tags - release tag maintenance info
-+ * @q:  the request queue for the device
-+ *
-+ *  Notes:
-+ *	This is used to disabled tagged queuing to a device, yet leave
-+ *	queue in function.
-+ **/
-+void blk_queue_free_tags(request_queue_t *q)
-+{
-+	clear_bit(QUEUE_FLAG_QUEUED, &q->queue_flags);
-+}
-+
- EXPORT_SYMBOL(blk_queue_free_tags);
- 
- static int
-@@ -603,13 +615,22 @@ fail:
- int blk_queue_init_tags(request_queue_t *q, int depth,
- 			struct blk_queue_tag *tags)
- {
--	if (!tags) {
-+	int rc;
-+
-+	BUG_ON(tags && q->queue_tags && tags != q->queue_tags);
-+
-+	if (!tags && !q->queue_tags) {
- 		tags = kmalloc(sizeof(struct blk_queue_tag), GFP_ATOMIC);
- 		if (!tags)
- 			goto fail;
- 
- 		if (init_tag_map(q, tags, depth))
- 			goto fail;
-+	} else if (q->queue_tags) {
-+		if ((rc = blk_queue_resize_tags(q, depth)))
-+			return rc;
-+		set_bit(QUEUE_FLAG_QUEUED, &q->queue_flags);
-+		return 0;
- 	} else
- 		atomic_inc(&tags->refcnt);
- 
-@@ -1373,8 +1394,8 @@ void blk_cleanup_queue(request_queue_t *
- 	if (rl->rq_pool)
- 		mempool_destroy(rl->rq_pool);
- 
--	if (blk_queue_tagged(q))
--		blk_queue_free_tags(q);
-+	if (q->queue_tags)
-+		__blk_queue_free_tags(q);
- 
- 	kmem_cache_free(requestq_cachep, q);
- }
-_
+Decrease the size of the code body, and you evade the above issue:  A 
+small, independent code body will have the number of bugs approach 0; 
+fractional (less than one) bug counts are lost.  This can be realisticly 
+done.
+
+First, above every function's implementation, explain the function in 
+terms of **input**, **output**, and **state change**.  Detail its 
+**process** as well if possible.  This allows you to make a definite 
+review of a function from wherever you call it, simply by reading the 
+comments.
+
+Second, in all of your code, assume that the functions you call do 
+**exactly** what these comments say they do, no more, no less.  This 
+takes your view off the worry of "will this do something unexpected" and 
+moves it to "am I screwing up HERE?"  This narrows your code body to the 
+current function for the brief period that you're writing it.
+
+In passing, you can check a function for bugs while considering it only 
+the process that it performs, and puting absolute trust in the functions 
+that it calls.  By explaining the process it performs, everyone else who 
+looks at the code has deep enough knowledge that they can see bugs if 
+they have technical knowledge about coding and the other functions. 
+Furthermore, large code bodies are reduced to small sets of logical 
+processes-- each function effectively becomes ONE line of code.
+
+The result is that you micro-manage your functions, causing related bug 
+searches to be narrowed down to them with confidence that your 
+understanding of the function is correct due to the explaination above 
+the function body.  This reduces all code bodies (asside from assembly) 
+to a handfull of LOC, which statistically should have 0 bugs.
+
+In practice, I believe this high volume of documentation will not reduce 
+the kernel's bug count to 0; however, it would become closer, I believe. 
+  It would become especially easier to devout bug-hunters, who no longer 
+have to take several days to understand the code.
+
+What do you all think?  Do you see flaws in my logic?
+
+--John
+
+-- 
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+Sorry, 64 bit cpu, Thunderbird is broke so no enigmail.  I'd sign it if 
+I could.

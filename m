@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbULGCYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbULGCbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbULGCYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 21:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbULGCYc
+	id S261736AbULGCbD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 21:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbULGCbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 21:24:32 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:36517 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S261733AbULGCYa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 21:24:30 -0500
-Date: Mon, 6 Dec 2004 21:24:29 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: make -j4 gets stuck w/ ccache over NFS
-Message-ID: <20041207022429.GA5295@jupiter.solarsys.private>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 6 Dec 2004 21:31:03 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:9157 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261736AbULGCbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 21:31:01 -0500
+Message-ID: <41B515F7.8070005@comcast.net>
+Date: Mon, 06 Dec 2004 21:31:19 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041119)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Phil Lougher <phil.lougher@gmail.com>
+CC: Jan Knutar <jk-lkml@sci.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Designing Another File System
+References: <41ABF7C5.5070609@comcast.net>	 <cce9e37e041130112243beb62d@mail.gmail.com>	 <200412022218.54182.jk-lkml@sci.fi> <cce9e37e041206180179f3b010@mail.gmail.com>
+In-Reply-To: <cce9e37e041206180179f3b010@mail.gmail.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm using ccache version 2.4 [1].  I just changed ~/.ccache to a symbolic
-link to a directory which is NFS mounted [2].  The kernel source itself is
-on a local FS.  With the ccache suitably primed, when I do a kernel compile
-using 'make -j4' it seems to get stuck for seconds at a time.  When it gets
-unstuck, it blows through a handful of files and then gets stuck again.
+What compression algorithm does squashfs use?
 
-When it is stuck, both NFS client and server are almost totally idle.  The
-network itself has almost no other traffic.  It doesn't seem to matter if I
-mount NFS w/ udp or tcp (v3 in both cases).
+I would like to see LZMA used. . . . :)
 
-If I move ~/.ccache to a local FS, it never gets stuck.  If I just use 'make'
-or even 'make -j2', (I'm pretty sure but not 100%) it never gets stuck.
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-The NFS client is FC3 with kernel.org 2.6.10-rc3.  I also tried it with -rc1,
-2.6.9, and 2.6.8.1 - same problem.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Weirdest part: when I boot the distro stock kernel (2.6.9-1.681_FC3smp) the
-problem goes away.  Configs for all of the above are here [3].
-
-Please CC me with replies - thanks!
-
-[1] http://ccache.samba.org/
-
-[2] The NFS server uses kernel 2.4.28-rc2.
-
-[3] http://members.dca.net/mhoffman/lkml-20041213/
-
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
-
+iD8DBQFBtRX2hDd4aOud5P8RArFcAJ4w6VuO3jtTuZFNqFlLhnnBdwW0OQCfSOwB
+S2CKvKYBN3EB6QSgkPwtmZo=
+=kCIz
+-----END PGP SIGNATURE-----

@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266224AbUGJMJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266227AbUGJMMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266224AbUGJMJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 08:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266227AbUGJMJ7
+	id S266227AbUGJMMq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 08:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUGJMMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 08:09:59 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:10116 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266224AbUGJMJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 08:09:41 -0400
-Message-ID: <40EFDC80.4090807@yahoo.com.au>
-Date: Sat, 10 Jul 2004 22:09:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Sat, 10 Jul 2004 08:12:46 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:12498 "EHLO scrub.home")
+	by vger.kernel.org with ESMTP id S266227AbUGJMMd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 08:12:33 -0400
+Date: Sat, 10 Jul 2004 14:11:44 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Linus Torvalds <torvalds@osdl.org>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
+       mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+In-Reply-To: <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0407101410310.20635@scrub.home>
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+ <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org> <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+ <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-CC: arjanv@redhat.com, Ingo Molnar <mingo@elte.hu>,
-       Redeeman <lkml@metanurb.dk>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-References: <20040709182638.GA11310@elte.hu>	 <1089407610.10745.5.camel@localhost> <20040710080234.GA25155@elte.hu>	 <20040710085044.GA14262@elte.hu>	 <2a4f155d040710035512f21d34@mail.gmail.com> <1089458801.2704.3.camel@laptop.fenrus.com> <2a4f155d040710050166e98a7f@mail.gmail.com>
-In-Reply-To: <2a4f155d040710050166e98a7f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ismail dönmez wrote:
-> cartman@southpark:~$ dmesg | grep sched
-> Using anticipatory io scheduler
-> 
-> Problem is I rarely do this copy operations like once a week or 2
-> weeks. Guess there is no scheduler that fits both desktop usage +
-> these kinds of operations?
-> 
+Hi,
 
-For our benefit, could you try to recreate the situation with
-the cfq scheduler, and see if it still skips? If not, also do
-a run with the anticpatory scheduler again to see if your
-recreation was enough to cause a skip there...
+On Fri, 9 Jul 2004, Linus Torvalds wrote:
 
-That would at least point to the culprit (disk or cpu starvation)
+> What's considered bad form is:
+>  - assignments in boolean context (because of the confusion of "=" and 
+>    "==")
 
-Thanks
-Nick
+gcc already warns about this, what value has this extra stuff?
+
+bye, Roman

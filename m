@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUJ0OPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbUJ0OTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbUJ0OPh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 10:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUJ0OPb
+	id S262455AbUJ0OTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 10:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUJ0OTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 10:15:31 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:8580 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262451AbUJ0OPU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 10:15:20 -0400
-Message-ID: <417FAED5.7070603@sgi.com>
-Date: Wed, 27 Oct 2004 09:21:09 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
-References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com> <20041027064851.GW15367@holomorphy.com>
-In-Reply-To: <20041027064851.GW15367@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 10:19:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65298 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262459AbUJ0OTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 10:19:14 -0400
+Date: Wed, 27 Oct 2004 16:18:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Mathieu Segaud <matt@minas-morgul.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm1
+Message-ID: <20041027141841.GG2550@stusta.de>
+References: <20041026213156.682f35ca.akpm@osdl.org> <87breos8f4.fsf@barad-dur.crans.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+In-Reply-To: <87breos8f4.fsf@barad-dur.crans.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Mon, Oct 25, 2004 at 06:26:42PM -0700, Christoph Lameter wrote:
-> 
->>Hugetlb demand paging has been part of SuSE SLES 9 for awhile now and
->>this patchset is intended to help hugetlb demand paging also get into
->>the official Linux kernel. Huge pages are referred to as "compound"
->>pages in terms of "struct page" in the Linux kernel. The term
-> 
-> "compund page" may be used alternatively to huge page.
-> 
-> This may very well explain why SLES9 is triplefaulting when Oracle
-> tries to use hugetlb on it on x86-64.
-> 
-> Since all this is clearly malfunctioning and not done anywhere near
-> carefully enough, can I at least get *some* sanction to do any of this
-> differently?
-> 
-> 
-> -- wli
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-How differently?  What do you have in mind?
+On Wed, Oct 27, 2004 at 01:32:47PM +0200, Mathieu Segaud wrote:
+> 
+> It fails to build if CONFIG_FS_REISER4=y and issues a depmod error if reiser4
+> is built modular, as delete_from_page_cache has been ripped out
 
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+Revert reiser4-delete_from_page_cache.patch .
+
+> Best regards,
+> 
+> Mathieu
+
+cu
+Adrian
+
+- -- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBf65BmfzqmE8StAARAt5rAKCXVqVoaFT+n08H7Fl+bTzVz9pjPwCfbLKi
+K62m2ycCA0sxDEeVkWwetIg=
+=qWyx
+-----END PGP SIGNATURE-----

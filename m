@@ -1,48 +1,226 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269598AbRHCUyX>; Fri, 3 Aug 2001 16:54:23 -0400
+	id <S269610AbRHCU7x>; Fri, 3 Aug 2001 16:59:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269599AbRHCUyO>; Fri, 3 Aug 2001 16:54:14 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12561 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269598AbRHCUx5>;
-	Fri, 3 Aug 2001 16:53:57 -0400
-Date: Fri, 3 Aug 2001 17:53:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: David Ford <david@blue-labs.org>
-Cc: "Jeffrey W. Baker" <jwbaker@acm.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <3B6AE67A.9060709@blue-labs.org>
-Message-ID: <Pine.LNX.4.33L.0108031751590.11893-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S269608AbRHCU7p>; Fri, 3 Aug 2001 16:59:45 -0400
+Received: from tungsten.btinternet.com ([194.73.73.81]:8180 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S269607AbRHCU7d>; Fri, 3 Aug 2001 16:59:33 -0400
+Reply-To: <lar@cs.york.ac.uk>
+From: "Laramie Leavitt" <laramie.leavitt@btinternet.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.7 & MSI 694D doesn't boot?
+Date: Fri, 3 Aug 2001 22:05:01 +0100
+Message-ID: <000a01c11c5f$f67f4010$8e257ad5@hayholt>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Aug 2001, David Ford wrote:
 
-> If it is that badly broken, isn't that sufficient criteria to justify
-> the patch?
+Ok, I am having the hardest time getting 2.4.7 to run in my
+MSI.  It _always_ dies in the same spot just after the second 
+processor starts.
 
-It's not just a patch. Fixing this problem will require
-a major VM rewrite. A rewrite I really wasn't willing
-to make for 2.4.
+Perhaps I just have one option I don't need, or perhaps not.
 
-I'll start writing the thing, but I won't be aiming at
-getting it included in 2.4. I guess I could code it in
-such a way to give a drop-in replacement for people
-willing to cut themselves on the bleeding edge, though ;)
+Hardware: Dual pentium III 866 + 256 MB Ram, MSI 694D Pro-AR.
+Boot device: hdb1, ext2.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+The text above that is loading NTFS and setting serial options.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Anyway, here a bit of it is: 
+---------------------------------------------------
+(copied by hand, but difficult because it is off a dual proc.)
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Unable to handle NULL pointer dereference at 00000018 CPU:1
+
+eip 0010:[00000018]
+[<c0105272>][<c01cfe77>][<c019b7be>]
+
+c0105234 = cpu_idle
+c01cfcd8 = vgacon_cursor
+c019b750 = set_cursor
+
+Kernel panic.  Killing idle task.
+
+### ver_linux
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux darkstar 2.4.5 #6 Fri Jun 22 01:38:20 PDT 2001 i686 unknown
+ 
+Gnu C                  2.95.3
+Gnu make               3.79.1
+binutils               2.11.90.0.19
+util-linux             2.11f
+mount                  2.11b
+modutils               2.4.6
+e2fsprogs              1.22
+reiserfsprogs          3.x.0j
+PPP                    2.4.1
+Linux C Library        2.2.3
+Dynamic linker (ldd)   2.2.3
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0
+Modules Loaded         ppp_deflate ppp_async ppp_generic slip lp
+parport_pc parport
+
+### Summary of lspci
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev
+c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+(prog-if 00 [Normal decode])
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev
+22)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
+10) (prog-if 8a [Master SecP PriP])
+00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+(prog-if 00 [UHCI])
+00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+(prog-if 00 [UHCI])
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+(rev 30)
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686
+[Apollo Super AC97/Audio] (rev 20)
+00:0c.0 RAID bus controller: Promise Technology, Inc.: Unknown device
+0d30 (rev 02)
+00:0e.0 Communication controller: CONEXANT PCI Modem Enumerator (rev 08)
+00:0f.0 Multimedia audio controller: Yamaha Corporation YMF-724F [DS-1
+Audio Controller] (rev 03)
+00:12.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+(prog-if 00 [VGA])
+01:00.0 VGA compatible controller: nVidia Corporation Riva TnT2 [NV5]
+(rev 11) (prog-if 00 [VGA])
+
+### Summary of .config: Here is the list of the config options that are
+set.
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+CONFIG_EXPERIMENTAL=y
+
+CONFIG_MODULES=y
+CONFIG_MPENTIUMIII=y
+
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MATH_EMULATION=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_HAVE_DEC_LOCK=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PM=y
+
+CONFIG_BLK_DEV_FD=y
+
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IPX=y
+
+CONFIG_IDE=y
+
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_PDC202XX_BURST=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
+CONFIG_INPUT_EVDEV=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+
+CONFIG_AGP=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_R128=y
+
+CONFIG_REISERFS_FS=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_NTFS_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+
+CONFIG_USB=y
+CONFIG_USB_UHCI_ALT=y
 

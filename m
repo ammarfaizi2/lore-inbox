@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263458AbTDDIAm (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 03:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbTDDIAm (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 03:00:42 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:49162 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S263458AbTDDIAf (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 03:00:35 -0500
-Message-Id: <200304040802.h3482Zu20691@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Fendrakyn <fendrakyn@europaguild.com>
-Subject: Re: [BUG] E7x05 chipset bug in 2.5 kernels' AGPGART driver.
-Date: Fri, 4 Apr 2003 09:58:08 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200304022050.03026.fendrakyn@europaguild.com> <20030402221046.GA30881@suse.de>
-In-Reply-To: <20030402221046.GA30881@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id S263459AbTDDH61 (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 02:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTDDH61 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 02:58:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:45965 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263459AbTDDH6S (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 02:58:18 -0500
+Date: Fri, 4 Apr 2003 10:09:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       arrays@hp.com, steve.cameron@hp.com
+Subject: Re: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
+Message-ID: <20030404080937.GH2072@suse.de>
+References: <20030403120308.620e5a14.rddunlap@osdl.org> <20030404003044.GB16832@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030404003044.GB16832@wohnheim.fh-wedel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 April 2003 00:10, Dave Jones wrote:
-> On Wed, Apr 02, 2003 at 08:50:03PM +0200, Fendrakyn wrote:
->  > There is a mistake in the Makefile of drivers/char/agp, the line
->  > concerning i7x05-agp support does not match the one in the
->  > Kconfig, thus e7x05 support is never compiled, be it as a module
->  > or in the kernel.
->
-> I'm really amazed. This has been broken for months, and no-one
-> noticed. The day I fixed it in the agpgart bk tree, I got a half
-> dozen reports, and now I'm getting one daily. Truly bizarre.
+On Fri, Apr 04 2003, Jörn Engel wrote:
+> > +		error = copy_to_user(io, my_io, sizeof(*my_io)) ? -EFAULT : 0;
+> 
+> copy_to_user returns the bytes successfully copied.
+> error is set to -EFAULT, if there was actually data transferred?
+> 
+> How about:
+> +		error = copy_to_user(io, my_io, sizeof(*my_io)) < sizeof(*my_io) ? -EFAULT : 0;
 
-Jargon file have an entry about class of bugs which
-are latent (do not bite anybody) until discovered.
-When discovered, relevant pieces of code promptly stop working.
+Pure nonsense! Correct logic, and much nicer to read IMO is:
 
-I thought that was a joke ;)
---
-vda
+	if (copy_to_user(io, my_io, sizeof(*my_io))
+		error = -EFAULT;
+
+-- 
+Jens Axboe
+

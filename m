@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271283AbTHHHdx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 03:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271278AbTHHHdx
+	id S271264AbTHHHYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 03:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271272AbTHHHYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 03:33:53 -0400
-Received: from xs4all.vs19.net ([213.84.236.198]:17085 "EHLO spaans.vs19.net")
-	by vger.kernel.org with ESMTP id S271283AbTHHHdw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 03:33:52 -0400
-Date: Fri, 8 Aug 2003 09:33:44 +0200
-From: Jasper Spaans <jasper@vs19.net>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Message-ID: <20030808073344.GB6637@spaans.vs19.net>
-References: <20030807180032.GA16957@spaans.vs19.net> <Pine.LNX.4.53.0308072139320.12875@montezuma.mastecende.com> <20030808065230.GA5996@spaans.vs19.net> <Pine.LNX.4.53.0308080256340.30770@montezuma.mastecende.com>
+	Fri, 8 Aug 2003 03:24:50 -0400
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:32523 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id S271264AbTHHHYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 03:24:50 -0400
+Message-Id: <200308080724.h787OHHt034890@sirius.nix.badanka.com>
+Date: Fri, 8 Aug 2003 09:24:15 +0200
+From: Henrik Persson <nix@syndicalist.net>
+To: "Nicolas P." <linux@1g6.biz>
+Cc: wenck@wapu.org, linux-kernel@vger.kernel.org, hermes@gibson.dropbear.id.au
+Subject: Re: orinoco_cs: RequestIRQ: Unsupported mode
+In-Reply-To: <200308080831.22218.linux@1g6.biz>
+References: <20030808031706.GB20401@chaos.byteworld.com>
+	<200308080831.22218.linux@1g6.biz>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0308080256340.30770@montezuma.mastecende.com>
-Attach: /home/spaans/JasperSpaans.vcf
-Organization: http://www.insultant.nl/
-X-Copyright: Copyright 2003 C. Jasper Spaans - All Rights Reserved
-X-message-flag: Warning! The sender of this mail thinks you should use a more secure email client!
-User-Agent: Mutt/1.5.4i
-X-SA-Exim-Mail-From: spaans@spaans.vs19.net
-Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-Content-Type: text/plain; charset=iso-8859-15
-X-SA-Exim-Version: 3.0+cvs (built Mon Jul 28 22:52:54 EDT 2003)
-X-SA-Exim-Scanned: Yes
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 02:57:15AM -0400, Zwane Mwaikambo wrote:
-> > > > It changes all occurrences of 'flavour' to 'flavor' in the complete tree;
-> I know it wasn't purely cosmetic but i just wish we could use the proper 
-> spelling instead of US English. No i'm not trolling.
+On Fri, 8 Aug 2003 08:31:22 +0200
+"Nicolas P." <linux@1g6.biz> wrote:
 
-I totally agree with you on that and I do have the diff doing lying around
-here. Good fuel for a flamefest. I guess our benevolent dictator needs to
-decide on this issue :)
+> Forgot my last mail, I checked
+> 
+> it was : orinoco_cs: RequestIRQ: Resource in use
 
-VrGr,
+Do you have CONFIG_ISA in your kernel?
+
 -- 
-Jasper Spaans                 http://jsp.vs19.net/contact/
+Henrik Persson  nix@syndicalist.net  http://nix.badanka.com

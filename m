@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265433AbUAJUG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 15:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265434AbUAJUG2
+	id S265374AbUAJUO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 15:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUAJUO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 15:06:28 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:58568 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265433AbUAJUG0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 15:06:26 -0500
-Date: Sat, 10 Jan 2004 17:58:18 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 SMP lockups
-Message-ID: <Pine.LNX.4.58L.0401101758010.1310@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Sat, 10 Jan 2004 15:14:57 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51363 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265374AbUAJUOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 15:14:55 -0500
+Subject: Re: time cat /proc/*/statm ?
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: rl@hellgate.ch, linux-mm@vger.kernel.org, u1_amd64@dslr.net
+Content-Type: text/plain
+Organization: 
+Message-Id: <1073757421.828.25312.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Jan 2004 12:57:01 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roger Luethi writes:
 
----------- Forwarded message ----------
-Date: Sat, 10 Jan 2004 17:32:55 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Simon Kirby <sim@netnation.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.4.24 SMP lockups
+> Why does top still read /proc/*/statm anyway?
+> It's not as if top actually ever used that
+> information (the top I looked at at the time,
+> that is). I submitted a patch a few months ago
+> to remove statm because it is a) broken and
+> b) redundant. The message containing detailed
+> reasoning should be in the linux-mm archives.
 
+top (from procps-3.1.14 at least) only reads
+the /proc/*/statm files when you activate
+columns that need the statm data. Those are:
 
+%MEM   Memory usage (RES) 
+VIRT   Virtual Image (kb) 
+SWAP   Swapped size (kb) 
+RES    Resident size (kb) 
+CODE   Code size (kb) 
+DATA   Data+Stack size (kb) 
+SHR    Shared Mem size (kb)
+nDRT   Dirty Pages count 
 
-On Fri, 9 Jan 2004, Simon Kirby wrote:
+By default, some of those get displayed.
+The default includes: VIRT RES SHR %MEM
 
-> 'lo all,
+To get rid of those, type this:
+   f  o  q  t  n  enter  W
+(the "W" writes out a config file)
 
-Hi Simon,
+In case your top is too old for this, you
+can go to http://procps.sf.net/ for a new one.
 
-> We've had about 6 cases of this now, across 4 separate boxes.  Since
-> upgrading to 2.4.24, our SMP web server boxes (both Intel and AMD
-> hardware) are randomly blowing up.  This may have happened on 2.4.23 as
-> well, but they weren't really running long enough to tell.  2.4.22 was
-> fine.  GCC 3.3.3.
->
-> These boxes are all dual CPU, and the failure case shows up suddenly with
-> no warning.  Sysreq-P works, but only reports from one CPU no matter how
-> many times I try.  In normal operation, every machine distributes all
-> IRQs across both CPUs, and Sysreq-P reports from both CPUs.
->
-> Mapping the EIP reported by Sysreq-P to symbols shows that the responding
-> CPU is spinning on a spinlock (so far I have seen .text.lock.fcntl,
-> .text.lock.sched, .text.lock.locks, and .text.lock.inode), which I assume
-> is being held by the other (dead) CPU.
-
-This sounds like a deadlock. I wonder why the NMI watchdog is not
-triggering.
-
-> Even on boxes with nmi_watchdog=1, nothing is reported from the NMI
-> watchdog.
-
-Can you share all available SysRQ-P output for the locked CPU ? SysRQ-T if
-possible, too.
-
-Can you please describe the hardware in more detail. Is there any common
-hardware used in these boxes?
 

@@ -1,105 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265599AbTFNBd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 21:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265600AbTFNBd7
+	id S265601AbTFNBsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 21:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265602AbTFNBsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 21:33:59 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:56259
+	Fri, 13 Jun 2003 21:48:25 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29124
 	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265599AbTFNBdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 21:33:52 -0400
-Date: Sat, 14 Jun 2003 03:48:20 +0200
+	id S265601AbTFNBsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 21:48:23 -0400
+Date: Sat, 14 Jun 2003 04:02:52 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente????ey Vicente 
-	<retes_simbad@yahoo.es>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: lowlatency fixes needed in 2.4 and 2.5
-Message-ID: <20030614014820.GZ1571@dualathlon.random>
+To: Ross Biro <rossb@google.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.21 released
+Message-ID: <20030614020252.GA1571@dualathlon.random>
+References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613211405.16faa9f6.us15@os.inf.tu-dresden.de> <3EEA24E0.7030801@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3EEA24E0.7030801@google.com>
 User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bcc: 
-Subject: Re: linux-2.4.21 released
-Reply-To: 
-In-Reply-To: <1055534626.1123.4.camel@localhost>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+On Fri, Jun 13, 2003 at 12:24:16PM -0700, Ross Biro wrote:
+> Here's a minor patch against 2.4.21 that should help reduce out of 
+> memory problems on high ram systems with no swap space.  It's only been 
+> minimally tested in 2.4.21, but I've been running something similiar on 
+> 2.4.18 for a bit now.
 
-On Fri, Jun 13, 2003 at 08:03:46PM +0000, Robert Love wrote:
-> On Fri, 2003-06-13 at 18:56, Ramón Rey Vicente????ey Vicente wrote:
+this is the wrong approch IMHO, you shouldn't put those into the LRU
+list in the first place if there's no swap, that is the totally wasteful
+thing in the first place ;)
+
+see my vm_lru_anon scalability patch in my tree, that patch improves
+scalability of some workload in a big smp up to hundred percent and it
+does exactly that. 
+
+We should join the sysctl check with an && with the swap_avail().
+However since I leave it disabled by default, my tree already works
+perfectly w/ or w/o swap until you go tweak the sysctl. So I hope
+you will tweak it only when there's effectively swap ;).
+
+The real reason I had to make that change is been primarly for
+scalability reasons, no way at all we can take a spinlock for every
+anonymous page that is allocated (and of course there's no rmap). That
+generates an huge amount of cpu wasted in cacheline bouncing in all
+common workloads. It gets all the system time in the pagecache_lru_lock
+that way.
+
+The patch I'm talking about is this:
+
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc8aa1/05_vm_22_vm-anon-lru-1
+
+please try it and let me know. feel free to test with an && between the
+sysctl and your swap_avail, I would certainly merge that change.
+
+
+
 > 
-> > And, what's about the low_latency/preemptible patches? 
+>    Ross
 > 
-> We did all that and more for 2.5.
+> 
 
-the lowlatency patches are a must for 2.4, let's put them under the
-security bugfix headline and maybe they will get merged eventually ;).
+> diff -urbBd linux-2.4.21/include/linux/swap.h linux-2.4.21-1/include/linux/swap.h
+> --- linux-2.4.21/include/linux/swap.h	Fri Jun 13 07:51:39 2003
+> +++ linux-2.4.21-1/include/linux/swap.h	Fri Jun 13 10:40:24 2003
+> @@ -82,6 +82,7 @@
+>  
+>  /* Swap 50% full? Release swapcache more aggressively.. */
+>  #define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
+> +#define swap_avail() (nr_swap_pages > 0)
+>  
+>  extern unsigned int nr_free_pages(void);
+>  extern unsigned int nr_free_buffer_pages(void);
+> diff -urbBd linux-2.4.21/mm/vmscan.c linux-2.4.21-1/mm/vmscan.c
+> --- linux-2.4.21/mm/vmscan.c	Thu Nov 28 15:53:15 2002
+> +++ linux-2.4.21-1/mm/vmscan.c	Fri Jun 13 11:26:26 2003
+> @@ -474,6 +474,18 @@
+>  			spin_unlock(&pagecache_lock);
+>  			UnlockPage(page);
+>  page_mapped:
+> +                        /* if we don't have swap, it doesn't
+> +                           do much good to swap things out. */
+> +			if (!page->mapping && !swap_avail()) {
+> +				/* Let's make the page active since we
+> +				   cannot swap it out.  It gets it off
+> +				   the inactive list. */
+> +				spin_unlock(&pagemap_lru_lock);
+> +				activate_page(page);
+> +				ClearPageReferenced(page);
+> +				spin_lock(&pagemap_lru_lock);
+> +				continue;
+> +			}
+>  			if (--max_mapped >= 0)
+>  				continue;
+>  
 
-It's not at all about lowlatency, it's about DoSing a box given enough
-pagecache and ram, tested it years ago the first time on some alpha.
 
-All the needed fixes for 2.4 are here and those bugs are fixed since
-ages in my tree.
-
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc8aa1/9981_elevator-lowlatency-5
-
-And IMHO any benchmark of -preempt against a kernel w/o these
-_bugfixes_ is cheating. You want to benchmark -preempt against a non
-buggy kernel, only then comparisons are interesting.
-
-I'm not very exited about the -preempt stuff going on in 2.5 (this is
-code that is there since many months I know), just to make an example
-this code is micro-inefficient w/o -preempt configured:
-
-static inline runqueue_t *task_rq_lock(task_t *p, unsigned long *flags)
-{
-	struct runqueue *rq;
-
-repeat_lock_task:
-	local_irq_save(*flags);
-	rq = task_rq(p);
-	
-
-when -preempt isn't configured you definitely want to do the
-local_irq_save _after_ the task_rq like we do in 2.4. It's absolutely
-wasteful to do the local_irq_save before the rq = task_rq.
-
-Sure this is very much nitpicking (don't need to flame me I already know
-you'll never measure any performance overhead in any macrobenchmark, and
-it only affects irq latency anyways), but still I'm concerned on how
--preempt is impacting some piece of code like this in a not very visible
-way and because it micro-peanlizes kernel compiles with -preempt
-disabled. I really would prefer an #ifdef CONFIG_PREEMPT there (or a
-cleaner abstraction, possibly not specific to the scheduler), as a
-documentation factor.
-
-Of course the above alone really doesn't matter, maybe this is _the_
-special case, but I want to stress careful coding with non-preempt in
-mind too, because I don't think I'm going to use -preempt for my self
-built kernels. -preempt also renders impossible to guarantee CPU unplug
-in a definite amount of time, as it may be impossible to reach a
-quiescent point with RCU (this is now a problem for dcache/ipc/routing
-cache etc..).  To gauarantee that, you'd need explicit schedule points
-in any indefinite kernel loop outside spinlock (the thing that -preempt
-avoids explicitly).
-
-I still think an explicit preempt-enable around the cpu intensive
-per-page copy users or checksums may be overall more worthwhile to
-provide lower mean latency than preempt as a whole.
-
-I had a short look and 2.5 w/o -preempt enabled is still buggy and needs
-the above fixes too. Andrew, is that right or am I overlooking
-something?
-
-In short I'd like to see those needed fixes included in 2.4 and
-_especially_ 2.5 ASAP.
 
 Andrea

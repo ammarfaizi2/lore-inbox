@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265396AbUEZJsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUEZJw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265396AbUEZJsP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 05:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUEZJsP
+	id S265390AbUEZJw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 05:52:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265392AbUEZJw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 05:48:15 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:3248 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265386AbUEZJsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 05:48:13 -0400
-Message-ID: <40B467DA.4070600@yahoo.com.au>
-Date: Wed, 26 May 2004 19:48:10 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: Buddy Lumpkin <b.lumpkin@comcast.net>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>, orders@nodivisions.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <200405260934.i4Q9YblP000762@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200405260934.i4Q9YblP000762@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 May 2004 05:52:27 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:59782 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265390AbUEZJw0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 05:52:26 -0400
+Date: Wed, 26 May 2004 11:52:22 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Rob Landley <rob@landley.net>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
+Message-ID: <20040526095222.GA12142@wohnheim.fh-wedel.de>
+References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405251655.43185.rob@landley.net> <20040525220826.GC1609@elf.ucw.cz> <200405251816.05497.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200405251816.05497.rob@landley.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> Quote from Nick Piggin <nickpiggin@yahoo.com.au>:
+On Tue, 25 May 2004 18:16:05 -0500, Rob Landley wrote:
 > 
->>Even for systems that don't *need* the extra memory space, swap can
->>actually provide performance improvements by allowing unused memory
->>to be replaced with often-used memory.
-> 
-> 
-> That's true, but it's not a magical property of swap space - extra physical
-> RAM would do more or less the same thing.
-> 
+> [a lot]
 
-Well it is a magical property of swap space, because extra RAM
-doesn't allow you to replace unused memory with often used memory.
+Sorry, you didn't have the time to make it short and I don't have the
+time to read it all. ;)
 
-The theory holds true no matter how much RAM you have. Swap can
-improve performance. It can be trivially demonstrated.
+Anyway, it sounds as if you really want a connect_files() or similar
+that shortens a chain of pipes.  Similar to removing an element from a
+doubly linked list.  Should be possible and not too hard either, iff
+you can point to a decent user.
+
+Right now, I don't care at all since it is just an optimization for
+what's possible in userspace already and is rarely used.  Root of all
+evil an such...
+
+Jörn
+
+-- 
+The strong give up and move away, while the weak give up and stay.
+-- unknown

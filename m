@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129041AbRBFWhd>; Tue, 6 Feb 2001 17:37:33 -0500
+	id <S129294AbRBFW6x>; Tue, 6 Feb 2001 17:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129168AbRBFWhY>; Tue, 6 Feb 2001 17:37:24 -0500
-Received: from ihemail1.lucent.com ([192.11.222.161]:8921 "EHLO
-	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S129093AbRBFWhT>; Tue, 6 Feb 2001 17:37:19 -0500
-Message-ID: <3A807C98.C5DE2C67@agere.com>
-Date: Tue, 06 Feb 2001 17:37:12 -0500
-From: Ed Schulz <edschulz@agere.com>
-Organization: Agere Systems
-X-Mailer: Mozilla 4.73 [en]C-CCK-MCD EMS-1.4  (Win95; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@thunk.org>
-CC: "W. Michael Petullo" <mike@flyn.org>, linux-kernel@vger.kernel.org
+	id <S129093AbRBFW6o>; Tue, 6 Feb 2001 17:58:44 -0500
+Received: from THUNK.ORG ([216.175.175.175]:2056 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S129130AbRBFW6e>;
+	Tue, 6 Feb 2001 17:58:34 -0500
+Date: Tue, 6 Feb 2001 17:58:28 -0500
+From: "Theodore Ts'o" <tytso@thunk.org>
+Message-Id: <200102062258.RAA25321@thunk.org>
+To: edschulz@agere.com
+CC: mike@flyn.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3A807C98.C5DE2C67@agere.com> (message from Ed Schulz on Tue, 06
+	Feb 2001 17:37:12 -0500)
 Subject: Re: Lucent Microelectronics Venus Modem, serial 5.05, and Linux 2.4.0
-In-Reply-To: <20010114201045.A1787@dragon.flyn.org> <200102061939.OAA24337@thunk.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Phone: (781) 391-3464
+In-Reply-To: <20010114201045.A1787@dragon.flyn.org> <200102061939.OAA24337@thunk.org> <3A807C98.C5DE2C67@agere.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One editorial correction: Our PCI host-controller modem is based on the
-Mars DSP1646 or 1648, not the Venus DSP1673.  Venus modems include the
-controller function, so require no special Linux code to work.
+   Date: Tue, 06 Feb 2001 17:37:12 -0500
+   From: Ed Schulz <edschulz@agere.com>
 
-I'll forward these notes along to our developers, and let you know the
-result.
+   One editorial correction: Our PCI host-controller modem is based on the
+   Mars DSP1646 or 1648, not the Venus DSP1673.  Venus modems include the
+   controller function, so require no special Linux code to work.
 
-The "sample hardware" is available quite cheaply from many sources,
-although it can be hard to tell what really has Mars inside.  Here are some
-brand name PCI modems containing Mars:
-- Zoom 3025 (with early Windows V.92 code)
-- Zoom 2925L for under $50.
-- ActionTec DeskLink Pro PCI for $33.
--- 
-Ed Schulz
-Agere Systems
-edschulz@agere.com
+Well, I've received reports that the UART in the Venus chipset may not
+be behaving as a standard UART (i.e., it's not acting as a fully
+16550-compatible UART should) which is causing the Linux serial code to
+fail the "is-there-a-real-UART-here-or-should-I-refuse-to-touch-unknown-
+I/O-ports-which-might-format-hard-drives-or-do-other-nasty-things" test.
 
-Theodore Ts'o wrote:
-> 
-> On Sun, Jan 14, 2001 at 08:10:45PM +0100, W. Michael Petullo wrote:
-> > > In serial.c, you seem to perform a check by writing to a possible
-> > > modem's interrupt enable register and reading the result.  This seems to
-> > > be one of the points at which the auto-configuration process occasionally
-> > > fails.  If I make the following change to this code my modem seems to
-> > > be auto-detected correctly all of the time:
-> >
-> > >                scratch = serial_inp(info, UART_IER);
-> > >             serial_outp(info, UART_IER, 0);
-> > > #ifdef __i386__
-> > >             outb(0xff, 0x080);
-> > > #endif
-> > >             scratch2 = serial_inp(info, UART_IER);
-> > >             serial_outp(info, UART_IER, 0x0F);
-> > > #ifdef __i386__
-> > >             outb(0, 0x080);
-> > > #endif
-> > > -             scratch3 = serial_inp(info, UART_IER); /* REMOVE */
-> > > +             scratch3 = 0x0f                        /* ADD */
-> > >             serial_outp(info, UART_IER, scratch);
-> 
-> The problem is that if this doesn't work, there are some serious
-> questions about the correctness of the Lucent Microelectronic Venus
-> modem.  I've forwarded this to someone in the Lucent Modem group, who
-> can hopefully look at this (and maybe can ship me a sample hardware so
-> I can play with it, although I'd much rather that he tell me how to
-> work around the hardware bug, or tell me that all you need is a
-> firmware upgrade to fix the bug in the modem).....
-> 
->                                                         - Ted
+   I'll forward these notes along to our developers, and let you know the
+   result.
+
+If your developers can tell try testing one of these modems under Linux
+2.4, that would be great.  Although I don't have one of these boards,
+the symptoms that people are sending me sure make it sound like a
+hardware bug (or a UART emulation failure, in any case....)
+
+Note that all the test code is doing is writing 0x0f to the UART's IER
+register, and trying to read it back.  If the UART is failing this test,
+it's pretty buggy.....
+
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

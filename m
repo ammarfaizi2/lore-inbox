@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266476AbRGCINI>; Tue, 3 Jul 2001 04:13:08 -0400
+	id <S266478AbRGCIQ3>; Tue, 3 Jul 2001 04:16:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266474AbRGCIM7>; Tue, 3 Jul 2001 04:12:59 -0400
-Received: from t2.redhat.com ([199.183.24.243]:62454 "HELO
+	id <S266477AbRGCIQK>; Tue, 3 Jul 2001 04:16:10 -0400
+Received: from t2.redhat.com ([199.183.24.243]:1527 "HELO
 	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S266473AbRGCIMq>; Tue, 3 Jul 2001 04:12:46 -0400
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
+	id <S266478AbRGCIP7>; Tue, 3 Jul 2001 04:15:59 -0400
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>,
         David Howells <dhowells@redhat.com>, Jes Sorensen <jes@sunsite.dk>,
-        arjanv@redhat.com, linux-kernel@vger.kernel.org
+        linux-kernel@vger.kernel.org, arjanv@redhat.com
 Subject: Re: [RFC] I/O Access Abstractions 
-In-Reply-To: Your message of "Mon, 02 Jul 2001 19:11:29 BST."
-             <20010702191129.A29246@flint.arm.linux.org.uk> 
-Date: Tue, 03 Jul 2001 09:12:44 +0100
-Message-ID: <3953.994147964@warthog.cambridge.redhat.com>
+In-Reply-To: Your message of "Mon, 02 Jul 2001 14:26:34 EDT."
+             <3B40BCDA.CFA5750E@mandrakesoft.com> 
+Date: Tue, 03 Jul 2001 09:15:57 +0100
+Message-ID: <3963.994148157@warthog.cambridge.redhat.com>
 From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Russell King <rmk@arm.linux.org.uk> wrote:
-> They _ARE_ different, because people connect these chips in many different
-> ways.  For example:
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> Russell King wrote:
+> > 
+> > On Mon, Jul 02, 2001 at 05:56:56PM +0100, Alan Cox wrote:
+> > > Case 1:
+> > >       You pass a single cookie to the readb code
+> > >       Odd platforms decode it
+> > 
+> > Last time I checked, ioremap didn't work for inb() and outb().
+> 
+> It should :)
 
-Also hence the mess in serial.c. On the board I'm currently dealing with, the
-PC16550 chip is connected to the memory space with registers at 4-byte
-intervals because the chip is an 8-bit chip connected to a 32-bit data bus
-(and so ignored addr lines A0 and A1). Whereas on the PC, various serial
-register sets appear generally in I/O port space at 1-byte intervals from some
-base address.
-
-This could be greatly simplified with the method I'm proposing. The resource
-access function could make the address space for that device to be eight
-consecutive registers regardless of the reality.
+Surely it shouldn't... ioremap() is for mapping "memory-mapped I/O" resources
+into the kernel's virtual memory scheme (at least on the i386 arch). There's
+no way to tell the CPU/MMU that a particular pages should assert the IO access
+pin rather than memory access pin (or however it is done externally).
 
 David

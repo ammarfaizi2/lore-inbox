@@ -1,134 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262386AbSJLIm7>; Sat, 12 Oct 2002 04:42:59 -0400
+	id <S262405AbSJLIsv>; Sat, 12 Oct 2002 04:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262405AbSJLIm7>; Sat, 12 Oct 2002 04:42:59 -0400
-Received: from b107245.adsl.hansenet.de ([62.109.107.245]:1665 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id <S262386AbSJLImz> convert rfc822-to-8bit;
-	Sat, 12 Oct 2002 04:42:55 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Jan Dittmer <jan@jandittmer.de>
+	id <S262412AbSJLIsv>; Sat, 12 Oct 2002 04:48:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28104 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262405AbSJLIsq>; Sat, 12 Oct 2002 04:48:46 -0400
+Date: Sat, 12 Oct 2002 10:54:32 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
 To: linux-kernel@vger.kernel.org
-Subject: harddisk corruption with 2.5.41bk and tcq enabled
-Date: Sat, 12 Oct 2002 10:50:01 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-ide@vger.kernel.org
+Subject: kswapd Oops in 2.4.20-pre10
+Message-ID: <Pine.NEB.4.44.0210121026550.8340-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210121050.01471.jan@jandittmer.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-recent tcp additions seem to corrupt harddisk. X/KDE doesn't start up anymore 
-and 'mount' was broken after reboot. (Debian/unstable, ext3 fs) No Problem 
-with clean 2.5.41. Will try 2.5.42 now. You need any more information?
+My computer wasn't under high load when this happened.
+It has 128 MB RAM and 1 GB of swap and the amount of used RAM+swap is
+usually far below 128 MB.
 
-jan
 
-Here goes dmesg/config output:
+<--  snip  -->
 
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 00:07.1
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-    ide0: BM-DMA at 0x9000-0x9007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x9008-0x900f, BIOS settings: hdc:DMA, hdd:DMA
-hda: IC35L060AVVA07-0, ATA DISK drive
-hda: DMA disabled
-hda: bad special flag: 0x03
-hda: tagged command queueing enabled, command queue depth 8
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: SONY CD-RW CRX175E2, ATAPI CD/DVD-ROM drive
-hdd: Pioneer DVD-ROM ATAPIModel DVD-104S 012, ATAPI CD/DVD-ROM drive
-hdc: DMA disabled
-hdd: DMA disabled
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=7476/255/63, UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 >
-ide-cd: passing drive hdc to ide-scsi emulation.
-hdd: ATAPI DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: SONY      Model: CD-RW  CRX175E2   Rev: S002
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+$ ps aux|grep kswapd
+root         5  0.1  0.0     0    0 ?        Z    07:12   0:16 [kswapd <defunct>]
 
-[...]
+<--  snip  -->
 
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076371720, limit=19535040
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076261672, limit=19535040
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076240168, limit=19535040
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076243240, limit=19535040
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076335080, limit=19535040
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076262568, limit=19535040
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076262568, limit=19535040
-attempt to access beyond end of device
-ide0(3,2): rw=0, want=1076262568, limit=19535040
+Oct 12 09:30:31 r063144 kernel: c012fd77
+Oct 12 09:30:31 r063144 kernel: Oops: 0002
+Oct 12 09:30:31 r063144 kernel: CPU:    0
+Oct 12 09:30:31 r063144 kernel: EIP:    0010:[__remove_inode_queue+23/48]    Not tainted
+Oct 12 09:30:31 r063144 kernel: EFLAGS: 00010206
+Oct 12 09:30:31 r063144 kernel: eax: 00000000   ebx: c1ec8a18   ecx: 00000000   edx: c1ec89c0
+Oct 12 09:30:31 r063144 kernel: esi: c1ec8600   edi: c1ec8600   ebp: c11c1f00   esp: c11c1efc
+Oct 12 09:30:31 r063144 kernel: ds: 0018   es: 0018   ss: 0018
+Oct 12 09:30:31 r063144 kernel: Process kswapd (pid: 5, stackpage=c11c1000)
+Oct 12 09:30:31 r063144 kernel: Stack: c1ec89c0 c11c1f1c c01320e6 c1ec89c0 c10f4b98 000001d0 00000016 c10f4b98
+Oct 12 09:30:31 r063144 kernel:        c11c1f2c c013075d c1ec8600 c10f4b98 c11c1f60 c01293b1 c10f4b98 000001d0
+Oct 12 09:30:31 r063144 kernel:        00000020 000001d0 00000020 c0290f34 c11c0000 000000c4 0000079f 000001d0
+Oct 12 09:30:31 r063144 kernel: Call Trace:    [try_to_free_buffers+94/240] [try_to_release_page+69/76] [shrink_cache+485/756] [shrink_caches+86/132] [try_to_free_pages_zone+56/92]
+Oct 12 09:30:31 r063144 kernel: Code: 89 48 04 89 01 c7 42 58 00 00 00 00 c7 43 04 00 00 00 00 5b
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-.config:
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_BLK_DEV_GENERIC is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_IDE_TCQ=y
-CONFIG_BLK_DEV_IDE_TCQ_DEFAULT=y
-CONFIG_BLK_DEV_IDE_TCQ_DEPTH=8
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_BLK_DEV_IDEDMA_FORCED=y
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_PCI_WIP=y
-CONFIG_IDEDMA_NEW_DRIVE_LISTINGS=y
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_AMD74XX_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NFORCE is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_PDC202XX_FORCE is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  00000003 Before first symbol
+   3:   89 01                     mov    %eax,(%ecx)
+Code;  00000005 Before first symbol
+   5:   c7 42 58 00 00 00 00      movl   $0x0,0x58(%edx)
+Code;  0000000c Before first symbol
+   c:   c7 43 04 00 00 00 00      movl   $0x0,0x4(%ebx)
+Code;  00000013 Before first symbol
+  13:   5b                        pop    %ebx
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
+
+
+
+
+

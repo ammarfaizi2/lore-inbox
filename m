@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264659AbUD1FO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264655AbUD1FUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264659AbUD1FO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 01:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUD1FO7
+	id S264655AbUD1FUY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 01:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264661AbUD1FUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 01:14:59 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:53675 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264659AbUD1FO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 01:14:57 -0400
-Date: Wed, 28 Apr 2004 00:18:12 -0500 (CDT)
-From: Brent Cook <busterbcook@yahoo.com>
-X-X-Sender: busterb@ozma.hauschen
-Reply-To: busterbcook@yahoo.com
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: pdflush eating a lot of CPU on heavy NFS I/O
-Message-ID: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
+	Wed, 28 Apr 2004 01:20:23 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:39130 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264655AbUD1FUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 01:20:19 -0400
+Message-ID: <408F3EE4.1080603@nortelnetworks.com>
+Date: Wed, 28 Apr 2004 01:19:32 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ncunningham@linuxmail.org
+CC: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: What does tainting actually mean?
+References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au> <20040428042742.GA1177@middle.of.nowhere> <opr65f48sfshwjtr@laptop-linux.wpcb.org.au>
+In-Reply-To: <opr65f48sfshwjtr@laptop-linux.wpcb.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nigel Cunningham wrote:
 
-  Running any kernel from the 2.6.6-rc* series (and a few previous
--mm*'s), the pdflush process starts using near 100% CPU indefinitely after
-a few minutes of initial NFS traffic, as far as I can tell.
+> Is that true? We can see where the oops occurs. If it's in the module,  
+> nothing more needs to be said. If it's in the kernel itself, we can 
+> check  our source. We could check all the calls the module makes to open 
+> source  code and validate that the parameters are correct. We should be 
+> able to  say with authority 'the module is doing the wrong thing'. We 
+> might not be  able to say exactly what, but we could determine that it 
+> is the module.
 
-To trigger this, I can either compile a kernel with the source residing on
-an NFS share, or compile something bigger, like KDE.
+If only it were that easy.
 
-I get the same results running on a PIII with an i815 chipset with
-ReiserFS 3, or a newer nForce2 board with an Athlon XP on ext3, so I don't
-think it has to do with the IDE chipsets or filesystems. pdflush has
-something to do with writing back FS data, and NFS is just the common
-factor between systems that experience this problem. pdflush just seems to
-hang when the system is heavily loaded and eat up all CPU resources even
-when the system is otherwise idle. Renice failes to reschedule pdflush.
+There has already been a case mentioned of a binary module that messed up something that was only 
+visible once that module was unloaded and another one loaded.  It all depends totally on usage patterns.
 
- This didn't seem to be a problem with 2.6.5 or 2.4. Is there something I
-can do to control pdflush or to provide more information?
+Generally speaking, if a user is technical enough to patch their kernel, they're aware of the 
+possible problems and will submit bug reports with things like "kernel version blah, with the foo 
+and bar patches applied".  The developers can then say "there's a known issue with foo/bar together".
 
-Thanks
- - Brent
+Binary modules, on the other hand, are often loaded up by users that know just barely enough to 
+download them and run an install script.  In this case, it can be helpful to know up front that 
+there has been proprietary code running in kernel space, and aside from calls to kernel APIs, we 
+have no clue what else it was doing, what memory was being trampled, what cpu registers were 
+whacked, etc.
 
-
+Chris

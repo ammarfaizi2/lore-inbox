@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291117AbSBGEzh>; Wed, 6 Feb 2002 23:55:37 -0500
+	id <S291121AbSBGE4z>; Wed, 6 Feb 2002 23:56:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291114AbSBGEzZ>; Wed, 6 Feb 2002 23:55:25 -0500
-Received: from holomorphy.com ([216.36.33.161]:21643 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S291110AbSBGEzP>;
-	Wed, 6 Feb 2002 23:55:15 -0500
-Date: Wed, 6 Feb 2002 20:55:09 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org, Club LinuX <clx@gaia.anet.fr>,
-        Utilisateurs Debian Fran?ais 
-	<debian-user-french@lists.debian.org>
-Subject: Re: [Re: Can't boot 2.4.17 or 2.5.1 kernel] problem solved ?!
-Message-ID: <20020207045509.GA785@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Club LinuX <clx@gaia.anet.fr>,
-	Utilisateurs Debian Fran?ais <debian-user-french@lists.debian.org>
-In-Reply-To: <20020207015523.GA1267@oberon.ambre.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020207015523.GA1267@oberon.ambre.fr>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S291114AbSBGE4p>; Wed, 6 Feb 2002 23:56:45 -0500
+Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:690 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S291110AbSBGE41>;
+	Wed, 6 Feb 2002 23:56:27 -0500
+Message-ID: <3C6208F1.2090307@candelatech.com>
+Date: Wed, 06 Feb 2002 21:56:17 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: alan@lxorguk.ukuu.org.uk, ionut@cs.columbia.edu,
+        linux-kernel@vger.kernel.org, cfriesen@nortelnetworks.com
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+In-Reply-To: <E16Ydys-0007D6-00@the-village.bc.nu>	<3C6200B5.5060704@candelatech.com> <20020206.203838.107294675.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 02:55:23AM +0100, Fabrice Eudes wrote:
-> more seriously, thanks to all the people making the ac kernel-variants.
-> Just one more -silly?- question: it seems -for me at least- that some
-> of the ac patches should be integrated in the kernel, why aren't they ?
-> (I repeat that ANY 2.4.17 variant I compiled won't even boot ! I'm not
-> talking about kernel panic here)
-> is my hardware so exotic ??
 
-You should probably report this to linux-kernel@vger.kernel.org
 
-A more detailed description of your hardware and config options
-would probably also help. If you're willing to try some patches
-that might help with debugging early boot failures that might
-also give some insight into your troubles.
+David S. Miller wrote:
 
-Cheers,
-Bill
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Wed, 06 Feb 2002 21:21:09 -0700
+>    
+>    Alan Cox wrote:
+>    
+>    > UDP is not flow controlled.
+>    
+>    If it makes it through sendto, where can it be dropped before it
+>    hits the wire?
+> 
+> If the packet ends up being fragmented on the way out and the socket
+> cannot take on the allocation against it's buffer space.
+
+
+In the fragmentation case (at least over 1500 MTU ethernet), the
+headers are a relatively small portion of the total PDU, right?
+So, if we reserved 10-15% (or whatever it works out to) that should
+make it so we never drop the packet due to fragmentation, right?  I can't see any reason
+not to reserve this space, because sending a little later is definately
+better than going through the work to send it sooner but then having to
+drop it down in the local kernel.  We may only want to reserve the buffers
+when they are fairly large (ie not you your very small and slow embedded devices
+where memory is very precious).
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

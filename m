@@ -1,93 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262504AbSJKORL>; Fri, 11 Oct 2002 10:17:11 -0400
+	id <S262465AbSJKOR7>; Fri, 11 Oct 2002 10:17:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262502AbSJKORK>; Fri, 11 Oct 2002 10:17:10 -0400
-Received: from email.gcom.com ([206.221.230.194]:60621 "EHLO gcom.com")
-	by vger.kernel.org with ESMTP id <S262501AbSJKORI>;
-	Fri, 11 Oct 2002 10:17:08 -0400
-Message-Id: <5.1.0.14.2.20021011091840.02695808@localhost>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 11 Oct 2002 09:22:09 -0500
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>,
-       Arjan van de Ven <arjanv@fenrus.demon.nl>
-From: David Grothe <dave@gcom.com>
-Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org,
-       LiS <linux-streams@gsyc.escet.urjc.es>, Dave Miller <davem@redhat.com>,
-       bidulock@openss7.org
-In-Reply-To: <43B789B00E8@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_1787956465==_"
+	id <S262461AbSJKOR6>; Fri, 11 Oct 2002 10:17:58 -0400
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:1664 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262465AbSJKORx> convert rfc822-to-8bit; Fri, 11 Oct 2002 10:17:53 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: linux-kernel@vger.kernel.org
+Subject: [BENCHMARK] 2.5.41-mm3 +/- shared pagetables with contest
+Date: Sat, 12 Oct 2002 00:21:08 +1000
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210120021.18790.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_1787956465==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Here is a proposed "final" patch for the streams hooks.  I think that it 
-takes into account all suggestions.  I put the prototype in linux/sys.h.
+Here are the contest (http://contest.kolivas.net) benchmarks for 2.5.41-mm3 
+and 2.5.41-mm3 with shared 3rd level pagetables enabled (2.5.41-mm3s)
 
-This is for stock 2.4.19, and has been tested.
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [1]              73.8    93      0       0       1.10
+2.5.41-mm1 [3]          73.3    92      0       0       1.09
+2.5.41-mm2 [2]          74.2    92      0       0       1.10
+2.5.41-mm3 [1]          74.4    93      0       0       1.11
+2.5.41-mm3s [1]         74.0    93      0       0       1.10
 
--- Dave
---=====================_1787956465==_
-Content-Type: text/plain; name="stock-i386-2.4.19.txt";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="stock-i386-2.4.19.txt"
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [1]              91.1    73      38      30      1.36
+2.5.41-mm1 [3]          88.8    75      32      27      1.32
+2.5.41-mm2 [2]          91.7    75      37      27      1.37
+2.5.41-mm3 [1]          95.5    75      31      28      1.42
+2.5.41-mm3s [2]         96.1    74      42      28      1.43
 
-LS0tIGFyY2gvaTM4Ni9rZXJuZWwvZW50cnkuUy5vcmlnCTIwMDItMDgtMDIgMTk6Mzk6NDIuMDAw
-MDAwMDAwIC0wNTAwCisrKyBhcmNoL2kzODYva2VybmVsL2VudHJ5LlMJMjAwMi0xMC0wOCAxNTo0
-MzowOC4wMDAwMDAwMDAgLTA1MDAKQEAgLTU4NCw4ICs1ODQsOCBAQAogCS5sb25nIFNZTUJPTF9O
-QU1FKHN5c19jYXBzZXQpICAgICAgICAgICAvKiAxODUgKi8KIAkubG9uZyBTWU1CT0xfTkFNRShz
-eXNfc2lnYWx0c3RhY2spCiAJLmxvbmcgU1lNQk9MX05BTUUoc3lzX3NlbmRmaWxlKQotCS5sb25n
-IFNZTUJPTF9OQU1FKHN5c19uaV9zeXNjYWxsKQkJLyogc3RyZWFtczEgKi8KLQkubG9uZyBTWU1C
-T0xfTkFNRShzeXNfbmlfc3lzY2FsbCkJCS8qIHN0cmVhbXMyICovCisJLmxvbmcgU1lNQk9MX05B
-TUUoc3lzX2dldHBtc2cpCQkvKiBzdHJlYW1zMSAqLworCS5sb25nIFNZTUJPTF9OQU1FKHN5c19w
-dXRwbXNnKQkJLyogc3RyZWFtczIgKi8KIAkubG9uZyBTWU1CT0xfTkFNRShzeXNfdmZvcmspICAg
-ICAgICAgICAgLyogMTkwICovCiAJLmxvbmcgU1lNQk9MX05BTUUoc3lzX2dldHJsaW1pdCkKIAku
-bG9uZyBTWU1CT0xfTkFNRShzeXNfbW1hcDIpCi0tLSBrZXJuZWwvc3lzLmMub3JpZwkyMDAyLTA4
-LTAyIDE5OjM5OjQ2LjAwMDAwMDAwMCAtMDUwMAorKysga2VybmVsL3N5cy5jCTIwMDItMTAtMTAg
-MTU6MDA6NDUuMDAwMDAwMDAwIC0wNTAwCkBAIC0xNjcsNiArMTY3LDQ5IEBACiAJcmV0dXJuIG5v
-dGlmaWVyX2NoYWluX3VucmVnaXN0ZXIoJnJlYm9vdF9ub3RpZmllcl9saXN0LCBuYik7CiB9CiAK
-K3N0YXRpYyBpbnQgKCpkb19wdXRwbXNnKSAoaW50LCB2b2lkICosIHZvaWQgKiwgaW50LCBpbnQp
-ID0gTlVMTDsKK3N0YXRpYyBpbnQgKCpkb19nZXRwbXNnKSAoaW50LCB2b2lkICosIHZvaWQgKiwg
-aW50LCBpbnQpID0gTlVMTDsKKworc3RhdGljIERFQ0xBUkVfUldTRU0oc3RyZWFtc19jYWxsX3Nl
-bSk7CisKK2xvbmcgYXNtbGlua2FnZQorc3lzX3B1dHBtc2coaW50IGZkLCB2b2lkICpjdGxwdHIs
-IHZvaWQgKmRhdHB0ciwgaW50IGJhbmQsIGludCBmbGFncykKK3sKKwlpbnQgcmV0ID0gLUVOT1NZ
-UzsKKwlkb3duX3JlYWQoJnN0cmVhbXNfY2FsbF9zZW0pOwkvKiBzaG91bGQgcmV0dXJuIGludCwg
-YnV0IGRvZXNuJ3QgKi8KKwlpZiAoZG9fcHV0cG1zZykKKwkJcmV0ID0gKCpkb19wdXRwbXNnKSAo
-ZmQsIGN0bHB0ciwgZGF0cHRyLCBiYW5kLCBmbGFncyk7CisJdXBfcmVhZCgmc3RyZWFtc19jYWxs
-X3NlbSk7CisJcmV0dXJuIHJldDsKK30KKworbG9uZyBhc21saW5rYWdlCitzeXNfZ2V0cG1zZyhp
-bnQgZmQsIHZvaWQgKmN0bHB0ciwgdm9pZCAqZGF0cHRyLCBpbnQgYmFuZCwgaW50IGZsYWdzKQor
-eworCWludCByZXQgPSAtRU5PU1lTOworCWRvd25fcmVhZCgmc3RyZWFtc19jYWxsX3NlbSk7CS8q
-IHNob3VsZCByZXR1cm4gaW50LCBidXQgZG9lc24ndCAqLworCWlmIChkb19nZXRwbXNnKQorCQly
-ZXQgPSAoKmRvX2dldHBtc2cpIChmZCwgY3RscHRyLCBkYXRwdHIsIGJhbmQsIGZsYWdzKTsKKwl1
-cF9yZWFkKCZzdHJlYW1zX2NhbGxfc2VtKTsKKwlyZXR1cm4gcmV0OworfQorCitpbnQKK3JlZ2lz
-dGVyX3N0cmVhbXNfY2FsbHMoaW50ICgqcHV0cG1zZykgKGludCwgdm9pZCAqLCB2b2lkICosIGlu
-dCwgaW50KSwKKwkJICAgICAgIGludCAoKmdldHBtc2cpIChpbnQsIHZvaWQgKiwgdm9pZCAqLCBp
-bnQsIGludCkpCit7CisJaW50IHJldCA9IC1FQlVTWTsKKwlkb3duX3dyaXRlKCZzdHJlYW1zX2Nh
-bGxfc2VtKTsJLyogc2hvdWxkIHJldHVybiBpbnQsIGJ1dCBkb2Vzbid0ICovCisJaWYgKCAgIChw
-dXRwbXNnID09IE5VTEwgfHwgZG9fcHV0cG1zZyA9PSBOVUxMKQorCSAgICAmJiAoZ2V0cG1zZyA9
-PSBOVUxMIHx8IGRvX2dldHBtc2cgPT0gTlVMTCkpIHsKKwkJZG9fcHV0cG1zZyA9IHB1dHBtc2c7
-CisJCWRvX2dldHBtc2cgPSBnZXRwbXNnOworCQlyZXQgPSAwOworCX0KKwl1cF93cml0ZSgmc3Ry
-ZWFtc19jYWxsX3NlbSk7CisJcmV0dXJuIHJldDsKK30KKwogYXNtbGlua2FnZSBsb25nIHN5c19u
-aV9zeXNjYWxsKHZvaWQpCiB7CiAJcmV0dXJuIC1FTk9TWVM7CkBAIC0xMjg2LDMgKzEzMjksNCBA
-QAogRVhQT1JUX1NZTUJPTCh1bnJlZ2lzdGVyX3JlYm9vdF9ub3RpZmllcik7CiBFWFBPUlRfU1lN
-Qk9MKGluX2dyb3VwX3ApOwogRVhQT1JUX1NZTUJPTChpbl9lZ3JvdXBfcCk7CitFWFBPUlRfU1lN
-Qk9MX0dQTChyZWdpc3Rlcl9zdHJlYW1zX2NhbGxzKTsKLS0tIGluY2x1ZGUvbGludXgvc3lzLmgu
-b3JpZwkyMDAyLTEwLTExIDA4OjU5OjEwLjAwMDAwMDAwMCAtMDUwMAorKysgaW5jbHVkZS9saW51
-eC9zeXMuaAkyMDAyLTEwLTExIDA5OjE1OjA0LjAwMDAwMDAwMCAtMDUwMApAQCAtMjcsNCArMjcs
-MTYgQEAKICAqIFRoZXNlIGFyZSBzeXN0ZW0gY2FsbHMgdGhhdCBoYXZlbid0IGJlZW4gaW1wbGVt
-ZW50ZWQgeWV0CiAgKiBidXQgaGF2ZSBhbiBlbnRyeSBpbiB0aGUgdGFibGUgZm9yIGZ1dHVyZSBl
-eHBhbnNpb24uLgogICovCisKKy8qCisgKiBUaGVzZSBhcmUgcmVnaXN0cmF0aW9uIHJvdXRpbmVz
-IGZvciBzeXN0ZW0gY2FsbHMgdGhhdCBhcmUKKyAqIGltcGxlbWVudGVkIGJ5IGxvYWRhYmxlIG1v
-ZHVsZXMgb3V0c2lkZSBvZiB0aGUga2VybmVsCisgKiBzb3VyY2UgdHJlZS4KKyAqLworI2lmICFk
-ZWZpbmVkKF9fQVNTRU1CTFlfXykKK2V4dGVybiBpbnQKK3JlZ2lzdGVyX3N0cmVhbXNfY2FsbHMo
-aW50ICgqcHV0cG1zZykgKGludCwgdm9pZCAqLCB2b2lkICosIGludCwgaW50KSwKKwkJICAgICAg
-IGludCAoKmdldHBtc2cpIChpbnQsIHZvaWQgKiwgdm9pZCAqLCBpbnQsIGludCkpIDsKKworI2Vu
-ZGlmCQkJLyogX19BU1NFTUJMWV9fICovCiAjZW5kaWYK
---=====================_1787956465==_--
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [2]              607.5   13      47      12      9.04
+2.5.41-mm1 [3]          307.7   26      18      10      4.58
+2.5.41-mm2 [3]          294.3   26      17      10      4.38
+2.5.41-mm3 [1]          312.4   25      20      11      4.65
+2.5.41-mm3s [2]         425.5   18      27      10      6.33
+
+Here we see a difference with a bias towards more work being done by io 
+loading at the expense of kernel compilation time.
+
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [1]              101.6   73      30      3       1.51
+2.5.41-mm1 [3]          144.6   50      37      2       2.15
+2.5.41-mm2 [3]          139.2   52      36      2       2.07
+2.5.41-mm3 [2]          107.1   68      27      2       1.59
+2.5.41-mm3s [2]         116.5   62      28      2       1.73
+
+Here we see a substantial improvement under mem_load with -mm3 compared to 
+previous -mm kernels with the new vm_swappiness feature to close to that of 
+vanilla 2.5.41. However adding shared pagetables seems to make the results a 
+little worse.
+
+Experimental loads:
+
+tarc_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [1]              93.3    81      1       6       1.39
+2.5.41-mm1 [3]          91.6    81      1       5       1.36
+2.5.41-mm2 [2]          91.0    81      1       5       1.35
+2.5.41-mm3 [1]          92.1    81      1       5       1.37
+2.5.41-mm3s [1]         92.8    80      1       5       1.38
+
+tarx_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [2]              138.8   53      2       8       2.07
+2.5.41-mm1 [3]          188.4   43      2       7       2.80
+2.5.41-mm2 [2]          195.3   38      2       7       2.91
+2.5.41-mm3 [1]          215.9   34      3       7       3.21
+2.5.41-mm3s [1]         231.1   32      3       7       3.44
+
+These seem to be suffering increasingly since vm_swappiness, and worse again 
+with shared pagetables.
+
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [1]              101.1   75      7       4       1.51
+2.5.41-mm1 [3]          106.8   70      5       3       1.59
+2.5.41-mm2 [2]          104.2   71      6       4       1.55
+2.5.41-mm3 [1]          102.0   74      6       4       1.52
+2.5.41-mm3s [1]         105.2   72      7       4       1.57
+
+lslr_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.41 [1]              93.6    75      1       18      1.39
+2.5.41-mm1 [3]          96.8    72      1       21      1.44
+2.5.41-mm2 [2]          97.4    72      1       21      1.45
+2.5.41-mm3 [1]          95.9    74      1       22      1.43
+2.5.41-mm3s [1]         97.4    73      1       22      1.45
+
+
+Performance under heavy mem load seems to have been improved substantially 
+with -mm3. Performance under repeated tar x loading seems to be progressively 
+dropping off. The shared pagetables seem to only disadvantage contest based 
+benchmark results.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9pt5YF6dfvkL3i1gRAn6UAJ4rwBMf04cT1hOrSm4H2XbsMPrWZgCfUJgQ
+Y0Zookbdk9VkmyuHYDn9Q0s=
+=S94Y
+-----END PGP SIGNATURE-----
 

@@ -1,46 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVBGRzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVBGR5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbVBGRzy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 12:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVBGRzx
+	id S261211AbVBGR5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 12:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVBGR5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 12:55:53 -0500
-Received: from mailhub2.nextra.sk ([195.168.1.110]:55567 "EHLO toe.nextra.sk")
-	by vger.kernel.org with ESMTP id S261209AbVBGRzr (ORCPT
+	Mon, 7 Feb 2005 12:57:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:51370 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261211AbVBGR4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 12:55:47 -0500
-Message-ID: <4207AC02.8010407@rainbow-software.org>
-Date: Mon, 07 Feb 2005 18:57:22 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Charles-Edouard Ruault <ce@idtect.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: IO port conflict between timer & watchdog on PCISA-C800EV board
- ?
-References: <420734DC.4020900@idtect.com> <420797DE.6030904@osdl.org>
-In-Reply-To: <420797DE.6030904@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 7 Feb 2005 12:56:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=PkeohgsGUZ3/iqVJbBTN54U0p4GkuiIHpFNjwJ7I3hF5HQKNSqKt7a9I+BVhP7fsufA+CAolQSUtpRh8fQsUzueorBN73ULOlptMqSenyX28/Nq097rcWAnMpqTUNEQSxpzl2oXp0r8QpRyxIed3ytSyaFmCsBi6fbCosaHUAdk=
+Message-ID: <d4b3852050207095647c74baa@mail.gmail.com>
+Date: Mon, 7 Feb 2005 18:56:50 +0100
+From: Mikkel Krautz <krautz@gmail.com>
+Reply-To: Mikkel Krautz <krautz@gmail.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+In-Reply-To: <d4b385205020709515d579934@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050207154424.GB4742@omnipotens.localhost>
+	 <20050207174303.GA3113@ucw.cz>
+	 <d4b385205020709515d579934@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-[...]
-> /proc/ioports timer assignments have now been split up like this:
-> 0040-0043 : timer0
-> 0050-0053 : timer1
+Sorry, I now realise that my way of doing this only sets
+hid_mousepoll_interval to the latest-plugged-in mouse's polling
+interval.
+
+How should I handle this? Just remove the line, and keep the "0 feature"?
+
+Thanks,
+Mikkel
+
+
+On Mon, 7 Feb 2005 18:51:46 +0100, Mikkel Krautz <krautz@gmail.com> wrote:
+> Are you talking about the following line?
 > 
-> However, port 0x43 is still assigned to timer0, so your request_region
-> call will still fail.  What system board timer resource assignments
-> should be used for that VIA chipset?  If the chipset timer only needs
-> 0x40-0x42, e.g., leaving 0x43 available, then it would be possible
-> to do some kind of workaround (maybe not real clean, but possible).
-
-The timer uses ports 0x40-0x43. However, port 0x43 is defined as WO 
-(write-only) - it's timer command register.
-
--- 
-Ondrej Zary
+> +               else
+> +                       hid_mousepoll_interval = interval;
+> 
+> If so, I put it there, to fill a tiny gap, i felt was missing.
+> 
+> If no parameter is passed, hid_mousepoll_interval is obviously 0.
+> 
+> If a user, who doesn't pass the parameter to usbhid, reads
+> '/sys/module/usbhid/parameters/mousepoll', the answer would be "0",
+> which is incorrect, no?
+> 
+> Thanks,
+> Mikkel
+> 
+> On Mon, 7 Feb 2005 18:43:03 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > On Mon, Feb 07, 2005 at 04:44:24PM +0100, Mikkel Krautz wrote:
+> > > And, here's an updated version of hid-core.c:
+> > >
+> > > Signed-off-by: Mikkel Krautz <krautz@gmail.com>
+> > > ---
+> > > --- clean/drivers/usb/input/hid-core.c
+> > > +++ dirty/drivers/usb/input/hid-core.c
+> > > @@ -37,13 +37,20 @@
+> > >   * Version Information
+> > >   */
+> > >
+> > > -#define DRIVER_VERSION "v2.0"
+> > > +#define DRIVER_VERSION "v2.01"
+> > >  #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
+> > >  #define DRIVER_DESC "USB HID core driver"
+> > >  #define DRIVER_LICENSE "GPL"
+> > >
+> > >  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
+> > >                               "Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
+> > > +/*
+> > > + * Module parameters.
+> > > + */
+> > > +
+> > > +static unsigned int hid_mousepoll_interval;
+> > > +module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
+> > > +MODULE_PARM_DESC(mousepoll, "Polling interval of mice");
+> > >
+> > >  /*
+> > >   * Register a new report for a device.
+> > > @@ -1695,6 +1702,12 @@
+> > >               if (dev->speed == USB_SPEED_HIGH)
+> > >                       interval = 1 << (interval - 1);
+> > >
+> > > +             /* Change the polling interval of mice. */
+> > > +             if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
+> > > +                     interval = hid_mousepoll_interval;
+> > > +             else
+> > > +                     hid_mousepoll_interval = interval;
+> >
+> > This line is trying to achieve what?
+> >
+> > > +
+> > >               if (endpoint->bEndpointAddress & USB_DIR_IN) {
+> > >                       if (hid->urbin)
+> > >                               continue;
+> > >
+> > >
+> >
+> > --
+> > Vojtech Pavlik
+> > SuSE Labs, SuSE CR
+> >
+>

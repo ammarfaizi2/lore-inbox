@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265644AbSJXUZ4>; Thu, 24 Oct 2002 16:25:56 -0400
+	id <S265660AbSJXUW6>; Thu, 24 Oct 2002 16:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265648AbSJXUZz>; Thu, 24 Oct 2002 16:25:55 -0400
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:49208 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S265647AbSJXUZv>;
-	Thu, 24 Oct 2002 16:25:51 -0400
-Date: Thu, 24 Oct 2002 22:31:58 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: sjralston1@netscape.net, Pam.Delaney@lsil.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] missing include in mptlan.h (2.5.44)
-Message-ID: <20021024223158.A18085@jaquet.dk>
+	id <S265661AbSJXUW6>; Thu, 24 Oct 2002 16:22:58 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:40196 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265660AbSJXUW5>; Thu, 24 Oct 2002 16:22:57 -0400
+Date: Thu, 24 Oct 2002 21:29:10 +0100
+From: John Levon <levon@movementarian.org>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: dipankar@gamebox.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release, version 5 - I think this one's ready
+Message-ID: <20021024202910.GA16192@compsoc.man.ac.uk>
+References: <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk> <3DB85213.4020509@mvista.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+In-Reply-To: <3DB85213.4020509@mvista.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 24, 2002 at 03:03:31PM -0500, Corey Minyard wrote:
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> >               if (CTR_OVERFLOWED(low)) {
+> >			... found
+> >
+> Any way to do this for the IO_APIC case?
 
-Hi,
+Ugh, forgot about that. I have no idea, sorry
 
-This is needed to make drivers/message/fusion/mptlan.c make it
-through 'make dep'.
+regards
+john
 
---- linux-2.5.44-clean/drivers/message/fusion/mptlan.h	2002-10-16 05:27:49.000000000 +0200
-+++ linux-2.5.44-allyesconfig/drivers/message/fusion/mptlan.h	2002-10-24 22:27:01.000000000 +0200
-@@ -20,6 +20,7 @@
- #include <linux/slab.h>
- #include <linux/miscdevice.h>
- #include <linux/spinlock.h>
-+#include <linux/version.h>
- #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,41)
- #include <linux/tqueue.h>
- #else
-
-Regards,
-  Rasmus
-
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9uFi9lZJASZ6eJs4RAmD9AKCSFTLwTN0iKS5uQLQ52blBbYkqYwCfaybO
-eXZoBnUK84NUJGhD0uJDF6Y=
-=jYcd
------END PGP SIGNATURE-----
-
---82I3+IH0IqGh5yIs--
+-- 
+"This is playing, not work, therefore it's not a waste of time."
+	- Zath

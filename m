@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261585AbSIXG4k>; Tue, 24 Sep 2002 02:56:40 -0400
+	id <S261590AbSIXHGo>; Tue, 24 Sep 2002 03:06:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261586AbSIXG4k>; Tue, 24 Sep 2002 02:56:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59916 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261585AbSIXG4j>;
-	Tue, 24 Sep 2002 02:56:39 -0400
-Message-ID: <3D900DBA.6080400@pobox.com>
-Date: Tue, 24 Sep 2002 03:01:14 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261591AbSIXHGo>; Tue, 24 Sep 2002 03:06:44 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:6803 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S261590AbSIXHGm>; Tue, 24 Sep 2002 03:06:42 -0400
+Date: 24 Sep 2002 08:51:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8XSRl9U1w-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.33.0209231154520.3512-100000@penguin.transmeta.com>
+Subject: Re: [PATCH] nanosecond resolution for stat(2)
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
-       "'Andy Pfiffer'" <andyp@osdl.org>, cgl_discussion@osdl.org,
-       "Rhoads, Rob" <rob.rhoads@intel.com>,
-       hardeneddrivers-discuss@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Hardeneddrivers-discuss] RE: [cgl_discussion] Some Initial Comments
- on DDH-Spec-0.5h.pdf
-References: <EDC461A30AC4D511ADE10002A5072CAD01FD8CEA@orsmsx119.jf.intel.com>	<3D8FC2DA.3010107@pobox.com> <m1k7lbkicd.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.33.0209231154520.3512-100000@penguin.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Oh, and don't forget that the hardware specification that drivers are
-> written to, many times are not generally available greatly reducing 
-> the pool of capable people who have the opportunity to review the and
-> debug the drivers.  I would make it a requirement for a hardened
-> driver that both the code and the hardware documentation be publicly
-> available so the code can easily be reviewed by as many people as wish
-> to.
+torvalds@transmeta.com (Linus Torvalds)  wrote on 23.09.02 in <Pine.LNX.4.33.0209231154520.3512-100000@penguin.transmeta.com>:
 
+> On Mon, 23 Sep 2002, Andi Kleen wrote:
+> >
+> > Some drivers (like mouse drivers or tty) do dubious inode [mac] time
+> > accesses of the on disk inode and without even marking it dirty. This is
+> > likely a bug.
+>
+> No, it is intentional. At least some versions of "w" (maybe all) will use
+> the tty access times to judge how long the tty has been idle. The point is
+> that this is all information that is interesting (and useful), but not
+> worth sending to disk - it is useful only as long as the inode remains
+> locked in-core for other reasons, ie being in use.
+>
+> (It's not only "not worth it" to send to disk, but it would be positively
+> wrong to even _try_ updating the disk with the access times, since we want
+> these things to work even with a read-only /dev).
 
-This is a good point that bears highlighting.  Donald Becker's [and thus 
-the kernel's] eepro100.c had certain bugs for years, simply because 
-access to Intel E100 hardware docs was damn near impossible to obtain.
+Should there perhaps be a special function for this - say  
+device_atime_update_nowrite() or something like that, to make it clearer  
+what happens? You could put something like you just wrote as a comment  
+before that function ...
 
-I don't see driver hardening being very feasible on such drivers, where 
-the vendor refuses to allow kernel engineers access needed to get their 
-hardware working and stable.  [why vendors want crappy Linux support, 
-I'll never know]
-
-	Jeff
-
-
-P.S.  In all fairness, Intel is doing a really good job maintaining the 
-e100 and e1000 drivers nowadays, and e100 docs should be public very 
-soon.  [e1000 docs? who knows...]
-
+MfG Kai

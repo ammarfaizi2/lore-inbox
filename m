@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132180AbQK0Ano>; Sun, 26 Nov 2000 19:43:44 -0500
+        id <S135181AbQK0ApN>; Sun, 26 Nov 2000 19:45:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132202AbQK0And>; Sun, 26 Nov 2000 19:43:33 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:54128 "EHLO
-        nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-        id <S132180AbQK0AnY>; Sun, 26 Nov 2000 19:43:24 -0500
-Message-ID: <3A21A720.75A4EEB1@linux.com>
-Date: Sun, 26 Nov 2000 16:13:20 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+        id <S132202AbQK0ApD>; Sun, 26 Nov 2000 19:45:03 -0500
+Received: from oracle.clara.net ([195.8.69.94]:5132 "EHLO oracle.clara.net")
+        by vger.kernel.org with ESMTP id <S135179AbQK0Aos>;
+        Sun, 26 Nov 2000 19:44:48 -0500
+From: "Phil Randal" <phil@rebee.clara.co.uk>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+Date: Mon, 27 Nov 2000 00:14:47 -0000
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Subject: Re: [PATCH] modutils 2.3.20 and beyond
-In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org>
-Content-Type: multipart/mixed;
- boundary="------------DABFB68F73B42FB6EE79B0CA"
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: problem with hp C1537A tape drives
+CC: <linux-kernel@vger.kernel.org>
+Message-ID: <3A21A777.4647.14F4E60@localhost>
+In-Reply-To: <Pine.LNX.4.30.0011261900130.892-100000@rossi.itg.ie>
+In-Reply-To: <Pine.LNX.4.30.0011261508340.3007-100000@filesrv1.baby-dragons.com>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------DABFB68F73B42FB6EE79B0CA
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-"Jeff V. Merkey" wrote:
+> 	Hello Paul & Phil ,  Ouch !,  is this media that loose on the
+> 	substrate that it leaves that much behind ?  Or is it something
+> 	else ?  I'd really like to know what the problem is  ,  as I am
+> 	seriously looking at putting DDS-III & IV 's into my backup
+> 	schemes .  Tia ,  JimL
 
-> On Sun, Nov 26, 2000 at 10:46:35PM +0000, Alan Cox wrote:
-> > > +           {"ignore-versions", 0, 0, 'i'},
-> >
-> > I dont think we should encourage anyone to ignore symbol versions
->
-> Anaconda will barf and require over 850+ changes to the scripts without
-> it.  If you look at the patch, you will note that it's a silent switch
-> that's only there to avoid a noisy error message from depmod.  It
-> actually does nothing other than set a flag that also does nothing.
-> -m simply maps to -F.
+Apparently yes - the Compaq manual says that new tapes shed a 
+lot, and that cleaning has to be more frequent with them.  They
+recommend (this is from memory) cleaning the tape drive after
+just 6 hours use of a new tape, then less frequently thereafter.
 
-It's still a bad precedent.  Anaconda should have been written correctly in
-the first place.
+I figured after reading the manual that a weekly clean should
+normally suffice.
 
--d
+Phil
 
 
---------------DABFB68F73B42FB6EE79B0CA
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-adr:;;;;;;
-version:2.1
-email;internet:david@kalifornia.com
-title:Blue Labs Developer
-x-mozilla-cpt:;14688
-fn:David Ford
-end:vcard
-
---------------DABFB68F73B42FB6EE79B0CA--
-
+Phil
+--------------------------------------------------------------------
+Phil Randal                           Home: phil@rebee.clara.co.uk
+Worcester, UK                               http://www.rebee.clara.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317056AbSIAOFt>; Sun, 1 Sep 2002 10:05:49 -0400
+	id <S315942AbSIAOOW>; Sun, 1 Sep 2002 10:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSIAOFt>; Sun, 1 Sep 2002 10:05:49 -0400
-Received: from mons.uio.no ([129.240.130.14]:19180 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S317024AbSIAOFr>;
-	Sun, 1 Sep 2002 10:05:47 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15730.8121.554630.859558@charged.uio.no>
-Date: Sun, 1 Sep 2002 16:10:01 +0200
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
-In-Reply-To: <15730.4100.308481.326297@charged.uio.no>
-References: <Pine.LNX.4.44.0208311235110.1255-100000@home.transmeta.com>
-	<1030822731.1458.127.camel@ldb>
-	<15729.17279.474307.914587@charged.uio.no>
-	<1030835635.1422.39.camel@ldb>
-	<15730.4100.308481.326297@charged.uio.no>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S315988AbSIAOOW>; Sun, 1 Sep 2002 10:14:22 -0400
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:54186 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315942AbSIAOOU>; Sun, 1 Sep 2002 10:14:20 -0400
+Message-Id: <5.1.0.14.2.20020901151844.03f62cb0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 01 Sep 2002 15:19:21 +0100
+To: linux-kernel@vger.kernel.org
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: ANN: NTFS 2.1.0a for Linux 2.4.19 and 2.4.20-pre-BK
+Cc: linux-ntfs-dev@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+The new NTFS driver 2.1.0(a) is now available for kernel 2.4.19. NTFS 
+2.1.0(a) implements the first steps towards file overwrite support.
 
->>>>> " " == Luca Barbieri <ldb@ldb.ods.org> writes:
-    >> For example, rather than this;
-     > <snip>
+Full and incremental patches are available from the Linux NTFS download page:
+         http://linux-ntfs.sf.net/downloads.html
+and from the Sourceforge project page (also older patches here):
+         http://sf.net/project/showfiles.php?group_id=13956&release_id=107961
 
-    >> you can just do this:
-    >> - uid_t saved_fsuid = current->fsuid;
-    >> + uid_t saved_fsuid = current->fscred.uid;
-    >> kernel_cap_t saved_cap =
-    current-> cap_effective;
- 
-     > But I don't want to have to do that at all. Why should I change
+If you use bitkeeper, you can get NTFS 2.1.0a by pulling from our bitkeeper 
+repository (note this is based on Marcelo's current bitkeeper tree so it is 
+at 2.4.20-pre5 at the moment and will move forward as Marcelo's repository 
+moves forward):
+         http://linux-ntfs.bkbits.net/ntfs-2.4
 
-Just to follow up on why the above 'optimization' is just plain wrong.
+The current code is relatively well tested both for mmap(2) and write(2)
+both using existing applications to randomly write to files and using
+custom programs to do specialized writes to test boundary conditions.
 
-You are forgetting that the fscred might simultaneously be referenced
-by an open struct file. Are you saying that this file should suddenly
-see its credential change?
-The alternative without copy on write is to make a full copy of the
-fscred every time we open a file or schedule some form of asynchronous
-I/O, and hence need to cache the current VFS credentials.
+Still the code has only been run on two machines, so people trying it,
+please have backups! I am confident it won't eat your data, but I am not
+willing to guarantee it! I have put in an appropriately very scary config
+help message to scare off the casual user for the moment...
 
-The copy-on-write rule is there in order to *minimize* the need to
-copy the cred. It works because changing the cred's entries is
-supposed to be a *rare* occurrence, whereas taking references and
-reading are common.
+Features of NTFS 2.1.0(a)
+=========================
 
-Cheers,
-  Trond
+It is now possible to write over existing files both with mmap(2)
+and write(2).
+
+It is now possible to setup a loopback on an NTFS file and then you have
+full read/write access to the loopback device. You can create a Linux fs
+on the loop device for example and mount it.
+
+This has been a much requested feature because it allows installation of
+Linux on an NTFS partition using the loopback trick, i.e. from windows one
+creates a large file on NTFS, then one boots Linux (from installation CD,
+rescue floppies or whatever) and as root does:
+
+mount -t ntfs -o rw /dev/hda1 /mnt/ntfs
+losetup /dev/loop0 /mnt/ntfs/some_dir/preprepared_large_file
+mke2fs -j /dev/loop0
+mount -t ext3 /dev/loop0 /mnt/new_root
+mkdir old_root
+<install Linux into /mnt/new_root>
+umount /mnt/new_root
+losetup -d /dev/loop0
+umount /mnt/ntfs
+
+ From now on, you can boot Linux and using a minimal ramdisk loaded via
+floppy for example, one just needs to have something simillar to the
+following done:
+
+mount -t ntfs -o rw /dev/hda1 /mnt/ntfs
+mount -t ext3 -o loop /ntfs/some_dir/preprepared_large_file /mnt/new_root
+cd /mnt/new_root
+pivot_root . old_root
+exec chroot . sh <dev/console >dev/console 2>&1
+umount /old-root
+
+[Note you probably cannot umount /old-root but it doesn't matter. It doesn't
+disturb anyone... You could always hide it inside root/old_root or something
+so users don't see it.]
+
+I haven't actually tried to install Linux in the above way but Richard
+Russon (flatcap) tested the loopback/mke2fs/read-write stuff and it
+worked fine for him.
+
+Limitations of NTFS 2.1.0(a) overwrite abilities
+================================================
+
+- Resident files only written to in memory so far, i.e. writes to files
+   smaller than 1kiB won't be permanent. Warnings to that effect are shown
+   via printk().
+
+- Filling in of holes/non-initialized areas is not supported yes.
+
+- File resize/truncate not implemented and actively trapped and aborted.
+
+Anyone who tries this new code please let me know how you get on...
+
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

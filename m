@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUFESBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbUFESPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUFESBq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 14:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbUFESBp
+	id S261830AbUFESPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 14:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUFESPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 14:01:45 -0400
-Received: from cyberhostplus.biz ([209.124.87.2]:51178 "EHLO
-	server.cyberhostplus.biz") by vger.kernel.org with ESMTP
-	id S261832AbUFESBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 14:01:43 -0400
-From: "Steve Lee" <steve@tuxsoft.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
-Date: Sat, 5 Jun 2004 13:01:29 -0500
-Message-ID: <000401c44b27$24ba1880$8119fea9@pluto>
+	Sat, 5 Jun 2004 14:15:15 -0400
+Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:40368 "EHLO
+	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S261851AbUFESPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 14:15:06 -0400
+Message-ID: <40C1DB59.7090507@sci.fi>
+Date: Sat, 05 Jun 2004 17:40:25 +0300
+From: =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVuIC8gVHJvbmlj?= <tronic2@sci.fi>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040314)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server.cyberhostplus.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - tuxsoft.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+To: linux-kernel@vger.kernel.org
+Subject: Some thoughts about cache and swap
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig01DE1F373C336BC6161B51B5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Well since 2.6.3 I think I've been getting the record number of 
->
->hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
->hdd: status error: error=0x00
->hdd: drive not ready for command
->hdd: ATAPI reset complete
->
->errors from my cdrw on hdd; and it's only one drive's worth.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig01DE1F373C336BC6161B51B5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+One thing where most current cache/swap implementations seem to fail 
+miserably is when user - for some reason - processes large amounts of 
+data. This may be as simple as listening large MP3 collection for few 
+hours (having very large working set, and pushing everything else out of 
+RAM, replacing that with cached songs).
+
+Incidentally, in such cases, swapping the content is usually complete 
+waste, as it is unlikely that the same data is needed again, or if it 
+actually is required, the speed may not be any kind of issue.
+
+In order to make better use of the limited cache space, the following 
+methods could be used:
+
+1. highly preferable to cache small files only
+  * big seek latency of disk/net access, small RAM usage of caching
+  * applications with long loading times usually use big number of tiny
+    files => caching those makes response times a lot better
+  * higher probability of getting more hits (per consumed cache space)
+
+1.1. if caching large files anyway
+  * try to detect access type (sequential, highly spatial or random)
+  * only cache the hottest parts of the file
+
+2. only cache files where I/O is the bottle neck
+  * if applications typically don't need the data faster, having it in
+    cache isn't very useful either
+  * detecting whether I/O is a limiting factor is difficult
+
+Additionally, for machines with oversized RAM (like nearly all 
+desktop/server computers):
+
+3. never (or only rarely) swap out applications for more cache
+  * eventually it will be restored to RAM and the user will notice
+    major trashing with long delays, and blame the OS
+  * applications only take small portion of the RAM and using that
+    as extra cache makes only small difference in cache performance
+  * if application or its data has been loaded to memory, there normally
+    is a reason for that (i.e. the data needs to be accessed quickly)
+
+3.1. memory leaks are exception (but maybe fixing the bug would be 
+correct solution instead of obscuring the problem by swapping it out)
+
+Definition of large file changes over time, as technology evolves
+  * size of RAM (and thus the available cache space)
+  * reading one megaoctet or doing single seek on modern HDD each consume
+    roughly the same time - about 13 ms (notice how evil seeking is!)
+
+- Tronic -
 
 
-I've been witnessing almost exactly the same thing as you.  I assumed,
-perhaps falsely, that my AOpen CDRW was failing.  I just recently
-replaced it with a DVD-Rom drive and thus far have not seen these
-errors.
+--------------enig01DE1F373C336BC6161B51B5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-hdd: status error: error=0x20LastFailedSense 0x02
-hdd: drive not ready for command
-hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdd: status error: error=0x00
-hdd: drive not ready for command
-hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdd: status error: error=0x00
-hdd: drive not ready for command
-hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdd: status error: error=0x00
-hdd: DMA disabled
-hdd: drive not ready for command
-hdd: ATAPI reset complete
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Could this be a kernel bug?  Please CC me as I'm no longer subscribed to
-this list.
+iD8DBQFAwdtZOBbAI1NE8/ERAv13AJ0RWLo1ZN2ybte26Q9FzamwDjwYcACdG07S
+bCxOjfcMvo3d/Kyc7MBFCbI=
+=7w13
+-----END PGP SIGNATURE-----
 
-Thanks,
-Steve
-
-
+--------------enig01DE1F373C336BC6161B51B5--

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273269AbRKHMMI>; Thu, 8 Nov 2001 07:12:08 -0500
+	id <S276057AbRKHMOi>; Thu, 8 Nov 2001 07:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276894AbRKHML7>; Thu, 8 Nov 2001 07:11:59 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:46076 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S273269AbRKHMLy>; Thu, 8 Nov 2001 07:11:54 -0500
-Date: Thu, 8 Nov 2001 07:11:51 -0500
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Zvi Har'El" <rl@math.technion.ac.il>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-        "Nadav Har'El" <nyh@math.technion.ac.il>
-Subject: Re: ext3 vs resiserfs vs xfs
-Message-ID: <20011108071151.A16254@devserv.devel.redhat.com>
-In-Reply-To: <3BEA6725.739463C2@redhat.com> <Pine.GSO.4.33.0111081407130.28492-100000@leeor.math.technion.ac.il>
+	id <S276576AbRKHMOa>; Thu, 8 Nov 2001 07:14:30 -0500
+Received: from AMontpellier-201-1-6-99.abo.wanadoo.fr ([80.11.171.99]:50189
+	"EHLO awak") by vger.kernel.org with ESMTP id <S276057AbRKHMON> convert rfc822-to-8bit;
+	Thu, 8 Nov 2001 07:14:13 -0500
+Subject: Re: Laptop harddisk spindown?
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: Dominik Kubla <kubla@sciobyte.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200111080502.fA852im17980@vegae.deep.net>
+In-Reply-To: <200111080502.fA852im17980@vegae.deep.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.16.100+cvs.2001.11.05.15.34 (Preview Release)
+Date: 08 Nov 2001 13:07:52 +0100
+Message-Id: <1005221273.13841.19.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.33.0111081407130.28492-100000@leeor.math.technion.ac.il>; from rl@math.technion.ac.il on Thu, Nov 08, 2001 at 02:10:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 02:10:58PM +0200, Zvi Har'El wrote:
-> On Thu, 8 Nov 2001, Arjan van de Ven wrote:
-> 
-> >
-> > The basic idea is "everything which can be a module will be a module",
-> > even scsi is a module. And if you use grub, it's 100% transparent as the
-> > initrd
-> > will be automatically added to the grub config when you install the RH
-> > kernel rpm;
-> > even if you use lilo the initrd is supposed to be made for you
-> 
-> Is there no overhead (except in boot time) in using initrd?
+le jeu 08-11-2001 à 06:02, Samium Gromoff a écrit :
+> > > 	i have a disk access _every_ 5 sec, unregarding the system load, 
+> > >     24x7x365, so i suppose while it doesnt hurts me, it hurts folks with power
+> > >     bound boxes...
 
-The initrd memory is freed during the initial boot so there's no overhead.
+That's a kernel daemon called kupdated. Under Linux buffers are flushed
+every 5 seconds (I don't like this myself, it should be triggered by
+something dependant on free mem, dirty buffers, disk access, etc. but
+not time, this doesn't scale.
+
+Under 2.2 you can try the noflushd package - perhaps it works on 2.4, I
+haven't tried. It works more or less.
+
+	Xav
 

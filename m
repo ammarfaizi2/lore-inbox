@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262727AbTCPTDn>; Sun, 16 Mar 2003 14:03:43 -0500
+	id <S262726AbTCPS71>; Sun, 16 Mar 2003 13:59:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262728AbTCPTDn>; Sun, 16 Mar 2003 14:03:43 -0500
-Received: from holomorphy.com ([66.224.33.161]:46294 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262727AbTCPTDm>;
-	Sun, 16 Mar 2003 14:03:42 -0500
-Date: Sun, 16 Mar 2003 11:14:09 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: cpu-2.5.64-1
-Message-ID: <20030316191409.GK20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-References: <20030316113254.GH20188@holomorphy.com> <200303161242.h2GCg1PO001746@eeyore.valparaiso.cl>
+	id <S262727AbTCPS71>; Sun, 16 Mar 2003 13:59:27 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36842 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262726AbTCPS70>; Sun, 16 Mar 2003 13:59:26 -0500
+Date: Sun, 16 Mar 2003 20:10:13 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: 2.5.64-mm8: link error with CONFIG_NUMA and !CONFIG_SMP
+Message-ID: <20030316191012.GG10253@fs.tum.de>
+References: <20030316024239.484f8bda.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303161242.h2GCg1PO001746@eeyore.valparaiso.cl>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030316024239.484f8bda.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> said:
->> Another thought I had was wrapping things in structures for both small
->> and large, even UP systems so proper typechecking is enforced at all
->> times. That would probably need a great deal of arch sweeping to do,
->> especially as a number of arches are UP-only (non-SMP case's motive #2).
+I get many errors at the final linking when compiling a kernel with
+CONFIG_NUMA enabled but CONFIG_SMP disabled:
 
-On Sun, Mar 16, 2003 at 08:42:01AM -0400, Horst von Brand wrote:
-> AFAIU, gcc doesn't put structures in registers (even when they fit).
+<--  snip  -->
 
-Bugreport and/or wishlist time.
+...
+/home/bunk/linux/kernel-2.5/linux-2.5.64-mm8/include/asm/topology.h:41: 
+undefined reference to `cpu_2_node'
+...
 
+<--  snip  -->
 
--- wli
+the problem is that include/asm-i386/topology.h says:
+
+<--  snip  -->
+
+...
+#ifdef CONFIG_NUMA
+...
+extern volatile int cpu_2_node[];
+...
+
+<--  snip  -->
+
+but cpu_2_node is in arch/i386/kernel/smpboot.c that only gets included 
+with CONFIG_SMP.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

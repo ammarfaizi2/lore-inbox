@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261416AbSLPVaJ>; Mon, 16 Dec 2002 16:30:09 -0500
+	id <S261530AbSLPVeI>; Mon, 16 Dec 2002 16:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSLPVaJ>; Mon, 16 Dec 2002 16:30:09 -0500
-Received: from zeke.inet.com ([199.171.211.198]:48882 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S261416AbSLPVaI>;
-	Mon, 16 Dec 2002 16:30:08 -0500
-Message-ID: <3DFE47BB.6070208@inet.com>
-Date: Mon, 16 Dec 2002 15:38:03 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eli Carter <eli.carter@inet.com>
-CC: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: FYI
-References: <Pine.LNX.3.95.1021216161441.19614A-101000@chaos.analogic.com> <3DFE4636.7090701@inet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S261723AbSLPVeI>; Mon, 16 Dec 2002 16:34:08 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41183
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261530AbSLPVeH>; Mon, 16 Dec 2002 16:34:07 -0500
+Subject: Re: i810 sound starts and stops for 2.4.XX and i845PE chipset
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: edward.kuns@rockwellfirstpoint.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <OFEC2D1079.106A6C04-ON86256C91.00739206-86256C91.0073544D@rockwellfirstpoin
+	t.com>
+References: <OFEC2D1079.106A6C04-ON86256C91.00739206-86256C91.0073544D@rockwellfirstpoin
+	t.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Dec 2002 22:21:42 +0000
+Message-Id: <1040077302.13910.100.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter wrote:
-> Richard B. Johnson wrote:
+On Mon, 2002-12-16 at 21:03, edward.kuns@rockwellfirstpoint.com wrote:
+> Please CC me at edward.kuns at rockwellfirstpoint.com in your responses.
 > 
->> Small Linux Christmas Poem.
->> Cheers,
->> Dick Johnson
->> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
->> Why is the government concerned about the lunatic fringe? Think about it.
->>
-> 
-> _That_ is going on my wall.  :D
-> 
-> (Do we have permission to forward that on to friends, or not?  I didn't 
-> see anything about copyright on it, so by default, I think not. IANAL)
+> I have a Gigabyte GA-8PE667 Ultra motherboard (aka P4 Titan 667 Ultra) with
+> the i845PE chipset.  According to the motherboard manual, it uses the
+> Realtek ALC650 CODEC.
 
-Erm, but it was posted to a public mailing list...
-
-Oh nevermind, forget I asked.
-
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+At a first guess it may be IRQ routing. If you build a kernel with
+apic/local apic support does that work any better ?
 

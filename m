@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289573AbSAOO0m>; Tue, 15 Jan 2002 09:26:42 -0500
+	id <S289783AbSAOO2w>; Tue, 15 Jan 2002 09:28:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289642AbSAOO0X>; Tue, 15 Jan 2002 09:26:23 -0500
-Received: from delrom.ro ([193.231.234.28]:56214 "EHLO delrom.ro")
-	by vger.kernel.org with ESMTP id <S289573AbSAOO0N>;
-	Tue, 15 Jan 2002 09:26:13 -0500
-Date: Tue, 15 Jan 2002 16:26:47 +0200
-From: Silviu Marin-Caea <silviu@delrom.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Ramdisk doesn't work well in 2.4.17
-Message-Id: <20020115162647.35f57d4f.silviu@delrom.ro>
-Organization: Delta Romania
-X-Mailer: Sylpheed version 0.7.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S289776AbSAOO2n>; Tue, 15 Jan 2002 09:28:43 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:23315 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289642AbSAOO22>; Tue, 15 Jan 2002 09:28:28 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15428.19063.859280.833041@laputa.namesys.com>
+Date: Tue, 15 Jan 2002 18:27:51 +0300
+To: trond.myklebust@fys.uio.no
+Cc: Nikita Danilov <Nikita@Namesys.COM>, Neil Brown <neilb@cse.unsw.edu.au>,
+        Hans-Peter Jansen <hpj@urpla.net>, linux-kernel@vger.kernel.org,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
+        "David L. Parsley" <parsley@roanoke.edu>
+Subject: Re: [BUG] symlink problem with knfsd and reiserfs 
+In-Reply-To: <15428.12621.682479.589568@charged.uio.no>
+In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>
+	<15428.6953.453942.415989@charged.uio.no>
+	<15428.14268.730698.637522@laputa.namesys.com>
+	<15428.12621.682479.589568@charged.uio.no>
+X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to make a pair of custom boot/root diskettes (for partimage).
+Trond Myklebust writes:
+ > >>>>> " " == Nikita Danilov <Nikita@Namesys.COM> writes:
+ > 
+ >      > Yes, inode->i_generation is stored in the file handle:
+ >      > fs/reiserfs/inode.c:reiserfs_dentry_to_fh().
+ > 
+ > But what is stored in inode->i_generation? AFAICS
+ > 
+ >      inode->i_generation = le32_to_cpu (INODE_PKEY (inode)->k_dir_id);
+ > 
+ > which appears not to be a unique generation count. Isn't that instead
+ > the directory's object id?
 
-The kernel I have compiled the kernel for bootdisk loads fine, reads the
-rootdisk (gzipped image) to the end, and then, it says:
+This is only for 3.5 reiserfs format (default for 2.2 kernels), for 3.6
+format, generation is stored on the disk (in the same place where rdev
+is stored for device files). 3.5 cannot work with nfs reliably.
 
+Hans-Peter, you can check version of reiserfs you use with
+/sbin/debugreiserfs /dev/device
 
-Kernel panic: no init found.  Try passing init= option to kernel.
+or 
+cat /proc/fs/reiserfs/device/version
 
+ > 
+ > The point of i_generation is to provide a unique number that changes
+ > every time you reuse the inode number.
 
+In reiserfs there is no static inode table, so we keep global generation
+counter in a super block which is incremented on each inode deletion,
+this generation is stored in the new inodes. Not that good as per-inode
+generation, but we cannot do better without changing disk format.
 
-The root disk is good, because I have built a 2.4.9 in a similar
-fashion, and it works with it.  The problem is I need NTFS support, and
-that doesn't compile in 2.4.9.
+ > 
+ > Cheers,
+ >   Trond
+ > 
 
-
-
--- 
-Silviu Marin-Caea - Network & Systems Administrator - Delta Romania
-Phone +4093-267961
-
+Nikita.

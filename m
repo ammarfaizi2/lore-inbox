@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261707AbSI0Oic>; Fri, 27 Sep 2002 10:38:32 -0400
+	id <S261607AbSI0Ou2>; Fri, 27 Sep 2002 10:50:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261708AbSI0Oic>; Fri, 27 Sep 2002 10:38:32 -0400
-Received: from web21406.mail.yahoo.com ([216.136.232.76]:36106 "HELO
-	web21406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261707AbSI0Oib>; Fri, 27 Sep 2002 10:38:31 -0400
-Message-ID: <20020927144332.74044.qmail@web21406.mail.yahoo.com>
-Date: Fri, 27 Sep 2002 07:43:32 -0700 (PDT)
-From: Venkatesh Rao <rpranesh@yahoo.com>
-Subject: Re: Problems with tcp_retransmit_skb - Please omit the previous incomplete mail
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200209270353.HAA19674@sex.inr.ac.ru>
+	id <S261714AbSI0Ou2>; Fri, 27 Sep 2002 10:50:28 -0400
+Received: from pD9E239ED.dip.t-dialin.net ([217.226.57.237]:56704 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S261607AbSI0Ou2>; Fri, 27 Sep 2002 10:50:28 -0400
+Date: Fri, 27 Sep 2002 08:56:17 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated
+ v2
+In-Reply-To: <15763.55020.35426.721691@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.LNX.4.44.0209270855000.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-Even i thought of this scenario, but what puzzles me,
-other sockets running in the system are able to
-receive data (ie) send TCP ACKs through the same
-driver.
 
-This is the only socket which *sends* relatively huge
-amount of data, other sockets running when this
-happens are able to receive data (ie) send TCP ACK's.
+On Fri, 27 Sep 2002, Peter Chubb wrote:
+> What is the problem these lists are intended to solve?
 
+Reduction of effort in the place where we only have single-direction 
+lists, such as stacks and the scheduler. (That is, whereever we don't need 
+to step back.)
 
-Retransmit fails only when there is high activity on
-the network cable (caused by flood pinging). When
-there is no flood pinging(or high network activity),
-apps work for days together.
+> There's no point in adding general infrastructure that has no immediate
+> uses -- it just ends up mouldering in a corner, (like the generic
+> hashing code linux/ghash.h which has been in the kernel for 4 or 5
+> years, and still has *no* uses.)
 
-Can this still be a network driver problem?
+Wasn't it already removed?
 
-Thanks & Cheers,
-Venkatesh
+			Thunder
+-- 
+assert(typeof((fool)->next) == typeof(fool));	/* wrong */
 
-
-
---- kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > When conditions fails, the value of wmem_alloc is
-> ~ 
-> > around 56K-154K,
-> 
-> ... which means that you already have 64-154K
-> transmitted
-> and all this buffers still not left the host. So,
-> further
-> retransmission is pointless.
-> 
-> 
-> > Each time it tries to retransmit this if condition
-> > always fail
-> ...
-> > Any hints in  helping me debug this issue will be
-> > appreciated.
-> 
-> Most likely, this means that driver leaks memory.
-> 
-> Alexey
-
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com

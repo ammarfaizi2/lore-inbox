@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316668AbSGLQvW>; Fri, 12 Jul 2002 12:51:22 -0400
+	id <S316667AbSGLQtK>; Fri, 12 Jul 2002 12:49:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSGLQvV>; Fri, 12 Jul 2002 12:51:21 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:64783 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316668AbSGLQvS>; Fri, 12 Jul 2002 12:51:18 -0400
-Date: Fri, 12 Jul 2002 18:54:02 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: JorgP <jorgp@bartnet.net>, linux-kernel@vger.kernel.org
-Subject: Re: What is the most stable kernel to date?
-Message-ID: <20020712165402.GP29993@louise.pinerecords.com>
-References: <20020712163546.GO29993@louise.pinerecords.com> <Pine.LNX.4.44.0207121046090.3421-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
+	id <S316668AbSGLQtJ>; Fri, 12 Jul 2002 12:49:09 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38922
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316667AbSGLQru>; Fri, 12 Jul 2002 12:47:50 -0400
+Date: Fri, 12 Jul 2002 09:47:50 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <3D2EEF88.2070609@cox.net>
+Message-ID: <Pine.LNX.4.10.10207120941060.20499-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207121046090.3421-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 38 days, 1:09
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Has anyone conducted any tests to determine what is the most stable (as in
-> > > reliable) kernel available?
-> > 
-> > There is no such test because there's no way to describe "being stable"
-> > in formulas.
-> > 
-> > You might as well like to stick with a kernel that has worked for you
-> > for a long enough time. If you don't need the features of 2.4, go with
-> > 2.2-latest.
-> 
-> Well, about stability: I'm running 2.4.19-rc1-aa2 for some days now, I 
-> didn't yet have any problems. My sparc64, meanwhile, is running 2.5.24-ct1, 
-> stable for more than a week of uptime yet.
+On Fri, 12 Jul 2002, Kevin P. Fleming wrote:
 
-As for me,
+> I have had plans for a while to add Media Status Notification to the 
+> ide-floppy driver, so it can do more intelligent media change 
+> management. To do so requires ATA (NOT ATAPI) commands to be issued to 
+> the drive(s). How would this work if ide-scsi is being used to talk to 
+> the drives? Would ide-scsi have to be taught about removable media and 
+> Media Status Notification?
 
-$ arch
-i686
-$ uname -r
-2.4.19-pre10-ac2
-$ uptime
-  6:51pm  up 36 days, 19:14, 19 users,  load average: 0.00, 0.00, 0.00
-(config: p2, 2 ide controllers, raid0, 2 network adapters)
---
-$ arch 
-sparc
-$ uname -r
-2.4.19-pre10
-$ uptime
-  6:51pm  up 38 days,  8:46,  7 users,  load average: 0.00, 0.01, 0.00
-(config: smp ss10, scsi, raid0, 1 network adapter)
+You load up and bloat the SCSI layer the special function to do the
+taskfile iops, however since the exported ioctl to permit outside the
+driver to grant access has been deleted, you have to add more bloat in
+scsi.
 
-The latter is with my dynamic-nocache patch included.
+The result is having to stagger scsi's queuing layer to deal with
+overlap protocols that differ enough to cause major headaches.  But this
+is 2.5 so bring out the wrecking balls and give SCSI equal time.
 
 
-T.
+Andre Hedrick
+LAD Storage Consulting Group
+

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277532AbRJ3S6m>; Tue, 30 Oct 2001 13:58:42 -0500
+	id <S277530AbRJ3TAC>; Tue, 30 Oct 2001 14:00:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277559AbRJ3S6d>; Tue, 30 Oct 2001 13:58:33 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:13866 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277532AbRJ3S6Q>; Tue, 30 Oct 2001 13:58:16 -0500
-Date: Tue, 30 Oct 2001 19:58:28 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Hugh Dickins <hugh@veritas.com>,
-        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: need help interpreting 'free' output.
-Message-ID: <20011030195828.X1340@athlon.random>
-In-Reply-To: <20011030191612.S1340@athlon.random> <Pine.LNX.4.33.0110301017240.12018-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.33.0110301017240.12018-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Oct 30, 2001 at 10:28:29AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S277533AbRJ3S7p>; Tue, 30 Oct 2001 13:59:45 -0500
+Received: from chaos.psimation.co.za ([160.124.112.123]:5650 "EHLO
+	chaos.psimation.co.za") by vger.kernel.org with ESMTP
+	id <S277530AbRJ3S7f>; Tue, 30 Oct 2001 13:59:35 -0500
+Message-ID: <3BDEF62B.5050600@mweb.co.za>
+Date: Tue, 30 Oct 2001 20:49:15 +0200
+From: "P.Agenbag" <internet@mweb.co.za>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ext3 and reiserfs / patches
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 10:28:29AM -0800, Linus Torvalds wrote:
-> want to lock the page - because locking the page means that you can pause
-> for a _long_ time waiting for the page to be written out when there is IO
-> pending.
+Hmm, very stupid question...
+Firstly, thanks to all the responses helping me to get the 
+(EXPERIMENTAL) out of the way...
+Now, is reiserfs the same as ext3? if not, what's the diff/best?
 
-ok I see what you mean, I agree (going to merge those important bits
-into my tree! :)
+Also, concerning the patches
 
-however those locking bits have nothing to do with exclusive_swap_page
-and the ealry cow I believe. exclusive_swap_page is faster than
-remove_exclusive_swap_page + only_swap_page as said in the earlier email
-and don't forget you somehow need the page lock too for
-remove_exclusive_swap_page.
+I only once attempted to patch a kernel and it came out a beeeeeg 
+messup. I'm not very sure about the procedure, I always untar my new 
+kernel in /opt and then rename the linux folder to the version number ( 
+sometimes have 4 or 5 kernels, so need to distinguish...)
+Lets say I have a  /opt/247 kernel source , how exactly would I patch it 
+and with which of the patches? Do you patch the 247 kernel with the 247 
+patch, or do you patch it with a higher version, and if so, how many 
+"steps" can you go higher?
 
-The magic word here is "_trylock_" after your wait_on_page if the page
-wasn't uptodate, it's not that avoiding the early-cow or your
-remove_exclusive_swap_cache will change anything (they only slowdowns).
+Sorry for the ignorance, but hey, atleast i'm willing to learn!
+Thanks
 
-So in short we only need to replace the lock_page with a TryLockPage
-(plus your wait_on_page if page is not uptodate to catch the major
-faults) and here we go, faster than pre5.
-
-In previous emails I was thinking at major faults, of course the whole
-optimization here is for the _minor_ faults were we don't need to block
-and where pre5aa1 blocks and where pre5 vanilla doesn't block! Very good
-point.
-
-Andrea

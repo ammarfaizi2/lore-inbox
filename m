@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbTISKb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 06:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbTISK34
+	id S261528AbTISK2b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 06:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTISK1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 06:29:56 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:20366 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261495AbTISK07 convert rfc822-to-8bit
+	Fri, 19 Sep 2003 06:27:55 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:20110 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261488AbTISK0y convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 06:26:59 -0400
-Subject: [PATCH 3/11] input: Fix Sega Saturn pad support
-In-Reply-To: <10639672011605@twilight.ucw.cz>
+	Fri, 19 Sep 2003 06:26:54 -0400
+Subject: [PATCH 2/11] input: Forced release of keys on AT kbds
+In-Reply-To: <10639672004187@twilight.ucw.cz>
 X-Mailer: gregkh_patchbomb_levon_offspring
 Date: Fri, 19 Sep 2003 12:26:41 +0200
-Message-Id: <10639672012246@twilight.ucw.cz>
+Message-Id: <10639672011605@twilight.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
@@ -27,407 +27,357 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1341, 2003-09-19 01:01:20-07:00, vojtech@suse.cz
-  db9.c:
-    input: Fix Sega Saturn pad support.
+ChangeSet@1.1340, 2003-09-19 00:58:34-07:00, vojtech@suse.cz
+  input.c:
+    input: Don't set autorepeat times in core if already set by driver.
+  atkbd.c:
+    input: Automatic forced release of keys if keyrelease gets lost
 
 
- db9.c |  313 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++----------
- 1 files changed, 269 insertions(+), 44 deletions(-)
+ input.c          |    6 +
+ keyboard/atkbd.c |  173 ++++++++++++++++++++++++++++++-------------------------
+ 2 files changed, 99 insertions(+), 80 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
---- a/drivers/input/joystick/db9.c	Fri Sep 19 12:16:39 2003
-+++ b/drivers/input/joystick/db9.c	Fri Sep 19 12:16:39 2003
-@@ -55,7 +55,9 @@
- #define DB9_MULTI_0802		0x08
- #define DB9_MULTI_0802_2	0x09
- #define DB9_CD32_PAD		0x0A
--#define DB9_MAX_PAD		0x0B
-+#define DB9_SATURN_DPP		0x0B
-+#define DB9_SATURN_DPP_2	0x0C
-+#define DB9_MAX_PAD		0x0D
+diff -Nru a/drivers/input/input.c b/drivers/input/input.c
+--- a/drivers/input/input.c	Fri Sep 19 12:16:46 2003
++++ b/drivers/input/input.c	Fri Sep 19 12:16:46 2003
+@@ -426,8 +426,10 @@
+ 	init_timer(&dev->timer);
+ 	dev->timer.data = (long) dev;
+ 	dev->timer.function = input_repeat_key;
+-	dev->rep[REP_DELAY] = HZ/4;
+-	dev->rep[REP_PERIOD] = HZ/33;
++	if (!dev->rep[REP_DELAY])
++		dev->rep[REP_DELAY] = HZ/4;
++	if (!dev->rep[REP_PERIOD])
++		dev->rep[REP_PERIOD] = HZ/33;
  
- #define DB9_UP			0x01
- #define DB9_DOWN		0x02
-@@ -69,10 +71,7 @@
- #define DB9_NORMAL		0x0a
- #define DB9_NOSELECT		0x08
+ 	INIT_LIST_HEAD(&dev->h_list);
+ 	list_add_tail(&dev->node, &input_dev_list);
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Fri Sep 19 12:16:46 2003
++++ b/drivers/input/keyboard/atkbd.c	Fri Sep 19 12:16:46 2003
+@@ -18,6 +18,7 @@
+ #include <linux/input.h>
+ #include <linux/serio.h>
+ #include <linux/workqueue.h>
++#include <linux/timer.h>
  
--#define DB9_SATURN0		0x00
--#define DB9_SATURN1		0x02
--#define DB9_SATURN2		0x04
--#define DB9_SATURN3		0x06
-+#define DB9_MAX_DEVICES 2
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("AT and PS/2 keyboard driver");
+@@ -40,8 +41,8 @@
+ static unsigned char atkbd_set2_keycode[512] = {
+ 	  0, 67, 65, 63, 61, 59, 60, 88,  0, 68, 66, 64, 62, 15, 41, 85,
+ 	  0, 56, 42,182, 29, 16,  2, 89,  0,  0, 44, 31, 30, 17,  3, 90,
+-	  0, 46, 45, 32, 18,  5,  4, 91,  0, 57, 47, 33, 20, 19,  6,  0,
+-	  0, 49, 48, 35, 34, 21,  7,  0,  0,  0, 50, 36, 22,  8,  9,  0,
++	  0, 46, 45, 32, 18,  5,  4, 91, 90, 57, 47, 33, 20, 19,  6,  0,
++	 91, 49, 48, 35, 34, 21,  7,  0,  0,  0, 50, 36, 22,  8,  9,  0,
+ 	  0, 51, 37, 23, 24, 11, 10,  0,  0, 52, 53, 38, 39, 25, 12,  0,
+ 	122, 89, 40,120, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,  0,
+ 	 85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
+@@ -87,10 +88,10 @@
+ #define ATKBD_CMD_GSCANSET	0x11f0
+ #define ATKBD_CMD_SSCANSET	0x10f0
+ #define ATKBD_CMD_GETID		0x02f2
++#define ATKBD_CMD_SETREP	0x10f3
+ #define ATKBD_CMD_ENABLE	0x00f4
+ #define ATKBD_CMD_RESET_DIS	0x00f5
+ #define ATKBD_CMD_RESET_BAT	0x02ff
+-#define ATKBD_CMD_SETALL_MB	0x00f8
+ #define ATKBD_CMD_RESEND	0x00fe
+ #define ATKBD_CMD_EX_ENABLE	0x10ea
+ #define ATKBD_CMD_EX_SETLEDS	0x20eb
+@@ -114,12 +115,14 @@
+ 	unsigned char keycode[512];
+ 	struct input_dev dev;
+ 	struct serio *serio;
++	struct timer_list timer;
+ 	char name[64];
+ 	char phys[32];
+ 	unsigned char cmdbuf[4];
+ 	unsigned char cmdcnt;
+ 	unsigned char set;
+ 	unsigned char release;
++	int lastkey;
+ 	volatile signed char ack;
+ 	unsigned char emul;
+ 	unsigned short id;
+@@ -142,6 +145,7 @@
+ 	printk(KERN_DEBUG "atkbd.c: Received %02x flags %02x\n", data, flags);
+ #endif
  
- #define DB9_GENESIS6_DELAY	14
- #define DB9_REFRESH_TIME	HZ/100
-@@ -82,7 +81,7 @@
- static int db9_3[] __initdata = { -1, 0 };
++#if !defined(__i386__) && !defined (__x86_64__)
+ 	if ((flags & (SERIO_FRAME | SERIO_PARITY)) && (~flags & SERIO_TIMEOUT) && !atkbd->resend && atkbd->write) {
+ 		printk("atkbd.c: frame/parity error: %02x\n", flags);
+ 		serio_write(serio, ATKBD_CMD_RESEND);
+@@ -151,6 +155,7 @@
+ 	
+ 	if (!flags)
+ 		atkbd->resend = 0;
++#endif
  
- struct db9 {
--	struct input_dev dev[2];
-+	struct input_dev dev[DB9_MAX_DEVICES];
- 	struct timer_list timer;
- 	struct pardevice *pd;	
- 	int mode;
-@@ -96,12 +95,247 @@
- static short db9_genesis_btn[] = { BTN_START, BTN_A, BTN_B, BTN_C, BTN_X, BTN_Y, BTN_Z, BTN_MODE };
- static short db9_cd32_btn[] = { BTN_A, BTN_B, BTN_C, BTN_X, BTN_Y, BTN_Z, BTN_TL, BTN_TR, BTN_START };
- 
--static char db9_buttons[DB9_MAX_PAD] = { 0, 1, 2, 4, 0, 6, 8, 8, 1, 1, 7 };
-+static char db9_buttons[DB9_MAX_PAD] = { 0, 1, 2, 4, 0, 6, 8, 9, 1, 1, 7, 9, 9 };
- static short *db9_btn[DB9_MAX_PAD] = { NULL, db9_multi_btn, db9_multi_btn, db9_genesis_btn, NULL, db9_genesis_btn,
--					db9_genesis_btn, db9_cd32_btn, db9_multi_btn, db9_multi_btn, db9_cd32_btn };
-+					db9_genesis_btn, db9_cd32_btn, db9_multi_btn, db9_multi_btn, db9_cd32_btn,
-+					db9_cd32_btn, db9_cd32_btn };
- static char *db9_name[DB9_MAX_PAD] = { NULL, "Multisystem joystick", "Multisystem joystick (2 fire)", "Genesis pad",
- 				      NULL, "Genesis 5 pad", "Genesis 6 pad", "Saturn pad", "Multisystem (0.8.0.2) joystick",
--				     "Multisystem (0.8.0.2-dual) joystick", "Amiga CD-32 pad" };
-+				     "Multisystem (0.8.0.2-dual) joystick", "Amiga CD-32 pad", "Saturn dpp", "Saturn dpp dual" };
+ 	switch (code) {
+ 		case ATKBD_RET_ACK:
+@@ -195,6 +200,14 @@
+ 				atkbd->set, code, serio->phys, atkbd->release ? "released" : "pressed");
+ 			break;
+ 		default:
 +
-+static const int db9_max_pads[DB9_MAX_PAD] = { 0, 1, 1, 1, 0, 1, 1, 6, 1, 2, 1, 6, 12 };
-+static const int db9_num_axis[DB9_MAX_PAD] = { 0, 2, 2, 2, 0, 2, 2, 7, 2, 2, 2 ,7, 7 };
-+static const short db9_abs[] = { ABS_X, ABS_Y, ABS_RX, ABS_RY, ABS_RZ, ABS_Z, ABS_HAT0X, ABS_HAT0Y, ABS_HAT1X, ABS_HAT1Y };
-+static const int db9_bidirectional[DB9_MAX_PAD] = { 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0 };
-+static const int db9_reverse[DB9_MAX_PAD] = { 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0 };
-+
-+/*
-+ * Saturn controllers
-+ */
-+#define DB9_SATURN_DELAY 300
-+static const int db9_saturn_byte[] = { 1, 1, 1, 2, 2, 2, 2, 2, 1 };
-+static const unsigned char db9_saturn_mask[] = { 0x04, 0x01, 0x02, 0x40, 0x20, 0x10, 0x08, 0x80, 0x08 };
-+
-+/*
-+ * db9_saturn_write_sub() writes 2 bit data.
-+ */
-+static void db9_saturn_write_sub(struct parport *port, int type, unsigned char data, int powered, int pwr_sub)
-+{
-+	unsigned char c;
-+
-+	switch (type) {
-+	case 1: /* DPP1 */
-+		c = 0x80 | 0x30 | (powered ? 0x08 : 0) | (pwr_sub ? 0x04 : 0) | data;
-+		parport_write_data(port, c);
-+		break;
-+	case 2: /* DPP2 */
-+		c = 0x40 | data << 4 | (powered ? 0x08 : 0) | (pwr_sub ? 0x04 : 0) | 0x03;
-+		parport_write_data(port, c);
-+		break;
-+	case 0:	/* DB9 */
-+		c = ((((data & 2) ? 2 : 0) | ((data & 1) ? 4 : 0)) ^ 0x02) | !powered;
-+		parport_write_control(port, c);
-+		break;
-+	}
-+}
-+
-+/*
-+ * gc_saturn_read_sub() reads 4 bit data.
-+ */
-+static unsigned char db9_saturn_read_sub(struct parport *port, int type)
-+{
-+	unsigned char data;
-+
-+	if (type) {
-+		/* DPP */
-+		data = parport_read_status(port) ^ 0x80;
-+		return (data & 0x80 ? 1 : 0) | (data & 0x40 ? 2 : 0)
-+		     | (data & 0x20 ? 4 : 0) | (data & 0x10 ? 8 : 0);
-+	} else {
-+		/* DB9 */
-+		data = parport_read_data(port) & 0x0f;
-+		return (data & 0x8 ? 1 : 0) | (data & 0x4 ? 2 : 0)
-+		     | (data & 0x2 ? 4 : 0) | (data & 0x1 ? 8 : 0);
-+	}
-+}
-+
-+/*
-+ * db9_saturn_read_analog() sends clock and reads 8 bit data.
-+ */
-+static unsigned char db9_saturn_read_analog(struct parport *port, int type, int powered)
-+{
-+	unsigned char data;
-+
-+	db9_saturn_write_sub(port, type, 0, powered, 0);
-+	udelay(DB9_SATURN_DELAY);
-+	data = db9_saturn_read_sub(port, type) << 4;
-+	db9_saturn_write_sub(port, type, 2, powered, 0);
-+	udelay(DB9_SATURN_DELAY);
-+	data |= db9_saturn_read_sub(port, type);
-+	return data;
-+}
-+
-+/*
-+ * db9_saturn_read_packet() reads whole saturn packet at connector 
-+ * and returns device identifier code.
-+ */
-+static unsigned char db9_saturn_read_packet(struct parport *port, unsigned char *data, int type, int powered)
-+{
-+	int i, j;
-+	unsigned char tmp;
-+
-+	db9_saturn_write_sub(port, type, 3, powered, 0);
-+	data[0] = db9_saturn_read_sub(port, type);
-+	switch (data[0] & 0x0f) {
-+	case 0xf:
-+		/* 1111  no pad */
-+		return data[0] = 0xff;
-+	case 0x4: case 0x4 | 0x8:
-+		/* ?100 : digital controller */
-+		db9_saturn_write_sub(port, type, 0, powered, 1);
-+		data[2] = db9_saturn_read_sub(port, type) << 4;
-+		db9_saturn_write_sub(port, type, 2, powered, 1);
-+		data[1] = db9_saturn_read_sub(port, type) << 4;
-+		db9_saturn_write_sub(port, type, 1, powered, 1);
-+		data[1] |= db9_saturn_read_sub(port, type);
-+		db9_saturn_write_sub(port, type, 3, powered, 1);
-+		/* data[2] |= db9_saturn_read_sub(port, type); */
-+		data[2] |= data[0];
-+		return data[0] = 0x02;
-+	case 0x1:
-+		/* 0001 : analog controller or multitap */
-+		db9_saturn_write_sub(port, type, 2, powered, 0);
-+		udelay(DB9_SATURN_DELAY);
-+		data[0] = db9_saturn_read_analog(port, type, powered);
-+		if (data[0] != 0x41) {
-+			/* read analog controller */
-+			for (i = 0; i < (data[0] & 0x0f); i++)
-+				data[i + 1] = db9_saturn_read_analog(port, type, powered);
-+			db9_saturn_write_sub(port, type, 3, powered, 0);
-+			return data[0];
-+		} else {
-+			/* read multitap */
-+			if (db9_saturn_read_analog(port, type, powered) != 0x60)
-+				return data[0] = 0xff;
-+			for (i = 0; i < 60; i += 10) {
-+				data[i] = db9_saturn_read_analog(port, type, powered);
-+				if (data[i] != 0xff)
-+					/* read each pad */
-+					for (j = 0; j < (data[i] & 0x0f); j++)
-+						data[i + j + 1] = db9_saturn_read_analog(port, type, powered);
++			if (!atkbd->release) {
++				mod_timer(&atkbd->timer,
++					jiffies + (test_bit(atkbd->keycode[code],
++						&atkbd->dev.key) ? HZ/33 : HZ/4) + HZ/100);
++				atkbd->lastkey = atkbd->keycode[code];
 +			}
-+			db9_saturn_write_sub(port, type, 3, powered, 0);
-+			return 0x41;
-+		}
-+	case 0x0:
-+		/* 0000 : mouse */
-+		db9_saturn_write_sub(port, type, 2, powered, 0);
-+		udelay(DB9_SATURN_DELAY);
-+		tmp = db9_saturn_read_analog(port, type, powered);
-+		if (tmp == 0xff) {
-+			for (i = 0; i < 3; i++)
-+				data[i + 1] = db9_saturn_read_analog(port, type, powered);
-+			db9_saturn_write_sub(port, type, 3, powered, 0);
-+			return data[0] = 0xe3;
-+		}
-+	default:
-+		return data[0];
-+	}
-+}
 +
-+/*
-+ * db9_saturn_report() analyzes packet and reports.
-+ */
-+static int db9_saturn_report(unsigned char id, unsigned char data[60], struct input_dev *dev, int n, int max_pads)
-+{
-+	int tmp, i, j;
-+
-+	tmp = (id == 0x41) ? 60 : 10;
-+	for (j = 0; (j < tmp) && (n < max_pads); j += 10, n++) {
-+		switch (data[j]) {
-+		case 0x16: /* multi controller (analog 4 axis) */
-+			input_report_abs(dev + n, db9_abs[5], data[j + 6]);
-+		case 0x15: /* mission stick (analog 3 axis) */
-+			input_report_abs(dev + n, db9_abs[3], data[j + 4]);
-+			input_report_abs(dev + n, db9_abs[4], data[j + 5]);
-+		case 0x13: /* racing controller (analog 1 axis) */
-+			input_report_abs(dev + n, db9_abs[2], data[j + 3]);
-+		case 0x34: /* saturn keyboard (udlr ZXC ASD QE Esc) */
-+		case 0x02: /* digital pad (digital 2 axis + buttons) */
-+			input_report_abs(dev + n, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
-+			input_report_abs(dev + n, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
-+			for (i = 0; i < 9; i++)
-+				input_report_key(dev + n, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
-+			break;
-+		case 0x19: /* mission stick x2 (analog 6 axis + buttons) */
-+			input_report_abs(dev + n, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
-+			input_report_abs(dev + n, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
-+			for (i = 0; i < 9; i++)
-+				input_report_key(dev + n, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
-+			input_report_abs(dev + n, db9_abs[2], data[j + 3]);
-+			input_report_abs(dev + n, db9_abs[3], data[j + 4]);
-+			input_report_abs(dev + n, db9_abs[4], data[j + 5]);
-+			/*
-+			input_report_abs(dev + n, db9_abs[8], (data[j + 6] & 128 ? 0 : 1) - (data[j + 6] & 64 ? 0 : 1));
-+			input_report_abs(dev + n, db9_abs[9], (data[j + 6] & 32 ? 0 : 1) - (data[j + 6] & 16 ? 0 : 1));
-+			*/
-+			input_report_abs(dev + n, db9_abs[6], data[j + 7]);
-+			input_report_abs(dev + n, db9_abs[7], data[j + 8]);
-+			input_report_abs(dev + n, db9_abs[5], data[j + 9]);
-+			break;
-+		case 0xd3: /* sankyo ff (analog 1 axis + stop btn) */
-+			input_report_key(dev + n, BTN_A, data[j + 3] & 0x80);
-+			input_report_abs(dev + n, db9_abs[2], data[j + 3] & 0x7f);
-+			break;
-+		case 0xe3: /* shuttle mouse (analog 2 axis + buttons. signed value) */
-+			input_report_key(dev + n, BTN_START, data[j + 1] & 0x08);
-+			input_report_key(dev + n, BTN_A, data[j + 1] & 0x04);
-+			input_report_key(dev + n, BTN_C, data[j + 1] & 0x02);
-+			input_report_key(dev + n, BTN_B, data[j + 1] & 0x01);
-+			input_report_abs(dev + n, db9_abs[2], data[j + 2] ^ 0x80);
-+			input_report_abs(dev + n, db9_abs[3], (0xff-(data[j + 3] ^ 0x80))+1); /* */
-+			break;
-+		case 0xff:
-+		default: /* no pad */
-+			input_report_abs(dev + n, db9_abs[0], 0);
-+			input_report_abs(dev + n, db9_abs[1], 0);
-+			for (i = 0; i < 9; i++)
-+				input_report_key(dev + n, db9_cd32_btn[i], 0);
-+			break;
-+		}
-+	}
-+	return n;
-+}
-+
-+static int db9_saturn(int mode, struct parport *port, struct input_dev *dev)
-+{
-+	unsigned char id, data[60];
-+	int type, n, max_pads;
-+	int tmp, i;
-+
-+	switch (mode) {
-+	case DB9_SATURN_PAD:
-+		type = 0;
-+		n = 1;
-+		break;
-+	case DB9_SATURN_DPP:
-+		type = 1;
-+		n = 1;
-+		break;
-+	case DB9_SATURN_DPP_2:
-+		type = 1;
-+		n = 2;
-+		break;
-+	default:
-+		return -1;
-+	}
-+	max_pads = min(db9_max_pads[mode], DB9_MAX_DEVICES);
-+	for (tmp = 0, i = 0; i < n; i++) {
-+		id = db9_saturn_read_packet(port, data, type + i, 1);
-+		tmp = db9_saturn_report(id, data, dev, tmp, max_pads);
-+	}
-+	return 0;
-+}
+ 			input_regs(&atkbd->dev, regs);
+ 			input_report_key(&atkbd->dev, atkbd->keycode[code], !atkbd->release);
+ 			input_sync(&atkbd->dev);
+@@ -205,6 +218,13 @@
+ 	return IRQ_HANDLED;
+ }
  
- static void db9_timer(unsigned long private)
++static void atkbd_force_key_up(unsigned long data)
++{
++	struct atkbd *atkbd = (void *) data;
++	input_report_key(&atkbd->dev, atkbd->lastkey, 0);
++	input_sync(&atkbd->dev);
++}
++
+ /*
+  * atkbd_sendbyte() sends a byte to the keyboard, and waits for
+  * acknowledge. It doesn't handle resends according to the keyboard
+@@ -214,7 +234,7 @@
+ 
+ static int atkbd_sendbyte(struct atkbd *atkbd, unsigned char byte)
  {
-@@ -222,28 +456,10 @@
- 			break;
+-	int timeout = 10000; /* 100 msec */
++	int timeout = 20000; /* 200 msec */
+ 	atkbd->ack = 0;
  
- 		case DB9_SATURN_PAD:
-+		case DB9_SATURN_DPP:
-+		case DB9_SATURN_DPP_2:
+ #ifdef ATKBD_DEBUG
+@@ -322,13 +342,50 @@
+ }
  
--			parport_write_control(port, DB9_SATURN0);
--			data = parport_read_data(port);
--
--			input_report_key(dev, BTN_Y,  ~data & DB9_LEFT);
--			input_report_key(dev, BTN_Z,  ~data & DB9_DOWN);
--			input_report_key(dev, BTN_TL, ~data & DB9_UP);
--			input_report_key(dev, BTN_TR, ~data & DB9_RIGHT);
--
--			parport_write_control(port, DB9_SATURN2);
--			data = parport_read_data(port);
--
--			input_report_abs(dev, ABS_X, (data & DB9_RIGHT ? 0 : 1) - (data & DB9_LEFT ? 0 : 1));
--			input_report_abs(dev, ABS_Y, (data & DB9_DOWN  ? 0 : 1) - (data & DB9_UP   ? 0 : 1));
--			
--			parport_write_control(port, DB9_NORMAL);
--			data = parport_read_data(port);
--
--			input_report_key(dev, BTN_A, ~data & DB9_LEFT);
--			input_report_key(dev, BTN_B, ~data & DB9_UP);
--			input_report_key(dev, BTN_C, ~data & DB9_DOWN);
--			input_report_key(dev, BTN_X, ~data & DB9_RIGHT);
-+			db9_saturn(db9->mode, port, dev);
- 			break;
- 
- 		case DB9_CD32_PAD:
-@@ -279,8 +495,10 @@
- 	if (!db9->used++) {
- 		parport_claim(db9->pd);
- 		parport_write_data(port, 0xff);
--		parport_data_reverse(port);
--		parport_write_control(port, DB9_NORMAL);
-+		if (db9_reverse[db9->mode]) {
-+			parport_data_reverse(port);
-+			parport_write_control(port, DB9_NORMAL);
-+		}
- 		mod_timer(&db9->timer, jiffies + DB9_REFRESH_TIME);
- 	}
- 
-@@ -321,11 +539,13 @@
- 		return NULL;
- 	}
- 
--	if (!(pp->modes & PARPORT_MODE_TRISTATE) && config[1] != DB9_MULTI_0802) {
--		printk(KERN_ERR "db9.c: specified parport is not bidirectional\n");
--		return NULL;
-+	if (db9_bidirectional[config[1]]) {
-+		if (!(pp->modes & PARPORT_MODE_TRISTATE)) {
-+			printk(KERN_ERR "db9.c: specified parport is not bidirectional\n");
-+			return NULL;
-+		}
- 	}
--	
+ /*
+- * Enable keyboard.
++ * atkbd_probe() probes for an AT keyboard on a serio port.
+  */
+-static void atkbd_enable(struct atkbd *atkbd)
 +
- 	if (!(db9 = kmalloc(sizeof(struct db9), GFP_KERNEL)))
- 		return NULL;
- 	memset(db9, 0, sizeof(struct db9));
-@@ -343,7 +563,7 @@
- 		return NULL;
++static int atkbd_probe(struct atkbd *atkbd)
+ {
+-	if (atkbd_command(atkbd, NULL, ATKBD_CMD_ENABLE))
+-		printk(KERN_ERR "atkbd.c: Failed to enable keyboard on %s\n",
+-		       atkbd->serio->phys);
++	unsigned char param[2];
++
++/*
++ * Some systems, where the bit-twiddling when testing the io-lines of the
++ * controller may confuse the keyboard need a full reset of the keyboard. On
++ * these systems the BIOS also usually doesn't do it for us.
++ */
++
++	if (atkbd_reset)
++		if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT)) 
++			printk(KERN_WARNING "atkbd.c: keyboard reset failed on %s\n", atkbd->serio->phys);
++
++/*
++ * Then we check the keyboard ID. We should get 0xab83 under normal conditions.
++ * Some keyboards report different values, but the first byte is always 0xab or
++ * 0xac. Some old AT keyboards don't report anything. If a mouse is connected, this
++ * should make sure we don't try to set the LEDs on it.
++ */
++
++	if (atkbd_command(atkbd, param, ATKBD_CMD_GETID)) {
++
++/*
++ * If the get ID command failed, we check if we can at least set the LEDs on
++ * the keyboard. This should work on every keyboard out there. It also turns
++ * the LEDs off, which we want anyway.
++ */
++		param[0] = 0;
++		if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
++			return -1;
++		atkbd->id = 0xabba;
++		return 0;
++	}
++
++	if (param[0] != 0xab && param[0] != 0xac)
++		return -1;
++	atkbd->id = (param[0] << 8) | param[1];
++
++
++	return 0;
+ }
+ 
+ /*
+@@ -365,103 +422,57 @@
+ 			return 4;
  	}
  
--	for (i = 0; i < 1 + (db9->mode == DB9_MULTI_0802_2); i++) {
-+	for (i = 0; i < (min(db9_max_pads[db9->mode], DB9_MAX_DEVICES)); i++) {
+-/*
+- * Try to set the set we want.
+- */
++	if (atkbd_set != 3) 
++		return 2;
  
- 		sprintf(db9->phys[i], "%s/input%d", db9->pd->port->name, i);
+-	param[0] = atkbd_set;
++	param[0] = 3;
+ 	if (atkbd_command(atkbd, param, ATKBD_CMD_SSCANSET))
+ 		return 2;
  
-@@ -359,14 +579,19 @@
- 		db9->dev[i].id.version = 0x0100;
- 
- 		db9->dev[i].evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--		db9->dev[i].absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
+-/*
+- * Read set number. Beware here. Some keyboards always send '2'
+- * or some other number regardless into what mode they have been
+- * attempted to be set. Other keyboards treat the '0' command as
+- * 'set to set 0', and not 'report current set' as they should.
+- * In that case we time out, and return 2.
+- */
 -
- 		for (j = 0; j < db9_buttons[db9->mode]; j++)
- 			set_bit(db9_btn[db9->mode][j], db9->dev[i].keybit); 
--
--		db9->dev[i].absmin[ABS_X] = -1; db9->dev[i].absmax[ABS_X] = 1;
--		db9->dev[i].absmin[ABS_Y] = -1; db9->dev[i].absmax[ABS_Y] = 1;
--
-+		for (j = 0; j < db9_num_axis[db9->mode]; j++) {
-+			set_bit(db9_abs[j], db9->dev[i].absbit);
-+			if (j < 2) {
-+				db9->dev[i].absmin[db9_abs[j]] = -1;
-+				db9->dev[i].absmax[db9_abs[j]] = 1;
-+			} else {
-+				db9->dev[i].absmin[db9_abs[j]] = 1;
-+				db9->dev[i].absmax[db9_abs[j]] = 255;
-+				db9->dev[i].absflat[db9_abs[j]] = 0;
-+			}
-+		}
- 		input_register_device(db9->dev + i);
- 		printk(KERN_INFO "input: %s on %s\n", db9->dev[i].name, db9->pd->port->name);
- 	}
-@@ -419,7 +644,7 @@
+ 	param[0] = 0;
+ 	if (atkbd_command(atkbd, param, ATKBD_CMD_GSCANSET))
+ 		return 2;
  
- 	for (i = 0; i < 3; i++) 
- 		if (db9_base[i]) {
--			for (j = 0; j < 1 + (db9_base[i]->mode == DB9_MULTI_0802_2); j++)
-+			for (j = 0; j < min(db9_max_pads[db9_base[i]->mode], DB9_MAX_DEVICES); j++)
- 				input_unregister_device(db9_base[i]->dev + j);
- 		parport_unregister_device(db9_base[i]->pd);
- 	}
+-/*
+- * Here we return the set number the keyboard reports about
+- * itself.
+- */
++	if (param[0] != 3)
++		return 2;
+ 
+-	return (param[0] == 3) ? 3 : 2;
++	return 3;
+ }
+ 
+-/*
+- * atkbd_probe() probes for an AT keyboard on a serio port.
+- */
+-
+-static int atkbd_probe(struct atkbd *atkbd)
++static int atkbd_enable(struct atkbd *atkbd)
+ {
+-	unsigned char param[2];
++	unsigned char param[1];
+ 
+ /*
+- * Some systems, where the bit-twiddling when testing the io-lines of the
+- * controller may confuse the keyboard need a full reset of the keyboard. On
+- * these systems the BIOS also usually doesn't do it for us.
++ * Set the LEDs to a defined state.
+  */
+ 
+-	if (atkbd_reset)
+-		if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT)) 
+-			printk(KERN_WARNING
+-			       "atkbd.c: keyboard reset failed on %s\n",
+-			       atkbd->serio->phys);
++	param[0] = 0;
++	if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
++		return -1;
+ 
+ /*
+- * Then we check the keyboard ID. We should get 0xab83 under normal conditions.
+- * Some keyboards report different values, but the first byte is always 0xab or
+- * 0xac. Some old AT keyboards don't report anything.
++ * Set autorepeat to fastest possible.
+  */
+ 
+-	if (atkbd_command(atkbd, param, ATKBD_CMD_GETID)) {
+-
+-/*
+- * If the get ID command failed, we check if we can at least set the LEDs on
+- * the keyboard. This should work on every keyboard out there. It also turns
+- * the LEDs off, which we want anyway.
+- */
+-		param[0] = 0;
+-		if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
+-			return -1;
+-		atkbd->id = 0xabba;
+-		return 0;
+-	}
+-
+-	if (param[0] != 0xab && param[0] != 0xac)
++	param[0] = 0;
++	if (atkbd_command(atkbd, param, ATKBD_CMD_SETREP))
+ 		return -1;
+-	atkbd->id = (param[0] << 8) | param[1];
+ 
+ /*
+- * Set the LEDs to a defined state.
++ * Enable the keyboard to receive keystrokes.
+  */
+ 
+-	param[0] = 0;
+-	if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
++	if (atkbd_command(atkbd, NULL, ATKBD_CMD_ENABLE)) {
++		printk(KERN_ERR "atkbd.c: Failed to enable keyboard on %s\n",
++			atkbd->serio->phys);
+ 		return -1;
++	}
+ 
+ 	return 0;
+ }
+ 
+ /*
+- * Disable autorepeat. We don't need it, as we do it in software anyway,
+- * because that way can get faster repeat, and have less system load (less
+- * accesses to the slow ISA hardware). If this fails, we don't care, and will
+- * just ignore the repeated keys.
+- *
+- * This command is for scancode set 3 only.
+- */
+-static void atkbd_disable_autorepeat(struct atkbd *atkbd)
+-{
+-	atkbd_command(atkbd, NULL, ATKBD_CMD_SETALL_MB);
+-}
+-
+-/*
+  * atkbd_cleanup() restores the keyboard state so that BIOS is happy after a
+  * reboot.
+  */
+@@ -485,7 +496,7 @@
+ }
+ 
+ /*
+- * atkbd_connect() is called when the serio module finds an interface
++ * atkbd_connect() is called when the serio module finds and interface
+  * that isn't handled yet by an appropriate device driver. We check if
+  * there is an AT keyboard out there and if yes, we register ourselves
+  * to the input module.
+@@ -513,6 +524,9 @@
+ 		atkbd->dev.ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_SCROLLL);
+ 	} else  atkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+ 
++	atkbd->dev.rep[REP_DELAY] = HZ/4 + HZ/50;
++	atkbd->dev.rep[REP_PERIOD] = HZ/33;
++
+ 	atkbd->serio = serio;
+ 
+ 	init_input_dev(&atkbd->dev);
+@@ -525,6 +539,10 @@
+ 
+ 	serio->private = atkbd;
+ 
++	init_timer(&atkbd->timer);
++	atkbd->timer.data = (long) atkbd;
++	atkbd->timer.function = atkbd_force_key_up;
++
+ 	if (serio_open(serio, dev)) {
+ 		kfree(atkbd);
+ 		return;
+@@ -539,9 +557,8 @@
+ 		}
+ 		
+ 		atkbd->set = atkbd_set_3(atkbd);
+-		if (atkbd->set == 3)
+-			atkbd_disable_autorepeat(atkbd);
+ 		atkbd_enable(atkbd);
++
+ 	} else {
+ 		atkbd->set = 2;
+ 		atkbd->id = 0xab00;
 

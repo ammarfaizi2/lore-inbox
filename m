@@ -1,641 +1,646 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268377AbTBSC7i>; Tue, 18 Feb 2003 21:59:38 -0500
+	id <S268406AbTBSC7g>; Tue, 18 Feb 2003 21:59:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268367AbTBSC6T>; Tue, 18 Feb 2003 21:58:19 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:49416 "HELO
+	id <S268374AbTBSC6u>; Tue, 18 Feb 2003 21:58:50 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:54536 "HELO
 	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S268387AbTBSC53>; Tue, 18 Feb 2003 21:57:29 -0500
-Subject: [PATCH] 2.5.62 spelling fix for compatable -> compatible in 45
-	files.
+	id <S268394AbTBSC5n>; Tue, 18 Feb 2003 21:57:43 -0500
+Subject: [PATCH] 2.5.62 spelling fix for interupt -> interrupt in 36 files.
 From: Steven Cole <elenstev@mesatop.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.2-5mdk 
-Date: 18 Feb 2003 19:58:51 -0700
-Message-Id: <1045623532.10680.301.camel@localhost.localdomain>
+Date: 18 Feb 2003 19:59:04 -0700
+Message-Id: <1045623546.5965.303.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides the following spelling fixes.
+This patch provides the following spelling fix.
 
-compatable    -> compatible
-compatability -> compatibility 
+interupt -> interrupt
 
- Documentation/pnp.txt                   |    2 +-
- Documentation/rpc-cache.txt             |    2 +-
- Documentation/sound/oss/PSS-updates     |    8 ++++----
- arch/alpha/lib/ev6-memcpy.S             |    2 +-
- arch/i386/kernel/cpu/cyrix.c            |    2 +-
- arch/ia64/ia32/sys_ia32.c               |    2 +-
- arch/ia64/sn/io/sn2/pcibr/pcibr_rrb.c   |    2 +-
- arch/m68k/ifpsp060/src/isp.S            |    2 +-
- arch/mips/kernel/irixsig.c              |    2 +-
- arch/mips64/kernel/linux32.c            |    2 +-
- arch/parisc/kernel/ioctl32.c            |    2 +-
- arch/ppc/xmon/ansidecl.h                |    2 +-
- arch/ppc64/kernel/sys32.S               |    2 +-
- arch/ppc64/kernel/sys_ppc32.c           |    2 +-
- arch/ppc64/xmon/ansidecl.h              |    2 +-
- arch/s390x/kernel/linux32.c             |    2 +-
- arch/sparc64/kernel/ioctl32.c           |    2 +-
- arch/sparc64/kernel/sunos_ioctl32.c     |    2 +-
- arch/sparc64/kernel/sys32.S             |    2 +-
- arch/sparc64/kernel/sys_sparc32.c       |    2 +-
- arch/sparc64/kernel/sys_sunos32.c       |    2 +-
- arch/x86_64/ia32/ia32_ioctl.c           |    2 +-
- arch/x86_64/ia32/sys_ia32.c             |    2 +-
- drivers/char/agp/via-agp.c              |    4 ++--
- drivers/char/ftape/zftape/zftape-ctl.c  |    2 +-
- drivers/char/ftape/zftape/zftape-eof.c  |    2 +-
- drivers/char/ftape/zftape/zftape-vtbl.c |    2 +-
- drivers/char/ftape/zftape/zftape-vtbl.h |    2 +-
- drivers/char/ppdev.c                    |    2 +-
- drivers/ide/pci/serverworks.c           |    2 +-
- drivers/md/md.c                         |    2 +-
- drivers/net/am79c961a.c                 |    2 +-
- drivers/scsi/3w-xxxx.c                  |    2 +-
- drivers/scsi/3w-xxxx.h                  |    2 +-
- drivers/scsi/pci2220i.c                 |    4 ++--
- drivers/serial/amba.c                   |    2 +-
- fs/befs/ChangeLog                       |    2 +-
- fs/cifs/CHANGES                         |    2 +-
- include/asm-arm/hardware/iomd.h         |    2 +-
- include/asm-ia64/sn/eeprom.h            |    2 +-
- include/asm-ppc64/iSeries/ItLpNaca.h    |    2 +-
- include/asm-sparc64/psrcompat.h         |    2 +-
- include/linux/cdrom.h                   |    2 +-
- include/linux/init.h                    |    2 +-
- sound/oss/mad16.c                       |    2 +-
- 45 files changed, 50 insertions(+), 50 deletions(-)
+ Documentation/s390/Debugging390.txt      |    4 +--
+ Documentation/sysrq.txt                  |    2 -
+ arch/cris/drivers/serial.c               |    2 -
+ arch/ia64/hp/sim/simeth.c                |    2 -
+ arch/ia64/sn/io/xbow.c                   |    2 -
+ arch/ia64/sn/io/xtalk.c                  |    2 -
+ arch/m68knommu/platform/68328/entry.S    |    2 -
+ arch/m68knommu/platform/68360/commproc.c |    2 -
+ arch/m68knommu/platform/68360/entry.S    |    2 -
+ arch/mips/philips/nino/int-handler.S     |    2 -
+ arch/parisc/kernel/irq.c                 |    2 -
+ arch/ppc64/kernel/head.S                 |    6 ++---
+ arch/s390/kernel/entry.S                 |    4 +--
+ arch/s390x/kernel/entry.S                |    4 +--
+ arch/v850/kernel/rte_cb_multi.c          |    2 -
+ drivers/char/ip2/i2ellis.h               |    2 -
+ drivers/char/ipmi/ipmi_kcs_intf.c        |    2 -
+ drivers/char/mwave/3780i.c               |    2 -
+ drivers/input/serio/i8042.c              |    2 -
+ drivers/net/au1000_eth.c                 |    2 -
+ drivers/net/natsemi.c                    |    2 -
+ drivers/net/tc35815.c                    |    2 -
+ drivers/net/tulip/interrupt.c            |    2 -
+ drivers/net/wireless/orinoco.c           |    2 -
+ drivers/parisc/dino.c                    |    2 -
+ drivers/scsi/aic7xxx/aic79xx.h           |    2 -
+ drivers/scsi/aic7xxx/aic79xx_pci.c       |    6 ++---
+ drivers/scsi/pci2220i.c                  |    2 -
+ include/asm-alpha/core_marvel.h          |    2 -
+ include/asm-m68knommu/m68360_enet.h      |    2 -
+ include/asm-parisc/pdcpat.h              |    2 -
+ sound/drivers/serial-u16550.c            |   34 +++++++++++++++----------------
+ sound/oss/rme96xx.c                      |    2 -
+ sound/pci/als4000.c                      |    2 -
+ sound/pci/cs4281.c                       |    2 -
+ sound/pci/es1968.c                       |    6 ++---
+ 36 files changed, 61 insertions(+), 61 deletions(-)
 
-diff -ur linux-2.5.62-1104-orig/Documentation/pnp.txt linux-2.5.62-1104/Documentation/pnp.txt
---- linux-2.5.62-1104-orig/Documentation/pnp.txt	Thu Jan 16 19:21:39 2003
-+++ linux-2.5.62-1104/Documentation/pnp.txt	Tue Feb 18 18:25:13 2003
-@@ -233,7 +233,7 @@
- The Old Way
- ...........
+diff -ur linux-2.5.62-1104-orig/Documentation/s390/Debugging390.txt linux-2.5.62-1104/Documentation/s390/Debugging390.txt
+--- linux-2.5.62-1104-orig/Documentation/s390/Debugging390.txt	Mon Feb 17 17:35:58 2003
++++ linux-2.5.62-1104/Documentation/s390/Debugging390.txt	Tue Feb 18 18:31:36 2003
+@@ -97,7 +97,7 @@
+ 6       6     Input/Output interrupt Mask
  
--a series of compatability functions have been created to make it easy to convert 
-+a series of compatibility functions have been created to make it easy to convert 
+ 7       7     External interrupt Mask used primarily for interprocessor signalling & 
+-	      clock interupts.
++	      clock interrupts.
  
- ISAPNP drivers.  They should serve as a temporary solution only.
+ 8-11  8-11    PSW Key used for complex memory protection mechanism not used under linux
  
-diff -ur linux-2.5.62-1104-orig/Documentation/rpc-cache.txt linux-2.5.62-1104/Documentation/rpc-cache.txt
---- linux-2.5.62-1104-orig/Documentation/rpc-cache.txt	Thu Jan 16 19:21:43 2003
-+++ linux-2.5.62-1104/Documentation/rpc-cache.txt	Tue Feb 18 18:25:13 2003
-@@ -146,7 +146,7 @@
- Note: If a cache has no active readers on the channel, and has had not
- active readers for more than 60 seconds, further requests will not be
- added to the channel but instead all looks that do not find a valid
--entry will fail.  This is partly for backward compatability: The
-+entry will fail.  This is partly for backward compatibility: The
- previous nfs exports table was deemed to be authoritative and a
- failed lookup meant a definite 'no'.
+@@ -2423,7 +2423,7 @@
+ There is a new device layer for channel devices, some
+ drivers e.g. lcs are registered with this layer.
+ If the device uses the channel device layer you'll be
+-able to find what interupts it uses & the current state 
++able to find what interrupts it uses & the current state 
+ of the device.
+ See the manpage chandev.8 &type cat /proc/chandev for more info.
  
-diff -ur linux-2.5.62-1104-orig/Documentation/sound/oss/PSS-updates linux-2.5.62-1104/Documentation/sound/oss/PSS-updates
---- linux-2.5.62-1104-orig/Documentation/sound/oss/PSS-updates	Thu Jan 16 19:22:59 2003
-+++ linux-2.5.62-1104/Documentation/sound/oss/PSS-updates	Tue Feb 18 18:25:13 2003
-@@ -10,7 +10,7 @@
+diff -ur linux-2.5.62-1104-orig/Documentation/sysrq.txt linux-2.5.62-1104/Documentation/sysrq.txt
+--- linux-2.5.62-1104-orig/Documentation/sysrq.txt	Thu Jan 16 19:22:09 2003
++++ linux-2.5.62-1104/Documentation/sysrq.txt	Tue Feb 18 18:31:36 2003
+@@ -164,7 +164,7 @@
  
- 	This parameter is basically a flag.  A 0 will leave the joystick port 
- disabled, while a non-zero value would enable the joystick port.  The default 
--setting is pss_enable_joystick=0 as this keeps this driver fully compatable 
-+setting is pss_enable_joystick=0 as this keeps this driver fully compatible 
- with systems that were using previous versions of this driver.  If you wish to 
- enable the joystick port you will have to add pss_enable_joystick=1 as an 
- argument to the driver.  To actually use the joystick port you will then have 
-@@ -31,7 +31,7 @@
- assigned to the CDROM port when you loaded your pss sound driver.  (ex. 
- modprobe pss pss_cdrom_port=0x340 && modprobe aztcd aztcd=0x340)  The default 
- setting of this parameter leaves the CDROM port disabled to maintain full 
--compatability with systems using previous versions of this driver.
-+compatibility with systems using previous versions of this driver.
+ If for some reason you feel the need to call the handle_sysrq function from
+ within a function called by handle_sysrq, you must be aware that you are in
+-a lock (you are also in an interupt handler, which means don't sleep!), so
++a lock (you are also in an interrupt handler, which means don't sleep!), so
+ you must call __handle_sysrq_nolock instead.
  
- 	Other options have also been added for the added convenience and utility 
- of the user.  These options are only available if this driver is loaded as a 
-@@ -49,7 +49,7 @@
- mpu401 && rmmod sound && rmmod soundcore" and retain the full functionality of 
- his CDROM and/or joystick port(s) while gaining back the memory previously used 
- by the sound drivers.  This default setting of this parameter is 0 to retain 
--full behavioral compatability with previous versions of this driver.
-+full behavioral compatibility with previous versions of this driver.
+ *  I have more questions, who can I ask?
+diff -ur linux-2.5.62-1104-orig/arch/cris/drivers/serial.c linux-2.5.62-1104/arch/cris/drivers/serial.c
+--- linux-2.5.62-1104-orig/arch/cris/drivers/serial.c	Mon Feb 10 12:22:53 2003
++++ linux-2.5.62-1104/arch/cris/drivers/serial.c	Tue Feb 18 18:31:36 2003
+@@ -1904,7 +1904,7 @@
+ 		}
  
- pss_keep_settings
- 
-@@ -60,7 +60,7 @@
- emulations by default on the driver's unloading (as it probably should), so 
- specifying it now will ensure that all future versions of this driver will 
- continue to work as expected.  The default value of this parameter is 1 to 
--retain full behavioral compatability with previous versions of this driver.
-+retain full behavioral compatibility with previous versions of this driver.
- 
- pss_firmware
- 
-diff -ur linux-2.5.62-1104-orig/arch/alpha/lib/ev6-memcpy.S linux-2.5.62-1104/arch/alpha/lib/ev6-memcpy.S
---- linux-2.5.62-1104-orig/arch/alpha/lib/ev6-memcpy.S	Thu Jan 16 19:21:39 2003
-+++ linux-2.5.62-1104/arch/alpha/lib/ev6-memcpy.S	Tue Feb 18 18:25:13 2003
-@@ -243,6 +243,6 @@
- 
- 	.end memcpy
- 
--/* For backwards module compatability.  */
-+/* For backwards module compatibility.  */
- __memcpy = memcpy
- .globl __memcpy
-diff -ur linux-2.5.62-1104-orig/arch/i386/kernel/cpu/cyrix.c linux-2.5.62-1104/arch/i386/kernel/cpu/cyrix.c
---- linux-2.5.62-1104-orig/arch/i386/kernel/cpu/cyrix.c	Thu Jan 16 19:21:44 2003
-+++ linux-2.5.62-1104/arch/i386/kernel/cpu/cyrix.c	Tue Feb 18 18:25:13 2003
-@@ -74,7 +74,7 @@
- 
- /*
-  * Reset the slow-loop (SLOP) bit on the 686(L) which is set by some old
-- * BIOSes for compatability with DOS games.  This makes the udelay loop
-+ * BIOSes for compatibility with DOS games.  This makes the udelay loop
-  * work correctly, and improves performance.
-  *
-  * FIXME: our newer udelay uses the tsc. We dont need to frob with SLOP
-diff -ur linux-2.5.62-1104-orig/arch/ia64/ia32/sys_ia32.c linux-2.5.62-1104/arch/ia64/ia32/sys_ia32.c
---- linux-2.5.62-1104-orig/arch/ia64/ia32/sys_ia32.c	Mon Feb 10 12:22:53 2003
-+++ linux-2.5.62-1104/arch/ia64/ia32/sys_ia32.c	Tue Feb 18 18:25:13 2003
-@@ -4063,7 +4063,7 @@
- 	return err;
- }
- 
--/* Handle adjtimex compatability. */
-+/* Handle adjtimex compatibility. */
- 
- struct timex32 {
- 	u32 modes;
-diff -ur linux-2.5.62-1104-orig/arch/ia64/sn/io/sn2/pcibr/pcibr_rrb.c linux-2.5.62-1104/arch/ia64/sn/io/sn2/pcibr/pcibr_rrb.c
---- linux-2.5.62-1104-orig/arch/ia64/sn/io/sn2/pcibr/pcibr_rrb.c	Thu Jan 16 19:22:56 2003
-+++ linux-2.5.62-1104/arch/ia64/sn/io/sn2/pcibr/pcibr_rrb.c	Tue Feb 18 18:25:13 2003
-@@ -272,7 +272,7 @@
- 	    * the old do_pcibr_rrb_free() code only clears the enable bit
- 	    * but I say we should clear the whole rrb (ie):
- 	    *	  reg = reg & ~(RRB_MASK << (RRB_SIZE * rrb_index));
--	    * But to be compatable with old code we'll only clear enable.
-+	    * But to be compatible with old code we'll only clear enable.
- 	    */
- 	    reg = reg & ~(RRB_ENABLE_BIT(bridge) << (RRB_SIZE * rrb_index));
- 	    clr = clr | (enable_bit << (RRB_SIZE * rrb_index));
-diff -ur linux-2.5.62-1104-orig/arch/m68k/ifpsp060/src/isp.S linux-2.5.62-1104/arch/m68k/ifpsp060/src/isp.S
---- linux-2.5.62-1104-orig/arch/m68k/ifpsp060/src/isp.S	Thu Jan 16 19:21:44 2003
-+++ linux-2.5.62-1104/arch/m68k/ifpsp060/src/isp.S	Tue Feb 18 18:25:13 2003
-@@ -2625,7 +2625,7 @@
- 	addx.l		%d7, %d4		# add carry to hi(result)
- 
- # the result is saved to the register file.
--# for '040 compatability, if Dl == Dh then only the hi(result) is
-+# for '040 compatibility, if Dl == Dh then only the hi(result) is
- # saved. so, saving hi after lo accomplishes this without need to
- # check Dl,Dh equality.
- mul64_done:
-diff -ur linux-2.5.62-1104-orig/arch/mips/kernel/irixsig.c linux-2.5.62-1104/arch/mips/kernel/irixsig.c
---- linux-2.5.62-1104-orig/arch/mips/kernel/irixsig.c	Mon Feb 17 17:35:59 2003
-+++ linux-2.5.62-1104/arch/mips/kernel/irixsig.c	Tue Feb 18 18:25:13 2003
-@@ -1,5 +1,5 @@
- /*
-- * irixsig.c: WHEEE, IRIX signals!  YOW, am I compatable or what?!?!
-+ * irixsig.c: WHEEE, IRIX signals!  YOW, am I compatible or what?!?!
-  *
-  * Copyright (C) 1996 David S. Miller (dm@engr.sgi.com)
-  * Copyright (C) 1997 - 2000 Ralf Baechle (ralf@gnu.org)
-diff -ur linux-2.5.62-1104-orig/arch/mips64/kernel/linux32.c linux-2.5.62-1104/arch/mips64/kernel/linux32.c
---- linux-2.5.62-1104-orig/arch/mips64/kernel/linux32.c	Thu Jan 16 19:22:19 2003
-+++ linux-2.5.62-1104/arch/mips64/kernel/linux32.c	Tue Feb 18 18:25:13 2003
-@@ -1800,7 +1800,7 @@
- 	return ret;
- }
- 
--/* Handle adjtimex compatability. */
-+/* Handle adjtimex compatibility. */
- 
- struct timex32 {
- 	u32 modes;
-diff -ur linux-2.5.62-1104-orig/arch/parisc/kernel/ioctl32.c linux-2.5.62-1104/arch/parisc/kernel/ioctl32.c
---- linux-2.5.62-1104-orig/arch/parisc/kernel/ioctl32.c	Thu Jan 16 19:21:35 2003
-+++ linux-2.5.62-1104/arch/parisc/kernel/ioctl32.c	Tue Feb 18 18:25:13 2003
-@@ -2892,7 +2892,7 @@
- 
- IOCTL_TABLE_START
- /* List here exlicitly which ioctl's are known to have
-- * compatable types passed or none at all...
-+ * compatible types passed or none at all...
-  */
- /* Big T */
- COMPATIBLE_IOCTL(TCGETA)
-diff -ur linux-2.5.62-1104-orig/arch/ppc/xmon/ansidecl.h linux-2.5.62-1104/arch/ppc/xmon/ansidecl.h
---- linux-2.5.62-1104-orig/arch/ppc/xmon/ansidecl.h	Thu Jan 16 19:22:58 2003
-+++ linux-2.5.62-1104/arch/ppc/xmon/ansidecl.h	Tue Feb 18 18:25:13 2003
-@@ -1,4 +1,4 @@
--/* ANSI and traditional C compatability macros
-+/* ANSI and traditional C compatibility macros
-    Copyright 1991, 1992 Free Software Foundation, Inc.
-    This file is part of the GNU C Library.
- 
-diff -ur linux-2.5.62-1104-orig/arch/ppc64/kernel/sys32.S linux-2.5.62-1104/arch/ppc64/kernel/sys32.S
---- linux-2.5.62-1104-orig/arch/ppc64/kernel/sys32.S	Mon Feb 17 17:36:00 2003
-+++ linux-2.5.62-1104/arch/ppc64/kernel/sys32.S	Tue Feb 18 18:25:13 2003
-@@ -1,5 +1,5 @@
- /* 
-- * sys32.S: I-cache tricks for 32-bit compatability layer simple
-+ * sys32.S: I-cache tricks for 32-bit compatibility layer simple
-  *          conversions.
-  *
-  * Copyright (C) 1997 David S. Miller (davem@caip.rutgers.edu)
-diff -ur linux-2.5.62-1104-orig/arch/ppc64/kernel/sys_ppc32.c linux-2.5.62-1104/arch/ppc64/kernel/sys_ppc32.c
---- linux-2.5.62-1104-orig/arch/ppc64/kernel/sys_ppc32.c	Mon Feb 17 17:36:00 2003
-+++ linux-2.5.62-1104/arch/ppc64/kernel/sys_ppc32.c	Tue Feb 18 18:25:13 2003
-@@ -812,7 +812,7 @@
- 	return sys_sysfs((int)option, arg1, arg2);
- }
- 
--/* Handle adjtimex compatability. */
-+/* Handle adjtimex compatibility. */
- struct timex32 {
- 	u32 modes;
- 	s32 offset, freq, maxerror, esterror;
-diff -ur linux-2.5.62-1104-orig/arch/ppc64/xmon/ansidecl.h linux-2.5.62-1104/arch/ppc64/xmon/ansidecl.h
---- linux-2.5.62-1104-orig/arch/ppc64/xmon/ansidecl.h	Thu Jan 16 19:22:02 2003
-+++ linux-2.5.62-1104/arch/ppc64/xmon/ansidecl.h	Tue Feb 18 18:25:13 2003
-@@ -1,4 +1,4 @@
--/* ANSI and traditional C compatability macros
-+/* ANSI and traditional C compatibility macros
-    Copyright 1991, 1992 Free Software Foundation, Inc.
-    This file is part of the GNU C Library.
- 
-diff -ur linux-2.5.62-1104-orig/arch/s390x/kernel/linux32.c linux-2.5.62-1104/arch/s390x/kernel/linux32.c
---- linux-2.5.62-1104-orig/arch/s390x/kernel/linux32.c	Mon Feb 17 17:36:00 2003
-+++ linux-2.5.62-1104/arch/s390x/kernel/linux32.c	Tue Feb 18 18:25:13 2003
-@@ -3578,7 +3578,7 @@
- 	return ret;
- }
- 
--/* Handle adjtimex compatability. */
-+/* Handle adjtimex compatibility. */
- 
- struct timex32 {
- 	u32 modes;
-diff -ur linux-2.5.62-1104-orig/arch/sparc64/kernel/ioctl32.c linux-2.5.62-1104/arch/sparc64/kernel/ioctl32.c
---- linux-2.5.62-1104-orig/arch/sparc64/kernel/ioctl32.c	Fri Feb 14 20:11:48 2003
-+++ linux-2.5.62-1104/arch/sparc64/kernel/ioctl32.c	Tue Feb 18 18:25:13 2003
-@@ -4277,7 +4277,7 @@
- 
- IOCTL_TABLE_START
- /* List here exlicitly which ioctl's are known to have
-- * compatable types passed or none at all...
-+ * compatible types passed or none at all...
-  */
- /* Big T */
- COMPATIBLE_IOCTL(TCGETA)
-diff -ur linux-2.5.62-1104-orig/arch/sparc64/kernel/sunos_ioctl32.c linux-2.5.62-1104/arch/sparc64/kernel/sunos_ioctl32.c
---- linux-2.5.62-1104-orig/arch/sparc64/kernel/sunos_ioctl32.c	Thu Jan 16 19:22:44 2003
-+++ linux-2.5.62-1104/arch/sparc64/kernel/sunos_ioctl32.c	Tue Feb 18 18:25:13 2003
-@@ -1,5 +1,5 @@
- /* $Id: sunos_ioctl32.c,v 1.11 2000/07/30 23:12:24 davem Exp $
-- * sunos_ioctl32.c: SunOS ioctl compatability on sparc64.
-+ * sunos_ioctl32.c: SunOS ioctl compatibility on sparc64.
-  *
-  * Copyright (C) 1995 Miguel de Icaza (miguel@nuclecu.unam.mx)
-  * Copyright (C) 1995, 1996, 1997 David S. Miller (davem@caip.rutgers.edu)
-diff -ur linux-2.5.62-1104-orig/arch/sparc64/kernel/sys32.S linux-2.5.62-1104/arch/sparc64/kernel/sys32.S
---- linux-2.5.62-1104-orig/arch/sparc64/kernel/sys32.S	Thu Jan 16 19:21:41 2003
-+++ linux-2.5.62-1104/arch/sparc64/kernel/sys32.S	Tue Feb 18 18:25:13 2003
-@@ -1,5 +1,5 @@
- /* $Id: sys32.S,v 1.12 2000/03/24 04:17:37 davem Exp $
-- * sys32.S: I-cache tricks for 32-bit compatability layer simple
-+ * sys32.S: I-cache tricks for 32-bit compatibility layer simple
-  *          conversions.
-  *
-  * Copyright (C) 1997 David S. Miller (davem@caip.rutgers.edu)
-diff -ur linux-2.5.62-1104-orig/arch/sparc64/kernel/sys_sparc32.c linux-2.5.62-1104/arch/sparc64/kernel/sys_sparc32.c
---- linux-2.5.62-1104-orig/arch/sparc64/kernel/sys_sparc32.c	Mon Feb 17 17:36:00 2003
-+++ linux-2.5.62-1104/arch/sparc64/kernel/sys_sparc32.c	Tue Feb 18 18:25:13 2003
-@@ -3528,7 +3528,7 @@
- 	return ret;
- }
- 
--/* Handle adjtimex compatability. */
-+/* Handle adjtimex compatibility. */
- 
- struct timex32 {
- 	u32 modes;
-diff -ur linux-2.5.62-1104-orig/arch/sparc64/kernel/sys_sunos32.c linux-2.5.62-1104/arch/sparc64/kernel/sys_sunos32.c
---- linux-2.5.62-1104-orig/arch/sparc64/kernel/sys_sunos32.c	Mon Feb 10 12:22:57 2003
-+++ linux-2.5.62-1104/arch/sparc64/kernel/sys_sunos32.c	Tue Feb 18 18:25:13 2003
-@@ -1,5 +1,5 @@
- /* $Id: sys_sunos32.c,v 1.64 2002/02/09 19:49:31 davem Exp $
-- * sys_sunos32.c: SunOS binary compatability layer on sparc64.
-+ * sys_sunos32.c: SunOS binary compatibility layer on sparc64.
-  *
-  * Copyright (C) 1995, 1996, 1997 David S. Miller (davem@caip.rutgers.edu)
-  * Copyright (C) 1995 Miguel de Icaza (miguel@nuclecu.unam.mx)
-diff -ur linux-2.5.62-1104-orig/arch/x86_64/ia32/ia32_ioctl.c linux-2.5.62-1104/arch/x86_64/ia32/ia32_ioctl.c
---- linux-2.5.62-1104-orig/arch/x86_64/ia32/ia32_ioctl.c	Thu Jan 16 19:22:13 2003
-+++ linux-2.5.62-1104/arch/x86_64/ia32/ia32_ioctl.c	Tue Feb 18 18:25:13 2003
-@@ -3593,7 +3593,7 @@
- 
- IOCTL_TABLE_START
- /* List here explicitly which ioctl's are known to have
-- * compatable types passed or none at all...
-+ * compatible types passed or none at all...
-  */
- /* Big T */
- COMPATIBLE_IOCTL(TCGETA)
-diff -ur linux-2.5.62-1104-orig/arch/x86_64/ia32/sys_ia32.c linux-2.5.62-1104/arch/x86_64/ia32/sys_ia32.c
---- linux-2.5.62-1104-orig/arch/x86_64/ia32/sys_ia32.c	Mon Feb 17 17:36:00 2003
-+++ linux-2.5.62-1104/arch/x86_64/ia32/sys_ia32.c	Tue Feb 18 18:25:13 2003
-@@ -1573,7 +1573,7 @@
- 	return ret;
- }
- 
--/* Handle adjtimex compatability. */
-+/* Handle adjtimex compatibility. */
- 
- struct timex32 {
- 	u32 modes;
-diff -ur linux-2.5.62-1104-orig/drivers/char/agp/via-agp.c linux-2.5.62-1104/drivers/char/agp/via-agp.c
---- linux-2.5.62-1104-orig/drivers/char/agp/via-agp.c	Fri Feb 14 20:11:52 2003
-+++ linux-2.5.62-1104/drivers/char/agp/via-agp.c	Tue Feb 18 18:25:13 2003
-@@ -227,7 +227,7 @@
- 
- 			printk (KERN_INFO PFX "Found KT400 in disguise as a KT266.\n");
- 
--			/* Check AGP compatability mode. */
-+			/* Check AGP compatibility mode. */
- 			pci_read_config_byte(pdev, VIA_AGPSEL, &reg);
- 			if ((reg & (1<<1))==0)
- 				return via_generic_agp3_setup(pdev);
-@@ -271,7 +271,7 @@
- {
- 	u8 reg;
- 	pci_read_config_byte(pdev, VIA_AGPSEL, &reg);
--	/* Check AGP 2.0 compatability mode. */
-+	/* Check AGP 2.0 compatibility mode. */
- 	if ((reg & (1<<1))==0)
- 		return via_generic_agp3_setup(pdev);
- 	return via_generic_setup(pdev);
-diff -ur linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-ctl.c linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-ctl.c
---- linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-ctl.c	Thu Jan 16 19:22:01 2003
-+++ linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-ctl.c	Tue Feb 18 18:25:13 2003
-@@ -717,7 +717,7 @@
- 			    ftape_disable());
- 	}
- 	/* zft_seg_pos should be greater than the vtbl segpos but not
--	 * if in compatability mode and only after we read in the
-+	 * if in compatibility mode and only after we read in the
- 	 * header segments
- 	 *
- 	 * might also be a problem if the user makes a backup with a
-diff -ur linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-eof.c linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-eof.c
---- linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-eof.c	Thu Jan 16 19:23:01 2003
-+++ linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-eof.c	Tue Feb 18 18:25:13 2003
-@@ -1,6 +1,6 @@
- /*
-  *   I use these routines just to decide when I have to fake a 
-- *   volume-table to preserve compatability to original ftape.
-+ *   volume-table to preserve compatibility to original ftape.
-  */
- /*
-  *      Copyright (C) 1994-1995 Bas Laarhoven.
-diff -ur linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-vtbl.c linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-vtbl.c
---- linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-vtbl.c	Thu Jan 16 19:22:04 2003
-+++ linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-vtbl.c	Tue Feb 18 18:25:13 2003
-@@ -143,7 +143,7 @@
-  * using the keyword "blocksize". The blocksize written to the
-  * volume-label is in bytes.
-  *
-- * We use this now only for compatability with old zftape version. We
-+ * We use this now only for compatibility with old zftape version. We
-  * store the blocksize directly as binary number in the vendor
-  * extension part of the volume entry.
-  */
-diff -ur linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-vtbl.h linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-vtbl.h
---- linux-2.5.62-1104-orig/drivers/char/ftape/zftape/zftape-vtbl.h	Thu Jan 16 19:22:02 2003
-+++ linux-2.5.62-1104/drivers/char/ftape/zftape/zftape-vtbl.h	Tue Feb 18 18:25:13 2003
-@@ -72,7 +72,7 @@
- #define VTBL_FMT        125
- #define VTBL_RESERVED_2 126
- #define VTBL_RESERVED_3 127
--/* compatability with pre revision K */
-+/* compatibility with pre revision K */
- #define VTBL_K_CMPR     120 
- 
- /*  the next is used by QIC-3020 tapes with format code 6 (>2^16
-diff -ur linux-2.5.62-1104-orig/drivers/char/ppdev.c linux-2.5.62-1104/drivers/char/ppdev.c
---- linux-2.5.62-1104-orig/drivers/char/ppdev.c	Thu Jan 16 19:22:50 2003
-+++ linux-2.5.62-1104/drivers/char/ppdev.c	Tue Feb 18 18:25:13 2003
-@@ -676,7 +676,7 @@
- 	    (pp->state.mode != IEEE1284_MODE_COMPAT)) {
- 	    	struct ieee1284_info *info;
- 
--		/* parport released, but not in compatability mode */
-+		/* parport released, but not in compatibility mode */
- 		parport_claim_or_block (pp->pdev);
- 		pp->flags |= PP_CLAIMED;
- 		info = &pp->pdev->port->ieee1284;
-diff -ur linux-2.5.62-1104-orig/drivers/ide/pci/serverworks.c linux-2.5.62-1104/drivers/ide/pci/serverworks.c
---- linux-2.5.62-1104-orig/drivers/ide/pci/serverworks.c	Tue Feb 18 18:06:18 2003
-+++ linux-2.5.62-1104/drivers/ide/pci/serverworks.c	Tue Feb 18 18:25:13 2003
-@@ -578,7 +578,7 @@
- 			 * This is a device pin issue on CSB6.
- 			 * Since there will be a future raid mode,
- 			 * early versions of the chipset require the
--			 * interrupt pin to be set, and it is a compatablity
-+			 * interrupt pin to be set, and it is a compatiblity
- 			 * mode issue.
- 			 */
- 			dev->irq = 0;
-diff -ur linux-2.5.62-1104-orig/drivers/md/md.c linux-2.5.62-1104/drivers/md/md.c
---- linux-2.5.62-1104-orig/drivers/md/md.c	Tue Feb 18 18:06:18 2003
-+++ linux-2.5.62-1104/drivers/md/md.c	Tue Feb 18 18:25:13 2003
-@@ -729,7 +729,7 @@
- 		if (rdev2->raid_disk >= 0)
- 			d->raid_disk = rdev2->raid_disk;
- 		else
--			d->raid_disk = rdev2->desc_nr; /* compatability */
-+			d->raid_disk = rdev2->desc_nr; /* compatibility */
- 		if (rdev2->faulty) {
- 			d->state = (1<<MD_DISK_FAULTY);
- 			failed++;
-diff -ur linux-2.5.62-1104-orig/drivers/net/am79c961a.c linux-2.5.62-1104/drivers/net/am79c961a.c
---- linux-2.5.62-1104-orig/drivers/net/am79c961a.c	Thu Jan 16 19:22:28 2003
-+++ linux-2.5.62-1104/drivers/net/am79c961a.c	Tue Feb 18 18:25:13 2003
-@@ -150,7 +150,7 @@
- 	}
- }
- #else
--#error Not compatable
-+#error Not compatible
+ #ifdef SERIAL_DEBUG_INTR
+-		printk("** OK, disabling ser_interupts\n");
++		printk("** OK, disabling ser_interrupts\n");
  #endif
+ 		e100_disable_serial_data_irq(info);
  
- static int
-diff -ur linux-2.5.62-1104-orig/drivers/scsi/3w-xxxx.c linux-2.5.62-1104/drivers/scsi/3w-xxxx.c
---- linux-2.5.62-1104-orig/drivers/scsi/3w-xxxx.c	Tue Feb 18 18:06:18 2003
-+++ linux-2.5.62-1104/drivers/scsi/3w-xxxx.c	Tue Feb 18 18:25:13 2003
-@@ -8,7 +8,7 @@
+diff -ur linux-2.5.62-1104-orig/arch/ia64/hp/sim/simeth.c linux-2.5.62-1104/arch/ia64/hp/sim/simeth.c
+--- linux-2.5.62-1104-orig/arch/ia64/hp/sim/simeth.c	Mon Feb 10 12:22:53 2003
++++ linux-2.5.62-1104/arch/ia64/hp/sim/simeth.c	Tue Feb 18 18:31:36 2003
+@@ -149,7 +149,7 @@
+ static inline int
+ netdev_attach(int fd, int irq, unsigned int ipaddr)
+ {
+-	/* this puts the host interface in the right mode (start interupting) */
++	/* this puts the host interface in the right mode (start interrupting) */
+ 	return ia64_ssc(fd, ipaddr, 0,0, SSC_NETDEV_ATTACH);
+ }
  
-    Copyright (C) 1999-2002 3ware Inc.
+diff -ur linux-2.5.62-1104-orig/arch/ia64/sn/io/xbow.c linux-2.5.62-1104/arch/ia64/sn/io/xbow.c
+--- linux-2.5.62-1104-orig/arch/ia64/sn/io/xbow.c	Thu Jan 16 19:21:33 2003
++++ linux-2.5.62-1104/arch/ia64/sn/io/xbow.c	Tue Feb 18 18:31:36 2003
+@@ -305,7 +305,7 @@
  
--   Kernel compatablity By: 	Andre Hedrick <andre@suse.com>
-+   Kernel compatiblity By: 	Andre Hedrick <andre@suse.com>
-    Non-Copyright (C) 2000	Andre Hedrick <andre@suse.com>
-    
-    Further tiny build fixes and trivial hoovering    Alan Cox
-diff -ur linux-2.5.62-1104-orig/drivers/scsi/3w-xxxx.h linux-2.5.62-1104/drivers/scsi/3w-xxxx.h
---- linux-2.5.62-1104-orig/drivers/scsi/3w-xxxx.h	Thu Jan 16 19:21:46 2003
-+++ linux-2.5.62-1104/drivers/scsi/3w-xxxx.h	Tue Feb 18 18:25:13 2003
-@@ -8,7 +8,7 @@
+     /*
+      * get the name of this xbow vertex and keep the info.
+-     * This is needed during errors and interupts, but as
++     * This is needed during errors and interrupts, but as
+      * long as we have it, we can use it elsewhere.
+      */
+     s = dev_to_name(vhdl, devnm, MAXDEVNAME);
+diff -ur linux-2.5.62-1104-orig/arch/ia64/sn/io/xtalk.c linux-2.5.62-1104/arch/ia64/sn/io/xtalk.c
+--- linux-2.5.62-1104-orig/arch/ia64/sn/io/xtalk.c	Thu Jan 16 19:21:40 2003
++++ linux-2.5.62-1104/arch/ia64/sn/io/xtalk.c	Tue Feb 18 18:31:36 2003
+@@ -890,7 +890,7 @@
+     widget_info->w_einfo = 0;
+     /*
+      * get the name of this xwidget vertex and keep the info.
+-     * This is needed during errors and interupts, but as
++     * This is needed during errors and interrupts, but as
+      * long as we have it, we can use it elsewhere.
+      */
+     s = dev_to_name(widget,devnm,MAXDEVNAME);
+diff -ur linux-2.5.62-1104-orig/arch/m68knommu/platform/68328/entry.S linux-2.5.62-1104/arch/m68knommu/platform/68328/entry.S
+--- linux-2.5.62-1104-orig/arch/m68knommu/platform/68328/entry.S	Thu Jan 16 19:21:38 2003
++++ linux-2.5.62-1104/arch/m68knommu/platform/68328/entry.S	Tue Feb 18 18:31:36 2003
+@@ -95,7 +95,7 @@
+ Luser_return:
+ 	/* only allow interrupts when we are really the last one on the*/
+ 	/* kernel stack, otherwise stack overflow can occur during*/
+-	/* heavy interupt load*/
++	/* heavy interrupt load*/
+ 	andw	#ALLOWINT,%sr
  
-    Copyright (C) 1999-2002 3ware Inc.
+ 	movel	%sp,%d1			/* get thread_info pointer */
+diff -ur linux-2.5.62-1104-orig/arch/m68knommu/platform/68360/commproc.c linux-2.5.62-1104/arch/m68knommu/platform/68360/commproc.c
+--- linux-2.5.62-1104-orig/arch/m68knommu/platform/68360/commproc.c	Thu Jan 16 19:22:39 2003
++++ linux-2.5.62-1104/arch/m68knommu/platform/68360/commproc.c	Tue Feb 18 18:31:36 2003
+@@ -90,7 +90,7 @@
+ 	while (pquicc->cp_cr & CMD_FLAG);
  
--   Kernel compatablity By:	Andre Hedrick <andre@suse.com>
-+   Kernel compatiblity By:	Andre Hedrick <andre@suse.com>
-    Non-Copyright (C) 2000	Andre Hedrick <andre@suse.com>
+ 	/* On the recommendation of the 68360 manual, p. 7-60
+-	 * - Set sdma interupt service mask to 7
++	 * - Set sdma interrupt service mask to 7
+ 	 * - Set sdma arbitration ID to 4
+ 	 */
+ 	pquicc->sdma_sdcr = 0x0740;
+diff -ur linux-2.5.62-1104-orig/arch/m68knommu/platform/68360/entry.S linux-2.5.62-1104/arch/m68knommu/platform/68360/entry.S
+--- linux-2.5.62-1104-orig/arch/m68knommu/platform/68360/entry.S	Thu Jan 16 19:22:24 2003
++++ linux-2.5.62-1104/arch/m68knommu/platform/68360/entry.S	Tue Feb 18 18:31:36 2003
+@@ -91,7 +91,7 @@
+ Luser_return:
+ 	/* only allow interrupts when we are really the last one on the*/
+ 	/* kernel stack, otherwise stack overflow can occur during*/
+-	/* heavy interupt load*/
++	/* heavy interrupt load*/
+ 	andw	#ALLOWINT,%sr
  
-    This program is free software; you can redistribute it and/or modify
+ 	movel	%sp,%d1			/* get thread_info pointer */
+diff -ur linux-2.5.62-1104-orig/arch/mips/philips/nino/int-handler.S linux-2.5.62-1104/arch/mips/philips/nino/int-handler.S
+--- linux-2.5.62-1104-orig/arch/mips/philips/nino/int-handler.S	Thu Jan 16 19:21:35 2003
++++ linux-2.5.62-1104/arch/mips/philips/nino/int-handler.S	Tue Feb 18 18:31:36 2003
+@@ -72,7 +72,7 @@
+ 		nop
+ 
+ /*
+- * Ok, we've got one of over a hundred other interupts.
++ * Ok, we've got one of over a hundred other interrupts.
+  */
+ low_priority:
+ 		lui	t0, %hi(IntStatus1)
+diff -ur linux-2.5.62-1104-orig/arch/parisc/kernel/irq.c linux-2.5.62-1104/arch/parisc/kernel/irq.c
+--- linux-2.5.62-1104-orig/arch/parisc/kernel/irq.c	Mon Feb 10 12:22:56 2003
++++ linux-2.5.62-1104/arch/parisc/kernel/irq.c	Tue Feb 18 18:31:36 2003
+@@ -447,7 +447,7 @@
+ 
+ 	/* 1) only process IRQs that are enabled/unmasked (cpu_eiem)
+ 	 * 2) We loop here on EIRR contents in order to avoid
+-	 *    nested interrupts or having to take another interupt
++	 *    nested interrupts or having to take another interrupt
+ 	 *    when we could have just handled it right away.
+ 	 * 3) Limit the number of times we loop to make sure other
+ 	 *    processing can occur.
+diff -ur linux-2.5.62-1104-orig/arch/ppc64/kernel/head.S linux-2.5.62-1104/arch/ppc64/kernel/head.S
+--- linux-2.5.62-1104-orig/arch/ppc64/kernel/head.S	Mon Feb 10 12:22:56 2003
++++ linux-2.5.62-1104/arch/ppc64/kernel/head.S	Tue Feb 18 18:31:36 2003
+@@ -337,8 +337,8 @@
+  * Start of pSeries system interrupt routines
+  */
+ 	. = 0x100
+-	.globl __start_interupts
+-__start_interupts:
++	.globl __start_interrupts
++__start_interrupts:
+ 
+ 	STD_EXCEPTION_PSERIES( 0x100, SystemReset )
+ 	STD_EXCEPTION_PSERIES( 0x200, MachineCheck )
+@@ -367,7 +367,7 @@
+ 	. = 0x4000
+ 	.globl __end_interrupts
+ 	.globl __start_naca
+-__end_interupts:
++__end_interrupts:
+ __start_naca:
+ #ifdef CONFIG_PPC_ISERIES
+ 	.llong itVpdAreas
+diff -ur linux-2.5.62-1104-orig/arch/s390/kernel/entry.S linux-2.5.62-1104/arch/s390/kernel/entry.S
+--- linux-2.5.62-1104-orig/arch/s390/kernel/entry.S	Thu Jan 16 19:21:41 2003
++++ linux-2.5.62-1104/arch/s390/kernel/entry.S	Tue Feb 18 18:31:36 2003
+@@ -757,8 +757,8 @@
+         la      %r2,SP_PTREGS(%r15) # address of register-save area
+         sr      %r3,%r3
+         icm     %r3,3,__LC_SUBCHANNEL_NR   # load subchannel nr & extend to int
+-        l       %r4,__LC_IO_INT_PARM       # load interuption parm
+-	l       %r5,__LC_IO_INT_WORD       # load interuption word
++        l       %r4,__LC_IO_INT_PARM       # load interruption parm
++	l       %r5,__LC_IO_INT_WORD       # load interruption word
+         basr    %r14,%r1          # branch to standard irq handler
+ 
+ io_return:
+diff -ur linux-2.5.62-1104-orig/arch/s390x/kernel/entry.S linux-2.5.62-1104/arch/s390x/kernel/entry.S
+--- linux-2.5.62-1104-orig/arch/s390x/kernel/entry.S	Mon Feb 17 17:36:00 2003
++++ linux-2.5.62-1104/arch/s390x/kernel/entry.S	Tue Feb 18 18:31:36 2003
+@@ -781,8 +781,8 @@
+         GET_THREAD_INFO                # load pointer to task_struct to R9
+         la      %r2,SP_PTREGS(%r15)    # address of register-save area
+ 	llgh    %r3,__LC_SUBCHANNEL_NR # load subchannel number
+-        llgf    %r4,__LC_IO_INT_PARM   # load interuption parm
+-        llgf    %r5,__LC_IO_INT_WORD   # load interuption word
++        llgf    %r4,__LC_IO_INT_PARM   # load interruption parm
++        llgf    %r5,__LC_IO_INT_WORD   # load interruption word
+ 	brasl   %r14,do_IRQ            # call standard irq handler
+ 
+ io_return:
+diff -ur linux-2.5.62-1104-orig/arch/v850/kernel/rte_cb_multi.c linux-2.5.62-1104/arch/v850/kernel/rte_cb_multi.c
+--- linux-2.5.62-1104-orig/arch/v850/kernel/rte_cb_multi.c	Thu Jan 16 19:21:51 2003
++++ linux-2.5.62-1104/arch/v850/kernel/rte_cb_multi.c	Tue Feb 18 18:31:36 2003
+@@ -52,7 +52,7 @@
+ 	register unsigned long jr_fixup = (char *)&_intv_start - (char *)dst;
+ 	register long *ii;
+ 
+-	/* Copy interupt vectors as instructed by multi_intv_install_table. */
++	/* Copy interrupt vectors as instructed by multi_intv_install_table. */
+ 	for (ii = multi_intv_install_table; *ii >= 0; ii++) {
+ 		/* Copy 16-byte interrupt vector at offset *ii.  */
+ 		int boffs;
+diff -ur linux-2.5.62-1104-orig/drivers/char/ip2/i2ellis.h linux-2.5.62-1104/drivers/char/ip2/i2ellis.h
+--- linux-2.5.62-1104-orig/drivers/char/ip2/i2ellis.h	Thu Jan 16 19:21:37 2003
++++ linux-2.5.62-1104/drivers/char/ip2/i2ellis.h	Tue Feb 18 18:31:36 2003
+@@ -400,7 +400,7 @@
+ 	rwlock_t	read_fifo_spinlock;
+ 	rwlock_t	write_fifo_spinlock;
+ 
+-//	For queuing interupt bottom half handlers.	/\/\|=mhw=|\/\/
++//	For queuing interrupt bottom half handlers.	/\/\|=mhw=|\/\/
+ 	struct work_struct	tqueue_interrupt;
+ 
+ 	struct timer_list  SendPendingTimer;   // Used by iiSendPending
+diff -ur linux-2.5.62-1104-orig/drivers/char/ipmi/ipmi_kcs_intf.c linux-2.5.62-1104/drivers/char/ipmi/ipmi_kcs_intf.c
+--- linux-2.5.62-1104-orig/drivers/char/ipmi/ipmi_kcs_intf.c	Thu Jan 16 19:21:33 2003
++++ linux-2.5.62-1104/drivers/char/ipmi/ipmi_kcs_intf.c	Tue Feb 18 18:31:36 2003
+@@ -128,7 +128,7 @@
+ 	/* The driver will disable interrupts when it gets into a
+ 	   situation where it cannot handle messages due to lack of
+ 	   memory.  Once that situation clears up, it will re-enable
+-	   interupts. */
++	   interrupts. */
+ 	int                 interrupt_disabled;
+ };
+ 
+diff -ur linux-2.5.62-1104-orig/drivers/char/mwave/3780i.c linux-2.5.62-1104/drivers/char/mwave/3780i.c
+--- linux-2.5.62-1104-orig/drivers/char/mwave/3780i.c	Thu Jan 16 19:22:43 2003
++++ linux-2.5.62-1104/drivers/char/mwave/3780i.c	Tue Feb 18 18:31:36 2003
+@@ -698,7 +698,7 @@
+ 		usDspBaseIO, pusIPCSource);
+ 
+ 	/*
+-	* Disable DSP to PC interrupts, read the interupt register,
++	* Disable DSP to PC interrupts, read the interrupt register,
+ 	* clear the pending IPC bits, and reenable DSP to PC interrupts
+ 	*/
+ 	spin_lock_irqsave(&dsp_lock, flags);
+diff -ur linux-2.5.62-1104-orig/drivers/input/serio/i8042.c linux-2.5.62-1104/drivers/input/serio/i8042.c
+--- linux-2.5.62-1104-orig/drivers/input/serio/i8042.c	Fri Feb 14 20:11:57 2003
++++ linux-2.5.62-1104/drivers/input/serio/i8042.c	Tue Feb 18 18:31:36 2003
+@@ -257,7 +257,7 @@
+ /*
+  * i8042_close() frees the interrupt, so that it can possibly be used
+  * by another driver. We never know - if the user doesn't have a mouse,
+- * the BIOS could have used the AUX interupt for PCI.
++ * the BIOS could have used the AUX interrupt for PCI.
+  */
+ 
+ static void i8042_close(struct serio *port)
+diff -ur linux-2.5.62-1104-orig/drivers/net/au1000_eth.c linux-2.5.62-1104/drivers/net/au1000_eth.c
+--- linux-2.5.62-1104-orig/drivers/net/au1000_eth.c	Thu Jan 16 19:22:14 2003
++++ linux-2.5.62-1104/drivers/net/au1000_eth.c	Tue Feb 18 18:31:36 2003
+@@ -110,7 +110,7 @@
+ 
+
+ /*
+- * Base address and interupt of the Au1xxx ethernet macs
++ * Base address and interrupt of the Au1xxx ethernet macs
+  */
+ static struct {
+ 	unsigned int port;
+diff -ur linux-2.5.62-1104-orig/drivers/net/natsemi.c linux-2.5.62-1104/drivers/net/natsemi.c
+--- linux-2.5.62-1104-orig/drivers/net/natsemi.c	Thu Jan 16 19:21:37 2003
++++ linux-2.5.62-1104/drivers/net/natsemi.c	Tue Feb 18 18:31:36 2003
+@@ -2608,7 +2608,7 @@
+ 			if (wol) {
+ 				/* restart the NIC in WOL mode.
+ 				 * The nic must be stopped for this.
+-				 * FIXME: use the WOL interupt
++				 * FIXME: use the WOL interrupt
+ 				 */
+ 				enable_wol_mode(dev, 0);
+ 			} else {
+diff -ur linux-2.5.62-1104-orig/drivers/net/tc35815.c linux-2.5.62-1104/drivers/net/tc35815.c
+--- linux-2.5.62-1104-orig/drivers/net/tc35815.c	Thu Jan 16 19:21:34 2003
++++ linux-2.5.62-1104/drivers/net/tc35815.c	Tue Feb 18 18:31:36 2003
+@@ -1227,7 +1227,7 @@
+ 		lp->rfd_cur = next_rfd;
+ 	}
+ 
+-	/* re-enable BL/FDA Exhaust interupts. */
++	/* re-enable BL/FDA Exhaust interrupts. */
+ 	if (fd_free_count) {
+ 		tc_writel(tc_readl(&tr->Int_En) | Int_FDAExEn, &tr->Int_En);
+ 		if (buf_free_count)
+diff -ur linux-2.5.62-1104-orig/drivers/net/tulip/interrupt.c linux-2.5.62-1104/drivers/net/tulip/interrupt.c
+--- linux-2.5.62-1104-orig/drivers/net/tulip/interrupt.c	Thu Jan 16 19:21:47 2003
++++ linux-2.5.62-1104/drivers/net/tulip/interrupt.c	Tue Feb 18 18:31:36 2003
+@@ -501,7 +501,7 @@
+ 					   dev->name, csr5);
+ #ifdef CONFIG_NET_HW_FLOWCONTROL
+                         if (tp->fc_bit && (test_bit(tp->fc_bit, &netdev_fc_xoff)))
+-                          if (net_ratelimit()) printk("BUG!! enabling interupt when FC off (timerintr.) \n");
++                          if (net_ratelimit()) printk("BUG!! enabling interrupt when FC off (timerintr.) \n");
+ #endif
+ 			outl(tulip_tbl[tp->chip_id].valid_intrs, ioaddr + CSR7);
+ 			tp->ttimer = 0;
+diff -ur linux-2.5.62-1104-orig/drivers/net/wireless/orinoco.c linux-2.5.62-1104/drivers/net/wireless/orinoco.c
+--- linux-2.5.62-1104-orig/drivers/net/wireless/orinoco.c	Fri Feb 14 20:11:59 2003
++++ linux-2.5.62-1104/drivers/net/wireless/orinoco.c	Tue Feb 18 18:31:36 2003
+@@ -289,7 +289,7 @@
+  *	  which are used as the dev->open, dev->stop, priv->reset
+  *	  callbacks if none are specified when alloc_orinocodev() is
+  *	  called.
+- *	o Removed orinoco_plx_interupt() and orinoco_pci_interrupt().
++ *	o Removed orinoco_plx_interrupt() and orinoco_pci_interrupt().
+  *	  They didn't do anything.
+  *
+  * v0.12 -> v0.12a - 4 Jul 2002 - David Gibson
+diff -ur linux-2.5.62-1104-orig/drivers/parisc/dino.c linux-2.5.62-1104/drivers/parisc/dino.c
+--- linux-2.5.62-1104-orig/drivers/parisc/dino.c	Thu Jan 16 19:21:37 2003
++++ linux-2.5.62-1104/drivers/parisc/dino.c	Tue Feb 18 18:31:36 2003
+@@ -403,7 +403,7 @@
+ 
+ 		/*
+ 		 * Perform a binary search on set bits.
+-		 * `Less than Fatal' and PS2 interupts aren't supported.
++		 * `Less than Fatal' and PS2 interrupts aren't supported.
+ 		 */
+ 		if (mask & 0xf) {
+ 			if (mask & 0x3) {
+diff -ur linux-2.5.62-1104-orig/drivers/scsi/aic7xxx/aic79xx.h linux-2.5.62-1104/drivers/scsi/aic7xxx/aic79xx.h
+--- linux-2.5.62-1104-orig/drivers/scsi/aic7xxx/aic79xx.h	Thu Jan 16 19:22:23 2003
++++ linux-2.5.62-1104/drivers/scsi/aic7xxx/aic79xx.h	Tue Feb 18 18:31:36 2003
+@@ -404,7 +404,7 @@
+  * Initiator mode SCB shared data area.
+  * If the embedded CDB is 12 bytes or less, we embed
+  * the sense buffer address in the SCB.  This allows
+- * us to retrieve sense information without interupting
++ * us to retrieve sense information without interrupting
+  * the host in packetized mode.
+  */
+ typedef uint32_t sense_addr_t;
+diff -ur linux-2.5.62-1104-orig/drivers/scsi/aic7xxx/aic79xx_pci.c linux-2.5.62-1104/drivers/scsi/aic7xxx/aic79xx_pci.c
+--- linux-2.5.62-1104-orig/drivers/scsi/aic7xxx/aic79xx_pci.c	Fri Feb 14 20:11:59 2003
++++ linux-2.5.62-1104/drivers/scsi/aic7xxx/aic79xx_pci.c	Tue Feb 18 18:31:36 2003
+@@ -740,7 +740,7 @@
+ 		if (i == 5)
+ 			continue;
+ 		pci_status[i] = ahd_inb(ahd, reg);
+-		/* Clear latched errors.  So our interupt deasserts. */
++		/* Clear latched errors.  So our interrupt deasserts. */
+ 		ahd_outb(ahd, reg, pci_status[i]);
+ 	}
+ 
+@@ -796,14 +796,14 @@
+ 
+ 		split_status[i] = ahd_inb(ahd, DCHSPLTSTAT0);
+ 		split_status1[i] = ahd_inb(ahd, DCHSPLTSTAT1);
+-		/* Clear latched errors.  So our interupt deasserts. */
++		/* Clear latched errors.  So our interrupt deasserts. */
+ 		ahd_outb(ahd, DCHSPLTSTAT0, split_status[i]);
+ 		ahd_outb(ahd, DCHSPLTSTAT1, split_status1[i]);
+ 		if (i != 0)
+ 			continue;
+ 		sg_split_status[i] = ahd_inb(ahd, SGSPLTSTAT0);
+ 		sg_split_status1[i] = ahd_inb(ahd, SGSPLTSTAT1);
+-		/* Clear latched errors.  So our interupt deasserts. */
++		/* Clear latched errors.  So our interrupt deasserts. */
+ 		ahd_outb(ahd, SGSPLTSTAT0, sg_split_status[i]);
+ 		ahd_outb(ahd, SGSPLTSTAT1, sg_split_status1[i]);
+ 	}
 diff -ur linux-2.5.62-1104-orig/drivers/scsi/pci2220i.c linux-2.5.62-1104/drivers/scsi/pci2220i.c
 --- linux-2.5.62-1104-orig/drivers/scsi/pci2220i.c	Tue Feb 18 18:06:18 2003
-+++ linux-2.5.62-1104/drivers/scsi/pci2220i.c	Tue Feb 18 18:25:13 2003
-@@ -1439,14 +1439,14 @@
- 				break;
- 				}
++++ linux-2.5.62-1104/drivers/scsi/pci2220i.c	Tue Feb 18 18:31:36 2003
+@@ -2389,7 +2389,7 @@
+ 	padapter->regRemap		= zr + RTR_LOCAL_REMAP;					// 32 bit local space remap
+ 	padapter->regDesc		= zr + RTR_REGIONS;	  					// 32 bit local region descriptor
+ 	padapter->regRange		= zr + RTR_LOCAL_RANGE;					// 32 bit local range
+-	padapter->regIrqControl	= zr + RTR_INT_CONTROL_STATUS;			// 16 bit interupt control and status
++	padapter->regIrqControl	= zr + RTR_INT_CONTROL_STATUS;			// 16 bit interrupt control and status
+ 	padapter->regScratchPad	= zr + RTR_MAILBOX;	  					// 16 byte scratchpad I/O base address
  
--	        // test LBA and multiper sector transfer compatability
-+	        // test LBA and multiper sector transfer compatibility
- 			if (!pid->SupportLBA || (pid->NumSectorsPerInt < SECTORSXFER) || !pid->Valid_64_70 )
- 				{
- 				DEB (printk ("\npci2220i: sub 3"));
- 				break;
- 				}
- 
--	        // test PIO/bus matering mode compatability
-+	        // test PIO/bus matering mode compatibility
- 			if ( (pid->MinPIOCycleWithoutFlow > 240) && !pid->SupportIORDYDisable && !padapter->timingPIO )
- 				{
- 				DEB (printk ("\npci2220i: sub 4"));
-diff -ur linux-2.5.62-1104-orig/drivers/serial/amba.c linux-2.5.62-1104/drivers/serial/amba.c
---- linux-2.5.62-1104-orig/drivers/serial/amba.c	Thu Jan 16 19:21:39 2003
-+++ linux-2.5.62-1104/drivers/serial/amba.c	Tue Feb 18 18:25:13 2003
-@@ -25,7 +25,7 @@
-  *  $Id: amba.c,v 1.41 2002/07/28 10:03:27 rmk Exp $
-  *
-  * This is a generic driver for ARM AMBA-type serial ports.  They
-- * have a lot of 16550-like features, but are not register compatable.
-+ * have a lot of 16550-like features, but are not register compatible.
-  * Note that although they do have CTS, DCD and DSR inputs, they do
-  * not have an RI input, nor do they have DTR or RTS outputs.  If
-  * required, these have to be supplied via some other means (eg, GPIO)
-diff -ur linux-2.5.62-1104-orig/fs/befs/ChangeLog linux-2.5.62-1104/fs/befs/ChangeLog
---- linux-2.5.62-1104-orig/fs/befs/ChangeLog	Mon Feb 17 17:36:01 2003
-+++ linux-2.5.62-1104/fs/befs/ChangeLog	Tue Feb 18 18:25:13 2003
-@@ -32,7 +32,7 @@
- * Andrew Farnham <andrewfarnham@uq.net.au> pointed out that the module
- 	wouldn't work on older (<2.4.10) kernels due to an unresolved symbol.
- 	This is bad, since 2.4.9 is still the current RedHat kernel. I added
--	a workaround for this problem (compatability.h) [WD]
-+	a workaround for this problem (compatibility.h) [WD]
- 
- * Sergey S. Kostyliov made befs_find_key() use a binary search to find 
- 	keys within btree nodes, rather than the linear search we were using 
-diff -ur linux-2.5.62-1104-orig/fs/cifs/CHANGES linux-2.5.62-1104/fs/cifs/CHANGES
---- linux-2.5.62-1104-orig/fs/cifs/CHANGES	Mon Feb 17 17:36:01 2003
-+++ linux-2.5.62-1104/fs/cifs/CHANGES	Tue Feb 18 18:25:13 2003
-@@ -128,7 +128,7 @@
- Version 0.42
- ------------
- SessionSetup and NegotiateProtocol now work from Big Endian machines.
--Various Big Endian fixes found during testing on the Linux on 390.  Various fixes for compatability with older
-+Various Big Endian fixes found during testing on the Linux on 390.  Various fixes for compatibility with older
- versions of 2.4 kernel (now builds and works again on kernels at least as early as 2.4.7).
- 
- Version 0.41
-diff -ur linux-2.5.62-1104-orig/include/asm-arm/hardware/iomd.h linux-2.5.62-1104/include/asm-arm/hardware/iomd.h
---- linux-2.5.62-1104-orig/include/asm-arm/hardware/iomd.h	Thu Jan 16 19:22:57 2003
-+++ linux-2.5.62-1104/include/asm-arm/hardware/iomd.h	Tue Feb 18 18:25:13 2003
-@@ -203,7 +203,7 @@
- #define DMA_ST_AB	1
- 
+ 	padapter->regBase		= zl;
+diff -ur linux-2.5.62-1104-orig/include/asm-alpha/core_marvel.h linux-2.5.62-1104/include/asm-alpha/core_marvel.h
+--- linux-2.5.62-1104-orig/include/asm-alpha/core_marvel.h	Thu Jan 16 19:21:48 2003
++++ linux-2.5.62-1104/include/asm-alpha/core_marvel.h	Tue Feb 18 18:31:36 2003
+@@ -222,7 +222,7 @@
  /*
-- * DMA (MEMC) compatability
-+ * DMA (MEMC) compatibility
-  */
- #define HALF_SAM	vram_half_sam
- #define VDMA_ALIGNMENT	(HALF_SAM * 2)
-diff -ur linux-2.5.62-1104-orig/include/asm-ia64/sn/eeprom.h linux-2.5.62-1104/include/asm-ia64/sn/eeprom.h
---- linux-2.5.62-1104-orig/include/asm-ia64/sn/eeprom.h	Thu Jan 16 19:22:13 2003
-+++ linux-2.5.62-1104/include/asm-ia64/sn/eeprom.h	Tue Feb 18 18:25:13 2003
-@@ -371,7 +371,7 @@
- 
-
-
--/* macros for NIC compatability */
-+/* macros for NIC compatibility */
- /* always invoked on "this" cbrick */
- #define HUB_VERTEX_MFG_INFO(v) \
-     eeprom_vertex_info_set( C_BRICK, get_nasid(), (v), 0 )
-diff -ur linux-2.5.62-1104-orig/include/asm-ppc64/iSeries/ItLpNaca.h linux-2.5.62-1104/include/asm-ppc64/iSeries/ItLpNaca.h
---- linux-2.5.62-1104-orig/include/asm-ppc64/iSeries/ItLpNaca.h	Thu Jan 16 19:21:38 2003
-+++ linux-2.5.62-1104/include/asm-ppc64/iSeries/ItLpNaca.h	Tue Feb 18 18:25:13 2003
-@@ -57,7 +57,7 @@
- 	u16	xRsvd1_3;		// Reserved			x20-x21
- 	u16	xPlicVrmIndex;		// VRM index of PLIC		x22-x23
- 	u16	xMinSupportedSlicVrmInd;// Min supported OS VRM index	x24-x25
--	u16	xMinCompatableSlicVrmInd;// Min compatable OS VRM index x26-x27
-+	u16	xMinCompatableSlicVrmInd;// Min compatible OS VRM index x26-x27
- 	u64	xLoadAreaAddr;		// ER address of load area	x28-x2F
- 	u32	xLoadAreaChunks;	// Chunks for the load area	x30-x33
- 	u32	xPaseSysCallCRMask;	// Mask used to test CR before  x34-x37
-diff -ur linux-2.5.62-1104-orig/include/asm-sparc64/psrcompat.h linux-2.5.62-1104/include/asm-sparc64/psrcompat.h
---- linux-2.5.62-1104-orig/include/asm-sparc64/psrcompat.h	Thu Jan 16 19:21:38 2003
-+++ linux-2.5.62-1104/include/asm-sparc64/psrcompat.h	Tue Feb 18 18:25:13 2003
-@@ -4,7 +4,7 @@
- 
- #include <asm/pstate.h>
- 
--/* Old 32-bit PSR fields for the compatability conversion code. */
-+/* Old 32-bit PSR fields for the compatibility conversion code. */
- #define PSR_CWP     0x0000001f         /* current window pointer     */
- #define PSR_ET      0x00000020         /* enable traps field         */
- #define PSR_PS      0x00000040         /* previous privilege level   */
-diff -ur linux-2.5.62-1104-orig/include/linux/cdrom.h linux-2.5.62-1104/include/linux/cdrom.h
---- linux-2.5.62-1104-orig/include/linux/cdrom.h	Thu Jan 16 19:21:34 2003
-+++ linux-2.5.62-1104/include/linux/cdrom.h	Tue Feb 18 18:25:13 2003
-@@ -77,7 +77,7 @@
- #define CDROM_GET_MCN		0x5311 /* Obtain the "Universal Product Code" 
-                                            if available (struct cdrom_mcn) */
- #define CDROM_GET_UPC		CDROM_GET_MCN  /* This one is depricated, 
--                                          but here anyway for compatability */
-+                                          but here anyway for compatibility */
- #define CDROMRESET		0x5312 /* hard-reset the drive */
- #define CDROMVOLREAD		0x5313 /* Get the drive's volume setting 
-                                           (struct cdrom_volctrl) */
-diff -ur linux-2.5.62-1104-orig/include/linux/init.h linux-2.5.62-1104/include/linux/init.h
---- linux-2.5.62-1104-orig/include/linux/init.h	Thu Jan 16 19:21:37 2003
-+++ linux-2.5.62-1104/include/linux/init.h	Tue Feb 18 18:25:13 2003
-@@ -71,7 +71,7 @@
- /* initcalls are now grouped by functionality into separate 
-  * subsections. Ordering inside the subsections is determined
-  * by link order. 
-- * For backwards compatability, initcall() puts the call in 
-+ * For backwards compatibility, initcall() puts the call in 
-  * the device init subsection.
-  */
- 
-diff -ur linux-2.5.62-1104-orig/sound/oss/mad16.c linux-2.5.62-1104/sound/oss/mad16.c
---- linux-2.5.62-1104-orig/sound/oss/mad16.c	Thu Jan 16 19:22:27 2003
-+++ linux-2.5.62-1104/sound/oss/mad16.c	Tue Feb 18 18:25:13 2003
-@@ -17,7 +17,7 @@
-  * to the PC bus and perform I/O, DMA and IRQ address decoding. There is
-  * also a UART for the MPU-401 mode (not 82C928/Mozart).
-  * The Mozart chip appears to be compatible with the 82C928, although later
-- * issues of the card, using the OTI-605 chip, have an MPU-401 compatable Midi
-+ * issues of the card, using the OTI-605 chip, have an MPU-401 compatible Midi
-  * port. This port is configured differently to that of the OPTi audio chips.
+  * IO7 IID (Interrupt IDentifier) format
   *
-  *	Changes
+- * For level-sensative interupts, int_num is encoded as:
++ * For level-sensative interrupts, int_num is encoded as:
+  *
+  *	bus/port	slot/device	INTx
+  *	<7:5>		<4:2>		<1:0>
+diff -ur linux-2.5.62-1104-orig/include/asm-m68knommu/m68360_enet.h linux-2.5.62-1104/include/asm-m68knommu/m68360_enet.h
+--- linux-2.5.62-1104-orig/include/asm-m68knommu/m68360_enet.h	Thu Jan 16 19:22:03 2003
++++ linux-2.5.62-1104/include/asm-m68knommu/m68360_enet.h	Tue Feb 18 18:31:36 2003
+@@ -93,7 +93,7 @@
+ #define ALEC     0x00000000
+ #define DISFC    0x00000000
+ #define PADS     0x00000000
+-#define RET_LIM  0x000f     /* retry 15 times to send a frame before interupt */
++#define RET_LIM  0x000f     /* retry 15 times to send a frame before interrupt */
+ #define ETH_MFLR 0x05ee     /* 1518 max frame size */
+ #define MINFLR   0x0040     /* Minimum frame size 64 */
+ #define MAXD1    0x05ee     /* Max dma count 1518 */
+diff -ur linux-2.5.62-1104-orig/include/asm-parisc/pdcpat.h linux-2.5.62-1104/include/asm-parisc/pdcpat.h
+--- linux-2.5.62-1104-orig/include/asm-parisc/pdcpat.h	Thu Jan 16 19:22:29 2003
++++ linux-2.5.62-1104/include/asm-parisc/pdcpat.h	Tue Feb 18 18:31:36 2003
+@@ -99,7 +99,7 @@
+ 				       ** Monarch Processor */
+ #define PDC_PAT_HPMC_RENDEZ_CPU     0L /* go into spin loop */
+ #define PDC_PAT_HPMC_SET_PARAMS     1L /* Allows OS to specify intr which PDC 
+-                                        * will use to interupt OS during machine
++                                        * will use to interrupt OS during machine
+                                         * check rendezvous */
+ 
+ /* parameters for PDC_PAT_HPMC_SET_PARAMS: */
+diff -ur linux-2.5.62-1104-orig/sound/drivers/serial-u16550.c linux-2.5.62-1104/sound/drivers/serial-u16550.c
+--- linux-2.5.62-1104-orig/sound/drivers/serial-u16550.c	Mon Feb 10 12:23:09 2003
++++ linux-2.5.62-1104/sound/drivers/serial-u16550.c	Tue Feb 18 18:31:36 2003
+@@ -204,7 +204,7 @@
+ 
+ /* This loop should be called with interrupts disabled
+  * We don't want to interrupt this, 
+- * as we're already handling an interupt 
++ * as we're already handling an interrupt 
+  */
+ static void snd_uart16550_io_loop(snd_uart16550_t * uart)
+ {
+@@ -274,16 +274,16 @@
+  * ---------------------------
+  * After receiving a interrupt, it is important to indicate to the UART that
+  * this has been done. 
+- * For a Rx interupt, this is done by reading the received byte.
+- * For a Tx interupt this is done by either:
++ * For a Rx interrupt, this is done by reading the received byte.
++ * For a Tx interrupt this is done by either:
+  * a) Writing a byte
+  * b) Reading the IIR
+- * It is particularly important to read the IIR if a Tx interupt is received
++ * It is particularly important to read the IIR if a Tx interrupt is received
+  * when there is no data in tx_buff[], as in this case there no other
+- * indication that the interupt has been serviced, and it remains outstanding
+- * indefinitely. This has the curious side effect that and no further interupts
++ * indication that the interrupt has been serviced, and it remains outstanding
++ * indefinitely. This has the curious side effect that and no further interrupts
+  * will be generated from this device AT ALL!!.
+- * It is also desirable to clear outstanding interupts when the device is
++ * It is also desirable to clear outstanding interrupts when the device is
+  * opened/closed.
+  *
+  *
+@@ -300,7 +300,7 @@
+ 		spin_unlock(&uart->open_lock);
+ 		return;
+ 	}
+-	inb(uart->base + UART_IIR);		/* indicate to the UART that the interupt has been serviced */
++	inb(uart->base + UART_IIR);		/* indicate to the UART that the interrupt has been serviced */
+ 	snd_uart16550_io_loop(uart);
+ 	spin_unlock(&uart->open_lock);
+ }
+@@ -378,7 +378,7 @@
+ 	     | UART_FCR_CLEAR_RCVR	/* Clear receiver FIFO */
+ 	     | UART_FCR_CLEAR_XMIT	/* Clear transmitter FIFO */
+ 	     | UART_FCR_TRIGGER_4	/* Set FIFO trigger at 4-bytes */
+-	/* NOTE: interupt generated after T=(time)4-bytes
++	/* NOTE: interrupt generated after T=(time)4-bytes
+ 	 * if less than UART_FCR_TRIGGER bytes received
+ 	 */
+ 	     ,uart->base + UART_FCR);	/* FIFO Control Register */
+@@ -430,8 +430,8 @@
+ 	}
+ 
+ 	if (uart->irq < 0) {
+-		byte = (0 & UART_IER_RDI)	/* Disable Receiver data interupt */
+-		    |(0 & UART_IER_THRI)	/* Disable Transmitter holding register empty interupt */
++		byte = (0 & UART_IER_RDI)	/* Disable Receiver data interrupt */
++		    |(0 & UART_IER_THRI)	/* Disable Transmitter holding register empty interrupt */
+ 		    ;
+ 	} else if (uart->adaptor == SNDRV_SERIAL_MS124W_SA) {
+ 		byte = UART_IER_RDI	/* Enable Receiver data interrupt */
+@@ -440,11 +440,11 @@
+ 	} else if (uart->adaptor == SNDRV_SERIAL_GENERIC) {
+ 		byte = UART_IER_RDI	/* Enable Receiver data interrupt */
+ 		    | UART_IER_MSI	/* Enable Modem status interrupt */
+-		    | UART_IER_THRI	/* Enable Transmitter holding register empty interupt */
++		    | UART_IER_THRI	/* Enable Transmitter holding register empty interrupt */
+ 		    ;
+ 	} else {
+-		byte = UART_IER_RDI	/* Enable Receiver data interupt */
+-		    | UART_IER_THRI	/* Enable Transmitter holding register empty interupt */
++		byte = UART_IER_RDI	/* Enable Receiver data interrupt */
++		    | UART_IER_THRI	/* Enable Transmitter holding register empty interrupt */
+ 		    ;
+ 	}
+ 	outb(byte, uart->base + UART_IER);	/* Interupt enable Register */
+@@ -463,8 +463,8 @@
+ 	 * For now, the consequences are harmless.
+ 	 */
+ 
+-	outb((0 & UART_IER_RDI)		/* Disable Receiver data interupt */
+-	     |(0 & UART_IER_THRI)	/* Disable Transmitter holding register empty interupt */
++	outb((0 & UART_IER_RDI)		/* Disable Receiver data interrupt */
++	     |(0 & UART_IER_THRI)	/* Disable Transmitter holding register empty interrupt */
+ 	     ,uart->base + UART_IER);	/* Interupt enable Register */
+ 
+ 	switch (uart->adaptor) {
+@@ -489,7 +489,7 @@
+ 		break;
+ 	}
+ 
+-	inb(uart->base + UART_IIR);	/* Clear any outstanding interupts */
++	inb(uart->base + UART_IIR);	/* Clear any outstanding interrupts */
+ 
+ 	/* Restore old divisor */
+ 	if (uart->divisor != 0) {
+diff -ur linux-2.5.62-1104-orig/sound/oss/rme96xx.c linux-2.5.62-1104/sound/oss/rme96xx.c
+--- linux-2.5.62-1104-orig/sound/oss/rme96xx.c	Fri Feb 14 20:12:06 2003
++++ linux-2.5.62-1104/sound/oss/rme96xx.c	Tue Feb 18 18:31:36 2003
+@@ -604,7 +604,7 @@
+ 		     return 1;
+ 		}
+ 	}
+-	COMM       ("interupt disabled");
++	COMM       ("interrupt disabled");
+ 	/* first initialize all pointers on card */
+ 	for(i=0;i<RME96xx_num_of_init_regs;i++){
+ 		writel(0,s->iobase + i);
+diff -ur linux-2.5.62-1104-orig/sound/pci/als4000.c linux-2.5.62-1104/sound/pci/als4000.c
+--- linux-2.5.62-1104-orig/sound/pci/als4000.c	Thu Jan 16 19:22:44 2003
++++ linux-2.5.62-1104/sound/pci/als4000.c	Tue Feb 18 18:31:36 2003
+@@ -370,7 +370,7 @@
+ 		snd_pcm_period_elapsed(chip->playback_substream);
+ 	if ((gcr_status & 0x40) && (chip->capture_substream)) /* capturing */
+ 		snd_pcm_period_elapsed(chip->capture_substream);
+-	if ((gcr_status & 0x10) && (chip->rmidi)) /* MPU401 interupt */
++	if ((gcr_status & 0x10) && (chip->rmidi)) /* MPU401 interrupt */
+ 		snd_mpu401_uart_interrupt(irq, chip->rmidi, regs);
+ 	/* release the gcr */
+ 	outb(gcr_status, chip->alt_port + 0xe);
+diff -ur linux-2.5.62-1104-orig/sound/pci/cs4281.c linux-2.5.62-1104/sound/pci/cs4281.c
+--- linux-2.5.62-1104-orig/sound/pci/cs4281.c	Mon Feb 10 12:23:10 2003
++++ linux-2.5.62-1104/sound/pci/cs4281.c	Tue Feb 18 18:31:36 2003
+@@ -87,7 +87,7 @@
+ #define BA0_HISR_MIDI		(1<<22)	/* MIDI port interrupt */
+ #define BA0_HISR_FIFOI		(1<<20)	/* FIFO polled interrupt */
+ #define BA0_HISR_DMAI		(1<<18)	/* DMA interrupt (half or end) */
+-#define BA0_HISR_FIFO(c)	(1<<(12+(c))) /* FIFO channel interupt */
++#define BA0_HISR_FIFO(c)	(1<<(12+(c))) /* FIFO channel interrupt */
+ #define BA0_HISR_DMA(c)		(1<<(8+(c)))  /* DMA channel interrupt */
+ #define BA0_HISR_GPPI		(1<<5)	/* General Purpose Input (Primary chip) */
+ #define BA0_HISR_GPSI		(1<<4)	/* General Purpose Input (Secondary chip) */
+diff -ur linux-2.5.62-1104-orig/sound/pci/es1968.c linux-2.5.62-1104/sound/pci/es1968.c
+--- linux-2.5.62-1104-orig/sound/pci/es1968.c	Mon Feb 10 12:23:10 2003
++++ linux-2.5.62-1104/sound/pci/es1968.c	Tue Feb 18 18:31:36 2003
+@@ -1132,7 +1132,7 @@
+ 	}
+ 
+ 	spin_lock_irqsave(&chip->reg_lock, flags);
+-	/* clear WP interupts */
++	/* clear WP interrupts */
+ 	outw(1, chip->io_port + 0x04);
+ 	/* enable WP ints */
+ 	outw(inw(chip->io_port + ESM_PORT_HOST_IRQ) | ESM_HIRQ_DSIE, chip->io_port + ESM_PORT_HOST_IRQ);
+@@ -1263,7 +1263,7 @@
+ 	}
+ 
+ 	spin_lock_irqsave(&chip->reg_lock, flags);
+-	/* clear WP interupts */
++	/* clear WP interrupts */
+ 	outw(1, chip->io_port + 0x04);
+ 	/* enable WP ints */
+ 	outw(inw(chip->io_port + ESM_PORT_HOST_IRQ) | ESM_HIRQ_DSIE, chip->io_port + ESM_PORT_HOST_IRQ);
+@@ -1828,7 +1828,7 @@
+ 	apu_set_register(chip, apu, 10, 0x8F08);
+ 	apu_set_register(chip, apu, 11, 0x0000);
+ 	spin_lock_irqsave(&chip->reg_lock, flags);
+-	outw(1, chip->io_port + 0x04); /* clear WP interupts */
++	outw(1, chip->io_port + 0x04); /* clear WP interrupts */
+ 	outw(inw(chip->io_port + ESM_PORT_HOST_IRQ) | ESM_HIRQ_DSIE, chip->io_port + ESM_PORT_HOST_IRQ); /* enable WP ints */
+ 	spin_unlock_irqrestore(&chip->reg_lock, flags);
+ 
+
+
+
+
 

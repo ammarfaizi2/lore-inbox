@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129662AbRBOUsc>; Thu, 15 Feb 2001 15:48:32 -0500
+	id <S129952AbRBOUuC>; Thu, 15 Feb 2001 15:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129907AbRBOUsM>; Thu, 15 Feb 2001 15:48:12 -0500
-Received: from ellpspace.math.ualberta.ca ([129.128.207.67]:35144 "EHLO
-	ellpspace.math.ualberta.ca") by vger.kernel.org with ESMTP
-	id <S129662AbRBOUsC>; Thu, 15 Feb 2001 15:48:02 -0500
-Date: Thu, 15 Feb 2001 13:47:47 -0700
-From: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
-To: John Jasen <jjasen@datafoundation.com>
-Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
-        axp-list@redhat.com
-Subject: Re: 2.4.x/alpha/ALI chipset/IDE problems summary Re: 2.4.1 not fully sane on Alpha - file systems
-Message-ID: <20010215134747.A13942@ellpspace.math.ualberta.ca>
-In-Reply-To: <20010215124837.B13755@ellpspace.math.ualberta.ca> <Pine.LNX.4.30.0102151513170.4654-100000@flash.datafoundation.com>
+	id <S129907AbRBOUtw>; Thu, 15 Feb 2001 15:49:52 -0500
+Received: from quattro.sventech.com ([205.252.248.110]:35598 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S130085AbRBOUts>; Thu, 15 Feb 2001 15:49:48 -0500
+Date: Thu, 15 Feb 2001 15:49:47 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: drizzt.dourden@iname.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [drizzt.dourden@iname.com: USB mass storage and USB message]
+Message-ID: <20010215154946.M23514@sventech.com>
+In-Reply-To: <20010215214330.B2094@menzoberrazan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <Pine.LNX.4.30.0102151513170.4654-100000@flash.datafoundation.com>; from John Jasen on Thu, Feb 15, 2001 at 03:15:01PM -0500
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <20010215214330.B2094@menzoberrazan>; from drizzt.dourden@iname.com on Thu, Feb 15, 2001 at 09:43:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 15, 2001 at 03:15:01PM -0500, John Jasen wrote:
-> 
-> I retried the mysticism and incantations (d -l 801fe0000ac d) at the srm
-> prompt, and the machine locked on fsck, under kernel 2.4.1-ac13.
+On Thu, Feb 15, 2001, drizzt.dourden@iname.com <drizzt.dourden@iname.com> wrote:
+>  I'm using the usb-uhci core with the 8200e storage drivers. I don't why
+>  the kernel logs the next message:
+>  
+>  uhci.c: root-hub INT complete: port1: 495 port2: 58a data: 4
+>  uhci.c: root-hub INT complete: port1: 495 port2: 58a data: 4
+>  uhci.c: root-hub INT complete: port1: 495 port2: 58a data: 4
+>  uhci.c: root-hub INT complete: port1: 495 port2: 58a data: 4
+>  uhci.c: root-hub INT complete: port1: 495 port2: 58a data: 4
+>  uhci.c: root-hub INT complete: port1: 495 port2: 58a data: 4
+>  (well a lot of them)
 
-Like I wrote - I did not get to locks on fsck but then stuff was weird
-and if I would press sufficiently long maybe I would.  I still had some
-use for my file systems so I did not try hard enough.  Maybe we need
-black hens on the top of the magic quoted above?
+If it says, uhci.c, then it would be uhci.o. If it says usb-uhci.c, then
+it's usb-uhci.o. Your statement conflicts with the log you pasted. Which
+one is it?
 
-> I don't care about X on this system, all that much, honestly.
+>  The kernel is 2.4.1, the hardware a Celeron 566 with a VIA chipset, with the
+>  next cat /proc/pci
+>  
+>  This doesn't hapeng with the uhci module.
+>  
+>  I was testing  the cd writer with cdrecord at x1 speed( well, at least it can
+>  finish th simulation, because with the pre series, it can finished).
 
-"Technicolor" thingy seems to be side effect of your particular
-graphics card, no?
+Did you get an oops? Is the khubd process zombied?
 
-  Michal
+JE
+

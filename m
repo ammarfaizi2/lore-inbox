@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316681AbSFUQoR>; Fri, 21 Jun 2002 12:44:17 -0400
+	id <S316684AbSFUQtC>; Fri, 21 Jun 2002 12:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316683AbSFUQoQ>; Fri, 21 Jun 2002 12:44:16 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:49341 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S316681AbSFUQoP>;
-	Fri, 21 Jun 2002 12:44:15 -0400
-Date: Fri, 21 Jun 2002 18:44:07 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200206211644.SAA14317@harpo.it.uu.se>
-To: ak@suse.de
-Subject: Re: 2.5.23+ bootflag.c triggers __iounmap: bad address
-Cc: linux-kernel@vger.kernel.org
+	id <S316686AbSFUQtB>; Fri, 21 Jun 2002 12:49:01 -0400
+Received: from relay2.efacec.pt ([194.65.94.163]:781 "EHLO efapo2.efacec.pt")
+	by vger.kernel.org with ESMTP id <S316684AbSFUQtA>;
+	Fri, 21 Jun 2002 12:49:00 -0400
+Subject: 2.2 and 2.4 performance issues
+From: Luis Pedro de Moura Ribeiro Pinto <luis.pinto@ent.efacec.pt>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 21 Jun 2002 17:55:55 +0100
+Message-Id: <1024678560.879.27.camel@lpinto>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Jun 2002 14:43:41 +0200, Andi Kleen wrote:
->> __iounmap: bad address c4800009
->> __iounmap: bad address c4804b8c
->> __iounmap: bad address c4802009
->> 
->> These warnings/errors are new since 2.5.23, which makes me
->> suspect something's wrong in the 2.5.23 iounmap changes.
->
->Does this patch fix it?
->
->
->-Andi
->
->
->
->--- linux-2.5.23-work/arch/i386/mm/ioremap.c.~2~	Tue Jun 18 02:13:09 2002
->+++ linux-2.5.23-work/arch/i386/mm/ioremap.c	Fri Jun 21 14:42:23 2002
->@@ -213,9 +213,9 @@
-> void iounmap(void *addr)
-> { 
-> 	struct vm_struct *p;
->-	if (addr < high_memory) 
->+	if (addr <= high_memory) 
-> 		return; 
->-	p = remove_kernel_area(addr); 
->+	p = remove_kernel_area(PAGE_MASK & (unsigned long) addr); 
-> 	if (!p) { 
-> 		printk("__iounmap: bad address %p\n", addr);
-> 		return;
->
 
-Yes, that fixed the problem on the two machines I mentioned.
-Thanks.
+I was asked (i'm a company freshman) to perform some tests between
+kernel versions 2.2 and 2.4, and after awhile searching i found a good
+set of benchmarking tools (aim7) from Caldera linux. I've tested both
+2.2.20 and 2.4.18 (preemptive patch) versions in a PIII , and used the
+default benchmark mixes that already came with the suite. For my great
+surprise i started having better results with kernel 2.2, only in the
+DataBase test the kernel 2.4 had better results in everything . I know
+this might be old news, but i'm also new to this ml. I also read Linus
+explanation about the handling of the SSE2 signal stack in 2.4, my
+question is... is there anymore reasons besides this one for the
+performance downgrade? Are there better way to perform the test besides
+using benchmark tools like this?
 
-/Mikael
+thanx in advance 
+

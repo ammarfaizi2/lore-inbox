@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316404AbSFZFaz>; Wed, 26 Jun 2002 01:30:55 -0400
+	id <S316408AbSFZFzw>; Wed, 26 Jun 2002 01:55:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSFZFay>; Wed, 26 Jun 2002 01:30:54 -0400
-Received: from mail.adiglobal.com ([66.207.47.93]:52749 "EHLO
-	mail.adiglobal.com") by vger.kernel.org with ESMTP
-	id <S316404AbSFZFay>; Wed, 26 Jun 2002 01:30:54 -0400
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 26 Jun 2002 01:29:26 -0400
+	id <S316416AbSFZFzv>; Wed, 26 Jun 2002 01:55:51 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8465 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316408AbSFZFzu>; Wed, 26 Jun 2002 01:55:50 -0400
+Date: Tue, 25 Jun 2002 22:50:42 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Shen, JT" <JT.Shen@hp.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide driver bug fix for the error message "hda: bad special flag
+ 0x03"
+In-Reply-To: <5A96E87E2BA0714ABBEA2C8F3F3F667C0AA680@cceexc19.americas.cpqcorp.net>
+Message-ID: <Pine.LNX.4.10.10206252250280.28989-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Subject: [STATUS 2.5]  June 26, 2002
-Message-ID: <3D1918F6.17835.498127AD@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This week's kernel status update is available for general consumption at
-  http://www.kernelnewbies.org/status/
 
-With the kernel summit and OLS this week, expect some changes to the 
-feature list in the near future.  Feedback welcome for discussion!
+Cool!
 
-Oh, and since feature freeze is apparently for Halloween 2002 (October 31), 
-that makes it only 127 days left to get your pet project in...  ;-)
+Thanks!
 
-Enjoy!
+On Tue, 25 Jun 2002, Shen, JT wrote:
 
--- Guillaume
+> diff -Naur linux-2.4.19-10/drivers/ide/ide-probe.c linux-2.4.19-11/drivers/ide/ide-probe.c
+> --- linux-2.4.19-10/drivers/ide/ide-probe.c	Fri Jun 21 15:14:46 2002
+> +++ linux-2.4.19-11/drivers/ide/ide-probe.c	Mon Jun 24 15:19:15 2002
+> @@ -131,6 +131,7 @@
+>  				type = ide_cdrom;	/* Early cdrom models used zero */
+>  			case ide_cdrom:
+>  				drive->removable = 1;
+> +				drive->special.all = 0;
+>  #ifdef CONFIG_PPC
+>  				/* kludge for Apple PowerBook internal zip */
+>  				if (!strstr(id->model, "CD-ROM") && strstr(id->model, "ZIP")) {
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> Andre,
+> 
+> Above is the patch that will fix the bug that when a user issue the command:
+> 
+>    cat /proc/ide/hda/identify
+> 
+> the message "hda: bad special flag 0x03" gets written to the system log.  This will happen because the .config file that RedHat uses to create the kernel image has the flag CONFIG_BLK_DEV_IDECD=m.  Thus in ide.c code, it won't call ide_cdrom_reinit(). So for CDROM the special flag is left as 0x03.
+> 
+> 
+> The solution is to set the special flags to 0 when it is discovered as cdrom in ide-probe.c.
+> 
+> Let me know if you have any question.
+> 
+> Thanks,
+> 
+> JT  
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

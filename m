@@ -1,88 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263125AbTCYSQk>; Tue, 25 Mar 2003 13:16:40 -0500
+	id <S263250AbTCYScE>; Tue, 25 Mar 2003 13:32:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263174AbTCYSQk>; Tue, 25 Mar 2003 13:16:40 -0500
-Received: from iucha.net ([209.98.146.184]:22381 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id <S263125AbTCYSQh>;
-	Tue, 25 Mar 2003 13:16:37 -0500
-Date: Tue, 25 Mar 2003 12:27:46 -0600
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Framebuffer updates.
-Message-ID: <20030325182746.GA8769@iucha.net>
-References: <Pine.LNX.4.33.0303251032320.4272-100000@maxwell.earthlink.net>
+	id <S263251AbTCYScE>; Tue, 25 Mar 2003 13:32:04 -0500
+Received: from M1019P023.adsl.highway.telekom.at ([62.47.159.87]:23463 "EHLO
+	sputnik") by vger.kernel.org with ESMTP id <S263250AbTCYScA>;
+	Tue, 25 Mar 2003 13:32:00 -0500
+Date: Tue, 25 Mar 2003 19:42:11 +0100
+From: maximilian attems <maks@sternwelten.at>
+To: linux-kernel@vger.kernel.org
+Cc: Russell King <rmk@arm.linux.org.uk>
+Subject: 2.5.65 compile failure
+Message-ID: <20030325184211.GA9811@mail.sternwelten.at>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0303251032320.4272-100000@maxwell.earthlink.net>
-X-message-flag: Outlook: Where do you want [your files] to go today?
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.3i
-From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---45Z9DzgjV8m4Oswq
+--6c2NcOVqGQ03X4Wi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 25, 2003 at 05:57:18PM +0000, James Simmons wrote:
->=20
-> As usually I have a patch avalaible at=20
->=20
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
->=20
->  drivers/video/aty/aty128fb.c  |   16 +++++++---------
->  drivers/video/console/fbcon.c |    4 ++--
->  drivers/video/controlfb.c     |   18 +++---------------
->  drivers/video/platinumfb.c    |   28 ++++++++--------------------
->  drivers/video/radeonfb.c      |   10 ++++++++++
->  drivers/video/softcursor.c    |    2 +-
->  6 files changed, 31 insertions(+), 47 deletions(-)
->=20
-> The patch has updates for the ATI Rage 128, Control, and Platnium=20
-> framebuffer driver. The Radeon patch adds PLL times for the R* series of
-> cards. Memory is now safe to allocate for the software cursor and inside=
-=20
-> fbcon. There still are issues with syncing which cause the cursor on some=
-=20
-> systems to become corrupt sometimes.=20
+used gcc 2.95.4
 
-Where can I find working "modelines" for Radeon 8500?
 
-I have a=20
-   radeonfb: ATI Radeon 8500 QL DDR SGRAM 64 MB
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=3D2 -march=3Di686
+-Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+-iwithprefix include    -DKBUILD_BASENAME=3Dversion -DKBUILD_MODNAME=3Dvers=
+ion
+-c -o init/.tmp_version.o init/version.c
+scripts/fixdep init/.version.o.d init/version.o 'gcc
+-Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=3D2 -march=3Di686 -Iinclude/asm-i386/mach-default
+-fomit-frame-pointer -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=3Dversion -DKBUILD_MODNAME=3Dversion -c -o
+init/.tmp_version.o init/version.c' > init/.version.o.tmp; rm -f
+init/.version.o.d; mv -f init/.version.o.tmp init/.version.o.cmd
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+init/mounts.o init/initramfs.o
+        ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
+arch/ i386/kernel/init_task.o   init/built-in.o --start-group
+usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
+arch/i386/mach-default/built-in.o
+  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
+security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a
+drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
+net/built-in.o --end-group  -o vmlinux
+vers/built-in.o: In function `ide_setup':
+drivers/built-in.o(.init.text+0x2db2): undefined reference to `cmd640_vlb'
+drivers/built-in.o: In function `probe_for_hwifs':
+drivers/built-in.o(.init.text+0x2f81): undefined reference to
+`ide_probe_for_cmd640x'
+make[1]: *** [vmlinux] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.5.66'
+make: *** [stamp-build] Error 2
 
-I am interested in 1024x768 and 1152x864. I have tried the defaults
-that come with Debian fbset (2.1-8) but I get garbled screen upon
-changing the video mode. I can 'clear' the console and work more or
-less normally but the viewport will be just a part of the whole
-screen.
 
-Thanks,
-florin
+
+old similar message:
+http://www.cs.helsinki.fi/linux/linux-kernel/2002-39/0436.html
+
+please cc me for any questions or answers
+thx
+maks
+
+
 
 --=20
+      Yb   dY    d888    888b    .db.
+       Yb dY     8        d'     8  8
+________YbY______Y888____8888_____YY________
+ 00000000 00010100
 
-"NT is to UNIX what a doughnut is to a particle accelerator."
-
---45Z9DzgjV8m4Oswq
+--6c2NcOVqGQ03X4Wi
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-iD8DBQE+gJ+iNLPgdTuQ3+QRAtAIAKCLj0hZ5b6YDf2Yk/wR2Y+P+LE1egCfS4ck
-+wLk2S8jQHwZdSrg++HVfpM=
-=A64A
+iD8DBQE+gKMD6//kSTNjoX0RAstDAJwO0s15APpSA9j2FNnZf7uHy15GbwCfSyMq
+SZgptPyaeBGtkQD0kQjNGbo=
+=h6jX
 -----END PGP SIGNATURE-----
 
---45Z9DzgjV8m4Oswq--
+--6c2NcOVqGQ03X4Wi--

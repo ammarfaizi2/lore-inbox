@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269386AbUJWAlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269675AbUJWA6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269386AbUJWAlf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 20:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269301AbUJWAho
+	id S269675AbUJWA6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 20:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269527AbUJWAtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 20:37:44 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:15843 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269386AbUJWAgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 20:36:55 -0400
-Subject: Re: [PATCH] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-In-Reply-To: <874qkmtibt.fsf@sulphur.joq.us>
-References: <1097272140.1442.75.camel@krustophenia.net>
-	 <20041008145252.M2357@build.pdx.osdl.net>
-	 <1097273105.1442.78.camel@krustophenia.net>
-	 <20041008151911.Q2357@build.pdx.osdl.net>
-	 <20041008152430.R2357@build.pdx.osdl.net> <87zn2wbt7c.fsf@sulphur.joq.us>
-	 <20041008221635.V2357@build.pdx.osdl.net> <87is9jc1eb.fsf@sulphur.joq.us>
-	 <20041009121141.X2357@build.pdx.osdl.net> <878yafbpsj.fsf@sulphur.joq.us>
-	 <20041009155339.Y2357@build.pdx.osdl.net>  <874qkmtibt.fsf@sulphur.joq.us>
-Content-Type: text/plain
-Date: Fri, 22 Oct 2004 20:36:49 -0400
-Message-Id: <1098491810.1440.64.camel@krustophenia.net>
+	Fri, 22 Oct 2004 20:49:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:61 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269675AbUJWAst (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 20:48:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=l/EJwNmoyA4TGYsvV2s3wg9FyI4vVx69l8MIwv/Lfp1RcsFqnEXEqIEZpZLBJm34A7Rs07FQVVonyxxQuH/jZ0WD0O0N5QK0z1og8RyQXcPZkO7iPfkeptuzY0dr9kjTkCBkUiSsVJebpTFru0jY+2fomdT5RYzPNSoykruI2QU=
+Message-ID: <35fb2e590410221748507d5a0b@mail.gmail.com>
+Date: Sat, 23 Oct 2004 01:48:49 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: davids@webmaster.com
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Cc: brian wheeler <bdwheele@indiana.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEJBPDAA.davids@webmaster.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <417990AE.5050806@drdos.com>
+	 <MDEHLPKNGKAHNMBLJOLKGEJBPDAA.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 18:59 -0500, Jack O'Quin wrote:
-> Chris Wright <chrisw@osdl.org> writes:
-> 
-> > - less generic variable names
-> >   - s/any/rt_any/
-> >   - s/gid/rt_gid/
-> >   - s/mlock/rt_mlock/
-> 
-> Is there a compelling reason for changing all the parameter names?
-> 
-> I would prefer not to do that.  It is incompatible for our current
-> user base, and really does not seem like an improvement.  Those names
-> only appear in the context of `realtime', so the `rt_' is completely
-> redundant.  For example...
+On Fri, 22 Oct 2004 17:24:36 -0700, David Schwartz <davids@webmaster.com> wrote:
 
-I think the reason was to make the code more readable.  How about just
-mapping the parameters to internal names by prepending rt_?
+>         One other issue with trying to work with SCO just to prevent future
+> problems -- SCO has already offered bogus immunities from liability. So I
+> wouldn't trust any immunity you even think you have. Especially since we
+> don't know what it is we're supposed to be immune *from*. (Is it copyright?
+> Is it trade secret? Is it fruit of some kind of poisonous tree because IBM
+> violated the spirit of some contract none of us are a party to?)
 
-Lee 
+It is not obvious what my motivation for asking for his
+indemnification actually was though?
 
+Jon.

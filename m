@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUIXX7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269087AbUIYADL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269060AbUIXX7m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 19:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269087AbUIXX7l
+	id S269087AbUIYADL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 20:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269146AbUIYADL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 19:59:41 -0400
-Received: from quechua.inka.de ([193.197.184.2]:18826 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S269092AbUIXX7e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 19:59:34 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mlock(1)
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <20040924225900.GY3309@dualathlon.random>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sat, 25 Sep 2004 01:59:30 +0200
+	Fri, 24 Sep 2004 20:03:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35786 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269087AbUIYADI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 20:03:08 -0400
+Message-ID: <4154B5B0.3050101@pobox.com>
+Date: Fri, 24 Sep 2004 20:02:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Raymond W <gousb_linux@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Still accepting drivers for 2.4 ?
+References: <20040924235518.43713.qmail@web41102.mail.yahoo.com>
+In-Reply-To: <20040924235518.43713.qmail@web41102.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040924225900.GY3309@dualathlon.random> you wrote:
-> laptop (currently suspend dumps into the swap the cleartext key of any
-> cryptoloop device, making cryptoloop pretty much useless).  And the good
-> thing is that it won't even need to ask for a password.
+Raymond W wrote:
+> Hello
+> 
+> I've written a device driver for a 3rd party's product so that I might use it on my machine.
+> However I am still using the 2.4, so naturally that is the kernel the driver works with.
+> 
+> Should/could I submit it here, or would I be better off distributing it on my own?
+> 
+> Once I port it to 2.6 I will read up on the how-to of submitting, but I was unsure if 'the
+> community' still had interest in 2.4 kernel drivers.
 
-Where would you store the key for the suspend image without asking?
 
-Gruss
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Typically you get it into 2.6.x first, then ask this question :)
+
+	Jeff
+
+

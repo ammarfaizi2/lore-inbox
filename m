@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266250AbSLTEJ3>; Thu, 19 Dec 2002 23:09:29 -0500
+	id <S267637AbSLTEOI>; Thu, 19 Dec 2002 23:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267637AbSLTEJ3>; Thu, 19 Dec 2002 23:09:29 -0500
-Received: from bgp926777bgs.brghtn01.mi.comcast.net ([68.41.8.22]:14977 "EHLO
-	comcast.net") by vger.kernel.org with ESMTP id <S266250AbSLTEJ2>;
-	Thu, 19 Dec 2002 23:09:28 -0500
-Date: Thu, 19 Dec 2002 23:18:17 +0000 (UTC)
-From: Alex Goddard <agoddard@purdue.edu>
-To: carbonated beverage <ramune@net-ronin.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: depmod errors in 2.5.52-bk
-In-Reply-To: <20021219222336.GA17044@net-ronin.org>
-Message-ID: <Pine.LNX.4.50L0.0212192317340.1173-100000@dust.ebiz-gw.wintek.com>
-References: <20021219222336.GA17044@net-ronin.org>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	id <S267692AbSLTEOI>; Thu, 19 Dec 2002 23:14:08 -0500
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:18455 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S267637AbSLTEOH>; Thu, 19 Dec 2002 23:14:07 -0500
+Message-ID: <3E029AD6.9040104@mindspring.com>
+Date: Thu, 19 Dec 2002 20:21:42 -0800
+From: Walt H <waltabbyh@mindspring.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021213
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Adaptec 79xx support in 2.4.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002, carbonated beverage wrote:
+Hello,
 
-> Got tons of depmod errors for various symbols in a few drivers I built as
-> modules, for such things as: kmalloc, __alloc_pages, schedule, etc.
 
-Make sure you've got the latest version of module-init-tools, and that 
-/sbin/depmod points to the latest version of depmod (so the kernel build 
-scripts can find it).
+I have a Tyan Thunder K7XPro based server with the onboard AIC7902 
+controllers. At the present time, its is running 2.4.19 patched with 
+Adaptec's source release for the SCSI support. Adaptec's drivers did not 
+  seamlessly integrate into the 2.4.19 kernel. I found an old mail 
+stating that support for this chipset would be added eventually. It 
+doesn't appear to be added to the 2.4 series yet. Is there something I 
+should be concerned about with regards to my server? The overall 
+performance and stability seem fine so far, but it is a relatively new 
+box with only about 1 month in production - so far so good :)
 
--- 
-Alex Goddard
-agoddard@purdue.edu
+According to Justin at Adaptec, the source has been given to both Linus 
+and Marcelo. I'd sure like to see it in mainline to avoid having to hack 
+it in there as it stands. Thanks.
+
+-Walt
+
+
+
+PS. Please CC any responses as I'm not subscribed.
+

@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266681AbUG0Wpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266682AbUG0Wr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266681AbUG0Wpf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 18:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266682AbUG0Wpf
+	id S266682AbUG0Wr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 18:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUG0Wr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 18:45:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52919 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266681AbUG0Wpe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 18:45:34 -0400
-Date: Tue, 27 Jul 2004 18:56:32 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [I4L] Fix IRQ-sharing lockup in nj_s
-Message-ID: <20040727215632.GB20341@logos.cnet>
-References: <20040727082241.GA15624@gondor.apana.org.au> <20040727101927.GA11952@pingi3.kke.suse.de>
+	Tue, 27 Jul 2004 18:47:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7557 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266682AbUG0WrN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 18:47:13 -0400
+Date: Tue, 27 Jul 2004 18:46:29 -0400
+From: Alan Cox <alan@redhat.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: PATCH: Fix ide probe double detection
+Message-ID: <20040727224629.GA17147@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040727101927.GA11952@pingi3.kke.suse.de>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some devices don't decode master/slave - notably PCMCIA adapters. 
+Unfortunately for us some also do, which makes it hard to guess if we
+should probe the slave.
 
-Applied, thanks Herbert and Karsten.
+This patch fixes the problem by probing the slave and then using the model
+and serial information to spot undecoded pairs. An additional check is done
+to catch pairs of pre ATA devices just in case.
 
-Just please stop using my old email address :) 
+Alan
 
-On Tue, Jul 27, 2004 at 12:19:27PM +0200, Karsten Keil wrote:
-> Yes, correct.
-> 
-> On Tue, Jul 27, 2004 at 06:22:41PM +1000, Herbert Xu wrote:
-> > Hi:
-> > 
-> > This is a backport of a fix that's already in 2.6.  The problem is that
-> > nj_s is enabling interrupts before the handler is even installed.  This
-> > patch delays the call until after the handler has been registered.
+
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.7/drivers/ide/ide-probe.c 2.6.7-ac/drivers/ide/ide-probe.c
+--- linux-2.6.7/drivers/ide/ide-probe.c	2004-06-16 21:11:35.000000000 +0100
++++ 2.6.7-ac/drivers/ide/ide-probe.c	2004-06-16 21:19:28.000000000 +0100
+@@ -749,6 +749,16 @@
+ 		ide_drive_t *drive = &hwif->drives[unit];
+ 		drive->dn = (hwif->channel ? 2 : 0) + unit;
+ 		(void) probe_for_drive(drive);
++		if (drive->present && hwif->present && unit == 1)
++		{
++			if(strcmp(hwif->drives[0].id->model, drive->id->model) == 0 &&
++			   strcmp(drive->id->model, "UNKNOWN") && /* Don't do this for non ATA or for noprobe */
++			   strncmp(hwif->drives[0].id->serial_no, drive->id->serial_no, 20) == 0)
++			{
++				printk(KERN_WARNING "ide-probe: ignoring undecoded slave\n");
++				drive->present = 0;
++			}
++		}
+ 		if (drive->present && !hwif->present) {
+ 			hwif->present = 1;
+ 			if (hwif->chipset != ide_4drives ||

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVATRDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVATQuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbVATRDw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVATQ7s
+	id S262194AbVATQuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 11:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVATQrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:59:48 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:63964 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262251AbVATQ5M (ORCPT
+	Thu, 20 Jan 2005 11:47:03 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:28592 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262194AbVATQla (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:57:12 -0500
-Date: Thu, 20 Jan 2005 17:57:02 +0100
+	Thu, 20 Jan 2005 11:41:30 -0500
+Date: Thu, 20 Jan 2005 17:40:38 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
@@ -19,7 +19,7 @@ Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
        linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
        jbarnes@sgi.com
 Subject: Re: [patch 1/3] spinlock fix #1, *_can_lock() primitives
-Message-ID: <20050120165702.GA17182@elte.hu>
+Message-ID: <20050120164038.GA15874@elte.hu>
 References: <16878.9678.73202.771962@wombat.chubb.wattle.id.au> <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com> <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu> <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -39,13 +39,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Linus Torvalds <torvalds@osdl.org> wrote:
 
-> I don't want to break all the other architectures. Or at least not
-> most of them. Especially since I was hoping to do a -pre2 soon (well,
-> like today, but I guess that's out..) and make the 2.6.11 cycle
-> shorter than 2.6.10.
+> I can do ppc64 myself, can others fix the other architectures (Ingo,
+> shouldn't the UP case have the read/write_can_lock() cases too? And
+> wouldn't you agree that it makes more sense to have the rwlock test
+> variants in asm/rwlock.h?):
 
-if we remove the debugging check from exit.c then the only thing that
-might break in an architecture is SMP+PREEMPT, which is rarely used
-outside of the x86-ish architectures.
+You are right about UP, and the patch below adds the UP variants. It's
+analogous to the existing wrapping concept that UP 'spinlocks' are
+always unlocked on UP. (spin_can_lock() is already properly defined on
+UP too.)
 
 	Ingo
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/include/linux/spinlock.h.orig
++++ linux/include/linux/spinlock.h
+@@ -228,6 +228,9 @@ typedef struct {
+ 
+ #define rwlock_yield(lock)	(void)(lock)
+ 
++#define read_can_lock(lock)	(((void)(lock), 1))
++#define write_can_lock(lock)	(((void)(lock), 1))
++
+ #define _spin_trylock(lock)	({preempt_disable(); _raw_spin_trylock(lock) ? \
+ 				1 : ({preempt_enable(); 0;});})
+ 

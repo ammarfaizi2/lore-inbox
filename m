@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311856AbSDAOxn>; Mon, 1 Apr 2002 09:53:43 -0500
+	id <S311898AbSDAPYX>; Mon, 1 Apr 2002 10:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311866AbSDAOxY>; Mon, 1 Apr 2002 09:53:24 -0500
-Received: from chamber.cco.caltech.edu ([131.215.48.55]:6318 "EHLO
-	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S311856AbSDAOxL>; Mon, 1 Apr 2002 09:53:11 -0500
-Message-ID: <3CA87424.7020104@bryanr.org>
-Date: Mon, 01 Apr 2002 06:52:20 -0800
-From: Bryan Rittmeyer <bryanr@bryanr.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S311868AbSDAPYO>; Mon, 1 Apr 2002 10:24:14 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:3730 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S311752AbSDAPYA>; Mon, 1 Apr 2002 10:24:00 -0500
+Message-ID: <3CA87ABE.9000709@antefacto.com>
+Date: Mon, 01 Apr 2002 16:20:30 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: april fools @ google
+To: Joachim Breuer <jmbreuer@gmx.net>
+CC: Nerijus Baliunas <nerijus@users.sourceforge.net>,
+        Anton Altaparmakov <aia21@cus.cam.ac.uk>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-ntfs-dev@lists.sourceforge.net" 
+	<linux-ntfs-dev@lists.sourceforge.net>
+Subject: Re: ANN: NTFS 2.0.1 for kernel 2.5.7 released
+In-Reply-To: <Pine.SOL.3.96.1020329124320.18653A-100000@virgo.cus.cam.ac.uk>	<ISPFE11QlZFJyUpZ7Nq000037fb@mail.takas.lt> <m3vgbetkc8.fsf@venus.fo.et.local>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just in case there's somebody on this list who *doesn't* use google
-every day,
+Joachim Breuer wrote:
+> Nerijus Baliunas <nerijus@users.sourceforge.net> writes:
+> 
+> 
+>>On Fri, 29 Mar 2002 12:57:07 +0000 (GMT) Anton Altaparmakov <aia21@cus.cam.ac.uk> wrote:
+>>
+>>[...] Discussion about default fmask, mc, being able to run in place
+>>      snipped
+>>
+>>People using Linux usually keep data files on fat and ntfs permissions, not
+>>executables (IMHO).
+> 
+> 
+> For the sake of another vote: Yes, I do use NTFS primarily for data
+> storage, and No, I don't like gratuitous x-bits. Not *at all*.
 
-http://www.google.com/technology/pigeonrank.html
+Anton, there have been no votes the other way. What do you think now?
 
-"Brin and Page were the first to recognize that this adaptability could
-be harnessed through massively parallel pecking to solve complex
-problems, such as ordering large datasets or ordering pizza for large
-groups of engineers. Page and Brin experimented with numerous avian
-motivators before settling on a combination of linseed and flax (lin/ax)
-that not only offered superior performance, but could be gathered at no
-cost from nearby open space preserves. This open space lin/ax powers
-Google's operations to this day, and a visit to the data coop reveals
-pigeons happily pecking away at lin/ax kernels and seeds."
+[snip]
 
--Bryan [using lin/ax as happily as a google pigeon]
+> What I would like to see (probably exists somewhere) is a (userland)
+> tool which can fire up an exec image residing in a readable (not
+> executable) file
+
+ln -s /lib/ld-linux.so.2 /bin/run
+
+Padraig.
 

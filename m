@@ -1,68 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbTGBQny (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 12:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTGBQnx
+	id S264156AbTGBQpF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 12:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTGBQpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 12:43:53 -0400
-Received: from indyio.rz.uni-saarland.de ([134.96.7.3]:58687 "EHLO
-	indyio.rz.uni-saarland.de") by vger.kernel.org with ESMTP
-	id S264097AbTGBQnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 12:43:50 -0400
-Message-ID: <3F030EFC.7090809@hipac.org>
-Date: Wed, 02 Jul 2003 18:57:32 +0200
-From: Michael Bellion and Thomas Heinz <nf@hipac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: P@draigbrady.com
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-References: <Pine.LNX.4.44.0307020826530.23232-100000@netcore.fi> <200307021426.56138.nf@hipac.org> <3F02D964.7050301@draigBrady.com> <200307021548.19989.nf@hipac.org> <3F02EAE2.8050609@draigBrady.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Jul 2003 12:45:05 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:36267 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264156AbTGBQow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 12:44:52 -0400
+Date: Wed, 2 Jul 2003 18:59:00 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Joakim Tjernlund <joakim.tjernlund@lumentis.se>
+Cc: linux-kernel@vger.kernel.org, Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: Re: [PATCH RFC] 2.5.73 zlib #2 codefold
+Message-ID: <20030702165900.GB12520@wohnheim.fh-wedel.de>
+References: <20030701161637.GC25363@wohnheim.fh-wedel.de> <IGEFJKJNHJDCBKALBJLLIEODFNAA.joakim.tjernlund@lumentis.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <IGEFJKJNHJDCBKALBJLLIEODFNAA.joakim.tjernlund@lumentis.se>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pádraig
-
-You wrote:
-> I was testing with 64 byte packets (so around 190Kpps). e100 cards at 
-> least have a handy mode for continually sending a packet as fast as 
-> possible. Also you can use more than one interface.
-
-Yes, that's true. When we did the performance tests we had in mind to
-compare the worst case behaviour of nf-hipac and iptables.
-Therefore we designed a ruleset which models the worst case for both
-iptables and nf-hipac. Of course, the test environment could have been
-tuned a lot more, e.g. udp instead of tcp, FORWARD chain instead of
-INPUT, tuned network parameters, more interfaces etc.
-
-Anyway, we prefer independent, more sophisticated performance tests.
-
->>> # ./readprofile -m /boot/System.map | sort -nr | head -30
->>>   6779 total                                      0.0047
->>>   4441 default_idle                              69.3906
->>>    787 handle_IRQ_event                           7.0268
->>>    589 ip_packet_match                            1.6733
->>>    433 ipt_do_table                               0.6294
->>>    106 eth_type_trans                             0.5521
->>>    [...]
+On Wed, 2 July 2003 10:46:05 +0200, Joakim Tjernlund wrote:
 > 
-> Confused me too. The system would lock up and start dropping
-> packets after 125 rules. I.E. it would linearly degrade
-> as more rules were added. I'm guessing there is a fixed
-> interrupt overhead that is accounted for
-> by default_idle?
+> > This patch folds three calls to memmove_update into one.  This is the
+> > same structure that was in the 1.1.3 version of the zlib as well.  The
+> > change towards 1.1.4 was mixed with a real bugfix, so it slipped
+> > through my brain.
+> >
+> [SNIP]
+> 
+> Looks fine to me.
+> 
+> Here is another one in gen_bitlen():
+> Replace:
+>   for (bits = 0; bits <= MAX_BITS; bits++) s->bl_count[bits] = 0;
+> with:
+>   memset(&s->bl_count[0], 0, MAX_BITS * sizeof(s->bl_count[0]));
+> 
+> Also the following could should be replaced(in defutil.h):
+> /* ===========================================================================
+>  * Reverse the first len bits of a code, using straightforward code (a faster
+>  * method would use a table)
+>  * IN assertion: 1 <= len <= 15
+>  */
+> static inline unsigned bi_reverse(unsigned code, /* the value to invert */
+> 				  int len)       /* its bit length */
+> {
+>     register unsigned res = 0;
+>     do {
+>         res |= code & 1;
+>         code >>= 1, res <<= 1;
+>     } while (--len > 0);
+>     return res >> 1;
+> }
+> 
+> Anybody have a table version handy?
 
-Hm, but once the system starts to drop packets ip_packet_match and
-ipt_do_table start to dominate the profile, don't they?
+Onto my unwritten todo list with them.  The next lazy afternoon will
+come for sure.
 
+Etiennes code sounds promising as well.  Will have a closer look one
+of those afternoons.  If it does fit the description, it might be a
+good alternative for those platforms it happens to run on.
 
-Regards,
+On a whole, I think it is better to leave most changes out of
+mainline until 2.7 is opened.  At least, unless someone comes up with
+an extensive test suite for correctness, throughput and interactivity.
+Volunteers? ;)
 
-+-----------------------+----------------------+
-|   Michael Bellion     |     Thomas Heinz     |
-| <mbellion@hipac.org>  |  <creatix@hipac.org> |
-+-----------------------+----------------------+
+Jörn
 
+-- 
+Data dominates. If you've chosen the right data structures and organized
+things well, the algorithms will almost always be self-evident. Data
+structures, not algorithms, are central to programming.
+-- Rob Pike

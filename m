@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318717AbSHLFVA>; Mon, 12 Aug 2002 01:21:00 -0400
+	id <S318722AbSHLFbH>; Mon, 12 Aug 2002 01:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318718AbSHLFVA>; Mon, 12 Aug 2002 01:21:00 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6158 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318717AbSHLFU7>; Mon, 12 Aug 2002 01:20:59 -0400
-Date: Mon, 12 Aug 2002 02:24:37 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@zip.com.au>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 9/21] batched addition of pages to the LRU
-In-Reply-To: <3D57449E.4FADF44@zip.com.au>
-Message-ID: <Pine.LNX.4.44L.0208120222420.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318725AbSHLFbH>; Mon, 12 Aug 2002 01:31:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33433 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318722AbSHLFbH>;
+	Mon, 12 Aug 2002 01:31:07 -0400
+Date: Sun, 11 Aug 2002 22:21:24 -0700 (PDT)
+Message-Id: <20020811.222124.60543063.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] Simplified scalable cpu bitmasks
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020812000347.A99CE2C185@lists.samba.org>
+References: <20020812000347.A99CE2C185@lists.samba.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Aug 2002, Andrew Morton wrote:
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Mon, 12 Aug 2002 14:42:51 +1000
 
-> And it only takes one dirty block!  Any LRU page which is dirty
-> against a blocked queue is like a hand grenade floating
-> down a stream [1].  If some innocent task tries to write that
-> page it gets DoSed via the request queue.
+   This changes bitmap_member to the more logical DECLARE_BITMAP, then
+   uses it for cpu_online_map (ie. cpu_online_map is now an unsigned long
+   array).
+   
+   Compiles and boots: Dave, how's this?
 
-This is exactly why we shouldn't wait on dirty pages in
-the pageout path.
+I'm ok with this for now.
 
-Of course we need to wait and we should stall before
-the system gets overloaded so we don't "run into a wall",
-but waiting on any random _single_ dirty page just doesn't
-make sense.
+I suspect that once you start using NR_CPUS in the range of 1024 or so
+you want to allow the port do things like "use a pointer for cpuset_t
+and NULL means CPU_MASK_ALL"
 
-
-Then again, that will probably still not fix the problem
-that we're not keeping the disk busy so we won't get full
-writeout speed and end up stalling...
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Or maybe not :-) we'll see.

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262436AbRFFX64>; Wed, 6 Jun 2001 19:58:56 -0400
+	id <S262865AbRFGAJ7>; Wed, 6 Jun 2001 20:09:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbRFFX6r>; Wed, 6 Jun 2001 19:58:47 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58760 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262436AbRFFX6i>; Wed, 6 Jun 2001 19:58:38 -0400
-Date: Wed, 6 Jun 2001 17:51:24 -0600
-Message-Id: <200106062351.f56NpOs20522@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Matt D. Robinson" <yakker@alacritech.com>,
-        "La Monte H.P. Yarroll" <piggy@em.cig.mot.com>,
-        linux-kernel@vger.kernel.org, sctp-developers-list@cig.mot.com
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-In-Reply-To: <15134.48456.5360.764458@pizda.ninka.net>
-In-Reply-To: <200106051659.LAA20094@em.cig.mot.com>
-	<3B1E5CC1.553B4EF1@alacritech.com>
-	<15134.42714.3365.32233@theor.em.cig.mot.com>
-	<15134.43914.98253.998655@pizda.ninka.net>
-	<3B1EBB13.34721ED9@alacritech.com>
-	<15134.48456.5360.764458@pizda.ninka.net>
+	id <S263157AbRFGAJt>; Wed, 6 Jun 2001 20:09:49 -0400
+Received: from ruckus.brouhaha.com ([209.185.79.17]:61352 "HELO brouhaha.com")
+	by vger.kernel.org with SMTP id <S262865AbRFGAJh>;
+	Wed, 6 Jun 2001 20:09:37 -0400
+Date: 7 Jun 2001 00:09:32 -0000
+Message-ID: <20010607000932.23918.qmail@brouhaha.com>
+From: Eric Smith <eric@brouhaha.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.2 yenta_socket problems on ThinkPad 240
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
-> 
-> Matt D. Robinson writes:
->  > > This allows people to make proprietary implementations of TCP under
->  > > Linux.  And we don't want this just as we don't want to add a way to
->  > > allow someone to do a proprietary Linux VM.
->  > 
->  > And if as Joe User I don't want Linux TCP, but Joe's TCP, they can't
->  > do that (in a supportable way)?  Are you saying Linux is, "do it my
->  > way, or it's the highway"?
+I upgraded my IBM ThinkPad 240 (Type 2609-31U) from Red Hat 7.0 to
+Red Hat 7.1, which uses the 2.4.2 kernel and the kernel PCMCIA drivers.
 
-Pardon my cynicism, but this reads more like "I'm an ACME Inc. and I
-want to sell a proprietary TCP stack for Linux, please change Linux to
-make this possible/easy". I doubt there are many Joe Users out there
-who want to replace their TCP stack. I bet they would be much happier
-to see patches go in which improve the performance of the generic
-kernel.
+Before the upgrade, all my CardBus and PCMCIA devices were working fine.
+Now the yenta_socket module seems to be causing problems, and none of
+the cards work.
 
-But I'm sure there are plenty of ACME Inc.'s out there who would love
-to sell a replacement TCP stack. And suck users down a proprietary
-solution path. But I don't see why the Linux community should help the
-ACME's of this world. And Linux is doing very nicely in the corporate
-world, so we needn't to lose any sleep over what our current policies
-do for our acceptance levels.
+Before doing 'modprobe yenta_socket', the PCI stuff looks OK:
 
-If it bothers you that Linux caters more the the users and less to the
-vendors, then use another OS. We don't mind. The door is over there.
-Please don't slam it on your way out.
+    % ls -l /proc/bus/pci
+    total 0
+    dr-xr-xr-x    2 root    root            0 Jun  1 12:52 00
+    -r--r--r--    1 root    root            0 Jun  1 12:52 devices
 
-> If Joe's TCP is opensource, they are more than welcome to publish
-> such changes.
+    % ls /proc/bus/pci/00
+    00.0  07.0  07.1  07.2  07.3  09.0  0a.0  0b.0  0c.0
 
-Yep. And then we can all benefit.
+and lspci -vvv gives normal-looking output (which I can send if it's
+useful).
 
-				Regards,
+After the 'modprobe yenta_socket':
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+    % ls -l /proc/bus/pci
+    total 0
+    dr-xr-xr-x    2 root    root            0 Jun  1 12:44 00
+    dr-xr-xr-x    2 root    root            0 Jun  1 12:44 00
+    -r--r--r--    1 root    root            0 Jun  1 12:44 devices
+
+Note the two directories with the same name.
+
+    % ls -l /proc/bus/pci/00
+    total 0
+    -rw-r--r--    1 root    root            0 Jun  1 12:48 00.0
+
+    % lspci -vvv
+    pcilib: Cannot open /proc/bus/pci/00/0c.0
+
+Has anyone seen similar behavior?  Is there any way to force
+yenta_socket to assign the cardbus to be bus 01 rather than 00?
+
+Thanks!
+Eric Smith

@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269073AbUI2WGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269127AbUI2WIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269073AbUI2WGl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 18:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269096AbUI2WGd
+	id S269127AbUI2WIK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 18:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUI2WID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 18:06:33 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:22155 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269083AbUI2WGL convert rfc822-to-8bit (ORCPT
+	Wed, 29 Sep 2004 18:08:03 -0400
+Received: from cantor.suse.de ([195.135.220.2]:30906 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269102AbUI2WHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 18:06:11 -0400
-Subject: Re: New DRM driver model - gets rid of DRM() macros!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Discuss issues related to the xorg tree <xorg@freedesktop.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040929235238.46c55c58.felix@trabant>
-References: <9e4733910409280854651581e2@mail.gmail.com>
-	 <20040929235238.46c55c58.felix@trabant>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1096491771.16768.3.camel@localhost.localdomain>
+	Wed, 29 Sep 2004 18:07:10 -0400
+Date: Thu, 30 Sep 2004 00:07:09 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc2: Kernel BUG at slab:2139 on dual AMD64
+Message-ID: <20040929220709.GD26714@wotan.suse.de>
+References: <200409300007.29986.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 29 Sep 2004 22:02:57 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409300007.29986.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-29 at 22:52, Felix Kühling wrote:
-> Module                  Size  Used by
-> savage                  3520  0
-> drm                    62500  3 savage
+On Thu, Sep 30, 2004 at 12:07:29AM +0200, Rafael J. Wysocki wrote:
+> Hi,
 > 
-> Is it normal that the savage module looks unused?
+> I've obtained the following trace on a dual-Opteron box:
 
-looks like a bug. If the drm layer provides the file_operations for
-the device node then the locking done automatically locks the wrong
-module. Thats easy to fix with try_module_get() and module_put()
+Someone corrupted memory. 
+You could enable slab debugging, maybe that will find it earlier.
 
+-Andi

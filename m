@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266066AbTGLPfW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 11:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266068AbTGLPfW
+	id S266033AbTGLPYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 11:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbTGLPYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 11:35:22 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:56211 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266066AbTGLPfT
+	Sat, 12 Jul 2003 11:24:11 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:54931 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266033AbTGLPXo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 11:35:19 -0400
-Date: Sat, 12 Jul 2003 16:49:42 +0100
+	Sat, 12 Jul 2003 11:23:44 -0400
+Date: Sat, 12 Jul 2003 16:38:18 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Miguel Freitas <miguel@cetuc.puc-rio.br>,
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Jones <davej@codemonkey.org.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
-Message-ID: <20030712154942.GB9547@mail.jlokier.co.uk>
-References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030712153818.GA9547@mail.jlokier.co.uk>
+References: <20030711140219.GB16433@suse.de> <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk> <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <20030711203850.GB20970@win.tue.nl>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> With the current patch you do not need any special support if you are
-> already asking for SCHED_RR policy. If you are not root you will be
-> automatically downgraded to SCHED_SOFTRR ;)
+Andries Brouwer wrote:
+> > Definitely.  I'm hoping that people will decide upon a userland that
+> > supports the popular (non-raid) partition tables as well as the simple
+> > raid partitions, too.
+> 
+> That reminds me.
+> 
+> Our DOS-type partition tables are close to their limit -
+> regularly people complain about things that do not work
+> with disks of size between 1 TB and 2 TB, and if not today
+> then very soon we'll see disks too large to handle with
+> DOS-type partition tables.
+> 
+> Two years ago or so I wrote some simple-minded stuff -
+> maybe there also was discussion on Linux-type partition tables,
+> I forgot all about it.
+> (Maybe the format was plan9-inspired, with sequence number,
+> start, size, label and uuid, all in ASCII.)
+> 
+> What is the situation today? What is the structure of these
+> LVM or raid partition tables? Is there some natural type
+> suitable for crossing the 2 TB limit?
+> Is it better to invent a Linux-type partition table?
 
-Cool.  What happens if you run two SCHED_SOFTRR tasks and they both
-use 50% of the CPU - will that starve all the other tasks?  Or is the
-CPU usage of all SOFTRR tasks bounded collectively?
+What are the limits of the "Windows Logical Disk Manager (LDM)"
+partition format?  I've never used it myself, but it's there in
+fs/partitions and presumably there are people using it on modern PCs.
 
 -- Jamie

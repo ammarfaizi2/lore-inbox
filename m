@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290710AbSA3Wpk>; Wed, 30 Jan 2002 17:45:40 -0500
+	id <S290713AbSA3Wwk>; Wed, 30 Jan 2002 17:52:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290709AbSA3Wpc>; Wed, 30 Jan 2002 17:45:32 -0500
-Received: from mail.conwaycorp.net ([24.144.1.33]:45251 "HELO
-	mail.conwaycorp.net") by vger.kernel.org with SMTP
-	id <S290704AbSA3WpZ>; Wed, 30 Jan 2002 17:45:25 -0500
-Date: Wed, 30 Jan 2002 16:45:23 -0600
-From: Nathan Poznick <poznick@conwaycorp.net>
-To: Austin Gonyou <austin@coremetrics.com>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Oops in bdflush with 2.4.1[4|7]-xfs
-Message-ID: <20020130224523.GA26824@conwaycorp.net>
-In-Reply-To: <20020130214108.GA25792@conwaycorp.net> <1012428545.12420.29.camel@UberGeek>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-In-Reply-To: <1012428545.12420.29.camel@UberGeek>
-User-Agent: Mutt/1.3.27i
+	id <S290704AbSA3Wwb>; Wed, 30 Jan 2002 17:52:31 -0500
+Received: from lsanca1-ar27-4-63-184-089.vz.dsl.gtei.net ([4.63.184.89]:23936
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S290713AbSA3WwW>; Wed, 30 Jan 2002 17:52:22 -0500
+Date: Wed, 30 Jan 2002 14:52:16 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: David Dyck <dcd@tc.fluke.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.3 missing <linux/malloc.h>
+In-Reply-To: <Pine.LNX.4.33.0201301239370.19671-100000@dd.tc.fluke.com>
+Message-ID: <Pine.LNX.4.33.0201301446080.7748-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 Jan 2002, David Dyck wrote:
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>     drivers/base/core.c
+>     drivers/base/fs.c
+> try to include linux/malloc.h
 
-Thus spake Austin Gonyou:
-> Could you see if my XFS-AA patch does anything for you? There are
-> changes to bdflush in it and I'd be interested to see if they go away.=20
->=20
-> http://www.digitalroadkill.net/Patches/2.4.17-xfs-aa.patch.bz2
+> and I've noticed that many source files have
+>   #include <linux/slab.h>     /* kmalloc(), kfree() */
+> instead of trying to include linux/malloc.h
 
-Unfortunately I can't really do to much messing around with this
-machine right now, it's being used pretty heavily.  Even after bdflush
-died and I needed to bounce the machine, I just about had to beat the
-developers off the machine with a stick. :-)
+I have been changing the two malloc.h references to slab.h since at least
+2.5.3-pre6 and I think possibly also in 2.5.2.
 
-Eric Sandeen suggested turning off DMAPI support, so I'm going to give
-that a try first.  I'll go ahead and grab a copy of your patch, and
-give it a try if the problem still resurfaces.
+It seems to work ok.
 
---=20
-Nathan Poznick <poznick@conwaycorp.net>
-PGP Key: http://drunkmonkey.org/pgpkey.txt
+-- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+Job Required in Los Angeles - Will do most things unix or IP for money.
+http://www.hawaga.org.uk/resume/resume001.pdf
+Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
 
-Boss:   You forgot to assign the result of your map!
-Hacker: Dang, I'm always forgetting my assignations...
-Boss:   And what's that "goto" doing there?!?
-Hacker: Er, I guess my finger slipped when I was typing "getservbyport"...
-Boss:   Ah well, accidents will happen.  Maybe we should have picked APL.
--- Larry Wall
 
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8WHeDYOn9JTETs+URAkd/AKCIelsMjVEWbL1053/kSuQKf0xhEQCgpFOo
-SLJcvipfJ3FPvE1sefbA69w=
-=v08z
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--

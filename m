@@ -1,60 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317192AbSGZHBI>; Fri, 26 Jul 2002 03:01:08 -0400
+	id <S317221AbSGZHLC>; Fri, 26 Jul 2002 03:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317221AbSGZHBI>; Fri, 26 Jul 2002 03:01:08 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:15569 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317192AbSGZHBH>; Fri, 26 Jul 2002 03:01:07 -0400
-Date: Fri, 26 Jul 2002 09:04:20 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marshal Newrock <marshal@simons-rock.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: HTP372 on K7RA-RAID / kernel 2.4.19rc3
-In-Reply-To: <Pine.LNX.4.44.0207241953240.16813-100000@minerva.simons-rock.edu>
-Message-ID: <Pine.NEB.4.44.0207260858290.15439-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317253AbSGZHLC>; Fri, 26 Jul 2002 03:11:02 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:9689 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317221AbSGZHLB>;
+	Fri, 26 Jul 2002 03:11:01 -0400
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] implement kmem_cache_size
+Date: Fri, 26 Jul 2002 16:45:33 +1000
+Message-Id: <20020726071520.361F44806@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002, Marshal Newrock wrote:
+From:  Christoph Hellwig <hch@lst.de>
 
-> HPT372 IDE RAID chip on an Abit K7RA-RAID
-> running a freshly installed Gentoo (has gcc-2.95)
-> kernel 2.4.19rc3, using devfs.
-> Western Digital 40GB ATA100 drive on /dev/hde, one partition, ext2
-> filesystem.
->
-> The system has no problem recognizing the HPT372, and can see the drive
-> and partitions.  I can generally mount it (mount /dev/hde1 /mnt), and 'ls
-> /mnt' lists the directories.  'ls -l /mnt' will give an 'input/output
-> error' for each directory.  Sometimes the ls or mount will hang, and I
-> have to kill the login from another shell.
->
-> Right now, I have the drive connected as /dev/hdc (replacing the CD
-> drives), and working fine.
->
-> I'm sure more info is needed, so tell me what you want me to do to help
-> troubleshoot this.  Please reply to me off-list as I am not subscribed.
+  Currently there is no way to find out the effective object size of a slab
+  cache.  XFS has lots of IRIX-derived code that want to do zalloc() style
+  allocations on zones (which are implemented as slab caches in XFS/Linux)
+  and thus needs to know about it.  There are three ways do implement it:
+  
+  a) implement kmem_cache_zalloc
+  b) make the xfs zone a struct of kmem_cache_t and a size variable
+  c) implement kmem_cache_size
+  
+  The current XFS tree does a) but I absolutely don't like it as encourages
+  people to use kmem_cache_zalloc for new code instead of thinking about
+  how to utilize slab object reuse.  b) would be easy, but I guess
+  kmem_cache_size is usefull enough to get into the kernel.
+  
+  Trivial patch to implement  kmem_cache_size (doesn't change any existing
+  code) appended:
+  
+  
 
-The -ac kernels contain some IDE updates including updates to hpt366.c
-(AFAIR the HPT372 isn't really supported in 2.4.19-rc3). Could you try
-whether 2.4.19-rc3-ac3 (apply [1] on top of 2.4.19-rc3 and run
-"make clean oldconfig dep bzImage modules") fixes your problem?
-
-> Thanx.  :)
-
-cu
-Adrian
-
-[1] ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.19/patch-2.4.19-rc3-ac3.gz
-
-
+--- trivial-2.5.28/include/linux/slab.h.orig	Fri Jul 26 16:37:00 2002
++++ trivial-2.5.28/include/linux/slab.h	Fri Jul 26 16:37:00 2002
+@@ -57,6 +57,7 @@
+ extern int kmem_cache_shrink(kmem_cache_t *);
+ extern void *kmem_cache_alloc(kmem_cache_t *, int);
+ extern void kmem_cache_free(kmem_cache_t *, void *);
++extern unsigned int kmem_cache_size(kmem_cache_t *);
+ 
+ extern void *kmalloc(size_t, int);
+ extern void kfree(const void *);
+--- trivial-2.5.28/kernel/ksyms.c.orig	Fri Jul 26 16:37:00 2002
++++ trivial-2.5.28/kernel/ksyms.c	Fri Jul 26 16:37:00 2002
+@@ -105,6 +105,7 @@
+ EXPORT_SYMBOL(kmem_cache_shrink);
+ EXPORT_SYMBOL(kmem_cache_alloc);
+ EXPORT_SYMBOL(kmem_cache_free);
++EXPORT_SYMBOL(kmem_cache_size);
+ EXPORT_SYMBOL(kmalloc);
+ EXPORT_SYMBOL(kfree);
+ EXPORT_SYMBOL(vfree);
+--- trivial-2.5.28/mm/slab.c.orig	Fri Jul 26 16:37:00 2002
++++ trivial-2.5.28/mm/slab.c	Fri Jul 26 16:37:00 2002
+@@ -1647,6 +1647,15 @@
+ 	local_irq_restore(flags);
+ }
+ 
++unsigned int kmem_cache_size(kmem_cache_t *cachep)
++{
++#if DEBUG
++	if (cachep->flags & SLAB_RED_ZONE)
++		return (cachep->objsize - 2*BYTES_PER_WORD);
++#endif
++	return cachep->objsize;
++}
++
+ kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
+ {
+ 	cache_sizes_t *csizep = cache_sizes;
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+  Don't blame me: the Monkey is driving

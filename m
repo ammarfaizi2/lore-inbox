@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265660AbUFTVho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265951AbUFTVjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265660AbUFTVho (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 17:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUFTVho
+	id S265951AbUFTVjk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 17:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbUFTVjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 17:37:44 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:15878 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S265660AbUFTVhm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 17:37:42 -0400
-Date: Sun, 20 Jun 2004 23:37:43 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Matroxfb in 2.6 still doesn't work in 2.6.7
-Message-ID: <20040620213743.GA6974@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040618211031.GA4048@irc.pl> <20040619190503.GB17053@vana.vc.cvut.cz> <20040619193053.GA3644@irc.pl> <20040619203954.GC17053@vana.vc.cvut.cz> <20040620160437.GA29046@irc.pl> <20040620170114.GA4683@vana.vc.cvut.cz>
+	Sun, 20 Jun 2004 17:39:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13707 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265951AbUFTVj2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 17:39:28 -0400
+Date: Sun, 20 Jun 2004 23:38:55 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Andreas Gruenbacher <agruen@suse.de>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Kai Germaschewski <kai@germaschewski.name>
+Subject: Re: [PATCH 2/2] kbuild: Improved external module support
+Message-ID: <20040620213854.GA5231@devserv.devel.redhat.com>
+References: <20040620211905.GA10189@mars.ravnborg.org> <20040620212353.GD10189@mars.ravnborg.org> <1087766729.2805.15.camel@laptop.fenrus.com> <20040620214543.GA10332@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
 Content-Disposition: inline
-In-Reply-To: <20040620170114.GA4683@vana.vc.cvut.cz>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040620214543.GA10332@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2004 at 07:01:14PM +0200, Petr Vandrovec wrote:
-> > > video=matroxfb:vesa:0x11A,right:48,hslen:112,left:248,hslen:112,lower:1,vslen:3,upper:48
-> > > maybe with ',sync:3' if +hsync/+vsync are mandatory for your monitor.
-> > 
-> >  Neither one works. During kernel boot resolution is switched to 1280x1024, but
-> > screen become corrupted - there are some green points in upper part of
-> > monitor. 
-> 
-> It works exactly as your kernel is configured. It switched to graphics, but it does
-> not paint your console there because you told you kernel to not do that.
-> >  Also, the patch from platan do not compile:
-> 
-> And this one too - my patch needs fbcon.
-> > # CONFIG_FRAMEBUFFER_CONSOLE is not set
-> 
-> Enable this. Into the kernel, not as a module.
 
- Wow! It works! It not the same mode as in XFree (fb is moved lower by one line),
-but it is working!
- I don't think if I've met CONFIG_FRAMEBUFFER_CONSOLE earlier in 2.6.x. Also
-method of selecing videomode (vesa:xxx stuff, not plain resolution and bpp) seems
-strange and alien, but it works with your patch. 
- When mergin with mainline is planned?
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
-Tomasz Torcz            There exists no separation between gods and men:
-zdzichu@irc.-nie.spam-.pl   one blends softly casual into the other. 
+On Sun, Jun 20, 2004 at 11:45:43PM +0200, Sam Ravnborg wrote:
+> 
+> Did you put the output of the kernel compile in a separate output directory,
+> reusing the same src for several configurations?
 
+I do not ship the output of the kernel compile actually.
+But I do not share the /lib/modules/version/build for different kernels,
+it's unique.
+
+> If not you do not need the change, and thus do not get any benefit. On the
+> other hand everything should work as-is for you.
+
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA1gPuxULwo51rQBIRAhuHAJ9uGCTO7ul6KYErP2gbiMvzF/1i7QCeJjHm
+grb374JBTF6rEsgl8T3zOIo=
+=Zf9L
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--

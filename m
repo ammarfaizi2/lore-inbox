@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265706AbTFSGcg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 02:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbTFSGcg
+	id S265707AbTFSGcM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 02:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbTFSGcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 02:32:36 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:25834 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S265706AbTFSGce
+	Thu, 19 Jun 2003 02:32:12 -0400
+Received: from mid-1.inet.it ([213.92.5.18]:19594 "EHLO mid-1.inet.it")
+	by vger.kernel.org with ESMTP id S265707AbTFSGcL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 02:32:34 -0400
-Message-ID: <3EF15C41.2020908@zytor.com>
-Date: Wed, 18 Jun 2003 23:46:25 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en, sv
+	Thu, 19 Jun 2003 02:32:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Paolo Ornati <javaman@katamail.com>
+To: Dialtone <dialtone@despammed.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-ck1] Problem with nforce2 and X
+Date: Thu, 19 Jun 2003 08:39:38 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <3EF0A1A3.3020606@despammed.com>
+In-Reply-To: <3EF0A1A3.3020606@despammed.com>
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: common name for the kernel DSO
-References: <16112.47509.643668.116939@napali.hpl.hp.com>	<bcrkiq$dta$1@cesium.transmeta.com> <16113.22348.748334.416581@napali.hpl.hp.com>
-In-Reply-To: <16113.22348.748334.416581@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <S265707AbTFSGcL/20030619063211Z+6415@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
->>>>>>On 18 Jun 2003 23:18:02 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
-> 
-> 
->   HPA> It's a pretty ugly name, quite frankly, since it doesn't explain what
->   HPA> it is a gate from or to.  linux-syscall.so.1 or linux-kernel.so.1
->   HPA> would make a lot more sense.
-> 
-> Umh, it does say _linux_-gate, so I think it's pretty
-> self-explanatory.  I considered linux-kernel.so, but think it would
-> cause a lot of confusion vis-a-vis, say, kernel32.dll (I didn't write
-> that, did I??).  I'm not terribly fond of linux-syscall, but I could
-> live with it.
-> 
+Have you read "NVIDIA Accelerated Linux Driver Set README & Installation 
+Guide"?
 
-There is a lot of "linux" in userspace too, though.  ld-linux.so.* to 
-start out with...
+Try to add this option to the Section "Device" of your XF86Config-4 file:
+Option "NvAgp" "0"
 
-	-hpa
+AND READ THIS:
 
+(app-f) APPENDIX F: CONFIGURING AGP
+__________________________________________________________________________
+
+There are several choices for configuring the NVIDIA kernel module's
+use of AGP: you can choose to either use NVIDIA's AGP module (NVAGP),
+or the AGP module that comes with the linux kernel (AGPGART).  This is
+controlled through the "NvAGP" option in your XF86Config file:
+
+         Option "NvAgp" "0"  ... disables AGP support
+         Option "NvAgp" "1"  ... use NVAGP, if possible
+         Option "NvAgp" "2"  ... use AGPGART, if possible
+         Option "NvAGP" "3"  ... try AGPGART; if that fails, try NVAGP
+
+
+On Wednesday 18 June 2003 19:30, Dialtone wrote:
+> Hi all. I've been using kernel 2.4.21-rc3 for some time without
+> any problems since the day it was released.
+>
+> Now that official 2.4.21 has been released I compiled it but
+> problems started.
+>
+> Ok now, where is the problem. Well the screen seems to go
+> in standby after I run X, and I must reboot since
+> Alt+Ctrl+123456 doesn't work. I have the same problem when
+> I upgrade to the latest bios from Epox (I have an Epox 8RDA+
+> with nforce2 chipset and GeForce Ti4200) with kernel 2.4.21-rc3.
+>
+> I patched the kernel 2.4.21 with ck1 patch for O(1) sched and
+> agpgart and so on. But I think the problem is not here since it
+> comes also with another BIOS and the working kernel.
+>
+> Down here I report my dmesg and my kernel conf file. There are
+> no Xfree errors so I guess is not its fault too.
+>
+> Thanks for your help.
+>
+> I forgot... I use vesa framebuffer for console, and apm
+> (acpi gives me more errors like "Lost hdb interrupt").
+> My CPU is an Athlon Xp 2000+ core Palomino.
+> Here is my lspci:
+>
 

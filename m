@@ -1,81 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270419AbRHMTT4>; Mon, 13 Aug 2001 15:19:56 -0400
+	id <S266806AbRHMTZ0>; Mon, 13 Aug 2001 15:25:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270429AbRHMTTq>; Mon, 13 Aug 2001 15:19:46 -0400
-Received: from unthought.net ([212.97.129.24]:8146 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S270419AbRHMTT3>;
-	Mon, 13 Aug 2001 15:19:29 -0400
-Date: Mon, 13 Aug 2001 21:19:41 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Mircea Ciocan <mirceac@interplus.ro>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Is there something that can be done against this ???
-Message-ID: <20010813211941.C32620@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Mircea Ciocan <mirceac@interplus.ro>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu> <3B7822E5.9AE35D4A@interplus.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <3B7822E5.9AE35D4A@interplus.ro>; from mirceac@interplus.ro on Mon, Aug 13, 2001 at 09:56:37PM +0300
+	id <S266606AbRHMTZR>; Mon, 13 Aug 2001 15:25:17 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:57868 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S266806AbRHMTZE>;
+	Mon, 13 Aug 2001 15:25:04 -0400
+Message-ID: <3B782705.2000100@nyc.rr.com>
+Date: Mon, 13 Aug 2001 15:14:13 -0400
+From: John Weber <weber@nyc.rr.com>
+Organization: My House
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Are we going too fast?
+In-Reply-To: <fa.l9dq0tv.7gqnhh@ifi.uio.no> <fa.g70as7v.1722ipv@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 13, 2001 at 09:56:37PM +0300, Mircea Ciocan wrote:
-> 	The attached piece of script kiddie shit is the first one that worked
-> flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
-> instant root access !!!.
 
-Try echo "gotcha" > /etc/passwd
 
-It will fail.
+Alan Cox wrote:
 
-Because you don't have root - it just *looks* like it.
-
-The "malicious" code is:
-#include <stdio.h>
-#include <stdlib.h>
-int getuid() { return(0); }
-int geteuid() { return(0); }
-int getgid() { return(0); }
-int getegid() { return(0); }
-int getgroups(int size, int list[]) { list = (int *)malloc(sizeof(int)); return(1); }
-
-The script spawns a new bash using LD_PRELOAD to override the glibc functions
-with the above ones.
-
-This does not compromise kernel security in any way what so ever.  Not even
-close.  You *may* be able to trick a naive user, but he won't be able to do
-anything bad, because he is not root.  Even though he may think he is.  And
-even though bash may think it is.
-
-> 	I was stunned, and it seem that is the beginning of a Linux Code Red
-> lookalike worm :(((( using that exploit, probably this is not the most
-> apropriate place to send this, but I'm not subscribed to the glibc
-> mailing list and I just hope that some glibc hackers are on linux kernel
-> list also and they see that and do something before we join the ranks of
-> M$.
+>>of them have suffered from one malady or another - from the dual PIII with
+>>the VIA chipset and Matrox G400 card, which locks up nicely when I switch
+>>
 > 
-> 		Dead worried,
-
-Don't worry.
-
+> Welcome to wacky hardware. To get a G400 stable on x86 you need at least
 > 
-> 		Mircea C.
+> XFree86 4.1 if you are running hardware 3D (and DRM 4.1)
+> 2.4.8 or higher with the VIA fixes
+> Preferably a very recent BIOS update for the VIA box
 > 
-> P.S. Please tell me that I'm just being parnoid and that crap didn't
-> work on your systems with a lookalike configuration.
 
-You're just being paranoid and that crap didn't work on your system either  :)
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+I'm sorry, but what "VIA fixes" are we referring to?
+
+My hardware:
+- VIA  Apollo Pro 133A - VIA VT82C686A South, VIA VT82C693A North
+
+The only problem I have ever had with my system had to do with the 
+
+onboard sound (via82cxxx_audio driver specifically), and Mr. Jeff
+Garzik promptly issued a patch which corrected my problem.
+
+I'm currently running linux kernel 2.4.8 with no problems whatsoever.
+

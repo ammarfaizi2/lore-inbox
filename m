@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUFOOfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265672AbUFOOfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265668AbUFOOfh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 10:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbUFOOfg
+	id S265672AbUFOOfo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 10:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbUFOOfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 10:35:36 -0400
-Received: from web81309.mail.yahoo.com ([206.190.37.84]:30075 "HELO
-	web81309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265668AbUFOOfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 10:35:25 -0400
-Message-ID: <20040615143525.18034.qmail@web81309.mail.yahoo.com>
-Date: Tue, 15 Jun 2004 07:35:25 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: HID vs. Input Core
-To: Karel =?ISO-8859-1?Q?=20=22Kulhav=FD=22?= <clock@twibright.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org, Lubomir.Prech@mff.cuni.cz
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Jun 2004 10:35:44 -0400
+Received: from [82.147.40.124] ([82.147.40.124]:58271 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S265672AbUFOOfd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 10:35:33 -0400
+Subject: Re: Oopses with both recent 2.4.x kernels and 2.6.x kernels
+From: Stian Jordet <liste@jordet.nu>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040615131650.GA13697@logos.cnet>
+References: <1075832813.5421.53.camel@chevrolet.hybel>
+	 <Pine.LNX.4.58L.0402052139420.16422@logos.cnet>
+	 <1078225389.931.3.camel@buick.jordet>
+	 <1087232825.28043.4.camel@persist.az.mvista.com>
+	 <20040615131650.GA13697@logos.cnet>
+Content-Type: text/plain
+Date: Tue, 15 Jun 2004 16:35:07 +0200
+Message-Id: <1087310107.7515.2.camel@chevrolet.jordet>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 Karel Kulhavý wrote:
-> On Tue, Jun 15, 2004 at 03:41:53PM +0200, Helge Hafting wrote:
-> > On Tue, Jun 15, 2004 at 12:58:00PM +0000, Karel Kulhavý wrote:
-> > > Hello
-> > >
-> > > I would like to know what's the difference between
-> > > Input Core (CONFIG_INPUT) and USB HID (CONFIG_USB_HID) in 2.4.25
-> > >
-> > > They seem to enable the same thing - USB HID. However I don't
-> > > know which one should I enable or if I should enable both. I find
-> > > existence of two options with seemingly the same function confusing.
-> > >
-> > They aren't the same:
-> >
-> > Enable CONFIG_INPUT if you want to use any input devices _at all_,
-> > i.e. if you plan on using some kind of keyboard, mouse, joystick, ...
-> > Enable CONFIG_USB_HID also, _if_ such a device might be connected
-> > via USB.  (Older devices are not USB, newer may be usb.)
-> 
-> Bugreport:
-> 
-> CONFIG_INPUT Help says
-> "Say Y here if you want to enable any of the following options for USB
-> Human Interface Device (HID) support".
-> 
-> Helge Hafting from linux-kernel says that CONFIG_INPUT controls enabling
-> input devices at
-> all. These two statements are in a direct contradiction. (See above).
-> 
+tir, 15.06.2004 kl. 10.16 -0300, skrev Marcelo Tosatti:
+> Stian, you told us switched servers now, I assume the problem is gone? 
+> Are you still running v2.4 on that server?
 
-Well, kind of... Helge Hafting is 100% correct in 2.6 sense where all
-input devices have been switched to use input core. In 2.4 only USB input
-devices use input core while other devices (like PS/2 mouse) use legacy
-interfaces like /dev/psaux.
+I switched servers, and the oops is gone. The old server is still
+running, but without the nightly memory intensive perl-script, and have
+never seen an oops since I stopped running that. Both servers are
+running 2.6 now.
 
-So for 2.4 you need to enable HID to turn on hardware driver for HID
-devices and you want to enable input core to allow data from your USB
-device to be awailabe to userspace.
+Best regards,
+Stian
 
-Dmitry

@@ -1,70 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317581AbSGOSgK>; Mon, 15 Jul 2002 14:36:10 -0400
+	id <S317582AbSGOShh>; Mon, 15 Jul 2002 14:37:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317582AbSGOSgK>; Mon, 15 Jul 2002 14:36:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11794 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317581AbSGOSgH>;
-	Mon, 15 Jul 2002 14:36:07 -0400
-Message-ID: <3D331648.64AC0C25@zip.com.au>
-Date: Mon, 15 Jul 2002 11:36:56 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S317586AbSGOShg>; Mon, 15 Jul 2002 14:37:36 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317582AbSGOShb> convert rfc822-to-8bit; Mon, 15 Jul 2002 14:37:31 -0400
+Date: Mon, 15 Jul 2002 14:40:03 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: DervishD <raul@pleyades.net>
+cc: mvolaski@aecom.yu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Mount corrupts an ext2 filesystem on a RAM disk
+In-Reply-To: <3D3316D3.mail1J41H5VK0@viadomus.com>
+Message-ID: <Pine.LNX.3.95.1020715143606.232A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: "Griffiths, Richard A" <richard.a.griffiths@intel.com>,
-       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'Carter K. George'" <carter@polyserve.com>,
-       "'Don Norton'" <djn@polyserve.com>,
-       "'James S. Tybur'" <jtybur@polyserve.com>,
-       "Gross, Mark" <mark.gross@intel.com>
-Subject: Re: fsync fixes for 2.4
-References: <01BDB7EEF8D4D3119D95009027AE99951B0E6428@fmsmsx33.fm.intel.com> <20020715100719.GE34@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Mon, 15 Jul 2002, DervishD wrote:
+
+>     Hi Maurice :)
 > 
-> ...
-> as for the scaling with async flushes to multiple devices, 2.4 has a
-> single flushing thread, 2.5 as Andrew said (partly) fixes this as he
-> explained me at OLS, with multiple pdflush. The only issue I seen in his
-> design is that he works based on superblocks, so if a filesystem is on
-> top of a lvm backed by a dozen of different harddisks, only one pdflush
-> will pump on those dozen physical request queues, because the first
-> pdflush entering the superblock will forbid other pdflush to work on the
-> same superblock too. So the first physical queue that is full, will
-> forbid pdflush to push more dirty pages to the other possibly empty
-> physical queues.
+> >Also, later on I learned that one must "cd" into the mounted ramdisk
+> >to cause the corruption.
+> 
+>     I've reproduced all your steps and my ramdisk didn't get
+> corrupted. See below.
+> 
+> >I do the following to setup a ram disk on /dev/ram0...
+> >dd if=/dev/zero of=/dev/ram0 bs=1k count=4096
+> >mkfs.ext2 /dev/ram0 -m 0 -N 4096
+> 
+>     Identical commands issued...
+> 
+> >I mount it and already the lost+found directory is not there.
+> 
+>     Mine is OK. The lost+found is there. I don't suffer any of the
+> other problems you tell, neither.
+> 
+>     Maybe you have bad ram chips, or a damaged mke2fs (unlikely), but
+> the kernel seems to work OK. I've tested with 2.4.18 and 2.4.17.
+> 
+>     Raúl
+> -
 
-Well.  There's no way in which we can get effective writeback against
-200 spindles by relying on pdflush, so that daemon is mainly there
-to permit background writeback under light-to-moderate loads.
+It also works okay here. Maybe, just maybe, you booted with initrd,
+but did't unmount it before you started mucking with it `umount /initrd`
+in the script below.
 
-Once things get heavy, the only sane approach is to use the actual
-caller of write(2) as the resource for performing the writeback.
-As we're currently doing, in balance_dirty[_pages]().  But the
-problem there is that in both 2.4 and 2.5, a caller to that function
-can easily get stuck on the wrong queue, and bandwidth really suffers.
 
-I've been working on changing 2.5 so that the write(2) caller no
-longer performs a general "writeback of everything" - that caller
-instead performs writeback specifically against the queue which
-he just dirtied.  Do this by using the address_space->backing_dev_info
-as a key during a search across the superblocks and blockdev inodes.
-That works quite well.
 
-But there's still a problem where pdflush goes to writeback a queue
-and fills it up, so the userspace program ends up blocking (due to
-pdflush's activity) when it really should not.  Still undecided about
-what to do about that.
+Script started on Mon Jul 15 13:08:16 2002
+# cat xxx.xxx
+umount /initrd 2>/dev/null
+umount /mnt 2>/dev/null
+dd if=/dev/zero of=/dev/ram0 bs=1k count=4096
+mkfs.ext2 /dev/ram0 -m 0 -N 4096
+fsck -f /dev/ram0
+mount /dev/ram0 /mnt
+ls /mnt
+cat </dev/zero >/mnt/foo
+ls -la /mnt
+umount /mnt
+fsck -f /dev/ram0
 
-And yes, point taken on the LVM thing.  If the chunk size is reasonably
-small (a few megabytes) then we should normally get decent concurrency,
-but there will be corner-cases.
+# sh xxx.xxx
+4096+0 records in
+4096+0 records out
+mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+Filesystem label=
+OS type: Linux
+Block size=1024 (log=0)
+Fragment size=1024 (log=0)
+4096 inodes, 4096 blocks
+0 blocks (0.00%) reserved for the super user
+First data block=1
+1 block group
+8192 blocks per group, 8192 fragments per group
+4096 inodes per group
 
--
+Writing inode tables: 0/1done                            
+Writing superblocks and filesystem accounting information: done
+Parallelizing fsck version 1.19 (13-Jul-2000)
+e2fsck 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+/dev/ram0: 11/4096 files (0.0% non-contiguous), 530/4096 blocks
+lost+found
+cat: write error: No space left on device
+total 3580
+drwxr-xr-x   3 root     root         1024 Jul 15 13:08 .
+drwxr-xr-x  24 root     root         4096 Jul 15 04:09 ..
+-rw-r--r--   1 root     root      3633152 Jul 15 13:08 foo
+drwxr-xr-x   2 root     root        12288 Jul 15 13:08 lost+found
+Parallelizing fsck version 1.19 (13-Jul-2000)
+e2fsck 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+/dev/ram0: 12/4096 files (0.0% non-contiguous), 4093/4096 blocks
+# exit
+exit
+
+Script done on Mon Jul 15 13:08:28 2002
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279704AbRKFP6e>; Tue, 6 Nov 2001 10:58:34 -0500
+	id <S279749AbRKFQCE>; Tue, 6 Nov 2001 11:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279708AbRKFP6P>; Tue, 6 Nov 2001 10:58:15 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:40675 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S279704AbRKFP6J>;
-	Tue, 6 Nov 2001 10:58:09 -0500
-Message-ID: <05fa01c166dc$2ea9e910$7253e59b@megatrends.com>
-Reply-To: "Venkatesh Ramamurthy" <venkateshr@ami.com>
-From: "Venkatesh Ramamurthy" <venkateshr@softhome.net>
-To: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0111061612570.23908-100000@mustard.heime.net>
-Subject: Re: Mylex/Compaq RAID controller placement in config
-Date: Tue, 6 Nov 2001 11:00:39 -0500
+	id <S279728AbRKFQBp>; Tue, 6 Nov 2001 11:01:45 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:17590 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S279749AbRKFQBg>;
+	Tue, 6 Nov 2001 11:01:36 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2863@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: linux-kernel@vger.kernel.org
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, roy@karlsbakk.net
+Subject: RE: Mylex/Compaq RAID controller placement in config
+Date: Tue, 6 Nov 2001 08:01:31 -0800 
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know it might seem silly, but as to make things clearer for most
-> users/admins, wouldn't it be better to just call them SCSI controllers, as
-> they all indeed connect SCSI drives to the host?
+> Well we could simplify it further by putting all
+> configuration options under a single menu called
+> "things". The controllers under block  dont have
+> drives appearing as /dev/sd*
 
-Eventhough they connect SCSI Drives, the fact is that they are totally
-different beast from the OS/driver perspective.
+I can understand the initial complaint, but I think it
+comes down to a problem of user vs. developer :
 
+For example : All of the SCSI devices are block devices,
+aren't they?  So how come they're not under "block devices"
+in the menu?
+
+All of the devices under "block devices" are storage controllers
+(or ways of accessing storage in linux) so how come they're not
+listed as such in the menuconfig options?
+
+and then you hit the whole I20 problem.  Half my raid controllers
+aren't under either of those two menus.
+
+Maybe ESR's config method would allow for a way of presenting the
+menus in different ways?  One for developers (who care more about
+the subsystems and how they're connected) and one for users, who
+care more about what the device does then how it's written?
+
+--
+Dana Lacoste       Linux Developer
+Peregrine Systems   Ottawa, Canada

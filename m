@@ -1,72 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268010AbTAIUrX>; Thu, 9 Jan 2003 15:47:23 -0500
+	id <S267746AbTAIVCu>; Thu, 9 Jan 2003 16:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268011AbTAIUrX>; Thu, 9 Jan 2003 15:47:23 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:1503 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S268010AbTAIUrV>;
-	Thu, 9 Jan 2003 15:47:21 -0500
-Date: Thu, 9 Jan 2003 21:54:14 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@infradead.org>
-cc: Antonino Daplas <adaplas@pol.net>, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, davidm@redhat.com
-Subject: Re: [Linux-fbdev-devel] [PATCH][FBDEV]: fb_putcs() and fb_setfont()
- methods
-In-Reply-To: <Pine.LNX.4.44.0301090034020.4976-100000@phoenix.infradead.org>
-Message-ID: <Pine.GSO.4.21.0301092153150.8130-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267772AbTAIVCu>; Thu, 9 Jan 2003 16:02:50 -0500
+Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:3808
+	"EHLO kanoe.ludicrus.net") by vger.kernel.org with ESMTP
+	id <S267746AbTAIVCr>; Thu, 9 Jan 2003 16:02:47 -0500
+Date: Thu, 9 Jan 2003 13:02:04 -0800
+From: Joshua Kwan <joshk@ludicrus.ath.cx>
+To: Anders Gustafsson <andersg@0x63.nu>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.54-dj1-bk] Some interesting experiences...
+Message-Id: <20030109130204.7f91e6dd.joshk@ludicrus.ath.cx>
+In-Reply-To: <20030109200428.GB3345@gagarin>
+References: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
+	<20030108015107.GA2170@gagarin>
+	<20030108095253.B23278@ucw.cz>
+	<20030109200428.GB3345@gagarin>
+X-Mailer: Sylpheed version 0.8.8claws70 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=..nFiXV,.x/o,Yr"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, James Simmons wrote:
-> > :-) I did not want prolong the discussion, but...
+--=..nFiXV,.x/o,Yr
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+Strangely, I only notice this problem when I use GNOME2.
+I fired up windowmaker this morning for the first time in a while and
+the mouse doesn't skip at all - nothing even in dmesg. Perhaps GNOME is
+passing some bunk parameters to xset?
+
+Regards
+Josh
+
+Rabid cheeseburgers forced Anders Gustafsson<andersg@0x63.nu> to write
+this on Thu, 9 Jan 2003 21:04:29+0100:	
+
+> On Wed, Jan 08, 2003 at 09:52:53AM +0100, Vojtech Pavlik wrote:
 > > 
-> > Geert is correct that the functions are generic. The fb_putcs() and
-> > fb_setfont() can be compared to Tile blitting.  Tile blitting is a
-> > common operation in some games such as Warcraft, Starcraft, and most
-> > RPG's. I'm think there is Tile Blitting support in DirectFB.
-> > 
-> > In a tile-based game, the basic unit is a Tile which is just a bitmap
-> > with a predefined width and height. The game has several tiles stored in
-> > memory each with it's own unique id.  To draw the background/layer, a
-> > TileMap is constructed which is basically another array.  Its format is
-> > something like this -  TileMap[x] = y which means draw Tile y at screen
-> > position x.
-> > 
-> > In the fbcon perspective, we can think of each character as a Tile, and
-> > fontdata as the collection of tiles. fb_char.data is basically a
-> > TileMap.  Of course, tile blitting in games is more complicated than
-> > this, since games have multiple layers for the background, so layer
-> > position, transparency, etc has to be considered.
-> > 
-> > So maybe if we can rename fb_putcs() to fb_tileblit(), fb_setfont() to
-> > fb_loadtiles(), struct fb_chars to struct fb_tilemap and struct
-> > fb_fontdata to struct fb_tiledata, maybe it will be more acceptable?
-> > 
-> > It can be even be expanded by including fb_tiledata.depth
-> > fb_tiledata.cmap so we can support multi-colored tiled blitting.
+> > That I'd like to know, too. In the worst case, we can make the
+> > timeout be half a second, or more - it'd just mean that for a resync
+> > you would have to not touch the mouse this long if really a byte is
+> > lost.
 > 
-> This I have no problem with. I'm willing to accept this. As long as data 
-> from the console layer is not touched. As for loadtiles one thing I like 
-> to address is memory allocation. It probable is good idea to do things 
-> like place the tile data in buffers allocated by pci_alloc_consistent.
-> The other fear is it will only support so many tiles. 
+> Still havn't misbehaved here with the extended timeout. So it seems
+> that it really helped.
+> 
+> -- 
+> Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I think it's best to let the driver allocate it. That way the driver can put it
-where it's best suited. pci_alloc_consistent() is meant for PCI only.
 
-Gr{oetje,eeting}s,
+-- 
+Joshua Kwan
+joshk@mspencer.net
+pgp public key at http://joshk.mspencer.net/pubkey_gpg.asc
+ 
+It's hard to keep your shirt on when you're getting something off your
+chest.
 
-						Geert
+--=..nFiXV,.x/o,Yr
+Content-Type: application/pgp-signature
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+iD8DBQE+HeNO6TRUxq22Mx4RAkIOAKCZBljmOouaPv6BmaJjjCtKxK3JywCfQMW/
+mDNQfM0iMg6YC5TqWQTLpTU=
+=sf4i
+-----END PGP SIGNATURE-----
 
+--=..nFiXV,.x/o,Yr--

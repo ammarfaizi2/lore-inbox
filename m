@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318361AbSHEKHl>; Mon, 5 Aug 2002 06:07:41 -0400
+	id <S317849AbSHEKKG>; Mon, 5 Aug 2002 06:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317849AbSHEKHl>; Mon, 5 Aug 2002 06:07:41 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:10207 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S318361AbSHEKHk>;
-	Mon, 5 Aug 2002 06:07:40 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, <pil@mailnet.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: HFS-Bug in 2.4.19
-Date: Mon, 5 Aug 2002 12:11:23 +0200
-Message-Id: <20020805101123.6911@192.168.4.1>
-In-Reply-To: <1028545408.17775.26.camel@irongate.swansea.linux.org.uk>
-References: <1028545408.17775.26.camel@irongate.swansea.linux.org.uk>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+	id <S318356AbSHEKKG>; Mon, 5 Aug 2002 06:10:06 -0400
+Received: from mail1.commerzbank.com ([212.149.48.99]:49073 "EHLO
+	mail1.commerzbank.com") by vger.kernel.org with ESMTP
+	id <S317849AbSHEKKF>; Mon, 5 Aug 2002 06:10:05 -0400
+Message-ID: <A1081E14241CD4119D2B00508BCF80410843F2A6@SV021558>
+From: "Zeuner, Axel" <Axel.Zeuner@partner.commerzbank.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: AW: Thread group exit
+Date: Mon, 5 Aug 2002 12:10:56 +0200 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> here is my 4th report since about 2.4.8:
->> 
->> You can reproduce the bug in a few steps if you have a kernel with
->> modules support for hfs.
->
->HFS is not maintained. It will probably go away for 2.6 unless someone
->becomes its maintainer and fixes it
+> On Mon, 2002-08-05 at 09:58, Zeuner, Axel wrote:
+> > I would expect, that changes of the parent of one member of 
+> the thread group
+> > do not affect the interactions between the members of the group. 
+> > Corrections are welcome.
+> 
+> I agree with your diagnosis I'm not convinced by your change. 
+> The thread
+> groups are only used by NGPT not by glibc pthreads while the 
+> problem is
+> true across both.
+> 
+> Possibly the right fix is to remove the reparent to init increment of
+> self_exec_id and instead explicitly check process 1 in the 
+> signal paths.
+> 
+> Opinions ?
+The idea not to change the self_exec_id seems to be the more general 
+solution: less work in the loop in the forget_original_parent function 
+and only changes in do_notify_parent kernel/signal.c are required:
+One could check for tsk->p_pptr/parent == child_reaper and force a SIGCHLD
+in this case. Changes in the self_exec_id because of exec's are 
+catched by the code in exit_notify already.
+The difference between self_exec_id and parent_exec_id would become 
+a real exec counter.
 
-I noticed Al finally burned me on this as he did some locking fixes
-to HFS in 2.5. I'm pretty sure more is needed, and I still have some
-plans to fix some of it, in both 2.4 and 2.5, it's just that so far,
-I've always found more important things to do of my linux dedicated
-time ;)
-
-Ben.
-
-
+Axel

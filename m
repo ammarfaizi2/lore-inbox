@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136619AbREGTCv>; Mon, 7 May 2001 15:02:51 -0400
+	id <S136614AbREGTDB>; Mon, 7 May 2001 15:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136618AbREGTCo>; Mon, 7 May 2001 15:02:44 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55564 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136614AbREGTCU>; Mon, 7 May 2001 15:02:20 -0400
-Message-ID: <3AF6F11E.3A03050E@transmeta.com>
-Date: Mon, 07 May 2001 12:01:50 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Wow! Is memory ever cheap!
-In-Reply-To: <20010505095802.X12431@work.bitmover.com> <20010506142043.B31269@metastasis.f00f.org> <20010505194536.D14127@work.bitmover.com> <9d6qk6$i86$1@cesium.transmeta.com> <20010507115659.T14127@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136618AbREGTCw>; Mon, 7 May 2001 15:02:52 -0400
+Received: from jalon.able.es ([212.97.163.2]:55427 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S136617AbREGTCm>;
+	Mon, 7 May 2001 15:02:42 -0400
+Date: Mon, 7 May 2001 21:02:29 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Helge Hafting <helgehaf@idb.hist.no>
+Cc: Tobias Ringstrom <tori@tellus.mine.nu>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+Message-ID: <20010507210229.A7724@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus> <3AF663F1.E04D90CE@idb.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3AF663F1.E04D90CE@idb.hist.no>; from helgehaf@idb.hist.no on Mon, May 07, 2001 at 10:59:29 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> > >
-> > > On the other hand, if your apps don't have built in integrity checks then
-> > > ECC is pretty much a requirement.
+
+On 05.07 Helge Hafting wrote:
+> Tobias Ringstrom wrote:
+> > 
+> > On Sun, 6 May 2001, David S. Miller wrote:
+> > > It is the most straightforward way to make a '1' or '0'
+> > > integer from the NULL state of a pointer.
+> > 
+> > But is it really specified in the C "standards" to be exctly zero or one,
+> > and not zero and non-zero?
+> 
+> !0 is 1.  !(anything else) is 0.  It is zero and one, not
+> zero and "non-zero".  So a !! construction gives zero if you have
+> zero, and one if you had anything else.  There's no doubt about it.
 > >
-> > Isn't this pretty much saying "if you're willing to dedicate your
-> > system to running nothing but Bitkeeper, you can run it really fast?"
-> 
-> A) Fast has nothing to do with it, ECC runs at the same speed as non-ECC;
 
-"It" meaning BitKeeper.
-
-> B) As I said above, "if your apps don't have built in integrity checks then
->    ECC is pretty much a requirement";
-> C) As I said above, we use our systems for BK development, so this choice
->    makes sense for us.
-> 
-> I think the point you are really missing is that it is not an either/or
-> choice.  All you really need in practice is one application which is
-> both heavily used and has integrity checks.  It could be BitKeeper or
-> something else, all that matters is that it will detect memory problems.
-
-This is not true in my experience.  YES, it will detect bad memory
-configurations, but with over 2^34 memory cells to worry about -- each of
-them carrying a charge of a few dozen electrons only -- you WILL have
-random failures, especially if the memory is allowed to remain stale for
-extended periods of time, as is very likely in a configuration like this
-(think disk cache.)
-
-Bad memory configurations is bad.  However, good memory configurations
-are not necessarily perfect.
-
-	-hpa
+Isn't this asking for trouble with the optimizer ? It could kill both
+!!. Using that is like trusting on a certain struct padding-alignment.
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.4-ac5 #1 SMP Sat May 5 01:17:07 CEST 2001 i686
+

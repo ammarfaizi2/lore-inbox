@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313734AbSDPQD5>; Tue, 16 Apr 2002 12:03:57 -0400
+	id <S313749AbSDPQI1>; Tue, 16 Apr 2002 12:08:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313737AbSDPQDW>; Tue, 16 Apr 2002 12:03:22 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:59284 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S313739AbSDPQDI>; Tue, 16 Apr 2002 12:03:08 -0400
-Message-ID: <3CBC4D5B.C7EF2C8C@nortelnetworks.com>
-Date: Tue, 16 Apr 2002 12:12:11 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S313744AbSDPQGg>; Tue, 16 Apr 2002 12:06:36 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46597 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313737AbSDPQFu>; Tue, 16 Apr 2002 12:05:50 -0400
+Subject: Re: [PATCH] 2.5.8 IDE 36
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 16 Apr 2002 17:23:11 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        david.lang@digitalinsight.com (David Lang),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        vojtech@suse.cz (Vojtech Pavlik),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.33.0204160849540.1244-100000@home.transmeta.com> from "Linus Torvalds" at Apr 16, 2002 08:56:59 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Mark Mielke <mark@mark.mielke.cc>,
-        Terje Eggestad <terje.eggestad@scali.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Liam Girdwood <l_girdwood@bitwise.co.uk>,
-        BALBIR SINGH <balbir.singh@wipro.com>,
-        William Olaf Fraczyk <olaf@navi.pl>,
-        Lee Irwin III <wli@holomorphy.com>
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <Pine.LNX.4.44L.0204161231440.16531-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16xVjb-0000I7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Tue, 16 Apr 2002, Mark Mielke wrote:
-> 
-> > Increasing the HZ can only improve responsiveness, however, there is a
-> > cost (mentioned by others). The cost is that the scheduler is executed
-> > more often per second. If the scheduler does the same amount of work
-> > per tick, but there are more ticks per second, the scheduler does more
-> > work overall, and the CPU is free for use by the processes less.
-> 
-> Why are you discussing Linux 1.2 ?
-> 
-> Linux is not running the scheduler each cpu tick and hasn't
-> done this for years.
+> No, you just need to do the loopback over nbd - you need something to do
+> the byte swapping anyway (ie you can't really use the normal "loop"
+> device: I really just meant the more generic "loop the data back"
+> approach).
 
-Very true.  However it does run the timer/clock code every tick, which is still
-additional overhead when the tick time is reduced.
+nbd goes via the networking layer and deadlocks if looped. The loop driver
+is also much faster. Partitioned loop doesnt seem hard.
 
-The basic idea (increased overhead at higher HZ) is sound, the details are not.
+> nbd devices already do partitioning, I'm fairly certain.
 
-Chris
+Not when I checked.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+> > the Tivo are examples of that. Interworking requires byteswapping and the
+> > ability to handle byteswapped partition tables.
+> 
+> Note that THAT case is an architecture issue, and should probably be
+> handled by just making the IDE "insw" macro do the byteswapping natively.
+> That way you don't get the current "it can actually corrupt your
+> filesystem on SMP" behaviour.
+
+Thats still not enough. If you have the ide insw macro then control 
+transfers come out wrong. And to maximise the pain - some Amiga controllers
+are backwards some are not. 
+	"The use of excessive force has been authorised in the ..."
+
+And then people stick TiVo disks in their PC's in order to prep them for
+various TiVo hackery.

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262242AbSI0Pyk>; Fri, 27 Sep 2002 11:54:40 -0400
+	id <S262520AbSI0QJc>; Fri, 27 Sep 2002 12:09:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262513AbSI0Pyk>; Fri, 27 Sep 2002 11:54:40 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:50840 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S262242AbSI0Pyj>;
-	Fri, 27 Sep 2002 11:54:39 -0400
-Message-ID: <3D948074.5030800@colorfullife.com>
-Date: Fri, 27 Sep 2002 17:59:48 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] slab reclaim balancing
-References: <3D931608.3040702@colorfullife.com> <3D9345C4.74CD73B8@digeo.com> <3D935655.1030606@colorfullife.com> <3D9364BA.A2CA02C5@digeo.com> <3D9372D3.3000908@colorfullife.com> <3D937E87.D387F358@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262521AbSI0QJc>; Fri, 27 Sep 2002 12:09:32 -0400
+Received: from ns.suse.de ([213.95.15.193]:14091 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262520AbSI0QJb>;
+	Fri, 27 Sep 2002 12:09:31 -0400
+Date: Fri, 27 Sep 2002 18:14:45 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Put modules into linear mapping
+Message-ID: <20020927181445.A9595@wotan.suse.de>
+References: <p73d6qzsav0.fsf@oldwotan.suse.de> <Pine.LNX.4.44.0209271745230.8911-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209271745230.8911-100000@serv>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->>
->>Is that actually the right approach? For large objects, it would be
->>possible to cripple the freeable slabs list, and to perform the cache
->>hit optimization (i.e. per-cpu LIFO) in page_alloc.c, but that doesn't
->>work with small objects.
+On Fri, Sep 27, 2002 at 05:55:13PM +0200, Roman Zippel wrote:
+> Hi,
 > 
+> On 27 Sep 2002, Andi Kleen wrote:
 > 
-> Well with a, what? 100:1 speed ratio, we'll generally get best results
-> from optimising for locality/recency of reference.
+> > > Why is i386 only? This is generic code and other archs will benefit from
+> > > it as well (or at least it won't hurt).
+> >
+> > Because some arcitectures have a different module_map() (e.g. x86-64 or
+> > sparc64)
 > 
-You misunderstood me:
+> As I already said in the last mail, these functions look like vmalloc
+> reimplementations.
 
-AFAICS slab.c has 2 weaks spots:
-* cache hit rates are ignored on UP, and for objects > PAGE_SIZE on both 
-SMP and UP.
-* freeable pages are not returned efficiently to page_alloc.c, neither 
-on SMP nor on UP. On SMP, this is a big problems, because the 
-cache_chain_semaphore is overloaded.
+No, they aren't. x86-64 uses it because modules need to be in 32bit
+range from the main kernel and vmalloc is in a different area. I suspect
+it is the same on sparc64.
 
-I just wanted to say that a hotlist in page_alloc.c is not able to 
-replace a hotlist in slab.c, because many objects are smaller than page 
-size. Both lists are needed.
+> > and > order 0 is the only case that is interesting for alloc_exact.
+> > GFP_DMA is not needed here, and GFP_HIGHUSER neither supports > order 0
+> > properly (because of kmap)
+> 
+> If it's supposed to be a generic function, it makes sense, otherwise we
+> could just put it into module.c.
 
---
-	Manfred
+Ok, I will change it.
 
 
+-Andi

@@ -1,65 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbTE2MUV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 08:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTE2MUU
+	id S262197AbTE2Mi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 08:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTE2Mi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 08:20:20 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:25571 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S262179AbTE2MUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 08:20:15 -0400
-Date: Thu, 29 May 2003 14:33:33 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.70: add info to spinlock debugging
-Message-ID: <20030529123333.GA28193@rhlx01.fht-esslingen.de>
-Reply-To: andi@rhlx01.fht-esslingen.de
+	Thu, 29 May 2003 08:38:56 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:29962 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262197AbTE2Miz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 08:38:55 -0400
+Date: Thu, 29 May 2003 14:55:59 +0200
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2 still dies with RAID-1
+Message-ID: <20030529125559.GA2210@hh.idb.hist.no>
+References: <20030529012914.2c315dad.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030529012914.2c315dad.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+2.5.70-mm2 still crash during boot in
+exactly the same way as 2.5.70-mm1.
+The final oops is the same.
 
-- directly print out in_atomic() and irqs_disabled() values to ease debugging
-- add comment from original patch submission in order to be able to actually
-  know what this is all about...
-
-Not sure whether that's an absolutely brilliant idea, but I think it's
-useful.
-
-Patch against vanilla 2.5.70.
-
-Andreas Mohr
-
-diff -urN linux-2.5.70.orig/kernel/sched.c linux-2.5.70/kernel/sched.c
---- linux-2.5.70.orig/kernel/sched.c	2003-05-28 17:59:02.000000000 +0200
-+++ linux-2.5.70/kernel/sched.c	2003-05-28 17:52:21.000000000 +0200
-@@ -2512,6 +2512,11 @@
- }
- 
- #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-+/*
-+ * Detect sleep-inside-spinlock bugs. It prints out a whiny
-+ * message and a stack backtrace if someone calls a function which might
-+ * sleep from within an atomic region.
-+ */
- void __might_sleep(char *file, int line)
- {
- #if defined(in_atomic)
-@@ -2522,7 +2527,7 @@
- 			return;
- 		prev_jiffy = jiffies;
- 		printk(KERN_ERR "Debug: sleeping function called from illegal"
--				" context at %s:%d\n", file, line);
-+				" context at %s:%d (in_atomic %d, irq_disabled %d)\n", file, line, in_atomic(), irqs_disabled());
- 		dump_stack();
- 	}
- #endif
-
--- 
-Help prevent Information Technology Fascism! - before it's too late...
-http://www.againsttcpa.com
+Helge Hafting

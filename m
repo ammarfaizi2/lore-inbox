@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261946AbSIYIg2>; Wed, 25 Sep 2002 04:36:28 -0400
+	id <S261268AbSIYIcc>; Wed, 25 Sep 2002 04:32:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261947AbSIYIg2>; Wed, 25 Sep 2002 04:36:28 -0400
-Received: from closet.leakybucket.com ([208.177.155.94]:26240 "HELO
-	closet.leakybucket.org") by vger.kernel.org with SMTP
-	id <S261946AbSIYIg0>; Wed, 25 Sep 2002 04:36:26 -0400
-Date: Tue, 24 Sep 2002 18:14:01 -0700
-From: alfred@leakybucket.org
-To: linux-kernel@vger.kernel.org
-Subject: [patch] Re: 2 futex questions
-Message-ID: <20020925011401.GA15543@closet.leakybucket.org>
-Reply-To: alfred@leakybucket.org
-References: <20020925003353.GA15418@closet.leakybucket.org> <Pine.LNX.4.44.0209251015320.4690-100000@localhost.localdomain>
+	id <S261941AbSIYIcc>; Wed, 25 Sep 2002 04:32:32 -0400
+Received: from albireo.ucw.cz ([81.27.194.19]:24580 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261268AbSIYIcc>;
+	Wed, 25 Sep 2002 04:32:32 -0400
+Date: Wed, 25 Sep 2002 10:37:46 +0200
+From: Martin Mares <mj@ucw.cz>
+To: "Mohamed Ghouse , Gurgaon" <MohamedG@ggn.hcltech.com>
+Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: Interrupt Sharing
+Message-ID: <20020925083746.GA845@ucw.cz>
+References: <5F0021EEA434D511BE7300D0B7B6AB53050A4C9D@mail2.ggn.hcltech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209251015320.4690-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
+In-Reply-To: <5F0021EEA434D511BE7300D0B7B6AB53050A4C9D@mail2.ggn.hcltech.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 10:23:16AM +0200, Ingo Molnar wrote:
-> 
-> what it says: 'uaddr must be naturally aligned, and the word must be on a
-> single page'. In theory it's possible that __alignof__(int) !=
-> sizeof(int).
-> 
+Hello!
 
-Ok, would the following actually save some cycles then?
+> But what if two PCI Devices are sharing the same interrupt line?
+> Then how does the handler handle this?
+> Can you please explain this handling by the Kernel?
 
-diff -u a/kernel/futex.c b/kernel/futex.c 
---- a/kernel/futex.c    Tue Sep 24 15:25:01 2002
-+++ b/kernel/futex.c    Tue Sep 24 18:09:09 2002
-@@ -321,9 +321,10 @@
- 
-        pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
- 
--       /* Must be "naturally" aligned, and not on page boundary. */
-+       /* Must be "naturally" aligned, and must not cross a page boundary. */
-        if ((pos_in_page % __alignof__(int)) != 0
--           || pos_in_page + sizeof(int) > PAGE_SIZE)
-+           || ((sizeof(int) != __alignof__(int))
-+                && (pos_in_page + sizeof(int) > PAGE_SIZE)))
-                return -EINVAL;
- 
-        /* Simpler if it doesn't vanish underneath us. */
+All drivers register their interrupt handlers by calling request_irq().
+When a shared interrupt arrives, all handlers for this interrupt are
+run and each of them polls the status register of the device it handles
+to see whether this device needs servicing.
 
-
-Alfred Landrum
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Why is it called "common sense" when nobody seems to have any?

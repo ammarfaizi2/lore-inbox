@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318764AbSICMel>; Tue, 3 Sep 2002 08:34:41 -0400
+	id <S318649AbSICMwx>; Tue, 3 Sep 2002 08:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318768AbSICMel>; Tue, 3 Sep 2002 08:34:41 -0400
-Received: from iris.mc.com ([192.233.16.119]:23682 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S318764AbSICMek>;
-	Tue, 3 Sep 2002 08:34:40 -0400
-Message-Id: <200209031237.IAA27024@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: Andre Hedrick <andre@linux-ide.org>, Mike Isely <isely@pobox.com>
-Subject: 2.4.20-pre4-ac1 trashed my system
-Date: Tue, 3 Sep 2002 08:41:40 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S318690AbSICMwx>; Tue, 3 Sep 2002 08:52:53 -0400
+Received: from [64.119.101.42] ([64.119.101.42]:21376 "HELO mars.net-itech.com")
+	by vger.kernel.org with SMTP id <S318649AbSICMww>;
+	Tue, 3 Sep 2002 08:52:52 -0400
+Date: Tue, 3 Sep 2002 08:57:19 -0400
+From: Avery Pennarun <apenwarr@nit.ca>
+To: "Vlodavsky, Zvi" <zvi.vlodavsky@intel.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'faith@cs.unc.edu'" <faith@cs.unc.edu>,
+       "'Ulrich.Windl@rz.uni-regensburg.de'" 
+	<Ulrich.Windl@rz.uni-regensburg.de>,
+       "Levy, Omer" <omer.levy@intel.com>
+Subject: Re: Momentary timezone problem with apm (bug report)
+Message-ID: <20020903085719.A13333@worldvisions.ca>
+References: <436282DBEE7CD51191E30002A50A6369032D14A0@hasmsx102.iil.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <436282DBEE7CD51191E30002A50A6369032D14A0@hasmsx102.iil.intel.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it trashed mine also.
+On Tue, Sep 03, 2002 at 11:59:41AM +0300, Vlodavsky, Zvi wrote:
 
-supermicro p4dp8-g2 mobo
-2x 2.2 Xeon
-e7500 chipset
-wd400 40gb hd
+> Please personally CC me with responses on this posting: 
+> I have encountered a problem when coming out of apm suspend mode (apm -s):
+> the system time gets momentarily skewed by the hour difference between the
+> local timezone and GMT. It then returns to normal, but the momentary skew
+> can casue problems for applications checking the time right after coming out
+> of suspend.
 
-2.4.20-pre4-ac2 + RML preempt patch (applied cleanly)
+This problem is usually a result of the completely useless "RTC stores time
+in GMT" kernel option, whose only effect is to make the kernel load the
+wrong time out of the RTC when is comes out of suspend.  (You can safely
+disable this option even if your clock _is_ stored in GMT.)
 
-boot it and eveything runs fine for a short while, then I start getting "bad 
-CRC" errors and "seek failure" errors.
+So make sure that option is set to NO.
 
-I have had this problem with both ext2 and ext3
+Other than that, try killing apmd and make sure it's not to blame; maybe
+it's restoring the wrong time if it's calling hwclock incorrectly for your
+system (but since you describe the problem as a "momentary" one, apmd is
+likely the one fixing it, not breaking it).
 
-initially I thought it was a bad HD, so I installed a new one on a new cable 
-and did a complete rh7.3 install ran for a while eith no problems then built 
-the same kernel over again, rebooted into the new kernel and within seconds 
-was having problems again.
+Good luck.
 
-2.4.19-rc3-ac4 +rml preempt has been dead stable, as has (so far) 2.4.29-ac4 
-+rml and RH 2.4.18-3 and -5
+Avery
 
-I am not doing anything funky with hd setup, not even specifying idebus= 
-
-this has happened with 40 and 80 wire cables.
-
-if there is any additional info I can provide please let me know.
--- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-** If you would like to sponsor me for the       **
-** Mass Getaway, a 150 mile bicycle ride to for  **
-** MS, contact me to donate by cash or check or  **
-** click the link below to donate by credit card **
-**************************************************/
-https://www.nationalmssociety.org/pledge/pledge.asp?participantid=86736

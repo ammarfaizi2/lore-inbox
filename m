@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319605AbSIHNLh>; Sun, 8 Sep 2002 09:11:37 -0400
+	id <S319608AbSIHN0p>; Sun, 8 Sep 2002 09:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319606AbSIHNLh>; Sun, 8 Sep 2002 09:11:37 -0400
-Received: from web14701.mail.yahoo.com ([216.136.224.118]:36684 "HELO
-	web14701.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S319605AbSIHNLg>; Sun, 8 Sep 2002 09:11:36 -0400
-Message-ID: <20020908131618.21467.qmail@web14701.mail.yahoo.com>
-Date: Mon, 9 Sep 2002 01:16:18 +1200 (NZST)
-From: =?iso-8859-1?q?thomas=20joseph?= <thomascanny@yahoo.co.nz>
-Subject: interval timers and sleep in linux
-To: linux-kernel@vger.kernel.org
+	id <S319609AbSIHN0p>; Sun, 8 Sep 2002 09:26:45 -0400
+Received: from christpuncher.kingsmeadefarm.com ([209.216.78.83]:39906 "HELO
+	the-grudge.myip.org") by vger.kernel.org with SMTP
+	id <S319608AbSIHN0o>; Sun, 8 Sep 2002 09:26:44 -0400
+Message-ID: <1031491886.3d7b512ec36fc@webmail.kingsmeadefarm.com>
+Date: Sun,  8 Sep 2002 09:31:26 -0400
+From: Joe Kellner <jdk@kingsmeadefarm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: clean before or after dep?
+References: <Pine.LNX.4.44.0209072139470.21724-100000@redshift.mimosa.com> <1031490782.26902.4.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1031490782.26902.4.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 64.156.25.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
-Hi All,
- I am porting an application from windows to linux.
- The application uses both interval timesr and sleep.
-
- I came to know that in Linux we can not use both
- setitimer and sleep in the application. Because both 
- of them rely on SIGALRM.
-
- Can somebody tell me how to come out of this problem.
-
-Thanks and Regards,
-
- --thomas
+> 
+> The "kernel-howto" has been badly broken for years. The world would
+> actually be better without that document IMHO
+> 
 
 
+Currently, what is the proper way then? I know over the years the proper 
+procedure has changed. make *config; make dep; make clean; make *Image;make 
+modules?
 
-http://mobile.yahoo.com.au - Yahoo! Messenger for SMS
-- Now send & receive IMs on your mobile via SMS
+-------------------------------------------------
+sent via KingsMeade secure webmail http://www.kingsmeadefarm.com

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270332AbTHLNtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 09:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270338AbTHLNtJ
+	id S270326AbTHLNmc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 09:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270328AbTHLNmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 09:49:09 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:12784 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S270332AbTHLNtH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 09:49:07 -0400
-Date: Tue, 12 Aug 2003 15:48:48 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Dave Jones <davej@codemonkey.org.uk>, torvalds@transmeta.com,
-       fxkuehl@gmx.de, linux-kernel@vger.kernel.org, willy@w.ods.org
-Subject: Re: [PATCH][2.6.0-test3] Disable APIC on reboot.
-In-Reply-To: <16184.10167.743824.668791@gargle.gargle.HOWL>
-Message-ID: <Pine.GSO.3.96.1030812154705.7029B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Aug 2003 09:42:32 -0400
+Received: from dsl017-022-215.chi1.dsl.speakeasy.net ([69.17.22.215]:15110
+	"EHLO gateway.two14.net") by vger.kernel.org with ESMTP
+	id S270326AbTHLNma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 09:42:30 -0400
+Date: Tue, 12 Aug 2003 08:42:21 -0500
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
+Message-ID: <20030812134221.GA6412@furrr.two14.net>
+Reply-To: maney@pobox.com
+References: <20030812035803.GA17921@furrr.two14.net> <Pine.LNX.4.44.0308121011100.3386-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308121011100.3386-100000@logos.cnet>
+User-Agent: Mutt/1.3.28i
+From: maney@two14.net (Martin Maney)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Aug 2003, Mikael Pettersson wrote:
+On Tue, Aug 12, 2003 at 10:12:19AM -0300, Marcelo Tosatti wrote:
+> Can you tell me exactly how can I try to reproduce the problem you're 
+> seeing? 
+> 
+> With just cp and unmount you can see the corruption? 
 
-> @@ -249,6 +250,14 @@
->  	 * other OSs see a clean IRQ state.
->  	 */
->  	smp_send_stop();
-> +#elif CONFIG_X86_LOCAL_APIC
-> +	if (cpu_has_apic) {
-> +		local_irq_disable();
-> +		disable_local_APIC();
-> +		local_irq_enable();
-> +	}
-> +#endif
-> +#ifdef CONFIG_X86_IO_APIC
->  	disable_IO_APIC();
->  #endif
+Yes.  With the c. 50MB file it happens every time (now out of a couple
+dozen tests).  A 3MB file did not get corrupted in half a dozen trials,
+including ones where both were copied before the umount.
 
- You obviously want to disable I/O APICs first.
+The age & condition of the target filesystem don't seem to matter; at
+least I have replicated this immediately following mke2fs of the
+target.  The original observed corruption was on much older and more
+cluttered filesystems - the first sign of trouble was when a local
+build of XFree failed.
+
+In case I wasn't perfectly clear (it was late, so that may well be), I
+used the umount/mount only to invalidate the buffers; merely syncing
+after copying wouldn't produce any immediate effect.  The copy always
+looks good until the data has to be read back from the target
+filesystem.
+
+One other item which I didn't think to mention is that the compiler was
+"gcc version 2.95.4 20011002" - Debian's normal compiler in the Woody
+release.  Of course that's been used for every other 2.4 kernel I've
+built here as well.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+the warfare on the cutting edge of any science draws attention
+away from the huge uncontested background, the dull metal heft
+of the axe that gives the cutting edge its power.  -- Dennett
 

@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262679AbSI3Rtq>; Mon, 30 Sep 2002 13:49:46 -0400
+	id <S262541AbSI3RpZ>; Mon, 30 Sep 2002 13:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262735AbSI3Rtq>; Mon, 30 Sep 2002 13:49:46 -0400
-Received: from mnh-1-22.mv.com ([207.22.10.54]:62468 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S262679AbSI3Rtq>;
-	Mon, 30 Sep 2002 13:49:46 -0400
-Message-Id: <200209301858.NAA03537@ccure.karaya.com>
+	id <S262679AbSI3RpZ>; Mon, 30 Sep 2002 13:45:25 -0400
+Received: from mnh-1-22.mv.com ([207.22.10.54]:61444 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262541AbSI3RpZ>;
+	Mon, 30 Sep 2002 13:45:25 -0400
+Message-Id: <200209301854.NAA03525@ccure.karaya.com>
 X-Mailer: exmh version 2.0.2
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML highmem support
+Subject: [PATCH] Update UML to 2.5.39
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 30 Sep 2002 13:58:29 -0500
+Date: Mon, 30 Sep 2002 13:54:04 -0500
 From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull http://jdike.stearns.org:5000/highmem-2.5
+Please pull http://jdike.stearns.org:5000/updates-2.5
 
-This adds the UML arch support for highmem.  All changes are in arch code.
+This makes the 2.5.39 UML build and run.  All changes are in arch code.
 
 				Jeff
 
-ChangeSet@1.579.13.5, 2002-09-29 22:18:25-04:00, jdike@uml.karaya.com
-  Added CONFIG_HIGHMEM to defconfig.
+ChangeSet@1.640, 2002-09-30 00:02:33-04:00, jdike@uml.karaya.com
+  main.o needed to be added to the vmlinux dependencies so it would build.
 
-ChangeSet@1.579.13.4, 2002-09-29 22:02:45-04:00, jdike@uml.karaya.com
-  One last fix to make the non-highmem build work.
+ChangeSet@1.639, 2002-09-29 22:43:05-04:00, jdike@uml.karaya.com
+  Moved the linker script from vmlinux.lds.S, which will be empty, to
+  uml.ld.S.
 
-ChangeSet@1.579.13.3, 2002-09-28 15:45:58-04:00, jdike@uml.karaya.com
-  Missed a change to fixmap.h in the highmem update.
+ChangeSet@1.638, 2002-09-28 22:28:25-04:00, jdike@uml.karaya.com
+  Updated to build with the 2.5.39 kbuild.
 
-ChangeSet@1.579.13.2, 2002-09-28 15:31:57-04:00, jdike@uml.karaya.com
-  Fixed highmem support for 2.5.
+ChangeSet@1.637, 2002-09-28 22:23:28-04:00, jdike@uml.karaya.com
+  Took the 2.5.39 Makefile changes.
 
-ChangeSet@1.579.13.1, 2002-09-23 21:43:15-04:00, jdike@uml.karaya.com
-  Added highmem support.
-  The UML initialization code marks memory that doesn't fit in the
-  kernel's address space as highmem, and later sets up the UML data
-  structures for it, and frees that memory to the mm system as highmem.
+ChangeSet@1.579.12.5, 2002-09-23 21:11:43-04:00, jdike@uml.karaya.com
+  Bumped EXTRAVERSION for the 2.4 fixes and highmem support.
+
+ChangeSet@1.579.12.4, 2002-09-23 14:18:45-04:00, jdike@uml.karaya.com
+  One last fix to the ubd driver, allowing UML to boot.
+
+ChangeSet@1.579.12.3, 2002-09-23 13:57:10-04:00, jdike@uml.karaya.com
+  Trivial fix to the ubd driver.
+
+ChangeSet@1.579.12.2, 2002-09-23 13:34:18-04:00, jdike@uml.karaya.com
+  Cleaned up arch/um/Makefile and updated the ubd driver.
+
+ChangeSet@1.579.12.1, 2002-09-23 12:52:56-04:00, jdike@uml.karaya.com
+  UML updates to allow it to build and run as 2.5.38.
+
 

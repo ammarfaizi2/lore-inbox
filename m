@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287676AbSASXpl>; Sat, 19 Jan 2002 18:45:41 -0500
+	id <S287681AbSASXxb>; Sat, 19 Jan 2002 18:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287681AbSASXpb>; Sat, 19 Jan 2002 18:45:31 -0500
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:7697 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S287676AbSASXpP>; Sat, 19 Jan 2002 18:45:15 -0500
-Message-ID: <pSedZbA7TgS8Ew8P@n-cantrell.demon.co.uk>
-Date: Sat, 19 Jan 2002 23:44:59 +0000
-To: linux-kernel@vger.kernel.org
-From: robert w hall <bobh@n-cantrell.demon.co.uk>
-Subject: Re: AOL in Negotiations to Buy Red Hat?
-In-Reply-To: <Pine.LNX.4.44.0201190032090.8490-100000@localhost.localdomain>
- <9C5DA8E6-0CB9-11D6-AC06-0030657B7B46@mac.com>
-In-Reply-To: <9C5DA8E6-0CB9-11D6-AC06-0030657B7B46@mac.com>
+	id <S287697AbSASXxW>; Sat, 19 Jan 2002 18:53:22 -0500
+Received: from 213-98-126-44.uc.nombres.ttd.es ([213.98.126.44]:44222 "HELO
+	mitica.trasno.org") by vger.kernel.org with SMTP id <S287681AbSASXxO>;
+	Sat, 19 Jan 2002 18:53:14 -0500
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 module in 2.4.18-pre4 broken?
+In-Reply-To: <1011476968.1362.53.camel@psuedomode>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <1011476968.1362.53.camel@psuedomode>
+Date: 20 Jan 2002 00:49:02 +0100
+Message-ID: <m27kqdvr4h.fsf@trasno.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-X-Mailer: Turnpike Integrated Version 4.02 U <ZNyPpF8T4habUIG8OkVoLRXKJZ>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <9C5DA8E6-0CB9-11D6-AC06-0030657B7B46@mac.com>, Pagani,
-Ronald <paganir@mac.com> writes
->Now, what on earth would they want with RedHat?? Hrmm.. Microsloth ain't 
->seen nothin' if that monster emerges...
+>>>>> "ed" == Ed Sweetman <ed.sweetman@wmich.edu> writes:
 
-well - AOL could replace that nice-looking young lady in their tele-ads
-(the one with the dress like a vdu) with Alan Cox in Wizard's hat n
-cloak :-)
+ed> Making ext2 as a module in 2.4.18-pre4 seems to be broken.
+ed> depmod: *** Unresolved symbols in
+ed> /lib/modules/2.4.18-pre4/kernel/fs/ext2/ext2.o
+ed> depmod:         waitfor_one_page
+
+
+
+ed> is this true or just something patching seems to have messed up over the
+ed> versions?
+
+Read the archive.  Just a bug, you need to export that variable from
+kernel/ksyms.c.
+
+Later, Juan.
 
 -- 
-robert w hall
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

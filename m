@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbTHVQ7j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 12:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264043AbTHVQ4p
+	id S263962AbTHVQ4A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 12:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTHVQz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 12:56:45 -0400
-Received: from evrtwa1-ar2-4-33-045-084.evrtwa1.dsl-verizon.net ([4.33.45.84]:14809
-	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S263898AbTHVQyh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 12:54:37 -0400
-Message-ID: <3F464AC9.5040907@candelatech.com>
-Date: Fri, 22 Aug 2003 09:54:33 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick Sodre Carlos <klist@i-a-i.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Reinjecting IP Packets
-References: <1061563295.824.4.camel@iai68>	 <3F464177.1020709@candelatech.com> <1061569442.2060.2.camel@iai68> <3F464A96.3070408@candelatech.com>
-In-Reply-To: <3F464A96.3070408@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 22 Aug 2003 12:55:59 -0400
+Received: from rth.ninka.net ([216.101.162.244]:25217 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S263962AbTHVQy7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 12:54:59 -0400
+Date: Fri, 22 Aug 2003 09:54:42 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Marcus Sundberg <marcus@ingate.com>
+Cc: marcelo@conectiva.com.br, gzp@papp.hu, mostrows@speakeasy.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: PPPoE Oops with 2.4.22-rc
+Message-Id: <20030822095442.5da08e24.davem@redhat.com>
+In-Reply-To: <vezni16c62.fsf_-_@inigo.ingate.se>
+References: <5ff3.3f388c4b.4453f@gzp1.gzp.hu>
+	<Pine.LNX.4.44.0308121415540.10199-100000@logos.cnet>
+	<39a.3f392c6f.86e8b@gzp1.gzp.hu>
+	<vezni16c62.fsf_-_@inigo.ingate.se>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> Patrick Sodre Carlos wrote:
-> 
->>    My mistake... I forgot to mention that the packet will be coming from
->> user-space.
->>
->> Patrick
-> 
-> 
-> Maybe net_queue_xmit() then?
-I meant dev_queue_xmit()
+On 22 Aug 2003 15:43:01 +0200
+Marcus Sundberg <marcus@ingate.com> wrote:
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+> this patch fixes one crash in pppoe_connect():
 
-
+It's already in Marcelo's tree.

@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUFPR4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264355AbUFPR7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbUFPR4L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 13:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbUFPR4K
+	id S264355AbUFPR7f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 13:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUFPR7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 13:56:10 -0400
-Received: from trantor.org.uk ([213.146.130.142]:57519 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S264346AbUFPR4H (ORCPT
+	Wed, 16 Jun 2004 13:59:34 -0400
+Received: from mail.ycom.ch ([145.232.227.155]:5382 "EHLO ycom.ch")
+	by vger.kernel.org with ESMTP id S264355AbUFPR4l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 13:56:07 -0400
-Subject: BCM94306 reverse engineering.
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
+	Wed, 16 Jun 2004 13:56:41 -0400
+Subject: forcedeth - vlan - 2.6.7
+From: Alexandre Ghisoli <alexandre.ghisoli@ycom.ch>
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9H7NQ3XICGraF86YTUVN"
-Date: Wed, 16 Jun 2004 18:56:03 +0100
-Message-Id: <1087408563.3375.82.camel@sherbert>
+Cc: c-d.hailfinger.kernel.2004@gmx.net
+Content-Type: text/plain
+Organization: YCOM SA
+Message-Id: <1087408598.7898.22.camel@pc-04.ycom.ch>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 16 Jun 2004 19:56:39 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there, 
 
---=-9H7NQ3XICGraF86YTUVN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I've a 2.6.7 kernel, and I cannot use VLAN (MTU problem)
 
-Hi,
+HW : ASUS A7N266VM-AA, onboard lan
 
-For anyone interested in reverse engineering this 802.11g chipset, I
-have posted some I/O logs and a register dump up on:
+When I do a ping (from another host to my box) -s 1468, it's working,
+but not at 1470.
+So, I've commented out #if 1 for debug, and there is no logging output
+(rx_process) for thoses big packets (and, of course, tcpdump cannot see
+it). Dropped by the nic ?
 
-	http://www.scaramanga.co.uk/stuff/bcm94306/
+Could you help me ?
 
-Is anyone else working actively in this area?
+Thanks
 
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+Best regards
 
---=-9H7NQ3XICGraF86YTUVN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA0ImzkbV2aYZGvn0RAsaqAJ4vKk38w+cFuaOiFk60LpWHLta9OQCcCzh4
-tpRJdOyanrhGlzvx2ZZk7Ao=
-=dkpd
------END PGP SIGNATURE-----
-
---=-9H7NQ3XICGraF86YTUVN--
+	--Alexandre
 

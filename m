@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262884AbSJLLML>; Sat, 12 Oct 2002 07:12:11 -0400
+	id <S262885AbSJLLRy>; Sat, 12 Oct 2002 07:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262885AbSJLLML>; Sat, 12 Oct 2002 07:12:11 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:22710 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S262884AbSJLLML>;
-	Sat, 12 Oct 2002 07:12:11 -0400
-Date: Sat, 12 Oct 2002 13:17:59 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] USAGI IPsec
-Message-ID: <20021012111759.GA10104@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <m3u1js1l1a.wl@karaba.org> <20021011.185332.115906289.davem@redhat.com> <20021012.114330.78212112.yoshfuji@linux-ipv6.org> <20021011.194108.102576152.davem@redhat.com>
+	id <S262886AbSJLLRy>; Sat, 12 Oct 2002 07:17:54 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:1458 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262885AbSJLLRy>; Sat, 12 Oct 2002 07:17:54 -0400
+Subject: Re: 2.5.42: stallion.c doesn't compile
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.NEB.4.44.0210121215370.8340-100000@mimas.fachschaften.tu-muenchen.de>
+References: <Pine.NEB.4.44.0210121215370.8340-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Oct 2002 12:35:29 +0100
+Message-Id: <1034422529.14297.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021011.194108.102576152.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 11, 2002 at 07:41:08PM -0700, David S. Miller wrote:
->    From: YOSHIFUJI Hideaki / ?$B5HF#1QL@ <yoshfuji@linux-ipv6.org>
->    Date: Sat, 12 Oct 2002 11:43:30 +0900 (JST)
->    
->    Would you tell us the points of the "several details," please?
-> 
-> We believe that the whole SPD/SAD mechanism should move
-> eventually to a top-level flow cache shared by ipv4 and
-> ipv6.
+On Sat, 2002-10-12 at 11:21, Adrian Bunk wrote:
+> drivers/char/stallion.c: In function `stl_initports':
+> drivers/char/stallion.c:2294: structure has no member named `routine'
+> ...
+> make[2]: *** [drivers/char/stallion.o] Error 1
 
-Is this the proposed stacked route system?
+You probably need to swap it for "func". Check workqueue.h
 
-Regards,
-
-bert hubert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

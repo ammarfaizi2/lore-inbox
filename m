@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTDXOPx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 10:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263668AbTDXOPx
+	id S263738AbTDXOWp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 10:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTDXOWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 10:15:53 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:58122 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S263462AbTDXOPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 10:15:52 -0400
-Date: Thu, 24 Apr 2003 10:21:08 -0400
-From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Subject: Re: [Bug 622] New: ALSA Choppy During Thing Like Window Changes
-In-reply-to: <1051135300.652.11.camel@teapot.felipe-alfaro.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+	Thu, 24 Apr 2003 10:22:45 -0400
+Received: from pdbn-d9bb8734.pool.mediaWays.net ([217.187.135.52]:14090 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S263738AbTDXOWo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 10:22:44 -0400
+Date: Thu, 24 Apr 2003 16:34:33 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Pat Suwalski <pat@suwalski.net>
+Cc: Werner Almesberger <wa@almesberger.net>,
+       Jamie Lokier <jamie@shareable.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <20030424142108.GB11116@butterfly.hjsoft.com>
-MIME-version: 1.0
-Content-type: multipart/signed; boundary=bCsyhTFzCvuiizWE;
- protocol="application/pgp-signature"; micalg=pgp-sha1
-Content-disposition: inline
-User-Agent: Mutt/1.5.4i
-References: <21270000.1051112116@[10.10.2.4]>
- <1051135300.652.11.camel@teapot.felipe-alfaro.com>
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <20030424143433.GA18374@citd.de>
+References: <20030424001134.GD26806@mail.jlokier.co.uk> <20030423214332.H3557@almesberger.net> <20030424011137.GA27195@mail.jlokier.co.uk> <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net> <20030424071439.GB28253@mail.jlokier.co.uk> <20030424103858.M3557@almesberger.net> <20030424134904.GA18149@citd.de> <3EA7EFF5.3060900@suwalski.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EA7EFF5.3060900@suwalski.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 24, 2003 at 10:08:53AM -0400, Pat Suwalski wrote:
+> Matthias Schniedermeyer wrote:
+> >To be exact. ALSA mutes all channels, if you don't unset the mute-flags
+> >on the channels you can increase the volume to 100% without a change.
+> >:-)
+> 
+> Does it vary from hardware to hardware, distro to distro? On my machine, 
+> the channels are most certainly not muted, only at 0.
 
---bCsyhTFzCvuiizWE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Maybe it depends on hardware, or your mixer "transparently" unmutes the
+channel when you increase volume.
 
-On Thu, Apr 24, 2003 at 12:01:40AM +0200, Felipe Alfaro Solana wrote:
-> Uhmm... Maybe a problem with the backboost interactivity enhancements.
-> Does this happen with command-line apps like mpg123, mpg321, ogg123,
-> etc? In my case, I've experienced those "sound skips" when using XMMS,
-> but not mpg123 or ogg123. I think it's both a "corner-case" problem with
-> the interactivity changes in the 2.5-series scheduler and XMMS itself.
+At least with my sblive i can "mute" channels without changing the
+volume level. And last time i tried ALSA the channels where muted.
 
-i started seeing the problem a couple kernels back (maybe .65) when
-there was a bit of noise on the list about scheduler changes.  i
-usually run gqmpeg -> (mpg123|ogg123) -> esd -> alsa (maestro3).
 
-i can reproduce it with just ogg123 -> alsa, but it's not as easy.
-ogg123 -> esd -> alsa does it more.
 
-i never had issues with this in the kernels before (< 2.5.65 or so).
 
-here's a link to my original note back then:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D104818963700788&w=3D2
+Bis denn
 
-i liked the boost in java performance ;), but it's come at a price
-that is quite annoying (sound skips).  though, the extreme performance
-of my jboss server went away in the 2.5.66, and the sound got a little
-better, but it's still pretty bad.
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
-
---bCsyhTFzCvuiizWE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+p/LUCGPRljI8080RAjCUAJ9J91QDZ87m6vvLKsjAK69ZJOCg7gCgiucM
-3Uq9q/nf68sTZsLZXr6NS04=
-=mTDC
------END PGP SIGNATURE-----
-
---bCsyhTFzCvuiizWE--

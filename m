@@ -1,86 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUAXPzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 10:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266968AbUAXPzZ
+	id S266958AbUAXQIy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 11:08:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266960AbUAXQIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 10:55:25 -0500
-Received: from users.ccur.com ([208.248.32.211]:1789 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S265390AbUAXPzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 10:55:11 -0500
-Date: Sat, 24 Jan 2004 10:55:06 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Representation of large hex values
-Message-ID: <20040124155506.GA10809@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Sat, 24 Jan 2004 11:08:54 -0500
+Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:28039 "EHLO
+	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S266958AbUAXQIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 11:08:52 -0500
+Message-ID: <40129898.6020702@borgerding.net>
+Date: Sat, 24 Jan 2004 11:08:56 -0500
+From: Mark Borgerding <mark@borgerding.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC]   "smack the penguin"  2.4 vs 2.6
+References: <401177DB.8010901@nortelnetworks.com> <20040124095208.GA20489@zombie.inka.de> <401284CD.7080006@borgerding.net>
+In-Reply-To: <401284CD.7080006@borgerding.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 03:30:12PM +0000, Dr. David Alan Gilbert wrote:
-> (OK, this isn't strictly a kernel thing - but it seems to be a good
-> place for peoples thoughts on this, and the kernel would be one
-> place to start it off)
-> 
-> The problem: Large (64 bit) hex values are cumbersome - especially
-> when they contain strings of 0's in the middle
-> 
-> Suggestion: Print hex value with a seperator every 4 or 8 nybbles
-> to aid in counting.  After some discussion it seems that _
-> is a decent seperator - e.g.
-> 
-> 1000_0000_0000_1234
-> 
-> this is especially useful when you have a pile of numbers like
-> 
-> 1000000021771245
-> 
-> and you are trying to see if that is bigger or smaller than 
-> the number 1000000232349876, yet it is pretty obvious when you
-> try and compare 1000_0000_2177_1245 and 1000_0002_3234_9876.
-> 
-> I originally thought of using : like IPv6 but this can get
-> in the way on languages which use : for other things.
-> (and I don't think it is worth doing packed numbers like IPv6
-> does - i.e. 1000_0_2177_1245 would be invalid).
-> 
-> For clarity, it would seem best to use a distinct format character;
-> so perhaps prefix these numbers by 0y (read Oi!) and then you
-> could use %y (and %Y if you REALLY want) in printf. Scanf equivalents
-> would be taught to understand both formats; using 0y and _ makes
-> code that doesn't understand the format fail noisily. So:
-> 
-> 0ydead_beef_1ced_ac1d
-> 
-> I don't think there is the necessity to force zero padding, so 
-> 1_2177_1245 is valid; but _ shall not be the first character
-> (so as not to construct an identifier). (I'm vaguely remembering
-> that VHDL allows _ padding?)
-> 
-> If people like this then I'd be happy to write a modified
-> printf/scanf, and I suggest that it gets used in limited places
-> until the same could be integrated in gdb/binutils/other tools.
-> 
-> Suggestions and constructive comments welcome and apologies
-> for disturbing your games of wack-the-penguin.
+Mark Borgerding wrote:
 
-Hi David,
-2.6.1-mm4 has a variant of this, limited to bitmaps and using the
-comma as the seperator.   See bitmap_parse and bitmap_snprintf in
-lib/bitmap.c
+> Eduard Bloch wrote:
+>
+>> #include <hallo.h>
+>> * Chris Friesen [Fri, Jan 23 2004, 02:36:59PM]:
+>>  
+>>
+>>> Diversion for friday afternoon...how far can you get?
+>>>
+>>> Personal best is 586
+>>>   
+>>
+>>
+>> Which means that you are playing it either on a Windows box (what a
+>> shame) or cheating somehow or you have a 5Ghz box or something else is
+>> wrong on regular Linux systems. I do not any Linux user who got
+>> more than 325.5 with the Linux version of the Shockwave plugin.
+>>  
+>>
+>
+> Sounds like 3/4 of the programmers I've ever worked with --  if they 
+> can't figure out how to do it, then it can't be done and anyone who 
+> says otherwise must be lying or cheating.
+>
+>
+> Still, it does seem like the game is much less predictable on some 
+> systems.  I have a linux laptop that plays it quite nicely (thus the 
+> 593.4 I reported earlier).  I tried it on my desktop at home, and it 
+> was very jerky.
+>
+> The two systems are pretty comparable.
+>
+> For anyone who cares: here's the main differences with laptop (good) 
+> on the left and the desktop (bad) on the right:
+>
+> Mozilla: 1.5 on both, build dates 20031107 vs 20031007
+> Flash Version:    6.0.79.0   vs   6.0.69.0
+> CPU:   Pent M 1700   vs Athlon XP 2100+
+> Video: ATI Radeon M9 vs Matrox G400      <=== I think this is the problem
+> Kernel: 2.4.21 (debian) vs 2.6.1
+>
+> I am going to reboot to check against the 2.4 kernel. Who knows? Maybe 
+> there will be a pingu bug report against the 2.6 kernel series.
 
-Replacing the comma with the underscore and moving the whole shebang
-to printf/scanf sounds like a good idea to me.  Printf *should* be
-able to manipulate bitmaps just as it does for other basics types
-like strings and ints.
 
-Why don't you whip up a patch and see what happens?
+... doesn't seem the same.
 
-Regards,
-Joe
+It appears that 2.4.22 may be better suited to penguin abuse than 2.6.1.
+
+I rebooted my desktop to 2.4.22.  Within a minute,  I tied my record 
+from the laptop.
+( http://www.borgerding.net/pingu_proof.png )
+
+Still, the results are far from scientific or conclusive.  I need some 
+objective smackage.
+Maybe I will try a blind study with my nieces tonight.  I'll reboot the 
+machine into either 2.4.22 or 2.6.1 and record their scores.
+
+Coming soon to a techie-site near you, "Pingumark 2004".
+
+- Mark Borgerding
+
+
+

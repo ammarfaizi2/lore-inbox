@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263758AbTKXKKe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 05:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTKXKKe
+	id S263747AbTKXKI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 05:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTKXKI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 05:10:34 -0500
-Received: from ua-online.net ([213.179.225.6]:59909 "EHLO center.hqhost.net")
-	by vger.kernel.org with ESMTP id S263758AbTKXKK1 (ORCPT
+	Mon, 24 Nov 2003 05:08:57 -0500
+Received: from [194.118.56.16] ([194.118.56.16]:63928 "EHLO mia.0xff.at")
+	by vger.kernel.org with ESMTP id S263747AbTKXKIz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 05:10:27 -0500
-Date: Mon, 24 Nov 2003 12:08:26 +0200
-From: maple@maple.org.ua
+	Mon, 24 Nov 2003 05:08:55 -0500
+Subject: LSI53C1030 (Fustion MPT) performance
+From: Karl Pitrich <pit@0xff.at>
 To: linux-kernel@vger.kernel.org
-Cc: maple@center.hqhost.net
-Subject: test10, hangs at aic79xx probing
-Message-ID: <20031124100826.GA10304@valinor.localnet>
+Content-Type: text/plain
+Message-Id: <1069668564.2372.127.camel@warp.fabafsc.fabagl.fabasoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 24 Nov 2003 11:09:24 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+hi,
 
-machine hangs just after
+i got a new ibm intellistation z pro dual xeon (6221-49G) with on board 
+Fusion MPT chipset (LSI53C1030) and fast U160 disks.
 
-hda: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63,
-UDMA(100)
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 >
+2.4.20-8 (redhat) and 2.6.0-test9-vanilla 
+(each customer compiled minimal kernels) 
+both yield very poor disk performance.
 
-next should be
+i didn't do specific benkchmarking, but mv'ing a 3GB $HOME to another
+partition takes at least 4x the time as on my old P4 workstation with
+IDE drive.
 
-scsi0 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 2.0.4
-        <Adaptec 29320LP Ultra320 SCSI adapter>
-        aic7901A: Ultra320 Wide Channel A, SCSI Id=7, PCI 33 or 66Mhz,
-512 SCBs
+is poor performance with this controller a known problem?
+could that have to do something with smp?
 
-(scsi0:A:0): 320.000MB/s transfers (160.000MHz DT|IU|QAS, 16bit)
-(scsi0:A:1): 320.000MB/s transfers (160.000MHz DT|IU|QAS, 16bit)
-  Vendor: IBM       Model: IC35L036UCDY10-0  Rev: S21E
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-  Vendor: IBM       Model: IC35L036UCDY10-0  Rev: S21E
-  Type:   Direct-Access                      ANSI SCSI revision: 03
+in 2.6.0, the driver's cvs-versions seem to match the ones in the
+sources offered by LSI for download.
+lkml-archives and google weren't all too helpful.
 
-no oops, no panic
+any info/help apreciated,
 
-I've also experienced troubles with this scsi controller in test9,
-kernel detected it normally, but
-after reading from both disks simultaneously kernel printing huge amount
-of debug and refused to read with io error. exact info I sent to linux-scsi,
-if interested.
-in test9 case, Justin Gibbs (gibbs@scsiguy.com) suggested me to try
-drivers from
-http://people.FreeBSD.org/~gibbs/linux/SRC/aic79xx-linux-2.6-20031106-tar.gz
-and it helps. Untarring these drivers into test10 does not help, same
-hang after IDE partitions probing. 2.4.22 works ok. Tell me, if you 
-need more info.
 
-        SY, Vladimir
+ / karl
+
+
+PS: in the course of this i studied dmesg and found:
+
+  calibrating APIC timer ...
+  ..... CPU clock speed is 3066.0234 MHz.
+  ..... host bus clock speed is 133.0314 MHz.
+
+is 'host bus clock speed' != front side bus speed?
+this shows up also on other p4 machines with much faster FSB than 133
+mhz.
+
+
+
+

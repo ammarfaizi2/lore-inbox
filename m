@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136479AbREDS35>; Fri, 4 May 2001 14:29:57 -0400
+	id <S136484AbREDSfi>; Fri, 4 May 2001 14:35:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136480AbREDS3r>; Fri, 4 May 2001 14:29:47 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:8430 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136479AbREDS3c>;
-	Fri, 4 May 2001 14:29:32 -0400
-Date: Fri, 4 May 2001 14:29:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        volodya@mindspring.com, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.LNX.4.21.0105041048290.521-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105041418550.21896-100000@weyl.math.psu.edu>
+	id <S136482AbREDSf2>; Fri, 4 May 2001 14:35:28 -0400
+Received: from colargol.tihlde.hist.no ([158.38.48.10]:20743 "HELO tihlde.org")
+	by vger.kernel.org with SMTP id <S136480AbREDSfQ>;
+	Fri, 4 May 2001 14:35:16 -0400
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Nico Schottelius <nicos@pcsystems.de>, linux-kernel@vger.kernel.org
+Subject: Re: added a new feature: disable pc speaker
+In-Reply-To: <8340.988979784@ocs3.ocs-net>
+From: Oystein Viggen <oysteivi@tihlde.org>
+Organization: Tihlde
+X-Spook: Honduras cryptographic North Korea quiche Croatian Waco, Texas assassination 
+X-URL: http://www.tihlde.org/~oysteivi/
+X-Phone-Number: +47 97 11 48 58
+X-Address: Tordenskioldsgt. 12, 7012 Trondheim, Norway
+X-MSMail-Priority: High
+X-Face: R=b-K(^1#]KR?6moG:Wrc/t>p)?p`?bgHg36M3hZ>^?\akat3!nX*8xZpIvZrI#]ZzN`I<+
+ L{8#pdH*1SOB$Zu-_e1<>iE$5cGiLhRem.ct.QtE=&v@9\S_6slX4='![%,F3^&ed5Y5g-#!N'Lr[s
+ &Gfs3c}pYq^oUo{8l-qD87s[P1~+f([41~gD}Pj)nX|KcVv;tF4IIx%pnN\UL|SNT
+Date: 04 May 2001 20:35:06 +0200
+In-Reply-To: <8340.988979784@ocs3.ocs-net>
+Message-ID: <03wv7xm085.fsf@colargol.tihlde.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoth Keith Owens: 
 
-
-On Fri, 4 May 2001, Linus Torvalds wrote:
-
+> Userspace problem, userspace fix.
 > 
-> On Fri, 4 May 2001, Alexander Viro wrote:
-> > 
-> > Ehh... There _is_ a way to deal with that, but it's deeply Albertesque:
-                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > 	* add pagecache access for block device
-> > 	* put your "real" root on /dev/loop0 (setup from initrd)
-> > 	* dd
-> 
-> You're one sick puppy.
+>   setterm -blength 0 (text)
+>   xset b 0 (X11)
 
-[snip]
-/me bows
+Well, some buggy programs don't care about you turning off beeping in
+X.  I think gnome-terminal or such has its own checkbox for turning
+beeps on or off. 
 
-Nice to see that imitation was good enough ;-) Seriously, I half-expected
-Albert to show up at that point of thread and tried to anticipate what
-he'd produce.
+I still agree that this is fixing userspace bugs in the kernel, and
+probably not desirable, even if I think I'd disable the pc speaker if
+the kernel actually asked me.  If nothing else, I figure it would make
+my kernel 0.5k or so smaller  ;)
 
-ObProcfs: I don't think that walking the page tables is a good way to
-compute RSS, especially since VM maintains the thing. Mind if I rip
-it out? In effect, implementation of /prc/<pid>/statm
-	* produces extremely bogus values (VMA is from library if it goes
-	  beyond 0x60000000? Might be even true 7 years ago...) and nobody
-	  had cared about them for 6-7 years
-	* makes stuff like top(1) _walk_ _whole_ _page_ _tables_ _of_ _all_
-	  _processes_ each 5 seconds. No wonder it's slow like hell and eats
-	  tons of CPU time.
-
+Oystein
+-- 
+When in doubt: Recompile.

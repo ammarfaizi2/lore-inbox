@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276737AbRJBWN3>; Tue, 2 Oct 2001 18:13:29 -0400
+	id <S276743AbRJBWPJ>; Tue, 2 Oct 2001 18:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276738AbRJBWNU>; Tue, 2 Oct 2001 18:13:20 -0400
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:3852 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S276737AbRJBWNF>;
-	Tue, 2 Oct 2001 18:13:05 -0400
-Message-ID: <3BBA3C4E.6020604@si.rr.com>
-Date: Tue, 02 Oct 2001 18:14:38 -0400
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S276739AbRJBWPB>; Tue, 2 Oct 2001 18:15:01 -0400
+Received: from cs82093.pp.htv.fi ([212.90.82.93]:1920 "EHLO cs82093.pp.htv.fi")
+	by vger.kernel.org with ESMTP id <S276738AbRJBWOw>;
+	Tue, 2 Oct 2001 18:14:52 -0400
+Message-ID: <3BBA3C71.40C3D719@welho.com>
+Date: Wed, 03 Oct 2001 01:15:13 +0300
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: alan@lxorguk.ukuu.org.uk
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
 CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.10-ac3: fs/cramfs/Makefile
-Content-Type: multipart/mixed;
- boundary="------------080505090700010300000206"
+Subject: Re: System reset on Kernel 2.4.10
+In-Reply-To: <527872464EC@vcnet.vc.cvut.cz> <20011002234115.A1891@vana.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080505090700010300000206
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Petr Vandrovec wrote:
 
-Hello,
-    The attached patch against 2.4.10-ac3 addresses the following issue 
-since 2.4.9-ac17:
+> I was not able to find where problem could be with unpatched
+> kernel, but arguments passed to do_brk(), set into mm->start_brk,
+> {start,end}_code and so on looks very suspicious... But as on my
+> system it does not crash neither with nor without patch below, I
+> leave answer on someone else.
 
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.9-ac17/kernel/fs/cramfs/cramfs/cramfs.o
-depmod:  zlib_fs_inflateInit_
-depmod:  zlib_fs_inflateEnd
-depmod:  zlib_fs_inflate_workspacesize
-depmod:  zlib_fs_inflate
-depmod:  zlib_fs_inflateReset
+Well, your patch does seem to fix it:
 
-Regards,
-Frank
+$ /usr/src/linux-2.4.10/vmlinux
+Segmentation fault
+$ dmesg
+...
+elf_map error code: -22
 
---------------080505090700010300000206
-Content-Type: text/plain;
- name="CRAMFS"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="CRAMFS"
+Cheers,
 
---- fs/cramfs/Makefile.old	Tue Oct  2 17:44:56 2001
-+++ fs/cramfs/Makefile	Tue Oct  2 17:46:51 2001
-@@ -4,7 +4,7 @@
- 
- O_TARGET := cramfs.o
- 
--obj-y  := inode.o uncompress.o
-+obj-y  := inode.o uncompress.o ../inflate_fs/inflate_fs.o
- 
- obj-m := $(O_TARGET)
- 
-
---------------080505090700010300000206--
-
+	MikaL

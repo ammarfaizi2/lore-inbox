@@ -1,63 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265253AbTFZAh2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S265251AbTFZAh2 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Jun 2003 20:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTFZAfk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbTFZAgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:35:40 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:34027 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265247AbTFZAfF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:35:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10565884943135@kroah.com>
-Subject: Re: [PATCH] More PCI fixes for 2.5.73
-In-Reply-To: <10565884931018@kroah.com>
+	Wed, 25 Jun 2003 20:36:51 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:9208 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265257AbTFZAfV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 20:35:21 -0400
+Date: Wed, 25 Jun 2003 17:45:51 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 25 Jun 2003 17:48:14 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [BK PATCH] More PCI fixes for 2.5.73
+Message-ID: <20030626004551.GA14034@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1429.2.4, 2003/06/25 17:03:44-07:00, willy@debian.org
+Hi,
 
-[PATCH] PCI: more PCI gubbins
+Here's some PCI fixes that are against the latest 2.5.73 bk tree.  They
+fix some PCI domain issues in the core and acpi, a reference count bug
+in the PCI Hotplug core, and a fix for a character driver I broke with
+one of the older PCI reference count patches.
 
-I noticed we have a couple of redundancies in drivers/pci/Makefile,
-have a patch...
+I've also added a "fake" pci hotplug driver that might be useful for
+some people to test their PCI drivers with, if they don't have access to
+any PCI hotplug hardware.
+
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/pci-2.5
+
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
 
 
- drivers/pci/Makefile |    9 ++-------
- 1 files changed, 2 insertions(+), 7 deletions(-)
+ Documentation/pci.txt                  |   37 +++--
+ arch/i386/pci/acpi.c                   |   10 +
+ arch/ia64/pci/pci.c                    |   14 -
+ drivers/acpi/pci_root.c                |    4 
+ drivers/char/ip2main.c                 |   60 ++++----
+ drivers/pci/Makefile                   |    9 -
+ drivers/pci/hotplug/Kconfig            |   25 +++
+ drivers/pci/hotplug/Makefile           |    1 
+ drivers/pci/hotplug/fakephp.c          |  232 +++++++++++++++++++++++++++++++++
+ drivers/pci/hotplug/ibmphp_hpc.c       |   61 ++++----
+ drivers/pci/hotplug/ibmphp_res.c       |    4 
+ drivers/pci/hotplug/pci_hotplug.h      |    4 
+ drivers/pci/hotplug/pci_hotplug_core.c |   22 +--
+ drivers/pci/probe.c                    |   34 ++--
+ include/acpi/acpi_drivers.h            |    4 
+ include/asm-ia64/pci.h                 |    1 
+ 17 files changed, 399 insertions(+), 123 deletions(-)
+-----
 
+Eduardo Pereira Habkost:
+  o Fix compilation of ip2main
 
-diff -Nru a/drivers/pci/Makefile b/drivers/pci/Makefile
---- a/drivers/pci/Makefile	Wed Jun 25 17:38:09 2003
-+++ b/drivers/pci/Makefile	Wed Jun 25 17:38:09 2003
-@@ -8,7 +8,7 @@
- obj-$(CONFIG_PROC_FS) += proc.o
- 
- ifndef CONFIG_SPARC64
--obj-$(CONFIG_PCI) += setup-res.o
-+obj-y += setup-res.o
- endif
- 
- obj-$(CONFIG_HOTPLUG) += hotplug.o
-@@ -29,12 +29,7 @@
- obj-$(CONFIG_SGI_IP32) += setup-irq.o
- obj-$(CONFIG_X86_VISWS) += setup-irq.o
- 
--# CompactPCI hotplug requires the pbus_* functions
--ifdef CONFIG_HOTPLUG_PCI_CPCI
--obj-y += setup-bus.o
--endif
--
--# Hotplug (eg, cardbus) now requires setup-bus
-+# Cardbus & CompactPCI use setup-bus
- obj-$(CONFIG_HOTPLUG) += setup-bus.o
- 
- ifndef CONFIG_X86
+Greg Kroah-Hartman:
+  o PCI Hotplug: add fake PCI hotplug driver
+  o IBM PCI Hotplug: fixes found by sparse
+  o PCI Hotplug: fix core problem with kobject lifespans
+
+Matthew Wilcox:
+  o PCI: fixes for pci/probe.c
+  o PCI: more PCI gubbins
+  o PCI documentation
+  o PCI: [PATCH] pcibios_scan_acpi()
 

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSELLZ3>; Sun, 12 May 2002 07:25:29 -0400
+	id <S312582AbSELLYl>; Sun, 12 May 2002 07:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312600AbSELLZ2>; Sun, 12 May 2002 07:25:28 -0400
-Received: from urtica.linuxnews.pl ([217.67.200.130]:2832 "EHLO
-	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
-	id <S312590AbSELLZ0>; Sun, 12 May 2002 07:25:26 -0400
-Date: Sun, 12 May 2002 13:25:18 +0200 (CEST)
-From: Pawel Kot <pkot@linuxnews.pl>
-To: <mcp@linux-systeme.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] NTFS 2.0.7a for Linux 2.4.18
-In-Reply-To: <Pine.LNX.3.96.1020512040757.27097A-100000@fps>
-Message-ID: <Pine.LNX.4.33.0205121323490.493-100000@urtica.linuxnews.pl>
+	id <S312590AbSELLYk>; Sun, 12 May 2002 07:24:40 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59912 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312582AbSELLYj>; Sun, 12 May 2002 07:24:39 -0400
+Subject: Re: IRQ > 15 for Athlon SMP boards
+To: hugh@nospam.com (Hugh)
+Date: Sun, 12 May 2002 12:18:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CDE48CC.9050003@nospam.com> from "Hugh" at May 12, 2002 07:49:48 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E176rMX-0003Gu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marc,
+>   Bus  1, device   5, function  0:
+>     VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 4).
+>       IRQ 16.
 
-On Sun, 12 May 2002 mcp@linux-systeme.de wrote:
+Looks fine to me. IRQ 0-15 limitations are the ancient world of ISA bus
 
-> >Backported NTFS 2.0.7 from 2.5.x to 2.4.18 is available from linux-ntfs
-> >project page:
-> i've tried this, have a look:
-[...]
-> Yes, 2.4.18 + preempt and some other additional stuff.
-> NTFS is a Module, happs with/without selecting debug feature in kernel
-> config.
+> The results were the same.  The consequence is that X does not
+> start because of an error that reads like
+> 
+> =============================================================
+> (WW) MGA No matching device section for instance (BusID PCI:1:5:0) found
+> (EE) No devices detected
+> ==================================================================
 
-Thanks for the report. I'll add preemtion support in the 2.0.7b (or 2.0.8a
-if Anton will make 2.0.8 first).
-
-pkot
--- 
-mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
-http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
-
+I don't know why X is not running but I don't think the IRQ is related at
+all

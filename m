@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUJHXM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUJHXO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUJHXM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUJHXM3
+	id S265971AbUJHXO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:12:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2182 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265970AbUJHXM0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:12:26 -0400
-Date: Fri, 8 Oct 2004 16:12:05 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
-       "Jack O'Quin" <joq@io.com>
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041008161205.T2357@build.pdx.osdl.net>
-References: <877jq5vhcw.fsf@sulphur.joq.us> <1097193102.9372.25.camel@krustophenia.net> <1097269108.1442.53.camel@krustophenia.net> <20041008144539.K2357@build.pdx.osdl.net> <1097272140.1442.75.camel@krustophenia.net> <20041008145252.M2357@build.pdx.osdl.net> <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net> <20041008152430.R2357@build.pdx.osdl.net> <1097276726.1442.82.camel@krustophenia.net>
+	Fri, 8 Oct 2004 19:14:27 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:53735 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265971AbUJHXOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:14:10 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <20041007105230.GA17411@elte.hu>
+References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
+	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
+	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
+	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
+	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
+	 <20041007105230.GA17411@elte.hu>
+Content-Type: text/plain
+Message-Id: <1097277103.1442.87.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1097276726.1442.82.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 08, 2004 at 07:05:31PM -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 19:11:44 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> On Fri, 2004-10-08 at 18:24, Chris Wright wrote:
-> > (relative to last one)
-> > 
-> > use in_group_p
-> > 
+On Thu, 2004-10-07 at 06:52, Ingo Molnar wrote:
+> i've released the -T3 VP patch:
 > 
-> Thanks!  These make the patch even smaller and more comprehensible. 
-> Does this cover all the issues with the patch as I posted it?
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+> 
 
-The last bit is removing sysctls.  It'll take a bit more effort, as we
-need a touch of infrastructure for it.  I'm working on that now.  Here's
-a couple really minor ones.
+Also, I am still seeing some long latencies in the ext3 journaling code:
 
-- make realtime_bprm_set_security static
-- don't mark exit_security __exit, it's called from an __init function
+preemption latency trace v1.0.7 on 2.6.9-rc3-mm3-VP-T3
+-------------------------------------------------------
+ latency: 607 us, entries: 1087 (1087)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:1]
+    -----------------
+    | task: kjournald/687, uid:0 nice:0 policy:0 rt_prio:0
+    -----------------
+ => started at: journal_commit_transaction+0x75/0x2830
+ => ended at:   __journal_clean_checkpoint_list+0xb2/0xf0
+=======>
+00000001 0.000ms (+0.003ms): journal_commit_transaction (kjournald)
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Here is the loop:
 
---- security/realtime.c	2004-10-08 16:10:52.080357656 -0700
-+++ security/realtime.c~in_group	2004-10-08 16:02:05.932344312 -0700
-@@ -71,7 +71,7 @@
- 	return in_group_p(gid);
- }
- 
--static int realtime_bprm_set_security(struct linux_binprm *bprm)
-+int realtime_bprm_set_security(struct linux_binprm *bprm)
- {
- 
- 	cap_bprm_set_security(bprm);
-@@ -170,7 +170,7 @@
- 
- static int secondary;	/* flag to keep track of how we were registered */
- 
--static void exit_security(void)
-+static void __exit exit_security(void)
- {
- 	/* remove ourselves from the security framework */
- 	if (secondary) {
+00000002 0.003ms (+0.001ms): kfree (journal_commit_transaction)
+00000001 0.004ms (+0.001ms): journal_refile_buffer (journal_commit_transaction)
+00000003 0.006ms (+0.000ms): __journal_refile_buffer (journal_refile_buffer)
+00000003 0.006ms (+0.001ms): __journal_unfile_buffer (journal_refile_buffer)
+00000002 0.008ms (+0.000ms): journal_remove_journal_head (journal_refile_buffer)
+00000003 0.008ms (+0.000ms): __journal_remove_journal_head (journal_remove_journal_head)
+00000003 0.009ms (+0.000ms): __brelse (__journal_remove_journal_head)
+00000003 0.010ms (+0.000ms): journal_free_journal_head (journal_remove_journal_head)
+00000003 0.010ms (+0.001ms): kmem_cache_free (journal_free_journal_head)
+00000001 0.011ms (+0.000ms): __brelse (journal_commit_transaction)
+
+[end loop]
+
+00000002 0.012ms (+0.000ms): kfree (journal_commit_transaction)
+00000001 0.013ms (+0.000ms): journal_refile_buffer (journal_commit_transaction)
+
+I think I already reported this one with S7.
+
+Lee
+

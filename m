@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269296AbTCDHaV>; Tue, 4 Mar 2003 02:30:21 -0500
+	id <S269312AbTCDHhB>; Tue, 4 Mar 2003 02:37:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269309AbTCDHaV>; Tue, 4 Mar 2003 02:30:21 -0500
-Received: from adsl-67-115-104-87.dsl.sntc01.pacbell.net ([67.115.104.87]:3415
-	"HELO laura.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S269296AbTCDHaU>; Tue, 4 Mar 2003 02:30:20 -0500
-From: brian@worldcontrol.com
-Date: Mon, 3 Mar 2003 23:39:39 -0800
-To: linux-kernel@vger.kernel.org
-Subject: Booting 2.5.63 vs 2.4.20 I can't read multicast data
-Message-ID: <20030304073939.GA31394@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
+	id <S269313AbTCDHhB>; Tue, 4 Mar 2003 02:37:01 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:45771 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S269312AbTCDHhA>; Tue, 4 Mar 2003 02:37:00 -0500
+Date: Tue, 4 Mar 2003 08:44:39 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: mochel@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sysfs: compile fix for fs/sysfs/mount.c
+Message-ID: <20030304074439.GB5545@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-No-Archive: yes
-X-Noarchive: yes
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+sysfs_init is __init, but without a declaration of that gcc 3.2. tends to
+start screaming.
 
-I give the 2.5 series a try every once in a while and found the
-2.5.63 booted and ran reasonably well.
+	Dominik
 
-I happen to working on some multicast stuff and found that I can't
-read multicast data when running 2.5.63.
-
-Switched back to 2.4.20 and the multicast data reads fine.
-
-Back to 2.5.63 and nada.  tcpdump shows the data showing up
-at the interface.  I double checked the obvious stuff like
-multicast being turned on in the kernel.
-
-I even have tulip and rtl-8139 based cards I can switch between
-and that made no difference either.
-
-Is there something I have to set someplace to get multicast
-support in 2.5.x?
-
--- 
-Brian Litzinger
+diff -ruN linux-original/fs/sysfs/mount.c linux/fs/sysfs/mount.c
+--- linux-original/fs/sysfs/mount.c	2003-03-04 08:27:10.000000000 +0100
++++ linux/fs/sysfs/mount.c	2003-03-04 08:32:13.000000000 +0100
+@@ -7,6 +7,7 @@
+ #include <linux/fs.h>
+ #include <linux/mount.h>
+ #include <linux/pagemap.h>
++#include <linux/init.h>
+ 
+ #include "sysfs.h"
+ 

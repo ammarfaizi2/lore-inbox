@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269400AbTGVBTn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 21:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270576AbTGVBTn
+	id S267186AbTGVBVp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 21:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270775AbTGVBVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 21:19:43 -0400
-Received: from newpeace.netnation.com ([204.174.223.7]:3481 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP id S269400AbTGVBTk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 21:19:40 -0400
-Date: Mon, 21 Jul 2003 18:34:43 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Scheduler starvation (2.5.x, 2.6.0-test1)
-Message-ID: <20030722013443.GA18184@netnation.com>
+	Mon, 21 Jul 2003 21:21:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50376 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267186AbTGVBVH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 21:21:07 -0400
+Date: Mon, 21 Jul 2003 18:33:38 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Matthew Harrell 
+	<mharrell-dated-1059268898.4dcd80@bittwiddlers.com>
+Cc: lists-sender-14a37a@bittwiddlers.com, linux-kernel@vger.kernel.org
+Subject: Re: hid: ctrl urb status -75?
+Message-Id: <20030721183338.44634e51.rddunlap@osdl.org>
+In-Reply-To: <20030722012137.GA7159@bittwiddlers.com>
+References: <20030722012137.GA7159@bittwiddlers.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I keep seeing cases where browsing in mozilla / galeon will suck away all
-CPU from X updating the mouse, xmms playing, etc., for about a second as
-Mozilla renders a page (which should take 50 ms to render, but anyway..).
+On Mon, 21 Jul 2003 21:21:37 -0400 Matthew Harrell <lists-sender-14a37a@bittwiddlers.com> wrote:
 
-This is only a Celeron 466 MHz, but there never used to be such a problem
-in 2.2 and 2.4 kernels.  All processes (X, galeon, xmms) are running with
-the default nice of 0.  It seems there is something with the scheduler
-heuristics which is giving galeon a way-too-large preemptive timeslice
-and not even allowing enough CPU to other processes to, for example, let
-X update the mouse cursor.  This seems wrong -- Shouldn't the device
-event always wake up and switch to the X task if the process has usable
-timeslices left?
+| 
+| What does this error mean?  I'm attempting to plug in a USB keyboard I've got
+| and it gives me the messages
+| 
+|   hub 1-0:0: new USB device on port 1, assigned address 3
+|   input: USB HID v1.10 Keyboard [CHESEN USB Keyboard] on usb-0000:00:11.2-1
+|   drivers/usb/input/hid-core.c: ctrl urb status -75 received
+| 
+| Other USB keyboards work fine so it must be something special with this one.
+| This is under all kernels from 2.5.60 to 2.6.0-test1
 
-This only seems to happen after letting the system settle for some time. 
-If I refresh a page once, the problem happens.  Again, less.  Again, the
-scheduler seems to allow mouse updates normally.  I have to wait about 30
-seconds for the problem to occur again.  This is much easier to see with
-X reniced to +1.  It occurs with X reniced to +0, but not as often.  With
-the old scheduler, +20 wouldn't even make a noticeable difference because
-mouse events would still wake up and run the process as expected.
+include/asm-generic/errno.h says that 75 is EOVERFLOW.
+Now look in Documentation/usb/error-codes.txt and it says that
+EOVERFLOW is used for:
+-EOVERFLOW (*)		The amount of data returned by the endpoint was
+			greater than either the max packet size of the
+			endpoint or the remaining buffer size.  "Babble".
 
-It is really easy to notice the problem on this box not because of the
-audible and visible skips, but the fact that there's a bug in the ALSA
-Gravis Ultrasound Classic driver which causes it to sometimes play
-incorrect portions of RAM when the sound restarts. :)
+The device returned too much data.
+See whichever host controller driver you are using for details.
 
-Is anybody else seeing this or is it something to do with my setup here?
-
-Simon-
+--
+~Randy

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261358AbSIWUSr>; Mon, 23 Sep 2002 16:18:47 -0400
+	id <S261373AbSIWUTr>; Mon, 23 Sep 2002 16:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbSIWUSr>; Mon, 23 Sep 2002 16:18:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26289 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261358AbSIWUSq>;
-	Mon, 23 Sep 2002 16:18:46 -0400
-Date: Mon, 23 Sep 2002 22:32:00 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Larry McVoy <lm@bitmover.com>, Peter Waechtler <pwaechtler@mac.com>,
-       <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <Pine.LNX.3.96.1020923152135.13351C-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0209232218320.2118-100000@localhost.localdomain>
+	id <S261375AbSIWUTr>; Mon, 23 Sep 2002 16:19:47 -0400
+Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:10765 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S261373AbSIWUTl>; Mon, 23 Sep 2002 16:19:41 -0400
+Subject: Re: Oops in usb_submit_urb with US_FL_MODE_XLATE (2.4.19 and 2.4.20-pre7)
+In-Reply-To: <20020923200554.GG18769@kroah.com>
+To: Greg KH <greg@kroah.com>
+Date: Mon, 23 Sep 2002 22:24:44 +0200 (CEST)
+CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, mdharm-usb@one-eyed-alien.net,
+       linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17tZl6-000164-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH <greg@kroah.com> wrote:
+> That's Matt's call, not mine.  And generating a patch for 2.4.20-pre7
+> and 2.5.38 would help out in getting it accepted :)
 
-On Mon, 23 Sep 2002, Bill Davidsen wrote:
+Below is the patch for 2.4.20-pre7.  I'm not brave enough to test 2.5.x
+kernels just yet...
 
-> The programs which benefit from N:M are exactly those which don't behave
-> the way you describe. [...]
+Thanks,
+Marek
 
-90% of the programs that matter behave exactly like Larry has described.
-IO is the main source of blocking. Go and profile a busy webserver or
-mailserver or database server yourself if you dont believe it.
+--- orig/linux-2.4.20-pre7/drivers/usb/storage/unusual_devs.h	2002-09-21 12:27:12.000000000 +0200
++++ linux-2.4.20-pre7/drivers/usb/storage/unusual_devs.h	2002-09-23 22:09:18.000000000 +0200
+@@ -485,6 +485,17 @@
+ 		US_FL_MODE_XLATE ),
+ #endif
+ 
++/* Datafab KECF-USB / Sagatek DCS-CF (Datafab DF-UG-07 chip).
++ * Submitted by Marek Michalkiewicz <marekm@amelek.gda.pl>.
++ * Needed for FIX_INQUIRY.  Only revision 1.13 tested.
++ * See also http://martin.wilck.bei.t-online.de/#kecf .
++ */
++UNUSUAL_DEV(  0x07c4, 0xa400, 0x0000, 0xffff,
++		"Datafab",
++		"KECF-USB",
++		US_SC_SCSI, US_PR_BULK, NULL,
++		US_FL_FIX_INQUIRY ),
++
+ /* Casio QV 2x00/3x00/4000/8000 digital still cameras are not conformant
+  * to the USB storage specification in two ways:
+  * - They tell us they are using transport protocol CBI. In reality they
 
-> [...] Think of programs using locking to access shared memory, or other
-> fast resources which don't require a visit to the kernel. [...]
-
-oh - actually, such things are quite rare it turns out. And even if it
-happens, the 1:1 model is handling this perfectly fine via futexes, as
-long as the contention of the shared resource is light. Which it better be
-...
-
-any application with heavy contention over some global shared resource is
-serializing itself already and has much bigger problems than that of the
-threading model ... Its performance will be bad both under M:N and 1:1
-models - think about it.
-
-so a threading abstraction must concentrate on what really matters:  
-performing actual useful tasks - most of those tasks involve the use of
-some resource, block IO, network IO, user IO - each of them involve entry
-into the kernel - at which point the 1:1 design fits much better.
-
-(and all your followup arguments are void due to this basic
-misunderstanding.)
-
-	Ingo
 

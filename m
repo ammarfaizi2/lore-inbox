@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131129AbQLMLt0>; Wed, 13 Dec 2000 06:49:26 -0500
+	id <S131113AbQLMMHP>; Wed, 13 Dec 2000 07:07:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131190AbQLMLtQ>; Wed, 13 Dec 2000 06:49:16 -0500
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:9361 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id <S131129AbQLMLtH>; Wed, 13 Dec 2000 06:49:07 -0500
-Date: Wed, 13 Dec 2000 12:18:33 +0100 (CET)
-From: Nils Philippsen <nils@fht-esslingen.de>
-Reply-To: <nils@fht-esslingen.de>
-To: Paul Jakma <paul@clubi.ie>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via82cxxx_audio - bad latency 
-In-Reply-To: <Pine.LNX.4.30.0012130244140.1326-100000@fogarty.jakma.org>
-Message-ID: <Pine.LNX.4.30.0012131200050.28736-100000@rhlx01.fht-esslingen.de>
+	id <S131161AbQLMMHF>; Wed, 13 Dec 2000 07:07:05 -0500
+Received: from virtualro.ic.ro ([194.102.78.138]:39952 "EHLO virtualro.ic.ro")
+	by vger.kernel.org with ESMTP id <S131113AbQLMMGy>;
+	Wed, 13 Dec 2000 07:06:54 -0500
+Date: Wed, 13 Dec 2000 13:36:13 +0200 (EET)
+From: Jani Monoses <jani@virtualro.ic.ro>
+To: Petr Sebor <petr@scssoft.com>
+cc: linux-kernel@vger.kernel.org,
+        Martin Maèok <martin.macok@underground.cz>
+Subject: Re: 2.4.0-test12 randomly hangs up
+In-Reply-To: <000f01c064f4$157f3570$a49418d4@shredder>
+Message-ID: <Pine.LNX.4.10.10012131332320.1957-100000@virtualro.ic.ro>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2000, Paul Jakma wrote:
 
-> hi,
->
-> i think somethings gone wrong with via82cxxx_audio. Playing anything
-> through it seems to cause massive latency in apps like xmms, esd,
-> asmixer, etc.. anything to do with playing or mixer levels suddenly
-> takes a minute or more to respond.
+Mine too did this 15 minutes ago.Just moving the mouse around in X and
+suddenly complete freeze.No response to ping either.Such a thing didn't 
+happen for a long time to me.The only thing I've changed since test11 is
+compiling fb+fbvesa in.
 
-Same here. Kernel is test12-pre8 and board is an Epox 8KTA2 (VIA KT133
-chipset). The funny thing is that audio itself doesnt get blocked, just XMMS'
-GUI.
 
-> the via is sharing an interrupt, though normally the buslogic is not
-> being used. (the interrupt sharing has been there a lot longer than
-> this problem)
->
-> i don't have the /proc/driver/via.... files that the docs mention.
 
-I will take a look into this when I'm at home (at the offending machine).
 
-Nils
--- 
- Nils Philippsen / Berliner Straße 39 / D-71229 Leonberg // +49.7152.209647
-nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
-   The use of COBOL cripples the mind; its teaching should, therefore, be
-   regarded as a criminal offence.                  -- Edsger W. Dijkstra
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,160 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317852AbSHaSLL>; Sat, 31 Aug 2002 14:11:11 -0400
+	id <S317855AbSHaSWV>; Sat, 31 Aug 2002 14:22:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317855AbSHaSLL>; Sat, 31 Aug 2002 14:11:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31244 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317852AbSHaSLJ>;
-	Sat, 31 Aug 2002 14:11:09 -0400
-Message-ID: <3D710A93.729F3026@zip.com.au>
-Date: Sat, 31 Aug 2002 11:27:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: 2.5.32-mm4
+	id <S317859AbSHaSWU>; Sat, 31 Aug 2002 14:22:20 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:36828 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S317855AbSHaSWT>;
+	Sat, 31 Aug 2002 14:22:19 -0400
+Date: Sat, 31 Aug 2002 20:26:45 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: keyboard slowdown regression in 2.5.32 (right .config) Re: FIXED in 2.5.29 Re: keyboard ONLY functions in 2.5.27 with local APIC on for UP
+Message-ID: <20020831182645.GA8812@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <20020720222905.GA15288@outpost.ds9a.nl> <20020728204051.A15238@ucw.cz> <20020728203211.GA20082@outpost.ds9a.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020728203211.GA20082@outpost.ds9a.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.32/2.5.32-mm4/
+Vojtech, list, I think we may have a small regression in the keyboard
+support.
 
-Since -mm2:
+In 2.5.27 my keyboard only worked when I turned on Local APIC on UP, which
+was fixed in 2.5.29 (original message below).
 
-- Linus has merged a bunch of things.  Of which O_DIRECT support for ext3
-  is the only interesting part.
+In 2.5.32 I'm back to almost the exact same problem, but the APIC setting
+does not matter.
 
-- mm3 was a temp syncup with wli.  mm4 has survived an overnight deathtest
-  and looks pretty good.
+It boots fine without keyboard support, which I had initially after make
+oldconfig (except no keyboard). When I turn on the keyboard support, just
+after 'Freeing unused kernel memory', my harddisk light starts to blink
+roughly once every .75 seconds and the boot proceeds *very* slowly.
+Furthermore, I can feel that the CPU is hard at work, the fan exhaust of my
+laptop gets pretty hot.
 
-+ the block-highmem scsi fix has been changed: we now allow block-highmem
-  for all scsi devices, not just disks.
+Numlock does not react and keystrokes do not appear on the screen. I do see
+some keyboard related printk's early in the bootprocess but they are gone
+quickly and do not look like errors.
 
-+ added a patch to move the rmap locking functions into their own
-  header file.
+This is the exact same behaviour I had with 2.5.27 and APIC *off*.
 
-+ highpte is now working.
+2.5.31 works fine. This is a nearly-completely-SiS laptop from a company
+called 'Gericom'.
 
-  There is no evidence that non-ia32 people have tried to compile this
-  code yet.
+Booted with 2.5.31:
+$ cat /proc/interrupts 
+           CPU0       
+  0:     475860          XT-PIC  timer
+  1:       2572          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          3          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 10:       3141          XT-PIC  eth0
+ 12:        526          XT-PIC  PS/2 Mouse
+ 14:       4879          XT-PIC  ide0
+ 15:         11          XT-PIC  ide1
+NMI:          0 
+ERR:          0
 
-+ a race in slablru has been fixed.  slablru seems to keep the slabs
-  under control quite nicely.
+$ cat /proc/ioports 
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+a000-afff : PCI Bus #01
+  ac80-acff : Silicon Integrated Systems [SiS] SiS630 GUI Accelerator+3D
+d000-d0ff : Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet
+  d000-d0ff : sis900
+d400-d4ff : Silicon Integrated Systems [SiS] SiS PCI Audio Accelerator
+d800-d87f : PCI device 1039:7013 (Silicon Integrated Systems [SiS])
+dc00-dcff : PCI device 1039:7013 (Silicon Integrated Systems [SiS])
+ff00-ff0f : Silicon Integrated Systems [SiS] 5513 [IDE]
+  ff00-ff07 : ide0
+  ff08-ff0f : ide1
 
-+ added rml's low-latency-zap_page_range patch
+ahu@snapcount:/mnt/linux-2.5.32$ egrep 'KEY|INPUT' .config
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_JOYDUMP is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+# CONFIG_INPUT_UINPUT is not set
+# CONFIG_USB_HIDINPUT is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19QW is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19QI is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
 
-+ reinstated buffermem acounting in /proc/meminfo.  This is useful,
-  but the implementation's walk across the inode_unused list will
-  probably be very costly in some situations.  May need to change it so
-  that the inode walk only works correctly for blockdevs, or make
-  the inode_unused list (and inode_lock!) per-superblock.
+Let me know if there are further things I can try. I think I know where my
+nullmodem cable is, so I could try that.
 
-+ The configurable kernel/userspace split patch is back.
+Kind regards,
 
-+ Added Rohit's ia32 huge tlb page patch.  We don't have any tools
-  to test this with at present, which is a bit of a problem.
-
-+ Added Jani Monoses' EXT3_SB cleanup.
+bert hubert
 
 
+On Sun, Jul 28, 2002 at 10:32:12PM +0200, bert hubert wrote:
+> On Sun, Jul 28, 2002 at 08:40:51PM +0200, Vojtech Pavlik wrote:
+> 
+> > > I find that my keyboard only works if I turn on the local APIC on UP on my
+> > > laptop. The only clue I see scrolling past is something about 'AT keyboard
+> > > timeout, not present?'. I don't have my nullmodem cable handy to check it
+> > > out further.
+> 
+> > Can you check with 2.5.29? Several bugs in the keyboard support were
+> > fixed.
+> 
+> Including mine, thanks! I just tested without local APIC on UP and my
+> keyboard works just fine. 
+> 
+> Regards,
+> 
+> bert
+> 
+> -- 
+> http://www.PowerDNS.com          Versatile DNS Software & Services
+> http://www.tk                              the dot in .tk
+> http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
 
-linus.patch
-  cset-1.508.1.15-to-1.567.txt.gz
-
-scsi_hack.patch
-  Fix block-highmem for scsi
-
-ext3-htree.patch
-  Indexed directories for ext3
-
-rmap-locking-move.patch
-  move rmap locking inlines into their own header file.
-
-discontig-paddr_to_pfn.patch
-  Convert page pointers into pfns for i386 NUMA
-
-discontig-setup_arch.patch
-  Rework setup_arch() for i386 NUMA
-
-discontig-mem_init.patch
-  Restructure mem_init for i386 NUMA
-
-discontig-i386-numa.patch
-  discontigmem support for i386 NUMA
-
-cleanup-mem_map-1.patch
-  Clean up lots of open-coded uese of mem_map[].  For ia32 NUMA
-
-zone-pages-reporting.patch
-  Fix the boot-time reporting of each zone's available pages
-
-enospc-recovery-fix.patch
-  Fix the __block_write_full_page() error path.
-
-fix-faults.patch
-  Back out the initial work for atomic copy_*_user()
-
-spin-lock-check.patch
-  spinlock/rwlock checking infrastructure
-
-refill-rate.patch
-  refill the inactive list more quickly
-
-copy_user_atomic.patch
-
-kmap_atomic_reads.patch
-  Use kmap_atomic() for generic_file_read()
-
-kmap_atomic_writes.patch
-  Use kmap_atomic() for generic_file_write()
-
-throttling-fix.patch
-  Fix throttling of heavy write()rs.
-
-dirty-state-accounting.patch
-  Make the global dirty memory accounting more accurate
-
-rd-cleanup.patch
-  Cleanup and fix the ramdisk driver (doesn't work right yet)
-
-discontig-cleanup-1.patch
-  i386 discontigmem coding cleanups
-
-discontig-cleanup-2.patch
-  i386 discontigmem cleanups
-
-writeback-thresholds.patch
-  Downward adjustments to the default dirtymemory thresholds
-
-buffer-strip.patch
-  Limit the consumption of ZONE_NORMAL by buffer_heads
-
-rmap-speedup.patch
-  rmap pte_chain space and CPU reductions
-
-wli-highpte.patch
-  Resurrect CONFIG_HIGHPTE - ia32 pagetables in highmem
-
-readv-writev.patch
-  O_DIRECT support for readv/writev
-
-slablru.patch
-  age slab pages on the LRU
-
-llzpr.patch
-  Reduce scheduling latency across zap_page_range
-
-buffermem.patch
-  Resurrect buffermem accounting
-
-config-PAGE_OFFSET.patch
-  Configurable kenrel/user memory split
-
-lpp.patch
-  ia32 huge tlb pages
-
-ext3-sb.patch
-  u.ext3_sb -> generic_sbp
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

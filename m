@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318307AbSG3P7R>; Tue, 30 Jul 2002 11:59:17 -0400
+	id <S318319AbSG3QK0>; Tue, 30 Jul 2002 12:10:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318314AbSG3P7R>; Tue, 30 Jul 2002 11:59:17 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:58350 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318307AbSG3P7Q>; Tue, 30 Jul 2002 11:59:16 -0400
+	id <S318327AbSG3QK0>; Tue, 30 Jul 2002 12:10:26 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:3720 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S318319AbSG3QKY>;
+	Tue, 30 Jul 2002 12:10:24 -0400
+Message-ID: <00b901c237e4$136bd3a0$0200a8c0@MichaelKerrisk>
+From: "Michael Kerrisk" <m.kerrisk@gmx.net>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Weirdness with AF_INET listen() backlog [2.4.18]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Kerrisk <m.kerrisk@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <008a01c237de$29d6b700$0200a8c0@MichaelKerrisk>
-References: <008a01c237de$29d6b700$0200a8c0@MichaelKerrisk>
-Content-Type: text/plain
+Date: Tue, 30 Jul 2002 18:13:08 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 30 Jul 2002 18:18:51 +0100
-Message-Id: <1028049531.7974.1.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3110.1
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-30 at 16:31, Michael Kerrisk wrote:
-> > If you expect
-> >the server to say something you'll see the timeout there instead of
-> >seeing it on the connect.
-> 
-> Sorry, I don't quite understand this last sentence!  Can you elaborate?
+Hello Alan,
 
-If your client current does
+And a further small point to help me clear things up things cleanly...
 
-	connect
-	if timedout error
-	read
-	if timedout error
+>You will get connections completing, they will time out. If you expect
+>the server to say something you'll see the timeout there instead of
+>seeing it on the connect. 
 
-then it will fail on the read, and since the code should already handle
-that case will work out fine
+Perhaps also to further clarify the meaning og backlog in 2.4.  
+The situation is this:
 
-> >Since a timeout on the data can happen in the real world Im sure your
-> >code already correctly handles this case ;)
-> 
-> You mean on a send() or write(), right?
+1. Pending requests up to backlog are always established.
 
-If the client writes first then it may well not fail until the read
-after the write
+2. Pending requests in excess of backlog are established, but may 
+timeout if not accepted() in a timely fashion.
+
+Have I got it right?
+
+Cheers
+
+Michael
 

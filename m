@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312457AbSDEKvI>; Fri, 5 Apr 2002 05:51:08 -0500
+	id <S312418AbSDEKr7>; Fri, 5 Apr 2002 05:47:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312458AbSDEKu6>; Fri, 5 Apr 2002 05:50:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:31379 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312457AbSDEKuv>;
-	Fri, 5 Apr 2002 05:50:51 -0500
-Date: Fri, 05 Apr 2002 02:44:35 -0800 (PST)
-Message-Id: <20020405.024435.88131177.davem@redhat.com>
-To: stelian.pop@fr.alcove.com
+	id <S312457AbSDEKrt>; Fri, 5 Apr 2002 05:47:49 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:45952 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S312418AbSDEKrm>; Fri, 5 Apr 2002 05:47:42 -0500
+Date: Fri, 5 Apr 2002 12:47:33 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: socket write(2) after remote shutdown(2) problem ?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020405104733.GD16595@come.alcove-fr>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20020405104733.GD16595@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020405095038.GB16595@come.alcove-fr> <20020405.020443.115246313.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stelian Pop <stelian.pop@fr.alcove.com>
-   Date: Fri, 5 Apr 2002 12:47:33 +0200
+On Fri, Apr 05, 2002 at 02:04:43AM -0800, David S. Miller wrote:
 
-   On Fri, Apr 05, 2002 at 02:04:43AM -0800, David S. Miller wrote:
-   
-   > Your client does not do any write()'s after the shutdown call.
-   > It simply exit(0)'s.
-   
-   You mean the 'server' ? Even if I add a sleep(600) between the 
-   shutdown() call and the exit() call I get the same behaviour.
+>    From: Stelian Pop <stelian.pop@fr.alcove.com>
+>    Date: Fri, 5 Apr 2002 11:50:39 +0200
+> 
+>    	* the client side socket passes in CLOSE-WAIT state
+>    	* the client issues a write on the socket which succeds.
+>  ...   
+>    Attached are sample codes for the "server" and the "client". Test
+>    was done on latest 2.4 and 2.5 kernels.
+> 
+> Your client does not do any write()'s after the shutdown call.
+> It simply exit(0)'s.
 
-Oh I see now.  Here is what should happen:
+You mean the 'server' ? Even if I add a sleep(600) between the 
+shutdown() call and the exit() call I get the same behaviour.
 
-	* server shutdown(ALL)
-	* the write() should succeed on the client
-	* client socket receives a TCP reset
-
-If this isn't what is happening, send us a trace.
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

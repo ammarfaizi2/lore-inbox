@@ -1,76 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319603AbSIML3o>; Fri, 13 Sep 2002 07:29:44 -0400
+	id <S319605AbSIMLd5>; Fri, 13 Sep 2002 07:33:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319604AbSIML3o>; Fri, 13 Sep 2002 07:29:44 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:5885 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319603AbSIML3n>;
-	Fri, 13 Sep 2002 07:29:43 -0400
-Date: Fri, 13 Sep 2002 17:09:43 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: akpm@digeo.com
-Cc: Rick Lindsley <ricklind@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>
-Subject: Re: [RFC][PATCH] sard changes for 2.5.34
-Message-ID: <20020913170943.A11038@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S319606AbSIMLd4>; Fri, 13 Sep 2002 07:33:56 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:23826 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S319605AbSIMLd4>; Fri, 13 Sep 2002 07:33:56 -0400
+Message-ID: <3D81CE43.60409@namesys.com>
+Date: Fri, 13 Sep 2002 15:38:43 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ivan Ivanov <ivandi@vamo.orbitel.bg>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+References: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3D80EE1D.34AF4FF2@digeo.com> Andrew Morton wrote:
-> Rick Lindsley wrote:
->> Regardless of which route we go, can you suggest a good exercise to
->> demonstrate the advantage of per-cpu counters?  It seems intuitive to
->> me, but I'm much more comfortable when I have numbers to back me up.
+Ivan Ivanov wrote:
 
-> I don't think this is enough to justify a new subsystem like
-> statctr_t (struct statctr, please).
+>With ReiserFS this happens sometimes, but much much rarely. May be v4 will
+>solve this problem at all.
+>
+We have a data ordered patch that is waiting for 2.4.21pre1.
 
-statctr_t was originally used to hide the fact that in UP kernels
-it reduces to unsigned long. But I think that was not necessary -
+V4 uses fully atomic transactions for every fs modifying syscall 
+including data, and still goes way faster than v3....
 
-#ifdef CONFIG_SMP
-struct statctr {
-	unsigned long ctr;
-};
-#else
-struct statctr {
-	unsigned long *ctr;
-};
-#endif
+Hans
 
-struct disk_stats {
-	....
-	....
-	struct statctr nr_reads;
-};
 
-I would presume that for UP kernels,
-
-static inline void statctr_inc(struct statctr *stctr)
-{
-	(stctr->ctr)++;
-}
-
-statctr_inc(&disk_stats.nr_reads) would generate the same code
-as diskstats.nr_reads++; We will verify this and remove statctr_t.
-
-I think justifying statctrs based on numbers from one single usage will
-likely be difficult. Our measurements (e.g. net_device_stats and
-cache event profiling with kernprof) showed that while cache misses
-in those routines are reduced significantly, it isn't enough to make
-an impact in the benchmark throughput. We need to adopt statctrs
-in many subsystems. Perhaps that will show some benefits specially
-on higher-end hardware (16CPU+).
-
-Since we are beginning to run linux on such hardware, why not adopt a simple
-framework now ?
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

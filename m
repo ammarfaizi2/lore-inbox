@@ -1,74 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265543AbTCCPQC>; Mon, 3 Mar 2003 10:16:02 -0500
+	id <S265612AbTCCPOT>; Mon, 3 Mar 2003 10:14:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbTCCPQC>; Mon, 3 Mar 2003 10:16:02 -0500
-Received: from logic.net ([64.81.146.141]:45443 "EHLO logic.net")
-	by vger.kernel.org with ESMTP id <S265543AbTCCPP7>;
-	Mon, 3 Mar 2003 10:15:59 -0500
-Date: Mon, 3 Mar 2003 09:26:26 -0600
-From: "Edward S. Marshall" <esm@logic.net>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: diegocg@teleline.es, andrea@suse.de, hch@infradead.org,
-       linux-kernel@vger.kernel.org, pavel@janik.cz, pavel@ucw.cz
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030303152626.GG16908@talus.logic.net>
-References: <200303020223.SAA13660@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303020223.SAA13660@adam.yggdrasil.com>
-User-Agent: Mutt/1.4i
+	id <S265608AbTCCPOS>; Mon, 3 Mar 2003 10:14:18 -0500
+Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:46721 "EHLO
+	r2d2.office") by vger.kernel.org with ESMTP id <S265543AbTCCPNb>;
+	Mon, 3 Mar 2003 10:13:31 -0500
+Message-ID: <3E63736F.6090000@walrond.org>
+Date: Mon, 03 Mar 2003 15:23:27 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Dmesg: Use a PAE enabled kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 01, 2003 at 06:23:21PM -0800, Adam J. Richter wrote:
-> 	Note that Subversion, in particular, is GPL incompatible and
+During bootup I see
 
-http://subversion.tigris.org/project_license.html
+   Warning only 4GB will be used.
+   Use a PAE enabled kernel.
 
-I don't see anything particularly GPL-incompatible in there; looks pretty
-much like a BSD-style license to me. Something that precludes SVN's use
-by GPL'd projects, or precludes integration with GPL'd projects, is
-something I'm sure CollabNet and the developers on the mailing list would
-love to know about (along with all the Apache folks, since it's really
-their license), considering that there's already at least on GPL'd
-front-end for Subversion (gsvn), and plenty of GPL projects being hosted
-in Subversion repositories.
+But I only have 4Gb installed, so is this message wrong?
 
-(Not meant as a flame, please don't take it as such. I'd really like to
-know where the Apache/Subversion license is "GPL-incompatible".)
+Andrew Walrond
 
-> uses its own underlying repository format that isn't particularly
-> compatible with anything else
-
-Lacking an on-disk format that's actually useful for storing more
-information than files and diffs, they invented one. I don't blame them.
-The fun part, of course, is that svn is architected such that bolting up
-to another repository storage system (say, an RDBMS, or even, horrors, a
-bitkeeper-compatible SCCS derivative) is really just a matter of writing
-the code (with a few caveats, obviously, but that's the basic idea).
-
-"svnadmin dump" will provide a dumpfile of the repository, which could
-be translated into another format, if that were desirable. Again, just a
-simple matter of coding. ;-)
-
-> and required a web server plus some
-> minor web server extension when last I checked.
-
-Not everyone is aware of this, but there's a new access method for svn
-repositories that works with SSH, or as a standalone pserver-like scheme,
-called "ra_svn". Translation: you no longer need Apache 2.0 and mod_dav
-to access a Subversion repository; you just don't get some of the cool
-features that using Apache gives you (such as all the access controls,
-the availability of the repository via DAV and through a normal web
-browser, etc).
-
-This came about only a few milestones back, so it's not surprising that
-everyone hasn't seen it yet. :-)
-
--- 
-Edward S. Marshall <esm@logic.net>
-http://esm.logic.net/
-
-Felix qui potuit rerum cognoscere causas.

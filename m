@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317619AbSGOUNM>; Mon, 15 Jul 2002 16:13:12 -0400
+	id <S317624AbSGOUXk>; Mon, 15 Jul 2002 16:23:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317620AbSGOUNL>; Mon, 15 Jul 2002 16:13:11 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:10511 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317619AbSGOUNK>;
-	Mon, 15 Jul 2002 16:13:10 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207152015.g6FKFuv227476@saturn.cs.uml.edu>
-Subject: Re: HZ, preferably as small as possible
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 15 Jul 2002 16:15:56 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-       rmk@arm.linux.org.uk (Russell King), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0207151148080.19586-100000@penguin.transmeta.com> from "Linus Torvalds" at Jul 15, 2002 11:50:58 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S317625AbSGOUXj>; Mon, 15 Jul 2002 16:23:39 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:28932 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S317624AbSGOUXi>; Mon, 15 Jul 2002 16:23:38 -0400
+Date: Mon, 15 Jul 2002 22:26:27 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5 ext3 + htree (was: IDE/ATAPI in 2.5)
+Message-ID: <20020715202627.GA30630@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200207141811.g6EIBXKc019318@burner.fokus.gmd.de> <3D321041.2D25D649@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D321041.2D25D649@zip.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> On Mon, 15 Jul 2002, Albert D. Cahalan wrote:
+On Sun, 14 Jul 2002, Andrew Morton wrote:
 
->> It's not a different value in libproc. There's autodetection.
->> I can't just support "the majority of ARM", and people keep
->> giving me shit about HZ supposedly being a per-arch constant.
->> (not that there's a sane way to get a per-arch constant from
->> user code anyway)
->
-> But that's just _wrong_.
+> > It wasted 2900 seconds of CPU time on Linux. Let me guess: this was done
+> > inside the function strcmp().
+> 
+> Nope. ext3 and ext2 directories use the traditional first-fit
+> search-from-start for directories.  So adding 200k files to
+> a single directory is pathological.
+> 
+> > There are ~ 5 different filesystems on Linux, but none if the projects seem
+> > to care about the code outside the FS low level code. I suspect, that
+> > this is not any better if you use reiserfs.
+> > 
+> > Solaris and FreeBSD put all the effort into one filesystem trying to make
+> > it as good as possible. In Linux, it seems that nobody prooved the overall
+> > concept of the kernel.
+> 
+> Apply http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.25/ext3-htree.patch
+> to your 2.5.25 tree, mount with `-o index' and enjoy watching ext3 eat
+> Solaris and FreeBSD's lunch.
 
-If you only support recent kernels and glibc, true.
-Debian is about to release a distribution with the 2.2 kernel.
+I didn't benchmark, but how much lunch is left? UFS_DIRHASH was
+introduced into FreeBSD by Ian Dowse a year ago (released in FreeBSD
+4.4), and activated in FreeBSD 4.5's generic table. In case you missed
+that, FreeBSD 4.6 is out since about four weeks.
 
-> There _is_ a sane way to get the per-arch constant, and there has been for 
-> a long long time.
+options         UFS_DIRHASH             #Improve performance on big directories
 
-Your "long long time" is very different, because you
-always (?) run the very latest kernel.
+http://www.freebsd.org/releases/4.4R/relnotes-i386.html#AEN197
+http://www.freebsd.org/releases/4.5R/relnotes-i386.html#AEN250
+http://www.cnri.dit.ie/Downloads/Malone_2001_bsdcon.pdf
 
-> The kernel exports it with the AT_CLKTCK ELF auxiliary note to every ELF
-> binary ever loaded, and I think glibc in turn exports that value through
-> the regular sysconf(_SC_CLK_TCK) thing. (Yeah, I disagree with some of the
-> glibc sysconf implementation, but it sure should be there, and it's
-> documented).
->
-> If that doesn't work, then it's a glibc bug (well, in theory there could
-> be a kernel bug too, but since it's a one-liner in the kernel I really
-> doubt it).
+The latter document by David Malone (November 2001) claims "MH 33 k
+files create: 70s to 2.5s, pack: 240s to 2.5s, rm: 4.7s to 2s."
 
-Yeah, NOW it should work fine. App code sees:
+So might be ext3fs comes just in time for dessert, or is htree so much
+faster than UFS_DIRHASH?
 
-old glibc and old kernel  -->  guess
-old glibc and new kernel  -->  guess
-new glibc and old kernel  -->  guess
-new glibc and new kernel  -->  useful data
-
-(the guess is correct for unmodified x86)
-
-Two problems with that:
-
-1. must handle the "guess" case
-2. can't tell a guess from useful data!
-
-So I can't use the useful data for a few more years.
-I can cut that time down to maybe 2 years if I write
-code to dig up the ELF notes myself, assuming that
-were introduced with the 2.4 kernel.
+-- 
+Matthias Andree

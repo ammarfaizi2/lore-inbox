@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263468AbTC2TBK>; Sat, 29 Mar 2003 14:01:10 -0500
+	id <S263496AbTC2TWe>; Sat, 29 Mar 2003 14:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263469AbTC2TBK>; Sat, 29 Mar 2003 14:01:10 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:11539
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263468AbTC2TBJ>; Sat, 29 Mar 2003 14:01:09 -0500
-Subject: Re: [TRIVIAL] Cleanup in fs/devpts/inode.c
-From: Robert Love <rml@tech9.net>
-To: john@grabjohn.com
-Cc: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>,
-       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-In-Reply-To: <200303291829.h2TITPPi000418@81-2-122-30.bradfords.org.uk>
-References: <200303291829.h2TITPPi000418@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048965146.9025.714.camel@localhost>
+	id <S263497AbTC2TWd>; Sat, 29 Mar 2003 14:22:33 -0500
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:36331 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id <S263496AbTC2TWd>;
+	Sat, 29 Mar 2003 14:22:33 -0500
+From: wind@cocodriloo.com
+Date: Sat, 29 Mar 2003 20:33:56 +0100
+To: linux-kernel@vger.kernel.org
+Subject: [wind@cocodriloo.com: fairsched + O(1) scheduler]
+Message-ID: <20030329193356.GB6709@wind.cocodriloo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 29 Mar 2003 14:12:27 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-29 at 13:29, john@grabjohn.com wrote:
+Hi, this is a simple question... anyone working on integrating fairsched
+with O(1) ?
 
-> Why not use
-> 
-> err = (IS_ERR(devpts_mnt) ? err = 0 : PTR_ERR(devpts_mnt));
-> 
-> ?
+I would like to try doing it, but I think it's better if I share
+the work with others who are trying to do it.
 
-The point of his cleanup is that you already know err is zero (look
-again).
+For those that don√'t know, "fairsched"distributes evenly the CPU amongst
+different users competing for it. Thus, on a non-fairsched kernel user A
+running 4 CPU-hogs will get four times as much CPU as user B which
+runs only 1 CPU-hog.
 
-You also got it backward.
+fairsched works by keeping stats of per-user CPU time and tries to balance
+it so that no user can get all CPU.
 
-	Robert Love
+I'm just starting to review the 2.4.19 implementation, which is based on
+the classic O(n) scheduler, so any help on forward porting it to 2.5.66+
+will be apreciated.
+
+
+Greets, Antonio.
 

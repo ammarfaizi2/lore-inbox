@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUJFFAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUJFFLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267250AbUJFFAS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 01:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUJFFAS
+	id S267235AbUJFFLv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 01:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUJFFLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 01:00:18 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:10106 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267250AbUJFFAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 01:00:09 -0400
-Message-ID: <41637BD5.7090001@yahoo.com.au>
-Date: Wed, 06 Oct 2004 15:00:05 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: kenneth.w.chen@intel.com, mingo@redhat.com, linux-kernel@vger.kernel.org,
-       Judith Lebzelter <judith@osdl.org>
+	Wed, 6 Oct 2004 01:11:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43240 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267235AbUJFFLu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 01:11:50 -0400
+Date: Tue, 5 Oct 2004 22:09:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kenneth.w.chen@intel.com, mingo@redhat.com, linux-kernel@vger.kernel.org,
+       judith@osdl.org
 Subject: Re: Default cache_hot_time value back to 10ms
-References: <200410060042.i960gn631637@unix-os.sc.intel.com>	<20041005205511.7746625f.akpm@osdl.org>	<416374D5.50200@yahoo.com.au> <20041005215116.3b0bd028.akpm@osdl.org>
-In-Reply-To: <20041005215116.3b0bd028.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20041005220954.0602fba8.akpm@osdl.org>
+In-Reply-To: <41637BD5.7090001@yahoo.com.au>
+References: <200410060042.i960gn631637@unix-os.sc.intel.com>
+	<20041005205511.7746625f.akpm@osdl.org>
+	<416374D5.50200@yahoo.com.au>
+	<20041005215116.3b0bd028.akpm@osdl.org>
+	<41637BD5.7090001@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Any idea when 2.6.9 will be coming out?
 
-> This tunable caused an 11% performance difference in (I assume) TPCx. 
-> That's a big deal, and people will want to diddle it.
-> 
+Before -mm hits 1000 patches, I hope.
 
-True. But 2.5 I think really is too low (for anyone, except maybe a
-CPU with no/a tiny L2 cache).
+2.6.8 wasn't really super-stable and our main tool for getting the quality
+is to stretch the release times, give us time to shake things out.  The
+release time is largely driven by perceptions of current stability, bug
+report rates, etc.
 
-> If one number works optimally for all machines and workloads then fine.
-> 
+A current guess would be -rc4 later this week, 2.6.9 late next week.  We'll
+see.
 
-Yeah.. 10ms may bring up idle times a bit on other workloads. Judith
-had some database tests that were very sensitive to this - if 10ms is
-OK there, then I'd say it would be OK for most things.
+One way of advancing that is to get down and work on bugs in current -linus
+tree, yes?
 
-> But yes, avoiding a tunable would be nice, but we need a tunable to work
-> out whether we can avoid making it tunable ;)
-> 
-
-Heh. I think it would be good to have a automatic thingy to tune it.
-A smarter cache_decay_ticks calculation would suit.
-
-> Not that I'm soliciting patches or anything.  I'll duck this one for now.
-> 
-
-OK. Any idea when 2.6.9 will be coming out? :)
+If this still doesn't seem to be working out and if 2.6.9 isn't as good as
+we'd like I'll consider shutting down -mm completely once we hit -rc2 so
+people have nothing else to do apart from fix bugs in, and test -linus. 
+We'll see.

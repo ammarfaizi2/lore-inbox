@@ -1,115 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbUJZP1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbUJZP34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262293AbUJZP1t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUJZP1s
+	id S262296AbUJZP34 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbUJZP34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:27:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63977 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262293AbUJZP10 (ORCPT
+	Tue, 26 Oct 2004 11:29:56 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:6805 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262296AbUJZP3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:27:26 -0400
-Date: Tue, 26 Oct 2004 11:27:09 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, Kaigai Kohei <kaigai@ak.jp.nec.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] SELinux: fix sidtab locking bug
-Message-ID: <Xine.LNX.4.44.0410261120580.3811-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Oct 2004 11:29:21 -0400
+Date: Tue, 26 Oct 2004 17:30:36 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>,
+       LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
+Message-ID: <20041026153036.GA4381@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+References: <20041025152029.4788.qmail@web81303.mail.yahoo.com> <20041026092802.GC2998@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026092802.GC2998@crusoe.alcove-fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch by Kaigai Kohei fixes a bug in the SELinux sidtab code, where 
-we do a spin_unlock_irq() while nested under another irq lock, which 
-enables interrupts and allows a deadlock to happen:
+On Tue, Oct 26, 2004 at 11:28:02AM +0200, Stelian Pop wrote:
 
-  sidtab_set() is called between POLICY_WRLOCK and POLICY_WRUNLOCK in 
-  services.c:1092. sidtab_set() uses SIDTAB_LOCK()/SIDTAB_UNLOCK(), but 
-  SIDTAB_UNLOCK() enables any interruptions because it's defined as 
-  spin_unlock_irq(). If an interruption occurs between SIDTAB_UNLOCK() and 
-  POLICY_WRUNLOCK, and interruption context try to hold the POLICY_RDLOCK, 
-  then a deadlock happen in the result.
+> > [1] 
+> > http://csociety-ftp.ecn.purdue.edu/pub/gentoo/distfiles/xorg-x11-6.8.0-patches-0.2.5.tar.bz2
+> > Extract patches 9000, 9001 and 9002. Btw, these are not mine - I have
+> > Not even tries them myself but I have read several success stories.
+> 
+> Got them and trying to build the new drivers right now. Thanks !
 
-The solution is to save & restore flags on the inner lock, per the patch 
-below.
+Well, it kinda works, but there are still some rough edges (the kbd
+driver maps all the unknown keys to KEY_UNKNOWN, making them all to
+have the same keycode in X, making them unusable. After removing the
+test it forwards the events ok).
 
-Please apply.
+There are also problems because my sonypi input device acts both like
+a mouse and a keyboard, and the X event driver wants them to be separate.
 
-Signed-off-by: James Morris <jmorris@redhat.com>
-Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
-Signed-off-by: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Vojtech: should I generate two different input devices in my driver,
+a mouse like and a keyboard like device, or should the userspace be
+able to demultiplex the events ?
 
----
-
- security/selinux/ss/sidtab.c |   21 +++++++++++++--------
- 1 files changed, 13 insertions(+), 8 deletions(-)
-
-diff -purN -X dontdiff linux-2.6.9-mm1.p/security/selinux/ss/sidtab.c linux-2.6.9-mm1.w/security/selinux/ss/sidtab.c
---- linux-2.6.9-mm1.p/security/selinux/ss/sidtab.c	2004-08-14 01:37:25.000000000 -0400
-+++ linux-2.6.9-mm1.w/security/selinux/ss/sidtab.c	2004-10-22 11:53:03.152654328 -0400
-@@ -16,8 +16,8 @@
- (sid & SIDTAB_HASH_MASK)
- 
- #define INIT_SIDTAB_LOCK(s) spin_lock_init(&s->lock)
--#define SIDTAB_LOCK(s) spin_lock_irq(&s->lock)
--#define SIDTAB_UNLOCK(s) spin_unlock_irq(&s->lock)
-+#define SIDTAB_LOCK(s, x) spin_lock_irqsave(&s->lock, x)
-+#define SIDTAB_UNLOCK(s, x) spin_unlock_irqrestore(&s->lock, x)
- 
- int sidtab_init(struct sidtab *s)
- {
-@@ -237,12 +237,13 @@ int sidtab_context_to_sid(struct sidtab 
- {
- 	u32 sid;
- 	int ret = 0;
-+	unsigned long flags;
- 
- 	*out_sid = SECSID_NULL;
- 
- 	sid = sidtab_search_context(s, context);
- 	if (!sid) {
--		SIDTAB_LOCK(s);
-+		SIDTAB_LOCK(s, flags);
- 		/* Rescan now that we hold the lock. */
- 		sid = sidtab_search_context(s, context);
- 		if (sid)
-@@ -257,7 +258,7 @@ int sidtab_context_to_sid(struct sidtab 
- 		if (ret)
- 			s->next_sid--;
- unlock_out:
--		SIDTAB_UNLOCK(s);
-+		SIDTAB_UNLOCK(s, flags);
- 	}
- 
- 	if (ret)
-@@ -320,17 +321,21 @@ void sidtab_destroy(struct sidtab *s)
- 
- void sidtab_set(struct sidtab *dst, struct sidtab *src)
- {
--	SIDTAB_LOCK(src);
-+	unsigned long flags;
-+
-+	SIDTAB_LOCK(src, flags);
- 	dst->htable = src->htable;
- 	dst->nel = src->nel;
- 	dst->next_sid = src->next_sid;
- 	dst->shutdown = 0;
--	SIDTAB_UNLOCK(src);
-+	SIDTAB_UNLOCK(src, flags);
- }
- 
- void sidtab_shutdown(struct sidtab *s)
- {
--	SIDTAB_LOCK(s);
-+	unsigned long flags;
-+
-+	SIDTAB_LOCK(s, flags);
- 	s->shutdown = 1;
--	SIDTAB_UNLOCK(s);
-+	SIDTAB_UNLOCK(s, flags);
- }
-
-
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>    

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268828AbUILThx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268824AbUILTkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268828AbUILThx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 15:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268848AbUILThx
+	id S268824AbUILTkv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 15:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUILTkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 15:37:53 -0400
-Received: from space.powweb.com ([66.152.97.242]:8719 "EHLO space.powweb.com")
-	by vger.kernel.org with ESMTP id S268828AbUILTgy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 15:36:54 -0400
-Subject: REQUEST
-From: xiaojun <xiaojun@handbag.com>
-X-Priority: 3 (Normal)
+	Sun, 12 Sep 2004 15:40:51 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:36555 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268824AbUILTkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 15:40:49 -0400
+Date: Sun, 12 Sep 2004 12:40:36 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjanv@redhat.com>,
+       Andrea Arcangeli <andrea@novell.com>, Hugh Dickins <hugh@veritas.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <20040912194036.GA8391@taniwha.stupidest.org>
+References: <593560000.1094826651@[10.10.2.4]> <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain> <20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random> <20040910153421.GD24434@devserv.devel.redhat.com> <1095016687.1306.667.camel@krustophenia.net> <20040912192515.GA8165@taniwha.stupidest.org> <20040912193542.GB28791@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: RLSP Mailer
-Message-Id: <20040912193644.80B6035288@space.powweb.com>
-Date: Sun, 12 Sep 2004 12:36:44 -0700 (PDT)
-To: unlisted-recipients:; (no To-header on input)
+Content-Disposition: inline
+In-Reply-To: <20040912193542.GB28791@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 12, 2004 at 09:35:42PM +0200, Ingo Molnar wrote:
 
-Dear Sir/Madam,
-I am Mr.Xiao Jun,managinig director of HUAMAO ARTS AND CRAFTS  
-Import/Export Corp.(HMARTS) we are a group of business men who 
-deal on Art and Craft and export into the Canada/America and 
-Europe. 
-We are searching for representatives who can help us establish a 
-medium 
-of getting to our customers in the Canada/America and Europe as 
-well as making payments through you to us.Please if you are 
-interested in transacting business with us we will be very glad. 
-Please contact us for more information.Subject to your satisfaction 
-you will be given the opportunity to negotiate your mode of which we 
-will pay for your services as our representative in Canada/America 
-and Europe Please if you are interested forward to us your phone 
-number/fax and your full contact addresses. 
-Thanks In advance 
-Managing Director, 
-Mr.Xiao Jun.
+> no. A 2 msec nonpreemptable delay is a 2 msec delay, irqs on or off
+> alike.
 
+maybe im retarded, 2ms seems like a long time --- is this strictly
+necessary on modern chipsets?  surely we can fix the code to not do
+this for most people without hosing their data?
 
-___________________________________________________________________________
-Mail sent from WebMail service at the Tome of Wisdom and Power
-- http://trekie8472.net
+> but it's not a big problem with IRQ threading, there most hardirqs
+> are preemptable.
+
+most?  what determines which and when?

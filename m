@@ -1,92 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315445AbSGIOnw>; Tue, 9 Jul 2002 10:43:52 -0400
+	id <S315439AbSGIOt5>; Tue, 9 Jul 2002 10:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSGIOnw>; Tue, 9 Jul 2002 10:43:52 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:43043 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S315442AbSGIOnu>; Tue, 9 Jul 2002 10:43:50 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A783A7B56@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Cc: "'axboe@suse.de'" <axboe@suse.de>
-Subject: (RE:  using 2.5.25 with IDE) On sparc64..... 
-Date: Tue, 9 Jul 2002 09:46:10 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315442AbSGIOt4>; Tue, 9 Jul 2002 10:49:56 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:36973 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315439AbSGIOtz>; Tue, 9 Jul 2002 10:49:55 -0400
+Date: Tue, 9 Jul 2002 16:53:27 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: rwhron@earthlink.net
+Cc: zwane@linuxpower.ca, jamagallon@able.es, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: pipe and af/unix latency differences between aa and jam on smp
+Message-ID: <20020709145327.GC8878@dualathlon.random>
+References: <20020709140558.GA21293@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020709140558.GA21293@rushmore>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 09, 2002 at 10:05:58AM -0400, rwhron@earthlink.net wrote:
+> > *Local* Communication latencies in microseconds - smaller is better
 > 
-> Contrary to the popular belief 2.5.25 has only Martin's IDE-93
-> and has broken locking...
+> > kernel                          Pipe    AF/Unix
+> > -----------------------------  -------  -------
+> > 2.4.19-pre7-jam6                29.513   42.369
+> > 2.4.19-pre8-jam2                 7.697   15.274
+> > 2.4.19-pre8-jam2-nowuos          7.739   14.929
 > 
-> If you want to run IDE on 2.5.25 get and apply:
+> > (last line says that wake-up-sync is not responsible...)
+> 
+> > Main changes between first two were irqbalance and ide6->ide10.
+> 
+> The system is scsi only.  pre7-jam6 and pre8-jam2 .config's were 
+> identical.
+> 
+> > Could you try latest -rc1-aa2 ? It includes also irqbalance,
+> 
+> Based on Andrea'a diff logs, irqbalance appeared in 2.4.19pre10aa3.
+> There are small differences between the pre10-jam2 and aa irqbalance
+> patches.  One new datapoint with pre10-jam3:
+> 
+> *Local* Communication latencies in microseconds - smaller is better
+> -------------------------------------------------------------------
+> kernel                          Pipe    AF/Unix
+> -----------------------------  -------  -------
+> 2.4.19-pre10-jam2                7.877   16.699
+> 2.4.19-pre10-jam3               33.133   66.825
+> 2.4.19-pre10-aa2                34.208   62.732
+> 2.4.19-pre10-aa4                33.941   70.216
+> 2.4.19-rc1-aa1-1g-nio           34.989   52.704
 
-I am running a Sparc64 Ultra5 with IDE [insert flame here] which uses a
-CMD646 PCI controller, and since at least 2.5.20 it has not booted.  I
-currently run 2.5.13, which boots and runs fine, and all is well with 2.4
-series.  
+now if this was AF_INET via ethernet I could imagine the irqbalance
+making difference (or even irqrate even if irqrate should make no
+difference until your hardware hits the limit of irqs it can handle).
 
-I have tried current bk, with IDE 94,95, and 96 applied with the same
-result, all hang after printing the partition list of the hard drive.  
+but both pipe and afunix should not generate any irq load (other than
+the IPI with the reschedule_task wakeups at least, but they're only
+dependent on the scheduler, ipi delivery isn't influenced by the
+irqrate/irqbalance patches). it's all trasmission in software internal
+to the kernel, with no hardware events so no irq, so I would be very
+surprised if the irqbalance or irqrate could make any difference. I
+would look elsewere first at least.  No idea why you're looking at those
+irq related patches for this workload.
 
-I most recently tried Jen's 2.4 forward port, with about the same result,
-though the following errors were printed before the kernel hung.  (BTW,
-Jen's a modified asm-sparc64/ide.h is below if you want to keep with your
-2.4 port)
+At first glance I would say either it's a compiler issue that generates
+some very inefficent code one way or the other (seems very unlikely but
+cache effects can be quite huge in tight loops where a very small part
+of the kernel is exercised), or it has something to do with schduler or
+similar core non-irq related areas.
 
-I am running in PIO mode, and saw that may be broken?  And I realize that
-there is probably not much interest/need for IDE to get working on this yet,
-but I am wondering if you can point to some ideas to help me along with
-figuring out what's going on.  I am going to insert some printk's to see if
-I can narrow down where I am hanging at, and if you have any thoughts on
-where's the best place to look, I'd be most appreciative.
+> 
+> A config difference between pre10-jam2 and pre10-jam3 is:
+> CONFIG_X86_SFENCE=y	# pre10-jam2
+> pre10-jam2 was compiled with -Os and pre10-jam3 with -O2.
+> 
+> > Out of interest, is that a P4/Xeon?
+> 
+> Quad P3/Xeon 700 mhz with 1MB cache.
+> 
+> -- 
+> Randy Hron
+> http://home.earthlink.net/~rwhron/kernel/bigbox.html
 
-Thanks
-Bruce H.
 
-Patch below to get 2.4 forward port of IDE to compile on Sparc64...
---- linus-2.5/include/asm-sparc64/ide.h	Tue Jul  9 08:53:10 2002
-+++ sparctest/include/asm-sparc64/ide.h	Tue Jul  9 09:11:24 2002
-@@ -64,7 +64,11 @@
- 	for (index = 0; index < MAX_HWIFS; index++) {
- 		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0,
-NULL);
- 		hw.irq = ide_default_irq(ide_default_io_base(index));
-+#if defined(CONFIG_IDE_25)
- 		ide_register_hw(&hw);
-+#elif defined(CONFIG_IDE_24)
-+		ide_register_hw(&hw, NULL);
-+#endif
- 	}
- #endif
- }
-@@ -178,6 +182,20 @@
- #endif
- }
- 
-+#define ide_request_irq(irq,hand,flg,dev,id)
-request_irq((irq),(hand),(flg),(dev),(id))
-+#define ide_free_irq(irq,dev_id)		free_irq((irq), (dev_id))
-+#define ide_check_region(from,extent)		check_region((from),
-(extent))
-+#define ide_request_region(from,extent,name)	request_region((from),
-(extent), (name))
-+#define ide_release_region(from,extent)
-release_region((from), (extent))
-+
-+/*
-+ * The following are not needed for the non-m68k ports
-+ */
-+#define ide_ack_intr(hwif)		(1)
-+#define ide_fix_driveid(id)		do {} while (0)
-+#define ide_release_lock(lock)		do {} while (0)
-+#define ide_get_lock(lock, hdlr, data)	do {} while (0)
-+ 
- #endif /* __KERNEL__ */
- 
- #endif /* _SPARC64_IDE_H */
+Andrea

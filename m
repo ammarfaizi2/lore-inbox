@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314665AbSD1CVK>; Sat, 27 Apr 2002 22:21:10 -0400
+	id <S314670AbSD1CxH>; Sat, 27 Apr 2002 22:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314666AbSD1CVK>; Sat, 27 Apr 2002 22:21:10 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:1041 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S314665AbSD1CVI>; Sat, 27 Apr 2002 22:21:08 -0400
-Date: Sat, 27 Apr 2002 19:18:30 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
- reading damadged files
-In-Reply-To: <20020425205035.A160@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10204271910510.15403-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314671AbSD1CxH>; Sat, 27 Apr 2002 22:53:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35245 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314670AbSD1CxG>;
+	Sat, 27 Apr 2002 22:53:06 -0400
+Date: Sat, 27 Apr 2002 19:43:02 -0700 (PDT)
+Message-Id: <20020427.194302.02285733.davem@redhat.com>
+To: jd@epcnet.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VLAN and Network Drivers 2.4.x
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <877576231.avixxmail@nexxnet.epcnet.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: jd@epcnet.de
+   Date: Sat, 27 Apr 2002 22:34:09 +0200
 
-Well I really do not have the time to follow the changes, but when I fix
-it in 2.4, please copy a and credit would be nice but not expected.  Also
-it made resulted in a more complex mess to address.
+   > We don't call it NETIF_F_VLAN because the hope is that eventually
+   > it will be rare for a network device to not be able to support it.
+   > Not the other day around.
+   
+   I don't know how many cards won't support VLAN nowadays. But i will test
+   these changes with my third party driver (just recompile it against pre-2.4.19)
+   and report the results.
+   
+This will tell us exactly nothing.  It will continue to tell us
+nothing until I make the change whereby NETIF_F_VLAN_CHALLENGED is set
+by default and devices known to work are updated to clear it.
 
-
-Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Thu, 25 Apr 2002, Pavel Machek wrote:
-
-> Hi!
-> 
-> > Basically it is a global design flaw from the beginning, and since I have
-> > only 2.4 to address it is a real nasty!  Short version, each subdriver
-> 
-> Well, noone prevents you from submitting 2.5 patches to Martin.... Actually,
-> his cleanups maybe made that job easier.
-> 
-> 								Pavel
-> -- 
-> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-> 
-
+Please don't bother posting the results, we know what will happen.

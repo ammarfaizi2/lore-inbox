@@ -1,88 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261446AbSLCONJ>; Tue, 3 Dec 2002 09:13:09 -0500
+	id <S261451AbSLCOSG>; Tue, 3 Dec 2002 09:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbSLCONJ>; Tue, 3 Dec 2002 09:13:09 -0500
-Received: from fw.2d3d.co.za ([66.8.28.230]:16532 "HELO mail.2d3d.co.za")
-	by vger.kernel.org with SMTP id <S261446AbSLCONI>;
-	Tue, 3 Dec 2002 09:13:08 -0500
-Date: Tue, 3 Dec 2002 16:15:41 +0200
-From: Abraham vd Merwe <abraham@2d3d.co.za>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Abraham vd Merwe <abraham@2d3d.co.za>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: what is the url for the linux-ppc kernel development?
-Message-ID: <20021203161541.A24734@crystal.2d3d.co.za>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Abraham vd Merwe <abraham@2d3d.co.za>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20021203153615.A24416@crystal.2d3d.co.za> <1038925099.14066.55.camel@zion>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1038925099.14066.55.camel@zion>; from benh@kernel.crashing.org on Tue, Dec 03, 2002 at 15:18:19 +0100
-Organization: 2d3D, Inc.
-X-Operating-System: Debian GNU/Linux crystal 2.4.17-pre4 i686
-X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
-X-Uptime: 4:14pm  up 3 days, 17:19,  6 users,  load average: 0.00, 0.00, 0.00
-X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
+	id <S261486AbSLCOSG>; Tue, 3 Dec 2002 09:18:06 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16901 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261451AbSLCOSF>; Tue, 3 Dec 2002 09:18:05 -0500
+Date: Tue, 3 Dec 2002 09:24:09 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deprecate use of bdflush()
+In-Reply-To: <1038867991.1221.56.camel@phantasy>
+Message-ID: <Pine.LNX.3.96.1021203091821.5578A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2 Dec 2002, Robert Love wrote:
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Mon, 2002-12-02 at 17:11, Andrew Morton wrote:
+> 
+> > Ho-hum.  I was going to do this months ago but general exhaustion
+> > and sluggishness won out.
+> > 
+> > We should tell the user which process called sys_bdflush() to aid
+> > their expunging efforts.
+> 
+> Good idea.
+> 
+> I could do without the rate limiting, though - the print is after the
+> CAP_SYS_ADMIN check.  Root has plenty of other ways to print crap to the
+> screen and it saves 32-bits from bss.  But, uh, not a big deal at all
+> either way.
 
-Hi Benjamin!
+My take on this is that it's premature. This would be fine in the 2.6.0-rc
+series, but the truth is that the majority of 2.5 users boot 2.5 for
+testing but run 2.4 for normal use. They aren't going to get rid of
+bdflush and this just craps up the logs. At least with the occurrence
+limit it will only happen a few times. I would like to see it once only,
+myself, as a reminder rather than a nag.
 
-> > Could somebody please mail me the instructions/url to subscribe to the
-> > currently most active PowerPC kernel development mailinglists.
-> >=20
-> > I've send a message to the linuxppc-dev list over at lists.linuxppc.ori=
-g,
-> > but that seems to be dead.
->=20
-> No, linuxppc-dev isn't dead (lists.linuxppc.org)
+While it's possible to do version dependent things in init scripts, in
+this case there is no need, the call hurts nothing. Some users may post to
+the list asking what it means, and others may actually do it, and break
+their production systems.
 
-Ok, thanks. I sent a message to linuxppc-dev this morning though and I
-haven't received any message from the list. Maybe their link is just
-congested... oh well
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
---=20
-
-Regards
- Abraham
-
-If two wrongs don't make a right, try three.
-		-- Laurence J. Peter
-
-__________________________________________________________
- Abraham vd Merwe - 2d3D, Inc.
-
- Device Driver Development, Outsourcing, Embedded Systems
-
-  Cell: +27 82 565 4451         Snailmail:
-   Tel: +27 21 761 7549            Block C, Aintree Park
-   Fax: +27 21 761 7648            Doncaster Road
- Email: abraham@2d3d.co.za         Kenilworth, 7700
-  Http: http://www.2d3d.com        South Africa
-
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE97LyNzNXhP0RCUqMRAiiWAJ4xqNZFc+qpYt/EtdFK+jrZc6JrbACcDovJ
-zomv+KOL9d0IeeAyjcxE0ic=
-=jpF7
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--

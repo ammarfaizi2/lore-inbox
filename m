@@ -1,31 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262102AbREQRlo>; Thu, 17 May 2001 13:41:44 -0400
+	id <S262100AbREQRje>; Thu, 17 May 2001 13:39:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262096AbREQRle>; Thu, 17 May 2001 13:41:34 -0400
-Received: from mailproxy.de.uu.net ([192.76.144.34]:23714 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S262106AbREQRlR>; Thu, 17 May 2001 13:41:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Date: Thu, 17 May 2001 19:41:55 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10105171009180.13202-100000@www.transvirtual.com>
-In-Reply-To: <Pine.LNX.4.10.10105171009180.13202-100000@www.transvirtual.com>
+	id <S262096AbREQRjY>; Thu, 17 May 2001 13:39:24 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40466 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262092AbREQRjM>; Thu, 17 May 2001 13:39:12 -0400
+Subject: Re: alpha/2.4.x: CPU misdetection, possible miscompilation
+To: mike@rainbow.studorg.tuwien.ac.at (Michael Wildpaner)
+Date: Thu, 17 May 2001 18:36:11 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105171845310.2692-100000@rainbow.studorg.tuwien.ac.at> from "Michael Wildpaner" at May 17, 2001 07:00:43 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <01051719415507.00784@cookie>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150Rh5-0005mN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 May 2001 19:18, you wrote:
-> I wouldn't make that assumpation. I have two PS/2 keybaords attached to my
-> system and they don't have serial ids nor do they have vendor or product
-> ids.
+> > Does gcc 2.96 or the gcc 3.0 snapshot also show this problem ?
+> 
+> 'gcc version 3.0 20010426' is fine.
+> I don't have 2.96 at the moment, but can install if necessary.
 
-Yes, PS/2 is a system where you must use the location. That's why a device id 
-must contain the id, the serial number AND the location.
-
-bye...
+No real need - the important thijng is that the gcc 3.0 compiler to be gets
+it right.

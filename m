@@ -1,59 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265911AbUFDShq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265920AbUFDSjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265911AbUFDShq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUFDShq
+	id S265920AbUFDSjM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUFDSjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:37:46 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:54146 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265919AbUFDShn (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:37:43 -0400
-Message-Id: <200406041837.i54IbfYE023527@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6 
-In-Reply-To: Your message of "Fri, 04 Jun 2004 14:17:14 EDT."
-             <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl> 
-From: Valdis.Kletnieks@vt.edu
-References: <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl>
+	Fri, 4 Jun 2004 14:39:12 -0400
+Received: from holomorphy.com ([207.189.100.168]:59815 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265920AbUFDSid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 14:38:33 -0400
+Date: Fri, 4 Jun 2004 11:38:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pj@sgi.com, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
+Message-ID: <20040604183815.GI21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, pj@sgi.com, mikpe@csd.uu.se,
+	nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org, ak@muc.de, ashok.raj@intel.com,
+	hch@infradead.org, jbarnes@sgi.com, joe.korty@ccur.com,
+	manfred@colorfullife.com, colpatch@us.ibm.com, Simon.Derr@bull.net
+References: <16576.17673.548349.36588@alkaid.it.uu.se> <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com> <20040604113252.GA21007@holomorphy.com> <20040604092316.3ab91e36.pj@sgi.com> <20040604162853.GB21007@holomorphy.com> <20040604104756.472fd542.pj@sgi.com> <20040604181233.GF21007@holomorphy.com> <20040604112730.534cca55.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1143825952P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 04 Jun 2004 14:37:40 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040604112730.534cca55.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1143825952P
-Content-Type: text/plain; charset=us-ascii
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> _SC_NPROCESSOR_CONF is
+>>  unimplementable. NR_CPUS serves as an upper bound on the number of cpus
+>>  that may at some time be simultaneously present in the future.
 
-On Fri, 04 Jun 2004 14:17:14 EDT, Horst von Brand said:
-> Pavel Machek <pavel@suse.cz> said:
+On Fri, Jun 04, 2004 at 11:27:30AM -0700, Andrew Morton wrote:
+> NR_CPUS is arguably the correct thing when it comes to copying per-cpu info
+> to and from userspace.
+> Sometimes userspace wants to know NR_CPUS.  Sometimes it wants to know the
+> index of the max possible CPU.  Sometimes, perhaps the index of the max
+> online CPU.  Sometimes the max index of the CPUs upon which this task is
+> eligible to run.  Sometimes (lame) userspace may want to know, at compile
+> time, the maximum number of CPUs which a Linux kernel will ever support.
+> It's not completely trivial.
+> Which of the above is _SC_NPROCESSOR_CONF supposed to return?
 
-> > You get pretty nasty managment problems. How do you do init=/bin/bash
-> > if your keyboard is userspace?
-> 
-> You don't tell any kernel about that... it is the bootloader you are
-> talking to. And that one may very well have integrated kbd support.
+_SC_NPROCESSORS_CONF looks like a glibc extension, and if so it's
+somewhat arbitrary. It's not documented in the manpage or the header's
+comments. I presumed it was the largest number of cpus that could be
+simultaneously online in the running kernel instance (which is NR_CPUS
+in current kernels). If it's a standard it's likely to be very poorly-
+defined. These things differ as the implementations start varying e.g.
+for very sparse cpuid spaces, but not anything we handle now.
 
-So GRUB knows about keyboards, lets you type in the "init=/bin/bash", it loads
-the kernel, the kernel launches init, /bin/bash gets loaded - and /bin/bash
-can't talk to the keyboard because the userspace handler hasn't happened.  At
-that point you're stuck...
+I'd have to write more stuff to try to find the rest of these things.
+I'm not sure all of them are implementable.
 
+And the luserspace code needs the following atop all that:
 
---==_Exmh_1143825952P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAwMF0cC3lWbTT17ARAhZSAKCbF0JntfxgTsKyaGtWBiRVJZZXtgCgqldA
-jiINno5aStStjOe8/MugplI=
-=EemQ
------END PGP SIGNATURE-----
-
---==_Exmh_1143825952P--
+--- nr_cpus.c.orig2	2004-06-04 11:23:28.130800560 -0700
++++ nr_cpus.c	2004-06-04 11:27:12.785647832 -0700
+@@ -10,28 +10,35 @@
+ 
+ int main(void)
+ {
++	int cpus = detect_nr_cpus();
+ 	printf("%d\n", detect_nr_cpus());
+-	return 0;
++	return cpus <= 0;
+ }
+ 
+ static int detect_nr_cpus(void)
+ {
+ 	unsigned long *cpus = malloc(sizeof(long));
+ 	size_t upper, middle, lower = sizeof(long);
++	int ret = -ENOMEM;
+ 
++	if (!cpus)
++		return -ENOMEM;
+ 	for (upper = lower; getaffinity(0, upper, cpus) < 0; upper *= 2) {
+ 		if (!realloc(cpus, 2*upper))
+-			return -ENOMEM;
++			goto out;
+ 	}
+ 	while (lower < upper - 1) {
+ 		middle = (lower + upper)/2;
+ 		if (!realloc(cpus, middle))
+-			return -ENOMEM;
++			goto out;
+ 		if (getaffinity(0, middle, cpus) < 0)
+ 			lower = middle;
+ 		else
+ 			upper = middle;
+ 	}
++	ret = CHAR_BIT*upper;
++out:
++	free(cpus);
+ 	return CHAR_BIT*upper;
+ }
+ 

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291517AbSBHJ5V>; Fri, 8 Feb 2002 04:57:21 -0500
+	id <S291512AbSBHJ6v>; Fri, 8 Feb 2002 04:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291512AbSBHJ5M>; Fri, 8 Feb 2002 04:57:12 -0500
-Received: from fw.sthlm.cendio.se ([213.212.13.67]:51702 "EHLO
-	jarlsberg.sthlm.cendio.se") by vger.kernel.org with ESMTP
-	id <S291510AbSBHJ45>; Fri, 8 Feb 2002 04:56:57 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cyrix CX5530 audio support?
-In-Reply-To: <20020206222540.59011685.thibaut@celestix.com> <E16YTsC-0005R1-00@the-village.bc.nu>
-From: Marcus Sundberg <marcus@ingate.com>
-Date: 08 Feb 2002 10:56:54 +0100
-In-Reply-To: alan@lxorguk.ukuu.org.uk's message of "Wed, 6 Feb 2002 15:20:36 +0000 (GMT)"
-Message-ID: <veofj0z47t.fsf@inigo.sthlm.cendio.se>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S291519AbSBHJ6e>; Fri, 8 Feb 2002 04:58:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59407 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291512AbSBHJ6W>;
+	Fri, 8 Feb 2002 04:58:22 -0500
+Message-ID: <3C63A10E.D5DF604A@zip.com.au>
+Date: Fri, 08 Feb 2002 01:57:34 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Rik van Riel <riel@conectiva.com.br>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] get_request starvation fix
+In-Reply-To: <3C639060.A68A42CA@zip.com.au>,
+		<3C639060.A68A42CA@zip.com.au> <20020208095739.J4942@suse.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk (Alan Cox) writes:
-
-> > The sb module from the kernel works.
-> > IIRC, sb16 had a hard time detecting the chip (though I haven't tested it again recently), but ALSA snd-card-sb16 is all right so you'll probably want to use the later.
+Jens Axboe wrote:
 > 
-> Its been fine on my CS5530 since 2.2. We have the DMA emulation bug and the
-> disable_dma emulation bug fixed up nowdays
+> On Fri, Feb 08 2002, Andrew Morton wrote:
+> > Here's a patch which addresses the get_request starvation problem.
+> 
+> [snip]
+> 
+> Agrh, if only I knew you were working on this too :/. Oh well, from a
+> first-read the patch looks good.
 
-But if you have the option I'd recommend to use one of the native
-drivers. National have drivers for both OSS and ALSA, and the ALSA
-driver is under a BSD license. (The OSS driver I don't know about,
-it doesn't say anything about licensing conditions.)
+Seems that with FIFO fairness, /bin/sync now also livelocks.  And
+it's pretty easy to see why.  There's nothing to make
+write_unlocked_buffers() terminate.
 
-//Marcus
--- 
----------------------------------------+--------------------------
-  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
- Firewall Developer, Ingate Systems AB |  http://www.ingate.com/
+We'll worry about that tomorrow.  I may just make it give up
+after writing (2 * nr_buffers_type[BUF_DIRTY]) buffers.
+
+The patch works well with read-latency2 (and it didn't throw
+rejects).  Smooth and fast.  It's going to take some time and
+testing to settle everything in.
+
+
+-

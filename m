@@ -1,108 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVCUFq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVCUF5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVCUFq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 00:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVCUFqZ
+	id S261579AbVCUF5i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 00:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVCUF5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 00:46:25 -0500
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:58551 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261576AbVCUFqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 00:46:16 -0500
-To: ext2-dev@lists.sourceforge.net
-CC: mc@cs.stanford.edu, linux-kernel@vger.kernel.org
-Subject: [CHECKER] ext3 bug in ftruncate() with O_SYNC?
-Reply-To: blp@cs.stanford.edu
-From: Ben Pfaff <blp@cs.stanford.edu>
-Date: Sun, 20 Mar 2005 21:46:16 -0800
-Message-ID: <87y8chft5j.fsf@benpfaff.org>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Mar 2005 00:57:34 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:27780 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261579AbVCUF5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 00:57:31 -0500
+Subject: Re: Suspend-to-disk woes
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1DDAcH-0002n5-00@chiark.greenend.org.uk>
+References: <423B01A3.8090501@gmail.com>
+	 <20050319132612.GA1504@openzaurus.ucw.cz>
+	 <200503191220.35207.rmiller@duskglow.com>
+	 <20050319212922.GA1835@elf.ucw.cz> <20050319212922.GA1835@elf.ucw.cz>
+	 <1111364066.9720.2.camel@desktop.cunningham.myip.net.au>
+	 <E1DDAcH-0002n5-00@chiark.greenend.org.uk>
+Content-Type: text/plain
+Message-Id: <1111384766.9720.144.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 21 Mar 2005 16:59:26 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  We're doing some checking on Linux file systems and found
-what appears to be a bug in the Linux 2.6.11 implementation of
-ext3: when ftruncate shrinks a file, using a file descriptor
-opened with O_SYNC, the file size is not updated synchronously.
-I've appended a test program that illustrates the problem.  After
-this program runs, the file system shows a file with length 1031,
-not 4 as would be expected if the ftruncate completed
-synchronously.  (If I insert an fsync before closing the file,
-the file length is correct.)
+Hi.
 
-Does this look like a bug to you guys?
+On Mon, 2005-03-21 at 11:17, Matthew Garrett wrote:
+> Nigel Cunningham <ncunningham@cyclades.com> wrote:
+> 
+> > Yuck! Why panic when you know what is needed? A better solution is to
+> > tell the user they've messed up and given them the option to (1) reboot
+> > and try another kernel or (2) have swsusp restore the original swap
+> > signature and continue booting. This is what suspend2 does (with a
+> > timeout for the prompt). It's not that hard.
+> 
+> It's trivial to do this in userspace - just have an app in initramfs
+> that checks for a swsusp signature, and then compare the kernel
+> versions. If they mismatch, prompt for what to do. Putting it in the
+> kernel is madness.
 
-Thanks,
+It's not that trivial.
 
-Ben.
+- You need to know how to modify your initramfs to do it;
+- You might have to (learn how to) set up an initramfs just for this;
+- Your image might not be stored in a swap partition. For Suspend2, it
+can potentially in a swap file or (soon) an ordinary file;
+- Finding which partition to look in for the signature might be non
+trivial (labels in fstab). You'd want to hard code it or (perferably)
+copy a config file from the root (or other) partition;
+- Having addressed the above issues, you still need to add code to read
+the swap header, parse it to find the header, read the header from the
+image, parse it and obtain the kernel version of the saved image.
 
-----------------------------------------------------------------------
+If your image is not stored in a swap partition, you probably can't
+mount the fs the image is stored on, because doing so will replay the
+image and make resuming unsafe, so this approach is less trivial without
+knowing exactly which disk blocks and device IDs to use (and using dd to
+access them).
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <assert.h>
+On top of these, we have two implementations, so you'll want to check
+for the signatures of both.
 
-#define CHECK(ret) if(ret < 0) {perror(0); assert(0);}
+That said, I am considering making something like what you're saying:
+exposing methods of testing whether an image exists and an entry through
+which you can get Suspend to erase an image via a proc (eventually
+sysfs) entry. This will allow something like what you're saying to be
+controlled from userspace.
 
-int systemf(const char *fmt, ...)
-{
-	static char cmd[1024];
+Regards,
 
-	va_list ap;
-	va_start(ap, fmt);
-	vsprintf(cmd, fmt, ap);
-	va_end(ap);
-	
-	fprintf(stderr, "running cmd \"%s\"\n", cmd);
-	return system(cmd);
-}
-
-main(int argc, char *argv[])
-{
-	int ret, fd;
-	systemf("umount /dev/sbd0");
-	systemf("sbin/mkfs.ext3 -F -j -b 1024 /dev/sbd0 2048");
-	systemf("sbin/e2fsck.shared -y /dev/sbd0");
-	systemf("mount -t ext3 /dev/sbd0 /mnt/sbd0 -o commit=65535");
-	systemf("umount /dev/sbd0");
-	systemf("mount -t ext3 /dev/sbd0 /mnt/sbd0 -o commit=65535");
-	
-	fd = open("/mnt/sbd0/0001", O_CREAT | O_RDWR | O_SYNC, 0700);
-	CHECK(fd);
-	ret = write(fd, "foobar", 6);
-	CHECK(ret);
-	ret = ftruncate(fd, 1031);
-	CHECK(ret);
-	ret = pwrite(fd, "bazzle", 6, 1031 - 6);
-	CHECK(ret);
-	ret = ftruncate(fd, 4);
-	CHECK(ret);
-        ret = close(fd);
-        CHECK(ret);
-
-#if 0
-	{
-		#include "../sbd/sbd.h"
-		int sbd_fd = open("/dev/sbd0", O_RDONLY);
-		ret = ioctl(sbd_fd, SBD_COPY_DISK, 1);
-		CHECK(ret);
-		close(sbd_fd);
-	}
-#else
-	systemf("reboot -f -n");
-#endif
-	return 0;
-}
-
-
-
+Nigel
 -- 
-Ben Pfaff 
-email: blp@cs.stanford.edu
-web: http://benpfaff.org
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
+

@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265854AbSL1UTK>; Sat, 28 Dec 2002 15:19:10 -0500
+	id <S265636AbSL1UTC>; Sat, 28 Dec 2002 15:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265939AbSL1UTK>; Sat, 28 Dec 2002 15:19:10 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:57217 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S265854AbSL1UTI>; Sat, 28 Dec 2002 15:19:08 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'Stephen Satchell'" <list@fluent2.pyramid.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Want a random entropy source?
-Date: Sat, 28 Dec 2002 21:27:18 +0100
-Message-ID: <003b01c2aeaf$85450cc0$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <5.2.0.9.0.20021228073445.01d386c0@fluent2.pyramid.net>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S265854AbSL1UTC>; Sat, 28 Dec 2002 15:19:02 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:12250 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S265636AbSL1UTB>;
+	Sat, 28 Dec 2002 15:19:01 -0500
+Date: Sat, 28 Dec 2002 15:27:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: acpi_os_queue_for_execution()
+Message-ID: <20021228202716.GA28570@gtf.org>
+References: <20021223181747.GA10363@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021223181747.GA10363@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try this one: http://www.vanheusden.com/mirrors/audio-entropyd-0.0.5.tgz
+On Mon, Dec 23, 2002 at 07:17:48PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> Acpi seems to create short-lived kernel threads, and I don't quite
+> understand why. 
+> 
+> In thermal.c
+> 
+> 
+>                         tz->timer.data = (unsigned long) tz;
+>                         tz->timer.function = acpi_thermal_run;
+>                         tz->timer.expires = jiffies + (HZ * sleep_time) / 1000;
+>                         add_timer(&(tz->timer));
+> 
+> and acpi_thermal_run creates kernel therad that runs
+> acpi_thermal_check. Why is not acpi_thermal_check called directly? I
+> don't like idea of thread being created every time thermal zone needs
+> to be polled...
 
-(and if you have an unused video4linux-device, look here:
-http://www.vanheusden.com/ved/ )
+This is the standard way to get process context [i.e. somewhere where
+you can sleep].  The new delayed-work workqueue code in 2.5.x does
+something almost exactly like that under the covers.
 
------Oorspronkelijk bericht-----
-Van: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]Namens Stephen Satchell
-Verzonden: zaterdag 28 december 2002 16:40
-Aan: linux-kernel@vger.kernel.org
-Onderwerp: Want a random entropy source?
+That said, it sounds like you found something to fix in ACPI:
+
+In 2.4.x ACPI, it should be using schedule_task(), and in 2.5.x it should
+be using schedule_work(), if this is truly the intention of the ACPI
+subsystem.
+
+There shouldn't be much reason to continually spawn single-run threads
+when there is already an API for doing so.
+
+	Jeff
 
 
-Not too long ago I had made a submission on SlashDot on something-or-other
-(oh, right, "Rube-Goldberg Type Random Number Generators?"
-http://ask.slashdot.org/article.pl?sid=02/07/26/1751228&tid=137) and I
-stumbled across my submission to that article.  After thinking about it, I
-though it might be a reasonable thing to submit to this list as a possible
-enhancement to the /dev/random driver if someone wants to try it.  My
-submission was thus:
-
-"I've been vexed that the sound card plus CD-ROM drive combination always
-shows signal at around -50 dBVU in CoolEdit. So, just for grins, I decided
-to capture a few seconds of the noise and analyze the properties. I was
-astonished to see that the resulting signal is a white-noise pattern with a
-slight emphasis at the high end (when sampled at 44 kilosamples per
-second). In short, it looks like diode noise with a 4 kilohertz square wave
-thrown in.
-
-"That suggests to me that this would make a fair source of random samples,
-especially after you slot out the interfering signal.
-
-"How many computers don't have cheap sound cards and CD-ROM drives?"
-
-For what it's worth...
-
-Satch
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 

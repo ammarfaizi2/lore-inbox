@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129536AbQJ0Ul3>; Fri, 27 Oct 2000 16:41:29 -0400
+	id <S130201AbQJ0Uo3>; Fri, 27 Oct 2000 16:44:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129617AbQJ0UlT>; Fri, 27 Oct 2000 16:41:19 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:44037 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129536AbQJ0UlK>;
-	Fri, 27 Oct 2000 16:41:10 -0400
-Message-ID: <39F9E849.D799D4A5@mandrakesoft.com>
-Date: Fri, 27 Oct 2000 16:40:41 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
-In-Reply-To: <39F5830E.7963A935@uow.edu.au> <Pine.LNX.4.10.10010241353590.1743-100000@penguin.transmeta.com> <20001027194513.A1060@bug.ucw.cz>
+	id <S130098AbQJ0UoJ>; Fri, 27 Oct 2000 16:44:09 -0400
+Received: from fw.SuSE.com ([202.58.118.35]:45817 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id <S129617AbQJ0UoG>;
+	Fri, 27 Oct 2000 16:44:06 -0400
+Date: Fri, 27 Oct 2000 13:46:03 -0700
+From: Jens Axboe <axboe@suse.de>
+To: Rui Sousa <rsousa@grad.physics.sunysb.edu>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Blocked processes <=> Elevator starvation?
+Message-ID: <20001027134603.A513@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0010080105520.22898-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0010271658500.1295-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0010271658500.1295-100000@localhost.localdomain>; from rsousa@grad.physics.sunysb.edu on Fri, Oct 27, 2000 at 05:22:01PM +0100
+X-OS: Linux 2.4.0-test10 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Would it be possible to keep 2.7.2.3? You still need 2.7.2.3 to
-> reliably compile 2.0.X (and maybe even 2.2.all-but-latest?).
+On Fri, Oct 27 2000, Rui Sousa wrote:
+> I finally had time to give this a better look. It now seems the problem
+> is in the VM system.
+> 
+> I patched a test10-pre4 kernel with kdb, then started two "diff -ur
+> linux-2.4.0testX linux-2.4.0testY > log1" and two "find / -true >
+> log". After this I tried cat"ing" a small file. The cat never 
+> returned. At this point I entered kdb and did a stack trace on the "cat"
+> process:
+> 
+> schedule()
+> ___wait_on_page()
+> do_generic_file_read()
+> generic_file_read()
+> sys_read()
+> system_call()
+> 
+> So it seems the process is either in a loop in ___wait_on_page()
+> racing for the PageLock or it never wakes-up... (I guess I could add a
+> printk to check which)
+> Unfortunately I didn't find anything obviously wrong with the code.
+> I hope you can do a better job tracking the problem down.
 
-What fails, when you use egcs-1.1.2 to build 2.0.x or early 2.2.x?
+Rik is right, just because you are seeing long waits on wait_on_page
+doesn't make it a vm problem. When a I/O on a page completes, the
+page will be unlocked and wait_on_page can grab it -- so I/O stalls
+would results in this behaviour.
 
-Maybe they need -fno-strict-aliasing... is that what you are referring
-to?
+Could you try this patch:
 
-Regards,
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test10-pre6/blk-7.bz2
 
-	Jeff
-
-
+and see if it makes a difference?
 
 -- 
-Jeff Garzik                    | "Mind if I drive?"  -Sam
-Building 1024                  | "Not if you don't mind me clawing at
-the
-MandrakeSoft                   |  dash and screaming like a
-cheerleader."
-                               |      -Max
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

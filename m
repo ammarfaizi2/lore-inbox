@@ -1,257 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267321AbTAVFmp>; Wed, 22 Jan 2003 00:42:45 -0500
+	id <S267107AbTAVFq7>; Wed, 22 Jan 2003 00:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267328AbTAVFmp>; Wed, 22 Jan 2003 00:42:45 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:46085
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267321AbTAVFmk>; Wed, 22 Jan 2003 00:42:40 -0500
-Date: Wed, 22 Jan 2003 00:51:52 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Andi Kleen <ak@suse.de>, <patches@x86-64.org>
-Subject: [PATCH][2.5][17/18] smp_call_function_on_cpu - x86_64
-Message-ID: <Pine.LNX.4.44.0301220049510.29944-100000@montezuma.mastecende.com>
+	id <S267328AbTAVFq7>; Wed, 22 Jan 2003 00:46:59 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:7135 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267107AbTAVFq5>; Wed, 22 Jan 2003 00:46:57 -0500
+Date: Tue, 21 Jan 2003 23:55:51 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Miles Bader <miles@gnu.org>
+cc: Greg Ungerer <gerg@snapgear.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: common RODATA in vmlinux.lds.h (2.5.59)
+In-Reply-To: <buoptqp954l.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Message-ID: <Pine.LNX.4.44.0301212339540.8909-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.59/arch/x86_64/kernel/bluesmoke.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/kernel/bluesmoke.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 bluesmoke.c
---- linux-2.5.59/arch/x86_64/kernel/bluesmoke.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/kernel/bluesmoke.c	22 Jan 2003 02:22:59 -0000
-@@ -138,7 +138,7 @@
- 		if (i == smp_processor_id())
- 			mce_checkregs(&i);
- 		else
--			smp_call_function (mce_checkregs, &i, 1, 1);
-+			smp_call_function (mce_checkregs, &i, 1);
- 	}
- 
- 	/* Refresh the timer. */
-Index: linux-2.5.59/arch/x86_64/kernel/cpuid.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/kernel/cpuid.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 cpuid.c
---- linux-2.5.59/arch/x86_64/kernel/cpuid.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/kernel/cpuid.c	22 Jan 2003 02:23:13 -0000
-@@ -71,7 +71,7 @@
-     cmd.reg  = reg;
-     cmd.data = data;
-     
--    smp_call_function(cpuid_smp_cpuid, &cmd, 1, 1);
-+    smp_call_function(cpuid_smp_cpuid, &cmd, 1);
-   }
- }
- #else /* ! CONFIG_SMP */
-Index: linux-2.5.59/arch/x86_64/kernel/io_apic.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/kernel/io_apic.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 io_apic.c
---- linux-2.5.59/arch/x86_64/kernel/io_apic.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/kernel/io_apic.c	22 Jan 2003 02:24:29 -0000
-@@ -926,7 +926,7 @@
- 
- void print_all_local_APICs (void)
- {
--	smp_call_function(print_local_APIC, NULL, 1, 1);
-+	smp_call_function(print_local_APIC, NULL, 1);
- 	print_local_APIC(NULL);
- }
- 
-Index: linux-2.5.59/arch/x86_64/kernel/ldt.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/kernel/ldt.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 ldt.c
---- linux-2.5.59/arch/x86_64/kernel/ldt.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/kernel/ldt.c	22 Jan 2003 02:24:44 -0000
-@@ -64,7 +64,7 @@
- #ifdef CONFIG_SMP
- 		preempt_disable();
- 		if (current->mm->cpu_vm_mask != (1<<smp_processor_id()))
--			smp_call_function(flush_ldt, 0, 1, 1);
-+			smp_call_function(flush_ldt, NULL, 1);
- 		preempt_enable();
- #endif
- 	}
-Index: linux-2.5.59/arch/x86_64/kernel/msr.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/kernel/msr.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 msr.c
---- linux-2.5.59/arch/x86_64/kernel/msr.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/kernel/msr.c	22 Jan 2003 02:25:15 -0000
-@@ -125,7 +125,7 @@
-     cmd.data[0] = eax;
-     cmd.data[1] = edx;
-     
--    smp_call_function(msr_smp_wrmsr, &cmd, 1, 1);
-+    smp_call_function(msr_smp_wrmsr, &cmd, 1);
-     return cmd.err;
-   }
- }
-@@ -140,7 +140,7 @@
-     cmd.cpu = cpu;
-     cmd.reg = reg;
- 
--    smp_call_function(msr_smp_rdmsr, &cmd, 1, 1);
-+    smp_call_function(msr_smp_rdmsr, &cmd, 1);
-     
-     *eax = cmd.data[0];
-     *edx = cmd.data[1];
-Index: linux-2.5.59/arch/x86_64/kernel/reboot.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/kernel/reboot.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 reboot.c
---- linux-2.5.59/arch/x86_64/kernel/reboot.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/kernel/reboot.c	22 Jan 2003 02:25:39 -0000
-@@ -88,7 +88,7 @@
- 		   cleared reboot_smp, and do the reboot if it is the
- 		   correct CPU, otherwise it halts. */
- 		if (reboot_cpu != cpuid)
--			smp_call_function((void *)machine_restart , NULL, 1, 0);
-+			smp_call_function((void *)machine_restart , NULL, 0);
- 	}
- 
- 	/* if reboot_cpu is still -1, then we want a tradional reboot, 
-Index: linux-2.5.59/arch/x86_64/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.59/arch/x86_64/kernel/smp.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/kernel/smp.c	22 Jan 2003 02:28:10 -0000
-@@ -343,7 +343,7 @@
- 
- void flush_tlb_all(void)
- {
--	smp_call_function (flush_tlb_all_ipi,0,1,1);
-+	smp_call_function (flush_tlb_all_ipi,NULL,1);
- 
- 	do_flush_tlb_all_local();
- }
-@@ -385,13 +385,10 @@
-  * in the system.
-  */
- 
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--			int wait)
- /*
-  * [SUMMARY] Run a function on all other CPUs.
-  * <func> The function to run. This must be fast and non-blocking.
-  * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-  * <wait> If true, wait (atomically) until function has completed on other CPUs.
-  * [RETURNS] 0 on success, else a negative status code. Does not return until
-  * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-@@ -399,6 +396,8 @@
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
-  */
-+
-+int smp_call_function (void (*func) (void *info), void *info, int wait)
- {
- 	struct call_data_struct data;
- 	int cpus = num_online_cpus()-1;
-@@ -431,6 +430,62 @@
- 	return 0;
- }
- 
-+/*
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-+ *
-+ * You must not call this function with disabled interrupts or from a
-+ * hardware interrupt handler or from a bottom half handler.
-+ */
-+
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
-+{
-+	struct call_data_struct data;
-+	int i, cpu, num_cpus = hweight64(mask);
-+
-+	if (num_cpus == 0)
-+		return 0;
-+
-+	cpu = get_cpu();
-+	if ((1UL << cpu) & mask) {
-+		put_cpu_no_resched();
-+		return 0;
-+	}
-+
-+	data.func = func;
-+	data.info = info;
-+	atomic_set(&data.started, 0);
-+	data.wait = wait;
-+	if (wait)
-+		atomic_set(&data.finished, 0);
-+
-+	spin_lock(&call_lock);
-+	call_data = &data;
-+	wmb();
-+
-+	/* Send a message to all other CPUs and wait for them to respond */
-+	send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
-+
-+	/* Wait for response */
-+	while (atomic_read(&data.started) != num_cpus)
-+		barrier();
-+
-+	if (wait)
-+		while (atomic_read(&data.finished) != num_cpus)
-+			barrier();
-+	spin_unlock(&call_lock);
-+	put_cpu_no_resched();
-+	return 0;
-+}
-+
- static void stop_this_cpu (void * dummy)
- {
- 	/*
-@@ -449,7 +504,7 @@
- 
- void smp_send_stop(void)
- {
--	smp_call_function(stop_this_cpu, NULL, 1, 0);
-+	smp_call_function(stop_this_cpu, NULL, 0);
- 
- 	local_irq_disable();
- 	disable_local_APIC();
-Index: linux-2.5.59/arch/x86_64/mm/pageattr.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/x86_64/mm/pageattr.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 pageattr.c
---- linux-2.5.59/arch/x86_64/mm/pageattr.c	17 Jan 2003 11:14:53 -0000	1.1.1.1
-+++ linux-2.5.59/arch/x86_64/mm/pageattr.c	22 Jan 2003 02:28:33 -0000
-@@ -124,7 +124,7 @@
- static inline void flush_map(unsigned long address)
- {	
- #ifdef CONFIG_SMP 
--	smp_call_function(flush_kernel_map, (void *)address, 1, 1);
-+	smp_call_function(flush_kernel_map, (void *)address, 1);
- #endif	
- 	flush_kernel_map((void *)address);
- }
+On 22 Jan 2003, Miles Bader wrote:
 
--- 
-function.linuxpower.ca
+> Yeah, the new generic RODATA stuff is way broken on the v850 too.
+
+Yup, I actually noticed when looking things over, sorry about that.
+
+>   (1) Separates the RODATA stuff into two macros, an input-sections-and-
+>       symbols macro, RODATA_CONTENTS, which can be put into any
+>       appropriate section, and a RODATA_SECTION macro, which simply
+>       defines an appropriate section using that.  I guess most archs
+>       could just use RODATA_SECTION in the same way they use `RODATA'
+>       now, but the v850 uses RODATA_CONTENTS instead.
+> 
+>       This assumes that the original division into lots of little
+>       output sections was gratuitous, and that putting everything into
+>       a single section is OK.
+> 
+>       [You might notice that this follows the macro scheme already used
+>       by the v850's vmlinux.lds.S file]
+
+Yes, I saw it, but on the other hand I'd like to avoid introducing 
+complexity which isn't really needed. So the important question is: Is 
+there a reason that v850 does things differently, or could it just as well 
+live with separate .text and .rodata sections (Note that sections 
+like .rodata1 will be discarded when empty).
+
+The idea behind the cleanup is two-fold:
+o Make it easier to add e.g. special sections like __ksymtab and friends.
+o Make the building of vmlinux more consistent, i.e. share a common way
+  where possible and explicitly document places where archs need to do
+  things differently. Today, there's a lot of differences between archs,
+  most of them I think just for historical grown-with-time reasons.
+
+A reason to use sections of their own for e.g. __ex_table, __ksymtab etc. 
+is also to get alignment right without magic numbers in vmlinux.lds.S.
+
+One example of the inconsistency is e.g. the _etext symbol. For v850 it 
+includes .rodata, exception table etc. So if calculating _etext - _stext, 
+one gets a wrong impression of the code size, and generic code which 
+assumes that there's code between _stext and _etext (kernel/extable.c) 
+obviously uses a wrong assumption.
+
+>   (2) Adds a `CSYM' macro which is used for every symbol name that is
+>       exported to C.  By default this just expands to its argument, but
+>       an arch may define `C_SYMBOL_PREFIX' in order to add a prefix to
+>       all C symbols.
+> 
+> What do you think of this?
+
+I definitely agree with (2), with (1) only if there's a good reason.
+
+--Kai
 
 

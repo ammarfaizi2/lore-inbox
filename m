@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315746AbSGAQ2G>; Mon, 1 Jul 2002 12:28:06 -0400
+	id <S315748AbSGAQpC>; Mon, 1 Jul 2002 12:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315785AbSGAQ2F>; Mon, 1 Jul 2002 12:28:05 -0400
-Received: from realimage.realnet.co.sz ([196.28.7.3]:34984 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S315746AbSGAQ2E>; Mon, 1 Jul 2002 12:28:04 -0400
-Date: Mon, 1 Jul 2002 17:59:27 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@mwaikambo.name>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lilo/raid?
-In-Reply-To: <200207011815.36602.roy@karlsbakk.net>
-Message-ID: <Pine.LNX.4.44.0207011758180.3104-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315785AbSGAQpB>; Mon, 1 Jul 2002 12:45:01 -0400
+Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:27492 "EHLO
+	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S315748AbSGAQpB>; Mon, 1 Jul 2002 12:45:01 -0400
+Message-Id: <200207011647.g61GlNx14474@blake.inputplus.co.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18. 
+In-Reply-To: Message from Pete Zaitcev <zaitcev@redhat.com> 
+   of "Mon, 01 Jul 2002 11:16:49 EDT." <200207011516.g61FGnP20648@devserv.devel.redhat.com> 
+Date: Mon, 01 Jul 2002 17:47:23 +0100
+From: Ralph Corderoy <ralph@inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jul 2002, Roy Sigurd Karlsbakk wrote:
 
-> LABEL=/                 /                       ext3    defaults        1 1
-> /dev/md2                /tmp                    ext3    defaults        1 2
-> /dev/md3                /var                    jfs     defaults        1 2
-> /dev/md4                /data                   jfs     defaults        1 2
-> /dev/md1                swap                    swap    defaults        0 0
+Hi Pete,
 
-One small thing, you do know that you can interleave swap?
+> > My theory is that usbkbd.o doesn't cope with ErrorRollover which is
+> > being generated, unlike hid.o which didn't used to but does now.
+> 
+> I have an idea: remove usbkbd or make it extremely hard for newbies to
+> build (e.g. drop CONFIG_USB_KBD from config.in, so it would need to be
+> added manually if you want usbkbd).
 
-Regards,
-	Zwane
+That doesn't sound too great.
 
--- 
-http://function.linuxpower.ca
-		
+> At the very minimum I would like to see all distros, and especially
+> SuSE (because of Vojtech) to stop shipping usbkbd.o.
+
+What I'd like to see, if both hid.o and usbkbd.o can handle a keyboard,
+is that hid.o gets the job.  Then usbkbd.o can stay in config.in and be
+built just in case it's needed.
+
+> > I'll try and use hid.o instead, usbkbd.o was just picked by this Red
+> > Hat 7.2 system on adding the keyboard.
+> 
+> Do up2date and be happy: usbkbd.o was removed from Red Hat kernels
+> somewhere in erratas.
+
+Ah, OK, thanks.  Unfortunately, I've already moved onto 2.4.18 built
+from source due to some of my other needs.
+
+Cheers,
+
+
+Ralph.
 

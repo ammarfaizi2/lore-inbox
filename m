@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261679AbRFNJ0k>; Thu, 14 Jun 2001 05:26:40 -0400
+	id <S261840AbRFNJ7v>; Thu, 14 Jun 2001 05:59:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262027AbRFNJ0a>; Thu, 14 Jun 2001 05:26:30 -0400
-Received: from babel.spoiled.org ([212.84.234.227]:36781 "HELO
-	babel.spoiled.org") by vger.kernel.org with SMTP id <S262242AbRFNJ0T>;
-	Thu, 14 Jun 2001 05:26:19 -0400
-Date: 14 Jun 2001 09:26:17 -0000
-Message-ID: <20010614092617.12555.qmail@babel.spoiled.org>
-From: Juri Haberland <juri@koschikode.com>
-To: mozgy@hinet.hr (Mario Mikocevic)
-Cc: linux-kernel@vger.kernel.org;, haberland@altus.de
-Subject: Re: Need a helping hand (realproducer and radio device)
-X-Newsgroups: spoiled.linux.kernel
-In-Reply-To: <20010614093405.C6467@danielle.hinet.hr>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (OpenBSD/2.9 (i386))
+	id <S261854AbRFNJ7l>; Thu, 14 Jun 2001 05:59:41 -0400
+Received: from proxy.ATComputing.nl ([195.108.229.1]:51499 "EHLO
+	atcmpg.ATComputing.nl") by vger.kernel.org with ESMTP
+	id <S261840AbRFNJ7f>; Thu, 14 Jun 2001 05:59:35 -0400
+From: Daniel Tuijnman <daniel@ATComputing.nl>
+Message-Id: <200106140958.LAA06999@atcmpg.ATComputing.nl>
+Subject: SMP kernel 2.4.5 reboots spontaneously
+To: linux-kernel@vger.kernel.org
+Date: Thu, 14 Jun 2001 11:58:29 +0200 (MEST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010614093405.C6467@danielle.hinet.hr> you wrote:
-> Hi,
-> 
-> I have an Hauppauge WinTV/Radio card and I want to be able to use it's radio
-> device as a source for live broadcast.
-> 
-> It's RH71 distro updated with mainstream 2.4.5 .
-> 
-> Radio device works fine on it's own meaning that I can tune the station and
-> listen to it.
-> 
-> RealProducer (8.5) also works fine meaning that it encodes video inputs and Line-In
-> input into realmedia stream just fine.
-> 
-> 
-> The problem is that in startup realproducer mutes (IMO) or shuts down or something, that radio
-> device on bt8x8 card and therefore no actual audio signal gets to Line-In resulting in no audio
-> in realmedia stream.
+Hi,
 
-I had a similar problem long time ago. The point is that the realproducer
-mutes the recording source in the mixer. Try to reenable it using aumix or
-a similar application.
+My machine has an
+- Intel D440LX motherboard (440LX chipset, onboard
+  Adaptec AIC7880U SCSI, onboard EEPRO-100 NIC, onboard Cirrus VGA),
+- 2 Pentium-II, 266 MHz CPUs
+- second EEPRO-100 NIC
+- SCSI HD and CDROM
 
-Juri
+Using the 2.4.2-smp kernel from RedHat 7.1 gives spontaneous reboots,
+the 2.4.5 kernel too, when configured for SMP.
+No crash dump available - applying the lkcd patch didn't help either.
+The machine runs stable with a uni-processor kernel (2.4.2), though.
 
--- 
-Juri Haberland  <juri@koschikode.com> 
+Does anyone have any idea what's going wrong here?
+Reactions please also cc: to my email address.
+
+Greetings,
+Daniel Tuijnman
 

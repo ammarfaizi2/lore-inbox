@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264943AbUE0SWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUE0SWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264943AbUE0SWS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 14:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUE0SWR
+	id S264955AbUE0SWB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 14:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbUE0SVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 14:22:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53726 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264949AbUE0SVx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 14:21:53 -0400
-Message-ID: <40B631B3.4000902@pobox.com>
-Date: Thu, 27 May 2004 14:21:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, prism54-devel@prism54.org
-Subject: Re: [PATCH 4/14 linux-2.6.7-rc1] prism54: add support for avs header
- in
-References: <20040524083146.GE3330@ruslug.rutgers.edu>
-In-Reply-To: <20040524083146.GE3330@ruslug.rutgers.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 27 May 2004 14:21:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61419 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264933AbUE0SVZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 14:21:25 -0400
+Date: Thu, 27 May 2004 11:20:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrey Panin <pazke@donpac.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc1-mm1
+Message-Id: <20040527112041.531a52e4.akpm@osdl.org>
+In-Reply-To: <20040527115327.GA7499@pazke>
+References: <20040527015259.3525cbbc.akpm@osdl.org>
+	<20040527115327.GA7499@pazke>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luis R. Rodriguez wrote:
-> diff -u -r1.31 -r1.33
-> --- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.c	18 Mar 2004 15:27:44 -0000	1.31
-> +++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.c	19 Mar 2004 23:03:58 -0000	1.33
-> @@ -1,4 +1,4 @@
-> -/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.31 2004/03/18 15:27:44 ajfa Exp $
-> +/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.33 2004/03/19 23:03:58 ajfa Exp $
+Andrey Panin <pazke@donpac.ru> wrote:
+>
+> On 148, 05 27, 2004 at 01:52:59 -0700, Andrew Morton wrote:
+> >
+> > +make-proliant-8500-boot-with-26.patch
+> > 
+> >  Fix hpaq proliant 8500
+> 
+> Ugh, dmi_scan.c changed again ... :(
+> 
 
-
-Please remove CVS substitions from your code, they cause endless patch 
-rejects if I choose to apply (for example) 10 out of 14 patches.
-
-	Jeff
-
-
+Confused.  What's the problem with that?

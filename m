@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264419AbUEXRny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUEXRn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264419AbUEXRny (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 13:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbUEXRnx
+	id S264658AbUEXRn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 13:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbUEXRn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 13:43:53 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:18918 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S264419AbUEXRnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 13:43:31 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm5
-References: <20040522013636.61efef73.akpm@osdl.org>
-	<m165aorm70.fsf@ebiederm.dsl.xmission.com>
-	<20040522180837.3d3cc8a9.akpm@osdl.org> <527jv4ymd4.fsf@topspin.com>
-	<20040524161733.GX5414@waste.org>
-	<m17jv1n4fk.fsf@ebiederm.dsl.xmission.com>
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: 24 May 2004 10:43:30 -0700
-In-Reply-To: <m17jv1n4fk.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <52brkdwwjh.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Mon, 24 May 2004 13:43:26 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:29583 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264658AbUEXRnW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 13:43:22 -0400
+Date: Mon, 24 May 2004 10:39:40 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+cc: Erik Jacobson <erikj@subway.americas.sgi.com>, Paul Jackson <pj@sgi.com>,
+       frankeh@watson.ibm.com, kanderso@redhat.com, limin@sgi.com,
+       jlan@sgi.com, jh@sgi.com, Vivek Kashyap <kashyapv@us.ibm.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Rik van Riel <riel@redhat.com>,
+       gh@us.ibm.com, peterw@aurema.com, ralf@suse.de, mason@suse.com
+Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
+Message-ID: <31520000.1085420380@dyn318071bld.beaverton.ibm.com>
+In-Reply-To: <30270000.1085418547@dyn318071bld.beaverton.ibm.com>
+References: <30270000.1085418547@dyn318071bld.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 24 May 2004 17:43:30.0207 (UTC) FILETIME=[A046E2F0:01C441B6]
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Eric> If no hardware actually cared or someone could show me that
-    Eric> you can't generate a 64bit memory I/O cycle on the PCI bus
-    Eric> that would be interesting.  I have seen several drivers that
-    Eric> care.  Later today I intend to look at my pci docs and
-    Eric> confirm that 64bit I/O cycles do exist on the bus, even in
-    Eric> 32bit slots.  PCI bus traffic is packet based so I would be
-    Eric> strongly surprised if 64bit cycles did not exist.
+--On Monday, May 24, 2004 10:09:07 AM -0700 Hanna Linder <hannal@us.ibm.com> wrote:
 
-Hang on -- how could you generate a 64-bit cycle on a 32-bit PCI bus?
-By definition a 32-bit PCI bus can only transfer 32 bits per cycle.
+> 
+> Minutes from LSE call on CKRM and PAGG on May 19, 2004. 
 
-PCI Express traffic is packet based but parallel PCI definitely is not.
+I forgot to give credit to Vivek Kashyap for writing the minutes. 
 
- - Roland
+Thanks a lot!
+
+Hanna
 

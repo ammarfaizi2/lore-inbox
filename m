@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTERXzi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 19:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbTERXzi
+	id S261179AbTESAP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 20:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTESAP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 19:55:38 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:35048 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262273AbTERXzh (ORCPT
+	Sun, 18 May 2003 20:15:27 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:7554 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S261179AbTESAP1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 19:55:37 -0400
-Date: Sun, 18 May 2003 17:03:30 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Gregoire Favre <greg@magma.unil.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe ide-floppy crash system in 2.5.69-ac1
-Message-Id: <20030518170330.1e20cbfc.rddunlap@osdl.org>
-In-Reply-To: <20030518144858.GD29806@magma.unil.ch>
-References: <20030518144858.GD29806@magma.unil.ch>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Sun, 18 May 2003 20:15:27 -0400
+Date: Mon, 19 May 2003 01:28:20 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@muc.de>, kraxel@suse.de, jsimmons@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
+Message-ID: <20030519002820.GA9048@mail.jlokier.co.uk>
+References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de> <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk> <20030518053935.GA4112@averell> <20030518161105.GA7404@mail.jlokier.co.uk> <1053290431.27107.4.camel@dhcp22.swansea.linux.org.uk> <20030518223446.GA8591@mail.jlokier.co.uk> <20030518225204.GA21068@suse.de> <20030518233325.GA8888@mail.jlokier.co.uk> <20030519000249.GA18507@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030519000249.GA18507@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 May 2003 16:48:58 +0200 Gregoire Favre <greg@magma.unil.ch> wrote:
+Dave Jones wrote:
+>  > My point being that vesafb is used for maximum compatibility, when you
+>  > have no other way to drive an unknown framebuffer.  It's the emergency
+>  > backup driver.  Shouldn't it be robust when faced with an unknown
+>  > framebuffer type, new or old?
+> 
+> It works just fine. Just you can't enable MTRRs for framebuffer memory.
+> Losing a bit of performance for what is (by todays standards) a crap
+> performing card anyways, is no big deal.
 
-| Hallo,
-| 
-| just wanted to try 2.5.69-ac1, but as soon as I try
-| modprobe ide-floppy my system completely crash :-(
-| 
-| Should I provide other info?
+How do you know the blacklist is complete?
 
-Hi,
+That's my point: with most drivers we accept a few surprises and
+change the code, but vesafb is supposed to handle any old crap card
+that's thrown at it, as robustly as possible.
 
-There have been a few other problems reported, including some
-by you in 2.5.69 and by Udo Steinberg, also in 2.5.69.
-Udo's report is at
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105266660108932&w=2
-(see the attachments).
-
-I don't see any of these in the kernel bugzilla though,
-so I'd suggest entering one there, please.
-
-http://bugzilla.kernel.org
-or http://bugme.osdl.org
-
---
-~Randy
+-- Jamie

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131488AbQKJW0Y>; Fri, 10 Nov 2000 17:26:24 -0500
+	id <S131980AbQKJW0f>; Fri, 10 Nov 2000 17:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131980AbQKJW0O>; Fri, 10 Nov 2000 17:26:14 -0500
-Received: from 13dyn58.delft.casema.net ([212.64.76.58]:31501 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131627AbQKJW0A>; Fri, 10 Nov 2000 17:26:00 -0500
-Message-Id: <200011102225.XAA04339@cave.bitwizard.nl>
-Subject: Re: APIC errors w/ 2.4.0-test11-pre2
-In-Reply-To: <8uhpuj$1uf$1@cesium.transmeta.com> from "H. Peter Anvin" at "Nov
- 10, 2000 01:39:31 pm"
-To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Fri, 10 Nov 2000 23:25:57 +0100 (MET)
-CC: linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S132012AbQKJW0Y>; Fri, 10 Nov 2000 17:26:24 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:35332 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131983AbQKJW0Q>; Fri, 10 Nov 2000 17:26:16 -0500
+Message-ID: <3A0C7517.FB96CF08@timpanogas.org>
+Date: Fri, 10 Nov 2000 15:22:15 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: sendmail-bugs@Sendmail.ORG, linux-kernel@vger.kernel.org
+Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
+In-Reply-To: <Pine.GSO.4.21.0011101712390.17943-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Followup to:  <Pine.LNX.4.21.0011101523170.14596-100000@bochum.redhat.de>
-> By author:    Bernhard Rosenkraenzer <bero@redhat.de>
-> In newsgroup: linux.dev.kernel
+
+
+Alexander Viro wrote:
+> 
+> On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
+> 
 > >
-> > Hi,
-> > after booting a 2.4.0 (any testx-release I've tried so far, including
-> > test11-pre2) on a Dual-Pentium III box, the system works ok, but the
-> > console gets filled with
-> > 
-> > APIC error on CPU0: 08(08)
-> > 
-> > every couple of seconds, occasionally some lines in between say
-> > 
-> > APIC error on CPU0: 08(02)
-> > 
-> > and
-> > 
-> > APIC error on CPU0: 02(08)
-> > 
- 
-> I have seen the same problem on the same motherboard.  It appears to
-> be a motherboard bug that 2.4 exposes and 2.2 doesn't.
+> > Then perhaps qmail's time has finally come .... If sendmail cannot run
+> > on a machine with minimal background loading from a dozen or so FTP
+> > clients downloading files, it's clearly sick.  BTW.  I have another box
+> > running qmail, and it doesn't have these problems.
+> 
+> If you have permanently high load average - sure, you need to bump
+> the limits. Always had been that way, nothing to do with the kernel.
+> OTOH, I really don't see WTF are FTP clients giving that kind of LA -
+> unless you've got really thick pipe on a box, that is. If it's a server -
+> WTF are they doing there at all? And if it isn't... Nice connectivity
+> you have there.
 
-This PRINT was added in 2.4. 
+I have dual T1 lines going into the box, and I just added a 4-way ADSL
+circuit as well (4 x 550K).  Claus claimed there were TCPIP timeout bugs
+in Linux (which we have now disproved).  Even despite the limits being
+low, a "sendmail -v -q" command should always force delivery, and this
+wasn't even working right.  This box gets hammered day and night with
+FTP activity.  Had to upgrade since I learned when you post a free Linux
+distriution, everyone beats a path to your door.   
 
-You're seeing noise on the apic lines. The APICs notice, but every now
-and then you may see a lockup due to this. (i.e. if the corruption
-does not trigger a parity error, because two bits flipped!)
-
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-*       Common sense is the collection of                                *
-******  prejudices acquired by age eighteen.   -- Albert Einstein ********
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

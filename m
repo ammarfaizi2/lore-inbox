@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbSKHRHF>; Fri, 8 Nov 2002 12:07:05 -0500
+	id <S262210AbSKHREM>; Fri, 8 Nov 2002 12:04:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266812AbSKHRHF>; Fri, 8 Nov 2002 12:07:05 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:8719
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S266810AbSKHRHE>; Fri, 8 Nov 2002 12:07:04 -0500
-Subject: Re: [Linux-ia64] reader-writer livelock problem
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>, linux-ia64@linuxia64.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au,
-       dhowells@redhat.com, mingo@elte.hu,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20021108035102.GA22031@holomorphy.com>
-References: <3FAD1088D4556046AEC48D80B47B478C0101F4E7@usslc-exch-4.slc.unisys.com>
-	 <20021108035102.GA22031@holomorphy.com>
+	id <S262213AbSKHREM>; Fri, 8 Nov 2002 12:04:12 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:28060 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262210AbSKHREL>; Fri, 8 Nov 2002 12:04:11 -0500
+Subject: Re: IDE and possibly ext3 problems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Helmut Apfelholz <helmutapfel@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021107065208.91462.qmail@web14102.mail.yahoo.com>
+References: <20021107065208.91462.qmail@web14102.mail.yahoo.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1036775624.13021.3.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.90 (Preview Release)
-Date: 08 Nov 2002 09:13:44 -0800
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Nov 2002 17:34:19 +0000
+Message-Id: <1036776859.16626.41.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-07 at 19:51, William Lee Irwin III wrote:
-> On Thu, Nov 07, 2002 at 09:23:21PM -0600, Van Maren, Kevin wrote:
-> > This is a follow-up to the email thread I started on July 29th.
-> > See http://www.cs.helsinki.fi/linux/linux-kernel/2002-30/0446.html
-> > and the following discussion on LKML.
-> > I'll summarize the problem again to refresh the issue.
-> > Again, this is a correctness issue, not a performance one.
-> > I am seeing a problem on medium-sized SMPs where user programs are
-> > able to livelock the Linux kernel to such an extent that the
-> > system appears dead.  With the help of some hardware debugging
-> > tools, I was able to determine that the problem is caused by
-> > the reader-preference reader/writer locks in the Linux kernel.
-> 
-> This is a very serious problem which I have also encountered. My
-> strategy was to make the readers on the tasklist_lock more well-behaved,
-> and with Ingo's help and co-authorship those changes were cleaned up,
-> tuned to provide performance benefits for smaller systems, bugfixed,
-> and incorporated in the kernel. They have at least provided 16x systems
-> in my lab with much more stability. The issues are still triggerable on
-> 32x systems in my lab, to which I do not have regular access.
+On Thu, 2002-11-07 at 06:52, Helmut Apfelholz wrote:
+> b3 kernel: hdm: timeout waiting for DMA
+> b3 kernel: ide_dmaproc: chipset supported
+> ide_dma_timeout func only: 14
+> b3 kernel: hdm: status timeout: status=0xd0 { Busy }
+> b3 kernel: hdm: drive not ready for command
 
-The normal way of solving this fairness problem is to make pending write
-locks block read lock attempts, so that the reader count is guaranteed
-to drop to zero as read locks are released.  I haven't looked at the
-Linux implementation of rwlocks, so I don't know how hard this is to
-do.  Or perhaps there's some other reason for not implementing it this
-way?
+Your disk went offline somehow.
 
-	J
+> and the server start to generate increasingly higher
+> loads as it waits for the disk. With ac kernel we were
+> forced to reset the machine. After it came up, we've
+> noticed in the logs:
+
+Looks like not everything got written before the crash  Not impossible
+in writeback mode especially with the IDE controller caches involved.
+
+> and see no errors. Ah, it looks like hdm disk isn't in
+> the dmesg output anymore:
+
+Maybe it died completely at that point ?
+
 

@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267912AbRHMUWj>; Mon, 13 Aug 2001 16:22:39 -0400
+	id <S267140AbRHMUTt>; Mon, 13 Aug 2001 16:19:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267923AbRHMUW3>; Mon, 13 Aug 2001 16:22:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53001 "EHLO
+	id <S267651AbRHMUTj>; Mon, 13 Aug 2001 16:19:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50697 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267912AbRHMUWS>; Mon, 13 Aug 2001 16:22:18 -0400
-Subject: Re: Are we going too fast?
-To: weber@nyc.rr.com (John Weber)
-Date: Mon, 13 Aug 2001 21:24:25 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "John Weber" at Aug 13, 2001 03:14:13 PM
+	id <S267140AbRHMUTg>; Mon, 13 Aug 2001 16:19:36 -0400
+Subject: Re: IDE UDMA/ATA Suckage, or something else?
+To: pgallen@randomlogic.com (Paul G. Allen)
+Date: Mon, 13 Aug 2001 21:22:06 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux kernel developer's mailing list),
+        kplug-list@kernel-panic.org (kplug-list@kernel-panic.org)
+In-Reply-To: <no.id> from "Paul G. Allen" at Aug 13, 2001 11:52:36 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15WOG9-0008A5-00@the-village.bc.nu>
+Message-Id: <E15WODu-00089l-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Welcome to wacky hardware. To get a G400 stable on x86 you need at least
-> > 
-> > XFree86 4.1 if you are running hardware 3D (and DRM 4.1)
-> > 2.4.8 or higher with the VIA fixes
-> > Preferably a very recent BIOS update for the VIA box
+> > You must disable IDE prefetch on the current versions of the AMD MP
+> > chipset, you may also need to enable "noapic".
 > 
-> I'm sorry, but what "VIA fixes" are we referring to?
+> Unless I can do it with the kernel, I have no choice. The BIOS has no
+> prefetch setting (which, BTW, I had disabled on all my A7V133 boards).
+> So what about problems with non MP boards?
 
-Certain VIA chipsets had some nasty bugs that caused corruption. The older
-kernels have a workaround that mostly does the job but has a few side
-effects. The 2.4.8 kernel has the official VIA provided workaround, which
-makes sbpci128 cards work again, and sorts out some bus hangs, especially
-with matrox cards
+Well its entirely possible that the BIOS vendor did the right thing and
+made sure you couldnt turn it on. How does your box behave with noapic ?

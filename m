@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUDJTdS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 15:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUDJTdS
+	id S261682AbUDJTkf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 15:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUDJTkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 15:33:18 -0400
-Received: from pxy3allmi.all.mi.charter.com ([24.247.15.42]:38031 "EHLO
-	proxy3-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
-	id S261296AbUDJTdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 15:33:16 -0400
-Message-ID: <40784BF3.7080706@quark.didntduck.org>
-Date: Sat, 10 Apr 2004 15:33:07 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Force build error on undefined symbols
-References: <20040410131028.A4221@flint.arm.linux.org.uk>
-In-Reply-To: <20040410131028.A4221@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 10 Apr 2004 15:40:35 -0400
+Received: from [202.28.93.1] ([202.28.93.1]:54290 "EHLO gear.kku.ac.th")
+	by vger.kernel.org with ESMTP id S261682AbUDJTke (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 15:40:34 -0400
+Date: Sun, 11 Apr 2004 02:40:38 +0700
+From: Kitt Tientanopajai <kitt@gear.kku.ac.th>
+To: daniel.ritz@gmx.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
+Message-Id: <20040411024038.409791d7.kitt@gear.kku.ac.th>
+In-Reply-To: <200404101814.41955.daniel.ritz@gmx.ch>
+References: <200404060227.58325.daniel.ritz@gmx.ch>
+	<200404091941.20444.daniel.ritz@gmx.ch>
+	<20040410101825.59158e43.kitt@gear.kku.ac.th>
+	<200404101814.41955.daniel.ritz@gmx.ch>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Charter-MailScanner-Information: 
-X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Hi,
-> 
-> I've checked the date, and it isn't April Fools day.  I wish it was
-> though.
-> 
-> It appears that all binutils versions for ARM which are capable of
-> building 2.6 kernels which have been tested so far contain a serious
-> bug - it is possible to successfully link an object and still have
-> various symbols undefined.  Currently, these binutils have been
-> tested on ARM (as cross-compilers and/or native) and found wanting:
-> 
-> GNU assembler 2.13.90.0.18 20030206
-> GNU assembler 2.14 20030612
-> GNU assembler 2.14.90 20031229
-> GNU ld version 2.14.90.0.7 20031029 Debian GNU/Linux
-> Assembleur GNU 2.15.90.0.1 20040303
-> 
-> So far, we have discovered two cases:
-> 
-> 1. When building a certain file, an undefined symbolic constant
->    (TI_USED_CP) ended up in the symbol table without a relocation,
->    and the value the assembler decided to use was '0'.  The effect
->    of this is that we ended up setting bits in thread_info->flags.
-> 
->    This appears to be a binutils "as" error.
-> 
-> 2. When building the decompressor for ARM kernels, GCC appears to
->    inexplicably emit ".global" directives for symbols not defined
->    in the files being built, even though the symbols themselves are
->    not actually used.  I'm not sure whether this is a real bug;
->    binutils on x86 appears to accept and link such objects.
-> 
-> In both cases, the linker successfully created executable programs
-> which ran.  In the first case, it is a silent error; the kernel had
-> been linked, and able to run, but the program is not correct.
-> 
-> Obviously, the one true correct solution is to fix the toolchain and
-> upgrade to the latest version.  However, since we have potentially
-> multiple binutils versions spread across more than a year affected,
-> I think we need to detect such errors as well.
-> 
-> Therefore, I propose the following patch to detect undefined symbols
-> in the final image and force an error if this is the case.
-> 
-> Comments?
+Hi
 
-How about adding --no-undefined to LDFLAGS_vmlinux instead?
+> so you say with my first patch both USB ports are working then? so clie sync only
+> works on one of the ports but the mouse on both?
 
---
-				Brian Gerst
+I've just tested the usb ports with your first patch again. Now both ports are working, at least for usb mouse, clie sync, and usb storage. So, I think your first patch is okay. Sorry that I did not test them thoroughly at the first time.
+
+> ok, it's the interrupt routing, not the chip config. i think the first patch that
+> adds the tm361 to the dmi_scan problem table is correct then. real good
+> QA from acer: hack the BIOS, boot it with windows and if it works, ship it...
+> it works with windows because it assigned all the devices to the same irq
+> 
+> i'll submit it later to andrew morton.
+
+Please do so. I hope the patch will be included in 2.6.6. Anyway, thanks again for your help.
+
+rgds,
+kitt

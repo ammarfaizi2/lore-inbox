@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbUDEXR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 19:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUDEXR6
+	id S263348AbUDEXWM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 19:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUDEXWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 19:17:58 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:17317 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263370AbUDEXRz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 19:17:55 -0400
-Subject: Re: [PATCH] Drop exported symbols list if !modules
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-In-Reply-To: <20040405230723.GK6248@waste.org>
-References: <20040405205539.GG6248@waste.org>
-	 <1081205099.15272.7.camel@bach>  <20040405230723.GK6248@waste.org>
-Content-Type: text/plain
-Message-Id: <1081207046.15272.44.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 06 Apr 2004 09:17:26 +1000
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Apr 2004 19:22:12 -0400
+Received: from web21107.mail.yahoo.com ([216.136.227.109]:57938 "HELO
+	web21107.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263348AbUDEXWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 19:22:00 -0400
+Message-ID: <20040405232158.76420.qmail@web21107.mail.yahoo.com>
+Date: Mon, 5 Apr 2004 16:21:58 -0700 (PDT)
+From: Steven Edwards <steven_ed4153@yahoo.com>
+Subject: ReactOS and CoLinux status
+To: Dan Aloni <da-x@colinux.org>,
+       Cooperative Linux Development 
+	<colinux-devel@lists.sourceforge.net>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040405131520.GA4395@callisto.yi.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-06 at 09:07, Matt Mackall wrote:
-> On Tue, Apr 06, 2004 at 08:45:01AM +1000, Rusty Russell wrote:
-> > On Tue, 2004-04-06 at 06:55, Matt Mackall wrote:
-> > > Drop ksyms if we've built without module support
-> > > 
-> > > From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-> > > Subject: Re: 2.6.1-rc1-tiny2
-> > 
-> > Other than saving a little compile time, does this actually do anything?
-> > 
-> > I'm not against it, I just don't think I see the point.
-> 
-> Well it obviously saves memory and image size too;
+Hello All,
 
-Please measure it.  It's not obvious to me at all.
+If you want to run Linux and have your Windows device drivers then this
+message is for you.
 
-Thanks,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+I just wanted to give all of you a update on our work to get CoLinux
+working on ReactOS. Where it stands right now it looks like ReactOS
+will be able to run CoLinux quite soon. We still have some issues with
+running Cygwin applications so we need some help either fixing that or
+we need to see if the CoLinux deamon can be built linking to msvcrt
+rather than cygwin. Other than this the only show stopper we have atm
+is our TCP/IP stack is still under heavy development and will not be
+ready to run the Xserver and Linux network applications for another few
+months.
 
+Thanks
+Steven
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

@@ -1,23 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVANPZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVANPbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbVANPZG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 10:25:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVANPZG
+	id S262008AbVANPbb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 10:31:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVANPbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 10:25:06 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:1471 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262007AbVANPZA (ORCPT
+	Fri, 14 Jan 2005 10:31:31 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:3775 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262008AbVANPba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 10:25:00 -0500
-Date: Fri, 14 Jan 2005 16:24:50 +0100 (CET)
+	Fri, 14 Jan 2005 10:31:30 -0500
+Date: Fri, 14 Jan 2005 16:31:18 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
-To: Andi Kleen <ak@muc.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+To: Karim Yaghmour <karim@opersys.com>
+cc: Andi Kleen <ak@muc.de>, Nikita Danilov <nikita@clusterfs.com>,
+       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>
 Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <m1zmzcpfca.fsf@muc.de>
-Message-ID: <Pine.LNX.4.61.0501141549460.6118@scrub.home>
+In-Reply-To: <41E7A7A6.3060502@opersys.com>
+Message-ID: <Pine.LNX.4.61.0501141626310.6118@scrub.home>
 References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
+ <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
+ <41E7A7A6.3060502@opersys.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,35 +28,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, 14 Jan 2005, Andi Kleen wrote:
+On Fri, 14 Jan 2005, Karim Yaghmour wrote:
 
-> > - Added the Linux Trace Toolkit (and hence relayfs).  Mainly because I
-> >   haven't yet taken as close a look at LTT as I should have.  Probably neither
-> >   have you.
+> Andi Kleen wrote:
+> > When you have a timing bug and your logger starts to block randomly
+> > you also won't debug anything. Fix is to make your buffers bigger.
 > 
-> I think it would be better to have a standard set of kprobes instead
-> of all the ugly LTT hooks. kprobes could then log to relayfs or another
-> fast logging mechanism.
+> relayfs allows you to choose which is best for you.
+> 
+> >From Documentation/filesystems/relayfs.txt:
+> ...
+> int    relay_open(channel_path, bufsize, nbufs, channel_flags,
+> 		  channel_callbacks, start_reserve, end_reserve,
+> 		  rchan_start_reserve, resize_min, resize_max, mode,
+> 		  init_buf, init_buf_size)
 
-kprobes is not portable.
-
-> The problem relayfs has IMHO is that it is too complicated. It 
-> seems to either suffer from a overfull specification or second system
-> effect. There are lots of different options to do everything,
-> instead of a nice simple fast path that does one thing efficiently.
-
-I have to agree with this. relayfs should resemble a very simple pipe, 
-maybe making it possible to writing them directly to disk.
-ltt has the same problem. It still does way too much at event time, it 
-should just pump the data to disk and postprocess it later. I think it's 
-better to implement multiple traces in user space via a daemon, which 
-synchronizes multiple users.
-
-> IMHO before merging it should go through a diet and only keep
-> the paths that are actually needed and dropping a lot of the current
-> baggage.
-
-While I agree this is needed, I don't think it's a reason against merging, 
-it should just be made clear, that the API is not stable and will change.
+You don't think that's a little overkill?
+BTW it should return a pointer not an id, at every further access it needs 
+to be looked up, killing the effects of any lockless mechanism.
 
 bye, Roman

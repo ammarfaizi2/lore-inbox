@@ -1,75 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264540AbTCYUm1>; Tue, 25 Mar 2003 15:42:27 -0500
+	id <S264535AbTCYVFu>; Tue, 25 Mar 2003 16:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264539AbTCYUm1>; Tue, 25 Mar 2003 15:42:27 -0500
-Received: from smtp01.uc3m.es ([163.117.136.121]:35592 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S264540AbTCYUmZ>;
-	Tue, 25 Mar 2003 15:42:25 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200303252053.h2PKrRn09596@oboe.it.uc3m.es>
-Subject: Re: [PATCH] ENBD for 2.5.64
-In-Reply-To: <1048623613.25914.14.camel@lotte> from Justin Cormack at "Mar 25,
- 2003 08:20:08 pm"
-To: Justin Cormack <justin@street-vision.com>
-Date: Tue, 25 Mar 2003 21:53:27 +0100 (MET)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S264537AbTCYVFu>; Tue, 25 Mar 2003 16:05:50 -0500
+Received: from fionet.com ([217.172.181.68]:44160 "EHLO service")
+	by vger.kernel.org with ESMTP id <S264535AbTCYVFp>;
+	Tue, 25 Mar 2003 16:05:45 -0500
+Subject: Re: System time warping around real time problem - please help
+From: Fionn Behrens <fionn@unix-ag.org>
+To: linux-kernel@vger.kernel.org
+Cc: root@chaos.analogic.com, tim@physik3.uni-rostock.de
+In-Reply-To: <Pine.LNX.4.53.0303251152080.29361@chaos>
+References: <1048609931.1601.49.camel@rtfm>
+	 <Pine.LNX.4.53.0303251152080.29361@chaos>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: United Fools of Bugaloo
+Message-Id: <1048627013.2348.39.camel@rtfm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 25 Mar 2003 22:16:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin Cormack wrote:"
-> On Tue, 2003-03-25 at 17:27, Peter T. Breuer wrote:
-> > > ENBD is not a replacement for NBD - the two are alternatives, aimed
-> > > at different niches.  ENBD is a sort of heavyweight industrial NBD.  It
-> > > does many more things and has a different achitecture.  Kernel NBD is
-> > > like a stripped down version of ENBD.  Both should be in the kernel.
-> 
-> hmm, I would argue that nbd is ok, as it is a nice lightweight block
-> device (though I have not been able to use it due to the fact that I can
-> never find a userspace and kernel that work together), while ENBD should
-> be replaced by iscsi, now that is a real ietf standard, and can burn CDs
-> across the net and all that extra stuff.
+Richard B. Johnson wrote:
 
-It's not a bad idea. But ENBD in particular can use any transport,
-precisely becuase its networking is done in userspace. One only has to
-write a stream.c module for it that implements
+> On Tue, 25 Mar 2003, Fionn Behrens wrote: 
+> > On Die, 2003-03-25 at 18:07, Richard B. Johnson wrote:
+> > > On Tue, 25 Mar 2003, Fionn Behrens wrote:
+> >
+> > > > I have got an increasingly annoying problem with our fairly new
+> > > > (fall '02) Dual Athlon2k+ Gigabyte 7dpxdw linux system running 
+> > > > 2.4.20.
+> >
+> > > I am using the exact same kernel (a lot of folks are). There
+> > > is no such jumping on my system.
+> > > Try this program:
+> >
+> > [... prg1.c ...]
+> >
+> > > If this shows time jumping around you have one of either:
+> > >
+> > > (1) Bad timer channel 0 chip (PIT).
+> > > (2) Some daemon trying to sync time with another system.
+> > > (3) You are traveling too close to the speed of light.
+> >
+> > It just exits immediately with exit code 1. (*shrug*)
 
-    read
-    write
-    open
-    close
+> Hmmm. Note that the for(;;) { } provides no exit path.
 
-(There are currently implementations for three transports, including
-tcp of course).    
+I noticed that well and investigated the issue using ddd. Funnily enough
+the program runs well in ddd until X crashes. But in the shell it still
+behaves like it would be nothing but exit(1);
+ 
+> So, you probably have some bad RAM or your CPU is too 
+> hot (broken fan??), or something like that. 
 
-> And I am intending to write an iscsi client sometime, but it got
-> delayed. The server stuff is already available from 3com.
+None of the above. The system is liquid cooled and subject to contiuous
+thermal monitoring. The RAM is 1GB Infineon ECC. Before the weekend I
+had the machine running overnight with memtest86 - 14 hours, all tests
+activated. Not a single error.
+I also tried an endless kernel compile loop the other day and the
+machine compiled about 100 kernels in approx two hours without a hitch.
 
-Possibly, but ENBD is designed to fail :-). And networks fail.
-What will your iscsi implementation do when somebody resets the
-router? All those issues are handled by ENBD. ENBD breaks off and
-reconnects automatically. It reacts right to removable media.
+> > [... prg2.c ...]
+> >
+> > When I run this code it begins to put out Prev N New M lines.
 
-I should also have said that ENBD has the following features (I said I
-forgot some!)
+> > Prev 1048615862810879.000000 New 1048615862759879.000000
 
-  9) it drops into a mode where it md5sums both ends and skips writes
-  of equal blocks, if that's faster. It moves in and out of this mode
-  automatically. This helps RAID resyncs (2* overspeed is common on
-  100BT nets, that is 20MB/s.).
+> > After a few seconds of run time random processes on my machine begin
+> > to crash, or I get kernel oopses and kernel freezes. Looks very 
+> > much like heavy use of gettimeofday() causes random writes in system
+> > memory.
 
-  10) integration with RAID - it advises raid correctly of its state
-  and does hot add and remove correctly (well, you need my patches to 
-  raid, but there you are ...).
+> Looks very much like you have a real bad hardware problem. 
 
-Of course, if somebody wants me to make enbd appear like a scis device
-instead of a generic block device, I guess I could do that. Except,
-that yecch, I have seen the scsi code, and I do not understand it.
+Just what, that is the question. After having activated the notsc
+feature the system has not yet exposed the warp symptons but as I noted
+in the beginning it may well take a day or two for that to happen.
 
-Another good idea is to make the wire protocol iscsi compatible. I
-have no objection to that.
-   
-Peter
+Yet still, running the first (in ddd) or second test programs - despite
+the current absence of any error message - causes random processes to
+crash until the program is being stopped (by a crashed terminal, X or
+kernel, that is).
+
+Oddly enough, the system runs pretty stable for at least days of normal
+use as long as the clock symptoms dont show up (and you dont run those
+test programs). Which means it has not crashed a lot recently, just
+being rebooted by me because of the jumping clock annoyance which -
+among others - results in sluggishly behaving UI components and frequent
+short connection freezes in ssh connections.
+
+> > E.g. which type of hardware problem?
+> Since the machine used to work last fall, It's probably just a
+> FAN or RAM  problems.
+
+I'll swap the RAM sticks around for now but I suspect its something
+else. I just still fail to grasp  how calls to gettimeofday() are able
+to cause random writes to memory...
+
+Summary:
+       - No apparent hardware issue.
+       - System runs stable as long as you dont for (;;) gettimeofday();
+       - notsc being evaluated. I will get back to you later.
+         Does not resolve the odd test software crash, though. 
+
+Kind regards,
+		Fionn
+
+P.S.: Please keep sending me a Cc:, I grabbed this one from the archive

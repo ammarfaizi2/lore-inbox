@@ -1,224 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271756AbRH0P2t>; Mon, 27 Aug 2001 11:28:49 -0400
+	id <S271763AbRH0Plb>; Mon, 27 Aug 2001 11:41:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271758AbRH0P2k>; Mon, 27 Aug 2001 11:28:40 -0400
-Received: from noose.gt.owl.de ([62.52.19.4]:61457 "HELO noose.gt.owl.de")
-	by vger.kernel.org with SMTP id <S271756AbRH0P2Y>;
-	Mon, 27 Aug 2001 11:28:24 -0400
-Date: Mon, 27 Aug 2001 17:28:36 +0200
-From: Florian Lohoff <flo@rfc822.org>
-To: linux-kernel@vger.kernel.org
-Subject: pcmcia ide (CF adapter) and exit resource munging 
-Message-ID: <20010827172836.A7779@paradigm.rfc822.org>
-Mime-Version: 1.0
+	id <S271762AbRH0PlV>; Mon, 27 Aug 2001 11:41:21 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61958 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271758AbRH0PlJ>; Mon, 27 Aug 2001 11:41:09 -0400
+Subject: Re: "Machine Exception Check.... " with the last kernel?
+To: jfbeam@bluetopia.net (Ricky Beam)
+Date: Mon, 27 Aug 2001 16:44:30 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        robert.casanova@grifols.com (Casanova Robert),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0108271133260.23852-100000@sweetums.bluetronic.net> from "Ricky Beam" at Aug 27, 2001 11:37:13 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-Organization: rfc822 - pure communication
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15bOYw-000495-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >Machine Check Exception is a trap the processor takes when it finds itself
+> >internally inconsistent. Check the cooling, voltages and clock speeds are
+> 
+> Umm, that still doesn't address the question.  What good is it if there's
+> nothing to decode the damned numbers? (and it's not documented at all.)
 
-Hi,
-with 2.4.8 + pcmcia-cs modules 3.1.27 i see the problem that i put a
-CF Card with the pcmcia adapter into the pcmcia slot - It gets detected
-corrent and i mount the drive/vfat partition. Then i eject the card
-(without unmounting) and the "virtual ide controller" does not get freed.
-All processes still accessing the drive get killed which is completely ok
+Pentium II, III and IV manuals from Intel document things in detail. The
+brain dead folks at Intel never got around to releasing the pentium one
+as far as I know but the data is stil useful for detecting failing boxes
+and also for things like getting replacements
 
-Means - the next time i insert a CF Card/Microdrive with the adapter
-it does not get hde it gets hdg and so forth. It seems the driver
-never realizes the controller has been gone.
+> >right. Its your CPU telling you it noticed things didnt seem happy.
+> 
+> ... Or a compaq laptop signalling APM events.  2.4.9 locks up within
+> nanoseconds of beginning to activate MCE on my Compaq LTE5400 (P150.)
+> I have to turn it off to get the machine to boot ("nomce")
 
-[ ... dmesg output ... ]
-
-hde: CFA, ATA DISK drive
-ide2 at 0x100-0x107,0x10e on irq 5
-hde: 128128 sectors (66 MB) w/4KiB Cache, CHS=1001/4/32
- hde: hde1
-ide_cs: hde: Vcc = 3.3, Vpp = 0.0
-VFS: Disk change detected on device ide2(33,1)
- hde: hde1
-VFS: Disk change detected on device ide2(33,1)
- hde: hde1
-VFS: Disk change detected on device ide2(33,1)
- hde: hde1
-VFS: Disk change detected on device ide2(33,1)
- hde: hde1
-ide2: unexpected interrupt, status=0xff, count=2
-Trying to free nonexistent resource <00000100-0000010f>
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,1)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-hdg: IBM-DSCM-11000, ATA DISK drive
-ide3 at 0x110-0x117,0x11e on irq 10
-hdg: 2104704 sectors (1078 MB) w/60KiB Cache, CHS=2088/16/63
- hdg: [PTBL] [522/64/63] hdg1
-ide_cs: hdg: Vcc = 3.3, Vpp = 0.0
-VFS: Disk change detected on device ide3(34,1)
- hdg: hdg1
-VFS: Disk change detected on device ide3(34,1)
- hdg: hdg1
-VFS: Disk change detected on device ide3(34,1)
- hdg: hdg1
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-VFS: Disk change detected on device ide2(33,0)
- hde:hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-hde: drive not ready for command
-ide2: reset timed-out, status=0xff
-hde: status timeout: status=0xff { Busy }
-end_request: I/O error, dev 21:00 (hde), sector 0
-hde: drive not ready for command
- unable to read partition table
-
-Flo
--- 
-Florian Lohoff                  flo@rfc822.org             +49-5201-669912
-     Why is it called "common sense" when nobody seems to have any?
+Its your CPU telling you it noticed things didn't seem happy. If your
+machine is so broken that the motherboard is asserting external errors on
+power switching events its broken. Some compaq boxes are, thats why nomce
+exists

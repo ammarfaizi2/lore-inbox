@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268078AbUH1U1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUH1UcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268078AbUH1U1D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 16:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268041AbUH1UYu
+	id S265973AbUH1UcE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 16:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUH1Ub6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 16:24:50 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15820 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266512AbUH1UWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 16:22:41 -0400
-Date: Sat, 28 Aug 2004 22:22:32 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch][1/3] ipc/ BUG -> BUG_ON conversions
-Message-ID: <20040828202232.GL12772@fs.tum.de>
-References: <20040828151137.GA12772@fs.tum.de> <20040828151544.GB12772@fs.tum.de> <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com> <20040828162633.GG12772@fs.tum.de> <20040828125816.206ef7fa.akpm@osdl.org>
+	Sat, 28 Aug 2004 16:31:58 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:13983 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265973AbUH1U3m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 16:29:42 -0400
+Date: Sat, 28 Aug 2004 22:31:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Schmitt <pnambic@unu.nu>
+Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q3
+Message-ID: <20040828203116.GA29686@elte.hu>
+References: <20040823221816.GA31671@yoda.timesys> <1093715573.8611.38.camel@krustophenia.net> <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040828125816.206ef7fa.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200408282210.03568.pnambic@unu.nu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 12:58:16PM -0700, Andrew Morton wrote:
-> Adrian Bunk <bunk@fs.tum.de> wrote:
+
+* Daniel Schmitt <pnambic@unu.nu> wrote:
+
+> > there's a Kconfig chunk missing from the Q0/Q1 patches, i've uploaded Q2
+> > that fixes this:
 > >
-> >  > Anything you put in BUG_ON() must *NOT* have side effects.
-> >  >...
-> > 
-> >  I'd have said exactly the same some time ago, but I was convinced by 
-> >  Arjan that if done correctly, a BUG_ON() with side effects is possible  
-> >  with no extra cost even if you want to make BUG configurably do nothing.
+> This breaks here unless CONFIG_SMP is defined, with the following error:
 > 
-> Nevertheless, I think I'd prefer that we not move code which has
-> side-effects into BUG_ONs.  For some reason it seems neater that way.
+>   CC      arch/i386/kernel/asm-offsets.s
+> In file included from arch/i386/kernel/asm-offsets.c:7:
+> include/linux/sched.h: In function `lock_need_resched':
+> include/linux/sched.h:983: error: structure has no member named `break_lock'
 > 
-> Plus one would like to be able to do
-> 
-> 	BUG_ON(strlen(str) > 22);
-> 
-> and have strlen() not be evaluated if BUG_ON is disabled.
-> 
-> A minor distinction, but one which it would be nice to preserve.
+> Probably missing a check for CONFIG_SMP around the need_lockbreak
+> defines in sched.h, and maybe also in cond_resched_lock().
 
-OTOH, only very few people use the disabled BUG_ON, and a statement 
-with a side effect might stay there unnoticed for some time.
+doh - right indeed. -Q3 has this fixed, it is at:
 
-If it's a
-  #define BUG_ON(x)
-and in one place something with a side effect slipped into the BUG_ON, 
-you have a classical example for a heisenbug...
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q3
 
-cu
-Adrian
+ontop of the usual:
 
--- 
+  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+        Ingo
 

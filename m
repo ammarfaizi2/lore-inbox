@@ -1,238 +1,205 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315806AbSE2XZe>; Wed, 29 May 2002 19:25:34 -0400
+	id <S315883AbSE2X0W>; Wed, 29 May 2002 19:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315805AbSE2XZd>; Wed, 29 May 2002 19:25:33 -0400
-Received: from jalon.able.es ([212.97.163.2]:61144 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315806AbSE2XZa>;
-	Wed, 29 May 2002 19:25:30 -0400
-Date: Thu, 30 May 2002 01:25:25 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre9
-Message-ID: <20020529232525.GE3174@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.21.0205281905260.7798-100000@freak.distro.conectiva>
+	id <S315862AbSE2X0T>; Wed, 29 May 2002 19:26:19 -0400
+Received: from h55p103-3.delphi.afb.lu.se ([130.235.187.176]:6615 "EHLO gin")
+	by vger.kernel.org with ESMTP id <S315860AbSE2X0H>;
+	Wed, 29 May 2002 19:26:07 -0400
+Date: Thu, 30 May 2002 01:25:46 +0200
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, jgarzik@mandrakesoft.com
+Subject: [PATCH 2.5.19] fix compilation of drivers/net/tulip/de4x5.c
+Message-ID: <20020529232546.GB24473@h55p111.delphi.afb.lu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.3.6
+User-Agent: Mutt/1.3.28i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 2002.05.29 Marcelo Tosatti wrote:
->
->So here goes the last -pre. 
->
+I had to rename the struct bus_type in drivers/net/tulip/de4x5.c to
+make it collide. as there is another struct bus_type defined in
+include/linux/device.h. 
 
-I still have some small fixes collected from the list, that if really
-needed should be included in final...
-Can anybody say if they still are valid (they apply fine on -pre9):
+//anders/g
 
-********************** 01-fs-pagemap:
---- linux-2.4.19-pre7-jam1/fs/partitions/check.h.orig	2002-04-16 17:22:33.000000000 +0200
-+++ linux-2.4.19-pre7-jam1/fs/partitions/check.h	2002-04-16 17:23:08.000000000 +0200
-@@ -2,6 +2,9 @@
-  * add_partition adds a partitions details to the devices partition
-  * description.
-  */
-+
-+#include <linux/pagemap.h>
-+
- void add_gd_partition(struct gendisk *hd, int minor, int start, int size);
- 
- typedef struct {struct page *v;} Sector;
 
-********************** 02-sock-rmem:
---- linux/net/core/sock.c.orig        Fri Dec 21 09:42:05 2001
-+++ linux/net/core/sock.c     Mon May 20 17:35:43 2002
-@@ -627,7 +627,7 @@
- 		sysctl_wmem_max = 32767;
- 		sysctl_rmem_max = 32767;
- 		sysctl_wmem_default = 32767;
--		sysctl_wmem_default = 32767;
-+		sysctl_rmem_default = 32767;
- 	} else if (num_physpages >= 131072) {
- 		sysctl_wmem_max = 131071;
- 		sysctl_rmem_max = 131071;
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
 
-********************** 05-exit-reaper-race:
---- linux-2.5.15-orig/kernel/exit.c	Thu May  9 17:23:28 2002
-+++ linux-2.5.15-reparent/kernel/exit.c	Fri May 10 13:35:50 2002
-@@ -152,7 +152,7 @@
- 
- /*
-  * When we die, we re-parent all our children.
-- * Try to give them to another thread in our process
-+ * Try to give them to another thread in our thread
-  * group, and if no such member exists, give it to
-  * the global child reaper process (ie "init")
-  */
-@@ -162,8 +162,14 @@
- 
- 	read_lock(&tasklist_lock);
- 
--	/* Next in our thread group */
--	reaper = next_thread(father);
-+	/* Next in our thread group, if they're not already exiting */
-+	reaper = father;
-+	do {
-+		reaper = next_thread(reaper);
-+		if (!(reaper->flags & PF_EXITING))
-+			break;
-+	} while (reaper != father);
-+
- 	if (reaper == father)
- 		reaper = child_reaper;
+===================================================================
 
-********************** 04-mmx-init:
-diff -urN 2.4.19pre7/arch/i386/kernel/i387.c mmx/arch/i386/kernel/i387.c
---- 2.4.19pre7/arch/i386/kernel/i387.c	Sun Apr  1 01:17:07 2001
-+++ mmx/arch/i386/kernel/i387.c	Fri Apr 26 10:56:02 2002
-@@ -10,6 +10,7 @@
- 
- #include <linux/config.h>
- #include <linux/sched.h>
-+#include <linux/init.h>
- #include <asm/processor.h>
- #include <asm/i387.h>
- #include <asm/math_emu.h>
-@@ -24,6 +25,29 @@
- #define HAVE_HWFP 1
+
+ChangeSet@1.596, 2002-05-30 01:00:35+02:00, andersg@heineken.0x63.nu
+  Renames struct bus_type to struct de4x5_bus_type to avoid collision
+  with the struct bus_type in device.h
+
+
+ de4x5.c |   30 +++++++++++++++---------------
+ 1 files changed, 15 insertions(+), 15 deletions(-)
+
+
+diff -Nru a/drivers/net/tulip/de4x5.c b/drivers/net/tulip/de4x5.c
+--- a/drivers/net/tulip/de4x5.c	Thu May 30 01:15:54 2002
++++ b/drivers/net/tulip/de4x5.c	Thu May 30 01:15:55 2002
+@@ -866,7 +866,7 @@
+ ** offsets in the PCI and EISA boards. Also note that the ethernet address
+ ** PROM is accessed differently.
+ */
+-static struct bus_type {
++static struct de4x5_bus_type {
+     int bus;
+     int bus_num;
+     int device;
+@@ -967,10 +967,10 @@
+ static int     test_ans(struct net_device *dev, s32 irqs, s32 irq_mask, s32 msec);
+ static int     test_tp(struct net_device *dev, s32 msec);
+ static int     EISA_signature(char *name, s32 eisa_id);
+-static int     PCI_signature(char *name, struct bus_type *lp);
++static int     PCI_signature(char *name, struct de4x5_bus_type *lp);
+ static void    DevicePresent(u_long iobase);
+ static void    enet_addr_rst(u_long aprom_addr);
+-static int     de4x5_bad_srom(struct bus_type *lp);
++static int     de4x5_bad_srom(struct de4x5_bus_type *lp);
+ static short   srom_rd(u_long address, u_char offset);
+ static void    srom_latch(u_int command, u_long address);
+ static void    srom_command(u_int command, u_long address);
+@@ -998,7 +998,7 @@
+ static int     get_hw_addr(struct net_device *dev);
+ static void    srom_repair(struct net_device *dev, int card);
+ static int     test_bad_enet(struct net_device *dev, int status);
+-static int     an_exception(struct bus_type *lp);
++static int     an_exception(struct de4x5_bus_type *lp);
+ #if !defined(__sparc_v9__) && !defined(__powerpc__) && !defined(__alpha__)
+ static void    eisa_probe(struct net_device *dev, u_long iobase);
  #endif
- 
-+static union i387_union empty_fpu_state;
-+
-+void __init boot_init_fpu(void)
-+{
-+	memset(&empty_fpu_state, 0, sizeof(union i387_union));
-+
-+	if (!cpu_has_fxsr) {
-+		empty_fpu_state.fsave.cwd = 0xffff037f;
-+		empty_fpu_state.fsave.swd = 0xffff0000;
-+		empty_fpu_state.fsave.twd = 0xffffffff;
-+		empty_fpu_state.fsave.fos = 0xffff0000;
-+	} else {
-+		empty_fpu_state.fxsave.cwd = 0x37f;
-+		if (cpu_has_xmm)
-+			empty_fpu_state.fxsave.mxcsr = 0x1f80;
-+	}
-+}
-+
-+void load_empty_fpu(struct task_struct * tsk)
-+{
-+	memcpy(&tsk->thread.i387, &empty_fpu_state, sizeof(union i387_union));
-+}
-+
- /*
-  * The _current_ task is using the FPU for the first time
-  * so initialize it and set the mxcsr to its default
-@@ -32,10 +56,10 @@
-  */
- void init_fpu(void)
+@@ -1143,7 +1143,7 @@
+ static int __init 
+ de4x5_hw_init(struct net_device *dev, u_long iobase, struct pci_dev *pdev)
  {
--	__asm__("fninit");
--	if ( cpu_has_xmm )
--		load_mxcsr(0x1f80);
--		
-+	if (cpu_has_fxsr)
-+		asm volatile("fxrstor %0" : : "m" (empty_fpu_state.fxsave));
-+	else
-+		__asm__("fninit");
- 	current->used_math = 1;
- }
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
+     int i, status=0;
+     char *tmp;
+     
+@@ -2105,7 +2105,7 @@
+     u_short vendor;
+     u32 cfid;
+     u_long iobase;
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
+     char name[DE4X5_STRLEN];
  
-diff -urN 2.4.19pre7/arch/i386/kernel/ptrace.c mmx/arch/i386/kernel/ptrace.c
---- 2.4.19pre7/arch/i386/kernel/ptrace.c	Tue Jan 22 18:55:43 2002
-+++ mmx/arch/i386/kernel/ptrace.c	Fri Apr 26 10:56:02 2002
-@@ -369,12 +369,8 @@
- 			break;
- 		}
- 		ret = 0;
--		if ( !child->used_math ) {
--			/* Simulate an empty FPU. */
--			set_fpu_cwd(child, 0x037f);
--			set_fpu_swd(child, 0x0000);
--			set_fpu_twd(child, 0xffff);
--		}
-+		if ( !child->used_math )
-+			load_empty_fpu(child);
- 		get_fpregs((struct user_i387_struct *)data, child);
- 		break;
- 	}
-@@ -397,13 +393,8 @@
- 			ret = -EIO;
- 			break;
- 		}
--		if ( !child->used_math ) {
--			/* Simulate an empty FPU. */
--			set_fpu_cwd(child, 0x037f);
--			set_fpu_swd(child, 0x0000);
--			set_fpu_twd(child, 0xffff);
--			set_fpu_mxcsr(child, 0x1f80);
--		}
-+		if ( !child->used_math )
-+			load_empty_fpu(child);
- 		ret = get_fpxregs((struct user_fxsr_struct *)data, child);
- 		break;
- 	}
-diff -urN 2.4.19pre7/include/asm-i386/bugs.h mmx/include/asm-i386/bugs.h
---- 2.4.19pre7/include/asm-i386/bugs.h	Fri Apr 26 10:36:12 2002
-+++ mmx/include/asm-i386/bugs.h	Fri Apr 26 10:56:52 2002
-@@ -204,7 +204,10 @@
+     if (lastEISA == MAX_EISA_SLOTS) return;/* No more EISA devices to search */
+@@ -2186,7 +2186,7 @@
+     u_short vendor, index, status;
+     u_int irq = 0, device, class = DE4X5_CLASS_CODE;
+     u_long iobase = 0;                     /* Clear upper 32 bits in Alphas */
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
  
- static void __init check_bugs(void)
+     if (lastPCI == NO_MORE_PCI) return;
+ 
+@@ -2299,7 +2299,7 @@
+     u_int irq = 0, device;
+     u_long iobase = 0;                     /* Clear upper 32 bits in Alphas */
+     int i, j;
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
+     struct list_head *walk = &dev->bus_list;
+ 
+     for (walk = walk->next; walk != &dev->bus_list; walk = walk->next) {
+@@ -3992,7 +3992,7 @@
+ ** Look for a particular board name in the PCI configuration space
+ */
+ static int
+-PCI_signature(char *name, struct bus_type *lp)
++PCI_signature(char *name, struct de4x5_bus_type *lp)
  {
-+	extern void __init boot_init_fpu(void);
-+
- 	identify_cpu(&boot_cpu_data);
-+	boot_init_fpu();
- #ifndef CONFIG_SMP
- 	printk("CPU: ");
- 	print_cpu_info(&boot_cpu_data);
-diff -urN 2.4.19pre7/include/asm-i386/i387.h mmx/include/asm-i386/i387.h
---- 2.4.19pre7/include/asm-i386/i387.h	Sat Apr 20 09:43:17 2002
-+++ mmx/include/asm-i386/i387.h	Fri Apr 26 10:56:02 2002
-@@ -76,6 +76,7 @@
- 			struct task_struct *tsk );
- extern int set_fpxregs( struct task_struct *tsk,
- 			struct user_fxsr_struct *buf );
-+extern void load_empty_fpu(struct task_struct *);
+     static c_char *de4x5_signatures[] = DE4X5_SIGNATURE;
+     int i, status = 0, siglen = sizeof(de4x5_signatures)/sizeof(c_char *);
+@@ -4041,7 +4041,7 @@
+ DevicePresent(u_long aprom_addr)
+ {
+     int i, j=0;
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
+     
+     if (lp->chipset == DC21040) {
+ 	if (lp->bus == EISA) {
+@@ -4122,7 +4122,7 @@
+     u_long iobase = dev->base_addr;
+     int broken, i, k, tmp, status = 0;
+     u_short j,chksum;
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
  
- /*
-  * FPU state for core dumps...
-
-********************** 06-p4-xeon:
-diff -urN 2.4.19pre7ac2/arch/i386/kernel/mpparse.c 2.4.19pre7ac3/arch/i386/kernel/mpparse.c
---- 2.4.19pre7ac2/arch/i386/kernel/mpparse.c	Sat Apr 20 04:07:21 2002
-+++ 2.4.19pre7ac3/arch/i386/kernel/mpparse.c	Mon Apr 29 14:07:46 2002
-@@ -115,6 +115,8 @@
- 		case 0x0F:
- 			if (model == 0x00)
- 				return("Pentium 4(tm)");
-+			if (model == 0x02)
-+				return("Pentium 4(tm) XEON(tm)");
- 			if (model == 0x0F)
- 				return("Special controller");
- 	}
-
-********************** 07-scsi-eh-zombie:
-diff -Bbu /src/linux/drivers/scsi/scsi_error.c.orig /src/linux/drivers/scsi/scsi_error.c
---- linux/drivers/scsi/scsi_error.c.orig	Sun Sep  9 17:52:35 2001
-+++ linux/drivers/scsi/scsi_error.c	Wed May 29 22:41:32 2002
-@@ -1868,6 +1868,7 @@
- 	 */
+     broken = de4x5_bad_srom(lp);
  
- 	daemonize();
-+	reparent_to_init();
+@@ -4203,7 +4203,7 @@
+ ** didn't seem to work here...?
+ */
+ static int
+-de4x5_bad_srom(struct bus_type *lp)
++de4x5_bad_srom(struct de4x5_bus_type *lp)
+ {
+     int i, status = 0;
  
- 	/*
- 	 * Set the name of this process.
+@@ -4237,7 +4237,7 @@
+ static void
+ srom_repair(struct net_device *dev, int card)
+ {
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
+ 
+     switch(card) {
+       case SMC:
+@@ -4258,7 +4258,7 @@
+ static int
+ test_bad_enet(struct net_device *dev, int status)
+ {
+-    struct bus_type *lp = &bus;
++    struct de4x5_bus_type *lp = &bus;
+     int i, tmp;
+ 
+     for (tmp=0,i=0; i<ETH_ALEN; i++) tmp += (u_char)dev->dev_addr[i];
+@@ -4291,7 +4291,7 @@
+ ** List of board exceptions with correctly wired IRQs
+ */
+ static int
+-an_exception(struct bus_type *lp)
++an_exception(struct de4x5_bus_type *lp)
+ {
+     if ((*(u_short *)lp->srom.sub_vendor_id == 0x00c0) && 
+ 	(*(u_short *)lp->srom.sub_system_id == 0x95e0)) {
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre9-jam1 #1 SMP mié may 29 02:20:48 CEST 2002 i686
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1596
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch4254
+M'XL(`"MA]3P``]U676_3,!1]KG^%I4D(-II<?\5)4=%@13"!1%6TY\I-O"8T
+M3:;$[0;DQ^-\L(^.TC#QA!/I./8]Q[[WGH<<X8M2%Z.!RB)=E$MTA#_DI1D-
+M8IUD>J4S!VX\YF0;NS'+<[OAQOE:NUVXN])%IE-WL7(7:7X]I(Y`-G*J3!CC
+MK8T8#8C#;E?,MRL]&LS>O;_X]&:&T'B,SV*5+?47;?!XC$Q>;%4:E:?*Q&F>
+M.:906;G61CEAOJYN0RL*0.TCB&0@O(IXP&45DH@0Q8F.@'+?XZB[XNEN)KM"
+M@@84F"=DQ:0D$DTP<43@8:`N")<!!C("&#%Q`M1.\#Y=?$+P$-!;_&_3.$,A
+MGNE,K76)2U-L0H,7FW)>E]*>]&LITOQ&S.]OJ&V>1#C,TS0IDSRS*M>)L2V(
+M]2.9)+/\;1)J)T8?,9-<,C2]:PT:_N5`"!2@UP<*$15)[1`WT\9MKN^$]TK"
+M`4A%!)=0!9>^B$!2OA"<+T#M[<`#2;-)DZN'PG6GF9V0BH$/LC'@7LIA0SXY
+M`?1UJ8KOR>IT;3,IU$J7^:5Y)/F;!!A("(3/O0JH$**Q*J&[3J7DL%,%'A+Q
+M'WBUZ>-G/"RNF]=Z;[J_I4\P\L3W`DS0>0NE428)]^3Q`TT""75P"UUPDAE<
+MC^G9^;Q,EIDRFT(_#V-5X..Z4B_WR!VG5R]>U9*LE62/)3N&BN9ED:^?_U&'
+M6#O60AWN**ELKF]"?65L]0_H$.XU.BW6Y+WQ>(R?V6_+H@3\FM5A;Y8?M*P&
+M^[(8T(;58D\6"P)1LSI\2K?0A`/GM4B'/8_FA#9'=]B71:%I1(>]O5`S.;3,
+J!GN?YY&6U6!O5M!6I,6>/KO[APAC':[*S7KL^3R4H93H)V]6X2>Q"```
+`
+end

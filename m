@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266348AbVBDRwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVBDR4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266348AbVBDRwG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 12:52:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263899AbVBDRj6
+	id S261813AbVBDR4x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:56:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVBDR4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:39:58 -0500
-Received: from postfix4-2.free.fr ([213.228.0.176]:1438 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S266041AbVBDRhe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:37:34 -0500
-Message-ID: <4203B2D9.7080904@free.fr>
-Date: Fri, 04 Feb 2005 18:37:29 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: fr-fr, en, en-us
+	Fri, 4 Feb 2005 12:56:52 -0500
+Received: from fsmlabs.com ([168.103.115.128]:48580 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S263754AbVBDRyp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 12:54:45 -0500
+Date: Fri, 4 Feb 2005 10:54:24 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Tony Lindgren <tony@atomide.com>
+cc: Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+In-Reply-To: <20050204174254.GG22444@atomide.com>
+Message-ID: <Pine.LNX.4.61.0502041052550.2194@montezuma.fsmlabs.com>
+References: <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com>
+ <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com>
+ <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com>
+ <20050204051929.GO14325@atomide.com> <Pine.LNX.4.61.0502032329150.26742@montezuma.fsmlabs.com>
+ <20050204171805.GF22444@atomide.com> <Pine.LNX.4.61.0502041028460.2194@montezuma.fsmlabs.com>
+ <20050204174254.GG22444@atomide.com>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>,
-       bjorn.helgaas@hp.com, Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH] PNP support for i8042 driver
-References: <41960AE9.8090409@free.fr> <20041117100745.GA1387@ucw.cz>
-In-Reply-To: <20041117100745.GA1387@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 4 Feb 2005, Tony Lindgren wrote:
 
-Vojtech Pavlik wrote:
-> On Sat, Nov 13, 2004 at 02:23:53PM +0100, matthieu castet wrote:
+> * Zwane Mwaikambo <zwane@arm.linux.org.uk> [050204 09:31]:
+> > On Fri, 4 Feb 2005, Tony Lindgren wrote:
+> > 
+> > > Yes, it's safer to keep the timer periodic, although it's
+> > > used for oneshot purposes for the skips. If the timer interrupt
+> > > got missed for some reason, the system would be able to recover when
+> > > it's in periodic mode.
+> > > 
+> > > And with some timers, we can do the reprogramming faster, as we just
+> > > need to load the new value.
+> > > 
+> > > I could not figure out how to disable the interrupts for PIT
+> > > when local APIC is used and the ticks to skip is longer than PIT
+> > > would allow. So I just changed the mode temporarily to disable it.
+> > >
+> > > Does anybody know if there's a way to stop PIT interrupts while
+> > > keeping it in the periodic mode?
+> > 
+> > disable_irq(0) ?
 > 
->>Hi,
->>this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi 
->>is try before the pnp driver so if you don't disable ACPI or apply 
->>others pnpacpi patches, it won't change anything.
->>
->>Please review it and apply if possible
-> 
-> 
-> Ok, my thoughts on this:
-> 
-> 	It's OK to keep the device allocated to this driver via the PnP
->         subsystem, and not bother with releasing the code via
-> 	__initcall.
-> 
-> 	I agree that if there is a way to enumerate the device, (like
-> 	PnP, ACPI or OpenFirmware), we should use that instead of
-> 	probing and using a platform device for the controller.
-> 
-> 	I think that we should drop the ACPI support from i8042, in
-> 	favor of pnpacpi, because PnP is more generic and if the
->  	keyboard device was listed in PnPBIOS instead of ACPI, it'll
-> 	still work.
-> 
-Any news about this ?
+> Then the problem is that the CPU does not stay in sleep but wakes to
+> the first PIT interrupt AFAIK.
 
-
-Matthieu CASTET
+I do not understand, do you want to disable the PIT from interrupting the 
+processor and enable it interrupting at a later time?

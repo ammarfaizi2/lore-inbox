@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbTI3Wst (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 18:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTI3WsB
+	id S261793AbTJAATp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 20:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTJAATp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 18:48:01 -0400
-Received: from mail.kroah.org ([65.200.24.183]:36059 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261824AbTI3WrW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 18:47:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1064961348799@kroah.com>
-Subject: [PATCH] PCI fixes for 2.6.0-test6
-In-Reply-To: <20030930223436.GA21200@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Sep 2003 15:35:48 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Tue, 30 Sep 2003 20:19:45 -0400
+Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:52656 "EHLO
+	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S261793AbTJAATn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 20:19:43 -0400
+Message-Id: <200310010011.JAA28339@toshiba.co.jp>
+From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+To: Matt_Domsch@Dell.com, xose@wanadoo.es
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com.br,
+       atulm@lsil.com, linux-megaraid-devel@dell.com
+Subject: RE: Megaraid does not work with 2.4.22
+Date: Wed, 1 Oct 2003 09:11:08 +0900 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="shift_jis"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1305.5.1, 2003/09/26 09:11:22-07:00, mochel@osdl.org
+Hi Matt,
 
-[pci] Remove drivers/pci/power.c
+Matt wrote;
 
-The old-school method of power management, using the pm_send() interface, is 
-superceded by the centralized driver model, which handles walking the tree
-and calling each device's suspend/resume methods. 
+Matt> Atul should be submitting changelogs and patches to James 
+Matt> Bottomley and linux-scsi for inclusion in both 2.4.x and 2.6.x,
+Matt> unless Marcelo asks to receive them directly.
 
-
-
- drivers/pci/Makefile |    1 -
- 1 files changed, 1 deletion(-)
-
-
-diff -Nru a/drivers/pci/Makefile b/drivers/pci/Makefile
---- a/drivers/pci/Makefile	Tue Sep 30 15:21:18 2003
-+++ b/drivers/pci/Makefile	Tue Sep 30 15:21:18 2003
-@@ -4,7 +4,6 @@
- 
- obj-y		+= access.o bus.o probe.o remove.o pci.o pool.o quirks.o \
- 			names.o pci-driver.o search.o pci-sysfs.o
--obj-$(CONFIG_PM)  += power.o
- obj-$(CONFIG_PROC_FS) += proc.o
- 
- ifndef CONFIG_SPARC64
-
+I think that it is better to also update the driver of 1.18x 
+in the kernel tree of 2.4.x to the latest version(1.18k).
+-- 
+Haruo

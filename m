@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273650AbRIQPnc>; Mon, 17 Sep 2001 11:43:32 -0400
+	id <S273646AbRIQPqc>; Mon, 17 Sep 2001 11:46:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273646AbRIQPnW>; Mon, 17 Sep 2001 11:43:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22539 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S273645AbRIQPnR>; Mon, 17 Sep 2001 11:43:17 -0400
-Date: Mon, 17 Sep 2001 08:42:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <Pine.LNX.4.33L.0109170923190.2990-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0109170840520.8836-100000@penguin.transmeta.com>
+	id <S273657AbRIQPqW>; Mon, 17 Sep 2001 11:46:22 -0400
+Received: from ausxc10.us.dell.com ([143.166.98.229]:17928 "EHLO
+	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
+	id <S273646AbRIQPqH>; Mon, 17 Sep 2001 11:46:07 -0400
+Message-ID: <71714C04806CD51193520090272892178BD590@ausxmrr502.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] linux-kernel-digest at http://lists.us.dell.com
+Date: Mon, 17 Sep 2001 10:45:24 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dell is pleased to provide digest forms of the linux-kernel and linux-scsi
+mailing lists.  These lists, along with some Dell-specific lists, are hosted
+at http://lists.us.dell.com/, using the GNU Mailman list software, on a
+2x1GHz Dell PowerEdge 2450 server.
 
-On Mon, 17 Sep 2001, Rik van Riel wrote:
->
-> >  - I don't like the lack of aging in 'reclaim_page()'. It will walk the
-> >    whole LRU list if required, which kind of defeats the purpose of having
-> >    reference bits and LRU on that list. The code _claims_ that it almost
-> >    always succeeds with the first page, but I don't see why it would. I
-> >    think that comment assumed that the inactive_clean list cannot have any
-> >    referenced pages, but that's never been true.
->
-> This depends on whether we do reactivation in __find_page_nolock()
-> or if we leave the page alone and wait for kswapd to do that for
-> us.
+Two digest forms of linux-kernel are provided.
+  linux-kernel-digest - sent every 100KB as needed
+  linux-kernel-daily-digest - sent only once per day, somewhat under 1MB
+per.
 
-We should not do _anything_ in __find_page_nolock().
+Please direct any feedback about these lists to mailman@lists.us.dell.com.
 
-It's positively wrong to touch any aging information there - if you do,
-you are guaranteed to not get read-ahead right (ie a page that gets
-read-ahead first will behave differently than a page that got read
-directly, which just cannot be right).
+Sincerely,
+Matt Domsch
 
-The aging has to be done at a higher level (ie when you actually _use_
-it, not when you search the hash queues).
-
-		Linus
+--
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions
+www.dell.com/linux
+#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
+#3 Unix provider with 18% in the US (Dataquest)!
 

@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310280AbSCACE7>; Thu, 28 Feb 2002 21:04:59 -0500
+	id <S310170AbSCADfX>; Thu, 28 Feb 2002 22:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310323AbSCACDC>; Thu, 28 Feb 2002 21:03:02 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:34524 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S310296AbSCACBM>;
-	Thu, 28 Feb 2002 21:01:12 -0500
-Date: Thu, 28 Feb 2002 21:00:26 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-To: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-        matthew@hairy.beasts.org, bcrl@redhat.com, david@mysql.com,
-        wli@holomorphy.com, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-Message-ID: <20020228210026.A3070@elinux01.watson.ibm.com>
-In-Reply-To: <E16eT9h-0000kE-00@wagner.rustcorp.com.au> <20020225100025.A1163@elinux01.watson.ibm.com> <20020227112417.3a302d31.rusty@rustcorp.com.au> <20020227105311.C838@elinux01.watson.ibm.com> <20020228162422.A947@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020228162422.A947@twiddle.net>; from rth@twiddle.net on Thu, Feb 28, 2002 at 04:24:22PM -0800
+	id <S310338AbSCADdR>; Thu, 28 Feb 2002 22:33:17 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4627 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S310341AbSCAD2t>; Thu, 28 Feb 2002 22:28:49 -0500
+Date: Thu, 28 Feb 2002 22:26:48 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <20020301013056.GD2711@matchmail.com>
+Message-ID: <Pine.LNX.3.96.1020228221750.3310D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 28, 2002 at 04:24:22PM -0800, Richard Henderson wrote:
-> On Wed, Feb 27, 2002 at 10:53:11AM -0500, Hubertus Franke wrote:
-> > As stated above, I allocate a kernel object <kulock_t> on demand and
-> > hash it. This way I don't have to pin any user address. What does everybody
-> > think about the merit of this approach versus the pinning approach?
-> [...]
-> > In your case, can the lock be allocated at different
-> > virtual addresses in the various address spaces.
-> 
-> I think this is a relatively important feature.  It may not be
-> possible to use the same virtual address in different processes.
-> 
-> 
-> r~
+On Thu, 28 Feb 2002, Mike Fedyk wrote:
 
-I think so too. However let me point that Linus's initial recommendation
-of a handle, comprised of a kernel pointer and a signature also has
-that property.
-Just pointing out the merits of the various approaches.
+> The problem here is that currently the mainline kernel makes some bad
+> dicesions in the VM, and -aa is the solution in this case.  When -aa is
+> merged, you will still have both solutions; one in mainline, one as a patch
+> (rmap).
+> 
+> Linus has already changed the VM once in 2.4, and I don't really see another
+> large VM change (rmap in 2.4) happening again.
+> 
+> Rmap looks promising for a 2.5 merge after several issues are overcome
+> (pte-highmem, etc).
 
--- Hubertus
+I do understand what happens in the VM currently... And as noted I run
+both -aa kernels and rmap on different machines. But -aa runs better on
+large machines and rmap better on small machines with memory pressure (my
+experience), so blessing one and making the other "only a patch" troubles
+me somewhat. I hate to say "compete" as VM solution, but they both solve
+the same problem with more success in one field or another.
+
+If either is adopted the pressure will be off to improve in the areas
+where one or the other is weak, Once the decision is made that won't
+happen, And if rmap is a large VM change, what then is Ardrea's code?
+Large isn't just the size of the patch, it is to some extent the size of
+the behaviour change.
+
+For me it makes little difference, I like to play with kernels, and I'm
+hoping for the source which needs only numbers in /proc/sys to tune,
+rather than patches. But there are a lot more small machines (which I feel
+are better served by rmap) than large. I would like to leave the jury out
+a little longer on this.
+
+I was looking for opinions, thak you for sharing yours.!
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268364AbTGIPaq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 11:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbTGIPaq
+	id S268380AbTGIPcY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 11:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268384AbTGIPcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 11:30:46 -0400
-Received: from ns.suse.de ([213.95.15.193]:38669 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268364AbTGIPap (ORCPT
+	Wed, 9 Jul 2003 11:32:24 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:32436 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268380AbTGIPcI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 11:30:45 -0400
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: modutils-2.3.15 'insmod'
-References: <Pine.LNX.4.53.0307091119450.470@chaos>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I want to read my new poem about pork brains and outer space...
-Date: Wed, 09 Jul 2003 17:45:22 +0200
-In-Reply-To: <Pine.LNX.4.53.0307091119450.470@chaos> (Richard B. Johnson's
- message of "Wed, 9 Jul 2003 11:25:11 -0400 (EDT)")
-Message-ID: <jer84zln59.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 9 Jul 2003 11:32:08 -0400
+Date: Wed, 9 Jul 2003 08:45:15 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: sitsofe@lycos.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops running video capture software
+Message-Id: <20030709084515.2cdb24ca.rddunlap@osdl.org>
+In-Reply-To: <AGAKACEMILICLBAA@mailcity.com>
+References: <AGAKACEMILICLBAA@mailcity.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+On Wed, 09 Jul 2003 10:21:42  0000 "Sitsofe Wheeler" <sitsofe@lycos.com> wrote:
 
-|> It is likely that malloc(0) returning a valid pointer is a bug
-|> that has prevented this problem from being observed.
+| While running video capture software, the kernel will eventually oops in kswapd. There do seem to be some different kernels where it will take longer for this to happen (possibly those with apic support) but so far I haven't been able to isolate them. The oops will only happen while video capture is happening otherwise the system is extremely solid.
+| 
+| The kernel being used is 2.4.21 patched with preempt, low-latency, bootsplash and variable hz (the hz was set to 200).
 
-It's not a bug, it's a behaviour explicitly allowed by the C standard.
+You'll need to run that oops message thru ksymoops for it to be
+useful.
 
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+--
+~Randy
+| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |

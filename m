@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311900AbSC0LLT>; Wed, 27 Mar 2002 06:11:19 -0500
+	id <S312826AbSC0LXW>; Wed, 27 Mar 2002 06:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312550AbSC0LK7>; Wed, 27 Mar 2002 06:10:59 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:9357 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S311900AbSC0LKu>;
-	Wed, 27 Mar 2002 06:10:50 -0500
-Date: Wed, 27 Mar 2002 11:15:32 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: <tigran@einstein.homenet>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: initrd and BLKFLSBUF
-In-Reply-To: <Pine.LNX.4.33.0203261427340.1089-100000@einstein.homenet>
-Message-ID: <Pine.LNX.4.33.0203271112330.1796-100000@einstein.homenet>
+	id <S312990AbSC0LXM>; Wed, 27 Mar 2002 06:23:12 -0500
+Received: from web13302.mail.yahoo.com ([216.136.175.38]:35855 "HELO
+	web13302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S312826AbSC0LWx>; Wed, 27 Mar 2002 06:22:53 -0500
+Message-ID: <20020327112252.18647.qmail@web13302.mail.yahoo.com>
+Date: Wed, 27 Mar 2002 12:22:52 +0100 (CET)
+From: =?iso-8859-1?q?Joerg=20Pommnitz?= <pommnitz@yahoo.com>
+Subject: Re: I want my martians
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, papiraki@cilys.com
+In-Reply-To: <20020322224019.A3252@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-amazing that people start adding complications (all that "bdev" filesystem
-stuff in recent kernels) without first getting the basics right -- the
-bd_openers accounting doesn't seem to be correct.
+"Emmanuel Papirakis" <papiraki@cilys.com>
 
-On Tue, 26 Mar 2002, Tigran Aivazian wrote:
+ > echo 0 > /proc/sys/net/ipv4/conf/eth0/rp_filter
+ > 
+ > (You want to disable reverse-path filtering.)
+ > 
+ > And maybe:
+ > 
+ > echo 0 > /proc/sys/net/ipv4/conf/eth0/log_martians
+ > 
+ >             Papi
 
-> Hello,
->
-> Is blockdev --flushbufs supposed to work on /dev/ram0 if it was loaded as
-> initrd ramdisk? I unmount it and try to free the memory but hit this
-> EBUSY in drivers/block/rd.c:rd_ioctl():
->
->                         /* special: we want to release the ramdisk memory,
->                            it's not like with the other blockdevices where
->                            this ioctl only flushes away the buffer cache. */
->                         if ((atomic_read(&inode->i_bdev->bd_openers) > 2))
->                                 return -EBUSY;
->
-> The kernel is 2.4.9 but this code is almost the same in 2.4.18. So, who is
-> this opener that keeps the inode->i_bdev->bd_openers too high?
->
-> Regards,
-> Tigran
->
->
+"Vojtech Pavlik" <vojtech@suse.cz>
 
+ > 
+ > for a in /proc/sys/net/ipv4/conf/*/rp_filter; do echo 0 > $a; done
+ > 
+
+I tried this before. It does not help for packets destined for the
+same host.
+
+Regards
+  Jörg
+
+__________________________________________________________________
+
+Gesendet von Yahoo! Mail - http://mail.yahoo.de
+Ihre E-Mail noch individueller? - http://domains.yahoo.de

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271737AbTG2OR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271817AbTG2OR4
+	id S271843AbTG2O2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271846AbTG2O2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:17:56 -0400
-Received: from iv.ro ([194.105.28.94]:60709 "HELO iv.ro") by vger.kernel.org
-	with SMTP id S271737AbTG2ORx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:17:53 -0400
-Date: Tue, 29 Jul 2003 17:31:51 +0300
-From: Jani Monoses <jani@iv.ro>
-To: linux-kernel@vger.kernel.org
-Subject: timeout (110) with bluez usb uhci  2.4.21
-Message-Id: <20030729173151.048c2bb8.jani@iv.ro>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 29 Jul 2003 10:28:16 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:33465 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S271843AbTG2O2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:28:15 -0400
+Date: Tue, 29 Jul 2003 07:27:26 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@hpce.nec.com>, habanero@us.ibm.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>
+cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org
+Subject: Re: [patch] scheduler fix for 1cpu/node case
+Message-ID: <3380000.1059488845@[10.10.2.4]>
+In-Reply-To: <200307291208.30332.efocht@hpce.nec.com>
+References: <200307280548.53976.efocht@gmx.net> <3904530000.1059424676@[10.10.2.4]> <200307282124.28378.habanero@us.ibm.com> <200307291208.30332.efocht@hpce.nec.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The same problem here as the one raported about a week ago by Florian
-Lohoff. I have two USB bluetooth dongles. One of them (ambicom
-bt2000) does not like being hotplugged in it gives that timeout message
-after saying it was an error in interrupt.The other (blue-gene bt320)
-can be connected/disconncted and it works fine.
-The same problem shows with 2.4.22-pre7
-If the usb-uhci module is reloaded while the dongle is in it finds it.
-The problem as shown by debug messages in uhci seems to be error in the
-interrupt handler for uhci. The status register is 2 which is io/error I
-think and it says the frame was corrupted.
-So I changed the handler to return when that's the status and only go on
-if status is 1 which I think is normal usb interrupt transfer not an
-error condition. This way probably the usb stack retries again and the
-dongle is found after a few seconds and can be plugged in and out.
-I have seen in other threads that somebody made usb_get_address retry on
-error to achieve the same effect...
-can some workaround by somebody who knows what's happening be put in the
-kernel because google shows that quite a few people are bitten by this
-110 error message with uhci/ohci and various usb devices not only BT.
+>> I am going to ask a silly question, do we have any data showing this really
+>> is a problem on AMD?  I would think, even if we have an idle cpu, sometimes
+>> a little delay on task migration (on NUMA) may not be a bad thing.   If it
+>> is too long, can we just make the rebalance ticks arch specific?
+> 
+> The fact that global rebalances are done only in the timer interrupt
+> is simply bad! It complicates rebalance_tick() and wastes the
+> opportunity to get feedback from the failed local balance attempts.
 
-thanks
-Jani
+The whole point of the NUMA scheduler is to rebalance globally less
+often. Now I'd agree that in the idle case we want to be more agressive,
+as your patch does, but we need to be careful not to end up in a cacheline
+thrashing war. 
+
+Aiming for perfect balance is not always a good idea - the expense of both 
+the calculation and the migrations has to be taken into account. For some 
+arches, it's less important than others ... one thing we're missing is
+a per arch "node-balance-agressiveness" factor.
+
+Having said that, the NUMA scheduler is clearly broken on Hammer at the
+moment, from Andi's observations.
+
+> If you want data supporting my assumptions: Ted Ts'o's talk at OLS
+> shows the necessity to rebalance ASAP (even in try_to_wake_up). There
+> are plenty of arguments towards this, starting with the steal delay
+> parameter scans from the early days of multi-queue schedulers (Davide
+> Libenzi), over my experiments with NUMA schedulers and the observation
+> of Andi Kleen that on Opteron you better run from the wrong CPU than
+> wait (if the tasks returns to the right cpu, all's fine anyway).
+
+That's a drastic oversimplification. It may be better in some 
+circumstances, on some benchmarks. For now, let's just get your patch
+tested on Hammer, and see if it works better to have the NUMA scheduler
+on than off after your patch ...
+
+M.
+
+
+

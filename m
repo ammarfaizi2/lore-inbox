@@ -1,88 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbUCRRyE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:54:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbUCRRyE
+	id S262818AbUCRR6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbUCRR6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:54:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11165 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262810AbUCRRx5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:53:57 -0500
-Subject: Re: 2.6.4-mm2
-From: Daniel McNeil <daniel@osdl.org>
+	Thu, 18 Mar 2004 12:58:24 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59012
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262818AbUCRR6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 12:58:07 -0500
+Date: Thu, 18 Mar 2004 18:58:55 +0100
+From: Andrea Arcangeli <andrea@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Mason <mason@suse.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
-	 <1079474312.4186.927.camel@watt.suse.com>
-	 <20040316152106.22053934.akpm@osdl.org>
-	 <20040316152843.667a623d.akpm@osdl.org>
-	 <20040316153900.1e845ba2.akpm@osdl.org>
-	 <1079485055.4181.1115.camel@watt.suse.com>
-	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
-	 <20040316180043.441e8150.akpm@osdl.org>
-	 <1079554288.4183.1938.camel@watt.suse.com>
-	 <20040317123324.46411197.akpm@osdl.org>
-	 <1079563568.4185.1947.camel@watt.suse.com>
-	 <20040317150909.7fd121bd.akpm@osdl.org>
-	 <1079566076.4186.1959.camel@watt.suse.com>
-	 <20040317155111.49d09a87.akpm@osdl.org>
-	 <1079568387.4186.1964.camel@watt.suse.com>
-	 <20040317161338.28b21c35.akpm@osdl.org>
-	 <1079569870.4186.1967.camel@watt.suse.com>
-	 <20040317163332.0385d665.akpm@osdl.org>
-	 <1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
+Cc: mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-ID: <20040318175855.GB2536@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <20040318093902.3513903e.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Mar 2004 09:53:51 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040318093902.3513903e.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm ran 2.6.4-mm2 plus the 2 wait_on_page_range() patches,
-the test_set_page_writeback() patch and clear_page_dirty_for_io patch
-overnight.
-
-6 copies of direct_read_under test on 8-cpu system on 1
-ext3 file system in 1 directory on a scsi disk.
-(http://developer.osdl.org/daniel/AIO/TESTS/direct_read_under.c)
-
-5 of the 6 tests saw uninitialized data within 2 hours.
-The sixth test ran overnight.
-
-Daniel
-
-
-On Wed, 2004-03-17 at 17:15, Daniel McNeil wrote:
-> I'm running without clear_page_dirty_for_io.patch on an 8-proc
-> with 6 direct_read_under tests on ext3.
-> 
-> 2 failed in less than 5 minutes.  The 4 others are still running
-> and it's been over 30 minutes.
-> 
-> I'll run overnight wth clear_page_dirty_for_io.patch added in.
-> 
-> Daniel
-> On Wed, 2004-03-17 at 16:33, Andrew Morton wrote:
-> > Chris Mason <mason@suse.com> wrote:
-> > >
-> > > good news is that direct_read_under is still running without
-> > >  problems here.
+On Thu, Mar 18, 2004 at 09:39:02AM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > > > Worst of all we're now taking spinlocks earlier than needed,
+> > > 
+> > > Where?  CPU scheduler?
 > > 
-> > Here also, but _without_ clear_page_dirty_for_io.patch, so it should break.
+> > Everywhere, see the kmaps, we spinlock before instead of spinlock after,
+> > the scheduler, lots of places. I mean, people don't call
 > > 
-> > Maybe it takes a long time.
+> > 	preempt_disable()
+> > 	kmap_atomic
+> > 	spin_lock
+> > 
+> > they do:
+> > 
+> > 	spin_lock
+> > 	kmap_atomic
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> They do?   kmap_atomic() disables preemption anyway.
 
+dunno why but see:
+
+	spin_lock(&mm->page_table_lock);
+	page_table = pte_offset_map(pmd, address);
+
+		pte_unmap(page_table);
+		spin_unlock(&mm->page_table_lock);
+
+
+etc...
+
+maybe at some point in the past kmap_atomic didn't disable preempt? Just
+guessing.
+
+> > so they're effectively optimizing for PREEMPT=y and I don't think this
+> > is optimal for the long term. One can aruge the microscalability
+> > slowdown isn't something to worry about, I certainly don't worry about
+> > it too much either, it's more a bad coding habit to spinlock earlier
+> > than needed to avoid preempt_disable.
+> > 
+> > > > and the preempt_count stuff isn't optmized away by PREEMPT=n,
+> > > 
+> > > It should be.  If you see somewhere where it isn't, please tell us.
+> > 
+> > the counter is definitely not optimized away, see:
+> > 
+> > #define inc_preempt_count() \
+> > do { \
+> > 	preempt_count()++; \
+> > } while (0)
+> > 
+> > #define dec_preempt_count() \
+> > do { \
+> > 	preempt_count()--; \
+> > } while (0)
+> > 
+> > #define preempt_count()	(current_thread_info()->preempt_count)
+> > 
+> > those are running regardless of PREEMPT=n.
+> 
+> The macros are needed for kmap_atomic().
+> 
+> The task->preempt field is also used for tracking the hardirq and softirq
+> depths (in_interrupt(), in_irq(), in_softirq()) so it cannot be removed
+> with CONFIG_PREEMPT=n.
+> 
+> > > We unconditionally bump the preempt_count in kmap_atomic() so that we can
+> > > use atomic kmaps in read() and write().  This is why four concurrent
+> > > write(fd, 1, buf) processes on 4-way is 8x faster than on 2.4 kernels.
+> > 
+> > sorry, why should the atomic kmaps read the preempt_count? Are those ++
+> > -- useful for anything more than debugging PREEMPT=y on a kernel
+> > compiled with PREEMPT=n? I thought it was just debugging code with
+> > PREEMPT=n.
+> > 
+> > I know why the atomic kmaps speedup write but I don't see how can
+> > preempt_count help there when PREEMPT=n, the atomic kmaps are purerly
+> > per-cpu and one can't schedule anyways while taking those kmaps (no
+> > matter if inc_preempt_count or not).
+> 
+> We run inc_prempt_count() in kmap_atomic() so that we can perform
+> copy_*_user() while holding an atomic kmap in read() and write(). 
+> do_page_fault() will detect the elevated preempt count and will return a
+> short copy.
+> 
+> This could be implemented with a separate task_struct field but given that
+> preempt_count is always there and the infrastructure exists anyway, using
+> preempt_count() is tidier.
+> 
+
+thanks for the detailed explanation, so I was definitely wrong about
+claiming there was more stuff to optimize away with preempt=n, clearly
+it's a great feature your atomic copy-user interrupted by the page
+fault. Infact I wonder if we should try once more time and go atomic
+again. what you're doing right now is:
+
+	kmap_atomic()
+	left = copy_user
+	kunmap_atomic
+	if (left) {
+		kmap() <- persistent unscalable
+		copy-user
+		kunmap
+	}
+		
+I would suggest we should be even more aggressive like this:
+
+        kmap_atomic()
+        left = copy_user
+        kunmap_atomic
+        if (left) {
+		get_user()
+        	kmap_atomic()
+	        left = copy_user
+	        kunmap_atomic
+		if (left) {
+	                kmap() <- persistent unscalable
+        	        copy-user
+                	kunmap
+		}
+        }
+
+
+It's not going to trigger often anyways, but it's only a few bytecodes
+more and it sounds more scalable.

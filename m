@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261206AbTCXXta>; Mon, 24 Mar 2003 18:49:30 -0500
+	id <S261223AbTCXXs3>; Mon, 24 Mar 2003 18:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261224AbTCXXta>; Mon, 24 Mar 2003 18:49:30 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12050 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261206AbTCXXt2>; Mon, 24 Mar 2003 18:49:28 -0500
-Date: Tue, 25 Mar 2003 01:00:35 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: CaT <cat@zip.com.au>
-Cc: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
+	id <S261224AbTCXXs3>; Mon, 24 Mar 2003 18:48:29 -0500
+Received: from vger.timpanogas.org ([216.250.140.154]:38281 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S261223AbTCXXs2>; Mon, 24 Mar 2003 18:48:28 -0500
+Date: Mon, 24 Mar 2003 18:25:08 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Larry McVoy <lm@work.bitmover.com>, Steven Pritchard <steve@silug.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.5.65: *huge* interactivity problems
-Message-ID: <20030325000035.GC3539@atrey.karlin.mff.cuni.cz>
-References: <20030323231306.GA4704@elf.ucw.cz> <20030324171936.680f98e2.akpm@digeo.com> <20030324234556.GK621@zip.com.au>
+Subject: Re: 3ware driver errors
+Message-ID: <20030324182508.A15039@vger.timpanogas.org>
+References: <20030324212813.GA6310@osiris.silug.org> <20030324180107.A14746@vger.timpanogas.org> <20030324234410.GB10520@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030324234556.GK621@zip.com.au>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030324234410.GB10520@work.bitmover.com>; from lm@bitmover.com on Mon, Mar 24, 2003 at 03:44:10PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > I'm having awfull interactivity problems. While lingvistic application
-> > > (slm from nltools.sf.net) is running, machine is unusable. I still can
-> > > read text in most, but can't login, can't run links, can't... For
-> > > minutes.
-> > > 
-> > > slm does a lot of computation over ~250MB dataset, but during stall
-> > > disk was not active.
-> > 
-> > Oh Pavel, this is more a whinge than a bug report.  You know better ;)
+The person at WD to contact with specifics is listed below.  We have seen it 
+on the 180GB drives, but the 200GB are also affected.
+
+Suresh.Chekuri@wdc.com
+
+Jeff
+
+On Mon, Mar 24, 2003 at 03:44:10PM -0800, Larry McVoy wrote:
+> On Mon, Mar 24, 2003 at 06:01:07PM -0700, Jeff V. Merkey wrote:
+> > There is a firmware upgrade you need to obtain from WD if you are using their 
+> > drives with a 3Ware controller.  The WD drives were optimized for desktop use
+> > and they go into a "powersave" mode of sorts which will cause them to disappear
+> > and reappear mysteriously with all sorts of strange errors.  WD is aware of 
+> > this problem and so is 3Ware.
 > 
-> If he's seeing what I'm seeing then I can put my own answers to this. I
-> get freezups, lost keystrokes and eventual shutdown of the laptop. I can
-> reproduce it prettymuch at will be it a compilation of a piece of s/w,
-> the kernel, mozilla loading pages or whatnot.
-
-Actually, this looks like unrelated problem. I'm not getting lost
-keystrokes, and machine recovers after lingvistics computation
-finishes.
-
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+> Is this for all WD drives or just some?  I've got some wd400 drives that 
+> I've been using for a long time behind a 3ware in jbod mode.  I have seen
+> some errors but they seem to have settled down.  Is there any way to know?
+> -- 
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

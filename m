@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbUCVAS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 19:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUCVAS5
+	id S261563AbUCVAUv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 19:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUCVAUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 19:18:57 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65408 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261531AbUCVASz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 19:18:55 -0500
-To: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-References: <20040321125730.GB21844@wohnheim.fh-wedel.de>
-	<Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
-	<20040321181430.GB29440@wohnheim.fh-wedel.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Mar 2004 17:18:41 -0700
-In-Reply-To: <20040321181430.GB29440@wohnheim.fh-wedel.de>
-Message-ID: <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 21 Mar 2004 19:20:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54546 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261532AbUCVAUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 19:20:48 -0500
+Date: Mon, 22 Mar 2004 00:20:41 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040322002041.I26708@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20040321204931.A11519@infradead.org> <1079902670.17681.324.camel@imladris.demon.co.uk> <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk> <405E1859.5030906@pobox.com> <20040321225117.F26708@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org> <405E23A5.7080903@pobox.com> <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org> <405E2F0D.3050001@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <405E2F0D.3050001@pobox.com>; from jgarzik@pobox.com on Sun, Mar 21, 2004 at 07:10:53PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
+On Sun, Mar 21, 2004 at 07:10:53PM -0500, Jeff Garzik wrote:
+> For the first kind, please read fb_mmap in drivers/video/fbmem.c.  Look 
+> at the _horror_ of ifdefs in exporting the framebuffer.  And that horror 
+> is what's often needed when letting userspace mmap(2) PCI memory IO regions.
 
-> On Sun, 21 March 2004 09:59:39 -0800, Davide Libenzi wrote:
-> > 
-> > When I did that, fumes of an in-kernel implementation invaded my head for 
-> > a little while. Then you start thinking that you have to teach apps of new 
-> > open(2) semantics, you have to bloat kernel code a little bit and you have 
-> > to deal with a new set of errors cases that open(2) is not expected to 
-> > deal with. A fully userspace implementation did fit my needs at that time, 
-> > even if the LD_PRELOAD trick might break if weak aliases setup for open 
-> > functions change inside glibc.
-> 
-> 209 fairly simple lines definitely have more appear than a full
-> in-kernel implementation with many new corner-cases, yes.  But it
-> looks as if you ignore the -ENOSPC case, so you cheated a little. ;)
-> 
-> No matter how you try, there is no way around an additional return
-> code for open(), so we have to break compatibility anyway.  The good
-> news is that a) people not using this feature won't notice and b) all
-> programs I tried so far can deal with the problem.  Vim even has a
-> decent error message - as if my patch was anticipated already.
+Most of this:
 
-Actually there is...  You don't do the copy until an actual write occurs.
-Some files are opened read/write when there is simply the chance they might
-be written to so delaying the copy is generally a win.
+#if defined(__mc68000__)
+...
+#elif defined(__mips__)
+        pgprot_val(vma->vm_page_prot) &= ~_CACHE_MASK;
+        pgprot_val(vma->vm_page_prot) |= _CACHE_UNCACHED;
+#elif defined(__sh__)
+        pgprot_val(vma->vm_page_prot) &= ~_PAGE_CACHABLE;
+#elif defined(__hppa__)
+        pgprot_val(vma->vm_page_prot) |= _PAGE_NO_CACHE;
+#elif defined(__ia64__) || defined(__arm__)
+        vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+#else
+#warning What do we have to do here??
+#endif
 
-A coworker of mine implemented a version of this idea as a filesystem.
-It did the copy in the kernel, it handled directories, and could be
-used to atomically snapshot your filesystem.  The only case that was
-still a little sketchy was how do you handle cow to a file with hard
-links. 
+exists because architectures haven't defined their private
+pgprot_writecombine() implementations, preferring instead to add
+to the preprocessor junk instead.
 
-The interesting case for us is when you have multiple machines sharing
-the same root filesystem.
-
-Eric
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318176AbSHSGXI>; Mon, 19 Aug 2002 02:23:08 -0400
+	id <S318190AbSHSGd3>; Mon, 19 Aug 2002 02:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318188AbSHSGXI>; Mon, 19 Aug 2002 02:23:08 -0400
-Received: from [203.197.212.137] ([203.197.212.137]:14054 "EHLO
-	dns3.ggn.hcltech.com") by vger.kernel.org with ESMTP
-	id <S318176AbSHSGXI>; Mon, 19 Aug 2002 02:23:08 -0400
-Message-ID: <5F0021EEA434D511BE7300D0B7B6AB5303C7874E@mail2.ggn.hcltech.com>
-From: "Mohamed Ghouse , Gurgaon" <MohamedG@ggn.hcltech.com>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Ingo Scheduler
-Date: Mon, 19 Aug 2002 12:01:32 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318191AbSHSGd3>; Mon, 19 Aug 2002 02:33:29 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58539 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318190AbSHSGd2>; Mon, 19 Aug 2002 02:33:28 -0400
+Date: Mon, 19 Aug 2002 02:37:31 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: jsimmons@infradead.org
+Subject: Little console problem in 2.5.30
+Message-ID: <20020819023731.C316@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all
- I am in a state of confusion.
-Reason: How does Ingo Scheduler manages to schedule the entire process with
-the help of expired
- queue in O(1).
-I searched the net for the explaination of Ingo's Scheduler, could not find
-one.
+Hi, all:
 
-My understanding of Ingo's Scheduler
+I would appreciate if someone would explain me if the attached patch
+does the right thing. The problem is that I do not use the framebuffer,
+and use a serial console. Whenever a legacy /sbin/init tries to
+open /dev/tty0, the system oopses dereferencing conswitchp in
+visual_init().
 
- When the process  A (from active queue) has completed its Quantum,
-Scheduler moves process A to the expired queue.
-& when the active queue is empty, the expired queue becomes the active queue
-& the active queue becomes the 
-expired 
+-- Pete
 
-
-Point of confusion 
-
-The active queue (expired queue) has accumulated the process. It is almost
-similar to the previous active queue.
-How does the Introduction of the expired queue reduce the Time Complexity
-from O(n) to O(1).
-as my understanding goest that the scheduler needs to produce "process's
-goodness", so the time complexity remains the same.
-
-Another point of non-understanding is
-Why does the scheduler need to know the scheduling class to produce
-process's goodness?
-
-TIA
--MG
+diff -ur -X dontdiff linux-2.5.30-sp_pbk/drivers/char/console.c linux-2.5.30-sparc/drivers/char/console.c
+--- linux-2.5.30-sp_pbk/drivers/char/console.c	Thu Aug  1 14:16:34 2002
++++ linux-2.5.30-sparc/drivers/char/console.c	Sun Aug 18 23:14:20 2002
+@@ -652,7 +652,7 @@
+ 
+ int vc_allocate(unsigned int currcons)	/* return 0 on success */
+ {
+-	if (currcons >= MAX_NR_CONSOLES)
++	if (currcons >= MAX_NR_CONSOLES || conswitchp == NULL)
+ 		return -ENXIO;
+ 	if (!vc_cons[currcons].d) {
+ 	    long p, q;

@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbVBUScN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVBUSeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbVBUScN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 13:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVBUScM
+	id S262070AbVBUSeM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 13:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVBUSeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 13:32:12 -0500
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:27611 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S262068AbVBUSbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 13:31:51 -0500
-Date: Mon, 21 Feb 2005 13:31:39 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Merging fails reading /dev/uba1
-Message-ID: <20050221183139.GA5020@havoc.gtf.org>
-References: <20050220200059.53db7b1e@localhost.localdomain> <20050221075131.GT4056@suse.de> <20050221102431.64de6c6c@localhost.localdomain>
+	Mon, 21 Feb 2005 13:34:12 -0500
+Received: from adsl-64-172-240-129.dsl.sndg02.pacbell.net ([64.172.240.129]:12448
+	"EHLO mail.davidb.org") by vger.kernel.org with ESMTP
+	id S262070AbVBUSeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 13:34:01 -0500
+Date: Mon, 21 Feb 2005 10:33:58 -0800
+From: David Brown <darcs@davidb.org>
+To: darcs-users@darcs.net, linux-kernel@vger.kernel.org
+Subject: Re: [darcs-users] Re: [BK] upgrade will be needed
+Message-ID: <20050221183358.GA5476@old.davidb.org>
+References: <20050214020802.GA3047@bitmover.com> <845b6e8705021803533ba8cc34@mail.gmail.com> <20050218125057.GE2071@opteron.random> <200502190410.31960.pmcfarland@downeast.net> <20050219164213.GB7247@opteron.random> <20050219171457.GA20285@abridgegame.org> <20050219175348.GE7247@opteron.random> <20050221124153.GB27294@abridgegame.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050221102431.64de6c6c@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050221124153.GB27294@abridgegame.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 21, 2005 at 10:24:31AM -0800, Pete Zaitcev wrote:
-> On Mon, 21 Feb 2005 08:51:32 +0100, Jens Axboe <axboe@suse.de> wrote:
-> 
-> > > [root@lembas ~]# time dd if=/dev/uba of=/dev/null bs=10k count=10240
-> > > real    0m22.731s
-> 
-> > > [root@lembas ~]# time dd if=/dev/uba1 of=/dev/null bs=10k count=10240
-> > > real    1m42.622s
-> 
-> > > So, reading from a partition of the same device is 5 times slower than
-> > > reading from the device itself. The question is, why?
-> 
-> > I can't explain why the replugging slows it down, maybe you were lucky
-> > to get contigious pages in the first case? As far as I can see, ub
-> > effectively disables merging by setting max hw/phys segment limit of 1.
-> 
-> If you mean physical replugging, it has nothing to do with the issue.
-> I only mentioned it to show that old pages were purged.
-> 
-> Contiguous pages have nothing to do with it either. I forgot to mention
-> that in the first case (whole device), all reads are done with length of
-> 4KB, while in the second case (partition), all reads are 512 bytes long.
-> 
-> Basically, the key is reading from a partition or not. It causes the
-> sub-page sized merging to fail.
+On Mon, Feb 21, 2005 at 07:41:54AM -0500, David Roundy wrote:
 
-Does setting the blkdev's block size change things?
+> The catch is that then we'd have to implement a smart server to keep users
+> from having to download the entire history with each update.  That's not a
+> fundamentally hard issue, but it would definitely degrade darcs' ease of
+> use, besides putting additional load on the server.  So if something like
+> this were implemented, I think it would definitely have to be as an
+> optional format.
+> 
+> Also, we couldn't actually store the data in CVS/SCCS format, since in
+> darcs a patch to a single file isn't uniquely determined by two states of
+> that file.  But storing separately the patches relevant to different files
+> would definitely be an optimization worth considering.
 
-	Jeff
+What about just a cache file that records, for each "file" which patches
+affect it.  Now that I think about it, this is a little tricky, since I'm
+not sure what that file would be called.  It would be easy to do for
+filenames in the current version.
 
-
-
+Dave

@@ -1,129 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVBRBiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVBRBu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVBRBiY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 20:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVBRBiY
+	id S261279AbVBRBu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 20:50:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVBRBu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 20:38:24 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:5338 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261254AbVBRBiT (ORCPT
+	Thu, 17 Feb 2005 20:50:27 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:41620 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261254AbVBRBuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 20:38:19 -0500
-Subject: Re: -rc3 leaking NOT BIO [Was: Memory leak in 2.6.11-rc1?]
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Andrew Morton <akpm@osdl.org>, noel@zhtwn.com, torvalds@osdl.org,
-       kas@fi.muni.cz, axboe@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502170800.28012.kernel-stuff@comcast.net>
-References: <20050121161959.GO3922@fi.muni.cz>
-	 <200502160107.08039.kernel-stuff@comcast.net>
-	 <20050216155255.0ffab555.akpm@osdl.org>
-	 <200502170800.28012.kernel-stuff@comcast.net>
-Content-Type: multipart/mixed; boundary="=-lTidyjOgfzFrZQbr/Jn0"
-Organization: 
-Message-Id: <1108690714.20053.1692.camel@dyn318077bld.beaverton.ibm.com>
+	Thu, 17 Feb 2005 20:50:18 -0500
+Date: Fri, 18 Feb 2005 02:50:17 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] add umask parameter to procfs
+Message-ID: <20050218015017.GA5044@mail.13thfloor.at>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Rene Scharfe <rene.scharfe@lsrfire.ath.cx>,
+	linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+References: <20050217212859.GA24403@lsrfire.ath.cx> <20050217154119.1f237921.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Feb 2005 17:38:35 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050217154119.1f237921.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-lTidyjOgfzFrZQbr/Jn0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Thu, 2005-02-17 at 05:00, Parag Warudkar wrote:
-> On Wednesday 16 February 2005 06:52 pm, Andrew Morton wrote:
-> > So it's probably an ndiswrapper bug?
-> Andrew, 
-> It looks like it is a kernel bug triggered by NdisWrapper. Without 
-> NdisWrapper, and with just 8139too plus some light network activity the 
-> size-64 grew from ~ 1100 to 4500 overnight. Is this normal? I will keep it 
-> running to see where it goes.
+On Thu, Feb 17, 2005 at 03:41:19PM -0800, Andrew Morton wrote:
+> Rene Scharfe <rene.scharfe@lsrfire.ath.cx> wrote:
+> >
+> > Add proc.umask kernel parameter.  It can be used to restrict permissions
+> > on the numerical directories in the root of a proc filesystem, i.e. the
+> > directories containing process specific information.
+> > 
+> > E.g. add proc.umask=077 to your kernel command line and all users except
+> > root can only see their own process details (like command line
+> > parameters) with ps or top.  It can be useful to add a bit of privacy to
+> > multi-user servers.
+> > 
+> > The patch has been inspired by a similar feature in GrSecurity.
+> > 
+> > It could have also been implemented as a mount option to procfs, but at
+> > a higher cost and no apparent benefit -- changes to this umask are not
+> > supposed to happen very often.  Actually, the previous incarnation of
+> > this patch was implemented as a half-assed mount option, but I didn't
+> > know then how easy it is to add a kernel parameter.
 > 
-> A question - is it safe to assume it is  a kmalloc based leak? (I am thinking 
-> of tracking it down by using kprobes to insert a probe into __kmalloc and 
-> record the stack to see what is causing so many allocations.)
+> The feature seems fairly obscure, although very simple.  
+> Is anyone actually likely to use this?
+
+what about parents (and especially the init process)
+some tools like pstree (or ps in certain cases) depend
+on their visibility/accessability ...
+
+was this tested except for the trivial case where
+just plain everything is visible?
+
+what if you want to change it afterwards (when tools
+did break)?
+
+best,
+Herbert
+
+> > +static umode_t umask = 0;
 > 
-
-Last time I debugged something like this, I ended up adding dump_stack()
-in kmem_cache_alloc() for the specific slab.
-
-If you are really interested, you can try to get following jprobe
-module working. (need to teach about kmem_cache_t structure to
-get it to compile and export kallsyms_lookup_name() symbol etc).
-
-Thanks,
-Badari
-
-
-
-
---=-lTidyjOgfzFrZQbr/Jn0
-Content-Disposition: attachment; filename=kmod.c
-Content-Type: text/x-c; name=kmod.c; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-#include <linux/module.h>
-#include <linux/kprobes.h>
-#include <linux/kallsyms.h>
-#include <linux/kdev_t.h>
-
-MODULE_PARM_DESC(kmod, "\n");
-
-int count = 0;
-void fastcall inst_kmem_cache_alloc(kmem_cache_t *cachep, int flags)
-{
-	if (cachep->objsize == 64) {
-		if (count++ == 100) {
-			dump_stack();
-			count = 0;
-		}
-	}
-	jprobe_return();
-}
-static char *fn_names[] = {
-	"kmem_cache_alloc",
-};
-
-static struct jprobe kmem_probes[] = {
-  {
-    .entry = (kprobe_opcode_t *) inst_kmem_cache_alloc,
-    .kp.addr=(kprobe_opcode_t *) 0,
-  }
-};
-
-#define MAX_KMEM_ROUTINE (sizeof(kmem_probes)/sizeof(struct kprobe))
-
-/* installs the probes in the appropriate places */
-static int init_kmods(void)
-{
-	int i;
-
-	for (i = 0; i < MAX_KMEM_ROUTINE; i++) {
-		kmem_probes[i].kp.addr = kallsyms_lookup_name(fn_names[i]);
-		if (kmem_probes[i].kp.addr) { 
-			printk("plant jprobe at name %s %p, handler addr %p\n",
-		          fn_names[i], kmem_probes[i].kp.addr, kmem_probes[i].entry);
-			register_jprobe(&kmem_probes[i]);
-		}
-	}
-	return 0;
-}
-
-static void cleanup_kmods(void)
-{
-	int i;
-	for (i = 0; i < MAX_KMEM_ROUTINE; i++) {
-		unregister_jprobe(&kmem_probes[i]);
-	}
-}
-
-module_init(init_kmods);
-module_exit(cleanup_kmods);
-MODULE_LICENSE("GPL");
-
---=-lTidyjOgfzFrZQbr/Jn0--
-
+> a) I think the above should be called proc_umask.
+> 
+> b) You shouldn't initialise it.
+> 
+> c) When adding a kernel parameter you should update
+>    Documentation/kernel-parameters.txt
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

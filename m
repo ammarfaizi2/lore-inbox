@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282123AbRK1KvA>; Wed, 28 Nov 2001 05:51:00 -0500
+	id <S281777AbRK1LKY>; Wed, 28 Nov 2001 06:10:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282125AbRK1Kuu>; Wed, 28 Nov 2001 05:50:50 -0500
-Received: from [212.65.238.182] ([212.65.238.182]:47375 "EHLO
-	trebo3.chemoprojekt.cz") by vger.kernel.org with ESMTP
-	id <S282123AbRK1Kuj>; Wed, 28 Nov 2001 05:50:39 -0500
-Message-ID: <35E64A70B5ACD511BCB0000000004CA10BD4FA@NT_CHEMO>
-From: PVotruba@Chemoprojekt.cz
-To: nakai@neo.shinko.co.jp, Sven.Riedel@tu-clausthal.de
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.4.14 Oops during boot (KT133A Problem?)
-Date: Wed, 28 Nov 2001 11:50:32 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+	id <S281877AbRK1LKO>; Wed, 28 Nov 2001 06:10:14 -0500
+Received: from bagel.indexdata.dk ([212.242.69.115]:4033 "EHLO
+	bagel.indexdata.dk") by vger.kernel.org with ESMTP
+	id <S281777AbRK1LKE>; Wed, 28 Nov 2001 06:10:04 -0500
+Date: Wed, 28 Nov 2001 12:10:02 +0100
+From: Heikki Levanto <heikki@indexdata.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Thank you: 2.4.16: "Address family not supported" on RH IBM T23
+Message-ID: <20011128121002.B17183@indexdata.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	the memory check in bios is designed mostly for testing if (detected
-memory chips == present memory chips).
-	Safe comprehensive checking can be done by memtest86, and virtualy
-unsafe testing can be cyclic kernel compilation (if you notice strange
-compile errors at same kernel config but at different moments, you can
-suspect that your hardware is rotten). 
 
-	To: Sven
-	are you sure that ALL your memory chips are bad? how about memory
-latency and other bios settings, overclocking, etc.? try to setup your box
-to run at slowest memory configuration as possible. It's hard to believe
-that all of your chips are gone. 
+Thanks to all who helped me out with this. The problem was CONFIG_NETLINK
+and CONFIG_RTNETLINK, which I had not got around to trying. 
 
-	Regards
-	Petr
+I guess this problem will pop up again in the future, when more RH7.2 users
+want to compile their own kernels. Therefore it would be good to default
+those options to yes, or even remove the options completely, as has been
+proposed.
 
-	----- previous message follows:
-> Congratulations!
-> 
-> Sven.Riedel@tu-clausthal.de wrote:
-> > Well, the problem got solved (although not in a way I'd consider
-> > satisfactory). After my machine started random segfaulting the day
-> > before yesterday, I memcheck86'ed it again (the last check is a mere two
-> > months ago), and lo - all three RAM chips were broken. Unfortunately, I
-> > discovered this, after this broken RAM caused my /usr partition to go
-> > fubar, resulting in me spending yesterday with a nice little reinstall.
-> > After the reinstall, 2.4.14 booted fine off the harddisk. No more
-> > oopses.
-> 
-> During this holidays, I guessed, and I thought it because of
-> harddisk or PCI chip erro. Memory error! Was it found when booting
-> matherboard by BIOS? I think motherboard always check memories when
-> booting.  
-> 
-> -- 
-> -=-=-=-=  SHINKO ELECTRIC INDUSTRIES CO., LTD.           =-=-=-=-
-> =-=-=-=-    Core Technology Research & Laboratory,       -=-=-=-=
-> -=-=-=-=      Infomation Technology Research Dept.       =-=-=-=-
-> =-=-=-=-  Name:Hisakazu Nakai          TEL:026-283-2866  -=-=-=-=
-> -=-=-=-=  Mail:nakai@neo.shinko.co.jp  FAX:026-283-2820  =-=-=-=-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+- Heikki
+
+
+P.S. 
+On Tue, Nov 27, 2001 at 11:23:23PM -0000, Alex Bligh - linux-kernel wrote:
+> AGP support is broken right now, haven't found out why.
+> The netlink error sounds like CONFIG_NETLINK, and/or
+> CONFIG_RTNETLINK isn't set. Try stealing the .config
+> file off my site.
+
+Thanks! Didn't get your site, didn't get google cache. Will look again in
+the near future. 
+
+
+-- 
+Heikki Levanto            heikki@indexdata.dk            "In Murphy We Turst"

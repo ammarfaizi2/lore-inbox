@@ -1,45 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277102AbRJDQuP>; Thu, 4 Oct 2001 12:50:15 -0400
+	id <S277173AbRJDRGA>; Thu, 4 Oct 2001 13:06:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277159AbRJDQuG>; Thu, 4 Oct 2001 12:50:06 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:18439 "EHLO
+	id <S277161AbRJDRFt>; Thu, 4 Oct 2001 13:05:49 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:32519 "EHLO
 	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S277103AbRJDQt7>; Thu, 4 Oct 2001 12:49:59 -0400
-Date: Thu, 4 Oct 2001 09:49:49 -0700 (PDT)
+	id <S277173AbRJDRFj>; Thu, 4 Oct 2001 13:05:39 -0400
+Date: Thu, 4 Oct 2001 10:06:01 -0700 (PDT)
 From: James Simmons <jsimmons@transvirtual.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ricky Beam <jfbeam@bluetopia.net>,
-        Andrew Morton <akpm@zip.com.au>,
-        Lorenzo Allegrucci <lenstra@tiscalinet.it>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: Huge console switching lags
-In-Reply-To: <Pine.GSO.4.21.0110040937480.17814-100000@mullein.sonytel.be>
-Message-ID: <Pine.LNX.4.10.10110040935440.32009-100000@transvirtual.com>
+To: Josh Myer <jbm@joshisanerd.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Event Daemon?
+In-Reply-To: <Pine.LNX.4.21.0110040158530.31009-100000@dignity.joshisanerd.com>
+Message-ID: <Pine.LNX.4.10.10110041004540.32009-100000@transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > > > them. It draws pixel by pixel. Slow slow slow!!! I have developed a new
->             ^^^^^^^^^^^^^^^^^^^^^^^
-> Where does it draw pixel by pixel?
+> Is there, or if there were, would it be used, a method to notify a
+> user-space daemon/program of USB device insertions? A quick search through
+> archives didn't show anything.
 
-Okay. Let me say most drivers don't take advantage of the graphics hardware 
-to perform console operations. Instead they just draw directly to the
-framebuffer which can be slow. 
-
-> Yep. Vesafb started as a nice gimmick to show that it's possible, and turned
-> out to be a solution for yet another
-> we-don't-release-specs-to-OS/FS-people company.
-
-I know. Same with OFfb.
-
-> Euh, most fbcon-* drivers already do this. Grep for fb_write in e.g.
-> drivers/video/fbcon-cfb8.c and count the byte accesses (=> 0).
-
-Yep. The new code I developed came out the merging of all the fbcon-cfb*
-drivers. 
+Do a open on /proc/bus/usb/devices. Do a select on it. When a device is
+attached detached select will return. Then read data from /proc/bus/usb/devices.
 

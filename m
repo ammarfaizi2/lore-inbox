@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVCVOU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVCVO2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVCVOU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 09:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVCVOUz
+	id S261259AbVCVO2a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 09:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVCVO2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 09:20:55 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:9209 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261266AbVCVOUs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 09:20:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=P2Wx2AwfDJkr15Ug7c96gPpM0uXKdo/0w84lE1c4dr5qUI81bDkA0jO/2EJf0xXk2qc63UU28eYIlTgv95V9S9RZeyE27FgtmlpPjac+F1nBxEAwp3I2lGs+ytvWYZWysp7fTv7QWx+MS8FOTsYChMp6ZAy0BpwfiC+mxS0g0Ig=
-Message-ID: <d120d50005032206205ab21753@mail.gmail.com>
-Date: Tue, 22 Mar 2005 09:20:48 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-In-Reply-To: <20050322100114.GI2810@pazke>
+	Tue, 22 Mar 2005 09:28:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19974 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261298AbVCVO2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 09:28:09 -0500
+Date: Tue, 22 Mar 2005 15:28:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: osst@riede.org, osst-users@lists.sourceforge.net,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/osst.c: make code static
+Message-ID: <20050322142806.GR3982@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050217194217.GA2458@ucw.cz>
-	 <d120d500050321065261ee815c@mail.gmail.com>
-	 <1111419068.8079.15.camel@localhost>
-	 <200503220213.46375.dtor_core@ameritech.net>
-	 <20050322100114.GI2810@pazke>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005 13:01:14 +0300, Andrey Panin <pazke@donpac.ru> wrote:
-> On 081, 03 22, 2005 at 02:13:45AM -0500, Dmitry Torokhov wrote:
-> > On Monday 21 March 2005 10:31, Kenan Esau wrote:
-> > > Am Montag, den 21.03.2005, 09:52 -0500 schrieb Dmitry Torokhov:
-> > > >
-> > > > There are couple of things that I an concerned with:
-> > > >
-> > > > 1. I don't like that it overrides meaning of max_proto parameter to be
-> > > > exactly the protocol specified.
-> > >
-> > > Yeah -- I agree. I also don't like that double-meaning. That was the
-> > > reason why I originally proposed the use of a new parameter...
-> > >
-> >
-> > Ok, I have some patches to lifebook that I would like to included (if
-> > they work):
-> >
-> > 1. lifebook-dmi-x86-only - do not compile in DMI detection on anything
-> >    but x86.
-> 
-> On !x86 machines DMI functions will be optimized away and so you'll save only
-> few bytes in .init.data section. IMHO it's not worth additional ugly #ifdef's.
-> 
+This patch makes needlessly global code static.
 
-It is not in .init.data, it is not discarded... Still probably OK to
-keep. Not quite sure.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Dmitry
+---
+
+This patch was already sent on:
+- 28 Feb 2005
+
+ drivers/scsi/osst.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/osst.c.old	2005-02-28 19:36:05.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/osst.c	2005-02-28 19:36:25.000000000 +0100
+@@ -24,7 +24,7 @@
+ */
+ 
+ static const char * cvsid = "$Id: osst.c,v 1.73 2005/01/01 21:13:34 wriede Exp $";
+-const char * osst_version = "0.99.3";
++static const char * osst_version = "0.99.3";
+ 
+ /* The "failure to reconnect" firmware bug */
+ #define OSST_FW_NEED_POLL_MIN 10601 /*(107A)*/
+@@ -170,7 +170,7 @@
+ static int osst_probe(struct device *);
+ static int osst_remove(struct device *);
+ 
+-struct scsi_driver osst_template = {
++static struct scsi_driver osst_template = {
+ 	.owner			= THIS_MODULE,
+ 	.gendrv = {
+ 		.name		=  "osst",
+

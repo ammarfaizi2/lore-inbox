@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265099AbUELNlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265026AbUELNht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265099AbUELNlR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 09:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUELNkx
+	id S265026AbUELNht (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 09:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUELNe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 09:40:53 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:31926 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S265087AbUELNjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 09:39:42 -0400
-Date: Wed, 12 May 2004 06:39:32 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] PPC32: New OCP core support
-Message-ID: <20040512063931.E8797@home.com>
-References: <20040511170150.A4743@home.com> <000001c437e8$7de0a070$d100000a@sbs2003.local>
+	Wed, 12 May 2004 09:34:59 -0400
+Received: from radius8.csd.net ([204.151.43.208]:24218 "EHLO
+	bastille.tuells.org") by vger.kernel.org with ESMTP id S265048AbUELNdV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 09:33:21 -0400
+Date: Wed, 12 May 2004 07:33:29 -0600
+From: marcus hall <marcus@tuells.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Block device swamping disk cache
+Message-ID: <20040512133329.GA20030@bastille.tuells.org>
+References: <20040511191124.GA16014@bastille.tuells.org> <20040511201936.A19384@infradead.org> <20040511172643.36df7c94.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000001c437e8$7de0a070$d100000a@sbs2003.local>; from hch@infradead.org on Wed, May 12, 2004 at 07:15:15AM +0100
+In-Reply-To: <20040511172643.36df7c94.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 07:15:15AM +0100, Christoph Hellwig wrote:
+On Tue, May 11, 2004 at 05:26:43PM -0700, Andrew Morton wrote:
+> no, sorry, it'll still happen.  I haven't fixed the ramdisk driver yet.
 > 
-> On Tue, May 11, 2004 at 05:01:50PM -0700, Matt Porter wrote:
-> > New OCP infrastructure ported from 2.4 along with several
-> > enhancements. Please apply.
+> The problem is that ->memory_backed means both "doesn't contribute
+> to dirty memory" and also "doesn't need writeback".
 > 
-> The old-style PM callback (using struct pm_dev) is bogus, please kill
-> that part.
+> These concepts need to be split apart for the ramdisk driver.  I'll do it
+> for 2.6.7, promise.
 
-Thanks. I killed off the deprecated PM stuff in the updated patch
-I just sent out.
+Well, I believe that the inodes that are marked as memory_backed are
+for the ramdisk, and that isn't really a problem.  The block device
+that I am writing to is a compact flash, so it's going through the ide-disk
+device.  I do not see this inode show up on any superblock's dirty queue
+(since it doesn't appear that mark_inode_dirty() is being called for
+it).  So the question I am asking is, what strategy is *supposed* to be
+in place to flush the blocks out?  (Or is this a hole that isn't plugged?)
 
--Matt
+Marcus Hall
+marcus@tuells.org

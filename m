@@ -1,106 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbRDGRtr>; Sat, 7 Apr 2001 13:49:47 -0400
+	id <S129156AbRDGS1m>; Sat, 7 Apr 2001 14:27:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbRDGRt3>; Sat, 7 Apr 2001 13:49:29 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:37849 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129346AbRDGRtO>;
-	Sat, 7 Apr 2001 13:49:14 -0400
-Date: Sat, 07 Apr 2001 13:36:11 -0400
-From: "David St.Clair" <dstclair@cs.wcu.edu>
-Subject: UDMA(66) drive coming up as UDMA(33)?
-To: linux-kernel@vger.kernel.org
-Message-id: <986664971.1224.4.camel@bugeyes.wcu.edu>
-MIME-version: 1.0
-X-Mailer: Evolution/0.10+cvs.2001.04.06.08.06 (Preview Release)
-Content-type: text/plain
+	id <S129164AbRDGS1c>; Sat, 7 Apr 2001 14:27:32 -0400
+Received: from mail11.speakeasy.net ([216.254.0.211]:34826 "HELO
+	mail11.speakeasy.net") by vger.kernel.org with SMTP
+	id <S129156AbRDGS1U>; Sat, 7 Apr 2001 14:27:20 -0400
+Message-ID: <3ACF5C31.B3B0594F@megapathdsl.net>
+Date: Sat, 07 Apr 2001 11:28:01 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.4.3-ac2 -- How do I determine if shm is being used?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get my hard drive to use UDMA/66.  I'm thinking the cable
-is not being detected.  When the HPT366 bios is set to UDMA 4; using
-hdparm -t, I get a transfer rate of 19.51 MB/s. When the HPT366 bios is
-set to PIO 4 the transfer rate is the same. Is this normal for a UDMA/66
-drive? What makes me think something is wrong is that the log says
+I have mounted:
 
-"ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:pio" <-- PIO? 
+	none on /var/shm type shm (rw)
+	tmpfs on /dev/shm type tmpfs (rw)
 
-and
+Yet, running "x11perf -shmput10" gives me:
 
-"hde: 27067824 sectors (13859 MB) w/371KiB Cache, CHS=26853/16/63,
-UDMA(33)" <--- UDMA(33)? shouldn't it be UDMA(66)?
+X Error of failed request:  BadValue (integer parameter out of range for
+operation)
+  Major opcode of failed request:  146 (MIT-SHM)
+  Minor opcode of failed request:  3 (X_ShmPutImage)
+  Value in failed request:  0x1600001
+  Serial number of failed request:  35107
+  Current serial number in output stream:  35111
 
-Any ideas what might be wrong? Possible bug?
+I'd like to check to make sure that shm is actually accessible
+to my programs.  Is there any easy way to do this?
 
+I have already checked the values of:
 
-Hardware:
-Abit BE6 Motherboard with HPT366 controller
-Quantum Fireball KA 13.6 UDMA/66 HD
-80 pin connector
-Linux Partition is on /dev/hde2
+	/proc/sys/kernel/shmall = 2000000
+	/proc/sys/kernel/shmmax = 4096
+	/proc/sys/kernel/shmmni = 35000000
 
-Software:
-Redhat 7.0
-Kernel 2.4.3 (non-modified)
-
-Use multi-mode by default = Y
-CMD640 chipset bugfix/support = Y
-RZ1000 chipset bugfix/support = Y
-Generic PCI IDE chipset support = Y
-Shareing PCI IDE interrupts support = Y
-Generic PCI bus-master DMA support = Y
-Use PCI DMA by default when available = Y
-HPT366 chipset support = Y
-Intel PIIXn chipsets support = Y
-PIIXn Tuning support = Y
-IGNORE word93 Validation BITS = Y
-
-
-
-My Log:
-
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-automount[415]: starting automounter version 3.1.6, path = /misc,
-maptype = file, mapname = /etc/auto.misc
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100%% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-HPT366: onboard version of chipset, pin1=1 pin2=2
-HPT366: IDE controller on PCI bus 00 dev 98
-PCI: Found IRQ 11 for device 00:13.0
-PCI: The same IRQ used for device 00:0b.0
-PCI: The same IRQ used for device 00:13.1
-HPT366: chipset revision 1
-HPT366: not 100%% native mode: will probe irqs later
-    ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:pio, hdf:pio
-HPT366: IDE controller on PCI bus 00 dev 99
-PCI: Found IRQ 11 for device 00:13.1
-PCI: The same IRQ used for device 00:0b.0
-PCI: The same IRQ used for device 00:13.0
-HPT366: chipset revision 1
-Initializing random number generator:  succeeded
-HPT366: not 100%% native mode: will probe irqs later
-     ide3: BM-DMA at 0xc800-0xc807, BIOS settings: hdg:pio, hdh:pio
-hdc: Pioneer DVD-ROM ATAPIModel DVD-113 0114, ATAPI CD/DVD-ROM drive
-hdd: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive
-hde: QUANTUM FIREBALLP KA13.6, ATA DISK drive
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0xb400-0xb407,0xb802 on irq 11
-hde: 27067824 sectors (13859 MB) w/371KiB Cache, CHS=26853/16/63,
-UDMA(33)
-hdc: ATAPI DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
-
-
-
-Thank you,
-
-David St.Clair
-dstclair@cs.wcu.edu
-
-
+Thanks,
+	Miles

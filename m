@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270621AbRHJAIW>; Thu, 9 Aug 2001 20:08:22 -0400
+	id <S270624AbRHJAPC>; Thu, 9 Aug 2001 20:15:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270622AbRHJAIO>; Thu, 9 Aug 2001 20:08:14 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:29916 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S270621AbRHJAIC>;
-	Thu, 9 Aug 2001 20:08:02 -0400
-Message-Id: <200108100008.f7A08Zl16648@www.2ka.mipt.ru>
-Date: Fri, 10 Aug 2001 04:08:35 +0400
-From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
-To: linux-kernel@vger.kernel.org
-Subject: esssound.o once more
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.7-ac1; i686)
-Organization: MIPT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	id <S270622AbRHJAOm>; Thu, 9 Aug 2001 20:14:42 -0400
+Received: from nic-163-c160-146.mn.mediaone.net ([24.163.160.146]:14214 "EHLO
+	tweety.localdomain") by vger.kernel.org with ESMTP
+	id <S270625AbRHJAOk>; Thu, 9 Aug 2001 20:14:40 -0400
+Date: Thu, 9 Aug 2001 19:14:31 -0500 (CDT)
+From: "Scott M. Hoffman" <scott@mediaone.net>
+X-X-Sender: <scott@tweety.localdomain>
+Reply-To: <scott1021@mediaone.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.7-ac10
+In-Reply-To: <E15UzLL-0008OL-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108091912210.8046-100000@tweety.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Fri, 10 Aug 2001 at 00:35 +0100 Alan Cox wrote:
 
-Some days ago problem with compiling esssound driver was erised.
-And Alan Cox sad that in his -ac1 path this problem was solved, but....
+> > > o Merge DRM for XFree 4.1.x (XFree86 and others)
+> > Can I still use my RH7.1 box with X-4.0.3 and ATI DRI?
+>
+> The -ac tree lets you build either 4.0 or 4.1 DRM - its a config option -
+> pick 4.0
+> -
 
-Here is messages, that was occured while 2.4.7-ac9 was compiling:
+ I'm confused?  I'm unable to select the 4.1 option without first
+selecting the original DRM option.  Does selecting the 4.1 DRM turn off
+the 4.0 code?  Or is this why glxinfo segfaults for me now?
 
-drivers/sound/sounddrivers.o: In function `solo1_update_ptr':
-drivers/sound/sounddrivers.o(.text+0xd6e): undefined reference to `clear_advance'
-drivers/sound/sounddrivers.o: In function `solo1_write':
-drivers/sound/sounddrivers.o(.text+0x2162): undefined reference to `prog_dmabuf_dac'
-drivers/sound/sounddrivers.o: In function `solo1_poll':
-drivers/sound/sounddrivers.o(.text+0x23b2): undefined reference to `prog_dmabuf_dac'
-drivers/sound/sounddrivers.o: In function `solo1_mmap':
-drivers/sound/sounddrivers.o(.text+0x2411): undefined reference to `prog_dmabuf_dac'
-drivers/sound/sounddrivers.o: In function `solo1_ioctl':
-drivers/sound/sounddrivers.o(.text+0x2902): undefined reference to `prog_dmabuf_dac'
-drivers/sound/sounddrivers.o(.text+0x2b05): undefined reference to `prog_dmabuf_dac'
-drivers/sound/sounddrivers.o(.text+0x2c38): more undefined references to `prog_dmabuf_dac' fol
+Scott Hoffman
 
-And in -ac1 this messages appear once more.
-But( I don't know how can I do this) I had compiled 2.4.7-ac1 some days ago with esssound support:
-Linux Sombre.2ka.mipt.ru 2.4.7-ac1 #4 Fri Jul 27 06:17:13 MSD 2001 i686 unknown
 
-but after it i can't do this once more.
-
-Any suggestions, help and advices are wellcome :).
----
-WBR. //s0mbre

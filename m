@@ -1,81 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263224AbVCDXnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263235AbVCDXne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263224AbVCDXnW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263395AbVCDXlW
+	id S263235AbVCDXne (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:43:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbVCDXkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:41:22 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:4296 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263232AbVCDVjA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:39:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=cU4kQORkQRchj8R5oguH276wMyidHvkTQaPcCzV6huXd26/hvYtfu84SoXD9G+LtfBrxV9GkgEsVgkw9P/mBco6EFfax7b1765m23+XaCphIHBEzer5i/73dYp9T63eUeXmTow27blT754R8syUC+7NQZYFBXSvEAodvtWagNUI=
-Message-ID: <f2833c7605030413386a61ecb0@mail.gmail.com>
-Date: Fri, 4 Mar 2005 15:38:58 -0600
-From: "Timothy R. Chavez" <chavezt@gmail.com>
-Reply-To: "Timothy R. Chavez" <chavezt@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] inotify for 2.6.11
-Cc: Robert Love <rml@novell.com>
-In-Reply-To: <1109961444.10313.13.camel@betsy.boston.ximian.com>
+	Fri, 4 Mar 2005 18:40:45 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:55229 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S263220AbVCDVpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 16:45:06 -0500
+Date: Fri, 4 Mar 2005 22:45:04 +0100
+To: linux-kernel@vger.kernel.org
+Subject: useless check in port-allocation code?
+Message-ID: <20050304214501.GK6156@vanheusden.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1109961444.10313.13.camel@betsy.boston.ximian.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+Content-Disposition: inline
+Organization: www.unixexpert.nl
+Read-Receipt-To: <folkert@vanheusden.com>
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Reply-By: Sat Mar  5 18:55:34 CET 2005
+X-MSMail-Priority: High
+User-Agent: Mutt/1.5.6+20040907i
+From: folkert@vanheusden.com (Folkert van Heusden)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 04 Mar 2005 13:37:24 -0500, Robert Love <rml@novell.com> wrote:
-> Below is inotify, diffed against 2.6.11.
-> 
-> I greatly reworked much of the data structures and their interactions,
-> to lay the groundwork for sanitizing the locking.  I then, I hope,
-> sanitized the locking.  It looks right, I am happy.  Comments welcome.
-> I surely could of missed something.  Maybe even something big.
-> 
-> But, regardless, this release is a huge jump from the previous, fixing
-> all known issues and greatly improving the locking.
-> 
-> Best,
-> 
->         Robert Love
 
-Hey Robert,
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Are there plans of reworking the "generic" hooking infrastructure
-(fsnotify.h) to be more like the security hooking framework (+
-stacking)?  I think it'd be nice to be able to have a fs_notify struct
-of function pointers, point at the one's I've chosen to implement, and
-then register / unregister with the framework.  Maybe this is an
-overly complicated approach, but these don't seem like they're generic
-hooks in anyway.
+Hi,
 
-+ * include/linux/fs_notify.h - >generic< hooks for filesystem notification, to
-+ * reduce in-source duplication from both >dnotify and inotify<.
+In the 2.6.11 code, I found this:
+static int tcp_v6_get_port(struct sock *sk, unsigned short snum)
+also in:
+static int tcp_v4_get_port(struct sock *sk, unsigned short snum)
+{
+...
+        if (snum == 0) {
+                int low = sysctl_local_port_range[0];
+                int high = sysctl_local_port_range[1];
 
-I guess I don't fully understand that comment.  Just quickly glancing
-at it, all you've done is added a level of indirection and shifted the
-same redundant code from the VFS to fs_notify.h -- Please correct me
-if I'm wrong (not at all uncommon).
+                spin_lock(&tcp_portalloc_lock);
+		rover = tcp_port_rover;
+                do {    rover++;
+                        if ((rover < low) || (rover > high))
+                                rover = low;
 
-As you already know, there's work being done on the audit subsystem
-that also needs notifications from the filesystem and would require
-yet another set of hooks.  However, where we get notified might differ
-from where inotify and dnotify get notified and it seems like
-fs_notify is tailored specifically for inotify (and accommodates
-dnotify out of obligation) and openly implements the "generic" hooks
-it requires.
+Now I wonder: is that 'rover < low' check not redundant?
+ints are bigger then the maximum portnumber (65535) so when
+rover++ gets too high, the check for 'rover > high' will truncate
+it to low (in the next line) waaay before the int itself wraps.
+Maybe it is needed because tcp_port_rover is < low before the
+function starts, in that case the check for <low can be taken out
+of the loop.
 
-Regardless, if this is the way it's going to be done.  We'll expand
-fs_notify.h to meet our needs as well.
+Patch:
+diff -uNr net/ipv4/tcp_ipv4.c.org net/ipv4/tcp_ipv4.c
+--- net/ipv4/tcp_ipv4.c.org     2005-03-04 22:39:37.340950747 +0100
++++ net/ipv4/tcp_ipv4.c 2005-03-04 22:40:35.570059217 +0100
+@@ -222,10 +222,13 @@
+                int rover;
 
-Also, FYI: 
-I just purchased the 2nd edition of your book, looking forward to reading it.
+                spin_lock(&tcp_portalloc_lock);
+-               rover = tcp_port_rover;
++               if (tcp_port_rover < low)
++                       rover = low;
++               else
++                       rover = tcp_port_rover;
+                do {
+                        rover++;
+-                       if (rover < low || rover > high)
++                       if (rover > high)
+                                rover = low;
+                        head = &tcp_bhash[tcp_bhashfn(rover)];
+                        spin_lock(&head->lock);
 
-<snip>
+diff -uNr net/ipv6/tcp_ipv6.c.org net/ipv6/tcp_ipv6.c
+--- net/ipv6/tcp_ipv6.c.org     2005-03-04 22:41:44.043007791 +0100
++++ net/ipv6/tcp_ipv6.c 2005-03-04 22:42:17.604728073 +0100
+@@ -139,9 +139,12 @@
+                int rover;
 
--- 
-- Timothy R. Chavez
+                spin_lock(&tcp_portalloc_lock);
+-               rover = tcp_port_rover;
++               if (tcp_port_rover < low)
++                       rover = low;
++               else
++                       rover = tcp_port_rover;
+                do {    rover++;
+-                       if ((rover < low) || (rover > high))
++                       if (rover > high)
+                                rover = low;
+                        head = &tcp_bhash[tcp_bhashfn(rover)];
+                        spin_lock(&head->lock);
+
+Signed-off-by: Folkert van Heusden <folkert@vanheusden.com>
+
+
+Folkert van Heusden
+
+Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
++------------------------------------------------------------------+
+|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
+|a try, it brings monitoring logfiles to a different level! See    |
+|http://vanheusden.com/multitail/features.html for a feature list. |
++------------------------------------------= www.unixsoftware.nl =-+
+Phone: +31-6-41278122, PGP-key: 1F28D8AE
+Get your PGP/GPG key signed at www.biglumber.com!
+
+--cvVnyQ+4j833TQvp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCKNbdMBkOjB8o2K4RAkOlAJsEClMujzHCoiT/scerxinCAP7seQCbBeAw
+QqYqJN4ULvlUt3npUjOTgTY=
+=q7pr
+-----END PGP SIGNATURE-----
+
+--cvVnyQ+4j833TQvp--

@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbTL2Nab (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 08:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTL2Nab
+	id S263441AbTL2NdV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 08:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTL2NdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 08:30:31 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:36071 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263387AbTL2Na3
+	Mon, 29 Dec 2003 08:33:21 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:9345 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263441AbTL2NdR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 08:30:29 -0500
-Date: Mon, 29 Dec 2003 19:05:18 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: lhcs-devel@lists.sourceforge.net
-Subject: Re: in_atomic doesn't count local_irq_disable?
-Message-ID: <20031229190518.B6746@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20031229190336.A6746@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Dec 2003 08:33:17 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: "Guldo K" <guldo@tiscali.it>, linux-kernel@vger.kernel.org
+Subject: Re: speedtouch for 2.6.0
+Date: Mon, 29 Dec 2003 13:34:01 +0100
+User-Agent: KMail/1.5.4
+References: <16366.61517.501828.389749@gargle.gargle.HOWL>
+In-Reply-To: <16366.61517.501828.389749@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031229190336.A6746@in.ibm.com>; from vatsa@in.ibm.com on Mon, Dec 29, 2003 at 07:03:36PM +0530
+Message-Id: <200312291334.01173.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI, I am running with preemption disabled ..
+Hi Guldo, I assume you are using the kernel mode
+driver (kernel module) and not the user mode driver
+(pppoa2, pppoa3).  For that you need to compile the
+kernel module.
 
-On Mon, Dec 29, 2003 at 07:03:36PM +0530, Srivatsa Vaddagiri wrote:
-> Hi,
-> 	I am getting messages like:
-> 
->  "Debug: sleeping function called from invalid context at include/linux/rwsem.h:45"
->  "in_atomic: 0, irqs_disabled(): 1"
-> 
-> while running some (CPU Hotplug) tests against (2.6.0-test11-bk6 + the CPU hotplug patch).
-> 
-> This is basically because down_read was called with interrupts disabled ..
-> __might_sleep was "unable" to dump the stack of callers which 
-> lead to this problem ..
-> 
-> I put some debug code in down_read (an inline function) and found
-> that down_read was actually called from do_page_fault.
-> 
-> do_page_fault avoids calling this down_read if we are "in_atomic()"
-> Isn't in_atomic supposed to count IRQs disabled case? If not
-> then shouldn't do_page_fault also check for irqs_disabled() 
-> before calling down_read()?
-> 
-> Please let me know what I am missing here!
-> 
-> 
-> -- 
-> 
-> 
-> Thanks and Regards,
-> Srivatsa Vaddagiri,
-> Linux Technology Center,
-> IBM Software Labs,
-> Bangalore, INDIA - 560033
+> I'm trying to get this usb adsl modem to work
+> with the latest stable kernel.
+> I searched for this on the ML archive, and realized
+> that the kernel module should be used.
+> But I can't understand one thing (at least...)
+> which consequences does the new alcatel module
+> driver have on getting this modem to work?
 
--- 
+It works the same as the module in 2.4.22 and later.
+This module was originally only available outside the
+kernel tree (it can be found for example in the
+speedbundle on http://linux-usb.sf.net/SpeedTouch).
+Now that it is in the kernel tree it is pointless to
+compile it in the speedbundle (and it doesn't work
+right now for 2.6 kernels).  Just turn it on in your
+kernel .config and recompile your kernel.
 
+> Does it override kernel setup described on
+> the speedbundle site, or not?
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560033
+Well, you still need to turn on ATM support etc,
+but there is no need to patch the kernel for example.
+
+> How should the kernel be compiled?
+
+With
+
+CONFIG_USB_SPEEDTOUCH=m
+
+at least.
+
+Ciao,
+
+Duncan.

@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266609AbUHVJZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUHVJfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266609AbUHVJZL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 05:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUHVJZL
+	id S266611AbUHVJfs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 05:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUHVJfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 05:25:11 -0400
-Received: from qfep05.superonline.com ([212.252.122.162]:16595 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S266609AbUHVJZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 05:25:04 -0400
-From: "Josan Kadett" <corporate@superonline.com>
-To: "'Brad Campbell'" <brad@wasp.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
-Date: Sun, 22 Aug 2004 12:25:06 +0200
+	Sun, 22 Aug 2004 05:35:48 -0400
+Received: from wasp.net.au ([203.190.192.17]:38318 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S266611AbUHVJfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 05:35:46 -0400
+Message-ID: <41286915.9090209@wasp.net.au>
+Date: Sun, 22 Aug 2004 13:36:21 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Josan Kadett <corporate@superonline.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
+References: <S266609AbUHVJZE/20040822092504Z+202@vger.kernel.org>
+In-Reply-To: <S266609AbUHVJZE/20040822092504Z+202@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <41285DB3.6070605@wasp.net.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcSIJJ7wfQIqxlydS1qy90CZVF8lEQADNXAg
-Message-Id: <S266609AbUHVJZE/20040822092504Z+202@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bad news... NAT does not work, but it should have worked. Where might be the
-mistake ? I put another machine connected next to the patched linux server,
-I sniff the traffic and see that:
-(I enabled SNAT);
-
-Packet arrives from 192.168.0.30 (new machine to test nat)
-The packet is correctly translated and sent over the line
-With the patch, the new packet seems to arrive from correct source 77.1
-
-*But this is where the problem begins, the system does not send the received
-packet to the address which is SNATted. I thought, the ip_input.c code would
-work in the lowest level so IPTABLES would naively use the changed source
-address...
-
-I do not know if ever this problem will end... 
-
-
------Original Message-----
-From: Brad Campbell [mailto:brad@wasp.net.au] 
-Sent: Sunday, August 22, 2004 10:48 AM
-To: Josan Kadett
-Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-
 Josan Kadett wrote:
-> This does actually change the source IP address of the machine and allow
-> NAT??
+> Bad news... NAT does not work, but it should have worked. Where might be the
+> mistake ? I put another machine connected next to the patched linux server,
+> I sniff the traffic and see that:
+> (I enabled SNAT);
 > 
-> Client A 192.168.0.20 -- connects to patched linux server
-> Linux 192.168.1.1 -- translates the source address 192.168.x.x to
-1.1(SNAT)
+> Packet arrives from 192.168.0.30 (new machine to test nat)
+> The packet is correctly translated and sent over the line
+> With the patch, the new packet seems to arrive from correct source 77.1
 > 
-> And will NAT actually work with this patch, as far as I see, this code
-gets
-> the saddr and puts another one when the condition matches?
+> *But this is where the problem begins, the system does not send the received
+> packet to the address which is SNATted. I thought, the ip_input.c code would
+> work in the lowest level so IPTABLES would naively use the changed source
+> address...
+> 
+> I do not know if ever this problem will end... 
+> 
+> 
+>>
+>>Client A 192.168.0.20 -- connects to patched linux server
+>>Linux 192.168.1.1 -- translates the source address 192.168.x.x to
+> 
+> 1.1(SNAT)
 
-No.. this should work for you.. Try it and see anyway.
+You have 192.168.0.x NAT to 192.168.1.1?
+I thought you wanted to NAT to 192.168.77.1?
 
-Regards,
-Brad
+My understanding was you sent a packet to 192.168.77.1 and the device sent it back from 192.168.1.1
 
-
-
-
+Can you send me your iptables configuration?

@@ -1,63 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVB0Ar7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVB0Awq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVB0Ar7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 19:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVB0Ar7
+	id S261323AbVB0Awq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 19:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVB0Awq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 19:47:59 -0500
-Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:37385 "EHLO
-	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
-	id S261318AbVB0Arz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 19:47:55 -0500
-From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-MIME-Version: 1.0
+	Sat, 26 Feb 2005 19:52:46 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1030 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261323AbVB0Awh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 19:52:37 -0500
+Date: Sun, 27 Feb 2005 01:52:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: ambx1@neo.rr.com
+Cc: perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/pnp/: possible cleanups
+Message-ID: <20050227005234.GS3311@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16929.6319.149849.305237@hertz.ikp.physik.tu-darmstadt.de>
-Date: Sun, 27 Feb 2005 01:47:43 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] partitions/msdos.c
-In-Reply-To: <Pine.LNX.4.58.0502261546380.25732@ppc970.osdl.org>
-References: <20050226213459.GA21137@apps.cwi.nl>
-	<16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de>
-	<Pine.LNX.4.58.0502261424430.25732@ppc970.osdl.org>
-	<20050226225203.GA25217@apps.cwi.nl>
-	<Pine.LNX.4.58.0502261510030.25732@ppc970.osdl.org>
-	<20050226234053.GA14236@apps.cwi.nl>
-	<Pine.LNX.4.58.0502261546380.25732@ppc970.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
+This patch contains the following possible cleanups:
+- make needlessly global code static
+- #if 0 the following unused global function:
+  - core.c: pnp_remove_device
+- remove the following unneeded EXPORT_SYMBOL's:
+  - card.c: pnp_add_card
+  - card.c: pnp_remove_card
+  - card.c: pnp_add_card_device
+  - card.c: pnp_remove_card_device
+  - card.c: pnp_add_card_id
+  - core.c: pnp_register_protocol
+  - core.c: pnp_unregister_protocol
+  - core.c: pnp_add_device
+  - core.c: pnp_remove_device
+  - pnpacpi/core.c: pnpacpi_protocol
+  - driver.c: pnp_add_id
+  - isapnp/core.c: isapnp_read_byte
+  - manager.c: pnp_auto_config_dev
+  - resource.c: pnp_register_dependent_option
+  - resource.c: pnp_register_independent_option
+  - resource.c: pnp_register_irq_resource
+  - resource.c: pnp_register_dma_resource
+  - resource.c: pnp_register_port_resource
+  - resource.c: pnp_register_mem_resource
 
-    Linus> On Sun, 27 Feb 2005, Andries Brouwer wrote:
-    >>  (Concerning the "size" version: it occurred to me that there is one
-    >> very minor objection: For extended partitions so far the size did not
-    >> normally play a role. Only the starting sector was significant.  If,
-    >> at some moment we decide also to check the size, then a weaker check,
-    >> namely only checking for non-extended partitions, might be better at
-    >> first.)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-    Linus> Yes. I agree - checking the size is likely _more_ dangerous and
-    Linus> likely to break something silly than checking the ID for zero.
+---
 
-    Linus> So your patch it is. I'll put it in immediately after doing a
-    Linus> 2.6.11 (no need to worry about getting into 2.6.11, since afaik
-    Linus> the worst problem right now is an extra partition that isn't
-    Linus> usable).
+ drivers/pnp/card.c         |    7 +------
+ drivers/pnp/core.c         |    7 ++-----
+ drivers/pnp/driver.c       |    1 -
+ drivers/pnp/isapnp/core.c  |    1 -
+ drivers/pnp/manager.c      |    1 -
+ drivers/pnp/pnpacpi/core.c |    5 ++---
+ drivers/pnp/resource.c     |    8 --------
+ include/linux/pnp.h        |    2 --
+ 8 files changed, 5 insertions(+), 27 deletions(-)
 
-Well,
+--- linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c.old	2005-02-26 15:54:16.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c	2005-02-26 16:16:07.000000000 +0100
+@@ -19,7 +19,7 @@
+ #include "base.h"
+ 
+ LIST_HEAD(pnp_cards);
+-LIST_HEAD(pnp_card_drivers);
++static LIST_HEAD(pnp_card_drivers);
+ 
+ 
+ static const struct pnp_card_device_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
+@@ -380,11 +380,6 @@
+ 	pnp_unregister_driver(&drv->link);
+ }
+ 
+-EXPORT_SYMBOL(pnp_add_card);
+-EXPORT_SYMBOL(pnp_remove_card);
+-EXPORT_SYMBOL(pnp_add_card_device);
+-EXPORT_SYMBOL(pnp_remove_card_device);
+-EXPORT_SYMBOL(pnp_add_card_id);
+ EXPORT_SYMBOL(pnp_request_card_device);
+ EXPORT_SYMBOL(pnp_release_card_device);
+ EXPORT_SYMBOL(pnp_register_card_driver);
+--- linux-2.6.11-rc4-mm1-full/include/linux/pnp.h.old	2005-02-26 15:54:39.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/include/linux/pnp.h	2005-02-26 15:54:59.000000000 +0100
+@@ -353,7 +353,6 @@
+ int pnp_register_protocol(struct pnp_protocol *protocol);
+ void pnp_unregister_protocol(struct pnp_protocol *protocol);
+ int pnp_add_device(struct pnp_dev *dev);
+-void pnp_remove_device(struct pnp_dev *dev);
+ int pnp_device_attach(struct pnp_dev *pnp_dev);
+ void pnp_device_detach(struct pnp_dev *pnp_dev);
+ extern struct list_head pnp_global;
+@@ -399,7 +398,6 @@
+ static inline void pnp_unregister_protocol(struct pnp_protocol *protocol) { }
+ static inline int pnp_init_device(struct pnp_dev *dev) { return -ENODEV; }
+ static inline int pnp_add_device(struct pnp_dev *dev) { return -ENODEV; }
+-static inline void pnp_remove_device(struct pnp_dev *dev) { }
+ static inline int pnp_device_attach(struct pnp_dev *pnp_dev) { return -ENODEV; }
+ static inline void pnp_device_detach(struct pnp_dev *pnp_dev) { ; }
+ 
+--- linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c.old	2005-02-26 15:55:56.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c	2005-02-26 16:48:31.000000000 +0100
+@@ -158,13 +158,14 @@
+  *
+  * this function will free all mem used by dev
+  */
+-
++#if 0
+ void pnp_remove_device(struct pnp_dev *dev)
+ {
+ 	if (!dev || dev->card)
+ 		return;
+ 	__pnp_remove_device(dev);
+ }
++#endif  /*  0  */
+ 
+ static int __init pnp_init(void)
+ {
+@@ -174,7 +175,3 @@
+ 
+ subsys_initcall(pnp_init);
+ 
+-EXPORT_SYMBOL(pnp_register_protocol);
+-EXPORT_SYMBOL(pnp_unregister_protocol);
+-EXPORT_SYMBOL(pnp_add_device);
+-EXPORT_SYMBOL(pnp_remove_device);
+--- linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c.old	2005-02-26 15:57:01.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c	2005-02-26 15:57:26.000000000 +0100
+@@ -124,7 +124,7 @@
+ 	return ACPI_FAILURE(status) ? -ENODEV : 0;
+ }
+ 
+-struct pnp_protocol pnpacpi_protocol = {
++static struct pnp_protocol pnpacpi_protocol = {
+ 	.name	= "Plug and Play ACPI",
+ 	.get	= pnpacpi_get_resources,
+ 	.set	= pnpacpi_set_resources,
+@@ -242,7 +242,7 @@
+ }
+ 
+ int pnpacpi_disabled __initdata;
+-int __init pnpacpi_init(void)
++static int __init pnpacpi_init(void)
+ {
+ 	if (acpi_disabled || pnpacpi_disabled) {
+ 		pnp_info("PnP ACPI: disabled");
+@@ -266,4 +266,3 @@
+ }
+ __setup("pnpacpi=", pnpacpi_setup);
+ 
+-EXPORT_SYMBOL(pnpacpi_protocol);
+--- linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c.old	2005-02-26 16:09:23.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c	2005-02-26 16:09:52.000000000 +0100
+@@ -217,6 +217,5 @@
+ 
+ EXPORT_SYMBOL(pnp_register_driver);
+ EXPORT_SYMBOL(pnp_unregister_driver);
+-EXPORT_SYMBOL(pnp_add_id);
+ EXPORT_SYMBOL(pnp_device_attach);
+ EXPORT_SYMBOL(pnp_device_detach);
+--- linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c.old	2005-02-26 16:11:16.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c	2005-02-26 16:11:39.000000000 +0100
+@@ -952,7 +952,6 @@
+ EXPORT_SYMBOL(isapnp_present);
+ EXPORT_SYMBOL(isapnp_cfg_begin);
+ EXPORT_SYMBOL(isapnp_cfg_end);
+-EXPORT_SYMBOL(isapnp_read_byte);
+ EXPORT_SYMBOL(isapnp_write_byte);
+ 
+ static int isapnp_read_resources(struct pnp_dev *dev, struct pnp_resource_table *res)
+--- linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c.old	2005-02-26 16:11:47.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c	2005-02-26 16:12:11.000000000 +0100
+@@ -563,7 +563,6 @@
+ 
+ 
+ EXPORT_SYMBOL(pnp_manual_config_dev);
+-EXPORT_SYMBOL(pnp_auto_config_dev);
+ EXPORT_SYMBOL(pnp_activate_dev);
+ EXPORT_SYMBOL(pnp_disable_dev);
+ EXPORT_SYMBOL(pnp_resource_change);
+--- linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c.old	2005-02-26 16:12:19.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c	2005-02-26 16:13:37.000000000 +0100
+@@ -478,14 +478,6 @@
+ }
+ 
+ 
+-EXPORT_SYMBOL(pnp_register_dependent_option);
+-EXPORT_SYMBOL(pnp_register_independent_option);
+-EXPORT_SYMBOL(pnp_register_irq_resource);
+-EXPORT_SYMBOL(pnp_register_dma_resource);
+-EXPORT_SYMBOL(pnp_register_port_resource);
+-EXPORT_SYMBOL(pnp_register_mem_resource);
+-
+-
+ /* format is: pnp_reserve_irq=irq1[,irq2] .... */
+ 
+ static int __init pnp_setup_reserve_irq(char *str)
 
-on a Suse 9.2 System with Suse Hotplug, the phantom partition was somehow
-recognized as Reiserfs, and then the Hotplug mechanism trying to mount the 
-bogus partition as a Reiser Filesystem ended in an Oops...
-
--- 
-Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
-
-Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
---------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------

@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265277AbUENN2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265279AbUENN3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbUENN2d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 09:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbUENN2d
+	id S265279AbUENN3q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 09:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUENN3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 09:28:33 -0400
-Received: from web90105.mail.scd.yahoo.com ([66.218.94.76]:21937 "HELO
-	web90105.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S265277AbUENN2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 09:28:32 -0400
-Message-ID: <20040514110147.66697.qmail@web90105.mail.scd.yahoo.com>
-Date: Fri, 14 May 2004 04:01:47 -0700 (PDT)
-From: linux lover <linux_lover2004@yahoo.com>
-Subject: /proc query
-To: netdev <netdev@oss.sgi.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 14 May 2004 09:29:45 -0400
+Received: from mail2.iserv.net ([204.177.184.152]:57324 "EHLO mail2.iserv.net")
+	by vger.kernel.org with ESMTP id S265279AbUENN3S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 09:29:18 -0400
+Message-ID: <40A4C9A9.9080306@didntduck.org>
+Date: Fri, 14 May 2004 09:29:13 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040421
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Vincent Hanquez <tab@snarc.org>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove hardcoded offsets from i386 asm
+References: <40A4318A.2050504@quark.didntduck.org> <20040514062855.GA8842@snarc.org>
+In-Reply-To: <20040514062855.GA8842@snarc.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
-        can it be possible to allow /proc new entry
-file to update its value after few times. i
-implemented a file /proc/text that updates text value
-at each seconds not after 1 minutes. for that i am
-using sleep. is it allow to use sleep in kernel source
-modification.
-regards,
-linuxlover
- 
+Vincent Hanquez wrote:
+> On Thu, May 13, 2004 at 10:40:10PM -0400, Brian Gerst wrote:
+> 
+>>Generate offsets for thread_info, cpuinfo_x86, and a few others instead 
+>>of hardcoding them.
+> 
+> 
+> Hi Brian,
+> 
+> why not keeping all macro name in uppercase ?
+> 
+> the patch would look a lot smaller, and as the macro got the same
+> meaning, I don't see why the name should change.
+> 
+> 
+>>-	movl TI_FLAGS(%ebp), %ecx
+>>+	movl TI_flags(%ebp), %ecx
+> 
+> 
+> Cheers,
 
+To follow the convention of having the member name in lower case.
 
-	
-		
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! - Internet access at a great low price.
-http://promo.yahoo.com/sbc/
+--
+				Brian Gerst

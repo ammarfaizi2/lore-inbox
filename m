@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314490AbSDRXIv>; Thu, 18 Apr 2002 19:08:51 -0400
+	id <S314488AbSDRXKt>; Thu, 18 Apr 2002 19:10:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314491AbSDRXIu>; Thu, 18 Apr 2002 19:08:50 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:2260 "HELO atlrel6.hp.com")
-	by vger.kernel.org with SMTP id <S314490AbSDRXIs>;
-	Thu, 18 Apr 2002 19:08:48 -0400
-Message-ID: <3CBF5183.B87E1238@hp.com>
-Date: Thu, 18 Apr 2002 17:06:43 -0600
-From: Khalid Aziz <khalid_aziz@hp.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: COM1 became ttyS01 in 2.4.19-pre7
-In-Reply-To: <Pine.LNX.4.44.0204181855430.21502-100000@marabou.research.att.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314489AbSDRXKs>; Thu, 18 Apr 2002 19:10:48 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:25430 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S314488AbSDRXKr>;
+	Thu, 18 Apr 2002 19:10:47 -0400
+Date: Thu, 18 Apr 2002 19:10:42 -0400
+From: Michael West <neovorbis@comcast.net>
+Subject: Possible bug in USB or HID on asus mobo with via kt266 a chipset
+To: linux-kernel@vger.kernel.org
+Message-id: <3CBF5272.3030203@comcast.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look for a patch already posted to LKML on Tuesday under thread "Linux
-2.4.19-pre7".
+    I recently changed motherboards on my linux box and one of my hid 
+controllers (a psx-usb converter) stopped functioning correctly.  I was 
+running a 2.4.18 kernel on both boards, and with the new asus board, 
+apps reading from the /dev/input/js0 file seem to halt after the first 
+19 joystick messages are read.  I tried reproducing the problem on other 
+kernel versions, and experienced the same problem with a smattering of 
+previous kernels.  I'm using a hid mouse, as well as another hid 
+controller, and both work correctly.  Not sure if its related or not, 
+but I also seem to have some apparent irq problems, as newly plugged in 
+usb devices (any) and by that I mean after the usb-uhci or uhci driver 
+is loaded, throw "USB device not accepting new address - * (error = 
+-110)" errors.  The situation in 2.4.19-pre2 changed a bit by completely 
+breaking the psx-converter (joydev driver assigns no device) only on 
+usb-uhci.  pre3 has the same origional problem, as well as 4 and 5. 
+ Pre6 and Pre7 seem to completely break all usb hid devices.  The irq 
+(or whatever) problems go away and devices are hotplugged fine, but no 
+hid devices are ever registered.  Sorry for my infamiliarity with the 
+linux kernel source and terminology.  Thanks in advance.
+ Michael
 
---
-Khalid
 
-Pavel Roskin wrote:
-> 
-> Hello!
-> 
-> The serial ports have changed their names after upgrading from 2.4.19-pre4
-> to 2.4.19-pre7.  What used to be /dev/ttyS0 is /dev/ttyS1 now.
-> 
-> This is from the kernel log:
-> 
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-> SERIAL_PCI enabled
-> ttyS01 at 0x03f8 (irq = 4) is a 16550A
-> ttyS02 at 0x02f8 (irq = 3) is a 16550A
-> 
-> $ ls -l /dev/tts/
-> total 0
-> crw-rw-rw-    1 root     root       4,  65 Apr 18 18:50 1
-> crw-rw-rw-    1 root     root       4,  66 Dec 31  1969 2
-> 
-> I'm using AMD K7, SMP is disabled, serial ports are enabled, ACPI is
-> disabled, APM is enabled, devfs is enabled and used, CONFIG_SERIAL_CONSOLE
-> is enabled but not currently used.  The motherboard is AOpen KT-133.  The
-> ports are set in BIOS to standard COM1 and COM2 settings.
-> 
-> I'm ready to provide more information if needed.
-> 
-> --
-> Regards,
-> Pavel Roskin
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-
-====================================================================
-Khalid Aziz                              Linux Systems Operation R&D
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO

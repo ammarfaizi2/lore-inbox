@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264447AbTFEEKe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 00:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTFEEKd
+	id S264399AbTFEEKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 00:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTFEEKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 00:10:33 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:45283 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264447AbTFEEKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 00:10:32 -0400
-Date: Thu, 5 Jun 2003 14:24:19 +1000
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70: pcmcia oops (a real one! honest!)
-Message-ID: <20030605042419.GA522@zip.com.au>
-References: <20030528042610.GD6501@zip.com.au> <20030529090209.B12513@flint.arm.linux.org.uk> <20030529212139.GA25971@kroah.com> <20030531154142.GA473@zip.com.au> <20030602210537.GA6666@kroah.com> <20030603192836.GA12746@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030603192836.GA12746@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	Thu, 5 Jun 2003 00:10:20 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21509 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264399AbTFEEKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 00:10:20 -0400
+Date: Wed, 4 Jun 2003 21:23:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, <davem@redhat.com>,
+       <bcollins@debian.org>, <wli@holomorphy.com>, <tom_gall@vnet.ibm.com>,
+       <anton@samba.org>
+Subject: Re: /proc/bus/pci
+In-Reply-To: <1054783303.22104.5569.camel@cube>
+Message-ID: <Pine.LNX.4.44.0306042117440.2761-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 12:28:36PM -0700, Greg KH wrote:
-> Ah, stupid bug in the driver class code was causing this.  Can you try
-> this patch out against a clean 2.5.70 tree?  It fixes the problem for
-> me, and I want to make sure it fixes it for you too.
 
-It does. Whilst I get no messages telling me ttyS1 and eth1 have been
-deregistered, the kernel doesn't crash on me either and everything
-appears normal with lspci.
+On Wed, 4 Jun 2003, Albert Cahalan wrote:
+>
+> I notice that /proc/bus/pci doesn't offer a sane
+> interface for multiple PCI domains and choice of BAR.
+> What do people think of this?
+> 
+> bus/pci/00/00.0 -> ../hose0/bus0/dev0/fn0/config-space
 
-Whee. :)
+Why do we have that stupid "hose" name? Only because of strange alpha 
+naming, or did somebody else also use that incredibly silly name?
 
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+Please talk about "domains", at least it makes some sense as a name.
+
+I'm also hoping that /proc/bus will eventually go away, so I don't see a 
+major problem with not understanding multiple domains at that level.
+
+On a /sys/bus/xxx level we actually should already be able to handle 
+multiple domains, but the naming is broken. However, in /sys we should be 
+able to nicely handling non-zero domains by just extending the name space 
+a bit.
+
+		Linus
+

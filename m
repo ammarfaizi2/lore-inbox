@@ -1,75 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287966AbSBNImL>; Thu, 14 Feb 2002 03:42:11 -0500
+	id <S288050AbSBNIxC>; Thu, 14 Feb 2002 03:53:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288012AbSBNImC>; Thu, 14 Feb 2002 03:42:02 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:45831 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S287966AbSBNIlx>;
-	Thu, 14 Feb 2002 03:41:53 -0500
-Date: Thu, 14 Feb 2002 09:39:55 +0100
-From: Frank van Maarseveen <fvm@altium.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.17 Oops
-Message-ID: <20020214093955.A28603@espoo.tasking.nl>
-Reply-To: frank.van.maarseveen@altium.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Subliminal-Message: Use Linux!
-Organization: ALTIUM Software BV
+	id <S288047AbSBNIwy>; Thu, 14 Feb 2002 03:52:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7684 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288012AbSBNIwj>;
+	Thu, 14 Feb 2002 03:52:39 -0500
+Message-ID: <3C6B7AD5.CF4CCA0A@mandrakesoft.com>
+Date: Thu, 14 Feb 2002 03:52:37 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5] via-rhine build fix
+Content-Type: multipart/mixed;
+ boundary="------------A30E28B411ED198EC6D49FAE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ksymoops 2.3.5 on i686 2.4.17-x67.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.17-x67/ (default)
-     -m /boot/System.map-2.4.17-x67 (specified)
+This is a multi-part message in MIME format.
+--------------A30E28B411ED198EC6D49FAE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Feb 14 09:35:01 espoo kernel: Unable to handle kernel paging request at virtual address 0000ffff 
-Feb 14 09:35:01 espoo kernel: c0140de0 
-Feb 14 09:35:01 espoo kernel: *pde = 00000000 
-Feb 14 09:35:01 espoo kernel: Oops: 0000 
-Feb 14 09:35:01 espoo kernel: CPU:    0 
-Feb 14 09:35:01 espoo kernel: EIP:    0010:[<c0140de0>]    Not tainted 
-Using defaults from ksymoops -t elf32-i386 -a i386
-Feb 14 09:35:01 espoo kernel: EFLAGS: 00010207 
-Feb 14 09:35:01 espoo kernel: eax: c1471600   ebx: 0000ffef   ecx: 0000000f   edx: c1440000 
-Feb 14 09:35:01 espoo kernel: esi: 0028c69d   edi: c9baff74   ebp: 0000ffff   esp: c9baff10 
-Feb 14 09:35:01 espoo kernel: ds: 0018   es: 0018   ss: 0018 
-Feb 14 09:35:01 espoo kernel: Process distribute (pid: 28497, stackpage=c9baf000) 
-Feb 14 09:35:01 espoo kernel: Stack: 0028c69d ce252adc c9baff74 c9baffa4 c1471600 cd014014 0028c69d 00000003  
-Feb 14 09:35:01 espoo kernel:        c0138d04 ce252adc c9baff74 0028c69d c013942a ce252adc c9baff74 00000000  
-Feb 14 09:35:01 espoo kernel:        cd014000 00000000 c9baffa4 00000009 c9bae000 c9bae000 00000009 cd014017  
-Feb 14 09:35:01 espoo kernel: Call Trace: [<c0138d04>] [<c013942a>] [<c013969a>] [<c0139a51>] [<c0136869>]  
-Feb 14 09:35:01 espoo kernel:    [<c0106db3>]  
-Feb 14 09:35:01 espoo kernel: Code: 8b 6d 00 8b 74 24 18 39 73 44 75 7c 8b 74 24 24 39 73 0c 75  
+Linus,
 
->>EIP; c0140de0 <d_lookup+60/100>   <=====
-Trace; c0138d04 <cached_lookup+10/54>
-Trace; c013942a <link_path_walk+522/778>
-Trace; c013969a <path_walk+1a/1c>
-Trace; c0139a51 <__user_walk+35/50>
-Trace; c0136869 <sys_newstat+19/70>
-Trace; c0106db3 <system_call+33/40>
-Code;  c0140de0 <d_lookup+60/100>
-00000000 <_EIP>:
-Code;  c0140de0 <d_lookup+60/100>   <=====
-   0:   8b 6d 00                  movl   0x0(%ebp),%ebp   <=====
-Code;  c0140de3 <d_lookup+63/100>
-   3:   8b 74 24 18               movl   0x18(%esp,1),%esi
-Code;  c0140de7 <d_lookup+67/100>
-   7:   39 73 44                  cmpl   %esi,0x44(%ebx)
-Code;  c0140dea <d_lookup+6a/100>
-   a:   75 7c                     jne    88 <_EIP+0x88> c0140e68 <d_lookup+e8/100>
-Code;  c0140dec <d_lookup+6c/100>
-   c:   8b 74 24 24               movl   0x24(%esp,1),%esi
-Code;  c0140df0 <d_lookup+70/100>
-  10:   39 73 0c                  cmpl   %esi,0xc(%ebx)
-Code;  c0140df3 <d_lookup+73/100>
-  13:   75 00                     jne    15 <_EIP+0x15> c0140df5 <d_lookup+75/100>
+This one slipped by me... a partial via-rhine change, resulting in build
+breakage.  This patch, with BK cset info, fixes.
+
+There is also an automerged 8139too recalc_sigpending() change I caught
+at the last minute, that you might get when you pull... your tree might
+already have this.  It's an ok change though, cset log included.
 
 -- 
-Frank
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com
+--------------A30E28B411ED198EC6D49FAE
+Content-Type: text/plain; charset=us-ascii;
+ name="net-drivers-2.5.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="net-drivers-2.5.txt"
+
+
+
+Pull from:  http://gkernel.bkbits.net/net-drivers-2.5
+
+
+---------------------------------------------------------------------------
+ChangeSet@1.333, 2002-02-14 03:25:36-05:00, jgarzik@rum.normnet.org
+  Add board id to via-rhine net driver, for board added in
+  previous revision (thus fixing the build).
+
+ drivers/net/via-rhine.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+ChangeSet@?????, jgarzik@rum.normnet.org
+  Update 8139too net driver to new arg-free recalc_sigpending() API
+  function
+
+ drivers/net/8139too.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+---------------------------------------------------------------------------
+
+--------------A30E28B411ED198EC6D49FAE
+Content-Type: text/plain; charset=us-ascii;
+ name="via-rhine-2.5.5.1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="via-rhine-2.5.5.1.patch"
+
+diff -Nru a/drivers/net/via-rhine.c b/drivers/net/via-rhine.c
+--- a/drivers/net/via-rhine.c	Thu Feb 14 03:27:48 2002
++++ b/drivers/net/via-rhine.c	Thu Feb 14 03:27:48 2002
+@@ -321,6 +321,7 @@
+ 	VT86C100A = 0,
+ 	VT6102,
+ 	VT3043,
++	VT6105,
+ };
+ 
+ struct via_rhine_chip_info {
+@@ -349,7 +350,7 @@
+ 	{ "VIA VT6102 Rhine-II", RHINE_IOTYPE, 256,
+ 	  CanHaveMII | HasWOL },
+ 	{ "VIA VT3043 Rhine",    RHINE_IOTYPE, 128,
+-	  CanHaveMII | ReqTxAlign }
++	  CanHaveMII | ReqTxAlign },
+ 	{ "VIA VT6105 Rhine-III", RHINE_IOTYPE, 256,
+ 	  CanHaveMII | HasWOL },
+ };
+
+--------------A30E28B411ED198EC6D49FAE--
+

@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbUAZOid (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 09:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbUAZOid
+	id S264893AbUAZOvS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 09:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUAZOvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 09:38:33 -0500
-Received: from colin2.muc.de ([193.149.48.15]:34317 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263636AbUAZOib (ORCPT
+	Mon, 26 Jan 2004 09:51:18 -0500
+Received: from relay.dada.it ([195.110.100.8]:52302 "EHLO ironport.dada.it")
+	by vger.kernel.org with ESMTP id S264893AbUAZOvN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 09:38:31 -0500
-Date: 26 Jan 2004 15:36:23 +0100
-Date: Mon, 26 Jan 2004 15:36:23 +0100
-From: Andi Kleen <ak@muc.de>
-To: John Stoffel <stoffel@lucent.com>
-Cc: Andi Kleen <ak@muc.de>, Adrian Bunk <bunk@fs.tum.de>,
-       Valdis.Kletnieks@vt.edu, Fabio Coatti <cova@ferrara.linux.it>,
-       Andrew Morton <akpm@osdl.org>, Eric <eric@cisu.net>,
-       linux-kernel@vger.kernel.org
+	Mon, 26 Jan 2004 09:51:13 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: "John Stoffel" <stoffel@lucent.com>
 Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
-Message-ID: <20040126143623.GB337@colin2.muc.de>
-References: <20040125191232.GC16962@colin2.muc.de> <16404.9520.764788.21497@gargle.gargle.HOWL> <20040125202557.GD16962@colin2.muc.de> <16404.10496.50601.268391@gargle.gargle.HOWL> <20040125214920.GP513@fs.tum.de> <16404.20183.783477.596431@gargle.gargle.HOWL> <20040125234756.GF28576@colin2.muc.de> <16404.34836.753760.759367@gargle.gargle.HOWL> <20040126050431.GB6519@colin2.muc.de> <16405.8396.359717.70413@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Jan 2004 15:51:02 +0100
+User-Agent: KMail/1.6
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, eric@cisu.net,
+       linux-kernel@vger.kernel.org
+References: <20040125162122.GJ513@fs.tum.de> <20040126060952.GC6519@colin2.muc.de> <16405.8292.823683.530462@gargle.gargle.HOWL>
+In-Reply-To: <16405.8292.823683.530462@gargle.gargle.HOWL>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <16405.8396.359717.70413@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401261551.02757.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 09:14:36AM -0500, John Stoffel wrote:
-> 
-> >> On node 0 totalpages: 196606
-> >> DMA zone: 4096 pages, LIFO batch:1
-> >> Normal zone: 192510 pages, LIFO batch:16
-> >> HighMem zone: 0 pages, LIFO batch:1
-> 
-> Andi> Ok, it didn't oops. Just hung early. Probably needs some printks
-> Andi> to track it down.
-> 
-> Andi> And the problem really goes away when you disable -funit-at-a-time ?
-> 
-> This was from both 2.6.2-rc1 and 2.6.2-rc2, and since the later
-> doesn't have the -funit-at-time declaration in the Makefile, I don't
-> think that's the problem.
-> 
-> My gcc version is:
-> 
->     > gcc --version
->     gcc.real (GCC) 3.3.3 20040110 (prerelease) (Debian)
+Alle Monday 26 January 2004 15:12, John Stoffel ha scritto:
 
-Well, you have some different problem then. I was assuming you used
--funit-at-a-time because you posted on the unit-at-a-time thread.
-I don't know what's wrong with your kernel, sorry.
+>
+> Just to follow up here.  On kernels 2.6.2-rc1 and 2.6.2-rc2, it just
+> hangs on bootup and doesn't give any Oops output.
+>
+> When I tried out 2.6.2-rc1-mm[1,2,3], it would start booting, but
+> oops immediately with the one I posted before, but I've re-created
+> here.
 
-If it happened to me here I would add printks to the early kernel 
-initialisation until I figured out where it hangs.
-(it's somewhere after mem_init and before console_init in 
-init/main.c:start_kernel). You could try that, together with earlyprintk. 
+It seems a little bit different from my situation: 2.6.2-rcX (basically non 
+-mm versions) boots and works just fine (besides some oopses on shutdown, but 
+this is another story, I'll investigate further on this).
+-mm series, both 2.6.2-rcX-mmY and 2.6.1-mmZ with Z > 3 hangs after 
+decompressing image, if I leave -funit-at-time in Makefile. I can  redo any 
+of these tests, I can also use a serial interface to capture any "hidden" 
+oops, if someone sends me any needed patch to show some data (i.e. early 
+printk) and the desired tests.
 
--Andi
+>
+> I'm at work now, so I won't be able to do any tests besides remote
+> kernel compiles during the day.
+
+The same holds for me :)
+
+-- 
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.
+

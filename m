@@ -1,151 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVCVS4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVCVTDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVCVS4f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 13:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVCVS4f
+	id S261657AbVCVTDa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 14:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVCVTDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 13:56:35 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:2690 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261623AbVCVS4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 13:56:15 -0500
-Date: Tue, 22 Mar 2005 19:56:05 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: 2.6.12-rc1-mm1: REISER4_FS <-> 4KSTACKS
-Message-ID: <20050322185605.GB27733@wohnheim.fh-wedel.de>
-References: <20050321025159.1cabd62e.akpm@osdl.org> <20050322171340.GE1948@stusta.de>
+	Tue, 22 Mar 2005 14:03:30 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:7579
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261657AbVCVTDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 14:03:23 -0500
+Date: Tue, 22 Mar 2005 11:01:44 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
+Message-Id: <20050322110144.3a3002d9.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+	<20050322034053.311b10e6.akpm@osdl.org>
+	<Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050322171340.GE1948@stusta.de>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 March 2005 18:13:40 +0100, Adrian Bunk wrote:
-> 
-> REISER4_FS is the only option with a dependency on !4KSTACKS which is 
-> bad since 8 kB stacks on i386 won't stay forever.
-> 
-> Could fix the problems with 4 kB stacks?
-> 
-> Running
-> 
->   make checkstacks | grep reiser4
-> 
-> inside te kernel sources after compiling gives you hints where problems 
-> might come from.
 
-Actually, I've run the Big Ol' checkstack program on reiser4 once.
-Without recursions, the code is well below 3k, but some of the
-recursions look a bit daunting.  Here is the relevant output:
+Ok, here is a full dump of a free_pgtables() run that
+fails to clear out all the PMD's.
 
-WARNING: recursion detected:
-       8  jload_gfp
-      36  eflush_del
-      24  eflush_free
-      36  ef_free_block
-       0  reiser4_dealloc_block
-      28  reiser4_dealloc_blocks
-       0  sa_dealloc_blocks
-      32  dealloc_blocks_bitmap
-      36  load_and_lock_bnode
-      20  prepare_bnode
+It gets called with this VMA list (each entry is a
+vm_start/vm_end tuple)
 
-WARNING: recursion detected:
-       8  zload
-      16  zload_ra
-      68  formatted_readahead
-       0  reiser4_get_right_neighbor
-     264  reiser4_get_neighbor
-     108  renew_neighbor
-      44  renew_sibling_link
-      48  far_next_coord
+[0x00010000:0x000a4000]
+[0x000b2000:0x000b8000]
+[0x000b8000:0x000de000]
+[0x70000000:0x7001a000]
+[0x70028000:0x7002a000]
+[0x7002c000:0x7006a000]
+[0x7006a000:0x7006c000]
+[0x7006c000:0x70084000]
+[0x70084000:0x70088000]
+[0x70088000:0x70094000]
+[0x70094000:0x70098000]
+[0x70098000:0x701da000]
+[0x701da000:0x701e8000]
+[0x701e8000:0x701f2000]
+[0x701f2000:0x701f4000]
+[0x701f4000:0x701fc000]
+[0x701fc000:0x70204000]
+[0x70204000:0x7020c000]
+[0x7020c000:0x7021e000]
+[0x7021e000:0x7022c000]
+[0x7022c000:0x70230000]
+[0x70230000:0x70232000]
+[0x70234000:0x7023e000]
+[0x7023e000:0x70244000]
+[0x70244000:0x7024e000]
+[0x70250000:0x7025a000]
+[0x7025a000:0x70260000]
+[0x70260000:0x7026c000]
+[0xefbfe000:0xefc28000]
 
-WARNING: recursion detected:
-      32  reiser4_grab_space
-      12  txnmgr_force_commit_all
-       0  force_commit_atom_nolock
-       4  txn_restart_current
-       8  txn_restart
-       8  txn_end
-      36  commit_txnh
-      16  try_commit_txnh
-      28  commit_current_atom
-      24  flush_current_atom
-     404  jnode_flush
-      88  alloc_pos_and_ancestors
-      96  alloc_one_ancestor
-      20  allocate_znode
-      32  allocate_znode_loaded
-      84  allocate_znode_update
-       0  reiser4_alloc_block
-      24  reiser4_alloc_blocks
+And then we start to iterate, here is the trace I got:
 
-stackframes for call path too long (2808):
-    size  function
-     460  rename_hashed
-     112  safe_link_add
-     108  store_black_box
-      52  insert_by_key
-     224  coord_by_key
-      60  handle_eottl
-     124  carry
-      88  lock_carry_node
-      72  add_tree_root
-       8  zload
-      16  zload_ra
-      68  formatted_readahead
-     264  reiser4_get_neighbor
-       0  reiser4_get_parent
-      28  reiser4_get_parent_flags
-       8  longterm_unlock_znode
-      20  forget_znode
-       8  uncapture_page
-      36  eflush_del
-      24  eflush_free
-      28  reiser4_dealloc_blocks
-      32  dealloc_blocks_bitmap
-      20  jinit_new
-      20  jnode_get_page_locked
-      16  find_or_create_page
-      24  add_to_page_cache_lru
-      24  add_to_page_cache
-       8  radix_tree_preload
-      12  kmem_cache_alloc
-      52  __alloc_pages
-       8  out_of_memory
-       8  mmput
-      16  exit_aio
-      20  __put_ioctx
-      40  do_munmap
-      36  split_vma
-      40  vma_adjust
-       8  fput
-       8  __fput
-     208  locks_remove_flock
-      20  lease_modify
-      16  panic
-       8  bust_spinlocks
-       4  unblank_screen
-      24  do_unblank_screen
-      20  redraw_screen
-      16  clear_selection
-      24  invert_screen
-       8  printk
-     100  vprintk
-      20  vscnprintf
-      40  vsnprintf
-     100  number
+free_pgd_range(addr[0x1000],end[0xde000],floor[0x0],ceiling[0x70000000])
+free_pud_range(addr[0x0],end[0xde000],floor[0x0],ceiling[0x70000000])
+free_pmd_range(addr[0],end[0xde000],floor[0x0],ceiling[0x70000000])
+free_pte_range(addr[0x0],next[0xde000],end[0xde000])   /* nr_ptes-- */
 
+free_pgd_range(addr[0x70000000],end[0x7026c000],floor[0x0],ceiling[0xefbfe000])
+free_pud_range(addr[0x70000000],end[0x7026c000],floor[0x0],ceiling[0xef800000])
+/* does not do free_pmd_range() for some reason)
 
-Jörn
+free_pgd_range(addr[0xefbfe000],end[0xefc28000],floor[0x0],ceiling[0x0])
+free_pud_range(addr[0xef800000],end[0xefc28000],floor[0x0],ceiling[0x0])
+/* also do not do free_pmd_range() */
 
--- 
-People will accept your ideas much more readily if you tell them
-that Benjamin Franklin said it first.
--- unknown
+Whoa, how does that work?  We are calling free_pgtables() at
+exit_mmap() time with a 0 floor _and_ ceiling?
+
+Oh I see, the tests are against "ceiling - 1".
+Hmmm...
+

@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbTABPSz>; Thu, 2 Jan 2003 10:18:55 -0500
+	id <S262190AbTABPbq>; Thu, 2 Jan 2003 10:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbTABPSz>; Thu, 2 Jan 2003 10:18:55 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:33545 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S262067AbTABPSy>;
-	Thu, 2 Jan 2003 10:18:54 -0500
-Message-ID: <3E145A31.9000305@walrond.org>
-Date: Thu, 02 Jan 2003 15:26:41 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: e1000 not detected in 2.5.53
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262201AbTABPbp>; Thu, 2 Jan 2003 10:31:45 -0500
+Received: from mail.gmx.net ([213.165.65.60]:7100 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262190AbTABPbp>;
+	Thu, 2 Jan 2003 10:31:45 -0500
+Date: Thu, 2 Jan 2003 16:40:10 +0100
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Power off a SMP Box
+Message-Id: <20030102164010.5114287b.gigerstyle@gmx.ch>
+In-Reply-To: <20030103020358.2c0e6714.sfr@canb.auug.org.au>
+References: <20030102135350.24315441.gigerstyle@gmx.ch>
+	<20030103020358.2c0e6714.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Asus PR-DLS dual Xeon m/b with Intel 82544GC Gigabit controller onboard 
-(And Intel 82551QM Fast Ethernet controller incidentally)
+On Fri, 3 Jan 2003 02:03:58 +1100
+Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 
-Detected fine in 2.4.20; lspci gives
+> On Thu, 2 Jan 2003 13:53:50 +0100 Marc Giger <gigerstyle@gmx.ch> wrote:
+> >
+> > My "problem" is that my Dual-Box won't power off itself after a shutdown.
+> 
+> Has it ever?  What kernel version are you trying this on?
 
-00:00.0 Host bridge: ServerWorks CMIC-LE (rev 13)
-00:00.1 Host bridge: ServerWorks CMIC-LE
-00:00.2 Host bridge: ServerWorks: Unknown device 0000
-00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
-(rev 10)
-00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
-00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
-00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-0e:04.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
-0e:04.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
-12:02.0 Ethernet controller: Intel Corp. 82544GC Gigabit Ethernet 
-Controller (LOM) (rev 02)
+With Linux never! With W....... no problem.
 
-BUT in 2.5.53, it's not detected. lspci gives
+2.2.16, 2.2.18, and most of 2.4.
 
-00:00.0 Host bridge: ServerWorks CMIC-LE (rev 13)
-00:00.1 Host bridge: ServerWorks CMIC-LE
-00:00.2 Host bridge: ServerWorks: Unknown device 0000
-00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
-(rev 10)
-00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
-00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
-00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
+Now I'm running a 2.4.19 with openmosix patches..
 
-Looks like scsi controller is missed as well? (I don't use it anyway)
-The e1000 driver is compiled into the kernel. ACPI is enabled
+> 
+> > I tried with 
+> > 
+> > apm=smp-power-off	//no effect
+> > apm=power-off		//this one oopses on boot
+> 
+> This second should work on any kernel since early 2000.
 
- From dmesg
+As I already said, with the second argument it oopses on boot...
 
-Intel(R) PRO/1000 Network Driver - version 4.4.12-k1
-Copyright (c) 1999-2002 Intel Corporation.
+> 
+> However, there are many SMP machines that cannot be powered off
+> using APM.  APM is not defined for SMP machines, and the result
+> you got is why APM is not enabled easily on SMP boxes.
 
-Any suggestions?
+yep...I know it...
 
+> 
+> > Has someone a hint for me?
+> 
+> You could try ACPI in (very) recent kernels.
+
+You mean a 2.5.x kernel? Any Kernel with the newest ACPI patches has never powered off any of my machines:-(
+Perhaps I don't know something...
+I will try it now again...
+
+Thank you
+
+Marc

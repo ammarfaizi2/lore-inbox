@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265030AbUFVR0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUFVRId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbUFVR0C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 13:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbUFVRXk
+	id S264147AbUFVRId (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 13:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUFVRHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 13:23:40 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:905 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265015AbUFVRU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:20:29 -0400
-Date: Tue, 22 Jun 2004 18:20:25 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
-Message-ID: <20040622172025.GA6074@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <200405312218.i4VMIISg012277@harpo.it.uu.se> <20040622015311.561a73bf.akpm@osdl.org> <20040622085901.GA31971@infradead.org> <20040622020417.0ec87564.akpm@osdl.org> <20040622091219.GA32146@infradead.org> <20040622021441.4f6aa13c.akpm@osdl.org> <20040622091850.GA32160@infradead.org> <20040622022023.1942fd82.akpm@osdl.org> <16600.17486.81041.111276@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16600.17486.81041.111276@alkaid.it.uu.se>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 22 Jun 2004 13:07:02 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:8875 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264492AbUFVQsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 12:48:15 -0400
+Message-ID: <40D862CA.4050703@opensound.com>
+Date: Tue, 22 Jun 2004 09:48:10 -0700
+From: 4Front Technologies <dev@opensound.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Hannu Savolainen <hannu@opensound.com>, Andrea Arcangeli <andrea@suse.de>,
+       David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com> <20040622020615.GE14478@dualathlon.random> <Pine.LNX.4.58.0406221033350.8222@zeus.compusonic.fi> <200406221419.46035.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200406221419.46035.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 04:38:06PM +0200, Mikael Pettersson wrote:
-> Swiching to open() on /proc/<pid>/<tid>/perfctr followed by ioctl()s
-> would be easy to implement. But people @ LKML are sometimes violently
-> opposed to ioctl()s, that's why the switch to syscalls happended.
+Denis Vlasenko wrote:
 
-I don't remember the details anymore, but lots of the syscalls could
-really be read/write on special files.  I'll look through the code again
-and send out draft API document.
+> On Tuesday 22 June 2004 10:54, Hannu Savolainen wrote:
+> 
+>>In the long term frequent changes in kernel interfaces cause problems
+>>because drivers that try to stay compatible with as many kernel versions
+>>as possible will start looking like #ifdef spaghetti.
+> 
+> 
+> What's the point in staying "compatible with as many kernels versions
+> as possible"? IMHO it's enough to be able to build and work
+> with latest 2.6, latest 2.4 and maybe latest 2.2. Not _that_
+> much of #ifdefs.
+> 
+> (/me was looking into ntp code recently. *That* is #ifdef hell)
+> --
+> vda
+> 
 
-> One concern is that there doesn't appear to be a user-visible shortcut
-> to "your own" /proc/<pid>/<tid>/ like there was when /proc/self still
-> had some useful meaning. This is merely annoying, not a show-stopper.
+Hi Denis,
 
-Shouldn't be a real problem to add one.
+You'd be surprised how many people are still running Redhat 7.3 or howmany 
+people are still running some version of Linux 2.4.2x. Sometimes its not easy 
+telling the customer to upgrade to the latest Linux kernel from www.kernel.org 
+because they don't have the expertise to compile kernels - heck some 
+distributions don't even install gcc/make unless you select "Development System" 
+during installation. (FreeBSD is more sane in that regard that they install 
+gcc/make with the base system).
+
+
+best regards
+Dev Mazumdar
+
+-- 
+-----------------------------------------------------------
+4Front Technologies
+4035 Lafayette Place, Unit F, Culver City, CA 90232, USA.
+Tel: (310) 202 8530		URL: www.opensound.com
+Fax: (310) 202 0496 		Email: info@opensound.com
+-----------------------------------------------------------

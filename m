@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283720AbRK3RbB>; Fri, 30 Nov 2001 12:31:01 -0500
+	id <S283729AbRK3Rab>; Fri, 30 Nov 2001 12:30:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283718AbRK3Rav>; Fri, 30 Nov 2001 12:30:51 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:35333 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S283735AbRK3Raj>; Fri, 30 Nov 2001 12:30:39 -0500
-Message-ID: <3C07BFE8.5B32C49C@evision-ventures.com>
-Date: Fri, 30 Nov 2001 18:20:40 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
+	id <S283722AbRK3RaV>; Fri, 30 Nov 2001 12:30:21 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:61394
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S283721AbRK3RaM>; Fri, 30 Nov 2001 12:30:12 -0500
+Date: Fri, 30 Nov 2001 12:29:39 -0500
+From: Chris Mason <mason@suse.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <akpm@zip.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] smarter atime updates
+Message-ID: <970480000.1007141379@tiny>
+In-Reply-To: <Pine.LNX.4.21.0111301344330.17515-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0111301344330.17515-100000@freak.distro.conectiva>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Henning Schmiedehausen <hps@intermeta.de>, Larry McVoy <lm@bitmover.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com>
-			<Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu>
-			<20011128162317.B23210@work.bitmover.com> <9u7lb0$8t9$1@forge.intermeta.de>
-			 <20011130072634.E14710@work.bitmover.com> <1007138360.6656.27.camel@forge> <3C07B820.4108246F@mandrakesoft.com>
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> The security community has shown us time and again that public shaming
-> is often the only way to motivate vendors into fixing security
-> problems.  Yes, even BSD security guys do this :)
-> 
-> A "Top 10 ugliest Linux kernel drivers" list would probably provide
-> similar motivation.
 
-Yehh.... However some of the uglinesses results from ignorance
-on behalf of the overall kernel maintainers, who don't care
-to apply "cosmetic" changes to drivers, just to don't
-irritate the oftes so called "maintainer". Two expierences:
-ftape and mcd I'm through.... 
 
-BTW.> ftape (for the pascal emulation) and DAC960 
-(for the silly ICantReadThisCasing) 
-are my personal "top ranks" in regard
-of the contest for the most ugly code in the kernel...
-serial.c is another one for the whole multiport support which
-may be used by maybe 0.1% of the Linux users thrown on them all
-and some "magic" number silliness as well...
+On Friday, November 30, 2001 01:44:42 PM -0200 Marcelo Tosatti
+<marcelo@conectiva.com.br> wrote:
+
+> 
+> Now are you sure this can't break anything ? 
+> 
+
+It shouldn't hurt reiserfs at least, I like it.
+
+-chris
+
+> On Thu, 29 Nov 2001, Andrew Morton wrote:
+> 
+>> mark_inode_dirty() is quite expensive for journalling filesystems,
+>> and we're calling it a lot more than we need to.
+>> 
+>> --- linux-2.4.17-pre1/fs/inode.c	Mon Nov 26 11:52:07 2001
+>> +++ linux-akpm/fs/inode.c	Thu Nov 29 21:53:02 2001
+>> @@ -1187,6 +1187,8 @@ void __init inode_init(unsigned long mem
+>>   
+>>  void update_atime (struct inode *inode)
+>>  {
+>> +	if (inode->i_atime == CURRENT_TIME)
+>> +		return;
+>>  	if ( IS_NOATIME (inode) ) return;
+>>  	if ( IS_NODIRATIME (inode) && S_ISDIR (inode->i_mode) ) return;
+>>  	if ( IS_RDONLY (inode) ) return;
+>> 
+>> 
+>> with this patch, the time to read a 10 meg file with 10 million
+>> read()s falls from 38 seconds (ext3), 39 seconds (reiserfs) and
+>> 11.6 seconds (ext2) down to 10.5 seconds.
+

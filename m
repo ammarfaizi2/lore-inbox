@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269286AbUJQVei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269295AbUJQVne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269286AbUJQVei (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 17:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269289AbUJQVei
+	id S269295AbUJQVne (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 17:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269296AbUJQVnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 17:34:38 -0400
-Received: from main.gmane.org ([80.91.229.2]:6798 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269286AbUJQVeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 17:34:16 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Georg Schild <dangertools@gmx.net>
-Subject: Weird behaviour of usb printer (drivers/usb/class/usblp.c: usblp0:
- error -110 reading printer status)
-Date: Sun, 17 Oct 2004 23:34:12 +0200
-Message-ID: <4172E554.1000906@gmx.net>
+	Sun, 17 Oct 2004 17:43:31 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:10914 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269295AbUJQVn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 17:43:29 -0400
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Jan Rychter <jan@rychter.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041017191031.GA7476@elf.ucw.cz>
+References: <2HO0C-4xh-29@gated-at.bofh.it> <2I5b2-88s-15@gated-at.bofh.it>
+	 <2I5E5-6h-19@gated-at.bofh.it> <2I7Zd-1TK-11@gated-at.bofh.it>
+	 <E1CB10O-0000HL-FJ@localhost> <20040925101640.GB4039@elf.ucw.cz>
+	 <m2zn2uigka.fsf@tnuctip.rychter.com>
+	 <20041011133234.GA16217@atrey.karlin.mff.cuni.cz>
+	 <m2hdp1gvbq.fsf@tnuctip.rychter.com>  <20041017191031.GA7476@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1098049218.3489.9.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 18 Oct 2004 07:40:18 +1000
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 83-64-18-125.dynamic.xdsl-line.inode.at
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20040916
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List!
+Hi.
 
-I have some problems with my usb printer with the latest kernelversions. 
-Don't know which kernelversion it started but after a while (one or more 
-days) the printer connected via usb stops working and this message fills 
-up /var/log/messages:
+On Mon, 2004-10-18 at 05:10, Pavel Machek wrote:
+> You can have code that does not panic, does not crash, does not
+> corrupt your data, never fails to suspend and is in Linus' tree.
+> 
+> ...no, that is too good. It sounds like a fairy tale.
+> 
+> So pick any four.
+> 								Pavel
+> 
+> PS: And it is real. We have conflicting goals here and I consider
+> "refuses to suspend" least critical.
 
-drivers/usb/class/usblp.c: usblp0: error -110 reading printer status
+I'm going for all five! You're probably right, nevertheless. I can't say
+suspend2 _never_ fails to suspend. It's just very rare.
 
-I am using a gentoo-system on an AthlonXP machine. I have tried several 
-kernelversions, some with included patchset from gentoo and some vanilla 
-kernels. I don't know with which version the problem started, i think 
-somewhere at 2.6.8 but this is not exact. To solve the problem i can 
-only reboot the machine, switching the printer off and on again is not a 
-solution. Other usb-devices still work. Printing system is cups. When 
-the messages appear the systemload gets up to something over 50%.
+Regards,
 
-Any suggestions on this problem?
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-
-Georg Schild
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

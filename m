@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUJFAB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUJFAMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUJFAB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 20:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUJFAB5
+	id S266481AbUJFAMp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 20:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUJFAMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 20:01:57 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7296 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266467AbUJEX7p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:59:45 -0400
-Date: Tue, 5 Oct 2004 19:59:28 -0400 (EDT)
-From: root <root@chaos.analogic.com>
-To: Roland Dreier <roland@topspin.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.5-1.358 SMP
-In-Reply-To: <52vfdoraly.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.61.0410051958100.4660@chaos.analogic.com>
-References: <Pine.LNX.4.53.0410051852250.351@chaos.analogic.com>
- <52vfdoraly.fsf@topspin.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 5 Oct 2004 20:12:45 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:40107 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266481AbUJFAMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 20:12:43 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20041005194458.GA15629@elte.hu>
+References: <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu>
+	 <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu>
+	 <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu>
+	 <20041005134707.GA32033@elte.hu>
+	 <32799.192.168.1.5.1096994246.squirrel@192.168.1.5>
+	 <20041005184226.GA10318@elte.hu>
+	 <32787.192.168.1.5.1097005084.squirrel@192.168.1.5>
+	 <20041005194458.GA15629@elte.hu>
+Content-Type: text/plain
+Message-Id: <1097021562.1359.5.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 05 Oct 2004 20:12:42 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-10-05 at 15:44, Ingo Molnar wrote:
+> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
+> 
+> > OTOH, I've tested T1 with CONFIG_SCHED_SMT and/or CONFIG_SMP not set,
+> > and got similar crashes too. So this seems to be some nasty bug
+> > introduced by -mm{1,2}, not by VP on SMP/SMT.
+> > 
+> > Yes, I do have some critical USB devices around here. One is that
+> > wacom tablet (mouse) and the other is a tascam us-224 audio/midi
+> > control surface that a love very much :)
+> > 
+> > Don't know if this makes me feeling better, doh.
+> 
+> i believe Andrew said that these USB problems should be fixed in the 
+> next -mm iteration.
+> 
 
+FWIW, this one does not work for me either, I get a USB-related Oops on
+boot.
 
-On Tue, 5 Oct 2004, Roland Dreier wrote:
-
->    Richard> I need to make some modules that have lots of assembly
->    Richard> code.  This assembly uses the UNIX calling convention and
->    Richard> can't be re-written (it would take many months). The new
->    Richard> kernel is compiled with "-mregparam=2". I can't find
->    Richard> where that's defined. I need to remove it because I
->    Richard> cannot pass parameters to the assembly stuff in
->    Richard> registers.
->
-> You should be able to use CONFIG_REGPARM to control this.  Another
-> option is just to mark the functions in your source as "asmlinkage"
-> (which is defined to "__attribute__((regparm(0)))" in
-> asm-i386/linkage.h).  The advantage of using asmlinkage is that your
-> code will work with anyone's kernel.
->
-> - Roland
->
-
-Ahah!  I just put that in the headers that define the functions??
+Lee 
 

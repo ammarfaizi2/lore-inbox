@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVBNWjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVBNWjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVBNWjH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 17:39:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVBNWjH
+	id S261389AbVBNWjd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 17:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVBNWjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 17:39:07 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:13732
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261250AbVBNWi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 17:38:57 -0500
-Date: Mon, 14 Feb 2005 14:36:36 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6 1/2] Fix documentation build failure
-Message-Id: <20050214143636.3c073df6.davem@davemloft.net>
-In-Reply-To: <20050214200017.GA29201@sirius.home>
-References: <20050214200017.GA29201@sirius.home>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 14 Feb 2005 17:39:33 -0500
+Received: from gate.crashing.org ([63.228.1.57]:26093 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261389AbVBNWjN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 17:39:13 -0500
+Subject: Re: Radeon FB troubles with recent kernels
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, adaplas@pol.net
+In-Reply-To: <20050214203902.GH15058@waste.org>
+References: <20050214203902.GH15058@waste.org>
+Content-Type: text/plain
+Date: Tue, 15 Feb 2005 09:38:43 +1100
+Message-Id: <1108420723.12740.17.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005 23:00:17 +0300
-Sergey Vlasov <vsu@altlinux.ru> wrote:
-
-> In linux-2.6.11-rc4-bk2 building of the documentation (make htmldocs)
-> fails on "DOCPROC Documentation/DocBook/kernel-api.sgml" because of
-> these errors:
+On Mon, 2005-02-14 at 12:39 -0800, Matt Mackall wrote:
+> On my Thinkpad T30 with a Radeon Mobility M7 LW, I get interesting
+> console video corruption if I start GDM, switch back to text mode,
+> then stop it again. X is Xfree86 from Debian/unstable or X.org 6.8.2.
 > 
-> Error(/home/vsu/src/linux-2.6.11-rc4-bk2/include/linux/skbuff.h:936): cannot understand prototype: '#ifndef CONFIG_HAVE_ARCH_DEV_ALLOC_SKB '
-> Error(/home/vsu/src/linux-2.6.11-rc4-bk2/drivers/video/fbmem.c:1265): cannot understand prototype: 'const char *global_mode_option; '
+> The corruption shows up whenever the console scrolls after X has been
+> shut down and manifests as horizontal lines spaced about 4 pixel rows
+> apart containing contents recognizable as the X display. Switch from
+> vt1 to vt2 and back or visual bell clears things back to normal, but
+> corruption will reappear on the next scroll.
+> 
+> This has appeared in at least 2.6.11-rc3-mm2 and rc4.
 
-I think the htmldoc parser should be fixed instead.
+Appeared ? hah... that's strange. X is known to fuck up the chip when
+quit, but I wouldn't have expected any change due to the new version of
+radeonfb. From what you describe, it looks like an offset register is
+changed by X, or the surface control.
+
+My patch did not change any of radeonfb accel code though...
+
+I'll catch up with you on IRC ...
+
+Ben.
+
+

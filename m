@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbRCEAlT>; Sun, 4 Mar 2001 19:41:19 -0500
+	id <S130579AbRCEBUw>; Sun, 4 Mar 2001 20:20:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130570AbRCEAlJ>; Sun, 4 Mar 2001 19:41:09 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:18959 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130552AbRCEAlC>; Sun, 4 Mar 2001 19:41:02 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Mon, 5 Mar 2001 11:38:08 +1100
-To: Jonathan Lahr <lahr@sequent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel lock contention and scalability
-Message-ID: <20010305113807.A3917@linuxcare.com>
-In-Reply-To: <20010215104656.A6856@w-lahr.des.sequent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010215104656.A6856@w-lahr.des.sequent.com>; from lahr@sequent.com on Thu, Feb 15, 2001 at 10:46:56AM -0800
+	id <S130580AbRCEBUc>; Sun, 4 Mar 2001 20:20:32 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:3578 "EHLO
+	imladris.rielhome.conectiva") by vger.kernel.org with ESMTP
+	id <S130579AbRCEBUV>; Sun, 4 Mar 2001 20:20:21 -0500
+Date: Sun, 4 Mar 2001 21:29:05 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+cc: Ulrich Kunitz <gefm21@uumail.de>, linux-kernel@vger.kernel.org,
+        linux-mm@vger.kernel.org
+Subject: Re: [PATCH] tiny MM performance and typo patches for 2.4.2
+In-Reply-To: <15010.47547.612134.819466@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0103042128240.5591-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+On Sun, 4 Mar 2001, David S. Miller wrote:
+> Ulrich Kunitz writes:
+>  > patch-uk6	In 2.4.x _page_hashfn divides struct address_space pointer
+>  > 		with a parameter derived from the size of struct
+>  > 		inode. Deriving this parameter from the size of struct
+>  > 		address_space makes more sense -- at least for me.
+> 
+> The address_space is %99 of the time (unless swapping, and in that
+> case the address is constant :-)) inside of an inode struct so this
+> change actually makes the hash worse.  I looked at this one time
+> myself...
 
-> To discover possible locking limitations to scalability, I have collected 
-> locking statistics on a 2-way, 4-way, and 8-way performing as networked
-> database servers.  I patched the [48]-way kernels with Kravetz's multiqueue 
-> patch in the hope that mitigating runqueue_lock contention might better 
-> reveal other lock contention.
+The other patches look fine to me. Alan, Linus, could
+you please include Ulrich's other patches in the next
+pre-kernel ?
 
-...
+thanks,
 
->       24.38%  23.93%    15us(   218us)   4.3us(   111us)     744475     566289     178186      0  runqueue_lock
->       23.15%  38.78%    28us(   218us)   6.2us(   108us)     376292     230381     145911      0    schedule+0xe0
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Tridge and I tried out the postgresql benchmark you used here and this
-contention is due to a bug in postgres. From a quick strace, we found
-the threads do a load of select(0, NULL, NULL, NULL, {0,0}). Basically all
-threads are pounding on schedule().
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-Our guess is that the app has some form of userspace synchronisation
-(semaphores/spinlocks). I'd argue that the app needs to be fixed not the
-kernel, or a more valid test case is put forwards. :)
-
-PS: I just looked at the postgresql source and the spinlocks (s_lock() etc)
-are in a tight loop doing select(0, NULL, NULL, NULL, {0,0}). In samba
-we have userspace spinlocks, but they cover small amounts of code and
-offer an advantage over ipc semaphores. When you have to synchronise
-large sections of code ipc semaphores are reasonably fast on linux and
-would be a better fit.
-
-Cheers,
-Anton

@@ -1,89 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261487AbSITI1f>; Fri, 20 Sep 2002 04:27:35 -0400
+	id <S261744AbSITIvC>; Fri, 20 Sep 2002 04:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261679AbSITI1e>; Fri, 20 Sep 2002 04:27:34 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1782 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261487AbSITI1d>;
-	Fri, 20 Sep 2002 04:27:33 -0400
-Message-ID: <3D8ADD05.999E4A5C@mvista.com>
-Date: Fri, 20 Sep 2002 01:32:05 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: Daniel Jacobowitz <dan@debian.org>, Brian Gerst <bgerst@didntduck.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-References: <24181C771D3@vcnet.vc.cvut.cz>
-		<3D8A11BB.4090100@didntduck.org>
-		<20020919192434.GA3286@nevyn.them.org> <15754.12963.763811.307755@kim.it.uu.se>
+	id <S261745AbSITIvC>; Fri, 20 Sep 2002 04:51:02 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:50672 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S261744AbSITIvC>; Fri, 20 Sep 2002 04:51:02 -0400
+Date: Fri, 20 Sep 2002 11:00:36 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re:  [OOPS 2.4.19] Unable to handle kernel paging request at virtual address 7ec64585
+Message-ID: <20020920110036.A6880@sexything>
+Reply-To: morten.helgesen@nextframe.net
+References: <20020917133338.B762@sexything> <20020918131414.G762@sexything>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020918131414.G762@sexything>
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+On Wed, Sep 18, 2002 at 01:14:14PM +0200, Morten Helgesen wrote:
+> Hey again, 
 > 
-> Daniel Jacobowitz writes:
->  > That's not going to help.  As Richard said, the memory in question
->  > belongs to the called function.  GCC knows this.  It can freely modify
->  > it.  The fact that the value of the parameter is const is a
->  > language-level, semantic thing.  It doesn't say anything about the
->  > const-ness of that memory.  Only the ABI does.
+> now have a look at this - happens on the same box as the
+> oops I reported yesterday. EIP still in iput(), but this time we were
+> obviosuly working with swap instead of memory . This time
+> it`s kswapd, and after the oops kswapd is :
 > 
-> Does Linux/x86 even have a proper ABI document? I've never seen one.
-> The closest I've seen would be the SVR4 i386 psABI, but it
-> deliberately doesn't define the raw syscall interface, only the
-> each-syscall-is-a-C-function one implemented by the C library,
-> and that interface doesn't suffer from the current issue.
+> [13:19][admin@sql:~]$ ps -ewo user,pid,priority,stat,command,wchan | grep kswapd
+> root         4   9 Z    [kswapd <defunct do_exit
 > 
-> IOW, the kernel may not be at fault if user-space code invokes int
-> $0x80 directly and then sees clobbered registers.
-
-Ah, that, indeed is the issue.  As far as C is concerned,
-the call is NOT a call, but a bit of asm.  If the asm is
-correctly written the problem goes away, not because the
-register is not modified, but because C is on notice that it
-MIGHT be modified and thus not to count on it.
-
-As a practical matter, ebx is used to pass arg1 to the
-kernel so it must be changed by the asm code, the further
-listing of it beyond the third ":" in the asm inline, will
-cause the compiler to not rely on it being further
-modified.  The same is true of all the registers used to
-pass parameters.  (These are: arg1 ebx, arg2 ecx, arg3 edx,
-arg4 esi, arg5 edi, and arg6 ebp.)
-
-So, is there a problem?  Yes, neither the call stub macros
-in asm/unistd.h nor those in glibc bother to list the used
-registers beyond the third ":".  And, if I understand this
-right, the glibc code to save ebx in another register
-suffers from the false assumption that THAT register can be
-clobbered, but this is only true if C sees the code as a
-function, not an inline asm, but most system calls in glibc
-are coded as inline asm, not separate functions (not to be
-confused with the C inline, which is a separate function).
-
-At least that is how I see it.  Comments?
-
--g
-
+> This is not cool guys - no one else seing this ? 2.4.18 was running just fine
+> on this box. I`m going back to 2.4.18 now and I`ll see if this keeps happening ... if
+> it does it might be hardware related (even though that does not seem very likely) - as I
+> said, the box has been running just fine with 2.4.18 for a long time.
 > 
-> /Mikael
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+Just for the record - 2.4.18 works like a charm.
+
+[snip]
+
+== Morten
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

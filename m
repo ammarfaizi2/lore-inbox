@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267606AbUHPMZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267580AbUHPM2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267606AbUHPMZU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267626AbUHPMZU
+	id S267580AbUHPM2p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUHPM2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:25:20 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:15819 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267606AbUHPMYh (ORCPT
+	Mon, 16 Aug 2004 08:28:44 -0400
+Received: from imap.gmx.net ([213.165.64.20]:9901 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267580AbUHPM1h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:24:37 -0400
-Date: Mon, 16 Aug 2004 13:24:30 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <20040816132022.A10567@infradead.org>
-Message-ID: <Pine.LNX.4.58.0408161323300.32584@skynet>
-References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org>
- <Pine.LNX.4.58.0408160038320.9944@skynet> <20040816101732.A9150@infradead.org>
- <Pine.LNX.4.58.0408161019040.21177@skynet> <20040816105014.A9367@infradead.org>
- <1092654719.20523.18.camel@localhost.localdomain> <20040816132022.A10567@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 08:27:37 -0400
+X-Authenticated: #1725425
+Date: Mon, 16 Aug 2004 14:38:17 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: John Wendel <jwendel10@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+Message-Id: <20040816143817.0de30197.Ballarin.Marc@gmx.de>
+In-Reply-To: <411FD919.9030702@comcast.net>
+References: <411FD919.9030702@comcast.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Works fine on all my pmacs here.  In fact X works only on fbdev for
-> full features.
+On Sun, 15 Aug 2004 14:43:53 -0700
+John Wendel <jwendel10@comcast.net> wrote:
 
-I think Alan would classify that as luck rathar than design... and I would
-tend to agree, does it work if you load the driver modules in any order?
-or do you always to fb then drm? or the other way around?
+> K3B detects my Lite-on LTR-52327S CDRW as a CDROM when run with 2.6.8.1.
+> 
+> Booting back into 2.6.7 corrects the problem. I've attached the (totally
+> 
+> uninteresting parts of) dmesg.  Any clues  appreciated.
+> ...
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Due to the newly added command filtering, you now need to run cdrecord as
+root. Since cdrecord will drop root privileges before accessing the drive,
+setuid root won't help.
 
+This means you will have to run cdrecord *and* k3b as root!
+
+IMHO it is more secure to simply disable filtering, and run the software as non-root.
+
+This patch restores the behaviour of previous kernels, security issues included:
+
+--- linux-2.6.8/drivers/block/scsi_ioctl.c~	2004-08-16 14:16:57.000000000 +0200
++++ linux-2.6.8/drivers/block/scsi_ioctl.c	2004-08-16 14:36:22.562908552 +0200
+@@ -196 +196 @@
+-	if (verify_command(file, cmd))
++/*	if (verify_command(file, cmd))
+@@ -198 +198 @@
+-
++*/

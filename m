@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbTIMMK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 08:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTIMMK3
+	id S262132AbTIMMOj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 08:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTIMMOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 08:10:29 -0400
-Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:15490 "HELO
-	longlandclan.hopto.org") by vger.kernel.org with SMTP
-	id S262094AbTIMMK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 08:10:28 -0400
-Message-ID: <3F630930.2060706@longlandclan.hopto.org>
-Date: Sat, 13 Sep 2003 22:10:24 +1000
-From: Stuart Longland <stuartl@longlandclan.hopto.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: en-us, en
+	Sat, 13 Sep 2003 08:14:39 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:16084
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S262132AbTIMMOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 08:14:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-ck2
+Date: Sat, 13 Sep 2003 22:22:31 +1000
+User-Agent: KMail/1.5.3
+References: <200309132210.46837.kernel@kolivas.org> <200309131413.03697.m.c.p@wolk-project.de>
+In-Reply-To: <200309131413.03697.m.c.p@wolk-project.de>
 MIME-Version: 1.0
-To: Somsak RAKTHAI <rsomsak@mor-or.pn.psu.ac.th>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: st_options.h
-References: <Pine.GSO.4.43.0309131716590.19568-100000@mor-or>
-In-Reply-To: <Pine.GSO.4.43.0309131716590.19568-100000@mor-or>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309132222.31892.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 13 Sep 2003 22:13, Marc-Christian Petersen wrote:
+> On Saturday 13 September 2003 14:10, Con Kolivas wrote:
+>
+> Hi Con,
+>
+> > The O1int interactivity backport is more substantial now bringing it in
+> > line with O20.1int with only the nanosecond resolution missing from the
+> > 2.6
+>
+> and where is that split out patch?
 
-Somsak RAKTHAI wrote:
-|   I used Linux RedHat 7.2. My kernel is 2.4.7-10smp.
+As I said; available by request. Will mail it to you separately
 
-Any reason why you're running such an old kernel?  Linux 2.4.22 was
-released a couple of weeks ago, and I'm guessing that 2.4.23 won't be
-too far off.
-
-My suggestion,
-
-1.	Grab Linux 2.4.22 from ftp.kernel.org, and extract the source
-	into /usr/src
-
-2.	Copy your config file into the /usr/src/linux-2.4.22 directory
-	(as .config).  You'll probably find it in
-	/boot/config-2.4.7-10smp or something like that.  Simply run:
-
-	cp /boot/config-2.4.7-10smp /usr/src/linux-2.4.22/.config
-
-3.	Run the usual commands:
-	make mrproper oldconfig dep bzImage modules modules_install
-
-4.	Dump your kernel image into /boot and reconfigure your bootloader
-(/etc/lilo.conf will be worth a look here).
-
-	cp /usr/src/linux-2.4.22/arch/i386/boot/bzImage \
-		/boot/vmlinuz-new
-
-5.	Boot the kernel, give it a try.  If it works fine, then you can make
-it your default kernel.
-- --
-+-------------------------------------------------------------+
-| Stuart Longland           stuartl at longlandclan.hopto.org |
-| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
-| I haven't lost my mind - it's backed up on a tape somewhere |
-| Griffith Student No:           Course: Bachelor/IT (Nathan) |
-+-------------------------------------------------------------+
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/YwkwIGJk7gLSDPcRAkSWAJ9bxhHQyB4fRZNEtNNVfIgFbHxzJwCdGuw/
-Odp+bOov2zpV506ZlO0n6Ro=
-=bjBy
------END PGP SIGNATURE-----
+Con
 

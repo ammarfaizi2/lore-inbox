@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263362AbSKVLDq>; Fri, 22 Nov 2002 06:03:46 -0500
+	id <S264625AbSKVLuC>; Fri, 22 Nov 2002 06:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263977AbSKVLDq>; Fri, 22 Nov 2002 06:03:46 -0500
-Received: from pop.gmx.de ([213.165.65.60]:64141 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263362AbSKVLDp>;
-	Fri, 22 Nov 2002 06:03:45 -0500
-Message-Id: <5.1.1.6.2.20021122120405.00c236e8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Fri, 22 Nov 2002 12:07:36 +0100
-To: jim.houston@attbi.com, linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.47 scheduler problems?
-Cc: riel@conectiva.com.br
-In-Reply-To: <3DDDC37F.5AC219D5@attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S264630AbSKVLuC>; Fri, 22 Nov 2002 06:50:02 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:45316 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264625AbSKVLuB>; Fri, 22 Nov 2002 06:50:01 -0500
+Date: Fri, 22 Nov 2002 12:56:25 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Miles Bader <miles@gnu.org>
+cc: Adrian Bunk <bunk@fs.tum.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: New kconfig: Please add define_*
+In-Reply-To: <buon0o2fine.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Message-ID: <Pine.LNX.4.44.0211221241460.2113-100000@serv>
+References: <20021121133320.GD18869@fs.tum.de> <Pine.LNX.4.44.0211211740130.2113-100000@serv>
+ <buon0o2fine.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:41 AM 11/22/2002 -0500, Jim Houston wrote:
->Hi Mike, Rik, Everyone,
->
->The O(1) schedule just isn't fair.  It will run a subset
->of the runable processes excluding the rest.  See my earlier
->emails for the details.
->
->I had been working on a fix for this but got distracted
->by Posix timers.  I still hope to get back to it.
->
->My patch is here:
->http://marc.theaimsgroup.com/?l=linux-kernel&m=103508412423719&w=2
+Hi,
 
-In a brief test, this seems to cure my problem.
+> I'd like to be able to override a prompt.
+> 
+> The reason is that in general it's nice for the arch-specific Kconfig
+> file to include various other Kconfig files (using `source'), but
+> sometimes an option that usually makes sense as user-definable -- and
+> thus has a prompt -- _doesn't_ make sense on that particular
+> architecture.
 
->It fixes fairness but breaks nice(2). Rik van Riel has a
->patch here which builds on my patch which fixes this:
->http://marc.theaimsgroup.com/?l=linux-kernel&m=103651801424031&w=2
+Do you have a specific example? What I've seen so far (especially cris was 
+full of it), was more used to override the user (and only worked with 
+'make oldconfig' anyway). Only because most users want to include specific 
+drivers, doesn't mean all users have to include these drivers. I'm a bit 
+afraid such a feature would be easily misused.
+It sounds more like you want an autoconf, which generates a machine 
+specific config. E.g. ppc already delivers several config files for 
+different machines, which are selected with 'make <mach>_config'. Going 
+into this direction sounds like a better idea.
 
-(I haven't test this one yet)
-
->I just gave this a spin with.  The patches still apply cleanly
->to linux-2.5.48 and it seems well behaved:-)
-
-It seems a little choppy still for a not swapping load, but greatly improved.
-
-Thanks!
-
-         -Mike 
+bye, Roman
 

@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135239AbRDLR2R>; Thu, 12 Apr 2001 13:28:17 -0400
+	id <S135236AbRDLReI>; Thu, 12 Apr 2001 13:34:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135238AbRDLR2H>; Thu, 12 Apr 2001 13:28:07 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:52464 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S135236AbRDLR1x>; Thu, 12 Apr 2001 13:27:53 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200104121727.f3CHR4gT029899@webber.adilger.int>
-Subject: Re: [CFT][PATCH] Re: Fwd: Re: memory usage - dentry_cache
-In-Reply-To: <15061.27388.843554.687422@pizda.ninka.net> "from David S. Miller
- at Apr 12, 2001 01:44:44 am"
-To: "David S. Miller" <davem@redhat.com>
-Date: Thu, 12 Apr 2001 11:27:03 -0600 (MDT)
-CC: Alexander Viro <viro@math.psu.edu>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S135238AbRDLRd5>; Thu, 12 Apr 2001 13:33:57 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:27470 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135236AbRDLRdr>; Thu, 12 Apr 2001 13:33:47 -0400
+Message-ID: <3AD5E676.CF1C1684@mvista.com>
+Date: Thu, 12 Apr 2001 10:31:34 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: drummond@engr.valinux.com
+CC: Hubertus Franke <frankeh@us.ibm.com>, mingo@elte.hu,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Bug in sys_sched_yield
+In-Reply-To: <OFC3243AAE.31877E4B-ON85256A2B.006AE9C3@pok.ibm.com>
+		<3AD5D311.5BFE39A6@mvista.com> <15061.56474.247739.99673@macallan.engr.valinux.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David writes:
-> Alexander Viro writes:
->  > OK, how about wider testing? Theory: prune_dcache() goes through the
->  > list of immediately killable dentries and tries to free given amount.
->  > It has a "one warning" policy - it kills dentry if it sees it twice without
->  > lookup finding that dentry in the interval. Unfortunately, as implemented
->  > it stops when it had freed _or_ warned given amount. As the result, memory
->  > pressure on dcache is less than expected.
+Walt Drummond wrote:
 > 
-> The reason the code is how it is right now is there used to be a bug
-> where that goto spot would --count but not check against zero, making
-> count possibly go negative and then you'd be there for a _long_ time
-> :-)
+> george anzinger writes:
+> > Uh...  I do know about this map, but I wonder if it is at all needed.
+> > What is the real difference between a logical cpu and the physical one.
+> > Or is this only interesting if the machine is not Smp, i.e. all the cpus
+> > are not the same?  It just seems to me that introducing an additional
+> > mapping just slows things down and, if all the cpus are the same, does
+> > not really do anything.  Of course, I am assuming that ALL usage would
+> > be to the logical :)
+> 
+> Right.  That is not always the case.  IA32 is somewhat special. ;) The
+> logical mapping allows you to, among other things, easily enumerate
+> over the set of active processors without having to check if a
+> processor exists at the current processor address.
+> 
+> The difference is apparent when the physical CPU ID is, say, an
+> address on a processor bus, or worse, an address on a set of processor
+> busses.  Take a look at the IA-64's smp.h.  The IA64 physical
+> processor ID is a 64-bit structure that has to 8-bit ID's; an EID for
+> what amounts to a "processor bus" ID and an ID that corresponds to a
+> specific processor on a processor bus.  Together, they're a system
+> global ID for a specific processor.  But there is no guarantee that
+> the set of global ID's will be contiguous.
+> 
+> It's possible to have disjoint (non-contiguous) physical processor
+> ID's if a processor bus is not completely populated, or there is an
+> empty processor slot or odd processor numbering in firmware, or
+> whatever.
+> 
+All that is cool.  Still, most places we don't really address the
+processor, so the logical cpu number is all we need.  Places like
+sched_yield, for example, should be using this, not the actual number,
+which IMO should only be used when, for some reason, we NEED the hard
+address of the cpu.  I don't think this ever has to leak out to the
+common kernel code, or am i missing something here.
 
-Actually, this is the case if we call shrink_dcache_memory() with priority
-zero.  It calls prune_dcache(count = 0), which gets into the situation you
-describe (i.e. negative count).  I first thought this was a bug, but then
-realized for priority 0 (i.e. highest priority) we want to check the whole
-dentry_unused list for unreferenced dentries.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+George

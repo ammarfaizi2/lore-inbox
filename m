@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVDARB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVDARS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262793AbVDARB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 12:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVDARB6
+	id S262797AbVDARS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 12:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVDARS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 12:01:58 -0500
-Received: from fire.osdl.org ([65.172.181.4]:33160 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262793AbVDARBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 12:01:35 -0500
-Message-ID: <424D7E6A.3020608@osdl.org>
-Date: Fri, 01 Apr 2005 09:01:30 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Fri, 1 Apr 2005 12:18:57 -0500
+Received: from web25603.mail.ukl.yahoo.com ([217.12.10.162]:20558 "HELO
+	web25603.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262797AbVDARS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 12:18:56 -0500
+Message-ID: <20050401171852.36514.qmail@web25603.mail.ukl.yahoo.com>
+Date: Fri, 1 Apr 2005 19:18:52 +0200 (CEST)
+From: Uwe Zybell <u_zybell@yahoo.de>
+Subject: fs/partitions/msdos.c, scripts/packages/Makefile
+To: lkml <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Miklos Szeredi <miklos@szeredi.hu>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: build logs for -mm
-References: <E1DH7KJ-00023v-00@dorka.pomaz.szeredi.hu> <424C7016.5050404@osdl.org> <E1DHJLZ-00039U-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1DHJLZ-00039U-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
->>>do I believe correctly that you do automatic builds of -mm for lots of
->>>architectures?  If yes, is there some place where the output is
->>>available?  This would be useful for fixing warnings.
->>
->>The OSDL PLM tool also does automated builds of all -linus
->>and -mm releases.  2.6.12-rc1-mm4 results are here:
->>
->>http://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=4352
-> 
-> 
-> Thanks.  I see that for most architectures this only builds a
-> defconfig kernel, which is not useful for projects not included in
-> defconfig.
-> 
-> Would it be too much load for the server to handle a full config for
-> all archs?
+First things first: Pls CC me, I'm not subscribed.
 
-I'm asking about that (I don't do the PLM builds).
+There is a line in fs/partitions/msdos.c that lets extended partitions 
+be max 1k (..."==1 ? 1 : 2"...). The comment explains it to protect 
+sysadmins from themselves. But /dev/hda isn't similarly protected. That
+is because it would prohibit other uses. But now I have found a 
+legitimate use for extended partitions in their full length. Emulation.
+Please remove this, or make it a config option.
 
--- 
-~Randy
+Next problem: make O=... ...-pkg doesn't work. Reason: In
+scripts/packages/Makefile
+all -pkg target call $(MAKE) but from $(obj). This line(s) must be
+augmented
+with "-f $(srcdir)/Makefile". I don't know if $(srcdir) must be
+conditional on O.
+
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

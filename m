@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318058AbSIOOTa>; Sun, 15 Sep 2002 10:19:30 -0400
+	id <S318060AbSIOO1A>; Sun, 15 Sep 2002 10:27:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318059AbSIOOTa>; Sun, 15 Sep 2002 10:19:30 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10656 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318058AbSIOOT3>;
-	Sun, 15 Sep 2002 10:19:29 -0400
-Date: Sun, 15 Sep 2002 16:30:19 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] exit-fix-2.5.34-C0, BK-curr
-Message-ID: <Pine.LNX.4.44.0209151624080.4707-100000@localhost.localdomain>
+	id <S318061AbSIOO1A>; Sun, 15 Sep 2002 10:27:00 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:48785 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S318060AbSIOO07>; Sun, 15 Sep 2002 10:26:59 -0400
+Date: Sun, 15 Sep 2002 11:31:27 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Axel Siebenwirth <axel@hh59.org>
+cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       "lse-tech@lists.sourceforge.net" <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.34-mm4
+In-Reply-To: <20020915105021.GA444@prester.freenet.de>
+Message-ID: <Pine.LNX.4.44L.0209151130540.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 15 Sep 2002, Axel Siebenwirth wrote:
+> On Fri, 13 Sep 2002, Andrew Morton wrote:
+>
+> > url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.34/2.5.34-mm4/
+>
+> With changing from 2.5.34-mm2 to -mm4 I have experienced some moments of
+> quite unresponsive behaviour.
 
-the attached patch (ontop of the previous exit.c patches), fixes one more
-exit-time resource accounting issue - and it's also a speedup and a
-thread-tree (to-be thread-aware pstree) visual improvement.
+Don't worry, it's supposed to do that. You can't measure desktop
+interactivity, so it doesn't exist ;)
 
-in the current code we reparent detached threads to the init thread. This
-worked but was not very nice in ps output: threads showed up as being
-related to init. There was also a resource-accounting issue, upon exit
-they update their parent's (ie. init's) rusage fields - effectively losing
-these statistics. Eg. 'time' under-reports CPU usage if the threaded app
-is Ctrl-C-ed prematurely.
 
-the solution is to reparent threads to the group leader - this is now very
-easy since we have p->group_leader cached and it's also valid all the
-time. It's also somewhat faster for applications that use CLONE_THREAD but
-do not use the CLONE_DETACHED feature.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-	Ingo
+http://www.surriel.com/		http://distro.conectiva.com/
 
---- linux/kernel/exit.c.orig	Sun Sep 15 15:01:48 2002
-+++ linux/kernel/exit.c	Sun Sep 15 16:23:49 2002
-@@ -447,11 +447,7 @@
- 	struct task_struct *p, *reaper = father;
- 	struct list_head *_p;
- 
--	if (father->exit_signal != -1)
--		reaper = prev_thread(reaper);
--	else
--		reaper = child_reaper;
--
-+	reaper = father->group_leader;
- 	if (reaper == father)
- 		reaper = child_reaper;
- 
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

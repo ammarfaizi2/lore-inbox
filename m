@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315335AbSE2ONB>; Wed, 29 May 2002 10:13:01 -0400
+	id <S315379AbSE2OOi>; Wed, 29 May 2002 10:14:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSE2ONA>; Wed, 29 May 2002 10:13:00 -0400
-Received: from vena.lwn.net ([206.168.112.25]:39431 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S315335AbSE2OM7>;
-	Wed, 29 May 2002 10:12:59 -0400
-Message-ID: <20020529141300.30309.qmail@eklektix.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: business models [was patent stuff] 
-From: corbet-lk@lwn.net (Jonathan Corbet)
-In-Reply-To: Your message of "29 May 2002 14:15:26 BST."
-             <1022678126.9255.182.camel@irongate.swansea.linux.org.uk> 
-Date: Wed, 29 May 2002 08:13:00 -0600
+	id <S315406AbSE2OOh>; Wed, 29 May 2002 10:14:37 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:3318 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315379AbSE2OOg>; Wed, 29 May 2002 10:14:36 -0400
+Subject: Re: A reply on the RTLinux discussion.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+In-Reply-To: <1022680446.9043.5.camel@dlacoste.ottawa.loran.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 29 May 2002 16:17:55 +0100
+Message-Id: <1022685475.4124.229.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan said:
+On Wed, 2002-05-29 at 14:54, Dana Lacoste wrote:
+> This would be retarded.  I mean, seriously, making the linux kernel
+> require anybody who's doing any commercial real-time stuff pay Victor
 
-> I would worry much more about the million odd patents IBM have, where
-> IBM have no general statement of this nature than the Red Hat ones.
-> Perhaps once the Red Hat statement is published IBM can be persuaded to
-> show willing ?
+proprietary, not commercial. 
 
-For what it's worth, the Red Hat statement is at:
+Alan
 
-	http://www.redhat.com/legal/patent_policy.html
-
-No patent enforcement against you if you're using a Red Hat-approved open
-source license - their list does not include BSD.
-
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net

@@ -1,43 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVAaRJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVAaRQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVAaRJE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 12:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVAaRHL
+	id S261253AbVAaRQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 12:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVAaRQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 12:07:11 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:10459 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261265AbVAaRGt (ORCPT
+	Mon, 31 Jan 2005 12:16:44 -0500
+Received: from cantor.suse.de ([195.135.220.2]:43658 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261253AbVAaRQY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 12:06:49 -0500
-Subject: Re: [PATCH] add AMD NS 5535 support
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dan Malek <dan@embeddedalley.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <DB539902-7030-11D9-A0FB-003065F9B7DC@embeddedalley.com>
-References: <DB539902-7030-11D9-A0FB-003065F9B7DC@embeddedalley.com>
+	Mon, 31 Jan 2005 12:16:24 -0500
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <2.416337461@selenic.com>
+References: <2.416337461@selenic.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1107172161.14787.79.camel@localhost.localdomain>
+Organization: SUSE Labs
+Message-Id: <1107191783.21706.124.camel@winden.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 31 Jan 2005 16:01:42 +0000
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 31 Jan 2005 18:16:23 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-27 at 06:58, Dan Malek wrote:
-> Hi Marcelo.
-> 
-> This patch for 2.4 adds support for the AMD / National
-> Semiconductor CS5535 chip set.  Provided by AMD
-> as part of the Geode support.
-> 
-> Signed-off-by:  Dan Malek <dan@embeddedalley.com>
+Hello,
 
-This belongs in 2.6 not 2.4 but it does look fairly passable as a
-starting point for 2.6 - you might want to bounce it to linux-ide@..
-instead of linux-kernel
+On Mon, 2005-01-31 at 08:34, Matt Mackall wrote:
+> This patch adds a generic array sorting library routine. This is meant
+> to replace qsort, which has two problem areas for kernel use.
 
-Comment syntax wants to be kernel-doc for a merge tho
+looks reasonable.
 
-Alan
+> Note that this function has an extra parameter for passing in an
+> optimized swapping function. This is worth 10% or more over the
+> typical byte-by-byte exchange functions.
+
+I would appreciate a version without the swap callback. The optimized
+version of swap should use the machine word size instead of u32. How
+about this approach instead, if you think we must really optimize
+swapping?
+
+static inline void swap(void *a, void *b, int size)
+{
+        if (size % sizeof(long)) {
+                char t;
+                do {
+                        t = *(char *)a;
+                        *(char *)a++ = *(char *)b;
+                        *(char *)b++ = t;
+                } while (--size > 0);
+        } else {
+                long t;
+                do {
+                        t = *(long *)a;
+                        *(long *)a = *(long *)b;
+                        *(long *)b = t;
+                        size -= sizeof(long);
+                } while (size > sizeof(long));
+        }
+}
+
+static inline
+void __sort(void *base, size_t num, size_t size,
+          int (*cmp)(const void *, const void *))
+{
+...
+}
+
+void sort(void *base, size_t num, size_t size,
+          int (*cmp)(const void *, const void *)) {
+        if (size == sizeof(long)) {
+                __sort(base, num, size, cmp);
+        } else {
+                __sort(base, num, size, cmp);
+        }
+}
+
+The code size doubles, but it's still hardly an issue. gcc will refuse
+to inline things fully without __attribute((allways_inline)). (Note that
+__builtin_constant_p doesn't work for inline functions; else we could do
+better.)
+
+
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

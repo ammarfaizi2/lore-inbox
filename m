@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269037AbUIMWte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269024AbUIMWqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269037AbUIMWte (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 18:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUIMWs3
+	id S269024AbUIMWqd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 18:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269032AbUIMWqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 18:48:29 -0400
-Received: from mail03.powweb.com ([66.152.97.36]:62730 "EHLO mail03.powweb.com")
-	by vger.kernel.org with ESMTP id S269034AbUIMWr7 (ORCPT
+	Mon, 13 Sep 2004 18:46:25 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:59324 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269007AbUIMWoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 18:47:59 -0400
-From: "David Dabbs" <david@dabbs.net>
-To: "'ReiserFS List'" <reiserfs-list@namesys.com>,
-       <linux-kernel@vger.kernel.org>
-Cc: <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: RE: Re: [PATCH] use S_ISDIR() in link_path_walk() to decide whether the last path component is a directory
-Date: Mon, 13 Sep 2004 17:47:50 -0500
+	Mon, 13 Sep 2004 18:44:14 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: 2.6.9-rc1-mm5 bug in tcp_recvmsg?
+Date: Mon, 13 Sep 2004 15:44:07 -0700
+User-Agent: KMail/1.7
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20040913015003.5406abae.akpm@osdl.org> <200409131456.31265.jbarnes@engr.sgi.com> <20040913153620.77175c0e.davem@davemloft.net>
+In-Reply-To: <20040913153620.77175c0e.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcSZ2Wr/B6Nedt+kRzGeuLC3soNW6QACF4lQ
-Message-Id: <20040913224757.B2EAC15C76@mail03.powweb.com>
+Content-Disposition: inline
+Message-Id: <200409131544.07365.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> viro wrote:
->>     if (*name == '/') {
->>        if (*(name+1)=='/' && *(name+2)==':') {
->>           name+=3;
+On Monday, September 13, 2004 3:36 pm, David S. Miller wrote:
+> On Mon, 13 Sep 2004 14:56:31 -0700
 >
->	Pathname resolution is a hell of a fundamental thing and kludges
->like that are too ugly to be acceptable.  If you can't make that clean
->and have to resort to stuffing "special cases" (read: barfbag of ioctl
->magnitude) into the areas that might be unspecified by POSIX, don't do it
->at all.
+> Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> > Shortly after the backtrace I've already posted, I got one panic that
+> > looked like this:
 >
+> Do you have PREEMPT enabled with VLAN?  If so, that's been fixed
+> recently, it was some buggy RCU locking in the VLAN code.
 
-Even though SuS allows for implementation-specific resolution for pathnames
-starting with "//"? It's kludgy, and I suspected that might be the response,
-but I thought I'd float it nonetheless.
-
->I don't like the amount of handwaving from Hans, but *that* is far
->worse.  Vetoed.
-
-Kludgy, yes, but far worse?  At least I bothered to take the SuS into
-consideration and took the time to try an approach, however kludgy, that
-might work within them. 
-
-Bilious or not, thanks for the feedback.
-
-
-david
-
-
+Nope, VLAN isn't set:
+[jbarnes@tomahawk linux-2.6.9-rc1-mm5]$ grep VLAN .config
+# CONFIG_VLAN_8021Q is not set

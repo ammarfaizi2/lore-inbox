@@ -1,52 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265228AbUELVNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUELVKD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265228AbUELVNS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 17:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbUELVMn
+	id S263740AbUELVKD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 17:10:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUELVHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 17:12:43 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:1469 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263750AbUELVHt (ORCPT
+	Wed, 12 May 2004 17:07:22 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:14292 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265240AbUELVEm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 17:07:49 -0400
-Message-ID: <40A29211.2010707@colorfullife.com>
-Date: Wed, 12 May 2004 23:07:29 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
+	Wed, 12 May 2004 17:04:42 -0400
+Date: Wed, 12 May 2004 14:03:24 -0700 (PDT)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, mingo@elte.hu, davidel@xmailserver.org,
+       greg@kroah.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+In-Reply-To: <20040512133520.44fbfd39.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405121352060.8535@localhost.localdomain>
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com>
+ <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu>
+ <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com>
+ <20040512200305.GA16078@elte.hu> <20040512132050.6eae6905.akpm@osdl.org>
+ <40A28815.2020009@pobox.com> <20040512133520.44fbfd39.akpm@osdl.org>
 MIME-Version: 1.0
-To: "Alec H. Peterson" <ahp@hilander.com>
-CC: linux-kernel@vger.kernel.org, Dominik Brodowski <linux@brodo.de>,
-       netdev@oss.sgi.com
-Subject: Re: PCI memory reservation failure - 2.4/2.6
-References: <BDD74A21E0B47FEAC3AB8A10@[192.168.0.100]>
-In-Reply-To: <BDD74A21E0B47FEAC3AB8A10@[192.168.0.100]>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alec H. Peterson wrote:
+I have submitted a patch just to do this some time back on netdev mailing
+list. You can find it at
+	http://marc.theaimsgroup.com/?l=linux-netdev&m=108024598716537&w=2
 
-> + #if 1
-> +         if (!(type & IORESOURCE_IO) && (((end - start) < 
-> BRIDGE_SIZE_MIN) ||
-> +             (start & (end - start))))
-> +       {
-> +               printk(KERN_INFO "yenta %s: Preassigned resource start 
-> %lx end %lx too small or not aligned.\n", socket->dev->slot_name, 
-> start, end);
-> +                 res->start = res->end = 0;
-> +         } 
+static inline unsigned long msecs_to_jiffies(unsigned long msecs)
+{
+#if 1000 % HZ == 0
+	return msecs / (1000 / HZ);
+#elif HZ % 1000 == 0
+	return msecs * (HZ / 1000);
+#else
+	return (msecs / 1000) * HZ + (msecs % 1000) * HZ / 1000;
+#endif
+}
 
-I'm not sure if this is the right approach - what if a bios 
-intentionally assigns a small area? It's dangerous to override the BIOS 
-setting.
-I'd prefer a kernel command line parameter / module parameter / dmi 
-based override instead of an unconditional override based on the minimum 
-size.
-I'll think about it.
+static inline unsigned long jiffies_to_msecs(unsigned long jiffs)
+{
+#if 1000 % HZ == 0
+	return jiffs * (1000 / HZ);
+#elif HZ % 1000 == 0
+	return jiffs / (HZ / 1000);
+#else
+	return (jiffs / HZ) * 1000 + (jiffs % HZ) * 1000 / HZ;
+#endif
+}
 
---
-    Manfred
+I was told that some users of these routines need an explicit roundup of
+delays.
+For ex: when HZ=100 and msecs is less than 10, the above msecs_to_jiffies()
+returns 0 jiffies, whereas some users expect 1 jiffy.
 
+So i modified msecs_to_jiffies() as follows which should do proper rounding
+when HZ=100. But didn't get back any response.
+
+static inline unsigned long msecs_to_jiffies(unsigned long msecs)
+{
+#if 1000 % HZ == 0
+        return (msecs + ((1000 / HZ) - 1)) / (1000 / HZ);
+#elif HZ % 1000 == 0
+        return msecs * (HZ / 1000);
+#else
+        return (msecs / 1000) * HZ + (msecs % 1000) * HZ / 1000;
+#endif
+}
+
+Thanks
+Sridhar
+
+
+On Wed, 12 May 2004, Andrew Morton wrote:
+
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
+> > > How about we do:
+> >  >
+> >  > #if HZ=1000
+> >  > #define	MSEC_TO_JIFFIES(msec) (msec)
+> >  > #define JIFFIES_TO_MESC(jiffies) (jiffies)
+> >  > #elif HZ=100
+> >  > #define	MSEC_TO_JIFFIES(msec) (msec * 10)
+> >  > #define JIFFIES_TO_MESC(jiffies) (jiffies / 10)
+> >  > #else
+> >  > #define	MSEC_TO_JIFFIES(msec) ((HZ * (msec) + 999) / 1000)
+> >  > #define	JIFFIES_TO_MSEC(jiffies) ...
+> >  > #endif
+> >  >
+> >  > in some kernel-wide header then kill off all the private implementations?
+> >
+> >
+> >  include/linux/time.h.  One of the SCTP people already did this, but I
+> >  suppose it's straightforward to reproduce.
+>
+> OK, I'll do it.
+>
+>

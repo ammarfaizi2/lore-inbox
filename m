@@ -1,158 +1,331 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266967AbTAZTaD>; Sun, 26 Jan 2003 14:30:03 -0500
+	id <S266968AbTAZTct>; Sun, 26 Jan 2003 14:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266968AbTAZTaD>; Sun, 26 Jan 2003 14:30:03 -0500
-Received: from qwws.net ([213.133.103.108]:37828 "HELO qwwsII.qwws.net")
-	by vger.kernel.org with SMTP id <S266967AbTAZTaB>;
-	Sun, 26 Jan 2003 14:30:01 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Tom Winkler <tom@qwws.net>
-Reply-To: tom@qwws.net
-To: linux-kernel@vger.kernel.org
-Subject: poor IDE performance on ASUS P4PE with WD800JB
-Date: Sun, 26 Jan 2003 20:39:38 +0100
-User-Agent: KMail/1.4.3
+	id <S266969AbTAZTct>; Sun, 26 Jan 2003 14:32:49 -0500
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:60350
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S266968AbTAZTcn>; Sun, 26 Jan 2003 14:32:43 -0500
+Message-ID: <3E343A15.10705@rogers.com>
+Date: Sun, 26 Jan 2003 14:42:13 -0500
+From: Jeff Muizelaar <muizelaar@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200301262039.38783.tom@qwws.net>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+CC: Adam Belay <ambx1@neo.rr.com>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] NE PnP Update from Jeff Muizelaar (5/6)
+References: <20030125201528.GA12845@neo.rr.com> <3E33AE37.463C9CCF@yahoo.com>
+In-Reply-To: <3E33AE37.463C9CCF@yahoo.com>
+Content-Type: multipart/mixed;
+ boundary="------------040506030707040109040504"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Sun, 26 Jan 2003 14:41:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I've asked this question in several Newsgroups but nobody was really
-able to answer it. That's why I decided to send it to LKM. Please CC
-me on your replies. Thanks!
-
-I've got a question related to ide performance.
-First of all my hardware:
-Mainboard: ASUS P4PE (using onboard IDE but not S-ATA)
-   http://www.asus.com/products/mb/socket478/p4pe/overview.htm
-Harddisk: Western Digital WD800JB
-   http://www.westerndigital.com/products/products.asp?DriveID=32
+This is a multi-part message in MIME format.
+--------------040506030707040109040504
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-Now about the current performance (on 2.4.20 and almost the same on 2.5.56):
+Paul Gortmaker wrote:
 
-tom@storm:~$ sudo hdparm -tT /dev/hda
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.27 seconds =474.07 MB/sec
- Timing buffered disk reads:  64 MB in  3.05 seconds = 20.98 MB/sec
+>I've a couple of quick comments after looking over the patch:
+>
+>  
+>
+>>-"Last modified Nov 1, 2000 by Paul Gortmaker\n";
+>>+"Last modified January 20, 2003 by Jeff Muizelaar\n";
+>>    
+>>
+>
+>Feel free to delete this "Last modified" stuff altogether.
+>It is just extra verbage at boot we don't need. (Blame 
+>Jeff Garzik -- he put it there, not me...   ;-)
+>
+It's gone with the attached patch. I also changed the version string a 
+bit. I figure enough of the driver has changed in the last 9 years to 
+warrant a small increment.
 
-The cache read time is pretty ok but the disk read time is below of
-what I'd have expected. My expectations would have been around 40MB/sec.
+>  
+>
+>>+               free_irq(dev->irq, dev);
+>>+               release_region(dev->base_addr, NE_IO_EXTENT);
+>>+               unregister_netdev(dev);
+>>+               kfree(dev->priv);
+>>+               kfree(dev);
+>>    
+>>
+>
+>It is usually good practice to unregister a device as the 
+>first thing, and then release its associated resources once
+>you know the kernel doesn't hold any references to it.
+>  
+>
+Agreed. I also fixed the legacy cleanup code to do things this way, and 
+removed some old pnp code I had forgotten about.
+It would probably be good to unify both sets of init/cleanup code but I 
+want to keep the changes small for now.
 
-Am I wrong with my expectations for this setup?
-I'd really be interested in any suggestion about how I could omptimize
-the system.
+Adam have you made any progress on supporting non-PnP legacy devices yet?
 
+-Jeff
 
-And here's some more information about the current settings (let me
-know if you need anything else):
+--------------040506030707040109040504
+Content-Type: text/plain;
+ name="ne-patch.3"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ne-patch.3"
 
-tom@storm:~$ sudo hdparm /dev/hda
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  3 (32-bit w/sync)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    = 255 (on)
- geometry     = 9729/255/63, sectors = 156301488, start = 0
- busstate     =  1 (on)
+--- linux-2.5.59/drivers/net/ne.c	2003-01-26 14:16:31.000000000 -0500
++++ linux-2.5.59-patched/drivers/net/ne.c	2003-01-26 14:17:58.000000000 -0500
+@@ -29,21 +29,20 @@
+     last in cleanup_modue()
+     Richard Guenther    : Added support for ISAPnP cards
+     Paul Gortmaker	: Discontinued PCI support - use ne2k-pci.c instead.
++    Jeff Muizelaar	: moved over to generic PnP api
+ 
+ */
+ 
+ /* Routines for the NatSemi-based designs (NE[12]000). */
+ 
+-static const char version1[] =
+-"ne.c:v1.10 9/23/94 Donald Becker (becker@scyld.com)\n";
+-static const char version2[] =
+-"Last modified Nov 1, 2000 by Paul Gortmaker\n";
++static const char version[] =
++"ne.c:v1.10a 1/26/03 Donald Becker (becker@scyld.com)\n";
+ 
+ 
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+-#include <linux/isapnp.h>
++#include <linux/pnp.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>
+@@ -76,20 +75,18 @@
+ };
+ #endif
+ 
+-static struct isapnp_device_id isapnp_clone_list[] __initdata = {
+-	{	ISAPNP_CARD_ID('A','X','E',0x2011),
+-		ISAPNP_VENDOR('A','X','E'), ISAPNP_FUNCTION(0x2011),
+-		(long) "NetGear EA201" },
+-	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+-		ISAPNP_VENDOR('E','D','I'), ISAPNP_FUNCTION(0x0216),
+-		(long) "NN NE2000" },
+-	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+-		ISAPNP_VENDOR('P','N','P'), ISAPNP_FUNCTION(0x80d6),
+-		(long) "Generic PNP" },
+-	{ }	/* terminate list */
++#ifdef CONFIG_PNP
++static const struct pnp_device_id ne_pnp_table[] = {
++	/* NetGear EA201 */
++	{.id = "AXE2011", .driver_data = 0},
++	/* NN NE2000 */
++	{.id = "EDI0216", .driver_data = 0},
++	/* NE2000 Compatible */
++	{.id = "PNP80d6", .driver_data = 0},
+ };
+ 
+-MODULE_DEVICE_TABLE(isapnp, isapnp_clone_list);
++MODULE_DEVICE_TABLE(pnp, ne_pnp_table);
++#endif
+ 
+ #ifdef SUPPORT_NE_BAD_CLONES
+ /* A list of bad clones that we none-the-less recognize. */
+@@ -126,9 +123,20 @@
+ #define NESM_START_PG	0x40	/* First page of TX buffer */
+ #define NESM_STOP_PG	0x80	/* Last page +1 of RX ring */
+ 
++#ifdef CONFIG_PNP
++static int ne_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id);
++static void ne_pnp_remove(struct pnp_dev *dev);
++
++static struct pnp_driver ne_pnp_driver = {
++	.name		= "ne",
++	.id_table 	= ne_pnp_table,
++	.probe		= ne_pnp_probe,
++	.remove		= ne_pnp_remove,
++};
++#endif
++
+ int ne_probe(struct net_device *dev);
+ static int ne_probe1(struct net_device *dev, int ioaddr);
+-static int ne_probe_isapnp(struct net_device *dev);
+ 
+ static int ne_open(struct net_device *dev);
+ static int ne_close(struct net_device *dev);
+@@ -175,10 +183,6 @@
+ 	else if (base_addr != 0)	/* Don't probe at all. */
+ 		return -ENXIO;
+ 
+-	/* Then look for any installed ISAPnP clones */
+-	if (isapnp_present() && (ne_probe_isapnp(dev) == 0))
+-		return 0;
+-
+ #ifndef MODULE
+ 	/* Last resort. The semi-risky ISA auto-probe. */
+ 	for (base_addr = 0; netcard_portlist[base_addr] != 0; base_addr++) {
+@@ -191,50 +195,58 @@
+ 	return -ENODEV;
+ }
+ 
+-static int __init ne_probe_isapnp(struct net_device *dev)
++#ifdef CONFIG_PNP
++static int ne_pnp_probe(struct pnp_dev *idev, const struct pnp_device_id *dev_id)
+ {
+-	int i;
+-
+-	for (i = 0; isapnp_clone_list[i].vendor != 0; i++) {
+-		struct pnp_dev *idev = NULL;
++	struct net_device *dev;
++	int err;
++	
++	if ( !(dev = alloc_etherdev(0)) ){
++		err = -ENOMEM;
++		goto alloc_fail;
++	}
++	
++	dev->base_addr = pnp_port_start(idev, 0);
++	dev->irq = pnp_irq(idev, 0);
++	printk(KERN_INFO "ne.c: PnP reports %s at i/o %#lx, irq %d\n",
++			idev->name, dev->base_addr, dev->irq);
++	
++	SET_MODULE_OWNER(dev);
++	
++	if (ne_probe1(dev, dev->base_addr) != 0) {	/* Shouldn't happen. */
++		printk(KERN_ERR "ne.c: Probe of PnP card at %#lx failed\n", dev->base_addr);
++		err = -ENXIO;
++		goto probe_fail;
++	}
++	
++	if ( (err = register_netdev(dev)) != 0)
++		goto register_fail;
+ 
+-		while ((idev = pnp_find_dev(NULL,
+-					    isapnp_clone_list[i].vendor,
+-					    isapnp_clone_list[i].function,
+-					    idev))) {
+-			/* Avoid already found cards from previous calls */
+-			if (pnp_device_attach(idev) < 0)
+-				continue;
+-			if (pnp_activate_dev(idev, NULL) < 0) {
+-			      	pnp_device_detach(idev);
+-			      	continue;
+-			}
+-			/* if no io and irq, search for next */
+-			if (!pnp_port_valid(idev, 0) || !pnp_irq_valid(idev, 0)) {
+-				pnp_device_detach(idev);
+-				continue;
+-			}
+-			/* found it */
+-			dev->base_addr = pnp_port_start(idev, 0);
+-			dev->irq = pnp_irq(idev, 0);
+-			printk(KERN_INFO "ne.c: ISAPnP reports %s at i/o %#lx, irq %d.\n",
+-				(char *) isapnp_clone_list[i].driver_data,
+-				dev->base_addr, dev->irq);
+-			if (ne_probe1(dev, dev->base_addr) != 0) {	/* Shouldn't happen. */
+-				printk(KERN_ERR "ne.c: Probe of ISAPnP card at %#lx failed.\n", dev->base_addr);
+-				pnp_device_detach(idev);
+-				return -ENXIO;
+-			}
+-			ei_status.priv = (unsigned long)idev;
+-			break;
+-		}
+-		if (!idev)
+-			continue;
+-		return 0;
++	pnp_set_drvdata(idev, dev);
++	
++	return 0;
++	
++register_fail:
++		kfree(dev->priv);
++		release_region(dev->base_addr, NE_IO_EXTENT);
++probe_fail:
++		kfree(dev);
++alloc_fail:
++		return err;
++}
++
++static void ne_pnp_remove(struct pnp_dev *idev)
++{
++	struct net_device *dev = pnp_get_drvdata(idev);	
++	if (dev) {
++		unregister_netdev(dev);
++		free_irq(dev->irq, dev);
++		release_region(dev->base_addr, NE_IO_EXTENT);
++		kfree(dev->priv);
++		kfree(dev);
+ 	}
+-
+-	return -ENODEV;
+ }
++#endif
+ 
+ static int __init ne_probe1(struct net_device *dev, int ioaddr)
+ {
+@@ -273,7 +285,7 @@
+ 	}
+ 
+ 	if (ei_debug  &&  version_printed++ == 0)
+-		printk(KERN_INFO "%s" KERN_INFO "%s", version1, version2);
++		printk(KERN_INFO "%s", version);
+ 
+ 	printk(KERN_INFO "NE*000 ethercard probe at %#3x:", ioaddr);
+ 
+@@ -757,6 +769,13 @@
+ {
+ 	int this_dev, found = 0;
+ 
++#ifdef CONFIG_PNP	
++	found = pnp_register_driver(&ne_pnp_driver);
++	if (found < 0) {
++		return found;
++	}
++#endif
++
+ 	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
+ 		struct net_device *dev = &dev_ne[this_dev];
+ 		dev->irq = irq[this_dev];
+@@ -774,6 +793,9 @@
+ 			printk(KERN_WARNING "ne.c: No NE*000 card found at i/o = %#x\n", io[this_dev]);
+ 		else
+ 			printk(KERN_NOTICE "ne.c: You must supply \"io=0xNNN\" value(s) for ISA cards.\n");
++#ifdef CONFIG_PNP
++		pnp_unregister_driver(&ne_pnp_driver);
++#endif
+ 		return -ENXIO;
+ 	}
+ 	return 0;
+@@ -783,17 +805,16 @@
+ {
+ 	int this_dev;
+ 
++#ifdef CONFIG_PNP	
++	pnp_unregister_driver(&ne_pnp_driver);
++#endif
+ 	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
+ 		struct net_device *dev = &dev_ne[this_dev];
+ 		if (dev->priv != NULL) {
+-			void *priv = dev->priv;
+-			struct pnp_dev *idev = (struct pnp_dev *)ei_status.priv;
+-			if (idev)
+-				pnp_device_detach(idev);
++			unregister_netdev(dev);
+ 			free_irq(dev->irq, dev);
+ 			release_region(dev->base_addr, NE_IO_EXTENT);
+-			unregister_netdev(dev);
+-			kfree(priv);
++			kfree(dev->priv);
+ 		}
+ 	}
+ }
 
+--------------040506030707040109040504--
 
-tom@storm:~$ sudo cat /proc/ide/hda/settings
-name                    value           min             max             mode
-----                    -----           ---             ---             ----
-acoustic                0               0               254             rw
-address                 0               0               2               rw
-bios_cyl                9729            0               65535           rw
-bios_head               255             0               255             rw
-bios_sect               63              0               63              rw
-breada_readahead        255             0               255             rw
-bswap                   0               0               1               r
-current_speed           69              0               69              rw
-failures                0               0               65535           rw
-file_readahead          16384           0               16384           rw
-ide_scsi                0               0               1               rw
-init_speed              69              0               69              rw
-io_32bit                3               0               3               rw
-keepsettings            0               0               1               rw
-lun                     0               0               7               rw
-max_failures            1               0               65535           rw
-max_kb_per_request      255             1               255             rw
-multcount               16              0               16              rw
-nice1                   1               0               1               rw
-nowerr                  0               0               1               rw
-number                  0               0               3               rw
-pio_mode                write-only      0               255             w
-slow                    0               0               1               rw
-unmaskirq               1               0               1               rw
-using_dma               1               0               1               rw
-wcache                  0               0               1               rw
-
-
-tom@storm:~$ sudo hdparm -I /dev/hda
-/dev/hda:
-non-removable ATA device, with non-removable media
-        Model Number:           WDC WD800JB-00CRA1
-        Serial Number:          WD-WMA8E3710419
-        Firmware Revision:      17.07W17
-Standards:
-        Supported: 1 2 3 4 5
-        Likely used: 5
-Configuration:
-        Logical         max     current
-        cylinders       16383   16383
-        heads           16      16
-        sectors/track   63      63
-        bytes/track:    57600           (obsolete)
-        bytes/sector:   600             (obsolete)
-        current sector capacity: 16514064
-        LBA user addressable sectors = 156301488
-Capabilities:
-        LBA, IORDY(can be disabled)
-        Buffer size: 8192.0kB   ECC bytes: 40   Queue depth: 1
-        Standby timer values: spec'd by standard, with device specific minimum
-        r/w multiple sector transfer: Max = 16  Current = 16
-        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4
-             Cycle time: no flow control=120ns  IORDY flow control=120ns
-Commands/features:
-        Enabled Supported:
-           *    READ BUFFER cmd
-           *    WRITE BUFFER cmd
-           *    Host Protected Area feature set
-           *    look-ahead
-           *    write cache
-           *    Power Management feature set
-                Security Mode feature set
-                SMART feature set
-                SET MAX security extension
-           *    DOWNLOAD MICROCODE cmd
-Security:
-                supported
-        not     enabled
-        not     locked
-        not     frozen
-        not     expired: security count
-        not     supported: enhanced erase
-HW reset results:
-        CBLID- above Vih
-        Device num = 0 determined by the jumper
-Checksum: correct
-
-
-
-A full dmesg dump can be found at http://www.wnk.at/files/dmesg.txt
-
-
-Thanks very much,
--- 
-Tom Winkler

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129619AbRBWA6w>; Thu, 22 Feb 2001 19:58:52 -0500
+	id <S129238AbRBWBR0>; Thu, 22 Feb 2001 20:17:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129727AbRBWA6m>; Thu, 22 Feb 2001 19:58:42 -0500
-Received: from felix.convergence.de ([212.84.236.131]:59783 "EHLO
-	convergence.de") by vger.kernel.org with ESMTP id <S129619AbRBWA62>;
-	Thu, 22 Feb 2001 19:58:28 -0500
-Date: Fri, 23 Feb 2001 01:59:18 +0100
-From: Felix von Leitner <leitner@convergence.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Message-ID: <20010223015918.A28372@convergence.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3A948F7B.E40C81D5@transmeta.com> <E14Vt61-0003sC-00@the-village.bc.nu>
+	id <S129245AbRBWBRQ>; Thu, 22 Feb 2001 20:17:16 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:11254 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S129238AbRBWBRA>;
+	Thu, 22 Feb 2001 20:17:00 -0500
+Date: Fri, 23 Feb 2001 02:16:44 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: root <lkthomas@hkicable.com>, linux-kernel@vger.kernel.org
+Subject: Re: need to suggest a good FS:
+Message-ID: <20010223021644.A12506@khan.acc.umu.se>
+In-Reply-To: <3A95A94E.E3C84BE4@hkicable.com> <20010222195707.A30319@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14Vt61-0003sC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 22, 2001 at 10:35:34AM +0000
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010222195707.A30319@animx.eu.org>; from wakko@animx.eu.org on Thu, Feb 22, 2001 at 07:57:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Alan Cox (alan@lxorguk.ukuu.org.uk):
-> > > There will be a lot fewer metadata index
-> > > blocks in your directory file, for one thing.
-> > Oh yes, another thing: a B-tree directory structure does not need
-> > metadata index blocks.
-> Before people get excited about complex tree directory indexes, remember to 
-> solve the other 95% before implementation - recovering from lost blocks,
-> corruption and the like
+On Thu, Feb 22, 2001 at 07:57:07PM -0500, Wakko Warner wrote:
+> > anyone can suggest some good FS that can install linux?
+> > exclude reiserfs, ext2, ext3, DOS FAT..etc
+> > just need non-normal or non-popular FS, any suggestion?
+> 
+> How about minixfs?  >=)
 
-And don't forget the trouble with NFS handles after the tree was rebalanced.
+ADFS, AFFS, BFS or HPFS are all uncommon
+and unpopular (especially in the case of AFFS, if I understood Alexander
+Viro's woes correctly), QNX4 might do too, then there's always NTFS;
+guaranteed to make your day...
 
-Trees are nice only theoretically.  In practice, the benefits are
-outweighed by the nastiness in form of fsck and NFS and bigger code
-(normally: more complex -> less reliable).
+SysV5, UFS and UDF are probably too easy to get going, or?!
 
-Felix
+
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

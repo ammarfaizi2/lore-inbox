@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbUB0Nbw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 08:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbUB0Nbw
+	id S262870AbUB0Nbz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 08:31:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbUB0Nbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 08:31:52 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:4281 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S262866AbUB0Nbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 08:31:55 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:37827 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262870AbUB0Nbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 27 Feb 2004 08:31:51 -0500
-Date: Fri, 27 Feb 2004 21:31:43 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-Subject: Re: Why no interrupt priorities?
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "Mark Gross" <mgross@linux.co.intel.com>, arjanv@redhat.com,
-       "Tim Bird" <tim.bird@am.sony.com>, root@chaos.analogic.com,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston> <opr30muhyf4evsfm@smtp.pacific.net.th> <20040227090548.A15644@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
+Date: Fri, 27 Feb 2004 08:31:40 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2.6] linux/README update
+In-Reply-To: <20040227132535.A32506@infradead.org>
+Message-ID: <Pine.LNX.4.58.0402270827240.17504@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0402270815350.17504@montezuma.fsmlabs.com>
+ <20040227132535.A32506@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr306i5cm4evsfm@smtp.pacific.net.th>
-In-Reply-To: <20040227090548.A15644@flint.arm.linux.org.uk>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 09:05:48 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Fri, 27 Feb 2004, Christoph Hellwig wrote:
 
-> On Fri, Feb 27, 2004 at 02:26:31PM +0800, Michael Frank wrote:
->> Is this to imply that edge triggered shared interrupts are used anywhere?
+> On Fri, Feb 27, 2004 at 08:18:20AM -0500, Zwane Mwaikambo wrote:
+> > + - Do a "make" to create a compressed kernel image. It is also
+> > +   possible to do "make install" if you have lilo installed to suit the
+> > +   kernel makefiles, but you may want to check your particular lilo setup first.
 >
-> It is (or used to be) rather common with serial ports.  Remember that
-> COM1 and COM3 were both defined to use IRQ4 and COM2 and COM4 to use
-> IRQ3.
->
->> Never occured to me to use shared IRQ's edge triggered as this mode
->> _cannot_ work reliably for HW limitations.
->
-> The serial driver takes great care with this - when we service such an
-> interrupt, we keep going until we have scanned all the devices until
-> such time that we can say "all devices are no longer signalling an
-> interrupt".
->
-> This is something it has always done - it's nothing new.
->
+> this is still very x86 centric :)
 
-Sorry, i think the serial driver IRQ is level triggered :)
-
-Regards
-Michael
-
+Drat! I tried inserting the "e.g. arch/i386/boot/bzImage" to fool you
+guys =), would it be worth making it more vague so that it was less x86
+centric?

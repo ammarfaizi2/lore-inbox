@@ -1,68 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261447AbSJYOmq>; Fri, 25 Oct 2002 10:42:46 -0400
+	id <S261442AbSJYOvp>; Fri, 25 Oct 2002 10:51:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbSJYOmp>; Fri, 25 Oct 2002 10:42:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40334 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261447AbSJYOmo>;
-	Fri, 25 Oct 2002 10:42:44 -0400
-Date: Fri, 25 Oct 2002 16:48:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nyk Tarr <nyk@giantx.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug] 2.5.44-ac2 cdrom eject panic
-Message-ID: <20021025144844.GY4153@suse.de>
-References: <20021025103631.GA588@giantx.co.uk> <20021025103938.GN4153@suse.de> <20021025131050.GA593@giantx.co.uk> <20021025144608.GX4153@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021025144608.GX4153@suse.de>
+	id <S261443AbSJYOvp>; Fri, 25 Oct 2002 10:51:45 -0400
+Received: from mail012.mail.bellsouth.net ([205.152.58.32]:55266 "EHLO
+	imf12bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S261442AbSJYOvn>; Fri, 25 Oct 2002 10:51:43 -0400
+Date: Fri, 25 Oct 2002 10:57:53 -0400 (EDT)
+From: Burton Windle <bwindle@fint.org>
+X-X-Sender: bwindle@morpheus
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.5.44-ac3: on boot, BUG in mm/page_alloc.c:120
+Message-ID: <Pine.LNX.4.43.0210251055430.12130-100000@morpheus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25 2002, Jens Axboe wrote:
-> On Fri, Oct 25 2002, Nyk Tarr wrote:
-> > On Fri, Oct 25, 2002 at 12:39:38PM +0200, Jens Axboe wrote:
-> > > On Fri, Oct 25 2002, Nyk Tarr wrote:
-> > > > 
-> > > > Hi,
-> > > > 
-> > > > I got this nice error after doing an 'eject /cdrom'
-> > > 
-> > > [snip]
-> > > 
-> > > 2.5.44 and thus 2.5.44-acX has seriously broken REQ_BLOCK_PC, so it's no
-> > > wonder that it breaks hard. Alan, I can sync the sgio patches for you if
-> > > you want.
-> > > 
-> > > Nyk, if you could try
-> > > 
-> > > *.kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.44/sgio-15.bz2
-> > > 
-> > > that would be great, thanks.
-> > 
-> > This also seems to hang and die. No panic in the logs this time, but
-> > some stuff scrolling off the screen on console. Sadly I've nothing to
-> > use as serial console at the mo' but I'll try some other options...
-> 
-> Please try sgio-16 from the above location. Ejecting works fine for me,
-> it even manages to close the tray when I ask it to.
+On booting 2.5.44-ac3, I'm getting a BUG in mm/page_alloc.c:120
 
-Irk you are on SCSI, yes you need this incremental patch for that to
-work. Sorry about that, I've put up 16b which contains this.
+This oops doesn't happen with 2.5.44.
 
---- drivers/block/scsi_ioctl.c~	2002-10-25 16:46:58.000000000 +0200
-+++ drivers/block/scsi_ioctl.c	2002-10-25 16:47:32.000000000 +0200
-@@ -319,6 +319,8 @@
- 		case CDROMEJECT:
- 			rq = blk_get_request(q, WRITE, __GFP_WAIT);
- 			rq->flags = REQ_BLOCK_PC;
-+			rq->rq_dev = to_kdev_t(bdev->bd_dev);
-+			rq->rq_disk = bdev->bd_disk;
- 			rq->data = NULL;
- 			rq->data_len = 0;
- 			rq->timeout = BLK_DEFAULT_TIMEOUT;
+Loading 2.5.44ac3........................
+BIOS data check successful
+Linux version 2.5.44-ac3 (root@razor) (gcc version 2.95.4 20011002 (Debian
+prerelease)) #1 Fri Oct 25 09:56:22 EST 2002
+Video mode to be used for restore is ffff
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000000a000000 (usable)
+ BIOS-e820: 00000000ffe00000 - 0000000100000000 (reserved)
+160MB LOWMEM available.
+On node 0 totalpages: 40960
+  DMA zone: 4096 pages
+  Normal zone: 36864 pages
+  HighMem zone: 0 pages
+Building zonelist for node : 0
+Kernel command line: BOOT_IMAGE=2.5.44ac3 root=302 console=ttyS0,9600 console=tty0
+Initializing CPU#0
+Detected 264.844 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 521.21 BogoMIPS
+------------[ cut here ]------------
+kernel BUG at mm/page_alloc.c:120!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c012daba>]    Not tainted
+EFLAGS: 00010206
+EIP is at __free_pages_ok+0x146/0x2e4
+eax: 0000ffff   ebx: 00000003   ecx: c0353370   edx: 00010000
+esi: c1000000   edi: c0353370   ebp: c0377f78   esp: c0377f44
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 0, threadinfo=c0376000 task=c034f300)
+Stack: c1000078 00000008 00000003 c0377f64 c011399a ffffffff c03533e0 c1000000
+       c0377f84 c0113a89 ffff0000 00000003 ffffffff c0377f80 c012e4d2 c0377fac
+       c038227c c0376000 000a0200 c0105000 fffffff8 c0410000 0000a000 00000000
+Call Trace:
+ [<c011399a>] _call_console_drivers+0x5a/0x64
+ [<c0113a89>] call_console_drivers+0xe5/0xf0
+ [<c012e4d2>] __free_pages+0x36/0x3c
+ [<c0105000>] stext+0x0/0x14
+ [<c0105000>] stext+0x0/0x14
+ [<c0105000>] stext+0x0/0x14
 
--- 
-Jens Axboe
+Code: 0f 0b 78 00 96 f0 28 c0 8b 45 f8 8b 55 e4 8d 4f 01 89 45 fc
+ <0>Kernel panic: Attempted to kill the idle task!
+In idle task - not syncing
+
+--
+Burton Windle                           burton@fint.org
+Linux: the "grim reaper of innocent orphaned children."
+          from /usr/src/linux-2.4.18/init/main.c:461
+
+
+On Fri, 25 Oct 2002, Alan Cox wrote:
+
+> ** I strongly recommend saying N to IDE TCQ options otherwise this
+>    should hopefully build and run happily.
+>
+>    Doug's scsi changes broke mptfusion. I've not looked into that yet
+>    also u14f/u34f.
+>
+>    This one builds, its not yet had any measurable testing
+>
+> Linux 2.5.44-ac3
+> o	Update the cciss driver				(Stephen Cameron)
+> o	Fix seagate st02 unload				(me)
+> o	Fix missing \n in i810 driver			(me)
+> o	Update Ninja SCSI PCMCIA driver			(Yokota Hiroshi)
+> o	Clean up and kill off scsi_merge		(Christoph Hellwig)
+> o	Remove niceness magic numbers			(Randy Dunlap)
+> o	Update EDD support				(Matt Domsch)
+> o	Update voyager support for IRQ stacks		(James Bottomley)
+> -	Revert do_mounts change
+> o	Better fix for raw.c headers			(Bjoern Zeeb)
+> o	Fix ehci enumeration breakage			(David Brownell)
+> o	Update adv7175 to new style i2c			(Frank Davis)
+> o	PnP updates					(Adam Belay)
+> o	PnP conversion of CS423x to new code		(Adam Belay)
+> o	Fix APM BUG() on SMP boxes, port forward 2.4	(me)
+> 	changes
+> o	Update other Digi URLS				(me)
+>
+
 

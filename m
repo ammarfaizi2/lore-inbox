@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131888AbRCVAd4>; Wed, 21 Mar 2001 19:33:56 -0500
+	id <S131874AbRCVA3q>; Wed, 21 Mar 2001 19:29:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131889AbRCVAdq>; Wed, 21 Mar 2001 19:33:46 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:42501 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S131888AbRCVAdl>; Wed, 21 Mar 2001 19:33:41 -0500
-To: "Patrick O'Rourke" <orourke@missioncriticallinux.com>
-Cc: Eli Carter <eli.carter@inet.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446D546@berkeley.gci.com>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Leif Sawyer's message of "Wed, 21 Mar 2001 14:41:05 -0900"
-Date: 21 Mar 2001 18:32:55 -0600
-Message-ID: <vbaae6e4p8o.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
-MIME-Version: 1.0
+	id <S131887AbRCVA3g>; Wed, 21 Mar 2001 19:29:36 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:42513 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S131874AbRCVA3V>;
+	Wed, 21 Mar 2001 19:29:21 -0500
+Date: Thu, 22 Mar 2001 02:28:34 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Drew Bertola <drew@drewb.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Why I get no more linux-kernel traffic ?"
+Message-ID: <20010322022834.J23336@mea-ext.zmailer.org>
+In-Reply-To: <15033.7145.547612.90560@champ.serialhacker.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15033.7145.547612.90560@champ.serialhacker.net>; from drew@drewb.com on Wed, Mar 21, 2001 at 09:23:53PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leif Sawyer <lsawyer@gci.com> writes:
+  The POSSIBLE reasons are FAQ items at the LKML FAQ:
+	http://www.tux.org/lkml/
+
+  Lately we have had bounces from lots of places, INCLUDING  @home.com !
+
+  However in your case I see no such events.
+  Everything seem to have worked just fine, until at circa 2:15 AM (EST)
+  on 16th of march was the last letter to you.
+
+  By the way, VGER's logs are not infinite,  only current plus 7 previous
+  days.  Good that you didn't wait for a week before wondering...
+
+
+  It *could* be that manual removal has happened, perhaps accidentally,
+  perhaps intentionally, but I don't recall having done so.
+
+  It could also be a result of a race condition in between manual removal,
+  and Majordomo itself..  Never done that before...
+
+
+/Matti Aarnio
+
+
+On Wed, Mar 21, 2001 at 09:23:53PM +0000, Drew Bertola wrote:
+> From:	Drew Bertola <drew@drewb.com>
+> Date:	Wed, 21 Mar 2001 21:23:53 +0000 ()
+> To:	linux-kernel@vger.kernel.org
+> Subject: IGNORE - test
 > 
-> What happens when init is not pid == 1, as is often the case
-> during installs, booting off of cdrom, etc..
-
-Well, after spending hours scrutinizing Patrick's one-line patch, I'll
-guess that, in these cases, the patch does not prevent init from being
-killed by an OOM error.  But, I'll bet that was a rhetorical question.
-
-In any event, whatever process has pid == 1, it can't voluntarily exit
-without a panic, and it's the reaper of all orphaned children, so it
-makes sense not to kill it.  As Eli points out, the patch is cleaner
-if rewritten:
-
---- xxx/linux-2.4.3-pre6/mm/oom_kill.c  Tue Nov 14 13:56:46 2000
-+++ linux-2.4.3-pre6/mm/oom_kill.c      Wed Mar 21 15:25:03 2001
-@@ -123,7 +123,7 @@
-
-         read_lock(&tasklist_lock);
-         for_each_task(p) {
--               if (p->pid) {
-+               if (p->pid > 1) {
-                         int points = badness(p);
-                         if (points > maxpoints) {
-                                 chosen = p;
-
-since no valid pid is ever negative.
-
-I don't see a valid reason for *not* making this change, but I'm
-batting zero for two on my last two patch submissions, so I've
-probably missed something.
-
-Kevin <buhr@stat.wisc.edu>
+> Boy, do I hate doing this.  Haven't gotten a post in several days,
+> haven't seen any updates on kernel.org since 3/12.  What's up?
+> 
+> -- 
+> Drew Bertola  | Send a text message to my pager or cell ... 
+>               |   http://jpager.com/Drew
+> -
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268229AbUIBLAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268237AbUIBK4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268229AbUIBLAm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 07:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268213AbUIBK5A
+	id S268237AbUIBK4s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 06:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268233AbUIBKyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 06:57:00 -0400
-Received: from users.linvision.com ([62.58.92.114]:23462 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S268229AbUIBKye (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 06:54:34 -0400
-Date: Thu, 2 Sep 2004 12:54:33 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Romano Giannetti <romano@dea.icai.upco.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Driver retries disk errors.
-Message-ID: <20040902105433.GA23881@bitwizard.nl>
-References: <20040831135403.GB2854@bitwizard.nl> <1093961570.597.2.camel@localhost.localdomain> <20040831155653.GD17261@harddisk-recovery.com> <1093965233.599.8.camel@localhost.localdomain> <20040831170016.GF17261@harddisk-recovery.com> <1093968767.597.14.camel@localhost.localdomain> <20040901152817.GA4375@pern.dea.icai.upco.es> <1094049877.2787.1.camel@localhost.localdomain> <20040901231434.GD28809@bitwizard.nl> <1094117369.4852.15.camel@localhost.localdomain>
+	Thu, 2 Sep 2004 06:54:47 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:58509 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268132AbUIBKyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 06:54:00 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Tonnerre <tonnerre@thundrix.ch>,
+       "Alexander G. M. Smith" <agmsmith@rogers.com>, spam@tnonline.net,
+       akpm@osdl.org, wichert@wiggy.net, jra@samba.org, torvalds@osdl.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       flx@namesys.com, reiserfs-list@namesys.com, vonbrand@inf.utfsm.cl
+In-Reply-To: <20040901201608.GD31934@mail.shareable.org>
+References: <20040829191044.GA10090@thundrix.ch>
+	 <3247172997-BeMail@cr593174-a> <20040831081528.GA14371@thundrix.ch>
+	 <20040901201608.GD31934@mail.shareable.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094118649.4847.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094117369.4852.15.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Sep 2004 10:50:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 10:29:29AM +0100, Alan Cox wrote:
-> On Iau, 2004-09-02 at 00:14, Rogier Wolff wrote:
-> > I don't think so. It starts with the ide-cd level driver 
-> > doing 8 retries. Most disk we see retry themselves for about  a 
-> > 4 second delay before reporting a bad block. A CD taking twice
+On Mer, 2004-09-01 at 21:16, Jamie Lokier wrote:
+> (For example, if I edit an HTML file which is encoded in iso-8859-1,
+> change it to utf-8 and indicate that in a META element, and save it
+> under the same name, the full content-type should change from
+> "text/html; charset=iso-8859-1" to "text/html; charset=utf-8".)
 > 
-> "Most", that is the heart of the reason for not taking them out.
+> I don't see how you can do that without kernel support.
+> 
+> Don't say dnotify or inotify, because neither would work.
 
-Some retry only for about a second, the rest takes more than
-4 seconds. 
+inotify done right is useful here as well as in a lot of other desktop
+cases where dnotify doesn't really scale. Its enough to let me
 
-	Roger. 
+	- Find the new file
+	- Virus scan it
+	- Classify its possible type heirarchies
+	- Index it
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+Alan
+

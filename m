@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282501AbRLAXvm>; Sat, 1 Dec 2001 18:51:42 -0500
+	id <S282498AbRLAXzC>; Sat, 1 Dec 2001 18:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282498AbRLAXvc>; Sat, 1 Dec 2001 18:51:32 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:63629 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S282502AbRLAXvU>; Sat, 1 Dec 2001 18:51:20 -0500
-Date: Sun, 2 Dec 2001 08:50:50 +0900
-Message-Id: <200112012350.IAA03884@asami.proc.flab.fujitsu.co.jp>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>,
-        Shuji YAMAMURA <yamamura@flab.fujitsu.co.jp>
-Subject: Re: [PATCH] task_struct colouring ...
-In-Reply-To: <Pine.LNX.4.40.0112011350120.1696-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <E16A6lc-0006cV-00@the-village.bc.nu>
-	<Pine.LNX.4.40.0112011350120.1696-100000@blue1.dev.mcafeelabs.com>
-Reply-To: kumon@flab.fujitsu.co.jp
-From: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
+	id <S282502AbRLAXyw>; Sat, 1 Dec 2001 18:54:52 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:11139 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S282498AbRLAXyd>;
+	Sat, 1 Dec 2001 18:54:33 -0500
+Message-ID: <3C096DB3.204CE41C@pobox.com>
+Date: Sat, 01 Dec 2001 15:54:27 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Merkey <jmerkey@timpanogas.org>
+CC: Charles-Edouard Ruault <ce@ruault.com>, linux-kernel@vger.kernel.org
+Subject: Re: File system Corruption with 2.4.16
+In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com> <3C095B0B.7EA478C1@ruault.com> <003601c17ac2$7a8dec10$f5976dcf@nwfs>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi writes:
- > On Sat, 1 Dec 2001, Alan Cox wrote:
- > > Because it is much much much faster
- > 
- > We'll see how much faster is the global register allocation against code
- > like :
- > 
- > movl %esp, %eax
- > andl $-8192, %eax
- > movl (%eax), %eax
+Jeff Merkey wrote:
 
-Current should be much faster, if it is accessed very frequently.
-If the frequency is high, the value is very likely being kept on L1
-cache. If that's true, the access time is fast enough.
-So, using indirection doesn't cause large penalty.
+> I am seeing corruption on 2.4.16 (2.4.17-pre1/2) as well.  Whatever this
+> gentlemen is doing is making it show up quicker, but I am on my fourth
+> interation of fsck'ing 2.4.16 on my production server with NWFS builds.  I
+> am looking through Al Viros's inode code changes to see if there's hole
+> somewhere.  This problem appears to be related to low memory conditions.  I
+> see it when memory is getting low.  May be VM related as well.
 
-Apart from that, stack coloring is difficult. Recent CPUs use much
-larger cache block, coloring needs big room in the stack area.
-Pentium4 is said using 64B block, but actually it is sectored cache
-within 128B block.
-1KB room for stack coloring realizes only 8 colors.
---
-Kouichi Kumon, Software Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+Just to be positive, can you reproduce the
+problem without nwfs?
+
+cu
+
+jjs
+

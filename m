@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbRETLSu>; Sun, 20 May 2001 07:18:50 -0400
+	id <S261866AbRETMFz>; Sun, 20 May 2001 08:05:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbRETLSj>; Sun, 20 May 2001 07:18:39 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:51981 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S261795AbRETLSf>; Sun, 20 May 2001 07:18:35 -0400
-Date: Sun, 20 May 2001 12:18:06 +0100 (BST)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: <Andries.Brouwer@cwi.nl>
-cc: <viro@math.psu.edu>, <linux-fsdevel@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]
- device arguments from lookup)
-In-Reply-To: <UTC200105191641.SAA53411.aeb@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.30.0105201214450.22933-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261868AbRETMFq>; Sun, 20 May 2001 08:05:46 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:6406 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S261866AbRETMFi>; Sun, 20 May 2001 08:05:38 -0400
+Date: Sun, 20 May 2001 16:05:18 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010520160518.A8223@jurassic.park.msu.ru>
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519181127.A14645@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010519181127.A14645@twiddle.net>; from rth@twiddle.net on Sat, May 19, 2001 at 06:11:27PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 May 2001 Andries.Brouwer@cwi.nl wrote:
+On Sat, May 19, 2001 at 06:11:27PM -0700, Richard Henderson wrote:
+> I'd rather keep this around.  It should be possible to use on CIA2.
 
-> One would like to have a version of the open() call that was
-> guaranteed free of side effects, and gave a fd only -
-> perhaps for stat(), perhaps for ioctl().
+Ok. What do you think about reorg like this:
+basically leave the old code as is, and add
+        if (is_pyxis)
+                alpha_mv.mv_pci_tbi = cia_pci_tbi_try2;
+        else
+                tbia test
+                ...
 
-I did this a while ago, after some discussion.  The
-implementation may suck, but I think it's a useful
-facility.
+> Uggg.  How did you discover this?
 
-http://web.gnu.walfield.org/mail-archive/linux-fsdevel/2000-March/0230.html
+21174 docs confirm that (though in a very low voice ;-) :
+ "The 21174 may hang with TBIA=3."
+It hangs with TBIA=2 as well. I was able to reproduce it reliably
+on sx164 with direct windows disabled just by copying 10-20 Mb via 3c905b
+card -- this driver allocates/frees pci buffers at a very high
+rate, so "tbia" occurs pretty often.
+The fix itself took 2 days of hacking and 50+ reboots...
 
-Matthew.
+> Just delete it, don't comment it out.  You might mention in the
+> function header comment that we're called with interrupts disabled.
 
+Ok.
+
+> > -	*(vip)CIA_IOC_CIA_CTRL;
+> > -	mb();
+> 
+> I'm pretty sure you don't want to do this.
+
+Right... I noticed these deleted lines only after posting the patch.
+
+Ivan.

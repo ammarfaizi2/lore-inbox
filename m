@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263476AbTCNUXg>; Fri, 14 Mar 2003 15:23:36 -0500
+	id <S263609AbTCNUc1>; Fri, 14 Mar 2003 15:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263484AbTCNUXg>; Fri, 14 Mar 2003 15:23:36 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:24274 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S263476AbTCNUXZ>;
-	Fri, 14 Mar 2003 15:23:25 -0500
-Date: Fri, 14 Mar 2003 22:33:55 +0200
-From: Teodor Iacob <Teodor.Iacob@astral.ro>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz, lm@bitmover.com
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314203355.GA31888@linux.kappa.ro>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de>
+	id <S263610AbTCNUc0>; Fri, 14 Mar 2003 15:32:26 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1299 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263609AbTCNUcZ>; Fri, 14 Mar 2003 15:32:25 -0500
+Date: Fri, 14 Mar 2003 20:43:11 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: EdV@macrolink.com, driver@jpl.nasa.gov, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: devfs + PCI serial card = no extra serial ports
+Message-ID: <20030314204311.J23686@flint.arm.linux.org.uk>
+Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>, EdV@macrolink.com,
+	driver@jpl.nasa.gov, dwmw2@infradead.org,
+	linux-kernel@vger.kernel.org
+References: <200303142028.MAA02437@adam.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030314115055.GR1211@marowsky-bree.de>
-User-Agent: Mutt/1.5.3i
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303142028.MAA02437@adam.yggdrasil.com>; from adam@yggdrasil.com on Fri, Mar 14, 2003 at 12:28:47PM -0800
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Mar 14, 2003 at 12:28:47PM -0800, Adam J. Richter wrote:
+> There was tangential mention in that thread
+> of a "/proc/serialdev" interface, but nobody really identified any
+> real benefit to it over the existing "uart: unknown" system.
 
-Please if there is going to be a real fight for this count me in! Tell
-me the place and the hour.. we can meet somewhere and punch some faces around :D
+There is one benefit, which would be to get rid of some of the yucky
+mess we currently have surrounding the implementation of stuff which
+changes the port base address/irq.
 
+Currently, we have to check that we're the only user, shutdown, tweak
+stuff, hope it all goes to plan, and start stuff back up again.  If
+something fails, we have to pray we can go back to the original setup
+without stuff breaking.  If that fails, we mark the port "unknown".
 
-On Fri, Mar 14, 2003 at 12:50:55PM +0100, Lars Marowsky-Bree wrote:
-> On 2003-03-14T11:51:32,
->    Pavel Machek <pavel@suse.cz> said:
-> 
-> > As for it being on your own time, let's see if SuSE wants the negative
-> > publicity.  I'm quite willing to make a stink, you've annoyed me and
-> > I've put up with as much as I'm going to.
-> 
-> Ok, Larry, you have finally done the coyote stunt. Please report how it really
-> feels, stepping of the cliff.
-> 
-> So far, I have considered BK a very cool piece of work, and not taken a
-> political interest in it. But by threatening SuSE developers (for work done on
-> their own time, and for merely describing something as BK-compatible) by
-> threatening SuSE with bad publicity, I can't even begin to describe my disgust
-> for you.
-> 
-> Technically, you are very competent. BK proves that, no doubt. But you should
-> take a year off and work on your social skills. Because, as it is, you _are_
-> making a stink.
-> 
-> 
-> Sincerely,
->     Lars Marowsky-Br?e <lmb@suse.de>
-> 
-> -- 
-> Principal Squirrel 
-> SuSE Labs - Research & Development, SuSE Linux AG
->   
-> "If anything can go wrong, it will." "Chance favors the prepared (mind)."
->   -- Capt. Edward A. Murphy            -- Louis Pasteur
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+All of this would be a lot simpler if we didn't have the port actually
+open at the time we change these parameters.  We could just lock the
+port against opens, check no one was using it, tweak the settings,
+and release the port.  If the changes fail, just report the failure.
 
 -- 
-      Teodor Iacob,
-Network Administrator
-Astral TELECOM Internet
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

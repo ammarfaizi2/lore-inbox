@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266160AbTIKGgr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 02:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbTIKGgr
+	id S266178AbTIKGiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 02:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266177AbTIKGiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 02:36:47 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:49604 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266160AbTIKGgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 02:36:45 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030910.222620.730549923.rene.rebe@gmx.net>
-References: <20030910.211509.184824199.rene.rebe@gmx.net>
-	 <1063221565.678.2.camel@gaston>
-	 <20030910.222620.730549923.rene.rebe@gmx.net>
-Message-Id: <1063262157.2023.19.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 11 Sep 2003 08:35:57 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: dmasound_pmac (2.4.x{,-benh}) does not restore mixer during
-	PM-wake
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Thu, 11 Sep 2003 02:38:16 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:50661 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266172AbTIKGhn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 02:37:43 -0400
+Date: Thu, 11 Sep 2003 08:37:36 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>
+cc: linux-scsi@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] NCR53c406a.c warning
+Message-ID: <Pine.GSO.4.21.0309110836030.1879-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> so hm?!? - is the wakeup order of the devices incorrect (i2c needs to
-> be before damsound_pmac ...)?
+NCR53c406a: Apparently wait_intr() is unused, so remove it.
 
-The i2c bus isn't suspended during sleep... I don't know for sure
-what's up, I'll investigate.
+--- linux-2.6.0-test5/drivers/scsi/NCR53c406a.c.orig	Sun Aug 24 09:49:34 2003
++++ linux-2.6.0-test5/drivers/scsi/NCR53c406a.c	Tue Sep  9 15:01:48 2003
+@@ -170,7 +170,6 @@
+ /* Static function prototypes */
+ static void NCR53c406a_intr(int, void *, struct pt_regs *);
+ static irqreturn_t do_NCR53c406a_intr(int, void *, struct pt_regs *);
+-static void wait_intr(void);
+ static void chip_init(void);
+ static void calc_port_addr(void);
+ #ifndef IRQ_LEV
+@@ -663,26 +662,6 @@
+ {
+ 	DEB(printk("NCR53c406a_info called\n"));
+ 	return (info_msg);
+-}
+-
+-static void wait_intr(void)
+-{
+-	unsigned long i = jiffies + WATCHDOG;
+-
+-	while (time_after(i, jiffies) && !(inb(STAT_REG) & 0xe0)) {	/* wait for a pseudo-interrupt */
+-		cpu_relax();
+-		barrier();
+-	}
+-
+-	if (time_before_eq(i, jiffies)) {	/* Timed out */
+-		rtrc(0);
+-		current_SC->result = DID_TIME_OUT << 16;
+-		current_SC->SCp.phase = idle;
+-		current_SC->scsi_done(current_SC);
+-		return;
+-	}
+-
+-	NCR53c406a_intr(0, NULL, NULL);
+ }
+ 
+ static int NCR53c406a_queue(Scsi_Cmnd * SCpnt, void (*done) (Scsi_Cmnd *))
 
-Ben.
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- Sony Network and Software Technology Center Europe (NSCE)
+Geert.Uytterhoeven@sonycom.com ------------------- Sint-Stevens-Woluwestraat 55
+Voice +32-2-2908453 Fax +32-2-7262686 ---------------- B-1130 Brussels, Belgium
 

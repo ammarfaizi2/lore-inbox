@@ -1,53 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTFSXsb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 19:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTFSXsb
+	id S261985AbTFSXtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 19:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTFSXtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 19:48:31 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:6844 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261876AbTFSXs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 19:48:29 -0400
-Date: Thu, 19 Jun 2003 16:01:35 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] First casuality of hlist poisoning in 2.5.70
-Message-ID: <20030619230135.GA8045@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <16103.48257.400430.785367@charged.uio.no> <Pine.LNX.4.44.0306112206430.29133-100000@home.transmeta.com> <20030612162627.GJ6754@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030612162627.GJ6754@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 19 Jun 2003 19:49:51 -0400
+Received: from [81.193.96.95] ([81.193.96.95]:30947 "HELO
+	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
+	id S261985AbTFSXtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 19:49:46 -0400
+Message-ID: <3EF24F1A.1040009@vgertech.com>
+Date: Fri, 20 Jun 2003 01:02:34 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en-us, pt
+MIME-Version: 1.0
+To: Samphan Raruenrom <samphan@thai.com>
+CC: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Crusoe's persistent translation on linux?
+References: <3EF1E6CD.4040800@thai.com> <20030619200308.A2135@ucw.cz> <3EF2144D.5060902@thai.com>
+In-Reply-To: <3EF2144D.5060902@thai.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 05:26:27PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> We _do_ need to sort out the situation with unhashing stuff in NFS - in
-> particular, the way it deals with mountpoints and with directories is
-> a mess.  I'm looking through that code, but it's bloody slow analysis
-> due to RCU.  Premature optimizations and all such...
+Hi!
 
-No arguments on NFS, and I have to agree that RCU has been used
-primarily as an optimization thus far in Linux.  However, RCU
-can and should be considered quite early on.  The situation is
-similar to reader-writer locking -- you are better off working
-out which of your locks are going to be reader-writer locks
-earlier rather than later.  If you use either reader-writer
-locking or RCU as a late optimization, you will find that your
-earlier design decisions make your life more complex than necessary.
+Samphan Raruenrom wrote:
+> Vojtech Pavlik wrote:
+> 
+>>> I'm using 2.4.21 kernel on TM5800 Crusoe in Compaq TC1000 Tablet PC.
+>>> Currently the performance is not very good but the more I learn
+>>> about its architecture the more I'm obessesed about it (just like
+>>> the days when I use 68000 Amiga). Too bad that there are very little
+>>> information about the chip so I can't do anything much to improve
+>>> the performance myself (like enlarge the translation cache? how?).
+>>
+>> How much 'not very good' is the performance? I'm considering buying an
+>> Sharp Actius MM10 notebook, and so far I wasn't able to find ANY numbers
+>> on how fast a 1GHz Crusoe actually is, nevermind with Linux running on
+>> it ... and how much running Linux affects the expected battery life.
+>> Can you share your experience?
+> 
+> 
+> See http://www.tabletpcbuzz.com/forum/topic.asp?TOPIC_ID=4451
+> The guy make a real world benchmark and conclude that a 1 GHZ TM5800
+> with latest CMS and PTT should be comparable with 1 GHZ PIIIm.
+> Normally TM5800 users will say it is comparable to 600-900 MHz PIII.
+> 
+> About running Linux on it. Application launch time is not good
+> (18 sec. to launch GNOME Help, 7 sec. to relaunch). But after that
+> it seems like linux GUI apps are more responsive.
+> Building software projects seem to take longer than it should be.
+> Building OpenOffice.org take more than 4 days while it take
+> about 1-2 days on PIII. I guess the CMS has to translate 'gcc'
+> on every invokation?  If so, can the kernel help in any way?
+> 
 
-On the other hand, if RCU is considered early, it can make life
-simpler.  Breaking up locks often introduces deadlocks.  Some
-of these deadlocks can be avoided entirely by thinking through
-the use of RCU at design time.  An extreme example of deadlock
-avoidance may be found in IPMI (drivers/char/ipmi/ipmi_kcs_intf.c,
-the synchronize_kernel() near line 1174).  Really tough to do
-this as a late optimization...
 
-						Thanx, Paul
+This raises a new question. How about a port of Linux to the "VLIW" so 
+that we can skip x86 "code morphing" interelly?
+
+I'm sure that 1GHz would benefit from it. Is it possible, Linus?
+
+After googling a bit i went to
+http://216.239.57.100/search?q=cache:GCP2Ecz931UJ:www.icsi.berkeley.edu/~fleiner/research.html+crusoe+linux+native+port&hl=en&ie=UTF-8
+
+...But there isn't many more info. Is there any advantage?
+
+Sorry for the OT... :)
+
+Regards,
+Nuno Silva
+
+
+
+> Battery life and Linux should be Ok. You'll have 'longrun' utility
+> to control cpu power consumption vs. performance. I understand
+> that the CPU already control its power consumption itself, even
+> without the help of the kernel, right?
+> 
+

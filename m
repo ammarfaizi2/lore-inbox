@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261443AbSKBVeQ>; Sat, 2 Nov 2002 16:34:16 -0500
+	id <S261446AbSKBVmS>; Sat, 2 Nov 2002 16:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSKBVeP>; Sat, 2 Nov 2002 16:34:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3970 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261443AbSKBVeN>;
-	Sat, 2 Nov 2002 16:34:13 -0500
-Date: Sat, 2 Nov 2002 22:40:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: thornber@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: Patch(2.5.45): move io_restrictions to blkdev.h
-Message-ID: <20021102214014.GF3612@suse.de>
-References: <20021102105119.A6865@adam.yggdrasil.com>
-Mime-Version: 1.0
+	id <S261447AbSKBVmS>; Sat, 2 Nov 2002 16:42:18 -0500
+Received: from packet.digeo.com ([12.110.80.53]:53690 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261446AbSKBVmR>;
+	Sat, 2 Nov 2002 16:42:17 -0500
+Message-ID: <3DC44839.A3AEAE41@digeo.com>
+Date: Sat, 02 Nov 2002 13:48:41 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Hot/cold allocation -- swsusp can not handle hot pages
+References: <20021102181900.GA140@elf.ucw.cz> <20021102184612.GI23425@holomorphy.com> <20021102202208.GC18576@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021102105119.A6865@adam.yggdrasil.com>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Nov 2002 21:48:41.0849 (UTC) FILETIME=[9C0D8E90:01C282B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02 2002, Adam J. Richter wrote:
-> 	This patch makes good on a threat that I posted yesterday
-> to move struct io_restrictions from <linux/device-mapper.h> to
-> <linux/blkdev.h>, eliminating duplication of a list of fields in
-> struct request_queue.
+Pavel Machek wrote:
+> 
+> Hi!
+> 
+> > > Swsusp counts free pages, and relies on fact that when it allocates
+> > > page there's one free page less. That is no longer true with hot
+> > > pages.
+> > > I attempted to work it around but it seems I am getting hot pages even
+> > > when I ask for cold one. This seems to fix it. Does it looks like
+> > > "possibly mergable" patch?
+> > > --- clean/mm/page_alloc.c   2002-11-01 00:37:44.000000000 +0100
+> > > +++ linux-swsusp/mm/page_alloc.c    2002-11-01 22:53:47.000000000 +0100
+> > > @@ -361,7 +361,7 @@
+> > >     unsigned long flags;
+> > >     struct page *page = NULL;
+> > >
+> > > -   if (order == 0) {
+> > > +   if ((order == 0) && !cold) {
+> > >             struct per_cpu_pages *pcp;
+> > >
+> > >             pcp = &zone->pageset[get_cpu()].pcp[cold];
+> > >
+> >
+> > This doesn't seem to be doing what you want, even if it seems to work.
+> > If you want there to be one free page less, then allocating it will
+> > work regardless. What are you looking for besides that? If it's not
+> > already working you want some additional semantics. Could this involve
+> > is_head_of_free_region()? That should be solvable with a per-cpu list
+> > shootdown algorithm to fully merge all the buddy bitmap things.
+> 
+> I need pages I allocate to disappear from "is_head_of_free_region()",
+> so my counts match.
+> 
 
-Adam, I generally think the patch is a good idea. I also think it's a
-very stupid time to start messing with stuff that is basically trivial
-but still touches lost of stuff.
+hm.  swsusp does funny things.  Would it be posible to get a
+big-picture "how this whole thing works" story?  What exactly
+is the nature of its relationship with the page allocator?
 
-Please leave it alone for a few weeks.
-
-> 	Jens, can I persuade you to integrate this change?
-
-In due time, yes.
-
--- 
-Jens Axboe
-
+I'm not really sure what to suggest here.  Emptying the per-cpu
+page pools would be tricky.  Maybe a swsusp-special page allocator
+which goes direct to the buddy lists or something.

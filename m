@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263137AbSJaUxp>; Thu, 31 Oct 2002 15:53:45 -0500
+	id <S265342AbSJaVBg>; Thu, 31 Oct 2002 16:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263178AbSJaUxp>; Thu, 31 Oct 2002 15:53:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15375 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id <S263137AbSJaUxl>;
-	Thu, 31 Oct 2002 15:53:41 -0500
-Message-ID: <3DC199B5.8DDE2FE1@redhat.com>
-Date: Thu, 31 Oct 2002 15:59:34 -0500
-From: Dave Anderson <anderson@redhat.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.3.genterprise i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S265343AbSJaVBg>; Thu, 31 Oct 2002 16:01:36 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:3833 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S265342AbSJaVBe>; Thu, 31 Oct 2002 16:01:34 -0500
+Date: Thu, 31 Oct 2002 16:08:00 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-References: <Pine.LNX.4.44.0210311015380.1410-100000@penguin.transmeta.com>
+Cc: Andreas Herrmann <AHERRMAN@de.ibm.com>, linux-kernel@vger.kernel.org,
+       lkcd-devel@lists.sourceforge.net,
+       lkcd-devel-admin@lists.sourceforge.net,
+       lkcd-general@lists.sourceforge.net,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       "Matt D. Robinson" <yakker@aparity.com>
+Subject: Re: [lkcd-devel] Re: What's left over.
+Message-ID: <20021031160800.M18072@redhat.com>
+References: <OFEC1A12FD.509981CC-ONC1256C63.00746AAA@de.ibm.com> <Pine.LNX.4.44.0210311239430.2334-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210311239430.2334-100000@home.transmeta.com>; from torvalds@transmeta.com on Thu, Oct 31, 2002 at 12:40:28PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 31, 2002 at 12:40:28PM -0800, Linus Torvalds wrote:
+> And imnsho, debugging the kernel on a source level is the way to do it.
+> 
+> Which is why it's not going to be me who merges it.
+> 
+> Read my emails.
 
-On Thu, 31 Oct 2002, Linus Torvalds wrote:
+That is one of the reasons that crash dumps are useful.  Quite a few 
+problems that customers hit are not easy to reproduce, but when they 
+provide a dump file that can be loaded into gdb with the original 
+kernel debugging info and the backtrace command issued and various 
+bits of internal structures examined, usually a good hypothesis can 
+be made for the cause.  Feed that back into a code audit and you end 
+up fixing problems that are decidedly challenging.
 
->  - included features kill off (potentially better) projects.
->
->         There's a big "inertia" to features. It's often better to keep
->         features _off_ the standard kernel if they may end up being
->         further developed in totally new directions.
->
->         In particular when it comes to this project, I'm told about
->         "netdump", which doesn't try to dump to a disk, but over the net.
->         And quite frankly, my immediate reaction is to say "Hell, I
->         _never_ want the dump touching my disk, but over the network
->         sounds like a great idea".
->
-> To me this says "LKCD is stupid". Which means that I'm not going to apply
-> it, and I'm going to need some real reason to do so - ie being proven
-> wrong in the field.
->
-> (And don't get me wrong - I don't mind getting proven wrong. I change my
-> opinions the way some people change underwear. And I think that's ok).
-
-It would be most unfortunate if the existance of netdump is used as a
-reason to deny LKCD's inclusion, or to simply dismiss LKCD as stupid.
-
-On Thu, 31 Oct 2002, Matt D. Robinson wrote:
-
-> We want to see this in the kernel, frankly, because it's a pain
-> in the butt keeping up with your kernel revisions and everything
-> else that goes in that changes.  And I'm sure SuSE, UnitedLinux and
-> (hopefully) Red Hat don't want to spend their time having to roll
-> this stuff in each and every time you roll a new kernel.
-
-While Red Hat advocates Ingo's netdump option, we have customer
-requests that are requiring us to look at LKCD disk-based dumps as an
-alternative, co-existing dump mechanism.  Since the two methods are not mutually
-exclusive, LKCD will never kill off netdump -- nor certainly vice-versa.  We're
-all just looking for a better means to be able to
-provide support to our customers, not to mention its value as a
-development aid.
-
-Dave Anderson
-Red Hat, Inc.
-
-
-
+		-ben
+-- 
+"Do you seek knowledge in time travel?"

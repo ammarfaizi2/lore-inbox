@@ -1,119 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264304AbTDKHQl (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 03:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTDKHQl (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 03:16:41 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:44671 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S264304AbTDKHQj (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 03:16:39 -0400
-Date: Fri, 11 Apr 2003 00:28:16 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, george anzinger <george@mvista.com>
-Subject: Re: too much timer simplification...
-Message-Id: <20030411002816.786296e8.akpm@digeo.com>
-In-Reply-To: <200304110705.h3B75aQt026081@napali.hpl.hp.com>
-References: <200304110705.h3B75aQt026081@napali.hpl.hp.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id S264307AbTDKH1T (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 03:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTDKH1T (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 03:27:19 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:44079 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S264307AbTDKH1R (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 03:27:17 -0400
+Date: Fri, 11 Apr 2003 10:38:50 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel support for non-english user messages
+Message-ID: <20030411073849.GU159052@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+	'Chuck Ebbert' <76306.1226@compuserve.com>,
+	'linux-kernel' <linux-kernel@vger.kernel.org>
+References: <A46BBDB345A7D5118EC90002A5072C780BEBA7DD@orsmsx116.jf.intel.com> <20030410160636.H26054@schatzie.adilger.int>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Apr 2003 07:28:15.0463 (UTC) FILETIME=[EA6C3770:01C2FFFB]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030410160636.H26054@schatzie.adilger.int>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> wrote:
+On Thu, Apr 10, 2003 at 04:06:36PM -0600, you [Andreas Dilger] wrote:
 >
-> It appears to me that this changeset:
+>   From what I've read, it sounds like the solution that will be accepted by
+> the kernel developers is that kernel messages will continue to be output
+> as-is in english, and can be post-processed with a tool to translate it to
+> another language.  The tool will grab the format strings from the kernel
+> so that it can separate out the constant and variable parts of the message,
+> and the format strings will be translated.
 > 
->   http://linux.bkbits.net:8080/linux-2.5/diffs/kernel/timer.c@1.48
-> 
-> may have gone a little too far.
-> 
-> What I'm seeing is that if someone happens to arm a periodic timer at
-> exactly 256 jiffies (as ohci happens to do on platforms with HZ=1024),
-> then you end up getting an endless loop of timer activations, causing
-> a machine hang.
-> 
-> The problem is that __run_timers updates base->timer_jiffies _before_
-> running the callback routines.  If a callback re-arms the timer at
-> exactly 256 jiffies, add_timers() will reinsert the timer into the
-> list that we're currently processing, which of course will cause the
-> timer to expire immediately again, etc., etc., ad naseum...
-> 
+> At translation time, _something_ _like_ "sscanf(format_string, ...)" will
+> be used to detect the which message is which (probably being speeded up
+> with a pattern-matching hash of the constant parts of the message like
+> prcs/xdelta does), substituting the english format with the translated
+> format, and then substituting the args.
 
-OK, well unless George can pull a rabbit out of the hat it may
-be best to just revert it.
+But the sscanf parsing is fragile if not impossible to get right in some
+cases. How do you parse the output of printk("file %s on device %s
+corrupted", file, devname); if file the file contains spaces and whatever?
 
-This gives us the same algorithm as 2.4, which I think is good.
+Why not make it so that kernel can be configured to output messages as
+<format string>,<arg>,<arg>... where the format string is what is usually
+passed to *printf. (The actual field separators could be \0 or something.)
+Then you can use standard gnu gettext to get the translation in user space
+(i18n aware klogd, whatever) and apply the formatting after that.
+
+Actually, the structured message pool could be separate from the normal one,
+so that the existing tools don't break. Both the old style and formatted
+message pool could be configured on and off based on user needs when
+compiling the kernel. 
+
+And the change should be pretty easy and centralized in kernel. This only
+adds the run time over head of maintaing two pools iff both are configured
+on.
+
+(Not that I need i18n kernel or would ever use one. And I'm fairly sure
+no-one gets around to implement it anyway...)
 
 
---- 25/kernel/timer.c~timer-simplification-revert	2003-04-11 00:19:48.000000000 -0700
-+++ 25-akpm/kernel/timer.c	2003-04-11 00:19:48.000000000 -0700
-@@ -56,6 +56,7 @@ struct tvec_t_base_s {
- 	spinlock_t lock;
- 	unsigned long timer_jiffies;
- 	struct timer_list *running_timer;
-+	struct list_head *run_timer_list_running;
- 	tvec_root_t tv1;
- 	tvec_t tv2;
- 	tvec_t tv3;
-@@ -100,6 +101,12 @@ static inline void check_timer(struct ti
- 		check_timer_failed(timer);
- }
- 
-+/*
-+ * If a timer handler re-adds the timer with expires == jiffies, the timer
-+ * running code can lock up.  So here we detect that situation and park the
-+ * timer onto base->run_timer_list_running.  It will be added to the main timer
-+ * structures later, by __run_timers().
-+ */
- 
- static void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
- {
-@@ -107,7 +114,9 @@ static void internal_add_timer(tvec_base
- 	unsigned long idx = expires - base->timer_jiffies;
- 	struct list_head *vec;
- 
--	if (idx < TVR_SIZE) {
-+	if (base->run_timer_list_running) {
-+		vec = base->run_timer_list_running;
-+	} else if (idx < TVR_SIZE) {
- 		int i = expires & TVR_MASK;
- 		vec = base->tv1.vec + i;
- 	} else if (idx < 1 << (TVR_BITS + TVN_BITS)) {
-@@ -397,6 +406,7 @@ static inline void __run_timers(tvec_bas
- 
- 	spin_lock_irq(&base->lock);
- 	while (time_after_eq(jiffies, base->timer_jiffies)) {
-+		LIST_HEAD(deferred_timers);
- 		struct list_head *head;
-  		int index = base->timer_jiffies & TVR_MASK;
-  
-@@ -408,7 +418,7 @@ static inline void __run_timers(tvec_bas
- 				(!cascade(base, &base->tv3, INDEX(1))) &&
- 					!cascade(base, &base->tv4, INDEX(2)))
- 			cascade(base, &base->tv5, INDEX(3));
--		++base->timer_jiffies; 
-+		base->run_timer_list_running = &deferred_timers;
- repeat:
- 		head = base->tv1.vec + index;
- 		if (!list_empty(head)) {
-@@ -427,6 +437,14 @@ repeat:
- 			spin_lock_irq(&base->lock);
- 			goto repeat;
- 		}
-+		base->run_timer_list_running = NULL;
-+		++base->timer_jiffies; 
-+		while (!list_empty(&deferred_timers)) {
-+			timer = list_entry(deferred_timers.prev,
-+						struct timer_list, entry);
-+			list_del(&timer->entry);
-+			internal_add_timer(base, timer);
-+		}
- 	}
- 	set_running_timer(base, NULL);
- 	spin_unlock_irq(&base->lock);
+-- v --
 
-_
-
+v@iki.fi

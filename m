@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136362AbRDWDWe>; Sun, 22 Apr 2001 23:22:34 -0400
+	id <S136365AbRDWDYG>; Sun, 22 Apr 2001 23:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136363AbRDWDWP>; Sun, 22 Apr 2001 23:22:15 -0400
-Received: from leng.mclure.org ([64.81.48.142]:7176 "EHLO
+	id <S136364AbRDWDXp>; Sun, 22 Apr 2001 23:23:45 -0400
+Received: from leng.mclure.org ([64.81.48.142]:7688 "EHLO
 	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S136362AbRDWDWB>; Sun, 22 Apr 2001 23:22:01 -0400
-Date: Sun, 22 Apr 2001 20:21:58 -0700
+	id <S136366AbRDWDXk>; Sun, 22 Apr 2001 23:23:40 -0400
+Date: Sun, 22 Apr 2001 20:23:39 -0700
 From: Manuel McLure <manuel@mclure.org>
-To: whitney@math.berkeley.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
-Message-ID: <20010422202158.E970@ulthar.internal.mclure.org>
-In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org> <200104222138.XAA00666@kufel.dom> <200104222138.XAA00666@kufel.dom> <20010422192520.A3618@ulthar.internal.mclure.org> <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel hang on multi-threaded X process crash
+Message-ID: <20010422202339.G970@ulthar.internal.mclure.org>
+In-Reply-To: <20010422185514.A981@ulthar.internal.mclure.org> <20010422192704.C3618@ulthar.internal.mclure.org> <20010422201701.A970@ulthar.internal.mclure.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net>; from whitney@math.berkeley.edu on Sun, Apr 22, 2001 at 19:42:49 -0700
+In-Reply-To: <20010422201701.A970@ulthar.internal.mclure.org>; from manuel@mclure.org on Sun, Apr 22, 2001 at 20:17:01 -0700
 X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2001.04.22 19:42 Wayne Whitney wrote:
-> In mailing-lists.linux-kernel, Manuel A. McLure wrote:
+On 2001.04.22 20:17 Manuel McLure wrote:
 > 
-> > Did you try nesting more than one "su -"? The first one after a boot
-> > works for me - every other one fails.
+> On 2001.04.22 19:27 Manuel McLure wrote:
+> > 
+> > On 2001.04.22 18:55 Manuel McLure wrote:
+> > 
+> > > The machine is an Athlon Thunderbird 900MHz with 256M of PC133 DRAM
+> on
+> > an
+> > > MSI K7T Turbo R motherboard. I am running 2.4.3-ac12 currently,
+> > > 2.4.3-ac11
+> > > and 2.4.3-ac5 hung the same way at least once each before I started
+> > > tracking this down. I am running Red Hat 7.1, and am using the
+> > > XFree86-4.0.3 RPMs that come with RH71 with the CVS DRI trunk
+> installed
+> > > over it. The kernel was built with kgcc, a gcc-2.96 built kernel has
+> > the
+> > > same problem.
+> > 
+> > Following up on myself, I replaced the contents of /usr/X11R6 server
+> with
+> > the standard 4.0.3 RPMs that come with RH 7.1 and it made no
+> difference.
+> > Also, if it's important my video card is a Voodoo 5 5500.
 > 
-> Same here: the first "su -" works OK, but a second nested one hangs:
-> 
->  8825 pts/2    S      0:00 /bin/su -
->  8826 pts/2    S      0:00 -bash
->  8854 pts/2    T      0:00 stty erase ?
->  8855 pts/0    R      0:00 ps ax
-> 
-> "kill -CONT 8854" has no effect.  
-> 
-> > I'm on RH71 - this may be specific to this release. It's also
-> > kernel-dependent, I can reboot with ac5 and the problem does not
-> > happen.  The kernel is compiled with the same compiler as yours.
-> 
-> I'm RH-7.1 and kernel 2.4.4-pre6 (with the via 3.23 driver from -ac)
+> To follow up on my followup, I can now reproduce this 100% and get the
+> "Trying to vfree()..." message on the console. To do this I start
+> Mozilla,
+> switch to a text console, and do a "killall -QUIT mozilla". A couple of
+                                                    ^^^^^^^
 
-It looks like this may very well be a RH 7.1 interaction with the kernel,
-since others are not seeing this.
+Make that "killall -QUIT mozilla-bin"...
+
+
+> "Trying to vfree()..." messages later, it's big red switch time.
+> 
+> I'm going to try this with standard 2.4.3 as well as the 2.4.2 that comes
+> with RH71 - hopefully my filesystem will handle all the fscks :-(
 
 -- 
 Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient

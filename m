@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262174AbREUUAq>; Mon, 21 May 2001 16:00:46 -0400
+	id <S261663AbREUTzE>; Mon, 21 May 2001 15:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262176AbREUUAg>; Mon, 21 May 2001 16:00:36 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:63185 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S262174AbREUUA1>; Mon, 21 May 2001 16:00:27 -0400
-Date: Mon, 21 May 2001 22:00:07 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: <Wayne.Brown@altec.com>, David Woodhouse <dwmw2@infradead.org>,
-        Arjan van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Background to the argument about CML2 design philosophy
-In-Reply-To: <20010521135857.B11361@thyrsus.com>
-Message-ID: <Pine.LNX.4.30.0105212052290.13267-100000@cola.teststation.com>
+	id <S262174AbREUTyy>; Mon, 21 May 2001 15:54:54 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:19471 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261663AbREUTyq>; Mon, 21 May 2001 15:54:46 -0400
+Date: 21 May 2001 21:32:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-fsdevel@vger.rutgers.edu
+cc: linux-kernel@vger.kernel.org
+Message-ID: <81IDi8JHw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.21.0105202005070.8426-100000@penguin.transmeta.com>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.21.0105202005070.8426-100000@penguin.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 May 2001, Eric S. Raymond wrote:
+torvalds@transmeta.com (Linus Torvalds)  wrote on 20.05.01 in <Pine.LNX.4.21.0105202005070.8426-100000@penguin.transmeta.com>:
 
-> the NEW tag).  That phase ended almost a month ago.  Nobody who has
-> actually tried the CML2 tools more recently has reported that the UI
-> changes present any difficulty.
+> If we had nice infrastructure to make ioctl's more palatable, we could
+> probably make do even with the current binary-number interfaces, simply
+> because people would use the infrastructure without ever even _seeing_ how
+> lacking the user-level accesses are.
+>
+> But that absolutely _requires_ that the driver writers should never see
+> the silly "pass a random number and a random argument type" kind of
+> interface with no structure or infrastructure in place.
 
-What happened with the discussion on configurable colors in make
-menuconfig? Darkblue on black as frozen options get isn't exactly optimal
-... at least not for my eyes. Being next to a bold, white text doesn't
-help either.
+Hmm.
 
+So would it be worthwile to invent some infrastructure - possibly  
+including macros, possibly even including a (very small) code generator, I  
+don't really have any details clear at this point - that allows you to  
+specify an interface in a sane way (for example, but not necessarily, as a  
+C function definition, though that may be too hard to parse), and have the  
+infrastructure generate
 
-> CML2 drops its configuration results in the same place, in the same
-> formats, as CML1.  So you should in fact be able to type `make menuconfig'
-> and `make oldconfig' with good results.  Have you actually tried this?
+1. some code to call ioctl() with these arguments
+2. some other code to pick apart the ioctl buffer and call the actual
+   function with these arguments
 
-It works for me, but anyone testing this should know that the CML2 tools
-read "config.out" if it finds one. So people that do things like:
+preferrably so that (a) the code from 1 is suitable for use in libc or  
+similar places, (b) the code from 2 is suitable for the kernel, (c) most  
+(all would be better but may not be practical) existing ioctls could be  
+described that way?
 
-make mrproper ; cp ../.config-2.4 .config ; make oldconfig
+(If so, the first task would obviously be to analyze existing code in  
+those places, and the actual structure of existing ioctls, to find out  
+what sort of stuff needs to be supported, before trying to design the  
+mechanism to support it.)
 
-will have to change to copying config.out instead. Doing like this sort of
-works* if there is no config.out, otherwise it does not (as it uses the
-config.out).
+A variant possibility (that I suspect you'll like significantly less)  
+would be a data structure to describe the ioctl that gets interpreted at  
+runtime. I think I prefer specific code for that job. At least *some*  
+ioctls are in hot spots, and interpreting is slow. And that hypothetical  
+encapsulation certainly should not know the difference between fast and  
+slow interrupts^Wioctls.
 
-Saying that the config result ends up in the same place and same format is
-somewhat misleading, you do get a copy in the CML1 output format but the
-tools doesn't care about that if it can find a file in the new format.
-
-*) "Sort of works", since doing like I do will cause you to get a lot of
-questions that you have already answered. That appears to be a one-time
-problem as 'oldconfig' does not read "# CONFIG_FOO is not set" as "no".
-Would be nice if it did.
-
-
-make mrproper doesn't remove config.out. It should since that's what it
-does with .config* files. Not sure if it should remove the rules.out file
-also, but I think it should as the idea(?) with mrproper is to clean up
-anything that is generated.
-
-/Urban
-
+MfG Kai

@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264879AbTFQS1d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 14:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbTFQS1d
+	id S264695AbTFQSZg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 14:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTFQSZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 14:27:33 -0400
-Received: from pat.uio.no ([129.240.130.16]:37106 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264879AbTFQS1c (ORCPT
+	Tue, 17 Jun 2003 14:25:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:33284 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264695AbTFQSZf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 14:27:32 -0400
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() again, and trivial nfs_fhget
-References: <20030617051408.A17974@google.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 17 Jun 2003 11:41:18 -0700
-In-Reply-To: <20030617051408.A17974@google.com>
-Message-ID: <shs1xxsr1gx.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Tue, 17 Jun 2003 14:25:35 -0400
+Date: Tue, 17 Jun 2003 20:39:29 +0200
+From: Olaf Hering <olh@suse.de>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Anton Blanchard <anton@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: pci_domain_nr vs. /sys/devices
+Message-ID: <20030617183929.GA15886@suse.de>
+References: <1055341842.754.3.camel@gaston> <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk> <20030617044948.GA1172@krispykreme> <20030617162546.GS30843@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20030617162546.GS30843@parcelfarce.linux.theplanet.co.uk>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
+ On Tue, Jun 17, Matthew Wilcox wrote:
 
-     > The first one didn't make it into 2.5.71/72, but is
-     > necessary. :-)
+> ./drivers/net/3c59x.c:                  strcpy(info.bus_info, VORTEX_PCI(vp)->slot_name);
 
-Why are you doing this in the VFS?
+that one is for ethtool ioctl.
+Is 'ethtool -i' obsolete in 2.6?
+It seems sysfs has every info already.
 
-There is already code to handle this case in the NFS filesystem code
-itself. If you think that code is wrong then make an argument for
-changing it, and send me a patch.
+olaf@smirnow:~/linux-2.5.72> l /sys/class/net/eth0/
+total 0
+drwxr-xr-x    3 root     root            0 Jun 17 13:14 ./
+drwxr-xr-x    4 root     root            0 Jun 17 13:14 ../
+-r--r--r--    1 root     root         4096 Jun 17 13:14 addr_len
+-r--r--r--    1 root     root         4096 Jun 17 13:14 address
+-r--r--r--    1 root     root         4096 Jun 17 13:14 broadcast
+lrwxrwxrwx    1 root     root           34 Jun 17 13:14 device -> ../../../devices/pci0/0000:00:0a.0/
+lrwxrwxrwx    1 root     root           30 Jun 17 13:14 driver -> ../../../bus/pci/drivers/3c59x/
+-r--r--r--    1 root     root         4096 Jun 17 13:14 features
+-rw-r--r--    1 root     root         4096 Jun 17 13:14 flags
+-r--r--r--    1 root     root         4096 Jun 17 13:14 ifindex
+-r--r--r--    1 root     root         4096 Jun 17 13:14 iflink
+-rw-r--r--    1 root     root         4096 Jun 17 13:14 mtu
+drwxr-xr-x    2 root     root            0 Jun 17 13:14 statistics/
+-rw-r--r--    1 root     root         4096 Jun 17 13:14 tx_queue_len
+-r--r--r--    1 root     root         4096 Jun 17 13:14 type
 
-Cheers,
-  Trond
+driver, businfo.
+drivers/<foo> does not provide a version string.
+Should there be an entry for that?
+
+-- 
+USB is for mice, FireWire is for men!

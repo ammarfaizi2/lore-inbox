@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266913AbUG1Nl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266915AbUG1Nqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266913AbUG1Nl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 09:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266914AbUG1Nl1
+	id S266915AbUG1Nqx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 09:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266916AbUG1Nqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 09:41:27 -0400
-Received: from styx.suse.cz ([82.119.242.94]:33672 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S266913AbUG1NlZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 09:41:25 -0400
-Date: Wed, 28 Jul 2004 15:43:13 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Olav Kongas <olav@enif.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: input system: EVIOCSABS(abs) ioctl disabled, why?
-Message-ID: <20040728134313.GB4831@ucw.cz>
-References: <Pine.LNX.4.58.0407281453560.16069@serv.enif.ee>
+	Wed, 28 Jul 2004 09:46:52 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:3040 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S266915AbUG1Nqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 09:46:51 -0400
+Date: Wed, 28 Jul 2004 15:46:40 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Mason <mason@suse.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: writepages drops bh on not uptodate page
+Message-ID: <20040728134640.GI15895@dualathlon.random>
+References: <20040728045156.GH15895@dualathlon.random> <1091019818.6333.84.camel@watt.suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407281453560.16069@serv.enif.ee>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1091019818.6333.84.camel@watt.suse.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 03:41:28PM +0300, Olav Kongas wrote:
+On Wed, Jul 28, 2004 at 09:03:39AM -0400, Chris Mason wrote:
+> Ahhhh, this really explains it, thanks andrea.  I agree your fix should
+> solve things, but I'm wondering if we shouldn't make readpage[s] do a
+> wait_on_page_writeback().  That might do a better job of protecting us
+> from future variations of this problem.
 
-> When trying to feed calibration information to a touchscreen driver with
-> the EVIOCSABS(abs) ioctl command, I noticed that this command is disabled
-> in 2.6.7. Only after the modification given in the patch below it was
-> possible to use this ioctl command.
-> 
-> Why is the EVIOCSABS command disabled? I cannot imagine that nobody uses
+the invariant is that not-fully-uptodate pages needs the bh on them
+while they're under writeback. As far as this holds true, there seems
+not to be other issues since readpage checks the bh, and readpages don't
+need to check for anything since it only does I/O on newly allocated
+pages (which cannot be under writeback). try_to_free_buffers doesn't
+allow the bh to go away under writeback.
 
-It's a bug. I'll fix it.
-
-> or needs it.
-
-Nobody uses it, surprisingly.
-
-> The touchscreen drivers have no good way of determining the
-> absolute limits themselves, do they?
-
-Many do.
-
-> Thanks in advance,
-> Olav
-> 
-> --- linux-2.6.7/drivers/input/evdev.c.or	2004-07-21 13:27:03.000000000 +0300
-> +++ linux-2.6.7/drivers/input/evdev.c	2004-07-21 15:53:46.000000000 +0300
-> @@ -284,7 +284,7 @@
-> 
->  		default:
-> 
-> -			if (_IOC_TYPE(cmd) != 'E' || _IOC_DIR(cmd) != _IOC_READ)
-> +			if (_IOC_TYPE(cmd) != 'E' || (_IOC_DIR(cmd) != _IOC_READ && (cmd & ~ABS_MAX) !=  EVIOCSABS(0)))
->  				return -EINVAL;
-> 
->  			if ((_IOC_NR(cmd) & ~EV_MAX) == _IOC_NR(EVIOCGBIT(0,0))) {
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+So the other approach would be to wait_on_page_writeback before a
+->readpage (not ->readpages), if we're not in a add_to_page_cache case
+(where we know the page cannot be under writeback).  But that looks less
+efficient and we don't need that as long as we don't break the above
+invariant. Though I certainly agree that adding the
+wait_on_page_writeback in the highlevel code that goes to call readpage
+would have fixed the bug too.

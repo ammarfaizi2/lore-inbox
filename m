@@ -1,76 +1,124 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313896AbSEDDQN>; Fri, 3 May 2002 23:16:13 -0400
+	id <S313314AbSEDDPY>; Fri, 3 May 2002 23:15:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315176AbSEDDQN>; Fri, 3 May 2002 23:16:13 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:36129 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S313896AbSEDDQL>; Fri, 3 May 2002 23:16:11 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A781780F9@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'davem@redhat.com'" <davem@redhat.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'ak@muc.de'" <ak@muc.de>
-Subject: RE: my slab cache broken on sparc64
-Date: Fri, 3 May 2002 22:15:56 -0500 
+	id <S313896AbSEDDPX>; Fri, 3 May 2002 23:15:23 -0400
+Received: from dsl092-144-112.wdc1.dsl.speakeasy.net ([66.92.144.112]:42373
+	"EHLO roz.db2adm.com") by vger.kernel.org with ESMTP
+	id <S313314AbSEDDPW>; Fri, 3 May 2002 23:15:22 -0400
+Date: Fri, 3 May 2002 23:15:10 -0400 (EDT)
+From: Ward Fenton <ward@db2adm.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre8 syntax errors in fs/ufs/super.c
+Message-ID: <Pine.LNX.4.44.0205032310200.21194-100000@roz.db2adm.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->It would work if the access was surrounded by:
->
->	old_fs = get_fs();
->	set_fs(KERNEL_DS);
->	... get_user(kernel_pointer) ...
->	set_fs (old_fs);
->
->But it is not.
+The following is a portion of the 2.4.19-pre8 patch with a correction
+for a few syntax errors.
 
-For what it's worth to you, the below patch fixes this issue, at least on my
-box.  I have patched and tested on my Ultra5.  Thanks for the help!
+from patch-2.4.19-pre8
+missing commas in several added printk statements...
 
-Bruce H.
-
---- linus-2.5/mm/slab.c	Wed May  1 08:38:46 2002
-+++ sparctest/mm/slab.c	Fri May  3 22:59:24 2002
-@@ -846,11 +846,14 @@
- 			/* This happens when the module gets unloaded and
-doesn't
- 			   destroy its slab cache and noone else reuses the
-vmalloc
- 			   area of the module. Print a warning. */
-+			mm_segment_t old_fs = get_fs();
-+			set_fs(KERNEL_DS);
- 			if (__get_user(tmp,pc->name)) { 
- 				printk("SLAB: cache with size %d has lost
-its name\n", 
- 					pc->objsize); 
- 				continue; 
--			} 	
-+			}
-+			set_fs(old_fs); 	
- 			if (!strcmp(pc->name,name)) { 
- 				printk("kmem_cache_create: duplicate cache
-%s\n",name); 
- 				up(&cache_chain_sem); 
-@@ -1963,10 +1966,13 @@
+@@ -653,14 +657,34 @@
+ 	uspi->s_fmask = fs32_to_cpu(sb, usb1->fs_fmask);
+ 	uspi->s_fshift = fs32_to_cpu(sb, usb1->fs_fshift);
  
- 	name = cachep->name; 
- 	{
--	char tmp; 
-+	char tmp;
-+	mm_segment_t old_fs = get_fs();
-+	set_fs(KERNEL_DS);
- 	if (__get_user(tmp, name)) 
--		name = "broken"; 
--	} 	
-+		name = "broken";
-+	set_fs(old_fs); 
+-	if (uspi->s_bsize != 4096 && uspi->s_bsize != 8192 
+-	  && uspi->s_bsize != 32768) {
+-		printk("ufs_read_super: fs_bsize %u != {4096, 8192, 
+32768}\n", uspi->s_bsize);
++	if (uspi->s_fsize & (uspi->s_fsize - 1)) {
++		printk("ufs_read_super: fragment size %u is not a power of 
+2\n",
++			uspi->s_fsize);
++		goto failed;
 +	}
++	if (uspi->s_bsize < 512) {
++		printk("ufs_read_super: fragment size %u is too small\n"
++			uspi->s_fsize);
++		goto failed;
++	}
++	if (uspi->s_bsize > 4096) {
++		printk("ufs_read_super: fragment size %u is too large\n"
++			uspi->s_fsize);
++		goto failed;
++	}
++	if (uspi->s_bsize & (uspi->s_bsize - 1)) {
++		printk("ufs_read_super: block size %u is not a power of 
+2\n",
++			uspi->s_bsize);
++		goto failed;
++	}
++	if (uspi->s_bsize < 4096) {
++		printk("ufs_read_super: block size %u is too small\n"
++			uspi->s_fsize);
+ 		goto failed;
+ 	}
+-	if (uspi->s_fsize != 512 && uspi->s_fsize != 1024 
+-	  && uspi->s_fsize != 2048 && uspi->s_fsize != 4096) {
+-		printk("ufs_read_super: fs_fsize %u != {512, 1024, 2048. 
+4096}\n", uspi->s_fsize);
++	if (uspi->s_bsize / uspi->s_fsize > 8) {
++		printk("ufs_read_super: too many fragments per block 
+(%u)\n"
++			uspi->s_bsize / uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_fsize != block_size || uspi->s_sbsize != 
+super_block_size) {
+
+
+Correction for missing commas...
+
+@@ -653,14 +657,34 @@
+ 	uspi->s_fmask = fs32_to_cpu(sb, usb1->fs_fmask);
+ 	uspi->s_fshift = fs32_to_cpu(sb, usb1->fs_fshift);
  
- 	seq_printf(m, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
- 		name, active_objs, num_objs, cachep->objsize,
+-	if (uspi->s_bsize != 4096 && uspi->s_bsize != 8192 
+-	  && uspi->s_bsize != 32768) {
+-		printk("ufs_read_super: fs_bsize %u != {4096, 8192, 
+32768}\n", uspi->s_bsize);
++	if (uspi->s_fsize & (uspi->s_fsize - 1)) {
++		printk("ufs_read_super: fragment size %u is not a power of 
+2\n",
++			uspi->s_fsize);
++		goto failed;
++	}
++	if (uspi->s_bsize < 512) {
++		printk("ufs_read_super: fragment size %u is too small\n",
++			uspi->s_fsize);
++		goto failed;
++	}
++	if (uspi->s_bsize > 4096) {
++		printk("ufs_read_super: fragment size %u is too large\n",
++			uspi->s_fsize);
++		goto failed;
++	}
++	if (uspi->s_bsize & (uspi->s_bsize - 1)) {
++		printk("ufs_read_super: block size %u is not a power of 
+2\n",
++			uspi->s_bsize);
++		goto failed;
++	}
++	if (uspi->s_bsize < 4096) {
++		printk("ufs_read_super: block size %u is too small\n",
++			uspi->s_fsize);
+ 		goto failed;
+ 	}
+-	if (uspi->s_fsize != 512 && uspi->s_fsize != 1024 
+-	  && uspi->s_fsize != 2048 && uspi->s_fsize != 4096) {
+-		printk("ufs_read_super: fs_fsize %u != {512, 1024, 2048. 
+4096}\n", uspi->s_fsize);
++	if (uspi->s_bsize / uspi->s_fsize > 8) {
++		printk("ufs_read_super: too many fragments per block 
+(%u)\n",
++			uspi->s_bsize / uspi->s_fsize);
+ 		goto failed;
+ 	}
+ 	if (uspi->s_fsize != block_size || uspi->s_sbsize != 
+super_block_size) {
+
+

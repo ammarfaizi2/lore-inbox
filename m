@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129417AbRB0BxU>; Mon, 26 Feb 2001 20:53:20 -0500
+	id <S129421AbRB0Bxu>; Mon, 26 Feb 2001 20:53:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129421AbRB0BxL>; Mon, 26 Feb 2001 20:53:11 -0500
-Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:5615 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129417AbRB0BxI>; Mon, 26 Feb 2001 20:53:08 -0500
-Date: Mon, 26 Feb 2001 21:14:03 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, shingo@flab.fujitsu.co.jp,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] fmvj18x_cs: don't reference skb after passing it to netif_rx
-Message-ID: <20010226211403.N8692@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, shingo@flab.fujitsu.co.jp,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-X-Url: http://advogato.org/person/acme
+	id <S129434AbRB0Bxl>; Mon, 26 Feb 2001 20:53:41 -0500
+Received: from hisl29.room-net.com ([63.123.124.29]:45064 "EHLO vaio.greennet")
+	by vger.kernel.org with ESMTP id <S129421AbRB0Bxa>;
+	Mon, 26 Feb 2001 20:53:30 -0500
+Date: Mon, 26 Feb 2001 20:52:39 -0500 (EST)
+From: Donald Becker <becker@scyld.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH] via-rhine.c: don't reference skb after passing it to
+ netif_rx
+In-Reply-To: <20010226210441.K8692@conectiva.com.br>
+Message-ID: <Pine.LNX.4.10.10102262050220.1129-100000@vaio.greennet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-another pcmcia one
+On Mon, 26 Feb 2001, Arnaldo Carvalho de Melo wrote:
 
-Em Mon, Feb 26, 2001 at 08:33:59PM -0300, Arnaldo Carvalho de Melo escreveu:
-Hi,
+> Em Mon, Feb 26, 2001 at 08:33:59PM -0300, Arnaldo Carvalho de Melo escreveu:
+> 	I've just read davem's post at netdev about the brokeness of
+> referencing skbs after passing it to netif_rx, so please consider applying
+> this patch. Ah, this was just added to the Janitor's TODO list at
 
-	I've just read davem's post at netdev about the brokeness of
-referencing skbs after passing it to netif_rx, so please consider applying
-this patch. Ah, this was just added to the Janitor's TODO list at
-http://bazar.conectiva.com.br/~acme/TODO and I'm doing a quick audit in the
-net drivers searching for this, maybe some more patches will follow.
+> --- linux-2.4.2/drivers/net/via-rhine.c	Mon Dec 11 19:38:29 2000
+> +++ linux-2.4.2.acme/drivers/net/via-rhine.c	Mon Feb 26 22:36:18 2001
+> @@ -1147,9 +1147,9 @@
+>  								 np->rx_buf_sz, PCI_DMA_FROMDEVICE);
+>  			}
+>  			skb->protocol = eth_type_trans(skb, dev);
+> +			np->stats.rx_bytes += skb->len;
+>  			netif_rx(skb);
+>  			dev->last_rx = jiffies;
+> -			np->stats.rx_bytes += skb->len;
+>  			np->stats.rx_packets++;
+>  		}
 
-- Arnaldo
+Easier fix: 
+-			np->stats.rx_bytes += skb->len;
++			np->stats.rx_bytes += pkt_len;
 
---- linux-2.4.2/drivers/net/pcmcia/fmvj18x_cs.c	Tue Feb 13 19:15:05 2001
-+++ linux-2.4.2.acme/drivers/net/pcmcia/fmvj18x_cs.c	Mon Feb 26 22:45:53 2001
-@@ -994,9 +994,9 @@
- 	    }
- #endif
- 
-+	    lp->stats.rx_bytes += skb->len;
- 	    netif_rx(skb);
- 	    lp->stats.rx_packets++;
--	    lp->stats.rx_bytes += skb->len;
- 	}
- 	if (--boguscount <= 0)
- 	    break;
+Grouping the writes to np->stats results in better cache usage.
+
+
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
+

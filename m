@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264777AbUEUUBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUEUUBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264777AbUEUUBK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 16:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUEUUBJ
+	id S265973AbUEUUBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 16:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265979AbUEUUBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 16:01:09 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:48521 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S264777AbUEUUBG (ORCPT
+	Fri, 21 May 2004 16:01:51 -0400
+Received: from kendy.up.ac.za ([137.215.101.101]:13631 "EHLO kendy.up.ac.za")
+	by vger.kernel.org with ESMTP id S265973AbUEUUBb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 16:01:06 -0400
-Date: Fri, 21 May 2004 21:59:34 +0200
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6] drivers/block/floppy.c: Premature blk_queue_max_sectors()
-Message-ID: <20040521195934.GA17681@mars>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: a.othieno@bluewin.ch (Arthur Othieno)
+	Fri, 21 May 2004 16:01:31 -0400
+Message-ID: <36233.165.165.44.119.1085169684.squirrel@165.165.44.119>
+In-Reply-To: <40AE5DBB.6030003@infosciences.com>
+References: <40AD3A88.2000002@infosciences.com>
+    <20040521043032.GA31113@kroah.com>
+    <40AE5DBB.6030003@infosciences.com>
+Date: Fri, 21 May 2004 22:01:24 +0200 (SAST)
+Subject: Re: [linux-usb-devel] [PATCH] visor: Fix Oops on disconnect
+From: jkroon@cs.up.ac.za
+To: "nardelli" <jnardelli@infosciences.com>
+Cc: "Greg KH" <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+User-Agent: SquirrelMail/1.4.3-RC1
+X-Mailer: SquirrelMail/1.4.3-RC1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-Scan-Signature: fcf4bd906bd36cf8da786bec2bf6438c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I've made all of the changes that recommended below.  If it looks like
+> I've missed anything, please indicate so.
+>
+>
 
-We're prematurely pampering the request queue before
-checking whether it was indeed allocated successfully.
+[snip]
 
-Against 2.6.6. Thanks.
+>>
+>>>+	if (num_ports <= 0 || num_ports > 2) {
+>>
+>>
+>> I like the idea of this check, but you are trying to test for a negative
+>> value on a __u16 variable, which is always unsigned.  So that check will
+>> never be true :)
 
+What happens if num_ports == 0?  Not that hardware should ever report that.
 
- floppy.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+[snip]
 
---- a/drivers/block/floppy.c	2004-05-20 23:48:04.000000000 +0200
-+++ b/drivers/block/floppy.c	2004-05-21 21:29:33.000000000 +0200
-@@ -4271,11 +4271,11 @@
- 		goto out;
- 
- 	floppy_queue = blk_init_queue(do_fd_request, &floppy_lock);
--	blk_queue_max_sectors(floppy_queue, 64);
- 	if (!floppy_queue) {
- 		err = -ENOMEM;
- 		goto fail_queue;
- 	}
-+	blk_queue_max_sectors(floppy_queue, 64);
- 
- 	blk_register_region(MKDEV(FLOPPY_MAJOR, 0), 256, THIS_MODULE,
- 			    floppy_find, NULL, NULL);

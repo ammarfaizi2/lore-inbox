@@ -1,147 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265953AbUFDTeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUFDTjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265953AbUFDTeV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 15:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUFDTeV
+	id S265833AbUFDTjT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 15:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUFDTjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 15:34:21 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:30992 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265956AbUFDTdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 15:33:51 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Valdis.Kletnieks@vt.edu, Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: keyboard problem with 2.6.6
-Date: Fri, 4 Jun 2004 22:33:41 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl> <200406041837.i54IbfYE023527@turing-police.cc.vt.edu>
-In-Reply-To: <200406041837.i54IbfYE023527@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Jun 2004 15:39:19 -0400
+Received: from spock.bluecherry.net ([66.138.159.248]:14052 "EHLO
+	spock.bluecherry.net") by vger.kernel.org with ESMTP
+	id S265902AbUFDTjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 15:39:16 -0400
+Date: Fri, 4 Jun 2004 15:39:11 -0400
+From: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>, "David A. Desrosiers" <desrod@gnu-designs.com>
+Subject: USBDEVFS_RESET deadlocks USB bus.
+Message-ID: <20040604193911.GA3261@babylon.d2dc.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Greg KH <greg@kroah.com>,
+	"David A. Desrosiers" <desrod@gnu-designs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
 Content-Disposition: inline
-Message-Id: <200406042233.41441.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 June 2004 21:37, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 04 Jun 2004 14:17:14 EDT, Horst von Brand said:
-> > Pavel Machek <pavel@suse.cz> said:
-> > > You get pretty nasty managment problems. How do you do init=/bin/bash
-> > > if your keyboard is userspace?
-> >
-> > You don't tell any kernel about that... it is the bootloader you are
-> > talking to. And that one may very well have integrated kbd support.
->
-> So GRUB knows about keyboards, lets you type in the "init=/bin/bash", it
-> loads the kernel, the kernel launches init, /bin/bash gets loaded - and
-> /bin/bash can't talk to the keyboard because the userspace handler hasn't
-> happened.  At that point you're stuck...
 
-Using shell scripts instead of 'standard' init etc is
-way more configurable. As an example, my current setup
-at home:
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My kernel params are:
+Starting at 2.6.7-rc1 or so (that is when we first noticed it) the new
+pilot-link libusb back end started deadlocking the entire USB bus that
+the palm device was on.
 
-root=/dev/ram
-init=/linuxrc
-devfs=mount
-ROOTFS=/dev/ide/host0/bus0/target0/lun0/part7
-IPCFG=mac,100mbit
-INIT=/init
+I have finally tracked it down to happening when we make the
+USBDEVFS_RESET ioctl, we never return from it and from that point on the
+bus in question is completely dead, no processing is done, no
+notifications of devices being plugged in or unplugged.
 
+This is still happening in 2.6.7-rc2-mm1.
 
+It seems to happen with both the UHCI and OHCI back ends, so it is
+probably above that.
 
-/linuxrc (in initrd):
+Given that there were heavy locking changes, I suspect that the case in
+question got screwed up somehow.
 
-#!/bin/sh
+--=20
+	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
 
-export PATH=/bin:/usr/bin
+Perl =3D=3D Being
+  -- Descartes (paraphrased).
 
-cd /
-mount -n -t devfs none /dev
-mount -n -t proc none /proc
-#mount -n -t sysfs none /sys
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-echo "# Configuring interfaces"
-# Optional, for NFS happiness
-ip l set dev lo up
-ip a add 127.0.0.1/8 dev lo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-/script/cfg_ip
+iD8DBQFAwM/fRFMAi+ZaeAERAg5XAKCzzBoqNuUNyrDd1M9OU5ZubLhhVgCgiXjb
+fgR3OAPhcay4zNo+5Lt2vcU=
+=3+hd
+-----END PGP SIGNATURE-----
 
-echo "# Mounting root fs"
-/script/mount_root
-
-# Clean up
-#umount /sys
-umount /proc
-
-echo "# Chrooting into root fs"
-mount -n -t devfs none /new_root/dev
-cd /new_root
-# making sure we dont keep /dev busy
-exec <dev/console >dev/console 2>&1
-# proc/ in new root is used here as a temp mountpoint
-pivot_root . proc
-
-echo "# Exec'ing init"
-if ! test "$INIT"; then
-    INIT=/init
-fi
-
-exec \
-    chroot . \
-    sh -c \
-    'umount -n /proc/dev; umount -n /proc; exec /bin/env - $INIT'
-
-echo "Error in 'exec chroot . sh': exit code $?"
-while true; do
-    sleep 32000
-done
-
-
-
-And, finally, /init:
-
-#!/bin/sh
-
-fileprefix=/etc/rc.d
-bootprog=3.runlevel
-
-unset HOSTNAME
-unset devfs
-unset MACHTYPE
-unset SHLVL
-unset SHELL
-unset HOSTTYPE
-unset OSTYPE
-unset HOME
-unset TERM
-
-export PATH=/bin:/usr/bin
-
-exec >/dev/console
-exec 2>&1
-exec </dev/null
-
-(
-cd "$fileprefix"
-env - PATH="$PATH" "$fileprefix/$bootprog" start
-)
-
-# Close all descriptors
-exec >&-
-exec 2>&-
-exec <&-
-
-while true; do
-    env - sleep 32000
-done
-
---
-vda
-
+--ew6BAiZeqk4r7MaW--

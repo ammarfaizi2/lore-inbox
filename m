@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVDADCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262609AbVDAESX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVDADCk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 22:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVDADCk
+	id S262609AbVDAESX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 23:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVDAESX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 22:02:40 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:53398 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261441AbVDADCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 22:02:38 -0500
-Subject: Re: noresume breaks next suspend [was Re: 2.6.12-rc1 swsusp broken]
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: Benoit Boissinot <bboissin@gmail.com>, romano@dea.icai.upco.es,
-       dtor_core@ameritech.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112316622.18871.132.camel@desktop.cunningham.myip.net.au>
-References: <20050329110309.GA17744@pern.dea.icai.upco.es>
-	 <20050329132022.GA26553@pern.dea.icai.upco.es>
-	 <20050329170238.GA8077@pern.dea.icai.upco.es>
-	 <20050329181551.GA8125@elf.ucw.cz>
-	 <20050331144728.GA21883@pern.dea.icai.upco.es>
-	 <d120d5000503310715cbc917@mail.gmail.com>
-	 <20050331165007.GA29674@pern.dea.icai.upco.es>
-	 <40f323d005033110292934aa1d@mail.gmail.com>
-	 <20050331222531.GE1802@elf.ucw.cz>
-	 <1112316622.18871.132.camel@desktop.cunningham.myip.net.au>
-Content-Type: text/plain
-Message-Id: <1112324670.18871.269.camel@desktop.cunningham.myip.net.au>
+	Thu, 31 Mar 2005 23:18:23 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:49310 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262611AbVDAESM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 23:18:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=aeHNIDjhmhXTfu6m3SjHBSd+M7Y5REdGtGPvsU2dZNpVaxl8tzo02EyvVpu0Hsg5vSYnlo/PyHaTnbuPzrTZf2ll1/54A2Rq0EdfhNEh9W2hHimAfKSnbCKaGZky3RFi8hCnnEtBbx0g49X4kLeH6bNUC1pY2rohMDkZA5EB124=
+Date: Fri, 1 Apr 2005 13:18:04 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>, James.Bottomley@steeleye.com,
+       axboe@suse.de, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH scsi-misc-2.6 01/13] scsi: don't use blk_insert_request() for requeueing
+Message-ID: <20050401041804.GA11318@htj.dyndns.org>
+References: <20050331090647.FEDC3964@htj.dyndns.org> <20050331090647.BA0001D5@htj.dyndns.org> <20050331101211.GB13842@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 01 Apr 2005 13:04:30 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050331101211.GB13842@infradead.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
-
-On Fri, 2005-04-01 at 10:50, Nigel Cunningham wrote:
-> > OTOH, perhaps refusing suspend is right thing to do. If user is
-> > running in "safe mode" (with noresume), we don't want him to be able
-> > to suspend...
+On Thu, Mar 31, 2005 at 11:12:11AM +0100, Christoph Hellwig wrote:
+> On Thu, Mar 31, 2005 at 06:07:55PM +0900, Tejun Heo wrote:
+> > 01_scsi_no_REQ_SPECIAL_on_requeue.patch
+> > 
+> > 	blk_insert_request() has 'reinsert' argument, which, when set,
+> > 	turns on REQ_SPECIAL and REQ_SOFTBARRIER and requeues the
+> > 	request.  SCSI midlayer was the only user of this feature and
+> > 	all requeued requests become special requests defeating
+> > 	quiesce state.  This patch makes scsi midlayer use
+> > 	blk_requeue_request() for requeueing and removes 'reinsert'
+> > 	feature from blk_insert_request().
+> > 
+> > 	Note: In drivers/scsi/scsi_lib.c, scsi_single_lun_run() and
+> > 	scsi_run_queue() are moved upward unchanged.
 > 
-> What? If you suspend, then decide not to resume, you can suspend again
-> until after your next reboot?!
+> That lest part doesn't belong into this patch at all.
 
-err... "...can't suspend again..."
+ Actually, it is, as scsi_queue_insert() is changed to call
+scsi_run_queue() explicitly.  However, scsi_queue_insert() is removed
+later, so the change is pretty dumb.  Maybe I'll add prototype and
+remove it together later, or reorder patches.
 
-> Nigel
+ Thanks.
+
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
+tejun
 

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbTFXSRC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 14:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTFXSRB
+	id S262861AbTFXSQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 14:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTFXSQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 14:17:01 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:38284 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264127AbTFXSOR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 14:14:17 -0400
-Date: Tue, 24 Jun 2003 11:16:46 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Werner Almesberger <wa@almesberger.net>
-cc: "Rick A. Hohensee" <rickh@capaccess.org>, linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox has been...
-Message-ID: <181980000.1056478606@flay>
-In-Reply-To: <20030624152154.G1418@almesberger.net>
-References: <fc.0010c7b200933d110010c7b200933d11.933d19@capaccess.org> <347470000.1056467133@[10.10.2.4]> <20030624152154.G1418@almesberger.net>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Tue, 24 Jun 2003 14:16:52 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40465 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264292AbTFXSOl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 14:14:41 -0400
+Date: Tue, 24 Jun 2003 14:22:13 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andi Kleen <ak@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Initial Vector Fix for loop.c.
+In-Reply-To: <20030620102455.GC26678@wotan.suse.de>
+Message-ID: <Pine.LNX.3.96.1030624141844.6519E-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, June 24, 2003 15:21:54 -0300 Werner Almesberger <wa@almesberger.net> wrote:
+On Fri, 20 Jun 2003, Andi Kleen wrote:
 
-> Martin J. Bligh wrote:
->> Given a choice between Alan and you, I feel confident in the knowledge
->> who 99.999999999% of the world would find more useful.
+> On Fri, Jun 20, 2003 at 12:14:52PM +0200, Fruhwirth Clemens wrote:
+
+> > There is no cryptoloop installation which is affected by this. Read my mail
+> > properly. Every cryptoloop setup out there uses loop-AES or kerneli's
+> > patch-int. And both fixed this issue a _long_ time ago. (Have a look at
 > 
-> Hmm, I'm not sure Alan has the necessary skills to design an
-> assembler that looks like the glue-sniffing bastard son from
-> a drunken encounter of Intercal and APL ;-)
+> That's completely wrong. I know of several independent implementation
+> and installations.
 
-Please note the use of the word "useful" at the end of my sentence.
-It was not accidental ;-)
+Could you point to these implementations?
 
-M.
+> 
+> > Again: _no_ userbase is affected by this change. Every userbase which
+> > could have ever been affected has done the fix for itself.
+> 
+> That's also incorrect.
+
+I think the point is that if moving to another device will really break
+data, then this is a good time to fix the problem. Breaking things is
+allowed, look at modules.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbTKNI6p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 03:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTKNI6p
+	id S262221AbTKNJOU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 04:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTKNJOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 03:58:45 -0500
-Received: from pc7.prs.nunet.net ([199.249.167.77]:57616 "HELO
-	patternassociates.com") by vger.kernel.org with SMTP
-	id S262224AbTKNI6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 03:58:44 -0500
-Date: 14 Nov 2003 08:58:41 -0000
-Message-ID: <20031114085841.28270.qmail@patternassociates.com>
-From: rico-linux-kernel@patternassociates.com
+	Fri, 14 Nov 2003 04:14:20 -0500
+Received: from bulge.astrouw.edu.pl ([193.0.88.25]:42425 "EHLO
+	bulge.astrouw.edu.pl") by vger.kernel.org with ESMTP
+	id S262221AbTKNJOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 04:14:18 -0500
+Date: Fri, 14 Nov 2003 10:14:13 +0100
+From: Michal Szymanski <msz@astrouw.edu.pl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: serverworks usb under 2.4.22
+Subject: scheduler/swapper doing bad job (kernel 2.4.20-20.7smp)
+Message-ID: <20031114091413.GA874@astrouw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From:	Ingo Oeser <ioe-lkml@rameria.de>
->Date:	Fri, 14 Nov 2003 08:51:00 +0100
->...
->I for one need to pass "noapic" on the kernel command line. Otherwise
->the IRQ routing is broken, I can't get the USB IRQ and the kernel complains.
->a lot about a broken APIC IRQ routing.
->
->My board is an ASUS CUR-CLS. The chipset there is "ServerWorks LE".
+Hi,
 
-Ingo,
+I have a dual-P4 (2x2.2GHz) machine running RedHat 7.2 upgraded to
+kernel 2.4.20-20.7smp, glibc 2.2.4-32.
 
-My ServerWorks HE chipset is a close cousin.  The common BIOS was written
-by Intergraph, and marketed by Phoenix.  It somehow fails to communicate
-its decisions about IRQ routing to Linux.  One may get lucky by moving
-hardware around but, with the following patch, you are guaranteed use
-of the chipset USB while still enjoying the IO-APIC.  Patch has been
-necessary from 2.4.0 through 2.4.17 and, by the sounds of it, to current
-2.4 versions.
+Equipped with 1GB RAM, SCSI 160 adapter, three 2.5TB raid arrays
+(IDE-to-SCSI hardware devices), Ultrium tape drive (on SCSI) and one IDE
+disk with system and 2GB swap.
 
-You must edit the patch to use the correct IRQ for your hardware config
-(11 in my case).  To determine the IRQ, access USB hardware while
-monitoring interrupt counts in /proc/stat
+It is serving (NFS) data to 6-8 machines (not very intensively) and
+running two jobs (memory and CPU intensive, plus some I/O). Each job
+runs in cycles, starting a few programs sequentially, the biggest and
+longest of which is 360MB. Normally it takes about a minute to complete
+one cycle. 
 
---------start of patch--------------------------------------------------
-*** usb-ohci.c.orig	Mon Dec 31 11:35:13 2001
---- usb-ohci.c	Mon Dec 31 12:10:39 2001
-***************
-*** 2581,2601 ****
---- 2581,2605 ----
-  
-  	mem_base = ioremap_nocache (mem_resource, mem_len);
-  	if (!mem_base) {
-  		err("Error mapping OHCI memory");
-  		return -EFAULT;
-  	}
-  
-  	/* controller writes into our memory */
-  	pci_set_master (dev);
-  
-+ #if 0
-  	return hc_found_ohci (dev, dev->irq, mem_base, id);
-+ #else
-+ 	return hc_found_ohci (dev,       11, mem_base, id);
-+ #endif
-  } 
-  
-  /*-------------------------------------------------------------------------*/
-  
-  /* may be called from interrupt context [interface spec] */
-  /* may be called without controller present */
-  /* may be called with controller, bus, and devices active */
-  
-  static void __devexit
-  ohci_pci_remove (struct pci_dev *dev)
---------end of patch--------------------------------------------------
+If it runs as described above, everything works fine. But when I start
+any I/O intensive additional job (like extracting data from Ultrium tape
+to the RAID array), the system starts to behave weirdly. The swap use
+grows quite fast from typical dozen-or-so MB to 300MB or more. One (at
+first) and in a few minutes BOTH big jobs get practically stopped,
+getting not more than 1% of CPU time. The system load grows from ~3
+to 5 or more but 'top' reports 80-90% idle time for both CPUs.
+The 'tar' is working fine, still.
+
+At first I thought it happens because the big jobs are niced to 19. But
+when I ran them with normal (0) priority, nothing did change.
+
+Well, I would guess maybe I do not have enough memory, so the
+scheduler/swapper places the big jobs on the swap. But, the 'tar' which
+extracts data from tape, uses less than 1MB of memory, so it does not
+seem to be the reason.
+
+So I tried to do somewhat "risky" experiment: I disabled (with
+everything running) the swap entirely. 'swapoff' took a minute or so to
+complete but once the swap space was 0, the system immediately started
+to work as expected, giving 80-90% of CPU to the big jobs, 10-20% to the
+'tar'. 
+
+The conclusion is rather discouraging - it seems that there is something
+wrong with the scheduler/swapper. I'm no expert on these issues but as
+an end user, I really can't understand why the system is working fine
+w/o any swap and gets almost stopped with swap enabled. I guess adding
+the swap should help rather than make things so bad.
+
+Any ideas?
+
+regards, Michal.
+
+-- 
+  Michal Szymanski (msz@astrouw.edu.pl)
+  Warsaw University Observatory, Warszawa, POLAND

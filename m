@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283268AbSACIdu>; Thu, 3 Jan 2002 03:33:50 -0500
+	id <S284153AbSACIrC>; Thu, 3 Jan 2002 03:47:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284019AbSACIdk>; Thu, 3 Jan 2002 03:33:40 -0500
-Received: from t2.redhat.com ([199.183.24.243]:31990 "EHLO dot.cygnus.com")
-	by vger.kernel.org with ESMTP id <S283268AbSACId2>;
-	Thu, 3 Jan 2002 03:33:28 -0500
-Date: Thu, 3 Jan 2002 00:32:40 -0800
-From: Richard Henderson <rth@redhat.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Tom Rini <trini@kernel.crashing.org>, jtv <jtv@xs4all.nl>,
-        Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020103003240.A10838@redhat.com>
-Mail-Followup-To: Richard Henderson <rth@redhat.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Tom Rini <trini@kernel.crashing.org>, jtv <jtv@xs4all.nl>,
-	Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-	gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-	Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Corey Minyard <minyard@acm.org>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102232320.A19933@xs4all.nl> <20020102231243.GO1803@cpe-24-221-152-185.az.sprintbbd.net> <20020103004514.B19933@xs4all.nl> <20020103000118.GR1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102160739.A10659@redhat.com> <15411.49911.958835.299377@argo.ozlabs.ibm.com>
-Mime-Version: 1.0
+	id <S284204AbSACIqx>; Thu, 3 Jan 2002 03:46:53 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:559 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S284153AbSACIqg>; Thu, 3 Jan 2002 03:46:36 -0500
+To: esr@thyrsus.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020102151539.A14925@thyrsus.com>
+	<E16LsU0-0005RB-00@the-village.bc.nu>
+	<20020102154633.A15671@thyrsus.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Jan 2002 01:44:21 -0700
+In-Reply-To: <20020102154633.A15671@thyrsus.com>
+Message-ID: <m1y9jfu8m2.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15411.49911.958835.299377@argo.ozlabs.ibm.com>; from paulus@samba.org on Thu, Jan 03, 2002 at 01:33:27PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 01:33:27PM +1100, Paul Mackerras wrote:
-> I look forward to seeing your patch to remove all uses of
-> virt_to_phys, phys_to_virt, __pa, __va, etc. from arch/alpha... :)
+"Eric S. Raymond" <esr@thyrsus.com> writes:
 
-I don't dereference them either, do I?
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > You can make an educated guess. However it is at best an educated guess.
+> > The DMI tables will tell you what PCI and ISA slots are present (but
+>   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > tend to be unreliable on older boxes).  You can also look for an ISA bridge
+> > in lspci as a second source of information.
+> 
+> That sounds like it might be what I'm after.  My goal is to be able to probe 
+> the machine and set ISA_CARDS based on the probe.  What's a DMI table and
+> how can I query it for the presence of ISA slots?
+> 
+> What I want to do with this is make ISA-card questions invisible on modern
+> PCI-only motherboards.
 
 
-r~
+Auto configuration only works for some variety of Plug-and-Play hardware.
+By that I mean that between a combination of the firmware and the hardware
+you can detect what is there.  Plug-and-Play does not work reliably on
+ISA.  Since PCI has been Plug-and-Play from the start it works well.
+
+I would suggest you assume that for any hardware that isn't present
+you assume it isn't there.
+
+For those things where auto detection is not reliable have a menu that
+let's you manually select the which pieces you actually want to worry
+about sounds reasonable.
+
+Say:
+   Unprobeable hardware support
+     ISA cards
+     i2c devices
+     lpc devices
+     etc
+     etc.
+
+With the kernel moving to support more and more hardware and things
+like lm-sensors showing up.  Even the absence of slots does not mean
+that there aren't pieces that software can not get adequate
+information to setup correctly.
+
+As for DMI and it's ilk.  The only sane thing I can see to do is have
+something that will report the motherboard id. (DMI does seem to do
+that fairly reiliably, as do MP tables).  And then you build a
+database based on motherboard id upon the capabilities of the various
+motherboards. 
+
+Looking up the datasheets from the various manufacturers should not be
+to hard of a job..  Plus it is a technique that can work on things
+other than stock PC's.
+
+Eric
+ 

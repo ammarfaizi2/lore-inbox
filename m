@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262553AbVCBVe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVCBVe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262553AbVCBVe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 16:34:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVCBVeG
+	id S262552AbVCBVe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 16:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbVCBVeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 16:34:06 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:25047 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262553AbVCBVdU (ORCPT
+	Wed, 2 Mar 2005 16:34:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:18864 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262552AbVCBVdB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 16:33:20 -0500
-Date: Wed, 2 Mar 2005 22:33:19 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Karol Kozimor <sziwan@hell.org.pl>, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk
-Subject: Re: kernel BUG at drivers/serial/8250.c:1256!
-Message-ID: <20050302213319.GA11320@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Karol Kozimor <sziwan@hell.org.pl>, linux-kernel@vger.kernel.org,
-	rmk@arm.linux.org.uk
-References: <20050301230946.GA30841@hell.org.pl> <20050301233720.B17470@flint.arm.linux.org.uk>
+	Wed, 2 Mar 2005 16:33:01 -0500
+Date: Wed, 2 Mar 2005 13:32:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Steffen Michalke <StMichalke@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange crashes of kernel v2.6.11
+Message-Id: <20050302133239.2529a8cb.akpm@osdl.org>
+In-Reply-To: <1109787428.6828.14.camel@pinky.local>
+References: <1109787428.6828.14.camel@pinky.local>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301233720.B17470@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 11:37:20PM +0000, Russell King wrote:
-> On Wed, Mar 02, 2005 at 12:09:46AM +0100, Karol Kozimor wrote:
-> > I've finally got around to test latest kernels and managed to find a bug in 
-> > the serial subsystem, which happens during suspend.
+Steffen Michalke <StMichalke@web.de> wrote:
+>
+> I recently upgraded from linux kernel v2.6.10 to v2.6.11.
+>  Some programs like evolution 2.0 and leafnode2 crash the whole system
+>  immediatedly now.
 > 
-> Yes, serial_cs is claiming that we don't have a device associated with
-> the port, so we're treating it as a legacy port.  However, serial_cs is
-> implementing the suspend/resume methods.  This is wrong, since that
-> means the port will be suspended twice, and hence causes this bug.
-> 
-> serial_cs needs to register the ports along with the PCMCIA device with
-> which the port belongs to.  This will stop it being treated as a legacy
-> serial port.
-> 
-> Unfortunately, it's too late tonight for me to dig into PCMCIA to work
-> out how we get at the device structure - I can't find any examples off
-> hand either.
+>  I would like to provide some further information if i could gather them.
 
-For the time being:
+We'd need to see an oops trace.  Did nothing hit the kernel logs?
 
-{
-	client_handle_t handle = ...
-	struct device *dev;
+If not, a serial console would be needed.  It's a bit of a hassle I'm
+afraid.
 
-	dev = &handle_to_dev(handle);
-}
-
-
-	Dominik

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270598AbRHIVP0>; Thu, 9 Aug 2001 17:15:26 -0400
+	id <S269864AbRHIVZT>; Thu, 9 Aug 2001 17:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270595AbRHIVPQ>; Thu, 9 Aug 2001 17:15:16 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:31883 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S269866AbRHIVPC>;
-	Thu, 9 Aug 2001 17:15:02 -0400
-Message-Id: <m15Ux92-000PTaC@amadeus.home.nl>
-Date: Thu, 9 Aug 2001 22:15:08 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: Oliver.Neukum@lrz.uni-muenchen.de (Oliver Neukum)
-Subject: Re: using bug reports on vendor kernels
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01080923020201.04501@idun>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S269866AbRHIVZK>; Thu, 9 Aug 2001 17:25:10 -0400
+Received: from [209.250.58.66] ([209.250.58.66]:12811 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S269864AbRHIVZE>; Thu, 9 Aug 2001 17:25:04 -0400
+Date: Thu, 9 Aug 2001 16:23:06 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ATI frame buffer
+Message-ID: <20010809162306.A19581@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <997389450.7611.8.camel@tiger>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <997389450.7611.8.camel@tiger>; from louisg00@bellsouth.net on Thu, Aug 09, 2001 at 04:37:29PM -0400
+X-Uptime: 3:13pm  up 9 days, 17:48,  0 users,  load average: 1.06, 1.17, 1.42
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <01080923020201.04501@idun> you wrote:
+On Thu, Aug 09, 2001 at 04:37:29PM -0400, Louis Garcia wrote:
+> 
+> Does the ATI rage 128 fb support the radeon chip? If not does a driver
+> exist for this chip? I'm currently upgrading to have DRM support.
+> 
+> Thanks.
 
-> is there a site that would allow me to browse a list of patches added to 
-> vendor kernels (esp. RedHat). I need this to use an oops supplied by a user.
+Yes, there is such a fb driver.  aty128
 
-I mostly documented the patches in the Red Hat Linux 7.1 default kernel
-(2.4.2-2) at
-
-http://people.redhat.com/arjanv/patches.html
-
-But as this was a fair amount of work which nobody seemed to want, I haven't
-actually finished nor done the same for later released kernels....
-
-Greetings,
-  Arjan van de Ven
+What does that have to do with DRM, however?
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVCFXte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVCFXtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVCFXte (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVCFXrk
+	id S261574AbVCFXtd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVCFXrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 18:47:40 -0500
-Received: from coderock.org ([193.77.147.115]:60847 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261567AbVCFWhA (ORCPT
+	Sun, 6 Mar 2005 18:47:31 -0500
+Received: from coderock.org ([193.77.147.115]:59311 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261564AbVCFWg5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:37:00 -0500
-Subject: [patch 09/14] tc/zs: replace schedule_timeout() with msleep_interruptible()
+	Sun, 6 Mar 2005 17:36:57 -0500
+Subject: [patch 08/14] list_for_each_entry: arch-um-drivers-chan_kern.c
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com,
-       janitor@sternwelten.at
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, janitor@sternwelten.at,
+       jdike@addtoit.com
 From: domen@coderock.org
-Date: Sun, 06 Mar 2005 23:36:43 +0100
-Message-Id: <20050306223643.D1CBA1ED3D@trashy.coderock.org>
+Date: Sun, 06 Mar 2005 23:36:40 +0100
+Message-Id: <20050306223640.8A5C41F1FF@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
+Make code more readable with list_for_each_reverse.
 
-
-Use msleep_interruptible() instead of schedule_timeout() to
-guarantee the task delays as expected.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Acked-by: Jeff Dike <jdike@addtoit.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/tc/zs.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ kj-domen/arch/um/drivers/chan_kern.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
 
-diff -puN drivers/tc/zs.c~msleep_interruptible-drivers_tc_zs drivers/tc/zs.c
---- kj/drivers/tc/zs.c~msleep_interruptible-drivers_tc_zs	2005-03-05 16:09:39.000000000 +0100
-+++ kj-domen/drivers/tc/zs.c	2005-03-05 16:09:39.000000000 +0100
-@@ -1368,8 +1368,7 @@ static void rs_close(struct tty_struct *
- 	info->tty = 0;
- 	if (info->blocked_open) {
- 		if (info->close_delay) {
--			current->state = TASK_INTERRUPTIBLE;
--			schedule_timeout(info->close_delay);
-+			msleep_interruptible(jiffies_to_msecs(info->close_delay));
- 		}
- 		wake_up_interruptible(&info->open_wait);
- 	}
-@@ -1403,8 +1402,7 @@ static void rs_wait_until_sent(struct tt
- 	if (timeout)
- 		char_time = min(char_time, timeout);
- 	while ((read_zsreg(info->zs_channel, 1) & Tx_BUF_EMP) == 0) {
--		current->state = TASK_INTERRUPTIBLE;
--		schedule_timeout(char_time);
-+		msleep_interruptible(jiffies_to_msecs(char_time));
- 		if (signal_pending(current))
- 			break;
- 		if (timeout && time_after(jiffies, orig_jiffies + timeout))
+diff -puN arch/um/drivers/chan_kern.c~list-for-each-entry-drivers_chan_kern arch/um/drivers/chan_kern.c
+--- kj/arch/um/drivers/chan_kern.c~list-for-each-entry-drivers_chan_kern	2005-03-05 16:09:00.000000000 +0100
++++ kj-domen/arch/um/drivers/chan_kern.c	2005-03-05 16:09:00.000000000 +0100
+@@ -218,7 +218,6 @@ void enable_chan(struct list_head *chans
+ 
+ void close_chan(struct list_head *chans)
+ {
+-	struct list_head *ele;
+ 	struct chan *chan;
+ 
+ 	/* Close in reverse order as open in case more than one of them
+@@ -226,8 +225,7 @@ void close_chan(struct list_head *chans)
+ 	 * state.  Then, the first one opened will have the original state,
+ 	 * so it must be the last closed.
+ 	 */
+-        for(ele = chans->prev; ele != chans; ele = ele->prev){
+-                chan = list_entry(ele, struct chan, list);
++	list_for_each_entry_reverse(chan, chans, list) {
+ 		if(!chan->opened) continue;
+ 		if(chan->ops->close != NULL)
+ 			(*chan->ops->close)(chan->fd, chan->data);
 _

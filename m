@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318541AbSGZVz1>; Fri, 26 Jul 2002 17:55:27 -0400
+	id <S318532AbSGZWBt>; Fri, 26 Jul 2002 18:01:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318543AbSGZVz1>; Fri, 26 Jul 2002 17:55:27 -0400
-Received: from ierw.net.avaya.com ([198.152.13.101]:27627 "EHLO
+	id <S318536AbSGZWBt>; Fri, 26 Jul 2002 18:01:49 -0400
+Received: from ierw.net.avaya.com ([198.152.13.101]:2036 "EHLO
 	ierw.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S318541AbSGZVzU>; Fri, 26 Jul 2002 17:55:20 -0400
-Date: Fri, 26 Jul 2002 15:58:33 -0600 (MDT)
+	id <S318532AbSGZWBs>; Fri, 26 Jul 2002 18:01:48 -0400
+Date: Fri, 26 Jul 2002 16:05:04 -0600 (MDT)
 From: Bhavesh_P_Davda <bhaveshd@earth.dr.avaya.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.2.21 IPv4/devinet enhancements for down'ing interfaces
-Message-ID: <Pine.LNX.4.21.0207261533560.2616-100000@earth.dr.avaya.com>
+Subject: [PATCH] 2.4.18 IPv4/devinet enhancements for down'ing interfaces
+Message-ID: <Pine.LNX.4.21.0207261559380.2616-100000@earth.dr.avaya.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -50,33 +50,33 @@ use. The reason I went down this path is because we got bitten by this
 problem on a number of subnets, because we have many
 multi-network-interface servers on our networks that we play around with.
 
-Here is the patch against the 2.2.21 kernel...
+Here is the patch against the 2.4.18 kernel...
 
-diff -aur linux-2.2.21/net/ipv4/devinet.c linux-2.2.21-arp/net/ipv4/devinet.c
---- linux-2.2.21/net/ipv4/devinet.c	Sun Mar 25 09:31:12 2001
-+++ linux-2.2.21-arp/net/ipv4/devinet.c	Fri Jul 26 14:29:15 2002
-@@ -512,6 +512,14 @@
+diff -aur linux-2.4.18/net/ipv4/devinet.c linux-2.4.18-arp/net/ipv4/devinet.c
+--- linux-2.4.18/net/ipv4/devinet.c	Fri Dec 21 10:42:05 2001
++++ linux-2.4.18-arp/net/ipv4/devinet.c	Fri Jul 26 14:32:18 2002
+@@ -586,6 +586,14 @@
+ 					inet_del_ifa(in_dev, ifap, 1);
  				break;
  			}
- #endif
-+			if (!(ifr.ifr_flags&IFF_UP) &&
++			if (!(ifr.ifr_flags&IFF_UP) && 
 +				(ifr.ifr_flags&IFF_NOARP)) {
 +					ifr.ifr_flags &= ~IFF_NOARP;
 +					in_dev->flags |= IFF_NOARP;
-+					notifier_call_chain(&inetaddr_chain, 
++					notifier_call_chain(&inetaddr_chain,
 +						NETDEV_DOWN, ifa);
 +					in_dev->flags &= ~IFF_NOARP;
 +			}
  			ret = dev_change_flags(dev, ifr.ifr_flags);
  			break;
  	
-diff -aur linux-2.2.21/net/ipv4/fib_frontend.c linux-2.2.21-arp/net/ipv4/fib_frontend.c
---- linux-2.2.21/net/ipv4/fib_frontend.c	Sun Mar 25 09:31:12 2001
-+++ linux-2.2.21-arp/net/ipv4/fib_frontend.c	Fri Jul 26 14:30:27 2002
-@@ -546,7 +546,9 @@
- 		rt_cache_flush(-1);
+diff -aur linux-2.4.18/net/ipv4/fib_frontend.c linux-2.4.18-arp/net/ipv4/fib_frontend.c
+--- linux-2.4.18/net/ipv4/fib_frontend.c	Fri Dec 21 10:42:05 2001
++++ linux-2.4.18-arp/net/ipv4/fib_frontend.c	Fri Jul 26 14:33:10 2002
+@@ -583,7 +583,9 @@
  		break;
  	case NETDEV_DOWN:
+ 		fib_del_ifaddr(ifa);
 -		if (ifa->ifa_dev && ifa->ifa_dev->ifa_list == NULL) {
 +		if (ifa->ifa_dev && 
 +			((ifa->ifa_dev->ifa_list == NULL) ||

@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVAKAIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVAKAKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbVAKAIg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 19:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbVAKAGU
+	id S262753AbVAKAKG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 19:10:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVAKAJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 19:06:20 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:7963 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262595AbVAJXvF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 18:51:05 -0500
-Subject: Re: Unable to burn DVDs
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Laurent CARON <lcaron@apartia.fr>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <41E2F823.1070608@apartia.fr>
-References: <41E2F823.1070608@apartia.fr>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 00:50:59 +0100
-Message-Id: <1105401059.13327.0.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Mon, 10 Jan 2005 19:09:41 -0500
+Received: from mail.teja.com ([209.10.202.115]:26771 "EHLO mail.teja.com")
+	by vger.kernel.org with ESMTP id S262753AbVAJXzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 18:55:44 -0500
+Message-ID: <41E3176F.6000809@teja.com>
+Date: Mon, 10 Jan 2005 16:01:51 -0800
+From: Slade Maurer <smaurer@teja.com>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave <dave.jiang@gmail.com>
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.org, linux@arm.linux.org.uk,
+       dsaxena@plexity.net, drew.moseley@intel.com
+Subject: Re: clean way to support >32bit addr on 32bit CPU
+References: <8746466a050110153479954fd2@mail.gmail.com>
+In-Reply-To: <8746466a050110153479954fd2@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-same thing happens to me!
+Dave wrote:
 
-On Mon, 2005-01-10 at 22:48 +0100, Laurent CARON wrote:
-> Hello,
-> 
-> I recently upgraded to 2.6.10 and tried (today) to burn a dvd with 
-> growisofs.
-> 
-> It seems there is a problem
-> 
-> Here is the output
-> 
-> 
-> # growisofs -Z /dev/scd0 -R -J ~/foobar
-> 
-> WARNING: /dev/scd0 already carries isofs!
-> About to execute 'mkisofs -R -J /root/sendmail.mc | builtin_dd 
-> of=/dev/scd0 obs=32k seek=0'
-> INFO:ingISO-8859-15 character encoding detected by locale settings.
->         Assuming ISO-8859-15 encoded filenames on source filesystem,
->         use -input-charset to override.
-> Total translation table size: 0
-> Total rockridge attributes bytes: 252
-> Total directory bytes: 0
-> Path table size(bytes): 10
-> /dev/scd0: "Current Write Speed" is 4.1x1385KBps.
-> :-[ WRITE@LBA=0h failed with SK=4h/ASC=08h/ACQ=03h]: Input/output error
-> :-( write failed: Input/output error
-> 
-> 
-> Needless to say it works fine with 2.6.9
-> 
-> Am I missing something?
-> 
-> Thanks
-> 
-> Laurent
-> 
+>I have this ARM (XScale) based platform that supports 36bit physical
+>addressing. Due to the way the ATU is designed, the outbound memory
+>translation window is fixed outside the first 4GB of memory space, and
+>thus the need to use 64bit addressing in order to access the PCI bus. 
+>After all said and done, the struct resource members start and end
+>must support 64bit integer values in order to work. On a 64bit arch
+>that would be fine since unsigned long is 64bit. However on a 32bit
+>arch one must use unsigned long long to get 64bit. However, if we do
+>that then it would make the 64bit archs to have 128bit start and end
+>and probably wouldn't be something we'd want. What would be a nice
+>clean way to support this that's acceptable to Linux? I guess this
+>issue would be similar to x86-32 PAE would have?
+>
+>Also, please cc me on on the discussion. Not sure if my LKML
+>subscription is working... Thanks!
+>
+>  
+>
+Also, it would be nice to have PTEs to represent the upper 4GB such that 
+it can be mmapped to user space. PAE handled this in and it would be 
+great to have it in ARM MMU36 as well.
+
+  -Slade
 

@@ -1,88 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318225AbSGWVPT>; Tue, 23 Jul 2002 17:15:19 -0400
+	id <S318288AbSGWVXj>; Tue, 23 Jul 2002 17:23:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318229AbSGWVPT>; Tue, 23 Jul 2002 17:15:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50191 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318225AbSGWVPQ>;
-	Tue, 23 Jul 2002 17:15:16 -0400
-Message-ID: <3D3DC79F.FCDB7896@zip.com.au>
-Date: Tue, 23 Jul 2002 14:16:15 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S318289AbSGWVXi>; Tue, 23 Jul 2002 17:23:38 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46602 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318288AbSGWVXi>; Tue, 23 Jul 2002 17:23:38 -0400
+Date: Tue, 23 Jul 2002 17:20:57 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Dominik Brodowski <devel@brodo.de>
+cc: davej@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] resolve ACPI oops on boot
+In-Reply-To: <20020718231509.A539@brodo.de>
+Message-ID: <Pine.LNX.3.96.1020723165428.2194A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: David F Barrera <dbarrera@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c:92! & page allocation failure. order:0, 
- mode:0x0
-References: <OF6F39340B.FF1F1097-ON85256BFF.005C6460@pok.ibm.com> <3D3DAD54.6825F86@zip.com.au> <20020723203445.GK1117@dualathlon.random> <3D3DC0E0.EDE4CF20@zip.com.au> <20020723205628.GM1117@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Thu, 18 Jul 2002, Dominik Brodowski wrote:
+
+> An u8 was casted into an u32, then all 32 bits were set to zero, this
+> causing another variable - in my case, processor flags - to be corrupted. 
 > 
-> On Tue, Jul 23, 2002 at 01:47:28PM -0700, Andrew Morton wrote:
-> > Andrea Arcangeli wrote:
-> > >
-> > > On Tue, Jul 23, 2002 at 12:24:04PM -0700, Andrew Morton wrote:
-> > > > David F Barrera wrote:
-> > > > >
-> > > > > I have experienced the following errors while running a test suite (LTP
-> > > > > test suite)  on the 2.4.26 kernel.  Has anybody seen this problem, and, if
-> > > > > so, is there a patch for it?  Thanks.
-> > > > >
-> > > > > kernel BUG at page_alloc.c:92!
-> > > >
-> > > > Could you please replace the put_page(page) in
-> > > > kernel/ptrace.c:access_process_vm() with page_cache_release(page)
-> > > > and retest?
-> > >
-> > > I prefer to drop page_cache_release and to have __free_pages_ok to deal
-> > > with the lru pages like it's been fixed in 2.4.
-> >
-> > That would fix it too.  But a __free_pages_ok call from interrupt
-> > context can deadlock the box.
-> 
-> I guess you mean it can corrupt the lru list, not necessairly deadlock
-> the box.
+> Dominik
 
-Take the lock from interrupt context and it'll deadlock.
+But that's not what's happening here, the pointer is being cast, if the
+object of the pointer is not u32, then casting the pointer doesn't fix the
+real problem. If the "data" pointer points to a u8, then no casting will
+make it work right when you save 32 bits into an 8 bit space. If this
+changes the problem it's because of alignment, perhaps.
 
-> That's not the case either though, see the in_interrupt() check
-> in my tree in free_pages_ok, only normal context is allowed to play with
-> pagecache. (async-io isn't in my tree)
+You give neither the kernel version nor the architecture, so I can't be
+sure what's happening or what the compiler might do. I don't find that
+code in the kernel I have on this machine (2.4.19-pre7-jam6) but that
+diesn't mean much. The routine in hardware/hwregs.c on my kernel would
+seem to pass the width correctly, but clearly this is a very different
+version.
 
-Yes, I'm adding the same check to 2.5.  It's anon pages as well
-as pagecache pages.  And unless we have a
+I think the cast is just to avoid the compiler whining about types, the
+version I have is actually type "(acpi_generic_address*)" not (u32*), I
+would think the compiler would still complain, but maybe only with
+-pedantic or whatever.
 
-	BUG_ON(PageLRU(page) && in_interrupt())
+In any case only the number of bits requested should be written, the
+problem may have been avoided rather than fixed.
 
-in put_page_testzero() then I'm not sure how we can be sure that
-aio is the only problem area.
-
-> >
-> > The removal of pages from the LRU is rather a mess.  It's getting
-> > better, and we can fix up some more of this if/when pagemap_lru_lock
-> > becomes an interrupt-safe lock.
-> 
-> that will allow irq to manage pagecahce but the fact it's not interrupt
-> safe it's really a irq latency feature,
-
-Not sure what you mean by this?
-
-> the fact disabling irqs during
-> the critical section decreases contention on the lock is kind of hack,
-> that is true for all spinlocks out there, by that argument all spinlocks
-> should be irq safe.
-
-Sure.  If the lock is heavily used, performance critical and you've
-done the work to ensure that maximum hold time is small, it is
-well worth doing.  Plus we need it for free-from-interrupt-context,
-and we may need it for performing LRU list motion within IO completion,
-although that's looking a bit remote at present.
+ 
+> --- linux/drivers/acpi-original/ec.c	Fri Jul 12 22:43:11 2002
+> +++ linux/drivers/acpi/ec.c	Fri Jul 12 23:28:14 2002
+> @@ -134,7 +134,7 @@
+>  acpi_ec_read (
+>  	struct acpi_ec		*ec,
+>  	u8			address,
+> -	u8			*data)
+> +	u32			*data)
+>  {
+>  	acpi_status		status = AE_OK;
+>  	int			result = 0;
+> @@ -167,7 +167,7 @@
+>  		goto end;
+>  
+>  
+> -	acpi_hw_low_level_read(8, (u32*) data, &ec->data_addr, 0);
+> +	acpi_hw_low_level_read(8, data, &ec->data_addr, 0);
+>  
+>  	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Read [%02x] from address [%02x]\n",
+>  		*data, address));
 
 
--
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

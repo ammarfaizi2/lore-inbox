@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263083AbUKZXyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263072AbUK0BQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263083AbUKZXyA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbUKZTlb
+	id S263072AbUK0BQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbUK0BOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:41:31 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262454AbUKZT1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:27:45 -0500
-Date: Thu, 25 Nov 2004 20:36:06 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 30/51: Enable slab alloc fallback to suspend memory pool
-Message-ID: <20041125193606.GD1302@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101297401.5805.311.camel@desktop.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101297401.5805.311.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 26 Nov 2004 20:14:14 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:22171 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263082AbUK0BKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 20:10:17 -0500
+Message-ID: <41A7D3EF.3030002@yahoo.com.au>
+Date: Sat, 27 Nov 2004 12:10:07 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Out of memory, but no OOM Killer? (2.6.9-ac11)
+References: <20041126224722.GK30987@charite.de> <41A7C2CA.1030008@yahoo.com.au> <20041127003353.GQ30987@charite.de>
+In-Reply-To: <20041127003353.GQ30987@charite.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ralf Hildebrandt wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au>:
+> 
+> 
+>>This could be the problem where fragmented memory causes atomic higher
+>>order allocations to fail, for which there is a fix in -mm, which should
+>>make its way into 2.6.11.
+> 
+> 
+> I see. rsync requested a big chunk of memory, but failed due to the
+> fragmentation of free memory? my "sar" output shows lots of free memory and
+> lots of unused swap:
+> 
 
-> When we are preparing the image and have eaten all available memory, but
-> before page allocations have been switched over to the memory pool, we
-> sometimes need to allocate memory from slab for the image metadata (swap
-> header information). This code allows the slab allocator to fall back to
-> the memory pool in such circumstances. There is some extra debugging
-> code there at the moment while I seek to diagnose intermittent slab
-> corruption (not sure if it's suspend related).
+Basically, yes. Well not *exactly* rsync - your network drivers. I guess
+rsync is showing up in process context most often because that is the
+process causing most of the network activity.
 
-More reasons to dislike two pagesets. Also you probably should not
-printk() with two !!s in it (but without severity). Is it bug or not?
+Yep, it looks like fragmentation is indeed the problem here. See you have
+a lot of memory that is able to be reclaimed, but the failing allocations
+themselves can't reclaim any of it because they are happening from
+interrupts. What they should be doing is telling `kswapd` to start freeing
+memory for them - however this currently doesn't happen properly for
+allocations which are order greater than 0.
 
+Fortunately that is usually not a big problem, but as you have seen, it
+can be. Anyway, expect 2.6.10 to be better (ie. good enough), and 2.6.11
+should have even more complete fixes.
 
-> diff -ruN 817-enable-slab-alloc-fallback-to-suspend-memory-pool-old/mm/slab.c 817-enable-slab-alloc-fallback-to-suspend-memory-pool-new/mm/slab.c
-> --- 817-enable-slab-alloc-fallback-to-suspend-memory-pool-old/mm/slab.c	2004-11-24 15:48:55.066733152 +1100
-> +++ 817-enable-slab-alloc-fallback-to-suspend-memory-pool-new/mm/slab.c	2004-11-23 07:11:42.000000000 +1100
-> @@ -874,14 +874,30 @@
->  	flags |= cachep->gfpflags;
->  	if (likely(nodeid == -1)) {
->  		addr = (void*)__get_free_pages(flags, cachep->gfporder);
-> +		if (unlikely((!addr) && (current->pid == suspend_task) &&
-> +		    test_suspend_state(SUSPEND_SLAB_ALLOC_FALLBACK))) {
-> +			addr = (void *) suspend2_get_grabbed_pages(0);
-> +			printk("!! Slab addition satisfied via fallback code.\n");
-> +		}
->  		if (!addr)
->  			return NULL;
-> +		if (unlikely(test_suspend_state(SUSPEND_RUNNING)))
-> +			printk("Order %d allocation %p added to slab %p.\n",
-> +				cachep->gfporder, addr, cachep);
->  		page = virt_to_page(addr);
->  	} else {
+> 
+>>As a temporary workaround, you can increase /proc/sys/vm/min_free_kbytes
+> 
+> 
+> # cat /proc/sys/vm/min_free_kbytes
+> 724
+> 
+> I increased that to 7240 now.
+> 
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+OK that should be fine. If you should upgrade to a 2.6.10 or later kernel,
+put this value back to the default, and report further problems if they
+occur.
+
+> 
+>>BTW. what does `free` say when the allocation failures are happening?
+> 
+> 
+> see sar output above.
+> 
+
+Thanks Ralf.

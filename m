@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbTIHOoG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTIHOoF
+	id S262469AbTIHOzL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbTIHOzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:44:05 -0400
-Received: from aneto.able.es ([212.97.163.22]:30855 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262372AbTIHOoD (ORCPT
+	Mon, 8 Sep 2003 10:55:11 -0400
+Received: from [65.243.131.113] ([65.243.131.113]:1409 "EHLO lapdog.lund.com")
+	by vger.kernel.org with ESMTP id S262469AbTIHOzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:44:03 -0400
-Date: Mon, 8 Sep 2003 16:43:45 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Klaus Dittrich <kladit@t-online.de>
-Cc: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-pre3 hypertreading
-Message-ID: <20030908144345.GA2560@werewolf.able.es>
-References: <20030908142033.GA568@xeon2.local.here>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Sep 2003 10:55:02 -0400
+From: Scott Chapman <scott_list@mischko.com>
+Reply-To: scott_list@mischko.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Plans for better performance metrics in upcoming kernels?
+Date: Mon, 8 Sep 2003 07:54:55 -0700
+User-Agent: KMail/1.5.1
+References: <200309051641.44228.scott_list@mischko.com>
+In-Reply-To: <200309051641.44228.scott_list@mischko.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030908142033.GA568@xeon2.local.here>; from kladit@t-online.de on Mon, Sep 08, 2003 at 16:20:33 +0200
-X-Mailer: Balsa 2.0.14
+Message-Id: <200309080754.55700.scott_list@mischko.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On 09.08, Klaus Dittrich wrote:
-> Dual-Xeon board i7505, apic enabled.
-> 
-> With 2.4.23-pre3 the number of cpu's detected is two,
-> with 2.4.22 the number of cpu's detected is four.
-> 
+I received one reply to this email.  I take it there is nobody really heading 
+up the implementation of improved/missing performance metrics in the kernel?
 
-Build with ACPI and ACPI CPU detection only ?
+Is this on anyone's radar?
 
--- 
-J.A. Magallon <jamagallon@able.es>      \            Software is like sex:
-werewolf.able.es                         \      It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre2-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))
+What is Linus' take on more/better metrics?  
+Is he likely to roll them in if they are implemented?
+
+Is there any plan to implement any existing patches? 
+
+If I can get developer time applied to this project, I don't want to re-invent 
+the existing pieces.  Who do I coordinate with?
+
+Cordially,
+Scott
+
+On Friday 05 September 2003 16:41, Scott Chapman wrote:
+> Hi,
+> I'm wondering what the plans are for more accurate and more useful
+> performance metrics in upcoming kernels.
+>
+> CPU Utilization by process is apparently a known-inaccuracy.
+>
+> There are no disk I/O metrics per process.
+>
+> CPU Queue Length doesn't appear to be available?
+>
+> Etc.
+>
+> Linux clearly falls behind the competition in this area. It makes it rather
+> tough to do system performance analysis on a Linux box!  :-)
+>
+> Is there a plan to deal with these issues?  ETA's?
+>
+> Cordially,
+> Scott
+

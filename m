@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261386AbTC0Vrz>; Thu, 27 Mar 2003 16:47:55 -0500
+	id <S261393AbTC0VsX>; Thu, 27 Mar 2003 16:48:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261393AbTC0Vrz>; Thu, 27 Mar 2003 16:47:55 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:44176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261386AbTC0Vrz>; Thu, 27 Mar 2003 16:47:55 -0500
-Date: Thu, 27 Mar 2003 17:02:32 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Something with tripple EXes in them
-Message-ID: <Pine.LNX.4.53.0303271700290.6969@chaos>
+	id <S261396AbTC0VsX>; Thu, 27 Mar 2003 16:48:23 -0500
+Received: from borderworlds.dk ([62.79.110.124]:8977 "HELO
+	klingon.borderworlds.dk") by vger.kernel.org with SMTP
+	id <S261393AbTC0VsW>; Thu, 27 Mar 2003 16:48:22 -0500
+To: Ken Moffat <ken@kenmoffat.uklinux.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: / listed twice in /proc/mounts
+References: <Pine.LNX.4.21.0303272110420.16348-100000@ppg_penguin>
+From: Christian Laursen <xi@borderworlds.dk>
+Date: 27 Mar 2003 22:59:22 +0100
+In-Reply-To: <Pine.LNX.4.21.0303272110420.16348-100000@ppg_penguin>
+Message-ID: <m3isu44gjp.fsf@borg.borderworlds.dk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ken Moffat <ken@kenmoffat.uklinux.net> writes:
 
-The linux-kernel list is editorializing about driver names.
-Perhaps we need to rename all our files to accommodate?
+> On 27 Mar 2003, Christian Laursen wrote:
+> 
+> > The other day, I upgraded the components of a software package
+> > that I maintain, including updating the kernel from 2.4.18 to
+> > 2.4.20.
+> > 
+> > I noticed something strange: / is now listed twice in /proc/mounts
+> > like this
+> > 
+> > rootfs / rootfs rw 0 0
+> > /dev/root / ext2 rw 0 0
+> > 
+> > It confused one of my scripts, so I had to implement a quick workaround.
+> > 
+> > Is this a feature or a bug?
+> > 
+> 
+>  Is your /etc/mtab a symlink to /proc/mounts ?  That is generally
+> thought not to be a good idea.
 
-   ----- The following addresses had permanent fatal errors -----
-Linux kernel <linux-kernel@vger.kernel.org>
-    (reason: 550 5.7.1 The Triple-X in subject is way too often associated with junk email, please rephrase. ; S261393AbTC0VnR)
+No, I'm running in a minimal environment without all the normal stuff,
+so there isn't even an /etc/mtab.
 
-   ----- Transcript of session follows -----
-... while talking to vger.kernel.org.:
->>> DATA
-<<< 550 5.7.1 The Triple-X in subject is way too often associated with junk email, please rephrase. ; S261393AbTC0VnR
-554 5.0.0 Linux kernel <linux-kernel@vger.kernel.org>... Service unavailable
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+-- 
+Best regards
+    Christian Laursen

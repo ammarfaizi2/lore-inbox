@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTGHPJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 11:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTGHPJ7
+	id S267419AbTGHPQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 11:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbTGHPQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 11:09:59 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26028
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263752AbTGHPIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 11:08:46 -0400
-Subject: RE: [PATCH] Fastwalk: reduce cacheline bouncing of d_count
-	(Changelog@1.1024.1.11)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: trond.myklebust@fys.uio.no
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, hannal@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <16138.56467.342593.715679@charged.uio.no>
-References: <16138.53118.777914.828030@charged.uio.no>
-	 <1057673804.4357.27.camel@dhcp22.swansea.linux.org.uk>
-	 <16138.56467.342593.715679@charged.uio.no>
-Content-Type: text/plain
+	Tue, 8 Jul 2003 11:16:45 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:128 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S267419AbTGHPPw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 11:15:52 -0400
+Subject: [PATCH] 2.5.74 boot logo
+To: linux-kernel@vger.kernel.org
+Date: Tue, 8 Jul 2003 10:30:28 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057677613.4358.33.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Jul 2003 16:20:14 +0100
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20030708153028.61A304F11@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-08 at 16:00, Trond Myklebust wrote:
-> ...but I do agree with your comment. The patch I meant to refer to
-> (see revised title) does not appear in the 2.5.x tree either.
-> 
-> Have we BTW been shown any numbers that support the alleged benefits?
-> I may have missed those...
+Wouldn't look too good for this to be broken when 2.6 hits the
+streets :-).  The fix is trivial, and has been necessary since
+2.5.70 at least (nearly two months ago).
 
-A while ago yes - on very big SMP boxes.
+--- orig/drivers/video/cfbimgblt.c	Mon May  5 17:39:49 2003
++++ linux/drivers/video/cfbimgblt.c	Tue May 13 23:53:23 2003
+@@ -325,7 +325,7 @@
+ 		else 
+ 			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
+ 					start_index, pitch_index);
+-	} else if (image->depth == bpp) 
++	} else if (image->depth <= bpp) 
+ 		color_imageblit(image, p, dst1, start_index, pitch_index);
+ }
+ 
 
-Its no big problem to me since I can just back it out of -ac
-
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

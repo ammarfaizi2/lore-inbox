@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272859AbRIMFmd>; Thu, 13 Sep 2001 01:42:33 -0400
+	id <S272794AbRIMFfc>; Thu, 13 Sep 2001 01:35:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272861AbRIMFmX>; Thu, 13 Sep 2001 01:42:23 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:25098 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S272859AbRIMFmT>;
-	Thu, 13 Sep 2001 01:42:19 -0400
-Message-ID: <3BA04514.D65EDF98@gmx.de>
-Date: Thu, 13 Sep 2001 07:33:08 +0200
-From: Edgar Toernig <froese@gmx.de>
+	id <S272859AbRIMFfN>; Thu, 13 Sep 2001 01:35:13 -0400
+Received: from samar.sasken.com ([164.164.56.2]:15011 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S272794AbRIMFfB>;
+	Thu, 13 Sep 2001 01:35:01 -0400
+Message-ID: <3BA0458B.96509EB7@sasken.com>
+Date: Thu, 13 Sep 2001 11:05:07 +0530
+From: Manoj Sontakke <manojs@sasken.com>
+Organization: Sasken Communication Technologies Limited.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        vojtech@ucw.cz, Hamera Erik <HAMERAE@cs.felk.cvut.cz>
-Subject: Re: Booting linux using Novell NetWare Remote Program Loader
-In-Reply-To: <20010909220921.A19145@bug.ucw.cz> <20010909170206.A3245@redhat.com> <20010909230920.A23392@atrey.karlin.mff.cuni.cz> <9nh5p0$3qt$1@cesium.transmeta.com> <20010911005318.C822@bug.ucw.cz>
+To: Francis Galiegue <fg@mandrakesoft.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Packet tapping
+In-Reply-To: <Pine.LNX.4.30.0109120542330.4681-100000@toy.mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Thanks a lot. I was looking for a pointer. I knew its possible but lost
+track of "how".
+Thnaks again.
+Manoj
+
+Francis Galiegue wrote:
 > 
-> I found out I can boot it after little games with mars netware
-> emulator. However I have problems booting anything else than
-> freedos. Trying to boot zImage directly results in crc errors or in
-> errors in compressed data. Too much failures and too repeatable
-> (althrough ram seems flakey) for me to believe its hw.
-
-I bet that's the same problem I had booting a zImage directly from an
-El-Torito CD.  The problem was the autoprobing for the floppy type
-performed by the boot loader.  It detected a 2.88 drive and issued
-corresponding read requests (track x, 36 blocks; track x+1, 36 blocks;
-...).  The bios performs these request, but it emulates a 1.44 disk so
-the last 18 blocks of track x are actually the blocks from track x+1.
-In my case I did not even got a crc error but an immediate reboot.
-
-I removed the autoprobing from bootsect.S and fixed it to 1.44MB format
-et voila, it worked perfectly.
-
-Ciao, ET.
-
-PS: Maybe that's the same problem lilo has on some systems with the
-linear option...
+> On Wed, 12 Sep 2001, Manoj Sontakke wrote:
+> 
+> >
+> > Hi,
+> >       Is it possible to tap a packet and send it to a userlevel program
+> > before it is sent to appropriate receive function (say ip_rcv()). The
+> > user level program will give the packet back to the kernel for delivery
+> > to appropriate receive function.
+> >       In short, is it possible to have a protocol stack (between layer 2 and
+> > 3) to be implemented in useland.
+> >
+> >       Is Tun/Tap driver useful here?
+> 
+> Isn't the QUEUE driver from iptables done for such cases?

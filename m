@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129445AbRAXU1o>; Wed, 24 Jan 2001 15:27:44 -0500
+	id <S129444AbRAXUaY>; Wed, 24 Jan 2001 15:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRAXU1e>; Wed, 24 Jan 2001 15:27:34 -0500
-Received: from ns2.us.dell.com ([143.166.82.252]:12815 "EHLO ns2.us.dell.com")
-	by vger.kernel.org with ESMTP id <S129632AbRAXU1T>;
-	Wed, 24 Jan 2001 15:27:19 -0500
-Date: Wed, 24 Jan 2001 14:27:08 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@dell.com>
-Reply-To: Matt Domsch <Matt_Domsch@dell.com>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-cc: <mjacob@feral.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: No SCSI Ultra 160 with Adaptec Controller
-In-Reply-To: <004901c08641$54d86d40$1a040a0a@zeusinc.com>
-Message-ID: <Pine.LNX.4.30.0101241423101.16045-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129632AbRAXUaO>; Wed, 24 Jan 2001 15:30:14 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:766 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S129444AbRAXUaL>; Wed, 24 Jan 2001 15:30:11 -0500
+Date: Wed, 24 Jan 2001 14:30:10 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
+Cc: Linux MM mailing list <linux-mm@kvack.org>
+In-Reply-To: <3A6F22D7.3000709@valinux.com>
+In-Reply-To: <20010124174824Z129401-18594+948@vger.kernel.org>
+Subject: Re: Page Attribute Table (PAT) support?
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-Id: <20010124203012Z129444-18594+1042@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, Tom Sightler wrote:
+** Reply to message from Jeff Hartmann <jhartmann@valinux.com> on Wed, 24 Jan
+2001 11:45:43 -0700
 
-> I temporarily disabled that code and the
-> increase in IO's per second is measurable, though not earth shattering, but
-> I was afraid to leave it that way because fast corrupted data is worth much
-> less that only slightly slower good data.
 
-I don't believe the problem is data corruption, but that there could be
-some CRC data residual from an I/O which causes the driver to issue a
-SCSI bus reset.  As bus resets really kill performance, Doug thought it
-better to slow the drive to 80 rather than run at 160 and have occasional
-bus resets.
+> I'm actually writing support for the PAT as we speak.  I already have 
+> working code for PAT setup.  Just having a parameter for ioremap is not 
+> enough, unfortunately.  According to the Intel Architecture Software 
+> Developer's Manual we have to remove all mappings of the page that are 
+> cached.
+
+For our specific purposes, that's not important.  We already flush the cache
+before we create uncached regions (via ioremap_nocache).  I understand that as a
+general Linux feature, you can't ignore cache incoherency, but I don't think
+it's a hard requirement.
+
 
 -- 
-Matt Domsch
-Dell Linux Systems Group
-Linux OS Development
-www.dell.com/linux
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
-
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

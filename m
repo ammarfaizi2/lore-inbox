@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277034AbRJHR4K>; Mon, 8 Oct 2001 13:56:10 -0400
+	id <S277041AbRJHR4U>; Mon, 8 Oct 2001 13:56:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277044AbRJHRzu>; Mon, 8 Oct 2001 13:55:50 -0400
-Received: from ssh-yyz.somanetworks.com ([216.126.67.45]:14690 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S277034AbRJHRzr>; Mon, 8 Oct 2001 13:55:47 -0400
-Subject: Re: [RFC] Standard way of generating assembler offsets
-From: Georg Nikodym <georgn@somanetworks.com>
-To: george anzinger <george@mvista.com>
-Cc: Pantelis Antoniou <panto@intracom.gr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BC1E294.1A4FB12D@mvista.com>
-In-Reply-To: <28136.1002196028@ocs3.intra.ocs.com.au>
-	<3BC1735F.41CBF5C1@intracom.gr>  <3BC1E294.1A4FB12D@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
-Date: 08 Oct 2001 13:56:11 -0400
-Message-Id: <1002563771.21079.3.camel@keller>
-Mime-Version: 1.0
+	id <S277044AbRJHR4K>; Mon, 8 Oct 2001 13:56:10 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:29700 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S277041AbRJHRzu>; Mon, 8 Oct 2001 13:55:50 -0400
+Date: Mon, 8 Oct 2001 13:56:20 -0400
+Message-Id: <200110081756.f98HuKs10699@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.11-pre4 remove spurious kernel recompiles 
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <32255.1002504844@kao2.melbourne.sgi.com>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <32255.1002504844@kao2.melbourne.sgi.com> kaos@ocs.com.au wrote:
 
-At the risk of sticking my foot in it, is there something wrong with the
-ANSI C offsetof() macro, defined in <stddef.h>?
+| concentrating on correctness for kbuild 2.5.  MEC mantra:
+| 
+|   Correctness comes first. 
+|   Then maintainability. 
+|   Then speed.
 
---Georg
+  Sounds wrong to me... maintainability is done best at design time,
+with modularity and by making things table driven where it makes sense.
+Unless you hack at it until it works, then start with a new design to
+implement what you learned, maintainability is better "built in not
+added on" as the commercial says. Correctness is both a design and
+implementation issue, of course.
 
+  If you design to be maintainable then correctness and speed are easier
+to achieve because changes are easier and have fewer side effects.
+
+  As an example, the recent VM wars center on trying to see what works
+badly and fixing it, rather than being a complete rewrite from scratch
+of what has been learned and how to apply it. If the original design
+had been made for easy changes, say by putting all the code in a
+module, you could have a range of VM modules and a single source tree,
+with options selected at boot time, perhaps.
+
+  I sense that there are many thoughts on dispatching as well, another
+place where theories could be put into modules. Perhaps in 2.5?
+
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

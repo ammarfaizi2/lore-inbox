@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264199AbTDPCCx (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 22:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264205AbTDPCCx 
+	id S264209AbTDPCKf (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 22:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbTDPCKf 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 22:02:53 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:58305 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264199AbTDPCCw 
+	Tue, 15 Apr 2003 22:10:35 -0400
+Received: from pfepa.post.tele.dk ([193.162.153.2]:3968 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S264209AbTDPCKd 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 22:02:52 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: [2.4.20-ck6] Rmap15f patch fails in vmscan.c
-Date: Wed, 16 Apr 2003 12:16:24 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030416013942.GA31943@triplehelix.org>
-In-Reply-To: <20030416013942.GA31943@triplehelix.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304161216.25010.kernel@kolivas.org>
+	Tue, 15 Apr 2003 22:10:33 -0400
+Subject: agpgart support on nForce2 chipsets
+From: Mads Christensen <mfc@krycek.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-60CFm/07NGs2vctHTSFH"
+Organization: krycek.org
+Message-Id: <1050459726.6730.2.camel@krycek>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Apr 2003 04:22:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Apr 2003 11:39, Joshua Kwan wrote:
-> The subject says it all. Extracted a clean 2.4.20 tree, patched it with
-> the full -ck6 patch, then applied the rmap15f patch, and it fails in
-> mm/vmscan.c. Give it a try for yourself... :)
->
-> (The reason why I haven't just fixed it myself is because the rejects
-> file is really big, and it seems to me like something you can easily
-> correct with your sources, by rediffing against the right version of the
-> file or something.)
 
-Woops my bad. Will fix asap.
+--=-60CFm/07NGs2vctHTSFH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Con
+Like the topic says =3D )
+
+I was just wondering if its been planned to make nForce2 chipsets
+supported in the agpgart...
+
+Thx
+--=20
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+| Mads F. Christensen     || email:                                    |
+| phone:  +45 27 47 58 66 || mfc@krycek.org                            |
+| Webdesign Development   || www.krycek.org - personal data site       |
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+
+--=-60CFm/07NGs2vctHTSFH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+nL5O44SvOSUXdFgRAn5SAJ4r6TACp8S3H8Z4Wvkz9KHAIzvtsQCdEW5w
+qQlH6fKREYWwrH37Cd+ermA=
+=on5z
+-----END PGP SIGNATURE-----
+
+--=-60CFm/07NGs2vctHTSFH--
+

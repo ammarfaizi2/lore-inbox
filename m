@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262747AbRFCDc3>; Sat, 2 Jun 2001 23:32:29 -0400
+	id <S261347AbRFCDsI>; Sat, 2 Jun 2001 23:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262750AbRFCDcS>; Sat, 2 Jun 2001 23:32:18 -0400
-Received: from marine.sonic.net ([208.201.224.37]:5410 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S262747AbRFCDcF>;
-	Sat, 2 Jun 2001 23:32:05 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Sat, 2 Jun 2001 20:31:27 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
+	id <S261786AbRFCDrs>; Sat, 2 Jun 2001 23:47:48 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:59143 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S261347AbRFCDrl>;
+	Sat, 2 Jun 2001 23:47:41 -0400
+Content-Type: text/plain;
+  charset="windows-1251"
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: select() - Linux vs. BSD
-Message-ID: <20010602203125.A8378@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <NDBBKBJHGFJMEMHPOPEGIEBCCIAA.jcwren@jcwren.com>
-User-Agent: Mutt/1.3.18i
+Subject: [PATCH] 2.4.5-ac7 fix for rivers/net/wireless/Config.in problem
+Date: Sat, 2 Jun 2001 21:43:04 -0600
+X-Mailer: KMail [version 1.2]
+Cc: alan@lxorguk.ukuu.org.uk
+MIME-Version: 1.0
+Message-Id: <01060221430401.19545@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 02, 2001 at 10:47:49PM -0400, John Chris Wren wrote:
-> I would have said just the opposite.  That if it you have a large number of
-> handles you're waiting on, and you have to go back through and set the bits
-> everytime you timeout that you would incur a larger overhead.  From the
+I got the following error from make xconfig:
 
-Use a temp fd_set and assignment.
+drivers/net/wireless/Config.in: 5: can't handle dep_bool/dep_mbool/dep_tristate condition
+make[1]: *** [kconfig.tk] Error 1
 
-fd_set readset;
+Here is a little micro patch to change the dep_tristate into a plain vanilla tristate.
 
-readset=set_to_watch
+Steven
 
-select(n, readset, NULL, NULL, timeout);
-
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+--- linux/drivers/net/wireless/Config.in.ac7    Sat Jun  2 21:27:18 2001
++++ linux/drivers/net/wireless/Config.in        Sat Jun  2 21:32:59 2001
+@@ -2,7 +2,7 @@
+ # Wireless LAN device configuration
+ #
+ 
+-dep_tristate '  Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards' CONFIG_AIRO
++   tristate '  Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards' CONFIG_AIRO
+ 
+ if [ "$CONFIG_ALL_PPC" = "y" ]; then
+    tristate '  Apple Airport support (built-in)' CONFIG_APPLE_AIRPORT

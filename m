@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbUCWXf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 18:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbUCWXf5
+	id S262913AbUCWXgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 18:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbUCWXgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 18:35:57 -0500
-Received: from mail.ccur.com ([208.248.32.212]:43535 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S262912AbUCWXf4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 18:35:56 -0500
-Date: Tue, 23 Mar 2004 18:35:54 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: [PATCH] 2.6.3 Posix scheduling violation for !SCHED_OTHER
-Message-ID: <20040323233554.GA24010@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
+	Tue, 23 Mar 2004 18:36:50 -0500
+Received: from mail.tpgi.com.au ([203.12.160.100]:65201 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S262913AbUCWXgn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 18:36:43 -0500
+Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on
+	the merge?]
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Reply-To: ncunningham@users.sourceforge.net
+To: Pavel Machek <pavel@suse.cz>
+Cc: Michael Frank <mhf@linuxmail.org>, Jonathan Sambrook <swsusp@hmmn.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040323231715.GH364@elf.ucw.cz>
+References: <1079661410.15557.38.camel@calvin.wpcb.org.au>
+	 <20040318200513.287ebcf0.akpm@osdl.org>
+	 <1079664318.15559.41.camel@calvin.wpcb.org.au>
+	 <20040321220050.GA14433@elf.ucw.cz>
+	 <1079988938.2779.18.camel@calvin.wpcb.org.au>
+	 <20040322231737.GA9125@elf.ucw.cz> <20040323095318.GB20026@hmmn.org>
+	 <20040323214734.GD364@elf.ucw.cz>
+	 <1080076132.12965.18.camel@calvin.wpcb.org.au>
+	 <opr5b7tyt24evsfm@smtp.pacific.net.th>  <20040323231715.GH364@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1080081396.22641.9.camel@calvin.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5-2.norlug 
+Date: Wed, 24 Mar 2004 10:36:36 +1200
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
- The following fixes a problem where a SCHED_FIFO task would on occasion
-be moved to the end of its runqueue when returned to from a preemption.
-Cause was do to some SCHED_OTHER code in schedule() which was being
-run for tasks of every policy.
+Hi.
 
-Regards,
-Joe
+On Wed, 2004-03-24 at 11:17, Pavel Machek wrote:
+> > > I'm also of a mind to not include the original
+> > >text-mode 'nice display' and just use the Bootsplash support.
+> > 
+> > Which I would not agree with as this is what I use ;)
 
+I could always make the ui a plugin too - along the lines of what
+Michael is suggesting. That would be really simple: separate out the
+bootsplash code and the text mode code into new files, perhaps in a ui
+directory and adjust the Makefile & config.in accordingly.
 
---- 2.6.3/kernel/sched.c.orig	2004-02-17 22:59:10.000000000 -0500
-+++ 2.6.3/kernel/sched.c	2004-03-23 18:34:19.000000000 -0500
-@@ -1677,7 +1677,7 @@
- 	queue = array->queue + idx;
- 	next = list_entry(queue->next, task_t, run_list);
- 
--	if (next->activated > 0) {
-+	if (!rt_task(next) && next->activated > 0) {
- 		unsigned long long delta = now - next->timestamp;
- 
- 		if (next->activated == 1)
+Nigel
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

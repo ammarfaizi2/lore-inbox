@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTKNQEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 11:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKNQEJ
+	id S262766AbTKNQYf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 11:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTKNQYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 11:04:09 -0500
-Received: from dsl093-039-041.pdx1.dsl.speakeasy.net ([66.93.39.41]:60636 "EHLO
-	raven.beattie-home.net") by vger.kernel.org with ESMTP
-	id S262760AbTKNQEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 11:04:07 -0500
-Subject: Re: serverworks usb under 2.4.22
-From: Brian Beattie <beattie@beattie-home.net>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200311140851.09228.ioe-lkml@rameria.de>
-References: <1068769021.884.4.camel@kokopelli>
-	 <200311140851.09228.ioe-lkml@rameria.de>
-Content-Type: text/plain
-Message-Id: <1068825844.832.8.camel@kokopelli>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 14 Nov 2003 11:04:04 -0500
+	Fri, 14 Nov 2003 11:24:35 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:25245 "HELO
+	cenedra.office") by vger.kernel.org with SMTP id S262766AbTKNQYe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 11:24:34 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: kernel.bkbits.net off the air
+Date: Fri, 14 Nov 2003 16:24:31 +0000
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311132057.53026.andrew@walrond.org> <20031114150047.GC30711@work.bitmover.com>
+In-Reply-To: <20031114150047.GC30711@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311141624.32108.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-11-14 at 02:51, Ingo Oeser wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hi Brian,
-> hi lkml,
-> 
-> On Friday 14 November 2003 01:17, Brian Beattie wrote:
-> > I've got a system with a Super Micro P3 dual processor board.  This
-> > board uses the Serverworks chipset and the 2.4.22 kernel is unable to
-> > allocate an IRQ when initializing the USB (usb-ohic) interface.  This
-> > board works fine under 2.4.20 and 2.4.21.
-> 
-> Which Serverworks chipset? There are various.
+On Friday 14 Nov 2003 3:00 pm, Larry McVoy wrote:
+> On Thu, Nov 13, 2003 at 08:57:53PM +0000, Andrew Walrond wrote:
+> > The point. You got one major o/s project hosted on bk when you ought to
+> > have them all. Loads more developers using bk at home means loads more
+> > demanding it at work.
+> >
+> > And all it would take is a lobotomised, redistributable, license free
+> > client so anyone can pull o/s software from bk repos.
+>
+> One of us is not getting it, maybe it's me.  To build something like
+> you describe is pretty easy IF AND ONLY IF all you are asking for is an
+> update mechanism.  As soon as you want revision history, diffs, rollbacks,
+> modifiable files, etc., you have to go to real BK.  Is that OK?  All you
+> want is a "keep me up to date" mechanism?  No diffs, no history, it's a
+> replacement for tarballs and patches?
 
-I posted that info ealier today.
-> 
-> I for one need to pass "noapic" on the kernel command line. Otherwise
-> the IRQ routing is broken, I can't get the USB IRQ and the kernel complains.
-> a lot about a broken APIC IRQ routing.
+Yes exactly. Fundamentally I want *anybody*, without restriction, to ge able 
+to pull and update sources from any open-source project hosted with bk.
 
-nopic did not seem to help
+The requirements are the equivalent functionality to:
 
--- 
-Brian Beattie            | Experienced kernel hacker/embedded systems
-beattie@beattie-home.net | programmer, direct or contract, short or
-www.beattie-home.net     | long term, available immediately.
+lobobk clone ...
+lobobk -r co
+lobobk pull
+lobobk export -r tag dest
 
-"Honor isn't about making the right choices.
-It's about dealing with the consequences." -- Midori Koto
+Ie, Get a local clone of the repo, Be able to keep it updated, checkout the 
+head version and export any particular tagged version.
 
+and absolutely nothing else.
+
+Not necessary, but if the cloned repo  was complete enough to be recloned, It 
+would also make the perfect tool for anyone wanting to host a coherent mirror 
+of the repo. Which takes us full circle I believe :)
+
+Andrew Walrond
 

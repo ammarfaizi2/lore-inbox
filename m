@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135547AbRDXLhU>; Tue, 24 Apr 2001 07:37:20 -0400
+	id <S135550AbRDXLmu>; Tue, 24 Apr 2001 07:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135548AbRDXLhK>; Tue, 24 Apr 2001 07:37:10 -0400
-Received: from mta05.mail.au.uu.net ([203.2.192.85]:50842 "EHLO
-	mta05.mail.mel.aone.net.au") by vger.kernel.org with ESMTP
-	id <S135547AbRDXLhE>; Tue, 24 Apr 2001 07:37:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Matt Johnston <lkm-stuff@caifex.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: odd messages in dmesg (network I think)
-Date: Tue, 24 Apr 2001 19:39:34 +0800
-X-Mailer: KMail [version 1.2.1]
-In-Reply-To: <3AE4BBAA.C5A91413@internet.com>
-In-Reply-To: <3AE4BBAA.C5A91413@internet.com>
+	id <S135548AbRDXLmk>; Tue, 24 Apr 2001 07:42:40 -0400
+Received: from hank-fep8-0.inet.fi ([194.251.242.203]:29159 "EHLO
+	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S135550AbRDXLm2>; Tue, 24 Apr 2001 07:42:28 -0400
+Message-ID: <3AE56615.C53CE33A@pp.inet.fi>
+Date: Tue, 24 Apr 2001 14:40:05 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010424113700.SFAM10022.mta05.mail.mel.aone.net.au@there>
+To: Herbert Valerio Riedel <hvr@gnu.org>
+CC: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org, ak@suse.de,
+        axboe@suse.de, astor@fast.no
+Subject: Re: Announce: cryptoapi-2.4.3 [aka international crypto (non-)patch]
+In-Reply-To: <200104231433.QAA05348@phobos.hvrlab.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed the same for 2.4.x kernels for quite a while back.... The first 
-appearence in logs/kernel is for 2.4.2-ac17.
+Herbert Valerio Riedel wrote:
+> short version:
+>    this is the international crypto patch, which is built outside of
+>    the kernel source tree. you don't even have to reboot (unless your
+>    kernel didn't have loop devices enabled, or some other unthought
+>    situation exists... :)
+> 
+> As a response to Jari's loop-AES crypto filter for the loop back
+> device, which claims to be hassle free since no kernel modification is
+> needed; I've repackaged the all known international crypto patch,
+> which according to some people suffers from the need to patch the
+> kernel in order to make use of it and thus may not be ever get into
+> the kernel since there are still some countries where laws don't
+> support an individuals need for privacy.
+> 
+> This (re)package has only one major drawback, crypto can only built as
+> modules so far and it supports only kernel 2.4.3 and later so far...
 
-Afaik I haven't noticed any resultant problems so I presume its just some 
-over-informative debugging code??
+linux-2.4.3-cryptoapi-hvr4/drivers/block/loop.c lines 270...279 after your
+kernel patch:
 
-Cheers,
-Matt Johnston.
+static int lo_read_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size)
+{
+	char *kaddr;
+	unsigned long count = desc->count;
+	struct lo_read_data *p = (struct lo_read_data*)desc->buf;
+	struct loop_device *lo = p->lo;
+	unsigned long IV = loop_get_iv(lo, (page->index * PAGE_CACHE_SIZE + offset - lo->lo_offset) >> LO_IV_SECTOR_BITS);
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	if (size > count)
+		size = count;
 
-On Tue, 24 Apr 2001 07:32, Byron Albert wrote:
-> Hello,
->  I am getting odd message in my dmesg
-> I am running
-> Linux extreme 2.4.2-ac28 #1 SMP Fri Apr 13 01:58:47 UTC 2001 i686
-> unknown
-> and the messages look like
->
->
-> Undo Hoe 64.22.x.x/4414 c3 l2 ss10/65535 p4
-> Undo Hoe 64.22.x.x/4414 c3 l1 ss10/65535 p3
-> Undo Hoe 64.22.x.x/4414 c3 l1 ss10/65535 p2
-> Undo retrans 64.22.x.x/4414 c2 l0 ss10/65535 p0
-> Undo partial loss 64.157.x.x/32831 c1 l1 ss2/65535 p1
-> Disorder3 1 4 f4 s2 rr0
-> Disorder3 1 4 f4 s2 rr0
-> Disorder3 1 4 f4 s2 rr0
-> Undo loss 64.108.x.x/2786 c2 l0 ss2/65535 p0
-> Undo partial loss 200.27.x.x/2374 c1 l1 ss2/65535 p1
-> Undo partial loss 213.228.x..x/32936 c2 l1 ss2/65535 p1
-> Undo partial loss 213.228.x.x/32937 c2 l1 ss2/65535 p1
-> Disorder3 3 5 f6 s2 rr0
-> Disorder1 3 6 f0 s0 rr1
-> Undo Hoe 202.75.x.x/34237 c7 l0 ss4/65535 p6
-> Undo Hoe 202.75.x.x/34237 c7 l0 ss4/65535 p5
-> Undo retrans 202.75.x.x/34237 c6 l0 ss4/65535 p5
->
-> On my webserver errors like this fill the dmesg in a day. I did repalce
-> some ips with x.x.
->
-> Thanks for any info
-> Byron
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Have you tested that code with partitions or files that are larger than
+4 gigs? On systems where int is 32 bits, that computation overflows.
+
+If you want 512 byte based IV computation without modifying your kernel at
+all, you can use the loop.o module from my loop-AES package. I haven't tried
+using your modules based cryptoapi and my loop-AES drivers together, but I
+don't see any obvious reason why they couldn't be used simultaneously.
+
+My loop-AES package is here:
+
+    http://members.surfeu.fi/ce6c8edf/loop-AES-v1.1b.tar.bz2
+    md5sum 61e521a383ce9a90c3f7b98bcf789813
+
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>

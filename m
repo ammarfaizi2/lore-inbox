@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131705AbRCXPg7>; Sat, 24 Mar 2001 10:36:59 -0500
+	id <S131707AbRCXPso>; Sat, 24 Mar 2001 10:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131707AbRCXPgt>; Sat, 24 Mar 2001 10:36:49 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:53684 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131705AbRCXPgr>; Sat, 24 Mar 2001 10:36:47 -0500
-Date: Sat, 24 Mar 2001 16:36:05 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Michael Devogelaere <michael@digibel.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: network unusable
-Message-ID: <20010324163605.W11126@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.21.0103232233030.29774-100000@gisco.digibel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0103232233030.29774-100000@gisco.digibel.be>; from michael@digibel.be on Fri, Mar 23, 2001 at 10:44:58PM +0100
+	id <S131708AbRCXPse>; Sat, 24 Mar 2001 10:48:34 -0500
+Received: from front1.grolier.fr ([194.158.96.51]:2977 "EHLO front1.grolier.fr")
+	by vger.kernel.org with ESMTP id <S131707AbRCXPsb> convert rfc822-to-8bit;
+	Sat, 24 Mar 2001 10:48:31 -0500
+Date: Sat, 24 Mar 2001 14:36:48 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: Andries.Brouwer@cwi.nl
+cc: sclark46@gte.net, alan@lxorguk.ukuu.org.uk, dalecki@evision-ventures.com,
+        linux-kernel@vger.kernel.org, nick@snowman.net
+Subject: Re: etymology was: OOM fest
+In-Reply-To: <UTC200103241314.OAA08956.aeb@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.10.10103241422300.452-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 10:44:58PM +0100, Michael Devogelaere wrote:
-> I'm experiencing problems with an rtl8029-nic. The computer acts as a
-> multicast-client receiving a disk-image from a server. That transfer went
-> fine during the first 1.5 gb and then the machine stopped responding.
-> I tried to ping it, but got no answer. On the machine i see that the
-> error-packets (/sbin/ifconfig) grow very fast, but the machine cannot
-> send or receive anymore.  The arp-table contains 00:00:.. for all 
-> hw-addresses.  Dmesg shows: 
-> eth0: bogus packet size: 65360, status=0x0 nxpg=0x0
-> (repeated for 100+ times)
+
+
+On Sat, 24 Mar 2001 Andries.Brouwer@cwi.nl wrote:
+
+> > Btw, 'decade' comes from Latin 'deca'=10 and dies=days
 > 
-> The machine runs kernel 2.4.2 without module-support. All other participating 
-> computers have exactly the same hardware and software (they were all cloned 
-> with ghost).  If i restart the program, everything goes fine for some 
-> minutes and then another computer crashes with exactly the same symptoms.
-> When i restart the network-configuration, everything seems to work again.
+> No. It is from the Greek dekas, dekados (group of ten).
 
-Could you tell more about your hardware? Does it still happen
-with 2.4.2-ac20 (which I consider most stable for now ;-))?
+All my french dictionnaries agree with you. Thanks for the fix. :-)
 
-Full dmesg from booting and after inserting the proper networking
-modules, your .config and lscpi -vvvv would be nice.
+> > Could it be due to the word 'decadent'
+> 
+> Unrelated. (MLatin: to fall down.)
 
-I don't experience any problems like that here.
+This one was intended to be the joke, but given the previous
+show-stopper... :-(
 
-Regards
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+Regards,
+  Gérard.
+

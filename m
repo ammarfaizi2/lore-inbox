@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291863AbSCDGfS>; Mon, 4 Mar 2002 01:35:18 -0500
+	id <S291809AbSCDGds>; Mon, 4 Mar 2002 01:33:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291878AbSCDGfJ>; Mon, 4 Mar 2002 01:35:09 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:5819 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S291863AbSCDGex>; Mon, 4 Mar 2002 01:34:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kittur Sameer <kssameer@attbi.com>
-Reply-To: kssameer@attbi.com
-To: sridharv@ufl.edu, linux-kernel@vger.kernel.org
+	id <S291863AbSCDGdh>; Mon, 4 Mar 2002 01:33:37 -0500
+Received: from barkley.vpha.health.ufl.edu ([159.178.78.160]:58570 "EHLO
+	barkley.vpha.health.ufl.edu") by vger.kernel.org with ESMTP
+	id <S291809AbSCDGdZ>; Mon, 4 Mar 2002 01:33:25 -0500
+Message-ID: <1015223610.3c83153a33024@webmail.health.ufl.edu>
+Date: Mon,  4 Mar 2002 01:33:30 -0500
+From: sridharv@ufl.edu
+To: linux-kernel@vger.kernel.org
 Subject: Re: interrupt - spin lock question
-Date: Sun, 3 Mar 2002 22:32:37 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <1015219129.3c8303b9e87a7@webmail.health.ufl.edu>
-In-Reply-To: <1015219129.3c8303b9e87a7@webmail.health.ufl.edu>
+In-Reply-To: <1015219129.3c8303b9e87a7@webmail.health.ufl.edu> <1015219669.868.35.camel@phantasy>
+In-Reply-To: <1015219669.868.35.camel@phantasy>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020304063447.THGI2951.rwcrmhc53.attbi.com@there>
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 66.157.144.214
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 March 2002 09:18 pm, sridharv@ufl.edu wrote:
-> I have a question related to spin locking on UP systems.Before that I would
-> like to point out my understanding of the background stuff
-> 1. spinlocks shud be used in intr handlers
+ 
+> Right, that is why you would use a spin_lock ! :)
+> 
+> Further, you would want to use a spin_lock_irq and related friends.  The
+> irq disable prevents the race wrt interrupts and the spin_lock prevents
+> racing wrt SMP.
+> 
 
-It should be used in the interrupt handler, if you need to prevent any  race 
-conditions with other interrupt/non-interrupt  context code that may be 
-executing on some other CPU on an SMP system. Thus spinlocks need to be held 
-for as short a duration as possible. You would need to use the 
-spin_lock_irqsave/spin_unlock_irqrestore variant pair to prevent your 
-interrupt handler from running on the same processor while holding the lock. 
-This may be  needed if the interrupt handler may try to acquire the same lock 
-thus causing a deadlock.
+ok things are clear now. so the spin_lock_irq friends are actually for 2 
+purposes - preventing racing from interrupts and from SMP. so if SMP is not 
+chosen only the local_irq_disable() part works right??
 
-> 2. interrupts can preempt kernel code
-> 3. spinlocks are turned to empty when kernel is compiled without SMP
-> support.
->
-> If a particular driver is running( not the intr handler part) and at this
-> time an interrupt occurs. The handler has to be invoked now. Won't the
-> preemption cause race conditions/inconsistencies? Is any other mechanism
-> used? Pl correct me if I have not understood any part of this correctly
+do { local_irq_disable();         spin_lock(lock); } while (0)
 
-On a UP kernel the spin_lock_irqsave/spin_unlock_irqrestore pair expand to 
-save_flags(flag); cli()/restore_flags(flag).
-
-The masking of interrupts on the processor between spin_lock_irqsave and 
-spin_unlock_irqrestore  pair prevent the user context code from being 
-preempted by the interrupt handler.
-
-
-Sameer.

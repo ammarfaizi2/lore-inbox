@@ -1,67 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267624AbSLSM0a>; Thu, 19 Dec 2002 07:26:30 -0500
+	id <S267641AbSLSMfo>; Thu, 19 Dec 2002 07:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267626AbSLSM0a>; Thu, 19 Dec 2002 07:26:30 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:163 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267624AbSLSM03>;
-	Thu, 19 Dec 2002 07:26:29 -0500
-Date: Thu, 19 Dec 2002 18:19:29 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (4/5) improved notifier callback mechanism - read copy update
-Message-ID: <20021219181929.A5265@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <1040249652.14364.192.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S267643AbSLSMfo>; Thu, 19 Dec 2002 07:35:44 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47634
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267641AbSLSMfm>; Thu, 19 Dec 2002 07:35:42 -0500
+Date: Thu, 19 Dec 2002 04:41:23 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133
+ Promise ctrlr, or...
+In-Reply-To: <20021219120307.GE17201@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.10.10212190427370.8350-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1040249652.14364.192.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Wed, Dec 18, 2002 at 11:06:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen,
+On Thu, 19 Dec 2002, Tomas Szepe wrote:
 
-On Wed, Dec 18, 2002 at 11:06:08PM +0000, Stephen Hemminger wrote:
-> The notifier interface was only partially locked. The
-> notifier_call_chain needs to be called in places where it is impossible
-> to safely without having deadlocks; for example, NMI watchdog timeout.
+> > > > > > > So.  I /think/ that somehow the Promise controller isn't being
+> > > > > > > initialized properly by the Linux kernel, UNLESS the mobo's BIOS
+> > > > > > > inits it first?
+> > > > > >
+> > > > > > In some situations yes. The BIOS does stuff including fixups we mere
+> > > > > > mortals arent permitted to know about.
+> > > > > 
+> > > > > OTOH mere mortals are allowed to make full dump of PCI config ;)
+> > > > > 
+> > > > > "D.A.M. Revok" <marvin@synapse.net>, can you send lspci -vvvxxx
+> > > > > outputs when you boot with BIOS enabled and BIOS disabled?
+> > > > 
+> > > > Promise knows this point.
+> > > > Thus they moved the setting to a push/pull in the vendor space in the
+> > > > dma_base+1 and dma_base+3 respectively.
+> > > > 
+> > > > lspci -vvvxxx fails when the content is located in bar4 io space.
+> > > 
+> > > Clearly Promise is the one storage vendor whose products are best avoided.
+> > 
+> > I would not say this is the case.  What is going on is people are wanting
+> > to migrate to more of an internal hidden operation.
+> > 
+> > Think about it from their side.
+> > They want to make it easier to program the card.
 > 
-> This patch uses read-copy-update to manage the list.  One extra bit of
-> safety is using a reference count on the notifier_blocks to allow for
-> cases like oprofile which need to sleep in a callback.
+> The result of their attempts has seemed to be the exact opposite
+> so far, so I'd say they're either hiding a bit too much or the
+> hardware doesn't cut it.
 > 
-<snip>
->   
->  int notifier_call_chain(struct list_head *list, unsigned long val, void
-> *v)
->  {
-> -	struct list_head *p;
-> +	struct list_head *p, *nxtp;
->  	int ret = NOTIFY_DONE;
->  
-> -	list_for_each(p, list) {
-> +	rcu_read_lock();
-> +	list_for_each_safe_rcu(p, nxtp, list) {
->  		struct notifier_block *nb =
->  			list_entry(p, struct notifier_block, link);
->  
-> +		atomic_inc(&nb->inuse);
->  		ret = nb->notifier_call(nb,val,v);
-> +		atomic_dec(&nb->inuse);
-> +
+> Anyway, what are the chances of the 2.4.21-pre PDC driver getting
+> fixed up so it works like it did in 2.4.18?
 
-There could be a small problem here. When rcu_read_lock() is called,
-it bumps the preempt_count, so when the called handler attempts
-to sleep, it will oops with "Bad: scheduling in atomic region".
+Well, there is an issue.
+I have a consulting contract with Promise outstanding.
+It is on my desk, but there is on issue I refuse to agree to period.
 
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+Nobody in the right mind agrees to disclose their entire IP portfolio, as
+a contractor or consultant.  This allow the client to box you into a
+corner so tight, that anything in the future they can claim as their own
+and tie it back to an contract collecting dust.
+
+> > Linux is an OS that like to know what is going on all the time,
+> > and the two clash.
+> 
+> Are you suggesting something to the point of Windows not having
+> to cope with the same issues?  There has to be some kind of fundamental
+> difference given Promise themselves successfully hosed the Linux driver
+> the instant they touched it, while the Windows one just works. :)
+
+So I am not fixing anything until this issue is resolved.
+They pay for what you clearly have stated above.
+
+As for the Windows issue, the scsi-mini-port is a whole differenct beast.
+Everyone jokes and laughs at my quote:
+	"The world of Storage is nothing but a BIG LIE"
+
+SCSI is a run,poke,sense,verify,transform world.
+ATA is a run,check,return world.
+
+That being said, as far as I can tell, the WDDK for mini-port only cares
+about the state returned.  So if you do not like the state your hardware
+is in, you boost the return and hook a TDI callback or poll check.
+It is obvious the OEM Windows driver has unlimited power to fake the
+response.
+
+At this point I expect any contract is dead, so use 2.4.18.
+
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

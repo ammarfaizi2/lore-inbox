@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318401AbSGSARA>; Thu, 18 Jul 2002 20:17:00 -0400
+	id <S318409AbSGSATp>; Thu, 18 Jul 2002 20:19:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318404AbSGSARA>; Thu, 18 Jul 2002 20:17:00 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:18053 "EHLO
+	id <S318411AbSGSATo>; Thu, 18 Jul 2002 20:19:44 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:19077 "EHLO
 	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S318401AbSGSARA>; Thu, 18 Jul 2002 20:17:00 -0400
-Date: Thu, 18 Jul 2002 18:19:53 -0600
-Message-Id: <200207190019.g6J0JrM28129@vindaloo.ras.ucalgary.ca>
+	id <S318409AbSGSATo>; Thu, 18 Jul 2002 20:19:44 -0400
+Date: Thu, 18 Jul 2002 18:22:35 -0600
+Message-Id: <200207190022.g6J0MZr28197@vindaloo.ras.ucalgary.ca>
 From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit 
-In-Reply-To: <Pine.GSO.4.21.0207110155330.6250-100000@weyl.math.psu.edu>
-References: <20020711051232.5F93844F8@lists.samba.org>
-	<Pine.GSO.4.21.0207110155330.6250-100000@weyl.math.psu.edu>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'devfs@oss.sgi.com'" <devfs@oss.sgi.com>
+Subject: Re: Inexplicable disk activity trying to load modules on devfs 
+In-Reply-To: <19231.1025128989@ocs3.intra.ocs.com.au>
+References: <200206260338.g5Q3cmc19214@mobilix.ras.ucalgary.ca>
+	<19231.1025128989@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> Call them well-behaving modules if you wish.  For these the answers
-> are "yes"/"a lot of things can be"/"it's easy to handle".  What's
-> left?  The pieces of code with really complex interfaces.  And guess
-> what, race-prevention is complex for these guys - and it's not just
-> about rmmod races.  E.g. parts of procfs, sysctls and devfs are
-> still quite racy even if you compile everything into the tree and
-> remove all module-related syscalls completely.
+Keith Owens writes:
+> On Tue, 25 Jun 2002 23:38:48 -0400, 
+> Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+> >Daniel Jacobowitz writes:
+> >> For the curious, the reason is that modprobe writes even failed
+> >> attempts to a log in /var/log/ksymoops, and calls fdatasync() on
+> >> that file afterwards.  There is no way to disable this without
+> >> removing that directory, as a design decision.  I don't personally
+> >> see the point in logging attempts which fail because there is no
+> >> driver...
+> >
+> >Sounds like the behaviour of modprobe needs to be fixed.
+> 
+> People wanted to know what was invoking modprobe and with what
+> parameters, especially for failed attempts.  The call to fdatasync()
+> is to "ensure" that the log data hits the disk _before_ the module
+> is loaded, otherwise debugging data is lost if the module init
+> routine oopses.
 
-Can you point to specific problems with the current devfs code?
+Then there needs to be a way of enabling/disabling this. Maybe a
+run-time config option?
 
 				Regards,
 

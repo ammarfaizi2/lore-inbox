@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273857AbRIXLGL>; Mon, 24 Sep 2001 07:06:11 -0400
+	id <S273858AbRIXLNM>; Mon, 24 Sep 2001 07:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273858AbRIXLGB>; Mon, 24 Sep 2001 07:06:01 -0400
-Received: from ns.suse.de ([213.95.15.193]:20497 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S273857AbRIXLFv>;
-	Mon, 24 Sep 2001 07:05:51 -0400
-Date: Mon, 24 Sep 2001 13:06:08 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux VM design
-In-Reply-To: <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.30.0109241304130.20453-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273864AbRIXLNB>; Mon, 24 Sep 2001 07:13:01 -0400
+Received: from pc7.prs.nunet.net ([199.249.167.77]:50694 "HELO
+	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S273858AbRIXLMu>;
+	Mon, 24 Sep 2001 07:12:50 -0400
+Date: 24 Sep 2001 11:13:15 -0000
+Message-ID: <20010924111315.25391.qmail@pc7.prs.nunet.net>
+From: "Rico Tudor" <rico-linux-kernel@patrec.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.10 cdrom readahead botch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, VDA wrote:
+Reading within 160 KB of the end-of-track causes pandemonium.
 
-> I'd like to understand Linux VM but there's not much in
-> Documentation/vm/* on the subject. I understand that with current
-> frantic development pace it is hard to maintain such docs.
+For those unfamiliar with CDROM media, reading past end-of-track (in TAO
+recordings) triggers a hard error from the drive.  For SAO, the error
+occurs at the end of the last track of the session.
 
-In case you're not aware of it, http://linux-mm.org/wiki/moin.cgi
-is starting to fill out with documentation/ideas/etc on VM strategies
-past, present and future.
+Through 2.4.9, Linux readahead is about 2 sectors, error recovery takes
+a second, and DMA settings are preserved.  Even that readahead glitch
+can be avoided by lightly padding the end of a track during a burn.
 
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+CDROM support in 2.4.10 has taken a giant step into the toilet, and
+effectively breaks existing CDROMs.  Reading within 80 CDROM sectors
+causes a boatload of error messages, minutes of delay, ATAPI resets,
+loss of DMA settings.  I count 15 ATAPI resets when there should be 0.

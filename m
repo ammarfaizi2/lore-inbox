@@ -1,450 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbTJFBCF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 21:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTJFBCF
+	id S263914AbTJFAzX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 20:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbTJFAzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 21:02:05 -0400
-Received: from johanna5.ux.his.no ([152.94.1.25]:6073 "EHLO johanna5.ux.his.no")
-	by vger.kernel.org with ESMTP id S261862AbTJFBBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 21:01:51 -0400
-Date: Mon, 6 Oct 2003 03:01:35 +0200
-From: Erlend Aasland <erlend-a@ux.his.no>
-To: kartikey bhatt <kartik_me@hotmail.com>
-Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [CRYPTO] Testing Module Cleanup.
-Message-ID: <20031006010135.GA31973@badne3.ux.his.no>
-Reply-To: Erlend Aasland <erlend-a@ux.his.no>
-References: <Law11-F79NkI6R9a8C50001263f@hotmail.com> <20031006004119.GA24819@badne3.ux.his.no>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-In-Reply-To: <20031006004119.GA24819@badne3.ux.his.no>
-User-Agent: Mutt/1.4i
+	Sun, 5 Oct 2003 20:55:23 -0400
+Received: from CPE-203-51-31-218.nsw.bigpond.net.au ([203.51.31.218]:20975
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S263914AbTJFAzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 20:55:20 -0400
+Message-ID: <3F80BD75.1BDCBBA2@eyal.emu.id.au>
+Date: Mon, 06 Oct 2003 10:55:17 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23pre6aa2 - some problems [with patches]
+References: <20031004105731.GA1343@velociraptor.random> <3F7EE96C.4AC99553@eyal.emu.id.au> <20031005104008.GC1561@velociraptor.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-
-Hmmm, noticed that I had to fix my mailer. Patch attached properly this
-time. Sorry 'bout that.
-
-On 10/06/03 02:41, Erlend Aasland wrote:
+Andrea Arcangeli wrote:
 > 
-> --zhXaljGHf11kAtnf
-> Content-Type: text/plain; charset=iso-8859-1
-> Content-Disposition: inline
+> On Sun, Oct 05, 2003 at 01:38:20AM +1000, Eyal Lebedinsky wrote:
+> > This is most unusual as -aa patches usually apply clean, but I am
+> > encountering a number of build problems.
 > 
-> Hi Kartikey,
+> > And building i2c-2.7.0 (which I need for sensors) is failing.
+> >
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.4.23-pre6-aa2/kernel/drivers/ie
+> > ee1394/pcilynx.o
+> > depmod:         i2c_bit_add_bus_Rca543f36
+> > depmod:         i2c_transfer_R1dea91d1
+> > depmod:         i2c_bit_del_bus_Rdf920b11
+> > depmod: *** Unresolved symbols in
+[trimmed]
 > 
-> You might want to clean up tcrypt.h a bit with the attached patch. It
-> removes more than 700 lines of code :-)
-> 
-> (I have not had a chance to test it yet, I've just checked that it
-> compiles. Will test it tomorrow.)
-> 
-> Regards
-> 	Erlend Aasland
-> 
-> On 10/05/03 23:58, kartikey bhatt wrote:
-> > done it.
-> > sending it as an attachment.
-> > 
-> > -Kartikey Mahendra Bhatt
-> > 
-> > >From: James Morris <jmorris@redhat.com>
-> > >To: kartikey bhatt <kartik_me@hotmail.com>
-> > >CC: linux-kernel@vger.kernel.org
-> > >Subject: Re: [CRYPTO] Testing Module Cleanup.
-> > >Date: Thu, 2 Oct 2003 10:35:09 -0400 (EDT)
-> > >
-> > >On Thu, 2 Oct 2003, kartikey bhatt wrote:
-> > >
-> > >> sending it as an attachment
-> > >>
-> > >
-> > >I'm seeing a failure with the 5th DES ECB test vector:
-> > >
-> > >  testing des ECB encryption
-> > >  [...]
-> > >  test 5 (64 bit key):
-> > >  5630092f0161d576
-> > >  fail
-> > >
-> > >Could you also retain the weak key test for DES?  Just add another field
-> > >to the test vector struct to indicate that CRYPTO_TFM_REQ_WEAK_KEY needs
-> > >to be set prior to setkey(), then clear it after the test.  (Once you do
-> > >this the above test vector should fail anyway, which is probably why it
-> > >is buggy -- it's never been run).
-> > >
-> > >Also, a minor nit: please be careful about this kind of thing:
-> > >
-> > >- * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org>$
-> > >+ * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org> ^I$
-> > >
-> > >
-> > >Otherwise, it looks good.
-> > >
-> > >Thanks,
-> > >
-> > >
-> > >- James
-> > >--
-> > >James Morris
-> > ><jmorris@redhat.com>
-> > >
-> > >
-> > >-
-> > >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > >the body of a message to majordomo@vger.kernel.org
-> > >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > >Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > _________________________________________________________________
-> > Access Hotmail from your mobile now. 
-> > http://server1.msn.co.in/sp03/mobilesms/ Click here.
+> this looks like if you didn't compile the needed i2c (or maybe it was
+> due the lack of a `make dep` first), the above modules (pcilynx bttv
+> msp3400) looks innocent.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: attachment; filename="tcrypt.h.diff.bz2"
-Content-Transfer-Encoding: quoted-printable
+OK, carefully inspecting the logs explains the above. -aa2 breaks the
+build
+of i2c-2.7.0, but my script already removed the original i2c modules by
+then. The failure is just another static HZ initializer situation.
 
-BZh91AY&SYo=12=FBp=00=A6=EC=DF=80eqX=9F=FF=FA=FF=FF=FF=FA=BF=FF=FF=FA`E=9E=
-=3D*=87=DB_F=A1V=DA=DB6=DB=B5=17=B0=00=00=00=00=03U=01g=C5RU=F3=9F}=E0e=EE=
-=F5=C3=DC=F6=0E;=C0=00=00=01=A0=00=00=00=00=00=00=00=00=00-=BC=DE=E0=03=00=
-=03=A0=01"=9B=EF=B0=01 =02@=EB =14=00=01=B3=00=D6=80=05=01=AA=00=05=DD=F5=
-=E0=3D9=06=BA=07=DD=9D=03<=C0ik=B8=1AU=05(=14*=E3=00=DE=00=A8=06=A7=A24& =
-=A3LHy@=0D=19=1A=00=06=83=D4=00=00=06=82P#@=8DA2=8D$=004=D0=00=00=00=00=00h=
-=04=A6=D4=84=8A=83=D2f=93C=D4=F56=9BMF=A0=00=00=00=00=00=00$=F5RJi=AAi=91=
-=FA=93=13A=A0=01=93F&LM=19=06=8C@=0C =02=92RH=9A=A8=DBT=FD=13=C4=D5?L=85?Q=
-=EAd=C4=83=D4oTz=86=8D=07=A6=91=A0=00z=81RB=00=12=11=18=84	=EAi=A6=A9=EA{SS=
-e=3D&M=A8=1E=A0d=F2=99=A9=EDS=D2>+=DD1Qj=BE1=F1=91O5tvE=FB=EDk'=ADL=D3=9CR=
-=9F%U=3Da6=80{ET=CA=84{~=FB=BB{W=9F=C3z=F1=DE=FE=BC=D7=AB=BA=B1=B6=CB=B3j6M=
-o=13=AF#=90n=97]=CB=BDv=EF=E5=1E=DA7=93=AB9=AE=A1=9A&j=99=92=CCL=C5f%=98=A6=
-jf=930%%%=A0=C9=B5u=D6=EB]	=11V=A5=96=3Dh=9BU=0D=AA=94~=DF=15u)^=D2=8B[Q=AD=
-=B3*=DB=7F=DF=9A=BE+=FA=FFo=F1u=A4=925=95_=F7=A7.S+=9D=1C=B4=D9=AE=B9nW35=
-=A6=B4=87j=AE=1E=E7=B9=B3k5=86ZZ=AC=8Cd=CC=D35=FF=C6\=CC=B4=BA=D2=9C=D1=D9=
-=B4L=D2=DBh=E1=8EaL=82=F7E=CB"=C8=A1J=17=7F=8B=89=E2=A4vj=92=DB%=B2QAX=8DC+=
-=7F=03=C5ePux=C8<=EC=D3jq=B6=C6c=11i*\=AB[=CC=AB=B6b=F0=F2=DB%=08L=B5O=9F]=
-=B8uJ=E1
-`zD=F3D'=1B=03|+=A8=CF=1E=FB^=0C=BDo=0E=FD=AE=C3=CAk=8A=C5=F9r=BE=8F=82]=EE=
-O=1FN=BA=DA=0D[=B0=B5%c&=D4=95=B4=9A=93hKRkF=C9i =B6-%Mk5f=AB2L=FBj=E8=9F=
-=83=0F=86=83=D2=92=D4=95n=A5x=9BQ]=D8=1A=8Bji<=BD=98gu=EB,=DE3M=9E=9Dq=8C=
-=C3=C6s<g;=CFoG=AD=B5=E6=97=B5'=ADm=0Fl=0D=81=E4=C5=AD=BD\=E2=D1=DAH=F5=A1=
-=B6=D4lS=D7=9En=D5=D8=F2=97]=C5m=B3jm=B5=1B]=DE_5=D9jM=AD=11=AC=96=D2HY=92f=
-=B3K0fK56k(=AC=96=D8=B5=92=A9=89=93k&=B5-b=9A=B6=E4=D1#D=81.%=0C=1B1E=02B@'=
-)v=16=C9Wi^kkj=D9=B0=DA=B6=C5=A6=16=B1X=C6=DDs=966=ACm=B2E=B5=1D=A3=C6'e=1B=
-=1B=CE=F1hy=9AX=D0S
-=B2=91$=ABi=A0=16=90=92=A4=A1=8A=A9=CDbr=E0F=A2=B1=B6=E4=AE
-=EBS\o1=D6\=E6r=BB=9C=DBc=B4=BB=00=CC5=B6=D9=1D=95v=BDj=FC=BC=E5Y=B7=99=B3=
-=D8=E7=B0=98=92=16J=B9	h=90=A4=93u2P=8C=A6=02@R\=AE\(q%r=E5=9A=EE=BA=BEwk=
-=826=9E=ED=EEw6o9v7=C26=1D=ABj]=8E=D1M=B2P=CA	P*=F6=B3=1A=D2n=C0=F0s;X
-=EE]v=A6=F8-Oj=EE=F6!=13=EE=D2=CD=AB=AA=FC=D2G=95=03=D8=CEHb=8Ck=3D\=93=E4^=
-LL=BAi=ADSc=DD=B6v0=A4=F6=AC=EA=A6=19=AF=E5=C9i=04M=9A=9A3=B4=95=14=E6^=BC=
-=ED=AD=B3=0D4=BA=84=BB=1C=11zl=1A^=D3
-|1E=99I=B5M=92}-=F3=19=FA=9F[=F1=E7=D8=CE=EEo=7F=19=FD=AC4=D4=DAM)R=A6=D0=
-=F0=E4=98=9F=E3=C2=A5>=D7=FD?=ED~=85=BF=8BO=CE=FE=FF=AD=F9=B5?=95=97	=11z=
-=03@=C1=04E=05#u()I=86=AE=BC=E4=D5=0E=BEO[=AF=C3=05a
-=FC=FEo=BB=EF/=94=FC=F0=FA=FE(=AF=A9}R=BE7=D4=FA=D3l=CA=CC=9Be=04=F2|=A5k=
-=0DS0=CBFr=9C=0E3=199=1D=972Y=81=8B0=96=0CeU=993$fs=12=CC=99=8E9=CA=A3=06	=
-=96s%;+^8Wm=E6n=BB=B8=A7yrWm=E6n=BB=B9=16w=14=19e=C6=0C=CAr=C2=B8=C8=B1=86w=
-$=D9=0D=92=9B=08=C6f8=C9q=871=CD+=9C=E0ll=87=1A=87X=95=CC=8E=C29=92=BB6)=DD=
-mr8=B9=C5=99E=C6Gs=85=D8=96=C6aL=C8=D8#d=1B6s=12v=03=99=D9=060=99=C5=D1.=D1=
-[=1C=D1]=8Al=B92=A9=D8=A1=99\=CAN=C3=1C=E2=AC=ECr=CC=9C=C5=C6Y=93=18:=C8f&=
-=CA=1B*fR=DC=E2=B3	=D9s'236=19=94l=AB1=CC=A5=8C=9D=92=CC=A2=E6+=98L=E5=C2vR=
-9q=8ENs=98=C53&6bv=A9f\=CB4=A3=9A=D9s"v+=96v\=C53,=CAG,=8B=99;=07=19N=C9s.=
-=C1=98=9B/=19]=92=CC=19=89=E3=B8=19fb=8C2#dM=8B2=B9e\=CA=E6R=EC=CC=DC=E2e=
-=94;$=B6=A5g9.=C56#b\=AD)=AD=072=0EiFfe9=C3=83'.Fj=AB=98=9D=86a=CC=AE=C2s=
-=14=D9xy=9BuU=DE8=8As3;=96=C5=9C=AA=E58=CBn=88l3J3$=D8l5=8A=D8=E6W,=AD=94=
-=B6=93=98=9D=A30[=1C=C9=CC=A5=CB=0C=D4=A6b=AE=CA=E3;&=C7)=9C=C2=D69=8A=EC8=
-=C1=E7=9B=90=F1=BC=C9M;=A1=C71=D4G4,=D5N=C8l=E3,:=E0=D89=A2=E69=89vQ=E7n=AB=
-=99<N=E2M;=838r=1Cb=A62v9=AA=BB+p=E8v\=C83=15=99=1D=89=8C=B7=1CK=B2=B6Is,5=
-=162=97b=BB=AD=AE[C=99=D9Kd6=1CYC=C3=173=99=99=AC=CD=E6xe=E3=97>=B9=1EP=B9=
-=9B=D7=97=94=F4z\=9E=DF=95=84=B9J=18<=B1ys=EBhYv=92=F2E=B5=A7/ON2=D4zc=D7u=
-=E2=F0t=A5=E8=C3=EF=9F=F1'=E2=88=A0=8AO=AF=D7=9F=A7=D7=D7=AA=BEv=CF=EB=A6Zc=
-=F0=FF"=A7=EA%=FE=FF=E4=7F=D8=C6=3D=87=1F=FB=EA=E3=DE}k=92=F1=F6=AC=9F=A1d=
-=D1=F9=92=8F=A2=EDK=E4=AER=E4=CD=FD=E5=CF=C4=C4=DCr=87=F9%=8F=C8=A6=E9G=D0=
-=95%'=E3"N=BFa=AB=DD=CB=FC=9F=99c=E4=9B?=D0l>=0E=8DL=98=7F=17
-`=B1=92=99	=FEe=18=14}=CD=0B'c=EE1=876=D5S4=FB=CAM$=CC=B2k*~=F5=D3/=FE?=D5=
-=D6=8Fc>yN=06=0B=98z>=87=C9=9B=B6[&b=C2=BFt=0Fg=FD=0F=C0=FD=9F=AB=F5k=F3=3D=
-=8E=0Fc=E8xz{=9A=8Fs1=F7=BF=A5=F2=1FT=F9=A6N=13=E7=FB=9A=D2=C9QaMF=AB%=1F=
-=91=A8=97=F3|=DF=9B=BB=E7s=9Ey=E77w=02=88=E2]=D0P873&=1D. Qa=04WoPQ6=A3=0E=
-=A47=C4=A6A$=17<=10=84=98=0B=C4 =CC#=17=97=C1=A5=A5nD=84=E32=11=82!'U=9C=98=
-=125=D2=CFb=19=1E=87/=0E\r=05G=E1YYP=C0=A1=83/=95=06f=A8=99=14=EE=A5=15=0Eh=
-=D6vG=15=13=9Et=CC=D6=E6"=C59=EA=C2T=E3E=BAF=EF=BE=82C=9C=A9=8D]Vi=0B8i=85=
-=C2=AA=CB=B1u=ADxr=AA=D0=8Aq=82	=D9`hm5=9C=ADd=8D=12''=A5r=A8J<=C9 =8FZ=19Z=
-=FC=1A=DA=B67=C3+WY=D4Rn=BB=AF=3D=F9=A6=AEm=D7;=D3b[=8Eg=16=AE=17w=C6=F0=C2=
-w=D8=93=B3=18=CC`=97\=0D=C3`~=16=95=F5=92=C8=DE=A9=1C=8A=3D=FBK5=83&=CA=D6=
-=DC=0E=F2=CC=13y=9B=E77=AC=D92=8A=83=8A=8C=AA)F=B8=A7=E9=88S=85z=9B=B1=AE=
-=17=8E=E5=CB=99,=E2=A9b=FEm'8>=BB=D7=8C=8A=A4G_g1=AC	=DA=19=0B=C14=15k=B7=
-=DARk+=CA=E4=FD=1Ah=DBq=CF7=DD<sa=B8=D8U3Jar1=8D!=8D=F7=CD=D2.6(=C1=10=D4=
-=8C=91=F6~.-=89=1Bd9=F7=94N=EB=D9f<QB`Z'=0EC=E5=CFC=B8=D4Q=85r=8C=8A=BE=E4=
-=00lt=BB=FB=9CjQ=90!=0B=9E=F6=83=D6=0C=A1=E5{=A8|HN=EFq1=1Cc=8E=C7=9E.H?bxD=
-=84=AA=1EK&S=B9=AE =C1:.i =D2i=134ICE=F7m=E4=DEM=E5_@=F7=CEn\=973=0B=F5=B5=
-=D7\=CC$=CC=BD=D6=E4=D9=B1=D75=CB$=92K=A7W^=FF.s=AB=8Dz=D7Z>#=E8?=E2q=E0=7F=
-M&e6`>=9A=15=1F=CE=DD=0F=E9_=1EM=F5_g=D3=E8=FC=9A=BF#=BBc=DAjj=0E=1A=90=1E=
-=9C=F4g:&=DB=03=ACc0=CDK:=C7@k=3DV=84=B2=93=1A)e=AA=ADm=EC=BA=95x=8FfJS=89=
-=F8=B3}=87=110XE=9Fr=89d3y	=1CPc=9F=7F'>=97=CC=99T=B8J=95=7F=96=F9#K=C6)=D6=
-=B7=07=DE=99x=A9=8C=DAL=D2=93=82=FC=04_=8D=C1=C3&H=93=1C=CB=98*=94.j=C5=0EX=
-=E7l'7=99=DD=E8fJ=88=A1%H+=AB=11=BD,=EE=C3\=A3,R3=A0=D8=1C=E0=B4P=D9=17=B8=
-=D8E!Li2j=98w=DC[=1C=9C)]=DCq=8C=A9=95K2=99=92d,A=BEm,u^+D)=C4:=B3=BD)=11FE=
-f=9A5j=AFXu=AB=F5=12=A87M=B1=8D=AEF=C0=BD=EE=E9=AC=8Eu=17~B=F1=93m^d=CB=98=
-=D3r=F0=DE=B3=B1=A2=EF=19=D1=9B=97=1CP=84!=08=19=BA*=A8=B2=A2QP=A5=06*=D0=
-=E3Ei/BH=AD=00V	K:=F3JT=0D=E3=B2=D5=DFx=ECM!=DB=9C#Nsp=94cU=E9h=BA)=15=94=
-=92=15=86=F4=CBjYz=8D=F2=B2=B3=AA=D7_=10=D3=CA=E3,c.L=D4s=DF=93|)=1F=B5JS=
-=89=EE=D1=E2=E94M=FC=8F4=8F{&=C7x=D4=D5.=DD=B2t=ED|=DC=CA=A6=02~c=F7=8Bp=BC=
-=E2:=EF=00=FD8nq=9E0b'=A9g=9Ez=D0=D3&=88=92=FC=F4sEh`=E9b=86=FAu=817y=9E=97=
-=A1=9A	"Pr=9Ay7=A5=A9=8D=EC=E8%H=C8=CDq=01=1A=B6=A7=1C=85=C4=DC=BD=AC=B7E=
-=E4D^=8Ac=94=E6=82%=B2=FD-|t5[=E5L=AAKc*=C6=F22P=07,
-=DF=CAff7=05=1ADID=92CE=95t=1E=B7=AA=C9=E2=9C=D9s5=9D=3D=99=EE=F975iS=DD=A7=
-=BB=DC=E7=A6lL]=D4v=AB=0C=D33MQ=AA=93t=EE=ED=A5r=81=17*=EB=AE=AE=B9q=CA=82P=
-=895ec=08
-JFT=84=95C=0D=B3=86=C7=02b=E4J=B6=EE=0E=D8=A1=C6=1B=93=92=0C=95	=9C8=C5d=97=
-=8DG:=CD=E2I=05=98=BB=B9&=80A0f=DD=9Cj4=996=D4=D8=C6=A5f9Y5R=12=18=9A3=0B=
-=F1b\=AD=8C=88=D5=05V=D6=14=938=C3=19=88=97=82=F5=93=18=C6U\=DAcve=D5=CCj=
-=C9W=BC=C5=16=0E
-=9698=0E=83=95 =E4=D9RI=BA"=06=95=15tP=C9=C0=FDN9=A0=E39CC=A7=04=1C=B9!=D2
-=F2\=C8=E7S=84K=A5=CA=8CX=D1#=9D=88=18=A8g=B9=D6=84=F0`=E0s@S=1C=F8=B7=DE=
-=D9=E8=DE=BF9}=F7=1B[D=F5=F0=EAN=EE=81=19=B8l=BB${8]=AAdf=B3
-F=01=DBC=C4=BB=B6=C6=A6=A6=A4=8D=DC=0D=DB=BA|=1C=FC=AA=B4$Y=BB=A6=87=0C52d=
-=CDM=0D=89=160=A3=B37&=E4=8C=1C=AC=D8=D9=D3VI=F0=E1=DB2F=8E]6p=DDO=1D=A4=B7=
-=8B$=B5=96CU=99=B4xf=D5=99=84=CA=92=B3vQ=915a=AB=B7=07=0EXj=F1=BA=99=02=EE=
-=1D>=1F=B8=F9=12=C5&GUU=127{=B6t=E0f=C9=E8=92`=91=D0=C2=88=97$hv=F7d=BB =99=
-=19=3D7=F5Udhj=13u=1E=965t=CEnT*=91QD=99=AEpp=E5g=B8=9CE=15'=05=1E=EEN=86I=
-=E2=86L=C9=A2=892a=E0=EC=E5=86=CA(O=1C=05=C6=CD=0D=1A5=12=CE=8Fg)=A2I=87=8E=
-=9B;=13=83=B3=83&Jf=CD=C0=96)=D9=DB4=A5=89N=D4=9A=B8=B1T=93
-p]=C9c=8A*=8B=1CM=AAU=1A=D2=B6\a=C3=96f=1F=CE=B4=FD=E9=DBg=A3=95=0E=9A=A9=
-=C8nt=C3=D9=EC=F6t=C1=91vl=C3=86=AF=19=3D+=8A=AE=16=0D^=EEsvRG=B9=C3`=C3=96=
-n=9A9H=D4=F4=A6=DB=95GG=87=0B=0B=8E
-;x=E9=D2]=97=1D=EA=BD=9E=EB=AC=C5R[=D2=CE=17=BA=EAx=A5;:67,=BApOD=D4=96h=B3=
-=0F=1B=B4p=B2=EB,=E1=B9=92=C9&=AFwSj=A9=C3=834D=DC=F1vn=8E=14=C3=C7=8DW=137=
-=88=B3=B3=B7.[=1B=19=1E=93=9FeS=C3fk=B6v=9D9:6X=D5=B3=C1f=0D=DE6{=B3h=F8~=
-=F4=F9=A9=BB=D0p=F9=A4=EC=A3=D2=9B=B7\Y=85=DE,=B2=C8=F0=F7]&l=8Ff=8C=96K=97=
-,=F6jd=F9=1B0pd=D1=82=EDZ=A4=BA=E9=CB=83S=0E=9B=1F=06F=86=AC=D4=B3Mj=B9lh:>=
-=1E:j=DCzRvC1=CB=97F=EC=D9=99=B2x\r=88=D1')=C9=B3gm=91=A3a=AB=0B=93	=83=D3=
-=83=B7V=AA=A6oC=A5=9A9=1C=3D=F9=DC=ED7=DD=B1=AB=93=B6=E4=CC=B2332rA%=9D=99=
-=9B=A8=C3=03=8A=1E=0E=DB;=89=E1'v=D7vf=E8t6=F8.=F7ae=9E=9A=B4a=ED=F0=C9=85=
-=98h=99=AC=D9=C37=C9=C2=8F=86L=FB=D3GgK=A9=ABV=A9=F2]=DB3=C7=8C=87MXl=BB#wk=
-=A9=D3=A6=E9u=92Y=D3c=B6=0F}=FBj=91=84=85=CAx=A7g'=0B&f=12D=F4=C9s&=94=AC=
-=DC=9E=94=E9Jf=D7
-=A2=94=DD=D9=E8=CD=83=D1=93G=0E=0B=0EZ)v=86=E9f=C6=89=D2=CEZ=14=F6N=16hdd=
-=93=B7OgJK=99=1D2r=D5=DB=87=A7=A2=CE=9A=98Y=E9M=0C=9B=B9j`=F4h=BB=97=0E=1D2=
-,=ED=DB7=8B25N=0C=8C7t=E4=D9=C9=B9=B2=C7F=1C=B2&=C4=B1=0Df=9D=ADK]=C9=91c=
-=02d=90=C3=87I=AB=C3=934.pu=ED=85=AD=E3=B4=8C=CE=1A=B0=F0=D8d=C9=F3Y&=1C=9E=
-9]=DB=84=D0=D9OL=1E=A9U)Q=C3=97=B3T=C9=B9f=1D=1C=AE=C9=86=1D=F3UM=1E=8D[=A3=
-4=99=99=B9.=D5=A36=AC=9C=AE=91=92=98d=F1=A3=0EL=9C)=AB=96gI=83G=BB7M=0B=3D=
-=0E^4n=E5=99=DB=DC=CD=E9=9Bw=A5=CC0=E1=DB3F=1A=B6M=19=1E86k=1F5JpM=0E=D8a=
-=DB=C6=E9=0D=9B,=C6=B5V&Ic%=9B0=82j=F6=3D=1A=A7=A32=99=ACJX=9D=13=C6=8D=1A=
-=BD=14s=97'=BA=DE=EFv=CF=82=9B=1D$n=DD=C1=D9=D0=F8c6=8B(=D1=C9=DBRX=E5c=DD)=
-=EE=D5:23=D1=C3"=C3v=AD=14=F7di=CA=CDZ=B6j.0=C9=99=8D=87E=B7nr=DD=AB=A3=92=
-=CD=94=A7=B2=93=0B=BD=DB=B849Q3t=B3=C5=8C=8CR=A9=95*=94R=E9D=E1fn=98.=C9M=
-=D4=F4=A3#=C2=1E=8ED=B9=DAx=A58K0=93=E4=D9=C3=B7=C9=90=F7n=A7L=9D=99=0Ff=C4=
-=E5=BB]=95=E8f=F4=C9M]=AC=BA=8C%9=3D=8D=8Ff=18]=C1=A3=B5=0DXL0Yb=CC=DB8a=BA=
-=9C=9B4v=BB=DC=C8=D1=CBf=8B=98n=E4=DC=C3v=E6=CD=1C=BBx=F1=F0=D9=BA=EF=1C9Sv=
-G#=059dSvnX4<nx=E5=C9=BA=CE=C8=DD3=1E9n=E4=B9=D33=B4=D5I0jlv=D1&E=96.=99=B9=
-d=8C=D4Da=83=A3=0B6X=CD=936=F21R=BD=16x=9C:SD\a=A3=87=0DV7v=E9NM=1A&=196t=
-=A7M=1B=A4=C1=C3=86=89=AB=B7l=CEK=A6=9E*=967.=D9=A9=B17j=D5=AB=E1N=97zdx=BA=
-=CB=0B4=17<v=ED=B2=9E3j=D1r,=C3=C7=8DM=0DM=DB=93=87t=AD_%
-=14QIMY=BB{=14=A5=8E=98n=92=CDSv=1C=1E3=0C5a=AB=0F=82=E6o=86>J0=F4x=E5=CA{=
-=A9vG=B7*=A7=A7=B9=A3=A5=8D=96j=E1=19=BEL$=BA=D9=AA=DE=CBr=BBv=A7=B3=A2l=C9=
-0=C1;=E6=ABfH=9B=99&=1E=E7=CD=C3=E5=84zvL=98=BB=E4=F1=1E4Y=F2g4
-r=D9=C3=E3Wl=91=A1O=913_=E6=BF=84=A6=8B8m=A2=C1=B3U.=B3C$]=E6=EE5S=93g.=DE=
-=13|=DB=B9u=BA=C7=0B6r=A2{,=F4|=D9=9B.p|,=E4=CD=A9=83=E4=D9=D3=E4=F61=EC=F9=
-=AE|=DE=178a=AB=B5;8Y=BA=ED=19=BA=1C2ln=E1=17fP=C9M=DB=AE=E5=86E=CA=F3+Z=D0=
-=ED=93=95=94=DC=B1=E3w=8F=1AH=93S=B5=89=113Iu=99=D5j=C8=B1=9A=CE=DA$j=A2=A9=
-$U$=C9a=92=CD=8C=DB7\=F18=A6=CB=A9=91N=8D=8E=9D6l=D5=B9=D2=E6=0E=1D2a=B2=E7=
-L=9D=93=96=8D=8C=DB=B0=C1=ABF=EC2p\=C9=1A=1B)=D9=BA=9D=19=195Y=9B&=8B7=190Q=
-f=C7Jn=E2=CA=DD=BB=C6=AB=96a=A37k7r=B3
-t=AE=0549#?=14=974&I6]=B1=BB=B7=0B4S=C6=AC=1B=B5`=ED2M=D3&n=D4=C8=E5d=98d=
-=E1=ABv=19.=C9=D3e8ab=E6=C6=DA=9C=0E=DD<n=93'=892d=8E=986(=F1=9B3=C3w=0E=DA=
-<h=ED=D3v=A6=8C=DE(]=BA=8C=1C<f=E4=D8=CD=87*.=BB=836=C6E=9C=1D=92=9A=1C<R=
-=CDTX=D5&=8E=1A/I+Gm\=1B=19=91%=C6bE=AC\n=B3b=9A7)=C2=C5=9B=19=ACn=C36=1C<=
-=1D:8=B9=B2=9930l=D1=99=B37=8B=B3vo=D9=B2=99=12=EC=DC$r=B2=8D^6h:j=CC=C9=C1=
-=91=86m=CF=1C0=ED=A3=B3U=A2=C7'=0E\,n=DD=92=CB=BAY=BBU=DC=97p=93=B7gm3=AA=
-=E1g.=CB=91=92=F2N=D4=CD=CA=EB=91'i(=D1=E1a=9B=A6=CD=0D=1A=A9=C3B=C7=07=0D=
-=9D=BCa=A1=BA=EC)=9B=86=8E=1D#d=C9c&=19:d=E5v=1A0=D0=D5=DB=B3=B6=C7=8E=B7px=
-=E4=D9=D3=BAl=BB=C7
-j=C8=C1=92Fl=CEM=C9=93=95=DB=BA*=AA=B3Y=C1=B9=A3=B6=EB=A4=F1=85=9B#E=8E=9B0=
-=BE/j=B6=19=B8<Y=D3=97&=89<x=A7=0D=9A7l=F0=E1w/=1D%=99:S=B6L=9D=05*D=A5BU
-=D5=C2P=D5=83f=ADXm=AB=96=EC=9B27MT=D9=AB=C7##F=AD=8B=B3n=C3=97'&=8E=9D;q=
-=AA=A3D=9C)v=AD=132=CD=CDX]=E1=CA=8DK=B6g=DB6=CC=19=B5`=94=E5GJv=ED=B3gE=D9=
-=B2]=B3s=B7n=DC8t=EDGL=9A=BBf=E9=CAp=D6G
-=86=A9=D3vK=B4v=E5=D3"=E6=C4=E1=92Jj=C8=BD=16J^L=C9=E1=93l=D7=8C=AFU=FF=8B=
-=FDO=EA=EDL=DFa=13?g=92=DE=D4=93=93=E8=C9=CB=B7k.=C9M=190=D1L7]=F0=B3v=8FL=
-=D9=BF=1A]=C3v=EFw=D1=CB=E4=A6=EAX=A6=AE=DB=BBS=DD=BBG-Z*\=E3=DA/R=A7=A9=B3=
-%=CE=83=1Bw0=8B=A6=8E=1D=CB=C7=1B=BBMV=B0=FE=FFow=BB=D7=B3=EBD=AA=F8=D7=EC=
-=98=DD=D5=FC=E7=DCr|=AF=B9=1F=A8=F4xvg=9F=F6=1F=D1=12O=EC*$=9F=EC2=84=9A=9E=
-=1F=BEE=BE}6=D5m{=B5U=E2=D7=10I!$=97=A8=E5=00	$=02G=DF=FBG=B7__=C2=F2=1F=F3=
-=15=E1=C9=E6m=BE=AF=1Ef=9F=8Bm=1E=99=B4}-z=F3=DB=CB=B87=BF=AF=A8=97z=C9RP=
-=1B=A4=86=E2=C4&=E6=12j=CB=8D=8B=A5=D2=8C=16=CA=9F=95YV=9D]=9C1=D5=1F=C8=D6=
-=CD=F7o=8D=F2=AA=AD=AA=D4=B6=CF=AB=17Je"0-=BD=1B=B1f=FB=B7=C6=AE=12!=9DH=E2=
-=84=93z=AE2=B6K=D39u=8B=E7=84H/R=A8=92=95 &=8D=99=8C=1F=C8=E1=C1=ABF=EE=D85=
-&=E4=97)=937=05=1A?S
-<ll=E4=FB=8E=1F=B1s=D9=D2=CDM=0FJ]=C1f=CB=A7=8A%=C7B=C4=FD=8A&=CC=DB=9A=9B=
-=AE=D9=93&mL=8B=97f=E9=9A)=BB=C6=15=D7=EEG=B4zj=EC=B0=D9=83
-=3D9n=E5=E3=996n=BB=0B=9E.[=B3=D9=EC=8D=CD=16,=9C=F0=B2r=BB=A6=EC=DA=BBrp=
-=D2=9A=07=A6=178r=B2=F9W=E0~=A6)=10I=94=A4"z?=AC=A1.=B9!X=FA=B5bD.=AAQ!=CD
-?=AF$=9E|=BCU=E9=8A=A1=EE=94=7F=9B6=A9T=FDl=CC=CD=9A=0D=AB=8BL=D6b=93=FDL=
-=A7=18F2#=C6%=983[l=AEe=06Y\=992=C1=8C=AB=98N=98=D8=16=D5f=92=B6U[J=970\=CC=
-e\=CC=CAq=8D=B6=95[RmCj=A71N=C0=E6=89=C6[mK0=CC=DBh=C6\=CB4=AB=B4=D9#3j=95=
-=99=1BU9=82f]=AD=A5=CC=0E=B4=D6=830f*=B6=B1=A2=D8=96=D3m=A8g=F59K=B6=D5x=C7=
-hF=D0=E6E=DA=DA=89=CC=BBHmA=8C=B8=CA;lN=C8]=92=B6=03}=DB=AAc)=B5R=DAP=CC=B7=
-=EE=E3=D3=14=F1=EC=E9Z=E2=D5=1Bh5JU=A1-SCg=8C=9D=AA=1BU3
-=D8Nh;I=99M=B3=16s=88=EDS=98s=14mKm=A9Nas)=CC'2=A6=D3=8C=A8e=8E1ff=0C=C0sf=
-=B3Q=D8Vj=A9=9Am!=E3=9E<S=B4=8D=A5=1C=CA=87,=AA=DA=93j=1BCm=B9=89=DA=A6=D1=
-=CC=8Eb=E3.am=16a=8CfR=E6U=D5=A6=D4F=9B=8C=89=DAY=89m=B5S0=B6=AD=A1=CC=89=
-=DANa=18=CA=EDR=EDC=B4=A6=D26=A8=CC=A8=E6J=D8=CC=930Fh=97h=CC=96=D2sB;*R5&=
-=DBPmh=D4jH=D6=C6=B4
-ITke-b=B6=8BIj=DBC=3D3=88=C6=80=F1=8A=BBI=B4=CFN]=A5fK3j=1B
-=96=D46=86e=B46)=99X=CA=9BEf=8AWnr-=A8=DB=16=B1=AD=B65=A0J=8A,e=B5[RX=CFL=
-=B9=A2=B1=8A=B6=95=AD5=A3e6=ACbs=15=DA=85EHQL=D6X]H=92=CD=D3=AAW=E8=F7/=EA=
-=B1=DF=CF=FA10Ha=A0k=CC=ED=DD0=80=85J=94U'\"=1E=18%=F9=D0^+MP=B0=AE#2=BD=89=
-=AB=DD$=9B=97=B0=80=0E=10)=01SE=06=0D=97$=DCMN^=8B=AC=D0zf=C1&=C8=89=9B=87=
-=8B=9F=91f=AE=18?'l=8F=D0R=CD=CC=8C=8F=EAl=C0=FDL<=3D=DB=9E=9F5=DE=CFF7Vm=
-=13=C2=C7m=DE.{=B3,=F7f=E5=82=EFe=9B6n=C37=BBC=B6=AD^=CB=AE=DDN=19=9D7{#=F5=
->R=EC=DE=9A=BAn=B0=D8=B9=EE`=B3=C6=86nL=3D=C9Ow=A6=87=A7MZ:,=D1=1B=A8l=F6j=
-=CC=9D=A9t=CD=D1=A34=D5=B3=96=9A=A9=F7$=B59,=ED=ABf=9Fw=E5=12j=A1eA,=A4=FA=
-=FF]=D8[=03-2]=10=DBF=98=94=FE=9B=EB=DE=DA=A7+Z=A5R=92=0DS<$=9F=D6j=D7=E7=
-=9BBE=1F=93=1A=DCp=C9!d=C9=D7=1Am=934=91}j=AEC=F3V{Ia=9DH=91V$=8AD=99PMt=D7=
-6=10eH=92=C1=E5Pd=F3=08=80*{{=8E=88=88=01=B2z*=9E=C7=EF=E1=FC{=D4=91kZV=ABW=
-=19=A8(=D1J+=B3=D6=86QU=3DL=FA=F9=80*jUQ{=C2=05T=3DH=A6=BA=EBq=9E=96=96=B2=
-=D6=F9H=B0=D7v=EA]M=17$v=D0=D9v=C6=84=9FE=CB=0F=18=13=93=B7=0F=C9w.^=91=A3=
-=B3=83=0B=B3JIc=ECr3Dn=C8=97j=D8=BB=84=C9=99=9B=97o=1A&=A6=A5=9D=1B=BD=DF=
-=D1=F8=E8lwQe2~O=85=DE=CC=9B)=EC<z<X=E0=ED=CB'=0C0=A5(=B3cR=CE=91Jv=D8=C8=
-=A7=A3e.{=970=C2=89=A2=CF=11gM=1D5f=C9=9B=C5=DE=CC=DE=EC=9B4j=F1=CBW=CD=AD=
-=0Fw=BBV=C5=9C=B5S=1E}=0F=AF=D1#=E9=15'	RZ=90=8F=B5=DD3=C3<3\K=E1=DC=B9=12=
-=BEk=DA\=92=14=0CK2=8C=C8=A9%=90=CB-u=C3&k=12}=BD=D7.R=8C)$=B1<V=F7H=DA=F2e=
-.=88=B1{=10=A0=A2=03("=02<A=D3=CF9=FA=97=EF=D8=A3x=E6=8C=D1B=84=96|?s-h=A9=
-=C2"=A9/%ef$=E1=01=CC=98("!=A3=D0=C0@p=A5>=E6B`=C8=FA=9E,=C3d=8F=A3=A2xx=E4=
-=A6N=1A=8F=A3=057a=D3=C5=9E8hMQ=14=84=96da=9B=E8=D9&=1A=BD3fj=9A=BD;,l=F4d=
-=9A=B9=0C=C7=0D=CA4dv=A2=C4=E9=1B0vh=D4=DD=BB=83C=B6=E4=C8=C9=86=8C=8B=9D=
-=1C=B8l=BBFn=DA=1E=9A=3D;GK=B2f=F4=D9=AB=0C=D8h=E0=CD=EE=A2=99;a=97o=92K=E8=
-=FA?=8F=C27=C2=F9=D7=83=89=87+*=97=CA_=91=88=B1=1Bub-=F5=CFL=12o=A5=97=94H=
-=AF,=D7=16!=F5=FE=A3=02 =90G=AE|\=A0v=0E=D42=CF=ED=BA=ABP=A5=0E}=B5B|=14=85=
-,y=D3=10*=E4=B0=89=A4PTR=F6=A2=96=9C=15F=A2=AB=16 a0d=DF=AD=A7=D5kK4=D0=E1=
-=C252fX=91=AA=8F=BC}=1C=89=E3=B2]=F5h=F6=A5Y=E2=CD=9D=AC=91M=CD=CD=89=91=D2=
-=8B=10=EC=B8=DD=C1=9B6=14=E5=B3&K2f=E9=C2C=0C!=B2=8AY=84=C8=E9=B9=DB=04=E9=
-=D9=D2n=C9=B2=9A=A1=93=A4=D5M=1D=BFB6p=B3fh=D1=EC=F0=A6=88=D1=DB2=EE=16tY=
-=99=E9=9B=97nL=19=B2X{=AC=DC=D3=AE~=12=1F}=10=D6=D6H=B3=ED=F6=B8=86)=08y=B4=
-O=B5U=11t=92r=A2=8F=BC=B2G=85=10=CEo=92^#=F2=F6=F6=BA  P=E9=E9=15=EC=E5=F0;=
-=83=0E=E2=9A=AC=B5=1B=BF=968$Z=CC2=B4=AD4=EE|=DC=19>D=8D_6=14=C8=F0K?[=87=
-=82t=D8=D5=B8=C1g=D5=91=C3"=86i=9B'n=DC5:t~=9D2S=93E.=E4=93b=EC=99,t=B9=C1=
-=9AC&I"}=9A=BD=D2;t=C2=EB=A5=9D=1A=B5n=EDF=13=97=CDg=0EZ=1F=A4=A4=A4=E5=C3=
-=D3=A5|=DE=3D=DB4v=D1=E1=E9=DA=EE=DD=B5:j=CD=93U=C6=8B=B5n=B2=CCE=18=1E.=B2=
-,=DD2]=AA=DB=EB=AF=C8=F9=A5>=E44R=1BQ"=F5=89VP=18=FAX=84=D3=ED|=B0=CEK%=92=
-=1B=10=F52=BA$~=8D=AC=1CR=16=92=1F=1F=F5=3D0=82>=9C=B4=F5=AE=9C=1E=FE=BE=8A=
-=B5=93L=E4=97y3/=BF=D5=9C=98`Z=A5PG=D1=9C=C1|=F3Y=12g*U&**=92YJpX=FB=9FC=EF=
-I=16f=D9=F6t=92=C6=82h=FA=B6.a=F0x=F9,=F6=1D=BBY=B3=EA0=C8=C3e=CE=CD=9E=18z=
-a=D1=0C4=3D=9B=B8f=CC=DD=93=97=87+=8F=1B,=90=CC2f=D8=8B=170=B34=D9=1D=BBn=
-=D9=83=F2zd=C3w=C3=97=0E=1B=9E=3D=97h=A6=CC=D2l=ED=ECM=9E=19=8C=DB3hl=D5=C3=
-Bf=F7n=F4=996]=BF
-=CD=93=96=84=DDf=A5=FA=AF=91=FB=8F=BC=82=FF\=AA=FFE}=94=93=F1~.S=DB*=B6$=BE=
-R1=1F=16H=FA~>=82F=85=19=00=04=BAl<=F9=A2xK=0E=E5=D9Y=C8=EFOp=CD=05
-=BA=ADA=E0=EB=C5K=88=92=0EJ=0F=E9=ECQ=8B	RB=A7=87[=DE=84=92dg=16=D7jl=9933m=
-z=D5=A9=91J35}=ED=9D)=C3BY=DB=EF=1E9)C=E8=F1=D1=E1:xt=D52&=AF=16]=D2=E36m^=
-=9B<=1D,=CD=B36=1C=17h=91=D9s=C7=0C=1E=8B6pll]=E1fl=DD=BC83n=BB=B3=B6N=0B=
-=B59L=D2d=82h=BB=87=E2=F4=E5=E8=E1=C9=86=1Fg=8FM=92Y=D3=B7=A7=B3W=B3s=04=CD=
-=85=9D=1A=BD55vf=F6\`=F6f=D9=85=8C=8B(=DD=B2=CE=DD=BA7nl=ED=C9=83=97=A5(=A3=
-=B7=0C=D7X=A3=1C=7F=03=E9=BEu7=D1=C5[=F0=F9g=8A=8F=8F%=EF=F6=E0=BB=10}w!d=
-=9FmR=C3=B5=12=0E=9Bre=1BR=AB?>Y=DE=EE=CC+=B9=80=E1=12=B4UT=DA$=D8$;=9D=D2#=
-=B1=E4=F2=A3=1B_.q=E9J=A9$=F5I=1D=D0UZ=A4=93=B98=E0=EC=EA^=FC7uO=C5=DE;=F4=
-=9D=A8=15RO*J=A5=AA=0BT=91=E7=A6=C9=91=DB=C0a=DB=C1=ECn=C37=87=A2n=DD=E1=83=
-=C7+>=F1=D9s=D1=A1=C9=DB7Gi=C9=DB=06=1C=1C)=C1N=93=B6=8E=1D4'G=ECll=CD:'=A5=
-=8D=89=B1=9964a=E37=84?=03a=E9K=BBdhx=A3'G=C3=DD=DA=E6i&o=B7=0B<E=3Dh=E1=B1=
-=82f=93=B7k3hvau=14j=C1=F0=E9=E3=96=CE=CAY=AB=0ET=93=A6=E6Oc=97=C1=D1=90=E0=
-=C3=B3=8Dj=AEr=D1=A3=0C59r=D5=87=BB=C6=8DJ=F9=9D3h=A5>=E3=EE=8C=85K	=C6=B8.=
-C=EBI=1E=A87=BD=92G=D2=90=9E(=89J5(!=ED`Y=04f=F9V+=BE=DB=D2=A7=AD~2=C5=FDU^=
-=EA=CD=9D!=EA=ACP=14=98;=9E=9C=11=82=AD=DE=E9J`=A9_%=99=D6=D6KYE5n=D4=C3WF=
-=8F=82=EB=B0|=DC=3D=19=B8$Y5v=CD=E3p=CDL=85=D2Y=87=0C=96F=0FN=98j=D5=AA=C6E=
-=19;?G=AEX=12=89=93=87=86N=9E=9D=B4L2Xh=C0=B1)=E9e=18vn=E8=C8=A58h=D1=9B3=
-=B1=B33c=97N[=BC~=3D=E8=9D=B6t=D1=19=BD=BE=AFf=86L=D2Q=11=D3gl:r=A6l=D4SA=
-=EE=C9u6l=F4=D9=AA=9C=E8=B3=B5=DA=3D=CE=98l=D92l=F1=D2=CFV[<=AB=8A=F9=180=
-=B1_?/=85=90=D9=B2=9B%=BDrW=18=92=1E=A8J]yb=C5=C2%=1Bv=CB=FA=A0}=08=FE=ED=
-=A35~<#=A9I=92=D5Re=93=FB=93=FB=D0^=0F=F5=C1=E9=E9=CB=EC=F1s=F4?=0C=D2=9D=
-=A84=AF=95=DF7=E9{=AE=C3=FE=1F8=A5D=9F=99=FE	i=ED=FD=A2=8F=0E=CF=C9=E2n=C3=
-=C7=88=CB=B7=B2=CE=12G=AC=8A=B0=E3=FF2=BC=95TL=9C|h=ED=B2|9|t=C3=F9=03=0D^=
-=B6Sf=8F=C1=C3=97=B7=B4=D9A=E7=FD,=93=05.=BB=D4=98=CDi=88=9Ct=995l=9D=B83Y=
-=DA3rG=CDJ=A8=1DL=1C$=E7=0B&=FF=E4q=DA=AC{^=E9=3D=D3=E6=C6=CA=D1s=E1=DB=C6=
-=8F`=B3&=AB=BA!=FEre=3D]%=90=EEN=ED=DBC}=95s=0B=8F=87=C3$,=B3"=9E=0D=1E=EF=
-=16I=CAG=FF=94=A5=08=DC=FB=DF!a=9D=84=CC=FF=92=C9=FC'=FC=8F=85=D1=F6L=DF=89=
-r=C3=FF=03S$=7F=E4d=86=C93=1F=F3.F=A9_=C2=BFQ=F9=BF=F9=B9=FEO=D8X=FB=9F#=F4=
-B=E9=E2=92z4(=7F=A2=E4=FF=12=A6$=FF3e=DFd=FA=15=99=F5(=A7=B7=D1=F7$=FF=8AL=
-=CC=86=A9=9A=1F=B0i&=F2l=DAG=88h
-(=9E=8A&r=7F=12=C7=E6T?=FD:=7F=A1=F0bJ=FDr=B6=BF=A2=BFG=DAd=FDX[=BF=97=CE=
-=EE=BB=B0=F4=97=D9=F6=8C=DA3pr=83=DD=BCx+U=D0=E7qx=1CNM.=D3=C7=85=88d5=11=
-=8Cb=1A.=8A#=BE=14=00=F7=C4>=11Dt=FD=E3
+I think that we need an option to revert HZ to a constant for people
+that do not want to fight with this change for now (I am sure there
+are other drivers in the wild that will take a while to catch up
+with this change even after it makes mainline).
 
-=1B=CC	=BD1#=D3=EC@%j=C7=A8~%`9=A7b=1C=C7=C5Aw_=0Ef1=82D=A98=9D=BA=84=AFkw=
-=8Ew9=17=0F=F8=87=ED=F8=ED=A1o5=BA=DD=F4 #=DE=F6=B9=82e=CA=9C=02=8C`=E4=C8=
-=D9=B1#=DD=F0=D42X=D9=A9=AB=B3F=CDN=DF=07-=99;4I=93fD=B3=C5=D93x=AD]=A95jvr=
-=D1=AB=A5=DB=0F=1E$a=93=0B=9E6\=D1=83=B7c=0E=D8<n8x=E4=ED'=0E=D6Y=E37=04a=
-=B3=96=C6M=99Y=D2=EEFm\:=11$=D9|;3t=C2=98l=C5=DA$=B3$=DCv=B1=D3R=EC566<v=DD=
-=A9=A36=C90=9A=B7p=E1=A1=D1=DBd=CBg=8F=DE=FE=D8I=F4RE(J=C56*=A9=F2=AB=F7=19=
-=19=99=9F=FE8=E3=E8=3D=11=FE	g=FC=0B=C2,=A4=93=F4=1F=8B=8F=F0=90=9E=CC=C7=
-=F1=B7=E6=ED=0C=07=F1O=D2=87=EB.\Q=81=FE=D4?=81=F8=1F=EEL'=D4=EB=82W=C8Wb=
-=A8=0F=0C=AC=14{!=D9=FEC=BCp=EB=EB=BE=AA=E3=C4=D4=D6=9Dx=0D=AFRmw6=DA[=B7~=
-=C3=AC=B2=F5B=E006yf=FEA=14<=01=FC=C7-\2'=02''=0B=B4h=D0=9A6]=A3=EFa=0B5=1E=
-=9A=B8N=99=1A=B8:`=B3g-=DB=DC=BBG=89=AB=05=8C=98p=F0=C0=BB=B2=EF=1B=17lr=B2=
-N=19=BAp=CD=91=93=96=8F	=93S=C7N=17v=C9=92=EE8=AA=E5=99=B0r$pwM=9C9n=D9=B3E=
-4h=CD=86=1900=E1=BB=F3>=C2C=EA0>=F2=B2~=05=C8=F8=D5=8F=A0=C4=C2H=FDE$3=16hY=
-=18?Q=CB=E2=07=8F9=B5=AB=C23=BBt!=85=1D6"I=E3=D3=A9G=83=D1BPz=D4=AB=D0=AA=
-=88C=E6X=E1=9All=88=9C=9A=A3=0E=DB4p=E1=F3n=EDe=C3=A4=D5=A3=0D=DD3]3r=92=EE=
-=D9=07l>h=D5=9E=16l=F0=EC=E5=B1=83=B5=1C=1C:r,=E9=DA=92=EC=9D9dr=A3=91=C2=
-=CE=92ld=D9=85=CF=15=87l=DB9r=B1=ABS=A3W=8D=9A=0D=19=A4v=C8=CD=9B=85=9B=A8=
-=E3=C3=85=DE=1D=B0=93&=1D=99=B7Jl=CD=C3u7n=D5=DAK2w]=D7=9B=B6=B6=DE=16=EF=
-=B7=B7=DC=04=02I=DA=DBy=95=E7OK=C4=BE=E5=A5=3D=E6P1^=E5a=ECb\&c=14=91=FC=A0=
-=A5=B3=FEb=E7=ED7=7F=E8=FD=A3=93=FEg=F0~=98=1C#=91=A9c1r=C5=85I=F7}>o=C7=E9=
-UU=88Oy=EE=C3(=D0T=AD
-=82=87=BB=C7=AC=18=9A=DC=84&e=C9=99=11,IX=8DT~=0F=AAH=C8=D0=E5=93&=A7=0D=9F=
-=8Ad=17N[5a=F8'F=1B=B0=E1=F8=AE=E5=C1=84=F1=1E:`=DD=87=85=DA0=E1=CBe=CB;]=
-=BA=E7M=0E=9E6px=BA]=CA=8A.f=BA=CD=DB=B0=CC=CD=84=C1=C3=95=8C=A4=81=A9=93=
-=87=05=E4=9C=A8=89<S1c&=C7L$t=CD%=906j=BB7keX~	$?}%*$=93	*=00=F7=BE=AAx=AD=
-=FC=1C=AC=AC_=BC=C4=FD=F5=F5=87=BC>=7F=DB=E3=FB=11d=7F=80G=A7=E6f_=9F=F5=E6=
-=DE=1F=9Coe=88!I=C2=C3=88vN!f=F0=E5=10=99>=0B=03=14=1D=1D=DEqzy=F9=95=C1=E5=
-mRW=D6=07&=DB=F3=BF=BD}=05^=AF9rVS=81=C0j=83=81Q(=A12X3(=CD=CA=9F=A0=FDg=8C=
-=D4=FD=8E^=CF<l=CD=D1=8B=14=DC=E9=85=CD\=99=187vt=D1=92=EB4t=8E=0B=BCa=A173=
-j=C1=93=82=CD=8E=14=C3=833=B7L=8B;j=ED=93C=0B3Y=D3=19=A57)v=A4=A6=E9=1E)=DB=
-B4dj=EC=C0=ED=B2p=DD=C2=CC=D9=13gF=89=B2O=C1=BB=F4=82=1FX=1DUY=0F=B9=F3=B2=
-=19=C0=A0b=13=FE=CA=BA?=9C=FA=9B=EC=9A$=9F=9Be=91?-=AC=92=99_=D4=C8=FCj=C5=
-=FD=86=0F=D2h{=1F=08>=CA=92I=E2N$=7F!=FB=7F=EEL=8C=93=F3=1E,=E9=0F=CD#=D2R}=
-=CF=87=CD=93=EF3=3D=A3=E9UF=A7=9C=9C=93T'=B3=FD=88Qq=A5<=A2z?=DE=7F=AD=EA=
-=8B=F0=D2_=B9=19~/=E69y=D2=A1=DD.=A3RWSL).=12=AC=A0=97 =C9W=C7=A47=A7=B3Z=
-=D3=D9=ECgj=DA=ADo=1F=CAx=7F=1E^=BEg=CE=E7=CD=F8=3D=C6H=12=D6=11=ABZ=92HH=
-=C2=8A|=04=8ET=A1BN=0E=03rQ=D2R=9F=B9b,=CD=A2O=DCr=B3=A5=8C3,=ED=BA=CE=9C:v=
-ja&=CD=8DI=87=07=06l$=D8=E5d=9A5X=BBgm=9B=94t=D8=C3=07'=F3=AE=1C=B2a=BA=9B=
-=BB8=1C=976l=E1=DA=EAt=E1=9Al=B3S=0E=D6)=D1O=18]=AAr=BBS=B2=E6K=B797r=D5s'=
-=02=E6=1B<r=CD=AANL=8E\$=A7O=DB"FeJ=96=F9=F6m=B9W=E9=CA_7=B89K=DE=F3=8A=B3=
-=C2=1F=A5%=13=F3*A=FA=94=A4=1FAc=F5=83w=B1=BAO=D2=85=9B=A4K=88=A4=94O=D2P=
-=9B=8D=8DN=A7=F1/=EE+=B1=C5=F6#=0F=8D~=C5=FCG=B2=AF=B5Orx=A2=7FJJ'=EF(L=93=
-=02=86=89E=9FQ=A1=FD=A9o=83=F6>C=F0=98=FC=BF=A7Ex=A5=FC=8A=C5=F2=98_G=CBD=
-=B8=FB=A4xf=F9=A4=B1f=89=9C=89=1AHM=CC=CC=D4(=9D$j=FFzj>=E7=F0JOC=89=0D=84?=
-=B1=0F=C1=12r=92=89=F2(M9v=FB=16C=F1?=03=88D=FA=8B$=C8=BC=11a=1F=8AJ'=F1(M=
-=06=04=DF=B4=FB=8E=88=8F=93=E6}=CA=E7=E0\J5!Bc=18Iv=0C=E1=BA=CF=3Ds=C7=A3=
-=CF^=A7=92=B3=D2=8DU=FD=07=87=B0=D4z.=92=EA=11=A2J&e	=99=EC=FE=F4(=7F=DB!=
-=1F7rI=F4I=C7=FA=EB=963=1F=AC=C1=A2$=C2J/=C0ay=E1=F6A=8BUU=EFW1=94=FB=E2=9F=
-B=93=10=9B%=19=05=7Fi=9A=95=1A],B=8C=85=8D=10=9F	(>E	=9AO=B9=0C=A4=88=D1&=
-=C9E=A4=89=F64?BQ=D0(=B0=F66G=83=07=DE=7F`=FB=1FY$=CB	.=7F=DEP=FF=DD=D2=1B=
-=14)2$2?=197R=3D=FFh=B8=E1=9AQ=93=F6>C=F02=14R=1F468y=F4I=F5N=1E$h\=DC&=8A=
-=D6=07=D0=3D+=D8=FD=A7%z/`=BF=1A=9F'=DElF=C8UI25D=95=F6C=F0,=85Y#=E0=A4=E0=
-=98=A1d=E7=E8=B3Bq!=19!=F7=9A=0B=C8G=EB>c=EEJ)EI=93=FD=E6=CD=053>=05=03=D4=
-=0F=DC=9C=1A=A1=F54=FD=95QF=A3=EF=93=E0}X/=92=C2=E5=0B=B5?=85=8B=FB=DC=D9?i=
-|Oy|=B1=F0=B5=A6,=98Y,=9A=99=C3oJ=0F=BD) =C2=92T=A5N%=8AP=E3=DA=0CW=12=BE=
-=0B=F2=B5=AD=B35=B4=CC@=93r=B4=AA=AA=A2=D2=CA=8A=A2=AB$=88$=8DJ=92"=AA=AC=
-=88=A8=AD,!"+B=C8=AC=95	C=08=AD**=B2H=AC=92*=A2=A0=8AE"=AB=C5=DF=BC%!=CA=CB=
-=89=B8=DD)2K=C2=CB!=90=A8evI=F7=A1=FD=C7=F7=17=84{@=ED&
-=16=81=9C=84=B1=EE=93=F0?=94=BA'=BA`{=1D=0E=DC=14=A4=FB=CFs=06=A6F=A5=1E=C8=
-=C8=CA=06=A5=12u=02=A0}=86=C7=D8=F9=C0=C4=84j,=9F=88=E0=F7=E9=1DH=91q=B0=9E=
-=E7=A9=0B@=B9P2Go=04=C0=BA`{%=87=CB=EC=7F=B8L=CD=0F=E9=92"=12F=D2=13=F9=84=
-=A4D=F0=A9=0F=B3=C3=D8=BB=94=A3=EF.=A7=D2/=CA/=C0=94=F7=1F=D7ilCbb=99=B6Z=
-=CC=12
-=91=93i=ABB=D9l=92JXYd=94=B6R=9B6Z=CA=B2=D2R=126=19=92=01#$=C1%) =12JcM=18H=
-IH=01=A30=90f	C2=90d=91=12=03$=A9=AA=81K@$=90=92=94=D9=B0=91L=05(=12=13I$=
-=0C=CD=12=16=BEI=C1=AC$H=12F=DBfjV6=D9J=7F=D4m=D5=C3=A3=8D=05=C9\=F6=97=E9u=
-k=8A=E3Ut=AE-=8DcM=B4=B3|=8D=1D=1B=9A=E8=F6=E6=AA=B4=D2j_=E4=D2=A7=AD=B5'=
-=E3d=ED=07=9A%=FA5V=D5{=9AO2[T=3D5mT=BD=98^=B6=B6m-=862=CD[[{=8E=D5=1F=0C=
-=DD'	h?=FE.=E4=8Ap=A1 =DE%=F6=E0
---lrZ03NoBR/3+SXJZ--
+gcc -I/usr/src/linux/include -O2 -DLM_SENSORS -D__KERNEL__ -DMODULE
+-fomit-frame
+-pointer -DEXPORT_SYMTAB -DMODVERSIONS -include
+/usr/src/linux/include/linux/mod
+versions.h -c kernel/i2c-philips-par.c -o kernel/i2c-philips-par.o
+kernel/i2c-philips-par.c:163: initializer element is not constant
+kernel/i2c-philips-par.c:163: (near initialization for
+`bit_lp_data.timeout')
+kernel/i2c-philips-par.c:172: initializer element is not constant
+kernel/i2c-philips-par.c:172: (near initialization for
+`bit_lp_data2.timeout')
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

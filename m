@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbUAKJWI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 04:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265816AbUAKJWI
+	id S265815AbUAKJaa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 04:30:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265818AbUAKJaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 04:22:08 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:63654 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S265812AbUAKJWD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 04:22:03 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None that appears to be detectable by casual observers
-To: "Pablo E. Limon Garcia Viesca" <plimon@intercable.net>
-Subject: Re: GIVEUP [bootup kernel panic 2.6.x] no root partition detected?
-Date: Sun, 11 Jan 2004 04:22:02 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <40005E9C.3030309@intercable.net> <200401110010.09341.gene.heskett@verizon.net> <4000DE12.7020100@intercable.net>
-In-Reply-To: <4000DE12.7020100@intercable.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 04:30:30 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:35589 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S265815AbUAKJa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 04:30:29 -0500
+Date: Sun, 11 Jan 2004 10:30:10 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Simon Kirby <sim@netnation.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24 SMP lockups
+Message-ID: <20040111093010.GG545@alpha.home.local>
+References: <20040109210450.GA31404@netnation.com> <Pine.LNX.4.58L.0401101719400.1310@logos.cnet> <20040110144049.5e195ebd.akpm@osdl.org> <20040111085506.GA6834@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401110422.02439.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.56.190] at Sun, 11 Jan 2004 03:22:01 -0600
+In-Reply-To: <20040111085506.GA6834@netnation.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 January 2004 00:24, Pablo E. Limon Garcia Viesca wrote:
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->Thanks for your answer, I use LILO but that root is refering to
->presisely the root partition, in my case it its /dev/hda5...
->It is well configured in lilo, I can enter with kernel 2.4... but
-> not with 2.6...
->if you want to know, the exact Kernel error at the begining is:
->
->VFS: Cannot open root device "305" or hda5
->Please append a correct "root=" boot option
->Kernel panic: VFS: Unable to mount root fs on hda5
->
->but I know hda5 is the partition, maybe there has something to be
-> with the fact that the root partition is logical, in the extended
-> partiton... I mean is not a primary partition... could this be
-> true???
+On Sun, Jan 11, 2004 at 12:55:06AM -0800, Simon Kirby wrote:
+> On Sat, Jan 10, 2004 at 02:40:49PM -0800, Andrew Morton wrote:
+> 
+> > Presumably it's spinning on the lock with interrupts enabled.  Make that
+> > the `NMI' counters in /proc/interrupts are incrementing for all CPUs.
+> 
+> Actually, on one of the boxes it doesn't seem to be working at all:
+> 
+> activating NMI Watchdog ... done.
+> testing NMI watchdog ... CPU#0: NMI appears to be stuck!  
 
-Thats an excellent question, unforch I don't know the definitive 
-answer.  But to put that fear to rest, my / partition is on 
-/dev/hda7, and /root is on /dev/hda5.  I would think that if thats a 
-problem, I would have seen it, and I've been setup that way for the 
-last 6 months or so.
+Could you try with "nmi_watchdog=2" ? This is the only one which works on
+my ASUS A7M266-D (MPX + dual XP 1800+).
 
-That really shouldn't make any more difference than putting /usr on a 
-seperate drive does, which is no diff, at least here.
-
-Sorry Pablo, but I'm fresh out of ideas.  But there may be enough 
-clues here that someone else can chime in.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Willy
 

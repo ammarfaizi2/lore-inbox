@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266147AbTGIU4T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 16:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266148AbTGIU4S
+	id S266123AbTGIVFy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 17:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbTGIVFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 16:56:18 -0400
-Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:28690 "EHLO
-	mail.icequake.net") by vger.kernel.org with ESMTP id S266147AbTGIU4R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 16:56:17 -0400
-Date: Wed, 9 Jul 2003 16:10:55 -0500
-From: Ryan Underwood <nemesis-lists@icequake.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Forking shell bombs
-Message-ID: <20030709211055.GI1031@dbz.icequake.net>
-References: <20030708202819.GM1030@dbz.icequake.net> <3F0B2CE6.8060805@nni.com> <20030708212517.GO1030@dbz.icequake.net> <3F0C2FCB.8060304@blue-labs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <3F0C2FCB.8060304@blue-labs.org>
-User-Agent: Mutt/1.5.4i
+	Wed, 9 Jul 2003 17:05:53 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:54485 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266123AbTGIVFw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 17:05:52 -0400
+Date: Wed, 9 Jul 2003 14:20:29 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200307092120.h69LKTBH002759@napali.hpl.hp.com>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: per_cpu fixes
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty,
 
-Hi David,
+Care needs to be taken when taking the address of a CPU-local
+variable, because otherwise things may break when comparing addresses
+on a platform which uses virtual remapping to implement such
+variables.  In particular, it's almost always unsafe to use the
+address of a per-CPU variable which contains a "struct list", because
+the list-manipulation routines use the list-head address to detect the
+end of the list etc.
 
-On Wed, Jul 09, 2003 at 11:07:55AM -0400, David Ford wrote:
-> No such thing exists.  I can have 10,000 processes doing nothing and 
-> have a load average of 0.00.  I can have 100 processes each sucking cpu 
-> as fast as the electrons flow and have a dead box.
+The patch below makes 2.5.74+ work on ia64 by reverting to the old
+definition of this_rq().  Ditto for kernel/timer.c.
 
-Well, like I said, in this specific case we talk about a fork bomb, not
-a bunch of idle processes.  My question is what the upper limit to set,
-in order to ensure that processes that do nothing but "while (1)
-fork();" do not take down the system.  Apparently 2047 is too high for
-2.4.21, at least on my system.  But, a slower box manages a 2047 ulimit
-fine with a 2.4.20 kernel.
+	--david
 
-> Learn how to manage resource limits and you can tuck another feather 
-> into your fledgeling sysadmin hat ;)
-
-I already know how to manage the limits, but I am asking why the system
-seems to hang indefinitely when a maximum of 2047 is set, but not when
-e.g. 1500 is set.  Do you have any idea?  Why would there be such a
-large change in behavior with such a small change in parameter?
-
-Furthermore, why does my (slower, 600 < 800mhz) system running 2.4.20
-kill off a fork bomb at a 2047 ulimit instantaneously, but 2.4.21 takes
-half an hour or more, at which point I give up?
-
--- 
-Ryan Underwood, <nemesis at icequake.net>, icq=10317253
+===== kernel/sched.c 1.196 vs edited =====
+--- 1.196/kernel/sched.c	Wed Jul  9 11:06:25 2003
++++ edited/kernel/sched.c	Wed Jul  9 14:06:49 2003
+@@ -176,7 +176,7 @@
+ static DEFINE_PER_CPU(struct runqueue, runqueues);
+ 
+ #define cpu_rq(cpu)		(&per_cpu(runqueues, (cpu)))
+-#define this_rq()		(&__get_cpu_var(runqueues))
++#define this_rq()		(&cpu_rq(smp_processor_id())) /* not __get_cpu_var(runqueues)! */
+ #define task_rq(p)		cpu_rq(task_cpu(p))
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+ #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
+===== kernel/timer.c 1.62 vs edited =====
+--- 1.62/kernel/timer.c	Wed Jul  9 11:06:25 2003
++++ edited/kernel/timer.c	Wed Jul  9 13:30:31 2003
+@@ -160,7 +160,7 @@
+  */
+ void add_timer(struct timer_list *timer)
+ {
+-	tvec_base_t *base = &get_cpu_var(tvec_bases);
++	tvec_base_t *base = &per_cpu(tvec_bases, get_cpu());
+   	unsigned long flags;
+   
+   	BUG_ON(timer_pending(timer) || !timer->function);
+@@ -171,7 +171,7 @@
+ 	internal_add_timer(base, timer);
+ 	timer->base = base;
+ 	spin_unlock_irqrestore(&base->lock, flags);
+-	put_cpu_var(tvec_bases);
++	put_cpu();
+ }
+ 
+ /***
+@@ -234,7 +234,7 @@
+ 		return 1;
+ 
+ 	spin_lock_irqsave(&timer->lock, flags);
+-	new_base = &__get_cpu_var(tvec_bases);
++	new_base = &per_cpu(tvec_bases, smp_processor_id());
+ repeat:
+ 	old_base = timer->base;
+ 
+@@ -792,7 +792,7 @@
+  */
+ static void run_timer_softirq(struct softirq_action *h)
+ {
+-	tvec_base_t *base = &__get_cpu_var(tvec_bases);
++	tvec_base_t *base = &per_cpu(tvec_bases, smp_processor_id());
+ 
+ 	if (time_after_eq(jiffies, base->timer_jiffies))
+ 		__run_timers(base);

@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbTEDRYz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 13:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbTEDRYz
+	id S261308AbTEDSDr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 14:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTEDSDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 13:24:55 -0400
-Received: from pat.uio.no ([129.240.130.16]:51123 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261231AbTEDRYy (ORCPT
+	Sun, 4 May 2003 14:03:47 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:21765 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261308AbTEDSDq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 13:24:54 -0400
+	Sun, 4 May 2003 14:03:46 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Felix von Leitner <felix-kernel@fefe.de>
+Subject: Re: [2.5.68] Scalability issues
+Date: Sun, 4 May 2003 20:16:03 +0200
+User-Agent: KMail/1.5.1
+References: <20030504173956.GA28370@codeblau.de>
+In-Reply-To: <20030504173956.GA28370@codeblau.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16053.20430.903508.188812@charged.uio.no>
-Date: Sun, 4 May 2003 19:37:18 +0200
-To: Christoph Hellwig <hch@lst.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
-In-Reply-To: <20030504191447.C10659@lst.de>
-References: <20030504191447.C10659@lst.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305042016.13982.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christoph Hellwig <hch@lst.de> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-     >  - rpciod() (the ernel thread) also bumps the refcount when starting
-     >    and decrements it when exiting.  but as a different module
-     >    must initiate this using rpciod_up/rpciod_down this is again
-     >    not needed.  (except when a module does rpciod_up without a
-     >    matching rpciod_down - but that a big bug anyway and we
-     >    don't need to partially handle that using module refcounts).
+On Sunday 04 May 2003 19:39, Felix von Leitner wrote:
+>   Unable to handle kernel NULL pointer dereference at virtual address
+> 00000017 printing eip:
+>   c014c95b
+>   *pde = 00000000
+>   Oops: 0000 [#1]
+>   CPU:    0
+>   EIP:    0060:[<c014c95b>]    Tainted: P
+>   EFLAGS: 00010286
+>   eax: d241b000   ebx: 00000003   ecx: c037c450   edx: 00000003
+>   esi: 00000405   edi: c3194620   ebp: 00000021   esp: c379bf60
+>   ds: 007b   es: 007b   ss: 0068
+>   Process artillery-fork (pid: 6966, threadinfo=c379a000 task=c37bad80)
+>   Stack: c0341e60 c3194620 07ffffff 00000405 c3194620 00000021 c011e21c
+> 00000003 c3194620 c3194620 00000000 4003c904 c37bad80 c011edc4 c319d780
+> c319d780 c379a000 c014d557 00000000 00200001 4003c904 c379a000 c011f0b3
+> 00000000 Call Trace: [<c011e21c>]  [<c011edc4>]  [<c014d557>]  [<c011f0b3>]
+>  [<c0109279>] Code: 8b 43 14 85 c0 0f 84 9a 00 00 00 8b 43 10 31 ed 85 c0
+> 74 45
 
+Could you please run ksymoops on these oopses?
 
-There's another case which you appear to be ignoring: rpciod_down() is
-interruptible and does not have to wait on the rpciod() thread to
-complete.
+>   EIP:    0060:[<c014c95b>]    Tainted: P
+What tainted the kernel?
 
-Cheers,
-  Trond
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 20:14:28 up  3:44,  4 users,  load average: 1.01, 1.05, 1.01
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+tVjtoxoigfggmSgRAlPeAJ4im7EzpQjk2ZRHk3TS1rECLFcB3wCeNhUy
+A3yhshZJpMURwsLgX7hVzrY=
+=5IoZ
+-----END PGP SIGNATURE-----
+

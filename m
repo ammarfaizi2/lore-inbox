@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbTEDSeY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 14:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbTEDSeX
+	id S261603AbTEDSg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 14:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTEDSg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 14:34:23 -0400
-Received: from pat.uio.no ([129.240.130.16]:19659 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261544AbTEDSeW (ORCPT
+	Sun, 4 May 2003 14:36:57 -0400
+Received: from gw.chygwyn.com ([62.172.158.50]:64260 "EHLO gw.chygwyn.com")
+	by vger.kernel.org with ESMTP id S261603AbTEDSg5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 14:34:22 -0400
+	Sun, 4 May 2003 14:36:57 -0400
+From: Steven Whitehouse <steve@gw.chygwyn.com>
+Message-Id: <200305041839.TAA04514@gw.chygwyn.com>
+Subject: Re: DECNET in latest BK
+To: romieu@fr.zoreil.com (Francois Romieu)
+Date: Sun, 4 May 2003 19:39:30 +0100 (BST)
+Cc: davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org
+In-Reply-To: <20030503203908.A5915@electric-eye.fr.zoreil.com> from "Francois Romieu" at May 03, 2003 08:39:08 PM
+Organization: ChyGywn Limited
+X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
+X-RegisteredNumber: 03887683
+Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16053.24599.277205.64363@charged.uio.no>
-Date: Sun, 4 May 2003 20:46:47 +0200
-To: Christoph Hellwig <hch@lst.de>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
-In-Reply-To: <20030504203655.A11574@lst.de>
-References: <20030504191447.C10659@lst.de>
-	<16053.20430.903508.188812@charged.uio.no>
-	<20030504203655.A11574@lst.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christoph Hellwig <hch@lst.de> writes:
+Hi,
 
-     > On Sun, May 04, 2003 at 07:37:18PM +0200, Trond Myklebust
-     > wrote:
-    >> There's another case which you appear to be ignoring:
-    >> rpciod_down() is interruptible and does not have to wait on the
-    >> rpciod() thread to complete.
+> 
+> David S. Miller <davem@redhat.com> :
+> [...]
+> > Turn off CONFIG_DECNET_ROUTE_FWMARK, aparently even the maintainer
+> > doesn't even enable this option :-)
+> 
+> Does the attached patch make sense ?
+>
+Yes, I can confirm thats the right fix. I was a bit busy last week and my fix
+didn't make it in time, but I'm back now and so the rest of my pending DECnet
+patches will be submitted shortly. Thanks for the patch,
 
-     > What do you thing about something like the following to wait on
-     > the thread in module_exit()?
+Steve.
 
-I don't understand. That is still an interruptible wait, so how would
-that help?
-
-What is wrong with just assuming that the rpciod() thread might need
-to run independently of the calling module for a short period of time
-in order to kill/clean up the pending tasks?
-
-Cheers,
-  Trond

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277265AbRJDXmW>; Thu, 4 Oct 2001 19:42:22 -0400
+	id <S277268AbRJDXrM>; Thu, 4 Oct 2001 19:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277267AbRJDXmM>; Thu, 4 Oct 2001 19:42:12 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:11224 "EHLO
-	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277265AbRJDXlw>; Thu, 4 Oct 2001 19:41:52 -0400
-Date: Thu, 4 Oct 2001 16:41:02 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-Message-ID: <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com>
+	id <S277266AbRJDXrD>; Thu, 4 Oct 2001 19:47:03 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:62738 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S277271AbRJDXqw>; Thu, 4 Oct 2001 19:46:52 -0400
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+From: Robert Love <rml@tech9.net>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>, mingo@elte.hu,
+        jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>, netdev@oss.sgi.com,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
+In-Reply-To: <20011004192645.A20389@redhat.com>
+In-Reply-To: <20011004174945.B18528@redhat.com>
+	<309455016.1002241234@[195.224.237.69]>  <20011004192645.A20389@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.03.20.06 (Preview Release)
+Date: 04 Oct 2001 19:47:10 -0400
+Message-Id: <1002239236.872.8.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9piokt$8v9$1@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Oct 04, 2001 at 10:42:37PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 04, 2001 at 10:42:37PM +0000, Linus Torvalds wrote:
-> Could we try to hit just two? Probably, but it doesn't really matter,
-> though: to make the lmbench scheduler benchmark go at full speed, you
-> want to limit it to _one_ CPU, which is not sensible in real-life
-> situations.
+On Thu, 2001-10-04 at 19:26, Benjamin LaHaise wrote:
+> Frankly I'm sick of this entire discussion where people claim that no 
+> form of interrupt throttling is ever needed.  It's an emergency measure 
+> that is needed under some circumstances as very few drivers properly 
+> protect against this kind of DoS.  Drivers that do things correctly will 
+> never trigger the hammer.  Plus it's configurable.  If you'd bothered to 
+> read and understand the rest of this thread you wouldn't have posted.
 
-Can you clarify?  I agree that tuning the system for the best LMbench
-performance is not a good thing to do!  However, in general on an
-8 CPU system with only 2 'active' tasks I would think limiting the
-tasks to 2 CPUs would be desirable for cache effects.
+Agreed.  I am actually amazed that the opposite of what is happening
+does not happen -- that more people aren't clamoring for this solution.
 
-I know that running LMbench with 2 active tasks on an 8 CPU system
-results in those 2 tasks being 'round-robined' among all 8 CPUs.
-Prior analysis leads me to believe the reason for this is due to
-IPI latency.  reschedule_idle() chooses the 'best/correct' CPU for
-a task to run on, but before schedule() runs on that CPU another
-CPU runs schedule() and the result is that the task runs on a
-?less desirable? CPU.  The nature of the LMbench scheduler benchmark
-makes this occur frequently.  The real question is: how often
-does this happen in real-life situations?
+Six months ago I was testing some TCP application and by accident placed
+a sendto() in an infinite loop.  The destination of the packets (on my
+LAN) locked up completely!  And this was a powerful Pentium III with a
+3c905 NIC.  Not acceptable.
 
--- 
-Mike
+	Robert Love
+

@@ -1,178 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVCYLbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVCYLbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbVCYLbD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 06:31:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCYLbB
+	id S261614AbVCYLbT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 06:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCYLbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 06:31:01 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:27777 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261608AbVCYLaY (ORCPT
+	Fri, 25 Mar 2005 06:31:19 -0500
+Received: from mail.sf-mail.de ([62.27.20.61]:30081 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S261614AbVCYLaZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 06:30:24 -0500
-From: Rolf Eike Beer <eike-hotplug@sf-tec.de>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: drivers/pci/hotplug/cpqphp_ctrl.c: board_replaced: dead code
-Date: Thu, 24 Mar 2005 19:07:23 +0100
+	Fri, 25 Mar 2005 06:30:25 -0500
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: PCI: remove pci_find_device usage from pci sysfs code.
+Date: Thu, 24 Mar 2005 22:06:11 +0100
 User-Agent: KMail/1.8
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-References: <20050322205956.GJ1948@stusta.de>
-In-Reply-To: <20050322205956.GJ1948@stusta.de>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+References: <11099696382684@kroah.com> <200503201554.05010.eike-kernel@sf-tec.de> <20050321184020.GA5472@kroah.com>
+In-Reply-To: <20050321184020.GA5472@kroah.com>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200503242206.12914.eike-kernel@sf-tec.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503241907.26357.eike-hotplug@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> The Coverity checker correctly noted, that in function board_replaced in
-> drivers/pci/hotplug/cpqphp_ctrl.c, the variable src always has the
-> value 8, and therefore much code after the
->
-> ...
->                         if (rc || src) {
-> ...
->                                 if (rc)
->                                         return rc;
->                                 else
->                                         return 1;
->                         }
-> ...
->
->
-> can never be called.
+Greg KH wrote:
+> On Sun, Mar 20, 2005 at 03:53:58PM +0100, Rolf Eike Beer wrote:
+> > Greg KH wrote:
+> > > ChangeSet 1.1998.11.23, 2005/02/25 08:26:11-08:00, gregkh@suse.de
+> > >
+> > > PCI: remove pci_find_device usage from pci sysfs code.
 
-Yes, this is the only use of src in the whole function. If this is not a bug
-than this patch removes all the dead code.
+> > Any reasons why you are not using "for_each_pci_dev(pdev)" here?
+>
+> Nope, I forgot it was there :)
+
+Patch is against 2.6.12-rc1-bk1 and does the same think like your one,
+except it uses for_each_pci_dev()
 
 Eike
 
-Signed-off-by: Rolf Eike Beer <eike-hotplug@sf-tec.de>
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 
---- linux-2.6.11/drivers/pci/hotplug/cpqphp_ctrl.c	2005-03-02 08:37:55.000000000 +0100
-+++ linux-2.6.12-rc1/drivers/pci/hotplug/cpqphp_ctrl.c	2005-03-24 19:01:23.000000000 +0100
-@@ -1284,7 +1284,6 @@ static u32 board_replaced(struct pci_fun
- 	u8 adapter_speed;
- 	u32 index;
- 	u32 rc = 0;
--	u32 src = 8;
+--- linux-2.6.11/drivers/pci/pci-sysfs.c	2005-03-21 11:41:56.000000000 +0100
++++ linux-2.6.12-rc1/drivers/pci/pci-sysfs.c	2005-03-24 19:20:50.000000000 
++0100
+@@ -481,7 +481,7 @@ static int __init pci_sysfs_init(void)
+ 	struct pci_dev *pdev = NULL;
+ 	
+ 	sysfs_initialized = 1;
+-	while ((pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
++	for_each_pci_dev(pdev)
+ 		pci_create_sysfs_dev_files(pdev);
  
- 	hp_slot = func->device - ctrl->slot_device_offset;
- 
-@@ -1367,98 +1366,25 @@ static u32 board_replaced(struct pci_fun
- 			/* It must be the same board */
- 
- 			rc = cpqhp_configure_board(ctrl, func);
-+		}
-+		/* If configuration fails, turn it off
-+		 * Get slot won't work for devices behind
-+		 * bridges, but in this case it will always be
-+		 * called for the "base" bus/dev/func of an
-+		 * adapter. */
- 
--			if (rc || src) {
--				/* If configuration fails, turn it off
--				 * Get slot won't work for devices behind
--				 * bridges, but in this case it will always be
--				 * called for the "base" bus/dev/func of an
--				 * adapter. */
--
--				down(&ctrl->crit_sect);
--
--				amber_LED_on (ctrl, hp_slot);
--				green_LED_off (ctrl, hp_slot);
--				slot_disable (ctrl, hp_slot);
--
--				set_SOGO(ctrl);
--
--				/* Wait for SOBS to be unset */
--				wait_for_ctrl_irq (ctrl);
--
--				up(&ctrl->crit_sect);
--
--				if (rc)
--					return rc;
--				else
--					return 1;
--			}
--
--			func->status = 0;
--			func->switch_save = 0x10;
--
--			index = 1;
--			while (((func = cpqhp_slot_find(func->bus, func->device, index)) != NULL) && !rc) {
--				rc |= cpqhp_configure_board(ctrl, func);
--				index++;
--			}
--
--			if (rc) {
--				/* If configuration fails, turn it off
--				 * Get slot won't work for devices behind
--				 * bridges, but in this case it will always be
--				 * called for the "base" bus/dev/func of an
--				 * adapter. */
--
--				down(&ctrl->crit_sect);
--
--				amber_LED_on (ctrl, hp_slot);
--				green_LED_off (ctrl, hp_slot);
--				slot_disable (ctrl, hp_slot);
--
--				set_SOGO(ctrl);
--
--				/* Wait for SOBS to be unset */
--				wait_for_ctrl_irq (ctrl);
--
--				up(&ctrl->crit_sect);
--
--				return rc;
--			}
--			/* Done configuring so turn LED on full time */
--
--			down(&ctrl->crit_sect);
--
--			green_LED_on (ctrl, hp_slot);
--
--			set_SOGO(ctrl);
--
--			/* Wait for SOBS to be unset */
--			wait_for_ctrl_irq (ctrl);
--
--			up(&ctrl->crit_sect);
--			rc = 0;
--		} else {
--			/* Something is wrong
--
--			 * Get slot won't work for devices behind bridges, but
--			 * in this case it will always be called for the "base"
--			 * bus/dev/func of an adapter. */
--
--			down(&ctrl->crit_sect);
--
--			amber_LED_on (ctrl, hp_slot);
--			green_LED_off (ctrl, hp_slot);
--			slot_disable (ctrl, hp_slot);
-+		down(&ctrl->crit_sect);
- 
--			set_SOGO(ctrl);
-+		amber_LED_on(ctrl, hp_slot);
-+		green_LED_off(ctrl, hp_slot);
-+		slot_disable(ctrl, hp_slot);
- 
--			/* Wait for SOBS to be unset */
--			wait_for_ctrl_irq (ctrl);
-+		set_SOGO(ctrl);
- 
--			up(&ctrl->crit_sect);
--		}
-+		/* Wait for SOBS to be unset */
-+		wait_for_ctrl_irq(ctrl);
- 
-+		up(&ctrl->crit_sect);
- 	}
- 	return rc;
- 
+ 	return 0;

@@ -1,102 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266650AbUBRWmR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 17:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266927AbUBRWmQ
+	id S267146AbUBRWu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 17:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267159AbUBRWu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 17:42:16 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:62080 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266650AbUBRWmN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 17:42:13 -0500
-Date: Wed, 18 Feb 2004 17:45:16 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: Re: [NET] 64 bit byte counter for 2.6.3
-In-Reply-To: <1077137014.18843.10.camel@midux>
-Message-ID: <Pine.LNX.4.53.0402181645220.27707@chaos>
-References: <1077123078.9223.7.camel@midux>  <20040218101711.25dda791@dell_ss3.pdx.osdl.net>
-  <Pine.LNX.4.53.0402181527000.7318@chaos> <1077137014.18843.10.camel@midux>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	Wed, 18 Feb 2004 17:50:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26581 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267146AbUBRWuT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 17:50:19 -0500
+Date: Wed, 18 Feb 2004 14:51:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: paulmck@us.ibm.com, hch@infradead.org, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-Id: <20040218145132.460214b5.akpm@osdl.org>
+In-Reply-To: <20040218222138.A14585@infradead.org>
+References: <20040216190927.GA2969@us.ibm.com>
+	<20040217073522.A25921@infradead.org>
+	<20040217124001.GA1267@us.ibm.com>
+	<20040217161929.7e6b2a61.akpm@osdl.org>
+	<1077108694.4479.4.camel@laptop.fenrus.com>
+	<20040218140021.GB1269@us.ibm.com>
+	<20040218211035.A13866@infradead.org>
+	<20040218150607.GE1269@us.ibm.com>
+	<20040218222138.A14585@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Feb 2004, Markus [ISO-8859-1] Hästbacka wrote:
-
-> On Wed, 2004-02-18 at 22:32, Richard B. Johnson wrote:
-> > Manipulation of a 'long long' is not atomic in 32 bit architectures.
-> > Please explain how we don't care, if we shouldn't care. Also some
-> > /proc entries might get read incorrectly with existing tools.
-> Please, tell me all the tools, I'll test them. ifconfig and netstat
-> works correctly atleast.
+Christoph Hellwig <hch@infradead.org> wrote:
 >
+> I don't understand why IBM is pushing this dubious change right now,
 
-Hum, they will work when they see 2^64 written in ASCII in /proc/net/dev ?
-I doubt that. Have you ever even seen 64-bit ASCII?
+It isn't a dubious change, on technical grounds.  It is reasonable for a
+distributed filesystem to want to be able to shoot down pte's which map
+sections of pagecache.  Just as it is reasonable for the filesystem to be
+able to shoot down the pagecache itself.
 
-The largest unsigned long long will be 18446744073709551615.
-If it's read with 32-bit tools (sscanf), it will read 4294967295.
-
-> And about the caring, is rx/tx bytes so important that they can't use
-> long long? I would care to see more than 4GB, and maybe some error in
-> the counter at some point (Have you _ever_ seen that happen?) than only
-> 4GB.
->
-
-The 32-bit wrap is a serious problem. It can't be ignored. The writing
-of any multiple-part variable in the kernel can be interrupted at
-any time. Interrupting half-written variables can have dire
-consequences. Let's pretend that gcc knows how to write a long-long
-with minimum overhead..... high word is in edx and the low word is
-in eax. The memory variable is addressed by ebx....
-
-		addl	%eax, (%ebx)		# Sum low word
-		adcl	%edx, 0x04(%ebx)	# Sum CY and high
-
-Now, get interrupted...
-
-		addl	%eax, (%ebx)		# Sum low word
-		->>> interrupt <<<--
-
-                Do some code that adds more stuff to
-		the variable....
-
-		Return to the interrupted code.
-
-		adcl	%edx, 0x04(%ebx)	# Sum CY and high
-
-The memory variable is now wrong. If it's an event counter, maybe
-it doesn't make any difference. That's what needs to be addressed.
-You can't just dismiss it. Any time you write code that knowingly
-results in the wrong results, its impact needs to be fully understood.
-
-Changing a bunch of variables in a 32-bit machine to 64-bit ones
-is a major change, regardless of how trivial it may seem.
-
-You need to make a spin-locked thingy for every variable you
-want to manipulate if the result needs to be correct.
-
-> And no, I didn't post this to be merged into the mainline kernel, just
-> to let users know that there maybe is an option for seeing maximum 4GB.
->
-> This has been working for me since, umm.. let's say 2.4.20. All the
-> tools I've needed have worked.
-
-Just wait until your packet count is 4294967296. It will likely read 0.
-When 4294967297, may read 1.  That's off by quite a bit.
-
->
->         Markus
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an Intel Pentium III machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+We've exported much lower-level stuff than this, because some in-kernel
+module happened to use it.
 
 
+> GPL violation and thus copyright violation issues in Linux is the
+> last thing IBM wants to see in the press with the current mess going
+> on, right?
+
+Well this is a chicken-and-egg, isn't it.  The only way in which we can
+audit the IBM code for its derivedness is for the source to be made
+available.  Although not necessarily under GPL.  Or we accept Paul's claim,
+which I personally am inclined to do.
+
+
+Look, this isn't going anywhere.  We have a perfectly reasonable request
+from Paul to make this symbol available for IBM's filesystem.  The usual
+way to handle this sort of thing is to say "ooh.  shit.  hard." and not
+reply to the email.  That is not adequate and hopefully Paul will not let
+us get away with it.
+
+We need to give Paul a reasoned and logically consistent answer to his
+request.  For that we need to establish some sort of framework against
+which to make a decision and then make the decision.  
+
+One approach is a fait-accomplis from the top-level maintainer.  Here,
+we're trying to do it in a different way.
+
+I have proposed two criteria upon which this should be judged:
+
+a) Does the export make technical sense?  Do filesystems have
+   legitimate need for access to this symbol?
+
+(really, a) is sufficient grounds, but for real-world reasons:)
+
+b) Does the IBM filsystem meet the kernel's licensing requirements?
+
+
+It appears that the answers are a): yes and b) probably.
+
+Please, feel free to add additional criteria.  We could also ask "do we
+want to withhold this symbols to encourage IBM to GPL the filesystem" or
+"do we simply refuse to export any symbol which is not used by any GPL
+software" (if so, why?).  Over to you.
+
+
+But at the end of the day, if we decide to not export this symbol, we owe
+Paul a good, solid reason, yes?

@@ -1,57 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262774AbTJPI1o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 04:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbTJPI1o
+	id S262790AbTJPIev (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 04:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTJPIev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 04:27:44 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:31492 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S262774AbTJPI1m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 04:27:42 -0400
-To: linux-kernel@vger.kernel.org
-From: tconnors+linuxkernel1066292516@astro.swin.edu.au
-Subject: Re: Transparent compression in the FS
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl>
-X-Face: +*%dmR:3=9i\[:8fga\UgZT#@`f=DU0(wQqI'AR2/r0sBMO}Ax\,V*cWaW-owRlUmuz&=v\KItx0:gRCBg1&z_"4x&-N#Di7))]~p2('`6|5.c3&:Z?VLU`Zt5Kb,~uC6<y}P'~7A+^'|'+iAd4t43:P;tPiT<q=9P$MO]u^@OHn1_4#qP7,XiSo21SkgI`:5=i$,t&uNN_\LfuLyH`)8!:Tb]Z
-Message-ID: <slrn-0.9.7.4-15110-31210-200310161821-tc@hexane.ssi.swin.edu.au>
-Date: Thu, 16 Oct 2003 18:27:39 +1000
+	Thu, 16 Oct 2003 04:34:51 -0400
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:27811
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S262790AbTJPIes
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 04:34:48 -0400
+Subject: Re: Circular Convolution scheduler
+From: Piet Delaney <piet@www.piet.net>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Jamie Lokier <jamie@shareable.org>, George Anzinger <george@mvista.com>,
+       Clayton Weaver <cgweav@email.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3F8BCFEB.1010306@cyberone.com.au>
+References: <20031006161733.24441.qmail@email.com>
+	<3F833C06.7000802@mvista.com> <1066120643.25020.121.camel@www.piet.net>
+	<20031014094655.GC24812@mail.shareable.org>
+	<3F8BCAB3.2070609@cyberone.com.au>
+	<20031014101853.GA28905@mail.shareable.org> 
+	<3F8BCFEB.1010306@cyberone.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Oct 2003 01:34:05 -0700
+Message-Id: <1066293245.1481.150.camel@www.piet.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> said on Wed, 15 Oct 2003 15:33:05 +0200:
-> On Tue, Oct 14, 2003 at 04:30:50PM -0400, Josh Litherland wrote:
-> > Are there any filesystems which implement the transparent compression
-> > attribute ?  (chattr +c)
+On Tue, 2003-10-14 at 03:28, Nick Piggin wrote:
 > 
-> The NTFS driver supports compressed files. Because it doesn't have
-> proper write support, I don't think it will do anything useful with
-> chattr +c.
 > 
-> Nowadays disks are so incredibly cheap, that transparent compression
-> support is not realy worth it anymore (IMHO).
+> Jamie Lokier wrote:
+> 
+> >Nick Piggin wrote:
+> >
+> >>I don't know anything about it, but I don't see what exactly you'd be
+> >>trying to predict: the kernel's scheduler _dictates_ scheduling behaviour,
+> >>obviously. Also, "best use of system resources" wrt scheduling is a big
+> >>ask considering there isn't one ideal scheduling pattern for all but the
+> >>most trivial loads, even on a single processor computer (fairness, latency,
+> >>priority, thoughput, etc). Its difficult to even say one pattern is better
+> >>than another.
+> >>
+> >
+> >Hmm.  Prediction is potentially useful.
+> >
+> >Instead of an educated ad-hoc pile of heuristics for _dictating_
+> >scheduling behaviour, you can systematically analyse just what is it
+> >you're trying to achieve, and design a behaviour which achieves that
+> >as closely as possible.
+> >
+> 
+> Maybe, although as I said, I just don't know what exactly you would
+> predict and what the goals would be.
+> 
+> And often you'll be left with an ad-hoc pile of heuristics driving
+> (or being driven by) your ad-hoc analysis / prediction thingy. Analysing
+> the end result becomes very difficult. See drivers/block/as-iosched.c :P
+> 
+> >
+> >This is where good predictors come in: you feed all the possible
+> >scheduling decisions at any point in time into the predictor, and use
+> >the output to decide which decision gave the most desired result -
+> >taking into account the likelihood of future behaviours.  Of course
+> >you have to optimise this calculation.
+> >
+> >This is classical control theory.  In practice it comes up with
+> >something like what we have already :)  But the design path is
+> >different, and if you're very thoroughly analytical about it, maybe
+> >there's a chance of avoiding weird corner behaviours that weren't
+> >intended.
 
-Why is it that everyone thinks things aren't necessarily done anymore?
-This is the reason why we end up with *bloat* these days - people keep
-on thinking it is the norm for everyone to have a computer that is
-less than 3 years old.
+I was wondering about an application in user space that monitors
+various time series within the system. It would periodically 
+perform System Identification by placing the samples
+into a matrix and find the cross correlation coefficients by 
+minimizing the noise of their combination. This matrix would then
+by run in real time, perhaps in the kernel, to crank a Kalman Filter
+to predict the least squares best estimate for the values of the
+system time series. Here is where ad-hoc algorithms then use these
+precicted values to dynamically change the system behavior. I would
+expect the scheduler and pageout code could do better if they knew
+that the odds are high that in 10 seconds a huge demand is going
+to be made on the system memory for example.
 
-For those of us who like not to waste, or those unfortunate not to
-have a few hundred dollars spare, the statement that "disk is cheap"
-(or CPU, or RAM) is a bit of an insult.
+Things like effects of lunch and dinner breaks, weekend, holidays, 
+stock market activity, number of servers up, could be combined with
+the servers time series. System Identification and Kalman filters 
+could be run in Long Term, Medium Term, and Sort Term time frames
+to predict in these various time frames; similar to how some commodity
+traders trade in multiple time frames.
 
-Hell, my 486 router can't even have more than the 8Megs of RAM it
-already has added, due to bios/MB limitations.
+You can get very fancy and even add seasonal and non-linear support
+like Dr.Harvey did at the London School of Economics.
 
+-piet
 
-Similarly, those of us with 17TB of RAID, but wanting to create 30TB
-of data (on a university budget), also find compression fairly useful.
-As it is, I have to write ugly hacks to get my fortran programs to be
-able to make use of a pipe to gzip - my data is sufficiently redundant
-that I get a good factor of 10 saving.
-
-
+> >
+> 
+> You still have an ad-hoc starting point because it is not clear what
+> scheduling choices are the best.
+> 
+> >
+> >The down side is that crafted heuristics, like the ones we have, tend
+> >to run a _lot_ faster.
+> >
+> 
+> That too
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-        *** System shutdown message from root ***
-System going down in 60 seconds
+piet@www.piet.net
+

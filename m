@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbREBJNR>; Wed, 2 May 2001 05:13:17 -0400
+	id <S132496AbREBJYa>; Wed, 2 May 2001 05:24:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132503AbREBJNH>; Wed, 2 May 2001 05:13:07 -0400
-Received: from e215012.upc-e.chello.nl ([213.93.215.12]:6408 "EHLO
-	procyon.wilson.nl") by vger.kernel.org with ESMTP
-	id <S132488AbREBJNE>; Wed, 2 May 2001 05:13:04 -0400
-From: "Michel Wilson" <michel@procyon14.yi.org>
-To: "Sim, CT \(Chee Tong\)" <CheeTong.Sim@sin.rabobank.com>
+	id <S132500AbREBJYU>; Wed, 2 May 2001 05:24:20 -0400
+Received: from oe75.law11.hotmail.com ([64.4.16.210]:39176 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S132496AbREBJYH>;
+	Wed, 2 May 2001 05:24:07 -0400
+X-Originating-IP: [24.168.36.127]
+From: "Linux Kernel Developer" <linux_developer@hotmail.com>
+To: "Seth Goldberg" <bergsoft@home.com>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux NAT questions
-Date: Wed, 2 May 2001 11:12:57 +0200
-Message-ID: <NEBBLEJBILPLHPBNEEHIMEGECEAA.michel@procyon14.yi.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+In-Reply-To: <3AEF346D.FB01EAE9@colorfullife.com> <3AEF7054.ADE37AF4@home.com>
+Subject: Re: Followup to previous post: Atlon/VIA Instabilities
+Date: Wed, 2 May 2001 05:22:25 -0400
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <1E8992B3CD28D4119D5B00508B08EC5627E8A1@sinxsn02.ap.rabobank.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-ID: <OE75DgUgbvWk01R326E00000955@hotmail.com>
+X-OriginalArrivalTime: 02 May 2001 09:24:01.0637 (UTC) FILETIME=[9FC98150:01C0D2E9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> what I am trying to do is this. I have a genuine network, say 1.1.1.x, and
-> my Linux host is on it, as 1.1.1.252 (eth0). I also have a second
-> network at
-> the back of the Linux box, 192.168.200.x, and a web server on
-> that network,
-> 192.168.200.2. The Linux address is 192.168.200.1 on eth1.
->
-> What I want to do is make the web server appear on the 1.1.1.x network as
-> 1.1.1.160. I have done this before with Firewall-1 on NT, by
-> putting an arp
-> entry for 1.1.1.160 to point to the Linux machine eth0. The packets get
-> redirected into the Linux machine, then translated, and then routed out of
-> eth1.
->
-> The benefit is that there is no routing change to the 1.1.1.x network, and
-> the Linux box isn't even seen as a router.
->
-> I would appreciate any help with this. Any command to do this?
->
-> Chee Tong
-This isn't really a kernel question. I think you'd better ask it on some
-linux network list/newsgroup. But here's an answer anyway....
+>   No, actually the instability starts right after/when the root
+> filesystem is mounted (it seems).  I have no foreign modules installed
+> when this error occurs.  Even if I did, why would the Abit KA7 with the
+> same [other] hardware and software NOT show this problem, even with all
+> opts enabled?
 
-You could add 1.1.1.160 to eth0:
-   ip addr add 1.1.1.160 dev eth0
-and then use NAT to redirect these to the webserver:
-   iptables -t nat -A PREROUTING -p tcp --dst 1.1.1.160 -i eth1 -j
-DNAT --to-destination 192.168.200.2
-
-This should work, AFAIK, but i didn't try it myself. You could also try to
-use the arp command (see 'man arp'), but i don't know exactly how that
-works.
-
-Good luck!
-
-Michel Wilson.
+    In my experience I've noticed motherboards can have a huge impact on
+stability despite the chipsets, hardware used, etc.  Abit is well known and
+liked in the overclocking circles, consequently I would strongly suspect
+that their motherboards are generally highly stable when compared to most
+others.  In fact, my experience with them seams to support this thesis.  Its
+possible that the other motherboard you were using is just flaky.  Does the
+other one happen to be a PC-Chips one?  These generally can be quite cheap,
+feature rich, and even have the best chipsets but still have proved
+themselves to be quite flaky to me in the past.  FIC seams to have a similar
+problem, although they actually improve on their boards stability over time
+(have some rock solid high volume servers on "stabilized" FIC boards);
+sometimes with just a conveniently available BIOS update.  Shuttle also
+seams to have gone downhill but that might have just been a one time
+occurrence.
 

@@ -1,59 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265253AbSJWVpD>; Wed, 23 Oct 2002 17:45:03 -0400
+	id <S265220AbSJWVur>; Wed, 23 Oct 2002 17:50:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265254AbSJWVpD>; Wed, 23 Oct 2002 17:45:03 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:58249 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S265253AbSJWVpB>;
-	Wed, 23 Oct 2002 17:45:01 -0400
-Date: Wed, 23 Oct 2002 23:51:12 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: John Gardiner Myers <jgmyers@netscape.com>,
-       linux-aio <linux-aio@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: async poll
-Message-ID: <20021023215112.GA12488@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	John Gardiner Myers <jgmyers@netscape.com>,
-	linux-aio <linux-aio@kvack.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3DB7136E.8090205@netscape.com> <Pine.LNX.4.44.0210231442490.1581-100000@blue1.dev.mcafeelabs.com>
+	id <S265251AbSJWVur>; Wed, 23 Oct 2002 17:50:47 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:11261 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S265220AbSJWVuo>;
+	Wed, 23 Oct 2002 17:50:44 -0400
+Date: Wed, 23 Oct 2002 14:55:13 -0700
+To: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
+Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
+Subject: Re: 2.5.42: IrDA issues
+Message-ID: <20021023215513.GB24788@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <7886757.1035409088586.JavaMail.nobody@web155>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210231442490.1581-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <7886757.1035409088586.JavaMail.nobody@web155>
 User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 02:51:21PM -0700, Davide Libenzi wrote:
+On Wed, Oct 23, 2002 at 01:38:08PM -0800, ALESSANDRO.SUARDI wrote:
+> > On Mon, Oct 21, 2002 at 11:19:35AM +0200, Alessandro Suardi wrote:
+> > > Jean Tourrilhes wrote:
+> 
+> [snip]
+> 
+> > > Will provide irdadump stuff soon[-ish], I'm wading through a backlog
+> > >  of, uhm, too much email. The short-form report really meant "is this
+> > >  a known issue ?"...
+> >      irtty is busted, that's why I asked for the driver you are
+> > using (its clearly a driver issue). I believe smc-ircc and irport are
+> > sick as well.
+> > > Anyway - the box is a Dell Latitude CPx750J with this:
+> > > 
+> > > [root@dolphin root]# findchip -v
+> > > Found SMC FDC37N958FR Controller at 0x3f0, DevID=0x01, Rev. 1
+> > >     SIR Base 0x3e8, FIR Base 0x290
+> > >     IRQ = 4, DMA = 3
+> > >     Enabled: yes, Suspended: no
+> > >     UART compatible: yes
+> > >     Half duplex delay = 3 us
+> > > 
+> > > So clearly I'm using smc-ircc.o.
+> > > 
+> > > (Of course I'll try and reproduce in 2.5.44 tonight or tomorrow).
+> >      Stop ! Daniele Peri has just released a new version of the SMC
+> > driver (smc-ircc2, link on my web page). I would like you to try this
+> > new driver and report to me. I plan to push this new driver in the
+> > kernel soon. So, don't waste too much time on the old driver.
+> 
+> Unfortunately I can't compile the new driver. I modified the Makefile to
+>  comment out versioning (which i don't use) and change kernelversion
+>  to an appropriate 2.5.44, but it fails like this:
+> 
+> In file included from /usr/src/linux-2.5.44/include/linux/irq.h:19,
+>                  from /usr/src/linux-2.5.44/include/asm/hardirq.h:6,
+>                  from /usr/src/linux-2.5.44/include/linux/interrupt.h:25,
+>                  from /usr/src/linux-2.5.44/include/linux/netdevice.h:454,
+>                  from smsc-ircc2.c:47:
+> /usr/src/linux-2.5.44/include/asm/irq.h:16:25: irq_vectors.h: No such file or directory
 
-> Why would you want to have a single fd simultaneously handled by two
-> different threads with all the locking issues that would arise ? I can
-> understand loving threads but this seems to be too much :)
+	Wow ! That's a weird one.
+	The file in question is in .../arch/i386/mach-generic/. You
+may be able to modify the compile directive to add that to the
+compilation (a "-I" argument).
+	Alternatively, you can drop the source code directly in the
+kernel (you just replace the old smc-ircc.o with the new one and
+recompile).
 
-We in fact tried to do this and for good reason. Our nameserver sofware gets
-great benefit when two processes listen to the same socket on an SMP system.
-In some cases, this means 70% more packets/second, which is close to the
-theoretical maximum beneft.
+> This happens with both drivers pointed by your page.
+> Perhaps 2.5.44 is too new for this driver ?
 
-We would heavily prefer to have two *threads* listening to the same socket
-instead of to processes. The two processes do not share caching information
-now because that expects to live in the same memory.
+	Ask Daniele...
 
-Right now, we can't do that because of very weird locking behaviour, which
-is documented here: http://www.mysql.com/doc/en/Linux.html and leads to
-250.000 context switches/second and dysmal peformance.
+> --alessandro
 
-I expect NPTL to fix this situation and I would just love to be able to call
-select() or poll() or recvfrom() on the same fd(s) from different threads.
+	Have fun...
 
-Regards,
-
-bert hubert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+	Jean

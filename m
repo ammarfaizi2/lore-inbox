@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTGKQHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTGKQHP
+	id S263738AbTGKQFY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbTGKQFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:07:15 -0400
-Received: from dm1-21.slc.aros.net ([66.219.220.21]:55494 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S264095AbTGKQHO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:07:14 -0400
-Message-ID: <3F0EE41A.5060004@aros.net>
-Date: Fri, 11 Jul 2003 10:21:46 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Fri, 11 Jul 2003 12:05:24 -0400
+Received: from ip212-226-133-178.adsl.kpnqwest.fi ([212.226.133.178]:18377
+	"EHLO jumper") by vger.kernel.org with ESMTP id S263738AbTGKQFV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:05:21 -0400
+To: linux-kernel@vger.kernel.org
+Subject: hang with pcmcia wlan card
+From: Jaakko Niemi <liiwi@lonesom.pp.fi>
+Date: Fri, 11 Jul 2003 19:20:46 +0300
+Message-ID: <87fzldxcf5.fsf@jumper.lonesom.pp.fi>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: mbligh@aracnet.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [Bug 895] New: Kernel panic at boot: EIP is at kobject_get
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the request_queue_t kobj field not being intialized by 
-drivers/block/ll_rw_blk.c blk_init_queue() bug. Either blk_init_queue() 
-needs to be fixed to initialize the new q->kobj field (my 
-recommendation) or the memset() hack to nbd needs to be merged in. 
-Please CC me at least on any further correspondence regarding this so I 
-have a better chance of catching these emails. Thanks.
 
+ Hi,
+
+ My laptop (thinkpad 570e) hangs hard straight after bringing up 
+ interface with d-link dwl-650 wlan card. 2.5.73-bk1 works and
+ 2.5.73-bk2 to 2.5.75-bk1 hang. If I boot without the card, 
+ everything comes up, but inserting the card results to a hang.
+ Setting nmi_watchdog=2 has no effect. 
+ 
+ So, what to try next?
+
+                        --j
+ 

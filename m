@@ -1,90 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTJGN4j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 09:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTJGN4j
+	id S262351AbTJGN67 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 09:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTJGN66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 09:56:39 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:32689 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262332AbTJGN4g convert rfc822-to-8bit
+	Tue, 7 Oct 2003 09:58:58 -0400
+Received: from www02.ies.inet6.fr ([62.210.153.202]:13963 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262351AbTJGN65
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 09:56:36 -0400
-content-class: urn:content-classes:message
+	Tue, 7 Oct 2003 09:58:57 -0400
+Message-ID: <3F82C69E.5060609@inet6.fr>
+Date: Tue, 07 Oct 2003 15:58:54 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: RFC: changes to microcode update driver.
-Date: Tue, 7 Oct 2003 06:56:29 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AFF5@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RFC: changes to microcode update driver.
-Thread-Index: AcOM2agr8C4pvcW0R0GgsQ3AyJib2wAACj6g
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Tigran Aivazian" <tigran@veritas.com>,
-       "Giacomo A. Catenazzi" <cate@debian.org>
-Cc: <linux-kernel@vger.kernel.org>, <simon@urbanmyth.org>
-X-OriginalArrivalTime: 07 Oct 2003 13:56:29.0838 (UTC) FILETIME=[CEE502E0:01C38CDA]
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE errors with 2.6.0-test* and SIS5513
+References: <20031006193401.GA30170@irq.dk>
+In-Reply-To: <20031006193401.GA30170@irq.dk>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As Tigran pointed out, we are active in this area too. At this point we
-want to add support of the extended update format to the driver, before
-we ship the latest microcode data. Some of them require the new format.
+Thomas Kjær said the following on 10/06/2003 09:34 PM:
 
-	Jun
-> -----Original Message-----
-> From: Tigran Aivazian [mailto:tigran@veritas.com]
-> Sent: Tuesday, October 07, 2003 6:48 AM
-> To: Giacomo A. Catenazzi
-> Cc: linux-kernel@vger.kernel.org; simon@urbanmyth.org; Nakajima, Jun
-> Subject: Re: RFC: changes to microcode update driver.
-> 
-> On Tue, 7 Oct 2003, Giacomo A. Catenazzi wrote:
-> > Is microcode_ctl still maintained? I've made some
-correction/extentions
-> but now
-> > new from the maintainer.
-> 
-> Yes, I believe Simon is alive and well. (but busy, as we all are)
-> 
-> > Intel give us the new microcode? I had contact with the new
-> contact/maintainer/?
-> > person in Intel, but still no new microcode since summer 2001. So
-maybe
-> before
-> > changing the driver, could you check the Intel vision about Linux
-and
-> microcode?
-> 
-> I am communicating with Intel guys from time to time and there are
-some
-> interesting changes from Intel in the pipeline to update the driver,
-but I
-> thought it is worthwhile to cleanup and throw away unnecessary bits
-before
-> applying a major update (otherwise we would be wasting time debugging
-an
-> update to code which is no longer needed).
-> 
-> As for the microcode data itself, no, I haven't received anything new
-from
-> Intel yet but please be patient. I have received unofficial latest
-> "hacked"  version of microcode data from someone (outside Intel) but
-it
-> will not be uploaded because it will cause support problems both to
-Intel
-> and myself.
-> 
-> I find it is wiser to be friendly with Intel than to annoy them with
-> constant questions "where is the latest microcode data" :)
-> 
-> Kind regards
-> Tigran
-> 
-> 
-> 
-> 
+>Hi!
+>
+>I'm having problems with the 2.6 kernels and the SIS5513 IDE chipset.
+>
+>  
+>
+
+Does kernel parameter noapic change anything ?
+
+Could you attach your .config file and the output of lspci -vvxxx ?
+
+Best regards,
+
+-- 
+Lionel Bouton - inet6
+---------------------------------------------------------------------
+   o              Siege social: 51, rue de Verdun - 92158 Suresnes
+  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
+/ /\  /_  / /_   France
+\/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
+  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
+
+
+
 

@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310212AbSCLAF3>; Mon, 11 Mar 2002 19:05:29 -0500
+	id <S310228AbSCLAEt>; Mon, 11 Mar 2002 19:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310223AbSCLAFK>; Mon, 11 Mar 2002 19:05:10 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:1270 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S310212AbSCLAE7>; Mon, 11 Mar 2002 19:04:59 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020311234516.GC128921@niksula.cs.hut.fi> 
-In-Reply-To: <20020311234516.GC128921@niksula.cs.hut.fi>  <4394.1015887380@kao2.melbourne.sgi.com> 
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: zlib vulnerability and modutils 
+	id <S310227AbSCLAEk>; Mon, 11 Mar 2002 19:04:40 -0500
+Received: from jalon.able.es ([212.97.163.2]:61407 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S310212AbSCLAEe>;
+	Mon, 11 Mar 2002 19:04:34 -0500
+Date: Tue, 12 Mar 2002 01:04:24 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre3
+Message-ID: <20020312000424.GC2300@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 12 Mar 2002 00:04:53 +0000
-Message-ID: <14719.1015891493@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on lun, mar 11, 2002 at 22:08:19 +0100
+X-Mailer: Balsa 1.3.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-vherva@niksula.hut.fi said:
->  Is there a patch for the kernel ppp zlib implementation available
-> somewhere? I'd like to patch the kernels I'm running rather than
-> stuffing a random vendor kernel to the boxes... 
+On 2002.03.11 Marcelo Tosatti wrote:
+>
+>Hi, 
+>
+>Please stress test it with huge amounts of data ;)
+>
+>pre3:
+>
+>- aic7xxx update					(Justin T. Gibbs)
+>- Do not consider SCSI recovered errors as fatal errors	(Justin T. Gibbs)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/linux-2.4.19-shared-zlib.bz2
+Sure ?
 
-That's a backport of the shared zlib from 2.5.6. As it does all its 
-memory allocation beforehand, I _assume_ it doesn't suffer the same problem.
+werewolf:~/soft/kernel# grep aic7xxx patch-2.4.19-pre3
+diff -Naur -X /home/marcelo/lib/dontdiff linux.orig/drivers/scsi/aic7xxx/aic7xxx.c linux/drivers/scsi/aic7xxx/aic7xxx.c
+--- linux.orig/drivers/scsi/aic7xxx/aic7xxx.c   Thu Oct 25 20:53:48 2001
++++ linux/drivers/scsi/aic7xxx/aic7xxx.c        Thu Feb 28 17:50:49 2002
 
-It may be a little more intrusive than you wanted though.
+Just this hunk is present:
 
---
-dwmw2
+diff -Naur -X /home/marcelo/lib/dontdiff linux.orig/drivers/scsi/aic7xxx/aic7xxx.c linux/drivers/scsi/aic7xxx/aic7xxx.c
+--- linux.orig/drivers/scsi/aic7xxx/aic7xxx.c   Thu Oct 25 20:53:48 2001
++++ linux/drivers/scsi/aic7xxx/aic7xxx.c    Thu Feb 28 17:50:49 2002
+@@ -2584,7 +2584,7 @@
+
+        /*
+         * Read the latched byte, but turn off SPIOEN first
+-        * so that we don't inadvertantly cause a REQ for the
++        * so that we don't inadvertently cause a REQ for the
+         * next byte.
+         */
+        ahc_outb(ahc, SXFRCTL0, ahc_inb(ahc, SXFRCTL0) & ~SPIOEN);
+
+Nice update ;)...
+
+BTW, this applies cleanly:
+
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre2-jam5/30-aic7xxx-6.2.5.gz
 
 
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.19-pre2-jam5 #1 SMP Mon Mar 11 16:08:11 CET 2002 i686

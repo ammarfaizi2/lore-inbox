@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVCJEMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVCJEHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVCJEMU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 23:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVCJEMK
+	id S261747AbVCJEHW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 23:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVCJEEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 23:12:10 -0500
-Received: from fire.osdl.org ([65.172.181.4]:43400 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261193AbVCJEKy (ORCPT
+	Wed, 9 Mar 2005 23:04:42 -0500
+Received: from gate.crashing.org ([63.228.1.57]:20421 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262652AbVCJAom (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 23:10:54 -0500
-Date: Wed, 9 Mar 2005 20:10:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Lang <dlang@digitalinsight.com>
-Cc: kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Direct io on block device has performance regression on 2.6.x
- kernel
-Message-Id: <20050309201022.7302d2ac.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0503092000210.4446@qynat.qvtvafvgr.pbz>
-References: <200503100347.j2A3lRg28975@unix-os.sc.intel.com>
-	<Pine.LNX.4.62.0503092000210.4446@qynat.qvtvafvgr.pbz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 9 Mar 2005 19:44:42 -0500
+Subject: Re: [PATCH 0/15] ptwalk: pagetable walker cleanup
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 11:39:44 +1100
+Message-Id: <1110415184.32524.128.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang <dlang@digitalinsight.com> wrote:
+On Wed, 2005-03-09 at 22:05 +0000, Hugh Dickins wrote:
+> Here's a cleanup of the pagetable walkers, in common and i386 code,
+> based on 2.6.11-bk5.  Mainly to make them all go the same simpler way,
+> so they're easier to follow with less room for error; but also to reduce
+> the code size and speed it up a little.  These are janitorial changes,
+> other arches may follow whenever it suits them.
 >
-> (I've seen a 50% 
->  performance hit on 2.4 with just a thousand or two threads compared to 
->  2.6)
+> .../...
 
-Was that 2.4 kernel a vendor kernel with the O(1) scheduler?
+Do you have them on HTTP somewhere ? Apparently, a few of the 15 patches
+didn't make it to me.
+
+There are some other bugs introduced by set_pte_at() caused by latent
+bugs in the PTE walkers that 'drop' part of the address along the way,
+notably the vmalloc.c ones are bogus, thus breaking ppc/ppc64 in subtle
+ways. Before I send patches, I'd rather check if it's not all fixed by
+your patches first :)
+
+Ben.
+
+

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285424AbSBDSuU>; Mon, 4 Feb 2002 13:50:20 -0500
+	id <S285023AbSBDStK>; Mon, 4 Feb 2002 13:49:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286871AbSBDSuK>; Mon, 4 Feb 2002 13:50:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36625 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S285073AbSBDStO>;
-	Mon, 4 Feb 2002 13:49:14 -0500
-Message-ID: <3C5ED7A6.C28407BA@mandrakesoft.com>
-Date: Mon, 04 Feb 2002 13:49:10 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joel Becker <jlbec@evilplan.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Chris Wedgwood <cw@f00f.org>, Chris Mason <mason@suse.com>,
-        Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        Ricardo Galli <gallir@uib.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: O_DIRECT fails in some kernel and FS
-In-Reply-To: <1012835730.26397.519.camel@jen.americas.sgi.com> <E16XlK0-0007Wu-00@the-village.bc.nu> <20020204182942.C2092@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285073AbSBDSsv>; Mon, 4 Feb 2002 13:48:51 -0500
+Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:60650 "EHLO
+	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
+	id <S285023AbSBDSsl>; Mon, 4 Feb 2002 13:48:41 -0500
+Message-Id: <200202041848.NAA04094@coleco-sidewinder.mit.edu>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Aaron Sethman <androsyn@ratbox.org>
+cc: Darren Smith <data@barrysworld.com>, "'Andrew Morton'" <akpm@zip.com.au>,
+        "'Dan Kegel'" <dank@kegel.com>,
+        "'Vincent Sweeney'" <v.sweeney@barrysworld.com>,
+        linux-kernel@vger.kernel.org, coder-com@undernet.org,
+        "'Kevin L. Mitchell'" <klmitch@MIT.EDU>
+Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMP network performance
+In-Reply-To: Your message of "Mon, 04 Feb 2002 13:30:40 EST."
+             <Pine.LNX.4.44.0202041327420.4584-100000@simon.ratbox.org> 
+Date: Mon, 04 Feb 2002 13:48:21 -0500
+From: Kev <klmitch@MIT.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
-> should know the caches might be inconsistent.  Large O_DIRECT users,
-> such as databases, already know this.  They are happily ignorant of
-> cache inconsistencies.  All they care about is hardsectsize O_DIRECT
-> operations.
+> > I mean I added a usleep() before the poll in s_bsd.c for the undernet
+> > 2.10.10 code.
+> >
+> >  timeout = (IRCD_MIN(delay2, delay)) * 1000;
+> >  + usleep(100000); <- New Line
+> >  nfds = poll(poll_fds, pfd_count, timeout);
+> Why not just add the additional delay into the poll() timeout?  It just
+> seems like you were not doing enough of a delay in poll().
 
-I have similar inclination, that is inspired from the implementation of
-"NTFS TNG": hard sector size should always equal sb->blocksize.  This
-allows for fine-grained operations at the O_DIRECT level, logical block
-sizes > PAGE_CACHE_SIZE, easy implementation of fragments (>= hard sect
-size), O_DIRECT for fragments, and other stuff.
-
-This works right now in 2.4 and 2.5 with no modification to the VFS
-core.
-
-	Jeff
-
-
-
+Wouldn't have the effect.  The original point was that adding the usleep()
+gives some time for some more file descriptors to become ready before calling
+poll(), thus increasing the number of file descriptors poll() can return
+per system call.  Adding the time to timeout would have no effect.
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+Kevin L. Mitchell <klmitch@mit.edu>
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbUK1XGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbUK1XIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbUK1XGG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 18:06:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUK1XGF
+	id S261596AbUK1XIp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 18:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUK1XIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 18:06:05 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29713 "HELO
+	Sun, 28 Nov 2004 18:08:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41745 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261594AbUK1XFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 18:05:38 -0500
-Date: Mon, 29 Nov 2004 00:05:37 +0100
+	id S261602AbUK1XIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 18:08:14 -0500
+Date: Mon, 29 Nov 2004 00:08:11 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: rgooch@atnf.csiro.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] mtrr: some cleanups
-Message-ID: <20041128230537.GK4390@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de, discuss@x86-64.org
+Subject: [2.6 patch] i386 cpu/common.c: some cleanups
+Message-ID: <20041128230811.GL4390@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,102 +24,92 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 The patch below contains the following changes:
 - make some needlessly global code static
-- remove the unused mtrr_if_name
+- remove the unused dodgy_tsc function
+- remove the stale dodgy_tsc z86_64 prototype
 
 
 diffstat output:
- arch/i386/kernel/cpu/mtrr/cyrix.c   |    4 ++--
- arch/i386/kernel/cpu/mtrr/generic.c |    8 ++++----
- arch/i386/kernel/cpu/mtrr/main.c    |    6 +-----
- arch/i386/kernel/cpu/mtrr/mtrr.h    |    2 --
- 4 files changed, 7 insertions(+), 13 deletions(-)
+ arch/i386/kernel/cpu/common.c  |   15 ++-------------
+ arch/i386/kernel/cpu/cpu.h     |    1 -
+ include/asm-i386/processor.h   |    1 -
+ include/asm-x86_64/processor.h |    1 -
+ 4 files changed, 2 insertions(+), 16 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/mtrr.h.old	2004-11-28 20:54:40.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/mtrr.h	2004-11-28 20:55:53.000000000 +0100
-@@ -57,7 +57,6 @@
+--- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/cpu.h.old	2004-11-28 21:03:26.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/cpu.h	2004-11-28 21:03:32.000000000 +0100
+@@ -25,7 +25,6 @@
+ extern void display_cacheinfo(struct cpuinfo_x86 *c);
  
- extern struct mtrr_ops generic_mtrr_ops;
+ extern void generic_identify(struct cpuinfo_x86 * c);
+-extern int have_cpuid_p(void);
  
--extern int generic_have_wrcomb(void);
- extern int positive_have_wrcomb(void);
+ extern void early_intel_workaround(struct cpuinfo_x86 *c);
  
- /* library functions for processor-specific routines */
-@@ -96,4 +95,3 @@
- void mtrr_state_warn(void);
- char *mtrr_attrib_to_str(int x);
+--- linux-2.6.10-rc2-mm3-full/include/asm-i386/processor.h.old	2004-11-28 21:01:43.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/include/asm-i386/processor.h	2004-11-28 21:01:56.000000000 +0100
+@@ -101,7 +101,6 @@
+ extern void identify_cpu(struct cpuinfo_x86 *);
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+ extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
+-extern void dodgy_tsc(void);
  
--extern char * mtrr_if_name[];
---- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/cyrix.c.old	2004-11-28 20:53:32.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/cyrix.c	2004-11-28 20:53:48.000000000 +0100
-@@ -218,12 +218,12 @@
- 	mtrr_type type;
- } arr_state_t;
+ /*
+  * EFLAGS bits
+--- linux-2.6.10-rc2-mm3-full/include/asm-x86_64/processor.h.old	2004-11-28 21:02:04.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/include/asm-x86_64/processor.h	2004-11-28 21:02:08.000000000 +0100
+@@ -91,7 +91,6 @@
+ extern void identify_cpu(struct cpuinfo_x86 *);
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+ extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
+-extern void dodgy_tsc(void);
  
--arr_state_t arr_state[8] __initdata = {
-+static arr_state_t arr_state[8] __initdata = {
- 	{0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL},
- 	{0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}
- };
+ /*
+  * EFLAGS bits
+--- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/common.c.old	2004-11-28 21:02:16.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/common.c	2004-11-28 21:03:13.000000000 +0100
+@@ -194,7 +194,7 @@
  
--unsigned char ccr_state[7] __initdata = { 0, 0, 0, 0, 0, 0, 0 };
-+static unsigned char ccr_state[7] __initdata = { 0, 0, 0, 0, 0, 0, 0 };
  
- static void cyrix_set_all(void)
+ /* Probe for the CPUID instruction */
+-int __init have_cpuid_p(void)
++static int __init have_cpuid_p(void)
  {
---- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/generic.c.old	2004-11-28 20:54:02.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/generic.c	2004-11-28 20:55:32.000000000 +0100
-@@ -19,7 +19,7 @@
- };
- 
- static unsigned long smp_changes_mask;
--struct mtrr_state mtrr_state = {};
-+static struct mtrr_state mtrr_state = {};
- 
- 
- /*  Get the MSR pair relating to a var range  */
-@@ -115,8 +115,8 @@
- 	return -ENOSPC;
+ 	return flag_is_changeable_p(X86_EFLAGS_ID);
  }
- 
--void generic_get_mtrr(unsigned int reg, unsigned long *base,
--		      unsigned int *size, mtrr_type * type)
-+static void generic_get_mtrr(unsigned int reg, unsigned long *base,
-+			     unsigned int *size, mtrr_type * type)
+@@ -202,7 +202,7 @@
+ /* Do minimum CPU detection early.
+    Fields really needed: vendor, cpuid_level, family, model, mask, cache alignment.
+    The others are not touched to avoid unwanted side effects. */
+-void __init early_cpu_detect(void)
++static void __init early_cpu_detect(void)
  {
- 	unsigned int mask_lo, mask_hi, base_lo, base_hi;
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
  
-@@ -372,7 +372,7 @@
+@@ -421,16 +421,6 @@
+ 	mcheck_init(c);
+ #endif
  }
+-/*
+- *	Perform early boot up checks for a valid TSC. See arch/i386/kernel/time.c
+- */
+- 
+-void __init dodgy_tsc(void)
+-{
+-	if (( boot_cpu_data.x86_vendor == X86_VENDOR_CYRIX ) ||
+-	    ( boot_cpu_data.x86_vendor == X86_VENDOR_NSC   ))
+-		cpu_devs[X86_VENDOR_CYRIX]->c_init(&boot_cpu_data);
+-}
  
- 
--int generic_have_wrcomb(void)
-+static int generic_have_wrcomb(void)
+ void __init print_cpu_info(struct cpuinfo_x86 *c)
  {
- 	unsigned long config, dummy;
- 	rdmsr(MTRRcap_MSR, config, dummy);
---- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/main.c.old	2004-11-28 20:56:00.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/mtrr/main.c	2004-11-28 20:56:26.000000000 +0100
-@@ -57,10 +57,6 @@
+@@ -474,7 +464,6 @@
+ extern int rise_init_cpu(void);
+ extern int nexgen_init_cpu(void);
+ extern int umc_init_cpu(void);
+-void early_cpu_detect(void);
  
- struct mtrr_ops * mtrr_if = NULL;
- 
--__initdata char *mtrr_if_name[] = {
--    "none", "Intel", "AMD K6", "Cyrix ARR", "Centaur MCR"
--};
--
- static void set_mtrr(unsigned int reg, unsigned long base,
- 		     unsigned long size, mtrr_type type);
- 
-@@ -100,7 +96,7 @@
- }
- 
- /*  This function returns the number of variable MTRRs  */
--void __init set_num_var_ranges(void)
-+static void __init set_num_var_ranges(void)
+ void __init early_cpu_init(void)
  {
- 	unsigned long config = 0, dummy;
- 
-

@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264663AbTE1K5e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 06:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbTE1K5e
+	id S264641AbTE1LAM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbTE1LAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 06:57:34 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:64012 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264663AbTE1K5b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 06:57:31 -0400
-Message-ID: <3ED49A14.2020704@aitel.hist.no>
-Date: Wed, 28 May 2003 13:14:28 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	Wed, 28 May 2003 07:00:12 -0400
+Received: from [202.54.110.230] ([202.54.110.230]:32275 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id S264641AbTE1LAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:00:11 -0400
+Message-ID: <E04CF3F88ACBD5119EFE00508BBB2121098709C6@exch-01.noida.hcltech.com>
+From: "Hemanshu Kanji Bhadra, Noida" <hemanshub@noida.hcltech.com>
+To: linux-kernel@vger.kernel.org
+Subject: device drivers
+Date: Wed, 28 May 2003 16:35:14 +0530
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.67-mm1 bootcrash, possibly IDE or RAID
-References: <20030408042239.053e1d23.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.69-mm8 is fine, 2.5.67-mm1 dies before mounting anything read-write.
+Hello All,
 
-The early kernel boot is fine, the penguin appear,
-a bunch of the usual messages scroll by too fast to read,
-and then it hangs.
+is there any difference if i write kernel module device drivers using
+proc_fs in /proc and in a traditional way in /dev directory.
 
-The kernel is UP, with preempt & devfs.  All filesystems
-are ext2. This kernel has no module support.
+I mean from the application point of view is there any difference when
+application tries to access the device using the device driver residing in
+/proc directory and not in /dev.
 
-Root is on raid-1, there are two
-ide disks connected to this controller on separate cables:
-00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
 
-Here's the decoded crash, written down by hand:
-<stuff scrolled off screen>
-bio_endio
-_end_that_request_first
-ide_end_request
-ide_dma_intr
-ide_intr
-ide_dma_intr
-handle_IRQ_event
-do_IRQ
-default_idle
-default_idle
-common_interrupt
-default_idle
-default_idle
-default_idle
-cpu_idle
-rest_init
-start_kernel
-unknown_bootoption
-<0>Kwrnel Panic fatal exception in interrupt
-in interrupt - not syncing
-
+With Thanks,
+-Hemanshu 

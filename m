@@ -1,143 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270438AbRIGBWf>; Thu, 6 Sep 2001 21:22:35 -0400
+	id <S270705AbRIGB1p>; Thu, 6 Sep 2001 21:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270705AbRIGBWR>; Thu, 6 Sep 2001 21:22:17 -0400
-Received: from ns1.hicom.net ([208.245.180.8]:5128 "EHLO ns1.hicom.net")
-	by vger.kernel.org with ESMTP id <S270438AbRIGBWC>;
-	Thu, 6 Sep 2001 21:22:02 -0400
-Message-Id: <200109070122.VAA04300@ns1.hicom.net>
-Subject: RedHat-diald no go?
-Content-Transfer-Encoding: 7BIT
-To: redhat-list@redhat.com
-From: stevon@hicom.net
+	id <S270758AbRIGB1Z>; Thu, 6 Sep 2001 21:27:25 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:1900 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S270705AbRIGB1O>; Thu, 6 Sep 2001 21:27:14 -0400
+Date: Fri, 7 Sep 2001 03:28:01 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Mosberger <davidm@hpl.hp.com>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-X-Sender-ip: 0d5f6b79
-Date: Thu, 6 Sep 2001 21:22 +0100
-X-mailer: Netbula AnyEMail(TM) 4.69 
+Subject: Re: [patch] proposed fix for ptrace() SMP race
+Message-ID: <20010907032801.N11329@athlon.random>
+In-Reply-To: <200109062300.QAA27430@napali.hpl.hp.com> <20010907021900.L11329@athlon.random> <15256.6038.599811.557582@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15256.6038.599811.557582@napali.hpl.hp.com>; from davidm@hpl.hp.com on Thu, Sep 06, 2001 at 05:40:54PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having problems using RedHat 7.1 (2.4.3-12) and diald
-(0.99.4) on my Linux server. When I see "SIGTERM" and "SIGINT"
-I get very nervous. Has anyone got diald to work since 1996? 
-if so, Heeeeeeeeeeeeeeeeeeeelp!
-This is what happens when diald tries to connect to my ISP
-after receiving a http request:  (/var/log/messages)
+On Thu, Sep 06, 2001 at 05:40:54PM -0700, David Mosberger wrote:
+>   Andrea> abusing cpus_allowed to forbid scheduling is racy so quite
+>   Andrea> unacceptable, we want to preserve the cpus_allowed field for
+>   Andrea> the administrator (he could as well set it during the
+>   Andrea> ptrace).
+> 
+> As long as the CPU manipulates cpus_allowed in an atomic fashion (xchg
+> or cmpxchg) this will be fine.  I'd argue it has to do this anyhow
+> (unless a task is changing its own cpus_allowed field).
 
-Sep 6 19:10:40 stevon diald[1430]: accept parcing error. Got token 'tcp.www'. Not a known tcp service port.
-Sep 6 19:10:40 stevon diald[1430]: parse string: 'tcp 240 tcp.dest=tcp.www'
-Sep 6 19:10:40 stevon diald[1430]: accept parcing error. Got token 'tcp.www'. Not a known tcp
-service port. 
-Sep 6 19:10:40 stevon diald[1430]: parse string: 'tcp 240 tcp.dest=tcp.www'
-Sep 6 19:10:40 stevon diald[1430]: accept parcing error. Got token 'tcp.www'. Not a known tcp
-service port. 
-Sep 6 19:10:40 stevon diald[1430]: parse string: 'udp udp.dest=udp.route'
-Sep 6 19:10:40 stevon diald[1430]: accept parcing error. Got token 'udp.route'. Not a known udp service port.
-Sep 6 19:10:40 stevon diald[1430]: parse string: 'udp udp.dest=udp.route'
-Sep 6 19:10:40 stevon diald[1430]: accept parcing error. Got token 'udp.route'. Not a known udp service port.
-Sep 6 19:10:40 stevon diald[1430]: parse string: 'udp udp.dest=udp.route'
-Sep 6 19:10:40 stevon diald[1430]: accept parcing error. Got token 'udp.route'. Not a known udp service port.
-Sep 6 19:10:40 stevon diald[1430]: parse string: 'udp tcp.source=udp.route'
-Sep 6 19:10:40 stevon diald startup succedded
-Sep 6 19:10:40 stevon modprobe: modprobe: can't locate module tap 0
-Sep 6 19:10:40 stevon modprobe: modprobe: can't locate module tap 1
-Sep 6 19:10:40 stevon modprobe: modprobe: can't locate module tap 2
-Sep 6 19:10:40 stevon modprobe: modprobe: can't locate module tap 3
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 4
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 5
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 6
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 7
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 8
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 9
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 10
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 11
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 12
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 13
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 14
-Sep 6 19:10:41 stevon modprobe: modprobe: can't locate module tap 15
-Sep 6 19:10:42 stevon kernel: SLIP: version 0.8.4-NET3.019-NEWTTY-MODULAR (dynamic channels, max=256) (6 bit encapsulation enabled)
-Sep 6 19:10:42 stevon /etc/hotplug/net.agent: register event not handled
-Sep 6 19:11:05 stevon diald[1430]: Trigger: udp 10.0.0.1/1024  208.245.180.2/53
-Sep 6 19:11:05 stevon diald[1430]: Calling site 10.0.0.2
-Sep 6 19:11:07 stevon Kernel: PPP generic driver version 2.4.1 
-Sep 6 19:11:07 stevon pppd[1509]: 2.4.0 started by root, uid 0
-Sep 6 19:11:07 stevon chat[1511]: report (CONNECT) 
-Sep 6 19:11:07 stevon chat[1511]: abort on (NO CARRIER)
-Sep 6 19:11:07 stevon chat[1511]: abort on (BUSY)
-Sep 6 19:11:07 stevon chat[1511]: abort on (NO DIAL TONE)
-Sep 6 19:11:07 stevon chat[1511]: send (ATZ^M)
-Sep 6 19:11:07 stevon chat[1511]: expect (OK)
-Sep 6 19:11:07 stevon chat[1511]: ATZ^M^M
-Sep 6 19:11:07 stevon chat[1511]: OK
-Sep 6 19:11:08 stevon chat[1511]:  -- got it
-Sep 6 19:11:08 stevon chat[1511]: send (ATDT305-8585^M)
-Sep 6 19:11:08 stevon chat[1511]: Timeout set to 240 seconds
-Sep 6 19:11:08 stevon chat[1511]: expect (CONNECT)
-Sep 6 19:10:08 stevon chat[1511]: ^M
-Sep 6 19:11:25 stevon chat[1511]: ATDT305-8585^M^M
-Sep 6 19:11:25 stevon chat[1511]: CONNECT
-Sep 6 19:11:25 stevon chat[1511]:  -- got it
-Sep 6 19:11:25 stevon chat[1511]: send (^M)
-Sep 6 19:11:25 stevon chat[1511]: expect (ogin:)
-Sep 6 19:11:25 stevon chat[1511]:  115200^M
-Sep 6 19:11:26 stevon chat[1511]: ^M
-Sep 6 19:11:26 stevon chat[1511]: LOGIN:
-Sep 6 19:11:26 stevon chat[1511]:  -- got it
-Sep 6 19:11:26 stevon chat[1511]: send (stevon^M)
-Sep 6 19:11:26 stevon chat[1511]: expect (word:)
-Sep 6 19:11:26 stevon chat[1511]:  stevon^M
-Sep 6 19:11:26 stevon chat[1511]: Password:
-Sep 6 19:11:26 stevon chat[1511]:  -- got it
-Sep 6 19:11:26 stevon chat[1511]: send (chubb^M)
-Sep 6 19:11:27 stevon chat[1511]: Serial connection established
-Sep 6 19:11:27 stevon chat[1511]: Using interface ppp0
-Sep 6 19:11:27 stevon chat[1511]: Connect: pppp0 <--> /dev/ttyS3
-Sep 6 19:11:31 stevon su(pam_unix)[1498] session opened for user root by (uid=0)
-Sep 6 19:11:31 stevon su(pam_unix)[1498] session closed for user root
-Sep 6 19:12:05 stevon Kernel: PPP Deflate compression module registered
-Sep 6 19:12:05 stevon pppd[1509]: not replacing existing default route to sl0 [0.0.0.0]
-Sep 6 19:12:05 stevon pppd[1509]: local IP address 208.245.180.85
-Sep 6 19:12:05 stevon pppd[1509]: remote IP address 208.245.180.7
-Sep 6 19:12:05 stevon diald[1431]: Connect script timed out. Killing script.
-Sep 6 19:12:05 stevon pppd[1509]: Terminating on signal 2
-Sep 6 19:12:05 stevon pppd[1509]: Connection terminated.
-Sep 6 19:12:05 stevon pppd[1509]: Connect time 1.5 minutes
-Sep 6 19:12:05 stevon pppd[1509]: Sent 3136 bytes, recieved 3040 bytes.
-Sep 6 19:12:07 stevon pppd[1509]: Exit
-Sep 6 19:12:08 stevon su(pam_unix)[1577] session opened for user root by (uid=0)
-Sep 6 19:12:08 stevon su(pam_unix)[1577] session closed for user root
-Sep 6 19:12:09 stevon diald[1431]: Delaying 10 seconds before clear to dial
-Sep 6 19:12:20 stevon diald[1431]: Calling site 10.0.0.2
-Sep 6 19:12:22 stevon pppd[1581]: 2.4.0 started by root, uid 0
-Sep 6 19:12:22 stevon chat[1582]: report (CONNECT) 
-Sep 6 19:12:22 stevon chat[1582]: abort on (NO CARRIER)
-Sep 6 19:12:22 stevon chat[1582]: abort on (BUSY)
-Sep 6 19:12:22 stevon chat[1582]: abort on (NO DIAL TONE)
-Sep 1 11:31:26 stevon chat[1582]: send (ATZ^M)
-Sep 6 19:12:22 stevon chat[1582]: expect (OK)
-Sep 6 19:12:22 stevon chat[1582]: ATZ^M^M
-Sep 6 19:12:22 stevon chat[1582]: OK
-Sep 6 19:12:22 stevon chat[1582]:  -- got it
-Sep 6 19:12:22 stevon chat[1582]: send (ATDT305-8585^M)
-Sep 6 19:12:22 stevon chat[1582]: Timeout set to 240 seconds
-Sep 6 19:12:22 stevon chat[1582]: expect (CONNECT)
-Sep 6 19:12:22 stevon chat[1582]: ^M
-Sep 6 19:12:24 diald [1431]: SIGTERM. Termination request received.
-Sep 6 19:12:24 diald [1431]: Diald is dieing with code 0
-Sep 6 19:12:24 stevon pppd[1581]: Terminating on signal 2
-Sep 6 19:12:24 stevon chat[1582]: SIGINT
-Sep 6 19:12:24 stevon pppd[1581]: connect script failed
-Sep 6 19:12:25 stevon pppd[1581]: Exit
+atomic updates of cpus_allowed it's not the point I was making, it's
+still racy:
 
-running pppd and my chat script I have no problems maintaining
-a connection to my ISP. It's just when you start diald, it 
-initates it's frustrating sl0 loop, that everything goes wrong.
+	ptrace				admin via /proc
+	--------------			---------------
+	save and clear
+					set cpus_allowed to something
+	restore cpus_allowed <destroy modification>
 
-please personally CC the answers/comments to stevon@hicom.net 
+the modification of the user is been destroyed if he sets cpus_allowed
+inside ptrace, this is the race condition I was thinking about.
+	
+> If you don't like the cpus_allowed approach, please propose another
+> solution that ensures that the task does not get woken up while ptrace
 
--------------------
-Email sent using AnyEmail from http://www.hicom.net
+For making sure the task isn't wakenup while it's under ptrace we should
+just do that in kernel/signal.c::ignored_signal() as far I can tell.
+
+To ensure the task just sleeps I suggest the one I mentioned in the
+previous email. here a patch (possibly breaks PTRACE_KILL, I didn't
+backed out the PTRACE_KILL change yet):
+
+--- 2.4.10pre4aa1/arch/i386/kernel/ptrace.c.~1~	Sat Jul 21 00:04:05 2001
++++ 2.4.10pre4aa1/arch/i386/kernel/ptrace.c	Fri Sep  7 03:19:53 2001
+@@ -171,12 +171,15 @@
+ 	ret = -ESRCH;
+ 	if (!(child->ptrace & PT_PTRACED))
+ 		goto out_tsk;
+-	if (child->state != TASK_STOPPED) {
+-		if (request != PTRACE_KILL)
+-			goto out_tsk;
+-	}
++	if (child->state != TASK_STOPPED && child->state != TASK_ZOMBIE)
++		goto out_tsk;
+ 	if (child->p_pptr != current)
+ 		goto out_tsk;
++#ifdef CONFIG_SMP
++	rmb(); /* read child->has_cpu after child->state */
++	while (child->has_cpu);
++	mb(); /* allowed to work on the task only when the task is been descheduled */
++#endif
+ 	switch (request) {
+ 	/* when I and D space are separate, these will need to be fixed. */
+ 	case PTRACE_PEEKTEXT: /* read word at location addr. */ 
+
+
+Andrea
 

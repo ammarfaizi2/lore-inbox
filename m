@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263633AbSIQF1I>; Tue, 17 Sep 2002 01:27:08 -0400
+	id <S263649AbSIQFub>; Tue, 17 Sep 2002 01:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263634AbSIQF1I>; Tue, 17 Sep 2002 01:27:08 -0400
-Received: from packet.digeo.com ([12.110.80.53]:49084 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263633AbSIQF1H>;
-	Tue, 17 Sep 2002 01:27:07 -0400
-Message-ID: <3D86BE4F.75C9B6CC@digeo.com>
-Date: Mon, 16 Sep 2002 22:31:59 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S263658AbSIQFub>; Tue, 17 Sep 2002 01:50:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263649AbSIQFua>; Tue, 17 Sep 2002 01:50:30 -0400
+Date: Mon, 16 Sep 2002 22:56:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+In-Reply-To: <1032220689.1203.85.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-mm@kvack.org, hugh@veritas.com, linux-kernel@vger.kernel.org
-Subject: Re: dbench on tmpfs OOM's
-References: <20020917044317.GZ2179@holomorphy.com> <3D86B683.8101C1D1@digeo.com> <20020917051501.GM3530@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Sep 2002 05:32:00.0428 (UTC) FILETIME=[8BE1D6C0:01C25E0B]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> William Lee Irwin III wrote:
-> >> MemTotal:     32107256 kB
-> >> MemFree:      27564648 kB
-> 
-> On Mon, Sep 16, 2002 at 09:58:43PM -0700, Andrew Morton wrote:
-> > I'd be suspecting that your node fallback is bust.
-> > Suggest you add a call to show_free_areas() somewhere; consider
-> > exposing the full per-zone status via /proc with a proper patch.
-> 
-> I went through the nodes by hand. It's just a run of the mill
-> ZONE_NORMAL OOM coming out of the GFP_USER allocation. None of
-> the highmem zones were anywhere near ->pages_low.
-> 
 
-erk.  Why is shmem using GFP_USER?
+On 16 Sep 2002, Robert Love wrote:
+> 
+> I was this -> <- close to celebrating.  Not so fast, smarty.
 
-mnm:/usr/src/25> grep page_address mm/shmem.c
-mnm:/usr/src/25>
+You forget - I'm not only a smarty, I'm sick and twisted too.
+
+> What about release_kernel_lock() ?
+> 
+> It sees task->lock_depth>=0 and calls spin_unlock() on a lock that it
+> does not hold.
+
+We have a simple rule:
+ - task->lock_depth = -1 means "no lock held"
+ - task->lock_depth >= 0 means "BKL really held"
+
+... but what does "task->lock_depth < -1" mean?
+
+Yup: "validly nonpreemptable".
+
+So then you have:
+
+	#define kernel_locked()	(current->lock_depth >= 0)
+
+	#define in_atomic() (preempt_count() & ~PREEMPT_ACTIVE) != (current->lock_depth != -1))
+
+and you're all set - just set lock_depth to -2 when you exit to show that
+you don't hold the BKL, but that you are validly not preemtable.
+
+I get the award for having the most disgusting ideas.
+
+		Linus "but it works and is efficient" Torvalds
+

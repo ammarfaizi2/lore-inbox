@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbUJ0Aec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbUJ0AjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbUJ0Aec (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 20:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbUJ0Aec
+	id S261594AbUJ0AjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 20:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbUJ0AjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 20:34:32 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:8106 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261537AbUJ0Ad5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 20:33:57 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mousedev: Fix scrollwheel thingy on IBM ScrollPoint mice
-Date: Tue, 26 Oct 2004 19:33:50 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Kim Holviala <kim@holviala.com>,
-       vojtech@suse.cz
-References: <417E0EA8.7000704@holviala.com> <20041026171157.21c7a15a.akpm@osdl.org>
-In-Reply-To: <20041026171157.21c7a15a.akpm@osdl.org>
-MIME-Version: 1.0
+	Tue, 26 Oct 2004 20:39:09 -0400
+Received: from holomorphy.com ([207.189.100.168]:45033 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261594AbUJ0AhG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 20:37:06 -0400
+Date: Tue, 26 Oct 2004 17:36:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
+       Massimo Cetra <mcetra@navynet.it>
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041027003649.GN15367@holomorphy.com>
+References: <200410262002_MC3-1-8D38-C078@compuserve.com> <200410261924.26080.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410261933.50544.dtor_core@ameritech.net>
+In-Reply-To: <200410261924.26080.dtor_core@ameritech.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 07:11 pm, Andrew Morton wrote:
-> Kim Holviala <kim@holviala.com> wrote:
-> >
-> > The scrollwheel thingy (stick) on IBM ScrollPoint mice returns extremely
-> > aggressive values even when touched lightly. This confuses XFree which
-> > assumes the wheel values can only be 1 or -1. Incidently, it also
-> > confuses Windows' default mouse driver which proves the problem is in
-> > the mouse itself.
-> > 
-> > This patch limits the scroll wheel movements to be either +1 or -1 on
-> > the event -> emulated PS/2 level. I chose to implement it there because
-> > mousedev emulates Microsoft mice but the real ones almoust never return
-> > a bigger value than 1 (or -1).
-> > ...
-> > +#ifdef CONFIG_INPUT_MOUSEDEV_WHEELFIX
-> > +				if (value) { value = (value < 0 ? -1 : 1); }
-> > +#endif /* CONFIG_INPUT_MOUSEDEV_WHEELFIX */
-> 
-> This is really not a thing which we can put behind compile-time config.
-> 
-> Can we come up with a fix which works correctly on all hardware?  If not,
-> this workaround will need to be enabled by some sort of runtime detection.
-> 
+On Tuesday 26 October 2004 07:00 pm, Chuck Ebbert wrote:
+>> ? Are you saying people who encounter bugs in 2.6.9 should wait for
+>> 2.6.10? ?...and when they find bugs in _that_ release they should keep
+>> waiting?
 
-Unless someone (Vojtech?) has an objection I think we should always have
-this workaround activated - after all mousedev provides legacy emulation
-mostly for XFree/XOrg benefit anyway. Clients accessing data through evdev
-will see the full picture regardless.
+On Tue, Oct 26, 2004 at 07:24:24PM -0500, Dmitry Torokhov wrote:
+> Hmm, what people do when they find a bug in 2.4.27 release? Wait for
+> 2.4.28? Oh, horror!
 
--- 
-Dmitry
+Apply a patch for the bugfix once it comes out. This is not news.
+
+
+-- wli

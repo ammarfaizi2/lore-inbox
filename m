@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285309AbRLXUiG>; Mon, 24 Dec 2001 15:38:06 -0500
+	id <S285318AbRLXUor>; Mon, 24 Dec 2001 15:44:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285310AbRLXUh4>; Mon, 24 Dec 2001 15:37:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56837 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285309AbRLXUhs>; Mon, 24 Dec 2001 15:37:48 -0500
-Subject: Re: [patch] Assigning syscall numbers for testing
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Mon, 24 Dec 2001 20:46:48 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dledford@redhat.com (Doug Ledford),
-        kaos@ocs.com.au (Keith Owens), bcrl@redhat.com (Benjamin LaHaise),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011224193124.F2110@flint.arm.linux.org.uk> from "Russell King" at Dec 24, 2001 07:31:24 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S285317AbRLXUo1>; Mon, 24 Dec 2001 15:44:27 -0500
+Received: from Makaera.com ([199.202.113.33]:2055 "EHLO Soo.com")
+	by vger.kernel.org with ESMTP id <S285316AbRLXUoS>;
+	Mon, 24 Dec 2001 15:44:18 -0500
+Date: Mon, 24 Dec 2001 15:44:17 -0500
+From: really mason_at_soo_dot_com <lnx-kern@Sophia.soo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.2-pre1 oddness under X
+Message-ID: <20011224154417.A24841@Sophia.soo.com>
+In-Reply-To: <20011223144800.A22538@Sophia.soo.com> <Pine.LNX.4.33.0112231457070.5312-100000@coffee.psychology.mcmaster.ca> <20011223160419.A22752@Sophia.soo.com> <20011224150340.B593@suse.de> <20011224153635.A24786@Sophia.soo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Ibzl-00058g-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011224153635.A24786@Sophia.soo.com>; from lnx-kern@Sophia.soo.com on Mon, Dec 24, 2001 at 03:36:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Negative numbers are safe until Linus has 2^31 syscalls, at which point
-> > quite frankly we would have a few other problems including the fact that
-> > the syscall table won't fit in kernel mapped memory.
+
+Also, i'm using gcc 3.0.3, binutils 2.11.2.
+Hm.  And Glibc 2.2.4 , X 4.1.0 with GATO patches
+for the rage128 driver, and sawfish 1.0.1.
+
+b
+
+On Mon, Dec 24, 2001 at 03:36:35PM -0500, really mason_at_soo_dot_com wrote:
+> ok, with this patch X still exhibits the same behavior,
+> minus the above error message in .xsession-errors!
 > 
-> Please leave the allocation of the exact number space to the port
-> maintainers discression.
-
-Sorry.. I'm talking about x86 here. Linus is the x86 port maintainer as
-well so we have to plan it out that way. For non x86 sure.
-
-Alan
+> Nothing in dmesg, no kernel messages, no oopsen.

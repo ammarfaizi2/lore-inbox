@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUJTVKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUJTVKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267343AbUJTVKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 17:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270547AbUJTVFI
+	id S267464AbUJTVKE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 17:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270553AbUJTVFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 17:05:08 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:48652 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S267313AbUJTVE3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 17:04:29 -0400
-Date: Wed, 20 Oct 2004 15:59:38 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: netdev@oss.sgi.com, Linux kernel <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com, romieu@fr.zoreil.com
-Subject: Re: [patch 2.6.9 9/11] r8169: Add MODULE_VERSION
-Message-ID: <20041020155938.T8775@tuxdriver.com>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	netdev@oss.sgi.com, Linux kernel <linux-kernel@vger.kernel.org>,
-	jgarzik@pobox.com, romieu@fr.zoreil.com
-References: <20041020141146.C8775@tuxdriver.com> <20041020142858.L8775@tuxdriver.com> <Pine.LNX.4.61.0410201629120.6918@chaos.analogic.com>
+	Wed, 20 Oct 2004 17:05:22 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:32731 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S270543AbUJTVAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 17:00:02 -0400
+Subject: Re: forcing PS/2 USB emulation off
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Alexandre Oliva <aoliva@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041019063057.GA3057@ucw.cz>
+References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <200410172248.16571.dtor_core@ameritech.net>
+	 <20041018164539.GC18169@kroah.com>  <20041019063057.GA3057@ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098302200.12374.44.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0410201629120.6918@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Oct 20, 2004 at 04:34:45PM -0400
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 20 Oct 2004 20:56:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 04:34:45PM -0400, Richard B. Johnson wrote:
-> 
-> This makes warning error about :
-> 
-> Warning: could not find versions for .tmp_versions/r8169.mod
-> 
-> Do I have to enable something in .config (like CONFIG_MODVERSIONS)?
-> If so, how does one make this transparent, to get rid of the
-> warning if CONFIG_MODVERSIONS is not set?
+On Maw, 2004-10-19 at 07:30, Vojtech Pavlik wrote:
+> Like 30% of all notebooks? ;) They do boot without the USB handoff, the
+> PS/2 mouse works, but only as a PS/2 mouse, no extended capabilities
+> detection is possible due to the BIOS interference.
 
-Odd...I don't get any such warning, with or without
-CONFIG_MODVERSIONS...
+I started in favour of avoiding always doing the handoff, but now I'm
+convinced handoff should be the default. 
 
-MODULE_VERSION is used elsewhere -- do you get that warning
-from any other modules?  Was this from a clean build?
+Alan
 
-Send me your .config, and I'll look into it.
-
-Thanks,
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com

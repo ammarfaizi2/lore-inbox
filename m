@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319076AbSH2CZ6>; Wed, 28 Aug 2002 22:25:58 -0400
+	id <S319088AbSH2C2U>; Wed, 28 Aug 2002 22:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319079AbSH2CZ6>; Wed, 28 Aug 2002 22:25:58 -0400
-Received: from dp.samba.org ([66.70.73.150]:42371 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319076AbSH2CZ5>;
-	Wed, 28 Aug 2002 22:25:57 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] "fully HT-aware scheduler" support, 2.5.31-BK-curr 
-In-reply-to: Your message of "Wed, 28 Aug 2002 19:16:31 +0200."
-             <Pine.LNX.4.44.0208281914100.2647-100000@localhost.localdomain> 
-Date: Thu, 29 Aug 2002 11:28:16 +1000
-Message-Id: <20020828213041.1BB3E2C152@lists.samba.org>
+	id <S319090AbSH2C2T>; Wed, 28 Aug 2002 22:28:19 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:51439 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S319088AbSH2C2S>; Wed, 28 Aug 2002 22:28:18 -0400
+Message-ID: <3D6D880B.8090401@snapgear.com>
+Date: Thu, 29 Aug 2002 12:33:47 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.32uc1 (MMU-less patches)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0208281914100.2647-100000@localhost.localdomain> you 
-write:
-> 
-> On Wed, 28 Aug 2002, Rusty Russell wrote:
-> 
-> > >  - HT-aware affinity.
-> > > 
-> > >    Tasks should attempt to 'stick' to physical CPUs, not logical CPUs.
-> > 
-> > Linus disagreed with this before when I discussed it with him, and with
-> > the current (stupid, non-portable, broken) set_affinity syscall he's
-> > right.
-> 
-> actually, affinity still works just fine, users can bind tasks to logical
-> CPUs as well. What i meant was the affinity logic of the scheduler (ie.  
-> affinity decisions done by the scheduler), not the externally visible
-> affinity API.
 
-My bad.  I'll shut up now, and read the patch.
+Hi All,
 
-Sorry,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+A new MMU-less patch, linux-2.5.32uc1. You can get it at:
+
+   http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/
+
+A few minor fixes:
+
+. Fixed incorrect setting of totalram_pages in arch mm init
+. Added some vmalloc_ routines to fix module support
+. Added m68knommu config support for security and lib sub-systems
+. Added Config.help to arch/m68knommu
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268489AbRGZRmI>; Thu, 26 Jul 2001 13:42:08 -0400
+	id <S268559AbRGZRrR>; Thu, 26 Jul 2001 13:47:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268462AbRGZRl5>; Thu, 26 Jul 2001 13:41:57 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:15708
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S268489AbRGZRlp>; Thu, 26 Jul 2001 13:41:45 -0400
-Date: Thu, 26 Jul 2001 10:41:52 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010726104152.O27780@work.bitmover.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com> <20010726095452.L27780@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010726095452.L27780@work.bitmover.com>; from lm@bitmover.com on Thu, Jul 26, 2001 at 09:54:52AM -0700
+	id <S268560AbRGZRrH>; Thu, 26 Jul 2001 13:47:07 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:35077 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S268559AbRGZRrB>;
+	Thu, 26 Jul 2001 13:47:01 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107261746.VAA31697@ms2.inr.ac.ru>
+Subject: Re: 2.4.7 softirq incorrectness.
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 26 Jul 2001 21:46:52 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010726002357.D32148@athlon.random> from "Andrea Arcangeli" at Jul 26, 1 00:23:57 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Arrg, I take it all back, I'm taking about Daniel Phillips not Daniel
-Bernstein.  I tend to agree with Alan about Mr Bernstein.
+Hello!
 
-Thanks to Richard Gooch for pointing out that I'm asleep at the switch.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> At that time I checked loopback that runs under the bh so it's ok too.
+
+Well, it was not alone. I just looked at couple of places, when
+netif_rx was used. One is right, another (looping multicasts) is wrong. :-)
+
+So, is plain raising softirq and leaving it raised before return
+to normal context not a bug? If so, then no problems.
+The worst, which can happen is that it will work as earlier, right?
+And we are allowed to yuild bhs at any point, when we desire. Nice.
+
+Actually, also I was afraid opposite thing: netif_rx was used to allow
+to restart processing of skb, when we were in wrong context or were afraid
+recursion. And the situation, when it is called with disabled irqs and/or
+raised spinlock_irq (it was valid very recently!), is undetectable.
+Actually, I hope such places are absent, networking core does not use
+irq protection at all, except for netif_rx() yet. :-)
+
+
+> after netif_rx.
+
+But why not to do just local_bh_disable(); netif_rx(); local_bh_enable()?
+Is this not right?
+
+Alexey

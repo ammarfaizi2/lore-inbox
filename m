@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbTDNJNl (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 05:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbTDNJNl (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 05:13:41 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:28369 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S262905AbTDNJNk (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 05:13:40 -0400
-Date: Mon, 14 Apr 2003 11:24:33 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] M68k IDE updates
-In-Reply-To: <1050311961.5575.47.camel@zion.wanadoo.fr>
-Message-ID: <Pine.GSO.4.21.0304141122340.28305-100000@vervain.sonytel.be>
+	id S262911AbTDNJSh (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 05:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTDNJSh (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 05:18:37 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:7439 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S262911AbTDNJSh (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 05:18:37 -0400
+Message-Id: <200304140922.h3E9Lvu02312@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Frank Van Damme <frank.vandamme@student.kuleuven.ac.be>,
+       linux-kernel@vger.kernel.org
+Subject: Re: stabilty problems using opengl on kt400 based system
+Date: Mon, 14 Apr 2003 12:16:59 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <200304121410.58522.frank.vandamme@student.kuleuven.ac.be>
+In-Reply-To: <200304121410.58522.frank.vandamme@student.kuleuven.ac.be>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Apr 2003, Benjamin Herrenschmidt wrote:
-> On Mon, 2003-04-14 at 10:39, Geert Uytterhoeven wrote:
-> 
-> > Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
-> > on-disk data to be that way, for compatibility with e.g. TOS.
-> 
-> Some designers need to be shot...
-> 
-> What about optionally making fix_drive_id a platoform hook
-> (like it was, but with a reasonable default) to avoid clobbering
-> the common code with those #ifdefs ?
+On 12 April 2003 15:10, Frank Van Damme wrote:
+> compiling. However, if Istart running OpenGL applications (games)
+> (quake,tuxracer or whatever) themachine will freeze in anything from
+> 2 minutes to an hour. The last frame remains on the screen, but I can
+> still login over ssh and reboot. The drivers of this card are only
 
-Yes, I already suggested that in my IDE patch for 2.4.x. But I was in a hurry,
-since I wanted to get m68k IDE working in 2.4.21.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
+Can you login over ssh and collect useful info?
+Top, ps, various /proc/* files?
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+vda

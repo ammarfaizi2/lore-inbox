@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262212AbUCEFCu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 00:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUCEFCu
+	id S262214AbUCEF2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 00:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUCEF2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 00:02:50 -0500
-Received: from mx11.sac.fedex.com ([199.81.193.118]:32528 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP id S262212AbUCEFCs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 00:02:48 -0500
-Date: Fri, 5 Mar 2004 13:02:56 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Stuart Young <sgy-lkml@amc.com.au>
-cc: David Ford <david+challenge-response@blue-labs.org>, jason@stdbev.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI battery info failure after some period of time, 2.6.3-x
- and up
-In-Reply-To: <200403051543.04300.sgy-lkml@amc.com.au>
-Message-ID: <Pine.LNX.4.58.0403051259480.387@boston.corp.fedex.com>
-References: <4047756D.2050402@blue-labs.org> <200403051520.40341.sgy-lkml@amc.com.au>
- <4048015D.6070308@blue-labs.org> <200403051543.04300.sgy-lkml@amc.com.au>
+	Fri, 5 Mar 2004 00:28:22 -0500
+Received: from [63.161.72.3] ([63.161.72.3]:45469 "EHLO
+	mail.standardbeverage.com") by vger.kernel.org with ESMTP
+	id S262214AbUCEF2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 00:28:20 -0500
+Message-ID: <950c9d8cf6fbb225c867dff9a4284d0c@stdbev.com>
+Date: Thu,  4 Mar 2004 23:33:16 -0600
+From: "Jason Munro" <jason@stdbev.com>
+Subject: Re: ACPI battery info failure after some period of time, 2.6.3-x and up
+To: linux-kernel@vger.kernel.org
+Reply-to: <jason@stdbev.com>
+In-Reply-To: <Pine.LNX.4.58.0403051259480.387@boston.corp.fedex.com>
+References: <4047756D.2050402@blue-labs.org>
+            <200403051520.40341.sgy-lkml@amc.com.au>
+            <4048015D.6070308@blue-labs.org>
+            <200403051543.04300.sgy-lkml@amc.com.au>
+            <Pine.LNX.4.58.0403051259480.387@boston.corp.fedex.com>
+X-Mailer: Hastymail 1.0-rc1-CVS
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/05/2004
- 01:02:40 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/05/2004
- 01:02:46 PM,
-	Serialize complete at 03/05/2004 01:02:46 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11:02 pm Mar 4 Jeff Chua <jeffchua@silk.corp.fedex.com> wrote:
+>
+> On Fri, 5 Mar 2004, Stuart Young wrote:
+>
+> >  ...and it just failed then, using 2.6.4-rc2 still.
 
-On Fri, 5 Mar 2004, Stuart Young wrote:
+root@jackass /proc/acpi/battery/BAT1# watch -n 1 'cat ./state'
 
-> ...and it just failed then, using 2.6.4-rc2 still.
+Over 30 minutes running and still looks fine. I use the GKACPI Gkrellm
+plugin which polls the battery status every 30 seconds I beleive. Since
+this started I have gone up to 2 + days uptime without it being triggered,
+but sometimes its less.
 
-have you tried applying patch from ...
+> have you tried applying patch from ...
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release
+> /2.6.4/
+> acpi-20040220-2.6.4.diff.bz2
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.4/
-acpi-20040220-2.6.4.diff.bz2
-
-
-I'm on IBM X30, linux 2.6.4-rc2. No problem.
-
-
-# uptime
- 13:02:07 up  3:31,  4 users,  load average: 0.08, 0.07, 0.08
-
-# cat /proc/acpi/battery/BAT0/state
-present:                 yes
-capacity state:          ok
-charging state:          unknown
-present rate:            0 mW
-remaining capacity:      31780 mWh
-present voltage:         12419 mV
+The 2.6.3 patch from the same release day does not apply cleanly with the
+wolk patchset in place :/ I will try the latest with this patch and see
+what happens.
 
 
+\__ Jason Munro
+ \__ jason@stdbev.com
+  \__ http://hastymail.sourceforge.net/
 
-Jeff.
 

@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267266AbTAPUnK>; Thu, 16 Jan 2003 15:43:10 -0500
+	id <S267256AbTAPUl1>; Thu, 16 Jan 2003 15:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267270AbTAPUnK>; Thu, 16 Jan 2003 15:43:10 -0500
-Received: from homer.nks.net ([66.152.21.172]:65284 "EHLO homer.nks.net")
-	by vger.kernel.org with ESMTP id <S267266AbTAPUnH>;
-	Thu, 16 Jan 2003 15:43:07 -0500
-Subject: 2.4.20-aa1 breaks integrit
-From: Derek Glidden <dglidden@illusionary.com>
-To: linux-kernel@vger.kernel.org
-Cc: integrit-devel@lists.sourceforge.net
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Jan 2003 15:51:36 -0500
-Message-Id: <1042750297.26999.10.camel@two.nks.net>
-Mime-Version: 1.0
+	id <S267259AbTAPUl1>; Thu, 16 Jan 2003 15:41:27 -0500
+Received: from delphin.mathe.tu-freiberg.de ([139.20.24.12]:36040 "EHLO
+	delphin.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
+	id <S267256AbTAPUl0> convert rfc822-to-8bit; Thu, 16 Jan 2003 15:41:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Michael Dreher <dreher@math.tu-freiberg.de>
+To: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: hda has changed heads
+Date: Thu, 16 Jan 2003 21:51:34 +0100
+User-Agent: KMail/1.4.3
+References: <200301112249.11624.dreher@math.tu-freiberg.de> <20030111221617.GA20341@win.tue.nl>
+In-Reply-To: <20030111221617.GA20341@win.tue.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301162151.34206.dreher@math.tu-freiberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-integrit is a filesystem checksumming tool:
 
-http://integrit.sourceforge.net/
+Am Samstag, 11. Januar 2003 23:16 schrieb Andries Brouwer:
+> On Sat, Jan 11, 2003 at 10:49:11PM +0100, Michael Dreher wrote:
+> > Basically, I dont care about the new number of heads,
+>
+> Right
+>
+> > but now lilo complains like this (it did not complain before):
+>
+> Try giving LILO the keyword linear or lba32.
+> Then it does not need any idea about the geometry at bootloader
+> install time.
 
-something in 2.4.20-aa1 breaks its ability to correctly determine
-whether a file has been changed or not.  _every_ file will turn up "new"
-on subsequent runs of integrit, even if nothing about that file has
-changed.
+I tried, and it does not work. 
 
-2.4.19-aa1 worked correctly.
 
-2.4.20 "plain" works correctly.
+karpfen:/home/dreher # lilo
+Added testing *
+Added linux
+Added failsafe
+Added linux-2.5.56
+Added linux-2.5.54
+Device 0x0300: Invalid partition table, 2nd entry
+  3D address:     1/0/20 (20160)
+  Linear address: 1/12/318 (321300)
 
-I apologize for the vagueness of this report. I know that -aa are
-collections of patches from other places and I have no idea which piece
-may be breaking integrit, nor any real idea what the underlying problem
-really is.
+Contrary to what it prints here, lilo has added nothing.
 
-And no idea who to specifically contact, either, since I don't really
-know where the breakage is occurring.  :-P
+It should write the boot sector for windows on /dev/hda5, but can not
+do that because it does not understand the partition table anymore.
 
-Please reply directly for more info if needed.
+My box is running 2.5.56 at the moment.
+I wanted to install 2.5.58. But lilo refuses to change the MBR, because 
+of the number of changed heads. Even if I start it as lilo -L. 
 
--- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#!/usr/bin/perl -w
-$_='while(read+STDIN,$_,2048){$a=29;$b=73;$c=142;$t=255;@t=map
-{$_%16or$t^=$c^=($m=(11,10,116,100,11,122,20,100)[$_/16%8])&110;
-$t^=(72,@z=(64,72,$a^=12*($_%16-2?0:$m&17)),$b^=$_%64?12:0,@z)
-[$_%8]}(16..271);if((@a=unx"C*",$_)[20]&48){$h=5;$_=unxb24,join
-"",@b=map{xB8,unxb8,chr($_^$a[--$h+84])}@ARGV;s/...$/1$&/;$d=
-unxV,xb25,$_;$e=256|(ord$b[4])<<9|ord$b[3];$d=$d>>8^($f=$t&($d
->>12^$d>>4^$d^$d/8))<<17,$e=$e>>8^($t&($g=($q=$e>>14&7^$e)^$q*
-8^$q<<6))<<9,$_=$t[$_]^(($h>>=8)+=$f+(~$g&$t))for@a[128..$#a]}
-print+x"C*",@a}';s/x/pack+/g;eval 
 
-usage: qrpff 153 2 8 105 225 < /mnt/dvd/VOB_FILENAME \
-    | extract_mpeg2 | mpeg2dec - 
+My solution is: reboot into 2.5.54. run lilo there. reboot into 2.5.58.
+Repeat for 2.5.59.
 
-         http://www.cs.cmu.edu/~dst/DeCSS/Gallery/
-http://www.eff.org/                   http://www.anti-dmca.org/
+This is annoying. Any ideas how to solve this ?
+
+Thanks,
+Michael
+
 

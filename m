@@ -1,96 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVBZAze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVBZA47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVBZAze (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 19:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVBZAze
+	id S262148AbVBZA47 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 19:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVBZA47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 19:55:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27289 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261170AbVBZAzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 19:55:17 -0500
-Subject: Re: 2.6.11-rc5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <20050225172945.GA31211@suse.de>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
-	 <20050224145049.GA21313@suse.de> <1109287708.15026.25.camel@gaston>
-	 <20050225070813.GA13735@suse.de> <1109316551.14993.63.camel@gaston>
-	 <20050225172945.GA31211@suse.de>
-Content-Type: text/plain
-Date: Sat, 26 Feb 2005 11:54:13 +1100
-Message-Id: <1109379254.14992.96.camel@gaston>
+	Fri, 25 Feb 2005 19:56:59 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:14407
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S262148AbVBZA4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 19:56:23 -0500
+Date: Sat, 26 Feb 2005 01:56:21 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Darren Hart <dvhltc@us.ibm.com>, hugh@veritas.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow vma merging with mlock et. al.
+Message-ID: <20050226005620.GN20715@opteron.random>
+References: <421E74B5.3040701@us.ibm.com> <20050225171122.GE28536@shell0.pdx.osdl.net> <20050225220543.GC15867@shell0.pdx.osdl.net> <421FA61B.9050705@us.ibm.com> <20050225233806.GD15867@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050225233806.GD15867@shell0.pdx.osdl.net>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > It seem to detect the flat panel incorrectly, or the EDID data is bogus,
-> > maybe that's wrecking something in the new modelist management in
-> > fbdev ? It might be causing us to use a bogus mode that itself casues
-> > atyfb to crash. Tried forcing a mode ?
+On Fri, Feb 25, 2005 at 03:38:06PM -0800, Chris Wright wrote:
+> I don't have a good sampling of applications.  The one's I've used are
+> temporal like gpg, or they mlockall the whole thing and never look back.
+> But I did a quick benchmark since I was curious, a simple loop of a
+> million lock/unlock cycles of a page that could trigger a merge:
 > 
-> cfb_imageblit(320) dst1 fa51a800 base e0b80000 bitstart 1999a800
-> fast_imageblit(237) s daea4000 dst1 fa51a800
-> fast_imageblit(269) j 1 fa51a800 0
-> Unable to handle kernel paging request at virtual address fa51a800
+> vanilla
+> (no merge): 659706 usecs
 > 
-> is bitstart incorrect or is the thing just not (yet) mapped?
-
-It should be all mapped, i suspect the mode set is totally bogus. To
-check it, can you enable radeonfb verbose debug ?
-
-
-> radeonfb: Found Intel x86 BIOS ROM Image
-> radeonfb: Retreived PLL infos from BIOS
-> radeonfb: Reference=27.00 MHz (RefDiv=60) Memory=133.00 Mhz, System=133.00 MHz
-> radeonfb: PLL min 12000 max 35000
-> radeonfb: Monitor 1 type DFP found
-> radeonfb: EDID probed
-> radeonfb: Monitor 2 type no found
-> radeonfb: Assuming panel size 8x1
-> radeonfb: Can't find mode for panel size, going back to CRT
-> cfb_imageblit(320) dst1 fa51a800 base e0b80000 bitstart 1999a800
-> fast_imageblit(237) s daea4000 dst1 fa51a800
-> fast_imageblit(269) j 1 fa51a800 0
-> Unable to handle kernel paging request at virtual address fa51a800
->  printing eip:
-> c020f17e
-> *pde = 00000000
-> Oops: 0002 [#1]
-> Modules linked in: ohci1394 ieee1394 radeonfb i2c_algo_bit i2c_core ehci_hcd uhci_hcd capability usbcore
-> CPU:    0
-> EIP:    0060:[<c020f17e>]    Tainted: G     U VLI
-> EFLAGS: 00010282   (2.6.11-rc5-20050225-default)
-> EIP is at cfb_imageblit+0x57e/0x67c
-> eax: 00000000   ebx: 00000001   ecx: 00000000   edx: fa51a800
-> esi: fa51a804   edi: daea4000   ebp: 00000004   esp: dcae9c14
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 2080, threadinfo=dcae8000 task=dc4a7550)
-> Stack: c01110ac 00000001 c0321d60 dcae9c20 dcae9c20 c01303a2 00000001 c03c87a8
->        0000000a dae23ca8 c011c783 00000046 00000000 dc202000 00000046 dcae9c64
->        c010513d 0000384d dc202290 00000007 c032db20 daea4000 00000000 0000000f
-> Call Trace:
->  [<c01110ac>] smp_local_timer_interrupt+0xc/0x50
->  [<c01303a2>] handle_IRQ_event+0x32/0x70
->  [<c011c783>] __do_softirq+0x43/0xa0
->  [<c010513d>] do_IRQ+0x3d/0x60
->  [<c020d790>] soft_cursor+0x190/0x200
->  [<c02043cc>] bit_cursor+0x48c/0x4f0
->  [<e0b26c01>] radeonfb_prim_fillrect+0xf1/0x120 [radeonfb]
->  [<c012043f>] msleep+0x2f/0x40
->  [<c01fff28>] fbcon_cursor+0x1a8/0x280
->  [<c023ad08>] hide_cursor+0x18/0x30
->  [<c023b014>] redraw_screen+0x174/0x200
->  [<c01fed4a>] fbcon_prepare_logo+0x39a/0x3a0
->  [<c01ff8a0>] fbcon_init+0x2b0/0x370
->  [<c023b1a9>] visual_init+0xe9/0x170
+> patched
+> (merge):    3567020 usecs
 > 
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Heh, I was surprised to see it that much slower.
 
+The object of the merge is to save memory, and to reduce the size of the
+rbtree that might payoff during other operations (with a smaller tree,
+lookups will be faster too). If you only measure the time of creating
+and removing a mapping then it should be normal that you see a slowdown
+since merging involves more work than non-merging. The payoff is
+supposed to be in the other operations.
+
+The reason mlock doesn't merge is that nobody asked for it yet, but it
+was originally supposed to merge too (I stopped at mremap since mlock
+wasn't high prio to fixup). But the long term plan was to eventually add
+merging to mlock too and it's good that you're optimizing it now.

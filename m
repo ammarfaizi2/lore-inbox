@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264227AbTDJWyo (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264232AbTDJWyo (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 18:54:44 -0400
-Received: from nycsmtp5out-eri0.rdc-nyc.rr.com ([24.29.99.228]:14792 "EHLO
-	nycsmtp5out-eri0.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S264227AbTDJWym (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 18:54:42 -0400
-Message-ID: <3E95F8F0.8070704@sixbit.org>
-Date: Thu, 10 Apr 2003 19:06:24 -0400
-From: John Weber <weber@sixbit.org>
-Organization: My Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030401 Debian/1.3-4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Simmons <jsimmons@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [FBDEV updates] Newest framebuffer fixes.
-References: <Pine.LNX.4.44.0304102231390.23050-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0304102231390.23050-100000@phoenix.infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S264243AbTDJW5h (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264241AbTDJW5h (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 18:57:37 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:34014 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264240AbTDJW5e (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 18:57:34 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 11 Apr 2003 01:09:14 +0200 (MEST)
+Message-Id: <UTC200304102309.h3AN9EV07692.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, pbadari@us.ibm.com
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
->>>Please test. 
->>
->>I get an oops on boot in function fb_set_var (called from 
->>radeon_init_disp).  This might simply be because I don't have the same 
->>version of fbmem.c (I had to apply that hunk of the patch by hand) 
->>although I have source of 2.5.67.
-> 
-> 
-> Yipes. That driver shouldn't be calling fb_set_var from the low level 
-> driver. 
->  
+    > A different way out, especially when we use 32+32, is to kill this
+    > sd_index_bits[] array, and give each disk a new number: replace
+    > 	index = find_first_zero_bit(sd_index_bits, SD_DISKS);
+    > by
+    > 	index = next_index++;
 
-By the way, I'm still seeing the boottime oops in radeon_init_disp as a 
-result of calling fb_set_var.
+    I wish it is that simple. We use sd_index_bits[] since we could
+    sd_detach() and then sd_attach()  few disks. We will end up with
+    holes, name slippage without this. We need to know what disks are
+    currently being in use.
 
-(o- j o h n  e  w e b e r
-//\  weber@sixbit.org
-v_/_  http://weber.sixbit.org/
-=====  aim/yahoo/msn: worldwidwebers
+It is that simple. (At least with 64-bit dev_t.)
+Look at the use of sd_index_bits[]. It is static in sd.c.
+There is the definition, the first free bit is found (and set)
+in sd_attach() to provide our disk with a number, this bit is
+cleared again in sd_detach().
 
+That is all. In other words, a mechanism to give an unused number
+to each disk for which sd_attach() is called.
+
+Now suppose we do nothing in sd_detach().
+Then we don't know which disks have disappeared. Pity.
+If the number space is infinite then
+	index = next_index++;
+gives a new number each time we need one.
+
+Now that it is finite, some estimates are needed. How often
+will sd_attach() be called during the uptime of this kernel /
+the lifetime of this computer? And how much space is available?
+
+Among 2^64 device numbers, 2^48 reserved for scsi disks
+is a very small fraction. With at most 2^12 partitions
+on each disk that would leave room for 2^36 disks.
+Do you think during the lifetime of this computer a new
+scsi disk will be added more than 68 . 10^9 times?
+That would be adding 400 disks each second for five years.
+
+You see, 2^64 is not infinite, but it is close.
+
+Andries

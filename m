@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319866AbSINL0G>; Sat, 14 Sep 2002 07:26:06 -0400
+	id <S314078AbSINMAU>; Sat, 14 Sep 2002 08:00:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319868AbSINL0G>; Sat, 14 Sep 2002 07:26:06 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:30436 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S319866AbSINL0F>;
-	Sat, 14 Sep 2002 07:26:05 -0400
-Date: Sat, 14 Sep 2002 14:30:53 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Andrew Bray <andy@chaos.org.uk>
-Cc: linux-kernel@vger.kernel.org
+	id <S315374AbSINMAU>; Sat, 14 Sep 2002 08:00:20 -0400
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:39436 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S314078AbSINMAT>; Sat, 14 Sep 2002 08:00:19 -0400
+Date: Sat, 14 Sep 2002 14:05:07 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: ADMIN: DON'T try to be clever with email headers!
-Message-ID: <20020914113053.GH30392@mea-ext.zmailer.org>
-References: <20020913173709.GG30392@mea-ext.zmailer.org> <Pine.LNX.4.44.0209132257210.29038-100000@madhouse.demon.co.uk>
+Message-ID: <20020914120507.GA16598@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020910225530.A17094@mars.ravnborg.org> <20020910230656.D18386@mars.ravnborg.org> <9500000.1031706478@aslan.btc.adaptec.com> <20020911071219.A1352@mars.ravnborg.org> <slrnao427d.si3.abuse@madhouse.demon.co.uk> <20020913173709.GG30392@mea-ext.zmailer.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209132257210.29038-100000@madhouse.demon.co.uk>
+In-Reply-To: <20020913173709.GG30392@mea-ext.zmailer.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 14, 2002 at 12:16:15AM +0100, Andrew Bray wrote:
-> Hi Matti,
-...
-> > On Fri, Sep 13, 2002 at 03:49:01PM +0000, Andrew Bray wrote:
-> > > To:	<linux-kernel@vger.kernel.org>
-> > > From:	abuse@madhouse.demon.co.uk (Andrew Bray)
-> > > Subject: Re: [PATCH] drivers/pci,hamradio,scsi,aic7xxx,video,zorro clean and mrproper files 4/6
-> > > Date:	13 Sep 2002 15:49:01 GMT
-> > > Organization: Private Internet Node
-> > > Message-ID: <slrnao427d.si3.abuse@madhouse.demon.co.uk>
-> > > Reply-To:	andy@@chaos.org.uk
-> 
-> I object!
-> 
-> There is nothing 'cute' in this header, and I didn't post a patch, just a
-> comment on one.  It was entirely correct SMTP, with a truly unique message
-> ID and all addresses were valid for sending replies (From:, and
-> Reply-To:), and all arrive to me.
+On Fri, 13 Sep 2002, Matti Aarnio wrote:
 
-  Look closer at the "Reply-To:" header.  THAT caused tons of bounces.
+>   Folks, when aiming to post into VGER's lists, DO NOT
+>   try to make any cute things in headers.  Any such
+>   are bound to cause TONS of bounces, which did happen
+>   in this particular case...
 
-  You didn't post a patch, but there has been recently quite a lot of
-  talk about patches not reaching people when they filter things, and
-  throw messages with even slightly suspicuous headers into dev-null..
+The fix is to normalize headers. Any mailing list should do that. I have
+seen ISODE PP 5.0, running the uni-dortmund secondary MX (which is in
+fact the only reachable outside the intranet), bounce on perfectly-legal
+addresses, and mails containing double Date: headers and for other
+frivolous reasons. Recently I got unsubscribed for reasons Dave Miller
+could not recall, he had not kept the bounce :-(
 
-....  (lots of semi-relevant text (which I even agree with) dropped ..)
+Does anybody know of an opensource real-time anti-relay SMTP proxy that
+can do aliasing?
 
-  I really would love to have a globally functional email system
-  where everybody sends PGP encrypted messages over SSL encrypted
-  email connections, everybody posts to LIST public key, list opens
-  it up, and posts to each recipient's public key..
-  TONS of encryption work at the list processors, of course..
+I like the way ezmlm-idx, a mailing list manager, handles things, it
+stores bounces, and after some days, notifies the list members, and if
+the notice does not get through, kills the subscription after another
+verification. I'd be good if the vger lists could do the same, so users
+could actually figure what goes through and what is rejected.
 
-  How can that prevent the list from making into spammers address
-  harvesters ?  Not anymore than the current situation.  Any list
-  archive with open access is prone to reveal the addresses.
+Anyhow, by all means, DO KEEP THE BOUNCES YOU GET, use a script and keep
+them for two weeks, and then weed them out. Feel free to weed all
+subsequent bounces from one address that has the same bounce reason.
+This should be possible with low effort, but allows users to figure
+what's up should they ask.
 
-> Regards,
-> Andy
->----------------------------------------------------------------------------
-> Andrew Bray, PWMS, MA,              |  preferred:    mailto:andy@chaos.org.uk
-> London, England                     |  or:   mailto:andy@madhouse.demon.co.uk
+BTW, his header showed up escaped at my site:
+
+Reply-To: "andy@"@his.domain
+
+And, FWIW, this looks legal to me according to RFC-2822 EBNF.

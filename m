@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269088AbUJKQo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269087AbUJKQo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269088AbUJKQo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUJKQni
+	id S269087AbUJKQo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 12:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbUJKQop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 12:43:38 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:13242 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S269150AbUJKQg1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 12:36:27 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: Totally broken PCI PM calls
-Date: Mon, 11 Oct 2004 09:36:37 -0700
-User-Agent: KMail/1.6.2
+	Mon, 11 Oct 2004 12:44:45 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56849 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269134AbUJKQfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 12:35:33 -0400
+Date: Mon, 11 Oct 2004 18:35:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
 Cc: Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com>
-In-Reply-To: <16746.299.189583.506818@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] 2.6.9-rc4: SCSI qla2xxx gcc 3.4 compile errors
+Message-ID: <20041011163501.GB3485@stusta.de>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org> <20041011162457.GA3485@stusta.de> <1097512128.1714.128.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410110936.37268.david-b@pacbell.net>
+In-Reply-To: <1097512128.1714.128.camel@mulgrave>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 October 2004 8:42 pm, Paul Mackerras wrote:
+On Mon, Oct 11, 2004 at 11:28:42AM -0500, James Bottomley wrote:
+> On Mon, 2004-10-11 at 11:24, Adrian Bunk wrote:
+> > Please apply my patch below which is already for some time in James' 
+> > SCSI tree.
 > 
-> The USB drivers aren't a good example, they are currently quite broken
-> as far as suspend/resume is concerned.  They used to work just fine
-> but got broken some time in the last few months.
+> It's waiting in my tree until 2.6.9 goes final because gcc-3.4 fixes are
+> hardly showstoppers.  If you want to compile the kernel with gcc-3.4 use
+> -mm
 
-It would have been interesting to have seen some problem report
-on linux-usb-devel.  Which USB drivers, by the way?  There have
-to be at least a hundred of them.
+It's the only compile error with gcc 3.4 I found in 2.6.9-rc4, and the 
+fix is pretty low-risk.
 
-I can say that USB suspend/resume works much better now on
-some x86 hardware, especially with patches in Greg's bk-usb tree;
-at the level of "those never worked on 2.6 before!"  There are still
-several PMcore problems getting in the way though, and I'd not
-be surprised if your "used to work" translated as "somehow a
-bunch of bugs canceled each other out on PPC" ...
+> James
 
+cu
+Adrian
 
-> Maybe the real problem is that we are trying to use the device suspend
-> functions for suspend-to-disk, when we don't really want to change the
-> device's power state at all.
+-- 
 
-I've made that point too.  STD is logically a few steps:  quiesce system,
-write image to swap, change power state.  The ACPI spec talks about
-that as keeping the system in a G1/S4 powered state, but "swusp"
-doesn't use that ... it does a full power-off.   And of course, full power-off
-means that the BIOS probably mucks with the USB hardware, so it's
-not a real resume any more.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-- Dave

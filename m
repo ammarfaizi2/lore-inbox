@@ -1,83 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262440AbREUKAn>; Mon, 21 May 2001 06:00:43 -0400
+	id <S262433AbREUJ7x>; Mon, 21 May 2001 05:59:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262439AbREUKAf>; Mon, 21 May 2001 06:00:35 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35968 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262438AbREUKA2>;
-	Mon, 21 May 2001 06:00:28 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S262438AbREUJ7n>; Mon, 21 May 2001 05:59:43 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:37382 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S262435AbREUJ7c>;
+	Mon, 21 May 2001 05:59:32 -0400
+To: Jakob =?iso-8859-1?q?=D8stergaard?= <jakob@unthought.net>
+Cc: "Robert M. Love" <rml@tech9.net>, John Cowan <jcowan@reutershealth.com>,
+        esr@thyrsus.com, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com> <d31ypj1r4y.fsf@lxplus015.cern.ch> <990411054.773.0.camel@phantasy> <20010521043553.C20911@unthought.net>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 21 May 2001 11:58:34 +0200
+In-Reply-To: Jakob =?iso-8859-1?q?=D8stergaard's?= message of "Mon, 21 May 2001 04:35:53 +0200"
+Message-ID: <d3ofsnowfp.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15112.59192.613218.796909@pizda.ninka.net>
-Date: Mon, 21 May 2001 03:00:24 -0700 (PDT)
-To: Andi Kleen <ak@suse.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <andrewm@uow.edu.au>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-In-Reply-To: <20010521114216.A1968@gruyere.muc.suse.de>
-In-Reply-To: <20010520154958.E18119@athlon.random>
-	<3B07CF20.2ABB5468@uow.edu.au>
-	<20010520163323.G18119@athlon.random>
-	<15112.26868.5999.368209@pizda.ninka.net>
-	<20010521034726.G30738@athlon.random>
-	<15112.48708.639090.348990@pizda.ninka.net>
-	<20010521105944.H30738@athlon.random>
-	<15112.55709.565823.676709@pizda.ninka.net>
-	<20010521112357.A1718@gruyere.muc.suse.de>
-	<15112.57377.723591.710628@pizda.ninka.net>
-	<20010521114216.A1968@gruyere.muc.suse.de>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Jakob" == Jakob Østergaard <jakob@unthought.net> writes:
 
-Andi Kleen writes:
- > > Certainly, when this changes, we can make the interfaces adapt to
- > > this.
- > 
- > I am just curious why you didn't consider that case when designing the
- > interfaces. Was that a deliberate decision or just an oversight?
- > [I guess the first, but why?]
+Jakob> On Sun, May 20, 2001 at 10:10:49PM -0400, Robert M. Love wrote:
+>> I think this is a very important point, and one I agree with.  I
+>> tend to let my distribution handle stuff like python.  now, I use
+>> RedHat's on-going devel, RawHide. it is not using python2.  in
+>> fact, since switching to python2 may break old stuff, I don't
+>> expect python2 until 8.0. that wont be for 9 months.  90% of
+>> RedHat's configuration tools, et al, are written in python1 and
+>> they just are not going to change on someone's whim.
 
-I didn't want the API to do exactly what we needed it to do
-but not one bit more.  I tried very hard to keep it as minimal
-as possible, and I even fought many additions to the API (a few
-of which turned out to be reasonable, see pci_pool threads).
+Jakob> 2.6.0 isn't going to happen for at least a year or two.  What's
+Jakob> the problem ?
 
-To this end, since HIGHMEM is needed anyways on such machines
-(ie. the "sizeof(void *)" issue), I decided to not consider that
-case.
+Jakob> Want 2.5.X ?  Get the tools too.
 
-Working on pages is useful even _ignoring_ the specific issues we are
-talking about.  It really is the one generic way to represent all
-pieces of memory inside the kernel (regardless of HIGHMEM and similar
-issues).
+Some people grab the latest devel kernels because thats all that works
+on their hardware.
 
-But I simply did not see anyone who would really make use of it in
-the 2.4.x timeframe.  (and I made this estimate in the middle of
-2.3.x, so I didn't even see zerocopy coming along so clearly, shrug)
+Jakob> I'm in no position to push people around, but I think the
+Jakob> whining about CML2 tool requirements is completely unjustified.
+Jakob> If we required that everything worked with GCC 2.7.2 and nmake,
+Jakob> where would we be today ?  I'm a lot more worried about CML2
+Jakob> itself than about the tools it requires :)
 
- > That's currently the case, but at least on IA32 the block layer
- > must be fixed soon because it's a serious performance problem in
- > some cases (and fixing it is not very hard).
+gcc-2.7.2 is broken it miscompiles the kernel, Python1 or bash are
+not.
 
-If such a far reaching change goes into 2.4.x, I would probably
-begin looking at enhancing the PCI dma interfaces as needed ;-)
+Jakob> Whether CML2 requires python2 or not, the distributions will
+Jakob> change. This is not about Eric pushing something down people's
+Jakob> throats. Tools evolve, and new revisions introduce
+Jakob> incompatibilities, but distributions still follow the
+Jakob> evolution.  Nobody ships perl4 today either.
 
- > Now that will probably first use DAC
- > and not a IO-MMU, and thus not use the pci mapping API, but I would not be 
- > surprised if people came up with IO-MMU schemes for it too.
- > [actually most IA32 boxes already have one in form of the AGP GART, it's just
- > not commonly used for serious things yet]
+The point is that Eric has been trying to push distributions to ship
+P2.
 
-DAC usage should go through a portable PCI dma API as well,
-for the reasons you mention as well as others.  If we do this
-from the beginning, there will be no chance for things like
-virt_to_bus64() et al. to start sneaking into the PCI drivers :-)
-
-Later,
-David S. Miller
-davem@redhat.com
+Jes

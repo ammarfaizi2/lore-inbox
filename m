@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbUAIQa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 11:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUAIQa6
+	id S262131AbUAIQ1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 11:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUAIQ1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 11:30:58 -0500
-Received: from pop.gmx.net ([213.165.64.20]:33417 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262355AbUAIQa4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 11:30:56 -0500
-X-Authenticated: #4512188
-Message-ID: <3FFED73D.8020502@gmx.de>
-Date: Fri, 09 Jan 2004 17:30:53 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 9 Jan 2004 11:27:48 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:1670 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262131AbUAIQ1r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 11:27:47 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 9 Jan 2004 08:26:58 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Jochen Hein <jochen@jochen.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0] Thinkpad 390E hangs after some time
+In-Reply-To: <87isjlw23u.fsf@echidna.jochen.org>
+Message-ID: <Pine.LNX.4.44.0401090825350.1871-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm1
-References: <20040109014003.3d925e54.akpm@osdl.org>
-In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 9 Jan 2004, Jochen Hein wrote:
 
-could it be that you took out /or forgot to insterst the work-around for 
-nforce2+apic? At least I did a test with cpu disconnect on and booted 
-kernel and it hang. (I also couldn't find the work-around in the 
-sources.) I remember an earlier mm kernel had that workaround inside.
+> Not here.  compiled with both:
+> 
+> root@hermes:/usr/src# gcc -v
+> Reading specs from /usr/lib/gcc-lib/i486-linux/3.3.2/specs
+> Konfiguriert mit: ../src/configure -v
+> --enable-languages=c,c++,java,f77,pascal,objc,ada,treelang
+> --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info
+> --with-gxx-include-dir=/usr/include/c++/3.3 --enable-shared
+> --with-system-zlib --enable-nls --without-included-gettext
+> --enable-__cxa_atexit --enable-clocale=gnu --enable-debug
+> --enable-java-gc=boehm --enable-java-awt=xlib --enable-objc-gc
+> i486-linux
+> Thread model: posix
+> gcc-Version 3.3.2 (Debian)
+> root@hermes:/usr/src# gcc-2.95 -v
+> Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
+> gcc version 2.95.4 20011002 (Debian prerelease)
+> 
+> Anyway, got a new (faster) laptop and will move my 2.6 tests there.
 
-bye,
+Get 2.6.1 and try. There was a subtle bug in the fork code that I believe 
+it was the real source of my pain ;)
 
-Prakash
+
+
+- Davide
+
+

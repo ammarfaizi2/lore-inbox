@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310304AbSCKSEW>; Mon, 11 Mar 2002 13:04:22 -0500
+	id <S310337AbSCKSHW>; Mon, 11 Mar 2002 13:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310185AbSCKSEQ>; Mon, 11 Mar 2002 13:04:16 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7299 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S310184AbSCKSDv>; Mon, 11 Mar 2002 13:03:51 -0500
-Date: Mon, 11 Mar 2002 13:06:21 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Gunther Mayer <gunther.mayer@gmx.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IDE on linux-2.4.18
-In-Reply-To: <3C8CF054.91290065@gmx.net>
-Message-ID: <Pine.LNX.3.95.1020311130532.3167A-100000@chaos.analogic.com>
+	id <S310184AbSCKSHH>; Mon, 11 Mar 2002 13:07:07 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:4252 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S310344AbSCKSFw>; Mon, 11 Mar 2002 13:05:52 -0500
+Date: Mon, 11 Mar 2002 18:05:36 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+In-Reply-To: <E16kUED-0001GB-00@the-village.bc.nu>
+Message-ID: <Pine.SOL.3.96.1020311180113.13428A-100000@libra.cus.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Gunther Mayer wrote:
-
-> "Richard B. Johnson" wrote:
+On Mon, 11 Mar 2002, Alan Cox wrote:
+> > Funny you should mention that point ... The "flagged taskfile code" is a
+> > project to allow for NATIVE DFT support in Linux.  Nice screw job you did
+> > to IBM.
 > 
-> > On Mon, 11 Mar 2002, Alan Cox wrote:
-> >
-> > > > hda: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=1024/255/63, UDMA(33)
-> > > > Partition check:
-> > > >  hda: hda1 hda2 < hda5 hda6 >
-> > > > hd: unable to get major 3 for hard disk
-> > >
-> > > ^^^^^^^^^^^^^^^^^^
-> > >
-> > > Case dismissed ;)
-> >
-> > I haven't a clue what you are saying. Every IDE option that is allowed
-> > is enabled in .config. The IDE drive(s) are found, but you imply, no
-> > state, that I did something wrong. You state that I haven't enabled
-> > something? I enabled everything that 'make config` allowed me to
-> > enable. Now what is it?
-> 
-> You enabled too much(see hd.c):
-> 
->     dep_bool '  Use old disk-only driver on primary interface'
-> CONFIG_BLK_DEV_HD_IDE
-> 
-> will hog "major 3" (which is needed by IDE driver later).
-> 
+> Ok so whats native DFT and where does he (and I for that matter) read about
+> it ?
 
-Okay. Thanks. I will try without CONFIG_BLK_DEV_HD_IDE
+DFT = Drive Fault Tolerance
 
-> 
+It is an IBM utility which performs extensive diagnostics of a hard drive.
+At present this is a DOS program which is used via a dos boot disk.
 
-Cheers,
-Dick Johnson
+Have look at the IBM website where you can download this (you can get a dd
+image of the boot floppy from there, too, if you don't have Windows).
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The idea behind native DFT is to be able to perform drive diagnostics from
+within the OS without rebooting with a DOS disk and tying up the system
+for hours during the checks. The advantages of this combined with IDE/SCSI
+hot swap are strikingly obvious...
 
-	Bill Gates? Who?
+The utility also returns a special fault code which in combination with
+the ibm website allows you to return a faulty disk and obtain a
+replacement very easily.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

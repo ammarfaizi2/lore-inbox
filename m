@@ -1,117 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135987AbRA1APl>; Sat, 27 Jan 2001 19:15:41 -0500
+	id <S135782AbRA1AMm>; Sat, 27 Jan 2001 19:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135980AbRA1APY>; Sat, 27 Jan 2001 19:15:24 -0500
-Received: from shell.cyberus.ca ([209.195.95.7]:49333 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S135979AbRA1APK>;
-	Sat, 27 Jan 2001 19:15:10 -0500
-Date: Sat, 27 Jan 2001 19:14:20 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: ECN: Clearing the air (fwd)
-Message-ID: <Pine.GSO.4.30.0101271914000.24762-100000@shell.cyberus.ca>
+	id <S135805AbRA1ALx>; Sat, 27 Jan 2001 19:11:53 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:16500 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S135779AbRA1ALn>; Sat, 27 Jan 2001 19:11:43 -0500
+Message-ID: <3A73571B.CC83C154@ngforever.de>
+Date: Sat, 27 Jan 2001 16:17:47 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
+X-Accept-Language: de,en-US
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: mark@winksmith.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Probably Off-topic Question...
+In-Reply-To: <Pine.LNX.4.10.10101222129310.3031-100000@clueserver.org> <3A6F0D6B.34EB2CB0@coppice.org> <20010124123001.52317@winksmith.com> <3A707239.9F88FB7B@ngforever.de> <20010125155809.26969@winksmith.com> <3A71BB9D.9B0BAA5C@ngforever.de> <20010126223246.34429@winksmith.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Smith wrote:
+> 
+> On Fri, Jan 26, 2001 at 11:02:05AM -0700, Thunder from the hill wrote:
+> > > > > my vaio F-series used to sleep correctly under RH6.1.  it now hangs
+> > > > > forever making the sleep mode much less useful.
+> > > i just push the sleep button.  it used to work under RH6.1.  under RH7.0
+> > > it never wakes up.
+> > Well, this seems not to be right...
+> > Already any idea?
+> 
+> i haven't had a chance to look at it.  i'm not quite sure where to start
+> looking either.  i suppose i could track down if there's any resource
+> still running?  trying out different configurations.  it's kinda annoying.
+> the battery drain on linux is pretty high so it would be useful to sleep
+> to save juice.  not quite annoying enough yet to start debugging though.
+> too many other things above it on the sliding scale.
+Hmmm... Can you access objects on the penguin via network? Try using
+telnet, or better ssh, to be sure if it is a crash or a graphic error.
 
-Just proves i am not on lk
+Thunder
+---
+Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
+god...
 
----------- Forwarded message ----------
-Date: Sat, 27 Jan 2001 19:05:38 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: linux-kernel@vger.rutgers.edu
-Cc: netdev@oss.sgi.com
-Subject: ECN: Clearing the air
-
-
-On Fri, 26 Jan 2001 15:29:51 +0000, James Sutherland wrote:
-> Except you can't retry without ECN, because DaveM wants to do a
-> Microsoft and force ECN on everyone, whether they like it or not.
-
-I think there is some serious misinformation going on here.
-
-Hopefully, this will straighten things out:
-
-- ECN is not a standard that DaveM came up with, or some cabal within
-the Linux community pulled out of a hat. It was the Internet Engineering
-Task Force that endorsed it. If you want to blame anybody,
-blame the IETF. Specifically you should also blame Sally Floyd and KK
-Ramakrishnan who proposed it after years of research. In case those
-names dont ring a bell look, them up in the internet whos-who almanac.
-Dont ask me where you'll find one.
-In case the IETF doesnt ring a bell either to some people, it is the same
-standard body that made the internet happen. It is the same standard body
-that also ensures that although the internet is anarchical in nature, there
-are some simple governing rules that should be defined to keep  it alive.
-They are called protocols. The IETF has a very simple motto "we believe in
-running code ...". [Although that's not neccesarily true these days, but
-let's not tread there].
-People, Linux is no longer a baby. We are leaders as far as the internet
-is concerned. We are there first. We set trends and other follow. We have
-"running code" to flush out all the heretics out there.
-We have the best TCP/IP people in the world today coding for you and i.
-Blaspheming with "DaveM wants to pull a MS" doesnt help. We need to
-encourage these kind of activities because we are making the internet a
-better place. Yes, Al Gore might have funded some good causes on the
-internet, but today _we_ make them happen.
-
-- ECN is a good thing. It has been proven for years to be a good thing.
-Standards normally go through a experimental phase before becoming
-proposed standard. If you dont want it turn it off.
-
-- ECN is going to become a proposed standard perhaps by this
-coming IETF at Mineapolis.
-
-- A lot of OS vendors and good router vendors will be deploying ECN soon.
-There is nothing wrong with Linux being first. We code in the open, others
-prefer press releases.
-
-- ECN does not break things. It's brain damaged firewalls, Intrusion
-detection systems, and load balancers that should be shot.
-One intrusion detection "expert" was quoted suggesting the blocking of ECN
-bits should be blocked because "nmap uses them" to probe systems.
-Any commercial non-open-source entity  designing and abusing reserved
-fields should at least have the courtesy of providing a config option to
-stop that abuse. If it was open source we would have fixed their sins.
-
-- Any design which blatantly ASSumes that "reserved" means no one should
-use something simply amazes me. The collegiate dictionary definition of
-"reserved" is:
-
----------------------
-               Main Entry: reserve
-               Pronunciation: ri-'z&rv
-               Function: transitive verb
-               Inflected Form(s): reserved; reserving
-               Etymology: Middle English, from Middle French reserver,
-               from Latin reservare, literally, to keep back, from re- +
-               servare to keep -- more at CONSERVE
-               Date: 14th century
-               1 a : to hold in reserve : keep back <reserve grain for
-               seed> b : to set aside (part of the consecrated elements)
-               at the Eucharist for future use c : to retain or hold over
-               to a future time or place : DEFER <reserve one's judgment
-               on a plan> d : to make legal reservation of
-               2 : to set or have set aside or apart <reserve a hotel
-               room> synonym see KEEP - reservable /-'z&r-v&-b&l/
-               adjective
------------------------
-
-Now where is the ambiguity in that?
-
-And where really is the ambiguity in the meaning of a TCP RST?
-Maybe an analogy in a very ambiguos protocol called "English Language"
-would help.
-The word "no" in response to the packet "davem please add an extra meaning
-to RST".  Where is the ambiguity in that?
-
-phew! just my 2 .ca cents
-
-cheers,
-jamal
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272074AbRI2X36>; Sat, 29 Sep 2001 19:29:58 -0400
+	id <S272122AbRI3AMH>; Sat, 29 Sep 2001 20:12:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272080AbRI2X3s>; Sat, 29 Sep 2001 19:29:48 -0400
-Received: from mx7.port.ru ([194.67.57.17]:27546 "EHLO mx7.port.ru")
-	by vger.kernel.org with ESMTP id <S272074AbRI2X33>;
-	Sat, 29 Sep 2001 19:29:29 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109300347.f8U3luc28724@vegae.deep.net>
-Subject: IDE_PORTS_FINE question
-To: linux-kernel@vger.kernel.org
-Date: Sun, 30 Sep 2001 07:47:41 +0400 (MSD)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272135AbRI3AL5>; Sat, 29 Sep 2001 20:11:57 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:27147 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S272122AbRI3ALm>; Sat, 29 Sep 2001 20:11:42 -0400
+Message-Id: <200109300012.f8U0C1Y58146@aslan.scsiguy.com>
+To: arjan@fenrus.demon.nl
+cc: ookhoi@dds.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-ac17 Adaptec AIC7XXX problems (new driver, old one works fine) 
+In-Reply-To: Your message of "Sat, 29 Sep 2001 15:43:54 BST."
+             <E15nLLO-00027M-00@fenrus.demon.nl> 
+Date: Sat, 29 Sep 2001 18:12:01 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-            Hello folks, i have a Q:
-      Whether the include/linux/ide.h::IDE_PORT_FINE
-  #define have much impact on ide performance, an whether it is
-  safe to set on recent drive/not-so-old controller?
+>Yet another driver with bogus #ifdef around the module.h include.. sigh
 
-thanks, Samium Gromoff
+I believe that this was fixed in v6.2.3 of the aic7xxx driver, but
+I'm not in front of a machine right now where I can check.
+
+--
+Justin

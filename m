@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbTESBw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 21:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbTESBw3
+	id S262306AbTESCKg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 22:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbTESCKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 21:52:29 -0400
-Received: from out002pub.verizon.net ([206.46.170.141]:9664 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S262299AbTESBw2
+	Sun, 18 May 2003 22:10:35 -0400
+Received: from Kona.Carleton.edu ([137.22.93.220]:29371 "EHLO
+	kona.carleton.edu") by vger.kernel.org with ESMTP id S262306AbTESCKe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 21:52:28 -0400
-Date: Sun, 18 May 2003 22:05:17 -0400
-From: "Kevin O'Connor" <kevin@koconnor.net>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: recursive spinlocks. Shoot.
-Message-ID: <20030519020517.GA25691@arizona.localdomain>
-References: <20030518163537.GZ8978@holomorphy.com> <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
-User-Agent: Mutt/1.4i
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [129.44.45.170] at Sun, 18 May 2003 21:05:19 -0500
+	Sun, 18 May 2003 22:10:34 -0400
+Date: Sun, 18 May 2003 21:23:45 -0500
+From: Ethan Sommer <sommere@ethanet.com>
+Subject: [ANNOUNCE] Layer-7 Filter for Linux QoS
+To: linux-kernel@vger.kernel.org
+Message-id: <3EC84031.90300@ethanet.com>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030515
+ Thunderbird/0.1a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 07:24:17PM +0200, Peter T. Breuer wrote:
-> Though I've got quite good at finding and removing deadlocks in my old
-> age, there are still two popular ways that the rest of the world's
-> prgrammers often shoot themselves in the foot with a spinlock:
-> 
->    a) sleeping while holding the spinlock
->    b) taking the spinlock in a subroutine while you already have it
-[...]
-> The second method is used by programmers who aren't aware that some
-> obscure subroutine takes a spinlock, and who recklessly take a lock
-> before calling a subroutine (the very thought sends shivers down my
-> spine ...).
+We have written a filter for the QoS infrastructure that looks at the 
+data segment of packets and uses regular expressions to identify the 
+protocol of a stream of traffic regardless of port number.
 
-Recursive spinlocks only hide the problem - consider programmers who take
-lock B and recklessly call a subroutine that takes lock A followed be lock
-B.  The resulting code will appear to work fine, but may have introduced a
-subtle AB-BA deadlock.  I'd rather have a coding defect that reliably and
-consistently causes a deadlock than one that causes deadlocks in rare
-timing related cases.
+Many peer-to-peer programs (such as Kazaa and Gnucleus) will change to 
+use a different port (including well known ports such as, say, 80) if 
+they find that they can get better throughput there. That means that the 
+port based filtering is no longer sufficient. However, by analyzing the 
+application layer data, we can differentiate Kazaa from non-Kazaa HTTP, 
+and lower the priority of whichever we deem to be less important. :)
 
->A popular scenario involves not /knowing/ that your routine
-> is called by the kernel with some obscure lock already held, and then
-> calling a subroutine that calls the same obscure lock.
+It is a filter in the existing QoS infrastructure, so it can be used in 
+conjunction with u32 filters, HTB or CBQ scheduling, SFQ queueing etc, 
+etc...
 
-If the kernel invokes a callback with an obscure lock held (that is
-promiscuous enough to be grabbed in other helper sub-routines), then its
-probably a bug - why not just fix it?
+Commercial companies sell devices which do layer-7 classification for 
+anywhere from $6000-$80,000 depending on the bandwidth required. If we 
+can build a comprehensive set of patterns I don't see any reason why 
+Linux can't beat the pants off the commercial devices; we already have 
+excellent queueing, and scheduling.
 
--Kevin
+Our home page is http://l7-filter.sourceforge.net/ but if you want to 
+skip right to the downloads go to 
+http://sourceforge.net/projects/l7-filter/ (there is a kernel patch, a 
+patched version of tc, and some sample patterns for HTTP, POP3, IMAP, 
+SSH, Kazaa, and FTP.) You'll notice the patch is a somewhat large, most 
+of that is regexp code.
 
--- 
- ------------------------------------------------------------------------
- | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
- | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
- ------------------------------------------------------------------------
+We're still working on it. It currently only does TCP for example... Do 
+you guys/gals have any comments/suggestions/etc? I suspect that this is 
+a post 2.6 thing, but it is very non-invasive (it only adds approx. 2 
+lines of code that would affect anything if the user were not using the 
+layer-7 filters,) so I still have a little bit of hope.
+
+Ethan Sommer
+Matt Strait
+Justin Levandoski
+

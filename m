@@ -1,92 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315624AbSEIGCr>; Thu, 9 May 2002 02:02:47 -0400
+	id <S315627AbSEIHeD>; Thu, 9 May 2002 03:34:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315626AbSEIGCq>; Thu, 9 May 2002 02:02:46 -0400
-Received: from melancholia.rimspace.net ([210.23.138.19]:33042 "EHLO
-	melancholia.danann.net") by vger.kernel.org with ESMTP
-	id <S315624AbSEIGCq>; Thu, 9 May 2002 02:02:46 -0400
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.14..
-In-Reply-To: <Pine.LNX.4.44.0205060811360.2540-100000@home.transmeta.com>
-	<87n0va0yf0.fsf@enki.rimspace.net> <3CD9FC4C.CDF47565@zip.com.au>
-From: Daniel Pittman <daniel@rimspace.net>
-Organization: Not today, thank you, Mother.
-Date: Thu, 09 May 2002 16:02:38 +1000
-Message-ID: <87pu05q2o1.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
- i686-pc-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315628AbSEIHeC>; Thu, 9 May 2002 03:34:02 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:23633 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S315627AbSEIHeC>; Thu, 9 May 2002 03:34:02 -0400
+Date: Thu, 9 May 2002 09:30:17 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: Joaquin Rapela <rapela@usc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: es1371 sound problem
+Message-Id: <20020509093017.79f29936.kristian.peters@korseby.net>
+In-Reply-To: <20020508142014.A1665@plato.usc.edu>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: i686-redhat-linux 2.4.18-ac3
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 May 2002, Andrew Morton wrote:
-> Daniel Pittman wrote:
->> On Mon, 6 May 2002, Linus Torvalds wrote:
->> > On Mon, 6 May 2002, Daniel Pittman wrote:
->> >>
->> >> From the look of the changelog at least a few of the file
->> >> corruption bugs with ext3, 2k block file systems and 2.5 have been
->> >> fixed. Should I expect this release to address the problems I was
->> >> seeing?
->> >
->> > "Expect" is too strong a word. I'd say "hope" - a number of
->> > truncate bugs were fixed, but whether that was what bit you, nobody
->> > knows.
->> >
->> > I suspect the real answer is that we'd love for you to test things
->> > out, but that if it ends up being too painful to recover if the
->> > problems happen again, you probably shouldn't..
->> 
->> Right. I got brave enough to test it on a real, live system after
->> extensive fake testing. It seems to work well, at least so far as
->> running the same workload that cause massive file corruption
->> correctly.
+Joaquin Rapela <rapela@usc.edu> wrote:
+> Just for fun I tried "options es1371 irq=5 dma=1" in /etc/modules.conf but I
+> cannot change the irq mapping of es1371.
+
+Yes. Seems like that module has not those options.
+
+> From what I read from /var/log/messages the frozen state concludes when the
+> module unloads:
 > 
-> hmm.
+> May  8 12:08:39 vpl kernel: ac97_codec: AC97 Audio codec, id: 0x4352:0x5903
+> (Cirrus Logic CS4297)
 
-Not conclusive, I know, but getting a panic after a brief test stopped
-it at that point. :)
+  ^^^^^^^^^^^^^ 
+     Maybe you own a Cirrus Logic soundcard instead ?
+     ac97 reports that your soundcard uses a codec from Cirrus L.
+     See /usr/src/linux/Documentation/sound/cs46xx maybe
+     It could be possible that your sndconfig from RedHat detects a wrong one..
 
->> So, I believe that 2.5.14 is working correctly with 2k ext3
->> filesystems, at least for minimal use. I didn't do any sort of
->> extreme load testing or anything like that, being cautious about it.
-> 
-> I've been testing 2.5.14 pretty hard for a couple of days.
+> post-install sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -L >/dev/null 2>&1
+> || :
+> pre-remove sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -S >/dev/null 2>&1
+> || :  
 
-[...]
+These entries only save and restore your mixer settings before/after (un)loading sound-slot-0.
+So you can try to modprobe cs46xx or cs4232 for a Cirrus Logic Soundcard - but I suspect that this won't work correctly. Or try to load ac97_codec and ac97 only. Those es1371 soundcards have 2 dsps. ;-) But one should be enough for now.
 
-> ext3-journalled is not happy.
+If your model is not a Creative one try to use ES1370. Try lspci -n for that.
+The PCI ID "1274:1371" should indicate that your card is from Creative, the ID "1274:5000" incidates that it is from Ensoniq.
 
-Which probably explains my error, then, as I have not stepped back from
-data journaled mode on my system.
+*Kristian
 
-[...]
-
-> There's a known race between unmount and writeback which is probably
-> impossible to trigger.  (see the FIXME at __sync_list).  Testing the
-> fix for that at present.
-
-Well, unmount wouldn't have happened for quite a long time in the
-shutdown process, given it was at the initial 'send SIGTERM' stage...
-
-[...]
-
-> So unless you're a JFS or ext3-journalled user, 2.5.14 is OK.
-
-The latter. Ah, well, at least you know. 
-
-[...]
-
-> 04 60 -> line 1120.  Yup, I get that one too.  I assume you were
-> testing with data=journal.
-
-Confirmed.
-        Daniel
-
--- 
-No, no, you're not thinking, you're just being logical.
-        -- Niels Bohr
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ :: http://gsmp.sf.net         _\_V
+  :.........................:

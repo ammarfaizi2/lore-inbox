@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264564AbTLHGlN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 01:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264567AbTLHGlN
+	id S264567AbTLHHNE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 02:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264584AbTLHHNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 01:41:13 -0500
-Received: from mail.willden.org ([63.226.98.113]:65154 "EHLO zedd.willden.org")
-	by vger.kernel.org with ESMTP id S264564AbTLHGlL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 01:41:11 -0500
-From: Shawn Willden <shawn-lkml@willden.org>
-To: "Jeremy Maitin-Shepard" <jbms@attbi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Additional clauses to GPL in network drivers
-Date: Sun, 7 Dec 2003 23:40:56 -0700
-User-Agent: KMail/1.5.93
-Cc: "David Schwartz" <davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKAEMBIIAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEMBIIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200312072341.07645.shawn-lkml@willden.org>
+	Mon, 8 Dec 2003 02:13:04 -0500
+Received: from ns0.asml.nl ([194.105.121.194]:60156 "EHLO nlvdhx10.asml.nl")
+	by vger.kernel.org with ESMTP id S264567AbTLHHNA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 02:13:00 -0500
+From: Tim Timmerman <Tim.Timmerman@asml.com>
+Message-ID: <16340.9329.913657.900605@asml.com>
+Date: Mon, 8 Dec 2003 08:12:49 +0100
+To: "Mark Symonds" <mark@symonds.net>, linux-kernel@vger.kernel.org
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+In-Reply-To: <008501c3bd18$697361e0$7a01a8c0@gandalf>
+References: <Pine.LNX.4.44.0312071236430.1283-100000@logos.cnet>
+	<008501c3bd18$697361e0$7a01a8c0@gandalf>
+X-Mailer: VM 7.15 under Emacs 21.3.2
+X-NAIMIME-Disclaimer: 1
+Content-Type: Text/Plain
+X-NAIMIME-Modified: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>>>>> "Mark" == Mark Symonds <mark@symonds.net> writes:
 
-On Sunday 07 December 2003 08:51 pm, David Schwartz wrote:
+Mark> Hi,
 
-> 	It is definitely redundant. The idea is that if a portion of the
-> distribution ever winds up somewhere, the terms are still clear. 
+>> 
+>> The first oops looks like:
+>> 
+>> Unable to handle kernel NULL pointer
+>> dereference at virtual address: 00000000
+>> 
+Mark> [...]
 
-The FSF recommends including a notice in every file, also.  The text they 
-suggest is:
+Mark> I'm using ipchains compatability in there, looks like 
+Mark> this is a possible cause - getting a patch right now,
+Mark> will test and let y'all know (and then switch to 
+Mark> iptables, finally). 
+      Let me just add a me-too here. 
 
-    This file is part of Foobar.
+      Haven't got the oops on my desk, here, but from what I could
+      see, the error occurred in find_appropriate_src, somewhere in
+      ipchains.  
 
-    Foobar is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+      Further, possibly irrelevant datapoint: ABIT BP6, ne2k-pci and
+      3Com590 network cards. When the oops occurs, everything locks,
+      capslock and scrolllock are lit. 
 
-    Foobar is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+      I can reproduce the error by letting a second system ping the
+      first, on the internal network. Sometimes it doesn't even
+      complete a full boot. 
+      
+      I'll try and capture more detail tonight. 
 
-    You should have received a copy of the GNU General Public License
-    along with Foobar; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+      TimT.
+
+-- 
+tim.timmerman@asml.nl                              040-2683613
+timt@timt.org   Voodoo Programmer/Keeper of the Rubber Chicken
+One time I went to a museum where all the work in the museum had been
+done by children. They had all the paintings up on refrigerators. 
 
 
-http://www.fsf.org/licenses/gpl-howto.html
 
-For Linux the first paragraph would have to be modified to harmonized with 
-Linus' choice of GPL version.
+-- 
+The information contained in this communication and any attachments is confidential and may be privileged, and is for the sole use of the intended recipient(s). Any unauthorized review, use, disclosure or distribution is prohibited. If you are not the intended recipient, please notify the sender immediately by replying to this message and destroy all copies of this message and any attachments. ASML is neither liable for the proper and complete transmission of the information contained in this communication, nor for any delay in its receipt.
 
-	Shawn.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/1Bz7p1Ep1JptinARAiGVAJ9yQLLS5O03rvIVAl5AI36ykn19qACfR/YX
-z9L47JHDCRF5Xt5ovP+Pkr4=
-=LXA4
------END PGP SIGNATURE-----

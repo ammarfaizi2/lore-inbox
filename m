@@ -1,82 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264500AbRFJFJZ>; Sun, 10 Jun 2001 01:09:25 -0400
+	id <S264501AbRFJFyf>; Sun, 10 Jun 2001 01:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264501AbRFJFJP>; Sun, 10 Jun 2001 01:09:15 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:20145 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id <S264500AbRFJFJG>; Sun, 10 Jun 2001 01:09:06 -0400
-Date: Sun, 10 Jun 2001 00:08:50 -0500
-From: "Glenn C. Hofmann" <ghofmann@pair.com>
+	id <S264502AbRFJFyZ>; Sun, 10 Jun 2001 01:54:25 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:32533 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S264501AbRFJFyT>; Sun, 10 Jun 2001 01:54:19 -0400
+Date: Sun, 10 Jun 2001 01:54:13 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: <hofmang@ibm.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
 In-Reply-To: <3B22CEF9.6DEB1A66@uow.edu.au>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Reply-to: ghofmann@pair.com
-Message-id: <3B22BA92.11992.4CE351@localhost>
-MIME-version: 1.0
-X-Mailer: Pegasus Mail for Win32 (v3.12c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+Message-ID: <Pine.LNX.4.33.0106100151090.9384-100000@toomuch.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, 
-Although I don't run  
-Redhat, your response  
-tells me that, even though I 
- was feeling that it was a  
-kernel problem, it could be  
-a userspace issue, which I  
-also suspected.  Debian  
-updated their nettools  
-today, so I will see if that  
-helps in any way.  Thanks  
-for your help.  If you think 
-of anything else that might 
-be an issue, please let me 
-know.  
+On Sun, 10 Jun 2001, Andrew Morton wrote:
 
-Glenn C. Hofmann 
-
-Andrew wrote:
-
-Date sent:      	Sun, 10 Jun 2001 11:35:53 +1000
-From:           	Andrew Morton <andrewm@uow.edu.au>
-Subject:        	Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-To:             	hofmang@ibm.net
-Copies to:      	linux-kernel@vger.kernel.org
-
-> "Glenn C. Hofmann" wrote:
-> > 
-> > I have tried 2.4.5-pre2 up to 2.4.6-pre1 with the same results. 
-> > Everything boots great and I can login fine.  When I try to assign
-> > an IP via DHCP or ifconfig, the system sits and stares at me
-> > indefinitely.  2.4.5-pre4 didn't compile for me, but pre3 works fine
-> > and pre5 locks.  There is keyboard response, and Alt-SysRq will tell
-> > me that it knows I want it to sync the disks, but won't actually do
-> > it.  It will reboot, though.  I can switch between terminals, but
-> > cannot type anything at the login prompt.
-> > 
-> > The board is a Abit KT7-RAID.  I have waited to see if this issue
-> > has been resolved and will recompile the newer kernels (AC and Linus
-> > flavours) to see if it has cleared up, but wanted to see if maybe
-> > there is something else I should look at.  I can provide any more
-> > information that might help, so please let me know.  Thanks in
-> > advance.
-> 
 > There's a problem in some versions of `pump' where it gets
 > confused and ends up spinning indefinitely.  If you're using
 > pump could you please try the latest RPM?
-> 
-> If that doesn't help, and if you're unable to kill pump
-> with ^C, and if other virtual consoles are not responding then
-> it could be a kernel problem - try hitting sysrq-T and feeding
-> the resulting logs through `ksymoops -m System.map'
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+I doubt it's related to pump: a few times I've seen the 3c59x driver drop
+the first few transmit packets.  Try loading the driver as a module and
+putting the whole modprobe ; ifconfig ; ping <somehost> set of commands
+into a script and watch what happens.  This goes for all ethernet driver
+writers.
+
+		-ben
 

@@ -1,38 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271072AbRH2AS5>; Tue, 28 Aug 2001 20:18:57 -0400
+	id <S271085AbRH2AOQ>; Tue, 28 Aug 2001 20:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271129AbRH2ASr>; Tue, 28 Aug 2001 20:18:47 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:44228 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S271072AbRH2ASb>; Tue, 28 Aug 2001 20:18:31 -0400
-Date: Wed, 29 Aug 2001 02:25:37 +0200 (CEST)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Can't compile HiSaX into 2.2.20pre9 kernel
-In-Reply-To: <Pine.LNX.4.33.0108290052010.8607-100000@neptune.sol.net>
-Message-ID: <Pine.LNX.4.33.0108290222470.890-100000@neptune.sol.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271072AbRH2AOG>; Tue, 28 Aug 2001 20:14:06 -0400
+Received: from [211.100.85.144] ([211.100.85.144]:38404 "HELO linux.tcpip.cxm")
+	by vger.kernel.org with SMTP id <S271085AbRH2ANw>;
+	Tue, 28 Aug 2001 20:13:52 -0400
+Date: Wed, 29 Aug 2001 08:14:11 +0800
+From: hugang <linuxbest@soul.com.cn>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: gero@gkminix.han.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: A patch for dhcp and nfsroot.
+Message-Id: <20010829081411.753c1d1b.linuxbest@soul.com.cn>
+Organization: soul
+X-Mailer: Sylpheed version 0.5.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Wed__29_Aug_2001_08:14:11_+0800_08d33b40"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Aug 2001, Pascal Schmidt wrote:
+This is a multi-part message in MIME format.
 
-> The strange thing is, the drivers/isdn/isdn.a included above defines
-> the symbol:
-> /usr/src/linux-2.2.20pre9 # nm -a drivers/isdn/isdn.a | grep HiSax_setup
-> 0000043c t HiSax_setup
+--Multipart_Wed__29_Aug_2001_08:14:11_+0800_08d33b40
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
 
-Whooops, silly me. The problem is of course that the small "t" indicates
-that HiSax_setup is a local symbol here, where it should be global and
-shown as "T". It works with 2.2.19 because there HiSax_setup is a global
-symbol.
+Alan Cox:
+	Hello.
 
-Fix should be easy, though I don't know how to fix it. ;)
+	This is my first kernel patch . It change the kernel dhcp auto config to module. So we can dynamic insmod the net card before insmod dhcp .This is useful to disaster recover linux.
 
 -- 
-Ciao, Pascal
+Best Regard!
+礼！
+----------------------------------------------------
+hugang : 胡刚 	GNU/Linux User
+email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+Tel    : +861068425741/2/3/4
+Web    : http://www.soul.com.cn
 
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
+	Beijing Soul technology Co.Ltd.
+	   北京众志和达科技有限公司
+----------------------------------------------------
 
+--Multipart_Wed__29_Aug_2001_08:14:11_+0800_08d33b40
+Content-Type: application/octet-stream;
+ name="nfsroot.patch"
+Content-Disposition: attachment;
+ filename="nfsroot.patch"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdSAtciBsaW51eC1rZXJuZWwvZnMvQ29uZmlnLmluIGxpbnV4LW5mc3JvdC9mcy9Db25m
+aWcuaW4KLS0tIGxpbnV4LWtlcm5lbC9mcy9Db25maWcuaW4JVHVlIEp1bCAgMyAwNTowMzowNCAy
+MDAxCisrKyBsaW51eC1uZnNyb3QvZnMvQ29uZmlnLmluCVNhdCBBdWcgMjUgMDA6NTk6MjMgMjAw
+MQpAQCAtODAsNyArODAsNyBAQAogICAgZGVwX3RyaXN0YXRlICdDb2RhIGZpbGUgc3lzdGVtIHN1
+cHBvcnQgKGFkdmFuY2VkIG5ldHdvcmsgZnMpJyBDT05GSUdfQ09EQV9GUyAkQ09ORklHX0lORVQK
+ICAgIGRlcF90cmlzdGF0ZSAnTkZTIGZpbGUgc3lzdGVtIHN1cHBvcnQnIENPTkZJR19ORlNfRlMg
+JENPTkZJR19JTkVUCiAgICBkZXBfbWJvb2wgJyAgUHJvdmlkZSBORlN2MyBjbGllbnQgc3VwcG9y
+dCcgQ09ORklHX05GU19WMyAkQ09ORklHX05GU19GUwotICAgZGVwX2Jvb2wgJyAgUm9vdCBmaWxl
+IHN5c3RlbSBvbiBORlMnIENPTkZJR19ST09UX05GUyAkQ09ORklHX05GU19GUyAkQ09ORklHX0lQ
+X1BOUAorICAgZGVwX2Jvb2wgJyAgUm9vdCBmaWxlIHN5c3RlbSBvbiBORlMnIENPTkZJR19ST09U
+X05GUyAkQ09ORklHX05GU19GUwogCiAgICBkZXBfdHJpc3RhdGUgJ05GUyBzZXJ2ZXIgc3VwcG9y
+dCcgQ09ORklHX05GU0QgJENPTkZJR19JTkVUCiAgICBkZXBfbWJvb2wgJyAgUHJvdmlkZSBORlN2
+MyBzZXJ2ZXIgc3VwcG9ydCcgQ09ORklHX05GU0RfVjMgJENPTkZJR19ORlNECmRpZmYgLXUgLXIg
+bGludXgta2VybmVsL2ZzL25mcy9uZnNyb290LmMgbGludXgtbmZzcm90L2ZzL25mcy9uZnNyb290
+LmMKLS0tIGxpbnV4LWtlcm5lbC9mcy9uZnMvbmZzcm9vdC5jCUZyaSBBdWcgMTcgMDA6NTU6NTIg
+MjAwMQorKysgbGludXgtbmZzcm90L2ZzL25mcy9uZnNyb290LmMJU2F0IEF1ZyAyNSAwMDo1OToy
+MyAyMDAxCkBAIC04Miw2ICs4Miw3IEBACiAjaW5jbHVkZSA8bGludXgvbWFqb3IuaD4KICNpbmNs
+dWRlIDxsaW51eC91dHNuYW1lLmg+CiAjaW5jbHVkZSA8bmV0L2lwY29uZmlnLmg+CisjaW5jbHVk
+ZSA8bGludXgvbW9kdWxlLmg+CiAKIC8qIERlZmluZSB0aGlzIHRvIGFsbG93IGRlYnVnZ2luZyBv
+dXRwdXQgKi8KICN1bmRlZiBORlNST09UX0RFQlVHCkBAIC0xMDQsNiArMTA1LDggQEAKIHN0YXRp
+YyBpbnQgbmZzX3BvcnQgX19pbml0ZGF0YSA9IDA7CQkvKiBQb3J0IHRvIGNvbm5lY3QgdG8gZm9y
+IE5GUyAqLwogc3RhdGljIGludCBtb3VudF9wb3J0IF9faW5pdGRhdGEgPSAwOwkJLyogTW91bnQg
+ZGFlbW9uIHBvcnQgbnVtYmVyICovCiAKK3UzMiByb290X3NlcnZlcl9hZGRyIF9faW5pdGRhdGEg
+ID0gSU5BRERSX05PTkU7ICAgICAvKiBBZGRyZXNzIG9mIE5GUyBzZXJ2ZXIgKi8KK3U4IHJvb3Rf
+c2VydmVyX3BhdGhbMjU2XSBfX2luaXRkYXRhID0geyAwLCB9IDsgICAgICAvKiBQYXRoIHRvIG1v
+dW50IGFzIHJvb3QgKi8KIAogLyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgogCkBAIC00NjQsMyArNDY3LDUg
+QEAKIAlzZXRfc29ja2FkZHIoKHN0cnVjdCBzb2NrYWRkcl9pbiAqKSAmbmZzX2RhdGEuYWRkciwg
+c2VydmFkZHIsIG5mc19wb3J0KTsKIAlyZXR1cm4gKHZvaWQqKSZuZnNfZGF0YTsKIH0KK0VYUE9S
+VF9TWU1CT0wocm9vdF9zZXJ2ZXJfYWRkcik7CitFWFBPUlRfU1lNQk9MKHJvb3Rfc2VydmVyX3Bh
+dGgpOwpkaWZmIC11IC1yIGxpbnV4LWtlcm5lbC9pbmNsdWRlL25ldC9pcGNvbmZpZy5oIGxpbnV4
+LW5mc3JvdC9pbmNsdWRlL25ldC9pcGNvbmZpZy5oCi0tLSBsaW51eC1rZXJuZWwvaW5jbHVkZS9u
+ZXQvaXBjb25maWcuaAlXZWQgTWF5ICAyIDExOjU5OjI0IDIwMDEKKysrIGxpbnV4LW5mc3JvdC9p
+bmNsdWRlL25ldC9pcGNvbmZpZy5oCVNhdCBBdWcgMjUgMDA6NTk6MjMgMjAwMQpAQCAtMjEsNyAr
+MjEsNyBAQAogZXh0ZXJuIHUzMiBpY19zZXJ2YWRkcjsJCS8qIEJvb3Qgc2VydmVyIElQIGFkZHJl
+c3MgKi8KIAogZXh0ZXJuIHUzMiByb290X3NlcnZlcl9hZGRyOwkvKiBBZGRyZXNzIG9mIE5GUyBz
+ZXJ2ZXIgKi8KLWV4dGVybiB1OCByb290X3NlcnZlcl9wYXRoW107CS8qIFBhdGggdG8gbW91bnQg
+YXMgcm9vdCAqLworZXh0ZXJuIHU4IHJvb3Rfc2VydmVyX3BhdGhbMjU2XTsJLyogUGF0aCB0byBt
+b3VudCBhcyByb290ICovCiAKIAogCkBAIC0zNiwzICszNiw0IEBACiAjZGVmaW5lIElDX0JPT1RQ
+CTB4MDEJLyogICBCT09UUCAob3IgREhDUCwgc2VlIGJlbG93KSAqLwogI2RlZmluZSBJQ19SQVJQ
+CQkweDAyCS8qICAgUkFSUCAqLwogI2RlZmluZSBJQ19VU0VfREhDUCAgICAweDEwMAkvKiBJZiBv
+biwgdXNlIERIQ1AgaW5zdGVhZCBvZiBCT09UUCAqLworCmRpZmYgLXUgLXIgbGludXgta2VybmVs
+L25ldC9jb3JlL2Rldi5jIGxpbnV4LW5mc3JvdC9uZXQvY29yZS9kZXYuYwotLS0gbGludXgta2Vy
+bmVsL25ldC9jb3JlL2Rldi5jCUZyaSBBdWcgMTcgMDA6NTY6MTAgMjAwMQorKysgbGludXgtbmZz
+cm90L25ldC9jb3JlL2Rldi5jCVNhdCBBdWcgMjUgMDA6NTk6MjMgMjAwMQpAQCAtMjgxOCwzICsy
+ODE4LDUgQEAKIAlyZXR1cm4gY2FsbF91c2VybW9kZWhlbHBlcihhcmd2IFswXSwgYXJndiwgZW52
+cCk7CiB9CiAjZW5kaWYKKworRVhQT1JUX1NZTUJPTChkZXZfY2hhbmdlX2ZsYWdzKTsKZGlmZiAt
+dSAtciBsaW51eC1rZXJuZWwvbmV0L2lwdjQvQ29uZmlnLmluIGxpbnV4LW5mc3JvdC9uZXQvaXB2
+NC9Db25maWcuaW4KLS0tIGxpbnV4LWtlcm5lbC9uZXQvaXB2NC9Db25maWcuaW4JV2VkIE1heSAg
+MiAxMTo1OToyNCAyMDAxCisrKyBsaW51eC1uZnNyb3QvbmV0L2lwdjQvQ29uZmlnLmluCVNhdCBB
+dWcgMjUgMDA6NTk6MjMgMjAwMQpAQCAtMTgsOCArMTgsOCBAQAogICAgYm9vbCAnICAgIElQOiB2
+ZXJib3NlIHJvdXRlIG1vbml0b3JpbmcnIENPTkZJR19JUF9ST1VURV9WRVJCT1NFCiAgICBib29s
+ICcgICAgSVA6IGxhcmdlIHJvdXRpbmcgdGFibGVzJyBDT05GSUdfSVBfUk9VVEVfTEFSR0VfVEFC
+TEVTCiBmaQotYm9vbCAnICBJUDoga2VybmVsIGxldmVsIGF1dG9jb25maWd1cmF0aW9uJyBDT05G
+SUdfSVBfUE5QCi1pZiBbICIkQ09ORklHX0lQX1BOUCIgPSAieSIgXTsgdGhlbgordHJpc3RhdGUg
+JyAgSVA6IGtlcm5lbCBsZXZlbCBhdXRvY29uZmlndXJhdGlvbicgQ09ORklHX0lQX1BOUAoraWYg
+WyAiJENPTkZJR19JUF9QTlAiICE9ICJuIiAgXTsgdGhlbgogICAgYm9vbCAnICAgIElQOiBESENQ
+IHN1cHBvcnQnIENPTkZJR19JUF9QTlBfREhDUAogICAgYm9vbCAnICAgIElQOiBCT09UUCBzdXBw
+b3J0JyBDT05GSUdfSVBfUE5QX0JPT1RQCiAgICBib29sICcgICAgSVA6IFJBUlAgc3VwcG9ydCcg
+Q09ORklHX0lQX1BOUF9SQVJQCmRpZmYgLXUgLXIgbGludXgta2VybmVsL25ldC9pcHY0L2lwY29u
+ZmlnLmMgbGludXgtbmZzcm90L25ldC9pcHY0L2lwY29uZmlnLmMKLS0tIGxpbnV4LWtlcm5lbC9u
+ZXQvaXB2NC9pcGNvbmZpZy5jCVdlZCBNYXkgIDIgMTE6NTk6MjQgMjAwMQorKysgbGludXgtbmZz
+cm90L25ldC9pcHY0L2lwY29uZmlnLmMJU2F0IEF1ZyAyNSAwMToxMTowMyAyMDAxCkBAIC0xMjMs
+OCArMTIzLDggQEAKIAogdTMyIGljX3NlcnZhZGRyIF9faW5pdGRhdGEgPSBJTkFERFJfTk9ORTsJ
+LyogQm9vdCBzZXJ2ZXIgSVAgYWRkcmVzcyAqLwogCi11MzIgcm9vdF9zZXJ2ZXJfYWRkciBfX2lu
+aXRkYXRhID0gSU5BRERSX05PTkU7CS8qIEFkZHJlc3Mgb2YgTkZTIHNlcnZlciAqLwotdTggcm9v
+dF9zZXJ2ZXJfcGF0aFsyNTZdIF9faW5pdGRhdGEgPSB7IDAsIH07CS8qIFBhdGggdG8gbW91bnQg
+YXMgcm9vdCAqLworLy91MzIgcm9vdF9zZXJ2ZXJfYWRkciBfX2luaXRkYXRhID0gSU5BRERSX05P
+TkU7CS8qIEFkZHJlc3Mgb2YgTkZTIHNlcnZlciAqLworLy91OCByb290X3NlcnZlcl9wYXRoWzI1
+Nl0gX19pbml0ZGF0YSA9IHsgMCwgfTsJLyogUGF0aCB0byBtb3VudCBhcyByb290ICovCiAKIC8q
+IFBlcnNpc3RlbnQgZGF0YTogKi8KIApAQCAtMTIxMiw3ICsxMjEyLDcgQEAKIAlyZXR1cm4gMDsK
+IH0KIAotbW9kdWxlX2luaXQoaXBfYXV0b19jb25maWcpOworLy9tb2R1bGVfaW5pdChpcF9hdXRv
+X2NvbmZpZyk7CiAKIAogLyoKQEAgLTEzNDAsNSArMTM0MCwxMyBAQAogCXJldHVybiBpcF9hdXRv
+X2NvbmZpZ19zZXR1cChhZGRycyk7CiB9CiAKK2ludCBpbml0X21vZHVsZSh2b2lkKQoreworI2lm
+ZGVmIE1PRFVMRQorICBpY19lbmFibGUgPSAxOworI2VuZGlmCisgIGlwX2F1dG9fY29uZmlnKCk7
+CisgIHJldHVybiAwOworfQogX19zZXR1cCgiaXA9IiwgaXBfYXV0b19jb25maWdfc2V0dXApOwog
+X19zZXR1cCgibmZzYWRkcnM9IiwgbmZzYWRkcnNfY29uZmlnX3NldHVwKTsK
+
+--Multipart_Wed__29_Aug_2001_08:14:11_+0800_08d33b40--

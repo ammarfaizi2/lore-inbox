@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262189AbRENDE3>; Sun, 13 May 2001 23:04:29 -0400
+	id <S262229AbRENDJi>; Sun, 13 May 2001 23:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262229AbRENDES>; Sun, 13 May 2001 23:04:18 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:43018 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S262189AbRENDEB>; Sun, 13 May 2001 23:04:01 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Hacksaw <hacksaw@hacksaw.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Message-ID: <86256A4C.0010B683.00@smtpnotes.altec.com>
-Date: Sun, 13 May 2001 21:59:07 -0500
-Subject: Re: Not a typewriter
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S262232AbRENDJ2>; Sun, 13 May 2001 23:09:28 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49157 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262229AbRENDJR>;
+	Sun, 13 May 2001 23:09:17 -0400
+Date: Mon, 14 May 2001 00:09:08 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+In-Reply-To: <200105140239.f4E2dNd08399@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.21.0105140007400.4671-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 13 May 2001, Richard Gooch wrote:
+> Larry McVoy writes:
 
+> > Ha.  For once you're both wrong but not where you are thinking.  One
+> > of the few places that I actually hacked Linux was for exactly this
+> > - it was in the 0.99 days I think.  I saved the list of I/O's in a
+> > file and filled the buffer cache with them at next boot.  It
+> > actually didn't help at all.
+> 
+> Maybe you did something wrong :-)
 
-On 05/13/2001 at 08:03:30 PM Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-wrote:
+How about "the data loads got instrumented, but the metadata
+loads which caused over half of the disk seeks didn't" ?
 
->The old C compiler/old Unix linker guaranteed 6 chars in an external symbol
->name only, and C functions got an underscore prepended: _creat. I guess
->this is the reason for this wart. As to why 6 chars only, I'd guess some
->data structure in the linker was laid out that way. Machines had a few
->dozen Kbs of RAM then, space was precious.
+(just a wild guess ... if it turns out to be true we may want
+to look into doing agressive readahead on inode blocks ;))
 
-I've always thought it was just an arbitrary decision, based on the general Unix
-custom of shortnening names by removing vowels, especially since Ken Thompson
-later said he'd spell it "create" if he had it to do over again.  But your
-explanation sounds more likely.  I really should have thought of this, since I
-used to run into problems with non-unique names under the Minix linker (which,
-IIRC, had the same 6 char limit).
+regards,
 
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

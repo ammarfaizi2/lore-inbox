@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbTDHWnt (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbTDHWnt (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:43:49 -0400
-Received: from galileo.bork.org ([66.11.174.148]:6155 "HELO galileo.bork.org")
-	by vger.kernel.org with SMTP id S262197AbTDHWnr (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 18:43:47 -0400
-Date: Tue, 8 Apr 2003 18:55:23 -0400
-From: Martin Hicks <mort@wildopensource.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Jes Sorensen <jes@wildopensource.com>,
-       linux-kernel@vger.kernel.org, wildos@sgi.com
-Subject: Re: [patch] printk subsystems
-Message-ID: <20030408225523.GB3413@bork.org>
-References: <20030407201337.GE28468@bork.org> <20030408184109.GA226@elf.ucw.cz> <m3k7e4ycys.fsf@trained-monkey.org> <20030408210251.GA30588@atrey.karlin.mff.cuni.cz> <3E933AB2.8020306@zytor.com> <20030408215703.GA1538@atrey.karlin.mff.cuni.cz> <3E934793.8070801@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E934793.8070801@zytor.com>
-User-Agent: Mutt/1.5.4i
+	id S262198AbTDHWpA (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDHWpA (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:45:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49835 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262198AbTDHWo6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 18:44:58 -0400
+Message-ID: <3E93538C.9010306@pobox.com>
+Date: Tue, 08 Apr 2003 18:56:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@brodo.de>
+Subject: Re: [PATCHES 2.5.67] PCMCIA hotplugging, in-kernel-matching and depmod
+ support
+References: <20030408223111.GA25785@bougret.hpl.hp.com>
+In-Reply-To: <20030408223111.GA25785@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, Apr 08, 2003 at 03:05:07PM -0700, H. Peter Anvin wrote:
-> Pavel Machek wrote:
-> > 
-> > Well, #define DEBUG in the driver seems like the way to go. I do not
-> > like "subsystem ID" idea, because subsystems are not really well
-> > defined etc.
-> >
+Jean Tourrilhes wrote:
+> Jeff Garzik wrote :
+>>That was a big stumbling block when I last looked at the "big picture"
+>>for pcmcia -- in-kernel drivers still required probe assistance from
+>>userspace via the /etc/pcmcia/* bindings.
 > 
-> I think that's a non-issue, because it's largely self-defining.  It's
-> basically whatever the developers want them to be, because they're the
-> ones who it needs to make sense to.
+> 
+> 	No ! Please don't do that, it will only bring madness.
 
-Exactly right.  The worst cases are: 1) developers  assign messages
-to a completely wrong subsystem or 2) don't assign the printk to any
-subsystem, in which case we're in exactly the same situation as we are
-in now.
+Nope.  It's already a solved problem :)  More below...
 
-> It should, however, be an open set, not a closed set like in syslog.
 
-I agree.  I'll try to make it as easy as possible to add another
-subsystem.
+> 	Example :
+> 	Lucent/Agere Orinoco wireless card :
+> 		manfid 0x0156,0x0002
+> 		possible drivers : wlan_cs ; orinoco_cs
+> 	Intersil PrismII and clones (Linksys, ...) :
+> 		manfid 0x0156,0x0002
+> 		possible drivers : prism2_cs ; hostap_cs
+> 
+> 	Please explain me in details how your stuff will cope with the
+> above, and how to make sure the right driver is loaded in every case
+> and how user can control this.
+> 	If your scheme can't cope with the simple real life example
+> above (I've got those cards on my desk, and those drivers on my disk),
+> then it's no good to me.
 
-I'm going to work on the sysctl interface for this next.
+These cases already exist for PCI, so pcmcia behavior should follow what 
+the kernel does when the PCI core sees such.
 
-mh
+	Jeff
 
--- 
-Wild Open Source Inc.                  mort@wildopensource.com
+
+

@@ -1,57 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbTAJIIE>; Fri, 10 Jan 2003 03:08:04 -0500
+	id <S264001AbTAJIEw>; Fri, 10 Jan 2003 03:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbTAJIIE>; Fri, 10 Jan 2003 03:08:04 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:13486 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S264625AbTAJIIC> convert rfc822-to-8bit; Fri, 10 Jan 2003 03:08:02 -0500
-content-class: urn:content-classes:message
-Subject: RE: detecting hyperthreading in linux 2.4.19
-Date: Fri, 10 Jan 2003 00:16:39 -0800
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1912E20B@fmsmsx405.fm.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: detecting hyperthreading in linux 2.4.19
-Thread-Index: AcK4d2l7Ug2YIiRpEdewVwBQi2jYqAAB2L6Q
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Mikael Pettersson" <mikpe@csd.uu.se>, <jamesclv@us.ibm.com>
-Cc: "Jason Lunz" <lunz@falooley.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Jan 2003 08:16:39.0959 (UTC) FILETIME=[9A0BE270:01C2B880]
+	id <S264010AbTAJIEv>; Fri, 10 Jan 2003 03:04:51 -0500
+Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4320
+	"EHLO kanoe.ludicrus.net") by vger.kernel.org with ESMTP
+	id <S264001AbTAJIEu>; Fri, 10 Jan 2003 03:04:50 -0500
+Date: Fri, 10 Jan 2003 00:12:42 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Re: nForce IDE in 2.5?
+Message-ID: <20030110081242.GA1750@kamui>
+References: <20030110073530.GA6681@kamui>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+In-Reply-To: <20030110073530.GA6681@kamui>
+User-Agent: Mutt/1.4i
+From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> -----Original Message-----
-> From: Mikael Pettersson [mailto:mikpe@csd.uu.se]
-> 
-> My performance monitoring counters driver uses this approach 
-> in kernel-space
-> using smp_call_function(). I don't use the siblings tables 
-> because they suck :-)
-> [I don't think they distinguish between logical CPUs #0 and 
-> #1, and they aren't
-> exported to modules. The CPUID check is simple and portable 
-> across kernel versions.]
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I believe it is better to use a OS interface to find out HT, rather than 
-using CPUID. The reason being, it is possible to have HT disabled, in OS,
-even after processor and the BIOS supports it. 
-1) Consider the case when processor and BIOS supports HT, but linux
-was booted with "noht" boot option (now I am not sure whether that option is 
-there in 2.4.19. But is is certainly there in some other kernels).
-2) What about some other kernel which is totally ignorant about HT, and 
-doesn't initialize logical processor (kernel which looks at MPS in place
-of ACPI)
-I think, in both these cases cpuid can still say HT is present.
+Bleh, ignore me. I just read the archives
 
-I know that sibling table is not exported. But I couldn't get your other
-comment about sibling table "they distinguish between logical CPUs #0 and #1:"
-Can you elaborate..
+-Josh
 
-Thanks,
--Venkatesh
+On Thu, Jan 09, 2003 at 11:35:30PM -0800, Joshua M. Kwan wrote:
+> It's missing a PCI identifier variable for the chipset itself, and if I=
+=20
+> knew what its value is supposed to be, or where to put it, I would make=
+=20
+> a patch for it.. =3D\
+>=20
+> Attached is the error log from the build. I am using 2.5.x-current...
+>=20
+> Regards
+> Josh
+
+> In file included from drivers/ide/pci/nvidia.c:29:
+> drivers/ide/pci/nvidia.h:35: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclared=
+ here (not in a function)
+> drivers/ide/pci/nvidia.h:35: initializer element is not constant
+> drivers/ide/pci/nvidia.h:35: (near initialization for `nvidia_chipsets[0]=
+.device')
+> drivers/ide/pci/nvidia.h:43: initializer element is not constant
+> drivers/ide/pci/nvidia.h:43: (near initialization for `nvidia_chipsets[0]=
+.enablebits[0]')
+> drivers/ide/pci/nvidia.h:43: initializer element is not constant
+> drivers/ide/pci/nvidia.h:43: (near initialization for `nvidia_chipsets[0]=
+.enablebits[1]')
+> drivers/ide/pci/nvidia.h:43: initializer element is not constant
+> drivers/ide/pci/nvidia.h:43: (near initialization for `nvidia_chipsets[0]=
+.enablebits')
+> drivers/ide/pci/nvidia.h:46: initializer element is not constant
+> drivers/ide/pci/nvidia.h:46: (near initialization for `nvidia_chipsets[0]=
+')
+> drivers/ide/pci/nvidia.c: In function `nforce_ratemask':
+> drivers/ide/pci/nvidia.c:79: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclared=
+ (first use in this function)
+> drivers/ide/pci/nvidia.c:79: (Each undeclared identifier is reported only=
+ once
+> drivers/ide/pci/nvidia.c:79: for each function it appears in.)
+> drivers/ide/pci/nvidia.c: In function `ata66_nforce':
+> drivers/ide/pci/nvidia.c:288: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclare=
+d (first use in this function)
+> drivers/ide/pci/nvidia.c: In function `nforce_init_one':
+> drivers/ide/pci/nvidia.c:338: warning: `_MOD_INC_USE_COUNT' is deprecated=
+ (declared at include/linux/module.h:419)
+> drivers/ide/pci/nvidia.c: At top level:
+> drivers/ide/pci/nvidia.c:343: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclare=
+d here (not in a function)
+> drivers/ide/pci/nvidia.c:343: initializer element is not constant
+> drivers/ide/pci/nvidia.c:343: (near initialization for `nforce_pci_tbl[0]=
+.device')
+> drivers/ide/pci/nvidia.c:343: initializer element is not constant
+> drivers/ide/pci/nvidia.c:343: (near initialization for `nforce_pci_tbl[0]=
+')
+> drivers/ide/pci/nvidia.c:344: initializer element is not constant
+> drivers/ide/pci/nvidia.c:344: (near initialization for `nforce_pci_tbl[1]=
+')
+> make[3]: *** [drivers/ide/pci/nvidia.o] Error 1
+> make[2]: *** [drivers/ide/pci] Error 2
+> make[1]: *** [drivers/ide] Error 2
+> make: *** [drivers] Error 2
+
+
+
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+HoB66TRUxq22Mx4RAnvRAJ9r1LphkwGL/Y1VGV0lVbHG0VmuuACglopA
+DDIkukqDiT6TSutYlASOQCE=
+=VFQn
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--

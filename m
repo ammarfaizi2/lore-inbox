@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280462AbRJaUAU>; Wed, 31 Oct 2001 15:00:20 -0500
+	id <S280459AbRJaUAk>; Wed, 31 Oct 2001 15:00:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280461AbRJaUAK>; Wed, 31 Oct 2001 15:00:10 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:63364 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S280459AbRJaUAC>;
-	Wed, 31 Oct 2001 15:00:02 -0500
-Message-ID: <3BE05841.24EC0504@pobox.com>
-Date: Wed, 31 Oct 2001 12:00:02 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6-2 i686)
-X-Accept-Language: en
+	id <S280461AbRJaUAb>; Wed, 31 Oct 2001 15:00:31 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:14324 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S280459AbRJaUAU>; Wed, 31 Oct 2001 15:00:20 -0500
+Date: Wed, 31 Oct 2001 20:00:22 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: "David S. Miller" <davem@redhat.com>
+cc: <alex.buell@tahallah.demon.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
+In-Reply-To: <20011031.103241.45747017.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0110311958040.20237-100000@tahallah.demon.co.uk>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Tim Schmielau <tim@physik3.uni-rostock.de>,
-        vda <vda@port.imtp.ilyichevsk.odessa.ua>,
-        Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-In-Reply-To: <Pine.LNX.3.95.1011031143513.21250A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+On Wed, 31 Oct 2001, David S. Miller wrote:
 
-> That's 6 extra clocks every Hz or 600 clocks per second. By the time
-> you've reached the 497.1 days, you have wasted.... 0xffffffff/6 =
-> 715,827,882 CPU clocks just so 'uptime' is correct?  I don't think
-> so. I'd reboot.
+> I'm pretty sure the ioctl numbers are wrong, and that is what is
+> causing the problem.
 
-Actually, you don't need to reboot.
+No, the ioctl numbers are correct, it's ESD that's fscked.
 
-The mail/dns servers I mentioned are
-running fine, processing smtp and pop3
-mail without a hitch, serving up dns info
-for 230 dns zones, and providing ntpd
-and big brother services for quite a few
-other linux and linux-like systems here.
+    /* set the sound driver audio format for playback */
+#if defined(__powerpc__)
+    value = test = ( (esd_audio_format & ESD_MASK_BITS) == ESD_BITS16 )
+        ? /* 16 bit */ AFMT_S16_NE : /* 8 bit */ AFMT_U8;
+#else /* #if !defined(__powerpc__) */
+    value = test = ( (esd_audio_format & ESD_MASK_BITS) == ESD_BITS16 )
+        ? /* 16 bit */ AFMT_S16_LE : /* 8 bit */ AFMT_U8;
+#endif /* #if !defined(__powerpc__) */
 
-You only need to reboot if you demand
-that the uptime counter be correct -
+<sarcasm>
+This is such a lovely piece of code!
+<sarcasm>
 
-I just add 497 days for now....
+Anyway, I can fix it now by adding the appropriate AFMT_S16_BE statement
+guarded by a #ifdef but this sucks. Thanks to Peter Jones who spotted this
+one.
 
-cu
+-- 
+Come the revolution, humourless gits'll be first up against the wall.
 
-jjs
-
+http://www.tahallah.demon.co.uk
 

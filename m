@@ -1,76 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281068AbRKDSFu>; Sun, 4 Nov 2001 13:05:50 -0500
+	id <S281060AbRKDSKv>; Sun, 4 Nov 2001 13:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281057AbRKDSFk>; Sun, 4 Nov 2001 13:05:40 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21494 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S281056AbRKDSFY>; Sun, 4 Nov 2001 13:05:24 -0500
-Message-ID: <3BE57139.4971ED0F@mvista.com>
-Date: Sun, 04 Nov 2001 08:47:53 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: sivakumar.kuppusamy@wipro.com
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Locks in kernel
-In-Reply-To: <001701c1638e$9bd332e0$5f08720a@wipro.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281057AbRKDSKm>; Sun, 4 Nov 2001 13:10:42 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:27920 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S281056AbRKDSKf>; Sun, 4 Nov 2001 13:10:35 -0500
+Message-Id: <200111041810.fA4IAQY68511@aslan.scsiguy.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: linux-kernel@vger.kernel.org, groudier@club-internet.fr
+Subject: Re: Adaptec vs Symbios performance 
+In-Reply-To: Your message of "Sun, 04 Nov 2001 15:17:26 +0100."
+             <20011104151726.06193c01.skraw@ithnet.com> 
+Date: Sun, 04 Nov 2001 11:10:26 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sivakumar Kuppusamy wrote:
-> 
-> Hi All,
-> I am having doubts in locking mechanism in Linux 2.2 kernel code.
-> 
-> We have done modifications in the Linux kernel code to support our
-> application which runs at the user space. The modification done in
-> the Linux kernel is to maintain a table of data(like a routing table),
-> which will be updated by the applicaition with appropriate data. This
-> data will be used by the kernel for other processing.
-> 
-> We are using "up" & "down" functions for locking global data in the kernel.
-> Our code in kernel will get called when a IP packet is received. During
-> that time we are trying to lock that global data and retrieve some
-> info from that. Is this a correct way to do. We are also locking
-> the global data when it gets updated from the application. Since
-> ip_rcv() gets called from bottom_half(), can we do any locking
-> stuff there? We faced kernel panicking when the application locked
-> the global data and got scheduled to continue later(with lock held).
-> That time ip_rcv() got called and we are trying to acquire the lock
-> which is held by the scheduled process. This made the kernel panic.
-> 
-> How should we approach this problem? Shouldn't we use any locking in
-> the code which is called by the bottom_half()?
-> 
-As I am sure you are beginning to suspect, you need to NOT hold locks in
-tasks that can sleep which are also accessed from an interrupt context
-(bottom_half).  Among the locks that allow (or even force) sleeping are
-the "up" "down" locks.  These must NOT be used from the interrupt
-context.  Locks that can be used from the interrupt context are the
-spinlocks.  Of these you would need to use the "irq" versions.  In this
-group you will also find the read/ write locks which allow several
-readers at a time, while writers are given exclusive access.
+>On Sat, 03 Nov 2001 22:47:39 -0700 "Justin T. Gibbs" <gibbs@scsiguy.com> wrote
+>:
+>
+>> >Can you re-comment from todays point of view?                         
+>> 
+>> I believe that if you were to set the tag depth in the new aic7xxx
+>> driver to a level similar to either the symbios or the old aic7xxx
+>> driver, that the problem you describe would go away.
+>
+>Nope.
+>I know the stuff :-) I already took tcq down to 8 (as in old driver) back at
+>the times I compared old an new driver.
 
-If you must allow sleeping locks, you will have to promote the interrupt
-code to a kernel task which can sleep.  This is done using wait queues. 
-There are various versions of these, but they all end up having the
-"consumer" sleep until the "producer" calls "wake_up".  Again, there are
-various wrappers that can be used here.  The key is that the interrupt
-context calls the "wake_up" side and the kernel task calls the sleep
-side.
+Then you will have to find some other reason for the difference in
+performance.  Internal queuing is not a factor with any reasonable
+modern drive when the depth is set at 8.
 
-Then you will most likely need to use one of the spinlock_irq locks to
-synchronize the interrupt context with the kernel task, but remember,
-the kernel task must NOT sleep while holding a spinlock.
+>Indeed I found out that everything is a lot worse if using tcq 256 (which
+>doesn't work anyway and gets down to 128 in real life using my IBM harddrive). 
 
-This is an overview.  You can find much more detail in the
-kernel-hacking-HOWTO
-http://www.linuxgrill.com/anonymous/fire/netfilter/kernel-hacking-HOWTO-5.html
-or try Google.
+The driver cannot know if you are using an external RAID controller or
+an IBM drive or a Qunatum fireball.  It is my belief that in a true
+multi-tasking workload, giving the device as much work to chew on
+as it can handle is always best.  Your sequential bandwidth may
+be a bit less, but sequential I/O is not that interesting in my opinion.
 
-George
+>After using depth 8 the comparison to
+>symbios is just as described. Though I must admit, that the symbios driver
+>takes down tcq from 8 to 4 according to his boot-up message. Do you think it
+>will make a noticeable difference if I hardcode the depth to 4 in the aic7xxx
+>driver?
+
+As mentioned above, I would not expect any difference.
+
+>>  The driver
+>> will only perform internal queuing if a device cannot handle the
+>> original queue depth exported to the SCSI mid-layer.  Since the
+>> mid-layer provides no mechanism for proper, dynamic, throttling,
+>> queuing at the driver level will always be required when the driver
+>> determines that a target cannot accept additional commands.  The default
+>> used by the older driver, 8, seems to work for most drives.  So, no
+>> internal queuing is required.  If you are really concerned about
+>> interrupt latency, this will also be a win as you will reduce your
+>> transaction throughput and thus the frequency of interrupts seen
+>> by the controller.
+>
+>Hm, this is not really true in my experience. Since a harddrive is in a
+>completely other time-framing than pure software issues it may well be, that
+>building up internal data not directly inside the hardware interrupt, but on a
+>somewhere higher layer, is no noticeable performance loss, _if_ it is done
+>right. "Right" here means obviously there must not be a synchronous linkage
+>between this higher layer and the hardware interrupt in this sense that the
+>higher layer has to wait on hardware interrupts' completion. But this is all
+>pretty "down to earth" stuff you know anyways.
+
+I don't understand how your comments relate to mine.  In a perfect world,
+and with a "real" SCSI layer in Linux, the driver would never have any
+queued data above and beyond what it can directly send to the device.
+Since Linux lets you set the queue depth only at startup, before you can
+dynamically determine a useful value, the driver has little choice.  To
+say it more directly, internal queuing is not something I wanted in the
+design - in fact it makes it more complicated and less efficient.
+
+>> Deferring the work to outside of interrupt context will not, in
+>> general, allow non-kernel processes to run any sooner.
+>
+>kernel processes would be completely sufficient. If you hit allocation routine
+>s
+>(e.g.) the whole system enters hickup state :-).
+
+But even those kernel processes will not run unless they have a higher
+priority than the bottom half handler.  I can't stress this enough...
+interactive performance will not change if this is done because kernel
+tasks take priority over user tasks.
+
+>> If your processes are really feeling sluggish, you are probably doing
+>> *a lot* of I/O.
+>
+>Yes, of course. I wouldn't have complained in the first place _not_ knowing
+>that symbios does it better.
+
+I wish you could be a bit more quanitative in your analysis.  It seems
+clear to me that the area you're pointing to is not the cause of your
+complaint.  Without a quantitative analysis, I can't help you figure
+this out.
+
+>> Sure.  As the comment suggests, the driver should use a bottom half
+>> handler or whatever new deferral mechanism is currently the rage
+>> in Linux.
+>
+>Do you think this is complex in implementation?
+
+No, but doing anything like this requires some research to find a solution
+that works for all kernel versions the driver supports.  I hope I don't need
+three different implementations to make this work.  Regardless, this change
+will not make any difference in your problem.
+
+>> I would be interresting if there is a disparity in the TPS numbers
+>> and tag depths in your comparisons.  Higher tag depth usually means
+>> higher TPS which may also mean less interactive response from the
+>> system.  All things being equal, I would expect the sym and aic7xxx
+>> drivers to perform about the same.
+>
+>I can confirm that. 253 is a bad joke in terms of interactive responsiveness
+>during high load.
+
+Its there for throughput, not interactive performance.  I'm sure if you
+were doing things like news expirations, you'd appreciate the higher number
+(up to the 128 tags your drives support).
+
+>Probably the configured standard value should be taken down remarkably.
+>253 feels like old IDE.
+>Yes, I know this comment hurt you badly ;-)
+
+Not really.  Each to their own.  You can tune your system however you
+see fit.
+
+>In my eyes the changes required in your driver are _not_ that big. The gain
+>would be noticeable. I don't say its a bad driver, really not, I would only
+>suggest some refinement. I know _you_ can do a bit better, prove me right ;-)
+
+Show me where the real problem is, and I'll fix it.  I'll add the bottom
+half handler too eventually, but I don't see it as a pressing item.  I'm
+much more interested in why you are seeing the behavior you are and exactly
+what, quantitatively, that behavior is.
+
+--
+Justin

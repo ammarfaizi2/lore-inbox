@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268911AbUJKMlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268892AbUJKMmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268911AbUJKMlE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 08:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268902AbUJKMlC
+	id S268892AbUJKMmV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 08:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUJKMlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 08:41:02 -0400
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:4047 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S268899AbUJKMjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 08:39:21 -0400
-Message-ID: <416A7EE4.6060500@portrix.net>
-Date: Mon, 11 Oct 2004 14:39:00 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 08:41:32 -0400
+Received: from zero.aec.at ([193.170.194.10]:63247 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268894AbUJKMkr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 08:40:47 -0400
+To: Tim Cambrant <cambrant@acc.umu.se>
+cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: 2.6.9-rc4-mm1
+References: <2O5L3-5Jq-11@gated-at.bofh.it> <2O6Ho-6ra-51@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 11 Oct 2004 14:40:35 +0200
+In-Reply-To: <2O6Ho-6ra-51@gated-at.bofh.it> (Tim Cambrant's message of
+ "Mon, 11 Oct 2004 13:40:26 +0200")
+Message-ID: <m3zn2tv35o.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: David Gibson <hermes@gibson.dropbear.id.au>
-CC: Cal Peake <cp@absolutedigital.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org
-Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
-References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net> <416A7484.1030703@portrix.net> <Pine.LNX.4.61.0410110819370.8480@linaeum.absolutedigital.net> <416A7CB3.9000003@portrix.net> <20041011123217.GC28100@zax>
-In-Reply-To: <20041011123217.GC28100@zax>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
-> On Mon, Oct 11, 2004 at 02:29:39PM +0200, Jan Dittmer wrote:
-> 
->>Cal Peake wrote:
->>
->>>On Mon, 11 Oct 2004, Jan Dittmer wrote:
->>>
->>>
->>>
->>>>Cal Peake wrote:
->>>>
->>>>
->>>>
->>>>>	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
->>>>>-	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
->>>>>+	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
->>>>>#define hermes_write_reg(hw, off, val) do { \
->>>>
->>>>Isn't the correct fix to declare iobase as (void __iomem *) ?
->>>
->>>
->>>iobase is an unsigned long, declaring it as a void pointer is prolly not 
->>>what we want to do here. The typecast seems proper. A lot of other drivers 
->>>do this as well thus it must be proper ;-)
->>
->>Why is iobase a unsigned long in the first place? Isn't this broken for 
->>64bit archs?
-> 
-> 
-> Um, no.
-> 
+Tim Cambrant <cambrant@acc.umu.se> writes:
 
-Yeah, just rememberd when sending the mail ;-). Still, most drivers seem 
-to use (void __iomem *) in the declaration of their iobase.
+> On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
+>>
+>> optimize-profile-path-slightly.patch
+>>   Optimize profile path slightly
+>>
+>
+> I'm still getting an oops at startup with this patch. After reversing
+> it, everything is fine. Weren't you supposed to remove that from your
+> tree until it was fixed?
 
-Jan
+There's a fixed version around. I thought Andrew had merged that one?
+
+-Andi
+
+-------------------------------------
+
+Fixed version of profile optimization
+
+
+Index: linux/kernel/profile.c
+===================================================================
+--- linux.orig/kernel/profile.c	2004-09-30 10:35:51.%N +0200
++++ linux/kernel/profile.c	2004-10-07 13:22:33.%N +0200
+@@ -181,20 +181,27 @@
+ EXPORT_SYMBOL_GPL(profile_event_register);
+ EXPORT_SYMBOL_GPL(profile_event_unregister);
+ 
+-void profile_hit(int type, void *__pc)
++static inline void __profile_hit(int type, void *__pc)
+ {
+ 	unsigned long pc;
+ 
+-	if (prof_on != type || !prof_buffer)
+-		return;
+ 	pc = ((unsigned long)__pc - (unsigned long)_stext) >> prof_shift;
+ 	atomic_inc(&prof_buffer[min(pc, prof_len - 1)]);
+ }
+ 
++void profile_hit(int type, void *pc)
++{
++	if (prof_on != type || !prof_buffer)
++		return;
++	__profile_hit(type, pc);
++}
++
+ void profile_tick(int type, struct pt_regs *regs)
+ {
+ 	if (type == CPU_PROFILING)
+ 		profile_hook(regs);
++	if (prof_on != type || !prof_buffer)
++		return;
+ 	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
+ 		profile_hit(type, (void *)profile_pc(regs));
+ }
+

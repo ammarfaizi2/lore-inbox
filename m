@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268450AbTBNN05>; Fri, 14 Feb 2003 08:26:57 -0500
+	id <S268403AbTBNNCT>; Fri, 14 Feb 2003 08:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268448AbTBNN04>; Fri, 14 Feb 2003 08:26:56 -0500
-Received: from mail.dsa-ac.de ([62.112.80.99]:64781 "HELO k2.dsa-ac.de")
-	by vger.kernel.org with SMTP id <S268450AbTBNN0v>;
-	Fri, 14 Feb 2003 08:26:51 -0500
-Date: Fri, 14 Feb 2003 14:36:39 +0100 (CET)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.60 "Badness in kobject_register at lib/kobject.c:152"
-In-Reply-To: <1045068254.2166.21.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0302141431430.1173-100000@pcgl.dsa-ac.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268418AbTBNMxQ>; Fri, 14 Feb 2003 07:53:16 -0500
+Received: from cs-ats40.donpac.ru ([217.107.128.161]:23054 "EHLO pazke")
+	by vger.kernel.org with ESMTP id <S268378AbTBNMwq>;
+	Fri, 14 Feb 2003 07:52:46 -0500
+Date: Fri, 14 Feb 2003 15:58:00 +0300
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] visws: make startup_32 kernel entry point (3/13)
+Message-ID: <20030214125800.GC8230@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="mSxgbZZZvrAyzONB"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Uname: Linux 2.4.20aa1 i686 unknown
+From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Can
-> > this errors be disk-specific? (it's a SiliconTech disk, reported as
-> > Hitachi) I can try some others, e.g. SunDisk.
->
-> I would be interested to see how they compare
 
-Ok, finally I was able to do a comparison. SanDisk does look a bit better:
+--mSxgbZZZvrAyzONB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> > hda: task_no_data_intr: error=0x04 { DriveStatusError }
->
-> This is it rejecting a command at start up, thats ok. I do need to
-> quieten these further yet.
+Hi.
 
-And they still appear with SanDisk.
+This patch marks startup_32 (in head.S) as kernel entry point, 
+visws kernel loader uses raw elf kernel images and entry point 
+at stext causes jump to wrong address.
 
-> > hda: 31488 sectors (16 MB) w/1KiB Cache, CHS=246/4/32, BUG <=============
->
-> Curious. I'll tae a look
+Please consider applying.
 
-And this one too.
+Best regards.
 
-> > then, on mounting root again
-> > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> > hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> > hda: Write Cache FAILED Flushing!
->
-> For some reason we decided the drive support cache flush. However it
-> apparently doesnt
+-- 
+Andrey Panin		| Embedded systems software developer
+pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
 
-The last of the above errors does not appear on SanDisk - it supports
-cache flush?
+--mSxgbZZZvrAyzONB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-stext
 
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/arch/i386/Makefile linux-2.5.60/arch/i386/Makefile
+--- linux-2.5.60.vanilla/arch/i386/Makefile	Thu Feb 13 20:29:07 2003
++++ linux-2.5.60/arch/i386/Makefile	Thu Feb 13 20:42:02 2003
+@@ -17,7 +17,7 @@
+ 
+ LDFLAGS		:= -m elf_i386
+ OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
+-LDFLAGS_vmlinux := -e stext
++LDFLAGS_vmlinux :=
+ LDFLAGS_BLOB	:= --format binary --oformat elf32-i386
+ 
+ CFLAGS += -pipe
+diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/arch/i386/kernel/head.S linux-2.5.60/arch/i386/kernel/head.S
+--- linux-2.5.60.vanilla/arch/i386/kernel/head.S	Tue Jan 14 12:32:27 2003
++++ linux-2.5.60/arch/i386/kernel/head.S	Fri Feb 14 15:02:32 2003
+@@ -42,7 +42,7 @@
+  *
+  * On entry, %esi points to the real-mode code as a 32-bit pointer.
+  */
+-startup_32:
++ENTRY(startup_32)
+ /*
+  * Set segments to known values
+  */
+diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/arch/i386/vmlinux.lds.S linux-2.5.60/arch/i386/vmlinux.lds.S
+--- linux-2.5.60.vanilla/arch/i386/vmlinux.lds.S	Thu Feb 13 20:29:07 2003
++++ linux-2.5.60/arch/i386/vmlinux.lds.S	Thu Feb 13 20:42:02 2003
+@@ -6,7 +6,7 @@
+ 	
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+-ENTRY(_start)
++ENTRY(startup_32)
+ jiffies = jiffies_64;
+ SECTIONS
+ {
 
+--mSxgbZZZvrAyzONB--

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263617AbTDTPqe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTDTPqd
+	id S263618AbTDTPsl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTDTPsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:46:33 -0400
-Received: from WebDev.iNES.RO ([80.86.100.174]:36481 "EHLO webdev.ines.ro")
-	by vger.kernel.org with ESMTP id S263617AbTDTPqd (ORCPT
+	Sun, 20 Apr 2003 11:48:40 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:19461 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263618AbTDTPsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:46:33 -0400
-Date: Sun, 20 Apr 2003 18:58:33 +0300 (EEST)
-From: Andrei Ivanov <andrei.ivanov@ines.ro>
-X-X-Sender: shadow@webdev.ines.ro
-To: linux-kernel@vger.kernel.org
-Subject: Re: oops in 2.5.68-mm1
-In-Reply-To: <Pine.LNX.4.50L0.0304201843300.1931-200000@webdev.ines.ro>
-Message-ID: <Pine.LNX.4.50L0.0304201850130.1931-100000@webdev.ines.ro>
-References: <Pine.LNX.4.50L0.0304201843300.1931-200000@webdev.ines.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Apr 2003 11:48:39 -0400
+Date: Sun, 20 Apr 2003 18:00:34 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org, linus@transmeta.com
+Subject: Re: [CFT] more kdev_t-ectomy
+Message-ID: <20030420160034.GA20123@win.tue.nl>
+References: <20030420133143.GF10374@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030420133143.GF10374@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 20, 2003, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
 
+[lots of useful stuff].
 
+Happy Easter!
 
-On Sun, 20 Apr 2003, Andrei Ivanov wrote:
+Concerning kdev_t vs dev_t, probably I said this before, but just to be sure:
 
-> 
-> I'm not sure that this caused it, but I was doing an 'emerge rsync' in my 
-> gentoo, and when 'emerge' was 'Updating Portage cache', the system was 
-> slow, top or jed wouldn't start, and there was a 'chmod'(started probably 
-> by 'emerge') in D state.
-> 
+Long ago the purpose of kdev_t was to become a pointer. Roughly speaking
+we got that pointer, only it is called struct gendisk * today.
 
-Hmm... I think I found what caused it. I've mounted a smb share, went into 
-a directory on the share, where there are 2 files:
+Today the purpose of kdev_t is to be a form of dev_t: taking the minor
+of a kdev_t is just taking the lower 32 bits, no tests, no branches;
+taking the minor of a dev_t requires tests and branches - more code,
+slower code.
 
--r--------    1 root     root        48281 Apr 11 21:05 Cats & Dogs (RO).txt
--r--------    1 root     root     730341376 Apr 11 21:04 Cats And Dogs.avi
+So, the interface with filesystems and with userspace has dev_t.
+For kernel-internal numbers kdev_t is better than dev_t.
 
-I typed less Cats<tab>, and then &<tab>, and here it was stuck, and the 
-kernel oopsed. If I type less Cats<tab>, and then \&<tab>, it works, but 
-without the \ in front of the &, the shell gets stuck in D state.
+Of course it may be possible to avoid kernel-internal numbers altogether.
+Sometimes that is an improvement, sometimes not. Pointers are more
+complicated than numbers - they point at something that must be allocated
+and freed and reference counted. A number is like a pointer without the
+reference counting.
 
-The remote host, from which I mounted the share, runs 
-kernel 2.4.20-gentoo-r1.
+Andries
+

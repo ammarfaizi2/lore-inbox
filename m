@@ -1,249 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262463AbRENUEW>; Mon, 14 May 2001 16:04:22 -0400
+	id <S262459AbRENUGW>; Mon, 14 May 2001 16:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262464AbRENUEM>; Mon, 14 May 2001 16:04:12 -0400
-Received: from mx01-a.netapp.com ([198.95.226.53]:23287 "EHLO
-	mx01-a.netapp.com") by vger.kernel.org with ESMTP
-	id <S262463AbRENUD7>; Mon, 14 May 2001 16:03:59 -0400
-From: "Chuck Lever" <cel@netapp.com>
-To: <trond.myklebust@fys.uio.no>,
-        "Linux Kernel" <linux-kernel@vger.kernel.org>,
-        "NFS maillist" <nfs@lists.sourceforge.net>
-Subject: RE: [NFS] [PATCH] New patch to flush out dirty mmap()ed NFS pages in 2.4.4
-Date: Mon, 14 May 2001 16:04:22 -0400
-Message-ID: <NFBBLKEIKLGDCJAAAEKOMEDACAAA.cel@netapp.com>
+	id <S262464AbRENUGO>; Mon, 14 May 2001 16:06:14 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:4092 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262459AbRENUGG>; Mon, 14 May 2001 16:06:06 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105142004.f4EK4oRr002055@webber.adilger.int>
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+In-Reply-To: <01051400150902.02742@starship> "from Daniel Phillips at May 14,
+ 2001 00:15:09 am"
+To: Daniel Phillips <phillips@bonn-fries.net>
+Date: Mon, 14 May 2001 14:04:49 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-In-Reply-To: <15102.39186.106340.57504@charged.uio.no>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the default behavior is that close() waits for all write-backs to
-be committed to the server's disk.  you might add support for the
-"nocto" mount option so that waiting is skipped for shared mmap'd
-files, but then what happens to data that is pinned on the client
-because a write-back failed after close() returns to the application?
+Daniel writes:
+> On Thursday 10 May 2001 09:21, Andreas Dilger wrote:
+> > I have changed the code to do the following:
+> > - If the COMPAT_DIR_INDEX flag is set at mount/remount time, set the
+> >   INDEX mount option (the same as "mount -o index").  This removes
+> >   the need to specify the "-o index" option each time for filesystems
+> >   which already have indexed directories.
+> 
+> This applied fine.  The semantics are a little loose though: after 
+> mounting -o index, the first directory that overflows its first block 
+> will turn on 'sticky indexing' for that partition.
 
-what's the application domain Linus is trying to optimize?
+Maybe we can have a "noindex" mount option for this?  In any case, if
+you have a kernel which supports indexed directories, no harm is done,
+and it will be ignored by other kernels.  There is always the option
+of doing "tune2fs -O ^dir_index" to turn off that bit.
 
-> Linus was not too keen on the patches that circulated last week. In
-> his concept of shared mmap(), he wants it to ignore the usual
-> requirement we have on normal files whereby we flush out the pages on
-> file close.  The problem is, though, that we need at least to schedule
-> the writes using the correct credentials, and thus a compromise was to
-> do this when closing the file...
->
-> The following patch attempts to implement a fix along Linus'
-> specification. Features are:
->
->    - Remove inode operation force_delete(). The latter is toxic to all
->      mmap(), as it can cause the inode to get killed before the dirty
->      pages get scheduled.
->
->    - Schedule dirty pages upon last fput() of the file.
->
->    - Always write out all dirty pages to the server when
->      locking/unlocking.
->
->    - Add a write_inode() method in order to allow bdflush() and
->      friends to force out writes when the user calls sys_sync(), when
->      umounting, or when memory pressure is high.
->
->    - Since we in any case have to add the write_inode() method, scrap
->      the NFS special O_SYNC code, so we can just use the generic stuff
->      (which will be faster for large writes).
->
-> Comments?
->
-> Cheers,
->   Trond
->
-> diff -u --recursive --new-file linux-2.4.4-fixes/fs/nfs/file.c
-> linux-2.4.4-mmap/fs/nfs/file.c
-> --- linux-2.4.4-fixes/fs/nfs/file.c	Fri Feb  9 20:29:44 2001
-> +++ linux-2.4.4-mmap/fs/nfs/file.c	Sat May 12 21:31:39 2001
-> @@ -39,6 +39,7 @@
->  static ssize_t nfs_file_write(struct file *, const char *,
-> size_t, loff_t *);
->  static int  nfs_file_flush(struct file *);
->  static int  nfs_fsync(struct file *, struct dentry *dentry, int
-> datasync);
-> +static int  nfs_file_release(struct inode *, struct file *);
->
->  struct file_operations nfs_file_operations = {
->  	read:		nfs_file_read,
-> @@ -46,7 +47,7 @@
->  	mmap:		nfs_file_mmap,
->  	open:		nfs_open,
->  	flush:		nfs_file_flush,
-> -	release:	nfs_release,
-> +	release:	nfs_file_release,
->  	fsync:		nfs_fsync,
->  	lock:		nfs_lock,
->  };
-> @@ -87,6 +88,13 @@
->  	return status;
->  }
->
-> +int
-> +nfs_file_release(struct inode *inode, struct file *file)
-> +{
-> +	filemap_fdatasync(inode->i_mapping);
-> +	return nfs_release(inode,file);
-> +}
-> +
->  static ssize_t
->  nfs_file_read(struct file * file, char * buf, size_t count, loff_t *ppos)
->  {
-> @@ -283,9 +291,11 @@
->  	 * Flush all pending writes before doing anything
->  	 * with locks..
->  	 */
-> -	down(&filp->f_dentry->d_inode->i_sem);
-> +	filemap_fdatasync(inode->i_mapping);
-> +	down(&inode->i_sem);
->  	status = nfs_wb_all(inode);
-> -	up(&filp->f_dentry->d_inode->i_sem);
-> +	up(&inode->i_sem);
-> +	filemap_fdatawait(inode->i_mapping);
->  	if (status < 0)
->  		return status;
->
-> @@ -300,10 +310,12 @@
->  	 */
->   out_ok:
->  	if ((cmd == F_SETLK || cmd == F_SETLKW) && fl->fl_type != F_UNLCK) {
-> -		down(&filp->f_dentry->d_inode->i_sem);
-> +		filemap_fdatasync(inode->i_mapping);
-> +		down(&inode->i_sem);
->  		nfs_wb_all(inode);      /* we may have slept */
-> +		up(&inode->i_sem);
-> +		filemap_fdatawait(inode->i_mapping);
->  		nfs_zap_caches(inode);
-> -		up(&filp->f_dentry->d_inode->i_sem);
->  	}
->  	return status;
->  }
-> diff -u --recursive --new-file linux-2.4.4-fixes/fs/nfs/inode.c
-> linux-2.4.4-mmap/fs/nfs/inode.c
-> --- linux-2.4.4-fixes/fs/nfs/inode.c	Wed Apr 25 23:58:17 2001
-> +++ linux-2.4.4-mmap/fs/nfs/inode.c	Sat May 12 23:54:16 2001
-> @@ -45,6 +45,7 @@
->  static void nfs_invalidate_inode(struct inode *);
->
->  static void nfs_read_inode(struct inode *);
-> +static void nfs_write_inode(struct inode *,int);
->  static void nfs_delete_inode(struct inode *);
->  static void nfs_put_super(struct super_block *);
->  static void nfs_umount_begin(struct super_block *);
-> @@ -52,7 +53,7 @@
->
->  static struct super_operations nfs_sops = {
->  	read_inode:	nfs_read_inode,
-> -	put_inode:	force_delete,
-> +	write_inode:	nfs_write_inode,
->  	delete_inode:	nfs_delete_inode,
->  	put_super:	nfs_put_super,
->  	statfs:		nfs_statfs,
-> @@ -113,6 +114,14 @@
->  	NFS_CACHEINV(inode);
->  	NFS_ATTRTIMEO(inode) = NFS_MINATTRTIMEO(inode);
->  	NFS_ATTRTIMEO_UPDATE(inode) = jiffies;
-> +}
-> +
-> +static void
-> +nfs_write_inode(struct inode *inode, int sync)
-> +{
-> +	int flags = sync ? FLUSH_WAIT : 0;
-> +
-> +	nfs_sync_file(inode, NULL, 0, 0, flags);
->  }
->
->  static void
-> diff -u --recursive --new-file linux-2.4.4-fixes/fs/nfs/write.c
-> linux-2.4.4-mmap/fs/nfs/write.c
-> --- linux-2.4.4-fixes/fs/nfs/write.c	Tue Apr  3 22:45:37 2001
-> +++ linux-2.4.4-mmap/fs/nfs/write.c	Sat May 12 23:49:15 2001
-> @@ -457,6 +457,7 @@
->  	 *     spinlock since it can run flushd().
->  	 */
->  	inode_schedule_scan(inode, req->wb_timeout);
-> +	mark_inode_dirty(inode);
->  }
->
->  /*
-> @@ -489,6 +490,7 @@
->  	 *     spinlock since it can run flushd().
->  	 */
->  	inode_schedule_scan(inode, req->wb_timeout);
-> +	mark_inode_dirty(inode);
->  }
->  #endif
->
-> @@ -1013,7 +1015,6 @@
->  	struct dentry	*dentry = file->f_dentry;
->  	struct inode	*inode = dentry->d_inode;
->  	struct nfs_page	*req;
-> -	int		synchronous = file->f_flags & O_SYNC;
->  	int		status = 0;
->
->  	dprintk("NFS:      nfs_updatepage(%s/%s %d@%Ld)\n",
-> @@ -1044,24 +1045,14 @@
->  	if (status < 0)
->  		goto done;
->
-> -	if (req->wb_bytes == PAGE_CACHE_SIZE)
-> -		SetPageUptodate(page);
-> -
->  	status = 0;
-> -	if (synchronous) {
-> -		int error;
-> -
-> -		error = nfs_sync_file(inode, file,
-> page_index(page), 1, FLUSH_SYNC|FLUSH_STABLE);
-> -		if (error < 0 || (error = file->f_error) < 0)
-> -			status = error;
-> -		file->f_error = 0;
-> -	} else {
-> -		/* If we wrote past the end of the page.
-> -		 * Call the strategy routine so it can send out a bunch
-> -		 * of requests.
-> -		 */
-> -		if (req->wb_offset == 0 && req->wb_bytes == PAGE_CACHE_SIZE)
-> -			nfs_strategy(inode);
-> +	/* If we wrote past the end of the page.
-> +	 * Call the strategy routine so it can send out a bunch
-> +	 * of requests.
-> +	 */
-> +	if (req->wb_offset == 0 && req->wb_bytes == PAGE_CACHE_SIZE) {
-> +		SetPageUptodate(page);
-> +		nfs_strategy(inode);
->  	}
->  	nfs_release_request(req);
->  done:
-> diff -u --recursive --new-file linux-2.4.4-fixes/kernel/ksyms.c
-> linux-2.4.4-mmap/kernel/ksyms.c
-> --- linux-2.4.4-fixes/kernel/ksyms.c	Fri Apr 27 23:23:25 2001
-> +++ linux-2.4.4-mmap/kernel/ksyms.c	Wed May  9 18:05:58 2001
-> @@ -262,6 +262,8 @@
->  EXPORT_SYMBOL(dentry_open);
->  EXPORT_SYMBOL(filemap_nopage);
->  EXPORT_SYMBOL(filemap_sync);
-> +EXPORT_SYMBOL(filemap_fdatasync);
-> +EXPORT_SYMBOL(filemap_fdatawait);
->  EXPORT_SYMBOL(lock_page);
->
->  /* device registration */
->
-> _______________________________________________
-> NFS maillist  -  NFS@lists.sourceforge.net
-> http://lists.sourceforge.net/lists/listinfo/nfs
->
+> I was originally thinking we should give the admin the ability to 
+> create a nonindexed directory if desired, and that's how it used to be 
+> before we changed the setting of INDEX_FL from directory creation time 
+> to later, when the first directory block overflows.
+
+But you still got INDEX_FL on each new (unindexed) directory, which
+didn't help much, IMHO.  You can always do "chattr -h <dir>" (or whatever
+the flag will be called) for a directory which you don't want indexed,
+and it will immediately cease to be an indexed directory (and the index
+block will revert to a normal directory block).
+
+The 'i' flag is already used for the immutable (unchangeable) property.
+We could use 'I' for indexed directories, but sometimes you will make a
+mistake and use 'i' and in _theory_ you cannot remove the immutable flag
+from a file while in multi-user mode for security reasons, so it would
+be a hassle to fix this.  Note I haven't sent a patch to Ted for the
+hash_indexed flag for chattr, lsattr yet.
+
+The only point of contention is what e2fsck will do in the case where
+COMPAT_DIR_INDEX is set on a filesystem.  Does it index all multi-block
+directories (and set INDEX_FL for all of them)?  That would be easiest,
+but it breaks the ability to selectively turn on/off directory indexing.
+
+If e2fsck doesn't index all multi-block directories, then how do you add
+indexing to an existing directory?  Something (kludgy) like:
+
+mkdir newdir
+mv olddir/* newdir
+rmdir olddir
+
+or the following (the "<one filesystem block>" is the tricky part...)(*)
+
+find <filesystem> -xdev -type d -size +<one filesystem block> | xargs chattr +h
+umount
+e2fsck <device>
+
+In general, I can't see a good reason why you would NOT want indexing on
+some directories and not others once you have chosen to use indexing on
+a filesystem.  If people don't want to use indexing, they just shouldn't
+turn it on.
+
+Since indexing is a "zero information" feature, it is easy to turn the
+flag on and off and have e2fsck fix it (assuming you have a version of
+e2fsck that understands indexing).  Even so, you can turn off indexing
+for old e2fsck (by using a backup superblock as it will suggest) and
+your filesystem is totally OK.  When you later get a new e2fsck you can
+re-enable indexing for the filesystem with no loss of information.
+
+(*) This brings up a problem with the "is_dx(dir)" simply checking if the
+    EXT2_INDEX_FL is set.  We need to be sure that the code will bail out
+    to linear directory searching properly if there is no index present,
+    so it is possible to set this flag from user space for later e2fsck.
+
+> I broke out 'ext2_add_compat_feature' as a trial balloon.  It's not
+> really very satisfying - it's annoying to have a great piece of
+> machinery that's used in exactly one place.  I'd prefer to have
+> 'ext2_add_feature' that takes the kind of compatibility as a parameter. 
+> We can do this by treating the three ext2_super_block compatibility
+> fields as an array, what do you think?  Then we'd get to use it in two
+> places :-]
+
+Actually, this is used a lot more in ext3, because we set the HAS_JOURNAL
+flag, and set/unset the RECOVERY flag in several places, so it will be
+useful there.
+
+> The max link count logic in your previous patch didn't seem to be
+> complete so I didn't put it in.  I'll wait for more from you on that.  I
+> followed the ReseirFS thread on this but I'm not sure exactly what form
+> you want this to take in ext2.
+
+I'm not sure what you mean by incomplete (although I did have the
+aforementioned testing problems, so I never did try > 64k subdirectories
+in a single directory).  Basically, it works the same as reiserfs, with
+the extra caveat that we limit ourselves to EXT2_LINK_MAX for non-indexed
+directories (for performance/sanity reasons).  We keep link counts for
+indexed directories until we overflow 64k subdirectories (as opposed
+to the arbitrary 32000 limit of EXT2_LINK_MAX), after which we use "1"
+as the directory link count.  I also want to make sure the code degrades
+to the original (slightly simpler) code if CONFIG_EXT2_INDEX is not set.
+
+> The index create code has been moved out of the non-indexed code path
+> and into the scope of the indexed path.  This is with a view to cutting
+> ext2_add_entry into pieces at some point, for aesthetic reasons.
+
+Yes, I was hoping for something like this.  That function is just getting
+way too long...
+
+I'll hopefully get a chance to look at the new code soon.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

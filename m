@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUHaGE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUHaGGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266687AbUHaGE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 02:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266708AbUHaGE4
+	id S266708AbUHaGGk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 02:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUHaGGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 02:04:56 -0400
-Received: from mail2.speakeasy.net ([216.254.0.202]:41156 "EHLO
-	mail2.speakeasy.net") by vger.kernel.org with ESMTP id S266687AbUHaGEx
+	Tue, 31 Aug 2004 02:06:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53636 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266708AbUHaGGd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 02:04:53 -0400
-Date: Mon, 30 Aug 2004 23:04:46 -0700
-Message-Id: <200408310604.i7V64k7o010652@magilla.sf.frob.com>
+	Tue, 31 Aug 2004 02:06:33 -0400
+Message-ID: <41341556.2010306@pobox.com>
+Date: Tue, 31 Aug 2004 02:06:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+CC: Petr Sebor <petr@scssoft.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       petter.sundlof@findus.dhs.org, linux-kernel@vger.kernel.org
+Subject: Re: Cannot enable DMA on SATA drive (SCSI-libsata, VIA SATA)
+References: <7076215DFAA4574099E5CD59FE42226204FBC27B@pcssrv42.pcs.pc.ome.toshiba.co.jp>
+In-Reply-To: <7076215DFAA4574099E5CD59FE42226204FBC27B@pcssrv42.pcs.pc.ome.toshiba.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: "Michael Kerrisk" <mtk-lkml@gmx.net>
-X-Fcc: ~/Mail/linus
-Cc: torvalds@osdl.org, akpm@osdl.org, drepper@redhat.com,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
-       Tonnerre <tonnerre@thundrix.ch>
-Subject: Re: [PATCH] waitid system call
-In-Reply-To: Michael Kerrisk's message of  Tuesday, 24 August 2004 13:51:02 +0200 <12606.1093348262@www48.gmx.net>
-Emacs: well, why *shouldn't* you pay property taxes on your editor?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The AIX results someone posted suggested that it does not clear siginfo_t
-fields on WNOHANG early returns.  I still maintain that a POSIX application
-must not assume that waitid will clear any fields.  However, since the
-majority do, I see no harm in making Linux do so as well.
-
-Andrew, please throw this on top of the waitid patches.  This patch is
-relative to 2.6.9-rc1-mm1.
+Tomita, Haruo wrote:
+> Combined mode can be set up by the SATA controller of ESB of Intel tip. 
+> This mode is the mode which can use SATA and PATA simultaneously. 
+> In ata_piix driver, when combined mode is specified, it does not work.
 
 
-Thanks,
-Roland
+May I request, again, information on this.  In the current kernel you 
+are the only one reporting this problem.
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+Does 2.6.9-rc1-bk work for you?
 
---- linux-2.6.9-rc1-mm1/kernel/exit.c.~1~	2004-08-27 13:46:37.000000000 -0700
-+++ linux-2.6.9-rc1-mm1/kernel/exit.c	2004-08-30 22:52:54.246036355 -0700
-@@ -1369,8 +1369,29 @@ check_continued:
- end:
- 	current->state = TASK_RUNNING;
- 	remove_wait_queue(&current->wait_chldexit,&wait);
--	if (infop && retval > 0)
-+	if (infop) {
-+		if (retval > 0)
- 		retval = 0;
-+		else {
-+			/*
-+			 * For a WNOHANG return, clear out all the fields
-+			 * we would set so the user can easily tell the
-+			 * difference.
-+			 */
-+			if (!retval)
-+				retval = put_user(0, &infop->si_signo);
-+			if (!retval)
-+				retval = put_user(0, &infop->si_errno);
-+			if (!retval)
-+				retval = put_user(0, &infop->si_code);
-+			if (!retval)
-+				retval = put_user(0, &infop->si_pid);
-+			if (!retval)
-+				retval = put_user(0, &infop->si_uid);
-+			if (!retval)
-+				retval = put_user(0, &infop->si_status);
-+		}
-+	}
- 	return retval;
- }
- 
+	Jeff
+
+

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135912AbREDIRX>; Fri, 4 May 2001 04:17:23 -0400
+	id <S135914AbREDI0n>; Fri, 4 May 2001 04:26:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135913AbREDIRO>; Fri, 4 May 2001 04:17:14 -0400
-Received: from ns.suse.de ([213.95.15.193]:29966 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S135912AbREDIRC>;
-	Fri, 4 May 2001 04:17:02 -0400
-Date: Fri, 4 May 2001 10:16:51 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
-        root@chaos.analogic.com, Torrey Hoffman <torrey.hoffman@myrio.com>,
-        "'Kenneth Johansson'" <ken@canit.se>,
-        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-Message-ID: <20010504101651.A20294@gruyere.muc.suse.de>
-In-Reply-To: <20010502163101.A7174@gruyere.muc.suse.de> <200105022217.QAA05053@lynx.turbolabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105022217.QAA05053@lynx.turbolabs.com>; from adilger@turbolinux.com on Wed, May 02, 2001 at 04:17:21PM -0600
+	id <S135919AbREDI0e>; Fri, 4 May 2001 04:26:34 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:25867 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S135914AbREDI0W>;
+	Fri, 4 May 2001 04:26:22 -0400
+Date: Fri, 4 May 2001 10:24:40 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, <David_J_Morse@Dell.com>
+Subject: Re: X15 alpha release
+In-Reply-To: <3AF20CE3.63C92B3C@chromium.com>
+Message-ID: <Pine.LNX.4.33.0105041015230.2178-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 02, 2001 at 04:17:21PM -0600, Andreas Dilger wrote:
-> Andi Kleen writes:
-> > On Mon, Apr 30, 2001 at 12:07:44PM -0700, David S. Miller wrote:
-> > But something must have been not working with it for mmaps/shlibs 
-> > (not executables); at least historically.
-> > At least I remember that all hell broke lose when you tried to update
-> > libc by cp'ing a new one to /lib/libc.so in the 1.2 days. cp should create a 
-> > new inode (it uses O_CREAT) so in theory it should be coherent by the inode 
-> > reference; but somehow it didn't use to work and random already running 
-> > programs started to segfault. This was long ago. I wonder if old
-> > GNU cp used O_TRUNC instead of O_CREAT, or was there some other kernel bug 
-> > with mappings (hopefully long since fixed). Anybody remembers? 
-> 
-> No, "cp" is still not a safe way to update libc, and I doubt it ever will be.
-> cp does _not_ create a new inode (unlike mv), so you are writing "garbage"
-> into the currently running executables.
 
-Ok, the bug is that executable shlibs mappings do not get EBUSY as when you try
-to write into a running executable and it's still not fixed.
+Fabio,
 
-> NB: my open(2) says for O_CREAT "If the file does not exist it will be
-> created".  This is _not_ the same as O_EXCL, which will only mean that
-> open(2) will fail when it tries to create a new file.
+i noticed another RFC anomaly in X15. It ignores the "Connection: close"
+request header passed by a HTTP/1.1 client. This behavior is against RFC
+2616, a server must not override the client's choice of non-persistent
+connection. (there might be HTTP/1.1 clients that do not support
+persistent connections and signal this via "Connection: close".)
 
-I assumed it would just create a new inode; but seems I was wrong.
-Thanks for the clarification.
+the rule is this: a request is either keepalive or non-keepalive. HTTP/1.0
+requests default to non-keepalive. HTTP/1.1 requests default to keepalive.
+The default can be overriden via the "Connection: Keep-Alive" or
+"Connection: close" header fields.
 
+if you fix this, does it impact SPECweb99 performance in any way?
 
--Andi
+	Ingo
+

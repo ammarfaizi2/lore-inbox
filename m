@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbTHULlk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 07:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbTHULlK
+	id S262471AbTHULjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 07:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbTHULjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 07:41:10 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:29123 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S262634AbTHULko
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 07:40:44 -0400
-Date: Thu, 21 Aug 2003 13:40:33 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Andries Brouwer <aebr@win.tue.nl>, Neil Brown <neilb@cse.unsw.edu.au>,
-       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-In-Reply-To: <20030821000302.GC24970@mail.jlokier.co.uk>
-Message-ID: <Pine.GSO.3.96.1030821133902.2489C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Aug 2003 07:39:18 -0400
+Received: from mail2.uu.nl ([131.211.16.76]:49616 "EHLO mail2.uu.nl")
+	by vger.kernel.org with ESMTP id S262471AbTHULjM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 07:39:12 -0400
+Subject: Re: [PATCH] 2.6.0-test3 zoran driver update
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030821130131.A15398@electric-eye.fr.zoreil.com>
+References: <1061414594.1320.97.camel@localhost.localdomain>
+	 <20030821010812.A6961@electric-eye.fr.zoreil.com>
+	 <1061452050.4235.222.camel@shrek.bitfreak.net>
+	 <20030821130131.A15398@electric-eye.fr.zoreil.com>
+Content-Type: text/plain
+Message-Id: <1061466016.4234.230.camel@shrek.bitfreak.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 21 Aug 2003 13:40:17 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003, Jamie Lokier wrote:
+Hi Francois,
 
-> But for programs which want to monitor a key and know its state
-> continuously (this presently includes the software autorepeater, but
-> it also includes games), none of the behaviours is right.
+On Thu, 2003-08-21 at 13:01, Francois Romieu wrote:
+> Ronald Bultje <rbultje@ronald.bitfreak.net> :
+> > There is no variable 'channel' in these functions. I've double checked
+> > these functions, too, and can't find any obvious leaks in them at all.
+> > Could you please re-check?
+> 
+> Oops, cerebral traffic jam.
+> 
+> It should have read "client", not "channel".
 
- X11 is another example of software that wants to know the state of keys
-continuously.  And that's not a piece of software to ignore easily. 
+Got it, thanks. Patches will show up in a few days.
+
+Ronald
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Ronald Bultje <rbultje@ronald.bitfreak.net>
+Linux Video/Multimedia developer
 

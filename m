@@ -1,96 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310256AbSCPLZS>; Sat, 16 Mar 2002 06:25:18 -0500
+	id <S310283AbSCPLyL>; Sat, 16 Mar 2002 06:54:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310255AbSCPLZL>; Sat, 16 Mar 2002 06:25:11 -0500
-Received: from mail.epost.de ([64.39.38.76]:34759 "EHLO mail.epost.de")
-	by vger.kernel.org with ESMTP id <S310261AbSCPLY7>;
-	Sat, 16 Mar 2002 06:24:59 -0500
-Message-ID: <3C932B2E.90709@dlr.de>
-Date: Sat, 16 Mar 2002 12:23:26 +0100
-From: Martin Wirth <martin.wirth@dlr.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: de-DE
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
-        linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <E16m1oK-0006oy-00@wagner.rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310285AbSCPLyB>; Sat, 16 Mar 2002 06:54:01 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:50696 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S310283AbSCPLxt>;
+	Sat, 16 Mar 2002 06:53:49 -0500
+Date: Sat, 16 Mar 2002 04:54:49 -0700
+From: yodaiken@fsmlabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 7.52 second kernel compile
+Message-ID: <20020316045449.A14161@hq.fsmlabs.com>
+In-Reply-To: <20020313085217.GA11658@krispykreme> <20020316061535.GA16653@krispykreme> <a6uubq$uqr$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <a6uubq$uqr$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Mar 16, 2002 at 08:05:14AM +0000
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 16, 2002 at 08:05:14AM +0000, Linus Torvalds wrote:
+> It would also be interesting to hear if you can just make the hash table
+> smaller (I forget the details of 64-bit ppc VM horrors, thank God!) or
+> just bypass it altogether (at least the 604e used to be able to just
+> disable the stupid hashing altogether and make the whole thing much
+> saner). 
+
+Reference:
+URL: http://www.usenix.org/ Optimizing the Idle Task and Other MMU Tricks
+Cort Dougan, Paul Mackerras, Victor Yodaiken
+www.usenix.org/publications/library/proceedings/osdi99/full_papers/dougan/dougan.pdf
 
 
-Rusty Russell wrote:
-
->
->The solution I was referring to before, using full semaphores, would
->look like so:
->
->struct pthread_cond_t
->{
->	int num_waiting;
->	struct futex wait, ack;
->};
->
->#define PTHREAD_COND_INITIALIZER { 0, { 0 }, { 0 } }
->
->int pthread_cond_signal(pthread_cond_t *cond)
->{
->	if (cond->num_waiters)
->		return futex_up(&cond->futex, 1);
->	return 0;
->}
->
->int pthread_cond_broadcast(pthread_cond_t *cond)
->{
->	unsigned int waiters = cond->num_waiting;
->
->	if (waiters) {
->		futex_up(&cond->futex, waiters);
->		/* Wait for ack before returning. */
->		futex_down(&cond->ack);
->	}
->	return 0;
->}
->
->int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
->{
->	int ret;
->
->	/* Increment first so broadcaster knows we are waiting. */
->	atomic_inc(cond->num_waiting);
->	futex_up(&mutex, 1);
->	ret = futex_down(&cond);
->	if (atomic_dec_and_test(cond->num_waiting))
->		futex_up(&cond->ack);
->	futex_down(&mutex->futex);
->	return ret;
->}
->
-In principle that works. But one of  things that's less nice with 
-pthread_cond_wait is
-that you sometimes have a (most of the time) unnecessary schedule 
-ping-pong, and with the
-approach above you always have this (due to ack). And secondly if 
-futex_up(&f, N) for N > 1
-relies on the chained wakeup in the kernels futex_up routine the 
-broadcast may take a while to
-complete (the lowest priority waiter penalizes all others queued behind 
-him). A semaphore simply is no full replacement for a waitqueue with 
-wake_all.
-
-Martin
-
-P.S.  With respect to pthreads I was not thinking of a bloated N:M 
-library, but of some simple
-fast pthread semantics compatible wrapper for _clone etc.   
-
-
-
-
+Cort's MS thesis was on this topic. IBM seems reluctant to give up on 
+hardware page tables though.
 
 

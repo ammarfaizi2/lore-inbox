@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUFWO4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266142AbUFWPBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266561AbUFWO4w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 10:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266556AbUFWO4e
+	id S266142AbUFWPBY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 11:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265979AbUFWPBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 10:56:34 -0400
-Received: from zero.aec.at ([193.170.194.10]:4359 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S265979AbUFWOyl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 10:54:41 -0400
-To: Timm Morten Steinbeck <timm.steinbeck@kip.uni-heidelberg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Precise Accounting for 2.6.7
-References: <2ah51-6Va-35@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 23 Jun 2004 16:54:38 +0200
-In-Reply-To: <2ah51-6Va-35@gated-at.bofh.it> (Timm Morten Steinbeck's
- message of "Wed, 23 Jun 2004 16:40:11 +0200")
-Message-ID: <m33c4m495d.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jun 2004 11:01:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34728 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266142AbUFWPBL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 11:01:11 -0400
+Date: Wed, 23 Jun 2004 08:00:27 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: clem@clem.clem-digital.net, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org
+Subject: Re: 2.6.7-bk6 fails module compile -- iptable_raw.c
+Message-Id: <20040623080027.09457b66.davem@redhat.com>
+In-Reply-To: <20040623.224203.122414746.yoshfuji@linux-ipv6.org>
+References: <200406231256.IAA28505@clem.clem-digital.net>
+	<20040623.224203.122414746.yoshfuji@linux-ipv6.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timm Morten Steinbeck <timm.steinbeck@kip.uni-heidelberg.de> writes:
+On Wed, 23 Jun 2004 22:42:03 +0900 (JST)
+YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> wrote:
 
-> Hi,
->
-> we have ported our x86 precise accounting patch from the 2.4 kernel
-> series to 2.6.7.
+> > net/ipv4/netfilter/iptable_raw.c:57: unknown field `target_size' specified in initializer
+ ...
+> Please try this.
+> 
+> ===== net/ipv4/netfilter/iptable_raw.c 1.2 vs edited =====
+> --- 1.2/net/ipv4/netfilter/iptable_raw.c	2004-06-22 06:39:19 +09:00
+> +++ edited/net/ipv4/netfilter/iptable_raw.c	2004-06-23 22:35:44 +09:00
 
-[...]
-
-On many SMP systems it will not be very precise after longer uptimes
-because the TSCs of the CPUs drift away noticeable and timestamps
-from different CPUs cannot be really compared.
-
--Andi
-
+Applied, thanks.

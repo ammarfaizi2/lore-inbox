@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbTLaXQl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 18:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTLaXQl
+	id S265282AbTLaXPc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 18:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbTLaXPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 18:16:41 -0500
-Received: from dp.samba.org ([66.70.73.150]:12981 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265285AbTLaXQj (ORCPT
+	Wed, 31 Dec 2003 18:15:32 -0500
+Received: from kiy.wanderer.org ([195.218.87.138]:25613 "EHLO kiy.wanderer.org")
+	by vger.kernel.org with ESMTP id S265282AbTLaXPb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 18:16:39 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       mingo@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-reply-to: Your message of "Tue, 30 Dec 2003 21:56:05 -0800."
-             <Pine.LNX.4.44.0312302149350.1457-100000@bigblue.dev.mdolabs.com> 
-Date: Wed, 31 Dec 2003 17:27:44 +1100
-Message-Id: <20031231231637.912362C013@lists.samba.org>
+	Wed, 31 Dec 2003 18:15:31 -0500
+Message-ID: <3FF34522.8060106@tv.debian.net>
+Date: Wed, 31 Dec 2003 23:52:34 +0200
+From: Tommi Virtanen <tv@tv.debian.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rob Love <rml@ximian.com>
+Cc: Nathan Conrad <lk@bungled.net>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local>	 <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur>	 <20031231220107.GC11032@bungled.net> <1072909218.11003.24.camel@fur>	 <3FF3436A.7050503@tv.debian.net> <1072912256.11003.30.camel@fur>
+In-Reply-To: <1072912256.11003.30.camel@fur>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0312302149350.1457-100000@bigblue.dev.mdolabs.com> you write:
-> plus eventually a spinlock) of the task struct. But IMO the code would be 
-> cleaner, since you know who is the target of the message.
+Rob Love wrote:
+>>Let me try to rephrase Nathan's question more explicitly.
+>>
+>>If user policy decides all naming, how does the kernel parse e.g. 
+>>root=/dev/foo arguments? Or the swap partition to use for swsuspend?
+> Oh.  That has always been a hack, ala name_to_dev_t().
+> 
+> We will have to continue doing that hack so long as those users are in
+> the kernel proper (and not early user-space, for example).
 
-<shrug> The code's really not that complicated.
+I think devfs names are accepted as root= arguments, so that's a bit of
+a loss.. with udev, your /dev and your root= are equal only if you
+follow the standard naming.
 
-> Also, what happens in the task woke up by a send does not reschedule 
-> before another CPU does another send? Wouldn't a message be lost?
+For root=, I can see how early userspace can move that to userspace.
+But what about swsuspend?
 
-There's a lock, so only one communication happens at a time, and all
-communication is request-response, so it's pretty straightforward.
+Are there any more kernel options taking file names? I think now would
+be a good time to stop adding more of them :)
 
-But an alternate implementation would be to have a "kthread" kernel
-thread, which would actually be parent to the kthread threads.  This
-means it can allocate and clean up, since it catches *all* thread
-deaths, including "exit()".
-
-What do you think?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

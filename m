@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270305AbUJUHrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270293AbUJUHio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270305AbUJUHrv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 03:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270401AbUJUHlO
+	id S270293AbUJUHio (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 03:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270266AbUJUHiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 03:41:14 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:50843 "HELO
+	Thu, 21 Oct 2004 03:38:00 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:53659 "HELO
 	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270395AbUJUHaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 03:30:12 -0400
+	id S270405AbUJUHaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 03:30:14 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 2/7] Input: remove class devices on disconnect
-Date: Thu, 21 Oct 2004 02:25:21 -0500
+Subject: [PATCH 7/7] Input: remove pm_dev from core
+Date: Thu, 21 Oct 2004 02:30:02 -0500
 User-Agent: KMail/1.6.2
 Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200410210223.45498.dtor_core@ameritech.net> <200410210224.33971.dtor_core@ameritech.net>
-In-Reply-To: <200410210224.33971.dtor_core@ameritech.net>
+References: <200410210223.45498.dtor_core@ameritech.net> <200410210228.57067.dtor_core@ameritech.net> <200410210229.33358.dtor_core@ameritech.net>
+In-Reply-To: <200410210229.33358.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410210225.24364.dtor_core@ameritech.net>
+Message-Id: <200410210230.04156.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -30,135 +30,74 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ===================================================================
 
 
-ChangeSet@1.1955, 2004-10-13 01:05:47-05:00, dtor_core@ameritech.net
-  Input: evdev, joydev, mousedev, tsdev - remove class device and devfs
-         entry when hardware driver disconnects instead of waiting for
-         the last user to drop off. This way hardware drivers can be
-         unloaded at any time.
+ChangeSet@1.1971, 2004-10-20 00:57:45-05:00, dtor_core@ameritech.net
+  Input: get rid of pm_dev in input core as it is deprecated and
+         nothing uses it anyway.
   
   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
- evdev.c    |    4 ++--
- joydev.c   |    4 ++--
- mousedev.c |    4 ++--
- tsdev.c    |   10 +++++-----
- 4 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/input/input.c                      |    4 ----
+ drivers/input/touchscreen/h3600_ts_input.c |    5 +++--
+ include/linux/input.h                      |    1 -
+ 3 files changed, 3 insertions(+), 7 deletions(-)
 
 
 ===================================================================
 
 
 
-diff -Nru a/drivers/input/evdev.c b/drivers/input/evdev.c
---- a/drivers/input/evdev.c	2004-10-21 02:08:42 -05:00
-+++ b/drivers/input/evdev.c	2004-10-21 02:08:42 -05:00
-@@ -91,8 +91,6 @@
+diff -Nru a/drivers/input/input.c b/drivers/input/input.c
+--- a/drivers/input/input.c	2004-10-21 02:14:33 -05:00
++++ b/drivers/input/input.c	2004-10-21 02:14:33 -05:00
+@@ -17,7 +17,6 @@
+ #include <linux/module.h>
+ #include <linux/random.h>
+ #include <linux/major.h>
+-#include <linux/pm.h>
+ #include <linux/proc_fs.h>
+ #include <linux/kmod.h>
+ #include <linux/interrupt.h>
+@@ -460,9 +459,6 @@
+ 	struct list_head * node, * next;
  
- static void evdev_free(struct evdev *evdev)
- {
--	devfs_remove("input/event%d", evdev->minor);
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + evdev->minor));
- 	evdev_table[evdev->minor] = NULL;
- 	kfree(evdev);
- }
-@@ -441,6 +439,8 @@
- {
- 	struct evdev *evdev = handle->private;
+ 	if (!dev) return;
+-
+-	if (dev->pm_dev)
+-		pm_unregister(dev->pm_dev);
  
-+	class_simple_device_remove(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + evdev->minor));
-+	devfs_remove("input/event%d", evdev->minor);
- 	evdev->exist = 0;
+ 	del_timer_sync(&dev->timer);
  
- 	if (evdev->open) {
-diff -Nru a/drivers/input/joydev.c b/drivers/input/joydev.c
---- a/drivers/input/joydev.c	2004-10-21 02:08:42 -05:00
-+++ b/drivers/input/joydev.c	2004-10-21 02:08:42 -05:00
-@@ -143,9 +143,7 @@
+diff -Nru a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
+--- a/drivers/input/touchscreen/h3600_ts_input.c	2004-10-21 02:14:33 -05:00
++++ b/drivers/input/touchscreen/h3600_ts_input.c	2004-10-21 02:14:33 -05:00
+@@ -100,6 +100,7 @@
+  */
+ struct h3600_dev {
+ 	struct input_dev dev;
++	struct pm_dev *pm_dev;
+ 	struct serio *serio;
+ 	unsigned char event;	/* event ID from packet */
+ 	unsigned char chksum;
+@@ -452,8 +453,8 @@
  
- static void joydev_free(struct joydev *joydev)
- {
--	devfs_remove("input/js%d", joydev->minor);
- 	joydev_table[joydev->minor] = NULL;
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
- 	kfree(joydev);
- }
+ 	//h3600_flite_control(1, 25);     /* default brightness */
+ #ifdef CONFIG_PM
+-	ts->dev.pm_dev = pm_register(PM_ILLUMINATION_DEV, PM_SYS_LIGHT,
+-					h3600ts_pm_callback);
++	ts->pm_dev = pm_register(PM_ILLUMINATION_DEV, PM_SYS_LIGHT,
++				h3600ts_pm_callback);
+ 	printk("registered pm callback\n");
+ #endif
+ 	input_register_device(&ts->dev);
+diff -Nru a/include/linux/input.h b/include/linux/input.h
+--- a/include/linux/input.h	2004-10-21 02:14:33 -05:00
++++ b/include/linux/input.h	2004-10-21 02:14:33 -05:00
+@@ -806,7 +806,6 @@
+ 	unsigned int repeat_key;
+ 	struct timer_list timer;
  
-@@ -466,6 +464,8 @@
- {
- 	struct joydev *joydev = handle->private;
+-	struct pm_dev *pm_dev;
+ 	struct pt_regs *regs;
+ 	int state;
  
-+	class_simple_device_remove(MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
-+	devfs_remove("input/js%d", joydev->minor);
- 	joydev->exist = 0;
- 
- 	if (joydev->open)
-diff -Nru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c	2004-10-21 02:08:42 -05:00
-+++ b/drivers/input/mousedev.c	2004-10-21 02:08:42 -05:00
-@@ -335,8 +335,6 @@
- 
- static void mousedev_free(struct mousedev *mousedev)
- {
--	devfs_remove("input/mouse%d", mousedev->minor);
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
- 	mousedev_table[mousedev->minor] = NULL;
- 	kfree(mousedev);
- }
-@@ -646,6 +644,8 @@
- {
- 	struct mousedev *mousedev = handle->private;
- 
-+	class_simple_device_remove(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
-+	devfs_remove("input/mouse%d", mousedev->minor);
- 	mousedev->exist = 0;
- 
- 	if (mousedev->open) {
-diff -Nru a/drivers/input/tsdev.c b/drivers/input/tsdev.c
---- a/drivers/input/tsdev.c	2004-10-21 02:08:42 -05:00
-+++ b/drivers/input/tsdev.c	2004-10-21 02:08:42 -05:00
-@@ -1,7 +1,7 @@
- /*
-  * $Id: tsdev.c,v 1.15 2002/04/10 16:50:19 jsimmons Exp $
-  *
-- *  Copyright (c) 2001 "Crazy" james Simmons 
-+ *  Copyright (c) 2001 "Crazy" james Simmons
-  *
-  *  Compaq touchscreen protocol driver. The protocol emulated by this driver
-  *  is obsolete; for new programs use the tslib library which can read directly
-@@ -177,8 +177,6 @@
- 
- static void tsdev_free(struct tsdev *tsdev)
- {
--	devfs_remove("input/ts%d", tsdev->minor);
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + tsdev->minor));
- 	tsdev_table[tsdev->minor] = NULL;
- 	kfree(tsdev);
- }
-@@ -418,7 +416,7 @@
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/ts%d", minor);
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor + TSDEV_MINORS/2),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/tsraw%d", minor);
--	class_simple_device_add(input_class, 
-+	class_simple_device_add(input_class,
- 				MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor),
- 				dev->dev, "ts%d", minor);
- 
-@@ -429,6 +427,9 @@
- {
- 	struct tsdev *tsdev = handle->private;
- 
-+	class_simple_device_remove(MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + tsdev->minor));
-+	devfs_remove("input/ts%d", tsdev->minor);
-+	devfs_remove("input/tsraw%d", tsdev->minor);
- 	tsdev->exist = 0;
- 
- 	if (tsdev->open) {
-@@ -436,7 +437,6 @@
- 		wake_up_interruptible(&tsdev->wait);
- 	} else
- 		tsdev_free(tsdev);
--	devfs_remove("input/tsraw%d", tsdev->minor);
- }
- 
- static struct input_device_id tsdev_ids[] = {

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129596AbQLDATe>; Sun, 3 Dec 2000 19:19:34 -0500
+	id <S129830AbQLDAUf>; Sun, 3 Dec 2000 19:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129625AbQLDATZ>; Sun, 3 Dec 2000 19:19:25 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:38151 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129596AbQLDATL>; Sun, 3 Dec 2000 19:19:11 -0500
-Date: Sun, 3 Dec 2000 17:44:58 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "Steven N. Hirsch" <shirsch@adelphia.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+	id <S129825AbQLDAUZ>; Sun, 3 Dec 2000 19:20:25 -0500
+Received: from gate.swat.bofh.de ([195.247.253.65]:13318 "HELO
+	helios.swat.bofh.de") by vger.kernel.org with SMTP
+	id <S129625AbQLDAUQ>; Sun, 3 Dec 2000 19:20:16 -0500
+Date: Mon, 4 Dec 2000 00:49:47 +0100
+From: Daniel Roesen <dr@bofh.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Phantom PS/2 mouse persists..
-Message-ID: <20001203174458.A24652@vger.timpanogas.org>
-In-Reply-To: <20001203161940.A24531@vger.timpanogas.org> <Pine.LNX.4.21.0012031739360.3253-100000@pii.fast.net>
+Message-ID: <20001204004947.A1922@helios.swat.bofh.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0012031021580.3253-100000@pii.fast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0012031739360.3253-100000@pii.fast.net>; from shirsch@adelphia.net on Sun, Dec 03, 2000 at 05:42:03PM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012031021580.3253-100000@pii.fast.net>; from shirsch@adelphia.net on Sun, Dec 03, 2000 at 10:24:19AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2000 at 05:42:03PM -0500, Steven N. Hirsch wrote:
-> On Sun, 3 Dec 2000, Jeff V. Merkey wrote:
-> 
-> > > On Sun, Dec 03, 2000 at 06:27:52PM +0000, Alan Cox wrote:
-> > > > 
-> > > > I've fixed the major case. I can see no definitive answer to the other ghost
-> > > > PS/2 stuff (except maybe USB interactions). I take it like the others 2.4test
-> > > > also misreports a PS/2 mouse being present.
-> > > > 
-> > > > Anyway I think its no longer a showstopper for 2.2.18. Someone with an affected
-> > > > board can piece together the picture
-> 
-> > I just tested 2.2.18-24 as a boot kernel with anaconda -- works great -- 
-> > mouse problem on PS/2 system is nailed.  
-> 
-> <sigh>  I always seem to own the wierd hardware.  I agree the mouse
-> mis-detection isn't a showstopper - just damn annoying.
-> 
-> FWIW, USB isn't compiled into the kernel in question.
+On Sun, Dec 03, 2000 at 10:24:19AM -0500, Steven N. Hirsch wrote:
+> Unfortunately, 2.2.18pre24 is still convinced that I have a PS/2 mouse
+> attached to my machine.
 
-Yes it is.  I am also seeing compile problems.  I will post to a new subject
-since they are not mouse related, but IPVS related.
-
-Jeff
+Nod. Which board? I'm seeing the problem with Asus CUWE.
 
 
-> 
-> Steve
-> 
+Best regards,
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

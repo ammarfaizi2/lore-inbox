@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261292AbSKXNae>; Sun, 24 Nov 2002 08:30:34 -0500
+	id <S261295AbSKXNbO>; Sun, 24 Nov 2002 08:31:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSKXNae>; Sun, 24 Nov 2002 08:30:34 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53264 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261292AbSKXNad>; Sun, 24 Nov 2002 08:30:33 -0500
-Date: Sun, 24 Nov 2002 13:37:41 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: kconfig: Locate files relative to $srctree
-Message-ID: <20021124133741.A29087@flint.arm.linux.org.uk>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20021123220747.GA10411@mars.ravnborg.org> <Pine.LNX.4.44.0211240250490.2113-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211240250490.2113-100000@serv>; from zippel@linux-m68k.org on Sun, Nov 24, 2002 at 02:56:22AM +0100
+	id <S261302AbSKXNbO>; Sun, 24 Nov 2002 08:31:14 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18131 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261295AbSKXNbK>;
+	Sun, 24 Nov 2002 08:31:10 -0500
+Date: Sun, 24 Nov 2002 08:38:22 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Patrick Mochel <mochel@osdl.org>, Rusty Lynch <rusty@linux.co.intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] sysfs on 2.5.48 unable to remove files while in use
+In-Reply-To: <20021124100445.Q1407@almesberger.net>
+Message-ID: <Pine.GSO.4.21.0211240832460.9014-100000@steklov.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 24, 2002 at 02:56:22AM +0100, Roman Zippel wrote:
-> >  const char *conf_confnames[] = {
-> >  	".config",
-> >  	"/lib/modules/$UNAME_RELEASE/.config",
-> >  	"/etc/kernel-config",
-> >  	"/boot/config-$UNAME_RELEASE",
-> > -	conf_defname,
-> > +	"arch/$ARCH/defconfig",			/* index DEFNAME */
-> > +	"$" SRCTREE "/arch/$ARCH/defconfig",	/* index DEFALTNAME */
-> >  	NULL,
-> >  };
-> 
-> This is not good. At some point I maybe want to make these configurable.
-> I changed the patch to always use zconf_fopen(), which will try the 
-> alternative prefix for relative paths.
-> I couldn't test this very much as you forgot the kbuild script. :)
-> Anyway, below is an alternative version.
 
-One thing that does slightly annoy me with the new config tools is the
-handling of the default configuration when you're cross-building.  In
-this circumstance, looking for the running kernel configuration seems
-wrong; it definitely isn't going to be the configuration you want to
-start from.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On Sun, 24 Nov 2002, Werner Almesberger wrote:
+
+> do you really need a "magic" file for this ? I don't know how
+> well sysfs supports mkdir/rmdir (if at all), but they would
+> seem to provide a much more natural interface. (VFS allows
+> rmdir to remove non-empty directories, so you wouldn't have
+> to rm -r.)
+
+a) sysfs doesn't allow mkdir/rmdir and thus avoids an imperial buttload
+of races - witness the crap in devfs.
+
+b) rmdir of non-empty directory pretty much guarantees another buttload of
+races.
+
+c) mkdir creating non-empty directory or rmdir removing non-empty directory
+is *ugly*.  BTW, Roman's "filesystem" for modules in its current form is
+vetoed, as far as I'm concerned - this sort of magic is just plain wrong.
 

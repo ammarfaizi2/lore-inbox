@@ -1,253 +1,343 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310251AbSCBBoP>; Fri, 1 Mar 2002 20:44:15 -0500
+	id <S310252AbSCBBzK>; Fri, 1 Mar 2002 20:55:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310252AbSCBBoH>; Fri, 1 Mar 2002 20:44:07 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:14465 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S310251AbSCBBoC>; Fri, 1 Mar 2002 20:44:02 -0500
-Date: Fri, 1 Mar 2002 17:43:38 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: whitney@math.berkeley.edu
-To: vojtech@suse.cz
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Input funnies on 2.5.5-dj2
-Message-ID: <Pine.LNX.4.44.0203011733220.5861-100000@mf1.private>
+	id <S310258AbSCBBzB>; Fri, 1 Mar 2002 20:55:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56845 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310252AbSCBBys>; Fri, 1 Mar 2002 20:54:48 -0500
+Subject: Linux 2.4.19pre2-ac1
+To: linux-kernel@vger.kernel.org
+Date: Sat, 2 Mar 2002 02:09:46 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16gyy2-0005oW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This one is a bit more experimental. I've avoided putting too much in so
+we can see how the O(1) scheduler pans out.
 
-Hello,
+[+ indicates stuff that went to Marcelo, o stuff that has not,
+ * indicates stuff that is merged in mainstream now, X stuff that proved
+   bad and was dropped out]
 
-I have been running 2.5.5-dj2 for a week or so.  About once per boot, I
-get the following printk:
+Linux 2.4.19pre2-ac1
+o	Merge aic7xxx update				(Justin Gibbs)
+o	Fix handling of scsi 'medium error: recovered'	(Justin Gibbs)
+o	Further request region fixups			(Marcus Alanen)
+o	Add interlace/doublescan to voodoo1/2 fb driver	(Urs Ganse)
+	| interlace is always handy with 3d glasses..
+o	Merge O(1) scheduler				(Ingo Molnar)
+	| Thanks to Martin Knoblauch for doing the merge work
+	| Non x86 ports may need to clean up their mm/fault.c
+o	Lseek usage cleanup				(Robert Love)
+o	Merge with 2.4.19pre2
+	-	Fixed bogus sysctl definitions
+	-	Fixed incorrect MODULE_LICENSE backout
+	-	Fixed gratuitous supercede spelling change
+	-	Fixed double patches from mips people
+	-	Fixed incorrect link order from mips people
+	-	Fixed broken config rules from mips people
+	-	Made cciss build
+	-	Remove half written "meth.c" driver
+o	Fix up some of the watchdog api text		(me)
+	| Janitor job - go through that and make all the drivers
+	| support all the things ('V' NOWAYOUT and ioctl core)
+o	Fix wrong order in MAINTAINERS			(me)
+o	Remove roadrunner reference from MAINTAINERS	(me)
 
-atkbd.c: Unknown key (set 4, scancode 0xb6, on isa0060/serio0) pressed.
+Linux 2.4.19pre1-ac2
+o	Fix chown/chmod on shmemfs			(me)
+o	Fix accounting error in the shm code		(me)
+o	Turn on mode2/mode3 overcommit protection	(me)
+o	w83877f watchdog fix compile for SMP		(Mark Cooke)
+o	Fix ide=nodma for serverworks			(Ken Brownfield)
+*	USB2 controller support				(Greg Kroah-Hartmann)
+*	Add more devices to the visor driver (m515,clie)(Greg Kroah-Hartmann)
+*	IBM USB camera driver updates			(Greg Kroah-Hartmann)
+*	USB auerswald driver				(Wolfgang Muees)
+o	Trivial random match up with 2.2		(Marco Colombo)
+*	Spelling fixes					(Jim Freeman)
+*	Next batch of time_*() fixups			(Tim Schmielau)
+o	Update video4linux API docs			(Gerd Knorr)
+o	Merge some comment fixups			(John Kim)
+o	ymfpci sync					(Pete Zaitcev)
+*	Update maintainers to add pm3fb			(Romain DOLBEAU)
+*	Hotplug updates (docs, fs, compaq driver)	(Greg Kroah-Hartmann)
+*	IBM hotplug support	(Irene Zubarev, Tong Yu, Jyoti Shah, Chuck Cole)
+*	ACPI hotplug driver support		(Hiroshi Aono, Takayoshi Kochi)
+o	Blink keyboard lights on x86 panic		(Andi Kleen)
+o	Further Configure.help changes			(Steven Cole)
+o	Merge a version of the sard I/O accounting	(Stephen Tweedie,
+							 Christoph Hellwig)
+o	SC1200 watchdog driver				(Zwane Mwaikambo)
+*	Fix address ordering for 36bit MCE on x86	(Dave Jones)
 
-Also, occasionally a key release event gets missed, usually a Shift key
-but sometimes something else.  I believe that this coincides with the
-atkbd.c messages, but I am not definite.
+Linux 2.4.19pre1-ac1
+o	Merge with 2.4.19-pre1
 
-I include below my boot messages for the purpose of describing my setup,
-plus I include the output of /proc/interrupts in case it might be
-relevant.  Please let me know if any more information would be of use.
+Linux 2.4.18-ac1
+o	Merge with 2.4.18 proper
+o	Add missing -rc4 diff
+o	Use attribute notifiers to account shmemfs	(me)
+o	Initial luxsonor LS220/LS240 driver code	(me)
+	| This is just setup code and only in the tree because
+	| its where I keep my hacks in progress
 
-Cheers,
-Wayne
+Linux 2.4.18rc2-ac2
+o	Fix a corruption problem in the jfs dir table	(Dave Kleikamp)
+o	Fix trap when extending a single extent of	(Dave Kleikamp)
+	over 64Gb in JFS
+*	NBD deadlock fix				(Steven Whitehouse)
+*	Fix device ref counting in netrom stack		(Tomi Manninen)
+*	Fix shmemfs link counting			(Christoph Rohland)
+*	Fix potential scsi disk oops			(Peter Wong)
+*	eepro100 carrier init fix			(Jeff Garzik)
+*	Fix wrong kfree in netrom stack			(Tomi Manninen)
+*	Add TI1250 inits to ZV bus support		(me)
+	| Zoom video now works on the IBM TP600 at least..
+*	Fix off by one on loop devices limit		(Heinz Mauelshagen)
+o	Improve handling of psaux open with no mouse	(Christoph Hellwig)
+	present
+*	3COM 3c359 token ring driver			(Mike Phillips)
+*	Fix a case where hpfs didnt set block size	(Chris Mason)
+	early enough
+*	Remove use of lock_kernel in softdog driver	(me)
+*	Make olympic driver use spinlocks not 		(Mike Phillips)
+	lock_kernel
+o	Fix type of detected devices in md.c		(Jakob Kemi)
+*	Changes and defconfig update			(Niels Jensen)
+o	PNP BIOS driver updates				(Thomas Hood)
+*	Turn off excess printks in pnp quirk reporting	(Andrey Panin)
+*	Add documentation for ITE I2C			(Steven Cole)
+o	Add documentation for other zoran cards		(Steven Cole)
+o	Add an SC520 watchdog, and enable wd8387ff 	(Scott Jennings)
+o	Cleaned up and fixed some SC520 watchdog bugs	(me)
+	| Scott - can you double check these
+*	Fix return on generic lib/string.c memcmp	(Georg Nikodym)
+*	Further zoom video cleanups			(me)
 
+Linux 2.4.18rc2-ac1
+o	Merge with 2.4.18rc2
+*	Ignore i810 modem codecs			(me)
+o	Core of address space accounting code		(me)
+	| Enforcement, ptrace and some shmem corner bits to do
+*	Fix security hole in shmfs			(me)
+o	Fix various bits of 64bit file I/O in shmem	(me)
+o	Merge with rmap12f				(Rik van Riel and co)
 
-Linux version 2.5.5-dj2 (root@pizza) (gcc version 3.1 20020205 (Red Hat Linux Rawhide 3.1-0.21)) #4 Thu Feb 28 19:01:19 PST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
- BIOS-e820: 000000001fff0000 - 000000001fff8000 (ACPI data)
- BIOS-e820: 000000001fff8000 - 0000000020000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000ffee0000 - 00000000fff00000 (reserved)
- BIOS-e820: 00000000fffc0000 - 0000000100000000 (reserved)
-511MB LOWMEM available.
-On node 0 totalpages: 131056
-zone(0): 4096 pages.
-zone(1): 126960 pages.
-zone(2): 0 pages.
-Kernel command line: root=/dev/hda5 nmi_watchdog=1 parport=0x378,7,3
-Local APIC disabled by BIOS -- reenabling.
-Found and enabled local APIC!
-Initializing CPU#0
-Detected 1526.843 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 3047.42 BogoMIPS
-Memory: 517128k/524224k available (1271k kernel code, 6708k reserved, 281k data, 260k init, 0k highmem)
-Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-Buffer-cache hash table entries: 32768 (order: 5, 131072 bytes)
-CPU: Before vendor init, caps: 0383fbff c1cbfbff 00000000, vendor = 2
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-CPU: After vendor init, caps: 0383fbff c1cbfbff 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-CPU: AMD Athlon(tm) XP 1800+ stepping 02
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-testing NMI watchdog ... OK.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1526.8445 MHz.
-..... host bus clock speed is 265.5380 MHz.
-cpu: 0, clocks: 2655380, slice: 1327690
-CPU0<T0:2655376,T1:1327680,D:6,S:1327690,C:2655380>
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-PCI: PCI BIOS revision 2.10 entry at 0xfdb01, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: Using IRQ router SIS [1039/0008] at 00:02.0
-Starting kswapd
-BIO: pool of 256 setup, 14Kb (56 bytes/bio)
-biovec: init pool 0, 1 entries, 12 bytes
-biovec: init pool 1, 4 entries, 48 bytes
-biovec: init pool 2, 16 entries, 192 bytes
-biovec: init pool 3, 64 entries, 768 bytes
-biovec: init pool 4, 128 entries, 1536 bytes
-biovec: init pool 5, 256 entries, 3072 bytes
-Journalled Block Device driver loaded
-ACPI: Core Subsystem version [20011018]
-ACPI: Subsystem enabled
-Power Resource: found
-Power Resource: found
-Power Resource: found
-Power Resource: found
-ACPI: System firmware supports S0 S1 S4 S5
-Processor[0]: C0 C1 C2
-ACPI: Power Button (FF) found
-ACPI: Sleep Button (CM) found
-parport0: PC-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,ECP,DMA]
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-lp0: using parport0 (interrupt-driven).
-lp0: console ready
-block: 256 slots per queue, batch=32
-Uniform Multi-Platform E-IDE driver Revision: 6.32
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-SIS5513: IDE controller on PCI slot 00:02.5
-SIS5513: chipset revision 208
-SIS5513: not 100% native mode: will probe irqs later
-SiS735
-    ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:DMA
-hda: MAXTOR 6L060L3, ATA DISK drive
-hdc: IBM-DTLA-307045, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-blk: queue c02f5844, I/O limit 4095Mb (mask 0xffffffff)
-hda: 117266688 sectors (60041 MB) w/1819KiB Cache, CHS=116336/16/63, UDMA(100)
-blk: queue c02f5be4, I/O limit 4095Mb (mask 0xffffffff)
-hdc: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=89355/16/63, UDMA(100)
-Partition check:
- hda: hda1 hda2 < hda5 hda6 hda7 >
- hdc: unknown partition table
-mice: PS/2 mouse device common for all mice
-input: AT Set 2 Extended keyboard
- on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: PS/2 Logitech Mouse on isa0060/serio1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-LVM version 1.0.1-rc4(ish)(03/10/2001)
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 4096 buckets, 32Kbytes
-TCP: Hash tables configured (established 32768 bind 65536)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.17, 10 Jan 2002 on ide0(3,5), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 260k freed
-Real Time Clock Driver v1.11
-Adding Swap: 1047776k swap-space (priority -1)
-usb.c: registered new driver usbfs
-usb.c: registered new driver hub
-SiS router pirq escape (99)
-SiS router pirq escape (99)
-usb-ohci.c: USB OHCI at membase 0xe08a5000, IRQ 11
-usb-ohci.c: usb-00:02.3, Silicon Integrated Systems [SiS] 7001 (#2)
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found at /
-hub.c: 3 ports detected
-PCI: Found IRQ 5 for device 00:02.2
-PCI: Sharing IRQ 5 with 00:0f.0
-usb-ohci.c: USB OHCI at membase 0xe08a7000, IRQ 5
-usb-ohci.c: usb-00:02.2, Silicon Integrated Systems [SiS] 7001
-usb.c: new USB bus registered, assigned bus number 2
-hub.c: USB hub found at /
-hub.c: 3 ports detected
-hub.c: new USB device on bus 2 path /1, assigned address 2
-usb.c: USB device 2 (vend/prod 0x46d/0xc401) is not claimed by any active driver.
-usb.c: registered new driver hid
-input: USB HID v1.00 Mouse [Logitech USB-PS/2 Trackball] on usb2:1
-hid-core.c: v1.31:USB HID core driver
-EXT3 FS 2.4-0.9.17, 10 Jan 2002 on ide0(3,5), internal journal
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-invalidate: busy buffer
-i2c-core.o: i2c core module
-i2c-proc.o version 2.6.1 (20010825)
-i2c-isa.o version 2.6.2 (20011118)
-i2c-core.o: adapter ISA main adapter registered as adapter 0.
-i2c-isa.o: ISA bus access for i2c modules initialized.
-it87.o version 2.6.2 (20011118)
-i2c-core.o: driver IT87xx sensor driver registered.
-i2c-core.o: client [IT87 chip] registered to adapter [ISA main adapter](pos. 0).
-ip_conntrack (4095 buckets, 32760 max)
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Detected SiS 735 chipset
-agpgart: AGP aperture is 64M @ 0xd0000000
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-blk: queue c02f5844, I/O limit 4095Mb (mask 0xffffffff)
-blk: queue c02f5be4, I/O limit 4095Mb (mask 0xffffffff)
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.17, 10 Jan 2002 on lvm(58,0), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.17, 10 Jan 2002 on lvm(58,1), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.17, 10 Jan 2002 on lvm(58,2), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.17, 10 Jan 2002 on lvm(58,3), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
+Linux 2.4.18pre9-ac4
+o	SIS IDE driver update (handle with care)	(Lionel Bouton)
+o	First set of I2O endian cleanups		(me)
+o	Make i2o_pci.c 64bit/BE clean			(me)
+o	Maybe fix crash on i2o scsi abort/reset paths	(me)
+o	Make i2o use the passed scsi direction flag	(me)
+*	Fix awk failure path in menuconfig		(Andrew Church)
+o	Merge varies doc updates			(Steven Cole)
+o	Add serial support for the Lava Octopus-550	(Jim Treadway)
+*	OPL3SA2 cleanup					(Zwane Mwaikambo)
+o	Add missing blkdev_varyio export		(Todd Roy)
+o/*	Update Changes file, config and experimental	(Niels Jensen)
+	checks
+*	Fix highmem warning in aacraid			(Andrew Morton)
+*	Make tpqic02 use new style request region	(Marcus Alanen)
+o	Only turn off mediagx/geode TSC on 5510/5520	(me)
+	| From information provided by Hiroshi MIURA
+*	Massively clean up the AGP enable and bugfix it	(Bjorn Helgaas)
+o	Fix oops if you try to use the RW wq locks	(Bob Miller)
+o	Remove FPU usage in neomagic fb			(Denis Kropp)
+o	Merge IBM JFS			(Steve Best, Dave Kleikamp, 
+					 Barry Arndt, Christoph Hellwig, ..)
+*	Updated sis frame buffer driver			(Thomas Winischhofer)
+
+Linux 2.4.18pre9-ac3
+*	Clean up various macros and misuse of ;		(Timothy Ball)
+*	Correct procfs locking fixup			(Al Viro)
+o	Speed up ext2/ext3 synchronous mounts		(Andrew Morton)
+o	Update IDE DMA blacklist			(Jonathan Kamens)
+o	Update to XFree86 DRM 4.2 (compatible to 4.1)	(Rik Faith, 
+	and adds I830 DRM				 Jeff Hartmann,
+							 Keith Whitwell,
+							 Abraham vd Merwe
+							 and others)
+o	IBM Lanstreamer updates				(Mike Phillips)
+*	Fix acct rlimit problem (I hope)		(me)
+	| Problem noted by Ian Allen
+o	Automatically set file limits based on mem size	(Andi Kleen)
+*	Correct scsi reservation conflict handling	(James Bottomley)
+	and add the scsi reset api code
+o	Add further kernel docs				(me)
+o	Merge to rmap-12e				(Rik van Riel and co)
+	|merge patch from Nick Orlov
+*	Small fix to the eata driver update		(Dario Ballabio)
 
 
-[whitney@pizza linux-2.5.5-dj2]$ cat /proc/interrupts 
-           CPU0       
-  0:    2428585          XT-PIC  timer
-  1:      31792          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  4:          1          XT-PIC  serial
-  5:        153          XT-PIC  usb-ohci
-  7:      12184          XT-PIC  parport0
-  8:          1          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 11:     345275          XT-PIC  usb-ohci, eth0, SiS SI7012
- 12:      58869          XT-PIC  i8042
- 14:     934298          XT-PIC  ide0
- 15:  131999422          XT-PIC  ide1
-NMI:       8150 
-LOC:    2428573 
-ERR:          0
-MIS:          0
+Linux 2.4.18pre9-ac2
+o	Nat Semi now use their own ident on the Geode	(Hiroshi Miura)
+*	Put #error in two files that need FPU fixups	(me)
+*	Correct a specific mmap return to match posix	(Christopher Yeoh)
+*	Add Eepro100/VE ident				(Hanno Boeck)
+*	Add provides for DRM to the kernel make rpm	(Alexander Hoogerhuis)
+*	Fix a problem where vm86 irq releasing could be	(Stas Sergeev)
+	missed
+*	EATA and U14/34F driver updates			(Dario Ballabio)
+*	Handle EMC storage arrays that report SCSI-2 	(Kurt Garloff)
+	but want REPORT_LUNs
+*	Update README, defconfig, remove autogen files	(Niels Jensen)
+o	Add AFAVLAB PCI serial support			(Harald Welte)
+*	Fix incorrect resource free in eexpress		(Gianluca Anzolin)
+o	Variable size rawio optimisations		(Badari Pulavarty)
+*	Add AT's compatible 8139 cardbus chip		(Go Taniguchi)
+o	Fix crash with newest hpt ide chips		(Arjan van de Ven)
+*	Fix tiny SMP race in pid selection		(Erik Hendriks)
+o	Hopefully fix pnpbios crash caused by early	(me)
+	kernel_thread creation
 
+Linux 2.4.18pre9-ac1
+o	Initial merge of DVD card driver  (Christian Wolff,Marcus Metzler)
+	| This is just an initial testing piece. DVB needs merging
+	| properly and this is only a first bit of testing
+*	Random number generator support for AMD768	(me)
+*	Add AMD768 to i810 driver pci ident list	(me)
+o	Initial AMD768 power management work		(me)
+	| Unfinished pending some docs clarifications
+*	Fix bugbuf mishandling for modular es1370	(me)
+*	Fix up i2o readl abuse, post_wait race, and	(me, Arjan van de Ven)
+	some deadlock cases
+*	Added cpu_relax to yam driver 			(me)
+*	Fixup AMD762 if the BIOS apparently got it wrong(me)
+	(eg ASUS boards)
+*	MP1.4 alignment fixup
+*	pcwd cleanup, backport of fixes from 2.5	(Rob Radez)
+*	Add support for more Moxa cards to mxser	(Damian Wrobel)
+*	Add remaining missing MODULE_LICENSE tags	(Hubert Mantel)
+*	Fix floppy reservation ranges			(Anton Altaparmakov)
+*	Fix max file size setup				(Andi Kleen)
+
+Linux 2.4.18pre7-ac3
+o	Fix a wrong error return in the megaraid driver	(Arjan van de Ven)
+*	FreeVXFS update					(Christoph Hellwig)
+*	Qnxfs update					(Anders Larsen)
+o	Fix non compile with PCI=n			(Adrian Bunk)
+o	Fix DRM 4.0 non compile in i810			(me)
+o	Drop out now dead CLONE thread/parent fixup	(Dave McCracken)
+*	Make NetROM incoming frame check stricter	(Tomi Manninen)
+*	Use sock_orphan in AX.25/NetROM			(Jeroen PE1RXQ)
+o	Pegasus update					(Petko Manolov)
+o	Make reparent_to_init and exec_usermodehelper	(Andrew Morton)
+	use set_user, fix a tiny set_user SMP race
+o	Mark framebuffer mappings VM_IO			(Andrew Morton)
+o	Neomagic frame buffer driver			(Denis Kropp)
+	- Needs FPU code fixing before it can be merged
+*	Hyperthreading awareness for MTRR driver
+o	Correct NR_IRQ with no apic support		(Brian Gerst)
+*	Fix missing includes in sound drivers		(Michal Jaegermann)
+
+Linux 2.4.18pre7-ac2
+*	i810 audio driver update			(Doug Ledford)
+o	Early ioremap for x86 specific code		(Mikael Pettersson)
+	| This is needed to do things like apic/dmi detect early enough
+o	Pentium IV APIC/NMI watchdog			(Mikael Pettersson)
+*	Add C1MRX support to sonypi driver		(Junichi Morita)
+*	Fix "make rpm" with two '-' in extraversion	(Gerald Britton)
+*	Fix aacraid hang/irq storm on i960 boards	(Chris Pascoe)
+*	Fix isdn audio compiler behaviour dependancy	(Urs Thuermann)
+*	YAM driver fixes				(Jean-Paul Roubelat)
+*	ROSE protocol stack update/fixes		(Jean-Paul Roubelat)
+*	Fix UFS/CDROM oops				(Zwane Mwaikambo)
+*	Fix nm256 hang on Dell Latitude			(origin unknown)
+	| Please test this tree with other NM256 based boxes and check
+	| those still work...
+o	Merge PnPBIOS patch		(Thomas Hood, David Hinds, Tom Lees,
+					 Christian Schmidt, ..)
+*	Merge new sis frame buffer drivers		(Thomas Winischhofer)
+*	cs46xx oops fix					(Mike Gorse)
+*	Fix a second cs46xx bug related to this		(me)
+o	Fix acpitable oopses on boot and other problems	(James Cleverdon)
+o	Fix io port type on the hpt366 driver		(Pete Popov)
+*	Updated matrox drivers				(Petr Vandrovec)
+*	IPchains fixes needed for 2.4.18pre7
+o	IDE config text updates for the IDE patches	(Anton Altaparmakov)
+*	Merge the first bits of ZV support		(Marcus Metzler)
+*	Add initial ZV support to yenta socket driver	(me)
+	for TI cards
+*	Fix pirq routing on the CS5530 			(me)
+	| Finally the palmax pcmcia/cardbus works properly
+
+Linux 2.4.18pre7-ac1
+o	Merge with 2.4.18pre7				(Arjan van de Ven)
+	| + some quota fixups redone by me
+	| several 18pre7 netfilter bugs left unfixed for now
+o	Rmap-12a					(Rik van Riel and co)
+
+Linux 2.4.18pre3-ac2
+
+o	Re-merge the IDE patches			(Andre Hedrick and co)
+*	Fix check/request region in ali_ircc and lowcomx(Steven Walter)
+	com90xx, sealevel, sb1000
+*	Remove unused message from 6pack driver		(Adrian Bunk)
+*	Fix unused variable warning in i60scsi		(Adrian Bunk)
+*	Fix off by one floppy oops			(Keith Owens)
+*	Fix i2o_config use of undefined C		(Andreas Dilger)
+*	Fix fdomain scsi oopses				(Per Larsson)
+*	Fix sf16fmi hang on boot			(me)
+o	Add bridge resources to the resource tree	(Ivan Kokshaysky)
+*	Fix iphase ATM oops on close in on case	   (Till Immanuel Patzschke)
+*	Enable OOSTORE on winchip processors		(Dave Jones, me)
+	| Worth about 10-20% performance 
+*	Code Page 1250 support				(Petr Titera)
+*	Fix sdla and hpfs doc typos			(Sven Vermeulen)
+o	Document /proc/stat				(Sven Heinicke)
+*	Update cs4281 drivers				(Tom Woller)
+	| Fixes xmms stutter, remove wrapper code
+	| handle tosh boxes, allow record device change
+	| trigger wakeups on ioctl triggered changes
++/o/X	Fix locking of file struct stuff found by ibm	(Dipankar Sarma)
+	audit
+o	Use spin_lock_init in serial.c			(Dave Miller)
+*	Fix AF_UNIX shutdown bug			(Dave Miller)
+
+Linux 2.4.18pre3-ac1
+
+o	32bit uid quota
+o	rmap-11b VM					(Rik van Riel,
+							 William Irwin etc)
+*	Make scsi printer visible			(Stefan Wieseckel)
+*	Report Hercules Fortissimo card			(Minya Sorakinu)
+*	Fix O_NDELAY close mishandling on the following	(me)
+	sound cards: cmpci, cs46xx, es1370, es1371,
+	esssolo1, sonicvibes
+*	tdfx pixclock handling fix			(Jurriaan)
+o	Fix mishandling of file system size limiting	(Andrea Arcangeli)
+*	generic_serial cleanups				(Rasmus Andersen)
+o	serial.c locking fixes for SMP - move from cli	(Kees)
+	too
+*	Truncate fixes from old -ac tree		(Andrew Morton)
+*	Hopefully fix the i2o oops			(me)
+	| Not the right fix but it'll do till I rewrite this
+*	Fix non blocking tty blocking bug		(Peter Benie)
+o	IRQ routing workaround for problem HP laptops	(Cory Bell)
+*	Fix the rcpci driver				(Pete Popov)
+*	Fix documentation of aedsp location		(Adrian Bunk)
+*	Fix the worst of the APM ate my cpu problems	(Andreas Steinmetz)
+*	Correct icmp documentation			(Pierre Lombard)
+*	Multiple mxser crash on boot fix	(Stephan von Krawczynski)
+o	ldm header fix					(Anton Altaparmakov)
+*	Fix unchecked kmalloc in i2c_proc	(Ragnar Hojland Espinosa)
+*	Fix unchecked kmalloc in airo_cs	(Ragnar Hojland Espinosa)
+*	Fix unchecked kmalloc in btaudio	(Ragnar Hojland Espinosa)
+*	Fix unchecked kmalloc in qnx4/inode.c	(Ragnar Hojland Espinosa)
+*	Disable DRM4.1 GMX2000 driver (4.0 required)	(me)
+*	Fix sb16 lower speed limit bug			(Jori Liesenborgs)
+o	Fix compilation of orinoco driver		(Ben Herrenschmidt)
+*	ISAPnP init fix					(Chris Rankin)
+o	Export release_console_sem			(Andrew Morton)
+*	Output nat crash fix				(Rusty Russell)
+*	Fix PLIP					(Niels Jensen)
+o	Natsemi driver hang fix				(Manfred Spraul)
+*	Add mono/stereo reporting to gemtek pci radio	(Jonathan Hudson)
 

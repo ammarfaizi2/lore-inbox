@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUHKW1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUHKWch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268282AbUHKW1L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268280AbUHKW1K
+	id S268281AbUHKWch (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbUHKWch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:27:10 -0400
-Received: from cantor.suse.de ([195.135.220.2]:62116 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268285AbUHKW0r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:26:47 -0400
-Date: Thu, 12 Aug 2004 00:22:13 +0200
-From: Kurt Garloff <kurt@garloff.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-Message-ID: <20040811222213.GB14744@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	Chris Wright <chrisw@osdl.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20040810130009.P1924@build.pdx.osdl.net> <Xine.LNX.4.44.0408101607170.9332-100000@dhcp83-76.boston.redhat.com> <20040810131217.Q1924@build.pdx.osdl.net>
+	Wed, 11 Aug 2004 18:32:37 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57046 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268281AbUHKWce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:32:34 -0400
+Date: Thu, 12 Aug 2004 00:32:25 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, netdev@oss.sgi.com
+Subject: 2.6: rxrpc compile errors with SYSCTL=n
+Message-ID: <20040811223225.GN26174@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040810131217.Q1924@build.pdx.osdl.net>
-X-Operating-System: Linux 2.6.7-0-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting tons of the following compile errors in 2.6.8-rc4-mm1 (but 
+it doesn't seem to be specific to -mm) with CONFIG_SYSCTL=n:
 
---f2QGlHpHGjS2mn6Y
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<--  snip  -->
 
-On Tue, Aug 10, 2004 at 01:12:17PM -0700, Chris Wright wrote:
-> * James Morris (jmorris@redhat.com) wrote:
-> > On Tue, 10 Aug 2004, Chris Wright wrote:
-> > > Is this new (i.e. you just did this)?  It's basically the same result=
- we
-> > > had from a few years ago.
-> >=20
-> > Yes, did it today.
->=20
-> Thanks, James.  Since these are the only concrete numbers and they are
-> in the noise, I see no compelling reason to change to unlikely().
+...
+  LD      .tmp_vmlinux1
+net/built-in.o(.text+0x154127): In function `__rxrpc_call_acks_timeout':
+: undefined reference to `rxrpc_kdebug'
+net/built-in.o(.text+0x154167): In function `__rxrpc_call_rcv_timeout':
+: undefined reference to `rxrpc_kdebug'
+net/built-in.o(.text+0x1541a7): In function `__rxrpc_call_ackr_timeout':
+: undefined reference to `rxrpc_kdebug'
+net/built-in.o(.text+0x15421e): In function `rxrpc_create_call':
+: undefined reference to `rxrpc_ktrace'
+net/built-in.o(.text+0x154242): In function `rxrpc_create_call':
+: undefined reference to `rxrpc_ktrace'
+net/built-in.o(.text+0x154272): In function `rxrpc_create_call':
+: undefined reference to `rxrpc_ktrace'
+...
+make: *** [.tmp_vmlinux1] Error 1
 
-Well, you may want to drop the unlikely if you dislike it.
-The rest of the path is still a win IMVHO.
+<--  snip  -->
 
-Unfortunately, it has not been discussed here yet.
+cu
+Adrian
 
-Reards,
---=20
-Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
-Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
-Linux: SUSE Labs (Head)        <garloff@suse.de>    [SUSE Nuernberg, DE]
+-- 
 
---f2QGlHpHGjS2mn6Y
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBGpwVxmLh6hyYd04RAnCuAKDFiuBtglAKMSwHZFYxgm1xWcdDwACcCUZc
-RhX+z/x2qfrWI6YyU9AgnV8=
-=A03o
------END PGP SIGNATURE-----
-
---f2QGlHpHGjS2mn6Y--

@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUJOKvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267645AbUJOKxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUJOKvG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 06:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbUJOKvG
+	id S267645AbUJOKxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 06:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbUJOKxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 06:51:06 -0400
-Received: from holomorphy.com ([207.189.100.168]:49800 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267607AbUJOKvD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 06:51:03 -0400
-Date: Fri, 15 Oct 2004 03:51:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: per-process shared information
-Message-ID: <20041015105101.GF5607@holomorphy.com>
-References: <20041013231042.GQ17849@dualathlon.random> <Pine.LNX.4.44.0410142205450.2702-100000@localhost.localdomain> <20041014223730.GI17849@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041014223730.GI17849@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 15 Oct 2004 06:53:15 -0400
+Received: from boromix.nask.net.pl ([195.187.245.33]:2280 "EHLO
+	boromix.nask.net.pl") by vger.kernel.org with ESMTP id S267645AbUJOKxM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 06:53:12 -0400
+Date: Fri, 15 Oct 2004 12:52:29 +0200 (CEST)
+From: Mateusz.Blaszczyk@nask.pl
+X-X-Sender: mat@boromir
+Reply-To: Mateusz.Blaszczyk@nask.pl
+To: Ingo Molnar <mingo@elte.hu>
+cc: rml@tech9.net, linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch, 2.6.9-rc4-mm1] fix oops in sched_setscheduler
+In-Reply-To: <20041015090336.GA14362@elte.hu>
+Message-ID: <Pine.GSO.4.58.0410151251150.5009@boromir>
+References: <Pine.GSO.4.58.0410150833330.9897@boromir> <20041015090336.GA14362@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
+VirusProtection: checked - Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 10:49:28PM +0100, Hugh Dickins wrote:
->> shouldn't change that now, but add your statm_phys_shared; whatever,
+On Fri, 15 Oct 2004, Ingo Molnar wrote:
 
-On Fri, Oct 15, 2004 at 12:37:30AM +0200, Andrea Arcangeli wrote:
-> the only reason to add statm_phys_shared was to keep ps xav fast, if you
-> don't slowdown pa xav you can add another field at the end of statm.
-> Ideally shared should have been set to 0 and it should have been moved
-> to statm_phys_shared. It's slow but not so horrid thanks to the mapcount
-> which makes it really strightforward (it's just a vma + pgtable walk,
-> the only tricky bit is the signal catch and need_resched).
+>
+> * Mateusz.Blaszczyk@nask.pl <Mateusz.Blaszczyk@nask.pl> wrote:
+>
+> > Running cdrecord caused oops in sched_setscheduler syscall (i think)
+> > so i tested with my little setp.c program that follows. It seems that
+> > it always oops - no matter what policy I request. It runs ok on
+> > 2.6.9-rc2-mm1, same config. Rc3 not tested. I run setp. 3 times. The
+> > first I decoded using ksymoops. My .config follows at the end.
+>
+> the crash happens if 1) someone doesnt have profiling enabled 2) uses an
+> UP kernel and 3) does setscheduler. The patch below fixes 3 problems:
+> finishes and fixes the consolidation and fixes the profile=schedule
+> feature. Against 2.6.9-rc4-mm1. Tested.
 
-I'd be rather loath to endorse reintroducing the problematic pagetable
-and vma walks I spent so much effort eliminating. Will Hugh's patch
-suffice for you? If not, what else is needed?
+tested, works.
 
+-mat
 
--- wli
+-- 
+Pozdrowienia,Regards,Cheers,Grüße,A plus!,

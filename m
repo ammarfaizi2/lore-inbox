@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133068AbRDSThJ>; Thu, 19 Apr 2001 15:37:09 -0400
+	id <S133018AbRDSThA>; Thu, 19 Apr 2001 15:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133066AbRDSThA>; Thu, 19 Apr 2001 15:37:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26122 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S133024AbRDSTgk>;
-	Thu, 19 Apr 2001 15:36:40 -0400
-From: rmk@arm.linux.org.uk
-Message-Id: <200104191936.UAA01002@raistlin.arm.linux.org.uk>
-Subject: Re: Dead symbol elimination, stage 1
-To: esr@thyrsus.com
-Date: Thu, 19 Apr 2001 20:36:32 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (CML2), kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010419135955.A3841@thyrsus.com> from "Eric S. Raymond" at Apr 19, 2001 01:59:55 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S133066AbRDSTgu>; Thu, 19 Apr 2001 15:36:50 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16911 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S133018AbRDSTgc>; Thu, 19 Apr 2001 15:36:32 -0400
+Subject: Re: light weight user level semaphores
+To: drepper@cygnus.com
+Date: Thu, 19 Apr 2001 20:35:59 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        viro@math.psu.edu (Alexander Viro),
+        abramo@alsa-project.org (Abramo Bagnara), alonz@nolaviz.org (Alon Ziv),
+        linux-kernel@vger.kernel.org (Kernel Mailing List),
+        mkravetz@sequent.com (Mike Kravetz)
+In-Reply-To: <m3ofts3d4k.fsf@otr.mynet.cygnus.com> from "Ulrich Drepper" at Apr 19, 2001 12:26:03 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14qKDi-0007sy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond writes:
-> > The ones that show up in arch/arm/def-configs are purely because I've been
-> > keeping back the updates to these files; each time the config structure
-> > changes, I get a nice big patch from people with the new def-configs.  I
-> > didn't want to inflict this too regularly on people.
-> 
-> I read this as "I haven't fixed the problem because..."  not as "Don't
-> fix the problem."  Please be more explicit next time so I won't step on
-> your toes?
+> I fail to see how this works across processes.  How can you generate a
+> file descriptor for this pipe in a second process which simply shares
+> some memory with the first one?  The first process is passive: no file
+> descriptor passing must be necessary.
 
-"Keeping back" implies that _I_ have the necessary changes and have not
-passed them on.
+mknod foo p. Or use sockets (although AF_UNIX sockets are higher latency)
+Thats why I suggested using flock - its name based. Whether you mkstemp()
+stuff and pass it around isnt something I care about
 
-> I'm rather disturbed by the amount of crap kxref is turning up -- I
-> expected dozens of dodgy bits, but I'm finding hundreds.  We need to pay
-> better attention to janitorial issues like this if the kernel code
-> isn't going to degenerate into an unmaintainable hairball.
+Files give you permissions for free too
 
-The correct thing to do is to ensure that you are starting with an
-up to date copy of the defconfig files.  You can do this by passing them
-through CML1's 'make oldconfig' before passing them through kxref.
+> Note that semaphores need not always be shared between processes.
+> This is a property the user has to choose.  So the implementation can
+> be easier in the normal intra-process case.
 
-Working with old files does nobody any good.
+So you have unix file permissions on them ?
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

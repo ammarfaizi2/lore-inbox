@@ -1,88 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVAaVqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVAaVt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVAaVqg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 16:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVAaVqg
+	id S261391AbVAaVt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVAaVt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 16:46:36 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:10766 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261386AbVAaVqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 16:46:24 -0500
-Date: Mon, 31 Jan 2005 22:46:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: greg@kroah.com
-Subject: Re: [2.6 patch] i2c-core.c: make some code static
-Message-ID: <20050131214622.GF21437@stusta.de>
-References: <20050131185955.GA18316@stusta.de> <20050131215050.61c2924c.khali@linux-fr.org>
+	Mon, 31 Jan 2005 16:49:59 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:60886 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261390AbVAaVtL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 16:49:11 -0500
+Date: Mon, 31 Jan 2005 22:49:05 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/char/sonypi.c: make 3 structs static
+Message-ID: <20050131214905.GF28886@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <20050131173508.GS18316@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050131215050.61c2924c.khali@linux-fr.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050131173508.GS18316@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 09:50:50PM +0100, Jean Delvare wrote:
+On Mon, Jan 31, 2005 at 06:35:08PM +0100, Adrian Bunk wrote:
 
-> Hi Adrian,
-
-Hi Jean,
-
->...
-> > -/* match always succeeds, as we want the probe() to tell if we really
-> > accept this match */ -static int i2c_device_match(struct device *dev,
-> > struct device_driver *drv) -{
-> > -	return 1;
-> > -}
-> > -
-> > -static int i2c_bus_suspend(struct device * dev, pm_message_t state)
-> > -{
-> > -	int rc = 0;
-> > -
-> > -	if (dev->driver && dev->driver->suspend)
-> > -		rc = dev->driver->suspend(dev,state,0);
-> > -	return rc;
-> > -}
-> > -
-> > -static int i2c_bus_resume(struct device * dev)
-> > -{
-> > -	int rc = 0;
-> > -	
-> > -	if (dev->driver && dev->driver->resume)
-> > -		rc = dev->driver->resume(dev,0);
-> > -	return rc;
-> > -}
-> > -
-> > -struct bus_type i2c_bus_type = {
-> > -	.name =		"i2c",
-> > -	.match =	i2c_device_match,
-> > -	.suspend =      i2c_bus_suspend,
-> > -	.resume =       i2c_bus_resume,
-> > -};
-> > -
-> >  static int __init i2c_init(void)
-> >  {
-> >  	int retval;
+> This patch makes three needlessly global structs static.
 > 
-> Is moving that code around really necessary? Looks to me like only the
-> i2c_bus_type structure needs to be moved.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  drivers/char/sonypi.c |   76 +++++++++++++++++++++++++++++++++++++++++-
+>  drivers/char/sonypi.h |   74 ----------------------------------------
+>  2 files changed, 75 insertions(+), 75 deletions(-)
 
-i2c_bus_type requires i2c_device_match, i2c_bus_suspend and 
-i2c_bus_resume...
+sonypi.h is a "local" header file used only by sonypi.c.
 
-> Thanks,
-> Jean Delvare
+I would like to keep those tables in sonypi.h rather than putting 
+all into sonypi.c (or we could as well remove sonypi.h and put all the
+contents into the .c).
 
-cu
-Adrian
+What about:
+
+ sonypi.c |    2 +-
+ sonypi.h |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+Index: drivers/char/sonypi.h
+===================================================================
+--- a/drivers/char/sonypi.h	(revision 26543)
++++ b/drivers/char/sonypi.h	(working copy)
+@@ -304,7 +304,7 @@ static struct sonypi_event sonypi_batter
+ 	{ 0, 0 }
+ };
+ 
+-struct sonypi_eventtypes {
++static struct sonypi_eventtypes {
+ 	int			model;
+ 	u8			data;
+ 	unsigned long		mask;
+@@ -347,7 +347,7 @@ struct sonypi_eventtypes {
+ #define SONYPI_KEY_INPUTNAME	"Sony Vaio Keys"
+ 
+ /* Correspondance table between sonypi events and input layer events */
+-struct {
++static struct {
+ 	int sonypiev;
+ 	int inputev;
+ } sonypi_inputkeys[] = {
+Index: drivers/char/sonypi.c
+===================================================================
+--- a/drivers/char/sonypi.c	(revision 26543)
++++ b/drivers/char/sonypi.c	(working copy)
+@@ -645,7 +645,7 @@ static struct file_operations sonypi_mis
+ 	.ioctl		= sonypi_misc_ioctl,
+ };
+ 
+-struct miscdevice sonypi_misc_device = {
++static struct miscdevice sonypi_misc_device = {
+ 	.minor		= -1,
+ 	.name		= "sonypi",
+ 	.fops		= &sonypi_misc_fops,
+> 
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Stelian Pop <stelian@popies.net>

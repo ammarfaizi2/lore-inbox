@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261696AbSJCP2x>; Thu, 3 Oct 2002 11:28:53 -0400
+	id <S261643AbSJCPTE>; Thu, 3 Oct 2002 11:19:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261686AbSJCP2s>; Thu, 3 Oct 2002 11:28:48 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:12465 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261191AbSJCP2r>;
-	Thu, 3 Oct 2002 11:28:47 -0400
-Message-ID: <3D9C6376.5080802@colorfullife.com>
-Date: Thu, 03 Oct 2002 17:34:14 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261443AbSJCPSf>; Thu, 3 Oct 2002 11:18:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:16851 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261509AbSJCPRR>;
+	Thu, 3 Oct 2002 11:17:17 -0400
+Date: Thu, 03 Oct 2002 08:15:28 -0700 (PDT)
+Message-Id: <20021003.081528.95890425.davem@redhat.com>
+To: manfred@colorfullife.com
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.5.40-ac1
-References: <3D9C5827.70703@colorfullife.com> <1033658256.28814.0.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D9C5FAE.60008@colorfullife.com>
+References: <3D9C5827.70703@colorfullife.com>
+	<20021003.075034.12648168.davem@redhat.com>
+	<3D9C5FAE.60008@colorfullife.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> The checks I did were that it seemed to produce the same data in both
-> cases. So if it was wrong before (using set_bit) its probably wrong now.
- >
-Which arch?
-On ppc, __set_bit() stores in big endian format, i.e. the cpu_to_le32 
-would be wrong
-I try to figure out what set_bit() does.
+   From: Manfred Spraul <manfred@colorfullife.com>
+   Date: Thu, 03 Oct 2002 17:18:06 +0200
+   
+   Patch again attached, but untested.
 
---
-	Manfred
-
+I'm fine with it, just make sure it doesn't give Linus heart burn :-)

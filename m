@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266085AbUHFDWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUHFDY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266085AbUHFDWk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 23:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUHFDWk
+	id S266166AbUHFDY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 23:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUHFDY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 23:22:40 -0400
-Received: from [12.177.129.25] ([12.177.129.25]:16580 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S266085AbUHFDWj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 23:22:39 -0400
-Message-Id: <200408060421.i764LtCi005625@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Matt Mackall <mpm@selenic.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.8-rc3-mm1 - Fix missing backslash in asm-generic/bug.h
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 06 Aug 2004 00:21:55 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Thu, 5 Aug 2004 23:24:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19124 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266166AbUHFDYY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 23:24:24 -0400
+Date: Thu, 5 Aug 2004 20:24:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Gene Heskett <gene.heskett@verizon.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Possible dcache BUG
+In-Reply-To: <20040806031815.GL12308@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0408052022060.24588@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
+ <200408042216.12215.gene.heskett@verizon.net> <Pine.LNX.4.58.0408042359460.24588@ppc970.osdl.org>
+ <Pine.LNX.4.58.0408051923420.24588@ppc970.osdl.org>
+ <20040806031815.GL12308@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: 2.6.8-rc3-mm1/include/asm-generic/bug.h
-===================================================================
---- 2.6.8-rc3-mm1.orig/include/asm-generic/bug.h	2004-08-05 23:07:01.000000000 -0400
-+++ 2.6.8-rc3-mm1/include/asm-generic/bug.h	2004-08-05 23:15:11.000000000 -0400
-@@ -7,7 +7,7 @@
- #ifndef HAVE_ARCH_BUG
- #define BUG() do { \
- 	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
--	panic("BUG!");
-+	panic("BUG!"); \
- } while (0)
- #endif
- 
 
 
+On Fri, 6 Aug 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
+> It doesn't even take a dput().  Look: we do list_del(), then notice that
+> sucker still has positive refcount and leave it alone.  Now think what
+> happens on the next pass.  That's right, we hit that dentry *again*. And
+> see that list_empty() is false.  And do list_del() one more time.
+
+Well, the sad part is that doing another list_del() won't even necessarily 
+go *boom*. Most of the time it might even leave the list as-is, but often 
+enough it should give list corruption.
+
+> However, what used to be e.g. next dentry might very well be freed by
+> now.  *BOOM*.
+
+Absolutely. It does look like a rather nasty bug.
+
+It doesn't explain what Gene sees, though, unless you can explain how we'd 
+get an anon dentry without knfsd/xfs. Oh well.
+
+I'll commit the obvious one-liner fix, since it might explain _some_ 
+problems people have seen.
+
+		Linus

@@ -1,42 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVAYHd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVAYHdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVAYHd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 02:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVAYHd4
+	id S261853AbVAYHdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 02:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVAYHdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 02:33:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:5782 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261854AbVAYHdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 02:33:53 -0500
-Date: Tue, 25 Jan 2005 07:33:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11-rc2: vmnet breaks; put skb_copy_datagram back in place
-Message-ID: <20050125073352.GA14828@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org> <20050125004117.GB610@speedy.student.utwente.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050125004117.GB610@speedy.student.utwente.nl>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 25 Jan 2005 02:33:46 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:64212 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S261853AbVAYHdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 02:33:20 -0500
+Date: Tue, 25 Jan 2005 02:32:51 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
+In-reply-to: <20050125055651.GA1987@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: Jirka Kosina <jikos@jikos.cz>, Patrick Mochel <mochel@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Message-id: <41F5F623.5090903@sun.com>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)"
+X-Accept-Language: en-us, en
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
+ <20050125055651.GA1987@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 01:41:17AM +0100, Sytse Wielinga wrote:
-> Linus, could you please put skb_copy_datagram back in place? It's not used
-> anymore in the kernel, but the vmnet module (in vmware) still uses this
-> interface to skb_copy_datagram_iovec.
+This is a multi-part message in MIME format.
+
+--Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Greg KH wrote:
+> On Mon, Jan 24, 2005 at 07:25:19PM +0100, Jirka Kosina wrote:
 > 
-> Patch for 2.6.11-rc2 follows. It compiles cleanly; I have not tested it yet,
-> but I assume it's okay. I'll test it right after sending this mail and report
-> back here if something goes wrong.
+>>Hi,
+>>
+>>there has been (for quite some time) a bug in function driver_unregister() 
+>>- the lock/unlock sequence is protecting nothing and the actual 
+>>bus_remove_driver() is called outside critical section.
+>>
+>>Please apply.
+> 
+> 
+> No, please read the comment in the code about why this is the way it is.
+> The code is correct as is.
+> 
 
-Just fix vmware.  Or upgrade to a fixed version that Petr mentioned already.
+Why don't we clean this up as in the proposed attached patch (against
+2.6.10).  Compile-tested only.
 
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9fYjdQs4kOxk3/MRAgzrAJ96+aEawx/A0Sf0d5HqArsasgYrqQCZAVzp
+wuGctEJpxqtxezPD7LNGS+U=
+=77WW
+-----END PGP SIGNATURE-----
+
+--Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)
+Content-type: text/x-patch; name=convert_unload_sem_to_completion.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=convert_unload_sem_to_completion.patch
+
+Get rid of semaphore abuse by converting device_driver->unload_sem semaphore to device_driver->unloaded completion.
+
+This should get rid of any confusion as well as save a few bytes in the
+process.
+
+Signed-off-by: Mike Waychison <michael.waychison@sun.com>
+---
+
+ drivers/base/bus.c     |    2 +-
+ drivers/base/driver.c  |   13 ++++++-------
+ include/linux/device.h |    2 +-
+ 3 files changed, 8 insertions(+), 9 deletions(-)
+
+Index: linux-2.6.10/drivers/base/bus.c
+===================================================================
+--- linux-2.6.10.orig/drivers/base/bus.c	2004-12-24 16:34:26.000000000 -0500
++++ linux-2.6.10/drivers/base/bus.c	2005-01-25 02:14:10.000000000 -0500
+@@ -65,7 +65,7 @@ static struct sysfs_ops driver_sysfs_ops
+ static void driver_release(struct kobject * kobj)
+ {
+ 	struct device_driver * drv = to_driver(kobj);
+-	up(&drv->unload_sem);
++	complete(&drv->unloaded);
+ }
+ 
+ static struct kobj_type ktype_driver = {
+Index: linux-2.6.10/drivers/base/driver.c
+===================================================================
+--- linux-2.6.10.orig/drivers/base/driver.c	2004-12-24 16:35:25.000000000 -0500
++++ linux-2.6.10/drivers/base/driver.c	2005-01-25 02:16:31.000000000 -0500
+@@ -79,14 +79,14 @@ void put_driver(struct device_driver * d
+  *	since most of the things we have to do deal with the bus
+  *	structures.
+  *
+- *	The one interesting aspect is that we initialize @drv->unload_sem
+- *	to a locked state here. It will be unlocked when the driver
+- *	reference count reaches 0.
++ *	The one interesting aspect is that we setup @drv->unloaded
++ *	as a completion that gets complete when the driver reference 
++ *	count reaches 0.
+  */
+ int driver_register(struct device_driver * drv)
+ {
+ 	INIT_LIST_HEAD(&drv->devices);
+-	init_MUTEX_LOCKED(&drv->unload_sem);
++	init_completion(&drv->unloaded);
+ 	return bus_add_driver(drv);
+ }
+ 
+@@ -97,7 +97,7 @@ int driver_register(struct device_driver
+  *
+  *	Again, we pass off most of the work to the bus-level call.
+  *
+- *	Though, once that is done, we attempt to take @drv->unload_sem.
++ *	Though, once that is done, we wait until @drv->unloaded is copmleted.
+  *	This will block until the driver refcount reaches 0, and it is
+  *	released. Only modular drivers will call this function, and we
+  *	have to guarantee that it won't complete, letting the driver
+@@ -107,8 +107,7 @@ int driver_register(struct device_driver
+ void driver_unregister(struct device_driver * drv)
+ {
+ 	bus_remove_driver(drv);
+-	down(&drv->unload_sem);
+-	up(&drv->unload_sem);
++	wait_for_completion(&drv->unloaded);
+ }
+ 
+ /**
+Index: linux-2.6.10/include/linux/device.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/device.h	2004-12-24 16:35:28.000000000 -0500
++++ linux-2.6.10/include/linux/device.h	2005-01-25 02:13:13.716384240 -0500
+@@ -102,7 +102,7 @@ struct device_driver {
+ 	char			* name;
+ 	struct bus_type		* bus;
+ 
+-	struct semaphore	unload_sem;
++	struct completion	unloaded;
+ 	struct kobject		kobj;
+ 	struct list_head	devices;
+ 
+
+--Boundary_(ID_D+YHYb4SIh7zhNrkMoeM8Q)--

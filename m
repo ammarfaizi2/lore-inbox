@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263118AbTJPTQr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 15:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbTJPTQq
+	id S263158AbTJPTJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 15:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbTJPTJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 15:16:46 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29701 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263118AbTJPTQo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 15:16:44 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: usb-storage kills lilo (2.6-test[67])
-Date: 16 Oct 2003 19:06:50 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bmmq8a$hug$1@gatekeeper.tmr.com>
-References: <20031012051107.GA1881@defiant>
-X-Trace: gatekeeper.tmr.com 1066331210 18384 192.168.12.62 (16 Oct 2003 19:06:50 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Thu, 16 Oct 2003 15:09:36 -0400
+Received: from waste.org ([209.173.204.2]:39084 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263158AbTJPTJS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 15:09:18 -0400
+Date: Thu, 16 Oct 2003 14:08:25 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Eli Billauer <eli_billauer@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [RFC] frandom - fast random generator module
+Message-ID: <20031016190825.GQ5725@waste.org>
+References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016102020.A7000@schatzie.adilger.int> <20031016174526.GM5725@waste.org> <20031016123828.F7000@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031016123828.F7000@schatzie.adilger.int>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031012051107.GA1881@defiant>,
-Norbert Kiesel  <nkiesel@tbdnetworks.com> wrote:
-| (sorry for the flashy subject, but I could not come up with another one
-| :-)
-| 
-| Hi, I got problems with usb-storage and linux-2.6-test[67]. AFAICS,
-| test5 works fine (still have to retest to make sure).
-| 
-| Problem is that inserting my USB flash memory disk makes /dev/sda (and
-| /dev/sda1) appear in /proc/partitions, but removing it does not remove
-| the entries from /proc/partitions.  lilo is reading /proc/partitions
-| (verified trough strace) and dies because /dev/sda is gone.
-| 
-| Possibly related to that is the next time I insert the flash disk, is
-| shows up as /dev/sdb1 (and adds this to /proc/partiotions, too). 
+On Thu, Oct 16, 2003 at 12:38:28PM -0600, Andreas Dilger wrote:
+> On Oct 16, 2003  12:45 -0500, Matt Mackall wrote:
+> > On Thu, Oct 16, 2003 at 10:20:20AM -0600, Andreas Dilger wrote:
+> > > For Lustre we need a low-cost RNG for generating opaque 64-bit handles in
+> > > the kernel.  The use of get_random_bytes() showed up near the top of
+> > > our profiles and we had to invent our own low-cost crappy PRNG instead (it's
+> > > good enough for the time being, but when we start working on real security
+> > > it won't be enough).
+> > 
+> > Is this SMP? If so, how many processors? I wonder if you might be
+> > running into some lock contention in the pool entropy transfer -
+> > there's a lock held while mixing new samples into a given pool that
+> > could potentially be a hit.
+> 
+> It was a 2-way SMP system.  We use the RNG a fair amount (enough to know
+> that 2 CPUs can race and return the same value from get_random_bytes() ;-)
 
-I have seen similar behaviour with flash readers. I have CF and memstick
-readers, and after a photo session I'm likely to have a bunch of each to
-unload. If I do the CF first, the device is sda. Even changing media,
-still sda. But when I unplug and connect the memstick reader, that
-becomes sdb, and sda is shown as missing in action.
+Sure this is a race and not a birthday paradox? How recent is this?
+Possibly before locking was added to random.c?
 
-I didn't report it because I lack time to characterize it properly and I
-can live with it. But since you report the problem, I'll throw this info
-out in case it helps someone else understand exactly what's happening.
+> so we had to put a spinlock around our calls to that.  Even so, oprofile
+> showed extract_entropy() and SHATransform() near the top of CPU users.
 
-I *believe* I first saw it in test4, I haven't been running 2.6 kernels
-lately on that machine, so I can't say if it's still an issue.
+Ok, the lock contention would be with add_entropy_words. I've got code
+that reduces calls to SHATransform for /dev/urandom, but it require
+addressing the starvation issues between /dev/random and /dev/urandom first.
+
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281556AbRKZKUV>; Mon, 26 Nov 2001 05:20:21 -0500
+	id <S281559AbRKZKZb>; Mon, 26 Nov 2001 05:25:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281564AbRKZKUL>; Mon, 26 Nov 2001 05:20:11 -0500
-Received: from viper.haque.net ([66.88.179.82]:63632 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S281556AbRKZKUH>;
-	Mon, 26 Nov 2001 05:20:07 -0500
-Date: Mon, 26 Nov 2001 05:20:04 -0500
-Subject: Re: ftp welcome message in 2.4 ftp directory?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v475)
-Cc: linux-kernel@vger.kernel.org
-To: Clemens Schwaighofer <cs@pixelwings.com>
-From: "Mohammad A. Haque" <mhaque@haque.net>
-In-Reply-To: <160410000.1006767828@gullevek.piwi.intern>
-Message-Id: <28A81299-E257-11D5-AEE4-00306569F1C6@haque.net>
+	id <S281561AbRKZKZW>; Mon, 26 Nov 2001 05:25:22 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:2830 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S281559AbRKZKZL>; Mon, 26 Nov 2001 05:25:11 -0500
+Message-ID: <3C021848.A25B284A@idb.hist.no>
+Date: Mon, 26 Nov 2001 11:24:08 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre1 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: OOM killer in 2.4.15pre1 still not 100% ok
+In-Reply-To: <01112217224700.01298@manta> <E166wVS-0004Vk-00@localhost> <01112313001401.00886@manta>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.475)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, November 26, 2001, at 04:43 , Clemens Schwaighofer wrote:
+vda wrote:
 
-> Hi!
->
-> Wouldn't it be smart to but a welcome message into the FTP directory of 
-> the 2.4 kernel that gives hints what problems there are with the latest 
-> kernel (loop problem in .14, etc ...) and what patches are there to 
-> apply for fixing it.
->
-> I think this would help a lot of people who are not reading this 
-> mailing list and would save the mailing list of a lot of repeating 
-> mails (think of the loop problem).
+> Maybe I misunderstand something, but why OOM chose top? Is it how it is
+> intended to work?
 
-And for those who don't bothering reading the little bit if message that 
-scrolls across their screens when they log in?
+It is intended to do the least possible damage when killing
+something.  I'd say it does nicely when killing "top", you
+surely don't loose much work that way. :-)
 
-Point being, we could go on and on about trying to warn people. The 
-emails will still come.
-
---
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                                mhaque@haque.net
-
-   "Alcohol and calculus don't mix.             Developer/Project Lead
-    Don't drink and derive." --Unknown          http://www.themes.org/
-                                                batmanppc@themes.org
-=====================================================================
-
+Helge Hafting

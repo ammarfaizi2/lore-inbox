@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318142AbSG2Vqw>; Mon, 29 Jul 2002 17:46:52 -0400
+	id <S318136AbSG2VpD>; Mon, 29 Jul 2002 17:45:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318141AbSG2Vqw>; Mon, 29 Jul 2002 17:46:52 -0400
-Received: from dsl-213-023-043-226.arcor-ip.net ([213.23.43.226]:52372 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318140AbSG2Vqt>;
-	Mon, 29 Jul 2002 17:46:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch 1/13] misc fixes
-Date: Mon, 29 Jul 2002 23:51:24 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <3D439E09.3348E8D6@zip.com.au> <E17Z4v0-0002io-00@starship> <3D459ECE.C5BD53DE@zip.com.au>
-In-Reply-To: <3D459ECE.C5BD53DE@zip.com.au>
+	id <S318138AbSG2VpD>; Mon, 29 Jul 2002 17:45:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18440 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318136AbSG2VpC>;
+	Mon, 29 Jul 2002 17:45:02 -0400
+Message-ID: <3D45B79F.D228226@zip.com.au>
+Date: Mon, 29 Jul 2002 14:46:07 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ZIQH-0004Wo-00@starship>
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of 
+ PAGE_{CACHE_,}{MASK,ALIGN}
+References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au> <20020729004942.GL1201@dualathlon.random> <3D44A2DF.F751B564@zip.com.au> <20020729205211.GB1201@dualathlon.random> <3D45AD1B.864458B@zip.com.au> <20020729213132.GG1201@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 July 2002 22:00, Andrew Morton wrote:
-> > The idea I'm playing with now is to address an array of locks based on
-> > something like:
-> > 
-> >         spin_lock(pte_chain_locks + ((page->index >> 4) & 0xff));
-> > 
-> > so that 16 consecutive filemap pages use the same lock and there is a limited
-> > total number of locks to keep cache pressure down.  Since we are creating the
-> > vast majority of the pte chain nodes while walking across page tables, this
-> > should give nice locality.
+Andrea Arcangeli wrote:
 > 
-> Something like that could help.
+> On Mon, Jul 29, 2002 at 02:01:15PM -0700, Andrew Morton wrote:
+> > Andrea Arcangeli wrote:
+> > >
+> > > On Sun, Jul 28, 2002 at 07:05:19PM -0700, Andrew Morton wrote:
+> > > > But yes, all of this is a straight speed/space tradeoff.  Probably
+> > > > some of it should be ifdeffed.
+> > >
+> > > I would say so. recalculating page_address in cpu core with no cacheline
+> > > access is one thing, deriving the index is a different thing.
+> > >
+> > > > The cost of the tree walk doesn't worry me much - generally we
+> > > > walk the tree with good locality of reference, so most everything is
+> > > > in cache anyway.
+> > >
+> > > well, the rbtree showedup heavily when it started growing more than a
+> > > few steps, it has less locality of reference though.
+> > >
+> > > >    Good luck setting up a testcase which does this ;)
+> > >
+> > > a gigabit will trigger it in a millisecond. of course nobody tested it
+> > > either I guess (I guess not many people tested the 800Gbyte offset
+> > > either in the first place).
+> >
+> > There's still the mempool.
 > 
-> At some point, when the reverse map is as CPU efficient as we can make it,
-> we need to decide whether the remaining cost is worth the benefit.  I
-> wonder how to do that.
+> that's hiding the problem at the moment, it's global, it doesn't provide
+> any real guarantee.
 
-We need measurements for a few other loads I think.
+Sizing the mempool to max_cpus * max tree depth provides a guarantee,
+provided you take care of context switches, which is pretty easy.
 
-> > For this to work, anon pages will need to have something in page->index.
-> > This isn't too much of a challenge.  A reasonable value to put in there is
-> > the creator's virtual address, shifted right, and perhaps mangled a little to
-> > reduce contention.
+> ...
 > 
-> Well you want the likely-to-be-temporally-adjacent anon pages to
-> use the same lock.  So maybe
-> 
-> 	page->index = some_global_int++;
+> so it's not too bad in terms of stack because there's not going to be
+> more than one walk at time, thanks for doing the math btw. You'd
+> basically need a second radix tree for the dirty pages (using the same
+> radix tree is not an option because it would increase pdflush complexity
+> too much with terabytes of clean pages in the tree).
 
-Yes, that's better.
+Not sure.  If each ratnode has a 64-bit bitmap which represents
+dirty pages if it's a leaf node, or nodes which have dirty pages
+if it's a higher node then the "find the next 16 dirty pages above index
+N" is a pretty efficient thing.
 
-> Except ->index gets stomped on when the page gets added to swapcache.
-> Which means that the address of its lock will change.  I can't immediately
-> think of a fix for that.
-
-We'd have to hold the lock while changing the page->index.  Pte_chain_lock
-would additionally have to check the page->index after acquiring the lock
-and, if changed, drop it and take the new one.  I don't think the overhead 
-for this check is significant.
-
-Add_to_page_cache would want new flavor that shortens up the pte chain lock 
-hold time, but it looks like it should have a swap-specific variant anyway.
-
--- 
-Daniel
+Tricky to code though.

@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbTIVTLA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 15:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTIVTK7
+	id S263266AbTIVS6b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 14:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTIVS6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 15:10:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32489 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262712AbTIVTK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 15:10:57 -0400
-Date: Mon, 22 Sep 2003 21:10:50 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test5-mm4: wanxl doesn't compile with gcc 2.95
-Message-ID: <20030922191049.GC6325@fs.tum.de>
-References: <20030922013548.6e5a5dcf.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 22 Sep 2003 14:58:30 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40765 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263266AbTIVS61 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 14:58:27 -0400
+To: arjanv@redhat.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
+References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com>
+	<1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk>
+	<20030922162602.GB27209@mail.jlokier.co.uk>
+	<1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk>
+	<1064250691.6235.2.camel@laptop.fenrus.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Sep 2003 12:58:04 -0600
+In-Reply-To: <1064250691.6235.2.camel@laptop.fenrus.com>
+Message-ID: <m165jkk5vn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030922013548.6e5a5dcf.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following compile error with gcc 2.95:
+Arjan van de Ven <arjanv@redhat.com> writes:
 
-<--  snip  -->
+> On Mon, 2003-09-22 at 18:33, Alan Cox wrote:
+> \
+> > > I've also seen much DOS code that didn't have extra delays for
+> > > keyboard I/Os.  What sort of breakage did you observe with the
+> > > keyboard?
+> > 
+> > DEC laptops hang is the well known example of that one.
+> > 
+> > I'm *for* making this change to udelay, it just has to start up with a
+> > suitably pessimal udelay assumption until calibrated.
+> 
+> or we make udelay() do the port 80 access in the uncalibrated case....
+> 
+> The first person to complain about the extra branch miss in udelay for
+> this will get laughed at by me ;)
 
-...
-  CC      drivers/net/wan/wanxl.o
-drivers/net/wan/wanxl.c: In function `pci_map_single_debug':
-drivers/net/wan/wanxl.c:128: warning: unsigned int format, different type arg (arg 3)
-drivers/net/wan/wanxl.c: In function `wanxl_tx_intr':
-drivers/net/wan/wanxl.c:185: parse error before `struct'
-drivers/net/wan/wanxl.c:200: `skb' undeclared (first use in this function)
-drivers/net/wan/wanxl.c:200: (Each undeclared identifier is reported only once
-drivers/net/wan/wanxl.c:200: for each function it appears in.)
-drivers/net/wan/wanxl.c: In function `wanxl_xmit':
-drivers/net/wan/wanxl.c:298: parse error before `*'
-drivers/net/wan/wanxl.c:299: `desc' undeclared (first use in this function)
-drivers/net/wan/wanxl.c: In function `wanxl_pci_init_one':
-drivers/net/wan/wanxl.c:631: warning: unsigned int format, different type arg (arg 3)
-drivers/net/wan/wanxl.c: At top level:
-drivers/net/wan/wanxl.c:34: warning: `version' defined but not used
-make[3]: *** [drivers/net/wan/wanxl.o] Error 1
+Sounds like a solution.  I will see what I can do in that direction.
+Maintaining a suitably pessimistic udelay with multi gigahertz chips
+sounds like a challenge, so using outb to port 0x80 may be a
+reasonable solution there. 
 
-<--  snip  -->
+Alan, can you describe a little more what the original delay is needed
+for?  I don't see it documented in my 8254 data sheet.  The better I
+can understand the problem the better I can write the comments on this
+magic bit of code as I fix it.
 
-For gcc 2.95, all variable declarations must be at the beginning.
+The oldest machine I have is a 386 MCA system.  Any chance of the bug
+showing up there?  I'd love to have a test case.
 
-cu
-Adrian
+Another reason for fixing this is we are killing who knows how much
+I/O bandwidth with this stream of failing writes to port 0x80.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Eric

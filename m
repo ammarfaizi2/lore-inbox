@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132338AbREHMDW>; Tue, 8 May 2001 08:03:22 -0400
+	id <S132057AbREHMKF>; Tue, 8 May 2001 08:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132057AbREHMDN>; Tue, 8 May 2001 08:03:13 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:61824 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132054AbREHMC7>; Tue, 8 May 2001 08:02:59 -0400
-Date: Tue, 8 May 2001 08:02:51 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Hen, Shmulik" <shmulik.hen@intel.com>
-cc: "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>,
-        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
-Subject: RE: ioctl call for network device
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27218@hasmsx52.iil.intel.com>
-Message-ID: <Pine.LNX.3.95.1010508075833.17408A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132318AbREHMJy>; Tue, 8 May 2001 08:09:54 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:63237 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132057AbREHMJs>;
+	Tue, 8 May 2001 08:09:48 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@melbourne.sgi.com>
+To: kdb@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: kdb wishlist
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 08 May 2001 22:09:42 +1000
+Message-ID: <23270.989323782@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 May 2001, Hen, Shmulik wrote:
+This is part of my kdb wishlist, does anybody fancy writing the code to
+add any of these features?  It would be a nice project for anybody
+wanting to start on the kernel.  Replies to kdb@oss.sgi.com please.
+Current patches at http://oss.sgi.com/projects/kdb/download/
 
-> > struct ifreq has a member called ifr_data. It is a pointer. You can
-> > put a pointer to any of your data, including the most complex structure
-> > you might envision, in that area. This allows you to pass anything
-> > to and from your module. This pointer can be properly dereferenced
-> > in kernel space but you should use copy_to/from_user and friends so a
-> > user-space coding bug won't panic the kernel.
-> 
-> How about a linked list ?
-> Will the driver be able to follow the list where each node was dynamically
-> allocated by the application ?
-> Is there a size limit on the buffer ifr_data points to ? (AFAIK, Windows
-> NDIS drivers limit to 1 page buffer =4096 bytes).
-> 
-> 
-> 	Thanks,
-> 
-> 	Shmulik Hen      
-> 	Linux Advanced Networking Services
-> 	Intel Network Communications Group
+* Change kdb invocation key from ^A to ^X^X^X within 3 seconds.  ^A is
+  used by emacs, bash, minicom etc.
 
-Again; This is a pointer. Your driver can dereference any valid pointer.
-You can't do this while holding a lock that will prevent page faults.
-Other than this, there are no problems.
+* Command history.  Handle up/down/left/right/delete keys.  Each
+  kdba_io routine is responsible for recognising the arch specific
+  keys, with a common history and editting routine.
 
+* Clean up repeating commands.  Pressing enter at the kdb prompt
+  repeats the previous command, no matter what the previous command
+  was.  Some commands it makes no sense to repeat (bp in particular),
+  for other commands you want to repeat the command but without the
+  parameter (md in particular).
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+* Embed width and count options in md and mm commands.  Some hardware
+  requires that accesses be a specific width, this can be achieved by
+  setting BYTESPERWORD but it is awkward.  We want md1 to read one
+  byte, md2, md4, md8 commands.  All can have a count field, e.g.
+  md1c8 reads 8 bytes one at a time.  mm1, mm2, mm4, mm8 to set memory
+  no count field.
 

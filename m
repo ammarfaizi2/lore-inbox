@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266908AbTADNpZ>; Sat, 4 Jan 2003 08:45:25 -0500
+	id <S266928AbTADNsd>; Sat, 4 Jan 2003 08:48:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266924AbTADNpZ>; Sat, 4 Jan 2003 08:45:25 -0500
-Received: from B5242.pppool.de ([213.7.82.66]:52144 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S266908AbTADNpY>; Sat, 4 Jan 2003 08:45:24 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-From: Daniel Egger <degger@fhm.edu>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4MhyUIM+STi0wTaBGet4"
-Organization: 
-Message-Id: <1041688417.4784.4.camel@sonja>
+	id <S266932AbTADNsd>; Sat, 4 Jan 2003 08:48:33 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:54497 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S266928AbTADNsc>; Sat, 4 Jan 2003 08:48:32 -0500
+Date: Sat, 4 Jan 2003 08:57:06 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] irq handling code consolidation, second try (v850 part)
+Message-ID: <20030104135706.GA12349@gnu.org>
+References: <87hecp83yq.fsf@tc-1-100.kawasaki.gol.ne.jp> <20030104130352.GK10477@pazke>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 04 Jan 2003 14:53:37 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030104130352.GK10477@pazke>
+User-Agent: Mutt/1.3.28i
+Blat: Foop
+From: Miles Bader <miles@gnu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 04, 2003 at 04:03:52PM +0300, Andrey Panin wrote:
+> I used arch_ prefix to clearly mark arch specifig things, but
+> irq_valid() is probably a better name. Comments ?
 
---=-4MhyUIM+STi0wTaBGet4
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+You should only `mark arch specific things' when there's a reason --
+after all, there are _lots_ of arch-specific definitions in linux, but very
+rarely is it important to note that fact; the caller usually doesn't care.
 
-Am Fre, 2003-01-03 um 18.45 schrieb Andre Hedrick:
+[consider that it might be desirable at some point in the future to have a
+arch-independent version of `irq_valid'; the callers shouldn't have to be
+changed to accomodate such a change]
 
-> Thanks!  Look how much I have given away, gee it is nothing.
-> Only 80% or more of all IDE chipsets, I personally wrote.
-> I am not allowed to make money to feed my family, pay from the cost of
-> membership to standards, pay for the cost of joining working groups for
-> new technology, pay for the cost of travel to the fore mentioned.
+In the case of something like `arch_setup_irq', there _is_ a reason:  it's a
+small arch-specific `core' for the real generic setup_irq (and one which will
+probably be used _only_ by setup_irq).
 
-Please don't jump on this train. Actually you're bitching about people
-whining; instead you should give people the possibility to pay you for
-your *really nice* (though a bit cryptic at times :)) work.
-
-Ok, I'd like to make a start: I'd like to donate, say =A420 for now, do
-you cash credit cards?
-
---
-Servus,
-       Daniel
-
---=-4MhyUIM+STi0wTaBGet4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+Fudgchlzsq9KoIYRAnT0AKDMEIohOZUASONMKnOonPO2/ECjJwCgvMXb
-4hfDjcSwP9icLQG2p6vrDHM=
-=SIZs
------END PGP SIGNATURE-----
-
---=-4MhyUIM+STi0wTaBGet4--
-
+-Miles
+-- 
+Ich bin ein Virus. Mach' mit und kopiere mich in Deine .signature.

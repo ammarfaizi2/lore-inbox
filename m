@@ -1,189 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261421AbSJMDtU>; Sat, 12 Oct 2002 23:49:20 -0400
+	id <S261422AbSJMDyL>; Sat, 12 Oct 2002 23:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261422AbSJMDtU>; Sat, 12 Oct 2002 23:49:20 -0400
-Received: from smtp4.us.dell.com ([143.166.148.135]:61874 "EHLO
-	smtp4.us.dell.com") by vger.kernel.org with ESMTP
-	id <S261421AbSJMDtS>; Sat, 12 Oct 2002 23:49:18 -0400
-Date: Sat, 12 Oct 2002 22:55:04 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: linux-kernel@vger.kernel.org
-Subject: [CFT][PATCH 2.5] x86 BIOS Enhanced Disk Drive services
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68BC0284@AUSXMPC122.aus.amer.dell.com>
-Message-ID: <20BF5713E14D5B48AA289F72BD372D68A3E27C-100000@AUSXMPC122.aus.amer.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+	id <S261423AbSJMDyK>; Sat, 12 Oct 2002 23:54:10 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:531 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261422AbSJMDyJ>; Sat, 12 Oct 2002 23:54:09 -0400
+Date: Sat, 12 Oct 2002 23:52:08 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Benchmark results from resp1 trivial response time test
+Message-ID: <Pine.LNX.3.96.1021012234904.30780A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Call For Testers - x86 BIOS Enhanced Disk Drive Services
+I have been using and developing a trivial response benchmark which is
+intended to give a reproducable measure of system response to trivial
+tasks, such as uncovering a window or typing a small command such as
+'ls' requiring modest memory and CPU.
 
-x86 systems suffer from a disconnect between what BIOS believes is the
-boot disk, and what Linux thinks BIOS thinks is the boot disk.  This
-manifests itself in multi-disk systems - it's quite possible to
-install a distribution, only to fail on reboot - the disk installed to
-is not the disk BIOS is booting from.
+The benchmark runs a noload case, then forks a load process (or
+processes) in the background, pauses long enough to simulate user
+interaction (and get swapped out if the system is memory stressed), then
+reports the time it took to complete, including the ratio of loaded to
+noload time.
 
-BIOS Enhanced Disk Device Services (EDD) 3.0 provides the ability for
-disk adapter BIOSs to tell the OS what it believes is the boot disk.
-While this isn't widely implemented in BIOSs yet, it's time that Linux
-received support to be ready as BIOSs with this feature do become
-available.  At a minimum, LSI MegaRAID cards support this properly
-today.  I'm taking reports of success/failure at
-http://domsch.com/linux/edd30/results.html.
+I got some results so bad I thought the program was in error, but
+running ls by hand convinced me that the system could easily be orders
+of magnitude slower under some load.
 
-EDD works by providing the bus (PCI, PCI-X, ISA, InfiniBand, PCI
-Express, or HyperTransport) location (e.g. PCI 02:01.0) and interface
-(ATAPI, ATA, SCSI, USB, 1394, FibreChannel, I2O, RAID, SATA) location
-(e.g. SCSI ID 5 LUN 0) information for each BIOS int13 device.
-
-The patch below creates CONFIG_EDD, that when defined, makes the real
-mode BIOS int13 calls (setup.S) to retrieve and store this information.  The
-data is copied to a safe place (setup.c), and the edd module exports
-it via driverfs.  This currently makes symlinks for PCI controllers
-and SCSI disks - IDE disks will be added once their driverfs changes
-settle down a bit (you can still get the disk info, just no symlinks.)
+Here are some results, the 2.5.41-mm2v is Con's patch on top of 41-mm2.
+The program and some detailed results from the standard test machine are
+at http://pages.prodigy.net/davidsen/ if anyone cares. 2.5.41-ac2
+crashed every time I tried the benchmark, I'm building the same kernels
+on an SMP machine to get a set of SMP results.
 
 
-*** Call for Testers ***
-I'd like to see this included in 2.5.x, and need some testers.  I
-believe it to be safe and stable, though I know there are BIOSs that
-either:
-a) claim to support this and do it right (excellent!)
-b) don't claim to support this (fine, they get ignored),
-c) claim to support this but do so incorrectly (these are the ones
-I've heard concerns about)
-
-In all cases I've tried, the real mode int13 calls succeeded (none
-locked a machine), and the expected amount of data was returned.  When
-displaying the data, all cases of incorrect data I've come across are
-flagged with warnings or errors when printing the 'raw_data' file for
-the particular device.  When the data appears to be good, and referrs
-to a PCI controller, a symlink in driverfs is made for that.  If it's
-good and a SCSI disk, a symlink is made for that as well.  So far, no
-tools (e.g. distro installers) make use of these symlinks or any of
-the other reported data, so regardless what BIOS returns, there can be
-no harm because we're only displaying it, not relying on it.  I'm
-counting on human-generated reports to tell if this can generally be
-useful, and which BIOS vendors I need to go flog.
-
-Please try the patch, enable CONFIG_EDD=m, and load the 'edd' module.
-You should see a 'bios' top-level directory in /driverfs, with each
-BIOS-handled device listed under there.  Please see
-http://domsch.com/linux/edd30/results.html for success/failure
-reports, and send your own reports as described there.
-*** Call for Testers ***
-
-
-Here's a sample driverfs tree with two BIOS int13 devices - dev 80 has
-incorrect PCI bus information, thus no symlinks are made, but as much
-info as possible is presented.  Dev 81 has correct PCI and SCSI
-information, thus symlinks are made to the actual disc device.
-   
-/driverfs
-|-- bios
-|   |-- int13_dev80
-|   |   |-- extensions
-|   |   |-- host_bus
-|   |   |-- info_flags
-|   |   |-- interface
-|   |   |-- raw_data
-|   |   |-- sectors
-|   |   `-- version
-|   `-- int13_dev81
-|       |-- extensions
-|       |-- host_bus
-|       |-- info_flags
-|       |-- interface
-|       |-- pci_dev -> ../../root/pci2/02:0c.0/03:00.0/04:00.0
-|       |-- raw_data
-|       |-- disc -> ../../root/pci2/02:0c.0/03:00.0/04:00.0/scsi4/4:0:0:0
-|       |-- sectors
-|       `-- version
-|-- bus
-|   |-- scsi
-|   |   |-- devices
-|   |   |   |-- 4:0:0:0 -> ../../../root/pci2/02:0c.0/03:00.0/04:00.0/scsi4/4:0:0:0
-`-- root
-    |-- pci2
-    |   |-- 02:0c.0
-    |   |   |-- 03:00.0
-    |   |   |   |-- 04:00.0
-    |   |   |   |   `-- scsi4
-    |   |   |   |       |-- 4:0:0:0
+2.4.18-5.out
+  Starting 1 CPU run with 92 MB RAM, minimum 5 data points at 20 sec intervals
  
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    238.745    247.882    239.419    240.904    0.004    1.000
+     smallwrite    259.114    412.260    345.788    326.670    0.056    1.356
+     largewrite    279.599   2018.226   1155.189   1140.001    0.865    4.732
+        cpuload    238.958    326.137    239.678    257.048    0.039    1.067
+      spawnload    227.693    294.703    229.801    246.484    0.029    1.023
+       8ctx-mem    914.206  26547.601   4402.521   9767.470   10.440   40.545
+       2ctx-mem    296.088   9228.024   3445.643   4133.895    2.892   17.160
 
-(Yes, the 'bios' top-level directory isn't the right place,
- and Patrick has promised to make something there in the future,
- at which point this can be moved.)
+2.5.38-mm2-1.out
+  Starting 1 CPU run with 92 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    249.844    251.639    250.326    250.462    0.001    1.000
+     smallwrite  28972.832  89778.196  69264.628  60491.810   24.170  241.521
+     largewrite  31667.273  97387.471  34728.573  47237.857   28.243  188.603
+        cpuload    249.531    674.218    249.920    334.724    0.190    1.336
+      spawnload    225.724    294.523    225.860    239.641    0.031    0.957
+       8ctx-mem   1310.153  16910.239  13054.624  11026.391    6.351   44.024
+       2ctx-mem   3551.369  15704.619   9219.185   9445.208    5.805   37.711
 
-The 'raw_data' file contains the full set of information returned by
-BIOS with extra error reporting.  This exists for vendor BIOS
-debugging purposes.  This is what I'm most interested in.
+2.5.41-ac1-1.out
+  Starting 1 CPU run with 91 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    244.534    250.900    250.526    249.541    0.002    1.000
+     smallwrite  25594.642 105430.087  64438.179  68740.681   29.479  275.468
+     largewrite  42475.273 128347.772  65505.753  73467.393   32.260  294.410
+        cpuload    249.360   1866.355    249.854    573.019    0.723    2.296
+      spawnload    225.845    296.056    226.379    240.173    0.031    0.962
+       8ctx-mem    287.816  12466.608   7685.832   6212.891    4.021   24.897
+       2ctx-mem   2383.892  18277.275   2979.035   6685.271    6.807   26.790
 
-The 'host-bus' file contains the PCI (or ISA, HyperTransport, ...)
-identifying information, as BIOS knows it.
+2.5.41-mm2.out
+  Starting 1 CPU run with 91 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    251.327    252.137    251.860    251.768    0.000    1.000
+     smallwrite    281.416    468.787    336.952    353.652    0.069    1.405
+     largewrite    269.577   2328.442    756.294    937.793    0.748    3.725
+        cpuload    248.970    330.523    249.991    265.903    0.036    1.056
+      spawnload    226.116    306.816    227.464    242.903    0.036    0.965
+       8ctx-mem   4360.954  11087.563   6240.896   6575.003    2.724   26.115
+       2ctx-mem   4716.368   9847.308   7721.747   7642.746    1.639   30.356
 
-The 'interface' file contains the SCSI (or IDE, USB, ...) identifying
-information, as BIOS knows it.
-
-The 'version' file lists the EDD version.  To have device path
-information, this must be 0x30 or above.  Earlier EDD versions exist
-without the device path - as much information as is available is presented.
-
-At most 6 BIOS devices are reported. In general you only care about device
-80h, though for software RAID1 knowing what 81h is might be useful also.
-
-
-Known issues:
-- edd module unload leaves a directory around.  Seems related to
-  creating symlinks in that directory.  Seen on kernel 2.5.41.
-
-TODO:
-- Add IDE and USB disk device symlinks
-- refcounting of struct device objects could be improved.
-- when driverfs model of discs and partitions changes,
-  update symlink accordingly.
-- Get symlink creator helper functions exported from
-  drivers/base instead of duplicating them here.
-- move edd.[ch] to better locations if/when one is decided
-
-The patch changes these files:
-
-Documentation/i386/zero-page.txt |    2 
-arch/i386/Config.help            |    8 
-arch/i386/boot/setup.S           |   47 +
-arch/i386/config.in              |    4 
-arch/i386/defconfig              |    1 
-arch/i386/kernel/Makefile        |    1 
-arch/i386/kernel/edd.c           |  984 +++++++++++++++++++++++++++++++++++++
-arch/i386/kernel/i386_ksyms.c    |    6 
-arch/i386/kernel/setup.c         |   18 
-include/asm-i386/edd.h           |  168 ++++++
-include/asm-i386/setup.h         |    2 
-11 files changed, 1241 insertions
-
-BK:
-  http://mdomsch.bkbits.net/linux-2.5-edd-tolinus
-  EDD: x86 BIOS Enhanced Disk Drive support   <Matt_Domsch@dell.com> (02/10/09 1.714.7.1)
-
-Patch (against 2.5.{41,42}) (was also sent to l-k on 2002-10-09):
-       http://domsch.com/linux/edd30/edd-driverfs-6.patch
-       http://domsch.com/linux/edd30/edd-driverfs-6.patch.sign
-
-
-Thanks for testing!
--Matt
+2.5.41-mm2v.out
+  Starting 1 CPU run with 91 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    249.779    256.051    249.983    251.590    0.003    1.000
+     smallwrite    288.109    382.038    348.342    338.549    0.039    1.346
+     largewrite    276.960    627.196    421.086    413.242    0.146    1.643
+        cpuload    250.098    329.824    250.630    266.666    0.035    1.060
+      spawnload    227.521    300.357    228.143    242.750    0.032    0.965
+       8ctx-mem   1748.992   7175.653   3942.950   4188.664    2.071   16.649
+       2ctx-mem   2336.009  12493.007   4941.117   6052.204    3.689   24.056
 
 -- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

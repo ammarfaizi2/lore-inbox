@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129598AbRBMTzL>; Tue, 13 Feb 2001 14:55:11 -0500
+	id <S129159AbRBMTzv>; Tue, 13 Feb 2001 14:55:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129583AbRBMTzB>; Tue, 13 Feb 2001 14:55:01 -0500
-Received: from [192.234.226.14] ([192.234.226.14]:49505 "EHLO
-	smtp.navtechinc.com") by vger.kernel.org with ESMTP
-	id <S129159AbRBMTyv>; Tue, 13 Feb 2001 14:54:51 -0500
-Message-ID: <3A8990D0.3070209@navtechinc.com>
-Date: Tue, 13 Feb 2001 14:53:52 -0500
-From: "N. Jason Kleinbub" <jkleinbub@navtechinc.com>
-Organization: Navtech, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; 0.7) Gecko/20010109
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: Selects on dirs/files.
-In-Reply-To: <3A894282.5070909@navtechinc.com> <3A8949B5.6BEDA269@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129908AbRBMTzm>; Tue, 13 Feb 2001 14:55:42 -0500
+Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:40964 "HELO
+	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S129583AbRBMTzi>;
+	Tue, 13 Feb 2001 14:55:38 -0500
+Date: Tue, 13 Feb 2001 17:55:33 -0200
+From: Rogerio Brito <rbrito@iname.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x SMP blamed for Xfree 4.0 crashes
+Message-ID: <20010213175532.C4399@iname.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.20010213130505.gale@syntax.dera.gov.uk> <E14SfKk-0001kl-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E14SfKk-0001kl-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Feb 13 2001, Alan Cox wrote:
+> Yeah I've seen this claim repeatedly. XFree 4.0.2 crashes for me in similar
+> ways on 3dfx and matrox cards and it happens with 2.2 kernels as well.
+
+	I thought that I was going crazy or that it was just my
+	inability to configure things correctly, but it is kind of
+	comforting to see that I'm not the only one seeing problems
+	with XFree86 4.0.2 + matrox + kernel 2.2.18 (UP system -- an
+	AMD Duron with chipset KT133).
+
+	When X 4.0.2 entered the Debian testing distribution, I
+	immediately upgraded (I had used X 4.0.1 before with very good
+	results, but that system had an HD crash and I reinstalled
+	Debian potato, that comes with X 3.3.6). I got all these
+	strange Segfaults and crashes with a vanilla 2.2.18 kernel. I
+	went back to X 3.3.6 and everything is running perfectly fine
+	since then, but I'd like to use the new features of X 4.
 
 
-Manfred Spraul wrote:
+	[]s, Roger...
 
- > "N. Jason Kleinbub" wrote:
- >> People,
- >>
- >> Not sure where to go from here but ....
- >>
- >>         ( Yes I have read the FAQ )=
- >>
- >> For practical reasons, I have created some modification to the
- >> Linux kernel.  These changes were to make our implementation of
- >> software more convenient (elegant).  Essentially, I have modified the
- >> select() calls to allow the non-trivial use of directories as an 'fd'.
- >>
- > Have you checked the F_NOTIFY fcntl()?
- >
- > If yes, what's the difference between your patch and F_NOTIFY?
-
-The biggest impediment that I saw with F_NOTIFY was the inability
-to distinguish _which_ directory generated the signal.  This was
-especially problematic for multithreaded apps.  Also I would have
-a chance of missing the signal if they pile ontop of each other.
-Everytime I was interupted from my sleep() by a signal I would
-have to scan _each_ directory to find the next file.
-
-I admit, however, that the current F_NOTIFY has more functionality
-then the current select().
-
-Plus, for our programmers, it is a stylistic choice.  They prefer,
-and better understand, using select()/poll() versus signal io.
-
-
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVANCkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVANCmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbVANCkS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 21:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVANCkR
+	id S261855AbVANCmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 21:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVANCmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 21:40:17 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:63163 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261855AbVANCjz
+	Thu, 13 Jan 2005 21:42:42 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:27578 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S261855AbVANCl0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 21:39:55 -0500
-Subject: RE: 2.6.10-mm3 scaling problem with inotify
-From: Robert Love <rml@novell.com>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       hawkes@tomahawk.engr.sgi.com
-In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013CA7E@pdsmsx402.ccr.corp.intel.com>
-References: <894E37DECA393E4D9374E0ACBBE7427013CA7E@pdsmsx402.ccr.corp.intel.com>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 21:41:48 -0500
-Message-Id: <1105670508.6027.254.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 21:41:26 -0500
+Message-Id: <200501140240.j0E2esKG026962@localhost.localdomain>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: utz lehmann <lkml@s2y4n2c.de>, Lee Revell <rlrevell@joe-job.com>,
+       Arjan van de Ven <arjanv@redhat.com>, "Jack O'Quin" <joq@io.com>,
+       Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       LKML <linux-kernel@vger.kernel.org>, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
+In-reply-to: Your message of "Fri, 14 Jan 2005 13:24:11 +1100."
+             <1105669451.5402.38.camel@npiggin-nld.site> 
+Date: Thu, 13 Jan 2005 21:40:54 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [141.152.253.251] at Thu, 13 Jan 2005 20:41:24 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-14 at 10:31 +0800, Zou, Nanhai wrote:
+>SCHED_FIFO and SCHED_RR are definitely privileged operations and you
 
-(your email wraps badly)
+this is the crux of what this whole debate is about. for all of you
+people who think about linux on multi-user systems with network
+connectivity, running servers and so forth, this is clearly a given.
 
->  There is still a little difference between your implement in
->  inotify_dentry_parent_queue_event from dnotify_parent
->  
->  In dnotify_parent, if parent is not watching the event, the code will
-> not fall
->  through dget and dput path.
->  
->  While in inotify_dentry_parent_queue_event kernel will go dget and dput
-> even
->  if (inode->inotify_data == NULL).
->  
->  While dget and dput will introduce a lot of atomic operations..
->  And the most important, dput will grab global dcache_lock...,
->  I think that is the reason why John Hawkes saw great performance drop.
->  
->  Simply follow dnotify_parent, only call dget and dput when
-> inode->inotify_data != NULL will solve this problem I think.
+but there is large and growing body of machines that run linux where
+the sole human user of the machine has a strong and overwhelming
+desire to have tasks run with the characteristics offered by
+SCHED_FIFO and/or SCHED_RR. are they still "privileged" operations on
+this class of linux system? what about linux installed on an embedded
+system, with a small LCD screen and the sole purpose of running audio
+apps live? are they still privileged then?
 
-This is what I meant in the original email.  This is the dnotify
-difference I was talking about.
+i think there is room for debate, but its clear that in general,
+SCHED_FIFO/SCHED_RR's "definite" status as privileged operations is
+not clear. we are trying to find ways to provide access to it in ways
+that don't conflict with the other categories of linux systems where
+it clearly needs to be off-limits to unprivileged users.
 
-The patch I submitted should put the two in parity.
-
-	Robert Love
+--p
 
 

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262354AbSKDJk6>; Mon, 4 Nov 2002 04:40:58 -0500
+	id <S264210AbSKDJoL>; Mon, 4 Nov 2002 04:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262370AbSKDJk6>; Mon, 4 Nov 2002 04:40:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63131 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262354AbSKDJk5>;
-	Mon, 4 Nov 2002 04:40:57 -0500
-Date: Mon, 4 Nov 2002 10:47:20 +0100
+	id <S265988AbSKDJoL>; Mon, 4 Nov 2002 04:44:11 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27036 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S264210AbSKDJoK>;
+	Mon, 4 Nov 2002 04:44:10 -0500
+Date: Mon, 4 Nov 2002 10:50:30 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Oops] 2.5.45-mcp2 BUG at mm/highmem.c
-Message-ID: <20021104094720.GG13587@suse.de>
-References: <20021104045949.GG20069@squish.home.loc>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       benh@kernel.crashing.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: don't eat ide disks
+Message-ID: <20021104095030.GA26266@suse.de>
+References: <20021103220904.GE28704@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0211031439330.11657-100000@home.transmeta.com> <20021104093947.GE13587@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021104045949.GG20069@squish.home.loc>
+In-Reply-To: <20021104093947.GE13587@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03 2002, Paul wrote:
-> 	Hi;
+On Mon, Nov 04 2002, Jens Axboe wrote:
+> On Sun, Nov 03 2002, Linus Torvalds wrote:
+> > 	struct request *rq;
+> > 
+> > 	rq = blk_get_request(q, WRITE, __GFP_WAIT);
+> > 	rq->flags = REQ_BLOCK_PC;
+> > 	rq->data = NULL;
+> > 	rq->data_len = 0;
+> > 	rq->timeout = 5*HZ; /* Or whatever */
+> > 	memset(rq->cmd, 0, sizeof(rq->cmd));
+> > 	rq->cmd[0] = SYNCHRONIZE_CACHE;
+> > 	.. fill in whatever bytes the SYNCHRONIZE_CACHE cmd needs ..
+> > 	rq->cmd_len = 10;
+> > 	err = blk_do_rq(q, bdev, rq);
+> > 	blk_put_request(rq);
 > 
-> 	Testing on a system that was LVM1 based. One oops from a
-> gcc3.2 compiled kernel, the other from a gcc2.95.3 compiled
-> kernel. (I wish it was vanilla, but it doesnt compile with device
-> mapper, needed -mcp2) [compilation failure posted by others]
-> [using latest device mapper and LVM2 tools from sistina]
-> 	hda and hdc, who both work with DMA under 2.4.19,
+> Warning, redundant blk_put_request().
 
-It's a generic kernel bug exposed by the device mapper. Well actually
-it's a trigger I put in long ago, blk_queue_bounce() needs a few fixes
-before bouncing a cloned bio works. I'll see if I can't get that done
-today.
+Sorry no, I fixed that so the example is fine!
 
 -- 
 Jens Axboe

@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266005AbUAEXd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266019AbUAEXdz
+	id S266004AbUAEXbg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUAEXbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:33:55 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:6842 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S266005AbUAEXcF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:32:05 -0500
-Date: Mon, 5 Jan 2004 21:15:18 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.24-rc1
-In-Reply-To: <Pine.LNX.4.58LT.0401052156570.1448@lt.wsisiz.edu.pl>
-Message-ID: <Pine.LNX.4.58L.0401052105460.5618@logos.cnet>
-References: <Pine.LNX.4.58L.0401051130250.1188@logos.cnet>
- <200401051744.i05HiJI1005152@lt.wsisiz.edu.pl> <20040105182117.GZ1882@matchmail.com>
- <Pine.LNX.4.58LT.0401052156570.1448@lt.wsisiz.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Mon, 5 Jan 2004 18:31:36 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:5560 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S266004AbUAEXbb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 18:31:31 -0500
+Subject: Re: linux-2.4.24 released
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040105225104.GD4987@louise.pinerecords.com>
+References: <200401051355.i05DtvgC020415@hera.kernel.org>
+	 <1073321792.21338.2.camel@midux> <20040105171843.GA2407@alpha.home.local>
+	 <1073324505.21338.11.camel@midux> <20040105190619.GD10569@fs.tum.de>
+	 <1073336935.21983.4.camel@midux>
+	 <20040105225104.GD4987@louise.pinerecords.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wdouF1WHDJeqyG9Sj+Me"
+Message-Id: <1073345487.22399.5.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 06 Jan 2004 01:31:27 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-wdouF1WHDJeqyG9Sj+Me
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 5 Jan 2004, Lukasz Trabinski wrote:
+On Tue, 2004-01-06 at 00:51, Tomas Szepe wrote:
+> On Jan-05 2004, Mon, 23:08 +0200
+> Markus H=E4stbacka <midian@ihme.org> wrote:
+>=20
+> > cd /usr/src
+> > cp linux-2.4.24/.config .
+> > rm -rvf /linux-2.4.24
+	    ^ ignore that /, it's a typo.
+> Here you have deleted nothing (or a /linux-2.4.24 directory, if there
+> was one), which would explain the problems.
+Actually I deleted it, this was the steps I did to reproduce (The first
+time I compiled it had grsecurity patches applied)
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme dot org>
 
-> On Mon, 5 Jan 2004, Mike Fedyk wrote:
-> > > > The 2.4.24-pre tree with all its modifications becomes 2.4.25-pre.
-> > >
-> > > When we can expect 2.4.25-pre?
-> >
-> > Probably when marcelo thinks there are enough changes to make another -pre
-> > release.
-> >
-> > Now the real question is will it be 2.4.25-pre4 or 2.4.25-pre1? ;)
->
-> I have asked because on one machine (with heavy load) i have problems
-> with 2.4.23 and 2.4.24-pre* - crashes without any information (no oops)
-> in logs file or console (connected via RS). Only blank screen. Sync or
-> umount via SysRq  doesn't work, only (re)boot. System is RH 9, ext3
-> 2x2.66GHz (with HT), aic79xx, 4GB RAM +4GB swap.
+--=-wdouF1WHDJeqyG9Sj+Me
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Hi Lukasz,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Which kernels work on this box?
+iD8DBQA/+fPP3+NhIWS1JHARAsHeAJ9nuYJPVmc7QnluuBXgNP84jrf97ACfeFH8
+Ow+EjxVz8UlQM2Rg+U7ONRQ=
+=C1yA
+-----END PGP SIGNATURE-----
 
-Have you tried any other 2.4.x or 2.6.x ?
+--=-wdouF1WHDJeqyG9Sj+Me--
+

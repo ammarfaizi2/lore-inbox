@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316422AbSFJVwk>; Mon, 10 Jun 2002 17:52:40 -0400
+	id <S316423AbSFJVza>; Mon, 10 Jun 2002 17:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316423AbSFJVwj>; Mon, 10 Jun 2002 17:52:39 -0400
-Received: from 213-152-55-49.dsl.eclipse.net.uk ([213.152.55.49]:33179 "EHLO
-	monkey.daikokuya.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S316422AbSFJVwi>; Mon, 10 Jun 2002 17:52:38 -0400
-Date: Mon, 10 Jun 2002 22:51:16 +0100
-To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-Message-ID: <20020610215116.GA13380@daikokuya.demon.co.uk>
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <5.1.0.14.2.20020610114308.09306358@mail1.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Neil Booth <neil@daikokuya.demon.co.uk>
+	id <S316434AbSFJVz3>; Mon, 10 Jun 2002 17:55:29 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54448 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316423AbSFJVz2>; Mon, 10 Jun 2002 17:55:28 -0400
+Message-ID: <3D05204B.4010103@us.ibm.com>
+Date: Mon, 10 Jun 2002 14:55:23 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: acenic >4gig sendfile problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maksim (Max) Krasnyanskiy wrote:-
+When doing sendfile with my acenic card on my 8xPIII-700 and PAE 
+running 2.4.18, I'm getting all zeros in the files being transmitted. 
+  Running the Redhat 2.4.18-4 kernel fixes the problem.  I saw this 
+entry in the rpm's changelog:
+* Sat Aug 25 2001 Ingo Molnar <mingo@redhat.com>
+- fix the acenic driver bug that caused random kernel memory being
+    sent out on the wire, on x86 systems with more than 4 GB RAM.
 
-> Hi Martin,
-> 
-> How about replacing __FUNCTION__ with __func__ ?
-> GCC 3.x warns that __FUNCTION__ is obsolete and will be removed.
+I tried to pull the relevant bits out of
+linux-2.4.17-selected-ac-bits.patch and linux-2.4.18-tg3.patch, with
+no success.  I mailed Ingo with no response.
 
-No, it doesn't, it warns that string concatenation with __FUNCTION__
-is deprecated and will be removed (I wrote the code).
+Does anybody remember what the fix was, or still have the patch handy?
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-__FUNCTION__ itself will stay forever.
 
-Neil.

@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUHHFNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUHHFOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUHHFNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 01:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHHFNa
+	id S265134AbUHHFOv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 01:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUHHFOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 01:13:30 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:35583 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265127AbUHHFN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 01:13:28 -0400
-Date: Sun, 8 Aug 2004 01:17:19 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-In-Reply-To: <Pine.LNX.4.58.0408072157500.1793@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0408080110280.19619@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408072123590.19619@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0408072157500.1793@ppc970.osdl.org>
+	Sun, 8 Aug 2004 01:14:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43468 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265134AbUHHFOe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 01:14:34 -0400
+Date: Sun, 8 Aug 2004 01:14:14 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: David Howells <dhowells@redhat.com>
+cc: torvalds@osdl.org, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <arjanv@redhat.com>, <dwmw2@infradead.org>, <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, <sfrench@samba.org>, <mike@halcrow.us>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] implement in-kernel keys & keyring management
+In-Reply-To: <6453.1091838705@redhat.com>
+Message-ID: <Xine.LNX.4.44.0408080046130.27710-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Aug 2004, Linus Torvalds wrote:
+On Sat, 7 Aug 2004, David Howells wrote:
 
-> On Sun, 8 Aug 2004, Zwane Mwaikambo wrote:
-> >
-> > Pulled from the -tiny tree,
->
-> Hmm.
->
-> You really shouldn't use %ebx for flags. Use %edx instead.
->
-> %ebx is call-save, so by forcing gcc to use %edx, you're guaranteeing that
-> the compiler has to save/restore the register even for a simple function
-> that wouldn't otherwise need it.
+> I've made available a patch that does a better job of key and keyring
+> management for authentication, cryptography, etc.. I've added a good bit of
+> documentation and I've commented the code more thoroughly.
 
-Thanks i'll change that.
+Here's some more feedback:
 
-> Also, why export the "failed" ones:
+ typedef int32_t key_serial_t;
 
-Actually that's now dead code since i had two variants but trimmed it, the
-other had the fast path acquisition code inline and called the failed
-procedures on contention. It'll have to go.
+Why is this signed?  And does this really need to be a typedef? (Do you 
+forsee it ever changing from 32-bit?).
 
-> > +#ifdef CONFIG_COOL_SPINLOCK
-> > +extern void asmlinkage __spin_lock_failed(spinlock_t *);
-> > +extern void asmlinkage __spin_lock_failed_flags(spinlock_t *, unsigned long);
-> > +extern void asmlinkage __spin_lock_loop(spinlock_t *);
-> > +extern void asmlinkage __spin_lock_loop_flags(spinlock_t *, unsigned long);
-> > +EXPORT_SYMBOL(__spin_lock_failed);
-> > +EXPORT_SYMBOL(__spin_lock_failed_flags);
-> > +EXPORT_SYMBOL(__spin_lock_loop);
-> > +EXPORT_SYMBOL(__spin_lock_loop_flags);
-> > +#endif
->
-> that looks just broken.
 
-_raw_spin_lock will have the symbol __spin_lock_loop{,_flags} when used in
-symbols, modules won't load otherwise.
+For consistency, request_key(), validate_key() and lookup_key() should 
+probably be of the form key_request() etc.  There are other similar 
+cases throughout the code.
+
+
+I would suggest that the /sbin/request-key interface be done via Netlink
+messaging instead.  The kernel would generate key create and key update
+messages, to which userpace daemons can respond (similar to e.g. pfkey
+acquire).  I think these messages need to be tagged with the key 'type',
+so that the userspace code knows what to generate keys for.
+
+
+  #define sys_keyctl(o,b,c,d,e)          (-EINVAL)
+
+This should probably be -ENOSYS.
+
+
+-                   capable(CAP_SETGID))
++                   capable(CAP_SETGID)) {
+                        new_egid = egid;
++               }
+
+This looks superfluous.
+
+
+We need to look at the implications for LSM, e.g. keys have Unix style
+access control information attached, and LSM apps may want to extend this
+to other security models.  Some of the user interface calls may also need
+to be mediated via LSM.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
+

@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264933AbRGNWMR>; Sat, 14 Jul 2001 18:12:17 -0400
+	id <S264958AbRGNWQ5>; Sat, 14 Jul 2001 18:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264937AbRGNWMI>; Sat, 14 Jul 2001 18:12:08 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:6185 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S264933AbRGNWLz>; Sat, 14 Jul 2001 18:11:55 -0400
-Message-ID: <3B50C391.3050804@blue-labs.org>
-Date: Sat, 14 Jul 2001 18:11:29 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010713
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ross Biro <bir7@leland.stanford.edu>
-Subject: [found-not fixed] Re: 2.4.5+ hangs on boot
-In-Reply-To: <3B50AE0D.80002@blue-labs.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264959AbRGNWQr>; Sat, 14 Jul 2001 18:16:47 -0400
+Received: from ns.snowman.net ([63.80.4.34]:3847 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S264958AbRGNWQk>;
+	Sat, 14 Jul 2001 18:16:40 -0400
+Date: Sat, 14 Jul 2001 18:16:07 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Starfire issues
+Message-ID: <20010714181607.O11136@ns>
+Mail-Followup-To: Ion Badulescu <ionut@cs.columbia.edu>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wNuK6YNcq0QdMr8v"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.2.16 (i686)
+X-Uptime: 6:12pm  up 331 days, 20:37, 12 users,  load average: 2.00, 2.00, 2.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, the problem is this.  I have TEQL packet scheduling in my config, 
-the kernel runs through this sequence on boot:
 
-net_dev_init()
-    pktsched_init()
-        teql_init()    [starts a lock with rtnl_lock()]
-            register_netdevice()
-                net_dev_init()
-                    pktsched_init()
-                        teql_init() [hangs here...]
+--wNuK6YNcq0QdMr8v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Here is the problem.  We enter teql_init() again with a rtnl_lock() 
-already being held.  Do any of the authors of these functions want to 
-jump in here?
+Hello,
 
-David
+	I've been having some trouble with a starfire I have in that it seems
+	to drop packets every once in a while for a little bit and then start
+	up again.  Also getting strange kernel messages:
 
-David Ford wrote:
+----
+eth2: Increasing Tx FIFO threshold to 320 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 336 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 352 bytes
+eth2: Something Wicked happened! 2048101.
+eth2: Increasing Tx FIFO threshold to 368 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 384 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 400 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 416 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 432 bytes
+eth2: Something Wicked happened! 2048101.
+eth2: Increasing Tx FIFO threshold to 448 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 464 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 480 bytes
+eth2: Something Wicked happened! 2049001.
+eth2: Increasing Tx FIFO threshold to 496 bytes
+eth2: Something Wicked happened! 2049001.
+----
 
-> [...]
-> I2O LAN OSM (C) 1999 University of Helsinki.
-> early initialization of device teql0 is deferred
-> loop: loaded (max 8 devices)
-> Linux Tulip driver version 0.9.15-pre3 (June 1, 2001)
-> PCI: Found IRQ 5 for device 00:10.0
->
-> Any comments or suggestions?  2.4.5-ac19 is the last kernel I have 
-> that works.
+	This happens on other interfaces, not just this one.  The kernel being
+	used is stock 2.4.6-ac2.  Would the patches you've posted to lkml help?
+	If so I can give them a shot...
 
+		Thanks!
 
+			Stephen
 
+--wNuK6YNcq0QdMr8v
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7UMSnrzgMPqB3kigRAi15AKCSgqChSF20bYCbnq4ZCJK21WIoswCeO4Lm
+n/kLeUsBzYuOfhm8r8DhW8k=
+=6TES
+-----END PGP SIGNATURE-----
+
+--wNuK6YNcq0QdMr8v--

@@ -1,32 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283804AbRK3VeH>; Fri, 30 Nov 2001 16:34:07 -0500
+	id <S283810AbRK3Vfr>; Fri, 30 Nov 2001 16:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283805AbRK3Vd6>; Fri, 30 Nov 2001 16:33:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33806 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283804AbRK3Vdr>;
-	Fri, 30 Nov 2001 16:33:47 -0500
-Date: Fri, 30 Nov 2001 22:33:24 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gertjan van Wingerde <gwingerde@home.nl>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Compile fixes for 2.5.1-pre4
-Message-ID: <20011130223324.G25987@suse.de>
-In-Reply-To: <3C07D770.3010807@home.nl> <20011130201231.G22698@suse.de> <3C07DD68.30707@home.nl> <20011130203155.A25987@suse.de> <3C07E4B7.1060109@home.nl> <20011130205820.D25987@suse.de> <3C07FACD.6010903@home.nl>
+	id <S283807AbRK3Vfm>; Fri, 30 Nov 2001 16:35:42 -0500
+Received: from CompactServ-SUrNet.ll.surnet.ru ([195.54.9.58]:38385 "EHLO
+	zzz.zzz") by vger.kernel.org with ESMTP id <S283806AbRK3Vf0>;
+	Fri, 30 Nov 2001 16:35:26 -0500
+Date: Sat, 1 Dec 2001 02:32:52 +0500
+From: Denis Zaitsev <zzz@cd-club.ru>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [PATCH] mm/swapfile.c/get_swaparea_info - a cosmetic change
+Message-ID: <20011201023252.H23346@zzz.zzz.zzz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C07FACD.6010903@home.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30 2001, Gertjan van Wingerde wrote:
-> I've tested the linear and RAID-0 code in my own environment. The code
-> survived some basic tests (starting, reading/writing, etc.) and some
-> heavy-duty read-write tests.
+The header line of /proc/swaps does not match the consequence ones in
+case of devfs' names.  These names are too long in comparison with the
+<Filename> header's part.  So, I've added one tab into the header and
+made the path's part of other lines to be of length 40-1 vs. 32-1.
 
-Excellent, thanks a lot. Applied.
+Also, I've changed three calls for sprintf with one...
 
--- 
-Jens Axboe
+Linus, please, apply this cosmetic patch (it is against 2.4.16).
 
+
+--- mm/swapfile.c.orig	Sat Dec  1 02:10:17 2001
++++ mm/swapfile.c	Wed Nov 28 22:05:00 2001
+@@ -804,25 +804,17 @@ int get_swaparea_info(char *buf)
+ {
+ 	char * page = (char *) __get_free_page(GFP_KERNEL);
+ 	struct swap_info_struct *ptr = swap_info;
+-	int i, j, len = 0, usedswap;
++	int i, len;
+ 
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+-	len += sprintf(buf, "Filename\t\t\tType\t\tSize\tUsed\tPriority\n");
++	len = sprintf(buf, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
+ 	for (i = 0 ; i < nr_swapfiles ; i++, ptr++) {
+ 		if ((ptr->flags & SWP_USED) && ptr->swap_map) {
+ 			char * path = d_path(ptr->swap_file, ptr->swap_vfsmnt,
+ 						page, PAGE_SIZE);
+-
+-			len += sprintf(buf + len, "%-31s ", path);
+-
+-			if (!ptr->swap_device)
+-				len += sprintf(buf + len, "file\t\t");
+-			else
+-				len += sprintf(buf + len, "partition\t");
+-
+-			usedswap = 0;
++			int j, usedswap = 0;
+ 			for (j = 0; j < ptr->max; ++j)
+ 				switch (ptr->swap_map[j]) {
+ 					case SWAP_MAP_BAD:
+@@ -831,8 +823,12 @@ int get_swaparea_info(char *buf)
+ 					default:
+ 						usedswap++;
+ 				}
+-			len += sprintf(buf + len, "%d\t%d\t%d\n", ptr->pages << (PAGE_SHIFT - 10), 
+-				usedswap << (PAGE_SHIFT - 10), ptr->prio);
++			len += sprintf(buf + len, "%-39s %s\t%d\t%d\t%d\n",
++				       path,
++				       ptr->swap_device ? "partition" : "file\t",
++				       ptr->pages << (PAGE_SHIFT - 10),
++				       usedswap << (PAGE_SHIFT - 10),
++				       ptr->prio);
+ 		}
+ 	}
+ 	free_page((unsigned long) page);

@@ -1,66 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131788AbRBMPNm>; Tue, 13 Feb 2001 10:13:42 -0500
+	id <S131857AbRBMPWW>; Tue, 13 Feb 2001 10:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131888AbRBMPNc>; Tue, 13 Feb 2001 10:13:32 -0500
-Received: from relay.dera.gov.uk ([192.5.29.49]:52317 "HELO relay.dera.gov.uk")
-	by vger.kernel.org with SMTP id <S131810AbRBMPNU>;
-	Tue, 13 Feb 2001 10:13:20 -0500
-Message-ID: <XFMail.20010213150816.gale@syntax.dera.gov.uk>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S131870AbRBMPWN>; Tue, 13 Feb 2001 10:22:13 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:12555 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131857AbRBMPWB>; Tue, 13 Feb 2001 10:22:01 -0500
+Message-ID: <3A895194.89D69AE9@programmfabrik.de>
+Date: Tue, 13 Feb 2001 16:24:04 +0100
+From: Martin Rode <Martin.Rode@programmfabrik.de>
+Organization: Programmfabrik GmbH
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-9mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <21887.982075420@redhat.com>
-Date: Tue, 13 Feb 2001 15:08:16 -0000 (GMT)
-From: Tony Gale <gale@syntax.dera.gov.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: 2.4.x SMP blamed for Xfree 4.0 crashes
-Cc: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Subject: Re: BUG in sched.c, Kernel 2.4.1?
+In-Reply-To: <3A8942FA.484BE2FC@programmfabrik.de> <3A8944F1.93C252EB@didntduck.org>
+Content-Type: multipart/mixed;
+ boundary="------------7EC42165AC2B5F2E883B15AB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------7EC42165AC2B5F2E883B15AB
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: base64
 
-On 13-Feb-2001 David Woodhouse wrote:
-> The crashes got less frequent when I started running X against
-> glibc-2.1
-> (note _running_ against glibc-2.1, not just compiling against it
-> and running
-> against glibc-2.2). But they were still happening. 
+Pg0KPiBSdW4gdGhpcyBvb3BzIG1lc3NhZ2UgdGhyb3VnaCBrc3ltb29wcyBwbGVhc2UuICBJ
+dCB3aWxsIG1ha2UgZGVidWdnaW5nDQo+IGl0IGFsb3QgZWFzaWVyLg0KPg0KPg0KDQpTaW5j
+ZSBJIGRpZCBub3QgY29tcGlsZSB0aGUga2VybmVsIG15c2VsZiwga3N5bW9vcHMgaXMgbm90
+IHRvbyBoYXBweSB3aXRoDQp3aGF0IGlzIGhhcyB0byBhbmFseXNlIHRoZSBkdW1wLiBJIHRy
+aWVkIGNvbXBpbGUgdGhlIE1hbmRyYWtlIGtlcm5lbCBteXNlbGYNCmJ1dCB0aGVyZSBzZWVt
+cyB0byBiZSBzb21ldGhpbmcgdW5tYXRjaGVkLiBTZWUgYmVsb3cgZm9yIHdoYXQga3N5bW9v
+cHMNCmdpdmVzIG1lLg0KDQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBtaXNtYXRjaCBvbiBz
+eW1ib2wgdnRfY29ucyAgLCBrc3ltc19iYXNlIHNheXMNCmMwMmIwNmUwLCB2bWxpbnV4IHNh
+eXMgYzAyYWM2ZTAuICBJZ25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQoNCihJIGdldCBhYm91
+dCA+IDMwMCBtc2dzIG9mIHRoYXQga2luZCkNCg0KTGV0IG1lIGtub3cgd2hvIEkgY2FuIHBy
+ZXBhcmUgZm9yIHRoZSBuZXh0IGNyYXNoIHdpdGggbXkgb3duIGtlcm5lbC4gQXJlDQp0aGVy
+ZSBhbnkgb3B0aW9ucyBJIGhhdmUgdG8gdHVybiBvbiBmb3IgY29tcGlsaW5nPw0KDQoNCg0K
+DQprZXJuZWwgQlVHIGF0IHNjaGVkLmM6NzE0IQ0KaW52YWxpZCBvcGVyYW5kOiAwMDAwDQpD
+UFU6IDANCkVJUDogMDAxMDpbPGMwMTEzNzgxPl0NClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5
+bW9vcHMgLXQgZWxmMzItaTM4NiAtYSBpMzg2DQpFRkxBR1M6IDAwMDEwMjgyDQplYXg6IDAw
+MDAwMDFiIGVieCAwMDAwMDAwMCBlY3ggZGY0ZjYwMDAgZWR4IDAwMDAwMDAxDQplc2k6IDAw
+MWNmZmUzIGVkaSBkYjVlZWRlMCBlYnAgZGMwZTlmNDAgZXNwIGRjMGU5ZWYwDQpzdGFjazog
+YzAxZjI2ZjMgYzAxZjI4NTYgMDAwMDAyY2EgZGI1ZWVkODAgZGMwZTgwMDAgZGI1ZWVkZTAg
+ZGMwZTlmMTgNCmRjMGU4MDAwIDAwMDAzM2JhIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMGU3
+IDAwMDAwMDFjIDAwMDAwMDFjDQpmZmZmZmZmMyBkYzBlODAwMCAwMDAwMDgwMCAwMDAwMDAw
+MCBkYzBlODAwMCBkYzBlOWY2OCBjMDEzOWM0NA0KZDQ4OGJmODAgMDAwMDAwMDANCmNhbGwg
+dHJhY2U6IFs8Y2MwMTM5YzQ0Pl0gWzxjMDEzOWQxYz5dIFs8YzAxMzBhZjY+XSBbPGMwMTA4
+ZTkzPl0NCmNvZGU6IDBmIDBiIDhkIDY1IGJjIDViIDVlIDVmIDg5IGVjIDVkIGMzIDhkIDc2
+IDAwIDU1IDg5IGU1IDgzIGVjDQoNCj4+RUlQOyBjMDExMzc4MSA8c2NoZWR1bGUrNDIxLzQz
+MD4gICA8PT09PT0NClRyYWNlOyBjYzAxMzljNDQgPEVORF9PRl9DT0RFK2JkZjgzMDQwMS8/
+Pz8/Pg0KVHJhY2U7IGMwMTM5ZDFjIDxwaXBlX3JlYWQrODAvMjM4Pg0KVHJhY2U7IGMwMTMw
+YWY2IDxzeXNfcmVhZCs1ZS9jND4NClRyYWNlOyBjMDEwOGU5MyA8c3lzdGVtX2NhbGwrMzMv
+NDA+DQpDb2RlOyAgYzAxMTM3ODEgPHNjaGVkdWxlKzQyMS80MzA+DQowMDAwMDAwMCA8X0VJ
+UD46DQpDb2RlOyAgYzAxMTM3ODEgPHNjaGVkdWxlKzQyMS80MzA+ICAgPD09PT09DQogICAw
+OiAgIDBmIDBiICAgICAgICAgICAgICAgICAgICAgdWQyYSAgICAgIDw9PT09PQ0KQ29kZTsg
+IGMwMTEzNzgzIDxzY2hlZHVsZSs0MjMvNDMwPg0KICAgMjogICA4ZCA2NSBiYyAgICAgICAg
+ICAgICAgICAgIGxlYSAgICAweGZmZmZmZmJjKCVlYnApLCVlc3ANCkNvZGU7ICBjMDExMzc4
+NiA8c2NoZWR1bGUrNDI2LzQzMD4NCiAgIDU6ICAgNWIgICAgICAgICAgICAgICAgICAgICAg
+ICBwb3AgICAgJWVieA0KQ29kZTsgIGMwMTEzNzg3IDxzY2hlZHVsZSs0MjcvNDMwPg0KICAg
+NjogICA1ZSAgICAgICAgICAgICAgICAgICAgICAgIHBvcCAgICAlZXNpDQpDb2RlOyAgYzAx
+MTM3ODggPHNjaGVkdWxlKzQyOC80MzA+DQogICA3OiAgIDVmICAgICAgICAgICAgICAgICAg
+ICAgICAgcG9wICAgICVlZGkNCkNvZGU7ICBjMDExMzc4OSA8c2NoZWR1bGUrNDI5LzQzMD4N
+CiAgIDg6ICAgODkgZWMgICAgICAgICAgICAgICAgICAgICBtb3YgICAgJWVicCwlZXNwDQpD
+b2RlOyAgYzAxMTM3OGIgPHNjaGVkdWxlKzQyYi80MzA+DQogICBhOiAgIDVkICAgICAgICAg
+ICAgICAgICAgICAgICAgcG9wICAgICVlYnANCkNvZGU7ICBjMDExMzc4YyA8c2NoZWR1bGUr
+NDJjLzQzMD4NCiAgIGI6ICAgYzMgICAgICAgICAgICAgICAgICAgICAgICByZXQNCkNvZGU7
+ICBjMDExMzc4ZCA8c2NoZWR1bGUrNDJkLzQzMD4NCiAgIGM6ICAgOGQgNzYgMDAgICAgICAg
+ICAgICAgICAgICBsZWEgICAgMHgwKCVlc2kpLCVlc2kNCkNvZGU7ICBjMDExMzc5MCA8X193
+YWtlX3VwKzAvOWM+DQogICBmOiAgIDU1ICAgICAgICAgICAgICAgICAgICAgICAgcHVzaCAg
+ICVlYnANCkNvZGU7ICBjMDExMzc5MSA8X193YWtlX3VwKzEvOWM+DQogIDEwOiAgIDg5IGU1
+ICAgICAgICAgICAgICAgICAgICAgbW92ICAgICVlc3AsJWVicA0KQ29kZTsgIGMwMTEzNzkz
+IDxfX3dha2VfdXArMy85Yz4NCiAgMTI6ICAgODMgZWMgMDAgICAgICAgICAgICAgICAgICBz
+dWIgICAgJDB4MCwlZXNwDQoNCktlcm5lbCBwYW5pYzogQWllZSwga2lsbGluZyBpbnRlcnJ1
+cHQgaGFuZGxlciENCg0KOTcxIHdhcm5pbmdzIGFuZCA1IGVycm9ycyBpc3N1ZWQuICBSZXN1
+bHRzIG1heSBub3QgYmUgcmVsaWFibGUuDQoNCjtNYXJ0aW4NCg0KDQo=
+--------------7EC42165AC2B5F2E883B15AB
+Content-Type: text/x-vcard; charset=iso-8859-1;
+ name="Martin.Rode.vcf"
+Content-Transfer-Encoding: base64
+Content-Description: Card for Martin Rode
+Content-Disposition: attachment;
+ filename="Martin.Rode.vcf"
 
-I'm running RH6.2 with glibc-2.1.3-22
+YmVnaW46dmNhcmQgCm46Um9kZTtNYXJ0aW4KdGVsO2NlbGw6KzQ5LTE3MS0xMjU5NTI1CnRl
+bDtmYXg6KzQ5LTMwLTQyODEtODAwOAp0ZWw7d29yazorNDktMzAtNDI4MS04MDAxCngtbW96
+aWxsYS1odG1sOlRSVUUKdXJsOnd3dy5wcm9ncmFtbWZhYnJpay5kZS9+bWFydGluCm9yZzpQ
+cm9ncmFtbWZhYnJpayBHbWJIO0VudHdpY2tsdW5nCmFkcjo7O0ZyYW5rZnVydGVyIEFsbGVl
+IDczZDsxMDI0NyBCZXJsaW47OztHZXJtYW55CnZlcnNpb246Mi4xCmVtYWlsO2ludGVybmV0
+Ok1hcnRpbi5Sb2RlQHByb2dyYW1tZmFicmlrLmRlCnRpdGxlOkRpcGwuLUtmbS4KeC1tb3pp
+bGxhLWNwdDo7LTI4OTYwCmZuOk1hcnRpbiBSb2RlCmVuZDp2Y2FyZAo=
+--------------7EC42165AC2B5F2E883B15AB--
 
-> 
-> In the week or so since killing xscreensaver, neither of the boxen
-> on which
-> I was seeing this have fallen over. Another box on which I killed 
-> xscreensaver but didn't run X against glibc-2.1 is still suffering,
-> albeit 
-> less frequently. 
-
-Yes, a number of the xscreensaver modules cause XFree to crash - they
-always have. I have previously tested them all and disabled the ones
-that crash Xfree.
-
-But, under 2.4 I have had X crash whilst I've been using it - which
-didn't happen under 2.2.
-
-> 
-> Looks like two separate bugs - I see no reason to expect that
-> there's only 
-> one such bug causing X to fall over :)
-
-It's a good premise :-)
-
--tony
-
-
----
-E-Mail: Tony Gale <gale@syntax.dera.gov.uk>
-I base my fashion taste on what doesn't itch.
-		-- Gilda Radner
-
-The views expressed above are entirely those of the writer
-and do not represent the views, policy or understanding of
-any other person or official body.

@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUIMC2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUIMCbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbUIMC2g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 22:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUIMC2g
+	id S265029AbUIMCbw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 22:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUIMCbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 22:28:36 -0400
-Received: from pc221.tbwajapan.co.jp ([211.14.136.221]:28624 "HELO
-	nabe.tequila.jp") by vger.kernel.org with SMTP id S264953AbUIMC2e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 22:28:34 -0400
-Message-ID: <414505C8.3020307@tequila.co.jp>
-Date: Mon, 13 Sep 2004 11:28:24 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040813 Thunderbird/0.7.3 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
+	Sun, 12 Sep 2004 22:31:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51670 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265029AbUIMCbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 22:31:44 -0400
+Date: Sun, 12 Sep 2004 19:31:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Add sparse "__iomem" infrastructure to check PCI address usage
+In-Reply-To: <4144E93E.5030404@pobox.com>
+Message-ID: <Pine.LNX.4.58.0409121922450.13491@ppc970.osdl.org>
+References: <200409110726.i8B7QTGn009468@hera.kernel.org> <4144E93E.5030404@pobox.com>
 MIME-Version: 1.0
-To: ngo giang <ngohoanggiang1981dh@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Can not reboot when build kernel
-References: <20040913020235.21673.qmail@web51602.mail.yahoo.com>
-In-Reply-To: <20040913020235.21673.qmail@web51602.mail.yahoo.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-ngo giang wrote:
-| Hello,
 
-| cp arch/i386/boot/bzImage /boot/bzImage-2.4.26
-~                                  ^^^^^^^^^^^^^^
-| title kernel 2.4.26
-| kernel /boot/vmlinuz-xxx
-~               ^^^^^^^^^^^
+On Sun, 12 Sep 2004, Jeff Garzik wrote:
+>
+> Linux Kernel Mailing List wrote:
+> > --- a/include/linux/compiler.h	2004-09-11 00:26:40 -07:00
+> > +++ b/include/linux/compiler.h	2004-09-11 00:26:40 -07:00
+> > @@ -6,13 +6,17 @@
+> >  # define __kernel	/* default address space */
+> >  # define __safe		__attribute__((safe))
+> >  # define __force	__attribute__((force))
+> > +# define __iomem	__attribute__((noderef, address_space(2)))
+> 
+> Dumb gcc attribute questions:
+> 
+> 1) what does force do? it doesn't appear to be in gcc 3.3.3 docs.
 
-you copied to the wrong name ...
+It doesn't do anything for gcc. You're looking at the sparse-only code.
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+What "attribute((force))" does for sparse is to mark a type to be 
+"forced", ie a cast to a forced type will not complain even if the cast 
+otherwise would be invalid.
 
-iD8DBQFBRQXIjBz/yQjBxz8RAuVQAJ9kflJBHntaqg4ipfGK7GPSfXfRrQCfWSE5
-RRIYvNzXbfUp2Zb5Nx1yPeE=
-=m8mT
------END PGP SIGNATURE-----
+For example, "sparse" will warn about explicit casts that drop address 
+space information:
+
+	void __user *userptr;
+
+	...
+	memset((void *)userptr, 0, ...)
+
+will cause a
+
+	warning: cast removes address space of expression
+
+complaint from sparse. But some _internal_ functions want to force the 
+cast because they know it's safe. For example, you'll find
+
+	#define __addr_ok(addr) ((unsigned long __force)(addr) < (current_thread_info()->addr_limit.seg))
+
+because this internal x86 implementation detail knows that in that 
+particular case it's safe to remove the address space information (it's 
+just checking the user pointer against the address limit).
+
+For gcc, none of this means anything, so all the #define's just become 
+empty.
+
+> 2) is "volatile ... __force" redundant?
+
+No, although it's likely to be a strange combination. If you want to force 
+a static address space conversion to a volatile pointer, you can do so. I 
+don't see _why_ you'd want to do it ;)
+
+> 3) can we use 'malloc' attribute on kmalloc?
+
+Since we can't use the gcc alias analysis anyway (it's too broken until
+very late gcc versions), the gcc 'malloc' attribute shouldn't make any
+difference that I can tell.
+
+But there wouldn't be anything _wrong_ in adding it to kmalloc(), if 
+that's what you're asking.
+
+		Linus

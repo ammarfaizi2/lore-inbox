@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318746AbSHGO2c>; Wed, 7 Aug 2002 10:28:32 -0400
+	id <S314811AbSHGOhW>; Wed, 7 Aug 2002 10:37:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318749AbSHGO2c>; Wed, 7 Aug 2002 10:28:32 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:2825 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318746AbSHGO2c>; Wed, 7 Aug 2002 10:28:32 -0400
-Date: Wed, 7 Aug 2002 16:31:52 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Sergio Avila <sergio@evoto.org>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel BUG at page_alloc.c:117!
-Message-ID: <20020807143152.GA5991@louise.pinerecords.com>
-References: <200208071509.30398.sergio@evoto.org> <1028734409.18478.302.camel@irongate.swansea.linux.org.uk>
+	id <S315119AbSHGOhW>; Wed, 7 Aug 2002 10:37:22 -0400
+Received: from mbr.sphere.ne.jp ([210.150.254.228]:22153 "HELO
+	mbr.sphere.ne.jp") by vger.kernel.org with SMTP id <S314811AbSHGOhV>;
+	Wed, 7 Aug 2002 10:37:21 -0400
+Date: Wed, 7 Aug 2002 23:40:54 +0900
+From: Bruce Harada <harada@mbr.sphere.ne.jp>
+To: davidsen@tmr.com (bill davidsen)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-ac1
+Message-Id: <20020807234054.133ef7e9.harada@mbr.sphere.ne.jp>
+In-Reply-To: <aipubf$997$1@gatekeeper.tmr.com>
+References: <20020803214239.GA30242@outpost.ds9a.nl>
+	<20020804080843.0e953083.harada@mbr.sphere.ne.jp>
+	<aipubf$997$1@gatekeeper.tmr.com>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028734409.18478.302.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 64 days, 6:12
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [1.] One line summary of the problem:
-> > 
-> >         kernel BUG at page_alloc.c:117!
-> 
-> >         Aug  7 04:17:25 lordvaider kernel: NVRM: AGPGART: freed 16 
-> > pages
-> >         Aug  7 04:17:25 lordvaider kernel: NVRM: AGPGART: backend 
-> 
-> Please report this to Nvidia. The linux community does not support or
-> care about bugs reported on any boot when their binary only modules have
-> been loaded
+On 7 Aug 2002 01:49:35 GMT
+davidsen@tmr.com (bill davidsen) wrote:
 
-And in case you're wondering whether lkml people are being assholes about
-binary-only drivers and don't really want to help, note that this particular
-bug has been confirmed many times to indeed be caused by the Nvidia module.
+> I thought HP was phasing out PA-RISC. Might this carry forward to 2.5 or
+> is this a 2.4 only effort?
 
-T.
+Don't know about the kernel effort, but according to HP, there's still 3 generations of PA-RISC to go...
+
+http://www.hp.com/products1/itanium/infolibrary/information/parisc_roadmap.html
+

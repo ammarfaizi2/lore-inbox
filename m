@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263763AbUFRVCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264272AbUFRVL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263763AbUFRVCk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 17:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUFRU6k
+	id S264272AbUFRVL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 17:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFRVIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:58:40 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:45485 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262085AbUFRUx1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:53:27 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Fri, 18 Jun 2004 17:08:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45527 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263664AbUFRVDa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 17:03:30 -0400
+Date: Fri, 18 Jun 2004 17:03:14 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: axboe@suse.de, <dev@opensound.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <20040618135136.45581da7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0406181700400.8065-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PATCH: Further aacraid work
-Date: Fri, 18 Jun 2004 16:53:13 -0400
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FD241D1@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH: Further aacraid work
-Thread-Index: AcRVc1d99x9MOcHUQierlSjobyvpdgAAl+IQ
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "William Lee Irwin III" <wli@holomorphy.com>, "Alan Cox" <alan@redhat.com>,
-       <y@redhat.com>, "Clay Haapala" <chaapala@cisco.com>,
-       "James Bottomley" <James.Bottomley@steeleye.com>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "SCSI Mailing List" <linux-scsi@vger.kernel.org>, <akpm@osdl.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-`Adaptec' has been overloaded with internal work and has Bosses of
-Bosses of Bosses setting priorities.
+On Fri, 18 Jun 2004, Andrew Morton wrote:
+> Rik van Riel <riel@redhat.com> wrote:
+> >
+> > Maintaining a patch for one version of the distribution, in
+> > order to get a feature to customers sooner, is perfectly
+> > doable and may make economic sense.
+> > 
+> > Maintaining an out-of-tree patch forever because you didn't
+> > get around to merging it into the upstream kernel doesn't.
+> 
+> Problem is, what happens if vendor X ships a feature and that feature is
+> deemed unacceptable for the kernel.org kernel?
 
-I had `respond to William' in my queue ... hopefully with results ...
-but alas not today :-(
+That's why responsible vendors develop their feature in
+the upstream kernel before they merge it into their own
+product.
 
-Sincerely -- Mark `apologizing is not a sign of weakness' Salyzyn
+That way they know in advance they'll won't need to maintain
+the feature as a separate patch for more than one product ;)
 
------Original Message-----
-From: William Lee Irwin III [mailto:wli@holomorphy.com] 
-Sent: Friday, June 18, 2004 4:32 PM
-To: Alan Cox; Salyzyn, Mark; y@redhat.com; Clay Haapala; James
-Bottomley; Christoph Hellwig; Linux Kernel; SCSI Mailing List;
-akpm@osdl.org
-Subject: Re: PATCH: Further aacraid work
+> But we then need to do it all again in 2.8.x.  It's hard to see how to
+> fix this apart from either merging everything into the main tree or
+> dropping things from vendor trees.  Or waiting for someone to come up
+> with an acceptable form of whatever it is the patch does.
 
-On Fri, Jun 18, 2004 at 08:05:18AM -0700, William Lee Irwin III wrote:
-> Proper changelog this time, and comments, too. Adaptec et al, please
-> verify this resolves the issues you've been having.
-> Someone say _something_.
+Ideally the vendor would come up with an acceptable form in
+the first place.  Not out of a moral obligation to the Linux
+community, but because doing that means free QA and better
+quality source code that's easier to support...
 
-jejb's seeing such improved results that I don't believe we need to
-wait for Adaptec's ack to merge this.
+Sure, it is some short term work for the vendor, but it'll
+save work in the long run.
 
-akpm, please apply.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-
--- wli

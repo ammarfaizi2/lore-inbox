@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319038AbSHMRRH>; Tue, 13 Aug 2002 13:17:07 -0400
+	id <S319020AbSHMRNZ>; Tue, 13 Aug 2002 13:13:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319037AbSHMRRH>; Tue, 13 Aug 2002 13:17:07 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7946 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319038AbSHMRQ6>; Tue, 13 Aug 2002 13:16:58 -0400
-Date: Tue, 13 Aug 2002 10:23:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Greg KH <gregkh@us.ibm.com>
-Subject: Re: [patch] PCI Cleanup
-In-Reply-To: <3D593B37.3070009@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0208131013060.7411-100000@home.transmeta.com>
+	id <S319018AbSHMRNZ>; Tue, 13 Aug 2002 13:13:25 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:6881 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319016AbSHMRNX>;
+	Tue, 13 Aug 2002 13:13:23 -0400
+Date: Tue, 13 Aug 2002 10:14:58 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Matt Dobson <colpatch@us.ibm.com>
+Subject: Re: [PATCH] NUMA-Q disable irqbalance
+Message-ID: <1995160000.1029258898@flay>
+In-Reply-To: <Pine.LNX.4.44.0208130937050.7411-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208130937050.7411-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> This patch is from Matt Dobson. It disables irq_balance for the NUMA-Q
+>> and makes it a config option for everyone else.
+> 
+> Please don't use negative config options.
+> 
+> I'd much rather have
+> 
+> 	bool 'IRQ balancing support' CONFIG_IRQ_BALANCE
+> 
+> than some "Disable IRQ balancing?" question.
 
-On Tue, 13 Aug 2002, Matthew Dobson wrote:
->
-> I think that it is definitely a simplification, although I am a bit biased ;) 
-> It makes it easier for other configuration types to hook into the system as 
-> well (I'm partial to NUMA-Q as well ;).  All they have to do is hijack the 
-> pci_config_(read|write) function pointers.
+That piece of wierdness I'll take the blame for, not Matt. It's more complex, we 
+just wanted to make the default be to have it turned on, maybe we've missed 
+some way in the config to make it work like that?
 
-Hmm..
+> Also, the explanation should probably explain that a P4 needs manual IRQ 
+> balancing since the P4 broke the Intel-documented round-robin behaviour.
+> 
+> Finally, exactly since IRQ balancing is practically required on P4-SMP, I
+> really don't think a CONFIG option works. It needs to be configured in on
+> any kernel that expects to use P4's in an SMP configuration.
 
-Quite frankly, to me it looks like the real issue is that you don't want 
-to have the byte/word/dword stuff replicated three times.
+That'd be easier if it was written in such a way it worked on all P4 systems.
+For one, it does an rdtsc directly, which doesn't work on all machines.
+For another, it assumes flat logical addressing mode. We need to be able
+to disable this until it's rewritten in such a way as to be more generic.
 
-And your cleanup avoids the replication, but I think it has other badness 
-in it: in particular it depends on those two global pointers. Which makes 
-it really hard to have (for example) per-segment functions, or hard for 
-drivers to hook into it (there's one IDE driver in particular that wants 
-to do conf2 accesses, and nothing else. So it duplicates its own conf2 
-functions right now, because it has no way to hook into the generic ones).
+> In other words, I think this needs to do a dynamic disable (with the 
+> possible exception of a NUMA-Q machine, since that one is already a static 
+> config option and won't have P4's in it).
 
-If that is the case, wouldn't the _real_ cleanup be to just change the 
-format of pci_config_read() entirely, and just make it get the size.
+Was there some reason you really need this on P4s? I seem to recall something
+to do with timer interrupts, but don't remember exactly.
 
-Another way of saying this:
+M.
 
-  Right now the config interface is all based around having unique 
-  functions for all sizes. So callers do "pci_read_config_word()" and that 
-  name-based size calling convention is propagated all the way down.
-
-  Your patch multiplexes the sizes at the lowest level.
-
-  And I'd suggest multiplexing them at a higher level. Instead of 
-  six different pcibios_read_config_byte etc functions, move the 
-  multiplexing up, make make them just two functions at _that_ level (and 
-  make siz #defines to make it compatible with existing users).
-
-Ehh?
-
-		Linus
-
+PS. I think __DO_ACTION gets an award for disgusting use of macros.

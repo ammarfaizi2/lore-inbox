@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317676AbSFLJdz>; Wed, 12 Jun 2002 05:33:55 -0400
+	id <S317677AbSFLJjF>; Wed, 12 Jun 2002 05:39:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317677AbSFLJdy>; Wed, 12 Jun 2002 05:33:54 -0400
-Received: from ccs.covici.com ([209.249.181.196]:25729 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id <S317676AbSFLJdx>;
-	Wed, 12 Jun 2002 05:33:53 -0400
-To: linux-kernel@vger.kernel.org
-Subject: bio.h problem in kernel 2.5.21
-From: John Covici <covici@ccs.covici.com>
-Date: Wed, 12 Jun 2002 05:33:53 -0400
-Message-ID: <m3fzzssuwu.fsf@ccs.covici.com>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2.50
- (i686-pc-linux-gnu)
+	id <S317678AbSFLJjE>; Wed, 12 Jun 2002 05:39:04 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:32260 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S317677AbSFLJjE>; Wed, 12 Jun 2002 05:39:04 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Roland Dreier <roland@topspin.com>, "David S. Miller" <davem@redhat.com>
+Cc: <oliver@neukum.name>, <wjhun@ayrnetworks.com>, <paulus@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+Date: Tue, 11 Jun 2002 19:29:20 +0200
+Message-Id: <20020611172920.18340@smtp.adsl.oleane.com>
+In-Reply-To: <52y9dl65aa.fsf@topspin.com>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vmalloc.c seems to have a problem with bio.h -- at least all the
-errors are in there in 2.5.21.
+>This may use less memory than 1) or 2) above on some architectures but
+>will use more than 1) on cache-coherent architectures.  It makes the
+>code even more complex since now the code that allocates the dma
+>buffer has to know which PCI device will use it (for example, in USB,
+>the hub driver is separated from the HCD driver, which is who knows
+>about the PCI bus).
 
-Any assistance would be appreciated.
+What about an arch that can be both coherent or incoherent (the same
+kernel binary would boot both) ?
 
-  gcc -Wp,-MD,.vmalloc.o.d -D__KERNEL__ -I/usr/src/linux-2.5.21/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -nostdinc -iwithprefix include    -DKBUILD_BASENAME=vmalloc   -c -o vmalloc.o vmalloc.c
-In file included from /usr/src/linux-2.5.21/include/linux/highmem.h:5,
-                 from vmalloc.c:13:
-/usr/src/linux-2.5.21/include/linux/bio.h:90: parse error before `atomic_t'
-/usr/src/linux-2.5.21/include/linux/bio.h:90: warning: no semicolon at end of struct or union
-/usr/src/linux-2.5.21/include/linux/bio.h:95: parse error before `}'
-make[2]: *** [vmalloc.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.21/mm'
-make[1]: *** [mm] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.21'
-make: *** [make_with_config] Error 2
+I can also imagine quite a bunch of embedded stuffs where you may have
+both coherent and non-coherent devices depending on the bus the live
+on or on bridge bugs.
 
--- 
-         John Covici
-         covici@ccs.covici.com
+For your example, I don't buy it. You could well design the USB urb
+allocation in such a way that they are passed down the controller of
+a given device.
+
+Ben.
+
+
+

@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264436AbTICUBP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 16:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTICT7W
+	id S264435AbTICUBO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264436AbTICT7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 15:59:22 -0400
-Received: from smtp.terra.es ([213.4.129.129]:61782 "EHLO tsmtp5.mail.isp")
-	by vger.kernel.org with ESMTP id S264436AbTICT66 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 15:58:58 -0400
-Message-ID: <3F56478F.9030002@terra.es>
-Date: Wed, 03 Sep 2003 21:57:03 +0200
-From: tonildg <tonildg@terra.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030830 Debian/1.4-3.he-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-CC: Sebastian Reichelt <SebastianR@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.4.21] orinoco_cs card reinsertion
-References: <Pine.LNX.4.44.0309031643400.6102-100000@logos.cnet>
-In-Reply-To: <Pine.LNX.4.44.0309031643400.6102-100000@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 3 Sep 2003 15:59:35 -0400
+Received: from 154.Red-80-33-156.pooles.rima-tde.net ([80.33.156.154]:42986
+	"EHLO banzais.org") by vger.kernel.org with ESMTP id S264435AbTICT61
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 15:58:27 -0400
+Subject: Strange debug message from 2.6test kernel: 'sleeping function
+	called from invalid context...'
+From: axel c <axel@banzais.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1062630614.5127.7.camel@mao.ikp.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 03 Sep 2003 22:10:15 -0100
 Content-Transfer-Encoding: 7bit
+X-MDRemoteIP: 212.170.14.92
+X-Return-Path: axel@banzais.org
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure, but can this be related with the stuff commented before in 
-this list with the subjects "Airo Net 340 PCMCIA WiFi Card trouble" ?
+Hi all,
+
+I've been using the 2.6.0-0.test4.1.32 RedHat kernel for a week now with
+no problems. However, when i came back from work today i found the
+following message from kernel after doing 'dmesg':
+
+Debug: sleeping function called from invalid context at
+include/asm/uaccess.h:473
+Call Trace:
+ [<c011afed>] __might_sleep+0x5d/0x70
+ [<c010d0ea>] save_v86_state+0x6a/0x200
+ [<c010c8b5>] do_IRQ+0xd5/0x110
+ [<c010acd2>] work_notifysig_v86+0x6/0x14
+ [<c010ac7f>] syscall_call+0x7/0xb
+
+The system has not crashed or anything, everything is fine, but i just
+wanted to point this out in case it may be of interest for kernel
+developers. Unfortunately this msg seems to have been emitted while i
+was away, so i can't give more detailed info about the conditions in
+which happened. All i can say is the box was basically idle, just
+running X with a couple of terminals and the screensaver.
+Sorry in advance if this message is just a piece of useless rubbish, i
+know basically nothing about kernel internals.
+
+PS: I am not subscribed to the list, please CC me when answering.
+
+Thanks, 
 
 
-Marcelo Tosatti wrote:
-> 
-> On Wed, 3 Sep 2003, Sebastian Reichelt wrote:
-> 
-> 
->>>Can you please try 2.4.22? It contains orinoco changes including in
->>>the area you changed. 
->>
->>Sorry, 2.4.22 (from kernel.org) just hangs when I insert the card, after
->>the first of two beeps. Ctrl-Alt-Del doesn't work. No messages are
->>printed except the usual "cs: memory probe 0xa0000000-0xa0ffffff:
->>clean.", and syslog doesn't seem to have been flushed (it's cut off at
->>a higher position).
->>
->>One thing I noticed from syslog is that the socket is assigned another
->>IRQ: 5 instead of 9.
-> 
-> 
-> Hum, are you using ACPI? There have a few IRQ assignment issues reported 
-> with the new ACPI in 2.4.22.
-> 
-> Can you please try booting with "pci=noacpi" option ? 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+-- 
+axel c <axel@banzais.org>
 
 

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317864AbSHLLOk>; Mon, 12 Aug 2002 07:14:40 -0400
+	id <S317872AbSHLLST>; Mon, 12 Aug 2002 07:18:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317872AbSHLLOk>; Mon, 12 Aug 2002 07:14:40 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:26363 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S317864AbSHLLOk>; Mon, 12 Aug 2002 07:14:40 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1028850350.28882.121.camel@irongate.swansea.linux.org.uk> 
-References: <1028850350.28882.121.camel@irongate.swansea.linux.org.uk>  <Pine.LNX.4.44.0208082357170.8911-100000@serv> <1028844681.1669.80.camel@ldb> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Luca Barbieri <ldb@ldb.ods.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc, mips, m68k, sh, cris to use it 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Aug 2002 12:16:48 +0100
-Message-ID: <20995.1029151008@redhat.com>
+	id <S317874AbSHLLST>; Mon, 12 Aug 2002 07:18:19 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6794 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317872AbSHLLST>; Mon, 12 Aug 2002 07:18:19 -0400
+Date: Mon, 12 Aug 2002 07:23:34 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Hell.Surfers@cwctv.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The spam problem.
+In-Reply-To: <027104643010c82DTVMAIL11@smtp.cwctv.net>
+Message-ID: <Pine.LNX.3.95.1020812072025.15605A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Aug 2002 Hell.Surfers@cwctv.net wrote:
 
-alan@lxorguk.ukuu.org.uk said:
->  Possibly not - volatile doesnt guarantee the compiler won't do
-> 	x = 1
-> 	add *p into x
-> 	store x into *p
+> I know this is offtopic, but the spam problem is getting worse,
+> could the linux-kernel mail guy/gal, do something,
+> the nigerian scams are actually dangerous..
+>                                 ^^^^^^^^^^^
 
-Er, AIUI 'volatile' guarantees that '*p++' will do precisely that. It's a 
-load, an add and a store, and the rules about volatile mean that the load 
-and the store _must_ be separate.
+Really?  That's how I made my first 32-million dollars. Some poor
+lady need my back account information so she could wire her dead
+husband's money. Works everytime.
+ 
 
---
-dwmw2
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

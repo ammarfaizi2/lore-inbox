@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268378AbUIWKgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268372AbUIWKhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268378AbUIWKgl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 06:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268379AbUIWKgl
+	id S268372AbUIWKhq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 06:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268379AbUIWKhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 06:36:41 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:53667 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268378AbUIWKgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 06:36:39 -0400
-Message-ID: <4152A72E.8050404@kolivas.org>
-Date: Thu, 23 Sep 2004 20:36:30 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, ck kernel mailing list <ck@vds.kolivas.org>
-Subject: [PATCH] Staircase scheduler v8.6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Sep 2004 06:37:46 -0400
+Received: from share.sks3.muni.cz ([147.251.211.22]:37072 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S268372AbUIWKhk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 06:37:40 -0400
+Date: Thu, 23 Sep 2004 12:37:23 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm2 fn_hash_insert oops
+Message-ID: <20040923103723.GA12145@mail.muni.cz>
+References: <20040923100906.GB11230@mail.muni.cz> <20040923031451.56147952.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040923031451.56147952.akpm@osdl.org>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated the staircase cpu scheduler. This version is the first in the 
-next development phase I've been leading it towards - removing 
-dependency on scheduler_tick to make it suitable for a tickless kernel.
+On Thu, Sep 23, 2004 at 03:14:51AM -0700, Andrew Morton wrote:
+> Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
+> >
+> > Sep 23 11:26:24 debian kernel: EIP:    0060:[fn_hash_insert+1039/1159]    Tainted:  P   VLI
+> > 
+> 
+> This might fix it
+> 
+> --- a/net/ipv4/fib_hash.c	2004-09-23 03:13:49 -07:00
+> +++ b/net/ipv4/fib_hash.c	2004-09-23 03:13:49 -07:00
+> @@ -536,7 +536,7 @@
+>  		 * information.
+>  		 */
+>  		fa_orig = fa;
+> -		list_for_each_entry(fa, fa->fa_list.prev, fa_list) {
+> +		list_for_each_entry(fa, fa_orig->fa_list.prev, fa_list) {
+>  			if (fa->fa_info->fib_priority != fi->fib_priority)
+>  				break;
+>  			if (fa->fa_type == type &&
 
-v8.6 removes all timeslice expiration from scheduler_tick and does this 
-with an on-demand timer of it's own. Currently this does not offer any 
-major advantage over the previous version, but once more of the code is 
-removed from scheduler_tick and there is a mechanism for more accurate 
-timers not dependant on jiffies it will offer better accuracy, lower 
-overhead and low power advantages.
+It has fixed it.
 
-Rolled up and split patches for 2.6.9-rc2-mm2 available here:
+However there is still the issue with endless loop in fn_hash_delete :(
 
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-rc2-mm2/
-
-rolled up patch:
-from_2.6.9-rc2-mm2_to_staircase8.6
-
-is a combination of:
-#back-zaphod.patch
-#from_2.6.9-rc2_to_staircase8.4
-#s8.4_fixhotplug.diff
-#s8.4-expiration_notick.diff
-
-Cheers,
-Con
-
-P.S. I will be offline for a week as of tomorrow.
+-- 
+Luká¹ Hejtmánek

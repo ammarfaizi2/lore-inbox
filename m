@@ -1,46 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132351AbRAUSm6>; Sun, 21 Jan 2001 13:42:58 -0500
+	id <S132094AbRAUSqj>; Sun, 21 Jan 2001 13:46:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132444AbRAUSmt>; Sun, 21 Jan 2001 13:42:49 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:6418 "HELO
+	id <S132204AbRAUSq3>; Sun, 21 Jan 2001 13:46:29 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:8210 "HELO
 	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S132351AbRAUSmm>; Sun, 21 Jan 2001 13:42:42 -0500
-Date: Sun, 21 Jan 2001 10:42:41 -0800 (PST)
+	id <S132094AbRAUSqR>; Sun, 21 Jan 2001 13:46:17 -0500
+Date: Sun, 21 Jan 2001 10:46:10 -0800 (PST)
 From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: Linux Admin <linuxadmin@softhome.net>
+To: Andy Galasso <andy@adgsoftware.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: boot.img & initrd.img
-In-Reply-To: <006801c08297$bc7aa240$655c36ca@s1n9c1>
-Message-ID: <Pine.LNX.4.21.0101211042030.3439-100000@ns-01.hislinuxbox.com>
+Subject: Re: VIA chipset discussion
+In-Reply-To: <20010120033950.A16350@adgsoftware.com>
+Message-ID: <Pine.LNX.4.21.0101211043570.3439-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-www.linuxdoc.org has a HOWTO on bottdisks called Bootdisk-HOWTO. I believe
-it's in the older faq section.
+I get something similar. *I* get it when I mix drives on the various
+controllers, aka ATA33/66 and ATA100 drives. I also get this error from
+the CDROM when using the ATA100 controller for my ATA100 30GB drive and
+the ATA33/66 controller for the CDROM. (Cyber 48X generic IDE CDROM).
+ 
 
+On Sat, 20 Jan 2001, Andy Galasso wrote:
 
-
-On Sat, 20 Jan 2001, Linux Admin wrote:
-
-> Hi guys ...
+> I'm not sure how relevant it is, but FWIW here's what I've got:
 > 
-> new to the list. need help ?
+> MSI 694D Pro Motherboard 2xPIII-800 100MHz FSB
+> Linux-2.4.0-prerelease SMP
+> Promise FastTrak100 controller card
+> 4 IBM DTLA-307030 drives attached to Promise card
+> boot params: ide2=0xac00 ide3=0xb400
 > 
-> can anyone please guide to me to an how-to or documentation on how to make a
-> custom boot.img & initrd.img ?
+> Here's an excerpt of what I get when trying to boot:
 > 
-> thanks in advance..
+> VP_IDE: IDE controller on PCI bus 00 dev 39
+> VP_IDE: chipset revision 16
+> VP_IDE: not 100% native mode: will probe irqs later
+> VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:7.1
+>     ide0: BM-DMA at 0x9000-0x9007, BIOS settings: hda:pio, hdb:pio
+>     ide1: BM-DMA at 0x9008-0x900f, BIOS settings: hdc:DMA, hdd:pio
+> PDC20267: IDE controller on PCI bus 00 dev 70
+> PDC20267: chipset revision 2
+> PDC20267: not 100% native mode: will probe irqs later
+> PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
+> PDC20267: neither IDE port enabled (BIOS)
+> hde: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+> hde: IBM-DTLA-307030, ATA DISK drive
+> hdf: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+> hdf: IBM-DTLA-307030, ATA DISK drive
+> hdg: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+> hdg: IBM-DTLA-307030, ATA DISK drive
+> hdh: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+> hdh: IBM-DTLA-307030, ATA DISK drive
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0xac00-0xac07,0xae06 on irq 16
+> ide3 at 0xb400-0xb407,0xb606 on irq 16 (shared with ide2)
+> hde: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+> hdf: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+> hdg: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+> hdh: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+> Partition check:
+>  hde:hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+> ide2: reset: master: error (0x00?)
+> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hde: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> ide2(?): unexpected interrupt, status=0x58, count=1
+> ide2: reset: master: error (0x00?)
+> hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> end_request: I/O error, dev 21:00 (hde), sector 0
+> hde: drive not ready for command
+>  unable to read partition table
+>  hdf:hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> ide2(?): unexpected interrupt, status=0x58, count=2
+> ide2: reset: master: error (0x00?)
+> hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> hdf: drive not ready for command
+> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+> hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> ide2(?): unexpected interrupt, status=0x58, count=3
+> ide2: reset: master: error (0x00?)
+> hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> end_request: I/O error, dev 21:40 (hdf), sector 0
+> hdf: drive not ready for command
+>  unable to read partition table
+> ...
+> (similar for hdg ... hdh ...)
+> ...
+>   
+> -Andy Galasso
 > 
-> parag mehta
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> On Wed, Jan 17, 2001 at 02:02:17PM -0800, David D.W. Downey wrote:
+> > 
+> > Could those that were involved in the VIA chipset discussion email me
+> > privately at pgpkeys@hislinuxbox.com?
+> > 
+> > I'm truly interested in solving this issue. I personally think it's more
+> > than just the chipset causing the problems.
+> > 
+> > 
+> > I'm looking for members of the list that are using the kernel support for
+> > the following
+> > 
+> > 
+> > VIA chipset
+> > Promise controller (PDC2026# with specifics on the PDC20265 (ATA100))
+> > SMP support
+> > IDE + SCSI mix in the system.
+> > 
+> > 
+> > I'm trying to track a number of POSSIBLE bugs (can't say they are for
+> > sure) and any input from folks with this mix of drivers would be
+> > exponentially useful, even if for nothing more than discounting some of my
+> > thoughts.
+> > 
+> > 
+> > Also, can anyone summurize the already known and specific problems with
+> > combinations of the above requirements? I would truly appreciate that. 
+> > 
+> > David D.W. Downey
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
 > 
 
 -

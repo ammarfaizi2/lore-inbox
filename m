@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271277AbRHUC3X>; Mon, 20 Aug 2001 22:29:23 -0400
+	id <S271333AbRHUCin>; Mon, 20 Aug 2001 22:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271309AbRHUC3N>; Mon, 20 Aug 2001 22:29:13 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56338 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271277AbRHUC27>;
-	Mon, 20 Aug 2001 22:28:59 -0400
-Date: Mon, 20 Aug 2001 23:29:05 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
+	id <S271339AbRHUCie>; Mon, 20 Aug 2001 22:38:34 -0400
+Received: from noc242.toshiba-eng.co.jp ([210.254.22.242]:40614 "EHLO
+	noc4.toshiba-eng.co.jp") by vger.kernel.org with ESMTP
+	id <S271333AbRHUCiU>; Mon, 20 Aug 2001 22:38:20 -0400
+Date: Tue, 21 Aug 2001 11:38:22 +0900
+From: Masaru Kawashima <masaru@scji.toshiba-eng.co.jp>
 To: Alan Cox <laughing@shared-source.org>
-Cc: <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.8-ac8
+Message-Id: <20010821113822.15c85f02.masaru@scji.toshiba-eng.co.jp>
 In-Reply-To: <20010821014543.A27295@lightning.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33L.0108202327110.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20010821014543.A27295@lightning.swansea.linux.org.uk>
+Organization: Open Software Sec.
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001, Alan Cox wrote:
+On Tue, 21 Aug 2001 01:45:43 +0100
+Alan Cox <Alan Cox <laughing@shared-source.org>> wrote:
 
-> 2.4.8-ac8
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
 
-> o	page reactivate correction			(Rik van Riel)
+You've changed the directory to
+   ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.8/
 
-Whoops, this one wasn't really supposed to go in since
-it interferes with ->writepage() like marcelo pointed
-on the list out 30 seconds after I sent out the thing ;)
-
-I'll send you a fix right away...
-
-regards,
-
-Rik
 --
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Masaru Kawashima <masaru@scji.toshiba-eng.co.jp>

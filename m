@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbTFXUcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 16:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTFXUcZ
+	id S262636AbTFXUbq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 16:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTFXUbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 16:32:25 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:44430 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id S262656AbTFXUcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 16:32:23 -0400
-From: Folkert van Heusden <folkert@vanheusden.com>
-Reply-To: folkert@vanheusden.com
-To: linux-kernel@vger.kernel.org
-Subject: contents of a cd-rom disappearing and re-appearing! 2.4.21
-Date: Tue, 24 Jun 2003 22:46:31 +0200
-User-Agent: KMail/1.5.2
-References: <UTC200306242031.h5OKVJL12231.aeb@smtp.cwi.nl>
-In-Reply-To: <UTC200306242031.h5OKVJL12231.aeb@smtp.cwi.nl>
-WebSite: http://www.vanheusden.com/
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Jun 2003 16:31:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:32175 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262636AbTFXUbp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 16:31:45 -0400
+Date: Tue, 24 Jun 2003 13:45:35 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [PATCH] AMD PCI Hotplug driver for 2.4 and 2.5
+Message-ID: <20030624204535.GA2132@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306242246.31826.folkert@vanheusden.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I had this really strange experience with a cd-rom.
-I was in it's mountpoint, did ls, all fine.
-Did nothing for a while, then did ls again: everything gone!
-I then cd'd to home and back to the mountpoint and ls: everything's
-back.
-I never had this while running 2.4.20.
+As a number of people are starting to ask about this, I've released both
+a 2.4.21 and 2.5.73 version of the AMD SHPC PCI Hotplug driver.  The
+patches are at:
+  kernel.org/pub/linux/kernel/people/gregkh/pci-hotplug/2.4/pci_hp-amdshpc-2.4.21.patch
+and
+  kernel.org/pub/linux/kernel/people/gregkh/pci-hotplug/2.5/pci_hp-amdshpc-2.5.73.patch
 
-folkert@boemboem:/cdrom$ ls
-folkert@boemboem:/cdrom$ mount
-/dev/hda2 on / type ext3 (rw,errors=remount-ro)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/hdd on /cdrom type iso9660 (ro,uid=1000)
-folkert@boemboem:/cdrom$ ls
-folkert@boemboem:/cdrom$ cd
-folkert@boemboem:~$ cd /cdrom/
-folkert@boemboem:/cdrom$ ls
-DATA1.MSI  MSI          PFILES      SETUP.EXE  SP   SYSTEM    SYSTEMNT  
-autorun.inf  msowc.cab  setup.ini
-IE5        OFFICE1.CAB  README.DOC  SETUP.HLP  SQL  SYSTEM95  WINDOWS   
-license.txt  msowc.msi
+This work was almost entirely done by David Keck, with the 2.5 port done
+by me.  Any bugs present are my fault because of the porting.  Thanks go
+out to AMD for doing this development and releasing the code.
 
+The driver isn't ready to be added to the kernel yet, this is just a
+heads up for those people out there wanting to see a SHPC[1] driver, or who
+have access to amd64 hardware with this chip in it.
 
-Greetings,
+thanks,
 
-Folkert van Heusden
+greg k-h
 
-+-> www.vanheusden.com       folkert@vanheusden.com       +31-6-41278122 <-+
-+--------------------------------------------------------------------------+
-| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
-| a try, it brings monitoring logfiles (and such) to a different level!    |
-+--------------------------------------------------------------------------+
-
+[1] SHPC = Standard Hotplug Pci Controller, the "finalized" spec by the
+    PCI specification committee.

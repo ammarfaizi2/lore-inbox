@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTDHVMy (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTDHVMx (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:12:53 -0400
-Received: from blue.net4u.hr ([193.110.68.3]:15575 "HELO blue.net4u.hr")
-	by vger.kernel.org with SMTP id S261807AbTDHVMw (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 17:12:52 -0400
-Message-ID: <3E931AF2.3020905@dmska.org>
-Date: Tue, 08 Apr 2003 20:54:42 +0200
-From: Armando Vega <synan@dmska.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mec@shout.net, linux-kernel@vger.kernel.org
-Subject: error report
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S261789AbTDHVWi (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTDHVWi (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:22:38 -0400
+Received: from david.optusnet.com.au ([203.10.68.44]:14484 "EHLO
+	david.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261789AbTDHVWg (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 17:22:36 -0400
+Date: Wed, 9 Apr 2003 07:33:47 +1000
+From: David Parrish <david.parrish@optusnet.com.au>
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vfs level undelete support?
+Message-ID: <20030408213347.GB29304@david.optusnet.com.au>
+References: <1049772192.1243.186.camel@zaphod>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049772192.1243.186.camel@zaphod>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was the error:
+On Mon, Apr 07, 2003 at 11:23:12PM -0400, Shaya Potter wrote:
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+> Would there be any interest in a patch that added undelete support to
+> the VFS.  the idea would be that when one unlink's a file, instead of it
+> being deleted, it is "moved" to "/.undelete/d_put path of dentry",
+> coupled with a daemon that manages the size (maintains a quota per uid
+> by deleting old files).
+> 
+> It would appear to be an easy CONFIG level option, as it would just be
+> do this, or normal unlink(), and would work for every fs, as well as not
+> needing and LD_PRELOAD.
 
- Q> scripts/Menuconfig: line 832: MCmenu71: command not found
+This has been implemented as a shared library which you can preload. It is
+a wrapper around glibc's unlink() function which moves stuff to a trash
+directory. This is probably better done this way in user space because it
+allows the user quite a lot of freedom to decide which files get saved.
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+http://m-arriaga.net/software/libtrash/
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-
-I compiled linux-2.4.21-0.13mdk kernel..
-However, the kde version of linuxconfig worked flawlessly, while i tried 
-"mneuconfig" a couple of times and when trying to access "Linux Advanced 
-Sound Architecture" it gave this error..
-
-Hope i could help..
-=)
-
+-- 
+Regards,
+David Parrish
+0410 586 121

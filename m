@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317994AbSFSUPU>; Wed, 19 Jun 2002 16:15:20 -0400
+	id <S317996AbSFSUWQ>; Wed, 19 Jun 2002 16:22:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317996AbSFSUPT>; Wed, 19 Jun 2002 16:15:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60433 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317994AbSFSUPS>;
-	Wed, 19 Jun 2002 16:15:18 -0400
-Message-ID: <3D10E5FE.A3FA3AEF@zip.com.au>
-Date: Wed, 19 Jun 2002 13:13:50 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S317997AbSFSUWP>; Wed, 19 Jun 2002 16:22:15 -0400
+Received: from loke.as.arizona.edu ([128.196.209.61]:24072 "EHLO
+	loke.as.arizona.edu") by vger.kernel.org with ESMTP
+	id <S317996AbSFSUWP>; Wed, 19 Jun 2002 16:22:15 -0400
+Date: Wed, 19 Jun 2002 13:21:29 -0700 (MST)
+From: Craig Kulesa <ckulesa@as.arizona.edu>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Rik van Riel <riel@conectiva.com.br>, Dave Jones <davej@suse.de>,
+       Daniel Phillips <phillips@bonn-fries.net>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+       Linus Torvalds <torvalds@transmeta.com>, <rwhron@earthlink.net>
+Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
+In-Reply-To: <Pine.LNX.4.44.0206192151390.20865-100000@e2>
+Message-ID: <Pine.LNX.4.44.0206191310590.4292-100000@loke.as.arizona.edu>
 MIME-Version: 1.0
-To: Christopher Li <chrisl@gnuchina.org>
-CC: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-       DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-References: <20020619113734.D2658@redhat.com> <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Li wrote:
-> 
-> ...
-> 
-> I have a silly question, where is that ext3 CVS? Under sourcefourge
-> ext2/ext3 or gkernel?
 
-See http://www.zip.com.au/~akpm/linux/ext3/ - about halfway
-down the page.
+On Wed, 19 Jun 2002, Ingo Molnar wrote:
 
-btw, I merged all the ext3 htree stuff into 2.5.23 yesterday.  Haven't
-tested it much at all yet.
+> btw., isnt there a fair chance that by 'fixing' the aging+rmap code to
+> swap out less, you'll ultimately swap in more? [because the extra swappout
+> likely ended up freeing up RAM as well, which in turn decreases the amount
+> of trashing.]
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.23/ext3-truncate-fix.patch
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.23/ext3-htree.patch
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.23/htree-fixes.patch
+Agree.  Heightened swapout in this rather simplified example) isn't a 
+problem in itself, unless it really turns out to be a bottleneck in a 
+wide variety of loads.  As long as the *right* pages are being swapped 
+and don't have to be paged right back in again.   
 
--
+I'll try a more varied set of tests tonight, with cpu usage tabulated.
+
+-Craig
+

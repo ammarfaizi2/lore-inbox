@@ -1,56 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264749AbVBDRrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263407AbVBDRjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264749AbVBDRrY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 12:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVBDRka
+	id S263407AbVBDRjb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263835AbVBDRY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:40:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:54574 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266391AbVBDRiV (ORCPT
+	Fri, 4 Feb 2005 12:24:56 -0500
+Received: from mail.joq.us ([67.65.12.105]:16009 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S265863AbVBDRUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:38:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=aeLhhc27RWyPQbT1ivdI2tSBysSSAc6VGxPuVN4uZEZWubSqbFV7jWqYJGa82NmtUIO5+wGNgqqTCu0Z4qio2LT4y9uFAUsvAwYpU08sCICVFg93VEDE9PNikw33MQ8h/zQ7bZpGGw3P17yOvxj5aO/gk+8BN2OYHyrClXYrvo0=
-Message-ID: <9e473391050204093837bc50d3@mail.gmail.com>
-Date: Fri, 4 Feb 2005 12:38:21 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI] Samsung P35, S3, black screen (radeon))
-Cc: ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050204074454.GB1086@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050122134205.GA9354@wsc-gmbh.de>
-	 <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net>
-	 <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz>
-	 <1107474198.5727.9.camel@desktop.cunninghams>
-	 <4202DF7B.2000506@gmx.net>
-	 <1107485504.5727.35.camel@desktop.cunninghams>
-	 <9e4733910502032318460f2c0c@mail.gmail.com>
-	 <20050204074454.GB1086@elf.ucw.cz>
+	Fri, 4 Feb 2005 12:20:14 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <42014C10.60407@bigpond.net.au>
+	<200502022303.j12N3nZa002055@localhost.localdomain>
+	<20050203213645.GB27255@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 04 Feb 2005 11:21:37 -0600
+Message-ID: <87wtto5jha.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 08:44:54 +0100, Pavel Machek <pavel@ucw.cz> wrote:
-> We already try to do that, but it hangs on 70% of machines. See
-> Documentation/power/video.txt.
+Ingo Molnar <mingo@elte.hu> writes:
 
-We know that all of these ROMs are run at power on so they have to
-work. This implies that there must be something wrong with the
-environment the ROM are being run in. Video ROMs make calls into the
-INT vectors of the system BIOS. If these haven't been set up yet
-running the VBIOS is sure to hang.  Has someone with ROM source and
-the appropriate debugging tools tried to debug one of these hangs?
-Alternatively code could be added to wakeup.S to try and set these up
-or dump the ones that are there and see if they are sane.
+> i believe RT-LSM provides a way to solve this cleanly: you can make your
+> audio app setguid-audio (note: NOT setuid), and make the audio group
+> have CAP_SYS_NICE-equivalent privilege via the RT-LSM, and then you
+> could have a finegrained per-app way of enabling SCHED_FIFO scheduling,
+> without giving _users_ the blanket permission to SCHED_FIFO. Ok?
 
+Yes, we designed the module with this scenario specifically in mind.
+
+> this way if jackd (or a client) gets run by _any_ user, all jackd
+> processes will be part of the audio group and can do SCHED_FIFO - but
+> users are not automatically trusted with SCHED_FIFO.
+>
+> you are currently using RT-LSM to enable a user to do SCHED_FIFO, right? 
+> I think the above mechanism is more secure and more finegrained than
+> that.
+
+We *are* doing that (based on group membership).  We designed it just
+as you say.  And it works fine for Qt and command line clients.
+
+Unfortunately, GTK+ refuses to cooperate.  It has a special check at
+startup (in gtkmain)...
+
+  if (ruid != euid || ruid != suid ||
+      rgid != egid || rgid != sgid)
+    {
+      g_warning ("This process is currently running setuid or setgid.\n"
+		 "This is not a supported use of GTK+. You must create a helper\n"
+		 "program instead. For further details, see:\n\n"
+		 "    http://www.gtk.org/setuid.html\n\n"
+		 "Refusing to initialize GTK+.");
+      exit (1);
+    }
+
+Note that this calls *exit(1)*, not just returning an error code.
+Following the suggested URL, <http://www.gtk.org/setuid.html>, reveals
+their understandable, but basically wrong-headed, rationale...
+
+  GTK+ supports the environment variable GTK_MODULES which specifies
+  arbitrary dynamic modules to be loaded and executed when GTK+ is
+  initialized. It is somewhat similar to the LD_PRELOAD environment
+  variable. However, this (and similar functionality such as
+  specifying theme engines) is not disabled when running setuid or
+  setgid. Is this a security hole? No. Writing setuid and setgid
+  programs using GTK+ is bad idea and will never be supported by the
+  GTK+ team.
+
+They are wrong (IMHO), because these kinds of security tests *cannot*
+reliably be done in userspace.  They are not testing for possession of
+privileges, but merely disallowing two of a half-dozen ways of
+granting those privileges.  Why should it be OK to run GTK as `root',
+but not as setgid `audio'?  Ironically, people don't run GTK threads
+with SCHED_FIFO.  Those are precisely the threads over which the
+signal processing threads need to have priority.
+
+This "feature" has forced us to fall back on supplementary groups for
+our main authorization mechanism.  That is unfortunate because, as you
+say, the setgid() approach has finer granularity, which is better.
+So, that GTK test has the unintended consequence of making our
+security exposure larger, not smaller.
+
+We can live with this, mainly because our users often need
+supplementary membership in group `audio' anyway, to gain access to
+the sound card.
+
+If we can ever convince the GTK developers to remove this "feature",
+the RT-LSM handles setgid() correctly.  So, we could immediately start
+using it (at least on systems with a new enough GTK library to permit
+that).
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+  joq

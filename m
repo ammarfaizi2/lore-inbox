@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbUCLXPs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 18:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbUCLXPs
+	id S263025AbUCLXUM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 18:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbUCLXUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 18:15:48 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:59547 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263019AbUCLXPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 18:15:46 -0500
-Subject: Re: [PATCH][RFC] fix BSD accounting (w/ long-term perspective ;-)
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: kernel@ragnark.vestdata.no, corliss@digitalmages.com,
-       tim@physik3.uni-rostock.de
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079133615.2255.603.camel@cube>
+	Fri, 12 Mar 2004 18:20:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263025AbUCLXUI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 18:20:08 -0500
+Date: Fri, 12 Mar 2004 15:22:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bloat report 2.6.3 -> 2.6.4
+Message-Id: <20040312152206.61604447.akpm@osdl.org>
+In-Reply-To: <20040312204458.GJ20174@waste.org>
+References: <20040312204458.GJ20174@waste.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 Mar 2004 18:20:16 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> store a version number in the last byte of struct acct, which allows
-> for a smooth transition to a new binary format when 2.7 comes out.
-> For 2.7, extend uid/gid fields to 32 bit, report times in terms
-> of AHZ=100 on all platforms (thus allowing to report times up to 1988 
-> days), and remove the compatibility stuff from the kernel.
+Matt Mackall <mpm@selenic.com> wrote:
+>
+> 2.6.3 -> 2.6.4
+> 
+>    text	   data	    bss	    dec	    hex	filename
+> 3313135	 660247	 162472	4135854	 3f1bae	vmlinux-2.6.3-c2.6.3
+> 3342019	 664154	 162344	4168517	 3f9b45	vmlinux-2.6.4-c2.6.3
+> 
+> [ Results of size <a> <b>. -c2.6.3 means both kernel images were built
+> with the 2.6.3 defconfig.
 
-This is no good. The struct size varies. It is 64 bytes on
-most architectures. It is likely to be larger on hppa, and
-smaller on m68k or arm.
-
-The second byte is available, as padding on every arch.
-Use that instead.
-
+But defconfig was changed between 2.6.3 and 2.6.4.
 

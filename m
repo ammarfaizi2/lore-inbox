@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262857AbTCRXqi>; Tue, 18 Mar 2003 18:46:38 -0500
+	id <S262700AbTCRXmQ>; Tue, 18 Mar 2003 18:42:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262859AbTCRXqh>; Tue, 18 Mar 2003 18:46:37 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:7814 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262857AbTCRXqh>;
-	Tue, 18 Mar 2003 18:46:37 -0500
-Subject: Re: seqlock/unlock(&xtime_lock) problems cause keyboard, time skew
-	problems
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jerry Cooperstein <coop@axian.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030318205907.GB4081@p3.attbi.com>
-References: <20030318190557.GA14447@p3.attbi.com>
-	 <1048019543.6294.3.camel@dell_ss3.pdx.osdl.net>
-	 <20030318205907.GB4081@p3.attbi.com>
+	id <S262776AbTCRXmQ>; Tue, 18 Mar 2003 18:42:16 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:28554 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S262700AbTCRXmN>;
+	Tue, 18 Mar 2003 18:42:13 -0500
+Subject: Re: 2.4.20-ac2 Memory Leak?
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Greg Stark <gsstark@mit.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <87znns9r1k.fsf@stark.dyndns.tv>
+References: <8765qgb6z0.fsf@stark.dyndns.tv>
+	 <1048030102.1521.77.camel@tux.rsn.bth.se>  <87znns9r1k.fsf@stark.dyndns.tv>
 Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1048031851.6296.75.camel@dell_ss3.pdx.osdl.net>
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048031585.748.83.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 
-Date: 18 Mar 2003 15:57:32 -0800
-Content-Transfer-Encoding: 7bit
+Date: 19 Mar 2003 00:53:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-18 at 12:59, Jerry Cooperstein wrote:
-> On Tue, Mar 18, 2003 at 12:32:24PM -0800, Stephen Hemminger wrote:
-> > On Tue, 2003-03-18 at 11:05, Jerry Cooperstein wrote:
-> > > Since 2.5.60 my thinkpad keyboard repeat rate has been erratic when
-> ....
+On Wed, 2003-03-19 at 00:46, Greg Stark wrote:
+> Martin Josefsson <gandalf@wlug.westbo.se> writes:
 > 
-> > 
-> > Does this notebook vary the clock rate? If so then using TSC for 
-> > time of day clock is probably a problem.  Try booting with notsc.
+> > This can be the source of your problems, connections can get very long
+> > timeouts and stay in ip_conntrack.
 > 
-> Yes the notebook varies the clock rate -- its about 150MHZ with
-> batter power, 500 MHZ on AC.
+> Is there a way to list the connections and confirm this is the problem?
+> It seems it would require an awful lot of connections to consume megabytes of
+> memory.
 
-Part of the problem may be that the clock rate can change but the
-cpu frequency code can't support the Intel SpeedStep.  
+cat /proc/net/ip_conntrack
 
-Maybe, someone with more direct experience with laptop's can help.
+The third field is the timeout in seconds.
+The fourth field is the state of the connection, if it's TIME_WAIT with
+a large timeout then it's the list handling bug. (iirc it was TIME_WAIT
+that showed the problem...)
 
+> Also, I've looked high and low and can't find this anywhere, how do i tune the
+> timeouts connections get? I have certain protocols that potentially receive
+> very little traffic and I want to make sure they don't time out.
+
+The default tcp timeout is 5 days for esatblished connections.
+
+There's a patch in patch-o-matic that enables you to tune the timeouts
+without having to edit the source. Instructions on how to get
+patch-o-matic are availiable on http://www.netfilter.org
+
+-- 
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275530AbRJJMC3>; Wed, 10 Oct 2001 08:02:29 -0400
+	id <S275568AbRJJMLv>; Wed, 10 Oct 2001 08:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275552AbRJJMCT>; Wed, 10 Oct 2001 08:02:19 -0400
-Received: from [212.56.224.1] ([212.56.224.1]:50111 "EHLO sendar.prophecy.lu")
-	by vger.kernel.org with ESMTP id <S275530AbRJJMCG>;
-	Wed, 10 Oct 2001 08:02:06 -0400
-Message-ID: <3BC439AB.B9B83B65@linux.lu>
-Date: Wed, 10 Oct 2001 14:06:03 +0200
-From: Thierry Coutelier <Thierry.Coutelier@linux.lu>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en, fr, de
-MIME-Version: 1.0
-To: lartc@mailman.ds9a.nl, linux-kernel@vger.kernel.org
-CC: Kuznet@Ms2.Inr.Ac.Ru
-Subject: Kernel patch for cls_u32.c 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S275573AbRJJMLm>; Wed, 10 Oct 2001 08:11:42 -0400
+Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:45842 "EHLO
+	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id <S275568AbRJJMLa>; Wed, 10 Oct 2001 08:11:30 -0400
+Date: Wed, 10 Oct 2001 14:11:55 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.11|IRDA|SMC-IRCC
+Message-ID: <20011010141155.A17093@cip.wiwi.uni-karlsruhe.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+From: aj@cip.wiwi.uni-karlsruhe.de (Andreas Jellinghaus)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To solve a problem while listing filters you may add this patch.
-It works for all kernel versions from  2.4.6 to 2.4.11
-It wold be cool to have it in the next kernel release.
+found SMC SuperIO Chip (devid=0x0b rev=00 base=0x03f0): FDC37N972
+SMC IrDA Controller found
+ IrCC version 2.0, firport 0x280, sirport 0x2f8 dma=3, irq=3
+IrDA: Registered device irda0
+NETDEV WATCHDOG: irda0: transmit timed out
+irda0: transmit timed out
+spurious 8259A interrupt: IRQ7.
+NETDEV WATCHDOG: irda0: transmit timed out
+irda0: transmit timed out
+...
 
----
-diff -ur 2.4.6/linux/net/sched/cls_u32.c linux/net/sched/cls_u32.c
---- 2.4.6/linux/net/sched/cls_u32.c Thu Feb  1 23:06:10 2001
-+++ linux/net/sched/cls_u32.c Wed Jul 11 23:55:23 2001
-@@ -613,7 +613,8 @@
+dell latitude c600 laptop.
+never tried irda before, so i don´t know if it can work at all,
+but there are reports on the web, that it should work.
 
-  for (ht = tp_c->hlist; ht; ht = ht->next) {
-   if (arg->count >= arg->skip) {
--   if (arg->fn(tp, (unsigned long)ht, arg) < 0) {
-+   if (ht == tp->root &&
-+       arg->fn(tp, (unsigned long)ht, arg) < 0) {
-     arg->stop = 1;
-     return;
-    }
-@@ -625,7 +626,8 @@
-      arg->count++;
-      continue;
-     }
--    if (arg->fn(tp, (unsigned long)n, arg) < 0) {
-+    if (ht == tp->root &&
-+        arg->fn(tp, (unsigned long)n, arg) < 0) {
-      arg->stop = 1;
-      return;
-     }
+irdadump lists output, but doesn´t see other irda devices
+(e.g. siemens s35i mobile phone).
 
----
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_IRDA=m
+CONFIG_IRCOMM=m
+CONFIG_IRTTY_SIR=m
+CONFIG_IRPORT_SIR=m
+CONFIG_SMC_IRCC_FIR=m
+CONFIG_SERIAL=m
 
-Thierry.Coutelier@linux.lu
-http://www.linux.lu
+serial                 43360   0  (unused)
+smc-ircc                6416   1 
+irport                  4560   1  [smc-ircc]
+irda                   77664   1  [smc-ircc irport]
 
+irattach is running. /proc/sys/net/irda/discovery is 1,
+/proc/net/irda/discovery doesn´t find anything.
+
+regards, andreas

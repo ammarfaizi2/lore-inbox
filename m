@@ -1,44 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSGAVua>; Mon, 1 Jul 2002 17:50:30 -0400
+	id <S316538AbSGAVyS>; Mon, 1 Jul 2002 17:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSGAVu3>; Mon, 1 Jul 2002 17:50:29 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:48913 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S316535AbSGAVu3>;
-	Mon, 1 Jul 2002 17:50:29 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207012152.g61LqjX387143@saturn.cs.uml.edu>
-Subject: Re: Diff b/w 32bit & 64-bit
-To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Mon, 1 Jul 2002 17:52:45 -0400 (EDT)
-Cc: MohamedG@ggn.hcltech.com (Mohamed Ghouse Gurgaon),
-       linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <yw1xpty71bea.fsf@gladiusit.e.kth.se> from "=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=" at Jul 01, 2002 09:44:13 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316542AbSGAVyR>; Mon, 1 Jul 2002 17:54:17 -0400
+Received: from niobium.golden.net ([199.166.210.90]:27342 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP
+	id <S316538AbSGAVyP>; Mon, 1 Jul 2002 17:54:15 -0400
+Date: Mon, 1 Jul 2002 17:56:29 -0400
+From: "John L. Males" <jlmales@yahoo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.2.21 aic7xxx lockup or kernel lockup
+Message-Id: <20020701175629.1134e128.jlmales@yahoo.com>
+In-Reply-To: <20020629160423.2cfc6be7.jlmales@yahoo.com>
+References: <20020629160423.2cfc6be7.jlmales@yahoo.com>
+Reply-To: jlmales@yahoo.com
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i586-pc-linux-gnu-Patched-SortRecipient-CustomSMTPAuthNDate)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="(joH?j=.KP3EZA?B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?iso-8859-1?q?M=E5ns_Rullg=E5rd?= writes:
+--(joH?j=.KP3EZA?B
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> For Alpha: sizeof(int) == 4, sizeof(long) == 8, sizeof(void *) == 8
-> For intel: sizeof(int) == 4, sizeof(long) == 4, sizeof(void *) == 8
+Hello,
 
-That second line is _only_ correct for Win64.
-The Linux way:
+***** Please BCC me in on any reply, not CC me.
+Two reasons, I am not on the Mailing List,
+and second I am suffering BIG time with SPAM
+from posting to mailing lists/Newsgroups.
+Instructions on real address at bottom.
+Thanks in advance. *****
 
-char is 8 bits
-char may be signed or unsigned by default
-short is 16 bits
-int is 32 bits
-long is the name number of bits as a pointer
-long is either 32 bits or 64 bits
-long long is 64 bits
-don't cast from "foo *" to "bar *" if sizeof(foo)<sizeof(bar)
-in a struct, put big items first to avoid padding
-don't use "long" in a struct that goes to disk or over the network
-with few exceptions, floating-point math in the kernel is prohibited
-don't assume that all physical memory is continuously mapped
-don't assume that you can DMA to any address you like
+Trying to ask this again please.
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+01 July 2002 17:56
+
+On Sat, 29 Jun 2002 16:04:23 -0400
+On (Sat) 2002-06-29 16:04:23 -0400 
+John L. Males wrote in Message-ID:
+20020629160423.2cfc6be7.jlmales@yahoo.com
+
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: "John L. Males" <jlmales@yahoo.com>
+Subject: Kernel 2.2.21 aic7xxx lockup or kernel lockup
+Date: Sat, 29 Jun 2002 16:04:23 -0400
+
+> Hello,
+> 
+> **** Please BCC me in on any reply, not CC me.
+> Two reasons, I am not on the Mailing List,
+> and second I am suffering BIG time with SPAM
+> from posting to mailing lists/Newsgroups.
+> Instructions on real address at bottom.
+> Thanks in advance. *****
+> 
+> Could somone advise me what I need to do to obtain the details of a
+> aic7xxx module lockup that happens when using insmod?  I am not sure
+> what would be helpful data to report here and assist in determining
+> what is the problem, beyond the obvious system details?
+> 
+> I am now using kernel 2.2.21, and it is a tad better in terms of not
+> locking up the kernel hard in the different device connected
+> conditions.  The lockup does not always occur, much depends on if
+> something is connected to the 2930 or not.  In all cases with a
+> device connected a hard kernel lockup or module load lockup occur. 
+> In the latter I can ctrl-c or close the xterm to kill the load.  I
+> tried an strace but this appears not to provide any detail, at least
+> in my limited knowledge of the kernel and my techncial read of the
+> strace data.
+> 
+> The 2930 has no problem with seeing the devices.  The devices work
+> just fine as I changed to a BusLogic 930 and both scanner and
+> CDWriter work just fine.  The primary SCSI is a Buslogic 958 that
+> the hard drives boot off.  I was using the 2930 for external and
+> slow devices. The 958 remained in, I just swapped the 2930 for the
+> 930.  The buslogic.o is loaded at boot time from the Initial RAM
+> disk, and there is no compiled in SCSI driver support, all are
+> modules.
+> 
+> I really appreciate if you bcc me in on your reply so I can avoid
+> the big SPAM problems that have been snowballing me lately.
+> 
+> 
+> Regards,
+> 
+> John L. Males
+> Willowdale, Ontario
+> Canada
+> 29 June 2002 16:04
+> 
+
+[snip]
+
+
+==================================================================
+
+
+"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 -
+February/2000
+
+
+***** Please BCC me in on any reply, not CC me.
+Two reasons, I am not on the Mailing List,
+and second I am suffering BIG time with SPAM
+from posting to mailing lists/Newsgroups.
+Instructions on real address at bottom.
+Thanks in advance. *****
+
+
+Please BCC me by replacing after the "@" as follows:
+TLD =         The last three letters of the word "internet"
+Domain name = The first four letters of the word "software",
+              followed by the first four letters of the word
+              "homeless".
+My appologies in advance for the jumbled eMail address
+and request to BCC me, but SPAM has become a very serious
+problem.  The eMail address in my header information is
+not a valid eMail address for me.  I needed to use a valid
+domain due to ISP SMTP screen rules.
+
+--(joH?j=.KP3EZA?B
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAj0g0BgACgkQsrsjS27q9xbDiQCfQS3pfKtJxpg0u0+sLX8QhDFz
+toYAn2Wd1uKZZcZj609XOphKadXXIQ9b
+=LsDu
+-----END PGP SIGNATURE-----
+
+--(joH?j=.KP3EZA?B--
+

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277905AbRJWQVf>; Tue, 23 Oct 2001 12:21:35 -0400
+	id <S277951AbRJWQ2Z>; Tue, 23 Oct 2001 12:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277910AbRJWQVZ>; Tue, 23 Oct 2001 12:21:25 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:44226 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S277905AbRJWQVM>;
-	Tue, 23 Oct 2001 12:21:12 -0400
-Date: Tue, 23 Oct 2001 18:15:01 +0200
-From: antirez <antirez@invece.org>
-To: DevilKin <DevilKin@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: More memory == better?
-Message-ID: <20011023181501.A6821@blu>
-Reply-To: antirez <antirez@invece.org>
-In-Reply-To: <20011023161340.02EAC9BD76@pop3.telenet-ops.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011023161340.02EAC9BD76@pop3.telenet-ops.be>; from DevilKin@gmx.net on Tue, Oct 23, 2001 at 06:10:38PM +0200
+	id <S277954AbRJWQ2Q>; Tue, 23 Oct 2001 12:28:16 -0400
+Received: from main.sonytel.be ([195.0.45.167]:56467 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S277951AbRJWQ2F>;
+	Tue, 23 Oct 2001 12:28:05 -0400
+Date: Tue, 23 Oct 2001 18:27:51 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Craig Dickson <crdic@yahoo.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <20011022151308.A18638@crdic.ath.cx>
+Message-ID: <Pine.GSO.4.21.0110231827110.22706-100000@mullein.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 06:10:38PM +0200, DevilKin wrote:
-[snip]
-> I must say that even with most of my applications loaded/running, the system 
-> never even touches the swap partition.
-> 
-> So, would it be wise?
+On Mon, 22 Oct 2001, Craig Dickson wrote:
+> If the source code itself somehow becomes illegal, or if Alan can talk
+> Linus into placing a geographical restriction on the distribution of
+> Linux (which, as the trademark and copyright owner, would be within his
+> rights), then the changelog issue will be moot.
 
-If the applications you run are very disk-intensive probably the
-answer is yes, since free memory is used as disk cache.
+Linus cannot do that, since he doesn't own the copyright on the parts written
+by others.
 
--- 
-Salvatore Sanfilippo <antirez@invece.org>
-http://www.kyuzz.org/antirez
-finger antirez@tella.alicom.com for PGP key
-28 52 F5 4A 49 65 34 29 - 1D 1B F6 DA 24 C7 12 BF
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

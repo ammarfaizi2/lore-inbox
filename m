@@ -1,92 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316781AbSEaUki>; Fri, 31 May 2002 16:40:38 -0400
+	id <S316782AbSEaUl6>; Fri, 31 May 2002 16:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316782AbSEaUkh>; Fri, 31 May 2002 16:40:37 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:55563 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S316781AbSEaUkf>;
-	Fri, 31 May 2002 16:40:35 -0400
-Date: Fri, 31 May 2002 22:41:51 +0200
+	id <S316803AbSEaUl5>; Fri, 31 May 2002 16:41:57 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:25102 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S316782AbSEaUly>;
+	Fri, 31 May 2002 16:41:54 -0400
+Date: Fri, 31 May 2002 22:43:59 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: [PATCH] kbuild: Remove 2048 symbol limit in tkparse
-Message-ID: <20020531224151.A13857@mars.ravnborg.org>
+Subject: [PATCH] kbuild: Get rid of warnings in depmod + split-include
+Message-ID: <20020531224359.B13857@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="gE7i1rD7pdK0Ng3j"
+Content-Type: multipart/mixed; boundary="PPYy/fEw/8QCHSq3"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---gE7i1rD7pdK0Ng3j
+--PPYy/fEw/8QCHSq3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-tkparse limit the number of symbols to 2048.
-This patch makes the array dynamic avoiding this problem in the future.
-The problem showed up in one of the powerpc tree's.
+Remove compiletime warnings from mkdep.c and split-include.c
+Credits for this patch goes to Keith Owens.
 
-Credit for this patch goes to Keith Owens, I just extracted it from kbuild-2.5.
+Credits for this patch goes to Keith Owens, I just extracted it from kbuild-2.5.
 
 	Sam
 
---gE7i1rD7pdK0Ng3j
+--PPYy/fEw/8QCHSq3
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="no2048.diff"
+Content-Disposition: attachment; filename="warnings.diff"
 
---- tkparse.h.orig	Fri May 31 22:03:24 2002
-+++ tkparse.h	Fri May 31 21:42:03 2002
-@@ -115,7 +115,7 @@
-     char	global_written;
- };
+--- mkdep.c.orig	Fri May 31 21:59:07 2002
++++ mkdep.c	Fri May 31 21:41:41 2002
+@@ -268,7 +268,7 @@
  
--extern struct variable vartable[];
-+extern struct variable *vartable;
- extern int max_varnum;
+ 	for (i = 0; i < len; i++) {
+ 	    char c = name[i];
+-	    if (isupper(c)) c = tolower(c);
++	    if (isupper((int)c)) c = tolower((int)c);
+ 	    if (c == '_')   c = '/';
+ 	    pc[i] = c;
+ 	}
+@@ -496,7 +496,7 @@
  
- /*
---- tkparse.c.orig	Fri May 31 22:03:14 2002
-+++ tkparse.c	Fri May 31 21:42:03 2002
-@@ -74,12 +74,12 @@
+ /* \<CONFIG_(\w*) */
+ cee:
+-	if (next >= map+2 && (isalnum(next[-2]) || next[-2] == '_'))
++	if (next >= map+2 && (isalnum((int)next[-2]) || next[-2] == '_'))
+ 		goto start;
+ 	GETNEXT NOTCASE('O', __start);
+ 	GETNEXT NOTCASE('N', __start);
+--- split-include.c.orig	Fri May 31 21:57:10 2002
++++ split-include.c	Fri May 31 21:41:41 2002
+@@ -115,10 +115,10 @@
  
- 
- /*
-- * Find index of a specyfic variable in the symbol table.
-+ * Find index of a specific variable in the symbol table.
-  * Create a new entry if it does not exist yet.
-  */
--#define VARTABLE_SIZE 4096
--struct variable vartable[VARTABLE_SIZE];
-+struct variable *vartable;
- int max_varnum = 0;
-+static int vartable_size = 0;
- 
- int get_varnum( char * name )
- {
-@@ -88,8 +88,13 @@
-     for ( i = 1; i <= max_varnum; i++ )
- 	if ( strcmp( vartable[i].name, name ) == 0 )
- 	    return i;
--    if (max_varnum > VARTABLE_SIZE-1)
--	syntax_error( "Too many variables defined." );
-+    while (max_varnum+1 >= vartable_size) {
-+	vartable = realloc(vartable, (vartable_size += 1000)*sizeof(*vartable));
-+	if (!vartable) {
-+	    fprintf(stderr, "tkparse realloc vartable failed\n");
-+	    exit(1);
-+	}
-+    }
-     vartable[++max_varnum].name = malloc( strlen( name )+1 );
-     strcpy( vartable[max_varnum].name, name );
-     return max_varnum;
-@@ -818,5 +823,6 @@
-     do_source        ( "-"         );
-     fix_conditionals ( config_list );
-     dump_tk_script   ( config_list );
-+    free(vartable);
-     return 0;
- }
+ 	/* Make the output file name. */
+ 	str_config += sizeof("CONFIG_") - 1;
+-	for (itarget = 0; !isspace(str_config[itarget]); itarget++)
++	for (itarget = 0; !isspace((int)str_config[itarget]); itarget++)
+ 	{
+ 	    char c = str_config[itarget];
+-	    if (isupper(c)) c = tolower(c);
++	    if (isupper((int)c)) c = tolower((int)c);
+ 	    if (c == '_')   c = '/';
+ 	    ptarget[itarget] = c;
+ 	}
 
---gE7i1rD7pdK0Ng3j--
+--PPYy/fEw/8QCHSq3--

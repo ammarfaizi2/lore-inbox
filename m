@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287299AbSALXCk>; Sat, 12 Jan 2002 18:02:40 -0500
+	id <S287629AbSALW6u>; Sat, 12 Jan 2002 17:58:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287630AbSALXCW>; Sat, 12 Jan 2002 18:02:22 -0500
-Received: from camus.xss.co.at ([194.152.162.19]:18442 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S287299AbSALXCB>;
-	Sat, 12 Jan 2002 18:02:01 -0500
-Message-ID: <3C40C066.CF147D02@xss.co.at>
-Date: Sun, 13 Jan 2002 00:01:58 +0100
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.2.20 SMP & Asus CUR-DLS: "stuck on TLB IPI wait (CPU#3)"
-In-Reply-To: <3C40B268.C2B87902@xss.co.at> <20020112173430.A31913@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S287632AbSALW6k>; Sat, 12 Jan 2002 17:58:40 -0500
+Received: from zero.tech9.net ([209.61.188.187]:59664 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287630AbSALW6a>;
+	Sat, 12 Jan 2002 17:58:30 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: Kenneth Johansson <ken@canit.se>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@fenrus.demon.nl,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C409E3C.A4968CE@canit.se>
+In-Reply-To: <E16PURC-000321-00@the-village.bc.nu> 
+	<3C409E3C.A4968CE@canit.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 12 Jan 2002 18:01:10 -0500
+Message-Id: <1010876470.3560.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> 
-> On Sat, Jan 12, 2002 at 11:02:16PM +0100, Andreas Haumer wrote:
-> > Hi!
+On Sat, 2002-01-12 at 15:36, Kenneth Johansson wrote:
+
+> > I must have missed that in the code. I can see you check __cli() status but
+> > I didn't see anywhere you check disable_irq(). Even if you did it doesnt
+> > help when I mask the irq on the chip rather than using disable_irq() calls.
 > >
-> > I'm seeing a problem with SMP Linux-2.2.20 on an ASUS CUR-DLS
-> > motherboard. I noticed there were similar reports in the
-> > past few months and I got the impression the problem should
-> > already be fixed in 2.2.20, but seemingly it isn't.
+> > Alan
 > 
-> This bug is fixed in 2.4.
-> 
-Aha!
+> But you get interrupted by other interrups then so you have the same problem
+> reagardless of any preemtion patch you hopefully lose the cpu for a much
+> shorter time but still the same problem.
 
-Anyone working on backporting it to 2.2.21? 
-Alan?
+Agreed.  Further, you can't put _any_ upper bound on the number of
+interrupts that could occur, preempt or not.  Sure, preempt can make it
+worse, but I don't see it.  I have no bug reports to correlate.
 
-- andreas
+	Robert Love
 
--- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

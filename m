@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268293AbUIPWtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268306AbUIPWwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268293AbUIPWtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 18:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268269AbUIPWtJ
+	id S268306AbUIPWwE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 18:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268310AbUIPWwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 18:49:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3559 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268304AbUIPWsE
+	Thu, 16 Sep 2004 18:52:04 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:57097 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S268306AbUIPWvI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 18:48:04 -0400
-Date: Thu, 16 Sep 2004 18:14:08 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Ingo Freund <Ingo.Freund@e-dict.net>
-Cc: linux-kernel@vger.kernel.org, achim@vortex.de
-Subject: Re: memory allocation error messages in system log
-Message-ID: <20040916211408.GE12022@logos.cnet>
-References: <NEBBILBHKLDLOMLDGKGNEEKDCIAA.Ingo.Freund@e-dict.net>
+	Thu, 16 Sep 2004 18:51:08 -0400
+Date: Thu, 16 Sep 2004 15:51:02 -0700
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Bill Huey <bhuey@lnxw.com>, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040916225102.GA4386@nietzsche.lynx.com>
+References: <m3vfefa61l.fsf@averell.firstfloor.org> <cic7f9$i4m$1@gatekeeper.tmr.com> <20040916222903.GA4089@nietzsche.lynx.com> <20040916154011.3f0dbd54.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <NEBBILBHKLDLOMLDGKGNEEKDCIAA.Ingo.Freund@e-dict.net>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040916154011.3f0dbd54.davem@davemloft.net>
+User-Agent: Mutt/1.5.6+20040818i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 02:48:40PM +0200, Ingo Freund wrote:
-> Hello,
+On Thu, Sep 16, 2004 at 03:40:11PM -0700, David S. Miller wrote:
+> On Thu, 16 Sep 2004 15:29:03 -0700
+> Bill Huey (hui) <bhuey@lnxw.com> wrote:
 > 
-> I hope you guys can help, I cannot use any kernel 2.4 >23 without
-> the here described problem.
+> > FreeBSD-current uses adaptive mutexes. However they spin on that mutex
+> > only if the thread owning it is running across another CPU at that time,
+> > otherwise it sleeps, maybe priority inherited depending on the
+> > circumstance.
 > 
-> [1.] One line summary of the problem:
-> strange error messages concerning memory allocation
-> 
-> searching teh web for solutions to my problem I have already found
-> a thread in a mailing list but no solution was mentioned, also the
-> guys who talked about the error didn't answer to my direct mail.
-> 
-> [2.] Full description of the problem/report:
-> The machine is a database server without any other service except sshd
-> running. I do some tests on the ICP-Vortex GDT controller every 2 minutes.
-> by using
-> # cat /proc/scsi/gdt/2
-> but the output of cat stops without beeing completed.
-> 
-> This is what I see in the syslog file every time when I use the cat
-> command (the messages beginn after 3 days uptime):
-> --> /var/log/messages
-> kernel: __alloc_pages: 0-order allocation failed (gfp=0x21/0)
+> This is how Solaris MUTEX objects work too.
 
-Ingo,
+Yeah, I know from Solaris Internals and FreeBSD can be considered a
+Solaris style kernel. In contract, I think the Linux community has a
+few things up on FreeBSD/Solaris style SMP. Specifically, the FreeBSD
+community has ignored a lot of the really hard work of pushing down
+locks in favor of "getting fancier locks", which only abuses thread
+priorities and the scheduler. A large part of it is because they have
+really create a very complicated SMP infrastructure that less than a
+handful of their kernel engineers really know how to use, 2-3, it
+seems.
 
-I've seen another report like this one - I'm convinced there
-is something odd with the gdth proc handling code.
+Judging from how the Linux code is done and the numbers I get from
+Bill Irwin in casual conversation, the Linux SMP approach is clearly
+the right track at this time with it's hand honed per-CPU awareness of
+things. The only serious problem that spinlocks have as they aren't
+preemptable, which is what Ingo is trying to fix.
 
-Can you "echo 1 > /proc/sys/vm/vm_gfp_debug" and 
-rerun the "cat /proc/scsi/gdt/2" please?
+bill
+

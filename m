@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266553AbSKLMeh>; Tue, 12 Nov 2002 07:34:37 -0500
+	id <S266546AbSKLMkP>; Tue, 12 Nov 2002 07:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266546AbSKLMdg>; Tue, 12 Nov 2002 07:33:36 -0500
-Received: from holomorphy.com ([66.224.33.161]:49082 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266548AbSKLMd0>;
-	Tue, 12 Nov 2002 07:33:26 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [2/4] NUMA-Q: fetch quad numbers from struct pci_bus
-Message-Id: <E18BaIc-0006Zw-00@holomorphy>
-From: William Lee Irwin III <wli@holomorphy.com>
-Date: Tue, 12 Nov 2002 04:37:46 -0800
+	id <S266555AbSKLMkP>; Tue, 12 Nov 2002 07:40:15 -0500
+Received: from gate.perex.cz ([194.212.165.105]:25874 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S266546AbSKLMkN>;
+	Tue, 12 Nov 2002 07:40:13 -0500
+Date: Tue, 12 Nov 2002 13:46:43 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Greg KH <greg@kroah.com>
+cc: Adam Belay <ambx1@neo.rr.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PnP MODULE_DEVICE_TABLE Update - 2.5.46 (3/6)
+In-Reply-To: <20021112011304.GE26926@kroah.com>
+Message-ID: <Pine.LNX.4.33.0211121345480.503-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This introduces bus2quad() and uses it for bus conversions where it's
-possible to do so right away.
+On Mon, 11 Nov 2002, Greg KH wrote:
 
- numa.c |   11 ++++++++---
- 1 files changed, 8 insertions(+), 3 deletions(-)
+> On Thu, Nov 07, 2002 at 12:29:52PM +0100, Jaroslav Kysela wrote:
+> > On Wed, 6 Nov 2002, Greg KH wrote:
+> > 
+> > > On Wed, Nov 06, 2002 at 09:02:00PM +0000, Adam Belay wrote:
+> > > > 
+> > > > diff -ur --new-file a/include/linux/module.h b/include/linux/module.h
+> > > > --- a/include/linux/module.h	Wed Oct 30 17:45:58 2002
+> > > > +++ b/include/linux/module.h	Wed Oct 30 17:45:24 2002
+> > > > @@ -239,6 +239,8 @@
+> > > >   * The following is a list of known device types (arg 1),
+> > > >   * and the C types which are to be passed as arg 2.
+> > > >   * pci - struct pci_device_id - List of PCI ids supported by this module
+> > > > + * pnpc - struct pnpc_device_id - List of PnP card ids (PNPBIOS, ISA PnP) supported by this module
+> > > > + * pnp - struct pnp_device_id - List of PnP ids (PNPBIOS, ISA PnP) supported by this module
+> > > 
+> > > I must have missed this last time, but to refresh my memory, why do you
+> > > need two different device types?  What's the difference between a card
+> > > id and a device id?
+> > 
+> > The card id represents a group of logical devices (device ids). It's good
+> > to know how are devices connected, especially for soundcards where are
+> > several logical devices working together (codec, synth, midi uart).
+> > Addressing these devices separately (as the OSS sound driver does for
+> > example) causes a lot of confusion for users when more cards are in one
+> > system.
+> 
+> But I don't see any code using this functionality in the kernel right
+> now (or in the patches just sent out.)  Is it really needed if there is
+> no users?
 
+All ALSA modules will use it after this patch is merged.
 
-diff -urpN pci-2.5.47-1/arch/i386/pci/numa.c pci-2.5.47-2/arch/i386/pci/numa.c
---- pci-2.5.47-1/arch/i386/pci/numa.c	2002-11-12 03:12:01.000000000 -0800
-+++ pci-2.5.47-2/arch/i386/pci/numa.c	2002-11-12 03:22:17.000000000 -0800
-@@ -13,6 +13,11 @@
- #define PCI_CONF1_MQ_ADDRESS(bus, dev, fn, reg) \
- 	(0x80000000 | (BUS2LOCAL(bus) << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
- 
-+static int bus2quad(struct pci_bus *bus)
-+{
-+	return (int)bus->sysdata;
-+}
-+
- static int __pci_conf1_mq_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
- {
- 	unsigned long flags;
-@@ -73,13 +78,13 @@ static int __pci_conf1_mq_write (int seg
- 
- static int pci_conf1_mq_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
- {
--	return __pci_conf1_mq_read(0, bus->number, PCI_SLOT(devfn), 
-+	return __pci_conf1_mq_read(bus2quad(bus), bus->number, PCI_SLOT(devfn), 
- 		PCI_FUNC(devfn), where, size, value);
- }
- 
- static int pci_conf1_mq_write(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 value)
- {
--	return __pci_conf1_mq_write(0, bus->number, PCI_SLOT(devfn), 
-+	return __pci_conf1_mq_write(bus2quad(bus), bus->number, PCI_SLOT(devfn), 
- 		PCI_FUNC(devfn), where, size, value);
- }
- 
-@@ -96,7 +101,7 @@ static void __devinit pci_fixup_i450nx(s
- 	 */
- 	int pxb, reg;
- 	u8 busno, suba, subb;
--	int quad = BUS2QUAD(d->bus->number);
-+	int quad = bus2quad(d->bus);
- 
- 	printk("PCI: Searching for i450NX host bridges on %s\n", d->slot_name);
- 	reg = 0xd0;
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
+

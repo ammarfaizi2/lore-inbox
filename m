@@ -1,285 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268090AbUJDSWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUJDSZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268090AbUJDSWL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 14:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268268AbUJDSWL
+	id S268299AbUJDSZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 14:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268409AbUJDSZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 14:22:11 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:44246 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268090AbUJDSVB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 14:21:01 -0400
-Subject: [patch] inotify: make dnotify configurable
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1096865816.3827.1.camel@vertex>
-References: <1096865816.3827.1.camel@vertex>
-Content-Type: multipart/mixed; boundary="=-5dIbaUh3vB09wcjwg4lg"
-Date: Mon, 04 Oct 2004 14:19:27 -0400
-Message-Id: <1096913967.17426.32.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Mon, 4 Oct 2004 14:25:26 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:60144 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268299AbUJDSXk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 14:23:40 -0400
+Date: Mon, 04 Oct 2004 11:17:51 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Paul Jackson <pj@sgi.com>
+cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-ID: <118120000.1096913871@flay>
+In-Reply-To: <20041004085327.727191bf.pj@sgi.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com><20040805190500.3c8fb361.pj@sgi.com><247790000.1091762644@[10.10.2.4]><200408061730.06175.efocht@hpce.nec.com><20040806231013.2b6c44df.pj@sgi.com><411685D6.5040405@watson.ibm.com><20041001164118.45b75e17.akpm@osdl.org><20041001230644.39b551af.pj@sgi.com><20041002145521.GA8868@in.ibm.com><415ED3E3.6050008@watson.ibm.com><415F37F9.6060002@bigpond.net.au><821020000.1096814205@[10.10.2.4]><20041003083936.7c844ec3.pj@sgi.com><834330000.1096847619@[10.10.2.4]><835810000.1096848156@[10.10.2.4]><20041003175309.6b02b5c6.pj@sgi.com><838090000.1096862199@[10.10.2.4]><20041003212452.1a15a49a.pj@sgi.com><843670000.1096902220@[10.10.2.4]> <20041004085327.727191bf.pj@sgi.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--On Monday, October 04, 2004 08:53:27 -0700 Paul Jackson <pj@sgi.com> wrote:
 
---=-5dIbaUh3vB09wcjwg4lg
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Martin writes:
+>> OK, then your "exclusive" cpusets aren't really exclusive at all, since
+>> they have other stuff running in them.
+> 
+> What's clear is that 'exclusive' is not a sufficient precondition for
+> whatever it is that CKRM needs to have sufficient control.
+> 
+> Instead of trying to wrestle 'exclusive' into doing what you want, do me
+> a favor, if you would.  Help me figure out what conditions CKRM _does_
+> need to operate within a cpuset, and we'll invent a new property that
+> satisfies those conditions.
 
-John,
+Oh, I'm not even there yet ... just thinking about what cpusets needs
+independantly to operate efficiently - I don't think cpus_allowed is efficient.
 
-Attached patch makes dnotify configurable via CONFIG_DNOTIFY.
+Whatever we call it, the resource management system definitely needs the 
+ability to isolate a set of resources (CPUs, RAM) totally dedicated to
+one class or group of processes. That's what I see as the main feature
+of cpusets right now, though there may be other things there as well that
+I've missed? At least that's the main feature I personally see a need for ;-)
+ 
+> See my earlier posts in the last hour for my efforts to figure out what
+> these conditions might be.  I conjecture that it's something along the
+> lines of:
+> 
+>     Assuring each CKRM instance that it has control of some
+>     subset of a system that's separate and non-overlapping,
+>     with all Memory, CPU, Tasks, and Allowed masks of said
+>     Tasks either wholly owned by that CKRM instance, or
+>     entirely outside.
 
-Such an option makes inotify more attractive, as you can trade good for
-evil without the memory consumption of the evil sticking around.
+Mmm. Looks like you're trying to do multiple CKRMs, one inside each cpuset,
+right? Not sure that's the way I'd go, but maybe it makes sense.
 
-John: Dunno if you want to merge this into the inotify patch or not, but
-here it is, diffed on top of inotify-0.12 plus my previous patch.
+The way I'm looking at it, which is probably wholly insufficient, if not
+downright wrong, we have multiple process groups, each of which gets some 
+set of resources. Those resources may be dedicated to that class (a la 
+cpusets) or not. One could view this as a set of resource groupings, and
+set of process groupings, where one or more process groupings is bound to
+a resource grouping.
 
-Best,
+The resources are cpus & memory, mainly, in my mind (though I guess IO,
+etc fit too). The resource sets are more like cpusets, and the process
+groups a bit more like CKRM, except they seem to overlap (to me) when
+the sets in cpusets are non-exclusive, or when CKRM wants harder performance
+guarantees.
 
-	Robert Love
+Feel free to point out where I'm full of shit / missing the point ;-)
 
-
---=-5dIbaUh3vB09wcjwg4lg
-Content-Disposition: attachment; filename=inotify-0.12-rml-dnotify-configurable-1.patch
-Content-Type: text/x-patch; name=inotify-0.12-rml-dnotify-configurable-1.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Make dnotify configurable via CONFIG_DNOTIFY
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- Documentation/dnotify.txt |    8 ++++++++
- fs/Kconfig                |   12 ++++++++++++
- fs/Makefile               |   13 +++++++------
- fs/dnotify.c              |    8 +-------
- include/linux/dnotify.h   |   46 +++++++++++++++++++++++++++++++++++++++++-----
- include/linux/fs.h        |    4 +++-
- kernel/sysctl.c           |    8 --------
- 7 files changed, 72 insertions(+), 27 deletions(-)
-
-diff -urN linux-inotify/Documentation/dnotify.txt linux/Documentation/dnotify.txt
---- linux-inotify/Documentation/dnotify.txt	2004-10-04 14:15:12.971565784 -0400
-+++ linux/Documentation/dnotify.txt	2004-10-04 14:14:20.766502160 -0400
-@@ -54,6 +54,14 @@
- Also, files that are unlinked, will still cause notifications in the
- last directory that they were linked to.
- 
-+Configuration
-+-------------
-+
-+Dnotify is controlled via the CONFIG_DNOTIFY configuration option.  When
-+disabled, fcntl(fd, F_NOTIFY, ...) will return -EINVAL.
-+
-+Dnotify is deprecated in favor of inotify (CONFIG_INOTIFY).
-+
- Example
- -------
- 
-diff -urN linux-inotify/fs/dnotify.c linux/fs/dnotify.c
---- linux-inotify/fs/dnotify.c	2004-10-04 14:15:12.796592384 -0400
-+++ linux/fs/dnotify.c	2004-10-04 14:14:20.767502008 -0400
-@@ -13,6 +13,7 @@
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  * General Public License for more details.
-  */
-+
- #include <linux/fs.h>
- #include <linux/module.h>
- #include <linux/sched.h>
-@@ -21,8 +22,6 @@
- #include <linux/spinlock.h>
- #include <linux/slab.h>
- 
--int dir_notify_enable = 1;
--
- static kmem_cache_t *dn_cache;
- 
- static void redo_inode_mask(struct inode *inode)
-@@ -72,8 +71,6 @@
- 		dnotify_flush(filp, id);
- 		return 0;
- 	}
--	if (!dir_notify_enable)
--		return -EINVAL;
- 	inode = filp->f_dentry->d_inode;
- 	if (!S_ISDIR(inode->i_mode))
- 		return -ENOTDIR;
-@@ -157,9 +154,6 @@
- {
- 	struct dentry *parent;
- 
--	if (!dir_notify_enable)
--		return;
--
- 	spin_lock(&dentry->d_lock);
- 	parent = dentry->d_parent;
- 	if (parent->d_inode->i_dnotify_mask & event) {
-diff -urN linux-inotify/fs/Kconfig linux/fs/Kconfig
---- linux-inotify/fs/Kconfig	2004-10-04 14:15:12.803591320 -0400
-+++ linux/fs/Kconfig	2004-10-04 14:14:20.769501704 -0400
-@@ -438,6 +438,18 @@
- 	depends on XFS_QUOTA || QUOTA
- 	default y
- 
-+config DNOTIFY
-+	bool "Dnotify support"
-+	default y
-+	help
-+	  Dnotify is a directory-based per-fd file change notification system
-+	  that uses signals to communicate events to user-space.  It has
-+	  been replaced by inotify (see CONFIG_INOTIFY), which solves many of
-+	  the shortcomings of dnotify and adds new features, but some
-+	  applications may still rely on dnotify.
-+	  
-+	  Because of this, if unsure, say Y.
-+
- config AUTOFS_FS
- 	tristate "Kernel automounter support"
- 	help
-diff -urN linux-inotify/fs/Makefile linux/fs/Makefile
---- linux-inotify/fs/Makefile	2004-10-04 14:15:12.804591168 -0400
-+++ linux/fs/Makefile	2004-10-04 14:14:20.769501704 -0400
-@@ -5,12 +5,11 @@
- # Rewritten to use lists instead of if-statements.
- # 
- 
--obj-y :=	open.o read_write.o file_table.o buffer.o \
--		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
--		namei.o fcntl.o ioctl.o readdir.o select.o fifo.o locks.o \
--		dcache.o inode.o attr.o bad_inode.o file.o dnotify.o \
--		filesystems.o namespace.o seq_file.o xattr.o libfs.o \
--		fs-writeback.o mpage.o direct-io.o aio.o
-+obj-y :=	open.o read_write.o file_table.o buffer.o  bio.o super.o \
-+		block_dev.o char_dev.o stat.o exec.o pipe.o namei.o fcntl.o \
-+		ioctl.o readdir.o select.o fifo.o locks.o dcache.o inode.o \
-+		attr.o bad_inode.o file.o filesystems.o namespace.o aio.o \
-+		seq_file.o xattr.o libfs.o fs-writeback.o mpage.o direct-io.o \
- 
- obj-$(CONFIG_EPOLL)		+= eventpoll.o
- obj-$(CONFIG_COMPAT)		+= compat.o
-@@ -37,6 +36,8 @@
- obj-$(CONFIG_QFMT_V2)		+= quota_v2.o
- obj-$(CONFIG_QUOTACTL)		+= quota.o
- 
-+obj-$(CONFIG_DNOTIFY)		+= dnotify.o
-+
- obj-$(CONFIG_PROC_FS)		+= proc/
- obj-y				+= partitions/
- obj-$(CONFIG_SYSFS)		+= sysfs/
-diff -urN linux-inotify/include/linux/dnotify.h linux/include/linux/dnotify.h
---- linux-inotify/include/linux/dnotify.h	2004-10-04 14:15:11.232830112 -0400
-+++ linux/include/linux/dnotify.h	2004-10-04 14:14:20.770501552 -0400
-@@ -1,3 +1,5 @@
-+#ifndef _LINUX_DNOTIFY_H
-+#define _LINUX_DNOTIFY_H
- /*
-  * Directory notification for Linux
-  *
-@@ -8,20 +10,54 @@
- 
- struct dnotify_struct {
- 	struct dnotify_struct *	dn_next;
--	unsigned long		dn_mask;	/* Events to be notified
--						   see linux/fcntl.h */
-+	unsigned long		dn_mask;
- 	int			dn_fd;
- 	struct file *		dn_filp;
- 	fl_owner_t		dn_owner;
- };
- 
-+#ifdef __KERNEL__
-+
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_DNOTIFY
-+
- extern void __inode_dir_notify(struct inode *, unsigned long);
--extern void dnotify_flush(struct file *filp, fl_owner_t id);
-+extern void dnotify_flush(struct file *, fl_owner_t);
- extern int fcntl_dirnotify(int, struct file *, unsigned long);
--void dnotify_parent(struct dentry *dentry, unsigned long event);
-+extern void dnotify_parent(struct dentry *, unsigned long);
- 
- static inline void inode_dir_notify(struct inode *inode, unsigned long event)
- {
--	if ((inode)->i_dnotify_mask & (event))
-+	if (inode->i_dnotify_mask & (event))
- 		__inode_dir_notify(inode, event);
- }
-+
-+#else
-+
-+static inline void __inode_dir_notify(struct inode *inode, unsigned long event)
-+{
-+}
-+
-+static inline void dnotify_flush(struct file *filp, fl_owner_t id)
-+{
-+}
-+
-+static inline int fcntl_dirnotify(int fd, struct file *filp, unsigned long arg)
-+{
-+	return -EINVAL;
-+}
-+
-+static inline void dnotify_parent(struct dentry *dentry, unsigned long event)
-+{
-+}
-+
-+static inline void inode_dir_notify(struct inode *inode, unsigned long event)
-+{
-+}
-+
-+#endif /* CONFIG_DNOTIFY */
-+
-+#endif /* __KERNEL __ */
-+
-+#endif /* _LINUX_DNOTIFY_H */
-diff -urN linux-inotify/include/linux/fs.h linux/include/linux/fs.h
---- linux-inotify/include/linux/fs.h	2004-10-04 14:15:11.249827528 -0400
-+++ linux/include/linux/fs.h	2004-10-04 14:14:57.982844416 -0400
-@@ -62,7 +62,7 @@
- };
- extern struct inodes_stat_t inodes_stat;
- 
--extern int leases_enable, dir_notify_enable, lease_break_time;
-+extern int leases_enable, lease_break_time;
- 
- #define NR_FILE  8192	/* this can well be larger on a larger system */
- #define NR_RESERVED_FILES 10 /* reserved for root */
-@@ -460,8 +460,10 @@
- 
- 	__u32			i_generation;
- 
-+#ifdef CONFIG_DNOTIFY
- 	unsigned long		i_dnotify_mask; /* Directory notify events */
- 	struct dnotify_struct	*i_dnotify; /* for directory notifications */
-+#endif
- 
- #ifdef CONFIG_INOTIFY
- 	struct inotify_inode_data *inotify_data;
-diff -urN linux-inotify/kernel/sysctl.c linux/kernel/sysctl.c
---- linux-inotify/kernel/sysctl.c	2004-10-04 14:15:12.978564720 -0400
-+++ linux/kernel/sysctl.c	2004-10-04 14:14:20.774500944 -0400
-@@ -879,14 +879,6 @@
- 		.proc_handler	= &proc_dointvec,
- 	},
- 	{
--		.ctl_name	= FS_DIR_NOTIFY,
--		.procname	= "dir-notify-enable",
--		.data		= &dir_notify_enable,
--		.maxlen		= sizeof(int),
--		.mode		= 0644,
--		.proc_handler	= &proc_dointvec,
--	},
--	{
- 		.ctl_name	= FS_LEASE_TIME,
- 		.procname	= "lease-break-time",
- 		.data		= &lease_break_time,
-
---=-5dIbaUh3vB09wcjwg4lg--
+M.
 

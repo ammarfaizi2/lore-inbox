@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269291AbRGaNlw>; Tue, 31 Jul 2001 09:41:52 -0400
+	id <S269299AbRGaNyF>; Tue, 31 Jul 2001 09:54:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269296AbRGaNlo>; Tue, 31 Jul 2001 09:41:44 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:64128 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S269291AbRGaNle>; Tue, 31 Jul 2001 09:41:34 -0400
-Date: Tue, 31 Jul 2001 09:41:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Controlling Terminal
-Message-ID: <Pine.LNX.3.95.1010731093430.18329A-100000@chaos.analogic.com>
+	id <S269300AbRGaNxz>; Tue, 31 Jul 2001 09:53:55 -0400
+Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:8832 "EHLO
+	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
+	id <S269299AbRGaNxo>; Tue, 31 Jul 2001 09:53:44 -0400
+Message-ID: <3B66B838.C8B427B1@acm.org>
+Date: Tue, 31 Jul 2001 23:52:56 +1000
+From: Gareth Hughes <gareth.hughes@acm.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: paulr <reichp@ameritech.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 -- GCC-3.0 -- "multiline string literals deprecated" -- PATCH
+In-Reply-To: <3B663AC9.3A290C32@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+paulr wrote:
+> 
+> Folks,
+> 
+> While building both kernels 2.4.6 and 2.4.7,
+> I encountered a series of compiler warnings,
+> 
+> warning: multiline string literals are deprecated.
+> 
+> The build environment was gcc3.0 and binutils-2.11.2.
 
-Sorry about off-topic, but how do I create a "controlling
-terminal" for a process. I know how to open the device,
-dup it to 0, 1, 2, set up signals, etc. However, the
-shell (bash) won't allow job-control, and ^C kills bash
-instead of what it's executing.
+Yes, unfortunately GCC 3.0 deprecated multiline string literals -- I saw
+someone arguing on the GCC mailing lists that writing large chunks of
+inline asm shouldn't be "easy", as it interferes with the compiler's
+optimization passes.  There were other such braindead arguments
+supporting the deprecation.  The thread should be pretty easy to find in
+the archives.  Don't know if the deprecation will be removed in future
+versions.
 
-I'm trying to run a shell off a multiplexed RF link. I've
-got a good clean 8-bit link. I should not have to use
-a pty. The driver's output "looks" like a terminal so it
-should be able to be a controlling terminal.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- Gareth

@@ -1,50 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263224AbTH0Jab (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 05:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTH0Jab
+	id S263076AbTH0Jmp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 05:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTH0Jmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 05:30:31 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:2755 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S263224AbTH0Ja3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 05:30:29 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Wed, 27 Aug 2003 11:30:27 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: linux-kernel@vger.kernel.org, tejun@aratech.co.kr
-Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
-Message-Id: <20030827113027.64c42485.skraw@ithnet.com>
-In-Reply-To: <20030827073758.GW83336@niksula.cs.hut.fi>
-References: <20030729073948.GD204266@niksula.cs.hut.fi>
-	<20030730071321.GV150921@niksula.cs.hut.fi>
-	<Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva>
-	<20030730181003.GC204962@niksula.cs.hut.fi>
-	<20030827064301.GF150921@niksula.cs.hut.fi>
-	<20030827073758.GW83336@niksula.cs.hut.fi>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Aug 2003 05:42:45 -0400
+Received: from fep01.swip.net ([130.244.199.129]:7660 "EHLO fep01-svc.swip.net")
+	by vger.kernel.org with ESMTP id S263266AbTH0Jmm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 05:42:42 -0400
+From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: generate modprobe.conf
+Date: Wed, 27 Aug 2003 11:42:40 +0200
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308271142.40104.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003 10:37:58 +0300
-Ville Herva <vherva@niksula.hut.fi> wrote:
+Hi,
 
-> > Did you already try to exchange everything but the harddisks ?
-> 
-> No. Do you suspect faulty hardware?
-> [...]
-> What I had hoped for is to be able to get some information on where it hangs.
-> But sysrq and nmi watchdog don't cut it...
+I tried generate modprobe.conf from my modules.conf, but without success.
+My ethernet card and mouse doesn't work - theitr modules are not loaded in 
+startup. Where is problem?
 
-Hm, did you try a serial console? On my side this was a big step forward.
-If you experience complete hangs it may be something around hanging interrupts.
-Did you play with apic/acpi etc. to try different interrupt handling? What does
-your /proc/interrupts look like compared between 2.2 and 2.4 ?
+My modules.conf:
 
-Regards,
-Stephan
+keep
+
+alias eth0 3c59x
+options 3c59x 3c509x debug=0 options=4,8
+
+post-install bttv insmod tuner
+post-remove bttv rmmod tuner
+
+
+alias char-major-10-175 agpgart
+alias char-major-10-200 tun
+alias char-major-81     bttv
+alias char-major-108    ppp_generic
+alias /dev/ppp          ppp_generic
+alias tty-ldisc-3       ppp_async
+alias tty-ldisc-14      ppp_synctty
+alias ppp-compress-21   bsd_comp
+alias ppp-compress-24   ppp_deflate
+alias ppp-compress-26   ppp_deflate
+
+alias loop-xfer-gen-0   loop_gen
+alias loop-xfer-3       loop_fish2
+alias loop-xfer-gen-10  loop_gen
+alias cipher-2          des
+alias cipher-3          fish2
+alias cipher-4          blowfish
+alias cipher-6          idea
+alias cipher-7          serp6f
+alias cipher-8          mars6
+alias cipher-11         rc62
+alias cipher-15         dfc2
+alias cipher-16         rijndael
+alias cipher-17         rc5
+
+alias net-pf-31 bluez
+alias bt-proto-0 l2cap
+alias bt-proto-2 sco
+alias bt-proto-4 bnep
+alias tty-ldisc-15 hci_uart
+alias char-major-10-250 hci_vhci
+alias bt-proto-3 rfcomm
+
+alias char-major-81 videodev
+alias char-major-81-0 bttv
+pre-install bttv modprobe -k msp3400; modprobe -k tuner
+options bttv radio=0 card=64
+options tuner type=19
+
+options ide-cd ignore=hdd            # tell the ide-cd module to
+                                     #  ignore hdd
+alias scd0 sr_mod                    # load sr_mod upon access
+                                     #  of scd0
+pre-install sg     modprobe ide-scsi # load ide-scsi before sg
+pre-install sr_mod modprobe ide-scsi # load ide-scsi before sr_mod
+pre-install ide-scsi modprobe ide-cd # load ide-cd   before
+                                     #  ide-scsi
+alias char-major-13 hid
+post-install hid modprobe -k mousedev; modprobe -k input
+
+alias /dev/ppp          ppp_generic
+alias char-major-108    ppp_generic
+alias tty-ldisc-3       ppp_async
+alias tty-ldisc-14      ppp_synctty
+alias ppp-compress-21   bsd_comp
+alias ppp-compress-24   ppp_deflate
+alias ppp-compress-26   ppp_deflate
+
+"setserial-module reload"
+ "setserial-module uload"
+
+alias /dev/tts          serial
+alias /dev/tts/0        serial
+alias /dev/tts/1        serial
+alias /dev/tts/2        serial
+alias /dev/tts/3        serial
+post-install serial /etc/init.d/setserial modload > /dev/null 2> /dev/null
+pre-remove serial /etc/init.d/setserial modsave  > /dev/null 2> /dev/null
+
+alias parport_lowlevel parport_pc
+alias char-major-10-144 nvram
+alias binfmt-0064 binfmt_aout
+alias char-major-10-135 rtc
+

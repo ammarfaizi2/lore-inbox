@@ -1,93 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269065AbUIQWj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269085AbUIQWmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269065AbUIQWj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 18:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUIQWet
+	id S269085AbUIQWmE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 18:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUIQWlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 18:34:49 -0400
-Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:34957 "EHLO
-	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S269085AbUIQW3y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 18:29:54 -0400
-From: Ryan Cumming <ryan@spitfire.gotdns.org>
-To: Andrea Arcangeli <andrea@novell.com>
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Date: Fri, 17 Sep 2004 15:29:50 -0700
-User-Agent: KMail/1.7
-Cc: Stelian Pop <stelian@popies.net>, Hugh Dickins <hugh@veritas.com>,
-       James R Bruce <bruce@andrew.cmu.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20040917154834.GA3180@crusoe.alcove-fr> <200409171454.02531.ryan@spitfire.gotdns.org> <20040917220039.GD15426@dualathlon.random>
-In-Reply-To: <20040917220039.GD15426@dualathlon.random>
+	Fri, 17 Sep 2004 18:41:00 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:176 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S269085AbUIQWgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 18:36:07 -0400
+Message-ID: <414B6583.5080809@sgi.com>
+Date: Fri, 17 Sep 2004 15:30:27 -0700
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6860739.3kPtf6XZUT";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Andrew Morton <akpm@osdl.org>, Tim Schmielau <tim@physik3.uni-rostock.de>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       CSA-ML <csa@oss.sgi.com>, Arthur Corliss <corliss@digitalmages.com>,
+       Erik Jacobson <erikj@dbear.engr.sgi.com>, Limin Gu <limin@engr.sgi.com>,
+       John Hesterberg <jh@sgi.com>
+Subject: Re: [PATCH 2.6.8.1 3/4] CSA  csa_eop: accounting end-of-process hook
+References: <4140A9D2.3010602@engr.sgi.com> <4140ABD2.90908@engr.sgi.com>
+In-Reply-To: <4140ABD2.90908@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409171529.52864.ryan@spitfire.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6860739.3kPtf6XZUT
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_eV2SBLMckLpypPz"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Andrew and Tim,
 
---Boundary-01=_eV2SBLMckLpypPz
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I found i can eliminate this csa_eop patch.
 
-Er, sorry, the last patch was had an off-by-one error (it would round 4 up =
-to=20
-8).
+Two ways to do this, depending on whether we want to view
+linux/kernel/acct.c as a non-essential part of kernel and
+another accounting package that CSA will replace.
 
-=2DRyan
+If we decide we do not need to have acct.c in the kernel, it can be
+controlled by a new config flag, say CONFIG_BSD_ACCT, and do this:
+     do_eop_acct = acct_process;
+at BSD acct initialization.
 
---Boundary-01=_eV2SBLMckLpypPz
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="roundup-pow-two.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="roundup-pow-two.diff"
+If we decide to always have BSD acct on, i can propose a new patch
+to move do_eop_acct declaration into acct.c and at the beginning of
+acct_process() routine, which is invoked at do_exit(), i will check
+do_eop_acctL: if do_eop_acct is not NULL, do_eop_acct() would be
+called and exits acct_process() upon return (ie, a competing accounting
+package is running); otherwise, it continues do BSD acct processing.
 
-=2D-- include/linux/kernel.h	2004-09-16 06:38:19.000000000 -0700
-+++ include/linux/kernel.h	2004-09-17 15:12:20.598844004 -0700
-@@ -12,6 +12,7 @@
- #include <linux/stddef.h>
- #include <linux/types.h>
- #include <linux/compiler.h>
-+#include <linux/bitops.h>
- #include <asm/byteorder.h>
- #include <asm/bug.h>
-=20
-@@ -111,6 +112,10 @@
- 	return r;
- }
-=20
-+static inline unsigned long __attribute_pure__ roundup_pow_of_two(int x)
-+{
-+	return (1UL << fls(x - 1));
-+}
-=20
- extern int printk_ratelimit(void);
- extern int __printk_ratelimit(int ratelimit_jiffies, int ratelimit_burst);
+What do you think? Which path i should walk down?
 
---Boundary-01=_eV2SBLMckLpypPz--
+Thanks,
+  - jay
 
---nextPart6860739.3kPtf6XZUT
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Jay Lan wrote:
+> Linux Comprehensive System Accounting (CSA) is a set of C programs and
+> shell scripts that, like other accounting packages, provide methods for
+> collecting per-process resource usage data, monitoring disk usage, and
+> charging fees to specific login accounts.
+> 
+> The CSA patchset includes csa_io, csa_mm, csa_eop and csa_module.
+> Patches csa_io, csa_mm, and csa_eop are responsible for system
+> accounting data collection and are independent of each other.
+> 
+> csa_eop is a patch that provides a hook for end-of-process handling.
+> 
+> Please find CSA project at http://oss.sgi.com/projects/csa. This set of
+> csa patches has been tested with the pagg and job kernel patches.
+> The information of pagg and job project can be found at
+> http://oss.sgi.com/projects/pagg/
+> 
+> 
+> Signed-off-by: Jay Lan <jlan@sgi.com>
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> Index: linux/kernel/exit.c
+> ===================================================================
+> --- linux.orig/kernel/exit.c	2004-09-03 17:17:03.000000000 -0700
+> +++ linux/kernel/exit.c	2004-09-03 17:17:03.000000000 -0700
+> @@ -33,6 +33,8 @@
+>  
+>  extern void sem_exit (void);
+>  extern struct task_struct *child_reaper;
+> +void (*do_eop_acct) (int, struct task_struct *) = NULL;
+> +EXPORT_SYMBOL(do_eop_acct);
+>  
+>  int getrusage(struct task_struct *, int, struct rusage __user *);
+>  
+> @@ -826,6 +828,9 @@
+>  	csa_update_integrals();
+>  	update_mem_hiwater();
+>  	acct_process(code);
+> +	/* Handle end-of-process accounting */
+> +	if (do_eop_acct != NULL)
+> +		do_eop_acct(code, tsk);
+>  	__exit_mm(tsk);
+>  
+>  	exit_sem(tsk);
+> Index: linux/include/linux/acct.h
+> ===================================================================
+> --- linux.orig/include/linux/acct.h	2004-08-13 22:36:32.000000000 -0700
+> +++ linux/include/linux/acct.h	2004-09-03 17:17:03.000000000 -0700
+> @@ -185,6 +185,13 @@
+>         return x;
+>  }
+>  
+> +/*
+> + * extern declaration that provides the hook needed for processing of
+> + * end-of-process accounting record
+> + *
+> + */
+> +extern void (*do_eop_acct) (int, struct task_struct *);
+> +
+>  #endif  /* __KERNEL */
+>  
+>  #endif	/* _LINUX_ACCT_H */
 
-iD8DBQBBS2VgW4yVCW5p+qYRAhqDAKDBvY+hr/6vq2RJJ5KsaXTjY+oj0gCgqTYH
-GLFh23PAsHTfiOoreHpKXtY=
-=QomO
------END PGP SIGNATURE-----
-
---nextPart6860739.3kPtf6XZUT--

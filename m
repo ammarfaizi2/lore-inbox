@@ -1,119 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUIOU0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUIPBBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267391AbUIOU0s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267396AbUIOUYx
+	id S267487AbUIPBBq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 21:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUIPA7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:24:53 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:62525 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S267383AbUIOUXd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:23:33 -0400
-Subject: Re: PATCH: tty locking for 2.6.9rc2
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040915200856.GA8000@devserv.devel.redhat.com>
-References: <20040914163426.GA29253@devserv.devel.redhat.com>
-	 <1095265595.2924.27.camel@deimos.microgate.com>
-	 <20040915163051.GA9096@devserv.devel.redhat.com>
-	 <1095274482.2686.16.camel@deimos.microgate.com>
-	 <20040915200856.GA8000@devserv.devel.redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095279799.2958.11.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Sep 2004 15:23:19 -0500
+	Wed, 15 Sep 2004 20:59:10 -0400
+Received: from lakermmtao01.cox.net ([68.230.240.38]:58828 "EHLO
+	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S267377AbUIPAyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 20:54:16 -0400
+From: tuxrocks@cox.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: open source realtek driver for 8180
+Date: Wed, 15 Sep 2004 19:54:18 -0500
+User-Agent: KMail/1.6.2
+References: <20040915161113.BVQI25194.lakermmtao01.cox.net@smtp.east.cox.net> <1095268473.6499.4.camel@dhollis-lnx.kpmg.com>
+In-Reply-To: <1095268473.6499.4.camel@dhollis-lnx.kpmg.com>
+Cc: dhollis@davehollis.com
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409151954.18035.tuxrocks@cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan:
-
-Here is a patch against your last patch that clears
-up both the per tty refcount initialization and
-the remove_dev() global refcount leak.
-
-I've tested it and it seems to work.
-
-The patch is not meant to be applied and
-is just for your information in deciding
-how you want the final code to look.
-
---- linux-2.6.9/drivers/char/tty_io.c	2004-09-15 15:19:58.044611590 -0500
-+++ linux-2.6.9-mg/drivers/char/tty_io.c	2004-09-15 15:19:34.690680997 -0500
-@@ -288,6 +288,7 @@
- 	}
- 	else
- 		ld = NULL;
-+	if (ld) printk("tty_ldisc_get ld=%p refcount=%d\n", ld, ld->refcount);
- 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
- 	return ld;
- }
-@@ -307,6 +308,7 @@
- 	if(ld->refcount == 0)
- 		BUG();
- 	ld->refcount --;
-+	printk("tty_ldisc_put ld=%p refcount=%d\n", ld, ld->refcount);
- 	module_put(ld->owner);
- 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
- }
-@@ -497,6 +499,7 @@
- 
- 	/* Now set up the new line discipline. */
- 	tty->ldisc = *ld;
-+	tty->ldisc.refcount = 0;
- 	tty->termios->c_line = ldisc;
- 	if (tty->ldisc.open)
- 		retval = (tty->ldisc.open)(tty);
-@@ -504,11 +507,13 @@
- 		tty_ldisc_put(ldisc);
- 		/* There is an outstanding reference here so this is safe */
- 		tty->ldisc = *tty_ldisc_get(o_ldisc.num);
-+		tty->ldisc.refcount = 0;
- 		tty->termios->c_line = tty->ldisc.num;
- 		if (tty->ldisc.open && (tty->ldisc.open(tty) < 0)) {
- 			tty_ldisc_put(o_ldisc.num);
- 			/* This driver is always present */
- 			tty->ldisc = *tty_ldisc_get(N_TTY);
-+			tty->ldisc.refcount = 0;
- 			tty->termios->c_line = N_TTY;
- 			if (tty->ldisc.open) {
- 				int r = tty->ldisc.open(tty);
-@@ -1567,15 +1572,15 @@
- 	/*
- 	 *	Switch the line discipline back
- 	 */
--	tty->ldisc = *tty_ldisc_get(N_TTY);
--	tty->termios->c_line = N_TTY;
-+//	tty->ldisc = *tty_ldisc_get(N_TTY);
-+//	tty->termios->c_line = N_TTY;
- 	if (o_tty) {
- 		/* FIXME: could o_tty be in setldisc here ? */
- 		clear_bit(TTY_LDISC, &o_tty->flags);
- 		if (o_tty->ldisc.close)
- 			(o_tty->ldisc.close)(o_tty);
- 		tty_ldisc_put(o_tty->ldisc.num);
--		o_tty->ldisc = *tty_ldisc_get(N_TTY);
-+//		o_tty->ldisc = *tty_ldisc_get(N_TTY);
- 	}
- 
- 	/*
-@@ -2466,6 +2471,7 @@
- 	memset(tty, 0, sizeof(struct tty_struct));
- 	tty->magic = TTY_MAGIC;
- 	tty->ldisc = *tty_ldisc_get(N_TTY);
-+	tty->ldisc.refcount = 0;
- 	tty->pgrp = -1;
- 	tty->flip.char_buf_ptr = tty->flip.char_buf;
- 	tty->flip.flag_buf_ptr = tty->flip.flag_buf;
-
-Thanks,
-Paul
- 
---
-Paul Fulghum
-paulkf@microgate.com
-
-
+The realtek drivers have worked for me, but only (as you said) for 2.4.  They 
+also don't support monitor mode, which I would like to use.
+I had similar experiences with the sourceforge projects mentioned.  The 
+rtl8180+sa2400 bailed with numerous warnings.  The project you mention might 
+be the other one on sourceforge, rtl-ddp.  Things seemed to be moving, but 
+then stalled.  It compiles and insmods but doesn't have the wireless 
+extensions supported yet.  I'm sure everyone involved in the projects is 
+busy, but I'm just trying to see if going out and buying a 20 or 30 dollar 
+card that is supported would be my best bet.
+On Wednesday 15 September 2004 12:14 pm, David Hollis wrote:
+> I'm quite interested in this driver as well.  At the moment I'm stuck
+> using the ndiswrapper to make the card work but it's not how I would
+> like to do things long term.  I looked at the rtl8180+sa2400 driver at
+> sourceforge and it seems to be the most promising but the code is in
+> pretty bad shape.  It won't compile against a recent kernel using gcc
+> 3.4 without a load of warnings and errors due to the coding style.  I
+> also found a project (forget where exactly) that is focused on making
+> the existing Realtek drivers work under 2.6 kernels.  The Realtek
+> drivers do the typical link-to-precompiled-object bit and are designed
+> for 2.4.  I haven't played with them myself so I don't know if they work
+> or not.  I would really prefer a standard, well-written fully open
+> driver (wouldn't we all!) that at worst requires a firmware binary to be
+> loaded.  The prism54 and ipw2x00 drivers come to mind...

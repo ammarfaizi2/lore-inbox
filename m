@@ -1,94 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277404AbRJJUWG>; Wed, 10 Oct 2001 16:22:06 -0400
+	id <S277406AbRJJUZA>; Wed, 10 Oct 2001 16:25:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277401AbRJJUVq>; Wed, 10 Oct 2001 16:21:46 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:3254 "EHLO
-	shookay.e-steel.com") by vger.kernel.org with ESMTP
-	id <S277399AbRJJUVk>; Wed, 10 Oct 2001 16:21:40 -0400
-To: storri@ameritech.net (Stephen Torri),
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Memory free report error (kernel-2.4.10-ac10)
-In-Reply-To: <Pine.LNX.4.33.0110101605120.733-100000@base.torri.linux>
-From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-Date: 10 Oct 2001 16:22:09 -0400
-In-Reply-To: <Pine.LNX.4.33.0110101605120.733-100000@base.torri.linux>
-Message-ID: <xlt1ykbtfda.fsf@shookay.e-steel.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S277401AbRJJUYs>; Wed, 10 Oct 2001 16:24:48 -0400
+Received: from [160.131.145.131] ([160.131.145.131]:10500 "EHLO W20303512")
+	by vger.kernel.org with ESMTP id <S277406AbRJJUYh>;
+	Wed, 10 Oct 2001 16:24:37 -0400
+Message-ID: <04d501c151c9$9a38e1e0$839183a0@W20303512>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110101239540.1192-100000@twin.uoregon.edu>
+Subject: Re: ATA/100 Promise Board
+Date: Wed, 10 Oct 2001 16:24:45 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Which is the way unix works... Free memory is useless: better use it as
-cache or else...
+----- Original Message -----
+From: "Joel Jaeggli" <joelja@darkwing.uoregon.edu>
+To: "Wilson" <defiler@null.net>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, October 10, 2001 3:49 PM
+Subject: Re: ATA/100 Promise Board
 
-storri@ameritech.net (Stephen Torri) writes:
-> I have installed and used kernel-2.4.10-ac10 on a SMP system (Dual P3)
-> using 768 MB Ram. Yet on startup of the system (RedHat 7.0), the system
-> resources are almost all used. Here are the files started:
-> 
-> USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-> root         1  1.1  0.0  1304  528 ?        S    15:56   0:06 init [3]
-> root         2  0.0  0.0     0    0 ?        SW   15:56   0:00 [keventd]
-> root         3  0.0  0.0     0    0 ?        SWN  15:56   0:00 [ksoftirqd_CPU0]
-> root         4  0.0  0.0     0    0 ?        SWN  15:56   0:00 [ksoftirqd_CPU1]
-> root         5  0.0  0.0     0    0 ?        SW   15:56   0:00 [kswapd]
-> root         6  0.0  0.0     0    0 ?        SW   15:56   0:00 [kreclaimd]
-> root         7  0.0  0.0     0    0 ?        SW   15:56   0:00 [bdflush]
-> root         8  0.2  0.0     0    0 ?        SW   15:56   0:01 [kupdated]
-> root         9  0.0  0.0     0    0 ?        SW   15:56   0:00 [khubd]
-> root       341  0.0  0.0  1364  596 ?        S    16:03   0:00 syslogd -m 0
-> root       351  0.1  0.1  2004 1176 ?        S    16:03   0:00 klogd
-> nobody     405  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-> nobody     407  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-> nobody     408  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-> nobody     409  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-> nobody     410  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-> daemon     424  0.0  0.0  1336  576 ?        S    16:03   0:00 /usr/sbin/atd
-> root       455  0.0  0.1  2192  992 ?        S    16:03   0:00 xinetd -stayalive
-> root       473  0.0  0.2  1904 1896 ?        SL   16:03   0:00 ntpd
-> root       524  0.0  0.2  3224 1552 ?        S    16:03   0:00 sendmail: accepti
-> root       540  0.0  0.0  1328  492 ?        S    16:03   0:00 gpm -t ps/2
-> root       555  0.0  0.0  1532  708 ?        S    16:03   0:00 crond
-> xfs        594  0.1  0.4  4404 3176 ?        S    16:03   0:00 xfs -droppriv -da
-> root       630  0.0  0.0  1276  432 tty2     S    16:04   0:00 /sbin/mingetty tt
-> root       631  0.0  0.0  1276  432 tty3     S    16:04   0:00 /sbin/mingetty tt
-> root       632  0.0  0.0  1276  432 tty4     S    16:04   0:00 /sbin/mingetty tt
-> root       633  0.0  0.0  1276  432 tty5     S    16:04   0:00 /sbin/mingetty tt
-> root       634  0.0  0.0  1276  432 tty6     S    16:04   0:00 /sbin/mingetty tt
-> root       677  0.1  0.1  2264 1204 tty1     S    16:04   0:00 login -- torri
-> torri      678  0.0  0.1  2436 1416 tty1     S    16:04   0:00 -bash
-> torri      700  0.0  0.1  2048 1080 ?        S    16:04   0:00 /usr/bin/fetchmai
-> torri      733  0.1  0.3  6588 2640 tty1     T    16:05   0:00 pine
-> torri      734  0.0  0.0  2528  732 tty1     R    16:06   0:00 ps aux
-> 
-> Here is the report of the memory (free -m):
->              total       used       free     shared    buffers     cached
-> Mem:           751        662         89          0        564         18
-> -/+ buffers/cache:         78        672
-> Swap:          133          0        133
-> 
-> Here is the version I am using (/proc/version):
-> 
-> Linux version 2.4.10-ac10 (root@base.torri.linux) (gcc version 3.0.2
-> 20010908 (prerelease)) #2 SMP Wed Oct 10 14:16:51 EDT 2001
-> 
-> I have never run across this problem. I don't know where to begin or what
-> information is required to help debug this. Advise would be helpful.
-> 
-> Stephen Torri
-> storri@ameritech.net
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> > Quoting from pdc202xx.c:
+> >
+> >  *  The latest chipset code will support the following ::
+> >  *  Three Ultra33 controllers and 12 drives.
+> >  *  8 are UDMA supported and 4 are limited to DMA mode 2 multi-word.
+> >  *  The 8/4 ratio is a BIOS code limit by promise.
+> >  *
+> >  *  UNLESS you enable "CONFIG_PDC202XX_BURST"
+> >
+> > Does this match your experiences with that many controllers in the same
+box?
+> > Thanks for the reply, by the way.
+>
+> I don't have any of the ultra33 (20246) controllers... but I do have
+> CONFIG_PDC202XX_BURST set (ie. the "enabled special dma feature").
+> everything is more or less normal except that I think hdk in the box is
+> slowly dying at this point... this box has 8 drives on four controllers
+> rather than 12 on 3
+>
+> hda: WDC AC22000L, ATA DISK drive
+> hdc: IBM-DTLA-307015, ATA DISK drive
+> hde: Maxtor 98196H8, ATA DISK drive
+> hdg: IBM-DTLA-307075, ATA DISK drive
+> hdi: WDC AC418000D, ATA DISK drive
+> hdk: WDC AC418000D, ATA DISK drive
+> hdm: WDC WD273BA, ATA DISK drive
+> hdo: WDC WD273BA, ATA DISK drive
+>
 
--- 
-Mathieu Chouquet-Stringer              E-Mail : mchouque@e-steel.com
-     Learning French is trivial: the word for horse is cheval, and
-               everything else follows in the same way.
-                        -- Alan J. Perlis
+Awesome. Thanks for the info. I'll feel relatively safe recommending this
+kind of thing to others in the future, then.
+
+--Wilson.
+
+

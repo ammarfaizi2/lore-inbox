@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292325AbSBPJCQ>; Sat, 16 Feb 2002 04:02:16 -0500
+	id <S292473AbSBPJG2>; Sat, 16 Feb 2002 04:06:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292327AbSBPJCH>; Sat, 16 Feb 2002 04:02:07 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26876 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S292325AbSBPJBw>; Sat, 16 Feb 2002 04:01:52 -0500
-Message-ID: <3C6E1FED.2005E55A@mvista.com>
-Date: Sat, 16 Feb 2002 01:01:33 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+	id <S292476AbSBPJGT>; Sat, 16 Feb 2002 04:06:19 -0500
+Received: from duba03h03-0.dplanet.ch ([212.35.36.23]:61957 "EHLO
+	duba03h03-0.dplanet.ch") by vger.kernel.org with ESMTP
+	id <S292473AbSBPJGJ>; Sat, 16 Feb 2002 04:06:09 -0500
+Message-ID: <3C6E20A8.40008@dplanet.ch>
+Date: Sat, 16 Feb 2002 10:04:40 +0100
+From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.5) Gecko/20011023
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Johan.J.Vikerskog@telia.se
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Compiling error which nobody has been able to help me with yet.
-In-Reply-To: <H000297a0cbdc66d.1013593341.tms3.han.telia.se@MHS>
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: esr@thyrsus.com, Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <fa.fs57c8v.pms19j@ifi.uio.no> <fa.h6krj0v.ggg1hm@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johan.J.Vikerskog@telia.se wrote:
+Jeff Garzik wrote:
+
+> "Eric S. Raymond" wrote:
 > 
-> I try to compile 2.2.16 om a celeron 433 and i get the following error
-> message all the time even
-> if i have SMP totally disabled.
+>>The first thing I heard, from mec two years ago, was "the CML1 code
+>>base is not salvageable".  This was then and is now the unanimous opinion of
+>>the kbuild team.  Not just mine; in fact, they concluded it before
+>>I entered the picture.
+>>
+>>I have seen nothing since to make me change that opinion.
+>>
 > 
-> `smp_num_cpus` undeclared (first use in this function)
-> 
-> And some similial rows.
-> Nothing yet has managed to help me with this.
-> 
-> And please note that SMP is disabled. I DONT have several CPU's.
-> 
-> Any help would be HIGHLY appreciated.
-> 
-It might be that more help would be offered if you included more info,
-like the console lines leading up to the error, or at the very least,
-the source file being compiled at the time.
+> So Alan Cox's opinion counts as nothing?
+> mconfig counts as nothing?
 
 
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+Why mconfig is not in the kernel? who maintain mconfig?
+Why the first maintainer of mconfig prefer CML2?
+
+> 
+> I'm sure CML2 configurator is whiz-bang, but it needs to do basic stuff
+> like having "make oldconfig" work exactly like it does in the current
+> config system.
+
+
+now CML2 oldconfig behave like actual code. I would say too much.
+
+
+	giacomo
+
+

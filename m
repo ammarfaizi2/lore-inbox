@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269355AbRHCIwy>; Fri, 3 Aug 2001 04:52:54 -0400
+	id <S269364AbRHCI7O>; Fri, 3 Aug 2001 04:59:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269356AbRHCIwp>; Fri, 3 Aug 2001 04:52:45 -0400
-Received: from NS.iNES.RO ([193.230.220.1]:65505 "EHLO smtp.ines.ro")
-	by vger.kernel.org with ESMTP id <S269355AbRHCIwg>;
-	Fri, 3 Aug 2001 04:52:36 -0400
-Date: Thu, 2 Aug 2001 11:52:54 +0300 (EEST)
-From: Andrei Ivanov <andrei.ivanov@ines.ro>
-To: <linux-kernel@vger.kernel.org>
-Subject: swap problem
-Message-ID: <Pine.LNX.4.30.0108021148020.7898-100000@webdev.ines.ro>
+	id <S269363AbRHCI7E>; Fri, 3 Aug 2001 04:59:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7296 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S269364AbRHCI6u>;
+	Fri, 3 Aug 2001 04:58:50 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15210.26574.374615.6434@pizda.ninka.net>
+Date: Fri, 3 Aug 2001 01:58:54 -0700 (PDT)
+To: Pekka Savola <pekkas@netcore.fi>
+Cc: <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: missing icmp errors for udp packets
+In-Reply-To: <Pine.LNX.4.33.0108022225490.5167-100000@netcore.fi>
+In-Reply-To: <Pine.LNX.4.33.0107301552230.10196-100000@netcore.fi>
+	<Pine.LNX.4.33.0108022225490.5167-100000@netcore.fi>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
-I was trying to install Oracle 9i on my computer and during install,
-I started Mozilla, and after a couple of minutes I noticed that the
-install died. I looked in the logs and noticed this:
+Pekka Savola writes:
+ > As this happening is rather rare, would there be resistance for adding
+ > this as an intermediate fix, to be replaced later with a bigger overhaul
+ > if that is to be decided?
+ > 
+ > For 99.9% of cases, this works rather well and the 0.1% is the same as
+ > before (== acceptable).  Returning ICMP unreachables after being pinged is
+ > IMO rather important.
 
-Aug  3 11:42:35 hate kernel: Bad swap offset entry 130c1000
-Aug  3 11:42:35 hate kernel: VM: killing process jre.
+Please people, just make some decision and send me the final
+patch :-)
 
-Can anybody tell me what happened ?
-Could it be a bad block ?
-I'm using 2.4.7-ac2 on a PIII 550Mhz, 448MB RAM.
-cat /proc/swaps output:
-Filename                        Type            Size    Used    Priority
-/dev/hda3                       partition       522104  0       -1
-
-If you need any other info, I will provide it.
-
+Later,
+David S. Miller
+davem@redhat.com

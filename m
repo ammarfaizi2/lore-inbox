@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264932AbRFUIMP>; Thu, 21 Jun 2001 04:12:15 -0400
+	id <S264857AbRFUIoa>; Thu, 21 Jun 2001 04:44:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264931AbRFUIMF>; Thu, 21 Jun 2001 04:12:05 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:36058 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264930AbRFUIMC>; Thu, 21 Jun 2001 04:12:02 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [OT] Threads, inelegance, and Java
-Date: Thu, 21 Jun 2001 08:12:00 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9gsa8g$ko2$1@forge.intermeta.de>
-In-Reply-To: <XFMail.20010620093214.davidel@xmailserver.org> <3B30D776.5090902@magenta-netlogic.com> <01062011105507.00776@localhost.localdomain> <3B310650.4050408@magenta-netlogic.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 993111120 30744 212.34.181.4 (21 Jun 2001 08:12:00 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 21 Jun 2001 08:12:00 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264906AbRFUIoU>; Thu, 21 Jun 2001 04:44:20 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:54281 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S264857AbRFUIoJ>;
+	Thu, 21 Jun 2001 04:44:09 -0400
+Date: Thu, 21 Jun 2001 10:43:56 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Eric Lammerts <eric@lammerts.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20-pre4
+In-Reply-To: <Pine.LNX.4.33.0106202259290.21784-100000@ally.lammerts.org>
+Message-ID: <Pine.LNX.4.33.0106211041260.15011-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Hoyle <tmh@magenta-netlogic.com> writes:
+Tried this too, but i have the feeling the kernel compiled with this gcc
+3.0 is somehow slower. context switch is slower....
+no benchs (no time to make them) to sustain my feeling, just a feeling...
 
->'Win32'.  They kept saying 'Cross platform' and 'Open standards' (the 
->VM* has been submitted to ECMA apparently)....
+On Wed, 20 Jun 2001, Eric Lammerts wrote:
 
-Relax. That's their stunt at Sun. Once they killed the Java VM (that's
-what they hope), they will not give a hoot about the "Standards" they
-helped to create. Note that in all their "open" and "cross platform"
-and "multi language" slides, the absence of Java screams loudly.
+>
+> On Tue, 19 Jun 2001, Alan Cox wrote:
+> > > Is it mean now kernel 2.2 with prepatch is (or will be) gcc 3.0 ready ?
+> > > If not what must be fixed/chenged to be ready ?
+> >
+> > It wont build with gcc 3.0 yet. To start with gcc 3.0 will assume it can
+> > insert calls to 'memcpy'
+>
+> I tried it, but didn't run into problems (apart from the volatile
+> xtime thing)
+>
+> Linux version 2.2.18 (eric@andredvb) (gcc version 3.0 (Debian))
+> #1 Wed Jun 20 23:15:46 CEST 2001
+>
+> (Tons of warnings, though)
+>
+> Eric
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-	Regards
-		Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

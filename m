@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267632AbUG3Gja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267636AbUG3Gqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267632AbUG3Gja (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 02:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267635AbUG3Gja
+	id S267636AbUG3Gqb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 02:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267635AbUG3Gqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 02:39:30 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:44208 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267632AbUG3Gj1 (ORCPT
+	Fri, 30 Jul 2004 02:46:31 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:57866 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267636AbUG3Gq1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 02:39:27 -0400
-Date: Fri, 30 Jul 2004 08:39:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Robert Love <rml@ximian.com>
-Cc: "Prakash K. Cheemplavam" <prakashkc@gmx.de>,
-       "Bryan O'Sullivan" <bos@serpentine.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Dave Jones <davej@redhat.com>,
-       Edward Angelo Dayao <edward.dayao@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Recent 2.6 kernels can't read an entire ATAPI CD or DVD
-Message-ID: <20040730063920.GH18347@suse.de>
-References: <20040728163353.GJ10377@suse.de> <20040728170507.GK10377@suse.de> <1091051858.13651.1.camel@camp4.serpentine.com> <20040729084928.GR10377@suse.de> <1091166553.1982.9.camel@localhost> <20040730055333.GC7925@suse.de> <1091167031.1982.13.camel@localhost> <20040730061005.GF18347@suse.de> <4109E9F8.9080600@gmx.de> <1091169021.2009.3.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091169021.2009.3.camel@localhost>
+	Fri, 30 Jul 2004 02:46:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crash(s)?
+Date: Fri, 30 Jul 2004 09:45:47 +0300
+X-Mailer: KMail [version 1.4]
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>
+References: <200407242156.40726.gene.heskett@verizon.net> <20040729203603.1023ed38.rddunlap@osdl.org> <200407300050.53523.gene.heskett@verizon.net>
+In-Reply-To: <200407300050.53523.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200407300945.47019.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30 2004, Robert Love wrote:
-> On Fri, 2004-07-30 at 08:26 +0200, Prakash K. Cheemplavam wrote:
-> 
-> > Could it be famd?
-> 
-> I thought about that, killed it, still happens.
-> 
-> The only "something is poking the drive" theory does not make sense,
-> though, since it consistently works with some CD's and not others.
+> >| >make fs/dcache.s
+> >|
+> >| Aha!  Voila!! It doesn't work in the "fs" subdir, but back out to
+> >| the top of the src tree and it works just fine.  Duh...
+> >
+> >Right, it needs the top-level makfile and kbuild machinery to do
+> > that.
+> >
+> >| Now, I must confess that what I'm looking at in those two files is
+> >| the .s is the source assembly that would normally be fed to gas,
+> >| and the objdump'ed version is the dissed object translated back to
+> >| gas source.  If no mistakes, they should be pretty close to the
+> >| same I'd think.  Am I on the right track?  Or full of it?
+> >
+> >Yes, right.
+>
+> Which?
+>
+> Right track, or full of it? :-)
+>
+> In any event, I could send those two files along if you'd like, I'm
+> not an assembly guru on "amd/intel" chips, not even in my wildest
+> dreams .
 
-Well, your io error doesn't correlate that story :-)
+Send them, along with oops.
 
-But I'm just puzzled. I guess I could re-rip my entire CD collection and
-see what happens here.
-
--- 
-Jens Axboe
-
+BTW, compile 'oops-hunting' kernels with frame pointers in the future
+(I just compile all my kernels with it).
+--
+vda

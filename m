@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270835AbTGVNEf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 09:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270836AbTGVNEf
+	id S270828AbTGVNDz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 09:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270829AbTGVNDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 09:04:35 -0400
-Received: from h80ad275c.async.vt.edu ([128.173.39.92]:10376 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S270835AbTGVNEc (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 09:04:32 -0400
-Message-Id: <200307221319.h6MDJVgf007961@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Matthew Hunter <matthew@infodancer.org>
+	Tue, 22 Jul 2003 09:03:55 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22687 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270828AbTGVNDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 09:03:54 -0400
+Date: Tue, 22 Jul 2003 09:18:32 -0400
+From: Greg KH <greg@kroah.com>
+To: Jan Kasprzak <kas@informatics.muni.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21, NFS v3, and 3com 920 
-In-Reply-To: Your message of "Tue, 22 Jul 2003 00:42:45 CDT."
-             <20030722054245.GA768@infodancer.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030722054245.GA768@infodancer.org>
+Subject: Re: [Patch] Non-ASCII chars in visor.c messages
+Message-ID: <20030722131832.GB2389@kroah.com>
+References: <20030722143821.C26218@fi.muni.cz> <20030722125039.GA2310@kroah.com> <20030722150941.E26218@fi.muni.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1363527824P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 22 Jul 2003 09:19:31 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722150941.E26218@fi.muni.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1363527824P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Jul 22, 2003 at 03:09:42PM +0200, Jan Kasprzak wrote:
+> Greg KH wrote:
+> : > 
+> : > 	What do you think about it?
+> : 
+> : I don't think it's really needed.  Why change this, syslog can't handle
+> : this?  It works for me...
+> : 
+> 	Yes, syslog can handle this, but in order to parse syslog files
+> you should have your LC_CTYPE set to something Latin-1 compatible
+> (which UTF-8 is not, and it is the default on many distros).
+> 
+> 	Why Latin-1 and not UTF-8? I think UTF-8 is more "correct", while
+> ASCII is "works for all". Latin-1 is neither "correct" nor "works for all".
 
-On Tue, 22 Jul 2003 00:42:45 CDT, Matthew Hunter <matthew@infodancer.org>  said:
+So how do you encode that character in UTF-8?
 
-> Running more tests, it turns out the speed problem is isolated to 
-> the one machine, and only to *receiving* data.  Sending goes at 
-> 8 M/s to other machines from the client machine.  Sending from 
-> any machine to the client machine is slowed down, not just from 
-> the server.
+If we are going to print device names, I want to be correct in their
+usage...
 
-These symptoms sound suspiciously like a 100BaseT auto-negotiation
-problem.  With some combinations of gear, if one end is set to auto-negotiate
-and the other end is nailed to full/half duplex (sorry, can't remember which and
-I've not my caffiene yet), things go horribly wrong and many packets
-dissapear silently on transmission, forcing retransmit timeouts and bad
-throughput.  Basically, you end up with one end thinking it's full duplex,
-the other end at half - and if the full duplex side ever sends a packet while
-the half side is sending, the packet's lost.
+thanks,
 
-Try nailing the devices on both ends of the cat-5 to the same thing (full or
-half).  This can of course be interesting if you have an unmanaged hub that
-doesn't give you a choice...
-
-
-
-
---==_Exmh_-1363527824P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/HTnicC3lWbTT17ARAo9bAJ90u3YG2oh0zDEWFz12wDXuuxz2iwCg96zU
-uQ7oey0YUUzQL4xvE5pEHVc=
-=LkK5
------END PGP SIGNATURE-----
-
---==_Exmh_-1363527824P--
+greg k-h

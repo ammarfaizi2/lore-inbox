@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbTASGXe>; Sun, 19 Jan 2003 01:23:34 -0500
+	id <S265469AbTASG1P>; Sun, 19 Jan 2003 01:27:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265423AbTASGXe>; Sun, 19 Jan 2003 01:23:34 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:46978 "EHLO
+	id <S265457AbTASG1O>; Sun, 19 Jan 2003 01:27:14 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:48770 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S265414AbTASGXd>; Sun, 19 Jan 2003 01:23:33 -0500
-Date: Sun, 19 Jan 2003 15:32:24 +0900
+	id <S265446AbTASG1L>; Sun, 19 Jan 2003 01:27:11 -0500
+Date: Sun, 19 Jan 2003 15:36:02 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 sub-arch (2/29) ac-update
-Message-ID: <20030119063224.GA2965@yuzuki.cinet.co.jp>
+Subject: [PATCHSET] PC-9800 sub-arch (4/29) apm
+Message-ID: <20030119063602.GC2965@yuzuki.cinet.co.jp>
 References: <20030119051043.GA2662@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,37 +22,111 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is patchset to support NEC PC-9800 subarchitecture
-against 2.5.59 (2/29).
+against 2.5.59 (4/29).
 
-Updates drivers/char/Kconfig in 2.5.50-ac1.
+APM support for PC98. Including PC98's BIOS bug fix.
 
-diff -Nru linux-2.5.50-ac1/drivers/char/Kconfig linux98-2.5.58/drivers/char/Kconfig
---- linux-2.5.50-ac1/drivers/char/Kconfig	2003-01-14 22:18:18.000000000 +0900
-+++ linux98-2.5.58/drivers/char/Kconfig	2003-01-14 22:35:34.000000000 +0900
-@@ -577,7 +577,7 @@
+diff -Nru linux/arch/i386/kernel/apm.c linux98/arch/i386/kernel/apm.c
+--- linux/arch/i386/kernel/apm.c	2003-01-09 13:03:50.000000000 +0900
++++ linux98/arch/i386/kernel/apm.c	2003-01-10 10:06:15.000000000 +0900
+@@ -227,6 +227,8 @@
  
- config PC9800_OLDLP
- 	tristate "NEC PC-9800 old-style printer port support"
--	depends on PC9800 && !PARPORT
-+	depends on X86_PC9800 && !PARPORT
- 	---help---
- 	  If you intend to attach a printer to the parallel port of NEC PC-9801
- 	  /PC-9821 with OLD compatibility mode, Say Y.
-@@ -785,7 +785,7 @@
+ #include <linux/sysrq.h>
  
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
--	depends on !PPC32 && !PARISC && !IA64 && !PC9800
-+	depends on !PPC32 && !PARISC && !IA64 && !X86_PC9800
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
-@@ -846,7 +846,7 @@
++#include "io_ports.h"
++
+ extern rwlock_t xtime_lock;
+ extern spinlock_t i8253_lock;
+ extern unsigned long get_cmos_time(void);
+@@ -623,6 +625,9 @@
+ 	__asm__ __volatile__(APM_DO_ZERO_SEGS
+ 		"pushl %%edi\n\t"
+ 		"pushl %%ebp\n\t"
++#ifdef CONFIG_X86_PC9800
++		"pushfl\n\t"
++#endif
+ 		"lcall *%%cs:apm_bios_entry\n\t"
+ 		"setc %%al\n\t"
+ 		"popl %%ebp\n\t"
+@@ -684,6 +689,9 @@
+ 		__asm__ __volatile__(APM_DO_ZERO_SEGS
+ 			"pushl %%edi\n\t"
+ 			"pushl %%ebp\n\t"
++#ifdef CONFIG_X86_PC9800
++			"pushfl\n\t"
++#endif
+ 			"lcall *%%cs:apm_bios_entry\n\t"
+ 			"setc %%bl\n\t"
+ 			"popl %%ebp\n\t"
+@@ -724,7 +732,7 @@
  
- config RTC98
- 	tristate "NEC PC-9800 Real Time Clock Support"
--	depends on PC9800
-+	depends on X86_PC9800
- 	default y
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
+ 	if (apm_bios_call_simple(APM_FUNC_VERSION, 0, *val, &eax))
+ 		return (eax >> 8) & 0xff;
+-	*val = eax;
++	*val = pc98 ? ((eax & 0xff00) | ((eax & 0x00f0) >> 4)) : eax;
+ 	return APM_SUCCESS;
+ }
+ 
+@@ -1237,11 +1245,11 @@
+ {
+ #ifdef INIT_TIMER_AFTER_SUSPEND
+ 	/* set the clock to 100 Hz */
+-	outb_p(0x34,0x43);		/* binary, mode 2, LSB/MSB, ch 0 */
++	outb_p(0x34, PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
+ 	udelay(10);
+-	outb_p(LATCH & 0xff , 0x40);	/* LSB */
++	outb_p(LATCH & 0xff, PIT_CH0);	/* LSB */
+ 	udelay(10);
+-	outb(LATCH >> 8 , 0x40);	/* MSB */
++	outb(LATCH >> 8, PIT_CH0);	/* MSB */
+ 	udelay(10);
+ #endif
+ }
+diff -Nru linux/include/linux/apm_bios.h linux98/include/linux/apm_bios.h
+--- linux/include/linux/apm_bios.h	2003-01-02 12:22:18.000000000 +0900
++++ linux98/include/linux/apm_bios.h	2003-01-04 13:20:28.000000000 +0900
+@@ -20,6 +20,7 @@
+ typedef unsigned short	apm_eventinfo_t;
+ 
+ #ifdef __KERNEL__
++#include <linux/config.h>
+ 
+ #define APM_CS		(GDT_ENTRY_APMBIOS_BASE * 8)
+ #define APM_CS_16	(APM_CS + 8)
+@@ -60,6 +61,7 @@
+ /*
+  * The APM function codes
+  */
++#ifndef CONFIG_X86_PC9800
+ #define	APM_FUNC_INST_CHECK	0x5300
+ #define	APM_FUNC_REAL_CONN	0x5301
+ #define	APM_FUNC_16BIT_CONN	0x5302
+@@ -80,6 +82,28 @@
+ #define	APM_FUNC_RESUME_TIMER	0x5311
+ #define	APM_FUNC_RESUME_ON_RING	0x5312
+ #define	APM_FUNC_TIMER		0x5313
++#else
++#define	APM_FUNC_INST_CHECK	0x9a00
++#define	APM_FUNC_REAL_CONN	0x9a01
++#define	APM_FUNC_16BIT_CONN	0x9a02
++#define	APM_FUNC_32BIT_CONN	0x9a03
++#define	APM_FUNC_DISCONN	0x9a04
++#define	APM_FUNC_IDLE		0x9a05
++#define	APM_FUNC_BUSY		0x9a06
++#define	APM_FUNC_SET_STATE	0x9a07
++#define	APM_FUNC_ENABLE_PM	0x9a08
++#define	APM_FUNC_RESTORE_BIOS	0x9a09
++#define	APM_FUNC_GET_STATUS	0x9a3a
++#define	APM_FUNC_GET_EVENT	0x9a0b
++#define	APM_FUNC_GET_STATE	0x9a0c
++#define	APM_FUNC_ENABLE_DEV_PM	0x9a0d
++#define	APM_FUNC_VERSION	0x9a3e
++#define	APM_FUNC_ENGAGE_PM	0x9a3f
++#define	APM_FUNC_GET_CAP	0x9a10
++#define	APM_FUNC_RESUME_TIMER	0x9a11
++#define	APM_FUNC_RESUME_ON_RING	0x9a12
++#define	APM_FUNC_TIMER		0x9a13
++#endif
+ 
+ /*
+  * Function code for APM_FUNC_RESUME_TIMER

@@ -1,132 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbUCGRqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 12:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbUCGRqM
+	id S262295AbUCGSAy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 13:00:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUCGSAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 12:46:12 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:62388 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262282AbUCGRqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 12:46:05 -0500
-Date: Sun, 7 Mar 2004 18:45:51 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Arthur Corliss <corliss@digitalmages.com>
-cc: Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Re: 2.6.x BSD Process Accounting w/High UID
-In-Reply-To: <Pine.LNX.4.58.0403041324330.20616@bifrost.nevaeh-linux.org>
-Message-ID: <Pine.LNX.4.53.0403071820190.32060@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.44.0403041451360.20043-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.58.0403041103500.24930@bifrost.nevaeh-linux.org>
- <Pine.LNX.4.53.0403042242190.29818@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.58.0403041324330.20616@bifrost.nevaeh-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 7 Mar 2004 13:00:54 -0500
+Received: from p15108950.pureserver.info ([217.160.128.7]:62138 "EHLO
+	pluto.schiffbauer.net") by vger.kernel.org with ESMTP
+	id S262295AbUCGSAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 13:00:45 -0500
+Date: Sun, 7 Mar 2004 19:00:23 +0100
+From: Marc Schiffbauer <marc@schiffbauer.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: KERNEL 2.6.3 and MAXTOR 160 GB
+Message-ID: <20040307180023.GB24198@lisa.links2linux.home>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0403071549260.3262-100000@numb.darktech.org> <20040307150807.GA16436@pclin040.win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040307150807.GA16436@pclin040.win.tue.nl>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.20-hpt i686
+X-Editor: vim 6.1.018-1
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Mar 2004, Arthur Corliss wrote:
-
-> Second:  I don't want new userspace tools, either, but I do want the ones
-> I've got to work, which is what they don't do when it reports the lower bits
-> of the uid field on high uids.  In other words, the tools are *already*
-> broken.  I realise that I'm probably a corner case in that most admins will
-> never assign high uids, but that really doesn't make me feel better about
-> broken tools.  ;-)
-
-But the current tools are only broken for the few people using high UIDs
-(and generally on 64 bit archs, but that's a different story).
-
-We shouldn't require people to recompile their userspace tools in the 
-middle of a stable kernel series. (OK, 2.6 has just started, but we don't 
-want to offend people upgrading from 2.4, either.)
-
-How about the patch below? It requires a change to userspace tools if you
-want to use high uids, but it dosn't break binary compatibility. It even
-allows userspace to check whether high UIDs are supported, and allows
-future incompatible format changes to be detected.
-
-
-> > btw: if you actually push an incompatible change, could we do something
-> > about large times as well?
+* Andries Brouwer schrieb am 07.03.04 um 16:08 Uhr:
+> On Sun, Mar 07, 2004 at 03:57:11PM +0100, Carlo Orecchia wrote:
 > 
-> If the numbers we're logging are meaningless, then hell, yes, let's fix them
-> all!
+> > I'm running redhat 9 on an XP 1800 and a ASUS A7A266. I recently buy a new 
+> > HD a maxtor Diamond Plus 160 with 8 mega cache. The fact is that the kernel that comes 
+> > with REDHAT (2.4.20-8) shows the entire size of the disk (163.7 gb) but 
+> > the kernel 2.6.1 or 2.6.3 does not. It only shows 137 gb. I'm getting 
+> > crazy trying to understand why this is happening! Please let 
+> > me know if theres a patch to fix this. I really  found amazing the 2.6 
+> > kernel and i don't want to come back to use the 2.4!
+> > What can i do? 
+> 
+> You can tell us the boot messages that concern your disk.
+> You can tell us the CONFIG options that concern IDE.
+> For example, did you set CONFIG_IDEDISK_STROKE ?
+> 
 
-Well, they are not totally meaningless since we clip at the maximum 
-representable value instead of wrapping around.
-
-Still, I'd prefer to do something about this as well. Will send out a
-patch to deal with both things in a few minutes. (Note to Andrew/Linus:  
-please don't apply the patch below before considering the other patch :-)
+The disk works for me (TM).
 
 
-Tim
+homer:~# uname -a
+Linux homer 2.6.3 #2 Thu Feb 26 19:38:13 CET 2004 i686 GNU/Linux
+homer:~# hdparm -i /dev/hde
+
+/dev/hde:
+
+ Model=Maxtor 6Y160P0, FwRev=YAR41BW0, SerialNo=Y43V47SE
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=7936kB, MaxMultSect=16,
+MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=268435455
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 udma6
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: (null):
+
+ * signifies the current active mode
+
+homer:~# fdisk -l /dev/hde
+
+Disk /dev/hde: 163.9 GB, 163928604672 bytes
+255 heads, 63 sectors/track, 19929 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
 
 
-diff -urpP --exclude-from dontdiff linux-2.6.4-rc1/include/linux/acct.h linux-2.6.4-rc1-acct/include/linux/acct.h
---- linux-2.6.4-rc1/include/linux/acct.h	2004-02-04 04:43:17.000000000 +0100
-+++ linux-2.6.4-rc1-acct/include/linux/acct.h	2004-03-07 18:03:48.000000000 +0100
-@@ -33,6 +33,7 @@ typedef __u16	comp_t;
-  */
- 
- #define ACCT_COMM	16
-+#define ACCT_VERSION    1
- 
- struct acct
- {
-@@ -56,7 +57,10 @@ struct acct
- 	comp_t		ac_swaps;		/* Accounting Number of Swaps */
- 	__u32		ac_exitcode;		/* Accounting Exitcode */
- 	char		ac_comm[ACCT_COMM + 1];	/* Accounting Command Name */
--	char		ac_pad[10];		/* Accounting Padding Bytes */
-+	__u16		ac_uid_hi;		/* Accounting Real User ID */
-+	__u16		ac_gid_hi;		/* Accounting Real Group ID */
-+	char		ac_pad[5];		/* Accounting Padding Bytes */
-+	char		ac_version;		/* Always set to ACCT_VERSION */
- };
- 
- /*
+boot messages (ide specific part):
 
---- linux-2.6.4-rc1/kernel/acct.c	2004-02-04 04:43:56.000000000 +0100
-+++ linux-2.6.4-rc1-acct/kernel/acct.c	2004-03-07 18:03:39.000000000 +0100
-@@ -270,11 +270,19 @@ void acct_auto_close(struct super_block 
- #define	MANTSIZE	13			/* 13 bit mantissa. */
- #define	EXPSIZE		3			/* Base 8 (3 bit) exponent. */
- #define	MAXFRACT	((1 << MANTSIZE) - 1)	/* Maximum fractional value. */
-+#define MAXVAL	((unsigned long long) MAXFRACT << (EXPSIZE*((1<<EXPSIZE)-1)))
-+						/* Maximum encodable value. */
- 
- static comp_t encode_comp_t(unsigned long value)
- {
- 	int exp, rnd;
- 
-+	/*
-+	 * On 64 bit platforms, value may be too large to fit into a comp_t.
-+	 */
-+	if (value > MAXVAL)
-+		return (comp_t) -1;
-+
- 	exp = rnd = 0;
- 	while (value > MAXFRACT) {
- 		rnd = value & (1 << (EXPSIZE - 1));	/* Round up? */
-@@ -342,7 +350,9 @@ static void do_acct_process(long exitcod
- 	ac.ac_stime = encode_comp_t(current->stime);
- 	/* we really need to bite the bullet and change layout */
- 	ac.ac_uid = current->uid;
-+	ac.ac_uid_hi = current->uid >> 16;
- 	ac.ac_gid = current->gid;
-+	ac.ac_gid_hi = current->gid >> 16;
- 	ac.ac_tty = current->tty ? old_encode_dev(tty_devnum(current->tty)) : 0;
- 
- 	ac.ac_flag = 0;
-@@ -374,6 +384,7 @@ static void do_acct_process(long exitcod
- 	ac.ac_majflt = encode_comp_t(current->maj_flt);
- 	ac.ac_swaps = encode_comp_t(current->nswap);
- 	ac.ac_exitcode = exitcode;
-+	ac.ac_version = ACCT_VERSION;
- 
- 	/*
-          * Kernel segment override to datasegment and write it
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: IDE controller at PCI slot 0000:00:04.1
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on
+pci0000:00:04.1
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:pio
+hda: HL-DT-ST GCE-8400B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: Pioneer DVD-ROM ATAPIModel DVD-105S 011, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+PDC20265: IDE controller at PCI slot 0000:00:11.0
+PCI: Found IRQ 10 for device 0000:00:11.0
+PCI: Sharing IRQ 10 with 0000:00:0b.0
+PDC20265: chipset revision 2
+PDC20265: 100% native mode on irq 10
+PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI
+Mode.
+    ide2: BM-DMA at 0x8000-0x8007, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0x8008-0x800f, BIOS settings: hdg:pio, hdh:pio
+hde: Maxtor 6Y160P0, ATA DISK drive
+ide2 at 0x9400-0x9407,0x9002 on irq 10
+hde: max request size: 1024KiB
+hde: 320173056 sectors (163928 MB) w/7936KiB Cache,
+CHS=19929/255/63, UDMA(100)
+ /dev/ide/host2/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 p10 >
+
+
+config:
+
+homer:~# grep _IDE /usr/src/linux-2.6.3/.config
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_IDEDISK_STROKE is not set
+CONFIG_BLK_DEV_IDECD=m
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
+# CONFIG_IDE_TASKFILE_IO is not set
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+homer:~#
+
+
+-Marc
+
+-- 
++-O . . . o . . . O . . . o . . . O . . .  ___  . . . O . . . o .-+
+| Ein Service von Links2Linux.de:         /  o\   RPMs for SuSE   |
+| --> PackMan! <-- naeheres unter        |   __|   and  others    |
+| http://packman.links2linux.de/ . . . O  \__\  . . . O . . . O . |

@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268051AbUIBJYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUIBJXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268051AbUIBJYL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 05:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUIBJYL
+	id S268057AbUIBJXW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 05:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUIBJXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 05:24:11 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:34284 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268051AbUIBJVq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 05:21:46 -0400
-Message-ID: <93e09f0104090202216403c08d@mail.gmail.com>
-Date: Thu, 2 Sep 2004 14:51:46 +0530
-From: Rohit Neupane <rohitneupane@gmail.com>
-Reply-To: Rohit Neupane <rohitneupane@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Weird Problem with TCP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 2 Sep 2004 05:23:21 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:36620 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S268057AbUIBJW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 05:22:26 -0400
+Message-ID: <4136E756.8020105@hist.no>
+Date: Thu, 02 Sep 2004 11:26:46 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oliver Hunt <oliverhunt@gmail.com>
+CC: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com> <4699bb7b04090202121119a57b@mail.gmail.com>
+In-Reply-To: <4699bb7b04090202121119a57b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- I have a linux box which acts as gateway and b/w manager for our wireless
-network. I have 3 Interfaces ( one not is use yet). I have created 3 aliases
-on the interface connected to the wireless (with 3 different class C
-address).
-I have around 350-400 wireless clients with over 10Mbps traffic at peak
-hours.
-These days I have observed some abnormal behavior.
+Oliver Hunt wrote:
 
-System:
-Dell P4 Poweredge
-Red Hat 8.0 with 2.4.25 kernel
-Lan Cards:
- 1. Intel 82540EM Gigabit Ethernet Controller (Intenet)
- 2. 3com 3c905B Cyclone (Wireless)
+>How would we go about finding out how many data forks were in a file? 
+>Because in order to be able to retrieve data from a fork we would need
+>to know that the fork were there.  Currently this would imply that we
+>go looking through mtab or some such to find out what fs we're running
+>on, which seems ugly.
+>
+>  
+>
+Depends on how the forks eventually get implemented.
+With the file-as-directory concept, all you need is to
+look at the file's directory part to see what is there.  (The forks,
+implemented as files in a subdirectory.)  It is done the same way
+as for an ordinary directory, so nothing "new".
 
-
-The problem is:
-* Everything works fine for about 5-10 mins then all of a sudden TCP services
-are not accessable.
-* For some reason TCP times out. However at the same time ping,traceroute and
-dns trace works without any problem.
-* The connected TCP sokets keeps working without any problem. I verified this
-by using Msn chat. I observerd that I chat session ( which I had started
-when everything was normal) continued without any problem however I was not
-able to initiate a new chat session.
-
-Result of tcpdum on eth0 (internet) and eth2(wireless)
-
-* I can see tcp SYN request coming in from eth2 (from client) and going out
-via eth0 to destination.
-* I can see tcp SYN+ACK coming in from eth0. But it doesn't get out through
-eth2 !!! However other udp,icmp pkts can.
-
-src 69.56.37.146  , dst 64.236.16.52
-this is tcpdump on eth0 (internet side)
-17:14:32.003370 69.56.37.146.3170 > 64.236.16.52.http: S
-2446361626:2446361626(0) win 64240 <mss 1460,nop,nop,sackOK> (DF)
-17:14:32.004694 64.236.16.52.http > 69.56.37.146.3170: S
-3641974278:3641974278(0) ack 2446361627 win 65535 <mss 1460> (DF)
-17:14:34.920578 69.56.37.146.3170 > 64.236.16.52.http: S
-2446361626:2446361626(0) win 64240 <mss 1460,nop,nop,sackOK> (DF)
-17:14:34.921800 64.236.16.52.http > 69.56.37.146.3170: S
-3641974278:3641974278(0) ack 2446361627 win 65535 <mss 1460> (DF)
-17:14:37.915564 64.236.16.52.http > 69.56.37.146.3170: S
-3641974278:3641974278(0) ack 2446361627 win 65535 <mss 1460> (DF)
-17:14:40.955491 69.56.37.146.3170 > 64.236.16.52.http: S
-2446361626:2446361626(0) win 64240 <mss 1460,nop,nop,sackOK> (DF)
-17:14:40.957682 64.236.16.52.http > 69.56.37.146.3170: S
-3641974278:3641974278(0) ack 2446361627 win 65535 <mss 1460> (DF)
-
-this is tcpdump on eth2  (client side)
-17:14:32.003179 69.56.37.146.3170 > 64.236.16.52.http: S
-2446361626:2446361626(0) win 64240 <mss 1460,nop,nop,sackOK> (DF)
-17:14:34.920212 69.56.37.146.3170 > 64.236.16.52.http: S
-2446361626:2446361626(0) win 64240 <mss 1460,nop,nop,sackOK> (DF)
-17:14:40.955257 69.56.37.146.3170 > 64.236.16.52.http: S
-2446361626:2446361626(0) win 64240 <mss 1460,nop,nop,sackOK> (DF)
-
-As you can see i am getting the ACK from source from seq. 2446361626 (with
-ack 2446361627 ) on eth0. But it is not going out via eth2!!
-
-After sometime everthing starts working normally again. So what may be the
-problem? I have problem only with the tcp protocol and not with other. I
-haven't changed any tcp memory related settings.
-
-net.ipv4.tcp_rmem = 4096        87380   174760
-net.ipv4.tcp_wmem = 4096        87380   174760
-net.ipv4.tcp_mem = 195584       196096  196608
-net.core.optmem_max = 10240
-net.core.rmem_default = 65535
-net.core.wmem_default = 65535
-net.core.rmem_max = 131071
-net.core.wmem_max = 131071
-
-
-Has anyone come across this probelm? any suggestion?
-
-Thanks
-Rohit
+>Alternatively we go through the _exciting_ task of making every other
+>fs (with the exceptions of ntfs, and whatever it is that macs use,
+>which would need there own custom code) and add code that effectively
+>goes
+>
+>getNumForks(fileref){ return 1;} 
+>
+>  
+>
+Necessary if some other mechanism is used, sure.
+Helge Hafting

@@ -1,134 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUJOU3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268285AbUJOUlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268325AbUJOU3s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 16:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268344AbUJOU3r
+	id S268285AbUJOUlg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 16:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268344AbUJOUlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 16:29:47 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:62123 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268325AbUJOU3l (ORCPT
+	Fri, 15 Oct 2004 16:41:36 -0400
+Received: from holomorphy.com ([207.189.100.168]:8845 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268285AbUJOUlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 16:29:41 -0400
-Subject: Re: [Ext2-devel] Ext3 -mm reservations code: is this fix really
-	correct?
-From: mingming cao <cmm@us.ibm.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1097858401.1968.148.camel@sisko.scot.redhat.com>
-References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-	 <1097856114.4591.28.camel@localhost.localdomain>
-	 <1097858401.1968.148.camel@sisko.scot.redhat.com>
-Content-Type: multipart/mixed; boundary="=-NgBs00v6XxkC2vop25md"
-Organization: IBM LTC
-Message-Id: <1097872144.4591.54.camel@localhost.localdomain>
+	Fri, 15 Oct 2004 16:41:32 -0400
+Date: Fri, 15 Oct 2004 13:41:23 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Albert Cahalan <albert@users.sf.net>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       Albert Cahalan <albert@users.sourceforge.net>
+Subject: Re: per-process shared information
+Message-ID: <20041015204123.GP5607@holomorphy.com>
+References: <1097846353.2674.13298.camel@cube> <20041015162000.GB17849@dualathlon.random> <1097857912.2669.13548.camel@cube> <20041015171355.GD17849@dualathlon.random> <1097862714.2666.13650.camel@cube> <20041015181446.GF17849@dualathlon.random> <20041015183025.GN5607@holomorphy.com> <20041015184009.GG17849@dualathlon.random> <20041015184713.GO5607@holomorphy.com> <20041015192313.GH17849@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 15 Oct 2004 13:29:04 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041015192313.GH17849@dualathlon.random>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 15, 2004 at 11:47:13AM -0700, William Lee Irwin III wrote:
+>> workloads, rather it's known up-front that no fork()-based COW sharing
+>> is going on in Oracle's case, so in this case, "anonymous" very happily
+>> corresponds to "process-private". [..]
 
---=-NgBs00v6XxkC2vop25md
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Fri, Oct 15, 2004 at 09:23:13PM +0200, Andrea Arcangeli wrote:
+> Ok fine.
 
-On Fri, 2004-10-15 at 09:40, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Fri, 2004-10-15 at 17:01, mingming cao wrote:
-> 
-> > > Have I misunderstood something?
-> > > 
-> > You are correct, again:) We should do a search_reserve_window() from the
-> > root.
-> > 
-> > I will post a fix for these two soon.
-> 
-> Thanks.  I'll be away for a few days so I probably won't be able to look
-> at the fix until Wednesday next week.
-> 
+On Fri, Oct 15, 2004 at 11:47:13AM -0700, William Lee Irwin III wrote:
+>> [..] In fact, the /proc/ changes to report
+>> threads only under the directory hierarchy of some distinguished thread
+>> assists in this estimation effort.
 
-How about this? Haven't test it, will do it shortly.:)
+On Fri, Oct 15, 2004 at 09:23:13PM +0200, Andrea Arcangeli wrote:
+> do you use threads now?
+
+I believe using threads to some extent has been an option for some time,
+though not a commonly used one on Linux.
 
 
-Thanks,
-Mingming
-
-
---=-NgBs00v6XxkC2vop25md
-Content-Disposition: attachment; filename=ext3_reservation_window_fix_fix.patch
-Content-Type: text/plain; name=ext3_reservation_window_fix_fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
----
-
- linux-2.6.9-rc1-mm5-ming/fs/ext3/balloc.c |   21 +++++++++------------
- 1 files changed, 9 insertions(+), 12 deletions(-)
-
-diff -puN fs/ext3/balloc.c~ext3_reservation_window_fix_fix fs/ext3/balloc.c
---- linux-2.6.9-rc1-mm5/fs/ext3/balloc.c~ext3_reservation_window_fix_fix	2004-10-15 18:23:42.824158856 -0700
-+++ linux-2.6.9-rc1-mm5-ming/fs/ext3/balloc.c	2004-10-15 20:16:06.037034680 -0700
-@@ -184,9 +184,10 @@ goal_in_my_reservation(struct reserve_wi
-  * if the goal is not in any window.
-  * Returns NULL if there are no windows or if all windows start after the goal.
-  */
--static struct reserve_window_node *search_reserve_window(struct rb_node *n,
-+static struct reserve_window_node *search_reserve_window(struct rb_root *root,
- 							 unsigned long goal)
- {
-+	struct rb_node *n = root->rb_node;
- 	struct reserve_window_node *rsv;
- 
- 	if (!n)
-@@ -822,10 +823,10 @@ static int alloc_new_reservation(struct 
- 		start_block = goal + group_first_block;
- 
- 	size = atomic_read(&my_rsv->rsv_goal_size);
--	/* if we have a old reservation, start the search from the old rsv */
- 	if (!rsv_is_empty(&my_rsv->rsv_window)) {
- 		/*
- 		 * if the old reservation is cross group boundary
-+		 * and if the goal is inside the old reservation window,
- 		 * we will come here when we just failed to allocate from
- 		 * the first part of the window. We still have another part
- 		 * that belongs to the next group. In this case, there is no
-@@ -838,10 +839,10 @@ static int alloc_new_reservation(struct 
- 		 */
- 
- 		if ((my_rsv->rsv_start <= group_end_block) &&
--				(my_rsv->rsv_end > group_end_block))
-+				(my_rsv->rsv_end > group_end_block) &&
-+				(start_block <= my_rsv->rsv_start))
- 			return -1;
- 
--		search_head = search_reserve_window(&my_rsv->rsv_node, start_block);
- 		if ((atomic_read(&my_rsv->rsv_alloc_hit) >
- 		     (my_rsv->rsv_end - my_rsv->rsv_start + 1) / 2)) {
- 			/*
-@@ -855,14 +856,10 @@ static int alloc_new_reservation(struct 
- 			atomic_set(&my_rsv->rsv_goal_size, size);
- 		}
- 	}
--	else {
--		/*
--		 * we don't have a reservation,
--		 * we set our goal(start_block) and
--		 * the list head for the search
--		 */
--		search_head = search_reserve_window(fs_rsv_root->rb_node, start_block);
--	}
-+	/*
-+	 * shift the search start to the window near the goal block
-+	 */
-+	search_head = search_reserve_window(fs_rsv_root, start_block);
- 
- 	/*
- 	 * find_next_reservable_window() simply finds a reservable window
-
-_
-
---=-NgBs00v6XxkC2vop25md--
-
+-- wli

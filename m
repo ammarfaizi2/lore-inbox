@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274988AbTHQBDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 21:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274992AbTHQBDc
+	id S275367AbTHQBKn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 21:10:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275464AbTHQBKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 21:03:32 -0400
-Received: from codeblau.walledcity.de ([212.84.209.34]:20241 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S274988AbTHQBDb (ORCPT
+	Sat, 16 Aug 2003 21:10:43 -0400
+Received: from are.twiddle.net ([64.81.246.98]:31633 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S275367AbTHQBKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 21:03:31 -0400
-Date: Sun, 17 Aug 2003 03:03:36 +0200
-From: Felix von Leitner <felix-kernel@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3: setuid32(8) returns EAGAIN (WTF?!)
-Message-ID: <20030817010336.GA12079@codeblau.de>
+	Sat, 16 Aug 2003 21:10:41 -0400
+Date: Sat, 16 Aug 2003 18:10:35 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Samuel Thibault <samuel.thibault@fnac.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] single return paradigm
+Message-ID: <20030817011035.GA22022@twiddle.net>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Samuel Thibault <samuel.thibault@fnac.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030726221655.GB1148@bouh.unh.edu> <1059302602.12754.3.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1059302602.12754.3.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just changed from 2.5.75 to 2.6.0-test3 and suddenly my imap server
-fails to start (it's dovecot).  It wrote to syslog:
+On Sun, Jul 27, 2003 at 11:43:22AM +0100, Alan Cox wrote:
+> When you tell gcc to build with profiling it provides the right hooks
+> for you to provide alternate code to the libc profile code
 
-Aug 17 02:58:02 hellhound dovecot: Dovecot starting up
-Aug 17 02:58:03 hellhound imap-login: setuid(8) failed: Resource temporarily unavailable
-Aug 17 02:58:03 hellhound dovecot: Login process died too early - shutting down
+Starting with gcc 3.3, there is __attribute__((cleanup(foo))),
+which, when applied to a local variable, is effectively 
+destructors for C.  Foo will be invoked with a pointer to the
+variable just before the variable goes out of scope.
 
-So I strace -f it, and sure enough, here is what happens:
 
-[init, fork, tzfile...]
-8094  chroot("/var/run/dovecot//login") = 0
-8094  chdir("/")                        = 0
-8094  setuid32(0x8)                     = -1 EAGAIN (Resource temporarily unavailable)
-
-Now this does not appear to be a valid return value for setuid32, and
-my understanding of POSIX and Susv3 is that dovecot is absolutely right
-in barfing at this.
-
-Why is this happening?  Please fix!
-
-Felix
-
-PS: Time for a brown paper bag bug-fix release, if you ask me.
+r~

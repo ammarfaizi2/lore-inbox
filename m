@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVARS1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVARSbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVARS1D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 13:27:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVARS1D
+	id S261381AbVARSbR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 13:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVARSbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 13:27:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32917 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261373AbVARS04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 13:26:56 -0500
-Date: Tue, 18 Jan 2005 13:13:59 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: iswraid and 2.4.x?
-Message-ID: <20050118151359.GB27635@logos.cnet>
-References: <20050118172816.21090.qmail@web30208.mail.mud.yahoo.com> <41ED51C3.6030004@pobox.com>
-Mime-Version: 1.0
+	Tue, 18 Jan 2005 13:31:17 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:14476 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261369AbVARSbO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 13:31:14 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41ED51C3.6030004@pobox.com>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16877.21998.984277.551515@napali.hpl.hp.com>
+Date: Tue, 18 Jan 2005 10:31:10 -0800
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: pipe performance regression on ia64
+In-Reply-To: <Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org>
+References: <200501181741.j0IHfGf30058@unix-os.sc.intel.com>
+	<Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 01:13:23PM -0500, Jeff Garzik wrote:
-> Martins Krikis wrote:
-> >--- Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> >
-> >
-> >>It seems the general consensus is to merge iswraid, so I'm fine with
-> >>it.
-> >>
-> >>Martins, we are approaching -rc stage, I would prefer the merge to
-> >>happen 
-> >>at the beginning of 2.4.29-pre. Is that fine for you?
-> >
-> >
-> >Marcelo,
-> >
-> >I seemed to have missed the 2.4.29-pre stages, unfortunately.
-> >Are you planning on a 2.4.30, too? I'd still love to get
-> >iswraid accepted in the 2.4 tree eventually...
-> >
-> >The version that's out on SourceForge right now would be alright
-> >as is with the 2.4.29-x kernels, if that's any help. In about a
-> >week I'm planning to have a new version that adds RAID10 support
-> >for the ICH7R-based machines. Please let me know what my options
-> >are (if any) regarding getting iswraid in 2.4.
-> 
-> I ACK getting this into 2.4, as well...
+>>>>> On Tue, 18 Jan 2005 10:11:26 -0800 (PST), Linus Torvalds <torvalds@osdl.org> said:
 
-OK, can you please review if for 2.4.30-pre Jeff ? 
+  Linus> I don't know how to make the benchmark look repeatable and
+  Linus> good, though.  The CPU affinity thing may be the right thing.
+
+Perhaps it should be split up into three cases:
+
+	- producer/consumer pinned to the same CPU
+	- producer/consumer pinned to different CPUs
+	- producer/consumer lefter under control of the scheduler
+
+The first two would let us observe any changes in the actual pipe
+code, whereas the 3rd case would tell us which case the scheduler is
+leaning towards (or if it starts doing something real crazy, like
+reschedule the tasks on different CPUs each time, we'd see a bandwith
+lower than case 2 and that should ring alarm bells).
+
+	--david

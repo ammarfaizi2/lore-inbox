@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287816AbSBMXF3>; Wed, 13 Feb 2002 18:05:29 -0500
+	id <S289084AbSBMXGt>; Wed, 13 Feb 2002 18:06:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289062AbSBMXFT>; Wed, 13 Feb 2002 18:05:19 -0500
-Received: from ppp1238-cwdsl.fr.cw.net ([62.210.116.215]:49426 "EHLO
-	calvin.paulbristow.lan") by vger.kernel.org with ESMTP
-	id <S287816AbSBMXFG>; Wed, 13 Feb 2002 18:05:06 -0500
-Message-ID: <3C6AF196.4060206@paulbristow.net>
-Date: Thu, 14 Feb 2002 00:07:02 +0100
-From: Paul Bristow <paul@paulbristow.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S289089AbSBMXGd>; Wed, 13 Feb 2002 18:06:33 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10761 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289084AbSBMXGR>;
+	Wed, 13 Feb 2002 18:06:17 -0500
+Date: Wed, 13 Feb 2002 21:05:54 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Allan Sandfeld <linux@sneulv.dk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-rc1
+In-Reply-To: <E16b8HV-0001JS-00@Princess>
+Message-ID: <Pine.LNX.4.33L.0202132104290.12554-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Align removeable media behaviour?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During the 2.5 cycle, I see we are going to remove ide-scsi.  This means 
-Iomega are going to have to accept that ide-floppy works for ATAPI 
-Zip/PocketZip drives and they may wish to consider not trying to force 
-people to use ide-scsi any more.  I guess they will want some IOCTLs 
-implemented to do this.
+On Wed, 13 Feb 2002, Allan Sandfeld wrote:
+> On Wednesday 13 February 2002 20:33, Marcelo Tosatti wrote:
+> > So here it goes.
+> >
+> > rc1:
+> <snip>
+> > - Merge some -ac bugfixes			(Alan Cox)
+>
+> Here's a crazy idea. Why not branch off the new pre-tree when
+> commiting a rc-kernel?
 
-Rather than add yet more code to ide-floppy, (yes I know it needs 
-cleaning - if I ever get a 2.5.x to compile I may be able to do so), 
-should we consider aligning the behaviour of all removeable devices?  I 
-know Jens is working on the ATAPI CD burning and MO drives, but we have 
-parallel port drives, USB, Firewire, ATAPI, SCSI, floppy and god knows 
-what else out there, all in different subsystems with different 
-maintainers.  Should we attempt to have a common set of IOCTLs for ll 
-format, lock, unlock, eject, validate, grok_partitions etc etc?
+Since I sit next to marcelo in the office I guess I could
+answer this question.
 
-It might be a lot easier for userland utilities to have a set of 
-expected behaviours and supported IOCTLs from the drivers.
+The reason not to do this is because maintaining a kernel
+is a horrible amount of work already and marcelo is pretty
+overloaded with all the patches everybody send him.
 
+OTOH, if _you_ volunteer to keep an -ac like kernel yourself
+so small fixes can be sent to marcelo in batches...
+
+cheers,
+
+Rik
 -- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-Paul Bristow
-
-Email: 
-paul@paulbristow.net
-Web: 
-http://paulbristow.net
-ICQ: 
-11965223
+http://www.surriel.com/		http://distro.conectiva.com/
 

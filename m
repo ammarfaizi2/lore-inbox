@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129669AbQKKF3Z>; Sat, 11 Nov 2000 00:29:25 -0500
+	id <S129675AbQKKFdQ>; Sat, 11 Nov 2000 00:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbQKKF3P>; Sat, 11 Nov 2000 00:29:15 -0500
-Received: from harrier.prod.itd.earthlink.net ([207.217.121.12]:17291 "EHLO
+	id <S129829AbQKKFdG>; Sat, 11 Nov 2000 00:33:06 -0500
+Received: from harrier.prod.itd.earthlink.net ([207.217.121.12]:62637 "EHLO
 	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129669AbQKKF3A>; Sat, 11 Nov 2000 00:29:00 -0500
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Max Inux <maxinux@bigfoot.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-In-Reply-To: <Pine.LNX.4.30.0011101822120.10847-100000@shambat>
-	<3A0CB6FD.D4CCE09F@transmeta.com>
+	id <S129675AbQKKFcx>; Sat, 11 Nov 2000 00:32:53 -0500
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: George Anzinger <george@mvista.com>, Dan Aloni <karrde@callisto.yi.org>,
+        Ivan Passos <lists@cyclades.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch generation
+In-Reply-To: <Pine.LNX.4.21.0011100051190.31850-100000@callisto.yi.org>
+	<3A0C2813.E7CB42D2@mvista.com>
+	<20001110215628.A28057@wire.cadcamlab.org>
 From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 10 Nov 2000 21:28:44 -0800
-In-Reply-To: <3A0CB6FD.D4CCE09F@transmeta.com>
-Message-ID: <m3y9yrf56b.fsf@matrix.mandrakesoft.com>
+Date: 10 Nov 2000 21:31:44 -0800
+In-Reply-To: <20001110215628.A28057@wire.cadcamlab.org>
+Message-ID: <m3u29ff51b.fsf@matrix.mandrakesoft.com>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@transmeta.com> writes:
+Peter Samuelson <peter@cadcamlab.org> writes:
 
-> > On x86 machines there is a size limitation on booting.  Though I thought
-> > it was 1024K as the max, 900K should be fine.
-> No, there isn't.  There used to be, but it has been fixed.
+> > (I prefer EMACS, which likes to unlink.)
+> No it doesn't, not always.  Your choice:
+>   (setq make-backup-files nil)
+>   (setq backup-by-copying t)
 
-the main problem is for us distribution if we want to fit this on a
-disk with a couple of modules for our installation process.
+i would recommend to use the orig.el[1] from frederic.lepied with Emacs,
+it save any files before editing with a particuliar prefix and you can
+generate the patch with the gendiff script (included with rpm).
+
+Footnotes: 
+[1]  ftp://ftp.chmouel.org/pub/people/chmou/orig.el
 
 -- 
 MandrakeSoft Inc                     http://www.chmouel.org

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268150AbRHFMgF>; Mon, 6 Aug 2001 08:36:05 -0400
+	id <S268285AbRHFMnF>; Mon, 6 Aug 2001 08:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268218AbRHFMf4>; Mon, 6 Aug 2001 08:35:56 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26464 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S268150AbRHFMfk>; Mon, 6 Aug 2001 08:35:40 -0400
-Date: Mon, 6 Aug 2001 14:36:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: "David S. Miller" <davem@redhat.com>,
-        David Luyer <david_luyer@pacific.net.au>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: /proc/<n>/maps growing...
-Message-ID: <20010806143603.C20837@athlon.random>
-In-Reply-To: <997080081.3938.28.camel@typhaon> <20010806105904.A28792@athlon.random> <15214.24938.681121.837470@pizda.ninka.net> <20010806125705.I15925@athlon.random> <20010807002650.B23937@weta.f00f.org>
-Mime-Version: 1.0
+	id <S268287AbRHFMmz>; Mon, 6 Aug 2001 08:42:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8721 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268285AbRHFMmm>; Mon, 6 Aug 2001 08:42:42 -0400
+Subject: Re: kernel headers & userland
+To: abraham@2d3d.co.za (Abraham vd Merwe)
+Date: Mon, 6 Aug 2001 13:41:27 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Development),
+        leitner@fefe.de (Felix von Leitner)
+In-Reply-To: <20010806095638.A5638@crystal.2d3d.co.za> from "Abraham vd Merwe" at Aug 06, 2001 09:56:38 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010807002650.B23937@weta.f00f.org>; from cw@f00f.org on Tue, Aug 07, 2001 at 12:26:50AM +1200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15TjhH-0000u9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 07, 2001 at 12:26:50AM +1200, Chris Wedgwood wrote:
-> mmap does merge in many common cases.
+> Apparently Linus told Felix von Leitner (the author of dietlibc - a small,
+> no nonsense glibc replacement C library) a while ago _not_ to include any
+> linux kernel headers in userland (i.e. the C library headers in this case).
 
-(assuming you speak about 2.2 because 2.4 obviously doesn't merge
-anything and that's the point of the discussion) So what? What do you
-mean with your observation?
+Did Felix make clear that it was a library he was talking about ?
 
-Andrea
+> In short, there is simply too many things that will break if you don't
+> include linux kernel headers in the C library headers (just look at glibc
+> for instance).
+
+Absolutely. But the main issue is applications. I certainly have no problem
+with glibc using kernel header copies. Its when they leak into generic apps
+directly it gets ugly
+
+(And note glibc uses copies..)

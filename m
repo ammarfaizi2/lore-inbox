@@ -1,22 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267144AbSLaDtM>; Mon, 30 Dec 2002 22:49:12 -0500
+	id <S267162AbSLaDzZ>; Mon, 30 Dec 2002 22:55:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267145AbSLaDtM>; Mon, 30 Dec 2002 22:49:12 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:45106 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S267144AbSLaDtM>;
-	Mon, 30 Dec 2002 22:49:12 -0500
-From: <Hell.Surfers@cwctv.net>
-To: linux-kernel@vger.kernel.org, rms@gnu.org
-Date: Tue, 31 Dec 2002 03:57:06 +0000
-Subject: Why is Nvidia given GPL'd code to use in closed source drivers?
+	id <S267164AbSLaDzZ>; Mon, 30 Dec 2002 22:55:25 -0500
+Received: from services.cam.org ([198.73.180.252]:1212 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S267162AbSLaDzY> convert rfc822-to-8bit;
+	Mon, 30 Dec 2002 22:55:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: David Schwartz <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC] fix o(1) handling of threads
+Date: Mon, 30 Dec 2002 23:03:50 -0500
+User-Agent: KMail/1.4.3
+References: <20021230230030.AAA103@shell.webmaster.com@whenever>
+In-Reply-To: <20021230230030.AAA103@shell.webmaster.com@whenever>
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: text/plain; charset=us-ascii
-Message-ID: <085e72754031fc2DTVMAIL12@smtp.cwctv.net>
+Message-Id: <200212302303.50119.tomlins@cam.org>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why does the community continue to make pacts with a company that steals from its rivals, makes pacts with M$, and refuses to clearly GPL and open source its work on drivers, there is a clear difference between their use of GPL files, and what the GPL says they can do. You cannot expect embedded kernel developers to GPL, if you excuse Nvidia, its a vain hope to grab M$ users, but in the long run it destroys the community.
+On December 30, 2002 06:00 pm, David Schwartz wrote:
+> On Mon, 30 Dec 2002 16:45:50 -0500, Ed Tomlinson wrote:
+> >What this patches does is recognise threads as process that clone both
+> >mm and files.  For these 'threads' it tracks how many are active in a
+> >given group.  When many are active it reduces their timeslices as below
+>
+> 	In general, changes that cause the system to become less efficient as load
+> increases are not such a good idea. By reducing timeslices, you increase
+> context-switching overhead. So the busier you are, the less efficient you
+> get. I think it would be wiser to keep the timeslice the same but assign
+> fewer timeslices.
 
-Dean. Three ways to kill yourself, and ive been drove in one...
+That would be better - I cannot see a way to do it using O(1).  What might
+be possible (not sure how) is only to decrease the timeslices IF there are
+other tasks being slowed down by the thread group...
+
+Ed
+

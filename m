@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271555AbRICPRK>; Mon, 3 Sep 2001 11:17:10 -0400
+	id <S271656AbRICPVl>; Mon, 3 Sep 2001 11:21:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271656AbRICPRB>; Mon, 3 Sep 2001 11:17:01 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:63495 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S271555AbRICPQx>; Mon, 3 Sep 2001 11:16:53 -0400
-Message-ID: <3B939F1A.7ACEA187@loewe-komp.de>
-Date: Mon, 03 Sep 2001 17:17:46 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
-X-Accept-Language: de, en
+	id <S271681AbRICPVb>; Mon, 3 Sep 2001 11:21:31 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:46209 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S271656AbRICPVV>; Mon, 3 Sep 2001 11:21:21 -0400
+Date: Mon, 3 Sep 2001 11:21:39 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [resend PATCH] reserve BLKGETSIZE64 ioctl
+Message-ID: <Pine.LNX.4.33.0109031119400.1610-100000@toomuch.toronto.redhat.com>
 MIME-Version: 1.0
-To: psusi@cfl.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: [bug report] NFS and uninterruptable wait states
-In-Reply-To: <01090310483100.26387@faldara> <3B939DBA.B14FC2CF@loewe-komp.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Wächtler wrote:
-> 
-> Phillip Susi wrote:
-> >
-> [ "mount -tnfs" with hard has default ]
-> 
-> > Anyhow, about an hour later ( the mount process still stuck ) I figured out
-> > that the other machine was not running rpc.nfsd, though it was running
-> > rpc.mountd.  Once I started rpc.nfsd on the machine, the mount on my box
-> > finally returned ( and was terminated by the SIGKILL that I sent it an hour
-> > before ).
-> >
-> > Could someone confirm that this is a bug, and explain why anything should
-> > ever need to wait in that state?
-> >
-> Well, if you use the option "soft",then your process is interruptible.
-> From a user standpoint, I don't understand the requirement of 'D' state.
-> 
-> Where this gets really impractical: commands like df or du will
-> hang forever (if the other end is out of your control).
+Hello,
 
-Err, "intr" will give you interruptible state. "hard" will retry forever,
-"soft" will timeout and give up .
+Is there any problem with the patch below for reserving a 64 bit get block
+device size ioctl?
 
-sorry
+		-ben
+
+diff -urN v2.4.10-pre4/include/linux/fs.h work/include/linux/fs.h
+--- v2.4.10-pre4/include/linux/fs.h	Mon Sep  3 11:04:39 2001
++++ work/include/linux/fs.h	Mon Sep  3 11:18:44 2001
+@@ -182,7 +182,8 @@
+ /* This was here just to show that the number is taken -
+    probably all these _IO(0x12,*) ioctls should be moved to blkpg.h. */
+ #endif
+-/* A jump here: 108-111 have been used for various private purposes. */
++/* A jump here: 108,109,111 have been used for various private purposes. */
++#define BLKBSZGET  _IOR(0x12,110,sizeof(u64))
+ #define BLKBSZGET  _IOR(0x12,112,sizeof(int))
+ #define BLKBSZSET  _IOW(0x12,113,sizeof(int))
+
+

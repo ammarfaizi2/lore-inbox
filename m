@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269738AbUJHKlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269786AbUJHKmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269738AbUJHKlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 06:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269760AbUJHKlM
+	id S269786AbUJHKmx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 06:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269772AbUJHKmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 06:41:12 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:45196 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269738AbUJHKlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 06:41:07 -0400
-Message-ID: <41666E90.2000208@yahoo.com.au>
-Date: Fri, 08 Oct 2004 20:40:16 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Fri, 8 Oct 2004 06:42:52 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:23964 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S269766AbUJHKmd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 06:42:33 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Fri, 8 Oct 2004 12:40:26 +0200
+User-Agent: KMail/1.6.2
+Cc: mbligh@aracnet.com, pj@sgi.com, Simon.Derr@bull.net, colpatch@us.ibm.com,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       ak@suse.de, sivanich@sgi.com
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200410081123.45762.efocht@hpce.nec.com> <20041008025034.3deedac5.akpm@osdl.org>
+In-Reply-To: <20041008025034.3deedac5.akpm@osdl.org>
 MIME-Version: 1.0
-To: Erich Focht <efocht@hpce.nec.com>
-CC: lse-tech@lists.sourceforge.net, colpatch@us.ibm.com,
-       Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
-       frankeh@watson.ibm.com
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-References: <1097110266.4907.187.camel@arrakis> <200410081214.20907.efocht@hpce.nec.com>
-In-Reply-To: <200410081214.20907.efocht@hpce.nec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410081240.26482.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich Focht wrote:
-
-> more flexibility in building the sched_domains is badly needed, so
-> your effort towards providing this is the right step. I'm not sure
-> yet whether your big change is really (and already) a simplification,
-> but what you described sounded for me like getting the chance to
-> configure the sched_domains at runtime, dynamically, from user
-> space. I didn't notice any user interface in your patch, or overlooked
-> it. Could you please describe the API you had in mind for that?
+On Friday 08 October 2004 11:50, Andrew Morton wrote:
+> So it's a quite cheap patch for the kernel.org people to carry.
 > 
+> So I'm (just) OK with it from that point of view.  My main concern is that
+> the CKRM framework ought to be able to accommodate the cpuset function,
+> dammit.  I don't want to see us growing two orthogonal resource management
+> systems partly because their respective backers have no incentive to make
+> their code work together.
 
-OK, what we have in -mm is already close to what we need to do
-dynamic building. But let's explore the other topic. User interface.
+I don't think cpusets needs to grow beyond what it contains now. The
+discussion started as an API discussion. Cpusets requirements, current
+API and usage models were clearly shown. According to Hubertus CKRM
+will be able to deal with these and implement them in its own API. It
+isn't today. So why not wait for that? Having two APIs for the same
+thing isn't unusual. Whether we switch from affinity to sched_domains
+underneath isn't really the question.
 
-First of all, I think it may be easiest to allow the user to specify
-which cpus belong to which exclusive domains, and have them otherwise
-built in the shape of the underlying topology. So for example if your
-domains look like this (excuse the crappy ascii art):
+> I realise there are technical/architectural problems too, but I do fear
+> that there's a risk of we-don't-have-a-business-case happening here too.
 
-0 1  2 3  4 5  6 7
----  ---  ---  ---  <- domain 0
-  |    |    |    |
-  ------    ------   <- domain 1
-     |        |
-     ----------      <- domain 2 (global)
+ISVs are already using the current cpusets API. I think of resource
+management systems like PBS (Altair), LSF (Platform Computing) plus
+several providers of industrial simulation codes in the area of CAE
+(computer aided engineering). I know examples from static and dynamic
+mechanical stress analysis, fluid dynamics and electromagnetics
+simulations. Financial simulation software could benefit of such
+stuff, too, but I don't know of any example. Anyhow, I'd say we
+already have a business case here. And instead of pushing ISVs to
+support the SGI way of doing this, the Bull way and the NEC way, it
+makes more sense to ask them to support the LINUX way.
 
-And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
-for some crazy reason, the new domains would look like this:
+> But we're not there yet - we're still waiting for the design dust to
+> settle.
 
-0 1  2  4 5    3  6 7
----  -  ---    -  ---  <- 0
-  |   |   |     |   |
-  -----   -     -   -   <- 1
-    |     |     |   |
-    -------     -----   <- 2 (global, partitioned)
+:-)
 
-Agreed? You don't need to get fancier than that, do you?
+Regards,
+Erich
 
-Then how to input the partitions... you could have a sysfs entry that
-takes the complete partition info in the form:
 
-0,1,2,3 4,5,6 7,8 ...
-
-Pretty dumb and simple.

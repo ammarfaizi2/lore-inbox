@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290355AbSAXVov>; Thu, 24 Jan 2002 16:44:51 -0500
+	id <S290340AbSAXVqm>; Thu, 24 Jan 2002 16:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290345AbSAXVol>; Thu, 24 Jan 2002 16:44:41 -0500
-Received: from svr3.applink.net ([206.50.88.3]:52999 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S290321AbSAXVoX>;
-	Thu, 24 Jan 2002 16:44:23 -0500
-Message-Id: <200201242141.g0OLfjL06681@home.ashavan.org.>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Oliver Xymoron <oxymoron@waste.org>,
-        Timothy Covell <timothy.covell@ashavan.org>
-Subject: Re: RFC: booleans and the kernel
-Date: Fri, 25 Jan 2002 15:43:14 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0201241530000.2839-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.44.0201241530000.2839-100000@waste.org>
+	id <S290343AbSAXVqe>; Thu, 24 Jan 2002 16:46:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15879 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290340AbSAXVqU>; Thu, 24 Jan 2002 16:46:20 -0500
+Date: Thu, 24 Jan 2002 13:39:26 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Richard Gooch <rgooch@atnf.csiro.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH]: Fix MTRR handling on HT CPUs (improved)
+In-Reply-To: <Pine.LNX.4.33.0201242145400.1046-100000@biker.pdb.fsc.net>
+Message-ID: <Pine.LNX.4.33.0201241338030.15092-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 January 2002 15:31, Oliver Xymoron wrote:
-> On Fri, 25 Jan 2002, Timothy Covell wrote:
-> > On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
-> > > The compiler _will_ turn if(a==0) into a test of a with itself rather
-> > > than a comparison against a constant. Since PDP days, no doubt.
-> >
-> > I thought that the whole point of booleans was to stop silly errors
-> > like
-> >
-> > if ( x = 1 )
-> > {
-> > 	printf ("\nX is true\n");
-> > }
-> > else
-> > {
-> > 	# we never get here...
-> > }
+
+On Thu, 24 Jan 2002, Martin Wilck wrote:
 >
-> And how does s/1/true/ fix that?
+> I strongly suspected somebody else must have hit this problem before, but
+> intensive research did show up nothing. Also my first post on LK
+> received no "hey, that's old stuff" answer. So here I go.
 
-It doesn't fix  "if ( x = true)". If would
-just make it more legit to use "if (x)".
-Just IMHO.
+There is a patch from Asit Mallik floating around, which I've applied in
+my tree. Most of us mere mortals can't test it yet, of course.
 
--- 
-timothy.covell@ashavan.org.
+		Linus
+

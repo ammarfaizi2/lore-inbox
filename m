@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266035AbRF1RCp>; Thu, 28 Jun 2001 13:02:45 -0400
+	id <S266037AbRF1RGp>; Thu, 28 Jun 2001 13:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbRF1RCf>; Thu, 28 Jun 2001 13:02:35 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36366 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266032AbRF1RC2>; Thu, 28 Jun 2001 13:02:28 -0400
-Subject: Re: RFC: Changes for PCI
-To: tinglett@vnet.ibm.com (Todd Inglett)
-Date: Thu, 28 Jun 2001 18:01:27 +0100 (BST)
-Cc: davem@redhat.com (David S. Miller),
-        tgall%rchland.vnet@RCHGATE.RCHLAND.IBM.COM,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3B3B5FCE.EF80E5E9@vnet.ibm.com> from "Todd Inglett" at Jun 28, 2001 11:48:14 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266040AbRF1RGf>; Thu, 28 Jun 2001 13:06:35 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26127 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266037AbRF1RG2>; Thu, 28 Jun 2001 13:06:28 -0400
+Date: Thu, 28 Jun 2001 10:05:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Patrick Dreker <patrick@dreker.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
+        <jffs-dev@axis.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Cosmetic JFFS patch.
+In-Reply-To: <01062809432100.00590@wintermute>
+Message-ID: <Pine.LNX.4.33.0106280956030.15199-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15FfAV-0007GV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> beyond 256 physical busses in 2.4?  Maybe not.  But it is a simple
-> change and it does work and it works around the existing drivers which
-> compare busid+devfn for uniqueness when they really should compare
-> pci_dev pointers.  Should it be redone the correct way (domains) in
 
-I think it might be better to fix the needed drivers. I suspect ppc64 isnt
-going to need that man drivers handle with initially
+On Thu, 28 Jun 2001, Patrick Dreker wrote:
+>
+> Am Donnerstag, 28. Juni 2001 00:16 schrieb Linus Torvalds:
+> > I don't _have_ any instances of my name being printed out to annoy the
+> > user, so that's a very theoretical argument.
+>
+> Err.... Just nitpicking...
+>
+> dreker@wintermute:~> dmesg | grep -C Linus
+> hub.c: 2 ports detected
+> uhci.c:  Linus Torvalds, Johannes Erdfelt, Randy Dunlap, Georg Acher, Deti
+> Fliegl, Thomas Sailer, Roman Weissgaerber
 
-> The patch does not handle the user mode case.  This leaves the X server
-> broken.  We could probably weed out busses beyond 256 under
-> /proc/bus/pci as a workaround -- meaning the video adapter (if any --
-> rare in these boxes) must be in one of the first I/O drawers.
+Oh, damn.
 
-Or scan the busses for video cards and number those busses 0,1,2... then
-number the rest. Ugly but probably best for 2.4
+It wasn't addded by me, though, and if somebody wants to change the name
+to "Frodo Rabbit", I wouldn't holler loudly.
 
+Let's make it policy that we _never_ print out annoying messages that have
+no useful purpose for debugging or running the system, ok?
+
+"Informational" messages aren't informational, they're just annoying, and
+they hide the _real_ stuff.
+
+Things like version strings etc sound useful, but the fact is that the
+only _real_ problem it has ever solved for anybody is when somebody thinks
+they install a new kernel, and forgets to run "lilo" or something. But
+even that information you really get from a simple "uname -a".
+
+Do we care that when you boot kernel-2.4.5 you get "net-3"? No. Do we care
+that we have quota version "dquot_6.4.0"? No. Do we want to get the
+version printed for every single driver we load? No.
+
+If people care about version printing, it (a) only makes sense for modules
+and (b) should therefore maybe be done by the module loader. And modules
+already have the MODULE_DESCRIPTION() thing, so they should NOT printk it
+on their own.  modprobe can do it if it wants to.
+
+So let's simply disallow versions, author information, and "good status"
+messages, ok? For stuff that is useful for debugging (but that the driver
+doesn't _know_ is needed), use KERN_DEBUG, so that it doesn't actually end
+up printed on the screen normally.
+
+Authors willing to start sending me patches?
+
+		Linus
 

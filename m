@@ -1,70 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266299AbTGEHZx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 03:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266301AbTGEHZx
+	id S266304AbTGEI1P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 04:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266305AbTGEI1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 03:25:53 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:35302 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S266299AbTGEHZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 03:25:51 -0400
-Date: Sat, 5 Jul 2003 09:39:46 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: benh@kernel.crashing.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-Message-ID: <20030705073946.GD32363@wohnheim.fh-wedel.de>
-References: <20030703202410.GA32008@wohnheim.fh-wedel.de> <20030704174339.GB22152@wohnheim.fh-wedel.de> <20030704174558.GC22152@wohnheim.fh-wedel.de> <20030704175439.GE22152@wohnheim.fh-wedel.de> <16134.2877.577780.35071@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16134.2877.577780.35071@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.3.28i
+	Sat, 5 Jul 2003 04:27:15 -0400
+Received: from hank-fep8-0.inet.fi ([194.251.242.203]:16019 "EHLO
+	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP id S266304AbTGEI1N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 04:27:13 -0400
+Message-ID: <3F068F49.1883BE0D@pp.inet.fi>
+Date: Sat, 05 Jul 2003 11:41:45 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>, Andrew Morton <akpm@osdl.org>,
+       Andries.Brouwer@cwi.nl, akpm@digeo.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] cryptoloop
+References: <UTC200307021844.h62IiIQ19914.aeb@smtp.cwi.nl> <3F0411B9.9E11022D@pp.inet.fi> <20030703082034.5643b336.akpm@osdl.org> <3F04680D.B9703696@pp.inet.fi> <3F046A30.6080509@nortelnetworks.com> <3F05300E.AA26A021@pp.inet.fi> <20030704104134.B9740@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 July 2003 09:18:21 +1000, Paul Mackerras wrote:
+Christoph Hellwig wrote:
+> On Fri, Jul 04, 2003 at 10:43:10AM +0300, Jari Ruusu wrote:
+> > Changing transfer function prototype may be a tiny speed improvement for one
+> > implementation that happens to use unoptimal API, but at same time be tiny
+> > speed degration to other implementations that use more saner APIs. I am
+> > unhappy with that change, because I happen to maintain four such transfers
+> > that would be subject to tiny speed degration.
 > 
-> This is madness.
-> 
-> There is nothing in POSIX that says that you have to exit a signal
-> handler by returning from it (which, under Linux, ends up doing a
-> sigreturn or rt_sigreturn system call).  It is explicitly permitted to
-> return from a RT signal handler with setcontext(), for instance.  And
-> it is at least long-standing practice to return using longjmp().
-> Neither setcontext nor longjmp will do a system call (yes, setcontext
-> is a system call on sparc, but it isn't on x86 AFAIK).
-> 
-> So - the kernel doesn't (and can't and shouldn't need to) know about
-> all transitions to or from a signal stack.  Therefore the PF_SS_ACTIVE
-> bit is useless since it will be wrong some of the time.
+> You've so far only made ubacked claims in this thread.  Show the
+> numbers and tell us why your implementation is faster and show the
+> numbers and explain why this change should make your module slower.
 
-Ack.
+I haven't seen the modified transfer function yet, so no test data on speed
+difference yet. Notice that I said "tiny speed degration". Tiny in this
+context may well mean unmeasurable small. However, it will add mode code to
+optimized implementation. More code == tiny bit slower.
 
-> Anyway, what is the problem with taking a signal on the signal stack
-> when you in a signal handler using the signal stack?  You just keep
-> going down the stack from where you are, which is what the code
-> already does.
+Loop code in loop-AES does not have any significant speed advantage over
+mainline loop. Most significant advantage that loop-AES' loop code has over
+mainline, is that it includes a ton of bug fixes still missing from mainline
+loop. Loop-AES' speed advantage comes from optimized AES-only transfer
+function that does the CBC stuff and directly calls highly optimized AES
+implementation without any CryptoAPI overhead. IOW, it does loop -> transfer
+-> AES with all unnecessary crap removed. I am complaining because you guys
+are about to add unnecessary crap to loop -> transfer interface.
 
-The problem is with a broken signal handler, that moves the stack
-pointer to nirvana.  You get a signal, set up the signal stack, move
-the pointer to nirvana, get a signal, set up the signal stack, move
-the pointer to nirvana, get a signal, ...
+Following tests were run in userspace on my 300 MHz Pentium-2 test box, and
+were compiled using Debian woody gcc "version 2.95.4 20011002 (Debian
+prerelease)" with these compiler flags: -O2 -Wall -march=i686
+-mpreferred-stack-boundary=2 -fomit-frame-pointer
 
-If I was just going down the signal stack, I would be perfectly happy,
-but instead the kernel believes each signal is the very first on the
-signal stack and sets it up again (and again...) each time.
+This tests only low level cipher functions aes_encrypt() and aes_decrypt()
+from linux-2.5.74/crypto/aes.c with all CryptoAPI overhead removed. In real
+use, including CryptoAPI overhead, these numbers should be a little bit
+smaller.
 
-> BTW, I am the PPC maintainer; Ben is the powermac maintainer.
+key length 128 bits, encrypt speed 68.5 Mbits/sec
+key length 128 bits, decrypt speed 58.9 Mbits/sec
+key length 192 bits, encrypt speed 58.3 Mbits/sec
+key length 192 bits, decrypt speed 50.3 Mbits/sec
+key length 256 bits, encrypt speed 51.0 Mbits/sec
+key length 256 bits, decrypt speed 43.8 Mbits/sec
 
-Sorry about that.
+This tests aes_encrypt() and aes_decrypt() from loop-AES-v1.7d/aes-i586.S
+Most users running loop-AES on modern x86 boxes get to use this code
+automatically.
 
-Jörn
+key length 128 bits, encrypt speed 129.6 Mbits/sec
+key length 128 bits, decrypt speed 131.3 Mbits/sec
+key length 192 bits, encrypt speed 113.0 Mbits/sec
+key length 192 bits, decrypt speed 111.7 Mbits/sec
+key length 256 bits, encrypt speed 96.2 Mbits/sec
+key length 256 bits, decrypt speed 97.5 Mbits/sec
 
--- 
-Measure. Don't tune for speed until you've measured, and even then
-don't unless one part of the code overwhelms the rest.
--- Rob Pike
+This tests aes_encrypt() and aes_decrypt() from loop-AES-v1.7d/aes.c
+Loop-AES users running non-x86 kernels or x86 configured for i386/i486 will
+run this version.
+
+key length 128 bits, encrypt speed 81.2 Mbits/sec
+key length 128 bits, decrypt speed 83.4 Mbits/sec
+key length 192 bits, encrypt speed 68.5 Mbits/sec
+key length 192 bits, decrypt speed 70.6 Mbits/sec
+key length 256 bits, encrypt speed 58.9 Mbits/sec
+key length 256 bits, decrypt speed 60.9 Mbits/sec
+
+> Either try to help improving what's in the tree or shut up.
+
+I have posted patches to be included in mainline. Fixes are available, and
+if they are not merged, then so be it. If fixes are not merged to mainline,
+they will be maintained outside of mainline so people who need them can
+actually use them. It is not really my failt that mainline people seem to
+prefer buggy loop and slow loop crypto.
+
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>
+

@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272426AbTHKI7l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 04:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272431AbTHKI7k
+	id S272407AbTHKI6c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 04:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272426AbTHKI6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 04:59:40 -0400
-Received: from ioskeha.hittite.isp.9tel.net ([62.62.156.27]:58786 "EHLO
-	ioskeha.hittite.isp.9tel.net") by vger.kernel.org with ESMTP
-	id S272426AbTHKI7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 04:59:34 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Francois Cartegnie <fcartegnie@free.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Crash on kmalloc with GFP_KERNEL
-Date: Mon, 11 Aug 2003 11:09:26 +0200
-User-Agent: KMail/1.4.3
+	Mon, 11 Aug 2003 04:58:32 -0400
+Received: from deepthought.resolution.de ([195.30.142.42]:33245 "EHLO
+	deepthought.resolution.de") by vger.kernel.org with ESMTP
+	id S272407AbTHKI6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 04:58:25 -0400
+Message-ID: <1060592267.3f375a8ba962c@corporate.resolution.de>
+Date: Mon, 11 Aug 2003 10:57:47 +0200
+From: Christian Reichert <c.reichert@resolution.de>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: Justin Cormack <justin@street-vision.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Innovision EIO DM-8301H/R SATA cards...
+References: <200308081408.16564.m.watts@eris.qinetiq.com> <3F33B3B9.7030905@pobox.com> <1060355773.28644.8.camel@lotte> <200308110851.56063.m.watts@eris.qinetiq.com>
+In-Reply-To: <200308110851.56063.m.watts@eris.qinetiq.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200308111109.26569.fcartegnie@free.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 192.147.51.120
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Mark,
 
-I'm currently extending the u32 classifier (linux traffic control).
-I've experienced some strange behaviour with memory allocation :
-A single kmalloc with GFP_KERNEL leads to kernel panic (BUG, slab.c) when 
-there's multiple requests matching the classifier. 
-Thinking about concurrent access, I tried to lock the allocation with 
-semaphores.
-The only way to solve it was to use GFP_ATOMIC (but I also experienced It 
-still crash in some cases).
+I certainly have seen libata patches for 2.4 - search the mailinglist archive 
+for libata annoucements or just do a google.
 
-This is really similar to the bug report made on netfilter buzilla:
-https://bugzilla.netfilter.org/cgi-bin/bugzilla/show_bug.cgi?id=68
+Cheers,
+    Chris
 
-So I guess the memory allocations are interrupted by arrival of new packets 
-and then crash.
--Is there any way to fix it to use GFP_KERNEL memory allocations ?
+Zitat von Mark Watts <m.watts@eris.qinetiq.com>:
 
--Also, the original u32 code uses GFP_KERNEL for storing it's matching rules. 
-I guess It would crash here too if the rules are created under heavy network 
-traffic. Any idea ?
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> > Look forward to testing libata on Silicon Image.
+> 
+> Dippy question - is libata a 2.6 thing or is it going to be backported to
+> 2.4?
+> 
+> - -- 
+> Mark Watts
+> Senior Systems Engineer
+> QinetiQ TIM
+> St Andrews Road, Malvern
+> GPG Public Key ID: 455420ED
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.1 (GNU/Linux)
+> 
+> iD8DBQE/N0sbBn4EFUVUIO0RAu37AJ9TOb3+iQqBKYkRlsI+FM21ZuRIwwCfb2eB
+> j5D3k1JPfKTEdvvgclssok4=
+> =kmUt
+> -----END PGP SIGNATURE-----
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-Greetings,
 

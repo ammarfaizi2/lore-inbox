@@ -1,125 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbTJMLmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 07:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbTJMLmZ
+	id S261683AbTJMLh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 07:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbTJMLh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 07:42:25 -0400
-Received: from hazard.jcu.cz ([160.217.1.6]:33952 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id S261687AbTJMLmW (ORCPT
+	Mon, 13 Oct 2003 07:37:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12471 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261683AbTJMLh1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 07:42:22 -0400
-Date: Mon, 13 Oct 2003 13:42:20 +0200
-From: Jan Marek <linux@hazard.jcu.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [2.6.0-test6-mm1] Problem in hotplug?
-Message-ID: <20031013114220.GA21177@hazard.jcu.cz>
+	Mon, 13 Oct 2003 07:37:27 -0400
+Date: Mon, 13 Oct 2003 04:40:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Kernel thread signal handling.
+Message-Id: <20031013044042.23ab7f69.akpm@osdl.org>
+In-Reply-To: <1066044079.24015.442.camel@hades.cambridge.redhat.com>
+References: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
+	<20031013040219.6ad71a57.akpm@osdl.org>
+	<1066044079.24015.442.camel@hades.cambridge.redhat.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo l-k,
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> On Mon, 2003-10-13 at 04:02 -0700, Andrew Morton wrote:
+> > Sigh.  Using signals to communicate with kernel threads is evil.  It keeps
+> > on breaking and each site does it differently and we've had plenty of bugs
+> > due to this practice.
+> 
+> The point in cleaning up allow_signal() et al. is that it gets simple
+> and it stops breaking.
 
-I've found some strange behavior of kernel:
+It will encourage kernel developers to use signals-to-kernel threads more,
+and we don't *need* this capability.
 
-# ps -afx
-  PID TTY      STAT   TIME COMMAND
-    1 ?        S      0:05 init [2]  
-    2 ?        SWN    0:00 [ksoftirqd/0]
-    3 ?        SW<    0:01 [events/0]
-   99 ?        Z<     0:00  \_ [events/0] <defunct>
-  112 ?        Z<     0:00  \_ [hotplug] <defunct>
-  113 ?        Z<     0:00  \_ [hotplug] <defunct>
-  114 ?        Z<     0:00  \_ [hotplug] <defunct>
-  127 ?        Z<     0:00  \_ [hotplug] <defunct>
-  136 ?        Z<     0:00  \_ [hotplug] <defunct>
-  142 ?        Z<     0:00  \_ [hotplug] <defunct>
-  148 ?        Z<     0:00  \_ [hotplug] <defunct>
-  153 ?        Z<     0:00  \_ [hotplug] <defunct>
-  159 ?        Z<     0:00  \_ [hotplug] <defunct>
-  165 ?        Z<     0:00  \_ [hotplug] <defunct>
-  170 ?        Z<     0:00  \_ [hotplug] <defunct>
-  176 ?        Z<     0:00  \_ [hotplug] <defunct>
-  218 ?        Z<     0:00  \_ [hotplug] <defunct>
-  224 ?        Z<     0:00  \_ [hotplug] <defunct>
- 1233 ?        Z<     0:00  \_ [hotplug] <defunct>
- 1238 ?        Z<     0:00  \_ [hotplug] <defunct>
- 1239 ?        Z<     0:00  \_ [hotplug] <defunct>
- 1254 ?        Z<     0:00  \_ [hotplug] <defunct>
- 1350 ?        Z<     0:00  \_ [events/0] <defunct>
- 2290 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2291 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2321 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2326 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2335 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2467 ?        Z<     0:00  \_ [events/0] <defunct>
- 2474 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2479 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2484 ?        Z<     0:00  \_ [hotplug] <defunct>
- 2490 ?        Z<     0:00  \_ [events/0] <defunct>
- 2492 ?        Z<     0:00  \_ [events/0] <defunct>
- 5949 ?        Z<     0:00  \_ [hotplug] <defunct>
- 5951 ?        Z<     0:00  \_ [hotplug] <defunct>
- 5953 ?        Z<     0:00  \_ [hotplug] <defunct>
- 5955 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6901 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6902 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6905 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6936 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6937 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6938 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6939 ?        Z<     0:00  \_ [hotplug] <defunct>
- 6940 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7014 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7019 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7024 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7035 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7042 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7050 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7072 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7078 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7088 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7093 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7098 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7103 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7108 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7113 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7118 ?        Z<     0:00  \_ [hotplug] <defunct>
- 7129 ?        Z<     0:00  \_ [hotplug] <defunct>
-25947 ?        Z<     0:00  \_ [events/0] <defunct>
-14496 ?        Z<     0:00  \_ [hotplug] <defunct>
-14503 ?        Z<     0:00  \_ [hotplug] <defunct>
-14508 ?        Z<     0:00  \_ [hotplug] <defunct>
-14514 ?        Z<     0:00  \_ [hotplug] <defunct>
-    4 ?        SW<    0:07 [kblockd/0]
-    5 ?        SW     0:00 [khubd]
-    6 ?        SW     0:02 [kapmd]
-    9 ?        SW     1:18 [kswapd0]
-   10 ?        SW<    0:00 [aio/0]
-   11 ?        SW<    0:00 [aio_fput/0]
-   12 ?        SW<    0:03 [xfslogd/0]
-   13 ?        SW<    0:00 [xfsdatad/0]
-   14 ?        SW     0:00 [pagebufd]
-   16 ?        SW     0:00 [kseriod]
-   17 ?        SW     0:00 [i2oevtd]
-   18 ?        SW     0:00 [i2oblock]
-   19 ?        SW     0:00 [xfs_syncd]
-   33 ?        S      0:00 /sbin/devfsd /dev
-  587 ?        S      0:06 /sbin/syslog-ng
-  ...etc...
+People think "I need to send a message to a kernel thread" and then,
+immediately, "ah-hah!  I'll use a signal!"
 
-I'm using package hotplug from Debian sid distro:
-ii  hotplug        0.0.20031008-1 Linux Hotplug Scripts
+> ...
+> This garbage collection involves reading, writing and erasing the flash.
+> It takes CPU time and power. Sometimes userspace wants it to stop
+> happening in the background; sometimes userspace wants it to resume
+> again.
+> 
+> So userspace sends SIGSTOP, SIGCONT and SIGKILL to the garbage
+> collection thread and all of them have the expected effect. 
 
-I think, its abnormal operation: what if kernel will have not free PID?
+Sounds like the GC should have been performed by a userspace process in the
+first place?
 
-Sincerely
-Jan Marek
--- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
+How does userspace identify the JFFS2 process to which to send the signal?
+
+> I don't any the benefit in changing this practice.
+
+Well I know I'm going to lose this one, but at least I get to bitch about
+stuff.
+
+sysfs would be appropriate, as would a sysctl handler.  An ioctl might even
+work, although it gets a visit from the ioctl police and sometimes it is
+hard to obtain an fd on the appropriate filesystem.  If the call rate is
+low, `mount -o remount,...' can be used to send a message to a filesystem.
+
+

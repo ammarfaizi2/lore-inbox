@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbTAXUlV>; Fri, 24 Jan 2003 15:41:21 -0500
+	id <S265570AbTAXUkA>; Fri, 24 Jan 2003 15:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265578AbTAXUlV>; Fri, 24 Jan 2003 15:41:21 -0500
-Received: from 200-206-134-238.async.com.br ([200.206.134.238]:11187 "EHLO
-	anthem.async.com.br") by vger.kernel.org with ESMTP
-	id <S265608AbTAXUlS>; Fri, 24 Jan 2003 15:41:18 -0500
-Date: Fri, 24 Jan 2003 18:49:51 -0200
-From: Christian Reis <kiko@async.com.br>
-To: neilb@cse.unsw.edu.au
-Cc: linux-kernel@vger.kernel.org, NFS@lists.sourceforge.net
-Subject: NFS client locking hangs for period
-Message-ID: <20030124184951.A23608@blackjesus.async.com.br>
+	id <S265578AbTAXUkA>; Fri, 24 Jan 2003 15:40:00 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:23822 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S265570AbTAXUj7>; Fri, 24 Jan 2003 15:39:59 -0500
+Date: Fri, 24 Jan 2003 15:46:35 -0500
+From: "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       "David S. Miller" <davem@redhat.com>, willy@debian.org,
+       linux-kernel@vger.kernel.org, Jeff Wiedemeier <Jeff.Wiedemeier@hp.com>
+Subject: Re: [patch 2.5] tg3.c: pci_{save,restore}_extended_state
+Message-ID: <20030124154635.A4161@dsnt25.mro.cpqcorp.net>
+References: <20030124212748.C25285@jurassic.park.msu.ru> <20030124193135.GA30884@gtf.org> <20030124150006.A2882@dsnt25.mro.cpqcorp.net> <20030124200538.GB30884@gtf.org> <20030124152453.A4081@dsnt25.mro.cpqcorp.net> <20030124203402.GA4975@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030124203402.GA4975@gtf.org>; from jgarzik@pobox.com on Fri, Jan 24, 2003 at 03:34:02PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 24, 2003 at 03:34:02PM -0500, Jeff Garzik wrote:
+> On Fri, Jan 24, 2003 at 03:24:53PM -0500, Wiedemeier, Jeff wrote:
+> > On Fri, Jan 24, 2003 at 03:05:38PM -0500, Jeff Garzik wrote:
+> > If the intent is to just not use MSI on tg3 devices, I can use the pci
+> > quirks to make sure that MSI gets turned off for tg3 devices.
+> 
+> hmmm, maybe I am missing something?
 
-Hello Neil,
+Quoting section 6.8.1.3 of the PCI 2.2 spec (talking about message
+control in PCI config space):
 
-I've been trying to get at this problem for a while now, and had been
-concentrating on the client-side of the problem (and consequently
-bothering Trond about it) [1,2]. I am now pretty much convinced this is a
-server-side problem, and as I've patched 2.4.20 with all the NFS patches
-pending (that didn't have to do with the kernel lock breaking) and still
-see the issue, I decided to report this bug.
+  This register provides system software control over MSI. After reset,
+  MSI is disabled (bit 0 is cleared) and the function requests servicing
+  via its INTx# pin (if supported). System sofware can enable MSI by 
+  setting bit 0 of this register. System software is permitted to 
+  modify the Message Control register's read/write bits and fields.
+  A device driver is not permitted to modify the Message Control
+  register's read/write bits and fields.
 
-The scenario is: a set of NFS clients with root mounted over nfs from a
-single server. Clients run vanilla 2.4.20, server runs 2.4.20 patched
-with your server-side patches I mentioned above. The clients run okay
-for a period, and then one of them will start to hang for long periods
-of time for certain operations (it happens on startup and shutdown, for
-instance). Once the client hangs start the server needs to be rebooted
-for it to clear up.
+> AFAICS, this is a per-driver decision, and needs to be done at the
+> driver level, in the tg3 driver source.
 
-It seems to be reproducible by having the client hang or reboot without
-shutting down properly. Another tip is that the server gets files left
-over in /var/lib/nfs/sm/ for the hanging client(s). 
-
-I've been trying to track this down for a while, but since I'm not very
-proficient with debugging at this level, I haven't had much luck. It's
-really a problem because I need to reboot and make 20 people stop
-working when the problem gets serious. Trond has had a hand trying
-to help me, but we still haven't uncovered anything. I wonder if you
-have any clue what could be happenning?
-
-The other details are standard: the clients are debian woodys with
-nfs-utils 1.0.1 installed, and the server has the same version. The
-server runs reiserfs over RAID-1 partitions (using the kernel md
-driver). Could it be triggered because of this perhaps unusual
-combination?
-
-Some of the messages I point out below have some info about the issue -
-including tcpdumps and traces of nlm_debug on the server and client.
-
-Mount options follow for the client filesystems:
-
-anthem:/export/root/    /   nfs defaults,rw,rsize=8192,wsize=8192,nfsvers=2 0 0
-anthem:/home    /home   nfs defaults,rw,rsize=8192,wsize=8192,nfsvers=3 0 0
-
-I have checked and, yes, root is mounted using version 2 and the rest as
-version 3. Perhaps I should try getting the kernel to mount root using
-version 3?
-
-[1] http://groups.google.com/groups?q=trond+christian+nfs&hl=pt&lr=&ie=UTF-8&client=googlet&scoring=d&selm=20030108151424.N2628%40blackjesus.async.com.br.lucky.linux.kernel&rnum=1
-[2] http://groups.google.com/groups?hl=pt&lr=&ie=UTF-8&client=googlet&th=3575b3c5f3360eb0&seekm=20030108151424.N2628%40blackjesus.async.com.br.lucky.linux.kernel&frame=off
-
-Thanks for any help you can give.
-
-Take care,
---
-Christian Reis, Senior Engineer, Async Open Source, Brazil.
-http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL
+The last sentence in the quote above indicates that it is not intended
+(by the PCI spec) to be a per-driver decision, but rather a system
+decision. The messages used are also a per-bus system resource and how
+an MSI goes from the PCI bus to the rest of the system (i.e. the CPU(s))
+is implementation dependent.
+ 
+/jeff

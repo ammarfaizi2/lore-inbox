@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTLLHgN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 02:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTLLHgN
+	id S264502AbTLLHjN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 02:39:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLLHjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 02:36:13 -0500
-Received: from [62.12.131.37] ([62.12.131.37]:1952 "HELO debian")
-	by vger.kernel.org with SMTP id S264499AbTLLHgL convert rfc822-to-8bit
+	Fri, 12 Dec 2003 02:39:13 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3780 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S264502AbTLLHjM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 02:36:11 -0500
-Date: Fri, 12 Dec 2003 08:36:09 +0100
-From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
-To: linux-kernel@vger.kernel.org
-Subject: alsa on gentoo ppc 2.6.0-test11-benh1
-Message-Id: <20031212083609.6db56e5b.zdavatz@ywesee.com>
-Organization: ywesee - intellectual capital connected
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 12 Dec 2003 02:39:12 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Fri, 12 Dec 2003 01:39:51 -0600
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10312112317070.3805-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10312112317070.3805-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312120139.51188.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List
+On Friday 12 December 2003 01:21, Andre Hedrick wrote:
+> Rob,
+>
+> You know, I would have to say you just waxed my arse all over the mailing
+> list and left it in the mop bucket for cooling off.  The beauty is I can
+> now laugh about it, and see you are so raw over the issue.  Have a case of
+> chapstick to help smooth over the burn.
 
-I got two questions:
-1.
-I am running alsa on gentoo ppc 2.6.0-test11-benh1.
-I done my kernel with make menuconfig, make, make modules_install
+Ah, it's finals week.  It's nice to vent a little steam and take a break from 
+failing to get my Educational Psychology and Economics of Technology papers 
+in on time. :)
 
-lsmod gives me:
-snd_seq_oss            41720  0
-snd_seq_midi_event      8992  1 snd_seq_oss
-snd_seq                64024  4 snd_seq_oss,snd_seq_midi_event
-snd_seq_device          9924  2 snd_seq_oss,snd_seq
-snd_pcm_oss            69188  0
-snd_pcm               123700  1 snd_pcm_oss
-snd_page_alloc         14052  1 snd_pcm
-snd_timer              28608  2 snd_seq,snd_pcm
-snd_mixer_oss          22464  1 snd_pcm_oss
-snd                    66340  8 snd_seq_oss,snd_seq_midi_event,snd_seq,snd_seq_device,snd_pcm_oss,snd_pcm,snd_timer,snd_mixer_oss
-dmasound_pmac          89752  1
-dmasound_core          22188  2 dmasound_pmac
-i2c_core               29540  1 dmasound_pmac
-soundcore              11200  3 snd,dmasound_core
+Sorry if I came down a bit hard.  I type fast, and I've had a backlog of 
+stress this week.  (I know I had a reason for going back to grad school.  I 
+wonder what it was?)
 
-When I do amixer I get:
-amixer: Mixer attach default error: No such device
-
-I done my kernel with make menuconfig, make, make modules_install
-
-I have been searching the Net for clues but did not find anything so far, to get my sound working.
-
-alsasound restart gives me:
- * WARNING:  you are stopping a boot service.
- * Unloading ALSA...
- * Storing ALSA Mixer Levels
-/usr/sbin/alsactl: save_state:1061: No soundcards found...
- * Unloading modules                                                                                                                                       [ ok ] * Loading ALSA drivers...
- * Loading: snd-mixer-oss
- * Loading: snd-pcm-oss
- * Loading: snd-seq-oss
- * Loading: snd-powermac
-FATAL: Error inserting snd_powermac (/lib/modules/2.6.0-test11-benh1/kernel/sound/ppc/snd-powermac.ko): No such device
- * Loading: snd-seq-oss
-FATAL: Module snd_seq_oss already in kernel.
- * Running card-dependent scripts
- * Restoring Mixer Levels 
-
-2. Why does my computer go to sleep when I press 'CapsLook'. Can I turn that off or is this still a 2.6.0 Bug?
-
-Thanks for any help and hints.
-Zeno
--- 
-Mit freundlichen Grüssen / best regards
-
-Zeno Davatz
-Verkauf & Akquisition
-
-+41 1 350 85 86
-
-www.ywesee.com > intellectual capital connected > www.oddb.org
+Rob

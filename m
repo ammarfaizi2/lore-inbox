@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289606AbSBJNX4>; Sun, 10 Feb 2002 08:23:56 -0500
+	id <S289621AbSBJNbt>; Sun, 10 Feb 2002 08:31:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289619AbSBJNXu>; Sun, 10 Feb 2002 08:23:50 -0500
-Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:27639 "EHLO
-	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
-	id <S289606AbSBJNXm>; Sun, 10 Feb 2002 08:23:42 -0500
-Date: Sun, 10 Feb 2002 14:24:23 +0100
-Message-ID: <vines.sxdD+5GbNwA@SZKOM.BFS.DE>
-X-Priority: 3 (Normal)
-To: <linux-kernel@vger.kernel.org>
-From: <WHarms@bfs.de> (Walter Harms)
-Reply-To: <WHarms@bfs.de>
-Subject: FIX: pc_keyb.c  in >2.2.17 2.4.x 2.5.x
-X-Incognito-SN: 25185
-X-Incognito-Version: 5.1.0.84
+	id <S289627AbSBJNb2>; Sun, 10 Feb 2002 08:31:28 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:25481 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S289621AbSBJNbK>; Sun, 10 Feb 2002 08:31:10 -0500
+Message-ID: <3C66743C.9BA03219@folkwang-hochschule.de>
+Date: Sun, 10 Feb 2002 14:23:08 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
+	<nettings@folkwang-hochschule.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: multipart/mixed; boundary="1013347407-MIME-Part-Dividor"
+To: linux-kernel@vger.kernel.org
+CC: nettings@folkwang-hochschule.de
+Subject: funny console prob w/2.4.18-pre[479]+kpreempt+sched-o(1)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello *
 
---1013347407-MIME-Part-Dividor
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+it happens to me regularly that the x server dies without any
+obvious reason.
+funny thing is, it takes the virtual text consoles with it, which is
+why i'm posting here.
 
-Hi,
-the "kbd_exists" fix from around 2.3.39 is a bit hard.
-disabling the kdb even when a reset succeeds.
+i end up in kdm and i can restart x alright, but when i switch vc's,
+all i see is a frozen image of the x screen. i can switch back to x,
+and it runs.
 
-The patch contains a fix. The bug itself is still there.
+all tasks i started on the vc's before keep running, the mingettys
+are there, the bashes are there, and i can even blind-type commands
+that will run correctly. only the display is messed up.
+a blind-typed "reset" has no effect.
 
-walter
+any clues ?
+i'm using x version 4.2.0 with a voodoo3 card (dri and agp enabled).
+this is an smp box with 2 p3/600 katmai.
+might this be not a kernel issue, but an x11 problem ?
 
---1013347407-MIME-Part-Dividor
-Content-type: application/octet-stream;
-              name="pc_keyb.diff"
-Content-Disposition: attachment; filename="pc_keyb.diff"
-Content-Transfer-Encoding: base64
+best wishes,
 
-NTI3YTUyOCw1MzYKPiAKPiAKPiAvKgo+IHRoZSBuZXcgImtiZF9leGlzdHMiIGxvZ2ljIGluIHBj
-X2tiZC5jIG1heSBiZSBqdXN0IGNvbXBsZXRlbHkKPiBidWdnZXJlZC4gSXQgdHJpZXMgdG8gbm90
-aWNlIHdoZW4gYSBQQy1zdHlsZSBrZXlib2FyZCBpcyBtaXNzaW5nLCBhbmQKPiBhdm9pZCB0cnlp
-bmcgdG8gc2V0IHRoZSBsZWRzIG9uIGl0IHdoZW4gbm8ga2V5Ym9hcmQgZXhpc3RzLiAKPiAqLwo+
-IAo+IAo1MzFjNTQwLDU0Mgo8IAkJc2VuZF9kYXRhKEtCRF9DTURfRU5BQkxFKTsJLyogcmUtZW5h
-YmxlIGtiZCBpZiBhbnkgZXJyb3JzICovCi0tLQo+IAkJaWYgKCBzZW5kX2RhdGEoS0JEX0NNRF9F
-TkFCTEUpID4gMCkKPiAJCQkga2JkX2V4aXN0cyA9IDE7CS8qIHJlLWVuYWJsZSBrYmQgaWYgbm8g
-ZXJyb3JzICovCj4gCQllbHNlCg==
+jörn
 
---1013347407-MIME-Part-Dividor--
+
+please keep be cc:ed, i only read lkml archives.
+
+
+
+-- 
+Jörn Nettingsmeier     
+home://Kurfürstenstr.49.45138.Essen.Germany      
+phone://+49.201.491621
+http://spunk.dnsalias.org
+http://www.linuxdj.com/audio/lad/

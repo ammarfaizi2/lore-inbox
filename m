@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274513AbRJYOa6>; Thu, 25 Oct 2001 10:30:58 -0400
+	id <S274684AbRJYOfs>; Thu, 25 Oct 2001 10:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274426AbRJYOas>; Thu, 25 Oct 2001 10:30:48 -0400
-Received: from host-21.50by.nyc.onsiteaccess.net ([216.89.84.21]:19978 "EHLO
-	mailessentials.wagweb.com") by vger.kernel.org with ESMTP
-	id <S274627AbRJYOah> convert rfc822-to-8bit; Thu, 25 Oct 2001 10:30:37 -0400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Message-ID: <3BD8222C.E741D186@wagweb.com>
-Date: Thu, 25 Oct 2001 10:31:08 -0400
-From: "Frontgate Lab" <mdiwan@wagweb.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel compiler
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 25 Oct 2001 14:31:41.0125 (UTC) FILETIME=[C333D750:01C15D61]
+	id <S274749AbRJYOfi>; Thu, 25 Oct 2001 10:35:38 -0400
+Received: from theirongiant.weebeastie.net ([203.62.148.50]:14208 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S274684AbRJYOfW>; Thu, 25 Oct 2001 10:35:22 -0400
+Date: Fri, 26 Oct 2001 00:35:15 +1000
+From: CaT <cat@zip.com.au>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Marton Kadar <marton.kadar@freemail.hu>, linux-kernel@vger.kernel.org
+Subject: Re: concurrent VM subsystems
+Message-ID: <20011026003515.A1341@zip.com.au>
+In-Reply-To: <freemail.20010925100655.37794@fm3.freemail.hu> <Pine.LNX.4.33.0110251458020.6694-100000@Expansa.sns.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110251458020.6694-100000@Expansa.sns.it>
+User-Agent: Mutt/1.3.23i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just out of a need to know things :)
+On Thu, Oct 25, 2001 at 03:06:51PM +0200, Luigi Genoni wrote:
+> I already exposed my opinion, and both Andrea and Rik know it very well.
+> The VM for servers needs to be predictable, for desktops needs to be as
+> fast as possible, also if it is a little less predictable and stable (who
+> cares if you reboot you desktop once every two days?).
 
-What compiler do Alan Cox and Linus use to create the 2.4 series
-kernels?
+It doesn't matter if it's every 2 days or 2 years if it does it just
+when you're doing something that must NOT be interrupted and you lose
+a buttload of work. Stability is important in both a server AND desktop
+environment.
 
-I am currently using RedHat's compiler gcc-2.96-85 and have been told
-not to do so because it "breaks things" .
-
-So far it has not broken anything, but then again i am compiling kernels
-for use on my RedHat Distributions.
-
-The question would be .. how hard is it going to be for me to upgrade to
-gcc 3 +  and  will i get any benefit from it?  WillI loose any
-advantages that i currently do have?
-
-Or can i still get what i need from compiling 2.4.12 or 2.4.13 with the
-compiler I have now?
-
-Thank you 
-
-Madhav Diwan
-
-
-Note: The information contained in this message may be privileged and confidential and protected from disclosure.  If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please notify us immediately by replying to the message and deleting it from your computer.  Thank you.  Wagner Weber & Williams
+-- 
+CaT        "As you can expect it's really affecting my sex life. I can't help
+           it. Each time my wife initiates sex, these ejaculating hippos keep
+           floating through my mind."
+                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens

@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265259AbUENMj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265130AbUENMi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265259AbUENMj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 08:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUENMj2
+	id S265130AbUENMi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 08:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUENMi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 08:39:28 -0400
-Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:46833 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S265259AbUENMjG
+	Fri, 14 May 2004 08:38:59 -0400
+Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:46321 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S265130AbUENMi6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 08:39:06 -0400
-Date: Fri, 14 May 2004 21:39:04 +0900
-Message-ID: <m24qqj9o9j.wl%ysato@users.sourceforge.jp>
+	Fri, 14 May 2004 08:38:58 -0400
+Date: Fri, 14 May 2004 21:38:55 +0900
+Message-ID: <m265az9o9s.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 IDE support update
+Subject: Re: [PATCH] H8/300 update (3/9) pic support
+In-Reply-To: <m2y8nyrkdg.wl%ysato@users.sourceforge.jp>
+References: <m2y8nyrkdg.wl%ysato@users.sourceforge.jp>
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,209 +25,20 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- IDE support update.
-- unused memory hole delete.
+Sorry. There was the file which lacked.
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru linux-2.6.6/arch/h8300/Kconfig.ide linux-2.6.6-h8300/arch/h8300/Kconfig.ide
---- linux-2.6.6/arch/h8300/Kconfig.ide	11 May 2004 02:16:05 -0000
-+++ linux-2.6.6-h8300/arch/h8300/Kconfig.ide	14 May 2004 11:44:08 -0000
-@@ -1,23 +1,44 @@
- # uClinux H8/300 Target Board Selection Menu (IDE)
- 
-+if (H8300H_AKI3068NET)
- menu "IDE Extra configuration"
- 
- config H8300_IDE_BASE
- 	hex "IDE regitser base address"
- 	depends on IDE
-+	default 0
- 	help
- 	  IDE registers base address
- 
- config H8300_IDE_ALT
- 	hex "IDE regitser alternate address"
- 	depends on IDE
-+	default 0
- 	help
- 	  IDE alternate registers address
- 
- config H8300_IDE_IRQ
- 	int "IDE IRQ no"
- 	depends on IDE
-+	default 0
- 	help
--	  IDE I/F using IRQ no
--
-+	  IDE use IRQ no
- endmenu
-+endif
-+
-+if (H8300H_H8MAX)
-+config H8300_IDE_BASE
-+	hex
-+	depends on IDE
-+	default 0x200000
-+
-+config H8300_IDE_ALT
-+	hex
-+	depends on IDE
-+	default 0x60000c
-+
-+config H8300_IDE_IRQ
-+	int
-+	depends on IDE
-+	default 5
-+endif
-diff -Nru linux-2.6.6/arch/h8300/kernel/setup.c linux-2.6.6-h8300/arch/h8300/kernel/setup.c
---- linux-2.6.6/arch/h8300/kernel/setup.c	26 Mar 2004 09:12:36 -0000
-+++ linux-2.6.6-h8300/arch/h8300/kernel/setup.c	14 May 2004 11:36:34 -0000
-@@ -40,16 +40,12 @@
- 
- #if defined(__H8300H__)
- #define CPU "H8/300H"
-+#include <asm/regs306x.h>
- #endif
- 
- #if defined(__H8300S__)
- #define CPU "H8S"
--#endif
--
--#if defined(CONFIG_INTELFLASH)
--#define BLKOFFSET 512
--#else
--#define BLKOFFSET 0
-+#include <asm/regs267x.h>
- #endif
- 
- #define STUBSIZE 0xc000;
-@@ -58,8 +54,6 @@
- unsigned long memory_start;
- unsigned long memory_end;
- 
--struct task_struct *_current_task;
--
- char command_line[512];
- char saved_command_line[512];
- 
-@@ -107,12 +101,11 @@
- 	memory_start = (unsigned long) &_ramstart;
- 
- 	/* allow for ROMFS on the end of the kernel */
--	if (memcmp((void *)(memory_start + BLKOFFSET), "-rom1fs-", 8) == 0) {
-+	if (memcmp((void *)memory_start, "-rom1fs-", 8) == 0) {
- #if defined(CONFIG_BLK_DEV_INITRD)
--		initrd_start = memory_start += BLKOFFSET;
-+		initrd_start = memory_start;
- 		initrd_end = memory_start += be32_to_cpu(((unsigned long *) (memory_start))[2]);
- #else
--		memory_start += BLKOFFSET;
- 		memory_start += be32_to_cpu(((unsigned long *) memory_start)[2]);
- #endif
- 	}
-@@ -190,6 +183,16 @@
- 	 */
- 	paging_init();
- 	h8300_gpio_init();
-+#if defined(CONFIG_H8300_AKI3068NET) && defined(CONFIG_IDE)
-+	{
-+#define AREABIT(addr) (1 << (((addr) >> 21) & 7))
-+		/* setup BSC */
-+		volatile unsigned char *abwcr = (volatile unsigned char *)ABWCR;
-+		volatile unsigned char *cscr = (volatile unsigned char *)CSCR;
-+		*abwcr &= ~(AREABIT(CONFIG_H8300_IDE_BASE) | AREABIT(CONFIG_H8300_IDE_ALT));
-+		*cscr  |= (AREABIT(CONFIG_H8300_IDE_BASE) | AREABIT(CONFIG_H8300_IDE_ALT)) | 0x0f;
-+	}
-+#endif
- #ifdef DEBUG
- 	printk(KERN_DEBUG "Done setup_arch\n");
- #endif
-diff -Nru linux-2.6.6/include/asm-h8300/ide.h linux-2.6.6-h8300/include/asm-h8300/ide.h
---- linux-2.6.6/include/asm-h8300/ide.h	11 May 2004 12:28:11 -0000
-+++ linux-2.6.6-h8300/include/asm-h8300/ide.h	14 May 2004 11:36:35 -0000
-@@ -16,37 +16,25 @@
- #ifdef __KERNEL__
- /****************************************************************************/
- 
--#define IDE_DATA	0x00
--#define IDE_ERROR	0x02
--#define IDE_NSECTOR	0x04
--#define IDE_SECTOR	0x06
--#define IDE_LCYL	0x08
--#define IDE_HCYL	0x0A
--#define IDE_SELECT	0x0C
--#define IDE_STATUS	0x0E
--
--#define IDE_BASE CONFIG_H8300_IDE_BASE
--#define IDE_CTRL CONFIG_H8300_IDE_ALT
--#define IDE_IRQ  (EXT_IRQ0 + CONFIG_H8300_IDE_IRQ)
--
- static __inline__ int ide_default_irq(unsigned long base)
- {
--	return IDE_IRQ;
-+	return EXT_IRQ0 + CONFIG_H8300_IDE_IRQ;
- }
- #define ide_init_default_irq(base) ide_default_irq(base)
- 
- static __inline__ unsigned long ide_default_io_base(int index)
- {
--	return 0;
-+	return CONFIG_H8300_IDE_BASE;
- }
- 
- static __inline__ void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
- 					   unsigned long ctrl_port, int *irq)
- {
-+	int i;
-+	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++)
-+		hw->io_ports[i] = data_port + 2*i;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = CONFIG_H8300_IDE_ALT;
- }
--
--void ide_init_default_hwifs(void);
--
- 
- #define MAX_HWIFS	1
- 
-diff -Nru linux-2.6.6/include/asm-h8300/io.h linux-2.6.6-h8300/include/asm-h8300/io.h
---- linux-2.6.6/include/asm-h8300/io.h	11 May 2004 12:28:11 -0000
-+++ linux-2.6.6-h8300/include/asm-h8300/io.h	14 May 2004 11:36:35 -0000
-@@ -96,7 +96,7 @@
- 	volatile unsigned short *ap = (volatile unsigned short *) addr;
- 	unsigned short *bp = (unsigned short *) buf;
- 	while (len--)
--		*ap = *bp++;
-+		*ap = _swapw(*bp++);
- }
- 
- static inline void io_outsl(unsigned int addr, const void *buf, int len)
-@@ -104,7 +104,7 @@
- 	volatile unsigned int *ap = (volatile unsigned int *) addr;
- 	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
--		*ap = *bp++;
-+		*ap = _swapl(*bp++);
- }
- 
- static inline void io_insb(unsigned int addr, void *buf, int len)
-@@ -129,7 +129,7 @@
- 	volatile unsigned short *ap = (volatile unsigned short *) addr;
- 	unsigned short *bp = (unsigned short *) buf;
- 	while (len--)
--		*bp++ = *ap;
-+		*bp++ = _swapw(*ap);
- }
- 
- static inline void io_insl(unsigned int addr, void *buf, int len)
-@@ -137,7 +137,7 @@
- 	volatile unsigned int *ap = (volatile unsigned int *) addr;
- 	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
--		*bp++ = *ap;
-+		*bp++ = _swapl(*ap);
- }
- 
- /*
+diff -Nru linux-2.6.6/include/asm-h8300/sigcontext.h linux-2.6.6-h8300/include/asm-h8300/sigcontext.h
+--- linux-2.6.6/include/asm-h8300/sigcontext.h	22 Mar 2004 16:33:39 -0000
++++ linux-2.6.6-h8300/include/asm-h8300/sigcontext.h	14 May 2004 11:49:38 -0000
+@@ -8,6 +8,7 @@
+ 	unsigned long  sc_er1;
+ 	unsigned long  sc_er2;
+ 	unsigned long  sc_er3;
++	unsigned long  sc_er5;
+ 	unsigned short sc_ccr;
+ 	unsigned long  sc_pc;
+ };

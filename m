@@ -1,68 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265680AbUGDM7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265682AbUGDNFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265680AbUGDM7P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 08:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUGDM7O
+	id S265682AbUGDNFw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 09:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbUGDNFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 08:59:14 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:42143 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265680AbUGDM7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 08:59:12 -0400
-Date: Sun, 4 Jul 2004 14:59:04 +0200 (MEST)
-Message-Id: <200407041259.i64Cx4SX012978@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: marcelo.tosatti@cyclades.com
-Subject: updated gcc-3.4.0 fixes patch for 2.4.27-rc3
-Cc: linux-kernel@vger.kernel.org
+	Sun, 4 Jul 2004 09:05:51 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:40912 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265682AbUGDNFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 09:05:45 -0400
+Date: Sun, 4 Jul 2004 14:05:44 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] CDRW packet writing support for 2.6.7-bk13
+Message-ID: <20040704130544.GA3825@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
+	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
+References: <m2lli36ec9.fsf@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2lli36ec9.fsf@telia.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's now an updated gcc-3.4.0 fixes patch for 2.4.27-rc3 at
-<http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-2.4.27-rc3>.
+> + * - Generic interface for UDF to submit large packets for variable length
+> + *   packet writing
 
-This update includes two cleanups:
+Huh, what's bad about bios?
 
-1. The fix for the __attribute__((packed)) problem in ftape-bsm.h
-   has been corrected. The problem is that
+> +#include <linux/buffer_head.h>
 
-   typedef struct { char c[3]; } Name __attribute__((packed));
+Where do you need buffer_head.h?
 
-   generates gcc warnings about the 'packed' attribute being
-   ignored. I assumed this was because packed is meaningless
-   on a struct containing only char values, so the previous
-   patches simply removed the attribute. However, the problem
-   turns out to be syntactic: __attribute__((packed)) is only
-   allowed in struct/union declarations, not in typedef:s.
-   The revised patch moves the attribute into the struct part:
+> +#define SCSI_IOCTL_SEND_COMMAND	1
 
-   typedef struct { char c[3]; } __attribute__((packed)) Name;
+Please include scsi_ioctl.h instead of duplicating it.
 
-2. The patches that removed 'inline' from function declarations
-   have been removed. The problem is that include/linux/compiler.h
-   defines inline as follows:
+> +static struct gendisk *disks[MAX_WRITERS];
 
-   #if __GNUC__ == 3
-   #if __GNUC_MINOR__ >= 1
-   # define inline         __inline__ __attribute__((always_inline))
+Please add a pointer to the gendisk to struct pktcdvd_device instead
+of a global array
 
-   A number of functions are marked inline and then called in
-   contexts where their function bodies aren't visible. gcc-3.4.0
-   takes the always_inline attribute literally, and terminates
-   with an error in these cases.
+> +
+> +static struct pktcdvd_device *pkt_find_dev(request_queue_t *q)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < MAX_WRITERS; i++)
+> +		if (pkt_devs[i].bdev && bdev_get_queue(pkt_devs[i].bdev) == q)
+> +			return &pkt_devs[i];
+> +
+> +	return NULL;
+> +}
 
-   The previous patches removed the problematic inline annotations.
-   The proper fix is to eliminate the always_inline attribute:
+Please just store the pktcdvd_device * in q->queuedata.
 
-   #if __GNUC__ == 3
-   #if __GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 4
-   # define inline         __inline__ __attribute__((always_inline))
+> +	sprintf(current->comm, pd->name);
 
-   This is what the 2.6 kernels do, and my patch set already included
-   this change. So the inline removals were unnecessary and have been
-   eliminated.
+not needed, saemonize does it for you.
 
-Both cleanups are due to Marcelo questioning me about the validity
-of the previous versions of these fixes.
+> +static int pkt_get_minor(struct pktcdvd_device *pd)
+> +{
+> +	int minor;
+> +	for (minor = 0; minor < MAX_WRITERS; minor++)
+> +		if (pd == &pkt_devs[minor])
+> +			break;
+> +	BUG_ON(minor == MAX_WRITERS);
+> +	return minor;
+> +}
 
-/Mikael
+Shouldn't be needed at all.  Use an idr allocator to get a free minor in
+the setup, the actual I/O code shouldn't care about minors at all (if you
+follow my suggestions in the begining of this mail that should be taken
+care of)
+and the actual code should never
+
+> +	pd->cdrw.elv_merge_fn = q->elevator.elevator_merge_fn;
+> +	pd->cdrw.elv_completed_req_fn = q->elevator.elevator_completed_req_fn;
+> +	pd->cdrw.merge_requests_fn = q->merge_requests_fn;
+> +	q->elevator.elevator_merge_fn = pkt_lowlevel_elv_merge_fn;
+> +	q->elevator.elevator_completed_req_fn = pkt_lowlevel_elv_completed_req_fn;
+
+This looks really really fishy.  Playing with other drivers' elevator settings
+can't be safe.  I'd say wait for the runtime selectable I/O scheduler that's
+planned for a while and add a special packetwriting scheduler that you switch
+to.
+
+> +/*
+> + * called when the device is closed. makes sure that the device flushes
+> + * the internal cache before we close.
+> + */
+> +static void pkt_release_dev(struct pktcdvd_device *pd, int flush)
+> +{
+> +	struct block_device *bdev;
+> +
+> +	atomic_dec(&pd->refcnt);
+> +	if (atomic_read(&pd->refcnt) > 0)
+> +		return;
+> +
+> +	bdev = bdget(pd->pkt_dev);
+> +	if (bdev) {
+
+You reallu should keep a reference to the underlying bdev as long as you use
+it, aka bdev_get + blkdev_get in ->open, blkdev_put in ->release
+
+> +		fsync_bdev(bdev);
+
+fs/block_dev.c already does a sync_blockdev() on last close, that should
+be enough.
+
+> +static int pkt_proc_device(struct pktcdvd_device *pd, char *buf)
+> +{
+
+seq_file interface please, or even better a one value per file sysfs
+interface.
+
+> +	pd->cdrw.pid = kernel_thread(kcdrwd, pd, CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
+
+please use the kernel/ktread.c infastructure.
+
+> +static int pkt_setup_dev(struct pktcdvd_device *pd, unsigned int arg)
+> +{
+> +	struct inode *inode;
+> +	struct file *file;
+> +	int ret;
+> +
+> +	if ((file = fget(arg)) == NULL) {
+> +		printk("pktcdvd: bad file descriptor passed\n");
+> +		return -EBADF;
+> +	}
+> +
+> +	ret = -EINVAL;
+> +	if ((inode = file->f_dentry->d_inode) == NULL) {
+> +		printk("pktcdvd: huh? file descriptor contains no inode?\n");
+> +		goto out;
+> +	}
+
+If fget is successfull file->f_dentry->d_inode can't be NULL.
+
+> +	case BLKROSET:
+> +		if (capable(CAP_SYS_ADMIN))
+> +			clear_bit(PACKET_WRITABLE, &pd->flags);
+> +	case BLKROGET:
+> +	case BLKSSZGET:
+> +	case BLKFLSBUF:
+> +		if (!pd->bdev)
+> +			return -ENXIO;
+> +		return -EINVAL;		    /* Handled by blkdev layer */
+> +
+
+These aren't handled by drivers anyore in 2.6
+
+> +	for (i = 0; i < MAX_WRITERS; i++) {
+> +		disks[i] = alloc_disk(1);
+> +		if (!disks[i])
+> +			goto out_mem2;
+> +	}
+> +
+> +	for (i = 0; i < MAX_WRITERS; i++) {
+> +		struct pktcdvd_device *pd = &pkt_devs[i];
+> +		struct gendisk *disk = disks[i];
+> +		disk->major = PACKET_MAJOR;
+> +		disk->first_minor = i;
+> +		disk->fops = &pktcdvd_ops;
+> +		disk->flags = GENHD_FL_REMOVABLE;
+> +		sprintf(disk->disk_name, "pktcdvd%d", i);
+> +		sprintf(disk->devfs_name, "pktcdvd/%d", i);
+> +		disk->private_data = pd;
+> +		disk->queue = blk_alloc_queue(GFP_KERNEL);
+> +		if (!disk->queue)
+> +			goto out_mem3;
+> +		add_disk(disk);
+> +	}
+
+Please allocate all these on demand only when you actually attach
+a device.
+
+
+All in all I really wonder whether a separate driver is really that a good
+fit for the functionality or whether it should be more integrated with the
+block layer, ala drivers/block/scsi_ioctl.c

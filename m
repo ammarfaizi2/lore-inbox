@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268381AbUHQSYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268382AbUHQSY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268381AbUHQSYc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 14:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268382AbUHQSYb
+	id S268382AbUHQSY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 14:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbUHQSY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 14:24:31 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:40837 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S268381AbUHQSYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 14:24:30 -0400
-Message-ID: <4122507A.3070500@shadowconnect.com>
-Date: Tue, 17 Aug 2004 20:37:46 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Warren Togami <wtogami@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Merge I2O patches from -mm
-References: <411F37CC.3020909@redhat.com> <20040817125303.A21238@infradead.org> <412208A6.7020104@shadowconnect.com> <20040817175624.A24038@infradead.org>
-In-Reply-To: <20040817175624.A24038@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Aug 2004 14:24:58 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:35523 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S268382AbUHQSYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 14:24:55 -0400
+Message-Id: <200408171926.i7HJQ6KF003372@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.8.1-mm1 - Clean up a Makefile bogosity
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 17 Aug 2004 15:26:06 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Following a suggestion from Andreas Schwab, this switches the UML build to
+a somewhat official way of getting a library search path from gcc.
 
-Christoph Hellwig wrote:
-> The patch below adds a __scsi_add_device that can "preload" sdev->hostdata.
+				Jeff
 
-Thank you very much for changing it!
+Index: 2.6.8.1-mm1/arch/um/Makefile
+===================================================================
+--- 2.6.8.1-mm1.orig/arch/um/Makefile	2004-08-17 00:37:04.000000000 -0400
++++ 2.6.8.1-mm1/arch/um/Makefile	2004-08-17 13:18:13.000000000 -0400
+@@ -88,10 +88,11 @@
+ 
+ prepare: $(ARCH_SYMLINKS) $(SYS_HEADERS) $(GEN_HEADERS)
+ 
+-# This stupidity extracts the directory in which gcc lives so that it can
+-# be fed to ld when it's linking .tmp_vmlinux during the ldchk stage.
+-LD_DIR = $(shell dirname `gcc -v 2>&1 | head -1 | awk '{print $$NF}'`)
+-LDFLAGS_vmlinux = -L/usr/lib -L$(LD_DIR) -r
++# This extracts the library path from gcc with -print-search-dirs and munges
++# the output into a bunch of -L switches.
++LD_DIRS = $(shell gcc -print-search-dirs | grep libraries | \
++	sed -e 's/^.*=/-L/' -e 's/:/ -L/g')
++LDFLAGS_vmlinux = $(LD_DIRS) -r
+ 
+ vmlinux: $(ARCH_DIR)/main.o 
+ 
 
-At the moment i only have a patch without the i2o_scsi changes, but that 
-will follow ASAP...
-
-
-
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com

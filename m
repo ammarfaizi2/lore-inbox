@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbUKXAJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbUKXAJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbUKXAJm (ORCPT <rfc822;willy@w.ods.org>);
+	id S261379AbUKXAJm (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 23 Nov 2004 19:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbUKWRe6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUKWRes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:34:58 -0500
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:14230 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S261367AbUKWQUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 11:20:11 -0500
-Message-ID: <41A3634D.6050108@rnl.ist.utl.pt>
-Date: Tue, 23 Nov 2004 16:20:29 +0000
-From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041107)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: linux-os@analogic.com
-Subject: Re: Running Ethernet without ARP
-References: <20041123140025.GA32447@beton.cybernet.src> <Pine.LNX.4.61.0411230937140.4513@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0411230937140.4513@chaos.analogic.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 23 Nov 2004 12:34:48 -0500
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:41647 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S261363AbUKWQTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 11:19:07 -0500
+Date: Tue, 23 Nov 2004 09:19:04 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: akpm@osdl.org
+Cc: linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC32] Fix uninitialized PPC40x vars
+Message-ID: <20041123091904.B24513@home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> On Tue, 23 Nov 2004, Karel Kulhavy wrote:
-> 
->> Hello
->>
->> man netdevice says:
->> "IFF_NOARP    No arp protocol, L2 deswtination address not set".
->> Is it possible to run ptp Ethernet link between two Linux routers this
->> way? I would like to run the link with two constraints:
->> 1) no ARP protocol used
->> 2) The link should continue to work even if root access to one 
->> computer is
->> inaccessible and the NIC in the other one is replaced without changing
->> it's MAC (for example because it doesn't support MAC change)
->>
->> Cl<
-> 
-> 
-> ARP means address resolution protocol. That's how one machine
-> learns about the MAC (Hardware) address of another so it can
-> communicate with it. Without ARP, you need to send / receive
-> broadcast packets (Like M$ Netboius). This means that everything
-> is received by everyone on the LAN and needs to be dumped on
-> the floor by everybody except the intended target.
+Fix more uninitialized variables in the PPC40x code.
 
-or somehow a static table can be built.
-not sure what the point would be, but I cannot see anything that would make it impossible.
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-regards,
-pedro venda.
-
--- 
-
-Pedro João Lopes Venda
-email: pjvenda@rnl.ist.utl.pt
-http://maxwell.rnl.ist.utl.pt
-
-Equipa de Administração de Sistemas
-Rede das Novas Licenciaturas (RNL)
-Instituto Superior Técnico
-http://www.rnl.ist.utl.pt
-http://mega.ist.utl.pt
+===== arch/ppc/boot/simple/misc-embedded.c 1.14 vs edited =====
+--- 1.14/arch/ppc/boot/simple/misc-embedded.c	2004-09-07 23:33:06 -07:00
++++ edited/arch/ppc/boot/simple/misc-embedded.c	2004-11-23 09:15:34 -07:00
+@@ -218,7 +218,7 @@
+ 	puts("done.\n");
+ 	{
+ 		struct bi_record *rec;
+-		unsigned long initrd_loc;
++		unsigned long initrd_loc = 0;
+ 		unsigned long rec_loc = _ALIGN((unsigned long)(zimage_size) +
+ 				(1 << 20) - 1, (1 << 20));
+ 		rec = (struct bi_record *)rec_loc;
+===== arch/ppc/syslib/ppc405_pci.c 1.9 vs edited =====
+--- 1.9/arch/ppc/syslib/ppc405_pci.c	2004-05-14 19:00:24 -07:00
++++ edited/arch/ppc/syslib/ppc405_pci.c	2004-11-23 09:15:03 -07:00
+@@ -82,8 +82,8 @@
+ 	unsigned int tmp_addr;
+ 	unsigned int tmp_size;
+ 	unsigned int reg_index;
+-	unsigned int new_pmm_max;
+-	unsigned int new_pmm_min;
++	unsigned int new_pmm_max = 0;
++	unsigned int new_pmm_min = 0;
+ 
+ 	isa_io_base = 0;
+ 	isa_mem_base = 0;

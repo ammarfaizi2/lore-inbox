@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbTIKRkv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 13:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbTIKRkr
+	id S261459AbTIKR1j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 13:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbTIKRXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 13:40:47 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:62218
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261514AbTIKRjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 13:39:35 -0400
-Date: Thu, 11 Sep 2003 10:39:33 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Amir Hermelin <amir@montilio.com>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: page cache and buffer cache in 2.4.18 and up
-Message-ID: <20030911173933.GD18399@matchmail.com>
-Mail-Followup-To: Amir Hermelin <amir@montilio.com>,
-	linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
-	Andrea Arcangeli <andrea@suse.de>
-References: <003301c37879$938fda00$0601a8c0@CARTMAN>
+	Thu, 11 Sep 2003 13:23:48 -0400
+Received: from port-212-202-40-6.reverse.qsc.de ([212.202.40.6]:47489 "EHLO
+	schillernet.dyndns.org") by vger.kernel.org with ESMTP
+	id S261411AbTIKRTl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 13:19:41 -0400
+Date: Thu, 11 Sep 2003 17:19:39 +0000 (UTC)
+Message-Id: <20030911.171939.291444707.rene.rebe@gmx.net>
+To: benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dmasound_pmac (2.4.x{,-benh}) does not restore mixer during
+ PM-wake
+From: Rene Rebe <rene.rebe@gmx.net>
+In-Reply-To: <1063262157.2023.19.camel@gaston>
+References: <1063221565.678.2.camel@gaston>
+	<20030910.222620.730549923.rene.rebe@gmx.net>
+	<1063262157.2023.19.camel@gaston>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003301c37879$938fda00$0601a8c0@CARTMAN>
-User-Agent: Mutt/1.5.4i
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 05:30:05PM +0200, Amir Hermelin wrote:
-> Hi,
-> Since the change in kernel 2.4, read and writes go both through the page and
-> buffer cache.
+Hi,
 
-That change was in 2.4.10 with the andrea VM merge.  Though, I wouldn't use
-it until about 2.4.14/16+ (don't use 2.4.15)
+On: Thu, 11 Sep 2003 08:35:57 +0200,
+    Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-> Is the cached data held twice (i.e. uses twice the memory)? I
-> noticed that the struct page holds a pointer to a buffer-head list; does
-> that list contain actual data, or just pointers into the cached page data?
+> > so hm?!? - is the wakeup order of the devices incorrect (i2c needs to
+> > be before damsound_pmac ...)?
+> 
+> The i2c bus isn't suspended during sleep... I don't know for sure
+> what's up, I'll investigate.
 
-Others have asked before about this.
+I added a schedule_timeout without success ... - should I check if
+self is correct? Or any other idea?
 
-But let me inject some hearsay: 
-With the buffer & pagecache merge patch, there is much less duplication of
-data, but still some.  Also, pagecache doesn't reference into buffer cache
-and the same data can be read twice (ie, if you're reading directly from
-/dev/hda, and a filesytem on /dev/hdaX at the same time).
+Sincerely yours,
+  René
 
-There is less duplication in 2.6, but I believe pagecache still doesn't
-reference to buffer cache in there too.
+--  
+René Rebe - Europe/Germany/Berlin
+  rene@rocklinux.org rene.rebe@gmx.net
+http://www.rocklinux.org http://www.rocklinux.net/people/rene
+http://gsmp.tfh-berlin.de/gsmp http://gsmp.tfh-berlin.de/rene
 
-Can someone say in more detail?

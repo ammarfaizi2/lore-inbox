@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132738AbRA3WUi>; Tue, 30 Jan 2001 17:20:38 -0500
+	id <S132652AbRA3WT6>; Tue, 30 Jan 2001 17:19:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132753AbRA3WU3>; Tue, 30 Jan 2001 17:20:29 -0500
-Received: from [209.143.110.29] ([209.143.110.29]:37644 "HELO
-	mail.the-rileys.net") by vger.kernel.org with SMTP
-	id <S132651AbRA3WUN>; Tue, 30 Jan 2001 17:20:13 -0500
-Message-ID: <3A773E70.804BEAB@the-rileys.net>
-Date: Tue, 30 Jan 2001 17:21:36 -0500
-From: David Riley <oscar@the-rileys.net>
-Organization: The Riley Family
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S132651AbRA3WTs>; Tue, 30 Jan 2001 17:19:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2694 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132652AbRA3WTg>;
+	Tue, 30 Jan 2001 17:19:36 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: *massive* slowdowns on 2.4.1-pre1[1|2]
-In-Reply-To: <3A761FEC.1C564FAE@the-rileys.net> <Pine.LNX.4.10.10101292102030.28124-100000@coffee.psychology.mcmaster.ca> <955pr6$afk$1@penguin.transmeta.com> <20010131001452.A6620@metastasis.f00f.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14967.15765.553667.802101@pizda.ninka.net>
+Date: Tue, 30 Jan 2001 14:17:57 -0800 (PST)
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <20010131064911.B7244@metastasis.f00f.org>
+In-Reply-To: <3A76B72D.2DD3E640@uow.edu.au>
+	<3A728475.34CF841@uow.edu.au>
+	<3A726087.764CC02E@uow.edu.au>
+	<20010126222003.A11994@vitelus.com>
+	<14966.22671.446439.838872@pizda.ninka.net>
+	<14966.47384.971741.939842@pizda.ninka.net>
+	<3A76D6A4.2385185E@uow.edu.au>
+	<20010131064911.B7244@metastasis.f00f.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> 
-> On Mon, Jan 29, 2001 at 11:17:58PM -0800, Linus Torvalds wrote:
-> 
->     You have to realize that stability takes precedence over
->     EVERYTHING.
-> 
-> Are you sure his desciption describes only disk-slow down? Seems to
-> me something else is going on... why would speaker beeps take longer?
-> Maybe some kind of PM weirdo?
 
-My problem had nothing to do with disk access. Keyboard input isn't
-slowed by disk access.  I knew that... In any case, sub-486 speeds
-aren't attained through using PIO instead of UDMA... my 486 uses PIO
-disks anyway, so it's moot.  The real culprit was ACPI, which is having
-some temporary problems.  I turned it off and everything's great
-(thanks, Andrew).
+Chris Wedgwood writes:
+ > What server are you using here? Using NetApp filers I don't see
+ > anything like this, probably only 8.5MB/s at most and this number is
+ > fairly noisy.
+
+8.5MB/sec sounds like half-duplex 100baseT.  Positive you are running
+at full duplex all the way to the netapp, and if so how many switches
+sit between you and this netapp?
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266781AbUGVANA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266782AbUGVASQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266781AbUGVANA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 20:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266782AbUGVAM7
+	id S266782AbUGVASQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 20:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266783AbUGVASQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 20:12:59 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:17132 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S266781AbUGVAM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 20:12:58 -0400
-Date: Wed, 21 Jul 2004 17:12:24 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: L A Walsh <lkml@tlinx.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.7-vanilla-SMP kernel: pagebuf_get: failed to lookup pages
-Message-ID: <20040722001224.GC30595@taniwha.stupidest.org>
-References: <40FF0479.6050509@tlinx.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40FF0479.6050509@tlinx.org>
+	Wed, 21 Jul 2004 20:18:16 -0400
+Received: from dsl-aur4-jb8.dial.inet.fi ([80.223.249.184]:56080 "HELO
+	drukos.sk") by vger.kernel.org with SMTP id S266782AbUGVASO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 20:18:14 -0400
+Message-ID: <355201c46f80$a1a2da3e$8eaf98b0@drukos.sk>
+From: "Bennett W. Guidry" <w.guidryfy@feline.pp.se>
+To: linux-kernel@vger.kernel.org
+Subject: Get $200 bonus at our Casino!
+Date: Thu, 22 Jul 2004 08:15:10 +0800
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 21, 2004 at 05:04:09PM -0700, L A Walsh wrote:
+Hi, 
+I have a special offer available for you at our casino.
 
-> Any idea what this message means?
+$20 to try our internet casino, no deposit is necessary!
+At the casino software's cashier enter bonus code: FR93P
 
-it means "try the CVS tree" (i think hch fixed this and it's in CVS
-but not mainline)
+$200 bonus on your first deposit!
+At the casino software's cashier enter bonus code: FMJKU
+
+Allow us to show you our quality operation, fast payouts,
+generous bonuses, and super friendly around-the-clock
+customer support.
+
+Click here: http://bigbonus-casino.com 
+
+Best regards,
+Jamie Zawinsky
 
 
-  --cw
+
+No thanks: http://bigbonus-casino.com/u/
+

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267484AbRGTXym>; Fri, 20 Jul 2001 19:54:42 -0400
+	id <S267490AbRGUAGn>; Fri, 20 Jul 2001 20:06:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267485AbRGTXyW>; Fri, 20 Jul 2001 19:54:22 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48514 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267484AbRGTXyP>;
-	Fri, 20 Jul 2001 19:54:15 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S267492AbRGUAGd>; Fri, 20 Jul 2001 20:06:33 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:42889 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267490AbRGUAGT>; Fri, 20 Jul 2001 20:06:19 -0400
+Date: Fri, 20 Jul 2001 18:03:08 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Paul Jakma <paulj@alphyra.ie>
+Cc: Chris Wedgwood <cw@f00f.org>, Andreas Dilger <adilger@turbolinux.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64 bit scsi read/write
+Message-ID: <20010720180308.A18669@redhat.com>
+In-Reply-To: <20010715024859.A6722@weta.f00f.org> <Pine.LNX.4.33.0107141641030.1063-100000@rossi.itg.ie>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15192.50343.391453.974801@pizda.ninka.net>
-Date: Fri, 20 Jul 2001 16:54:15 -0700 (PDT)
-To: "Raj, Ashok" <ashok.raj@intel.com>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: pci resource mapping problem for PCI-X mode
-In-Reply-To: <9319DDF797C4D211AC4700A0C96B7C9404AC2124@orsmsx42.jf.intel.com>
-In-Reply-To: <9319DDF797C4D211AC4700A0C96B7C9404AC2124@orsmsx42.jf.intel.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0107141641030.1063-100000@rossi.itg.ie>; from paulj@alphyra.ie on Sat, Jul 14, 2001 at 04:42:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi,
 
-Raj, Ashok writes:
- > it works for now, since the addr msb's are 0. but if this physical addr is a
- > true 64bit addr
- > the above wont work..
+On Sat, Jul 14, 2001 at 04:42:04PM +0100, Paul Jakma wrote:
+> 
+> > *why* would you want to to do this?
+> 
+> :)
+> 
+> to test performance advantage of journal on RAM before going to spend
+> money on NVRAM...
 
-On a 32-bit system, the BIOS (nor the kernel) will never assign a
-resource to the device with the upper 32-bits non-zero.
+Journaling to ramdisk has been tried, yes.  The result was faster than
+ext2 doing the same jobs.  Of course, the support for journal to
+external devices is still only really at prototype stage.
 
-This is also done for compatability reasons, so that PCI devices which
-may only perform SAC transactions (ie. no dual-address cycle
-capability) may do PCI peer-to-peer DMA to/from devices even when
-using 64-bit BARs.
-
-To be honest, 64-bit BARs are pretty useless today, being that %99 of
-PCI controllers do not even provide a way for the cpu to address the
-PCI memory space above 4GB.  This is true even on 64-bit CPU systems.
-
-In short there are no problems.
-
-Later,
-David S. Miller
-davem@redhat.com
-
+Cheers,
+ Stephen

@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbULHHDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbULHHHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbULHHDL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:03:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbULHHCj
+	id S262042AbULHHHT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 02:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbULHHHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:02:39 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27805 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262039AbULHHC1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:02:27 -0500
-Date: Wed, 8 Dec 2004 08:01:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Katrina Tsipenyuk <ytsipenyuk@fortifysoftware.com>,
-       katrina@fortifysoftware.com, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH][1/2] fix unchecked returns from kmalloc() (in kernel/module.c)
-Message-ID: <20041208070136.GI3035@suse.de>
-References: <Pine.LNX.4.61.0412072203070.3320@dragon.hygekrogen.localhost> <20041207212958.GD10083@suse.de> <20041207225741.GA4715@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041207225741.GA4715@pclin040.win.tue.nl>
+	Wed, 8 Dec 2004 02:07:19 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:17807 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262039AbULHHHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 02:07:13 -0500
+Message-ID: <41B6A837.4030505@jp.fujitsu.com>
+Date: Wed, 08 Dec 2004 16:07:35 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH] IRQ resource deallocation[0/2]
+References: <41B559DD.7040307@jp.fujitsu.com> <Pine.LNX.4.61.0412070820240.13396@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0412070820240.13396@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 07 2004, Andries Brouwer wrote:
-> On Tue, Dec 07, 2004 at 10:29:58PM +0100, Jens Axboe wrote:
+Zwane Mwaikambo wrote:
+
+> On Tue, 7 Dec 2004, Kenji Kaneshige wrote:
 > 
-> > > diff -up linux-2.6.10-rc3-bk2-orig/kernel/module.c linux-2.6.10-rc3-bk2/kernel/module.c
-> > > --- linux-2.6.10-rc3-bk2-orig/kernel/module.c	2004-12-06 22:24:56.000000000 +0100
-> > > +++ linux-2.6.10-rc3-bk2/kernel/module.c	2004-12-07 21:17:00.000000000 +0100
-> > > @@ -334,6 +334,10 @@ static int percpu_modinit(void)
-> > >  	pcpu_num_allocated = 2;
-> > >  	pcpu_size = kmalloc(sizeof(pcpu_size[0]) * pcpu_num_allocated,
-> > >  			    GFP_KERNEL);
-> > > +	if (!pcpu_size) {
-> > > +		printk(KERN_ERR "Unable to allocate per-cpu memory for modules.");
-> > > +		return -ENOMEM;
-> > > +	}
-> > 
-> > I'd say these cases are similar to SLAB_PANIC. Since it runs at boot, if
-> > it fails it's likely an indication of some other problem, so dealing
-> > with it here is silly. Perhaps just panic() on a NULL return.
-> > 
-> > Both of these fortify cases aren't real problems, imho. They trip a
-> > stupid (no offense to the analyzer, but it's not human :) static
-> > analyzer, that's all.
+>> I had posted the IRQ resource deallocation patch a couple of monthes
+>> ago and I had incorporated all feedbacks from the mailing list
+>> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109688530703122&w=2).
+>> But it doesn't seems to be included yet, so I would like to try again.
+>> I hope my patch is included onto -mm tree since I want the patches
+>> be tested by many people.
 > 
-> Hi Jens -
+> You should remove the config option and make it unconditional.
 > 
-> I think I disagree a little. Experience shows that if the stupid
-> static analyzer spits out a hundred complaints, there are maybe five
-> real problems.  If the source is not fixed in some way then the real
-> problem cases drown in the noise of "harmless" warnings.
 
-I completely agree. But that's a case of silencing the cases that aren't
-interesting, so the interesting bits don't get lost in old noise.
+I think you're right. I'll update the patch.
 
-> Remains the question how to fix the source without causing bloat by
-> inserting lots of strings. Easiest is perhaps to write debug_printk()
-> instead of printk() so that the string is compiled away for everyone
-> except for me when I need debugging help to find out why my kernel
-> does not boot.
-
-The GFP_PANIC would at least only need one string :-)
-
--- 
-Jens Axboe
+Thanks,
+Kenji Kaneshige
 

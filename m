@@ -1,58 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263999AbTJOSlf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263998AbTJOSjq
+	id S264007AbTJOSoH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 14:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbTJOSnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:39:46 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:3986 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263996AbTJOSjN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:39:13 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 15 Oct 2003 11:35:07 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question on incoming packets and scheduler
-In-Reply-To: <3F8D8F3A.5040506@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.56.0310151133030.2144@bigblue.dev.mdolabs.com>
-References: <3F8CA55C.1080203@nortelnetworks.com>
- <Pine.LNX.4.56.0310151035480.2144@bigblue.dev.mdolabs.com>
- <3F8D8F3A.5040506@nortelnetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Oct 2003 14:43:13 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22967 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263938AbTJOSmR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 14:42:17 -0400
+Date: Wed, 15 Oct 2003 11:41:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci_get_slot()
+Message-ID: <20031015184104.GA22373@kroah.com>
+References: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003, Chris Friesen wrote:
+On Wed, Oct 15, 2003 at 07:32:13PM +0100, Matthew Wilcox wrote:
+> 
+> Hi Linus.
+> 
+> tg3.c has a bug where it can find the wrong 5704 peer on a machine with
+> PCI domains.  The problem is that pci_find_slot() can't distinguish
+> whether it has the correct domain or not.
 
-> Davide Libenzi wrote:
-> > On Tue, 14 Oct 2003, Chris Friesen wrote:
->
-> >>I have a long-running cpu hog background task, and a high-priority
-> >>critical task that waits on a socket for network traffic.  When a packet
-> >>comes in, I'd like the cpu hog to be swapped out ASAP, rather than
-> >>waiting for the end of the timeslice.  Is there any way to make this happen?
->
->
-> > What do you mean for high priority? Is it an RT task? The wakeup (AKA
-> > inserion in the run queue) happen soon :
-> > IRQ->do_IRQ->softirq->net_rx_action->ip_rcv->...
-> > but if your task is not RT there no guarantee that it'll preempt the
-> > current running.
->
-> Yes, it was an RT task.
->
-> It appears that 2.4.20 fixes this issue, but there is another one
-> remaining that the latency appears to be dependent on the number of
-> incoming packets.  See thread "incoming packet latency in 2.4.[18-20]"
-> for details.  This behaviour doesn't show up in 2.6, and I'm about to
-> test 2.4.22.
+The check of:
+	if (dev->bus->number == bus && dev->devfn == devfn)
+in pci_find_slot() doesn't check for the domain?
 
-Are you sure it's not a livelock issue during the burst?
+> 
+> This patch fixes that problem by introducing pci_get_slot() and converts
+> tg3 to use it.  It also fixes another problem where tg3 wouldn't find
+> a peer on function 7 (0 to <8, not 0 to <7).
 
+Ah, nice.  After telling you I would not accept this patch right now,
+until after 2.6.0 comes out, you send it to Linus.  Really appreciate
+that...
 
-- Davide
+Anyway, is there any other way you can fix this in the tg3 driver only
+for right now?  I agree adding the pci function is "cleaner", but a bit
+late for right now.
 
+>  /**
+> + * pci_get_slot - locate PCI device for a given PCI slot
+> + * @bus: PCI bus on which desired PCI device resides
+> + * @devfn: encodes number of PCI slot in which the desired PCI 
+> + * device resides and the logical device number within that slot 
+> + * in case of multi-function devices.
+> + *
+> + * Given a PCI bus and slot/function number, the desired PCI device 
+> + * is located in the list of PCI devices.
+> + * If the device is found, its reference count is increased and this
+> + * function returns a pointer to its data structure.  The caller must
+> + * decrement the reference count by calling pci_dev_put().
+> + * If no device is found, %NULL is returned.
+> + */
+> +struct pci_dev * pci_get_slot(struct pci_bus *bus, unsigned int devfn)
+> +{
+> +	struct list_head *tmp;
+> +	struct pci_dev *dev;
+> +
+> +	WARN_ON(in_interrupt());
+> +	spin_lock(&pci_bus_lock);
+> +
+> +	list_for_each(tmp, &bus->children) {
+> +		dev = pci_dev_b(tmp);
+> +		if (dev->devfn == devfn)
+> +			goto out;
+> +	}
+> +
+> +	dev = NULL;
+> + out:
+> +	pci_dev_get(dev);
+> +	spin_unlock(&pci_bus_lock);
+> +	return dev;
+> +}
+
+How does this differ from pci_find_slot()?  (becides the pci_dev_get()
+call)?  pci_find_slot() asks for the bus number, which can be determined
+from the pci_bus structure, right?
+
+thanks,
+
+greg k-h

@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbTCFH1E>; Thu, 6 Mar 2003 02:27:04 -0500
+	id <S267878AbTCFH0e>; Thu, 6 Mar 2003 02:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267880AbTCFH1E>; Thu, 6 Mar 2003 02:27:04 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:18828 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267879AbTCFH1B>; Thu, 6 Mar 2003 02:27:01 -0500
-Message-ID: <20030306073727.2806.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S267879AbTCFH0e>; Thu, 6 Mar 2003 02:26:34 -0500
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:50606 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S267878AbTCFH0c>; Thu, 6 Mar 2003 02:26:32 -0500
+Date: Thu, 6 Mar 2003 08:35:08 +0100
+To: James Simmons <jsimmons@infradead.org>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Antonino Daplas <adaplas@pol.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
+Message-ID: <20030306073508.GA1734@iliana>
+References: <20030303203500.GA2916@vana.vc.cvut.cz> <Pine.LNX.4.44.0303052015250.27760-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: linux-kernel@vger.kernel.org
-Cc: smatch-discuss@lists.sf.net
-Date: Thu, 06 Mar 2003 02:37:27 -0500
-Subject: smatch update / 2.5.64 / kbugs.org
-X-Originating-Ip: 66.127.101.73
-X-Originating-Server: ws3-4.us4.outblaze.com
+In-Reply-To: <Pine.LNX.4.44.0303052015250.27760-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.3i
+From: Sven Luther <luther@dpt-info.u-strasbg.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/*  
- * Smatch is an open source c error checker based 
- * on the papers about the Stanford Checker. 
- * (http://smatch.sf.net)  The documentation on coding 
- * smatch checks has been updated since my last email to 
- * this list. 
- *
- */
+On Wed, Mar 05, 2003 at 08:22:26PM +0000, James Simmons wrote:
+> 
+> > Hi,
+> >   while waiting on these updates I updated matroxfb a bit
+> > (ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.5.63.gz),
+> > so that it now uses fb_* for cfb modes, and putcs/... hooks for
+> > text mode. I have still dozen of changes in fbcon.c which I have
+> > to eliminate (mainly logo painting and cursor handling - for now
+> > I still use revc method, mainly because of I did not make into it yet).
+> 
+> I grabbed your latest patch and started to merge it with my latest work on 
+> the matrox driver. As soon as I'm done merging my matrox changes I will 
+> send you a patch right away.
+> 
+> >   My main concern now is 12x22 font... Accelerator setup
+> > is so costly for each separate painted character that for 8bpp 
+> > accelerated version is even slower than unaccelerated one :-(
+> > (and almost twice as slow when compared with 2.4.x).
+> 
+> Try the latest patch I released.
+>  
+> >   And one (or two...) generic questions: why is not pseudo_palette
+> > u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
+> 
+> pseudo_palette was originally designed to be a pointer to some kind of 
+> data for color register programming. For example many PPC graphics cards 
+> have a color register region. Now you could have that point to 
 
-The smatch bugs for kernel 2.5.64 are up.  The 
-new url for the smatch bug database is http://kbugs.org.  
+Does this correspond to the LUT i have in my boards ?
 
-One new script from Monday was "UnFree."  This check 
-looks for variables that aren't freed on the error paths.
-http://kbugs.org/cgi-bin/index.py?page=bug_list&script=UnFree&kernel=2.5.64
+BTW, what is the point in having a pseudo_palette if you can store
+the colors in the onchip LUT table.
 
-The bug database is still under heavy construction (ie it
-is really bad).  But I hope to improve it some more this
-week.  Also I plan to add some documentation etc.
+Friendly,
 
-The possible bug count for 2.5.64 was 1018.  Eventually 
-this information will all be available in a stats page but 
-for now I'll just post the raw SQL...
-
-mysql> select kernelver, script, count(script) from bugs where kernelver = "2.5.64" group by script, kernelver;
-+-----------+-------------------+---------------+
-| kernelver | script            | count(script) |
-+-----------+-------------------+---------------+
-| 2.5.64    | Dereference       |           469 |
-| 2.5.64    | GFP_DMA           |             7 |
-| 2.5.64    | ReleaseRegion     |            14 |
-| 2.5.64    | SpinlockUndefined |            44 |
-| 2.5.64    | SpinSleepLazy     |             4 |
-| 2.5.64    | UncheckedReturn   |           119 |
-| 2.5.64    | UnFree            |           333 |
-| 2.5.64    | UnreachedCode     |            28 |
-+-----------+-------------------+---------------+
-8 rows in set (0.07 sec)
-
-regards,
-dan carpenter
-
-
--- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-Meet Singles
-http://corp.mail.com/lavalife
-
+Sven Luther

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131133AbRALTWD>; Fri, 12 Jan 2001 14:22:03 -0500
+	id <S130309AbRALTWy>; Fri, 12 Jan 2001 14:22:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131152AbRALTVx>; Fri, 12 Jan 2001 14:21:53 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:61703 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S131133AbRALTVe>;
-	Fri, 12 Jan 2001 14:21:34 -0500
-Date: Fri, 12 Jan 2001 20:21:04 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-Message-ID: <20010112202104.C25675@unternet.org>
-In-Reply-To: <3A5F3BF4.7C5567F8@colorfullife.com> <20010112183314.A24174@unternet.org> <3A5F4428.F3249D2@colorfullife.com> <20010112192500.A25057@unternet.org> <3A5F5538.57F3FDC5@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5F5538.57F3FDC5@colorfullife.com>; from manfred@colorfullife.com on Fri, Jan 12, 2001 at 08:04:24PM +0100
+	id <S131152AbRALTWo>; Fri, 12 Jan 2001 14:22:44 -0500
+Received: from minster.cs.york.ac.uk ([144.32.40.2]:13043 "EHLO
+	minster.cs.york.ac.uk") by vger.kernel.org with ESMTP
+	id <S130309AbRALTWi>; Fri, 12 Jan 2001 14:22:38 -0500
+From: "Laramie Leavitt" <lar@cs.york.ac.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+Date: Fri, 12 Jan 2001 19:19:49 -0000
+Message-ID: <NEBBKCNHIKGLMACGICIGKEKDCCAA.lar@cs.york.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010112195715.A30496@athlon.random>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 08:04:24PM +0100, Manfred Spraul wrote:
-> I removed the disable_irq lines from 8390.c, and that fixed the problem:
-> no hang within 2 minutes - the test is still running.
+> On Fri, Jan 12, 2001 at 10:35:24AM -0800, Linus Torvalds wrote:
+> > Andreas argument was that earlier kernels weren't consistent, and as
+> > such we shouldn't even bother to try to make newer kernels consistent. 
+> > We would be better off reporting our internal inconsistencies the way
+> > earlier kernels did - the kernel would be confusing, but at least it
+> > would be consistently confusing ;)
 > 
-> Frank, could you double check it?
+> The earlier kernels were 98% consistent in providing the 
+> "cpu_has" information
+> via /proc/cpuinfo that is true information too.
+> 
+> What I am suggesting is to fix the few places to make the 
+> /proc/cpuinfo 100%
+> consistent reporting "cpu_has", and to provide the "can_I_use" 
+> information in
+> another place (for example with /proc/osinfo or a new "osflags" row in
+> /proc/cpuinfo).
+> 
+> This way we are 100% consistent and we don't lose the "cpu_has" 
+> information.
+> 
 
-I'm currently running my own patched version, which uses
-spin_lock_irq/spin_unlock_irq instead of
-spin_lock_irqsave/spin_unlock_irqrestore like you patch uses. Looking at
-spinlock.h, spin_lock_irq does a local irq disable, which seems to be closer to
-the original intent (disable_irq) than spin_lock_irqsave. Anyone want to
-comment on this?
+Yes, but why?  If the features cannot be used by userspace, then 
+2.2 should be fixed to use the current model.  If someone wants
+the information about the cpu that is not provided by the 'cpu_allows'
+(My view of 'can_I_use' ) can't they just do a 'cpuid' and get
+it for themselves anyway?
 
-Anyway, still running under load, also got USB (which uses the same irq) to
-produce some interrupts by scanning some stuff. No problems so far...
-
-Cheers//Frank
-
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+Laramie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269820AbUIDGGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269815AbUIDGWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269820AbUIDGGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 02:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269823AbUIDGGj
+	id S269815AbUIDGWM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 02:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269823AbUIDGWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 02:06:39 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:51304 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269820AbUIDGG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 02:06:28 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Kirill Korotaev <dev@sw.ru>
-Subject: Re: INIT hangs with tonight BK pull (2.6.9-rc1+)
-Date: Sat, 4 Sep 2004 01:06:23 -0500
-User-Agent: KMail/1.6.2
-Cc: torvalds@osdl.org, wli@holomorphy.com, linux-kernel@vger.kernel.org
-References: <200409030204.11806.dtor_core@ameritech.net> <413824B9.8080600@sw.ru>
-In-Reply-To: <413824B9.8080600@sw.ru>
+	Sat, 4 Sep 2004 02:22:12 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:61902 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269815AbUIDGWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 02:22:08 -0400
+Message-ID: <41395EE9.4040407@namesys.com>
+Date: Fri, 03 Sep 2004 23:21:29 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+To: David Masover <ninja@slaphack.com>
+CC: Horst von Brand <vonbrand@inf.utfsm.cl>, Spam <spam@tnonline.net>,
+       Dave Kleikamp <shaggy@austin.ibm.com>, Paul Jakma <paul@clubi.ie>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
+       Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <200409032145.i83LjdXG002843@localhost.localdomain> <413954B7.7050502@slaphack.com>
+In-Reply-To: <413954B7.7050502@slaphack.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409040106.24341.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 September 2004 03:00 am, Kirill Korotaev wrote:
-> > After doing BK pull last night INIT gets stuck in do_tty_hangup after
-> > executing rc.sysinit. Was booting fine with pull from 2 days ago...
-> > 
-> > Anyone else seeing this?
-> > 
-> > I suspect pidhash patch because it touched tty_io.c, but I have not tried
-> > reverting it as it is getting too late here... So I apologize in advance
-> > if I am pointing finger at the innocent ;)
-> 
-> Oops, you are right. These do_each_task_pid()/while_each_task_pid() do 
-> loop 4ever with 'continue' inside.
-> Strange, that I haven't faced the problem on my machine before sending 
-> the patch... :(
-> 
-> Sorry for the inconvinience. Patch is inside.
+David Masover wrote:
 
-I see that the patch is already in the kernel proper. Just for the record the
-patch fixes my problem and the box boots fine. Thanks, Kirill!
- 
--- 
-Dmitry
+>   I used the betas for months, and "metas"
+> never burned me.
+
+metas is much less likely than what clearcase uses to be hit 
+accidentally (After all these years I forget what exactly clearcase 
+special cases, maybe it was "@@").  When people using clearcase suffer a 
+namespace collision, life goes on, no big deal, they structure a 
+filename slightly differently and so what?  I mean, just how much do we 
+suffer from not being able to use '/' in filenames?  Every once in a 
+while it is annoying, but not that much....

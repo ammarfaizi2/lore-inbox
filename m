@@ -1,68 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268168AbTB1VPf>; Fri, 28 Feb 2003 16:15:35 -0500
+	id <S268140AbTB1VbC>; Fri, 28 Feb 2003 16:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268174AbTB1VPf>; Fri, 28 Feb 2003 16:15:35 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:4506 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268168AbTB1VPb>;
-	Fri, 28 Feb 2003 16:15:31 -0500
-Subject: Possible FIFO race in lock_sock()
-From: Stephen Hemminger <shemminger@osdl.org>
-To: David Miller <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1046467548.30194.258.camel@dell_ss3.pdx.osdl.net>
+	id <S268141AbTB1VbC>; Fri, 28 Feb 2003 16:31:02 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:57865 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268140AbTB1VbB>;
+	Fri, 28 Feb 2003 16:31:01 -0500
+Date: Fri, 28 Feb 2003 13:32:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USB speedtouch: be firm when disconnected
+Message-ID: <20030228213243.GE29266@kroah.com>
+References: <200302281015.37848.baldrick@wanadoo.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 28 Feb 2003 13:25:50 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302281015.37848.baldrick@wanadoo.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doing a review to understand socket locking, found a race by inspection
-but don't have a test to reproduce the problem.
+On Fri, Feb 28, 2003 at 10:15:37AM +0100, Duncan Sands wrote:
+> Just say -ENODEV
 
-It appears lock_sock() basically reinvents a semaphore in order to have
-FIFO wakeup and allow test semantics for the bottom half.  The problem
-is that when socket is locked, the wakeup is guaranteed FIFO.  It is
-possible for another requester to sneak in the window between when owner
-is cleared and the next queued requester is woken up.
+Applied, thanks.
 
-Don't know what this impacts, perhaps out of order data on a pipe?
-
-Scenario:
-	Multiple requesters (A, B, C, D) and new requester N
-	
-	Assume A gets socket lock and is owner. 
-	B, C, D are on the wait queue.
-	A release_lock which ends up waking up B
-	Before B runs and acquires socket lock:
-	   N requests socket lock and sees owner is NULL so it grabs it.
-
-The patch just checks the waitq before proceeding with the fast path.
-
-Other alternatives:
-1. Ignore it we aren't guaranteeing FIFO anyway.
-	- then why bother with waitq when spin lock will do.
-2. Replace socket_lock with a semaphore
-	- with changes to BH to get same semantics
-3. Implement a better FIFO spin lock
-
-Comments?
-
-diff -Nru a/include/net/sock.h b/include/net/sock.h
---- a/include/net/sock.h	Fri Feb 28 13:24:43 2003
-+++ b/include/net/sock.h	Fri Feb 28 13:24:43 2003
-@@ -356,7 +356,7 @@
- #define lock_sock(__sk) \
- do {	might_sleep(); \
- 	spin_lock_bh(&((__sk)->lock.slock)); \
--	if ((__sk)->lock.owner != NULL) \
-+	if ((__sk)->lock.owner != NULL || waitqueue_active(&((__sk)->lock.wq))) \
- 		__lock_sock(__sk); \
- 	(__sk)->lock.owner = (void *)1; \
- 	spin_unlock_bh(&((__sk)->lock.slock)); \
-
-
+greg k-h

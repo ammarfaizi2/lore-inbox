@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbSJYSP5>; Fri, 25 Oct 2002 14:15:57 -0400
+	id <S261524AbSJYSYD>; Fri, 25 Oct 2002 14:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261528AbSJYSP5>; Fri, 25 Oct 2002 14:15:57 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:31666 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S261527AbSJYSP4>; Fri, 25 Oct 2002 14:15:56 -0400
-Message-ID: <3DB98BA9.6070105@lexus.com>
-Date: Fri, 25 Oct 2002 11:21:29 -0700
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Egger <degger@fhm.edu>
-CC: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: [OT] Re: One for the Security Guru's
-References: <20021023130251.GF25422@rdlg.net>	<1035411315.5377.8.camel@god.stev.org>  <ap8fjq$8ia$1@forge.intermeta.de> <1035500731.439.4.camel@sonja.de.interearth.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S261528AbSJYSYD>; Fri, 25 Oct 2002 14:24:03 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:44698 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261524AbSJYSYD>;
+	Fri, 25 Oct 2002 14:24:03 -0400
+Subject: Re: [Lse-tech] Re: [PATCH]updated ipc lock patch
+From: Paul Larson <plars@linuxtestproject.org>
+To: cmm@us.ibm.com
+Cc: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
+       manfred@colorfullife.com, lkml <linux-kernel@vger.kernel.org>,
+       dipankar@in.ibm.com, lse-tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <3DB97C90.2DF810E6@us.ibm.com>
+References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain>
+	<3DB86B05.447E7410@us.ibm.com> <3DB87458.F5C7DABA@digeo.com> 
+	<3DB880E8.747C7EEC@us.ibm.com> <1035555715.3447.150.camel@plars> 
+	<3DB97C90.2DF810E6@us.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 25 Oct 2002 13:20:42 -0500
+Message-Id: <1035570043.5646.191.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It certainly seems that taking down a server
-to do a reinstall is fairly catastrophic compared
-to the mere possibility of running X11 -
-
-MfG,
-
-Jup
-
-Daniel Egger wrote:
-
->Am Don, 2002-10-24 um 11.47 schrieb Henning P. Schmiedehausen:
+On Fri, 2002-10-25 at 12:17, mingming cao wrote:
 >
->  
->
->>Sheesh, some even install a full desktop with "[gnome|kde]-games" on a
->>server. What is this? Microsoft Windows <insert your poison here>" ?
->>    
->>
->
->Don't laugh; I had such a box reinstalled from ground just the day
->before yesterday because I found a RedHat full Install on it. Not to
->mention that there're "admins" out there who use GNOME as root on a
->fairly busy mailserver <shudder>...
->
->  
->
+> shmctl01    3  FAIL  :  # of attaches is incorrect - 0
+I guess you are running it with -i2?  I just tried shmctl01 -i2 on a
+2.5.44 kernel and did not get this error.
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1 shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    3  PASS  :  new mode and change time are correct
+shmctl01    4  PASS  :  shared memory appears to be removed
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    3  PASS  :  new mode and change time are correct
+shmctl01    4  PASS  :  shared memory appears to be removed
 
+If I can find some time, I'll try to grab your patch and see if I can
+reproduce the error on my machine.
+
+-Paul Larson
 

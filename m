@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbTEVPHU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTEVPHT
+	id S261919AbTEVPFw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTEVPFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:07:19 -0400
-Received: from mail.uptime.at ([62.116.87.11]:3298 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id S261923AbTEVPHR (ORCPT
+	Thu, 22 May 2003 11:05:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:59066 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261919AbTEVPFv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:07:17 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Sven Krohlas'" <darkshadow@web.de>, <marcelo@conectiva.com.br>,
-       <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Date: Thu, 22 May 2003 17:19:08 +0200
-Organization: UPtime system solutions
-Message-ID: <004a01c32075$7e2a7500$020b10ac@pitzeier.priv.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-In-Reply-To: <3EBE9FB1.7040102@web.de>
-X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
-X-MailScanner: clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-6.6, required 4.8,
-	BAYES_01, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
-	REPLY_WITH_QUOTES)
+	Thu, 22 May 2003 11:05:51 -0400
+Date: Thu, 22 May 2003 17:18:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Mathew Spencer <Matthew.Spencer@eu.sony.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: blk_congestion_wait() with linux-2.5.68]
+Message-ID: <20030522151856.GJ812@suse.de>
+References: <1053617008.8679.280.camel@jeckle>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1053617008.8679.280.camel@jeckle>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Krohlas <darkshadow@web.de> wrote:
-> > Here goes release canditate 2. The aic7xxx problems should be fixed.
+On Thu, May 22 2003, Mathew Spencer wrote:
+> I have been using 2.4.19 successfully for a while now with an PCI IDE
+> disk drive with no problems whatsoever.  I recently upgraded to 2.5.68
+> (so that I could use the most recent ieee1394 drivers) and also to start
+> experimenting with the new version of the kernel and since then I am
+> having problems formatting the hard disk.
 > 
-> I've still got the same stability problems as with rc1.
-> I booted rc2 and it was working fine for two or three hours. 
-> Then I thought "Hey, while I go to work I could rip and 
-> encode a CD". Well, so did I, and just as it started to rip 
-> the 2nd track (and to encode the first one with oggenc) the 
-> system froze. Sound stopped playing, the mouse froze, nothing 
-> worked.
+> When I run mke2fs, it manages to write out the first 12 or 13 blocks
+> successfully, but then the code gets stuck continually calling
+> blk_congestion_wait() from balance_dirty_pages().
+> 
+> This is the only time that I see this problem.  If the disk is already
+> formatted, then mounting/reading/writing to the disk happens without any
+> problems at all.
+> 
+> Is anyone out there aware of this problem?
 
-You didn't see a kernel panic as well? I'm asking, because I have the same
-problems with one of my machines...
+Any messages in dmesg? It sounds like io to the drive stops completely,
+and that is why you see mke2fs being stuck in blk_congestion_wait
+(mke2fs eats most of the requests, the queue gets marked congested). If
+io isn't progressing, then the queue won't have the congestion flag
+cleared again.
 
-When was this problem introduced? Does 2.4.19, or 2.4.20 work well?
+You need to give a lot more hardware details, see REPORTING-BUGS
 
-> As before I found nothing in the logs.
-
-Me too. The system freezes completly. I believed it's a problem with the
-temperature at our server housing location, but it seems it is not (mounted
-additional fans during the night and now the system is dead again).
-
-[ ... ] 
-
-> My system is a AMD K6-2+, Asus P5A, SB AWE 64 ISA PnP (I used 
-> Alsa 0.9.2, but in rc1 I also had problems without it), 
-> nVidia TNT, two cheap network cards and a few disks.
-
-My one is a Dual-P III 1GHz... I have no USB, Sound or that stuff enabled...
-It's also a SCSI-only system if this does matter...
-
-Best regards,
- Oliver
+-- 
+Jens Axboe
 

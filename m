@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129529AbQKWDZL>; Wed, 22 Nov 2000 22:25:11 -0500
+        id <S129514AbQKWDeM>; Wed, 22 Nov 2000 22:34:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132406AbQKWDZD>; Wed, 22 Nov 2000 22:25:03 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:32012 "EHLO saturn.cs.uml.edu")
-        by vger.kernel.org with ESMTP id <S129529AbQKWDYw>;
-        Wed, 22 Nov 2000 22:24:52 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011230254.eAN2sm9158656@saturn.cs.uml.edu>
-Subject: Re: silly [< >] and other excess
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Wed, 22 Nov 2000 21:54:48 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), Andries.Brouwer@cwi.nl,
+        id <S129529AbQKWDeC>; Wed, 22 Nov 2000 22:34:02 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:23653 "EHLO sgi.com")
+        by vger.kernel.org with ESMTP id <S129514AbQKWDdt>;
+        Wed, 22 Nov 2000 22:33:49 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: rmk@arm.linux.org.uk (Russell King), Andries.Brouwer@cwi.nl,
         linux-kernel@vger.kernel.org
-In-Reply-To: <200011230010.AAA02797@raistlin.arm.linux.org.uk> from "Russell King" at Nov 23, 2000 12:10:03 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Subject: Re: silly [< >] and other excess 
+In-Reply-To: Your message of "Wed, 22 Nov 2000 21:54:48 CDT."
+             <200011230254.eAN2sm9158656@saturn.cs.uml.edu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 23 Nov 2000 14:03:21 +1100
+Message-ID: <3870.974948601@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> Albert D. Cahalan writes:
+On Wed, 22 Nov 2000 21:54:48 -0500 (EST), 
+"Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
+>Under NO circumstances should klogd or ksymoops mangle the
+>original oops. The raw oops data MUST be completely preserved.
+>It is a serious bug that this is not what currently happens.
 
->> All these numbers get looked up.
->
-> These numbers should NOT get looked up - if they are, then very
-> useful information will be lost;
+ksymoops prints the original data followed by the decode, it is clean.
 
-WOAH, STOP!!!  You say "lost"???
+<rant> klogd only prints the decoded data, often gets it wrong and
+leaves garbage for ksymoops.  I did a patch to klogd a couple
+of years ago and sent it to the maintainer but neither the sysklogd
+maintainer nor the distributors seem to care. </rant>
 
-Under NO circumstances should klogd or ksymoops mangle the
-original oops. The raw oops data MUST be completely preserved.
-It is a serious bug that this is not what currently happens.
+>The hard part of klogd/ksymoops is decoding the code bytes AFAIK.
+>The rest is a just a cross between grep and ps -- you search and
+>you do symbol lookups. I could throw it together in a few hours,
+>minus the disassembly part.
 
-> they are not only references to
-> kernel functions, but also kernel data and read only data within
-> the kernel text segment.
+Take a look at the code in ksymoops oops.c before you make rash
+statements like that.  It has to handle _all_ architecture messages,
+including cross arch debugging.
 
-1. this is harmless
-2. this is useful (you might get a variable's name)
-
-> The result will be a totally undeciperal
-> garbage.
-
-Nope. You get the unmolested oops and some symbol data.
-If there isn't any symbol for 0x424a5149, so what? It is
-no big deal to look up a few opcodes in the symbol table
-by accident.
-
-> Again, care to put the effort into klogd/ksymoops to handle the
-> architecture special cases?
-
-That would be trading one design flaw for another.
-
-The hard part of klogd/ksymoops is decoding the code bytes AFAIK.
-The rest is a just a cross between grep and ps -- you search and
-you do symbol lookups. I could throw it together in a few hours,
-minus the disassembly part.
-
-Hey, anybody ever think about splitting the kernel message buffer
-to be per-CPU or keeping interrupt context separate from process
-context? Not that I've looked at it, but locking might be reduced.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

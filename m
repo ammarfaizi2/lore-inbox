@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbTIHNZh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 09:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbTIHNYW
+	id S261901AbTIHNYF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 09:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTIHNYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 09:24:22 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:51421 "EHLO
+	Mon, 8 Sep 2003 09:24:05 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46301 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262280AbTIHNYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 09:24:03 -0400
-Date: Wed, 3 Sep 2003 15:41:43 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Steve French <smfrench@austin.rr.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [Fwd: Re: via rhine network failure on 2.6.0-test4]
-Message-ID: <20030903134142.GO1358@openzaurus.ucw.cz>
-References: <3F4A2D35.4090307@austin.rr.com>
+	id S261901AbTIHNYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 09:24:00 -0400
+Date: Tue, 2 Sep 2003 16:37:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Karol Kozimor <sziwan@hell.org.pl>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, acpi-devel@sourceforge.net
+Subject: Re: [ACPI] RE: [patch] 2.4.x ACPI updates
+Message-ID: <20030902143756.GH1358@openzaurus.ucw.cz>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCCA@hdsmsx402.hd.intel.com> <Pine.LNX.4.55L.0308231826470.5824@freak.distro.conectiva> <20030823223340.GA7129@hell.org.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F4A2D35.4090307@austin.rr.com>
+In-Reply-To: <20030823223340.GA7129@hell.org.pl>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Handle 0x0004
->    DMI type 4, 32 bytes.
->    Processor Information
->        Socket Designation: Socket A
->        Type: Central Processor
->        Family: Duron
->        Manufacturer: AMD
->        ID: 62 06 00 00 FF F9 83 03
->        Signature: Type 0, Family 6, Model 6, Stepping 2
->        Flags:
-...
->        Version: AMD Athlon(tm) XP
->        Voltage: 3.3 V
->        External Clock: 133 MHz
->        Max Speed: 1500 MHz
->        Current Speed: 1600 MHz
+> > ACPI kernel crash with 2.4.22-pre7 on ASUS L3800C
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=106146576326309&w=2
+> 
+> Hi,
+> This is probably a BIOS / hardware bug, a rare occurence actually.
+> The logs show:
+> #v+
+> acpi_power-0363 [64] acpi_power_transition : Error transitioning device [CFAN] to D0
+> acpi_bus-0496 [63] acpi_bus_set_power    : Error transitioning device [CFAN] to D0
+> acpi_thermal-0549 [62] acpi_thermal_active   : Unable to turn cooling device [c12d2528] 'on'
+> Unable to handle kernel paging request at virtual address 876c33c4
+> [...]
+> #v-
+> (sometimes there's D3 in place of D0, depending on the trip points /
+> temperature readings), and then the oops follows. Unfortunately, I
+> can't provide the ksymoops output, as the kernel which the oops was logged
+> on has been gone long since.
+> 
+> Anyway, this is by no means reproducible, occurs quasi-randomly (more often
 
-Hmm, your cpu is running at 106% :-).
-
+You should be able to do echo ? > /proc/acpi/*/fan/state to stress this manually...
 				Pavel
+
 -- 
 				Pavel
 Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...

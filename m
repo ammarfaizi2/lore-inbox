@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbSLZD4Y>; Wed, 25 Dec 2002 22:56:24 -0500
+	id <S262208AbSLZDzV>; Wed, 25 Dec 2002 22:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSLZD4Y>; Wed, 25 Dec 2002 22:56:24 -0500
-Received: from mail.econolodgetulsa.com ([198.78.66.163]:21252 "EHLO
-	mail.econolodgetulsa.com") by vger.kernel.org with ESMTP
-	id <S262296AbSLZD4W>; Wed, 25 Dec 2002 22:56:22 -0500
-Date: Wed, 25 Dec 2002 20:04:32 -0800 (PST)
-From: Josh Brooks <user@mail.econolodgetulsa.com>
-To: Billy Rose <billyrose@billyrose.net>
-cc: bp@dynastytech.com, <linux-kernel@vger.kernel.org>,
-       <felipewd@terra.com.br>
+	id <S262258AbSLZDzV>; Wed, 25 Dec 2002 22:55:21 -0500
+Received: from server.ehost4u.biz ([209.51.155.18]:5335 "EHLO host.ehost4u.biz")
+	by vger.kernel.org with ESMTP id <S262208AbSLZDzU>;
+	Wed, 25 Dec 2002 22:55:20 -0500
+From: "Billy Rose" <billyrose@billyrose.net>
+To: user@mail.econolodgetulsa.com
+CC: bp@dynastytech.com, linux-kernel@vger.kernel.org, felipewd@terra.com.br
+Reply-To: billyrose@billyrose.net
 Subject: Re: CPU failures ... or something else ?
-In-Reply-To: <E18RPFA-0001ci-00@host.ehost4u.biz>
-Message-ID: <20021225200357.U6873-100000@mail.econolodgetulsa.com>
+X-Mailer: NeoMail 1.25
+X-IPAddress: 65.132.64.212
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <E18RPFA-0001ci-00@host.ehost4u.biz>
+Date: Wed, 25 Dec 2002 23:03:36 -0500
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.ehost4u.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32076 2072] / [32076 2072]
+X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i agree with felipe, sounds like either a stick of ram is bad, or proc
+#1 is fried (possibly its vrm though).
 
-Understood.  Thank you for that diagnosis.
+a DRAC is the dell remote assistant card. it sits in a pci slot, has
+an intel i860 proc on it, and has a 10/100 for a net cable. if you
+have no cards, then it is obviously ruled out.
 
-usually it says proc #1 in the error, but the first time it said proc #0 -
-is that interesting ?
-
-
-
-On Wed, 25 Dec 2002, Billy Rose wrote:
-
-> i agree with felipe, sounds like either a stick of ram is bad, or proc
-> #1 is fried (possibly its vrm though).
->
-> a DRAC is the dell remote assistant card. it sits in a pci slot, has
-> an intel i860 proc on it, and has a 10/100 for a net cable. if you
-> have no cards, then it is obviously ruled out.
->
-> billy
-> =====
-> "there's some milk in the fridge that's about to go bad...
-> and there it goes..." -bobby
->
-
+billy
+=====
+"there's some milk in the fridge that's about to go bad...
+and there it goes..." -bobby

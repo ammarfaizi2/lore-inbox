@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVC3KDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVC3KFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVC3KDj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 05:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVC3KDj
+	id S261832AbVC3KFy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 05:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVC3KFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 05:03:39 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62624 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261836AbVC3KDd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 05:03:33 -0500
-Date: Wed, 30 Mar 2005 01:52:13 -0800
-From: Greg KH <greg@kroah.com>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
-       Andy Isaacson <adi@hexapodia.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Stefan Seyfried <seife@suse.de>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Message-ID: <20050330095213.GA12632@kroah.com>
-References: <4243252D.6090206@suse.de> <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de> <d120d50005032908183b2f622e@mail.gmail.com> <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com> <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com> <20050329205225.GF8125@elf.ucw.cz> <Pine.LNX.4.50.0503291321490.29474-100000@monsoon.he.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Mar 2005 05:05:53 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:43972 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261838AbVC3KF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 05:05:29 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: luming.yu@intel.com
+Subject: Re: [ACPI] 2.6.12-rc1-mm[1-3]: ACPI battery monitor does not work
+Date: Wed, 30 Mar 2005 12:05:39 +0200
+User-Agent: KMail/1.7.1
+Cc: acpi-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
+References: <200503291156.19112.rjw@sisk.pl> <200503301353.25492.luming.yu@intel.com>
+In-Reply-To: <200503301353.25492.luming.yu@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0503291321490.29474-100000@monsoon.he.net>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200503301205.40555.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 01:23:35PM -0800, Patrick Mochel wrote:
-> 
-> On Tue, 29 Mar 2005, Pavel Machek wrote:
-> 
-> > I don't really want us to try execve during resume... Could we simply
-> > artifically fail that execve with something if (in_suspend()) return
-> > -EINVAL; [except that in_suspend() just is not there, but there were
-> > some proposals to add it].
+On Wednesday, 30 of March 2005 07:53, Yu, Luming wrote:
+> On Tuesday 29 March 2005 17:56, Rafael J. Wysocki wrote:
+> > Hi,
 > >
-> > Or just avoid calling hotplug at all in resume case? And then do
-> > coldplug-like scan when userspace is ready...
+> > There is a problem on my box (Asus L5D, x86-64 kernel) with the ACPI
+> > battery driver in the 2.6.12-rc1-mm[1-3] kernels.  Namely, the battery
+> > monitor that I use (the kpowersave applet from SUSE 9.2) is no longer able
+> > to report the battery status (ie how much % it is loaded).  It can only
+> > check if the AC power is connected (if it is connected, kpowersave behaves
+> > as though there was no battery in the box, and if it is not connected,
+> > kpowersave always shows that the battery is 1% loaded).
+> >
+> > Also, there are big latencies on loading and accessing the battery module,
+> > but the module loads successfully and there's nothing suspicious in dmesg.
+> >
+> > Please let me know if you need any additional information.
+> >
+> > Greets,
+> > Rafael
 > 
-> I thought that cold-plugging only worked for devices, not all objects.
+> Could you just revert ec-mode patch, then retest?
 
-We can walk the whole sysfs tree and create "cold" hotplug events.
-udevstart does that for devices that udev cares about (as an example.)
+Could you please point me to it?
 
-> Can we just queue up hotplug events? That way we wouldn't lose any across
-> the transition, and could be used to send resume events to userspace for
-> various devices that need help..
+Rafael
 
-Ick, I really hate this idea, but there is a patch in the SuSE kernel to
-do this at boot time.  Hopefully the author of that patch resubmitts it
-again and maybe it will make it eventually into mainline...
 
-thanks,
-
-greg k-h
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267653AbSKTHdL>; Wed, 20 Nov 2002 02:33:11 -0500
+	id <S265890AbSKTHn5>; Wed, 20 Nov 2002 02:43:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267643AbSKTHc0>; Wed, 20 Nov 2002 02:32:26 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:47378
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S265890AbSKTHa5>; Wed, 20 Nov 2002 02:30:57 -0500
-Subject: Re: spinlocks, the GPL, and binary-only modules
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DDAB6AD.4050400@pobox.com>
-References: <3DDAB6AD.4050400@pobox.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037777880.26594.5.camel@ixodes.goop.org>
+	id <S267495AbSKTHn5>; Wed, 20 Nov 2002 02:43:57 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:50873 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265890AbSKTHn4>;
+	Wed, 20 Nov 2002 02:43:56 -0500
+Date: Wed, 20 Nov 2002 08:50:48 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andy Chou <acc@CS.Stanford.EDU>
+Cc: mc@cs.stanford.edu, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 74 potential buffer overruns in 2.5.33
+Message-ID: <20021120075048.GG11884@suse.de>
+References: <20021119234531.GA2723@Xenon.stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 19 Nov 2002 23:38:00 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021119234531.GA2723@Xenon.stanford.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-19 at 14:09, Jeff Garzik wrote:
-> blah.
+On Tue, Nov 19 2002, Andy Chou wrote:
+> Here are 74 out-of-bounds array accesses in Linux 2.5.33 found by the
+
+Ewwww, why so old??
+
+> [BUG] Seems bad.
+> /home/acc/linux/2.5.33/drivers/block/ll_rw_blk.c:556:blk_dump_rq_flags: 
+> ERROR:BUFFER:556:556:Array bounds error: rq_flags[12] indexed with [12]
 > 
-> So, since spinlocks and semaphores are (a) inline and #included into 
-> your code, and (b) required for just about sane interoperation with Linux...
+> 	printk("%s: dev %02x:%02x: ", msg, major(rq->rq_dev), 
+> minor(rq->rq_dev));
+> 	bit = 0;
+> 	do {
+> 		if (rq->flags & (1 << bit))
 > 
-> does this mean that all binary-only modules that #include kernel code 
-> such as spinlocks are violating the GPL?  IOW just about every binary 
-> module out there, I would think...
+> Error --->
+> 			printk("%s ", rq_flags[bit]);
+> 		bit++;
+> 	} while (bit < __REQ_NR_BITS);
 
-There are a whole pile of rules and precedents over this.  For one, a
-certain code size limit applies, as does the notion of whether there's
-any creative input (for example, constants and structure definitions are
-not considered creative, because they are simply required for an
-interface to work).
+This was due to someone adding and removing __REQ_* flags and not
+changing blk_dump_rq_flags(). 2.5.48 has no such bug anymore, I fixed
+this up long ago.
 
-One argument is that since the interfaces require you to manipulate the
-locks in a particular way, and only a given set of instructions will do
-those manipulations correctly, then any correct implementation will
-contain those instructions.  Whether they get them from including a
-particular header, or by having their own versions of those
-instructions, it all looks the same in the binary.  It would be hard
-work to claim the presence of those instructions constitutes a derived
-work, any more than you could claim the instructions which set the stack
-or registers up for a function call constitute a derived work.
-
-	J
+-- 
+Jens Axboe
 

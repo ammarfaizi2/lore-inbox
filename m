@@ -1,85 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbULEUGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbULEUQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbULEUGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 15:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbULEUGi
+	id S261378AbULEUQK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 15:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbULEUQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 15:06:38 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:23292 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S261375AbULEUGc
+	Sun, 5 Dec 2004 15:16:10 -0500
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:33799 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261378AbULEUQH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 15:06:32 -0500
-Message-ID: <41B36A5D.50901@verizon.net>
-Date: Sun, 05 Dec 2004 15:06:53 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sun, 5 Dec 2004 15:16:07 -0500
+Date: Sun, 5 Dec 2004 21:14:08 +0100 (CET)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/char/moxa.c: remove an unused function
+In-Reply-To: <20041205170247.GR2953@stusta.de>
+Message-ID: <Pine.LNX.4.61L.0412052112080.11466@rudy.mif.pg.gda.pl>
+References: <20041205170247.GR2953@stusta.de>
 MIME-Version: 1.0
-To: Anandraj <anandrajm@fastmail.fm>
-CC: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Booting 2.6.10-rc3
-References: <1102256916.29858.210104494@webmail.messagingengine.com>
-In-Reply-To: <1102256916.29858.210104494@webmail.messagingengine.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [209.158.220.243] at Sun, 5 Dec 2004 14:06:31 -0600
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-746264020-1102277648=:11466"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anandraj wrote:
-> hi,
-> My linux box with 2.6.9 kernel patched with 2.6.10-rc3 patch doesnot
-> come up.
-> It shows the following while booting-
-> 
-> root(hd0,4)
-> Filesystem type is ext2fs , partition type 0x83
-> kernel /vmlinuz-2.6.10-rc3 ro root=LABLE=/ rhgb quiet
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-try root=LABEL=/.
+--8323328-746264020-1102277648=:11466
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-If that does not work, try passing the root fs as something like:
+On Sun, 5 Dec 2004, Adrian Bunk wrote:
 
-root=/dev/hda3
+> The patch below removes an unused global function.
+>
+>
+> diffstat output:
+> drivers/char/moxa.c |   18 ------------------
+> 1 files changed, 18 deletions(-)
+>
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> --- linux-2.6.10-rc1-mm3-full/drivers/char/moxa.c.old	2004-11-07 00:28:05.000000000 +0100
+> +++ linux-2.6.10-rc1-mm3-full/drivers/char/moxa.c	2004-11-07 00:28:41.000000000 +0100
+> @@ -1765,7 +1765,6 @@
+>  *	2.  MoxaPortEnable(int port);					     *
+>  *	3.  MoxaPortDisable(int port);					     *
+>  *	4.  MoxaPortGetMaxBaud(int port);				     *
+>- *	5.  MoxaPortGetCurBaud(int port);				     *
+>  *	6.  MoxaPortSetBaud(int port, long baud);			     *
+>  *	7.  MoxaPortSetMode(int port, int databit, int stopbit, int parity); *
+>  *	8.  MoxaPortSetTermio(int port, unsigned char *termio); 	     *
+[..]
 
-or wherever your root filesystem is.
+Prabaly it will be good renumber this or make unnumbered (and all other 
+comments with "Function <num>:" :)
 
->     [Linux-bzImage, setup=0x1400,size=0x187b53]
-> initrd /initrd-2.6.10-rc3.img
->     [Linux-initrd @ 0x1fcb1000,0x2eb22 bytes]
-> 
-> Uncompressing Linux... Ok, booting kernel
-> audit(1102189352.204:0):initialized
-> Red Hat nash version 3.5.22 starting 
-> mount: error 6 mounting ext3
-> pivotroot: pivo_root(/sysroot,/sysroot/initrd) failed : 2
-> umount /initrd/proc failed: 2
-> Kenel panic - not syncing: No init found. Try Passing init=option to
-> kernel.
-> 
-> 
-> I am using Fedora 2 distro!
-> The default kernel 2.6.5-1.358 that comes along with the distro works !
-> 
-> I had looked into various forums for "mount: error 6 mounting ext3",
-> none of the aswers given by them worked,
-> the answers like , making your ext3 module inbuilt ,also does not work !
-> 
-> Mine is a simple desktop PC with Pentium 4 512MB RAM, it does not deal
-> with any SCSI stuff!
-> Can somebody help me on this !! ??
-> 
-
-If you did not build an initrd, you do not need reference to an initrd in the 
-grub.conf file.
-
-> TIA,
-> Anand
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+[..]
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--8323328-746264020-1102277648=:11466--

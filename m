@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266017AbUAEXOP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265994AbUAEXOO
+	id S266001AbUAEXIc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265994AbUAEXHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:14:14 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:49420 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S266018AbUAEXNo (ORCPT
+	Mon, 5 Jan 2004 18:07:40 -0500
+Received: from pop.gmx.de ([213.165.64.20]:36267 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266013AbUAEXG4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:13:44 -0500
-Date: Tue, 6 Jan 2004 00:13:26 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040106001326.A1128@pclin040.win.tue.nl>
-References: <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0401051224480.2153@home.osdl.org>; from torvalds@osdl.org on Mon, Jan 05, 2004 at 12:38:54PM -0800
+	Mon, 5 Jan 2004 18:06:56 -0500
+X-Authenticated: #125400
+Message-ID: <3FF9EDEF.9010900@gmx.de>
+Date: Tue, 06 Jan 2004 00:06:23 +0100
+From: Andreas Fester <Andreas.Fester@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?ISO-8859-15?Q?Markus_H=E4stbacka?= <midian@ihme.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.24 released
+References: <1aDrl-81S-11@gated-at.bofh.it> <1aGfZ-3zX-33@gated-at.bofh.it> <1aGIx-4iy-25@gated-at.bofh.it> <1aHbG-4Xs-11@gated-at.bofh.it> <1aIri-6Nn-27@gated-at.bofh.it> <1aKj3-Y1-13@gated-at.bofh.it>
+In-Reply-To: <1aKj3-Y1-13@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 12:38:54PM -0800, Linus Torvalds wrote:
+Hi,
 
-> Have you even _tried_ udev?
+I had the same problem with depmod reporting many
+unresolved symbols. Seems that updating modutils
+solves the problem. I was using modutils 2.4.12 on a
+SuSE 8.2 system, after upgrading to the current modutils
+2.4.26 depmod works properly.
 
-Yes, and it works reasonably well. I have version 012 here.
-Some flaws will be fixed in 013 or so. Some difficulties are of a
-more fundamental type, not so easy to fix. But udev is an entirely
-different discussion. Some other time.
+Best Regards,
 
-> In particular, the kernel should never have policy encoded in it, and 
-> naming of a device is about pretty much nothing _but_ policy.
+	Andreas
 
-Of course. But this is not about naming.
+BTW: Documentation/Changes still lists modutils 2.4.2 as
+Minimal Requirement, which does not seem to be true anymore;
+I dont know which actually is the minimal requirement,
+otherwise I would have sent a patch ;-) Maybe someone can
+clarify this...
 
-The kernel invents device numbers, and user space names.
-
-Now compare our setups:
-
-dev_t lbt_devno(void) { return random(); }
-
-dev_t aeb_devno(char *s) { dev_t d = hash(s); while (inuse(d)) d++; return d; }
-
-An earlier fragment of the discussion was concerned with the fact
-that random(); is a bad idea. Something reproducible is better.
-
-Let us abbreviate the above function f. Some driver determines that
-a disk has serial number A809ADGC. Another driver determines that
-some device was produced by HP but otherwise has no opinion.
-A third driver has no stable information at all about the device.
-They assign device numbers f("A809ADGC"), f("HP"), f("").
-
-What is the result? Yes, device numbers are cookies, but a reasonable
-attempt has been made to make the device numbers stable.
-No guarantees anywhere - this is best effort. Better than no effort.
-
-And this information helps udev. It may make a callout superfluous,
-or even give udev information that cannot be obtained from userspace.
-
-Andries
+Markus Hästbacka wrote:
+> On Mon, 2004-01-05 at 21:06, Adrian Bunk wrote:
+> 
+>>Please you doublecheck whether the following really fails for you:
+>>
+>>  cd linux-2.4.24
+>>  mv .config /tmp
+[...]
 

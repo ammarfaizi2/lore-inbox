@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTILVU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbTILVU5
+	id S261891AbTILVRm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbTILVRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:20:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49122 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261918AbTILVUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:20:14 -0400
-Message-Id: <200309122120.h8CLKCj26347@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, cliffw@easystreet.com
-Subject: Re: 2.6.0-test5 usbserial oops 
-In-Reply-To: Message from Greg KH <greg@kroah.com> 
-   of "Wed, 10 Sep 2003 21:46:50 PDT." <20030911044650.GA10064@kroah.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Sep 2003 14:20:12 -0700
-From: Cliff White <cliffw@osdl.org>
+	Fri, 12 Sep 2003 17:17:41 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:51164 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261891AbTILVRM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:17:12 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Timothy Miller" <miller@techsource.com>
+Cc: "Pascal Schmidt" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: People, not GPL  [was: Re: Driver Model]
+Date: Fri, 12 Sep 2003 14:17:07 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEAOGIAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <3F6234F7.80200@techsource.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Sep 10, 2003 at 10:30:55PM -0500, Greg Norris wrote:
-> > I'm seeing a consistent oops with usbserial under 2.6.0-test5, which
-> > occurs when I try to sync my pda using pilot-link.  The module seems to
-> > load (via hotplug) without any difficulty, and the sync itself works
-> > fine... the oops occurs when the module is unloaded.  Once this
-> > happens, it requires a reboot to get usb working again.
-> > 
-> > I've attached the decoded oops, along with my kernel .config.  If I
-> > need to provide any additional information, please let me know.
-> 
-> Can you load both the usbserial and visor modules with "debug=1":
-> 	modprobe usbserial debug=1
-> 	modprobe visor debug=1
-> 
-> and then sync and remove the visor driver?
-> I'd be very interested in the kernel debug log right up to the kernel
-> oops.
 
-I am also seeing an oops, 2.6.0-test5-mm1, Sony CLIE PDA. 
-I'll try to get you the kernel debug tonight.
-cliffw
+> > 	Licenses that place restrictions on usage are *not* open
+> > source licenses.
 
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> What about "usage" of source code?
+
+	Same thing.
+
+> GPL says you are not allowed to "use" GPL source in a non-free program
+> that you publish.
+
+	This is a publication restriction, not a usage restriction. Your phrasing
+above is like saying, "you can't put bullets into a gun that you use to
+shoot a police officer". The restriction is on the shooting, not the
+loading.
+
+	Again, quoting the GPL:
+
+Activities other than copying, distribution and modification are not
+covered by this License; they are outside its scope.  The act of
+running the Program is not restricted, and the output from the Program
+is covered only if its contents constitute a work based on the
+Program (independent of having been made by running the Program).
+Whether that is true depends on what the Program does.
+
+> I don't think anyone was talking about use of applications, but rather
+> use of source code.
+
+	I'm not sure why you think this is an important distinction.
+
+	DS
 
 

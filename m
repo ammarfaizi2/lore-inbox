@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261474AbREQSdU>; Thu, 17 May 2001 14:33:20 -0400
+	id <S261476AbREQSd7>; Thu, 17 May 2001 14:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261476AbREQSdJ>; Thu, 17 May 2001 14:33:09 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:31245 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261474AbREQSc6>; Thu, 17 May 2001 14:32:58 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux-2.4.4 failure to compile
-Date: 17 May 2001 11:32:41 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9e15g9$tcj$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.3.95.1010517132052.14991A-100000@chaos.analogic.com> <3B040C80.C2A7BC6@sun.com>
+	id <S261480AbREQSdt>; Thu, 17 May 2001 14:33:49 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:9481 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S261476AbREQSdm>; Thu, 17 May 2001 14:33:42 -0400
+Message-ID: <3B041980.BC22BA38@delusion.de>
+Date: Thu, 17 May 2001 20:33:36 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.4-ac10
+In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3B040C80.C2A7BC6@sun.com>
-By author:    Tim Hockin <thockin@sun.com>
-In newsgroup: linux.dev.kernel
+
+Hi,
+
+Alan Cox wrote:
 > 
-> The aic7xxx assembler requiring libdb1 is a bungle.  Getting the headers
-> for that right on various distros is not easy.  Add to that it requires
-> YACC, when most people have bison (yes, a shell script is easy to make, but
-> not always an option). 
-> 
+> 2.4.4-ac10
 
-Most people have both.  However, if your distribution installs bison
-and not yacc and does *NOT* install the "bison as yacc" wrapper, you
-should complain to your distributor.
+With 2.4.4-ac10 and binutils 2.11 I get the following warnings:
 
-As far as "not always an option", that's ridiculous.  If there really
-isn't someone around who can install it globally, then put it in ~/bin
-and set your PATH.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o pci-pc.o pci-pc.c
+pci-pc.c:964: warning: `pci_fixup_via691' defined but not used
+pci-pc.c:977: warning: `pci_fixup_via691_2' defined but not used
+{standard input}: Assembler messages:
+{standard input}:747: Warning: indirect lcall without `*'
+{standard input}:832: Warning: indirect lcall without `*'
+{standard input}:919: Warning: indirect lcall without `*'
+{standard input}:958: Warning: indirect lcall without `*'
+{standard input}:990: Warning: indirect lcall without `*'
+{standard input}:1022: Warning: indirect lcall without `*'
+{standard input}:1053: Warning: indirect lcall without `*'
+{standard input}:1082: Warning: indirect lcall without `*'
+{standard input}:1111: Warning: indirect lcall without `*'
+{standard input}:1392: Warning: indirect lcall without `*'
+{standard input}:1497: Warning: indirect lcall without `*'
 
-The command "yacc" should be expected to work.  This is as insane as
-the flamage in the cdrecord documentation about Linux installing GNU
-make as "make".
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o apm.o apm.c
+{standard input}: Assembler messages:
+{standard input}:180: Warning: indirect lcall without `*'
+{standard input}:274: Warning: indirect lcall without `*'
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
+Does anyone know what's up with that? Kernel problem or binutils issue?
+
+Regards,
+Udo.

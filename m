@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283532AbRLDWBX>; Tue, 4 Dec 2001 17:01:23 -0500
+	id <S283547AbRLDWHD>; Tue, 4 Dec 2001 17:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283540AbRLDWBQ>; Tue, 4 Dec 2001 17:01:16 -0500
-Received: from stine.vestdata.no ([195.204.68.10]:23242 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S283534AbRLDWA7>; Tue, 4 Dec 2001 17:00:59 -0500
-Date: Tue, 4 Dec 2001 23:00:53 +0100
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Roland Bauerschmidt <rb@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: virtual filesystem with data managed in userspace
-Message-ID: <20011204230053.F23430@vestdata.no>
-In-Reply-To: <20011204224026.A18753@g>
+	id <S283545AbRLDWGx>; Tue, 4 Dec 2001 17:06:53 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:53561 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S283546AbRLDWGs>;
+	Tue, 4 Dec 2001 17:06:48 -0500
+Message-ID: <20011204230717.A28962@win.tue.nl>
+Date: Tue, 4 Dec 2001 23:07:17 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: "Mark Mokryn" <mark@sangate.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Docs on PC disk partition tables?
+In-Reply-To: <B71796881E0DF7409F066FE6656BDF29040F31@BEASLEY.il.sangate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011204224026.A18753@g>; from rb@debian.org on Tue, Dec 04, 2001 at 10:40:26PM +0100
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <B71796881E0DF7409F066FE6656BDF29040F31@BEASLEY.il.sangate.com>; from Mark Mokryn on Tue, Dec 04, 2001 at 06:28:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 10:40:26PM +0100, Roland Bauerschmidt wrote:
-> Hi,
-> 
-> for a science project I'm thinking about writing a virtual filesystem
-> driver that provides access to data that is managed in userspace. I'm
-> quite new to Kernel hacking, so I'd be glad if someone could provide
-> some tips about the design, especially the data exchange between kernel-
-> and userspace. 
+On Tue, Dec 04, 2001 at 06:28:44PM +0200, Mark Mokryn wrote:
+> Does anyone know of docs describing the PC disk partition tables, MBR
+> format, etc?
 
-See http://sourceforge.net/projects/avf/
+I am not at home, and not near a Linux machine, I think,
+so instead of giving an URL, let me give you an algorithm.
 
+Look for my name (Andries Brouwer) in the kernel MAINTAINERS list.
+If I recall correctly that entry has a few web references,
+maybe one on Zip drives and partitioning, or maybe one on
+large disks, and probably also one with the docs you are looking for.
+If none of the given URLs is good enough, look around a bit more at
+http://www.win.tue.nl/~aeb/linux or so.
 
--- 
-Ragnar Kjørstad
-Big Storage
+Andries

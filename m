@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbUBWCRs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 21:17:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbUBWCRs
+	id S261781AbUBWCT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 21:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUBWCT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 21:17:48 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:6300 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261370AbUBWCRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 21:17:47 -0500
-Date: Sun, 22 Feb 2004 21:17:41 -0500
-From: Tom Vier <tmv@comcast.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Intel vs AMD x86-64
-Message-ID: <20040223021741.GC29720@zero>
-Reply-To: Tom Vier <tmv@comcast.net>
-References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org> <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org> <20040222025957.GA31813@MAIL.13thfloor.at> <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org> <40382C47.70603@coyotegulch.com> <40394BA3.4070307@techsource.com>
+	Sun, 22 Feb 2004 21:19:57 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:10507 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261781AbUBWCT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 21:19:56 -0500
+Date: Mon, 23 Feb 2004 02:19:48 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>, schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3
+Message-ID: <20040223021948.A4131@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, schwidefsky@de.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20040222172200.1d6bdfae.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40394BA3.4070307@techsource.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040222172200.1d6bdfae.akpm@osdl.org>; from akpm@osdl.org on Sun, Feb 22, 2004 at 05:22:00PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 07:38:59PM -0500, Timothy Miller wrote:
-> In theory, IEEE FP is IEEE FP, but it seems that Intel may have cheated 
-> in their design, silently reducing precision for the sake of some other 
-> aspect of their design, making their processors less useful (or 
-> useless?) for scientific applications.  Another example of Intel 
-> arrogance?  Or perhaps a reasonable design compromise?  You decide.
+On Sun, Feb 22, 2004 at 05:22:00PM -0800, Andrew Morton wrote:
+> - Big s390 update.  This includes rework against net devices, block devices
+>   and sysfs interfaces.   Please Cc Martin Schwidefsky on review comments ;)
 
-did they use -miiie? was the same compiler (exact same version) used? if the
-answer to either is no, that would account for the difference.
+Adding the HBA API ioctl crap to zfcp is not acceptable, the qlogic ioctls
+already were shot down for the same reason.
 
--- 
-Tom Vier <tmv@comcast.net>
-DSA Key ID 0xE6CB97DA
+Btw, please send scsi patch to linux-scsi please.
+

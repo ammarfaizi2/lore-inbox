@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbTJRQOD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 12:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTJRQOD
+	id S261689AbTJRQ2S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 12:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTJRQ2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 12:14:03 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:43270 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S261686AbTJRQOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 12:14:01 -0400
-To: linux-kernel@vger.kernel.org
-Path: 127.0.0.1!nobody
-From: Peter Matthias <espi@epost.de>
-Newsgroups: linux.kernel
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-Date: Sat, 18 Oct 2003 18:21:46 +0200
-Organization: Tiscali Germany
-Message-ID: <qaprmb.8a.ln@127.0.0.1>
-References: <FwYB.Z9.25@gated-at.bofh.it> <HJ5m.2Eb.23@gated-at.bofh.it>
-NNTP-Posting-Host: p62.246.116.166.tisdip.tiscali.de
+	Sat, 18 Oct 2003 12:28:18 -0400
+Received: from h80ad2667.async.vt.edu ([128.173.38.103]:29835 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261689AbTJRQ2O (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 12:28:14 -0400
+Message-Id: <200310181624.h9IGOgLW023089@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: orinoco_cs module broken in test8 
+In-Reply-To: Your message of "Sat, 18 Oct 2003 17:48:21 +0200."
+             <yw1xoeweim2i.fsf@users.sourceforge.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <200310181723.54967.aviram@beyondsecurity.com>
+            <yw1xoeweim2i.fsf@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ulysses.news.tiscali.de 1066493472 65423 62.246.116.166 (18 Oct 2003 16:11:12 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Sat, 18 Oct 2003 16:11:12 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Type: multipart/signed; boundary="==_Exmh_-1866304097P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 18 Oct 2003 12:24:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell schrieb:
+--==_Exmh_-1866304097P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> David Brownell wrote:
->> 
->> Hmm ... maybe usbcore would be better off with a less
->> naive algorithm for choosing defaults.  Like, preferring
->> configurations without proprietary device protocols.
->> That'd solve every cdc-acm case, and likely others.
-> 
-> In fact, here's a patch with that very change.  Does
-> it make current 2.6.0-test kernels work "out of the box"
-> again with your USB modems?
+On Sat, 18 Oct 2003 17:48:21 +0200, mru@users.sourceforge.net (=3D?iso-88=
+59-1?q?M=3DE5ns_Rullg=3DE5rd?=3D)  said:
+> Aviram Jenik <aviram@beyondsecurity.com> writes:
+> =
 
-Yes, it works with ELSA Microlink USB. Thanks.
+> > Orinoco_cs worked for me in all previous 2.6.0-testx versions, but st=
+opped =
 
-Peter
+> > working in test8. Message log shows:
+> > kernel: orinoco_cs: RequestIRQ: Unsupported mode
+> =
+
+> You have to enable ISA bus support, i.e. CONFIG_ISA=3Dy.
+
+If it worked for him in earlier -testX, he must have had it set before...=
+
+
+Aviram:  Is CONFIG_ISA=3Dy in your -test8 .config?  If so, it's some othe=
+r *new*
+problem. If not, do you have any idea how it got turned off ('make oldcon=
+fig'
+weirdness??)
+
+
+--==_Exmh_-1866304097P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/kWlJcC3lWbTT17ARAt4YAJ4gk2+wA8AGJEJ/FI6X1IuqqhKJdQCgyaLG
+9x+g6SC0fWwzhl7s5Ee3wDA=
+=TnRz
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1866304097P--

@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268683AbUHTT1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUHTT1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268683AbUHTT1J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUHTT0A
+	id S268702AbUHTT1H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbUHTTZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:26:00 -0400
-Received: from ctb-mesg1.saix.net ([196.25.240.73]:21178 "EHLO
-	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S268681AbUHTTZa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:25:30 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       kernel@wildsau.enemy.org, fsteiner-mail@bio.ifi.lmu.de,
-       diablod3@gmail.com, B.Zolnierkiewicz@elka.pw.edu.pl
-In-Reply-To: <4125FFA2.nail8LD61HFT4@burner>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>
-	 <4124BA10.6060602@bio.ifi.lmu.de>
-	 <1092925942.28353.5.camel@localhost.localdomain>
-	 <200408191800.56581.bzolnier@elka.pw.edu.pl>
-	 <4124D042.nail85A1E3BQ6@burner>
-	 <1092938348.28370.19.camel@localhost.localdomain>
-	 <4125FFA2.nail8LD61HFT4@burner>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-z1ToBhg6HWg0nqhYPXBW"
-Message-Id: <1093030136.8998.72.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 21:28:56 +0200
+	Fri, 20 Aug 2004 15:25:49 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48557 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268679AbUHTTZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 15:25:29 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [PATCH] cleanup ACPI numa warnings
+Date: Fri, 20 Aug 2004 15:22:41 -0400
+User-Agent: KMail/1.6.2
+Cc: Alex Williamson <alex.williamson@hp.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Paul Jackson <pj@sgi.com>,
+       haveblue@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>
+References: <1091738798.22406.9.camel@tdi> <2550950000.1092019997@[10.10.2.4]> <1093028151.4993.42.camel@tdi>
+In-Reply-To: <1093028151.4993.42.camel@tdi>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408201522.41334.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, August 20, 2004 2:55 pm, Alex Williamson wrote:
+>    I'm not sure where we stand on this, sorry for the delay.  To recap,
+> the first patch I submitted cleaned up the original functions, but moved
+> the ugliness up into multi-line macros.  People didn't like the macros
+> and suggested static inlines.  However, static inlines don't work for
+> this application because the debug print needs state setup by the
+> ACPI_FUNCTION_NAME call.  IMHO, it's not worth setting up that state in
+> the static inline function for this little bit of cleanup.
+>
+>    So, I think we left it at nobody liked the macros and static inlines
+> don't work.  General unhappiness.  Below is a patch that doesn't attempt
+> to cleanup the original code, it just adds the #ifdefs and range
+> checking w/ no macros.  Does this look better?  Below is the original
+> submit comment outlining the goal.  Thanks,
 
---=-z1ToBhg6HWg0nqhYPXBW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes please.
 
-On Fri, 2004-08-20 at 15:41, Joerg Schilling wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->=20
-> > On Iau, 2004-08-19 at 17:07, Joerg Schilling wrote:
-> > > Cdrtools is is code freeze state. This is why I say the best idea is =
-to remove=20
-> > > this interface change from the current Linux kernel and wait until th=
-ere will
-> > > be new cdrtools alpha for 2.02 releases. These alpha could get suppor=
-t for uid
-> > > switching. If Linux then would again switch the changes on, it makes =
-sense.
-> >
-> > While Sun did spend a year refusing to fix security holes I found -  fo=
-r
-> > "compatibility reasons" - long ago back when I was a sysadmin at NTL,
-> > the Linux world does not work that way.
->=20
-> Unless you tell us what kind of "security holes" you found _and_ when thi=
-s has=20
-> been, it looks like a meaningless remark.
->=20
-
-But this is the same kind of remarks you make - statements without
-proof (the ones you also did not explain, and explicitly refuse to
-explain or give a pointer to) - so I assume we should also consider
-them as meaningless ?
-
-
---=20
-Martin Schlemmer
-
---=-z1ToBhg6HWg0nqhYPXBW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBJlD4qburzKaJYLYRAoysAJ9+g5I2Piq2PrIDKpm9G6qk7ioZMQCdGx05
-j7944444Chk8BazMIZk3J7c=
-=JcZ9
------END PGP SIGNATURE-----
-
---=-z1ToBhg6HWg0nqhYPXBW--
-
+Jesse

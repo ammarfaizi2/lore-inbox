@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132824AbRDITvV>; Mon, 9 Apr 2001 15:51:21 -0400
+	id <S132832AbRDIT4b>; Mon, 9 Apr 2001 15:56:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132832AbRDITvK>; Mon, 9 Apr 2001 15:51:10 -0400
-Received: from mlist.austria.eu.net ([193.81.83.3]:49295 "EHLO
-	hausmasta.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S132824AbRDITvE>; Mon, 9 Apr 2001 15:51:04 -0400
-Message-ID: <3AD21264.7EA4C687@eunet.at>
-Date: Mon, 09 Apr 2001 21:49:56 +0200
-From: Michael Reinelt <reinelt@eunet.at>
-Organization: netWorks
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S132833AbRDIT4V>; Mon, 9 Apr 2001 15:56:21 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28945 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132832AbRDIT4K>; Mon, 9 Apr 2001 15:56:10 -0400
+Subject: Re: Re: nfs performance at high loads
+To: kapish@ureach.com
+Date: Mon, 9 Apr 2001 20:57:46 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200104091548.LAA05492@www22.ureach.com> from "Kapish K" at Apr 09, 2001 11:48:23 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ISIcom cards by Multi-tech
-In-Reply-To: <E14mge5-0002ed-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.6.0.12)
+Message-Id: <E14mhnJ-0002nW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > As multitech seems not to provide a driver for 2.4, someone must have
-> > ported the 2.2 driver to 2.4. I'd like to talk to this person, and help
-> > merging the 2.2 updates to 2.4.
-> 
-> I did a quick port of the old driver over (it wasnt very hard) and people then
-> added additional bits of support later.
-> 
-> multitech never sent me many updates
+> 	Thanks for the inputs.. But, if we cannot move back to 2.2.19
+> and need to stick with 2.4.0 for our own reasons concerning the
+> work underway, would it be possible to give us a pointer us to
+> the list of issues related to this problem in the vm, so that we
+> may attempt to try and get some fixes or workarounds done -
+> well, they may or may not be accepted into mainstream linux for
+> various reasons, but we may need to get them fixed to ship our
+> stuff and may plan to do so..
 
-O well. I thought it went this way....
+See the linux-mm list. Or talk to Rik van Riel <riel@conectiva.com.br>
 
-Do you have sort of a 'patch' from your port? I could take this as a
-guideline for what has to be changed from 2.2 to 2.4. If I compare the
-2.4 driver to the actual 2.2 one, there are far too much differences for
-me...
-
-bye, Michael
-
--- 
-netWorks       	                                  Vox: +43 316  692396
-Michael Reinelt                                   Fax: +43 316  692343
-Geisslergasse 4					  GSM: +43 676 3079941
-A-8045 Graz, Austria			      e-mail: reinelt@eunet.at

@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUG2Sjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267534AbUG2ShU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUG2Sjk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 14:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUG2Shj
+	id S267534AbUG2ShU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 14:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUG2ShS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 14:37:39 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:23549 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267518AbUG2ScQ
+	Thu, 29 Jul 2004 14:37:18 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:21006 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S264936AbUG2Sgm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 14:32:16 -0400
-Subject: Re: [PATCH] reduce swsusp casting
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091049624.2871.464.camel@nighthawk>
-References: <1091043436.2871.320.camel@nighthawk>
-	 <Pine.LNX.4.50.0407281405090.31994-100000@monsoon.he.net>
-	 <1091049624.2871.464.camel@nighthawk>
-Content-Type: text/plain
-Message-Id: <1091125918.2871.1874.camel@nighthawk>
+	Thu, 29 Jul 2004 14:36:42 -0400
+Date: Thu, 29 Jul 2004 11:36:26 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Scott Wood <scott@timesys.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
+       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040729183626.GA11652@nietzsche.lynx.com>
+References: <20040721184650.GA27375@elte.hu> <20040721195650.GA2186@yoda.timesys> <20040721214534.GA31892@elte.hu> <20040722022810.GA3298@yoda.timesys> <20040722074034.GC7553@elte.hu> <20040722185308.GC4774@yoda.timesys> <20040722194513.GA32377@nietzsche.lynx.com> <20040728064547.GA16176@elte.hu> <20040728205211.GC6685@yoda.timesys> <20040729182110.GA16419@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Jul 2004 11:31:58 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040729182110.GA16419@elte.hu>
+User-Agent: Mutt/1.5.6+20040722i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-28 at 14:20, Dave Hansen wrote:
-> On Wed, 2004-07-28 at 14:07, Patrick Mochel wrote:
-> > I don't understand - have you really tested it or just compile-tested it?
-> > If not, please do try it out for real. There is no reason to be scared of
-> > swsusp, and the more people that use it, the more stable it will get.
-> 
-> I'm not scared, just lazy :)  I'll give it a shot.
+On Thu, Jul 29, 2004 at 08:21:10PM +0200, Ingo Molnar wrote:
+> * Scott Wood <scott@timesys.com> wrote:
+> ok, i see - this makes 100% sense. I'm wondering how intrusive such an
+> all-preemptive patchset is? There are some problems with per-CPU data
+> structures on SMP. Right now holding a spinlock means one can use
+> smp_processor_id() and rely on it staying constant in the critical
+> section. With a mutex in the same place all such assumptions would
+> break. Is there some automatic way to deal with these issues (or to at
+> least detect them reliably?).
 
-Well, I tried with both 2.6.8-rc2-mm1 with and without my patch and got
-the exact same results:
+Make smp_processor_id check if preempt_count() is non-zero to make sure 
+that you're running within a non-preemptable critical section (scheduler
+deferred). Do the same with local_irq_* critical section by checking to
+see if interrupts are disabled. They are also non-preemptable (hardware
+defered).
 
-# echo disk > /sys/power/state
-Stopping tasks: =
+That's my suggestion.
 
-Then it freezes.  
-
-Pat, since I'm sure you already have swsusp working on your machine,
-would you mind giving my patch a try?  I have the feeling doing a
-compile and a couple of boots will be a lot faster than me trying to
-debug why it's freezing on me. 
-
--- Dave
+bill
 

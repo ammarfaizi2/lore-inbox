@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317351AbSILUge>; Thu, 12 Sep 2002 16:36:34 -0400
+	id <S317263AbSILUdr>; Thu, 12 Sep 2002 16:33:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317354AbSILUge>; Thu, 12 Sep 2002 16:36:34 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:45785 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S317351AbSILUgd>; Thu, 12 Sep 2002 16:36:33 -0400
-Date: Thu, 12 Sep 2002 17:41:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Spamcop
-In-Reply-To: <20020912211056.J4739@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44L.0209121739200.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317286AbSILUdr>; Thu, 12 Sep 2002 16:33:47 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:37264 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317263AbSILUdq>;
+	Thu, 12 Sep 2002 16:33:46 -0400
+Date: Thu, 12 Sep 2002 22:44:25 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Steven Cole <elenstev@mesatop.com>, <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
+       Steven Cole <scole@lanl.gov>
+Subject: Re: [PATCH] kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y]
+In-Reply-To: <1031862919.3770.103.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209122242300.21936-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Sep 2002, Russell King wrote:
 
-> I'd like to bring to peoples attention the idiotic situation going on
-> with the RBL list known as spamcop.
+On 12 Sep 2002, Robert Love wrote:
 
-> However, the basis under which it has been listed is that spamcop
-> received a mailman reponse to a message their tester sent to a valid
-> mailing list address.  The mailman response was:
->
-> "Subject: Your message to Linux-arm awaits moderator approval"
+> While this sounds like a great debugging check, it is not useful in
+> general since we surely have some bad code that calls schedule() with
+> locks held.  Further, since the atomic accounting only includes locks if
+> CONFIG_PREEMPT is set, you only see this with kernel preemption enabled.
 
-The same happened with NL.linux.org a while ago.
+it *is* a great debugging check, at zero added cost. Scheduling from an
+atomic region *is* a critical bug that can and will cause problems in 99%
+of the cases. Rather fix the asserts that got triggered instead of backing
+out useful debugging checks ...
 
-The basic problem with spamcop is that it ISN'T driven by
-tests, but by complaints.
-
-It is an automatic system for handling spam complaints and
-will automagically list any system it gets too many complaints
-about.  Regardless of whether the complaints are legitimate.
-
-> My advice is: stay FAR away from spamcop.  If you're using spamcop
-> on your mail server, remove it now before they cut you off from all
-> your mailing lists.
-
-Spamcop is useful as part of a scoring system, but absolutely
-unsuitable for outright mail rejection.
-
-kind regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+	Ingo
 

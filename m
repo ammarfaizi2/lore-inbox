@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbTFGGvh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 02:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTFGGvh
+	id S262593AbTFGGwy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 02:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTFGGwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 02:51:37 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:45457 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S262578AbTFGGvg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 02:51:36 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Sat, 7 Jun 2003 02:52:54 -0400
+Received: from mail010.syd.optusnet.com.au ([210.49.20.138]:63201 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262593AbTFGGwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 02:52:07 -0400
+Date: Sat, 7 Jun 2003 17:04:03 +1000
+To: Robert White <rwhite@casabyte.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFAT Defragmentation under Linux
+Message-ID: <20030607070403.GA1540@cancer>
+References: <PEEPIDHAKMCGHDBJLHKGOELGCOAA.rwhite@casabyte.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16097.36514.763047.738847@napali.hpl.hp.com>
-Date: Sat, 7 Jun 2003 00:05:06 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, manfred@colorfullife.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: problem with blk_queue_bounce_limit()
-In-Reply-To: <20030606.234401.104035537.davem@redhat.com>
-References: <16096.16492.286361.509747@napali.hpl.hp.com>
-	<20030606.003230.15263591.davem@redhat.com>
-	<200306062013.h56KDcLe026713@napali.hpl.hp.com>
-	<20030606.234401.104035537.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGOELGCOAA.rwhite@casabyte.com>
+User-Agent: Mutt/1.5.4i
+From: Stewart Smith <stewart@linux.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 06 Jun 2003 23:44:01 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
+On Fri, Jun 06, 2003 at 08:00:57PM -0700, Robert White wrote:
+> Do the VFAT drivers likewise defragment the VFAT partitions?
 
-  DaveM> But on an IOMMU system, we could end up mapping to the same
-  DaveM> bogus DMA address.
+Not that I'm aware of, and I'd argue that it's probably not
+a good idea to try and do it inside the FS.
 
-Ah, yes, just changing the buffer address doesn't guarantee a
-different bus address.  I missed that.
+> If not, is there a Linux-hosted defragment program for defragmenting an
+> unmounted VFAT partition?
 
-  DaveM> So we have to solve this problem by keeping the existng bad
-  DaveM> mapping, doing a new DMA mapping, then trowing away the old
-  DaveM> one.
+The closest would probably be how programs such as GNU parted resize
+partitions.
 
-But you're creating a new mapping for the old buffer.  What if you had
-a DMA API implementation which consolidates multiple mapping attempts
-of the same buffer into a single mapping entry (along with a reference
-count)?  That would break the workaround.
+There are many optimizations that you could do to the average FAT/VFAT
+filesystem. From making files contiguous, grouping files that are in
+the same directory, ordering the directory lists etc.
 
-Isn't the proper fix to (a) get a new buffer, (b) create a mapping for
-the new buffer, (c) destroy the mapping for the old buffer.  That
-should guarantee a different bus address, no matter what the
-DMA-mapping implementation.
+Although one would have to question the usefulness of this kind of software these days. The number of new VFAT filesystems is getting smaller by the month (except on CF cards in cameras and the like - and they'd be re mkfs'd pretty often so wouldn't suffer too much from the performance degredation of continuous use).
 
-Plus then you don't have to rely on PCI_DMA_BUS_IS_PHYS.
+I'd argue that testing/bug fixing ntfsresize would be of more use - especially in converting eXtra Poo users. :)
 
-	--david
+> So far the only Linux-level defragment operation that I seem to have
+> available for a VFAT partition is to mount the drive, cpio everything off of
+> it, delete its contents, and then copy everything back.  That's a little
+> drastic and has obvious issues if you want to then boot that partition
+> separately/later.
+
+This would not do a 'complete' optimization... but probably would help.

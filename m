@@ -1,121 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317422AbSG1VF0>; Sun, 28 Jul 2002 17:05:26 -0400
+	id <S317331AbSG1VKH>; Sun, 28 Jul 2002 17:10:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317430AbSG1VF0>; Sun, 28 Jul 2002 17:05:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9742 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317422AbSG1VFY>;
-	Sun, 28 Jul 2002 17:05:24 -0400
-Message-ID: <3D445F53.BDE6B754@zip.com.au>
-Date: Sun, 28 Jul 2002 14:17:07 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: inlines in kernel/sched.c
+	id <S317342AbSG1VKG>; Sun, 28 Jul 2002 17:10:06 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:57556 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S317331AbSG1VKG>;
+	Sun, 28 Jul 2002 17:10:06 -0400
+Date: Sun, 28 Jul 2002 23:13:23 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Greg KH <greg@kroah.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.28
+Message-ID: <20020728211323.GB26925@win.tue.nl>
+References: <1027553482.11881.5.camel@sonja.de.interearth.com> <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com> <20020727235726.GB26742@win.tue.nl> <20020728024739.GA28873@kroah.com> <20020728155626.GC26862@win.tue.nl> <20020728185310.GC5767@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020728185310.GC5767@kroah.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 28, 2002 at 11:53:10AM -0700, Greg KH wrote:
 
-Ingo, could you please review the use of inlines in the
-scheduler sometime?  They seem to be excessive.
+> > I reported an oops at shutdown and provided the trivial fix.
+> > It is the the standard kernel since 2.5.26, I think.
+> 
+> That patch should be in the latest kernel, thanks.
 
-For example, this patch reduces the sched.d icache footprint
-by 1.5 kilobytes.
+Yes, since 2.5.26.
 
---- linux-2.5.29/kernel/sched.c	Fri Jul 26 20:48:46 2002
-+++ 25/kernel/sched.c	Sun Jul 28 14:11:29 2002
-@@ -117,7 +117,7 @@
- #define BASE_TIMESLICE(p) (MIN_TIMESLICE + \
- 	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-(p)->static_prio)/(MAX_USER_PRIO - 1)))
- 
--static inline unsigned int task_timeslice(task_t *p)
-+static unsigned int task_timeslice(task_t *p)
- {
- 	return BASE_TIMESLICE(p);
- }
-@@ -201,7 +201,7 @@ static inline void task_rq_unlock(runque
- /*
-  * rq_lock - lock a given runqueue and disable interrupts.
-  */
--static inline runqueue_t *this_rq_lock(void)
-+static runqueue_t *this_rq_lock(void)
- {
- 	runqueue_t *rq;
- 
-@@ -212,7 +212,7 @@ static inline runqueue_t *this_rq_lock(v
- 	return rq;
- }
- 
--static inline void rq_unlock(runqueue_t *rq)
-+static void rq_unlock(runqueue_t *rq)
- {
- 	spin_unlock(&rq->lock);
- 	local_irq_enable();
-@@ -221,7 +221,7 @@ static inline void rq_unlock(runqueue_t 
- /*
-  * Adding/removing a task to/from a priority array:
-  */
--static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
-+static void dequeue_task(struct task_struct *p, prio_array_t *array)
- {
- 	array->nr_active--;
- 	list_del(&p->run_list);
-@@ -229,7 +229,7 @@ static inline void dequeue_task(struct t
- 		__clear_bit(p->prio, array->bitmap);
- }
- 
--static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
-+static void enqueue_task(struct task_struct *p, prio_array_t *array)
- {
- 	list_add_tail(&p->run_list, array->queue + p->prio);
- 	__set_bit(p->prio, array->bitmap);
-@@ -237,7 +237,7 @@ static inline void enqueue_task(struct t
- 	p->array = array;
- }
- 
--static inline int effective_prio(task_t *p)
-+static int effective_prio(task_t *p)
- {
- 	int bonus, prio;
- 
-@@ -263,7 +263,7 @@ static inline int effective_prio(task_t 
- 	return prio;
- }
- 
--static inline void activate_task(task_t *p, runqueue_t *rq)
-+static void activate_task(task_t *p, runqueue_t *rq)
- {
- 	unsigned long sleep_time = jiffies - p->sleep_timestamp;
- 	prio_array_t *array = rq->active;
-@@ -285,7 +285,7 @@ static inline void activate_task(task_t 
- 	rq->nr_running++;
- }
- 
--static inline void deactivate_task(struct task_struct *p, runqueue_t *rq)
-+static void deactivate_task(struct task_struct *p, runqueue_t *rq)
- {
- 	rq->nr_running--;
- 	if (p->state == TASK_UNINTERRUPTIBLE)
-@@ -294,7 +294,7 @@ static inline void deactivate_task(struc
- 	p->array = NULL;
- }
- 
--static inline void resched_task(task_t *p)
-+static void resched_task(task_t *p)
- {
- #ifdef CONFIG_SMP
- 	int need_resched, nrpolling;
-@@ -529,7 +529,7 @@ unsigned long nr_context_switches(void)
-  * Note this does not disable interrupts like task_rq_lock,
-  * you need to do so manually before calling.
-  */
--static inline void double_rq_lock(runqueue_t *rq1, runqueue_t *rq2)
-+static void double_rq_lock(runqueue_t *rq1, runqueue_t *rq2)
- {
- 	if (rq1 == rq2)
- 		spin_lock(&rq1->lock);
+> Let me know if you are still having that problem in .29
+
+No, I fixed that problem. But, as I told you:
+
+> > But there are still other oopses at shutdown for 2.5.27.
+> > 
+> > For 2.5.29 I reported
+> > "> I booted 2.5.29 earlier this evening and was greeted by
+> >  > kernel BUG at transport.c: 351 and
+> >  > kernel BUG at scsiglue.c: 150.
+> >  > (And the usb-storage module now hangs initializing; rmmod fails,
+> >  > reboot is necessary.)"
+
+[Maybe I forgot to tell you; I am a mathematician; tend to be
+fairly precise; thus, the above precisely describes the state
+of my knowledge yesterday evening: in the category "USB-induced
+oopses at reboot" one bug was fixed in 2.5.26; there are further
+such bugs still present in 2.5.27; concerning 2.5.29, it does not
+get far enough to decide: the usb-storage module hangs initializing.]
+
+Andries
+
+
+(Concerning this BUG_ON in transport.c: it should be commented out
+for the moment. First of all, nothing is wrong, I think, and secondly,
+we know already with certainty that it will happen, so nothing is learnt.
+Matt simultaneously came with some SCSI patches. More or less reasonable,
+although discussion was possible. But these were not applied in 2.5.29.
+If and when these or similar patches have been applied to the SCSI code
+one may consider enabling this BUG_ON again.)
+(I have not yet looked at the BUG at scsiglue.c: 150.)

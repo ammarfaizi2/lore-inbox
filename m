@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbTHaMoH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 08:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTHaMoG
+	id S261362AbTHaMiu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 08:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTHaMiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 08:44:06 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:48080 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261364AbTHaMoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 08:44:00 -0400
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: Nick Urbanik <nicku@vtc.edu.hk>
-Subject: Re: Single P4, many IDE PCI cards == trouble??
-Date: Sun, 31 Aug 2003 14:43:55 +0200
-User-Agent: KMail/1.5.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F4EA30C.CEA49F2F@vtc.edu.hk> <1062150643.26753.4.camel@dhcp23.swansea.linux.org.uk> <3F4F5C9A.5BAA1542@vtc.edu.hk>
-In-Reply-To: <3F4F5C9A.5BAA1542@vtc.edu.hk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Aug 2003 08:38:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53521 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261362AbTHaMit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 08:38:49 -0400
+Date: Sun, 31 Aug 2003 13:38:46 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Same problem with pcmcia in 2.4.22 as in 2.6.0-test4
+Message-ID: <20030831133846.C3017@flint.arm.linux.org.uk>
+Mail-Followup-To: kernel <linux-kernel@vger.kernel.org>
+References: <1061936739.10642.6.camel@garaged.fis.unam.mx> <20030826223405.GA2746@iain-vaio-fx405> <20030831121019.GB22771@iain-vaio-fx405>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308311443.55543.hpj@urpla.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030831121019.GB22771@iain-vaio-fx405>; from ibroadfo@cis.strath.ac.uk on Sun, Aug 31, 2003 at 01:10:20PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+On Sun, Aug 31, 2003 at 01:10:20PM +0100, iain d broadfoot wrote:
+> Hallo again,
+> 
+> Just wondering if anyone has any insights into what's going wrong with
+> my pcmcia in both 2.4.22 and 2.6.0-test4.
+> 
+> orinoco_cs: RequestIRQ: Resource in use
+> 
+> is the error I get on inserting my wireless card.
 
-On Friday 29 August 2003 16:00, Nick Urbanik wrote:
->
-> Performance is a relatively minor issue compared with stability and
-> low cost.
->
-> Is there _anyone_ who is using a number of ATA133 IDE disks (>=6),
-> each on its own IDE channel, on a number of PCI IDE cards, and
-> doing so successfully and reliably?  I begin to suspect not!  If
-> so, please tell us what motherboard, IDE cards you are using.  I
-> used to imagine that a terabyte of RAID storage on one P4 machine
-> with ordinary cheap IDE cards with software RAID would be feasible.
->  I believe it is not (although I cannot afford to play musical
-> motherboards).
+There's a patch on pcmcia.arm.linux.org.uk for 2.6.0-test4 which gets
+some more information about what went wrong.  Could you apply it and
+report the kernel messages please?
 
-It is. I'm running several pretty stable systems with IDE SW RAID 5
-on top of Promise TX2/100 (~30 Eur) controllers. There was a long
-standing limit of two cards from this type, which seems to be removed
-lately (as Alan stated). At least, the test system hasn't fallen on 
-it's face, when adding a third controller, and attached devices acted
-as expected without freezing, throwing DMA errors, and the like.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Of course, the usual "don't buy the latest and greatest hardware, 
-if the manufacturer isn't fully commited to linux support" applies.
-Promise isn't!
-
-Pete

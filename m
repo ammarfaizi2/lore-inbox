@@ -1,84 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263344AbTIIMYd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 08:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTIIMYd
+	id S264080AbTIIMrX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 08:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTIIMrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 08:24:33 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51410
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263344AbTIIMYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 08:24:31 -0400
-Date: Tue, 9 Sep 2003 14:25:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-ID: <20030909122547.GN21086@dualathlon.random>
-References: <20030909110112.4d634896.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Sep 2003 08:47:23 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:29417 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264080AbTIIMrV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 08:47:21 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Phil Dibowitz <phil@ipom.com>
+Subject: Re: Linux IDE bug in 2.4.21 and 2.4.22 ?
+Date: Tue, 9 Sep 2003 14:48:36 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <20030908225107.GE17108@earthlink.net>
+In-Reply-To: <20030908225107.GE17108@earthlink.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030909110112.4d634896.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-Id: <200309091448.36231.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 11:01:12AM +0200, Stephan von Krawczynski wrote:
-> Hello,
-> 
-> lately I upgraded my testbox from 2 to 6 GB ram and found out some oddities I
-> would like to hear your opinions.
-> The box ran flawlessly and performant with 2 GB - was in fact a real joy.
-> After upgrading the ram and recompiling kernel 2.4.22 with support for 64 GB I
-> noticed:
-> 
-> 1) nfs clients see timeouts again, like
-> 
-> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 not responding, still
-> trying
-> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 OK
-> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 not responding, still
-> trying
-> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 OK
-> Sep  9 03:41:13 clienta kernel: nfs: server 192.168.1.1 not responding, still
-> trying
-> Sep  9 03:41:13 clienta kernel: nfs: server 192.168.1.1 OK
-> 
-> Both are 2.4.22. 192.168.1.1 is the testbox. I saw those with 2GB, but could
-> fix it through more nfs-daemons and
-> 
->         echo 2097152 >/proc/sys/net/core/rmem_max
->         echo 2097152 >/proc/sys/net/core/wmem_max
-> 
-> Are these values too small for 6 GB?
-> 
-> 2) Box is very slow, kswapd looks very active during tar of a local harddisk.
-> Interactivity is really bad. Seems vm has a high time looking for free or
-> usable pages. Compared to 2 GB the behaviour is unbelievably bad.
-> 
-> 3) Network performance has a remarkable dropdown during above tar. In fact
-> doing simple pings every few minutes shows that quite a lot of them are simply
-> dropped, never make it over the ethernet.
-> 
-> I am really astonished about this. Can some kind soul give me hints or maybe
-> patches to try?
+On Tuesday 09 of September 2003 00:51, Phil Dibowitz wrote:
+> Hey folks,
+>
+> I think I may have found a bug in the Linux IDE subsystem
+> introduced in 2.4.21 and still present in 2.4.22.
 
-for the vm issues my suggestion is to try again with 2.4.22aa1.
+Nope, user error :-).
 
-Andrea
+> SHORT SYNOPSIS: I played with various combinations of drivers, and no
+> matter what I do I can only get ONE of the IDE controllers in my machine
+> recognized at a time. I find this in both 2.4.21 and 2.4.22.
+> Howerver, 2.4.20 and prior were NOT affected.
 
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */
+<...>
+
+> Up until (and including) 2.4.20, my kernel IDE configuration has always
+> looked like
+>
+> CONFIG_BLK_DEV_IDEDISK=y
+> CONFIG_IDEDISK_MULTI_MODE=y
+> CONFIG_BLK_DEV_IDECD=m
+> CONFIG_BLK_DEV_IDEFLOPPY=m
+> CONFIG_BLK_DEV_IDESCSI=m
+> CONFIG_BLK_DEV_CMD640=y
+> CONFIG_BLK_DEV_CMD640_ENHANCED=y
+> CONFIG_BLK_DEV_IDEPCI=y
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> CONFIG_IDEDMA_PCI_AUTO=y
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_BLK_DEV_ADMA=y
+> CONFIG_BLK_DEV_PIIX=y
+> CONFIG_PIIX_TUNING=y
+> CONFIG_IDEDMA_AUTO=y
+> CONFIG_BLK_DEV_IDE_MODES=y
+>
+> The noteworthy thing about the above is that I'm NOT enabling CMD64X -- the
+> CMD640 has always handled the CMD649 PCI IDE controller just fine.
+
+Nope, your CMD649 was handled by generic PCI IDE driver.
+
+> As of 2.4.21, this configuration no longer works -- which is not
+> necessarily a bug. I'm almost there, stay with me. =)
+
+Assumption that current .config will work with future kernel versions is *false*.
+
+Just add these two lines to your .config:
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_CMD64X=y
+
+> So the PCI IDE card isn't recognized with the above configuration. So I decided
+> to enable the CMD64X driver. This caused my PCI IDE card to be recognized BUT 
+> as a side effect, my onboard controller was *NOT* recognized!! At this point
+> I had built the CMD64X driver into the kernel.
+
+Your VIA IDE controller was handled by generic IDE chipset driver which
+did probe devices *after* PCI controllers are probed, so CMD649 took
+ide0 and ide1 first.
+
+--bartlomiej
+

@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUHSAVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUHSA2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267769AbUHSAVw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 20:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUHSAVv
+	id S267730AbUHSA2J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 20:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267753AbUHSA2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 20:21:51 -0400
-Received: from holomorphy.com ([207.189.100.168]:21947 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267753AbUHSAUw (ORCPT
+	Wed, 18 Aug 2004 20:28:09 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:14219 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S267730AbUHSA2E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 20:20:52 -0400
-Date: Wed, 18 Aug 2004 17:20:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: Hugh Dickins <hugh@veritas.com>, "David S. Miller" <davem@redhat.com>,
-       raybry@sgi.com, ak@muc.de, benh@kernel.crashing.org,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: page fault fastpath patch v2: fix race conditions, stats for 8,32     and    512 cpu SMP
-Message-ID: <20040819002038.GW11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-	Hugh Dickins <hugh@veritas.com>,
-	"David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
-	benh@kernel.crashing.org, manfred@colorfullife.com,
-	linux-ia64@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-References: <2uexw-1Nn-1@gated-at.bofh.it> <2uCTq-2wa-55@gated-at.bofh.it> <pan.2004.08.18.23.50.13.562750@umich.edu> <20040819000151.GU11200@holomorphy.com> <Pine.GSO.4.58.0408182005080.9340@sapphire.engin.umich.edu>
+	Wed, 18 Aug 2004 20:28:04 -0400
+Date: Thu, 19 Aug 2004 02:28:03 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bind Mount Extensions 0.05
+Message-ID: <20040819002803.GA18304@MAIL.13thfloor.at>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040818125104.GA12286@MAIL.13thfloor.at> <20040818172855.GC14628@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0408182005080.9340@sapphire.engin.umich.edu>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040818172855.GC14628@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Aug 2004, William Lee Irwin III wrote:
->> exit_mmap() has removed the vma from ->i_mmap and ->mmap prior to
->> unmapping the pages, so this should be safe unless that operation
->> can be caught while it's in progress.
+On Wed, Aug 18, 2004 at 07:28:55PM +0200, Herbert Poetzl wrote:
+> On Wed, Aug 18, 2004 at 02:51:04PM +0200, Herbert Poetzl wrote:
+> > 
+> > Greetings!
+> > 
+> > The following patch extends the 'noatime', 'nodiratime' and
+> > last but not least the 'ro' (read only) mount option to the
+> > vfs --bind mounts, allowing them to behave like any other
+> > mount, by honoring those mount flags (which are silently
+> > ignored by the current implementation in 2.4.x and 2.6.x)
+> > 
+> > I don't want to pollute your mailbox with useless patches,
+> > so for those who are interested in this stuff, get them
+> > here (for 2.4.27 and 2.6.8.1)
+> 
+> patch for 2.6.8.1 is broken, but it will be updated soon
+> please don't use it for now ...
 
-On Wed, Aug 18, 2004 at 08:07:24PM -0400, Rajesh Venkatasubramanian wrote:
-> No. Unfortunately exit_mmap() removes vmas from ->i_mmap after removing
-> page table pages. Maybe we can reverse this, though.
+okay, the patch for 2.6.8.1 was updated and should be fine
+now, please let me know if you encounter any issues, as the
+version for 2.6.8.1 is relatively new ...
 
-Something like this?
+http://www.13thfloor.at/patches/patch-2.6.8.1-bme0.05.1.diff
 
+best,
+Herbert
 
-Index: mm1-2.6.8.1/mm/mmap.c
-===================================================================
---- mm1-2.6.8.1.orig/mm/mmap.c	2004-08-16 23:47:16.000000000 -0700
-+++ mm1-2.6.8.1/mm/mmap.c	2004-08-18 17:18:26.513559632 -0700
-@@ -1810,6 +1810,14 @@
- 	mm->map_count -= unmap_vmas(&tlb, mm, mm->mmap, 0,
- 					~0UL, &nr_accounted, NULL);
- 	vm_unacct_memory(nr_accounted);
-+	/*
-+	 * Walk the list again, actually closing and freeing it.
-+	 */
-+	while (vma) {
-+		struct vm_area_struct *next = vma->vm_next;
-+		remove_vm_struct(vma);
-+		vma = next;
-+	}
- 	BUG_ON(mm->map_count);	/* This is just debugging */
- 	clear_page_tables(tlb, FIRST_USER_PGD_NR, USER_PTRS_PER_PGD);
- 	tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
-@@ -1822,16 +1830,6 @@
- 	mm->locked_vm = 0;
- 
- 	spin_unlock(&mm->page_table_lock);
--
--	/*
--	 * Walk the list again, actually closing and freeing it
--	 * without holding any MM locks.
--	 */
--	while (vma) {
--		struct vm_area_struct *next = vma->vm_next;
--		remove_vm_struct(vma);
--		vma = next;
--	}
- }
- 
- /* Insert vm structure into process list sorted by address
+> >   http://www.13thfloor.at/patches/
+> > 
+> > many thanks to Willy Tarreau for spotting the bug in the
+> > previous bme0.04 for linux 2.4.x.
+> > 
+> > enjoy,
+> > Herbert
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

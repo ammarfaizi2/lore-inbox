@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270493AbTGNBmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 21:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270494AbTGNBmW
+	id S270489AbTGNBkp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 21:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270490AbTGNBkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 21:42:22 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:52137 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S270493AbTGNBmR
+	Sun, 13 Jul 2003 21:40:45 -0400
+Received: from dsl093-061-108.pit1.dsl.speakeasy.net ([66.93.61.108]:62462
+	"EHLO o-o.yi.org") by vger.kernel.org with ESMTP id S270489AbTGNBko
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 21:42:17 -0400
-Date: Mon, 14 Jul 2003 13:54:44 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend
-	enhancements
-In-reply-to: <20030713210934.GK570@elf.ucw.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+	Sun, 13 Jul 2003 21:40:44 -0400
+X-Mailer: exmh version 2.5 10/15/1999 with nmh-1.0.4
+To: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1058147684.2400.9.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1057963547.3207.22.camel@laptop-linux>
- <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net>
- <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk>
- <20030713193114.GD570@elf.ucw.cz> <1058130071.1829.2.camel@laptop-linux>
- <20030713210934.GK570@elf.ucw.cz>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend 
+ enhancements
+In-Reply-To: Message from Jamie Lokier <jamie@shareable.org> 
+   of "Mon, 14 Jul 2003 02:43:28 BST." <20030714014328.GB22769@mail.jlokier.co.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 13 Jul 2003 21:55:26 -0400
+From: Lyle Seaman <lws@o-o.yi.org>
+Message-Id: <20030714015531.7F1CF14829@o-o.yi.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay. 
 
-Having listened to the arguments, I'll make pressing Escape to cancel
-the suspend a feature which defaults to being disabled and can be
-enabled via a proc entry in 2.4. I won't add code to poll for ACPI (or
-APM) events :>
+> Haven't you ever pressed the "off" or "lock" button on a computer in a
+> lab and walked away?
 
-Regards,
+Yes, I have, but that's not what I was driving at.  The question is, what do 
+you think is the difference between :
 
-Nigel
+(a) pressing "suspend" and walking away, while being assured that suspend will 
+complete and leave the system ... suspended, until someone triggers a "resume"
 
-On Mon, 2003-07-14 at 09:09, Pavel Machek wrote:
-> Hi!
-> 
-> > Escape is more intuitively obvious though - I would expect the suspend
-> > button to only start a suspend. And the idea of escape cancelling
-> > anything is well in-grained in peoples' minds.
-> 
-> You did not initiate suspend from keyboard => you should not
-> terminate it from keyboard.
-> 
-> 								Pavel
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+and
 
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
+(b) pressing "suspend" and walking away, while allowing the possibility that 
+someone might interrupt the suspend operation.
+
+??
+
+Personally, I don't see any difference.
+
+
 

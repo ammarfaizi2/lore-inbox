@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265141AbTF1K1W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 06:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265145AbTF1K1W
+	id S265153AbTF1KaI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 06:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbTF1KaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 06:27:22 -0400
-Received: from [217.113.73.39] ([217.113.73.39]:39444 "EHLO
-	entandikwa.ds.co.ug") by vger.kernel.org with ESMTP id S265141AbTF1K0C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 06:26:02 -0400
-Subject: Re: Is their an explanation of various kernel
-	versions/brances/patches/? (-mm, -ck, ..)
-From: "Peter C. Ndikuwera" <pndiku@dsmagic.com>
-To: Orion Poplawski <orion@cora.nwra.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <bdd64m$3dr$1@main.gmane.org>
-References: <bdd64m$3dr$1@main.gmane.org>
-Content-Type: text/plain
-Organization: Digital Solutions Ltd
-Message-Id: <1056796691.2156.6.camel@mufasa.ds.co.ug>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
-Date: 28 Jun 2003 13:38:11 +0300
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Jun 2003 06:30:08 -0400
+Received: from lucidpixels.com ([66.45.37.187]:44219 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S265182AbTF1KaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 06:30:01 -0400
+Date: Sat, 28 Jun 2003 06:44:17 -0400 (EDT)
+From: war <war@lucidpixels.com>
+X-X-Sender: war@p500
+To: linux-kernel@vger.kernel.org
+cc: ap@solarrain.com
+Subject: Broadcom Gigabit + Linux 2.4.20 - Error with polling.
+Message-ID: <Pine.LNX.4.56.0306280640290.13092@p500>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://kernelnewbies.org/faq/index.php3#trees has a few of them
+In dmesg, I get this on a board with onboard broadcom gbit ethernet.
+The NIC is running at 100mbps.
 
-Maybe you could alert the web maintainers to the entries in this thread?
-:-)
+root@l1:~_26 # uname -a
+Linux l1 2.4.20 #6 Thu Jun 12 19:56:43 EDT 2003 i686 unknown unknown
+GNU/Linux
+root@l1:~_27 #
 
-Peter Ndikuwera
-Digital Solutions
-Uganda
+The description from dmesg:
+eth0: Tigon3 [partno(BCM95702A20) rev 1002 PHY(5703)] (PCI:33MHz:32-bit)
+10/100/1000BaseT
 
-On Thu, 2003-06-26 at 01:02, Orion Poplawski wrote:
-> Seems like everybody and their brother is maintaining a kernel patch set 
-> these days :-).
-> 
-> Is there a page somewhere that explains the goals of each of the various 
-> versions?
-> 
-> Thanks!
-> 
-> - Orion
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>From lspci:
+00:0f.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702
+Gigabit Ethernet (rev 02)
+        Subsystem: Micro-Star International Co., Ltd.: Unknown device 730b
+        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 5
+        Memory at dffb0000 (64-bit, non-prefetchable) [size=64K]
+        Capabilities: [40] PCI-X non-bridge device.
+        Capabilities: [48] Power Management version 2
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3
+Enable-
+
+tg3: eth0: Error, poll already scheduled
+tg3: eth0: Error, poll already scheduled
+tg3: eth0: Error, poll already scheduled
+tg3: eth0: Error, poll already scheduled
+tg3: eth0: Error, poll already scheduled
+tg3: eth0: Error, poll already scheduled
+tg3: eth0: Error, poll already scheduled
+
+# dmesg | grep -c tg3
+372
+
+I haven't noticed any particular network problems from this message,
+however, it certainy is not normal, anyone know what the cause of this
+error is?
+
 

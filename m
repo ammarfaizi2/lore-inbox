@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266092AbTGIShc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 14:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbTGIShc
+	id S266077AbTGISkl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 14:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268438AbTGISkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 14:37:32 -0400
-Received: from pat.uio.no ([129.240.130.16]:8170 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S266092AbTGISgg (ORCPT
+	Wed, 9 Jul 2003 14:40:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:31502 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266077AbTGISkj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 14:36:36 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Jul 2003 14:40:39 -0400
+Date: Wed, 9 Jul 2003 20:55:15 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: grundler@parisc-linux.org, alan@lxorguk.ukuu.org.uk,
+       James.Bottomley@SteelEye.com, axboe@suse.de, suparna@in.ibm.com,
+       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
+       bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-Id: <20030709205515.716a2f3a.ak@suse.de>
+In-Reply-To: <20030708.152314.115928676.davem@redhat.com>
+References: <20030708213427.39de0195.ak@suse.de>
+	<20030708.150433.104048841.davem@redhat.com>
+	<20030708222545.GC6787@dsl2.external.hp.com>
+	<20030708.152314.115928676.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16140.25619.963866.474510@charged.uio.no>
-Date: Wed, 9 Jul 2003 20:50:59 +0200
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ->direct_IO API change in current 2.4 BK
-In-Reply-To: <200307092041.42608.m.c.p@wolk-project.de>
-References: <20030709133109.A23587@infradead.org>
-	<Pine.LNX.4.55L.0307091506180.27004@freak.distro.conectiva>
-	<16140.24595.438954.609504@charged.uio.no>
-	<200307092041.42608.m.c.p@wolk-project.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
+On Tue, 08 Jul 2003 15:23:14 -0700 (PDT)
+"David S. Miller" <davem@redhat.com> wrote:
 
-     > err, -aa has XFS per default, -wolk has XFS per default. So
-     > ... ;)
+>    From: Grant Grundler <grundler@parisc-linux.org>
+>    Date: Tue, 8 Jul 2003 16:25:45 -0600
+> 
+>    On Tue, Jul 08, 2003 at 03:04:33PM -0700, David S. Miller wrote:
+>    >    Do you know a common PCI block device that would benefit from this
+>    >    (performs significantly better with short sg lists)? It would be
+>    >    interesting to test.
+>    >    
+>    > %10 to %15 on sym53c8xx devices found on sparc64 boxes.
+>    
+>    Which workload?
+> 
+> dbench type stuff, but that's a hard thing to test these days with
+> the block I/O schedulers changing so much.  Try to keep that part
+> constant in the with/vs/without VIO_VMERGE!=0 testing :)
 
-So they have both XFS + NFS O_DIRECT?
+With MPT-Fusion and reaim "new dbase" load it seems to be slightly faster
+with forced IOMMU merging on Opteron, but the differences are quite small (~4%) and could
+be measurement errors.
 
-The answer to your question is then that somebody made the trivial
-conversion on XFS... It's just a question of replacing the second
-argument of the direct_IO() method with a filp, then extracting the
-inode from that. A 2-liner patch at most...
-
-The point here is that Marcelo's tree does not include XFS, so my
-patch can't fix it up...
-As I said, I suggest replacing KERNEL_HAS_O_DIRECT with
-KERNEL_HAS_O_DIRECT2 so that the XFS patches can switch on that, and
-hence provide the 2-liner on newer kernels...
-
-Cheers,
-  Trond
+-Andi

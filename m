@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316234AbSEQOXr>; Fri, 17 May 2002 10:23:47 -0400
+	id <S316236AbSEQO0j>; Fri, 17 May 2002 10:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSEQOXr>; Fri, 17 May 2002 10:23:47 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:16393 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S316234AbSEQOXp>; Fri, 17 May 2002 10:23:45 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <86256BBC.004F08E1.00@smtpnotes.altec.com>
-Date: Fri, 17 May 2002 09:21:12 -0500
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S316237AbSEQO0i>; Fri, 17 May 2002 10:26:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36873 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316236AbSEQO0g>;
+	Fri, 17 May 2002 10:26:36 -0400
+Message-ID: <3CE512A7.70202@mandrakesoft.com>
+Date: Fri, 17 May 2002 10:24:39 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+CC: "Grover, Andrew" <andrew.grover@intel.com>,
+        "Patrick Mochel (mochel@osdl.org)" <mochel@osdl.org>,
+        "'davem@redhat.com'" <davem@redhat.com>,
+        "'Greg@kroah.com'" <Greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: pci segments/domains
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7E45@orsmsx111.jf.intel.com> <3CE4098E.2070808@mandrakesoft.com> <20020517144755.A16767@jurassic.park.msu.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ivan Kokshaysky wrote:
 
-
-OTOH, those of us who are not looking forward to kbuild 2.5 are grateful for any
-delays we can get.
-
-
-
-
-
-Tomas Szepe <szepe@pinerecords.com> on 05/16/2002 10:30:56 PM
-
-To:   Linus Torvalds <torvalds@transmeta.com>
-cc:   linux-kernel@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-
-
-
-> > Third and final attempt.  Original sent on May 2, second mail sent on
-> > May 14, still no response from Linus.
+>On Thu, May 16, 2002 at 03:33:34PM -0400, Jeff Garzik wrote:
 >
-> Linus is a bastard.  Did you forget?
+>>I wouldn't mind making the PCI domain support a bit more explicit, 
+>>though.  I think it's fair to be able to obtain a pointer to "struct 
+>>pci_domain", which would most likely be defined in asm/pci.h for each arch.
+>>
+>
+>We already have it - void *sysdata. Host-to-PCI (domain) controllers might
+>be totally different even inside any given architecture, so trying to
+>make this more generic would be pointless - you will end up with a pointer
+>to arch/device specific data anyway.
+>
+I know -- that's what I mean by being more explicit.  sysdata would 
+become a pointer to struct pci_domain.
 
-This is getting ridiculous all right.
+>
+>I can think of the only case where domain info might be interesting - if
+>some device wants to know whether it can talk to another device directly.
+>We have pci_controller_num(pdev) for this.
+>
 
-Linus, what makes you ignore Keith's work?
+Like gets mentioned later in the thread, you don't want to start 
+addressing based on number...
 
-Would you tend to think he's worked on kbuild25 this long
-to end up having to send a linus-dammit-would-you-have-
--a-look-at-last-i'm-not-going-to-keep-asking-forever msg?
-
-Sorry for a slightly offensive post; I can't stand to
-see such impoliteness.
-
-T.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+    Jeff
 
 
 

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbUKEQ4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbUKERIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbUKEQ4v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 11:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbUKEQ4u
+	id S262723AbUKERIj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 12:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbUKERIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 11:56:50 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:44469 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262700AbUKEQ4t
+	Fri, 5 Nov 2004 12:08:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39387 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262723AbUKERIg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 11:56:49 -0500
-Subject: Re: [RFC] [PATCH] [0/6] LSM Stacking
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200411050723.iA57NGUv023856@turing-police.cc.vt.edu>
-References: <1099609471.2096.10.camel@serge.austin.ibm.com>
-	 <200411050723.iA57NGUv023856@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1099673502.6373.190.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 05 Nov 2004 11:51:42 -0500
+	Fri, 5 Nov 2004 12:08:36 -0500
+Message-ID: <418BB384.2020300@pobox.com>
+Date: Fri, 05 Nov 2004 12:08:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Xen 2.0 Officially Released!
+References: <E1CQ4uN-0004PN-00@mta1.cl.cam.ac.uk>
+In-Reply-To: <E1CQ4uN-0004PN-00@mta1.cl.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-05 at 02:23, Valdis.Kletnieks@vt.edu wrote:
-> One issue:  I'm seeing this from /usr/sbin/sendmail:
-> 
-> % /usr/sbin/sendmail
-> drop_privileges: setuid(0) succeeded (when it should not)
-> 
-> I've not tracked down what's causing this indigestion yet (I suspect some
-> bad interaction with capabilities - that's what caused that message to be
-> added to Sendmail in the first place).
+Ian Pratt wrote:
+> The Xen team are pleased to announce the release of Xen 2.0, the
+> open-source Virtual Machine Monitor.  Xen enables you to run
+> multiple operating systems images concurrently on the same
+> hardware, securely partitioning the resources of the machine
+> between them. Xen uses a technique called 'para-virtualization'
+> to achieve very low performance overhead -- typically just a few
+> percent relative to native.  This new release provides kernel
+> support for Linux 2.4.27/2.6.9 and NetBSD, with FreeBSD and Plan9
+> to follow in the next few weeks.
 
-stacker module is granting capability if any security module allows it
-under the view that the capable() hook is authoritative.  But that is a
-mistake; if you look at the existing stacking support in SELinux for
-capabilities, we require both modules to approve the capability.
+Xen is pretty darn neat -- any plans to merge into upstream Linux kernel?
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+	Jeff
+
+
 

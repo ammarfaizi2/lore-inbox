@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131887AbRDNXai>; Sat, 14 Apr 2001 19:30:38 -0400
+	id <S131976AbRDNXej>; Sat, 14 Apr 2001 19:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131976AbRDNXa3>; Sat, 14 Apr 2001 19:30:29 -0400
-Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:8207 "HELO
-	xena.sind-doof.de") by vger.kernel.org with SMTP id <S131887AbRDNXaW>;
-	Sat, 14 Apr 2001 19:30:22 -0400
-Date: Sun, 15 Apr 2001 01:29:42 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Rod Stewart <stewart@dystopia.lab43.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 8139too: defunct threads
-Message-ID: <20010415012942.A2171@kallisto.sind-doof.de>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Rod Stewart <stewart@dystopia.lab43.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3AD88A00.DF54EC12@colorfullife.com> <E14oVAp-0005Nj-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14oVAp-0005Nj-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Apr 14, 2001 at 07:53:28PM +0100
-X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
-X-Disclaimer: Are you really taking me serious?
+	id <S132125AbRDNXe3>; Sat, 14 Apr 2001 19:34:29 -0400
+Received: from relay.freedom.net ([207.107.115.209]:18950 "HELO relay")
+	by vger.kernel.org with SMTP id <S131976AbRDNXeR>;
+	Sat, 14 Apr 2001 19:34:17 -0400
+X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQGHVsjK7CtTZHSbyjOzjlecCKGe59aI9itYgrYbGz8P1ZdySWU8JZ7s
+Date: Sat, 14 Apr 2001 17:33:02 -0600
+Old-From: cacook@freedom.net
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: DPT PM3755F Fibrechannel Host Adapter
+Content-Type: text/plain; charset = "us-ascii" 
+Content-Transfer-Encoding: 7bit
+From: cacook@freedom.net
+Message-Id: <20010414233426Z131976-682+268@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have been unable to set up a module for my DPT fibrechannel host adapter, partly through unavailability, and partly through inexperience.
 
-On Sat, Apr 14, 2001 at 07:53:28PM +0100, Alan Cox wrote:
-> > Rod's init version (from RH 7.0) doesn't reap children that died before
-> > it was started. Is that an init bug or should the kernel reap them
-> > before the execve?
-> I would say thats an init bug
+Found Ricky Beam's 2.4.0-test7 .diff, but lack the experience to retrofit it to 2.4.2. Tried  patch -su <dpt_i2o-test7.diff  to my kernel 2.4.2 source, but many errors not surprisingly.  Tried hand-modifying the files it changes and creating the .c & .h files, but failed there too.
 
-It doesn't seem to be that simple.
+What he made is (an apparently) unified .diff file for an older version of the kernel,
+and I would like to get my fibrechannel working as (at least) a module in 2.4.2 and later if possible.
+--
+C.
 
-Redhat's init does child reaping in its SIGCHLD handler using the
-following:
-
-while((pid = waitpid(-1, &st, WNOHANG)) != 0) {
-    if (errno == ECHILD) break;
-    /* do some stuff, nothing which could break out of the loop */
-}
-
-This should reap all leftover childs from kernel startup when init
-receives SIGCHLD for the first time, but somehow the kernel seems to
-skip them while searching for a dead process in sys_wait4().  I can't
-do any further testing because I don't have a 8139 NIC, but I can't
-find a problem in init's child reaping code.
-
-Please tell me if I'm missing something, but I think this is really a
-kernel issue, not a bug in init.
-
-Andreas
--- 
-I've finally learned what "upward compatible" means.  It means we get to
-keep all our old mistakes.
-		-- Dennie van Tassel
+The best way out is always through.
+      - Robert Frost  A Servant to Servants, 1914
 

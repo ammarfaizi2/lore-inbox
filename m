@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131725AbRAITPq>; Tue, 9 Jan 2001 14:15:46 -0500
+	id <S131369AbRAITR4>; Tue, 9 Jan 2001 14:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131708AbRAITP3>; Tue, 9 Jan 2001 14:15:29 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:54801 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131687AbRAITPX>; Tue, 9 Jan 2001 14:15:23 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Date: 9 Jan 2001 11:14:54 -0800
-Organization: Transmeta Corporation
-Message-ID: <93fnve$250$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0101081603080.21675-100000@duckman.distro.conectiva> <20010109113145.A28758@caldera.de> <200101091031.CAA01242@pizda.ninka.net> <20010109122810.A3115@caldera.de>
+	id <S131440AbRAITRq>; Tue, 9 Jan 2001 14:17:46 -0500
+Received: from [216.151.155.116] ([216.151.155.116]:65290 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S131369AbRAITRc>; Tue, 9 Jan 2001 14:17:32 -0500
+To: Mihai Moise <mcartoaj@mat.ulaval.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: adding a system call
+In-Reply-To: <200101091441.JAA12925@taylor.mat>
+From: Doug McNaught <doug@wireboard.com>
+Date: 09 Jan 2001 14:17:26 -0500
+In-Reply-To: Mihai Moise's message of "Tue, 9 Jan 2001 09:41:21 -0500 (EST)"
+Message-ID: <m3snmsbkmx.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010109122810.A3115@caldera.de>,
-Christoph Hellwig  <hch@caldera.de> wrote:
->
->You get that multiple page call with kiobufs for free...
+Mihai Moise <mcartoaj@mat.ulaval.ca> writes:
 
-No, you don't.
+> My system call idea is to allow a superuser process to request a mmap on
+> behalf of an user process. To see how this would be useful, let us consider
+> svgalib.
 
-kiobufs are crap. Face it. They do NOT allow proper multi-page scatter
-gather, regardless of what the kiobuf PR department has said.
+[...]
 
-I've complained about it before, and nobody listened. Davids zero-copy
-network code had the same bug. I complained about it to David, and David
-took about a day to understand my arguments, and fixed it.
+> With my new system call, a superuser process can set the graphics mode in a
+> safe manner and then ask for an mmap of the video array into the application
+> data segment.
 
-It's more likely that the zero-copy network code will be used in real
-life than kiobufs will ever be.  The kiobufs are damn ugly by
-comparison, and the fact that the kiobuf people don't even seem to
-realize the problems makes me just more convinced that it's not worth
-even arguing about.
+Ummm, couldn't the the root process open the video device, then pass
+the file descriptor (via AF_UNIX socket) to the user process?  The
+user process would then call mmap() on the open file descriptor. 
 
-What is the problem with kiobuf's? Simple: they have a "offset" and a
-"length", and an array of pages.  What that completely and utterly
-misses is that if you have an array of pages, you should have an array
-of "offset" and "length" too.  As it is, kiobuf's cannot be used for
-things like readv() and writev(). 
+I'm not *completely* sure this would work, but it would avoid creating 
+a new system call if so.
 
-Yes, to work around this limitation, there's the notion of "kiovec", an
-array of kiobuf's.  Never mind the fact that if kiobuf's had been
-properly designed in the first place, you wouldn't need kiovec's at all. 
-And kiovec's are too damn heavy to use for something like the networking
-zero-copy, with all the double indirection etc. 
-
-I told David that he can fix the network zero-copy code two ways: either
-he makes it _truly_ scatter-gather (an array of not just pages, but of
-proper page-offset-length tuples), or he makes it just a single area and
-lets the low-level TCP/whatever code build up multiple segments
-internally.  Either of which are good designs.
-
-It so happens that none of the users actually wanted multi-page
-scatter-gather, and the only thing that really wanted to do the sg was
-the networking layer when it created a single packet out of multiple
-areas, so the zero-copy stuff uses the simpler non-array interface. 
-
-And kiobufs can rot in hell for their design mistakes.  Maybe somebody
-will listen some day and fix them up, and in the meantime they can look
-at the networking code for an example of how to do it. 
-
-		Linus
+-Doug
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

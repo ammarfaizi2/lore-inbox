@@ -1,58 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUD1BbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264586AbUD1Bdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUD1BbD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 21:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264573AbUD1BbC
+	id S264586AbUD1Bdn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 21:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUD1BdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 21:31:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2242 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264571AbUD1Ba7 (ORCPT
+	Tue, 27 Apr 2004 21:33:21 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:8597 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S264578AbUD1BdI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 21:30:59 -0400
-Date: Tue, 27 Apr 2004 18:33:06 -0700
-From: Dave Olien <dmo@osdl.org>
-To: thornber@redhat.com
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: [CORRECTED PATCH], trivial patch for dm-target.c with correction
-Message-ID: <20040428013305.GA18833@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Tue, 27 Apr 2004 21:33:08 -0400
+Date: Wed, 28 Apr 2004 03:33:05 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: Tim Hockin <thockin@hockin.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+In-Reply-To: <20040428011348.GA22754@hockin.org>
+Message-ID: <Pine.LNX.4.44.0404280317290.17647-100000@hubble.stokkie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Apr 2004, Tim Hockin wrote:
 
-Sorry, I made an error on that last patch to dm-target.c.  I overlooked
-that it needed the init.h header file included also, and I had not compiled
-the change because it was "so trivial".
+> On Wed, Apr 28, 2004 at 02:56:16AM +0200, Robert M. Stockmann wrote:
+> > > Care to show me where they use unnamed structures, and how it has anything
+> > > to do with binary modules?
+> > 
+> > fasttrak.h :
+> > #define ft3xx {							\
+> > 	next: NULL,						\
+> 	...
+> > } 
+> > #endif
+> 
+> > This header file is needed to be able to link ft3xx.o . In which way binary 
+> > incompatibility is introduced, inside this case is hard to tell. We
+> > will never know i guess , since the type and size of the above components
+> > is hidden inside the binary only part :
+> 
+> Do you know C, or just pretend to?
 
-Please use this patch instead.
+I am no kernel coder, if its that what you mean. 
 
+> 
+> Those are structure initializers, not unnamed types.  They've provided a
+> macro to use to initialize instances of some structure.
+> 
+> fasttrak.c:890 shows
+> 	static Scsi_Host_Template driver_template = ft3xx;
+> 
+> The structure definition for 'Scsi_Host_Template' is in
+> /usr/src/linux/drivers/scsi/hosts.h which is included in fasttrak.c.
 
-diff -ur linux-2.6.6-rc2-udm1-original/drivers/md/dm-target.c linux-2.6.6-rc2-udm1-patched/drivers/md/dm-target.c
---- linux-2.6.6-rc2-udm1-original/drivers/md/dm-target.c	2004-04-27 17:59:53.000000000 -0700
-+++ linux-2.6.6-rc2-udm1-patched/drivers/md/dm-target.c	2004-04-27 18:29:58.000000000 -0700
-@@ -7,6 +7,7 @@
- #include "dm.h"
- 
- #include <linux/module.h>
-+#include <linux/init.h>
- #include <linux/kmod.h>
- #include <linux/bio.h>
- #include <linux/slab.h>
-@@ -181,12 +182,12 @@
- 	.map  = io_err_map,
- };
- 
--int dm_target_init(void)
-+int __init dm_target_init(void)
- {
- 	return dm_register_target(&error_target);
- }
- 
--void dm_target_exit(void)
-+void __exit dm_target_exit(void)
- {
- 	if (dm_unregister_target(&error_target))
- 		DMWARN("error target unregistration failed");
+Ok you got me there. I would suggest to change fasttrak.h like this
+to obtain better readability :
+
+#ifndef _ft3xx_h
+#define _ft3xx_h
+
+#include <linux/version.h>
+#include "/usr/src/linux/drivers/scsi/hosts.h"
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+#define ft3xx {                                                 \
+        next: NULL,                                             \
+	...
+};
+
+> 
+> If you run it thru the preprocessor, you'd see
+> 	static Scsi_Host_Template driver_template = {
+> 		next: NULL,
+> 		...
+> 	};
+> 
+> No opaque structs.  No unnamed types.  No magic.  It's not pretty, and
+> it's bound to break on any non-standard rig, but it's NOT what you claim
+> it is.
+> 
+> The initializer style (foo:  value) is probably why gcc-2.95 blows up, but
+> I don't have it here to verify.
+
+It does, which awakened me all up in arms. certainly if gcc-2.95.3
+is still mentioned as recommended gcc version for the ia32 platform 
+inside /usr/src/linux/Documentation/Changes. It pissed me off not
+being able to use gcc-2.95.3 when using that fasttrak driver.
+
+> 
+> You really should know what you're talking about before you launch a
+> crusade against something.
+> 
+
+I agree the fasttrak partial-source kit is not the all defining example.
+Still i believe nasty stuff is possible.
+
+Robert
+-- 
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
+

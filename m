@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263431AbTIHSCX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTIHSCX
+	id S263447AbTIHRwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 13:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTIHRwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:02:23 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:29446 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263438AbTIHSCW
+	Mon, 8 Sep 2003 13:52:25 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:43151 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263447AbTIHRwX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:02:22 -0400
-Date: Mon, 8 Sep 2003 19:02:21 +0100
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix AGP __setup warning + elsewhere
-Message-ID: <20030908180221.GA78834@compsoc.man.ac.uk>
+	Mon, 8 Sep 2003 13:52:23 -0400
+Date: Mon, 8 Sep 2003 18:51:40 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Andrew Morton <akpm@osdl.org>, Stephen Hemminger <shemminger@osdl.org>,
+       torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: today's futex changes
+Message-ID: <20030908175140.GC27097@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0309061723160.1470-100000@localhost.localdomain> <20030908102309.0AC4E2C013@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19wQLF-000G22-Ih*AF4TmzzzRPk*
+In-Reply-To: <20030908102309.0AC4E2C013@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
+> +	u32 hash = jhash2((u32*)&key->both.word,
 
-drivers/char/agp/backend.c:322: warning: `agp_setup' defined but not used
+Have you checked the code size?
 
-Whilst __setup is allegedly obsolete, this usage at least is going to stay
-around, and there are plenty of other places that currently have unnecessary
-#ifdefs (any place that's worried about a few bytes of module size bloat can
-still keep the ifdefs of course ...)
+That does more work and has more code than is needed, especially on
+32-bit archs.  On 32-bit, jhash_3words() is much better because it
+reduces to a single call to __jhash_mix(), instead of the two done by
+jhash2 (only one is required for good hashing afaict).
 
-This just uses the same trick as module_init() to avoid the warning.
+It is probably worth adding a jhash_3longs() to jhash.h, which does
+one call to __hash_mix() on 32-bit, two calls on 64-bit, and avoids
+the loop in both cases.
 
-regards
-john
+[ Aside: For hashing individual integers, I prefer to use Thomas Wang's:
 
+	http://www.concentric.net/~Ttwang/tech/inthash.htm
 
-diff -Naurp -X dontdiff linux-cvs/include/linux/init.h linux-fixes/include/linux/init.h
---- linux-cvs/include/linux/init.h	2003-06-14 16:54:23.000000000 +0100
-+++ linux-fixes/include/linux/init.h	2003-09-08 19:01:59.000000000 +0100
-@@ -167,7 +167,9 @@ struct obs_kernel_param {
- 	{ return exitfn; }					\
- 	void cleanup_module(void) __attribute__((alias(#exitfn)));
- 
--#define __setup(str,func) /* nothing */
-+#define __setup(str,func)                                       \
-+	static inline int (*__setup_dummy_##func(void))(char *) \
-+	{ return func; }
- #endif
- 
- /* Data marked not to be saved by software_suspend() */
+  He mentions Jenkin's function, and derived an integer mixing function
+  from correspondence with Jenkins.
+
+  For hashing 3 words together, Jenkins' hash does seem a bit more
+  compact - if you don't call __jhash_mix() multiple times that is! ]
+
+> -	if (unlikely((vma->vm_flags & (VM_IO|VM_READ)) != VM_READ))
+> -		return (vma->vm_flags & VM_IO) ? -EPERM : -EACCES;
+> +	if (unlikely(vma->vm_flags & VM_IO))
+> +		return -EPERM;
+> +	if (unlikely(vma->vm_flags & (VM_READ|VM_WRITE)) != (VM_READ|VM_WRITE))
+> +		return -EACCES;
+
+Is there a good reason to disallow read-only waiters?
+I agree with Hugh that it seems like a regression.
+
+> +	/* A spurious wakeup.  Should never happen. */
+> +	BUG();
+
+:)
+
+The rest of your changes seem fine.  I particularly appreciate your
+grammatical improvements to my comment :)
+
+-- Jamie

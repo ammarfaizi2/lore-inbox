@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbSLVBAu>; Sat, 21 Dec 2002 20:00:50 -0500
+	id <S264639AbSLVBCC>; Sat, 21 Dec 2002 20:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264646AbSLVBAu>; Sat, 21 Dec 2002 20:00:50 -0500
-Received: from www2.mail.lycos.com ([209.202.220.150]:4920 "HELO mailcity.com")
-	by vger.kernel.org with SMTP id <S264644AbSLVBAt>;
-	Sat, 21 Dec 2002 20:00:49 -0500
-To: "Rob Shortt" <rob@infointeractive.com>
-Date: Sat, 21 Dec 2002 20:08:32 -0500
-From: "Paul Richards" <greytek@lycos.com>
-Message-ID: <CBLIEOOEMIICNBAA@mailcity.com>
-Mime-Version: 1.0
-Cc: linux-kernel@vger.kernel.org
-X-Sent-Mail: off
-Reply-To: greytek@lycos.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Re: [PATCH] 2.4.19 rivafb updates
-X-Sender-Ip: 68.41.210.181
-Organization: Lycos Mail  (http://www.mail.lycos.com:80)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
+	id <S264649AbSLVBCC>; Sat, 21 Dec 2002 20:02:02 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:48070 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S264639AbSLVBCB>; Sat, 21 Dec 2002 20:02:01 -0500
+Message-ID: <20021222010959.24200.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: akpm@digeo.com, arashi@arashi.yi.org
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 22 Dec 2002 09:09:59 +0800
+Subject: Re: 2.5.52, load and process in D state
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 03 Dec 2002 11:06:07  
- Rob Shortt wrote:
->Hi Paul,
->
->First of all, thanks for this patch!  I came accross it while searching 
->the archives last night.  I am using a GeForce4 MX440 and have applied 
->your patch, now rivafb successfully detects my card.
->
->I am trying to use rivefb with my TV as the (only) display.  I have 
->tried an 800x600 mode @ 60 Hz which from what I read is optimal for 
->TV's, also this is the mode I use when using X to display on my TV. 
->With rivafb in this mode (similar results for other modes) my display is 
->totally garbled with rectangles of colours going everywhere.
->
->My question is does something need to change with regard to rivafb to 
->play nice with a television as the display or do I just need to keep 
->searching for a better modeline?  I will be testing the patched rivafb 
->this evening with a regular monitor to make sure that works as well.
->
->Once again, thanks!  If anyone else on this list has any input that also 
->would be appreciated.
->
->-Rob Shortt
->
+From: Andrew Morton <akpm@digeo.com>
+> Paolo Ciarrocchi wrote:
+> > 
+> > Hi all,
+> > I booted 2.5.52 with the following parmater:
+> > apm=off mem=32M (not sure about the amount, anyway I can reproduce
+> > the problem for sure with 32M and 40M)
+> > 
+> > Then I tried the osdb (www.osdb.org) benchmark with
+> > 40M of data.
+> > 
+> > $./bin/osdb-pg --nomulti
+> > 
+> > the result is that aftwer a few second running top I see the postmaster
+> > process in D state and a lot if iowait.
+> 
+> What exactly _is_ the issue?  The machine is achieving 25% CPU utilisation
+> in user code, 6-9% in system code.  It is doing a lot of I/O, and is
+> getting work done.
 
-Sorry for the wait (real life stuff), but unfortunately there is no tv-out support in this patch. 
+The issue it that with 2.4.19 the postmaster process never go in D state
+and iowait always reports 0%.
+Sounds strange with me.
 
-Regards,
+Ciao,
+       Paolo 
 
-Paul F. Richards
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
 
-
-_____________________________________________________________
-Get 25MB, POP3, Spam Filtering with LYCOS MAIL PLUS for $19.95/year.
-http://login.mail.lycos.com/brandPage.shtml?pageId=plus&ref=lmtplus
+Powered by Outblaze

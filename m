@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283926AbRLEKJR>; Wed, 5 Dec 2001 05:09:17 -0500
+	id <S283928AbRLEKK1>; Wed, 5 Dec 2001 05:10:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283928AbRLEKJH>; Wed, 5 Dec 2001 05:09:07 -0500
-Received: from [12.36.112.226] ([12.36.112.226]:55031 "EHLO golux.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S283926AbRLEKJA>;
-	Wed, 5 Dec 2001 05:09:00 -0500
-Date: Wed, 5 Dec 2001 05:02:59 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Greg Banks <gnb@alphalink.com.au>
-Cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011205050259.F4836@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Greg Banks <gnb@alphalink.com.au>,
-	Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com> <20011204182236.GM17651@cpe-24-221-152-185.az.sprintbbd.net> <3C0D86C9.312E726A@alphalink.com.au>
-Mime-Version: 1.0
+	id <S283929AbRLEKKO>; Wed, 5 Dec 2001 05:10:14 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:40430 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S283928AbRLEKJl>; Wed, 5 Dec 2001 05:09:41 -0500
+Message-ID: <3C0DF24C.1B128C80@redhat.com>
+Date: Wed, 05 Dec 2001 10:09:16 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APIC Error when doing apic_pm_suspend
+In-Reply-To: <Pine.LNX.4.33.0112051123500.18928-100000@netfinity.realnet.co.sz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C0D86C9.312E726A@alphalink.com.au>; from gnb@alphalink.com.au on Wed, Dec 05, 2001 at 01:30:33PM +1100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Banks <gnb@alphalink.com.au>:
->                It seems my main contribution has been to provide
-> Eric with incentive to clarify his language spec and speed up his parser.
+Zwane Mwaikambo wrote:
+> 
+> I get an APIC error 0x40 when resuming from an apm -s. If i'm correct
+> that would be an illegal register access wouldn't it? I tried putting
+> enter/exit printks in the apic_pm_resume/suspend functions and it showed
+> that both returned before the APIC error printk. Is there anyway of finding out
+> which register access it was? I "thought" it would be one of the
+> apic_writes in the pm functions but looks like i might be wrong.
+> 
+> The kernel is compiled with local APIC and gets detected and enabled on
+> boot (UP machine).
 
-Stimulus for which I have been deeply grateful.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Just about all bioses that support suspend do not have the knowledge
+that an
+operating system would use apics, since windows95 doesn't do that. The
+fact
+that it appears to mostly work for you is RARE. You're very very lucky
+with
+an almost not broken bios..... UP APIC and Suspend are usually very
+exclusive.
+(well, actually, the suspend often works, it's the resume that hurts)
 
-..every Man has a Property in his own Person. This no Body has any
-Right to but himself.  The Labour of his Body, and the Work of his
-Hands, we may say, are properly his. .... The great and chief end
-therefore, of Mens uniting into Commonwealths, and putting themselves
-under Government, is the Preservation of their Property.
-	-- John Locke, "A Treatise Concerning Civil Government"
+Greetings,
+   Arjan van de Ven

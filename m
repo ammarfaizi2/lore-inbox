@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUI0Wg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUI0WpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUI0Wg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 18:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUI0Wg1
+	id S267404AbUI0WpO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 18:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267408AbUI0WpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 18:36:27 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:61865 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266200AbUI0WgZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 18:36:25 -0400
-Message-ID: <4158956F.3030706@engr.sgi.com>
-Date: Mon, 27 Sep 2004 15:34:23 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: lse-tech <lse-tech@lists.sourceforge.net>, CSA-ML <csa@oss.sgi.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Arthur Corliss <corliss@digitalmages.com>
-Subject: [PATCH 2.6.9-rc2 0/2] enhanced accounting data collection
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Sep 2004 18:45:14 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:27812 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S267404AbUI0WpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 18:45:06 -0400
+Date: Tue, 28 Sep 2004 00:43:45 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Stefan Seyfried <seife@suse.de>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: mlock(1)
+Message-ID: <20040927224345.GB2412@dualathlon.random>
+References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net> <1096071873.3591.54.camel@desktop.cunninghams> <20040925011800.GB3309@dualathlon.random> <4157B04B.2000306@suse.de> <20040927141652.GF28865@dualathlon.random> <1096323761.3606.3.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096323761.3606.3.camel@desktop.cunninghams>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an effort of providing an enhanced accounting data collection.
+On Tue, Sep 28, 2004 at 08:22:41AM +1000, Nigel Cunningham wrote:
+> > because I never use suspend/resume on my desktop, I never shutdown my
+> > desktop. I don't see why should I spend time typing a password when
+> > there's no need to. Every single guy out there will complain at linux
+> > hanging during boot asking for password before reaching kdm.
+> > 
+> > I figured out how to make the swap encryption completely transparent to
+> > userspace, and even to swap suspend, so I think it's much better than
+> > having userspace asking the user for a password, or userspace choosing a
+> > random password.
+> 
+> The public/private key idea makes good sense to me.
 
-It is intended to offer common data collection method for various
-accounting packages including BSD accouting, ELSA, CSA, and any other
-acct packages that favor a common layer of data collection, separated
-from data presentation layer and management of process groups layer.
+yes for suspend/resume it should work. it will have the only advantage
+of not having to ask the password during suspend or during boot, it will
+only ask the "resueme" password during resume and the first time you
+create the public key for resume to write it in the harddisk encrypted
+with such passphrase as . as usual it'll be as Wolfgang suggested.
 
-This patchset consists of two parts: acct_io and acct_mm as we
-identified useful spots for improved data collection in the area
-of IO and MM.
+But why did you quote the above? for cryptoswap it cannot work, for
+cryptoswap there's no reason to ever ask the user to anything and it
+must read and write all the time anyways, it's not like suspend
+write-only and resume read-only, a problem where public/private
+encryption can fit.
 
-This patchset is to replace the previously submitted CSA patchset
-of four. The CSA kernel module is a standalone module. The csa_eop
-patch was to provide a hook for end-of-process handling and that
-can be considered separately unless there is enough common interest.
+> > yes, but the bootloader passes the paramters via /proc/cmdline, and it's
+> > not nice to show the password in cleartext there.
+> 
+> If this password is only needed when resuming, that's not an issue
+> because the command line given when resuming will be lost when the
+> original kernel data is copied back.
 
-Now that the patchset is down to IO and MM, i hope it is more
-appealing :)
+my point is that you would not be allowed to give anyone ssh access to
+your machine (assuming you trust local security). If he gets ssh access,
+then he could as well stole the laptop and read the encrypted data.
 
-Comments?
+But if calling set_fs(KERNEL_DS); sys_read(0) sounds troublesome, you
+could also erase the password from the cmdline, and you would still
+pass the passphrase via bootloader. I'd recommend not to make it visible
+to userspace.
 
-Best Regards,
-  - jay
----
-Jay Lan - Linux System Software
-Silicon Graphics Inc., Mountain View, CA
+> There's already compression support. It's simpler to reverse, of course,
+> but it doesn't help?
 
+that should be trivial to reverse, no?

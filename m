@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318503AbSH1BNd>; Tue, 27 Aug 2002 21:13:33 -0400
+	id <S318488AbSH1BUL>; Tue, 27 Aug 2002 21:20:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318514AbSH1BNc>; Tue, 27 Aug 2002 21:13:32 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:24077
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318503AbSH1BNc>; Tue, 27 Aug 2002 21:13:32 -0400
-Date: Tue, 27 Aug 2002 18:15:57 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: rwhron@earthlink.net
-cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.32
-In-Reply-To: <20020828004304.GA16704@rushmore>
-Message-ID: <Pine.LNX.4.10.10208271814490.24156-100000@master.linux-ide.org>
+	id <S318497AbSH1BUL>; Tue, 27 Aug 2002 21:20:11 -0400
+Received: from adsl-67-117-146-62.dsl.snfc21.pacbell.net ([67.117.146.62]:34054
+	"EHLO localhost") by vger.kernel.org with ESMTP id <S318488AbSH1BUJ>;
+	Tue, 27 Aug 2002 21:20:09 -0400
+From: "Stephen C. Biggs" <s.biggs@softier.com>
+To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Date: Tue, 27 Aug 2002 18:24:13 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Bug in kernel code?
+Message-ID: <3D6BC3CD.10889.6526BC@localhost>
+In-reply-to: <20020827.180953.122061677.davem@redhat.com>
+References: <3D6BC06A.15764.57ED97@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 27 Aug 2002 at 18:09, David S. Miller wrote:
 
-Yep, that has been verified and there are more extentions needed to bring
-up support for all archs.  I will send them to Al and Alan first and post
-them here too shortly I hope.
-
-Cheers,
-
-On Tue, 27 Aug 2002 rwhron@earthlink.net wrote:
-
-> > IDE merge is b0rken wrt partitioning.  Patchset that is supposed to fix
-> > that stuff is on ftp.math.psu.edu/pub/viro/IDE/* 
+>    From: "Stephen C. Biggs" <s.biggs@softier.com>
+>    Date: Tue, 27 Aug 2002 18:09:46 -0700
+>    
+>    There need to be some sanity checks in this code: what if mempages is passed as some insanely huge 
+>    number, e.g.
 > 
-> I was getting this on 2.5.32:
-> mount: wrong fs type, bad option, bad superblock on /dev/hda1,
->        or too many mounted file systems
-> 
-> With Al's patchset, 2.5.32 is mounting my IDE filesystems okay.
-> 
-> -- 
-> Randy Hron
-> http://home.earthlink.net/~rwhron/kernel/bigbox.html
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> And then your mail ends.... let us know when you've fixed
+> your email client, this isn't rocket science :-)
 > 
 
-Andre Hedrick
-LAD Storage Consulting Group
+What are you talking about "And then your mail ends..."  That's all I wanted to say...
 
+Oh, you want me to post a complete patch.... I get it.

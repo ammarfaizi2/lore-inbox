@@ -1,45 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129311AbRBTCMH>; Mon, 19 Feb 2001 21:12:07 -0500
+	id <S129284AbRBTCkp>; Mon, 19 Feb 2001 21:40:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129466AbRBTCL5>; Mon, 19 Feb 2001 21:11:57 -0500
-Received: from adsl-64-163-64-74.dsl.snfc21.pacbell.net ([64.163.64.74]:45061
-	"EHLO konerding.com") by vger.kernel.org with ESMTP
-	id <S129311AbRBTCLo>; Mon, 19 Feb 2001 21:11:44 -0500
-Message-Id: <200102200211.f1K2BO002802@konerding.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: neilb@cse.unsw.edu.au (Neil Brown), linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net, mason@suse.com, dek_ml@konerding.com
-Subject: Re: problems with reiserfs + nfs using 2.4.2-pre4 
-In-Reply-To: Your message of "Tue, 20 Feb 2001 01:24:27 GMT."
-             <E14V1Xa-0005Bf-00@the-village.bc.nu> 
-Date: Mon, 19 Feb 2001 18:11:23 -0800
-From: dek_ml@konerding.com
+	id <S129309AbRBTCkg>; Mon, 19 Feb 2001 21:40:36 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16901 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129284AbRBTCkT>; Mon, 19 Feb 2001 21:40:19 -0500
+Date: Mon, 19 Feb 2001 22:51:36 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] exclusive wakeup for lock_buffer
+In-Reply-To: <Pine.LNX.4.10.10102191757330.28351-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0102192245340.3338-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
->>  This may seem like a lot, but several of these are already
->>  requirements which most filesystems don't meet, and other are there
->>  to tidy-up interfaces and make locking more straight forward.
->
->As a 2.5 thing it sounds like a very sensible path. It will also provide
->some of the operations groundwork needed for file systems that can only use
->NFS4 temporary handles
->
 
-OK so I think what I can take from this is: for kernel 2.4 in the foreseeable
-future, reiserfs over NFS won't work without a special patch.  And, filesystems
-other than ext2 in general might not support NFS.  This all has to do with
-internal design decisions, results of people coding against those decisions,
-possibly abusing the decisions to acheive their own goals, etc, etc, all
-of which lead to problems when the underlying design decisions changed and broke
-code which depended on the old decisions.  
 
-For the foreseeable future I am going to stick with ext2 for my NFS-exported
-directories.  I think these problems need to be carefully stated in the Configure.help
-for each filesystem which does not support NFS ... Configure.help is often the
-most authoritative and up-to-date technical description of a particular kernel's
-capabilities.
+On Mon, 19 Feb 2001, Linus Torvalds wrote:
 
-Dave
+> 
+> 
+> On Mon, 19 Feb 2001, Marcelo Tosatti wrote:
+> > 
+> > The following patch makes lock_buffer() use the exclusive wakeup scheme
+> > added in 2.3.
+> 
+> Ugh, This is horrible.
+> 
+> You should NOT have one function that does two completely different things
+> depending on a flag. That way lies madness and bad coding habits.
+> 
+> Just do two different functions - make one be "__wait_on_buffer()", and
+> the other be "__lock_buffer()". See how the page functions work.
+> 
+> 		Linus
+
+Ok. 
+
+--- linux/include/linux/locks.h.orig	Mon Feb 19 23:16:50 2001
++++ linux/include/linux/locks.h	Mon Feb 19 23:21:48 2001
+@@ -13,6 +13,7 @@
+  * lock buffers.
+  */
+ extern void __wait_on_buffer(struct buffer_head *);
++extern void __lock_buffer(struct buffer_head *);
+ 
+ extern inline void wait_on_buffer(struct buffer_head * bh)
+ {
+@@ -22,8 +23,8 @@
+ 
+ extern inline void lock_buffer(struct buffer_head * bh)
+ {
+-	while (test_and_set_bit(BH_Lock, &bh->b_state))
+-		__wait_on_buffer(bh);
++	if (test_and_set_bit(BH_Lock, &bh->b_state))
++		__lock_on_buffer(bh);
+ }
+ 
+ extern inline void unlock_buffer(struct buffer_head *bh)
+--- linux/fs/buffer.c.orig	Mon Feb 19 23:09:31 2001
++++ linux/fs/buffer.c	Mon Feb 19 23:31:25 2001
+@@ -161,6 +161,30 @@
+ 	atomic_dec(&bh->b_count);
+ }
+ 
++void __lock_on_buffer(struct buffer_head * bh)
++{
++	struct task_struct *tsk = current;
++	DECLARE_WAITQUEUE(wait, tsk);
++
++	atomic_inc(&bh->b_count);
++	add_wait_queue_exclusive(&bh->b_wait, &wait);
++	for(;;) { 
++		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
++		if (test_bit(BH_Lock, &bh->b_state)) {
++			run_task_queue(&tq_disk);
++			schedule();
++			continue;
++		}
++
++		if (!test_and_set_bit(BH_Lock, &bh->b_state))
++			break;
++	} 
++	tsk->state = TASK_RUNNING;
++	remove_wait_queue(&bh->b_wait, &wait);
++	atomic_dec(&bh->b_count);
++}
++
++
+ /* Call sync_buffers with wait!=0 to ensure that the call does not
+  * return until all buffer writes have completed.  Sync() may return
+  * before the writes have finished; fsync() may not.
+

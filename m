@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVABUdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVABUei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVABUdr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVABUdr
+	id S261322AbVABUei (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVABUei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:33:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3307 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261321AbVABUdn (ORCPT
+	Sun, 2 Jan 2005 15:34:38 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:27343 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261322AbVABUd6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:33:43 -0500
-Date: Sun, 2 Jan 2005 15:32:06 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Georg C. F. Greve" <greve@fsfeurope.org>,
-       Hans Ulrich Niedermann <vserver@n-dimensional.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Herbert Poetzl <herbert@13thfloor.at>, Nick Warne <nick@linicks.net>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
-Message-ID: <20050102203206.GB22295@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	"Georg C. F. Greve" <greve@fsfeurope.org>,
-	Hans Ulrich Niedermann <vserver@n-dimensional.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ACPI Developers <acpi-devel@lists.sourceforge.net>,
-	Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Herbert Poetzl <herbert@13thfloor.at>,
-	Nick Warne <nick@linicks.net>, Len Brown <len.brown@intel.com>
-References: <m3is6k4oeu.fsf@reason.gnu-hamburg> <Pine.LNX.4.58.0412301239160.22893@ppc970.osdl.org> <m3zmzvl9x1.fsf@reason.gnu-hamburg> <Pine.LNX.4.58.0501021147260.2280@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 2 Jan 2005 15:33:58 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: the umount() saga for regular linux desktop users
+Date: Sun, 2 Jan 2005 21:34:16 +0100
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, luto@myrealbox.com, aebr@win.tue.nl,
+       linux-kernel@vger.kernel.org
+References: <20050102193724.GA18136@elf.ucw.cz> <20050102201147.GB4183@stusta.de>
+In-Reply-To: <20050102201147.GB4183@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501021147260.2280@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200501022134.16338.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 12:11:47PM -0800, Linus Torvalds wrote:
+Am Sonntag, 2. Januar 2005 21:11 schrieb Adrian Bunk:
+> On Sun, Jan 02, 2005 at 08:37:24PM +0100, Pavel Machek wrote:
+> 
+> > Well, umount -l can be handy, but it does not allow you to get your CD
+> > back from the drive.
+> > 
+> > umount --kill that kills whoever is responsible for filesystem being
+> > busy would solve part of the problem (that can be done in userspace,
+> > today).
+> >...
+> 
+> What's wrong with
+> 
+>   fuser -k /mnt && umount /mnt
 
- > DaveJ: this may explain the "Mobile Radeon" reports. Not because of
- > anything Radeon-specific, but simply because they'd have four ports (CRT,
- > LVDS TFT panel, tv-out, and tv-in, I think - ACPI doesn't tell me enough
- > to be sure).
+1. Would need suid.
+2. Is a mindless slaughter of important processes.
+3. Is a race condition.
 
-I think the problem biting Fedora people turned out to be a side-effect
-of having the 4g/4g patch applied, but not enabled. (The affected kernels
-we shipped didn't have the post-2.6.9 acpi video stuff).
-
-		Dave
-
+	Regards
+			Oliver

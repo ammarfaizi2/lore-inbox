@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265578AbSKKGFK>; Mon, 11 Nov 2002 01:05:10 -0500
+	id <S265589AbSKKG0R>; Mon, 11 Nov 2002 01:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265581AbSKKGFK>; Mon, 11 Nov 2002 01:05:10 -0500
-Received: from episec.com ([198.78.65.141]:16391 "HELO episec.com")
-	by vger.kernel.org with SMTP id <S265578AbSKKGFJ>;
-	Mon, 11 Nov 2002 01:05:09 -0500
-Date: Mon, 11 Nov 2002 01:11:19 -0500
-From: ari <edelkind-kernel@episec.com>
-To: linux-kernel@vger.kernel.org
-Subject: penalty-imposing resource limits
-Message-ID: <20021111061119.GF79406@episec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S265585AbSKKG0R>; Mon, 11 Nov 2002 01:26:17 -0500
+Received: from [62.150.18.100] ([62.150.18.100]:3339 "HELO pop.com.br")
+	by vger.kernel.org with SMTP id <S264842AbSKKG0N>;
+	Mon, 11 Nov 2002 01:26:13 -0500
+From: "REVISTAS =?ISO-8859-1?Q?ER=D3TICAS...=22?= <revistasemcd@globo.com>"@vax.home.local
+To: revistasemcd@globo.com
+Subject: =?ISO-8859-1?Q?LAN=C7AMENTO?= !!!
+Content-Transfer-Encoding: Quoted-Printable
+MIME-Version: 1.0
+Message-Id: <20021111062613Z264842-32598+4975@vger.kernel.org>
+Date: Mon, 11 Nov 2002 01:26:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This post is three years too late.
+REVISTAS ERÓTICAS !!!
 
-Once upon a time, when kernel 2.2.13 was the bleeding-edge of the stable
-tree, my processor was experiencing heat-related problems.  I dealt with
-this as any proactively lazy person would, in that instead of buying a
-new heat sink, i modified my kernel to deal with the issue, and wrote a
-small command-line program as an interface.
+A MAIOR COLEÇÃO DE REVISTAS EM  CD JÁ PRODUZIDAS NO BRASIL.
+ADQUIRA A SUA REVISTA  POR APENAS R$ 10,00 (POSTAGEM INCLUÍDA).
 
-This modification added a new resource limit to the kernel, RLIMIT_TCPU,
-allowing the user to impose time penalties (in jiffies) on a process
-that reaches a set amount of cpu time (in 1/100 of a cpu second).  It
-was a simple algorithm, but it functioned satisfactorily, and it
-remained incredibly useful to me for some time.  Eventually, i bought a
-new heat sink and high silver content thermal compound, and felt no need
-to port this modification to future kernel releases.
+     TÍTULOS EXCLUSIVOS:
 
-The topic of heat-related issues came up in conversation recently, and a
-comment about my modification followed suit (this comment came from me,
-of course, reminiscently).  The person to whom i spoke iterated how
-useful such a thing could be, further requesting that i send the patch
-on to the linux kernel mailing list.  The rest can be inferred.
+* Casais & Cia 			
+* Gatas E Gatas 		
+* Fetishes 			
+* Strip Girls 			
+* Cat Boys			
+* Sex Diitroya 			
+* Encontros Intimos 		
+* Transex			
+* Celebrities Sex Nude  	
+* Humor Sex			
+* ABC do Sexo 			
+* Sexo Curioso 			
+* Sexo & Arte 			
 
-'Twas a quick hack, and rather dirty.  It wasn't designed for
-multiprocessor systems, but it will likely handle them... acceptably.
-It should also function (and compile) only on i386-based processors, as
-i did not modify resource.h in other processor-specific include
-directories (this should be terribly easy to change, as the actual
-modifications are not processor-specific).  Regardless, it served me
-well, and perhaps in some form it may live to serve another.
 
-The patch and the program are now available at:
-	http://www.episec.com/people/edelkind/patches/kernel/
+COMPRE JÁ !!!
+www.diitroya.com.br/publicacoes
 
-Usage is given there as well.
 
-ari
+PROIBIDO PARA MENORES DE 18 ANOS
+
+Erotic magazines. 
+
+THE LARGEST COLLECTION OF MAGAZINES IN CD ALREADY PRODUCED IN BRAZIL. 
+ACQUIRE YOURS REVIEWED FOR JUST R$ 10,00 (more postage). 
+Exclusive titles. 
+ALREADY BUY.
+www.diitroya.com.br/publicacoes
+Forbidden for smaller of 18 years.
+
+Esta mensagem é enviada com a complacência da nova legislação sobre
+correio eletrônico, Seção 301, Parágrafo (a) (2) (c) Decreto S.1618,
+Título Terceiro aprovado pelo "105 Congresso Base das Normativas
+Internacionais sobre o SPAM". Este E-mail não poderá ser considerado
+SPAM quando inclua uma forma de ser removido. Para remover
+futuros correios, simplesmente responda este colocando a palavra 
+remover no assunto.
+removerdiitroya@pop.com.br
+
+
+
+
+
 

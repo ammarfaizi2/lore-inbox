@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbUKDUP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUKDUPC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262405AbUKDUP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 15:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbUKDUPg
+	id S262389AbUKDUPC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 15:15:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUKDUML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 15:15:36 -0500
-Received: from web51809.mail.yahoo.com ([206.190.38.240]:23633 "HELO
-	web51809.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262382AbUKDUNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 15:13:51 -0500
-Message-ID: <20041104201351.90811.qmail@web51809.mail.yahoo.com>
-Date: Thu, 4 Nov 2004 12:13:51 -0800 (PST)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: 3.9G/process for 32b 2.6.9
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 4 Nov 2004 15:12:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:3211 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262389AbUKDUIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 15:08:45 -0500
+Date: Thu, 4 Nov 2004 12:07:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, azarah@nosferatu.za.org
+Subject: Re: Patch for ub in 2.6.10-rc1
+Message-ID: <20041104200737.GC21149@kroah.com>
+References: <20041104000840.56412e6f@lembas.zaitcev.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104000840.56412e6f@lembas.zaitcev.lan>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Nov 04, 2004 at 12:08:40AM -0800, Pete Zaitcev wrote:
+> This is a relatively small changeset, to address small nagging problems.
+> Andrew pointed me at the double registration specifically, so I had to do
+> something about it. At least now Fabio's box won't collapse if he configures
+> UB by mistake. Also, a few people complained that the help text was
+> misleading.
 
-I am curious to know if anyone is continuing to
-maintain a patch that allows 3.9G/process on 32b x86
-for the more recent kernels, 2.6.8.1/2.6.9?  If
-someone knows where this can be retrieved, I would
-greatly apprecite the pointer or to whom this shoul be
-addressed.
+Applied, thanks.
 
-Thanks!
-Phy
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Check out the new Yahoo! Front Page. 
-www.yahoo.com 
- 
-
+greg k-h

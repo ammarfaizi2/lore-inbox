@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSGUXoY>; Sun, 21 Jul 2002 19:44:24 -0400
+	id <S316838AbSGVLhE>; Mon, 22 Jul 2002 07:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315276AbSGUXoY>; Sun, 21 Jul 2002 19:44:24 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29452 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315266AbSGUXoX>; Sun, 21 Jul 2002 19:44:23 -0400
-Date: Mon, 22 Jul 2002 00:47:28 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
-Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
-Message-ID: <20020722004728.T26376@flint.arm.linux.org.uk>
-References: <20020722004353.S26376@flint.arm.linux.org.uk> <Pine.LNX.4.44.0207220143520.4084-100000@localhost.localdomain>
+	id <S316840AbSGVLhE>; Mon, 22 Jul 2002 07:37:04 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:47869 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316838AbSGVLhD>; Mon, 22 Jul 2002 07:37:03 -0400
+Subject: Re: [PATCH] Bluetooth Subsystem PC Card drivers for 2.5.27
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Marcel Holtmann <marcel@holtmann.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
+       Maksim Krasnyanskiy <maxk@qualcomm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       BlueZ Mailing List <bluez-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44.0207212139150.3309-100000@hawkeye.luckynet.adm>
+References: <Pine.LNX.4.44.0207212139150.3309-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 13:52:04 +0100
+Message-Id: <1027342324.31782.20.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207220143520.4084-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Jul 22, 2002 at 01:44:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 01:44:16AM +0200, Ingo Molnar wrote:
-> On Mon, 22 Jul 2002, Russell King wrote:
+On Mon, 2002-07-22 at 04:39, Thunder from the hill wrote:
+> Hi,
 > 
-> > Actually its to cover the case where you have a floppy drive, and you've
-> > booted the kernel from a floppy disk, and the kernel doesn't have the
-> > floppy driver built in.  It turns the floppy drive off, cause there's
-> > nothing else to do that.
+> On 21 Jul 2002, Marcel Holtmann wrote:
+> > this patch updates the PC Card drivers of the Bluetooth subsystem. It
+> > modifies the following files: 
 > 
-> this should then be done by the floppy boot code?
+> Please don't use EXPORT_NO_SYMBOLS where it's avoidable.
 
-Sounds like a better idea to me.  Although I'm not one to try it out. 8)
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+For 2.4 you want to use it whenever possible and a file exports no
+symbols. For 2.5 EXPORT_NO_SYMBOLS is the automatic default behaviour so
+you can lose the line
 

@@ -1,120 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S510396AbUKBCVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S511604AbUKBC2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S510396AbUKBCVF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 21:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S276527AbUKAXSz
+	id S511604AbUKBC2p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 21:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S313821AbUKBC2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:18:55 -0500
-Received: from mail.kroah.org ([69.55.234.183]:10916 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S286251AbUKAV7Y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 16:59:24 -0500
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-In-Reply-To: <10993462762242@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Mon, 1 Nov 2004 13:57:56 -0800
-Message-Id: <10993462761856@kroah.com>
+	Mon, 1 Nov 2004 21:28:44 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:58566 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S278873AbUKBCVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 21:21:32 -0500
+Date: Tue, 2 Nov 2004 03:21:22 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+Message-ID: <20041102022122.GJ3571@dualathlon.random>
+References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay> <20041101223419.GG3571@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041101223419.GG3571@dualathlon.random>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2445, 2004/11/01 13:04:30-08:00, akpm@osdl.org
+On Mon, Nov 01, 2004 at 11:34:19PM +0100, Andrea Arcangeli wrote:
+> On Mon, Nov 01, 2004 at 10:03:56AM -0800, Martin J. Bligh wrote:
+> > [..] it was to stop cold
+> > allocations from eating into hot pages [..]
+> 
+> exactly, and I believe that hurts. bouncing on the global lock is going to
+> hurt more than preserving an hot page (at least on a 512-way). Plus the
+> cold page may very soon become hot too.
 
-[PATCH] Fix race in sysfs_read_file() and sysfs_write_file()
-
-From: Simon Derr <Simon.Derr@bull.net>
-
-- fixes the race between threads by adding a semaphore in sysfs_buffer
-
-- allocates the buffer upon call to pread().  We still call again
-  fill_read_buffer() if the file is "rewinded" to offset zero.
-
-- fixes the comparison in flush_read_buffer().
-
-Signed-off-by: Simon Derr <simon.derr@bull.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+I've read your reply via the web in some archive since my email is down
+right now (probably some upgrade is underway).
 
 
- fs/sysfs/file.c |   18 +++++++++++++++---
- 1 files changed, 15 insertions(+), 3 deletions(-)
+with global I mean the buddy lock, which is global for all cpus.
 
+The idea that the quicklist is meant to take the lock once every X pages
+is limiting. The object is to never ever have to enter the buddy, not
+just to "buffer" allocations. The two separated cold/hot lists prevents
+that. As far as there's a single page available we should use it since
+bouncing the cacheline is very costly.
 
-diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
---- a/fs/sysfs/file.c	2004-11-01 13:36:49 -08:00
-+++ b/fs/sysfs/file.c	2004-11-01 13:36:49 -08:00
-@@ -6,6 +6,7 @@
- #include <linux/dnotify.h>
- #include <linux/kobject.h>
- #include <asm/uaccess.h>
-+#include <asm/semaphore.h>
- 
- #include "sysfs.h"
- 
-@@ -53,6 +54,7 @@
- 	loff_t			pos;
- 	char			* page;
- 	struct sysfs_ops	* ops;
-+	struct semaphore	sem;
- };
- 
- 
-@@ -106,6 +108,9 @@
- {
- 	int error;
- 
-+	if (*ppos > buffer->count)
-+		return 0;
-+
- 	if (count > (buffer->count - *ppos))
- 		count = buffer->count - *ppos;
- 
-@@ -140,13 +145,17 @@
- 	struct sysfs_buffer * buffer = file->private_data;
- 	ssize_t retval = 0;
- 
--	if (!*ppos) {
-+	down(&buffer->sem);
-+	if ((!*ppos) || (!buffer->page)) {
- 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
--			return retval;
-+			goto out;
- 	}
- 	pr_debug("%s: count = %d, ppos = %lld, buf = %s\n",
- 		 __FUNCTION__,count,*ppos,buffer->page);
--	return flush_read_buffer(buffer,buf,count,ppos);
-+	retval = flush_read_buffer(buffer,buf,count,ppos);
-+out:
-+	up(&buffer->sem);
-+	return retval;
- }
- 
- 
-@@ -220,11 +229,13 @@
- {
- 	struct sysfs_buffer * buffer = file->private_data;
- 
-+	down(&buffer->sem);
- 	count = fill_write_buffer(buffer,buf,count);
- 	if (count > 0)
- 		count = flush_write_buffer(file->f_dentry,buffer,count);
- 	if (count > 0)
- 		*ppos += count;
-+	up(&buffer->sem);
- 	return count;
- }
- 
-@@ -287,6 +298,7 @@
- 	buffer = kmalloc(sizeof(struct sysfs_buffer),GFP_KERNEL);
- 	if (buffer) {
- 		memset(buffer,0,sizeof(struct sysfs_buffer));
-+		init_MUTEX(&buffer->sem);
- 		buffer->ops = ops;
- 		file->private_data = buffer;
- 	} else
+It's really a question if you believe the cache effects are going to be
+more significant than the cacheline bouncing on the zone lock. I do
+believe the latter is several order of magnitude more severe issue.
+Hence I allow fallbacks both ways (I even allow fallback across the zero
+pages that carry more info than just an hot cache). Mainline doesn't
+allow any fallback at all instead and that's certainly wrong.
 
+BTW, please apply PG_zero-2-no-zerolist-reserve-1 on top of PG_zero-2
+too if you're going to run any bench (PG_zero-2 alone doesn't give
+zeropages to non-zero users and I don't like it that much even if it
+mirrors the quicklists better). And to make a second run to disable the
+idle clearing sysctl you can just write 0 into the last entry of the
+per_cpu_pages syctl.
+
+If you can run the bench with several cpus and with with mem=1G that
+will put into action other bugfixes as well.
+
+> Plus you should at least allow an hot allocation to eat into the cold
+> pages (which didn't happen IIRC).
+
+all I could see is that it doesn't fallback in 2.6.9, and that's fixed
+with the single list of course ;). Plus I provide hot-cold caching on
+the zero list too (zero list guarantees all pages have PG_zero set, but
+that's the only difference with the hot-cold list). cold info is
+retained in the zero list too so you can freely allocate with __GFP_ZERO
+and __GFP_COLD, or even __GFP_ZERO|__GFP_ONLY_ZERO|__GFP_COLD etc...

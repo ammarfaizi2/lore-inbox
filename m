@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVCUA71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVCUBAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVCUA71 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 19:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVCUA71
+	id S261451AbVCUBAr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 20:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVCUBAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 19:59:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:44167 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261419AbVCUA7V (ORCPT
+	Sun, 20 Mar 2005 20:00:43 -0500
+Received: from fire.osdl.org ([65.172.181.4]:21128 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261435AbVCUBAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 19:59:21 -0500
-Date: Sun, 20 Mar 2005 16:59:02 -0800
+	Sun, 20 Mar 2005 20:00:36 -0500
+Date: Sun, 20 Mar 2005 17:00:16 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Function stack size usage (was [PATCH][1/2] SquashFS)
-Message-Id: <20050320165902.10d99417.akpm@osdl.org>
-In-Reply-To: <423E032C.4020103@lougher.demon.co.uk>
-References: <4235BAC0.6020001@lougher.demon.co.uk>
-	<20050314165117.1c5068b7.akpm@osdl.org>
-	<423E032C.4020103@lougher.demon.co.uk>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] del_timer_sync scalability patch
+Message-Id: <20050320170016.37a4b5f8.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503201641230.2021@server.graphe.net>
+References: <200503202319.j2KNJXg29946@unix-os.sc.intel.com>
+	<20050320153446.32a9215a.akpm@osdl.org>
+	<Pine.LNX.4.58.0503201641230.2021@server.graphe.net>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,51 +26,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Lougher <phillip@lougher.demon.co.uk> wrote:
+Christoph Lameter <christoph@lameter.com> wrote:
 >
-> Andrew Morton wrote:
-> > Phillip Lougher <phillip@lougher.demon.co.uk> wrote:
-> >>
-> >>+static struct inode *squashfs_iget(struct super_block *s, squashfs_inode inode)
-> >>+{
-> >>+	struct inode *i;
-> >>+	squashfs_sb_info *msBlk = (squashfs_sb_info *)s->s_fs_info;
-> >>+	squashfs_super_block *sBlk = &msBlk->sBlk;
-> >>+	unsigned int block = SQUASHFS_INODE_BLK(inode) +
-> >>+		sBlk->inode_table_start;
-> >>+	unsigned int offset = SQUASHFS_INODE_OFFSET(inode);
-> >>+	unsigned int ino = SQUASHFS_MK_VFS_INODE(block
-> >>+		- sBlk->inode_table_start, offset);
-> >>+	unsigned int next_block, next_offset;
-> >>+	squashfs_base_inode_header inodeb;
-> > 
-> > 
-> > How much stack space is being used here?  Perhaps you should run
-> > scripts/checkstack.pl across the whole thing.
-> > 
+> On Sun, 20 Mar 2005, Andrew Morton wrote:
 > 
-> A lot of the functions use a fair amount of stack (I never thought it 
-> was excessive)...  This is the result of running checkstack.pl against 
-> the code on Intel.
+> > "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+> > >
+> > > We did exactly the same thing about 10 months back.  Nice to
+> > > see that independent people came up with exactly the same
+> > > solution that we proposed 10 months back.
+> >
+> > Well the same question applies.  Christoph, which code is calling
+> > del_timer_sync() so often that you noticed?
 > 
-> 0x00003a3c get_dir_index_using_name:                    596
-> 0x00000d80 squashfs_iget:                               488
-> 0x000044d8 squashfs_lookup:                             380
-> 0x00003d00 squashfs_readdir:                            372
-> 0x000020fe squashfs_fill_super:                         316
-> 0x000031b8 squashfs_readpage:                           308
-> 0x00002f5c read_blocklist:                              296
-> 0x00003634 squashfs_readpage4K:                         284
-> 
-> A couple of these functions show a fair amount of stack use.  What is 
-> the maximum acceptable usage,
+> Ummm. I have to ask those who brought this to my attention. Are you
+> looking for the application under which del_timer_sync showed up in
+> profiling or the kernel subsystem?
 
-There's no hard-and-fast rule.  The conditions running up to a stack
-overrun are necessarily complex, and rare.  But you can see that for a
-twenty or thirty function deep call stack, 500 bytes is a big bite out of
-4k.
+I was wondering which part of the kernel was hammering del_timer_sync() so
+hard.  I guess we could work that out from a description of the workload.
 
-> i.e. do any of the above functions need 
-> work to reduce their stack usage?
-
-I'd say so, yes.  If at all possible.

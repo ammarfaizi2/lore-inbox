@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130855AbQKGEJx>; Mon, 6 Nov 2000 23:09:53 -0500
+	id <S130466AbQKGEnG>; Mon, 6 Nov 2000 23:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131004AbQKGEJn>; Mon, 6 Nov 2000 23:09:43 -0500
-Received: from [209.143.110.29] ([209.143.110.29]:62985 "HELO
-	mail.the-rileys.net") by vger.kernel.org with SMTP
-	id <S130855AbQKGEJY>; Mon, 6 Nov 2000 23:09:24 -0500
-Message-ID: <3A07806B.239BC895@the-rileys.net>
-Date: Mon, 06 Nov 2000 23:09:36 -0500
-From: David Riley <oscar@the-rileys.net>
-X-Mailer: Mozilla 4.74 (Macintosh; U; PPC)
-X-Accept-Language: en,pdf
-MIME-Version: 1.0
-To: Joe Harrington <jharring@micron.net>
+	id <S130599AbQKGEmr>; Mon, 6 Nov 2000 23:42:47 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:21889 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130466AbQKGEmf>;
+	Mon, 6 Nov 2000 23:42:35 -0500
+Date: Mon, 6 Nov 2000 20:28:09 -0800
+Message-Id: <200011070428.UAA01710@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: jordy@napster.com
 CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel
-In-Reply-To: <004d01c0486e$9777ff00$53b613d1@micron.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3A07662F.39D711AE@napster.com> (message from Jordan Mendelson on
+	Mon, 06 Nov 2000 18:17:19 -0800)
+Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
+In-Reply-To: <3A07662F.39D711AE@napster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Harrington wrote:
-> 
-> Sorry about the question to do with visuall gcc. Alot of people seemed to
-> get a intolerable response to my question. The reason I posted it here was
-> a) I am lazy, b) On all the sites to do with Kdevelop the download links are
-> down, and c) I wanted to use the program to compile such files as schedule.c
-> and other scheduling algorithms I create. What do most of you use to comile
-> the kernel, just good ole' command line gcc.
+   Date: 	Mon, 06 Nov 2000 18:17:19 -0800
+   From: Jordan Mendelson <jordy@napster.com>
 
-Definitely.  As much as I appreciate the efforts to make a workable
-end-user GUI for Linux, I think people are still going to have to get
-used to using command-line tools at the moment.  For what it's worth,
-there are two visual configuration options for the kernel; for a text
-console, you can use "make menuconfig" while you can use "make xconfig"
-if you're really into X.  Personally, I found the standard "make config"
-useful only the first time around, because it forced me to look at every
-option, but it's much easier to undo mistakes using menuconfig or xconfig.
+   18:54:57.394894 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: .
+   2429:2429(0) ack 506 win 6432 <nop,nop, sack 1 {456:506} > (DF)
+
+And this is it?  The connection dies right here and says no
+more?  Surely, there was more said on this connection after
+this point.
+
+Otherwise I see nothing obviously wrong in these dumps.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

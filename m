@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131831AbQKJWzs>; Fri, 10 Nov 2000 17:55:48 -0500
+	id <S131873AbQKJW42>; Fri, 10 Nov 2000 17:56:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131873AbQKJWzi>; Fri, 10 Nov 2000 17:55:38 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:50692 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131831AbQKJWze>; Fri, 10 Nov 2000 17:55:34 -0500
-Message-ID: <3A0C7BFA.7042E3CD@timpanogas.org>
-Date: Fri, 10 Nov 2000 15:51:38 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S132044AbQKJW4T>; Fri, 10 Nov 2000 17:56:19 -0500
+Received: from mx3out.umbc.edu ([130.85.253.53]:11707 "EHLO mx3out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S131873AbQKJW4B>;
+	Fri, 10 Nov 2000 17:56:01 -0500
+Date: Fri, 10 Nov 2000 17:55:59 -0500
+From: John Jasen <jjasen1@umbc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: compiling md/lvm on 2.4.0-test9-test11-pre2 for alpha
+Message-ID: <Pine.SGI.4.21L.01.0011101747510.502569-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, sendmail-bugs@sendmail.org
-Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
-In-Reply-To: <200011102251.eAAMp1I232107@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I've tried this on -test9, test10, and test11-pre2, all with similar
+results.
 
-[ ... named redacted by request ... ] wrote:
-> 
-> > Well, here's what the sendmail folks **REAL** opinion of Linux is and
-> > the way load average is calculated (senders name removed)
-> >
-> > [... sendmail person ...]
-> >
-> >> Ok, here's my blunt answer: Linux sucks.  Why does it have a load
-> >> average of 10 if there are two processes running? Let's check the
-> >> man page:
-> >>
-> >>             and the three load averages for the system.  The load
-> >>             averages  are  the average number of process ready to
-> >>             run during the last 1, 5 and 15 minutes.   This  line
-> >>             is  just  like  the  output of uptime(1).
-> >>
-> >> So: Linux load average on these systems is broken.
-> 
-> If that is _our_ man page, it is broken. (well, old) Otherwise,
-> this is just a case of not mindlessly obeying the BSD "standard".
-> 
-> Linux 2.4.xx includes some blocked processes in the load average
-> calculation. This is because the BSD load average calculation
-> could give a load of 0.0 when the system is severely overloaded
-> by IO. I think only uninterruptable processes got added in.
-> 
-> Maybe this isn't the best solution... there could have been
-> a second load average for IO maybe.
-> 
-> Feel free to forward this to the sendmail people, to the BSD people
-> in case they'd like to "standardize" the new calculation, or to the
-> linux-kernel mailing list for discussion -- w/o my name please.
+I've checked the kernel mailing list archives, and didn't see anything
+pertinent.
 
-Forwarded at the request of a tier 1 Linux person after redacting their
-name.
+I'm getting the following errors: (in this case, attempting to make them
+as a module)
 
-Jeff
+<snip>
+make -C md modules
+make[2]: Entering directory `/usr/src/linux-2.4.0-test11-pre2/drivers/md'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11-pre2/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6 -DMODULE   -DEXPORT_SYMTAB -c 
+xor.c
+xor.c: In function `xor_block_alpha':
+xor.c:1791: inconsistent operand constraints in an `asm'
+xor.c: In function `xor_block_alpha_prefetch':
+xor.c:2213: inconsistent operand constraints in an `asm'
+make[2]: *** [xor.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.0-test11-pre2/drivers/md'
+make[1]: *** [_modsubdir_md] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.0-test11-pre2/drivers'
+make: *** [_mod_drivers] Error 2
+</snip>
+
+This is running Redhat 6.2, with updates, compiling 2.4.0-test11-pre2,
+with gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release).
+
+Any suggestions?
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- You can have it: right; cheap; now. Pick any two.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

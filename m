@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261677AbTCGRYL>; Fri, 7 Mar 2003 12:24:11 -0500
+	id <S261685AbTCGRdV>; Fri, 7 Mar 2003 12:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261679AbTCGRYL>; Fri, 7 Mar 2003 12:24:11 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:37530 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S261677AbTCGRYK>; Fri, 7 Mar 2003 12:24:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Alex Tomas <bzzz@tmi.comex.ru>, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [Bug 417] New: htree much slower than regular ext3
-Date: Sat, 8 Mar 2003 18:38:50 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
-       Andrew Morton <akpm@digeo.com>, Alex Tomas <bzzz@tmi.comex.ru>
-References: <11490000.1046367063@[10.10.2.4]> <m34r6fyya8.fsf@lexa.home.net>
-In-Reply-To: <m34r6fyya8.fsf@lexa.home.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030307173425.5C4D3FAAAE@mx12.arcor-online.net>
+	id <S261690AbTCGRdV>; Fri, 7 Mar 2003 12:33:21 -0500
+Received: from B12a0.pppool.de ([213.7.18.160]:21376 "EHLO solfire")
+	by vger.kernel.org with ESMTP id <S261685AbTCGRdU>;
+	Fri, 7 Mar 2003 12:33:20 -0500
+Date: Fri, 07 Mar 2003 16:19:42 +0100 (MET)
+Message-Id: <20030307.161942.41631717.mccramer@s.netic.de>
+To: Nicolas.Mailhot@one2team.com
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+From: Meino Christian Cramer <mccramer@s.netic.de>
+In-Reply-To: <1047046315.7172.8.camel@ulysse.olympe.o2t>
+References: <1047046315.7172.8.camel@ulysse.olympe.o2t>
+X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+X-SA-Exim-Rcpt-To: Nicolas.Mailhot@one2team.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.5.64p5 No USB support when APIC mode enabled
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 07 Mar 03 16:46, Alex Tomas wrote:
-> Hi!
->
-> The problem is that getdents(2) returns inodes out of order and
-> du causes many head seeks. I tried to solve the problem by patch
-> I included in. The idea of the patch is pretty simple: just try
-> to sort dentries by inode number in readdir(). It works because
-> inodes sits at fixed places in ext2/ext3. Please, look at results
-> I just got:
->
->                   real        user         sys
->
-> ext3+htree:  7m22.236s    0m0.292s    0m2.204s
-> ext3-htree:  3m6.539s     0m0.481s    0m2.278s
-> [...]
-> ext3+sd-30:  2m39.658s    0m0.492s    0m2.138s
+From: Nicolas Mailhot <Nicolas.Mailhot@one2team.com>
+Subject: Re: 2.5.64p5 No USB support when APIC mode enabled
+Date: 07 Mar 2003 15:11:56 +0100
 
-Nice.  I posted a similar demonstration some time ago (could it *really* be 
-two years?) but I sorted the dirents in user space, which meant it was just a 
-demonstration, not a practical solution.
+Hi,
 
-The problem I see with your approach is that the traversal is no longer in 
-hash order, so a leaf split in the middle of a directory traversal could 
-result in a lot of duplicate dirents.  I'm not sure there's a way around that.
+ I got "No dma on first hard drive" as bug id 15 ???
+ As that, what you intended, Nicolas ???
 
-Another approach is to have the inode number correspond approximately to the 
-hash value.  That's not as hard as it sounds, it simply means that the goal 
-for ext3_new_inode should be influenced by the hash value.  (But watch out 
-for interaction with the new Orlov allocator.)  It also depends on some
-a priori estimate of the size of a directory so that increasing hash values 
-can be distributed more or less uniformly and monotonically across some 
-corresponding range of inode numbers. This isn't too hard either, just round 
-up the current size of the directory to a power of two and use that as the 
-size estimate.  The size estimate would change from time to time over the 
-life of the directory, but there are only log N different sizes and that's 
-roughly how heavy the load on the inode cache would be during a directory 
-traversal.  Finally, a nice property of this approach is that it stays stable 
-over many creates and deletes.
+ Keep hacking!
+ Meino
 
-We've apparently got a simpler problem though: inode numbers aren't allocated 
-densely enough in the inode table blocks.  This is the only thing I can think 
-of that could cause the amount of thrashing we're seeing.  Spreading inode 
-number allocations out all over a volume is ok, but sparse allocation within 
-each table block is not ok because it multiplies the pressure on the cache.  
-We want a 30,000 entry directory to touch 1,000 - 2,000 inode table blocks, 
-not the worst-case 30,000.  As above, fixing this comes down to tweaking the 
-ext3_new_inode allocation goal.
-
-Regards,
-
-Daniel
+> |Alan Cox wrote :
+> |
+> |You need at least 2.4.21-pre5-ac, or 2.5.64-ac (I just sent Linus the
+> |relevant changes) to use APIC on the VIA chipset systems. You also need
+> |a BIOS with correct tables, which can also be a little tricky to find
+> |in uniprocessordom
+> 
+> Well, if it's the same bug as 
+> http://bugzilla.kernel.org/show_bug.cgi?id=15, 
+> I'm certainly seeing it also with 2.5.64-ac1. Old 2.4.-ac kernels used to be
+> fine, I fear they have nowe been "fixed" to match 2.5.
+> 
+> Maybe you should be cc'd on this bug ?
+> 
+> |And Meino Christian Cramer replied :
+> |
+> | Therefore it seems that APIC is working with my VIA board without USB.
+> | But I cannot live without USB ... my mouse is USBish and X without a
+> | mouse is a little ... hmmm senseless.
+> 
+> Lucky you. I'm on a 100% hid input setup (mouse *and* keyboard), the 
+> hardware is great on the kernels that support it, but is seems good
+> Linux support is not here yet:(.
+> 
+> Regards,
+> 
+> -- 
+> Nicolas Mailhot

@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263600AbRFAQw0>; Fri, 1 Jun 2001 12:52:26 -0400
+	id <S263608AbRFARFA>; Fri, 1 Jun 2001 13:05:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263607AbRFAQwR>; Fri, 1 Jun 2001 12:52:17 -0400
-Received: from pc1-barr2-0-cust175.ren.cable.ntl.com ([62.255.161.175]:32004
-	"EHLO mta-01-uk.srv.ic5.net") by vger.kernel.org with ESMTP
-	id <S263600AbRFAQwC>; Fri, 1 Jun 2001 12:52:02 -0400
-From: "John McGarrigle" <johnm@ic5.net>
-To: <linux-kernel-relay@lists.ic5.net>
-Subject: MD Auth messages.
-Date: Fri, 1 Jun 2001 17:51:59 +0100
-Message-ID: <NEBBKHCHALEHONLIDNJGCEIBDOAA.johnm@ic5.net>
+	id <S263619AbRFAREu>; Fri, 1 Jun 2001 13:04:50 -0400
+Received: from pc40.e18.physik.tu-muenchen.de ([129.187.154.153]:38408 "EHLO
+	pc40.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S263608AbRFAREi>; Fri, 1 Jun 2001 13:04:38 -0400
+Date: Fri, 1 Jun 2001 19:04:32 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: [newbie] NFS client: port-unreachable
+Message-ID: <Pine.LNX.4.31.0106011855520.13429-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-Importance: Normal
-X-OriginalArrivalTime: 01 Jun 2001 16:51:59.0154 (UTC) FILETIME=[2C6DA120:01C0EABB]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if you got any majordomo auth messages from me. Just mailman messing
-up :\
+Hi folks!
 
-----
-John 'Neuron' McGarrigle
-Email: johnm@ic5.net
-ICQ: 18220396
-Phone: +44 (0)7944 604 644
-----
+When I lstat64 a directory on an nfs mount the answer to GETATTR is
+received by the network interface but dropped (not seen by the client)
+afterwards. Only 50musec after the receive of the answer an
+icmp-destination-unreachable (port-unreachable) goes out to the server.
+This is annoying since it blocks all access to that directory.
+The request in question is sent and received at port 772.
+
+I'm using kernel 2.4.4.
+
+Please help,
+					Roland
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVBVGma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVBVGwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbVBVGma (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 01:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVBVGma
+	id S262219AbVBVGwF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 01:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVBVGwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 01:42:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:34490 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262220AbVBVGmY (ORCPT
+	Tue, 22 Feb 2005 01:52:05 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:45593 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262219AbVBVGwC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 01:42:24 -0500
+	Tue, 22 Feb 2005 01:52:02 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IAknri463ST+x5ECP8joBa0Pql2B/e0/Ggh4RmfuL0TiC9QsY0RBCo5zBWw+yizlb/x31I4xSpRhr2AX4OYOf230AptmvKid89noZsii+dXSF8INAfyFaDybLKsFn66MZFjMZSaI1Hqh63eOhCQVQQcM0RYXJoS+9gg7Pk+jQHU=
-Message-ID: <9e473391050221224269186140@mail.gmail.com>
-Date: Tue, 22 Feb 2005 01:42:23 -0500
+        b=RkPckf9GvAh1Zm+ys3QiPcK6PM+ge25KOOj+p+rZGgxz524S3tyvF/6kwuI8TKFANB4XxqCpFP7FmDPMU3YmQElS01jqZZ35w7vOjkTPEv2T4RJo2fXSnwU3o6jXTrGAon52YC0q1h5zr8SCHrvpLrfRki5/IJTrjAN3oxfNY1Q=
+Message-ID: <9e47339105022122526338b2c9@mail.gmail.com>
+Date: Tue, 22 Feb 2005 01:52:02 -0500
 From: Jon Smirl <jonsmirl@gmail.com>
 Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
@@ -40,15 +40,18 @@ References: <Pine.LNX.4.58.0502201049480.18753@skynet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Feb 2005 17:32:40 +1100, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> And even if we did, then we could have the vga "legacy" driver use the
-> firmware loader to "boot" them. And again, you seem to dismiss all my
-> other arguments...
+Does the kernel need to keep a bit that says the device has been
+posted, don't do it again? Should removing/inserting a driver cause a
+repost? I was going to add bit in pci_dev that tracks the reset status
+so that it will persist across unloads. Do we have code to tell if
+hardware needs a reset without the tracking bit?
 
-I'm not dismissing them, I'm in agreement with with doing it in the
-drivers if we are sure we have thought through all of the different
-cases where we might need to post.
+On the x86 DRM will run without fbdev loaded. So DRM needs to also be
+able to do the post and well as fbdev. Or we can just leave the old
+drivers alone and only implement this in a merged fbdev/drm driver?
+
+When current X loads it's going to reset the cards again, that may
+stomp anything the driver has set up.
 
 -- 
 Jon Smirl

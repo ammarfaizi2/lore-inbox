@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbTFIACg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 20:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264087AbTFIACf
+	id S264087AbTFIAF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 20:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbTFIAF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 20:02:35 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:17024 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S264085AbTFIACe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 20:02:34 -0400
-Date: Mon, 9 Jun 2003 02:16:09 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: USB Scanner Problem
-Message-Id: <20030609021609.2722ebe1.us15@os.inf.tu-dresden.de>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Fiasco-Rulez: Yes
-X-Mailer: X-Mailer 5.0 Gold
+	Sun, 8 Jun 2003 20:05:57 -0400
+Received: from svr7.m-online.net ([62.245.150.229]:644 "EHLO svr7.m-online.net")
+	by vger.kernel.org with ESMTP id S264087AbTFIAF4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 20:05:56 -0400
+Date: Mon, 9 Jun 2003 02:19:29 +0200
+From: "Oliver M. Bolzer" <oliver@gol.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030609001929.GA5259@magi.fakeroot.net>
+References: <000501c32e00$85d4f670$8200a8c0@coolermaster>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="ZkejlJ?)_Jk/b,=."
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000501c32e00$85d4f670$8200a8c0@coolermaster>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---ZkejlJ?)_Jk/b,=.
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sun, Jun 08, 2003 at 09:57:04PM +0100, Peter Westwood <peter.westwood@talk21.com> wrote...
+ 
+> Looking through the latest firmware update available :
+> http://www.buffalo-technology.com/support/firmware.htm
 
+> No mention here or anywhere on there site of the GPL or the source code to
+> what they are distributing!
 
-Hi,
+I have another product from Melco/Buffalo and found out, that it had
+Linux and other GPLed (and BSD with adv. clause and Apache with end-user
+doc clasue and and and) materials on it, without the manual or their web page
+mentioning it. Their telephone support 
+in Japan (where the stuff comes from) didn't give sh*t about it and
+repeatedly told me about their policy of not telling anything about the
+inner workings of products and even refused to either elevate me to talk
+to somebody else or give me an contacting point to either their legal
+or PR departments.
+I directly called the PR guy responsible for that line of products at their
+headquater (good to be on their list of press) and explained the situation
+to him. He promised to clear it up with legal and the developers.
+After about a week (and me ranting about an anonymous company in my blog)
+he got back with a very detailed and polite answer about the situation.
+They DID know about the issues involved and their obligations. Just that
+their other hand (like support and web page creation) isn't up to the
+"new" style and that they were fixing it. I also found out, that the
+"quick setup" leaflet in the product actually contained a small note
+that the product included GPLed software. 
 
-Powering up my Epson USB scanner under 2.5.70, I got the following strange
-output in dmesg:
+It has been 3 month since. If they havn't gotten their act together 
+still, they need to be reminded of it.
 
-hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x101
-hub 1-0:0: new USB device on port 1, assigned address 4
-drivers/usb/image/scanner.c: USB scanner device (0x04b8/0x0110) now attache=
-d to @=E8^=CA@=E8^=CA=80
+-- 
+	Oliver M. Bolzer
+	oliver@gol.com
 
-See the end of the "now attached to message". It just doesn't look right.
-
-Device is:
-
-T:  Bus=3D01 Lev=3D01 Prnt=3D01 Port=3D00 Cnt=3D01 Dev#=3D  4 Spd=3D12  MxC=
-h=3D 0
-D:  Ver=3D 1.00 Cls=3Dff(vend.) Sub=3Dff Prot=3Dff MxPS=3D64 #Cfgs=3D  1
-P:  Vendor=3D04b8 ProdID=3D0110 Rev=3D 1.10
-S:  Manufacturer=3DEPSON
-S:  Product=3DEPSON Scanner
-C:* #Ifs=3D 1 Cfg#=3D 1 Atr=3Dc0 MxPwr=3D  2mA
-I:  If#=3D 0 Alt=3D 0 #EPs=3D 2 Cls=3Dff(vend.) Sub=3Dff Prot=3Dff Driver=
-=3Dusbscanner
-E:  Ad=3D81(I) Atr=3D02(Bulk) MxPS=3D  64 Ivl=3D0ms
-E:  Ad=3D02(O) Atr=3D02(Bulk) MxPS=3D  64 Ivl=3D0ms
-
-Regards,
--Udo.
-
---ZkejlJ?)_Jk/b,=.
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
-
-iD8DBQE+49HJnhRzXSM7nSkRAuxzAJ9+YR7kBKcVs/ViDshnBhQyK00IggCfTJG5
-aMAha+vBywgMNsa7GEyXRyc=
-=Xhk1
------END PGP SIGNATURE-----
-
---ZkejlJ?)_Jk/b,=.--
+GPG (PGP) Fingerprint = 621B 52F6 2AC1 36DB 8761  018F 8786 87AD EF50 D1FF

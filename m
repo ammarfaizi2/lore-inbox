@@ -1,38 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314221AbSEITWZ>; Thu, 9 May 2002 15:22:25 -0400
+	id <S314228AbSEIT1R>; Thu, 9 May 2002 15:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314228AbSEITWZ>; Thu, 9 May 2002 15:22:25 -0400
-Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:17131 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id <S314221AbSEITWY>;
-	Thu, 9 May 2002 15:22:24 -0400
-Date: Thu, 9 May 2002 15:22:24 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020509192224.GA30315@nevyn.them.org>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205070953420.2509-100000@home.transmeta.com> <3CD8DAA2.6080907@evision-ventures.com> <20020509131341.A37@toy.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+	id <S314230AbSEIT1Q>; Thu, 9 May 2002 15:27:16 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:45738 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314228AbSEIT1P>; Thu, 9 May 2002 15:27:15 -0400
+Date: Thu, 09 May 2002 14:27:00 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] Thread group exit problem reappeared.
+Message-ID: <43390000.1020972420@baldur.austin.ibm.com>
+X-Mailer: Mulberry/2.2.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========890320887=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 09, 2002 at 01:13:42PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > BTW. If one needs the size of the disk well we could
-> > attach it as a file size to the device file in /dev IMHO. Why not?
-> 
-> Seems like good idea. (I don't know how happy du is going to be that. OTOH
-> is du is not happy, we should fix it not to count block devices...)
-> 								Pavel
+--==========890320887==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The number /usr/bin/du shows is the block usage, not the logical size;
-you could use the logical size for this...
 
--- 
-Daniel Jacobowitz                           Carnegie Mellon University
-MontaVista Software                         Debian GNU/Linux Developer
+A long time ago there was thread group code that at exit time tried to
+reparent a task to another task in the thread group.  I discovered a major
+race condition in this code, and submitted a patch that removed it.  This
+patch was accepted in, I thin, 2.4.12.  The code reappeared in 2.4.18,
+breaking applications that use thread groups.
+
+As part of chasing this down, I figured out a way to remove the race
+condition while still preserving this behavior.  I've attached a patch
+against 2.4.19-pre8 that fixes it.
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+
+--==========890320887==========
+Content-Type: text/plain; charset=us-ascii; name="exit-2.4.19-pre8.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="exit-2.4.19-pre8.diff"; size=797
+
+--- linux-2.4.19-pre8/./kernel/exit.c	Tue May  7 09:18:14 2002
++++ linux-2.4.19-pre8-reparent/./kernel/exit.c	Tue May  7 10:01:56 2002
+@@ -152,7 +152,7 @@
+ 
+ /*
+  * When we die, we re-parent all our children.
+- * Try to give them to another thread in our process
++ * Try to give them to another thread in our thread
+  * group, and if no such member exists, give it to
+  * the global child reaper process (ie "init")
+  */
+@@ -162,8 +162,14 @@
+ 
+ 	read_lock(&tasklist_lock);
+ 
+-	/* Next in our thread group */
+-	reaper = next_thread(father);
++	/* Next in our thread group, if they're not already exiting */
++	reaper = father;
++	do {
++		reaper = next_thread(reaper);
++		if (!(reaper->flags & PF_EXITING))
++			break;
++	} while (reaper != father);
++
+ 	if (reaper == father)
+ 		reaper = child_reaper;
+ 
+
+--==========890320887==========--
+

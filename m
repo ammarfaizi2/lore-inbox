@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263252AbUDUQEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbUDUQIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263252AbUDUQEs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 12:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbUDUQEs
+	id S263340AbUDUQIa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 12:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUDUQIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 12:04:48 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:59653 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S263252AbUDUQEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 12:04:47 -0400
-Date: Thu, 22 Apr 2004 00:08:29 +0800 (WST)
-From: raven@themaw.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc2-mm1
-In-Reply-To: <20040421014544.37942eb4.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0404220005120.16711@donald.themaw.net>
-References: <20040421014544.37942eb4.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.2, required 8,
-	IN_REP_TO, NO_REAL_NAME, REFERENCES, USER_AGENT_PINE)
+	Wed, 21 Apr 2004 12:08:30 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:34253 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263355AbUDUQGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 12:06:31 -0400
+Date: Wed, 21 Apr 2004 17:05:37 +0100
+From: Dave Jones <davej@redhat.com>
+To: Charles Coffing <ccoffing@novell.com>
+Cc: linux-kernel@vger.kernel.org, Dominik Brodowski <linux@brodo.de>
+Subject: Re: [PATCH] unbalanced try_get_module/put_module in cpufreq
+Message-ID: <20040421160537.GA18114@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Charles Coffing <ccoffing@novell.com>, linux-kernel@vger.kernel.org,
+	Dominik Brodowski <linux@brodo.de>
+References: <200404211047.02906.ccoffing@novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404211047.02906.ccoffing@novell.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 21, 2004 at 10:47:02AM -0600, Charles Coffing wrote:
+ > Hi,
+ > 
+ > This patch is against 2.6.5.  There's a small bug in cpufreq_add_dev:  If kmalloc fails, try_get_module() is not balanced by a module_put().
+ > 
 
-Looks like there's no IDS defined for the Creator cards on sparc.
+Thanks, applied. (Slightly different variant, but same end result).
 
-If only I could build a kernel on my little Ultra. Sigh.
-I don't even have to fight the kids to use it.
-
-In file included from drivers/char/drm/ffb_drv.c:336:
-drivers/char/drm/drm_drv.h:545: error: `DRIVER_PCI_IDS' undeclared here 
-(not in a function)
-drivers/char/drm/drm_drv.h:545: error: initializer element is not constant
-drivers/char/drm/drm_drv.h:545: error: (near initialization for 
-`ffb_pciidlist[0 ]')
-drivers/char/drm/ffb_drv.c:225: warning: `ffb_count_card_instances' 
-defined but not used
+		Dave
 

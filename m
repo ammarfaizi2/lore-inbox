@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132545AbRDHMMH>; Sun, 8 Apr 2001 08:12:07 -0400
+	id <S132546AbRDHMmP>; Sun, 8 Apr 2001 08:42:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132546AbRDHML5>; Sun, 8 Apr 2001 08:11:57 -0400
-Received: from office.mandrakesoft.com ([195.68.114.34]:58106 "HELO
-	giants.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S132545AbRDHMLr>; Sun, 8 Apr 2001 08:11:47 -0400
-To: Patrick Shirkey <pshirkey@boosthardware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible bug for Kernel 2.4.3 -> make modules_install
-In-Reply-To: <3ACFA8DB.A0A21AB7@boosthardware.com>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 08 Apr 2001 15:10:55 +0200
-In-Reply-To: <3ACFA8DB.A0A21AB7@boosthardware.com>
-Message-ID: <m37l0vfsf4.fsf@giants.mandrakesoft.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132549AbRDHMmF>; Sun, 8 Apr 2001 08:42:05 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:22658 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S132546AbRDHMl6>; Sun, 8 Apr 2001 08:41:58 -0400
+Date: Sun, 8 Apr 2001 13:41:50 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Michael Reinelt <reinelt@eunet.at>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Multi-function PCI devices
+Message-ID: <20010408134150.D1089@redhat.com>
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <Pine.LNX.4.10.10104071043360.1085-100000@linux.local> <20010407200053.B3280@redhat.com> <3ACF6D1D.63A2A2FE@mandrakesoft.com> <20010407205204.H3280@redhat.com> <3AD05410.495A2BDC@eunet.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="6WlEvdN9Dv0WHSBl"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AD05410.495A2BDC@eunet.at>; from reinelt@eunet.at on Sun, Apr 08, 2001 at 02:05:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Shirkey <pshirkey@boosthardware.com> writes:
 
-> I am having trouble installing modules. The command hangs at the
-> following point in the install...
-> 
-> -------------------
->   Finished dependencies of target file `_modinst_post'.
->   Must remake target `_modinst_post'.
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.3; fi
-> Putting child 0x08088a88 PID 01056 on the chain.
-> Live child 0x08088a88 PID 1056
-> /sbin/depmod: invalid option -- F
-> Usage: depmod [-e -s -v ] -a [FORCED_KERNEL_VER]
->        depmod [-e -s -v ] MODULE_1.o MODULE_2.o ...
-> Create module-dependency information for modprobe.
+--6WlEvdN9Dv0WHSBl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-(chmou@no)[linux/Documentation]-% grep modutils Changes 
-o  modutils               2.4.2                   # insmod -V
-Upgrade to recent modutils to fix various outstanding bugs which are
-requires that you upgrade to a recent modutils.
-o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/modutils/v2.4/>
+On Sun, Apr 08, 2001 at 02:05:36PM +0200, Michael Reinelt wrote:
 
+> The simple solution: Gunters 'multifunction quirks'
+> clean solution #1: a new module according to Jeffs sample code
+> clean solution #2: 'invisible PCI bridge' from Linus
+[...]
+> Suggestion: multifunction quirks for 2.4, one of the clean solutions for
+> 2.5?
 
--- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+I would rather we went for something in 2.4 and stick with it in 2.5
+than changing again. (The parport ID list format changed in 2.2->2.4
+already in order to handle subsystem IDs.)
+
+Tim.
+*/
+
+--6WlEvdN9Dv0WHSBl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD4DBQE60FyOONXnILZ4yVIRAq4OAKCVmeYl3ZJRpA9Besx2F0MZJvzTkgCXSSM1
+3oW3ALbLA2FJ8Bg1ErTP4A==
+=7VTI
+-----END PGP SIGNATURE-----
+
+--6WlEvdN9Dv0WHSBl--

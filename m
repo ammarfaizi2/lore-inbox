@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135564AbRDSGCS>; Thu, 19 Apr 2001 02:02:18 -0400
+	id <S135571AbRDSGOa>; Thu, 19 Apr 2001 02:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135566AbRDSGCI>; Thu, 19 Apr 2001 02:02:08 -0400
-Received: from [64.170.109.178] ([64.170.109.178]:55253 "EHLO petreley.com")
-	by vger.kernel.org with ESMTP id <S135564AbRDSGBy>;
-	Thu, 19 Apr 2001 02:01:54 -0400
-Message-ID: <3ADE7F45.2030205@petreley.com>
-Date: Wed, 18 Apr 2001 23:01:41 -0700
-From: Nicholas Petreley <nicholas@petreley.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac9 i686; en-US; 0.8) Gecko/20010322
-X-Accept-Language: en
+	id <S135570AbRDSGOK>; Thu, 19 Apr 2001 02:14:10 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:60166 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S135569AbRDSGOF>; Thu, 19 Apr 2001 02:14:05 -0400
+Date: Thu, 19 Apr 2001 02:14:03 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@portland>
+To: <linux-kernel@vger.kernel.org>
+Subject: PNP BIOS and parport_pc - dma found but not used
+Message-ID: <Pine.LNX.4.33.0104190203320.10275-100000@portland>
 MIME-Version: 1.0
-To: ignaciomonge@navegalia.com, linux-kernel@vger.kernel.org
-Subject: Re: ATA 100 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same motherboard, and it works fine for me.  Note the 
-80w cable detection.  Perhaps you've got a bad cable?
+Hello!
 
--Nick
+I've compiled 2.4.3-ac9 with support for PNP BIOS. I understand that this
+is a new feature experimental and the feedback is requested.
 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.23
-South Bridge:                       VIA vt82c686b
-Revision:                           ISA 0x40 IDE 0x6
-Highest DMA rate:                   UDMA100
-BM-DMA base:                        0xd800
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:              yes                  no
-Post Write Buffer:            yes                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   80w                 80w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA      UDMA      UDMA       PIO
-Address Setup:       30ns      30ns      30ns     120ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      30ns      30ns
-Data Active:         90ns      90ns      90ns     330ns
-Data Recovery:       30ns      30ns      30ns     270ns
-Cycle Time:          20ns      20ns      60ns     600ns
-Transfer Rate:  100.0MB/s 100.0MB/s  33.3MB/s   3.3MB/s
+The setting is BIOS is to use irq 7 and dma 3. I normally use "options
+parport_pc io=0x378 irq=7 dma=3" in /etc/modules.conf, but this time I
+commented them out hoping that the driver will ask BIOS.
+
+Although the kernel can see those settings, the dma is not used by the
+driver. This is the output from dmesg.
+
+PnPBIOS: Parport found PNPBIOS PNP0401 at io=0378,0778 irq=7 dma=-1
+0x378: FIFO is 16 bytes
+0x378: writeIntrThreshold is 7
+0x378: readIntrThreshold is 7
+0x378: PWord is 8 bits
+0x378: Interrupts are ISA-Pulses
+0x378: ECP port cfgA=0x10 cfgB=0x4b
+0x378: ECP settings irq=7 dma=3
+parport0: PC-style at 0x378 (0x778), irq 7, using FIFO
+[PCSPP,TRISTATE,COMPAT,ECP]
+parport0: cpp_daisy: aa5500ff(98)
+parport0: assign_addrs: aa5500ff(98)
+parport0: Printer, Canon BJC-1000
+# cat /proc/dma
+ 4: cascade
+# cat /proc/interrupts
+           CPU0
+  0:    1323677          XT-PIC  timer
+  1:      20176          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:          0          XT-PIC  eth1
+  4:     288111          XT-PIC
+  7:          2          XT-PIC  parport0
+  8:          1          XT-PIC  rtc
+ 12:      41138          XT-PIC  eth0
+ 14:      22503          XT-PIC  ide0
+ 15:          0          XT-PIC  ide1
+NMI:          0
+ERR:          0
+
+The full output is here: http://www.red-bean.com/~proski/linux/dmesg
+First time parport_pc was loaded with the explicit options.
+
+-- 
+Regards,
+Pavel Roskin
 

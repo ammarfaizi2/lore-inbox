@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264785AbUEPSrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264787AbUEPSvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264785AbUEPSrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 14:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264787AbUEPSrR
+	id S264787AbUEPSvI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 14:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264786AbUEPSvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 14:47:17 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:11402 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264785AbUEPSrQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 14:47:16 -0400
-Subject: Re: 2.6.6 breaks kmail (nfs related?)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andreas Amann <amann@physik.tu-berlin.de>,
+	Sun, 16 May 2004 14:51:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42432 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264787AbUEPSu7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 14:50:59 -0400
+Date: Sun, 16 May 2004 11:50:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Andreas Amann <amann@physik.tu-berlin.de>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405161115000.25502@ppc970.osdl.org>
-References: <200405131411.52336.amann@physik.tu-berlin.de>
-	 <Pine.LNX.4.58.0405152142400.25502@ppc970.osdl.org>
-	 <1084730382.3764.7.camel@lade.trondhjem.org>
-	 <1084731015.3764.10.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.58.0405161115000.25502@ppc970.osdl.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1084733234.3764.30.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 16 May 2004 14:47:14 -0400
+Subject: Re: 2.6.6 breaks kmail (nfs related?)
+In-Reply-To: <1084733234.3764.30.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.58.0405161149430.25502@ppc970.osdl.org>
+References: <200405131411.52336.amann@physik.tu-berlin.de> 
+ <Pine.LNX.4.58.0405152142400.25502@ppc970.osdl.org> 
+ <1084730382.3764.7.camel@lade.trondhjem.org>  <1084731015.3764.10.camel@lade.trondhjem.org>
+  <Pine.LNX.4.58.0405161115000.25502@ppc970.osdl.org>
+ <1084733234.3764.30.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 16/05/2004 klokka 14:19, skreiv Linus Torvalds:
-> They were in the original email on the kernel mailing list:
 
-Sorry. I was in Malaysia last week so that email probably drowned in the
-1600 other mails I found in my backlog when I returned on Friday. I've
-found it now in the archives...
 
-> 	hservnlds:/home /net/hservnlds/home nfs rw,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=sservnlds 0 
+On Sun, 16 May 2004, Trond Myklebust wrote:
 > 
-> The only thing there is that "intr". Maybe something has broken so that 
-> non-lethal signals also trigger errors? That could explain it (partial 
-> reads or writes when a timer goes off, or something). 
+> If kmail really is reporting an ENOSPC, though, then it's hard to see
+> how a signal could produce that particular error.
 
-I haven't touched rpc_clnt_sigmask() in many years, so that would have
-to be some change to the generic signal handling code.
+Agreed. But the kmail message is apparently "(No space left on device?)", 
+which may be just kmail itself reacting to a truncated write rather than 
+any actual ENOSPC error.  A "strace" would help clarify exactly what goes 
+wrong..
 
-If kmail really is reporting an ENOSPC, though, then it's hard to see
-how a signal could produce that particular error.
-
-Cheers,
-  Trond
+		Linus

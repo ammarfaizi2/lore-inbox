@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288850AbSAPV53>; Wed, 16 Jan 2002 16:57:29 -0500
+	id <S289603AbSAPWAc>; Wed, 16 Jan 2002 17:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289008AbSAPV5U>; Wed, 16 Jan 2002 16:57:20 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:23765 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S289156AbSAPV5F>; Wed, 16 Jan 2002 16:57:05 -0500
-Message-Id: <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available 
-In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
-   of "Wed, 16 Jan 2002 16:31:44 EST." <20020116163144.D12306@thyrsus.com> 
-Date: Wed, 16 Jan 2002 22:56:46 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S289568AbSAPWAL>; Wed, 16 Jan 2002 17:00:11 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:18445 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S289458AbSAPWAH>; Wed, 16 Jan 2002 17:00:07 -0500
+Message-ID: <3C45F7B6.1BCB4519@didntduck.org>
+Date: Wed, 16 Jan 2002 16:59:18 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Christian Thalinger <e9625286@student.tuwien.ac.at>,
+        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        linux-kernel <linux-kernel@vger.kernel.org>, davej@suse.de
+Subject: Re: floating point exception
+In-Reply-To: <Pine.LNX.3.95.1020116161110.15035A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> said:
-> Horst von Brand <brand@jupiter.cs.uni-dortmund.de>:
-> > > Release 2.1.3: Tue Jan 15 14:41:45 EST 2002
-> > > 	* Resync with 2.4.18-pre3 and 2.5.2.
-> > > 	* It is now possible to declare explicit saveability predicates.
-> > > 	* The `vitality' flag is gone from the language.  Instead, the 
-> > > 	  autoprober detects the type of your root filesystem and forces
-> > > 	  its symbol to Y.
-> > 
-> > Great! Now I can't configure a kernel for ext3 only on an ext2 box. Keep it
-> > up! As it goes, we can safely forget about CML2...
+"Richard B. Johnson" wrote:
 > 
-> Oh, nonsense.  You can do this just fine with any of the manual
-> configurators.
-
-Whatever happened to "Do exactly as CML1 does; leave fixes and extensions
-for later"? If you put the kitchen sink into it, it _won't_ go into the
-standard kernel.
-
-> Now repeat after me, Horst:
+> On 16 Jan 2002, Christian Thalinger wrote:
 > 
-> 	The autoconfigurator is *optional*, not required.
+> > On Wed, 2002-01-16 at 15:32, Zwane Mwaikambo wrote:
+> > > Can you also reproduce _without_ loading NVdriver, just to make everybody
+> > > happy.
+> > >
+> > > Thanks,
+> > >     Zwane Mwaikambo
+> > >
+> >
+> > Sure, same breakdown. Maybe it's really an dual athlon xp issue as dave
+> > jones mentioned. But shouldn't this also occur when i trigger a floating
+> > point exception myself? Is there a way to check which floating point
+> > exception was raised by the seti client?
+> >
+> > Regards.
+> >
+> 
+> Maybe you can run it off from gdb? Or `strace` it to a file? Usually
+> these things are caused by invalid 'C' runtime libraries, either
+> corrupt, "installed by just making a sim-link to something that
+> was presumed to be close to what the application was compiled with",
+> or an error in mem-mapping.
+> 
+> Another very-real possibility is that somebody used floating-point
+> within the kernel thus corrupting  the `seti` FPU state. You can
+> check this out by making a program that does lots of FP calculations,
+> perhaps the sine of a large number of values. You put the results
+> into one array. Then you do the exact same thing with the results
+> put into another array.  Then just `memcmp` the arrays! You run
+> this in a loop for an hour. If the kernel is mucking with your FPU,
+> it will certainly show.
 
-It isn't "optional", it is builtin. It doesn't matter if somebody uses it
-or nobody does, it will be there. And AFAIU what you have said, you are
-modifiying CML2 (or at least the rulebase) for the sake of it. This is
-_not_ what had been agreed on the matter.
--- 
-Horst von Brand			     http://counter.li.org # 22616
+Hmm, that's an interesting idea... An Athlon optimised kernel does use
+the MMX/FPU registers to do mem copies.  Try running a kernel compiled
+for just a Pentium and see if the problem persists.
+
+--
+
+				Brian Gerst

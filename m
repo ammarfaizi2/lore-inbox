@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132343AbRCZGnL>; Mon, 26 Mar 2001 01:43:11 -0500
+	id <S132349AbRCZGql>; Mon, 26 Mar 2001 01:46:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132349AbRCZGnB>; Mon, 26 Mar 2001 01:43:01 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:24296 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132343AbRCZGmu>;
-	Mon, 26 Mar 2001 01:42:50 -0500
-Message-ID: <3ABEE4C0.36EB75F5@mandrakesoft.com>
-Date: Mon, 26 Mar 2001 01:42:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-Cc: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
+	id <S132350AbRCZGqb>; Mon, 26 Mar 2001 01:46:31 -0500
+Received: from snark.tuxedo.org ([207.106.50.26]:52997 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132349AbRCZGqM>;
+	Mon, 26 Mar 2001 01:46:12 -0500
+Date: Mon, 26 Mar 2001 01:49:13 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Peter Samuelson <peter@cadcamlab.org>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
 Subject: Re: CML1 cleanup patch
+Message-ID: <20010326014913.B11181@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Peter Samuelson <peter@cadcamlab.org>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
 In-Reply-To: <200103260001.f2Q01Yt09387@snark.thyrsus.com> <15038.56527.591553.87791@wire.cadcamlab.org> <3ABEE0B5.12A2F768@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ABEE0B5.12A2F768@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 26, 2001 at 01:24:53AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, bummer.  I can't seem to find Eric's message archived anywhere.
+Jeff Garzik <jgarzik@mandrakesoft.com>:
+> > The -TOO suffix was to distinguish between this and the former 8139
+> > driver, as the two coexisted in 2.2 and 2.3.  As the old driver has
+> > been dropped from 2.4, I propose likewise dropping the -TOO.
+> 
+> It stays "8139too".  Donald Becker's rtl8139.c continues to exist
+> outside the kernel.  
+> 
+> And "rtl8139too" should have never crept into 2.2.  That needs to be
+> changed to "8139too."  That's what I get for saying that I don't support
+> 2.2...
 
-FWIW I am opposed to any large-scale cleanup of the configuration
-language and/or identifiers in -any- 2.4.x series kernel.
+Now, wait, Jeff.  I'm not attached to Peter's change, but I don't think
+we can reasonably be expected to worry about every possible driver
+left over from every old version of Linux when managing the
+configuration-symbol namespace.  That way madness lies.
 
-Not only C code but installer utilities are affected by changes in the
-CONFIG_xxx identifiers.  If we change that namespace, we are changing
-part of the API that is exported to drivers.  Definitely not 2.4.x
-stuff.
+I'll cheerfully ship a supplementary patch to fix this one name later,
+but we can't afford to have a wrangle over this bit of trivia delay
+adoption of this one.  I have a hell of a lot of work to do for
+which this is critical path.  
 
-If we are moving to CML2 in 2.5, I see no point in big CML1 cleanups.
+I left it pretty late as it is, out of hope that other people would
+clean up some of the messes I noticed in the config namespace six
+months ago, and they did -- but the 2.5 fork is nearly upon us and I
+feel a strong need to get this in before then.
 
+Would you and Peter please fight this out and tell me what to do in the
+supplementary patch?  I don't care, as long as the result has a non-numeric
+prefix -- bare "8139whatever" is out.
 -- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full moon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Sometimes it is said that man cannot be trusted with the government
+of himself.  Can he, then, be trusted with the government of others?
+	-- Thomas Jefferson, in his 1801 inaugural address

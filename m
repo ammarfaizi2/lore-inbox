@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbUJ1Ams@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbUJ1Awi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262723AbUJ1Ams (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 20:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUJ1AX0
+	id S262643AbUJ1Awi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 20:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbUJ1Awe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 20:23:26 -0400
-Received: from fire.osdl.org ([65.172.181.4]:32968 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262669AbUJ1AMv (ORCPT
+	Wed, 27 Oct 2004 20:52:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16591 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262643AbUJ1Ar4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 20:12:51 -0400
-Subject: Re: 2.6.10-rc1-mm1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041027133443.62b1fb29.akpm@osdl.org>
-References: <20041026213156.682f35ca.akpm@osdl.org>
-	 <1098895320.9269.32.camel@cherrybomb.pdx.osdl.net>
-	 <20041027133443.62b1fb29.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1098922350.9675.235.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 27 Oct 2004 17:12:30 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 20:47:56 -0400
+Date: Wed, 27 Oct 2004 17:47:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove some divide instructions
+In-Reply-To: <Pine.LNX.4.58.0410271704520.28839@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0410271731010.28839@ppc970.osdl.org>
+References: <417FC982.7070602@vmware.com> <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
+ <41801DE1.6000007@vmware.com> <Pine.LNX.4.58.0410271704520.28839@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-27 at 13:34, Andrew Morton wrote:
-> John Cherry <cherry@osdl.org> wrote:
-> >
-> >  Build error is still...
-> > 
-> >    LD      vmlinux
-> >    SYSMAP  System.map
-> >    SYSMAP  .tmp_System.map
-> >    AS      arch/i386/boot/bootsect.o
-> >    AS      arch/i386/boot/compressed/head.o
-> >    AS      arch/i386/boot/setup.o
-> >    HOSTCC  arch/i386/boot/tools/build
-> >    CC      arch/i386/boot/compressed/misc.o
-> >    LD      arch/i386/boot/bootsect
-> >    OBJCOPY arch/i386/boot/compressed/vmlinux.bin
-> >  BFD: Warning: Writing section `.bss' to huge (ie negative) file offset 0xc02e4000.
-> >  objcopy: arch/i386/boot/compressed/vmlinux.bin: File truncated
+
+
+On Wed, 27 Oct 2004, Linus Torvalds wrote:
 > 
-> I think that means you need a binutils upgrade.  What version are you running?
+> I could add a sparse check for "no side effects", if anybody cares (so 
+> that you could do
+> 
+> 	__builtin_warning(
+> 		!__builtin_nosideeffects(base),
+> 		"expression has side effects");
+> 
+> in macros like these.. Sparse already has the logic internally..
 
-2.13.90.0.18 binutils (gcc version 3.2.2).
+Done. Except I called it __builtin_safe_p(). 
 
-I suspect you are right about the binutils.  I just did the same build
-on my Fedora Core 3 machine and the negative file offset problem goes
-away.
+The kernel sources already know about "__builtin_warning()" (and 
+pre-process it away on gcc), so if you have a new sparse setup (as of two 
+minutes ago ;), you can use this thing to check that arguments to macros 
+do not have side effects.
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Useful? You be the judge. But it was just a couple of lines in sparse, and
+doing so also made it obvious how to clean up __builtin_constant_p() a lot
+at the same time by just re-organizing things a bit.
 
+My inliner and statement simplificator isn't perfect, so inline functions
+sadly are not considered constant (or safe) even if they _do_ end up
+returning a constant value (or be safe internally).
+
+		Linus

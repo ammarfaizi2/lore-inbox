@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319599AbSH2XSM>; Thu, 29 Aug 2002 19:18:12 -0400
+	id <S319534AbSH2XCS>; Thu, 29 Aug 2002 19:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319602AbSH2XSM>; Thu, 29 Aug 2002 19:18:12 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:26122 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S319599AbSH2XSJ>; Thu, 29 Aug 2002 19:18:09 -0400
-Date: Fri, 30 Aug 2002 01:22:33 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>, Luca Barbieri <ldb@ldb.ods.org>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
-Message-ID: <20020829232233.GA18573@atrey.karlin.mff.cuni.cz>
-References: <1030506106.1489.27.camel@ldb> <20020828121129.A35@toy.ucw.cz> <1030663192.1326.20.camel@irongate.swansea.linux.org.uk>
+	id <S319536AbSH2XCK>; Thu, 29 Aug 2002 19:02:10 -0400
+Received: from holomorphy.com ([66.224.33.161]:45445 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S319534AbSH2XCC>;
+	Thu, 29 Aug 2002 19:02:02 -0400
+Date: Thu, 29 Aug 2002 16:06:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] low-latency zap_page_range()
+Message-ID: <20020829230622.GJ888@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <3D6E844C.4E756D10@zip.com.au> <1030653602.939.2677.camel@phantasy> <3D6E8B25.425263D5@zip.com.au> <20020829213830.GG888@holomorphy.com> <akm7me$3s1$1@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <1030663192.1326.20.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <akm7me$3s1$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Aug 29, 2002 at 10:37:02PM +0000, Linus Torvalds wrote:
+> You will NOT.
+> The page_table_lock protects against page stealing of the VM and
+> concurrent page-faults, nothing else.  There is no way you can get
+> contention on it under any reasonable load that doesn't involve heavy
+> out-of-memory behaviour, simply because
+>  - the lock is per-mm
+>  - all "regular" paths that care about this also get the mmap semaphore
+> In short, that spinlock has _zero_ scalability impact.  You can
+> theoretically get contention on it without memory pressure only by
+> having hundreds of threads page-faulting at the same time (getting a
+> read-lock on the mmap semaphore), but by then your performance has
+> nothing to do with the spinlock, and everything to do with the page
+> faults themselves. 
+> (In fact, I can almost guarantee that most of the long hold-times are
+> for exit(), not for munmap().  And in that case the spinlock cannot get
+> any non-pagestealer contention at all, since nobody else is using the
+> MM)
+
+All I have to go on is a report this has happened and a low-priority
+task to investigate it at some point in the future. I'll send you data
+either demonstrating it or exonerating it when I eventually get to it.
 
 
-> > > Unfortunately with this patch executing invalid code will cause the
-> > > processor to enter an infinite exception loop rather than panic. Fixing
-> > > this is not trivial for SMP+preempt so it's not done at the moment.
-> > 
-> > Using 0xcc for everything should fix that, right?
-> 
-> Except you can't do the fixup on SMP without risking hitting the CPU
-> errata. You also break debugging tools that map kernel code pages r/o
-> and people who ROM it.
-> 
-> The latter aren't a big problem (they can compile without runtime
-> fixups). For the other fixups though you -have- to do them before you
-> run the code. That isnt hard (eg sparc btfixup). You generate a list of
-> the addresses in a segment, patch them all and let the init freeup blow 
-> the table away
-
-Aha, making a list and just patching early at boot is even simpler
-than method I was thinking about.... Why not do it that way?
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Cheers,
+Bill

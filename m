@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286916AbSACFoK>; Thu, 3 Jan 2002 00:44:10 -0500
+	id <S287256AbSACFpt>; Thu, 3 Jan 2002 00:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286971AbSACFoA>; Thu, 3 Jan 2002 00:44:00 -0500
-Received: from mysql.sashanet.com ([209.181.82.108]:22941 "EHLO
-	mysql.sashanet.com") by vger.kernel.org with ESMTP
-	id <S286916AbSACFnx>; Thu, 3 Jan 2002 00:43:53 -0500
-Message-Id: <200201030538.g035ceM31957@mysql.sashanet.com>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Sasha Pachev <sasha@mysql.com>
-Organization: MySQL
-To: linux-kernel@vger.kernel.org, riel@conectiva.com.br
-Subject: Suspected bug in shrink_caches()
-Date: Wed, 2 Jan 2002 22:38:40 -0700
-X-Mailer: KMail [version 1.3.1]
+	id <S288210AbSACFpn>; Thu, 3 Jan 2002 00:45:43 -0500
+Received: from dsl-213-023-043-254.arcor-ip.net ([213.23.43.254]:41480 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287256AbSACFpb>;
+	Thu, 3 Jan 2002 00:45:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, "M. Edward Borasky" <znmeb@aracnet.com>
+Subject: Re: kswapd etc hogging machine
+Date: Thu, 3 Jan 2002 06:48:47 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Art Hays <art@lsr.nei.nih.gov>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201022214230.8413-100000@lsr-linux> <HBEHIIBBKKNOBLMPKCBBAECPEFAA.znmeb@aracnet.com> <3C33E8EA.FAF8E337@zip.com.au>
+In-Reply-To: <3C33E8EA.FAF8E337@zip.com.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16M0kC-00012Q-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik:
+On January 3, 2002 06:15 am, Andrew Morton wrote:
+> And we, the kernel developers, should hang our heads over this.  A
+> vendor-released, stable kernel is performing terribly with such a
+> simple workload.  One year after the release of 2.4.0!
 
-I am quite sure there is still a bug in shrink_caches(), at least there was 
-one in 2.4.17-rc2. I have not tried later releases, but there is nothing in 
-the changelog about the fixes anywhere near that area of the code, so I have 
-to assume the problem is still there.
+To be fair, in the year leading up to 2.4.0 much energy was expended on 
+getting the bugs out of the unified and heaviliy threaded page+buffer 
+cache[1], at the expense of work on the memory manager, so 2001 ended up 
+being like a whole new kernel cycle.  Anyway, the saving grace is that 2.2 
+managed to metamorphose from ugly duckling to... quite a nice duck, with 
+almost all the features of 2.4 from the user's point of view.  So everybody 
+has something to run.
 
-Here is how one can expose the bug:
+With 20 20 hindsight, the VM work could have been managed better but I don't 
+see why anybody's head needs to be hung.  It was a bumpy road, we had to 
+change a few tires, but we got to the other side of the mountain.
 
- - disable kswapd and turn off all swap for simplicity
- - run two applications concurrently, one cache intenstive ( eg find / or 
-simply create/initialize/read a large file), and the other RAM-intensive - 
-allocate a large block and initialize it
+--
+Daniel
 
-When we get to the point where free memory starts running low, even though we 
-may have something like 100 MB of cache, shrink_caches() fails to free up 
-enough memory, which triggers the evil oom killer. Obviously, in the above 
-situation the correct behaviour is to go on cache diet before considering the 
-murders.
-
--- 
-MySQL Development Team
-For technical support contracts, visit https://order.mysql.com/
-   __  ___     ___ ____  __ 
-  /  |/  /_ __/ __/ __ \/ /   Sasha Pachev <sasha@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__  MySQL AB, http://www.mysql.com/
-/_/  /_/\_, /___/\___\_\___/  Provo, Utah, USA
-       <___/                  
+[1] According to Matt Dillon's interview today, FreeBSD went through the same 
+pain unifying their caches, and they have yet to seriously tackle the SMP 
+issues.

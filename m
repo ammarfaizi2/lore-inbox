@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291633AbSBHQps>; Fri, 8 Feb 2002 11:45:48 -0500
+	id <S291641AbSBHQuj>; Fri, 8 Feb 2002 11:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291637AbSBHQpk>; Fri, 8 Feb 2002 11:45:40 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:22967 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S291633AbSBHQpY>;
-	Fri, 8 Feb 2002 11:45:24 -0500
-Date: Fri, 8 Feb 2002 17:43:53 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jani Monoses <jani@astechnix.ro>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Tridentfb and resource management
-Message-ID: <Pine.GSO.4.21.0202081741140.19681-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291637AbSBHQu3>; Fri, 8 Feb 2002 11:50:29 -0500
+Received: from holomorphy.com ([216.36.33.161]:39570 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S291641AbSBHQuK>;
+	Fri, 8 Feb 2002 11:50:10 -0500
+Date: Fri, 8 Feb 2002 08:49:53 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix i810_dma.c freeing mem inside mem_map
+Message-ID: <20020208164953.GC767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16Z3Kb-0003cm-00@holomorphy> <Pine.LNX.4.21.0202081229490.964-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0202081229490.964-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Jani and Marcelo,
+On Thu, 7 Feb 2002, William Lee Irwin III wrote:
+>> --- linux/drivers/char/drm/i810_dma.c.bak	Thu Feb  7 21:09:49 2002
+>> +++ linux/drivers/char/drm/i810_dma.c	Thu Feb  7 21:09:59 2002
+>> @@ -301,7 +301,7 @@
+>>  		atomic_dec(&p->count);
+>>  		clear_bit(PG_locked, &p->flags);
+>>  		wake_up_page(p);
+>> -		free_page(p);
+>> +		free_page(page);
+>>  	}
+>>  }
 
-Since Tridentfb uses resource management, its initialization must be done
-before the initialization of the generic drivers (vesafb and offb).
+On Fri, Feb 08, 2002 at 12:31:07PM +0000, Hugh Dickins wrote:
+> What tree does this patch apply to?
+> Hugh
 
---- linux-2.4.18-pre9/drivers/video/fbmem.c.orig	Fri Feb  8 09:39:18 2002
-+++ linux-2.4.18-pre9/drivers/video/fbmem.c	Fri Feb  8 17:40:30 2002
-@@ -207,6 +207,9 @@
- #ifdef CONFIG_FB_SIS
- 	{ "sisfb", sisfb_init, sisfb_setup },
- #endif
-+#ifdef CONFIG_FB_TRIDENT
-+	{ "trident", tridentfb_init, tridentfb_setup },
-+#endif
- 
- 	/*
- 	 * Generic drivers that are used as fallbacks
-@@ -229,9 +232,6 @@
- 
- #ifdef CONFIG_FB_3DFX
- 	{ "tdfx", tdfxfb_init, tdfxfb_setup },
--#endif
--#ifdef CONFIG_FB_TRIDENT
--	{ "trident", tridentfb_init, tridentfb_setup },
- #endif
- #ifdef CONFIG_FB_SGIVW
- 	{ "sgivw", sgivwfb_init, sgivwfb_setup },
+rmap12d
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Cheers,
+Bill

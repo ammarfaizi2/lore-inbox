@@ -1,83 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264108AbTEWRqw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 13:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264111AbTEWRqw
+	id S264107AbTEWRwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 13:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264111AbTEWRwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 13:46:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6345 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264108AbTEWRqt
+	Fri, 23 May 2003 13:52:25 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:2438 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264107AbTEWRwY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 13:46:49 -0400
-Date: Fri, 23 May 2003 18:59:54 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH 1/4] Optimize NFS open() calls by means of 'intents'...
-Message-ID: <20030523175954.GD14406@parcelfarce.linux.theplanet.co.uk>
-References: <16078.6093.339198.108592@charged.uio.no> <Pine.LNX.4.44.0305230911160.21297-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305230911160.21297-100000@home.transmeta.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 May 2003 13:52:24 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 23 May 2003 11:04:45 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "Boehm, Hans" <hans_boehm@hp.com>
+cc: "'Arjan van de Ven'" <arjanv@redhat.com>, Hans Boehm <Hans.Boehm@hp.com>,
+       "MOSBERGER, DAVID (HP-PaloAlto,unix3)" <davidm@hpl.hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ia64@linuxia64.org
+Subject: RE: [Linux-ia64] Re: web page on O(1) scheduler
+In-Reply-To: <75A9FEBA25015040A761C1F74975667D01442101@hplex4.hpl.hp.com>
+Message-ID: <Pine.LNX.4.55.0305231102310.3634@bigblue.dev.mcafeelabs.com>
+References: <75A9FEBA25015040A761C1F74975667D01442101@hplex4.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 23, 2003 at 09:23:33AM -0700, Linus Torvalds wrote:
-> 
-> On Fri, 23 May 2003, Trond Myklebust wrote:
-> > 
-> > Minor cleanup of open() code. Put the original open flags, mode, etc. into
-> > an 'opendata' structure that can be passed as an intent to lookup.
-> 
-> I don't mind the concepts, but I _really_ dislike the implementation.
-> 
-> For one thing, if you're creating a structure to pass in the flags for 
-> open, then you should take the time to make the code _more_ readable 
-> rather than less. In particular, the notion of having a structure like 
-> this:
-> 
-> 	struct opendata {
-> 		int flag;
-> 		int mode;
-> 		int acc_mode;
-> 	};
-> 
-> where each of "flag" and "acc_mode" are magic bitfields just fills me with
-> horror. 
-> 
-> So why not make those internal modes that we translate the "flags" into be 
-> a real bitmap? That should make the code a lot more readable.
-> 
-> Also, I don't really understand why you want to have "opendata" and 
-> "intent" as different structures. That's _especially_ true now that the 
-> only intent is the "open" intent, but even if there were other intents, 
-> I'd rather have something like this
-> 
-> 	struct lookup_info {
-> 		enum type; /* open, validate, whatever.. */
-> 		union {
-> 			struct open_intent open;
-> 			..
-> 		} data;
-> 	}
-> 
-> and gace tge flags (create/exclusive etc) inside that lookup_intent 
-> instead of having multiple different pointers and transferring data from 
-> one to the other at different phases of the "open".
+On Fri, 23 May 2003, Boehm, Hans wrote:
+
+> Sorry about the typo and misnaming for the test program.  I attached the correct version that prints the right labels.
+>
+> The results I posted did not use NPTL.  (Presumably OpenMP wasn't targeted at NPTL either.)  I don't think that NPTL has any bearing on the underlying issues that I mentioned, though path lengths are probably a bit shorter.  It should also handle contention substantially better, but that wasn't tested.
+>
+> I did rerun the test case on a 900 MHz Itanium 2 machine with a more recent Debian installation with NPTL.  I get 200msecs (20nsecs/iter) with the custom lock, and 768 for pthreads.  (With static linking that decreases to 658 for pthreads.)  Pthreads (and/or some of the other infrastructure) is clearly getting better, but I don't think the difference will disappear.
+
+To make things more fair you should test against pthread spinlocks. Also,
+for tight loops like that, even an extra call deep level (that pthread is
+likely to do) is going to matter.
 
 
-Linus, that was one of the reasons why struct nameidata had been introduced
-in the first place.  _And_ discussed with Peter, BTW, so I've no idea
-where the hell does lookup_info come from.
 
-Peter, Trond: please fold that stuff into struct nameidata (note that
-flags are already there) and pass the pointer to it into methods.
-That would have an extra benefit (also discussed before) of allowing to
-bring credentials into the game - we could store them in the same place.
+- Davide
 
-If we are up to changing method prototypes - let's do it properly.

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316182AbSH0Tvx>; Tue, 27 Aug 2002 15:51:53 -0400
+	id <S316878AbSH0Ty2>; Tue, 27 Aug 2002 15:54:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316838AbSH0Tvx>; Tue, 27 Aug 2002 15:51:53 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:42138 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S316182AbSH0Tvw>;
-	Tue, 27 Aug 2002 15:51:52 -0400
-Date: Tue, 27 Aug 2002 13:54:01 -0600
-From: yodaiken@fsmlabs.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Mark Hounschell <markh@compro.net>,
-       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: interrupt latency
-Message-ID: <20020827135400.A31990@hq.fsmlabs.com>
-References: <3D6BB9E2.DE71FE2C@compro.net> <Pine.LNX.3.95.1020827135107.10631A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020827135107.10631A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Aug 27, 2002 at 02:01:43PM -0400
-Organization: FSM Labs
+	id <S316897AbSH0Ty2>; Tue, 27 Aug 2002 15:54:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:2565 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316878AbSH0Ty1>;
+	Tue, 27 Aug 2002 15:54:27 -0400
+To: Dean Nelson <dcn@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: atomic64_t proposal
+References: <200208271937.OAA78345@cyan.americas.sgi.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Aug 2002 21:58:45 +0200
+In-Reply-To: Dean Nelson's message of "27 Aug 2002 21:41:25 +0200"
+Message-ID: <p73sn102hvu.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 02:01:43PM -0400, Richard B. Johnson wrote:
-> This cannot be. A stock kernel-2.4.18, running a 133 MHz AMD-SC520,
-> (like a i586) with a 33 MHz bus, handles interrupts off IRQ7 (the lowest
-> priority), from the 'printer port' at well over 75,000 per second without
-> skipping a beat or missing an edge. This means that latency is at least
-> as good as 1/57,000 sec = 0.013 microseconds.
+Dean Nelson <dcn@sgi.com> writes:
 
-Assuming you mean 75,000 then ... 
-Thats 0.013 MILLISECONDS which is 13 microseconds and its not likely.
-I bet that your data source drops data or looks at some handshake
-pins on the parallel connect.
+> I'm proposing the creation of an atomic64_t variable, which is a 64-bit
+> version of atomic_t, and the usage of the __typeof__ keyword in macro versions
+> of the atomic operations to enable them to operate on either type (atomic_t and
+> atomic64_t).
+> 
+> I submitted the following patch to David Mosberger to be considered for
+> inclusion in the IA-64 linux kernel. He suggested that I bring the topic up
+> on this list so that the other 64-bit platform maintainers can commment.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+Wouldn't it be much cleaner to just define atomic64_add/sub/read etc. ?
+That would make the macros much nicer.
 
+On x86-64 it would be fine this way.
+
+Is it supposed to only work on 64bit or do you plan to supply it for 32
+bit too? If no, I don't see how drivers etc. should ever use it. linux 
+is supposed to have a common kernel api.
+If yes, the implementation on 32bit could be a problem. e.g. some 
+archs need space in there for spinlocks, so it would be needed to limit
+the usable range.
+
+-Andi

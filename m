@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131730AbRDTVB2>; Fri, 20 Apr 2001 17:01:28 -0400
+	id <S131742AbRDTVJJ>; Fri, 20 Apr 2001 17:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131742AbRDTVBS>; Fri, 20 Apr 2001 17:01:18 -0400
-Received: from www.chieflandrelayforlife.com ([204.157.225.180]:38785 "EHLO
-	mail.co.gilchrist.fl.us") by vger.kernel.org with ESMTP
-	id <S131730AbRDTVBH>; Fri, 20 Apr 2001 17:01:07 -0400
-Date: Fri, 20 Apr 2001 17:01:05 -0400 (EDT)
-From: <lkern@mail.co.gilchrist.fl.us>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Panic Linux 2.4.3 RH7
-Message-ID: <Pine.LNX.4.21.0104201647250.1287-100000@proxy.co.gilchrist.fl.us>
+	id <S131887AbRDTVI7>; Fri, 20 Apr 2001 17:08:59 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:54285 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S131742AbRDTVIs>; Fri, 20 Apr 2001 17:08:48 -0400
+Message-ID: <3AE0A646.74079E95@chromium.com>
+Date: Fri, 20 Apr 2001 14:12:38 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: mingo@elte.hu, Zach Brown <zab@zabbo.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: numbers?
+In-Reply-To: <E14qhu5-0002B8-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Machine has been locking up between 0-3 times a day
-sporadically.  Nothing predictable about it. Hadn't locked up for 3
-days, and locked 3x today, the last 2 times within 20 minutes of each 
-other. Had run stable with 2.2.18, and was running fairly stable on 2.4.3
-up until about last week.  (might be coincidence, or not, but seems to
-happen when I am on IRC -- DOS?, nothing in log files or firewall logs
-however)
+Alan,
 
-Machine info:
+SPEC connections are cumulative of static (70%) and dynamic (30%) pages, with the
+dynamic using quite a bit of CPU (25%-30%) and the static pages dataset of several
+(6-8) gigabytes.
 
-RedHat 7, Intel Celeron 450, 256Meg ECC PC100 DRAM, 1 15G IDE (/usr, /tmp,
-/home,
-/var, swap ), 1 2G SCSI (/, /boot, swap) HDD, 2 identical tulip chipset
-eth cards.
+The chromium server is actually much faster than thttpd and it is a complete web
+server.
 
-I just swapped the RAM out this last crash, seeing if that makes any
-differences.
+ - Fabio
 
-Kernel is configured as advanced router with packet filtering, ip
-firewalling, NAT, IPTABLES and others enabled running a fairly
-comprehensive iptables ruleset, nothing superhuge though.
+Alan Cox wrote:
 
-
-Machine was recently upgraded to 2.4.3 kernel, from 2.2.18.
-Dump message is partially as follows:
-
-Mismatch in TCPACCEPT IN=ETH0 OUT= MAC= 00:00:e8:24:53
-
-(some other stuff below this, but the machine then rolled to the below and
-I couldn't finish copying down the above, remainder is as follows:
-
-Kernel Panic:  Attempted to Kill init!
-Unable to handle kernel paging request at virtual address e030a40c
-
-printing eip:
-c01194ae
-*pid=00000000
-Oops: 0000
-CPU: 0
-Eip: 0010 [<c01194ae7>]
-EFLAGS: 0010087
-
-(stack information skipped, if you need it let me know and I will write it
-all down the next time)
-
-Process: swapper (pid0, stack page c02dl000)
-
-stack 00000000
-
-Code 8b1186108b 590c85d274 088b410489 42048910
-
-Kernel Panic: Aiee, killing interrupt handler
-In interrupt handler - not syncing
-
-Any ideas?
-
--buddy ellis
-
+> > Incidentally the same server running on a kernel with a multiqueue scheduler
+> > achieves 1600 connections per second on the same machine, that was the original
+> > reason for my message for a better scheduler.
+>
+> I get 2000 connections a second with a single threaded server called thttpd
+> on my setup. Thats out of the box on 2.4.2ac with zero copy/sendfile.
+>
+> I've never had occasion to frob with tux or specweb
 

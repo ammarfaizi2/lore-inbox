@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266134AbUA1ScH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 13:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266131AbUA1ScH
+	id S266085AbUA1SZm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 13:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266091AbUA1SZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 13:32:07 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:39071 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S266128AbUA1ScD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 13:32:03 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 28 Jan 2004 13:25:42 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:44506 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S266085AbUA1SZk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 13:25:40 -0500
+Subject: Re: Cset 1.1490.4.201 - dasd naming
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: laroche@redhat.com, linux-kernel@vger.kernel.org, zaitcev@redhat.com
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OFB06159CB.9DAF0D86-ONC1256E29.006494C6-C1256E29.0065354B@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Wed, 28 Jan 2004 19:25:27 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 28/01/2004 19:25:30
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16408.30.896895.980121@napali.hpl.hp.com>
-Date: Wed, 28 Jan 2004 10:31:58 -0800
-To: Andi Kleen <ak@suse.de>
-Cc: Grant Grundler <iod00d@hp.com>, ishii.hironobu@jp.fujitsu.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-In-Reply-To: <20040128184137.616b6425.ak@suse.de>
-References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com>
-	<20040128172004.GB5494@cup.hp.com>
-	<20040128184137.616b6425.ak@suse.de>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 28 Jan 2004 18:41:37 +0100, Andi Kleen <ak@suse.de> said:
 
-  Andi> Also in my experience from AMD64 which originally was a bit
-  Andi> aggressive on enabling MCEs: enabling MCEs increases your
-  Andi> kernel support load a lot.
+Hi Pete,
 
-  Andi> Many people have slightly buggy systems which still happen to
-  Andi> work mostly.  If you report every problem you as kernel
-  Andi> maintainer will be flooded with reports about things you can
-  Andi> nothing to do about.
+> Martin, it is your architecture to break as you wish, but my gut feeling
+> is that you'd never get away with this if you did it on anything using
+> common use peripherals. This is a return to times of UNIX v6 and /dev/rk1a.
+> The chief penguin repeatedly stated that he wanted to see /dev/diskN
+> or similar (defined by a userland policy).
+The idea was to get rid of the dasdxyz names which are not intuitive.
 
-I find this comment interesting.  Can you elaborate what you mean by
-"slightly buggy systems"?
+> Considering Fedora Core 2, I do not know if we have time to repair the
+> damage. For the moment, I am patching a reverse patch.
+Ok.
 
-	--david
+> Is there a story of a real world deployment where the 2.4 scheme was
+> a hindrance which you could share? Honestly, I'm surprised you bring
+> the matter of "persistent names" instead of, say, exhaustion of
+> address range and majors.
+That is probably the main argument to go back to the old names. After
+udev and friends are in place it is not important how the disk is named
+internally. The only place where it would surface is on the root=
+parameter.
+
+I'll discuss this with the Horst again to see if we really need the
+dasd_<busid>_ names or if we can live with the old style names on the
+root= parameter.
+
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+
+
+

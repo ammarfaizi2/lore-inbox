@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262158AbSJFTvg>; Sun, 6 Oct 2002 15:51:36 -0400
+	id <S262164AbSJFT4D>; Sun, 6 Oct 2002 15:56:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262160AbSJFTvg>; Sun, 6 Oct 2002 15:51:36 -0400
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:44779 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S262158AbSJFTvf> convert rfc822-to-8bit; Sun, 6 Oct 2002 15:51:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hangs in 2.4.19 and 2.4.20-pre5 (IDE-related?)
-Date: Sun, 6 Oct 2002 21:56:43 +0200
-X-Mailer: KMail [version 1.4]
-References: <200210061608.51459.jan-hinnerk_reichert@hamburg.de> <1033921540.21282.2.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1033921540.21282.2.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210062156.43637.jan-hinnerk_reichert@hamburg.de>
+	id <S262177AbSJFT4D>; Sun, 6 Oct 2002 15:56:03 -0400
+Received: from mallaury.noc.nerim.net ([62.4.17.82]:2060 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id <S262164AbSJFT4C>; Sun, 6 Oct 2002 15:56:02 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.2] i386/dmi_scan updates
+From: Jean Delvare <khali@linux-fr.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Sun, 6 Oct 2002 22:03:18 CEST
+Reply-To: Jean Delvare <khali@linux-fr.org>
+X-Priority: 3 (Normal)
+X-Originating-Ip: [172.181.74.109]
+X-Mailer: Webmail Nerim (NOCC v0.9.5)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20021006200137.8836C62DD7@mallaury.noc.nerim.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 6. Oktober 2002 18:25 schrieb Alan Cox:
-> On Sun, 2002-10-06 at 15:08, Jan-Hinnerk Reichert wrote:
-> > I have 2.4.19 without any patches, three ide harddrives, no CD-ROM.
-> > I quite like the data on my machine, so I won't install an 2.4.20-pre on
-> > it ;-(
->
-> 2.4.20pre has the same IDE code as 2.4.19, plus some PCI layer not IDE
-> layer changes to support i845 systems
 
-Thanks, I didn't knew that.
+> Our console doesn't handle arbitary 8bit encodings. There
+> are japanese DMI strings out there for example
+OK. Anyway, this is for debugging only and I don't intend to do it right now, if I ever do. I came up to a new patch that I still need to test. I'll be posting it tomorrow if it works as intended. It should solve everything we've been discussing about except ascii filtering.
 
-Anyway, could the new PCI layer increase IDE-DMA stability on systems other 
-than i845?
+> Oh as a PS btw don't worry about code size for the dmi
+> scanner as it is all marked __init. The entire DMI code
+> gets turned back into free memory by the end of the boot
+> of the kernel, so you can put complex checks in there if
+> it helps
+I figured this out right after posting my message. I am really new to kernel code, as you see. I'll remember this, thanks.
 
-BTW: I forgot to mention that I have an PIIX3 board with K5PR166 .
+Jean Delvare
 
-PIIX3 has been somewhat shaky through the whole 2.4 kernel series, but the DMA 
-timeouts I get on my machine with 2.4.19 are significantly less than with 
-2.4.17 (only one every few days). The non-DMA transferrate has also increased 
-to normal levels.
 
------------
+___________________________________
+Webmail Nerim, http://www.nerim.net/
 
-I have again taken a look at the changelog for 2.4.20-pre8-ac1. It has some 
-entries related to IDE. Some are cleanups, some are DMA related.
-
-So how are the chances that things get better or worse, when switching to 
-2.4.20?
-
-Is there anything I can do to help tracking this error down, without diving 
-too deep into the kernel sources?
-
-One crash every month is acceptable for me (much better than any M$-experience 
-I ever had), but somehow it is not satisfying ;-(
-
- Jan-Hinnerk
 

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131466AbRASPMk>; Fri, 19 Jan 2001 10:12:40 -0500
+	id <S131629AbRASPSU>; Fri, 19 Jan 2001 10:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131629AbRASPMV>; Fri, 19 Jan 2001 10:12:21 -0500
-Received: from c526559-a.rchdsn1.tx.home.com ([24.0.107.130]:59011 "EHLO
-	ledzep.dyndns.org") by vger.kernel.org with ESMTP
-	id <S131466AbRASPLt>; Fri, 19 Jan 2001 10:11:49 -0500
-Message-ID: <3A685933.5804706A@home.com>
-Date: Fri, 19 Jan 2001 09:11:47 -0600
-From: Jordan <ledzep37@home.com>
-Organization: University of Texas at Dallas - Student
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac9-reiserfs-3.6.25 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [Off-Topic] Support For 1 Ghz on Tyan Trinity 400
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132347AbRASPSL>; Fri, 19 Jan 2001 10:18:11 -0500
+Received: from jalon.able.es ([212.97.163.2]:29324 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131629AbRASPR4>;
+	Fri, 19 Jan 2001 10:17:56 -0500
+Date: Fri, 19 Jan 2001 16:17:38 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: TLB IPI error
+Message-ID: <20010119161738.A4948@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I looked on their web site and it lists the necessary spec as:
+Trying new updated nVidia drivers with AGPGART, I get:
 
-Board Version:  99P0N
-Board Revision: J (or higher)
+Jan 19 15:44:39 werewolf kernel: stuck on TLB IPI wait (CPU#0)
+(..or CPU#1, sometimes one or other...)
 
-This is the info for my board:
+What does that mean ? Hard or soft error or some kernel feature that
+is badly supported-malfunctions in my mobo ?
+Mobo: i440GX, PIIX4, AGPx2, IO-APIC, 2xPII@400
 
-Board Version:  99P0NA
-Board Revision: L
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-I have tried emailing the Tyan tech support department about two weeks
-ago and again recently with no response at all except for their
-automated response that sends a FAQ on their products to your email
-addres, does anyone know for sure if the "99P0N" on their web site was a
-typo and they left the A off or if it really was 99P0N but 99P0NA is
-just newer and will also work?  Any help would be greatly appreciated, I
-was going to try and upgrade to a faster PIII and get some RAM while it
-is cheap to do so but do not want to get a processor that will not work
-with my board.  Thanks in advance.
+Linux werewolf 2.4.0-ac9 #2 SMP Sun Jan 14 01:46:07 CET 2001 i686
 
-Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

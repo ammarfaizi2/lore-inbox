@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSFQPrv>; Mon, 17 Jun 2002 11:47:51 -0400
+	id <S314491AbSFQPw0>; Mon, 17 Jun 2002 11:52:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314491AbSFQPru>; Mon, 17 Jun 2002 11:47:50 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:4531 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S313571AbSFQPrt>; Mon, 17 Jun 2002 11:47:49 -0400
-Date: Mon, 17 Jun 2002 17:47:46 +0200
-From: Kristian Peters <kristian.peters@korseby.net>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: isdn oops with 2.4.19-pre10
-Message-Id: <20020617174746.0b8ec0a4.kristian.peters@korseby.net>
-In-Reply-To: <Pine.LNX.4.44.0206171009550.22308-100000@chaos.physics.uiowa.edu>
-References: <20020617092214.03789a68.kristian.peters@korseby.net>
-	<Pine.LNX.4.44.0206171009550.22308-100000@chaos.physics.uiowa.edu>
-X-Mailer: Sylpheed version 0.7.6claws (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: i686-redhat-linux 2.4.19-pre10-ac2
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S314500AbSFQPwZ>; Mon, 17 Jun 2002 11:52:25 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:7888 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314491AbSFQPwZ>; Mon, 17 Jun 2002 11:52:25 -0400
+Date: Mon, 17 Jun 2002 10:52:20 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.22 broke modversions
+In-Reply-To: <3D0E02C2.5010304@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0206171050320.22308-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
-> Okay, I think I can see what is happening.
+On Mon, 17 Jun 2002, Martin Dalecki wrote:
+
+> The following diff clutter appears in every diff after make menuconfig
 > 
-> Can you confirm that you get the oops if you unload the modules in the 
-> same order that you loaded them, but not if you use the reverse order?
-> 
-> I.e.
-> 
-> 	insmod capidrv; insmod hisax; rmmod hisax; rmmod capidrv
-> 
-> should be okay,
-> 
-> 	insmod capidrv; insmod hisax; rmmod capidrv; rmmod hisax
-> 
-> oopses?
+> diff -urN linux-2.5.21/scripts/lxdialog/.checklist.o.cmd 
+> linux/scripts/lxdialog/.checklist.o.cmd
+> [..]
 
-No. ;-) But it's another issue. I'm loading the hisax drivers first:
+Ah, okay. We don't remove .*.cmd in scripts/dialog on make clean, since
+we want lxdialog to survive the make clean. Unfortunately, that means
+we didn't remove those at all.
 
-hisax                 492836   1 
-isdn                  119072   1  [hisax]
-slhc                    4624   0  [isdn]
-[...]
+--Kai
 
-And after them (and the ippp-related programs..) the drivers for avmb1:
 
-ppp_deflate            40928   0  (unused)
-bsd_comp                4056   0  (unused)
-ppp_synctty             4768   0  (unused)
-ppp_generic            18240   0  [ppp_deflate bsd_comp ppp_synctty]
-b1isa                   3740   1 
-b1                     17152   0  [b1isa]
-capidrv                25716   1 
-capi                   17344   0 
-capifs                  3712   1  [capi]
-kernelcapi             29796   4  [b1isa capidrv capi]
-capiutil               22368   0  [capidrv kernelcapi]
-[...]
+===== Makefile 1.265 vs edited =====
+--- 1.265/Makefile	Mon Jun 17 10:26:40 2002
++++ edited/Makefile	Mon Jun 17 10:49:48 2002
+@@ -622,7 +622,8 @@
+ 
+ mrproper: clean archmrproper
+ 	@echo 'Making mrproper'
+-	@find . \( -size 0 -o -name .depend \) -type f -print | xargs rm -f
++	@find . \( -size 0 -o -name .depend -o -name .\*.cmd \) \
++		   -type f -print | xargs rm -f
+ 	@rm -f $(MRPROPER_FILES)
+ 	@rm -rf $(MRPROPER_DIRS)
+ 	@$(MAKE) -C Documentation/DocBook mrproper
 
-I'm connecting with the avmb1-card to a provider via pppd and starting my iptables firewall (with qos scheduling). While connected or after shutting down the connection unloading the hisax or isdn modules produces that oops. I haven't tried it without the sched-modules loaded. Should I ? It seems that they could be responsible too.
-
-Please note that the avmb1 (b1isa) card is active and hisax a passive one.
-
-Hope that helps.
-
-*Kristian
-
-  :... [snd.science] ...:
- ::                             _o)
- :: http://www.korseby.net      /\\
- :: http://gsmp.sf.net         _\_V
-  :.........................:

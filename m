@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264657AbTBOIVC>; Sat, 15 Feb 2003 03:21:02 -0500
+	id <S268553AbTBOIXc>; Sat, 15 Feb 2003 03:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbTBOIVC>; Sat, 15 Feb 2003 03:21:02 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:32130 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S264657AbTBOIVB>;
-	Sat, 15 Feb 2003 03:21:01 -0500
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Sat, 15 Feb 2003 01:27:07 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rusty Lynch <rusty@linux.co.intel.com>, Pavel Machek <pavel@ucw.cz>,
-       lkml <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Daniel Pittman <daniel@rimspace.net>
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-Message-ID: <20030215082707.GE13148@host109.fsmlabs.com>
-References: <1045106216.1089.16.camel@vmhack> <1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz> <1045260726.1854.7.camel@irongate.swansea.linux.org.uk> <20030214213542.GH23589@atrey.karlin.mff.cuni.cz> <1045264651.13488.40.camel@vmhack> <1045274042.2961.4.camel@irongate.swansea.linux.org.uk>
+	id <S268554AbTBOIXb>; Sat, 15 Feb 2003 03:23:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48558 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S268553AbTBOIXb>;
+	Sat, 15 Feb 2003 03:23:31 -0500
+Date: Sat, 15 Feb 2003 09:33:15 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CFQ scheduler, #2
+Message-ID: <20030215083315.GE26738@suse.de>
+References: <3DF453C8.18B24E66@digeo.com> <200212092059.06287.tomlins@cam.org> <3DF54BD7.726993D@digeo.com> <200302141638.44843.tomlins@cam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1045274042.2961.4.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200302141638.44843.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-} On Fri, 2003-02-14 at 23:17, Rusty Lynch wrote:
-} > The watchdog infrastructure would just show what ever integer the driver
-} > provides via the watchdog_ops.get_temperature() function pointer, so it
-} > would be up to the driver developer to decide if the data is really
-} > Fahrenheit or whatever.
-} 
-} We do need to be sure they all agree about it however 8)
+On Fri, Feb 14 2003, Ed Tomlinson wrote:
+> Jens Axboe wrote:
+>  
+> > The version posted the other day did fair queueing of requests between
+> > processes, but it did not help to provide fair request allocation. This
+> > version does that too, results are rather remarkable. In addition, the
+> > following changes were made:
+> 
+> The numbers from the second message are nice - especially considering this
+> is only the second iteration...
+> 
+> A question about io priorities.  I wonder if they could not be implemented
+> via a per pid cfq_quantum?  If I am not missunderstanding things, a bigger
+> value here for a given process should mean that it gets a larger share of 
+> the io bandwidth...
 
-Just to make sure no-one is happy except physicists, I suggest Kelvin.  I
-also suggest we spell disk/disc as "disck".
+That's exactly right, and yes that would be one way of doing it.
+
+-- 
+Jens Axboe
+

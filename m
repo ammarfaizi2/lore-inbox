@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268199AbUIKQpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268169AbUIKQoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268199AbUIKQpf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 12:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUIKQpf
+	id S268169AbUIKQoj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 12:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUIKQoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 12:45:35 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:57353 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268199AbUIKQp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 12:45:26 -0400
-Date: Sat, 11 Sep 2004 17:45:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       =?iso-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: radeon-pre-2
-Message-ID: <20040911174516.A2956@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@linux.ie>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	=?iso-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
-	DRI Devel <dri-devel@lists.sourceforge.net>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <9e47339104091008115b821912@mail.gmail.com> <1094829278.17801.18.camel@localhost.localdomain> <9e4733910409100937126dc0e7@mail.gmail.com> <1094832031.17883.1.camel@localhost.localdomain> <9e47339104091010221f03ec06@mail.gmail.com> <1094835846.17932.11.camel@localhost.localdomain> <9e47339104091011402e8341d0@mail.gmail.com> <Pine.LNX.4.58.0409102254250.13921@skynet> <20040911132727.A1783@infradead.org> <9e47339104091109111c46db54@mail.gmail.com>
-Mime-Version: 1.0
+	Sat, 11 Sep 2004 12:44:38 -0400
+Received: from cantor.suse.de ([195.135.220.2]:10646 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268169AbUIKQoa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 12:44:30 -0400
+Message-ID: <41432AD4.2090003@suse.de>
+Date: Sat, 11 Sep 2004 18:41:56 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz, kevin-linux-kernel@scrye.com
+Subject: Re: FYI: my current bigdiff
+References: <20040909134421.GA12204@elf.ucw.cz> <20040910041320.DF700E7504@voldemort.scrye.com> <200409101646.01558.bjorn.helgaas@hp.com>
+In-Reply-To: <200409101646.01558.bjorn.helgaas@hp.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <9e47339104091109111c46db54@mail.gmail.com>; from jonsmirl@gmail.com on Sat, Sep 11, 2004 at 12:11:13PM -0400
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 12:11:13PM -0400, Jon Smirl wrote:
-> The resource reservation conflicts are already solved in the current
-> DRM code. Most of the changes are in kernel and the rest are in the
-> pipeline.  DRM loads in two modes, primary where it behaves like a
-> normal Linux driver and stealth where it uses the resources without
-> telling the kernel. Stealth/primary mode is a transition tool until
-> things get fixed. Once everything is sorted out stealth mode can be
-> removed.
 
-Not, it's not been solved.  You hacked around the most common symptoms.
 
+Bjorn Helgaas wrote:
+
+> I'm completely ignorant about how swsusp works; I guess this is my
+> chance to learn.  "pci=routeirq" just causes us to do all the PCI
+> ACPI IRQ routing at boot-time, before the drivers start up.  This
+> happens in pci_acpi_init(), which is a subsys_initcall that is run
+> at initial boot-time, but (I assume) not during a resume.
+
+a resume is basically a fresh boot, including hardware initialization by
+the compiled-in drivers (but not modules) but before starting init /
+entering initrd, the old system state is read from swap, copied back and
+somehow we continue where we left off at suspend time. Now the resume
+methods of all device drivers are called, processes are restarted and we
+are back in the game. (At least this is how i understood it all :-)
+
+I can easily imagine that a driver with a slightly broken suspend /
+resume method may fail without pci=routeirq if it does not do the irq
+routing correctly during resume. It may work with pci=routeirq since
+then everything is prepared for it before the resume actually happens.
+
+Kevin may get away with unloading the usb host controller and the
+prism54 drivers before suspend and reloading them after resume.
+
+         Stefan

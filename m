@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279982AbRKDQC3>; Sun, 4 Nov 2001 11:02:29 -0500
+	id <S280016AbRKDQF3>; Sun, 4 Nov 2001 11:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280016AbRKDQCU>; Sun, 4 Nov 2001 11:02:20 -0500
-Received: from jabberwock.ucw.cz ([212.71.128.53]:8713 "EHLO jabberwock.ucw.cz")
-	by vger.kernel.org with ESMTP id <S279982AbRKDQCI>;
-	Sun, 4 Nov 2001 11:02:08 -0500
-Date: Sun, 4 Nov 2001 17:02:02 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: The PCI ID Repository
-Message-ID: <20011104170202.A3370@ucw.cz>
+	id <S280022AbRKDQFT>; Sun, 4 Nov 2001 11:05:19 -0500
+Received: from [24.131.196.222] ([24.131.196.222]:53256 "EHLO
+	moonweaver.awesomeplay.com") by vger.kernel.org with ESMTP
+	id <S280019AbRKDQE6>; Sun, 4 Nov 2001 11:04:58 -0500
+Subject: Re: Via Onboard Audio - Round #2
+From: Sean Middleditch <elanthis@awesomeplay.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BE54731.FC9437CE@mandrakesoft.com>
+In-Reply-To: <1004849558.457.15.camel@stargrazer> 
+	<3BE4CC20.5FFEC4B5@mandrakesoft.com> <1004851818.457.24.camel@stargrazer> 
+	<3BE54731.FC9437CE@mandrakesoft.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100 (Preview Release)
+Date: 04 Nov 2001 11:09:13 -0500
+Message-Id: <1004890153.469.2.camel@stargrazer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, world!\n
+On Sun, 2001-11-04 at 08:48, Jeff Garzik wrote:
+> Sean Middleditch wrote:
+> > drivers can handle it.  This is a limitation and/or problem with Linux
+> > and it's Via Audio driver.  How can I get around this, or do I need to
+> > reinstall WindowsXP to use the audio?
+> 
+> This has absolutely nothing to do with the audio driver.
+> 
+> Linux is having trouble with your PCI IRQ routing table that is
+> presented by your BIOS to Linux.
+> 
+> Can you provide 'dmesg -s 16384' output, after changing line 7 of
+> arch/i386/kernel/pci-i386.h thusly:
+> -#undef DEBUG
+> +#define DEBUG 1
+> 
+> This will show me your PCI IRQ routing table.
 
-I've created a public repository for PCI ID's to avoid the long delays
-caused by me being unable to cope with the flood of ID updates I was
-receiving.
+That I will do when I get the chance (hopefully soon).
 
-The repository lives at http://pciids.sourceforge.net/ and you can download
-the daily snapshots of pci.ids, browse the ID lists interactively and also
-submit new entries via Web forms. Alternatively, you can mail your submissions
-as unified diffs (no base64 encoded attachments, please) to pci-ids@ucw.cz
-where they get processed by an e-mail robot and also automatically added
-to the database, awaiting approval by one of the maintainers.
+> 
+> -- 
+> Jeff Garzik      | Only so many songs can be sung
+> Building 1024    | with two lips, two lungs, and one tongue.
+> MandrakeSoft     |         - nomeansno
+> 
 
-So share and enjoy and submit your ID's.
 
-(There is still a part of my e-mail backlog unprocessed, so don't worry,
-I'll send it to the mailbot soon.)
-
-Also, I've released a new version of pciutils containing a pci.ids file
-synchronized with the repository and sent a patch to Linus which will
-get the kernel in sync as well.
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"Dijkstra probably hates me." -- /usr/src/linux/kernel/sched.c

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbTEMO7C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 10:59:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTEMO7C
+	id S261351AbTEMOzf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 10:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTEMOzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 10:59:02 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:32131
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261358AbTEMO7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 10:59:01 -0400
-Date: Tue, 13 May 2003 11:00:57 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Stacy Woods <stacyw@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Bugs sitting in the NEW state for more than 3 weeks
-In-Reply-To: <20030513155918.A15172@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.50.0305131059120.5420-100000@montezuma.mastecende.com>
-References: <3EC0FBB9.30103@us.ibm.com> <20030513155918.A15172@flint.arm.linux.org.uk>
+	Tue, 13 May 2003 10:55:35 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:24808 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261351AbTEMOzd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 10:55:33 -0400
+Date: Tue, 13 May 2003 08:08:35 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Ben Collins <bcollins@debian.org>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
+In-Reply-To: <20030513071412.GS433@phunnypharm.org>
+Message-ID: <Pine.LNX.4.44.0305130808040.9816-100000@cherise>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 May 2003, Russell King wrote:
 
-> On Tue, May 13, 2003 at 10:05:45AM -0400, Stacy Woods wrote:
-> > 428  Drivers    Serial     rmk@arm.linux.org.uk
->                              ^^^^^^^^^^^^^^^^^^^^
-> > Not all serial ports listed in /proc/interrupts & /proc/ioports
+On Tue, 13 May 2003, Ben Collins wrote:
+
+> On Tue, May 13, 2003 at 08:10:32AM +0100, Christoph Hellwig wrote:
+> > On Tue, May 13, 2003 at 02:26:40AM -0400, Ben Collins wrote:
+> > > This was causing me all sorts of problems with linux1394's 16-18 byte
+> > > long bus_id lengths. The sysfs names were all broken.
+> > > 
+> > > This not only makes KOBJ_NAME_LEN match BUS_ID_SIZE, but fixes the
+> > > strncpy's in drivers/base/ so that it can't happen again (atleast the
+> > > strings will be null terminated).
+> > 
+> > What about defining BUS_ID_SIZE in terms of KOBJ_NAME_LEN?
 > 
-> Bug#:    428       Submitter:   spstarr@sh0n.net (Shawn Starr)
-> Owner:   zwane@holomorphy.com (Zwane Mwaikambo)
-> 
-> What is the email address in your report supposed to indicate?
+> Ok, then add this in addition to the previous patch.
 
-It was automatically delegated to you but not actually assigned, i just 
-did a sweep to pick up any stragglers which can be resolved without having 
-to actually take maintainer's time.
+I'll add this, and sync with Linus this week, if he doesn't pick it up.
 
--- 
-function.linuxpower.ca
+Thanks,
+
+
+	-pat
+

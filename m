@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSHFRgT>; Tue, 6 Aug 2002 13:36:19 -0400
+	id <S314149AbSHFRc1>; Tue, 6 Aug 2002 13:32:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSHFRgT>; Tue, 6 Aug 2002 13:36:19 -0400
-Received: from jdike.solana.com ([198.99.130.100]:1665 "EHLO karaya.com")
-	by vger.kernel.org with ESMTP id <S314514AbSHFRgS>;
-	Tue, 6 Aug 2002 13:36:18 -0400
-Message-Id: <200208061742.g76HgIg31452@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
-In-Reply-To: Your message of "Tue, 06 Aug 2002 18:02:02 +0200."
-             <20020806180202.66f1865a.us15@os.inf.tu-dresden.de> 
+	id <S314278AbSHFRc1>; Tue, 6 Aug 2002 13:32:27 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:22514 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314149AbSHFRc0>; Tue, 6 Aug 2002 13:32:26 -0400
+Subject: Re: Thread group exit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: george anzinger <george@mvista.com>
+Cc: "Zeuner, Axel" <Axel.Zeuner@partner.commerzbank.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3D500607.78A11BFD@mvista.com>
+References: <A1081E14241CD4119D2B00508BCF80410843F27D@SV021558>
+	<1028544328.17780.18.camel@irongate.swansea.linux.org.uk> 
+	<3D500607.78A11BFD@mvista.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 06 Aug 2002 19:54:59 +0100
+Message-Id: <1028660099.18130.187.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Aug 2002 13:42:18 -0400
-From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-us15@os.inf.tu-dresden.de said:
-> I'm glad we agree on that one :) 
+On Tue, 2002-08-06 at 18:23, george anzinger wrote:
 
-Yup, sorry.  That test is wrong, and is slated to be fixed at some point.
+> Have the glibc folks decided NOT to move to thread groups? 
+> I sort of expected that they were just taking their time,
+> but would eventually move.
 
-> When the task is registered as socket owner and is just about to enter
-> the kernel due to a syscall, it will stop with a SIGTRAP and the
-> tracing kernel process will run sometime and see a SIGCHLD. But after
-> the task stopped and before the kernel process can change SIGIO
-> ownership back, a new interrupt could come in and the SIGIO would
-> remain pending in the task's process until the task was scheduled to
-> run next time.
->
-> How do you solve this?
-
-A couple of ways.  The system call path can call sigio_handler to clear
-out any pending IO.  The SIGIO that was trapped in the process will cause
-another call to sigio_handler which won't turn up any IO, but I don't 
-consider that to be a problem.
-
-The kernel process can examine the signal pending mask of the process after
-it has transferred SIGIO to itself.  This can be done either through 
-/proc/<pid>/status or a ptrace extension, since we're happily postulating 
-new things for it to do anyway.  If there is a SIGIO pending, it calls
-sigio_handler.
-
-Any other possibilities that you see?
-
-				Jeff
+I've no idea. Either way it makes no difference really. Its an issue
+with the current setup 
 

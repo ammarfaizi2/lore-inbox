@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130108AbQKQUfJ>; Fri, 17 Nov 2000 15:35:09 -0500
+	id <S129097AbQKQUlc>; Fri, 17 Nov 2000 15:41:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129097AbQKQUfA>; Fri, 17 Nov 2000 15:35:00 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:16915 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129189AbQKQUet>; Fri, 17 Nov 2000 15:34:49 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: test11-pre6 still very broken
-Date: 17 Nov 2000 12:04:22 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v4306$sga$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet>
+	id <S129147AbQKQUlW>; Fri, 17 Nov 2000 15:41:22 -0500
+Received: from virtualro.ic.ro ([194.102.78.138]:36109 "EHLO virtualro.ic.ro")
+	by vger.kernel.org with ESMTP id <S129097AbQKQUlK>;
+	Fri, 17 Nov 2000 15:41:10 -0500
+Date: Fri, 17 Nov 2000 22:10:33 +0200 (EET)
+From: <jani@virtualro.ic.ro>
+To: jsimmons@acsu.buffalo.edu
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] vgacon 
+Message-ID: <Pine.LNX.4.10.10011172203550.4739-100000@virtualro.ic.ro>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet>
-By author:    Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-In newsgroup: linux.dev.kernel
->
-> Hi,
-> 
-> The mysterious lockups in test11-pre5 continue in test11-pre6. It is very
-> difficult because the lockups appear to be kdb-specific (and kdb itself
-> goes mad) but when there is no kdb there is very little useful information
-> one can extract from a dead system...
-> 
-> I will start removing kernel subsystems, one by one and try to reproduce
-> it on as plain kernel as possible (i.e. just io, no networking etc.)
-> 
-> So, this not-very-useful report just says -- test11-pre6 is extremely
-> unstable, a simple "ltrace ls" can cause a lockup. Also, some programs
-> work when run normally but coredump (or hang) when run via strace, but
-> only sometimes, not always... (no, I don't have faulty memory, I run
-> memtest!)
-> 
 
-It could be that -test5 and -test6 break some assumption kdb makes.
-It has been eminently stable here.
+	Hi James,
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+here is a patch for vgacon.c could you please check it?
+
+1) removes explicit 0 initialisation of statics
+
+2) removes an apparently unnecesary line in vgacon_scroll:
+	as I see it scr_end is computed anyway after the if statement so
+no need to put it on the else branch.
+
+Jani.
+
+--- /usr/src/linux-2.4.0/drivers/video/vgacon.c	Thu Nov 16 20:04:52 2000
++++ vgacon.c	Fri Nov 17 10:42:29 2000
+@@ -104,7 +104,7 @@
+ static u16             vga_video_port_val;	/* Video register value port */
+ static unsigned int    vga_video_num_columns;	/* Number of text columns */
+ static unsigned int    vga_video_num_lines;	/* Number of text lines */
+-static int	       vga_can_do_color = 0;	/* Do we support colors? */
++static int	       vga_can_do_color;	/* Do we support colors? */
+ static unsigned int    vga_default_font_height;	/* Height of default screen font */
+ static unsigned char   vga_video_type;		/* Card type */
+ static unsigned char   vga_hardscroll_enabled;
+@@ -112,7 +112,7 @@
+ /*
+  * SoftSDV doesn't have hardware assist VGA scrolling 
+  */
+-static unsigned char   vga_hardscroll_user_enable = 0;
++static unsigned char   vga_hardscroll_user_enable;
+ #else
+ static unsigned char   vga_hardscroll_user_enable = 1;
+ #endif
+@@ -122,7 +122,7 @@
+ static int	       vga_is_gfx;
+ static int	       vga_512_chars;
+ static int	       vga_video_font_height;
+-static unsigned int    vga_rolled_over = 0;
++static unsigned int    vga_rolled_over;
+ 
+ 
+ static int __init no_scroll(char *str)
+@@ -965,7 +965,7 @@
+ 
+ static void vgacon_save_screen(struct vc_data *c)
+ {
+-	static int vga_bootup_console = 0;
++	static int vga_bootup_console;
+ 
+ 	if (!vga_bootup_console) {
+ 		/* This is a gross hack, but here is the only place we can
+@@ -1015,7 +1015,6 @@
+ 			vga_rolled_over = 0;
+ 		} else
+ 			c->vc_origin -= delta;
+-		c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
+ 		scr_memsetw((u16 *)(c->vc_origin), c->vc_video_erase_char, delta);
+ 	}
+ 	c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

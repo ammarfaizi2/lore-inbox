@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263305AbTC0REy>; Thu, 27 Mar 2003 12:04:54 -0500
+	id <S263303AbTC0Q4n>; Thu, 27 Mar 2003 11:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263309AbTC0REt>; Thu, 27 Mar 2003 12:04:49 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52613
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263305AbTC0RDa>; Thu, 27 Mar 2003 12:03:30 -0500
-Date: Thu, 27 Mar 2003 18:20:58 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303271820.h2RIKwWu019672@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: DRIVERNAME SUPPRESSED DUE TO KERNEL.ORG FILTER BUGS
+	id <S263299AbTC0Q4m>; Thu, 27 Mar 2003 11:56:42 -0500
+Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:45769 "EHLO
+	kermit.unets.com") by vger.kernel.org with ESMTP id <S263303AbTC0Q4k>;
+	Thu, 27 Mar 2003 11:56:40 -0500
+Subject: Re: Kernel Itself Reports Bug, Continuous OOPS's, and Phantom NIC
+	Card
+From: Adam Voigt <adam@cryptocomm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048784675.3228.7.camel@dhcp22.swansea.linux.org.uk>
+References: <1048776183.1873.2.camel@beowulf.cryptocomm.com> 
+	<1048784675.3228.7.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Mar 2003 12:07:54 -0500
+Message-Id: <1048784874.1874.18.camel@beowulf.cryptocomm.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 27 Mar 2003 17:07:54.0646 (UTC) FILETIME=[683C2360:01C2F483]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix up 3w-xxxx. I didnt test SMP and it shows
+Thanks for responding,
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.66-bk3/drivers/scsi/3w-xxxx.c linux-2.5.66-ac1/drivers/scsi/3w-xxxx.c
---- linux-2.5.66-bk3/drivers/scsi/3w-xxxx.c	2003-03-27 17:13:11.000000000 +0000
-+++ linux-2.5.66-ac1/drivers/scsi/3w-xxxx.c	2003-03-26 20:10:23.000000000 +0000
-@@ -677,7 +677,7 @@
- 			dprintk(KERN_WARNING "3w-xxxx: tw_chrdev_ioctl(): caught TW_AEN_LISTEN.\n");
- 			memset(tw_ioctl->data_buffer, 0, tw_ioctl->data_buffer_length);
- 
--			spin_lock_irqsave(&tw_dev->host->host_lock, flags);
-+			spin_lock_irqsave(tw_dev->host->host_lock, flags);
- 			if (tw_dev->aen_head == tw_dev->aen_tail) {
- 				tw_aen_code = TW_AEN_QUEUE_EMPTY;
- 			} else {
-@@ -688,7 +688,7 @@
- 					tw_dev->aen_head = tw_dev->aen_head + 1;
- 				}
- 			}
--			spin_unlock_irqrestore(&tw_dev->tw_lock, flags);
-+			spin_unlock_irqrestore(tw_dev->host->host_lock, flags);
- 			memcpy(tw_ioctl->data_buffer, &tw_aen_code, sizeof(tw_aen_code));
- 			break;
- 		case TW_CMD_PACKET_WITH_DATA:
+Yes, memtest passes with flying color's.
+
+On Thu, 2003-03-27 at 12:04, Alan Cox wrote:
+    On Thu, 2003-03-27 at 14:42, Adam Voigt wrote:
+    > Behavior with the OOPS's, is sporatic, I can turn the machine
+    > on, wait ten minutes, and log in, and do a "ls" and it will
+    > OOPS, other times it will be hours before I see them.
+    
+    Does it pass things like memtest86
+    
+    > One other problem, probably unrelated, the BIOS and the Kernel
+    > both report seeing a "Realtek 8139" NIC on the computer, though
+    > no such card exists and it is not built onto the mobo, only a
+    > 3COM 3c59x (PCI Card).
+    
+    If its seen it will be there somewhere. It may just be integrated
+    into something and not actually used by the vendor.
+    
+-- 
+Adam Voigt (adam@cryptocomm.com)
+The Cryptocomm Group
+My GPG Key: http://64.238.252.49:8080/adam_at_cryptocomm.asc
+

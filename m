@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265584AbUA0RjM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUA0RjM
+	id S263173AbUA0RbG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 12:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264889AbUA0RbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:39:12 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:64135 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S263891AbUA0RjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:39:07 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Tue, 27 Jan 2004 12:31:06 -0500
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:45698 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S263173AbUA0RbE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 12:31:04 -0500
+Date: Tue, 27 Jan 2004 19:31:02 +0200
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1: process start times by procps
+Message-ID: <20040127173102.GA15052@elektroni.ee.tut.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040123194714.GA22315@elektroni.ee.tut.fi> <20040125110847.GA10824@elektroni.ee.tut.fi> <20040127155254.GA1656@elektroni.ee.tut.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16406.41527.446833.703928@napali.hpl.hp.com>
-Date: Tue, 27 Jan 2004 09:39:03 -0800
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: davidm@hpl.hp.com, Paul Mackerras <paulus@samba.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for ia64
-In-Reply-To: <yq0y8rtreug.fsf@wildopensource.com>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-	<16405.41953.344071.456754@napali.hpl.hp.com>
-	<yq0y8rtreug.fsf@wildopensource.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20040127155254.GA1656@elektroni.ee.tut.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 27 Jan 2004 03:11:03 -0500, Jes Sorensen <jes@wildopensource.com> said:
+On Tue, Jan 27, 2004 at 05:52:54PM +0200, Petri Kaukasoina wrote:
+> I made an experiment shown below. I know nothing about kernel programming,
+> so this is probably not correct, but at least btime seemed to stay constant.
+> (I don't believe this fixes procps, though. If HZ if off by 180 ppm then I
+> guess ps can't possibly get its calculations involving HZ right. But at
+> least the bootup time reported by procinfo stays constant.)
 
->>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
-  Jes> David,
+Yes, btime stays now constant. But to make ps work right, I replaced all uses of
+variable Hertz in ps source (procps 2.0.18) with constant 100.0172.
 
-  Jes> I am just nitpicking here, but wouldn't it be better to stick
-  Jes> to the convention of all upper case defines for the #ifdef
-  Jes> check?
+After uptime 4 h 42 min, the error is already 3 seconds in the default ps,
+and ./ps which is the "fixed" one, displays the right start time.
 
-Yeah, it is nitpicking! ;-)
+Tue Jan 27 19:17:57 EET 2004
+kaukasoi 13388  0.0  0.1  2652  740 pts/5    R    19:17   0:00 ps uxw
+kaukasoi 13392  0.0  0.1  2636  724 pts/5    R    19:17   0:00 ./ps uxw
+Tue Jan 27 19:17:57 EET 2004
+kaukasoi 13398  0.0  0.1  2652  740 pts/5    R    19:18   0:00 ps uxw
+kaukasoi 13402  0.0  0.1  2636  724 pts/5    R    19:17   0:00 ./ps uxw
+Tue Jan 27 19:17:57 EET 2004
+...
+Tue Jan 27 19:17:59 EET 2004
+kaukasoi 13979  0.0  0.1  2652  740 pts/5    R    19:18   0:00 ps uxw
+kaukasoi 13983  0.0  0.1  2636  724 pts/5    R    19:18   0:00 ./ps uxw
+Tue Jan 27 19:18:00 EET 2004
 
-  Jes> Maybe use something like?  #define ARCH_EXTABLE_COMPARE_ENTRIES
-  Jes> ia64_extable_compare_entries
-
-I'd rather have ARCH_HAS_EXTABLE_COMPARE_ENTRIES or something like
-that, in that case.
-
-	--david
+So the problem is the inaccuracy of HZ.

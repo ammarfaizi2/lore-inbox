@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267096AbRGJTDQ>; Tue, 10 Jul 2001 15:03:16 -0400
+	id <S267097AbRGJTF0>; Tue, 10 Jul 2001 15:05:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267095AbRGJTDG>; Tue, 10 Jul 2001 15:03:06 -0400
-Received: from front5m.grolier.fr ([195.36.216.55]:12019 "EHLO
-	front5m.grolier.fr") by vger.kernel.org with ESMTP
-	id <S267094AbRGJTCv> convert rfc822-to-8bit; Tue, 10 Jul 2001 15:02:51 -0400
-Date: Tue, 10 Jul 2001 21:00:35 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-X-X-Sender: <groudier@>
-To: Tim Hockin <thockin@sun.com>
-cc: <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  sym53c8xx timer rework
-In-Reply-To: <3B4AAC7D.A86AF1F3@sun.com>
-Message-ID: <20010710203327.Q1488-100000@>
+	id <S267098AbRGJTFQ>; Tue, 10 Jul 2001 15:05:16 -0400
+Received: from fe040.worldonline.dk ([212.54.64.205]:16401 "HELO
+	fe040.worldonline.dk") by vger.kernel.org with SMTP
+	id <S267097AbRGJTFI>; Tue, 10 Jul 2001 15:05:08 -0400
+Message-ID: <3B4B6F96.5070504@eisenstein.dk>
+Date: Tue, 10 Jul 2001 23:11:50 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac8 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en, da
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: "C. Slater" <cslater@wcnet.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Switching Kernels without Rebooting?
+In-Reply-To: <000b01c10970$096cd8c0$fe00000a@cslater>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+C. Slater wrote:
+
+> Hi, i was just thinking about if it would be possible to switch kernels
+> without haveing to restart the entire system. Sort of a "Live kernel
+> replacement". It sort of goes along with the hot-swap-everything ideas. I
+
+I actually suggested the exact same thing back in 1998 ( Link to post in 
+archives: http://uwsg.iu.edu/hypermail/linux/kernel/9808.1/1282.html ), 
+but I never recieved much response. As I remember it, the emails I 
+recieved where along the line of; "too much effort for too little gain, 
+use clustering instead". I would still be very interrested in such a 
+feature, but like back in 1998 this is still *way* out of my league to 
+try to implement (but I'd be happy to help in testing :).
 
 
-On Tue, 10 Jul 2001, Tim Hockin wrote:
-
-> Gerard (and all)
->
-> Attached is a small patch to re-work the timer in the sym53c8xx driver.  I
-> submitted this patch against 2.4.5, but don't see it in 2.4.6, so I am
-> re-submitting against 2.4.6.
->
-> Please let me know if there are any problems with this patch.
-
-Hmmm... How much are you sure there isn't any race in your patch ?
-
-If the timer handler is spinning on the lock embedded in the driver
-instance and you free this instance under its knees, it will just
-reference random memory.
-
-That was the reason I preferred to leave the timer die by itself prior to
-releasing the HBA instance. The 'release_stage' was the trick, but
-probably some memory barriers or atomic operations were missing.
-
-If you want to delete the timer on HBA instance release, then you also
-want to check if the pointer to the HBA instance is still valid in the
-timer handler and just return if it isn't so.
-
-Btw, is there a simple and clean way to deal with such concurrency (I mean
-a timer embedded in a data structure we want to free concurrently ? Given
-the current sheme of Linux requiring a synchronous HBA instance release, I
-am under the impression that there is no such way.
-
-  Gérard.
+Best regards,
+Jesper Juhl
+juhl@eisenstein.dk
 

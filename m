@@ -1,65 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVBOULr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVBOUVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVBOULr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 15:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVBOUKO
+	id S261845AbVBOUVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 15:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVBOUVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 15:10:14 -0500
-Received: from host.atlantavirtual.com ([209.239.35.47]:35302 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S261862AbVBOUGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 15:06:13 -0500
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and
-	give	dev=/dev/hdX as device
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       sergio@sergiomb.no-ip.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
-References: <1108426832.5015.4.camel@bastov>
-	 <1108434128.5491.8.camel@bastov> <42115DA2.6070500@osdl.org>
-	 <1108486952.4618.10.camel@localhost.localdomain>
-	 <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
-Content-Type: text/plain
-Message-Id: <1108497781.3828.51.camel@crazytrain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 15 Feb 2005 15:03:02 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Feb 2005 15:21:37 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:58505 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261845AbVBOUMp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 15:12:45 -0500
+To: Andreas Deresch <aderesch@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: panic during IO-APIC detection
+References: <Pine.LNX.4.62.0502161701300.10460@Magrathea>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 15 Feb 2005 21:12:41 +0100
+In-Reply-To: <Pine.LNX.4.62.0502161701300.10460@Magrathea> (Andreas
+ Deresch's message of "Wed, 16 Feb 2005 17:26:22 +0100 (CET)")
+Message-ID: <m1sm3xh9ae.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-15 at 14:48, Kiniger, Karl (GE Healthcare) wrote:
-> I can confirm that. Creating a correct  iso image from a CD is a
-> major pain w/o ide-scsi. Depending on what one has done before the iso
-> image is missing some data at the end most of the time.
-> (paired with lots of kernel error messages)
-> 
-> Testing was done here using Joerg Schilling's sdd:
-> 
-> sdd ivsize=`isosize /dev/cdxxx` if=/dev/cdxxx of=/dev/null \
-> 	bs=<several block sizes from 2048 up tried,does not matter>
-> 
-> and most of the time it results in bad iso images....
+Andreas Deresch <aderesch@fs.tum.de> writes:
+>
+> The question is, should io_apic_get_unique_id be more fault tolerant, or
+> where else should this be fixed?
 
-Karl,
+Patch makes sense in theory, but I suspect there is more state to fix
+up to get rid of the IO-APIC than just decreasing nr_ioapics.
 
-what about catting out that device?  I.E., 
-
-'cat /dev/cdxxx > some.iso'
-
-*instead* of using 'dd' (or variants) against it?  I've always had good
-results using 'cat' and CDs, avoiding 'dd' and CDs whenever the
-opportunity presents itself.
-
-
-regards,
-
-
--fd
-
-
-
+-Andi
 

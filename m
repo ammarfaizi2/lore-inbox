@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266045AbUA2BfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 20:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266054AbUA2BfZ
+	id S266090AbUA2CJR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 21:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266142AbUA2CJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 20:35:25 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7431 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S266045AbUA2BfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 20:35:17 -0500
-Message-ID: <40186338.3010005@zytor.com>
-Date: Wed, 28 Jan 2004 17:34:48 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>
-CC: arnd@arndb.de, linux-kernel@vger.kernel.org
-Subject: Re: long long on 32-bit machines
-References: <200401282051.VAA07809@faui1d.informatik.uni-erlangen.de>
-In-Reply-To: <200401282051.VAA07809@faui1d.informatik.uni-erlangen.de>
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jan 2004 21:09:17 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:30439 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S266090AbUA2CJQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 21:09:16 -0500
+Date: Thu, 29 Jan 2004 10:05:54 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+Message-Id: <20040129100554.6453e6c8@localhost>
+In-Reply-To: <1075336478.30623.317.camel@gaston>
+References: <20040119105237.62a43f65@localhost>
+	<1074483354.10595.5.camel@gaston>
+	<1074489645.2111.8.camel@laptop-linux>
+	<1074490463.10595.16.camel@gaston>
+	<1074534964.2505.6.camel@laptop-linux>
+	<1074549790.10595.55.camel@gaston>
+	<20040122211746.3ec1018c@localhost>
+	<1074841973.974.217.camel@gaston>
+	<20040123183030.02fd16d6@localhost>
+	<1074912854.834.61.camel@gaston>
+	<20040126181004.GB315@elf.ucw.cz>
+	<1075154452.6191.91.camel@gaston>
+	<1075156310.2072.1.camel@laptop-linux>
+	<20040128202217.0a1f8222@localhost>
+	<1075336478.30623.317.camel@gaston>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Weigand wrote:
-> Arnd Bergmann wrote:
-> 
-> 
->>Some architectures require long long arguments to be passed as an
->>even/odd register pair. For example on s390, 
->>
->>  void f(int a, int b, long long x) 
->>
->>uses registers 2, 3, 4 and 5, while 
->>
->>  void f(int a, long long x, int b)
->>
->>uses registers 2, 4, 5 and 6.
-> 
-> 
-> Actually, this isn't quite true -- the second case will also
-> use registers 2, 3, 4, and 5.
-> 
-> However, there is still a case where a single long long is
-> passed differently from a pair of longs: when there is only
-> a single register remaining for parameters.
-> 
-> This means that
->   void f(int a, int b, int c, int d, long e, long f)
-> is passed as
->   a-d in register 2-5
->   e in register 6
->   f on the stack (4 bytes)
-> 
-> while
->   void f(int a, int b, int c, int d, long long e)
-> is passed as
->   a-d in register 2-5
->   nothing in register 6
->   e on the stack (8 bytes)
->  
+On Thu, 29 Jan 2004 11:34:53 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-If I remember correctly, a 6-argument system call on s390 will put a
-pointer to the last two arguments as the effective 5th argument, so this
-would not affect the system call calling convention, correct?
+> Ok, had a quick look. I  _HATE_ those horrible macros you did. Why
+> not just call asm functions or just inline the code ?
 
-	-hpa
+Good idea, But will try inline first. I can't sure change to call asm
+function can works. But I'll try.
 
+Thanks for look.
+
+-- 
+Hu Gang / Steve
+Linux Registered User 204016
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

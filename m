@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267005AbTAZVkP>; Sun, 26 Jan 2003 16:40:15 -0500
+	id <S267001AbTAZVhP>; Sun, 26 Jan 2003 16:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267007AbTAZVkO>; Sun, 26 Jan 2003 16:40:14 -0500
-Received: from pat.uio.no ([129.240.130.16]:52360 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S267005AbTAZVkN>;
-	Sun, 26 Jan 2003 16:40:13 -0500
-To: Christian Reis <kiko@async.com.br>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       NFS@lists.sourceforge.net
-Subject: Re: [NFS] Re: NFS client locking hangs for period
-References: <20030124184951.A23608@blackjesus.async.com.br>
-	<15922.2657.267195.355147@notabene.cse.unsw.edu.au>
-	<20030126140200.A25438@blackjesus.async.com.br>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 26 Jan 2003 22:49:14 +0100
-In-Reply-To: <20030126140200.A25438@blackjesus.async.com.br>
-Message-ID: <shs8yx7lgyt.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	id <S267003AbTAZVhP>; Sun, 26 Jan 2003 16:37:15 -0500
+Received: from [213.86.99.237] ([213.86.99.237]:50397 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267001AbTAZVhO>; Sun, 26 Jan 2003 16:37:14 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20030126220842.GB394@kugai> 
+References: <20030126220842.GB394@kugai>  <20030123193540.GD13137@ca-server1.us.oracle.com> <Pine.LNX.4.44.0301261054250.15538-100000@chaos.physics.uiowa.edu> 
+To: Christian Zander <zander@minion.de>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: no version magic, tainting kernel. 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Sun, 26 Jan 2003 21:40:22 +0000
+Message-ID: <28922.1043617222@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christian Reis <kiko@async.com.br> writes:
 
-     > I wonder why you can't do locking on NFS root (if it's a
-     > current limitation of if it doesn't make sense).
+zander@minion.de said:
+> External projects may not want to use the build flags unchanged, they
+> may have good reasons for using their own. 
 
-locking supposes that you are already running a statd daemon, which
-you clearly cannot be doing on an nfsroot system. If you need locking
-on a root partition, then you'll need to set up an initrd from which
-to start all the necessary daemons...
+That's what EXTRA_CFLAGS and CFLAGS_someobject.o are for.
 
-BTW: Did I understand you and Neil correctly when you appeared to say
-that you were sharing the *same* root partition between several
-clients?
+> It seems sensible to make the kernel build system available to those 
+> who wish to use it, but it should be optional rather than mandatory. 
+> In this specific case, there is no technical reason to require the use
+> of kbuild.
 
-If so, then that could easily explain your problem: a directory like
-/var/lib/nfs simply cannot be shared among several different
-machines. Read the 'statd' manpage, and I'm sure you will understand
-why.
+The use of the kernel build process to build kernel modules is not 
+_mandatory_, it's just that it's the only sane option.
 
-Cheers,
-  Trond
+You are, of course, welcome to hack up your own broken and short-term
+solutions which happen to work this week for some platforms. But don't come
+crying to us when (not if) they stop working.
+
+The use of vermagic.c doesn't stop you from making your own build system; 
+you can have your own vermagic.c to make your hacks work this week.
+
+--
+dwmw2
+
+

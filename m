@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbRFYIOq>; Mon, 25 Jun 2001 04:14:46 -0400
+	id <S262389AbRFYISq>; Mon, 25 Jun 2001 04:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262355AbRFYIOf>; Mon, 25 Jun 2001 04:14:35 -0400
-Received: from sky.irisa.fr ([131.254.60.147]:20424 "EHLO sky.irisa.fr")
-	by vger.kernel.org with ESMTP id <S261515AbRFYIOU>;
-	Mon, 25 Jun 2001 04:14:20 -0400
-Message-ID: <3B36F2D1.175CD2E@irisa.fr>
-Date: Mon, 25 Jun 2001 10:14:09 +0200
-From: Romain Dolbeau <dolbeau@irisa.fr>
-Organization: IRISA, Campus de Beaulieu, 35042 Rennes Cedex, FRANCE
-X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux fbdev <Linux-fbdev-devel@lists.sourceforge.net>
-CC: James Simmons <jsimmons@transvirtual.com>,
-        Romain Dolbeau <dolbeaur@club-internet.fr>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbgen & multiple RGBA
-In-Reply-To: <Pine.LNX.4.10.10106220926460.9835-100000@transvirtual.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S262550AbRFYISg>; Mon, 25 Jun 2001 04:18:36 -0400
+Received: from AMontpellier-201-1-2-148.abo.wanadoo.fr ([193.253.215.148]:19705
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S262389AbRFYISU>; Mon, 25 Jun 2001 04:18:20 -0400
+Subject: Re: Thrashing WITHOUT swap.
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E15EHYP-0000VC-00@the-village.bc.nu>
+In-Reply-To: <E15EHYP-0000VC-00@the-village.bc.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 25 Jun 2001 10:13:35 +0200
+Message-Id: <993456815.2339.2.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
+On 24 Jun 2001 22:36:25 +0100, Alan Cox wrote:
+> > recompiled it yet).  I have a 140 mb swap partition set up but at the time
+> > this happened it was OFF.  I was (still am) running X + twm + two xterms
+> > 
+> > top gives me:
+> > mem: 62144k av, 61180k used, 956k free, 0k shrd, 76 buff, 2636 cached
+> > swap: 0k av, 0k used, 0k free [as expected]
 > 
-> > the attached patch fix a problem with fbgen when changing the
-> > RGBA components but not the depth ; fbgen would not change
-> > the colormap in this case, where it should.
-> 
-> It would be much easier to use a memcmp.
+> Not as expected - 0k used 0k free - you have no swap
 
-For the color component, yes, but you can't use a memcmp
-on the 'fb_var_screeninfo', as some member of the struct
-are irrelevant to colormap switching (you don't want
-to reinstall the colormap if only the refresh rate changed,
-for instance).
+That's what he said. *WITHOUT* swap.
 
--- 
-DOLBEAU Romain               | l'histoire est entierement vraie, puisque
-ENS Cachan / Ker Lann        |     je l'ai imaginee d'un bout a l'autre
-dolbeau@irisa.fr             |           -- Boris Vian
+Xav

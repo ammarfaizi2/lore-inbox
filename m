@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267947AbUHKFja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267946AbUHKFzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267947AbUHKFja (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 01:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267946AbUHKFja
+	id S267946AbUHKFzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 01:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267953AbUHKFzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 01:39:30 -0400
-Received: from stingr.net ([212.193.32.15]:16601 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id S267947AbUHKFjJ (ORCPT
+	Wed, 11 Aug 2004 01:55:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36580 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267946AbUHKFzi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 01:39:09 -0400
-Date: Wed, 11 Aug 2004 09:39:00 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC] Preliminary wccp support for ip_gre
-Message-ID: <20040811053900.GA32384@stingr.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 11 Aug 2004 01:55:38 -0400
+Date: Tue, 10 Aug 2004 22:55:01 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: us15@os.inf.tu-dresden.de, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: Possible dcache BUG
+Message-Id: <20040810225501.1fb803a2.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
+	<20040808113930.24ae0273.akpm@osdl.org>
+	<200408100012.08945.gene.heskett@verizon.net>
+	<200408102342.12792.gene.heskett@verizon.net>
+	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>
+	<20040810211849.0d556af4@laptop.delusion.de>
+	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please, can you give a comments on this piece of code?
+On Tue, 10 Aug 2004 22:13:01 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-I haven't attached any turning knobs to it but I will do so when I'll
-figure out what knobs and how :)
+> I also wonder what the 
+> hell is allocating so many 8kB and 32kB entries.
 
-
-diff -urN linux-2.6.6-1.435/net/ipv4/ip_gre.c linux-2.6.6-1.435a/net/ipv4/ip_gre.c
---- linux-2.6.6-1.435/net/ipv4/ip_gre.c	2004-05-10 06:32:54.000000000 +0400
-+++ linux-2.6.6-1.435a/net/ipv4/ip_gre.c	2004-06-30 16:38:43.781838344 +0400
-@@ -553,6 +553,8 @@
- 	return INET_ECN_encapsulate(tos, inner);
- }
- 
-+#define ETH_P_WCCP 0x883E
-+
- int ipgre_rcv(struct sk_buff *skb)
- {
- 	struct iphdr *iph;
-@@ -605,13 +607,21 @@
- 	if ((tunnel = ipgre_tunnel_lookup(iph->saddr, iph->daddr, key)) != NULL) {
- 		secpath_reset(skb);
- 
-+		skb->protocol = *(u16*)(h + 2);
-+		if (1) {
-+			if ((flags == 0) && (skb->protocol == __constant_htons(ETH_P_WCCP))) {
-+				skb->protocol = __constant_htons(ETH_P_IP);
-+				if ((*(h + offset) & 0xF0) != 0x40) 
-+					offset += 4;
-+			}
-+		}
-+
- 		skb->mac.raw = skb->nh.raw;
- 		skb->nh.raw = __pskb_pull(skb, offset);
- 		memset(&(IPCB(skb)->opt), 0, sizeof(struct ip_options));
- 		if (skb->ip_summed == CHECKSUM_HW)
- 			skb->csum = csum_sub(skb->csum,
- 					     csum_partial(skb->mac.raw, skb->nh.raw-skb->mac.raw, 0));
--		skb->protocol = *(u16*)(h + 2);
- 		skb->pkt_type = PACKET_HOST;
- #ifdef CONFIG_NET_IPGRE_BROADCAST
- 		if (MULTICAST(iph->daddr)) {
-
-
--- 
-Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
- This message represents the official view of the voices in my head
+Loopback default MTU is 16K these days, might explain
+the 32K entries but not the 8KB ones.  Perhaps the
+later are being used for page tables?  Just a guess
+on that latter one.

@@ -1,28 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUGIQh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265065AbUGIQiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUGIQh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 12:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUGIQh0
+	id S265065AbUGIQiG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 12:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbUGIQiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 12:37:26 -0400
-Received: from mproxy.gmail.com ([216.239.56.251]:61138 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S265055AbUGIQhV (ORCPT
+	Fri, 9 Jul 2004 12:38:06 -0400
+Received: from ishtar.tlinx.org ([64.81.245.74]:38575 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S265065AbUGIQh7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 12:37:21 -0400
-Message-ID: <5ef8c2f004070909372db80ca8@mail.gmail.com>
-Date: Fri, 9 Jul 2004 13:37:18 -0300
-From: =?ISO-8859-1?Q?Jos=E9_de_Paula?= <espinafre@gmail.com>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: post 2.6.7 BK change breaks Java?
-In-Reply-To: <40EEB1B2.7000800@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Jul 2004 12:37:59 -0400
+Message-ID: <40EEC9DC.8080501@tlinx.org>
+Date: Fri, 09 Jul 2004 09:37:48 -0700
+From: L A Walsh <lkml@tlinx.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20040705231131.GA5958@merlin.emma.line.org> <Pine.LNX.4.56.0407091544170.22376@jjulnx.backbone.dif.dk> <40EEB1B2.7000800@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found that compiling 2.6.7-bk18 and 2.6.7-bk20 with  GCC 2.95 does
-away with these random Java segmentation faults. Kernels compiled with
-GCC 3.3, 3.2 and 3.0 on the same system, however, have this Java
-problem. I hope this helps.
+It's a feature! :-)
+
+It's been in the code for years to randomly write nulls to some files 
+that have been
+modified in the past few days after a bad shutdown.  Reported on XFS 
+list and got same
+overwhelming response there. 
+
+Apparently not easily reproduced, no one has a clue why it does it.  
+Just does. 
+Even after multiple syncs, files edited within the past few days
+will sometimes go mysteriously null.  Good reason to do daily backups as the
+backups will usually contain the correct file...
+
+Now if we could just come up with a reproducable test case...but when I
+try to reproduce it, it doesn't.  Grrr....it knows when I'm 
+scrutinizing!! :-)
+
+-l
+
+Norberto Bensa wrote:
+
+>Hello,
+>
+>how do I setup XFS to not null files after a bad shutdown?
+>
+>Thanks,
+>Norberto
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>

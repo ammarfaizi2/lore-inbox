@@ -1,48 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275380AbTHITet (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 15:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275385AbTHITet
+	id S275377AbTHIT2n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 15:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275388AbTHIT2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 15:34:49 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:23292 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S275380AbTHITer (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 15:34:47 -0400
-Date: Sat, 9 Aug 2003 21:34:45 +0200 (MEST)
-Message-Id: <200308091934.h79JYjMP022060@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de
-Subject: [PATCH] fix 2.4.22-rc2 x86-64 compile failure
-Cc: linux-kernel@vger.kernel.org
+	Sat, 9 Aug 2003 15:28:43 -0400
+Received: from web40614.mail.yahoo.com ([66.218.78.151]:19996 "HELO
+	web40614.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S275377AbTHIT2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 15:28:34 -0400
+Message-ID: <20030809192833.88024.qmail@web40614.mail.yahoo.com>
+Date: Sat, 9 Aug 2003 20:28:33 +0100 (BST)
+From: =?iso-8859-1?q?Chris=20Rankin?= <rankincj@yahoo.com>
+Subject: RE: Loading Pentium III microcode under Linux - catch 22! BOARD NOW STABLE!
+To: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Tigran Aivazian <tigran@veritas.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <7F740D512C7C1046AB53446D3720017304AE75@scsmsx402.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-EXPORT_SYMBOL(mmu_cr4_features) was added recently to
-arch/x86-64/kernel/setup.c but arch/x86-64/kernel/Makefile
-wasn't simultaneously updated to list setup.o in export-objs.
-This causes a CONFIG_MODULES=y build to fail with:
+ --- "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
+> We don't need IPI or even the microcode update
+> driver if we do this. But I think putting it in
+> initrd should be sufficient.
 
-x86_64-unknown-linux-gcc -D__KERNEL__ -I/tmp/linux-2.4.22-rc2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -mno-red-zone -mcmodel=kernel -pipe -fno-reorder-blocks -finline-limit=2000 -fno-strength-reduce -Wno-sign-compare -fno-asynchronous-unwind-tables   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup  -c -o setup.o setup.c
-setup.c:62: syntax error before "this_object_must_be_defined_as_export_objs_in_the_Makefile"
-setup.c:62: warning: type defaults to `int' in declaration of `this_object_must_be_defined_as_export_objs_in_the_Makefile'
-setup.c:62: warning: data definition has no type or storage class
-make[1]: *** [setup.o] Error 1
-make[1]: Leaving directory `/tmp/linux-2.4.22-rc2/arch/x86_64/kernel'
-make: *** [_dir_arch/x86_64/kernel] Error 2
+Well, I don't know about "sufficient". Someone on
+"www.hardwareanalysis.com" suggested underclocking my
+CPUs. So my dual 933 MHz CPUs are now running at 700
+MHz (FSB changed from 133 MHz to 100 MHz) and
+everything has been fine for the past 3 hours; same
+load as when everything hit the fan last week too. Of
+course, the CPUs run cooler like this, so I can't
+ignore the thermal element...
 
-Fixed by the trivial patch below.
+$ more /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 696.033
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8
+apic sep mtrr pge mca cmov 
+pat pse36 mmx fxsr sse
+bogomips        : 1389.36
 
-/Mikael
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 696.033
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8
+apic sep mtrr pge mca cmov 
+pat pse36 mmx fxsr sse
+bogomips        : 1389.36
 
---- linux-2.4.22-rc2/arch/x86_64/kernel/Makefile.~1~	2003-08-09 20:15:54.000000000 +0200
-+++ linux-2.4.22-rc2/arch/x86_64/kernel/Makefile	2003-08-09 20:26:17.000000000 +0200
-@@ -15,7 +15,7 @@
- O_TARGET := kernel.o
- 
- 
--export-objs     := mtrr.o msr.o cpuid.o x8664_ksyms.o pci-gart.o
-+export-objs     := mtrr.o msr.o cpuid.o x8664_ksyms.o pci-gart.o setup.o
- 
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
- 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_x86_64.o \
+The correct microcode has been loaded successfully:
+
+IA-32 Microcode Update Driver: v1.11
+<tigran@veritas.com>
+microcode: CPU0 updated from revision 0 to 7,
+date=05052000
+microcode: CPU1 updated from revision 0 to 7,
+date=05052000
+
+This was not done from initrd (yet). However, I should
+probably point out that 4 weeks ago, I *must* have
+successfully loaded the microcode from rc.sysinit in
+order for the box to survive for the next 3 weeks.
+
+Now throughout all these problems, Linux has never
+locked up before this message has appeared in the boot
+log:
+
+Freeing unused kernel memory: 108k freed
+
+However, it seems that it can crash at any point
+afterwards. (I never had to wait too long either,
+although it seemed that the more work the box did, the
+quicker it crashed.)
+
+The conclusions from all this seem to be:
+- Linux was crashing due to an incorrect
+CPU/motherboard interaction.
+- the current microcode for these CPUs does not fix
+the problem, although it might reduce it (literally
+weather permitting).
+
+I spoke to Supermicro about this i840 board (PIIIDME)
+last year, and all BIOS development has stopped. The
+best they could offer me was my existing BIOS
+containing the new microcode (which I already have).
+
+Given the information at hand, my options would seem
+to be:
+a) reinstall the original 733 MHz CPUs, accepting that
+this is the best that the board can do. These CPUs
+would need the FSB putting back to 133 MHz so it's not
+exactly a "slam-dunk" success. However, I have run
+them  successfully in hot weather before, so I'm
+reasonably confident that they would work now.
+b) relocate close to one of the Earth's Poles, where
+seasonal temperatures are more favourable to CPUs.
+
+Stablising the 933 MHZ CPUs on this board properly
+would appear to need extra help from Intel. Judging by
+what I've seen, Linux does seem to have a window in
+its boot sequence when any extra workaround could
+safely be applied.
+
+Cheers,
+Chris
+
+P.S. I'm now going to set up an initrd anyway out of
+sheer bloody-mindedness ... ;-)
+
+
+________________________________________________________________________
+Want to chat instantly with your online friends?  Get the FREE Yahoo!
+Messenger http://uk.messenger.yahoo.com/

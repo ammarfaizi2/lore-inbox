@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265560AbSJSIr7>; Sat, 19 Oct 2002 04:47:59 -0400
+	id <S265538AbSJSGxd>; Sat, 19 Oct 2002 02:53:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265561AbSJSIr7>; Sat, 19 Oct 2002 04:47:59 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23430 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265560AbSJSIr6>;
-	Sat, 19 Oct 2002 04:47:58 -0400
-Date: Sat, 19 Oct 2002 04:53:59 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andres Salomon <dilinger@mp3revolution.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.44 Fix uninitialized device struct w/ add_disk()
-In-Reply-To: <20021019081101.GA5149@chunk.voxel.net>
-Message-ID: <Pine.GSO.4.21.0210190452150.24102-100000@weyl.math.psu.edu>
+	id <S265539AbSJSGxd>; Sat, 19 Oct 2002 02:53:33 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31729 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S265538AbSJSGxb>;
+	Sat, 19 Oct 2002 02:53:31 -0400
+Message-ID: <3DB102BC.F181BC1F@mvista.com>
+Date: Fri, 18 Oct 2002 23:59:08 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Jim Houston <jim.houston@attbi.com>, linux-kernel@vger.kernel.org
+Subject: Re: POSIX clocks & timers - more choices
+References: <200210190252.g9J2quf16153@linux.local.suse.lists.linux.kernel> <p73r8ennltj.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 19 Oct 2002, Andres Salomon wrote:
-
-> This occurs w/ 2.5 device-mapper; add_disk() is called (w/ a possibly
-> invalid gendisk).  add_disk() calls register_disk(), which constructs
-> the device struct (gendisk::disk_dev).  First, the bus_id field is
-> initialized, and then device_add() is called.  However, device_add()
-> does no initialization of the device struct.  So, since the
-> gendisk::disk_dev::parent list is NULL, the gendisk::disk_dev::node
-> field is never initialized.  Later on in device_add(), if an error has
-> occurred, list_del_init(&dev->node) is called; dev->node is {NULL,NULL},
-> and an oops occurs.
+Andi Kleen wrote:
+~snip~
+Since he picked this up from my code...
 > 
-> Instead of calling device_add(), my patch makes register_disk() call
-> device_register().  This appear to do the same thing as device_add(),
-> but initializes the device struct before calling device_add().
-
-Wrong.  If device-mapper doesn't create gendisk with alloc_disk() - it's
-their bug; if it does - initialization is already done at alloc_disk()
-time.
-
-Fix driver instead of breaking generic code.
-
+> > +/*
+> > + * For some reason mips/mips64 define the SIGEV constants plus 128.
+> > + * Here we define a mask to get rid of the common bits.       The
+> > + * optimizer should make this costless to all but mips.
+> > + */
+> > +#if (ARCH == mips) || (ARCH == mips64)
+> > +#define MIPS_SIGEV ~(SIGEV_NONE & \
+> > +                   SIGEV_SIGNAL & \
+> > +                   SIGEV_THREAD &  \
+> > +                   SIGEV_THREAD_ID)
+> > +#else
+> > +#define MIPS_SIGEV (int)-1
+> > +#endif
+> 
+> This definitely needs to be cleaned up.
+> 
+What do you suggest?  Changing mips?  I would like this
+number to go away also, but with the mips assignments it is
+a bit of a bother.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

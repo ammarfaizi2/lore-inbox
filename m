@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVBHKzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVBHLFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVBHKzb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 05:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVBHKzb
+	id S261512AbVBHLFH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 06:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVBHLFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 05:55:31 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:37295 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261511AbVBHKz0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 05:55:26 -0500
-Subject: Re: Touchpad problems with 2.6.11-rc2
-From: Stephane Raimbault <stephane.raimbault@free.fr>
-To: linux-kernel@vger.kernel.org
-Cc: =?ISO-8859-1?Q?St=E9phane?= Raimbault <stephane.raimbault@free.fr>
-Content-Type: text/plain
-Date: Tue, 08 Feb 2005 11:55:58 +0100
-Message-Id: <1107860158.5271.12.camel@picasso.lan>
+	Tue, 8 Feb 2005 06:05:07 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:41450 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261512AbVBHLFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 06:05:02 -0500
+Date: Tue, 8 Feb 2005 12:04:18 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+Subject: Re: 2.6.11-rc3-mm1: softlockup and suspend/resume
+Message-ID: <20050208110418.GA878@elte.hu>
+References: <20050204103350.241a907a.akpm@osdl.org> <200502062015.56458.rjw@sisk.pl> <20050207085728.GA17197@elte.hu> <200502071353.57660.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502071353.57660.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm using 2.6.11-rc3 + Peter's patch and xorg from Fedora Core 3, I
-still have touchpad problems.
- 
-Tapping and focus work fine with 2.6.10 and 2.6.11-rc1 but not with :
-- 2.6.11-rc2
-- 2.6.11-rc3
-I read a similar report on LKML from David Ford.
-Only one tap on 30 is received and focus is really strange.
+* Rafael J. Wysocki <rjw@sisk.pl> wrote:
 
-Like said in previous mails, small movements are rounded off to 0 but
-the Peter Osterlund's patch resolves this problem (tested with rc3).
+> The warning is printed right after the image is restored (ie somewhere
+> around the local_irq_enable() above, but it goes before the "PM: Image
+> restored successfully." message that is printed as soon as the return
+> is executed).  Definitely, less than 1 s passes between the resoring
+> of the image and the warining.
+> 
+> BTW, I've also tried to put touch_softlockup_watchdog() before
+> device_power_up(), but it didn't change much.
 
-Hardware
-kernel: input: AlpsPS/2 ALPS TouchPad on isa0 060/serio1
-Vaio GRT916V
+this is a single-CPU box, right?
 
-In my xorg.conf :
-Driver      "mouse"
-Option      "Protocol" "IMPS/2"
+could you put a printk into touch_softlockup_watchdog() and re-try your
+modified tree - in which order do the messages get printed? (perhaps
+also add a jiffies printout to both the lockup message and to
+touch_softlockup_watchdog())
 
-Bye,
-
-Stephane Raimbault
-
-
-
+	Ingo

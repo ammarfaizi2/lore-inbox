@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbULAQIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbULAQNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbULAQIS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 11:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbULAQIS
+	id S261291AbULAQNU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 11:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbULAQNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 11:08:18 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:23714 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S261295AbULAQFw
+	Wed, 1 Dec 2004 11:13:20 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:24800 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261291AbULAQNP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 11:05:52 -0500
-Message-Id: <200412011605.iB1G5mRT009267@localhost.localdomain>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Florian Schmidt <mista.tapas@gmx.net>, Rui Nuno Capela <rncbc@rncbc.org>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
+	Wed, 1 Dec 2004 11:13:15 -0500
+Date: Wed, 1 Dec 2004 17:08:26 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
        Karsten Wiese <annabellesgarden@yahoo.de>,
        Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2 
-In-reply-to: Your message of "Wed, 01 Dec 2004 16:53:53 +0100."
-             <20041201155353.GA30193@elte.hu> 
-Date: Wed, 01 Dec 2004 11:05:48 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [141.151.23.119] at Wed, 1 Dec 2004 10:05:51 -0600
+In-Reply-To: <200412011456.iB1EubBI004051@localhost.localdomain>
+Message-Id: <Pine.OSF.4.05.10412011658320.8736-100000@da410.ifa.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->your point is correct, the best way to have a system-wide namespace for
->synchronization objects is ... the filesystem hierarchy. If you create a
->unix domain socket then you can distribute your pipe fds, but that's
->indeed somewhat painful.
 
-this is where Mach ports come in. they were designed to be passed
-around from process to process, painlessly, but without any system
-wide namespace. you can create ports that can be looked up by anyone,
-but not all ports are required meet this condition. this makes it easy
-to set up a private communication channel between two processes.
+On Wed, 1 Dec 2004, Paul Davis wrote:
 
-a bit like futexes :)
+> [...]
+> >
+> >> futexes are nearly lock-free. [and even those locks are short-held so
+> >> combined with priority-inheritance they should be lockfree in
+> >> essence.] Would futexes suit your purposes?
+> >
+> >to which suggestion i got no reply yet :-)
+> 
+> i am still trying to find the time to investigate futexes. they seem
+> close to the desired object, but have a slightly more general semantic
+> than i can fit into my head right now;)
+>
 
---p
+I looked into them just to see if they could be used for user-space
+priority inheritance. I saw that it takes (read-)lock on mmap_sem.
+Isn't that potentially held for a long time? I don't know how the memory
+subsystem works at all but my guess is that any changing of the process's
+memory is done with mmpa_sem locked. The only way to prevent that is 1)
+mlockall() and 2) stop increasing your heap.
+
+I.e. you can't have one thread running real-time using a futex while
+another runs non-real-time allocating memory in the same process.
+
+Am I correct?
+
+Another problem is the hashing of the futex. That inherently has a
+non-deterministic timing behaviour. The more applications use futex'es
+the slower this hashing gets :-( The slowdown might in practise be very
+low because looking up in the global hash table can't take very many us!
+
+Can't it just use a file-descriptor in the system call to look up the
+futex instead of the hashing? That is RT-O(1), right? But, ofcourse, then
+it is hard having a futex in shared mem.
+
+ 
+> --p
+
+Esben
 

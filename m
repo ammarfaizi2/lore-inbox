@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278216AbRJWUVc>; Tue, 23 Oct 2001 16:21:32 -0400
+	id <S278215AbRJWUVM>; Tue, 23 Oct 2001 16:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278200AbRJWUVX>; Tue, 23 Oct 2001 16:21:23 -0400
-Received: from newssvr17-ext.news.prodigy.com ([207.115.63.157]:48094 "EHLO
-	newssvr17.news.prodigy.com") by vger.kernel.org with ESMTP
-	id <S278216AbRJWUVP>; Tue, 23 Oct 2001 16:21:15 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-Newsgroups: linux.dev.kernel
-Subject: Re: [Q] pivot_root and initrd
-In-Reply-To: <Pine.LNX.4.33L.0110231759020.3690-100000@imladris.surriel.com>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: davidsen@deathstar.prodigy.com (Bill Davidsen)
-Message-ID: <ujkB7.3878$1%5.659642574@newssvr17.news.prodigy.com>
-NNTP-Posting-Host: 192.168.192.240
-X-Complaints-To: abuse@prodigy.net
-X-Trace: newssvr17.news.prodigy.com 1003868506 000 192.168.192.240 (Tue, 23 Oct 2001 16:21:46 EDT)
-NNTP-Posting-Date: Tue, 23 Oct 2001 16:21:46 EDT
-Date: Tue, 23 Oct 2001 20:21:46 GMT
+	id <S278200AbRJWUVC>; Tue, 23 Oct 2001 16:21:02 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:52467 "EHLO
+	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S278222AbRJWUUt>; Tue, 23 Oct 2001 16:20:49 -0400
+Date: Tue, 23 Oct 2001 15:19:45 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Issue with max_threads (and other resources) and highmem
+Message-ID: <72940000.1003868385@baldur>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33L.0110231759020.3690-100000@imladris.surriel.com>,
-Rik van Riel <riel@conectiva.com.br> wrote:
-| On Tue, 23 Oct 2001, bill davidsen wrote:
-| > In article <9r4c24$g2k$1@cesium.transmeta.com>,
-| > H. Peter Anvin <hpa@zytor.com> wrote:
-| >
-| > | The right thing is to get rid of the old initrd compatibility cruft,
-| > | but that's a 2.5 change.
-| >
-| >   Get rid of??? As long as you have some equivalent capability to get
-| > the system up.
-| 
-| pivot_root(2) in combination with pivot_root(8)
 
-I wasn't really asking about changing root after the system is up, the
-part needed is the uncompressing of the filesystem into a ramdisk root f/s
-or some such. After that it's pretty much open to any of several techniques.
+I recently had pointed out to me that the default value for max_threads (ie
+the max number of tasks per system) doesn't work right on machines with
+lots of memory.
 
-Getting the modules loaded to support the root f/s and run a little rc
-file to get things going is the bootstrap operation, and that's where
-initrd is vital. You really don't want to build a kernel for every
-machine if you have more than a few! One kernel and a few config and
-initrd files is vastly easier.
+A quick examination of fork_init() shows that max_threads is supposed to be
+limited so its stack/task_struct takes no more than half of physical
+memory.  This calculation ignores the fact that task_structs must be
+allocated from the normal pool and not the highmem pool, which is a clear
+bug.  On a machine with enough physical memory it's possible for all of
+normal memory to be allocated to task_structs, which tends to make the
+machine die.  
 
-What replaces the initial step?
+fork_init() gets its knowledge of physical memory passed in from
+start_kernel(), which sets it from mum_physpages.  This parameter is also
+passed to several other init functions.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+My question boils down to this...  Should we change start_kernel() to limit
+the physical memory size it passes to the init functions to not include
+high memory, or should we only do it for fork_init()?  What is the best way
+to do calculate this number?  I don't see any simple way in
+architecture-independent code to get the size of high memory vs normal
+memory.
+
+What's the best approach here?
+
+Thanks,
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+

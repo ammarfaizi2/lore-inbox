@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268104AbUHXQpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268102AbUHXQuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268104AbUHXQpY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 12:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268110AbUHXQpX
+	id S268102AbUHXQuh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 12:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUHXQuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 12:45:23 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61922 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268104AbUHXQpH (ORCPT
+	Tue, 24 Aug 2004 12:50:37 -0400
+Received: from mail.nucleus.com ([207.34.93.23]:15372 "EHLO mail.nucleus.com")
+	by vger.kernel.org with ESMTP id S268102AbUHXQuJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 12:45:07 -0400
-Subject: Re: Linux 2.6.9-rc1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1093365658.16585.37.camel@cherrybomb.pdx.osdl.net>
+	Tue, 24 Aug 2004 12:50:09 -0400
+Date: Tue, 24 Aug 2004 10:50:02 -0600
+From: Ray Lehtiniemi <rayl@mail.com>
+To: linux-kernel@vger.kernel.org
+Subject: nfsroot compile broken in 2.6.9-rc1?
+Message-ID: <20040824165002.GA4314@mail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 24 Aug 2004 09:40:58 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Errors in the allyesconfig build were related to the nfsroot.c error. 
-See Russell King's patch ([PATCH] 2.6.9-rc1 compile fix: nfsroot.c).
-Russell's patch is also PLM patch #3272 - in case you would like to
-schedule any STP tests against it.
 
--------------------------------------------------------------------
+hi folks
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+just pulled the latest changes, and it seems nfsroot no longer
+compiles:
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
-2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
-2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
-2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+     CC      fs/nfs/nfsroot.o
+   fs/nfs/nfsroot.c: In function `root_nfs_get_handle':
+   fs/nfs/nfsroot.c:499: error: cannot convert to a pointer type
+   fs/nfs/nfsroot.c:499: error: cannot convert to a pointer type
+   make[2]: *** [fs/nfs/nfsroot.o] Error 1
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
 
-John
+i'm no bitkeeper expert yet, but it seems that this change:
+
+   ChangeSet 1.1803.109.17 2004/08/23 18:16:26 trond.myklebust@fys.uio.no
+
+may not be complete...
+
+this patch compiles and boots for me...
+
+===== fs/nfs/nfsroot.c 1.20 vs edited =====
+--- 1.20/fs/nfs/nfsroot.c	2004-06-08 15:47:11 -06:00
++++ edited/fs/nfs/nfsroot.c	2004-08-24 10:26:29 -06:00
+@@ -496,7 +496,7 @@
+ 		printk(KERN_ERR "Root-NFS: Server returned error %d "
+ 				"while mounting %s\n", status, nfs_path);
+ 	else
+-		nfs_copy_fh(nfs_data.root, fh);
++		nfs_copy_fh((struct nfs_fh *)&nfs_data.root, (struct nfs_fh *)&fh);
+ 
+ 	return status;
+ }
 
 
 
+please cc me on replies, as i'm not subscribed.
+
+thanks
+
+-- 
+----------------------------------------------------------------------
+     Ray L   <rayl@mail.com>

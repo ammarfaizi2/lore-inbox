@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129417AbRCABh4>; Wed, 28 Feb 2001 20:37:56 -0500
+	id <S129436AbRCABh4>; Wed, 28 Feb 2001 20:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129438AbRCABhn>; Wed, 28 Feb 2001 20:37:43 -0500
+	id <S129417AbRCABhm>; Wed, 28 Feb 2001 20:37:42 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:51676 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129464AbRCAB2Z>;
-	Wed, 28 Feb 2001 20:28:25 -0500
-Message-ID: <3A9D931A.E0FA6C81@mandrakesoft.com>
-Date: Wed, 28 Feb 2001 19:08:58 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root <root@marge.springfield.attws.com>
-Cc: tulip-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: patch for mini-pci ethernet card
-In-Reply-To: <01021519112800.09592@marge.springfield>
+	by vger.kernel.org with ESMTP id <S129460AbRCAB2Y>;
+	Wed, 28 Feb 2001 20:28:24 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reiserfs patch for linux-2.4.2 
+In-Reply-To: Your message of "Wed, 28 Feb 2001 20:27:33 BST."
+             <20010228202733.A18073@caldera.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Mar 2001 11:01:59 +1100
+Message-ID: <20472.983404919@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root wrote:
-> I have a HP Pavilon 5290 laptop. It has a a mini-pci modem/ethernet combo
-> integrated card.
-> 
-> Searching in the Internet I found a patch for the ethernet to work with the
-> tulip driver for kernel 2.2.x series, However, I found no patch for the 2.4.x
-> kernel series, so I made one.
-> 
-> Here is what /proc/pci detects as the ethernet card.
-> 
->   Bus  0, device  16, function  0:
->     Ethernet controller: PCI device 1113:1216 (Accton Technology Corporation)
-> (rev 17).
->       IRQ 11.
->       Master Capable.  Latency=64.  Min Gnt=255.Max Lat=255.
->       I/O at 0x1c00 [0x1cff].
->       Non-prefetchable 32 bit memory at 0xe8000000 [0xe80003ff].
+On Wed, 28 Feb 2001 20:27:33 +0100, 
+Christoph Hellwig <hch@ns.caldera.de> wrote:
+>Urgg. limits.h is a userlevel header...
+>
+>The attached patch will make similar atempts fail (but not this one as
+>there is also a limits.h in gcc's include dir).
+>
+>--- linux-2.4.0/Makefile	Mon Dec 25 19:21:14 2000
+>-CPPFLAGS := -D__KERNEL__ -I$(HPATH)
+>+GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne 's/install: \(.*\)/\1include/gp')
+>+CPPFLAGS := -D__KERNEL__ -nostdinc -I$(HPATH) -I$(GCCINCDIR)
 
-I didn't use your patch, but this support should now be in the latest
-test driver, in Alan Cox's "ac" series of patches.
+cc: trimmed to l-k.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+CPPFLAGS apply to the kernel compiler which can be a cross compiler but
+you are extracting data from the host gcc.  What exactly are you trying
+to do here?  Are you trying to prevent the use of user space includes
+or are you trying to pick up the cross compiler includes?
+

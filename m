@@ -1,224 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284722AbRLDAML>; Mon, 3 Dec 2001 19:12:11 -0500
+	id <S282300AbRLDCae>; Mon, 3 Dec 2001 21:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284714AbRLDAHO>; Mon, 3 Dec 2001 19:07:14 -0500
-Received: from colorfullife.com ([216.156.138.34]:3852 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S285088AbRLCULF>;
-	Mon, 3 Dec 2001 15:11:05 -0500
-Message-ID: <3C0BDC33.6E18C815@colorfullife.com>
-Date: Mon, 03 Dec 2001 21:10:27 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
+	id <S282858AbRLDC3F>; Mon, 3 Dec 2001 21:29:05 -0500
+Received: from [213.22.99.56] ([213.22.99.56]:21642 "EHLO aeminium.aeminium.pt")
+	by vger.kernel.org with ESMTP id <S282992AbRLDC2Y> convert rfc822-to-8bit;
+	Mon, 3 Dec 2001 21:28:24 -0500
+Date: Tue, 4 Dec 2001 02:28:07 +0000 (WET)
+From: Nuno Miguel Fernandes Sucena Almeida <slug@aeminium.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] improve spinlock debugging
-Content-Type: multipart/mixed;
- boundary="------------02AC15205F5591BC8C4BE0CE"
+Subject: 2.4.16 & ext2 kaboing ; iptables --list weirdness
+Message-ID: <Pine.LNX.4.21.0112040208480.11754-100000@aeminium.aeminium.pt>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------02AC15205F5591BC8C4BE0CE
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-CONFIG_DEBUG_SPINLOCK only adds spinlock tests for SMP builds. The
-attached patch adds runtime checks for uniprocessor builds.
+hello,
 
-Tested on i386/UP, but it should work on all platforms. It contains
-runtime checks for:
+	i'm using a debian stable with 2.4.16 kernel , ext2 filesystem
+with SMP support (but just one PIII cpu on a dual board), 512MB RAM, gcc
+2.92.2 and after trying to compile perl (from testing) without success i  
+started to make a rm -Rf and here's the result:
 
-- missing initialization
-- recursive lock
-- double unlock
-- incorrect use of spin_is_locked() or spin_trylock() [both function
-do not work as expected on uniprocessor builds]
-The next step are checks for spinlock ordering mismatches.
+root@aeminium    02:11:43   Tue Dec  4
+/usr/src/packages$rm -Rf perl-5.6.1 
+rm: não consigo apagar `perl-5.6.1/t/big': Value too large for defined data type
+rm: cannot remove directory `perl-5.6.1/t': Directory not empty
+rm: cannot remove directory `perl-5.6.1': Directory not empty
 
-Which other runtime checks are possible?
-Tests for correct _irq usage are not possible, several drivers use
-disable_irq().
+root@aeminium    02:11:48   Tue Dec  4
+/usr/src/packages$cd perl-5.6.1/t/    
 
---
-	Manfred
---------------02AC15205F5591BC8C4BE0CE
-Content-Type: text/plain; charset=us-ascii;
- name="patch-debug-sp"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-debug-sp"
+root@aeminium    02:12:20   Tue Dec  4
+/usr/src/packages/perl-5.6.1/t$ls
+ls: big: Value too large for defined data type
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 5
-//  SUBLEVEL = 1
-//  EXTRAVERSION =-pre5
---- 2.5/include/linux/spinlock.h	Fri Oct 26 17:03:12 2001
-+++ build-2.5/include/linux/spinlock.h	Mon Dec  3 19:45:58 2001
-@@ -37,12 +37,13 @@
- 
- #ifdef CONFIG_SMP
- #include <asm/spinlock.h>
-+#else
- 
--#elif !defined(spin_lock_init) /* !SMP and spin_lock_init not previously
--                                  defined (e.g. by including asm/spinlock.h */
--
--#define DEBUG_SPINLOCKS	0	/* 0 == no debugging, 1 == maintain lock state, 2 == full debug */
--
-+#ifdef CONFIG_DEBUG_SPINLOCK
-+#define DEBUG_SPINLOCKS	2	/* 0 == no debugging, 1 == maintain lock state, 2 == full debug */
-+#else
-+#define DEBUG_SPINLOCKS	0
-+#endif
- #if (DEBUG_SPINLOCKS < 1)
- 
- #define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
-@@ -85,22 +86,101 @@
- 
- #else /* (DEBUG_SPINLOCKS >= 2) */
- 
-+#define SPINLOCK_MAGIC	0x1D244B3C
- typedef struct {
-+	unsigned long magic;
- 	volatile unsigned long lock;
- 	volatile unsigned int babble;
- 	const char *module;
-+	char *owner;
-+	int oline;
- } spinlock_t;
--#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0, 25, __BASE_FILE__ }
-+#define SPIN_LOCK_UNLOCKED (spinlock_t) { SPINLOCK_MAGIC, 0, 10, __FILE__ , NULL, 0}
- 
- #include <linux/kernel.h>
- 
--#define spin_lock_init(x)	do { (x)->lock = 0; } while (0)
--#define spin_is_locked(lock)	(test_bit(0,(lock)))
--#define spin_trylock(lock)	(!test_and_set_bit(0,(lock)))
--
--#define spin_lock(x)		do {unsigned long __spinflags; save_flags(__spinflags); cli(); if ((x)->lock&&(x)->babble) {printk("%s:%d: spin_lock(%s:%p) already locked\n", __BASE_FILE__,__LINE__, (x)->module, (x));(x)->babble--;} (x)->lock = 1; restore_flags(__spinflags);} while (0)
--#define spin_unlock_wait(x)	do {unsigned long __spinflags; save_flags(__spinflags); cli(); if ((x)->lock&&(x)->babble) {printk("%s:%d: spin_unlock_wait(%s:%p) deadlock\n", __BASE_FILE__,__LINE__, (x)->module, (x));(x)->babble--;} restore_flags(__spinflags);} while (0)
--#define spin_unlock(x)		do {unsigned long __spinflags; save_flags(__spinflags); cli(); if (!(x)->lock&&(x)->babble) {printk("%s:%d: spin_unlock(%s:%p) not locked\n", __BASE_FILE__,__LINE__, (x)->module, (x));(x)->babble--;} (x)->lock = 0; restore_flags(__spinflags);} while (0)
-+#define spin_lock_init(x) \
-+	do { \
-+		(x)->magic = SPINLOCK_MAGIC; \
-+		(x)->lock = 0; \
-+		(x)->babble = 5; \
-+		(x)->module = __FILE__; \
-+		(x)->owner = NULL; \
-+		(x)->oline = 0; \
-+	} while (0)
-+#define CHECK_LOCK(x) \
-+	do { \
-+	 	if ((x)->magic != SPINLOCK_MAGIC) { \
-+			printk(KERN_ERR "%s:%d: spin_is_locked on uninitialized spinlock %p.\n", \
-+					__FILE__, __LINE__, (x)); \
-+		} \
-+	} while(0)
-+/* without debugging, spin_is_locked on UP always says
-+ * FALSE. --> printk if already locked. */
-+#define spin_is_locked(x) \
-+	({ \
-+	 	CHECK_LOCK(x); \
-+		if ((x)->lock&&(x)->babble) { \
-+			printk("%s:%d: spin_is_locked(%s:%p) already locked by %s/%d\n", \
-+					__FILE__,__LINE__, (x)->module, \
-+					(x), (x)->owner, (x)->oline); \
-+			(x)->babble--; \
-+		} \
-+		0; \
-+	})
-+
-+/* without debugging, spin_trylock on UP always says
-+ * TRUE. --> printk if already locked. */
-+#define spin_trylock(x) \
-+	({ \
-+	 	CHECK_LOCK(x); \
-+		if ((x)->lock&&(x)->babble) { \
-+			printk("%s:%d: spin_trylock(%s:%p) already locked by %s/%d\n", \
-+					__FILE__,__LINE__, (x)->module, \
-+					(x), (x)->owner, (x)->oline); \
-+			(x)->babble--; \
-+		} \
-+		(x)->lock = 1; \
-+		(x)->owner = __FILE__; \
-+		(x)->oline = __LINE__; \
-+		1; \
-+	})
-+
-+#define spin_lock(x)		\
-+	do { \
-+	 	CHECK_LOCK(x); \
-+		if ((x)->lock&&(x)->babble) { \
-+			printk("%s:%d: spin_lock(%s:%p) already locked by %s/%d\n", \
-+					__FILE__,__LINE__, (x)->module, \
-+					(x), (x)->owner, (x)->oline); \
-+			(x)->babble--; \
-+		} \
-+		(x)->lock = 1; \
-+		(x)->owner = __FILE__; \
-+		(x)->oline = __LINE__; \
-+	} while (0)
-+
-+#define spin_unlock_wait(x)	\
-+	do { \
-+	 	CHECK_LOCK(x); \
-+		if ((x)->lock&&(x)->babble) { \
-+			printk("%s:%d: spin_unlock_wait(%s:%p) owned by %s/%d\n", \
-+					__FILE__,__LINE__, (x)->module, (x), \
-+					(x)->owner, (x)->oline); \
-+			(x)->babble--; \
-+		}\
-+	} while (0)
-+
-+#define spin_unlock(x) \
-+	do { \
-+	 	CHECK_LOCK(x); \
-+		if (!(x)->lock&&(x)->babble) { \
-+			printk("%s:%d: spin_unlock(%s:%p) not locked\n", \
-+					__FILE__,__LINE__, (x)->module, (x));\
-+			(x)->babble--; \
-+		} \
-+		(x)->lock = 0; \
-+	} while (0)
- 
- #endif	/* DEBUG_SPINLOCKS */
- 
---- 2.5/kernel/ksyms.c	Mon Dec  3 18:30:08 2001
-+++ build-2.5/kernel/ksyms.c	Mon Dec  3 20:06:49 2001
-@@ -381,10 +381,10 @@
- EXPORT_SYMBOL(tq_timer);
- EXPORT_SYMBOL(tq_immediate);
- 
--#ifdef CONFIG_SMP
- /* Various random spinlocks we want to export */
- EXPORT_SYMBOL(tqueue_lock);
- 
-+#ifdef CONFIG_SMP
- /* Big-Reader lock implementation */
- EXPORT_SYMBOL(__brlock_array);
- #ifndef __BRLOCK_USE_ATOMICS
---- 2.5/Documentation/Configure.help	Mon Dec  3 18:30:07 2001
-+++ build-2.5/Documentation/Configure.help	Mon Dec  3 20:31:40 2001
-@@ -23565,8 +23565,10 @@
- 
- Spinlock debugging
- CONFIG_DEBUG_SPINLOCK
--  Say Y here and build SMP to catch missing spinlock initialization
--  and certain other kinds of spinlock errors commonly made.  This is
-+  Say Y here to add additional runtime checks into the spinlock
-+  functions. On UP it detects missing initializations and simple
-+  deadlocks. On SMP it finds missing initializations and certain other
-+  kinds of spinlock errors commonly made, excluding deadlocks. This is
-   best used in conjunction with the NMI watchdog so that spinlock
-   deadlocks are also debuggable.
- 
+my previous kernel was 2.4.13 (not .15 ;)
 
+another curious fact:
+iptables v1.2.2
 
+iptables --list
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
 
---------------02AC15205F5591BC8C4BE0CE--
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
 
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+although i have working NAT and Firewall rules.
+i think i'm having also some UDP weirdness with a inet cablemodem
+interface but got to check further...
+
+					Nuno Sucena Almeida
+- --
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Para mais informações veja http://www.gnupg.org
+
+iD8DBQE8DDTA8HEhaPSUrLkRAp0eAKDWJ/lbIqS4c3nwEczF7qEx/3s2egCgyQ2f
+ChEaUps7EA2cZ9aBM2ZA4m0=
+=IoiM
+-----END PGP SIGNATURE-----
 

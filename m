@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbVADXbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVADXgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbVADXbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 18:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbVADX25
+	id S262179AbVADXgU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 18:36:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVADXfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 18:28:57 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:59357 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262162AbVADXPM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 18:15:12 -0500
-Date: Tue, 4 Jan 2005 15:13:30 -0800 (PST)
+	Tue, 4 Jan 2005 18:35:19 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:24538 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262399AbVADXOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 18:14:36 -0500
+Date: Tue, 4 Jan 2005 15:14:26 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
        Linus Torvalds <torvalds@osdl.org>, linux-mm@kvack.org,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Prezeroing V3 [1/4]: Allow request for zeroed memory
+Subject: Prezeroing V3 [2/4]: Extension of clear_page to take an order
+ parameter
 In-Reply-To: <Pine.LNX.4.58.0501041510430.1536@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0501041513330.1536@schroedinger.engr.sgi.com>
 References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
  <41C20E3E.3070209@yahoo.com.au> <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
  <Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
@@ -30,797 +31,940 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces __GFP_ZERO as an additional gfp_mask element to allow
-to request zeroed pages from the page allocator.
+o Extend clear_page to take an order parameter for all architectures.
 
-o Modifies the page allocator so that it zeroes memory if __GFP_ZERO is set
+Architecture support:
+---------------------
 
-o Replace all page zeroing after allocating pages by request for
-  zeroed pages.
+Known to work:
 
-o requires arch updates to clear_page in order to function properly.
+ia64
+i386
+sparc64
+m68k
+
+Trivial modification expected to simply work:
+
+arm
+cris
+h8300
+m68knommu
+ppc
+ppc64
+sh64
+v850
+parisc
+sparc
+um
+
+Modification made but it would be good to have some feedback from the arch maintainers:
+
+x86_64
+s390
+alpha
+sh
+mips
+m32r
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.10/mm/page_alloc.c
+Index: linux-2.6.10/include/asm-ia64/page.h
 ===================================================================
---- linux-2.6.10.orig/mm/page_alloc.c	2005-01-04 12:16:41.000000000 -0800
-+++ linux-2.6.10/mm/page_alloc.c	2005-01-04 12:16:49.000000000 -0800
-@@ -584,6 +584,18 @@
- 		BUG_ON(bad_range(zone, page));
- 		mod_page_state_zone(zone, pgalloc, 1 << order);
- 		prep_new_page(page, order);
-+
-+		if (gfp_flags & __GFP_ZERO) {
-+#ifdef CONFIG_HIGHMEM
-+			if (PageHighMem(page)) {
-+				int n = 1 << order;
-+
-+				while (n-- >0)
-+					clear_highpage(page + n);
-+			} else
-+#endif
-+			clear_page(page_address(page), order);
-+		}
- 		if (order && (gfp_flags & __GFP_COMP))
- 			prep_compound_page(page, order);
- 	}
-@@ -796,12 +808,9 @@
- 	 */
- 	BUG_ON(gfp_mask & __GFP_HIGHMEM);
+--- linux-2.6.10.orig/include/asm-ia64/page.h	2004-12-24 13:34:00.000000000 -0800
++++ linux-2.6.10/include/asm-ia64/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -56,7 +56,7 @@
+ # ifdef __KERNEL__
+ #  define STRICT_MM_TYPECHECKS
 
--	page = alloc_pages(gfp_mask, 0);
--	if (page) {
--		void *address = page_address(page);
--		clear_page(address);
--		return (unsigned long) address;
--	}
-+	page = alloc_pages(gfp_mask | __GFP_ZERO, 0);
-+	if (page)
-+		return (unsigned long) page_address(page);
+-extern void clear_page (void *page);
++extern void clear_page (void *page, int order);
+ extern void copy_page (void *to, void *from);
+
+ /*
+@@ -65,7 +65,7 @@
+  */
+ #define clear_user_page(addr, vaddr, page)	\
+ do {						\
+-	clear_page(addr);			\
++	clear_page(addr, 0);			\
+ 	flush_dcache_page(page);		\
+ } while (0)
+
+Index: linux-2.6.10/include/asm-i386/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-i386/page.h	2005-01-04 12:16:41.000000000 -0800
++++ linux-2.6.10/include/asm-i386/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -18,7 +18,7 @@
+
+ #include <asm/mmx.h>
+
+-#define clear_page(page)	mmx_clear_page((void *)(page))
++#define clear_page(page, order)	mmx_clear_page((void *)(page),order)
+ #define copy_page(to,from)	mmx_copy_page(to,from)
+
+ #else
+@@ -28,12 +28,12 @@
+  *	Maybe the K6-III ?
+  */
+
+-#define clear_page(page)	memset((void *)(page), 0, PAGE_SIZE)
++#define clear_page(page, order)	memset((void *)(page), 0, PAGE_SIZE << (order))
+ #define copy_page(to,from)	memcpy((void *)(to), (void *)(from), PAGE_SIZE)
+
+ #endif
+
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+ /*
+Index: linux-2.6.10/include/asm-x86_64/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-x86_64/page.h	2005-01-04 12:16:41.000000000 -0800
++++ linux-2.6.10/include/asm-x86_64/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -32,10 +32,10 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+
+-void clear_page(void *);
++void clear_page(void *, int);
+ void copy_page(void *, void *);
+
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+ /*
+Index: linux-2.6.10/include/asm-sparc/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-sparc/page.h	2004-12-24 13:34:29.000000000 -0800
++++ linux-2.6.10/include/asm-sparc/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -28,10 +28,10 @@
+
+ #ifndef __ASSEMBLY__
+
+-#define clear_page(page)	 memset((void *)(page), 0, PAGE_SIZE)
++#define clear_page(page, order)	 memset((void *)(page), 0, PAGE_SIZE << (order))
+ #define copy_page(to,from) 	memcpy((void *)(to), (void *)(from), PAGE_SIZE)
+ #define clear_user_page(addr, vaddr, page)	\
+-	do { 	clear_page(addr);		\
++	do { 	clear_page(addr, 0);		\
+ 		sparc_flush_page_to_ram(page);	\
+ 	} while (0)
+ #define copy_user_page(to, from, vaddr, page)	\
+Index: linux-2.6.10/include/asm-s390/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-s390/page.h	2004-12-24 13:34:01.000000000 -0800
++++ linux-2.6.10/include/asm-s390/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -22,12 +22,12 @@
+
+ #ifndef __s390x__
+
+-static inline void clear_page(void *page)
++static inline void clear_page(void *page, int order)
+ {
+ 	register_pair rp;
+
+ 	rp.subreg.even = (unsigned long) page;
+-	rp.subreg.odd = (unsigned long) 4096;
++	rp.subreg.odd = (unsigned long) 4096 << order;
+         asm volatile ("   slr  1,1\n"
+ 		      "   mvcl %0,0"
+ 		      : "+&a" (rp) : : "memory", "cc", "1" );
+@@ -63,14 +63,19 @@
+
+ #else /* __s390x__ */
+
+-static inline void clear_page(void *page)
++static inline void clear_page(void *page, int order)
+ {
+-        asm volatile ("   lgr  2,%0\n"
++	int nr = 1 << order;
++
++	while (nr-- >0) {
++        	asm volatile ("   lgr  2,%0\n"
+                       "   lghi 3,4096\n"
+                       "   slgr 1,1\n"
+                       "   mvcl 2,0"
+                       : : "a" ((void *) (page))
+ 		      : "memory", "cc", "1", "2", "3" );
++		page += PAGE_SIZE;
++	}
+ }
+
+ static inline void copy_page(void *to, void *from)
+@@ -103,7 +108,7 @@
+
+ #endif /* __s390x__ */
+
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+ /* Pure 2^n version of get_order */
+Index: linux-2.6.10/arch/i386/lib/mmx.c
+===================================================================
+--- linux-2.6.10.orig/arch/i386/lib/mmx.c	2004-12-24 13:34:48.000000000 -0800
++++ linux-2.6.10/arch/i386/lib/mmx.c	2005-01-04 12:34:03.000000000 -0800
+@@ -128,7 +128,7 @@
+  *	other MMX using processors do not.
+  */
+
+-static void fast_clear_page(void *page)
++static void fast_clear_page(void *page, int order)
+ {
+ 	int i;
+
+@@ -138,7 +138,7 @@
+ 		"  pxor %%mm0, %%mm0\n" : :
+ 	);
+
+-	for(i=0;i<4096/64;i++)
++	for(i=0;i<((4096/64) << order);i++)
+ 	{
+ 		__asm__ __volatile__ (
+ 		"  movntq %%mm0, (%0)\n"
+@@ -257,7 +257,7 @@
+  *	Generic MMX implementation without K7 specific streaming
+  */
+
+-static void fast_clear_page(void *page)
++static void fast_clear_page(void *page, int order)
+ {
+ 	int i;
+
+@@ -267,7 +267,7 @@
+ 		"  pxor %%mm0, %%mm0\n" : :
+ 	);
+
+-	for(i=0;i<4096/128;i++)
++	for(i=0;i<((4096/128) << order);i++)
+ 	{
+ 		__asm__ __volatile__ (
+ 		"  movq %%mm0, (%0)\n"
+@@ -359,23 +359,23 @@
+  *	Favour MMX for page clear and copy.
+  */
+
+-static void slow_zero_page(void * page)
++static void slow_clear_page(void * page, int order)
+ {
+ 	int d0, d1;
+ 	__asm__ __volatile__( \
+ 		"cld\n\t" \
+ 		"rep ; stosl" \
+ 		: "=&c" (d0), "=&D" (d1)
+-		:"a" (0),"1" (page),"0" (1024)
++		:"a" (0),"1" (page),"0" (1024 << order)
+ 		:"memory");
+ }
+-
+-void mmx_clear_page(void * page)
++
++void mmx_clear_page(void * page, int order)
+ {
+ 	if(unlikely(in_interrupt()))
+-		slow_zero_page(page);
++		slow_clear_page(page, order);
+ 	else
+-		fast_clear_page(page);
++		fast_clear_page(page, order);
+ }
+
+ static void slow_copy_page(void *to, void *from)
+Index: linux-2.6.10/include/asm-x86_64/mmx.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-x86_64/mmx.h	2004-12-24 13:34:57.000000000 -0800
++++ linux-2.6.10/include/asm-x86_64/mmx.h	2005-01-04 12:34:03.000000000 -0800
+@@ -8,7 +8,7 @@
+ #include <linux/types.h>
+
+ extern void *_mmx_memcpy(void *to, const void *from, size_t size);
+-extern void mmx_clear_page(void *page);
++extern void mmx_clear_page(void *page, int order);
+ extern void mmx_copy_page(void *to, void *from);
+
+ #endif
+Index: linux-2.6.10/arch/ia64/lib/clear_page.S
+===================================================================
+--- linux-2.6.10.orig/arch/ia64/lib/clear_page.S	2004-12-24 13:33:50.000000000 -0800
++++ linux-2.6.10/arch/ia64/lib/clear_page.S	2005-01-04 12:34:03.000000000 -0800
+@@ -7,6 +7,7 @@
+  * 1/06/01 davidm	Tuned for Itanium.
+  * 2/12/02 kchen	Tuned for both Itanium and McKinley
+  * 3/08/02 davidm	Some more tweaking
++ * 12/10/04 clameter	Make it work on pages of order size
+  */
+ #include <linux/config.h>
+
+@@ -29,27 +30,33 @@
+ #define dst4		r11
+
+ #define dst_last	r31
++#define totsize		r14
+
+ GLOBAL_ENTRY(clear_page)
+ 	.prologue
+-	.regstk 1,0,0,0
+-	mov r16 = PAGE_SIZE/L3_LINE_SIZE-1	// main loop count, -1=repeat/until
++	.regstk 2,0,0,0
++	mov r16 = PAGE_SIZE/L3_LINE_SIZE	// main loop count
++	mov totsize = PAGE_SIZE
+ 	.save ar.lc, saved_lc
+ 	mov saved_lc = ar.lc
+-
++	;;
+ 	.body
++	adds dst1 = 16, in0
+ 	mov ar.lc = (PREFETCH_LINES - 1)
+ 	mov dst_fetch = in0
+-	adds dst1 = 16, in0
+ 	adds dst2 = 32, in0
++	shl r16 = r16, in1
++	shl totsize = totsize, in1
+ 	;;
+ .fetch:	stf.spill.nta [dst_fetch] = f0, L3_LINE_SIZE
+ 	adds dst3 = 48, in0		// executing this multiple times is harmless
+ 	br.cloop.sptk.few .fetch
++	add r16 = -1,r16
++	add dst_last = totsize, dst_fetch
++	adds dst4 = 64, in0
+ 	;;
+-	addl dst_last = (PAGE_SIZE - PREFETCH_LINES*L3_LINE_SIZE), dst_fetch
+ 	mov ar.lc = r16			// one L3 line per iteration
+-	adds dst4 = 64, in0
++	adds dst_last = -PREFETCH_LINES*L3_LINE_SIZE, dst_last
+ 	;;
+ #ifdef CONFIG_ITANIUM
+ 	// Optimized for Itanium
+Index: linux-2.6.10/arch/x86_64/lib/clear_page.S
+===================================================================
+--- linux-2.6.10.orig/arch/x86_64/lib/clear_page.S	2004-12-24 13:34:33.000000000 -0800
++++ linux-2.6.10/arch/x86_64/lib/clear_page.S	2005-01-04 12:34:03.000000000 -0800
+@@ -7,6 +7,7 @@
+ clear_page:
+ 	xorl   %eax,%eax
+ 	movl   $4096/64,%ecx
++	shl	%esi, %ecx
+ 	.p2align 4
+ .Lloop:
+ 	decl	%ecx
+@@ -42,6 +43,7 @@
+ 	.section .altinstr_replacement,"ax"
+ clear_page_c:
+ 	movl $4096/8,%ecx
++	shl	%esi, %ecx
+ 	xorl %eax,%eax
+ 	rep
+ 	stosq
+Index: linux-2.6.10/include/asm-sh/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-sh/page.h	2004-12-24 13:35:28.000000000 -0800
++++ linux-2.6.10/include/asm-sh/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -36,12 +36,22 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+
+-extern void (*clear_page)(void *to);
++extern void (*_clear_page)(void *to);
+ extern void (*copy_page)(void *to, void *from);
+
+ extern void clear_page_slow(void *to);
+ extern void copy_page_slow(void *to, void *from);
+
++static inline void clear_page(void *page, int order)
++{
++	unsigned int nr = 1 << order;
++
++	while (nr-- >0) {
++		_clear_page(page);
++		page += PAGE_SIZE;
++	}
++}
++
+ #if defined(CONFIG_SH7705_CACHE_32KB) && defined(CONFIG_MMU)
+ struct page;
+ extern void clear_user_page(void *to, unsigned long address, struct page *pg);
+@@ -49,7 +59,7 @@
+ extern void __clear_user_page(void *to, void *orig_to);
+ extern void __copy_user_page(void *to, void *from, void *orig_to);
+ #elif defined(CONFIG_CPU_SH2) || defined(CONFIG_CPU_SH3) || !defined(CONFIG_MMU)
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ #elif defined(CONFIG_CPU_SH4)
+ struct page;
+Index: linux-2.6.10/include/asm-i386/mmx.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-i386/mmx.h	2004-12-24 13:34:57.000000000 -0800
++++ linux-2.6.10/include/asm-i386/mmx.h	2005-01-04 12:34:03.000000000 -0800
+@@ -8,7 +8,7 @@
+ #include <linux/types.h>
+
+ extern void *_mmx_memcpy(void *to, const void *from, size_t size);
+-extern void mmx_clear_page(void *page);
++extern void mmx_clear_page(void *page, int order);
+ extern void mmx_copy_page(void *to, void *from);
+
+ #endif
+Index: linux-2.6.10/arch/alpha/lib/clear_page.S
+===================================================================
+--- linux-2.6.10.orig/arch/alpha/lib/clear_page.S	2004-12-24 13:35:25.000000000 -0800
++++ linux-2.6.10/arch/alpha/lib/clear_page.S	2005-01-04 12:34:03.000000000 -0800
+@@ -6,11 +6,10 @@
+
+ 	.text
+ 	.align 4
+-	.global clear_page
+-	.ent clear_page
+-clear_page:
++	.global _clear_page
++	.ent _clear_page
++_clear_page:
+ 	.prologue 0
+-
+ 	lda	$0,128
+ 	nop
+ 	unop
+@@ -36,4 +35,4 @@
+ 	unop
+ 	nop
+
+-	.end clear_page
++	.end _clear_page
+Index: linux-2.6.10/include/asm-sh64/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-sh64/page.h	2004-12-24 13:34:33.000000000 -0800
++++ linux-2.6.10/include/asm-sh64/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -50,12 +50,20 @@
+ extern void sh64_page_clear(void *page);
+ extern void sh64_page_copy(void *from, void *to);
+
+-#define clear_page(page)               sh64_page_clear(page)
++static inline void clear_page(page, order)
++{
++	int nr = 1 << order;
++
++	while (nr-- >0) {
++		sh64_page_clear(page++, 0);
++	}
++}
++
+ #define copy_page(to,from)             sh64_page_copy(from, to)
+
+ #if defined(CONFIG_DCACHE_DISABLED)
+
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	sh_clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+ #else
+Index: linux-2.6.10/include/asm-h8300/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-h8300/page.h	2004-12-24 13:35:25.000000000 -0800
++++ linux-2.6.10/include/asm-h8300/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -24,10 +24,10 @@
+ #define get_user_page(vaddr)		__get_free_page(GFP_KERNEL)
+ #define free_user_page(page, addr)	free_page(addr)
+
+-#define clear_page(page)	memset((page), 0, PAGE_SIZE)
++#define clear_page(page, order)	memset((page), 0, PAGE_SIZE << (order))
+ #define copy_page(to,from)	memcpy((to), (from), PAGE_SIZE)
+
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+ /*
+Index: linux-2.6.10/include/asm-arm/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-arm/page.h	2004-12-24 13:34:01.000000000 -0800
++++ linux-2.6.10/include/asm-arm/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -128,7 +128,7 @@
+ 		preempt_enable();			\
+ 	} while (0)
+
+-#define clear_page(page)	memzero((void *)(page), PAGE_SIZE)
++#define clear_page(page, order)	memzero((void *)(page), PAGE_SIZE << (order))
+ extern void copy_page(void *to, const void *from);
+
+ #undef STRICT_MM_TYPECHECKS
+Index: linux-2.6.10/include/asm-ppc64/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-ppc64/page.h	2004-12-24 13:33:49.000000000 -0800
++++ linux-2.6.10/include/asm-ppc64/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -102,12 +102,12 @@
+ #define REGION_MASK   (((1UL<<REGION_SIZE)-1UL)<<REGION_SHIFT)
+ #define REGION_STRIDE (1UL << REGION_SHIFT)
+
+-static __inline__ void clear_page(void *addr)
++static __inline__ void clear_page(void *addr, int order)
+ {
+ 	unsigned long lines, line_size;
+
+ 	line_size = systemcfg->dCacheL1LineSize;
+-	lines = naca->dCacheL1LinesPerPage;
++	lines = naca->dCacheL1LinesPerPage << order;
+
+ 	__asm__ __volatile__(
+ 	"mtctr  	%1	# clear_page\n\
+Index: linux-2.6.10/include/asm-m32r/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-m32r/page.h	2004-12-24 13:34:29.000000000 -0800
++++ linux-2.6.10/include/asm-m32r/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -11,10 +11,22 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+
+-extern void clear_page(void *to);
++extern void _clear_page(void *to);
++
++static inline void clear_page(void *page, int order)
++{
++	unsigned int nr = 1 << order;
++
++	while (nr-- > 0) {
++		_clear_page(page);
++		page += PAGE_SIZE;
++	}
++}
++
++
+ extern void copy_page(void *to, void *from);
+
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+ /*
+Index: linux-2.6.10/include/asm-alpha/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-alpha/page.h	2004-12-24 13:35:24.000000000 -0800
++++ linux-2.6.10/include/asm-alpha/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -15,8 +15,20 @@
+
+ #define STRICT_MM_TYPECHECKS
+
+-extern void clear_page(void *page);
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++extern void _clear_page(void *page);
++
++static inline void clear_page(void *page, int order)
++{
++	int nr = 1 << order;
++
++	while (nr--)
++	{
++		_clear_page(page);
++		page += PAGE_SIZE;
++	}
++}
++
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+
+ extern void copy_page(void * _to, void * _from);
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+Index: linux-2.6.10/arch/mips/mm/pg-sb1.c
+===================================================================
+--- linux-2.6.10.orig/arch/mips/mm/pg-sb1.c	2004-12-24 13:35:50.000000000 -0800
++++ linux-2.6.10/arch/mips/mm/pg-sb1.c	2005-01-04 12:34:03.000000000 -0800
+@@ -42,7 +42,7 @@
+ #ifdef CONFIG_SIBYTE_DMA_PAGEOPS
+ static inline void clear_page_cpu(void *page)
+ #else
+-void clear_page(void *page)
++void _clear_page(void *page)
+ #endif
+ {
+ 	unsigned char *addr = (unsigned char *) page;
+@@ -172,14 +172,13 @@
+ 		     IOADDR(A_DM_REGISTER(cpu, R_DM_DSCR_BASE)));
+ }
+
+-void clear_page(void *page)
++void _clear_page(void *page)
+ {
+ 	int cpu = smp_processor_id();
+
+ 	/* if the page is above Kseg0, use old way */
+ 	if (KSEGX(page) != CAC_BASE)
+ 		return clear_page_cpu(page);
+-
+ 	page_descr[cpu].dscr_a = PHYSADDR(page) | M_DM_DSCRA_ZERO_MEM | M_DM_DSCRA_L2C_DEST | M_DM_DSCRA_INTERRUPT;
+ 	page_descr[cpu].dscr_b = V_DM_DSCRB_SRC_LENGTH(PAGE_SIZE);
+ 	__raw_writeq(1, IOADDR(A_DM_REGISTER(cpu, R_DM_DSCR_COUNT)));
+@@ -218,5 +217,5 @@
+
+ #endif
+
+-EXPORT_SYMBOL(clear_page);
++EXPORT_SYMBOL(_clear_page);
+ EXPORT_SYMBOL(copy_page);
+Index: linux-2.6.10/include/asm-m68k/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-m68k/page.h	2004-12-24 13:35:49.000000000 -0800
++++ linux-2.6.10/include/asm-m68k/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -50,7 +50,7 @@
+ 		       );
+ }
+
+-static inline void clear_page(void *page)
++static inline void clear_page(void *page, int order)
+ {
+ 	unsigned long tmp;
+ 	unsigned long *sp = page;
+@@ -69,16 +69,16 @@
+ 			     "dbra   %1,1b\n\t"
+ 			     : "=a" (sp), "=d" (tmp)
+ 			     : "a" (page), "0" (sp),
+-			       "1" ((PAGE_SIZE - 16) / 16 - 1));
++			       "1" (((PAGE_SIZE<<(order)) - 16) / 16 - 1));
+ }
+
+ #else
+-#define clear_page(page)	memset((page), 0, PAGE_SIZE)
++#define clear_page(page, order)	memset((page), 0, PAGE_SIZE << (order))
+ #define copy_page(to,from)	memcpy((to), (from), PAGE_SIZE)
+ #endif
+
+ #define clear_user_page(addr, vaddr, page)	\
+-	do {	clear_page(addr);		\
++	do {	clear_page(addr, 0);		\
+ 		flush_dcache_page(page);	\
+ 	} while (0)
+ #define copy_user_page(to, from, vaddr, page)	\
+Index: linux-2.6.10/include/asm-mips/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-mips/page.h	2004-12-24 13:34:31.000000000 -0800
++++ linux-2.6.10/include/asm-mips/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -39,7 +39,18 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+
+-extern void clear_page(void * page);
++extern void _clear_page(void * page);
++
++static inline void clear_page(void *page, int order)
++{
++	unsigned int nr = 1 << order;
++
++	while (nr-- >0) {
++		_clear_page(page);
++		page += PAGE_SIZE;
++	}
++}
++
+ extern void copy_page(void * to, void * from);
+
+ extern unsigned long shm_align_mask;
+@@ -57,7 +68,7 @@
+ {
+ 	extern void (*flush_data_cache_page)(unsigned long addr);
+
+-	clear_page(addr);
++	clear_page(addr, 0);
+ 	if (pages_do_alias((unsigned long) addr, vaddr))
+ 		flush_data_cache_page((unsigned long)addr);
+ }
+Index: linux-2.6.10/include/asm-m68knommu/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-m68knommu/page.h	2004-12-24 13:34:33.000000000 -0800
++++ linux-2.6.10/include/asm-m68knommu/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -24,10 +24,10 @@
+ #define get_user_page(vaddr)		__get_free_page(GFP_KERNEL)
+ #define free_user_page(page, addr)	free_page(addr)
+
+-#define clear_page(page)	memset((page), 0, PAGE_SIZE)
++#define clear_page(page, order)	memset((page), 0, PAGE_SIZE << (order))
+ #define copy_page(to,from)	memcpy((to), (from), PAGE_SIZE)
+
+-#define clear_user_page(page, vaddr, pg)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+
+ /*
+Index: linux-2.6.10/include/asm-cris/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-cris/page.h	2004-12-24 13:34:30.000000000 -0800
++++ linux-2.6.10/include/asm-cris/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -15,10 +15,10 @@
+
+ #ifdef __KERNEL__
+
+-#define clear_page(page)        memset((void *)(page), 0, PAGE_SIZE)
++#define clear_page(page, order) memset((void *)(page), 0, PAGE_SIZE << (order))
+ #define copy_page(to,from)      memcpy((void *)(to), (void *)(from), PAGE_SIZE)
+
+-#define clear_user_page(page, vaddr, pg)    clear_page(page)
++#define clear_user_page(page, vaddr, pg)    clear_page(page, 0)
+ #define copy_user_page(to, from, vaddr, pg) copy_page(to, from)
+
+ /*
+Index: linux-2.6.10/include/asm-v850/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-v850/page.h	2004-12-24 13:35:00.000000000 -0800
++++ linux-2.6.10/include/asm-v850/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -37,11 +37,11 @@
+
+ #define STRICT_MM_TYPECHECKS
+
+-#define clear_page(page)	memset ((void *)(page), 0, PAGE_SIZE)
++#define clear_page(page, order)	memset ((void *)(page), 0, PAGE_SIZE << (order))
+ #define copy_page(to, from)	memcpy ((void *)(to), (void *)from, PAGE_SIZE)
+
+ #define clear_user_page(addr, vaddr, page)	\
+-	do { 	clear_page(addr);		\
++	do { 	clear_page(addr, 0);		\
+ 		flush_dcache_page(page);	\
+ 	} while (0)
+ #define copy_user_page(to, from, vaddr, page)	\
+Index: linux-2.6.10/include/asm-parisc/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-parisc/page.h	2004-12-24 13:34:26.000000000 -0800
++++ linux-2.6.10/include/asm-parisc/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -13,7 +13,7 @@
+ #include <asm/types.h>
+ #include <asm/cache.h>
+
+-#define clear_page(page)	memset((void *)(page), 0, PAGE_SIZE)
++#define clear_page(page, order)	memset((void *)(page), 0, PAGE_SIZE << (order))
+ #define copy_page(to,from)      copy_user_page_asm((void *)(to), (void *)(from))
+
+ struct page;
+Index: linux-2.6.10/arch/arm/mm/copypage-v6.c
+===================================================================
+--- linux-2.6.10.orig/arch/arm/mm/copypage-v6.c	2004-12-24 13:34:31.000000000 -0800
++++ linux-2.6.10/arch/arm/mm/copypage-v6.c	2005-01-04 12:34:03.000000000 -0800
+@@ -47,7 +47,7 @@
+  */
+ void v6_clear_user_page_nonaliasing(void *kaddr, unsigned long vaddr)
+ {
+-	clear_page(kaddr);
++	_clear_page(kaddr);
+ }
+
+ /*
+@@ -116,7 +116,7 @@
+
+ 	set_pte(to_pte + offset, pfn_pte(__pa(kaddr) >> PAGE_SHIFT, to_pgprot));
+ 	flush_tlb_kernel_page(to);
+-	clear_page((void *)to);
++	_clear_page((void *)to);
+
+ 	spin_unlock(&v6_lock);
+ }
+Index: linux-2.6.10/arch/m32r/mm/page.S
+===================================================================
+--- linux-2.6.10.orig/arch/m32r/mm/page.S	2004-12-24 13:34:57.000000000 -0800
++++ linux-2.6.10/arch/m32r/mm/page.S	2005-01-04 12:34:03.000000000 -0800
+@@ -51,7 +51,7 @@
+ 	jmp	r14
+
+ 	.text
+-	.global	clear_page
++	.global	_clear_page
+ 	/*
+ 	 * clear_page (to)
+ 	 *
+@@ -60,7 +60,7 @@
+ 	 * 16 * 256
+ 	 */
+ 	.align	4
+-clear_page:
++_clear_page:
+ 	ldi	r2, #255
+ 	ldi	r4, #0
+ 	ld	r3, @r0		/* cache line allocate */
+Index: linux-2.6.10/include/asm-ppc/page.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-ppc/page.h	2004-12-24 13:34:29.000000000 -0800
++++ linux-2.6.10/include/asm-ppc/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -85,7 +85,7 @@
+
+ struct page;
+ extern void clear_pages(void *page, int order);
+-static inline void clear_page(void *page) { clear_pages(page, 0); }
++#define  clear_page clear_pages
+ extern void copy_page(void *to, void *from);
+ extern void clear_user_page(void *page, unsigned long vaddr, struct page *pg);
+ extern void copy_user_page(void *to, void *from, unsigned long vaddr,
+Index: linux-2.6.10/arch/alpha/kernel/alpha_ksyms.c
+===================================================================
+--- linux-2.6.10.orig/arch/alpha/kernel/alpha_ksyms.c	2004-12-24 13:33:51.000000000 -0800
++++ linux-2.6.10/arch/alpha/kernel/alpha_ksyms.c	2005-01-04 12:34:03.000000000 -0800
+@@ -88,7 +88,7 @@
+ EXPORT_SYMBOL(__memsetw);
+ EXPORT_SYMBOL(__constant_c_memset);
+ EXPORT_SYMBOL(copy_page);
+-EXPORT_SYMBOL(clear_page);
++EXPORT_SYMBOL(_clear_page);
+
+ EXPORT_SYMBOL(__direct_map_base);
+ EXPORT_SYMBOL(__direct_map_size);
+Index: linux-2.6.10/arch/alpha/lib/ev6-clear_page.S
+===================================================================
+--- linux-2.6.10.orig/arch/alpha/lib/ev6-clear_page.S	2004-12-24 13:35:24.000000000 -0800
++++ linux-2.6.10/arch/alpha/lib/ev6-clear_page.S	2005-01-04 12:34:03.000000000 -0800
+@@ -6,9 +6,9 @@
+
+         .text
+         .align 4
+-        .global clear_page
+-        .ent clear_page
+-clear_page:
++        .global _clear_page
++        .ent _clear_page
++_clear_page:
+         .prologue 0
+
+ 	lda	$0,128
+@@ -51,4 +51,4 @@
+ 	nop
+ 	nop
+
+-	.end clear_page
++	.end _clear_page
+Index: linux-2.6.10/arch/sh/mm/init.c
+===================================================================
+--- linux-2.6.10.orig/arch/sh/mm/init.c	2004-12-24 13:35:24.000000000 -0800
++++ linux-2.6.10/arch/sh/mm/init.c	2005-01-04 12:34:03.000000000 -0800
+@@ -57,7 +57,7 @@
+ #endif
+
+ void (*copy_page)(void *from, void *to);
+-void (*clear_page)(void *to);
++void (*_clear_page)(void *to);
+
+ void show_mem(void)
+ {
+@@ -255,7 +255,7 @@
+ 	 * later in the boot process if a better method is available.
+ 	 */
+ 	copy_page = copy_page_slow;
+-	clear_page = clear_page_slow;
++	_clear_page = clear_page_slow;
+
+ 	/* this will put all low memory onto the freelists */
+ 	totalram_pages += free_all_bootmem_node(NODE_DATA(0));
+Index: linux-2.6.10/arch/sh/mm/pg-dma.c
+===================================================================
+--- linux-2.6.10.orig/arch/sh/mm/pg-dma.c	2004-12-24 13:35:00.000000000 -0800
++++ linux-2.6.10/arch/sh/mm/pg-dma.c	2005-01-04 12:34:03.000000000 -0800
+@@ -78,7 +78,7 @@
+ 		return ret;
+
+ 	copy_page = copy_page_dma;
+-	clear_page = clear_page_dma;
++	_clear_page = clear_page_dma;
+
+ 	return ret;
+ }
+Index: linux-2.6.10/arch/sh/mm/pg-nommu.c
+===================================================================
+--- linux-2.6.10.orig/arch/sh/mm/pg-nommu.c	2004-12-24 13:34:32.000000000 -0800
++++ linux-2.6.10/arch/sh/mm/pg-nommu.c	2005-01-04 12:34:03.000000000 -0800
+@@ -27,7 +27,7 @@
+ static int __init pg_nommu_init(void)
+ {
+ 	copy_page = copy_page_nommu;
+-	clear_page = clear_page_nommu;
++	_clear_page = clear_page_nommu;
+
  	return 0;
  }
-
-Index: linux-2.6.10/include/linux/gfp.h
+Index: linux-2.6.10/arch/mips/mm/pg-r4k.c
 ===================================================================
---- linux-2.6.10.orig/include/linux/gfp.h	2004-12-24 13:34:27.000000000 -0800
-+++ linux-2.6.10/include/linux/gfp.h	2005-01-04 12:16:49.000000000 -0800
-@@ -37,6 +37,7 @@
- #define __GFP_NORETRY	0x1000	/* Do not retry.  Might fail */
- #define __GFP_NO_GROW	0x2000	/* Slab internal usage */
- #define __GFP_COMP	0x4000	/* Add compound page metadata */
-+#define __GFP_ZERO	0x8000	/* Return zeroed page on success */
+--- linux-2.6.10.orig/arch/mips/mm/pg-r4k.c	2004-12-24 13:34:49.000000000 -0800
++++ linux-2.6.10/arch/mips/mm/pg-r4k.c	2005-01-04 12:34:03.000000000 -0800
+@@ -39,9 +39,9 @@
 
- #define __GFP_BITS_SHIFT 16	/* Room for 16 __GFP_FOO bits */
- #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
-@@ -52,6 +53,7 @@
- #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
- #define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS)
- #define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
-+#define GFP_HIGHZERO	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM | __GFP_ZERO)
+ static unsigned int clear_page_array[0x130 / 4];
 
- /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
-    platforms, used as appropriate on others */
-Index: linux-2.6.10/mm/memory.c
+-void clear_page(void * page) __attribute__((alias("clear_page_array")));
++void _clear_page(void * page) __attribute__((alias("clear_page_array")));
+
+-EXPORT_SYMBOL(clear_page);
++EXPORT_SYMBOL(_clear_page);
+
+ /*
+  * Maximum sizes:
+Index: linux-2.6.10/arch/m32r/kernel/m32r_ksyms.c
 ===================================================================
---- linux-2.6.10.orig/mm/memory.c	2005-01-04 12:16:41.000000000 -0800
-+++ linux-2.6.10/mm/memory.c	2005-01-04 12:16:49.000000000 -0800
-@@ -1650,10 +1650,9 @@
+--- linux-2.6.10.orig/arch/m32r/kernel/m32r_ksyms.c	2004-12-24 13:34:29.000000000 -0800
++++ linux-2.6.10/arch/m32r/kernel/m32r_ksyms.c	2005-01-04 12:34:03.000000000 -0800
+@@ -102,7 +102,7 @@
+ EXPORT_SYMBOL(memcmp);
+ EXPORT_SYMBOL(memscan);
+ EXPORT_SYMBOL(copy_page);
+-EXPORT_SYMBOL(clear_page);
++EXPORT_SYMBOL(_clear_page);
 
- 		if (unlikely(anon_vma_prepare(vma)))
- 			goto no_mem;
--		page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
-+		page = alloc_page_vma(GFP_HIGHZERO, vma, addr);
- 		if (!page)
- 			goto no_mem;
--		clear_user_highpage(page, addr);
-
- 		spin_lock(&mm->page_table_lock);
- 		page_table = pte_offset_map(pmd, addr);
-Index: linux-2.6.10/kernel/profile.c
+ EXPORT_SYMBOL(strcat);
+ EXPORT_SYMBOL(strchr);
+Index: linux-2.6.10/include/asm-arm26/page.h
 ===================================================================
---- linux-2.6.10.orig/kernel/profile.c	2004-12-24 13:35:28.000000000 -0800
-+++ linux-2.6.10/kernel/profile.c	2005-01-04 12:16:49.000000000 -0800
-@@ -326,17 +326,15 @@
- 		node = cpu_to_node(cpu);
- 		per_cpu(cpu_profile_flip, cpu) = 0;
- 		if (!per_cpu(cpu_profile_hits, cpu)[1]) {
--			page = alloc_pages_node(node, GFP_KERNEL, 0);
-+			page = alloc_pages_node(node, GFP_KERNEL | __GFP_ZERO, 0);
- 			if (!page)
- 				return NOTIFY_BAD;
--			clear_highpage(page);
- 			per_cpu(cpu_profile_hits, cpu)[1] = page_address(page);
- 		}
- 		if (!per_cpu(cpu_profile_hits, cpu)[0]) {
--			page = alloc_pages_node(node, GFP_KERNEL, 0);
-+			page = alloc_pages_node(node, GFP_KERNEL | __GFP_ZERO, 0);
- 			if (!page)
- 				goto out_free;
--			clear_highpage(page);
- 			per_cpu(cpu_profile_hits, cpu)[0] = page_address(page);
- 		}
- 		break;
-@@ -510,16 +508,14 @@
- 		int node = cpu_to_node(cpu);
- 		struct page *page;
+--- linux-2.6.10.orig/include/asm-arm26/page.h	2004-12-24 13:35:22.000000000 -0800
++++ linux-2.6.10/include/asm-arm26/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -25,7 +25,7 @@
+ 		preempt_enable();			\
+ 	} while (0)
 
--		page = alloc_pages_node(node, GFP_KERNEL, 0);
-+		page = alloc_pages_node(node, GFP_KERNEL | __GFP_ZERO, 0);
- 		if (!page)
- 			goto out_cleanup;
--		clear_highpage(page);
- 		per_cpu(cpu_profile_hits, cpu)[1]
- 				= (struct profile_hit *)page_address(page);
--		page = alloc_pages_node(node, GFP_KERNEL, 0);
-+		page = alloc_pages_node(node, GFP_KERNEL | __GFP_ZERO, 0);
- 		if (!page)
- 			goto out_cleanup;
--		clear_highpage(page);
- 		per_cpu(cpu_profile_hits, cpu)[0]
- 				= (struct profile_hit *)page_address(page);
- 	}
-Index: linux-2.6.10/mm/shmem.c
+-#define clear_page(page)	memzero((void *)(page), PAGE_SIZE)
++#define clear_page(page, order)	memzero((void *)(page), PAGE_SIZE << (order))
+ #define copy_page(to, from)  __copy_user_page(to, from, 0);
+
+ #undef STRICT_MM_TYPECHECKS
+Index: linux-2.6.10/include/asm-sparc64/page.h
 ===================================================================
---- linux-2.6.10.orig/mm/shmem.c	2004-12-24 13:34:32.000000000 -0800
-+++ linux-2.6.10/mm/shmem.c	2005-01-04 12:16:49.000000000 -0800
-@@ -369,9 +369,8 @@
- 		}
+--- linux-2.6.10.orig/include/asm-sparc64/page.h	2004-12-24 13:34:32.000000000 -0800
++++ linux-2.6.10/include/asm-sparc64/page.h	2005-01-04 12:34:03.000000000 -0800
+@@ -14,8 +14,8 @@
 
- 		spin_unlock(&info->lock);
--		page = shmem_dir_alloc(mapping_gfp_mask(inode->i_mapping));
-+		page = shmem_dir_alloc(mapping_gfp_mask(inode->i_mapping) | __GFP_ZERO);
- 		if (page) {
--			clear_highpage(page);
- 			page->nr_swapped = 0;
- 		}
- 		spin_lock(&info->lock);
-@@ -910,7 +909,7 @@
- 	pvma.vm_policy = mpol_shared_policy_lookup(&info->policy, idx);
- 	pvma.vm_pgoff = idx;
- 	pvma.vm_end = PAGE_SIZE;
--	page = alloc_page_vma(gfp, &pvma, 0);
-+	page = alloc_page_vma(gfp | __GFP_ZERO, &pvma, 0);
- 	mpol_free(pvma.vm_policy);
- 	return page;
- }
-@@ -926,7 +925,7 @@
- shmem_alloc_page(unsigned long gfp,struct shmem_inode_info *info,
- 				 unsigned long idx)
- {
--	return alloc_page(gfp);
-+	return alloc_page(gfp | __GFP_ZERO);
- }
- #endif
+ #ifndef __ASSEMBLY__
 
-@@ -1135,7 +1134,6 @@
-
- 		info->alloced++;
- 		spin_unlock(&info->lock);
--		clear_highpage(filepage);
- 		flush_dcache_page(filepage);
- 		SetPageUptodate(filepage);
- 	}
-Index: linux-2.6.10/mm/hugetlb.c
+-extern void _clear_page(void *page);
+-#define clear_page(X)	_clear_page((void *)(X))
++extern void _clear_page(void *page, unsigned long order);
++#define clear_page(X,Y)	_clear_page((void *)(X),(Y))
+ struct page;
+ extern void clear_user_page(void *addr, unsigned long vaddr, struct page *page);
+ #define copy_page(X,Y)	memcpy((void *)(X), (void *)(Y), PAGE_SIZE)
+Index: linux-2.6.10/arch/sparc64/lib/clear_page.S
 ===================================================================
---- linux-2.6.10.orig/mm/hugetlb.c	2004-12-24 13:35:00.000000000 -0800
-+++ linux-2.6.10/mm/hugetlb.c	2005-01-04 12:16:49.000000000 -0800
-@@ -77,7 +77,6 @@
- struct page *alloc_huge_page(void)
- {
- 	struct page *page;
--	int i;
-
- 	spin_lock(&hugetlb_lock);
- 	page = dequeue_huge_page();
-@@ -88,8 +87,7 @@
- 	spin_unlock(&hugetlb_lock);
- 	set_page_count(page, 1);
- 	page[1].mapping = (void *)free_huge_page;
--	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
--		clear_highpage(&page[i]);
-+	clear_page(page_address(page), HUGETLB_PAGE_ORDER);
- 	return page;
- }
-
-Index: linux-2.6.10/include/asm-ia64/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-ia64/pgalloc.h	2005-01-04 12:16:41.000000000 -0800
-+++ linux-2.6.10/include/asm-ia64/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -61,9 +61,7 @@
- 	pgd_t *pgd = pgd_alloc_one_fast(mm);
-
- 	if (unlikely(pgd == NULL)) {
--		pgd = (pgd_t *)__get_free_page(GFP_KERNEL);
--		if (likely(pgd != NULL))
--			clear_page(pgd);
-+		pgd = (pgd_t *)__get_free_page(GFP_KERNEL|__GFP_ZERO);
- 	}
- 	return pgd;
- }
-@@ -106,10 +104,8 @@
- static inline pmd_t*
- pmd_alloc_one (struct mm_struct *mm, unsigned long addr)
- {
--	pmd_t *pmd = (pmd_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
-+	pmd_t *pmd = (pmd_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
-
--	if (likely(pmd != NULL))
--		clear_page(pmd);
- 	return pmd;
- }
-
-@@ -140,20 +136,16 @@
- static inline struct page *
- pte_alloc_one (struct mm_struct *mm, unsigned long addr)
- {
--	struct page *pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
-+	struct page *pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
-
--	if (likely(pte != NULL))
--		clear_page(page_address(pte));
- 	return pte;
- }
-
- static inline pte_t *
- pte_alloc_one_kernel (struct mm_struct *mm, unsigned long addr)
- {
--	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
-+	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
-
--	if (likely(pte != NULL))
--		clear_page(pte);
- 	return pte;
- }
-
-Index: linux-2.6.10/arch/i386/mm/pgtable.c
-===================================================================
---- linux-2.6.10.orig/arch/i386/mm/pgtable.c	2005-01-04 12:16:39.000000000 -0800
-+++ linux-2.6.10/arch/i386/mm/pgtable.c	2005-01-04 12:16:49.000000000 -0800
-@@ -140,10 +140,7 @@
-
- pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
- {
--	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (pte)
--		clear_page(pte);
--	return pte;
-+	return (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- }
-
- struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-@@ -151,12 +148,10 @@
- 	struct page *pte;
-
- #ifdef CONFIG_HIGHPTE
--	pte = alloc_pages(GFP_KERNEL|__GFP_HIGHMEM|__GFP_REPEAT, 0);
-+	pte = alloc_pages(GFP_KERNEL|__GFP_HIGHMEM|__GFP_REPEAT|__GFP_ZERO, 0);
- #else
--	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
-+	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- #endif
--	if (pte)
--		clear_highpage(pte);
- 	return pte;
- }
-
-Index: linux-2.6.10/arch/m68k/mm/motorola.c
-===================================================================
---- linux-2.6.10.orig/arch/m68k/mm/motorola.c	2004-12-24 13:34:58.000000000 -0800
-+++ linux-2.6.10/arch/m68k/mm/motorola.c	2005-01-04 12:16:49.000000000 -0800
-@@ -1,4 +1,4 @@
--/*
-+*
-  * linux/arch/m68k/motorola.c
-  *
-  * Routines specific to the Motorola MMU, originally from:
-@@ -50,7 +50,7 @@
-
- 	ptablep = (pte_t *)alloc_bootmem_low_pages(PAGE_SIZE);
-
--	clear_page(ptablep);
-+	clear_page(ptablep, 0);
- 	__flush_page_to_ram(ptablep);
- 	flush_tlb_kernel_page(ptablep);
- 	nocache_page(ptablep);
-@@ -90,7 +90,7 @@
- 	if (((unsigned long)last_pgtable & ~PAGE_MASK) == 0) {
- 		last_pgtable = (pmd_t *)alloc_bootmem_low_pages(PAGE_SIZE);
-
--		clear_page(last_pgtable);
-+		clear_page(last_pgtable, 0);
- 		__flush_page_to_ram(last_pgtable);
- 		flush_tlb_kernel_page(last_pgtable);
- 		nocache_page(last_pgtable);
-Index: linux-2.6.10/include/asm-mips/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-mips/pgalloc.h	2004-12-24 13:34:57.000000000 -0800
-+++ linux-2.6.10/include/asm-mips/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -56,9 +56,7 @@
- {
- 	pte_t *pte;
-
--	pte = (pte_t *) __get_free_pages(GFP_KERNEL|__GFP_REPEAT, PTE_ORDER);
--	if (pte)
--		clear_page(pte);
-+	pte = (pte_t *) __get_free_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, PTE_ORDER);
-
- 	return pte;
- }
-Index: linux-2.6.10/arch/alpha/mm/init.c
-===================================================================
---- linux-2.6.10.orig/arch/alpha/mm/init.c	2004-12-24 13:35:28.000000000 -0800
-+++ linux-2.6.10/arch/alpha/mm/init.c	2005-01-04 12:16:49.000000000 -0800
-@@ -42,10 +42,9 @@
- {
- 	pgd_t *ret, *init;
-
--	ret = (pgd_t *)__get_free_page(GFP_KERNEL);
-+	ret = (pgd_t *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
- 	init = pgd_offset(&init_mm, 0UL);
- 	if (ret) {
--		clear_page(ret);
- #ifdef CONFIG_ALPHA_LARGE_VMALLOC
- 		memcpy (ret + USER_PTRS_PER_PGD, init + USER_PTRS_PER_PGD,
- 			(PTRS_PER_PGD - USER_PTRS_PER_PGD - 1)*sizeof(pgd_t));
-@@ -63,9 +62,7 @@
- pte_t *
- pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
- {
--	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (pte)
--		clear_page(pte);
-+	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	return pte;
- }
-
-Index: linux-2.6.10/include/asm-parisc/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-parisc/pgalloc.h	2004-12-24 13:35:39.000000000 -0800
-+++ linux-2.6.10/include/asm-parisc/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -120,18 +120,14 @@
- static inline struct page *
- pte_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	struct page *page = alloc_page(GFP_KERNEL|__GFP_REPEAT);
--	if (likely(page != NULL))
--		clear_page(page_address(page));
-+	struct page *page = alloc_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	return page;
- }
-
- static inline pte_t *
- pte_alloc_one_kernel(struct mm_struct *mm, unsigned long addr)
- {
--	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (likely(pte != NULL))
--		clear_page(pte);
-+	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	return pte;
- }
-
-Index: linux-2.6.10/arch/sh/mm/pg-sh4.c
-===================================================================
---- linux-2.6.10.orig/arch/sh/mm/pg-sh4.c	2004-12-24 13:34:30.000000000 -0800
-+++ linux-2.6.10/arch/sh/mm/pg-sh4.c	2005-01-04 12:16:49.000000000 -0800
-@@ -34,7 +34,7 @@
- {
- 	__set_bit(PG_mapped, &page->flags);
- 	if (((address ^ (unsigned long)to) & CACHE_ALIAS) == 0)
--		clear_page(to);
-+		clear_page(to, 0);
- 	else {
- 		pgprot_t pgprot = __pgprot(_PAGE_PRESENT |
- 					   _PAGE_RW | _PAGE_CACHABLE |
-Index: linux-2.6.10/include/asm-sparc64/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-sparc64/pgalloc.h	2004-12-24 13:35:29.000000000 -0800
-+++ linux-2.6.10/include/asm-sparc64/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -73,10 +73,9 @@
- 		struct page *page;
-
- 		preempt_enable();
--		page = alloc_page(GFP_KERNEL|__GFP_REPEAT);
-+		page = alloc_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 		if (page) {
- 			ret = (struct page *)page_address(page);
--			clear_page(ret);
- 			page->lru.prev = (void *) 2UL;
-
- 			preempt_disable();
-Index: linux-2.6.10/include/asm-sh/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-sh/pgalloc.h	2004-12-24 13:34:45.000000000 -0800
-+++ linux-2.6.10/include/asm-sh/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -44,9 +44,7 @@
- {
- 	pte_t *pte;
-
--	pte = (pte_t *) __get_free_page(GFP_KERNEL | __GFP_REPEAT);
--	if (pte)
--		clear_page(pte);
-+	pte = (pte_t *) __get_free_page(GFP_KERNEL | __GFP_REPEAT | __GFP_ZERO);
-
- 	return pte;
- }
-@@ -56,9 +54,7 @@
- {
- 	struct page *pte;
-
--   	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
--	if (pte)
--		clear_page(page_address(pte));
-+   	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
-
- 	return pte;
- }
-Index: linux-2.6.10/include/asm-m32r/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-m32r/pgalloc.h	2004-12-24 13:35:28.000000000 -0800
-+++ linux-2.6.10/include/asm-m32r/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -23,10 +23,7 @@
-  */
- static __inline__ pgd_t *pgd_alloc(struct mm_struct *mm)
- {
--	pgd_t *pgd = (pgd_t *)__get_free_page(GFP_KERNEL);
--
--	if (pgd)
--		clear_page(pgd);
-+	pgd_t *pgd = (pgd_t *)__get_free_page(GFP_KERNEL|__GFP_ZERO);
-
- 	return pgd;
- }
-@@ -39,10 +36,7 @@
- static __inline__ pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
- 	unsigned long address)
- {
--	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL);
--
--	if (pte)
--		clear_page(pte);
-+	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_ZERO);
-
- 	return pte;
- }
-@@ -50,10 +44,8 @@
- static __inline__ struct page *pte_alloc_one(struct mm_struct *mm,
- 	unsigned long address)
- {
--	struct page *pte = alloc_page(GFP_KERNEL);
-+	struct page *pte = alloc_page(GFP_KERNEL|__GFP_ZERO);
-
--	if (pte)
--		clear_page(page_address(pte));
-
- 	return pte;
- }
-Index: linux-2.6.10/arch/um/kernel/mem.c
-===================================================================
---- linux-2.6.10.orig/arch/um/kernel/mem.c	2005-01-04 12:16:40.000000000 -0800
-+++ linux-2.6.10/arch/um/kernel/mem.c	2005-01-04 12:16:49.000000000 -0800
-@@ -327,9 +327,7 @@
- {
- 	pte_t *pte;
-
--	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (pte)
--		clear_page(pte);
-+	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	return pte;
- }
-
-@@ -337,9 +335,7 @@
- {
- 	struct page *pte;
-
--	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
--	if (pte)
--		clear_highpage(pte);
-+	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- 	return pte;
- }
-
-Index: linux-2.6.10/arch/ppc64/mm/init.c
-===================================================================
---- linux-2.6.10.orig/arch/ppc64/mm/init.c	2004-12-24 13:34:58.000000000 -0800
-+++ linux-2.6.10/arch/ppc64/mm/init.c	2005-01-04 12:16:49.000000000 -0800
-@@ -761,7 +761,7 @@
-
- void clear_user_page(void *page, unsigned long vaddr, struct page *pg)
- {
--	clear_page(page);
-+	clear_page(page, 0);
-
- 	if (cur_cpu_spec->cpu_features & CPU_FTR_COHERENT_ICACHE)
- 		return;
-Index: linux-2.6.10/include/asm-sh64/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-sh64/pgalloc.h	2004-12-24 13:34:00.000000000 -0800
-+++ linux-2.6.10/include/asm-sh64/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -112,9 +112,7 @@
- {
- 	pte_t *pte;
-
--	pte = (pte_t *)__get_free_page(GFP_KERNEL | __GFP_REPEAT);
--	if (pte)
--		clear_page(pte);
-+	pte = (pte_t *)__get_free_page(GFP_KERNEL | __GFP_REPEAT|__GFP_ZERO);
-
- 	return pte;
- }
-@@ -123,9 +121,7 @@
- {
- 	struct page *pte;
-
--	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
--	if (pte)
--		clear_page(page_address(pte));
-+	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
-
- 	return pte;
- }
-@@ -150,9 +146,7 @@
- static __inline__ pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
- 	pmd_t *pmd;
--	pmd = (pmd_t *) __get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (pmd)
--		clear_page(pmd);
-+	pmd = (pmd_t *) __get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	return pmd;
- }
-
-Index: linux-2.6.10/include/asm-cris/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-cris/pgalloc.h	2004-12-24 13:35:25.000000000 -0800
-+++ linux-2.6.10/include/asm-cris/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -24,18 +24,14 @@
-
- extern inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm, unsigned long address)
- {
--  	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (pte)
--		clear_page(pte);
-+  	pte_t *pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
-  	return pte;
- }
-
- extern inline struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
- {
- 	struct page *pte;
--	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
--	if (pte)
--		clear_page(page_address(pte));
-+	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- 	return pte;
- }
-
-Index: linux-2.6.10/arch/ppc/mm/pgtable.c
-===================================================================
---- linux-2.6.10.orig/arch/ppc/mm/pgtable.c	2004-12-24 13:34:26.000000000 -0800
-+++ linux-2.6.10/arch/ppc/mm/pgtable.c	2005-01-04 12:16:49.000000000 -0800
-@@ -85,8 +85,7 @@
- {
- 	pgd_t *ret;
-
--	if ((ret = (pgd_t *)__get_free_pages(GFP_KERNEL, PGDIR_ORDER)) != NULL)
--		clear_pages(ret, PGDIR_ORDER);
-+	ret = (pgd_t *)__get_free_pages(GFP_KERNEL|__GFP_ZERO, PGDIR_ORDER);
- 	return ret;
- }
-
-@@ -102,7 +101,7 @@
- 	extern void *early_get_page(void);
-
- 	if (mem_init_done) {
--		pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
-+		pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 		if (pte) {
- 			struct page *ptepage = virt_to_page(pte);
- 			ptepage->mapping = (void *) mm;
-@@ -110,8 +109,6 @@
- 		}
- 	} else
- 		pte = (pte_t *)early_get_page();
--	if (pte)
--		clear_page(pte);
- 	return pte;
- }
-
-Index: linux-2.6.10/arch/ppc/mm/init.c
-===================================================================
---- linux-2.6.10.orig/arch/ppc/mm/init.c	2005-01-04 12:16:40.000000000 -0800
-+++ linux-2.6.10/arch/ppc/mm/init.c	2005-01-04 12:16:49.000000000 -0800
-@@ -594,7 +594,7 @@
- }
- void clear_user_page(void *page, unsigned long vaddr, struct page *pg)
- {
--	clear_page(page);
-+	clear_page(page, 0);
- 	clear_bit(PG_arch_1, &pg->flags);
- }
-
-Index: linux-2.6.10/fs/afs/file.c
-===================================================================
---- linux-2.6.10.orig/fs/afs/file.c	2004-12-24 13:35:59.000000000 -0800
-+++ linux-2.6.10/fs/afs/file.c	2005-01-04 12:16:49.000000000 -0800
-@@ -172,7 +172,7 @@
- 				      (size_t) PAGE_SIZE);
- 		desc.buffer	= kmap(page);
-
--		clear_page(desc.buffer);
-+		clear_page(desc.buffer, 0);
-
- 		/* read the contents of the file from the server into the
- 		 * page */
-Index: linux-2.6.10/include/asm-alpha/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-alpha/pgalloc.h	2004-12-24 13:35:50.000000000 -0800
-+++ linux-2.6.10/include/asm-alpha/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -40,9 +40,7 @@
- static inline pmd_t *
- pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pmd_t *ret = (pmd_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	if (ret)
--		clear_page(ret);
-+	pmd_t *ret = (pmd_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	return ret;
- }
-
-Index: linux-2.6.10/include/linux/highmem.h
-===================================================================
---- linux-2.6.10.orig/include/linux/highmem.h	2005-01-04 12:16:41.000000000 -0800
-+++ linux-2.6.10/include/linux/highmem.h	2005-01-04 12:16:49.000000000 -0800
-@@ -45,7 +45,7 @@
- static inline void clear_highpage(struct page *page)
- {
- 	void *kaddr = kmap_atomic(page, KM_USER0);
--	clear_page(kaddr);
-+	clear_page(kaddr, 0);
- 	kunmap_atomic(kaddr, KM_USER0);
- }
-
-Index: linux-2.6.10/arch/sh64/mm/ioremap.c
-===================================================================
---- linux-2.6.10.orig/arch/sh64/mm/ioremap.c	2004-12-24 13:34:58.000000000 -0800
-+++ linux-2.6.10/arch/sh64/mm/ioremap.c	2005-01-04 12:16:49.000000000 -0800
-@@ -399,7 +399,7 @@
- 	if (pte_none(*ptep) || !pte_present(*ptep))
- 		return;
-
--	clear_page((void *)ptep);
-+	clear_page((void *)ptep, 0);
- 	pte_clear(ptep);
- }
-
-Index: linux-2.6.10/include/asm-m68k/motorola_pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-m68k/motorola_pgalloc.h	2004-12-24 13:35:50.000000000 -0800
-+++ linux-2.6.10/include/asm-m68k/motorola_pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -12,9 +12,8 @@
- {
- 	pte_t *pte;
-
--	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
-+	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	if (pte) {
--		clear_page(pte);
- 		__flush_page_to_ram(pte);
- 		flush_tlb_kernel_page(pte);
- 		nocache_page(pte);
-@@ -31,7 +30,7 @@
-
- static inline struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	struct page *page = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
-+	struct page *page = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- 	pte_t *pte;
-
- 	if(!page)
-@@ -39,7 +38,6 @@
-
- 	pte = kmap(page);
- 	if (pte) {
--		clear_page(pte);
- 		__flush_page_to_ram(pte);
- 		flush_tlb_kernel_page(pte);
- 		nocache_page(pte);
-Index: linux-2.6.10/arch/sh/mm/pg-sh7705.c
-===================================================================
---- linux-2.6.10.orig/arch/sh/mm/pg-sh7705.c	2004-12-24 13:34:58.000000000 -0800
-+++ linux-2.6.10/arch/sh/mm/pg-sh7705.c	2005-01-04 12:16:49.000000000 -0800
-@@ -78,13 +78,13 @@
-
- 	__set_bit(PG_mapped, &page->flags);
- 	if (((address ^ (unsigned long)to) & CACHE_ALIAS) == 0) {
--		clear_page(to);
-+		clear_page(to, 0);
- 		__flush_wback_region(to, PAGE_SIZE);
- 	} else {
- 		__flush_purge_virtual_region(to,
- 					     (void *)(address & 0xfffff000),
- 					     PAGE_SIZE);
--		clear_page(to);
-+		clear_page(to, 0);
- 		__flush_wback_region(to, PAGE_SIZE);
- 	}
- }
-Index: linux-2.6.10/arch/sparc64/mm/init.c
-===================================================================
---- linux-2.6.10.orig/arch/sparc64/mm/init.c	2004-12-24 13:34:31.000000000 -0800
-+++ linux-2.6.10/arch/sparc64/mm/init.c	2005-01-04 12:16:49.000000000 -0800
-@@ -1687,13 +1687,12 @@
- 	 * Set up the zero page, mark it reserved, so that page count
- 	 * is not manipulated when freeing the page from user ptes.
- 	 */
--	mem_map_zero = alloc_pages(GFP_KERNEL, 0);
-+	mem_map_zero = alloc_pages(GFP_KERNEL|__GFP_ZERO, 0);
- 	if (mem_map_zero == NULL) {
- 		prom_printf("paging_init: Cannot alloc zero page.\n");
- 		prom_halt();
- 	}
- 	SetPageReserved(mem_map_zero);
--	clear_page(page_address(mem_map_zero));
-
- 	codepages = (((unsigned long) _etext) - ((unsigned long) _start));
- 	codepages = PAGE_ALIGN(codepages) >> PAGE_SHIFT;
-Index: linux-2.6.10/include/asm-arm/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-arm/pgalloc.h	2004-12-24 13:35:29.000000000 -0800
-+++ linux-2.6.10/include/asm-arm/pgalloc.h	2005-01-04 12:16:49.000000000 -0800
-@@ -50,9 +50,8 @@
- {
- 	pte_t *pte;
-
--	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
-+	pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO);
- 	if (pte) {
--		clear_page(pte);
- 		clean_dcache_area(pte, sizeof(pte_t) * PTRS_PER_PTE);
- 		pte += PTRS_PER_PTE;
- 	}
-@@ -65,10 +64,9 @@
- {
- 	struct page *pte;
-
--	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT, 0);
-+	pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- 	if (pte) {
- 		void *page = page_address(pte);
--		clear_page(page);
- 		clean_dcache_area(page, sizeof(pte_t) * PTRS_PER_PTE);
- 	}
-
-Index: linux-2.6.10/drivers/net/tc35815.c
-===================================================================
---- linux-2.6.10.orig/drivers/net/tc35815.c	2004-12-24 13:33:48.000000000 -0800
-+++ linux-2.6.10/drivers/net/tc35815.c	2005-01-04 12:16:49.000000000 -0800
-@@ -657,7 +657,7 @@
- 		dma_cache_wback_inv((unsigned long)lp->fd_buf, PAGE_SIZE * FD_PAGE_NUM);
- #endif
- 	} else {
--		clear_page(lp->fd_buf);
-+		clear_page(lp->fd_buf, 0);
- #ifdef __mips__
- 		dma_cache_wback_inv((unsigned long)lp->fd_buf, PAGE_SIZE * FD_PAGE_NUM);
- #endif
-Index: linux-2.6.10/drivers/block/pktcdvd.c
-===================================================================
---- linux-2.6.10.orig/drivers/block/pktcdvd.c	2004-12-24 13:33:49.000000000 -0800
-+++ linux-2.6.10/drivers/block/pktcdvd.c	2005-01-04 12:16:49.000000000 -0800
-@@ -135,12 +135,10 @@
- 		goto no_bio;
-
- 	for (i = 0; i < PAGES_PER_PACKET; i++) {
--		pkt->pages[i] = alloc_page(GFP_KERNEL);
-+		pkt->pages[i] = alloc_page(GFP_KERNEL|| __GFP_ZERO);
- 		if (!pkt->pages[i])
- 			goto no_page;
- 	}
--	for (i = 0; i < PAGES_PER_PACKET; i++)
--		clear_page(page_address(pkt->pages[i]));
-
- 	spin_lock_init(&pkt->lock);
-
+--- linux-2.6.10.orig/arch/sparc64/lib/clear_page.S	2004-12-24 13:35:23.000000000 -0800
++++ linux-2.6.10/arch/sparc64/lib/clear_page.S	2005-01-04 12:34:03.000000000 -0800
+@@ -28,9 +28,12 @@
+ 	.text
+
+ 	.globl		_clear_page
+-_clear_page:		/* %o0=dest */
++_clear_page:		/* %o0=dest, %o1=order */
++	sethi		%hi(PAGE_SIZE/64), %o2
++	clr		%o4
++	or		%o2, %lo(PAGE_SIZE/64), %o2
+ 	ba,pt		%xcc, clear_page_common
+-	 clr		%o4
++	 sllx		%o2, %o1, %o1
+
+ 	/* This thing is pretty important, it shows up
+ 	 * on the profiles via do_anonymous_page().
+@@ -69,16 +72,16 @@
+ 	flush		%g6
+ 	wrpr		%o4, 0x0, %pstate
+
++	sethi		%hi(PAGE_SIZE/64), %o1
+ 	mov		1, %o4
++	or		%o1, %lo(PAGE_SIZE/64), %o1
+
+ clear_page_common:
+ 	VISEntryHalf
+ 	membar		#StoreLoad | #StoreStore | #LoadStore
+ 	fzero		%f0
+-	sethi		%hi(PAGE_SIZE/64), %o1
+ 	mov		%o0, %g1		! remember vaddr for tlbflush
+ 	fzero		%f2
+-	or		%o1, %lo(PAGE_SIZE/64), %o1
+ 	faddd		%f0, %f2, %f4
+ 	fmuld		%f0, %f2, %f6
+ 	faddd		%f0, %f2, %f8
 

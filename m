@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268775AbUHaRSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUHaRSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268775AbUHaRSz (ORCPT <rfc822;willy@w.ods.org>);
+	id S265264AbUHaRSz (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 31 Aug 2004 13:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUHaRRU
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHaRQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:17:20 -0400
-Received: from mail.tmr.com ([216.238.38.203]:20230 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S265086AbUHaRMy (ORCPT
+	Tue, 31 Aug 2004 13:16:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7613 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265127AbUHaRM4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:12:54 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: PATCH: Root reservations for strict overcommit
-Date: Tue, 31 Aug 2004 13:13:42 -0400
-Organization: TMR Associates, Inc
-Message-ID: <ch2b68$985$1@gatekeeper.tmr.com>
-References: <20040831143449.GA26680@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 31 Aug 2004 13:12:56 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093971977 9477 192.168.12.100 (31 Aug 2004 17:06:17 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <20040831143449.GA26680@devserv.devel.redhat.com>
+Message-ID: <16692.45331.968648.262910@segfault.boston.redhat.com>
+Date: Tue, 31 Aug 2004 13:10:43 -0400
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org
+Subject: netpoll trapped question
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> This was on my TODO list for a while and it turns out someone already fixed the
-> armwaving overcommit mode for the same problem. It is easy to get into a
-> situation where you have no overcommit and nothing can be done because there is
-> no memory to clean up the stable but non-useful state of the machine.
-> 
-> The fix is trivial and duplicated from the armwaving overcommit code path.
-> The last 3% of the memory can be claimed by root processes only. It isn't a
-> cure but it does seem to solve the real world problems - at least providing
-> you have enough memory for 3% to be useful 8).
-> 
-> --- security/commoncap.c~	2004-08-31 15:27:46.777504736 +0100
-> +++ security/commoncap.c	2004-08-31 15:27:46.778504584 +0100
-> @@ -357,6 +357,11 @@
->  
->  	allowed = (totalram_pages - hugetlb_total_pages())
->  	       	* sysctl_overcommit_ratio / 100;
-> +	/*
-> +	 * Leave the last 3% for root
-> +	 */
-> +	if (!capable(CAP_SYS_ADMIN))
-> +		allowed -= allowed / 32;
->  	allowed += total_swap_pages;
->  
->  	if (atomic_read(&vm_committed_space) < allowed)
+Hi, Matt,
 
-Would it be a problem to put a lower bound on how much to leave for 
-root? If it's really too small to be useful, perhaps one of (a) reserve 
-enough to be useful or (b) don't bother to reserve at all, should be 
-selected.
+This part of the netpoll trapped logic seems suspect to me, from
+include/linux/netdevice.h:
 
-I don't know what you have in mind for "useful," but it seems likely 
-that a really small machine would be better off giving up any memory 
-unless it was useful.
+static inline void netif_wake_queue(struct net_device *dev)
+{
+#ifdef CONFIG_NETPOLL_TRAP
+	if (netpoll_trap())
+		return;
+#endif
+	if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
+		__netif_schedule(dev);
+}
 
+static inline void netif_stop_queue(struct net_device *dev)
+{
+#ifdef CONFIG_NETPOLL_TRAP
+	if (netpoll_trap())
+		return;
+#endif
+	set_bit(__LINK_STATE_XOFF, &dev->state);
+}
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+This looks buggy.  Network drivers are now not able to stop the queue when
+they run out of Tx descriptors.  I think the __netif_schedule is okay to do
+in the context of netpoll, and certainly a set_bit is okay.  Why are these
+hooks in place?  I've tested alt-sysrq-t over netconsole and also netdump
+with these #ifdef's removed, and things work correctly.  Compare this with
+alt-sysrq-t hanging the system with these tests in place.  If I run netdump
+with this logic still in place, I get the following messages from the tg3
+driver:
+
+  eth0: BUG! Tx Ring full when queue awake!
+
+Shall I send a patch, or have I missed something?
+
+-Jeff

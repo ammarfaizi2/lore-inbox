@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbUJZRmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbUJZRoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbUJZRmz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUJZRmz
+	id S261357AbUJZRoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUJZRoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:42:55 -0400
-Received: from router.emperor-sw2.exsbs.net ([208.254.201.37]:25515 "EHLO
-	sade.emperorlinux.com") by vger.kernel.org with ESMTP
-	id S261356AbUJZRmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:42:42 -0400
-From: "Lincoln D. Durey" <durey@EmperorLinux.com>
-Organization: EmperorLinux
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Sony S170 + 1GB ram => Yenta: ISA IRQ mask 0x0000
-Date: Tue, 26 Oct 2004 13:42:33 -0400
-User-Agent: KMail/1.5.4
-Cc: Linus Torvalds <torvalds@osdl.org>, David Hinds <dhinds@sonic.net>,
-       Emperor Research <research@EmperorLinux.com>
+	Tue, 26 Oct 2004 13:44:25 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48045 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261357AbUJZRnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 13:43:35 -0400
+Message-ID: <417E8CC4.4010706@comcast.net>
+Date: Tue, 26 Oct 2004 13:43:32 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jason Baron <jbaron@redhat.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix altsysrq deadlock
+References: <Pine.LNX.4.44.0410261325120.12088-100000@dhcp83-105.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0410261325120.12088-100000@dhcp83-105.boston.redhat.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410261342.33924.durey@EmperorLinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of you will recall the woefull tale of the IBM T40 with 2GB RAM, and a 
-not happy pcmcia_cs.  http://lkml.org/lkml/2003/8/14/89
-This was resolved with a new BIOS from IBM.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-However, along the way Linus replied with: http://lkml.org/lkml/2003/8/14/94
-and then David Hinds said this:
 
-> I'd bet that your BIOS is mis-configuring the CardBus bridge because
-> it can't handle >1GB of RAM.  Check 'lspci -v' and see what memory
-> addresses the CardBus bridges are using.  I bet they are < 0x80000000.
 
-> In theory the kernel could recognize this situation and remap PCI
-> devices to sane addresses.  That's a problem with the PCI subsystem
-> and you'd need to raise that on the linux-kernel mailing list.
+Jason Baron wrote:
+| hi,
+|
 
-So, now we have a new Sony S170 (spiffy ultra-portable laptop) with a 
-failure to recognize cards when it has 1GB ram installed.  And I'm 
-wondering if anyone wants to tackle having the kernel PCI system remap this 
-pcmcia socket's memory so it can see cards ?
+HI!  ^_^
 
-        booting with 1GB ram:
+[...]
 
-kernel: Linux Kernel Card Services 3.1.22
-kernel:   options:  [pci] [cardbus] [pm]
-kernel: Yenta IRQ list 0000, PCI irq9
-kernel: Socket status: 00000000
+|  An
+| altsyrq that produces no output might seem troublesome, but it is
+| primarily used as a debugging tool, so trying it again seems reasonable.
 
-        revert to 512MB or 768MB ram, and you get a happy PCMCIA slot:
+Actually, I use sysrq as if it's just another feature.  It should (I
+think it does. . . not sure) only work on the console directly, for
+security reasons; but it's great when things like X misbehave, or when
+I've damaged something and the system doesn't want to shut down.  AS-E
+AS-I AS-U AS-S AS-O.  :)  I actually tried making an N sysrq, for
+"semi-Normal shutdown."  It would send TERM, wait 5S, send KILL, wait
+5S, unmount, sync, reboot.
 
-kernel: Linux Kernel Card Services 3.1.22
-kernel:   options:  [pci] [cardbus] [pm]
-kernel: Yenta IRQ list 0cf8, PCI irq9
-kernel: Socket status: 30000410
+Just thought it might be interesting to point out that magic-sysrq can
+be a helpful feature for someone not hacking the kernel.
 
-The is completely independent of the kernel (2.4.24 and 2.6.8 have the same 
-problem (as its really a BIOS problem I think.)  Cardbus and PCMCIA cards 
-are affected equally.
+[...]
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-lspci: Sony S170
-02:04.0 CardBus bridge: Texas Instruments: Unknown device ac8e
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-        Full logs are available: (dmesg, lspci -xxx, iomem, ioports) 
-http://www.emperorlinux.com/research/lkml/S170-1GB-pcmcia
-
- -- Lincoln @ EmperorLinux     http://www.EmperorLinux.com
-
+iD8DBQFBfozEhDd4aOud5P8RAo/xAJ9sumPFUpGkwIf4ipR2+6g0bmwUYQCdGQ+U
+SPvEFbVzUCx+8zdNQqnT8F8=
+=OQrV
+-----END PGP SIGNATURE-----

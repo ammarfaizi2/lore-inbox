@@ -1,115 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265040AbUFMKwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUFMKxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265040AbUFMKwj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 06:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265042AbUFMKwj
+	id S265041AbUFMKxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 06:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265042AbUFMKxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 06:52:39 -0400
-Received: from mail2.asahi-net.or.jp ([202.224.39.198]:42291 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S265040AbUFMKwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 06:52:30 -0400
-Message-ID: <40CC31E6.8080201@ThinRope.net>
-Date: Sun, 13 Jun 2004 19:52:22 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
+	Sun, 13 Jun 2004 06:53:19 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:494 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S265041AbUFMKxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 06:53:10 -0400
+X-Sasl-enc: 155kv7pABlvNC1ZsH3XBMA 1087123989
+Message-ID: <40CC320F.2050500@mailcan.com>
+Date: Sun, 13 Jun 2004 12:53:03 +0200
+From: Leon Woestenberg <leonw@mailcan.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Koblinger Egmont <egmont@uhulinux.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: information leak in vga console scrollback buffer
-References: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu> <20040612204352.GA22347@taniwha.stupidest.org> <Pine.LNX.4.58L0.0406122253580.25004@sziami.cs.bme.hu> <20040612205903.GA22428@taniwha.stupidest.org> <Pine.LNX.4.58L0.0406122301250.25004@sziami.cs.bme.hu> <40CBC094.6050901@ThinRope.net> <Pine.LNX.4.58L0.0406131023260.18435@sziami.cs.bme.hu>
-In-Reply-To: <Pine.LNX.4.58L0.0406131023260.18435@sziami.cs.bme.hu>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Justin Cormack <justin@street-vision.com>
+Cc: Andre Tomt <andre@tomt.net>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Serial ATA (SATA) on Linux status report (2.6.x mainstream	plan
+ for AHCI and iswraid??)
+References: <20040610155740.81227.qmail@web90109.mail.scd.yahoo.com>	 <40C8A5F6.3030002@pobox.com>  <40C9193F.9080107@tomt.net> <1087051010.25334.4.camel@lotte.street-vision.com>
+In-Reply-To: <1087051010.25334.4.camel@lotte.street-vision.com>
+Content-Type: multipart/mixed;
+ boundary="------------050008090209090605040409"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Koblinger Egmont wrote:
-> On Sun, 13 Jun 2004, Kalin KOZHUHAROV wrote:
+This is a multi-part message in MIME format.
+--------------050008090209090605040409
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+Justin Cormack wrote:
+> On Fri, 2004-06-11 at 03:30, Andre Tomt wrote:
 > 
+>>Since we're on the topic of new libata drivers, how is the Marvell 
+>>driver coming along? I'm getting several server units with a 4-port 
+>>version on-board in the not-so-distant future, it would be nice if they 
+>>could use all their drive bays ;-)
 > 
->> OK, I think I got what you are trying to point out. To reproduce: 
->> 1. login to a (vga) console.
->> 2. less /etc/services; press space to scroll a few screens
->> 3. logout
->> 4. login again on the same console (possibly as a different user)
->> 5. less /etc/resolv.conf
->> 6. press Up, then Shift+PgUp
->> 
->> What is expected: screen should not scroll past your file.
->> 
->> What happens: You can view the previous text (from
->> /etc/services)!!!
+We have those as well. (Supermicro P4SCT+ which have a rev 03 88sx8041
+part.)
+
 > 
+> Though not as useful as a libata driver (and not GPL, though the license
+> is entirely unrestrictive), there is an open source driver for the
+> Marvell chipsets:
 > 
-> Here you didn't clear the scrollback buffer. Maybe you (or getty)
-> executed a clear or a terminal reset but that only affects the
-> visible part and not the scrollback buffer. There's absolutely no
-> problem so far since everyone knows that the scrollback buffer only
-> disappears when you switch to a different console.
-
-Well, I didn't know obviously, now I know.
-
-> My problem is that with a
-> really-not-trivial-command-and-key-combination you can possibly see
-> /etc/services (in your example) even _after_ you've switched to a
-> different console and you are certain that the scrollback buffer is
-> no longer available.
+> http://www.highpoint-tech.com/BIOS%20%2B%20Driver/rr1820a/Linux/rr182x-openbuild-v1.02.tgz
 > 
-> And then what if it's not /etc/services but some private data of
-> yours? Maybe other users can later access it. There's no way you can
-> protect yourself against it. And you live in a false belief that your
-> private data is scrolled out forever.
+> It wont build on 2.6 due to cli/sti (v. easy to fix though - its just
+> the irq locking), and it only supports 8 channel chips (only a few
+> #defines for PCI ids and number of ports). Intend to fix it up and test
+> it next week if the libata driver not out, as I have a few of these. The
+> highpoint card is the first PCI-X SATA card I have actually managed to
+> get hold of, but unlike other highpoint cards is not their chipset:
 > 
-> Please forget your own test case. Repeat _exactly_ those steps _I_ 
-> described in my original post. Then you'll understand what I'm
-> talking about.
-I tried at first...
+> 03:02.0 SCSI storage controller: Marvell MV88SX5081 8-port SATA I PCI-X
+> Controller (rev 03)
+> 
+I have a totally different set of source code files for the 
+MV88SX50[4|8][0|1] chips, also open-source from Marvell (although I have
+to check the exact license).
 
-Now I did it again:
-1. Login on VT2
-2. less /etc/services
-3. switch to X (VT8 here) and do something
-4. switch back to VT2
-5. press Shift+PgUp
-6. press Up, then press several times Shift+PgUp
+Looking at the Highpoint source code, they seem to have taken some of 
+the Marvell source code (mv*.*) and adapted it for their RAID system.
 
-What is expected:
-screen should not scroll past the beginnign of /etc/services.
+I am interested in doing some maintenance work on the Marvell driver,
+which indeed mostly needs attention to proper locking. Also, it did
+not yet support the rev 03 hardware when I downloaded it.
 
-What happens:
-I saw a bunch of garbage plus pieces of text (/etc/shadow form previous tests and so on), this is a security flaw, NOT feature.
+I found the driver source on ftp://ftp.supermicro.com, but it seems to
+have been removed lately. Supermicro forwards me to Adaptec who writes
+the BIOS raid system (ugh).
 
-> You sure won't understand my problem if you believe that I'm wrong
-> and want to convience me with your own interpretation of my words and
-> your own (completely different) test case. Please stick to exactly
-> what I reported.
-No, I thought you were right, I was just trying to produce a simple testcase :-(
+Regards,
 
-What I was trying ot prove with my testcase is that
-a) if you are using mingetty
-AND
-b) you switch VT after logout (pressing Alt+Right a few times)
-the above mentioned scroll-back flow is not observed.
+Leon.
 
-Ok, after tons of new tries, I reproduced it...
+--------------050008090209090605040409
+Content-Type: text/x-vcard; charset=utf8;
+ name="leonw.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="leonw.vcf"
 
-I was thinking that every VT has its own scrollback buffer and you are supposed to see what has been on a given VT.
-Now I see that you can see things that have been printed on _other_ VTs :-)
-
-I confirm the bug.
-
-There is no connection with {a,min}getty it seems.
+begin:vcard
+fn:Leon Woestenberg
+n:Woestenberg;Leon
+version:2.1
+end:vcard
 
 
-Kalin.
-
--- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
-|||\/<" 
-|||\\ ' 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------050008090209090605040409--

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbUKVMq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbUKVMt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbUKVMq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 07:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUKVMq6
+	id S262088AbUKVMt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 07:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbUKVMtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 07:46:58 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4359 "HELO
+	Mon, 22 Nov 2004 07:49:06 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44551 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262049AbUKVMqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 07:46:20 -0500
-Date: Mon, 22 Nov 2004 13:46:18 +0100
+	id S262062AbUKVMs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 07:48:57 -0500
+Date: Mon, 22 Nov 2004 13:48:55 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [2.6 patch] Use -ffreestanding? (fwd)
-Message-ID: <20041122124618.GJ3007@stusta.de>
-References: <20041122054959.GI3007@stusta.de> <Pine.LNX.4.58.0411212208200.20993@ppc970.osdl.org>
+Message-ID: <20041122124855.GK3007@stusta.de>
+References: <20041122054959.GI3007@stusta.de> <Pine.LNX.4.53.0411220934480.21333@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411212208200.20993@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0411220934480.21333@yvahk01.tjqt.qr>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 10:10:28PM -0800, Linus Torvalds wrote:
+On Mon, Nov 22, 2004 at 09:36:15AM +0100, Jan Engelhardt wrote:
+> >Hi Andrew,
+> >
+> >for the kernel, it would be logical to use -ffreestanding. The kernel is
+> >not a hosted environment with a standard C library.
 > 
+> Note the GCC docs:
 > 
-> On Mon, 22 Nov 2004, Adrian Bunk wrote:
-> > 
-> > for the kernel, it would be logical to use -ffreestanding. The kernel is 
-> > not a hosted environment with a standard C library.
-> > 
-> > Linus agreed that it would make sense.
+> Assert that compilation takes place in a freestanding environment. This
+> implies -fno-builtin. [...]
 > 
-> Note that while I agree that it sounds sensible, it would be good to have 
-> somebody specify exactly what changes from the use of "-ffreestanding".
-> 
-> I _assume_ that all the things that gcc takes for granted are things that 
-> Linux already has its own definitions for, and that -ffreestanding doesn't 
-> actually change anything for at least the regular architectures. But if 
-> there is any object code changes, can you check those out and explain 
-> them?
+> This will break a lot of code, since there are many thing that depend upon GCC
+> builtin magic AFAICS.
+>...
 
-Andi Kleen reported:
-  Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
+Which code in the kernel is broken by this change?
 
-This is only true with unit-at-a-time (disabled on i386 but enabled
-on x86_64). The Linux kernel doesn't offer a standard C library, and 
-such transparent replacements of kernel functions with builtins are 
-quite fragile.
+Note that explicitely using a gcc builtin is still possible.
 
-Even with -ffreestanding, it's still possilble to explicitely use a gcc 
-builtin if desired.
-
-> 		Linus
+> Jan Engelhardt
 
 cu
 Adrian

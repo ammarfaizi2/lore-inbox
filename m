@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266408AbSLDLez>; Wed, 4 Dec 2002 06:34:55 -0500
+	id <S266409AbSLDLie>; Wed, 4 Dec 2002 06:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266409AbSLDLez>; Wed, 4 Dec 2002 06:34:55 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:5380 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266408AbSLDLey>;
-	Wed, 4 Dec 2002 06:34:54 -0500
-Date: Wed, 4 Dec 2002 12:41:19 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jochen Hein <jochen@delphi.lan-ks.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.50, ACPI] link error
-Message-ID: <20021204114114.GD309@elf.ucw.cz>
-References: <E18Ix71-0003ik-00@gswi1164.jochen.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18Ix71-0003ik-00@gswi1164.jochen.org>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S266417AbSLDLie>; Wed, 4 Dec 2002 06:38:34 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:23216 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266409AbSLDLid>;
+	Wed, 4 Dec 2002 06:38:33 -0500
+Date: Wed, 4 Dec 2002 12:44:15 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: James Simmons <jsimmons@infradead.org>, Brad Douglas <Brad@NERUO.com>,
+       luther@dpt-info.u-strasbg.fr, adaplas@pol.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-fbdev-devel-admin@lists.sourceforge.net
+Subject: Re: [OT] Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
+In-Reply-To: <95A9172394F@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.4.21.0212041242170.4748-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 4 Dec 2002, Petr Vandrovec wrote:
+> FYI, I'm going to unsubscribe myself from linux-fbdev-devel.
+> I'm not interested in reading messages on list which is not public:
+> I get again an error that my message is waiting for moderator approval,
+> and as such list is unsuitable for any realtime discussion.
 
-> When compiling 2.5.50 with CONFIG_ACPI_SLEEP=y
+Yes, I know it's annoying :-(
 
-Enable SWSUSP... Then investigate why it is possible to select
-ACPI_SLEEP but not SWSUSP...
-							Pavel
+But, AFAIK we don't know yet
+  1. who changed the list to a moderated list
+  2. who is actually moderating it
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

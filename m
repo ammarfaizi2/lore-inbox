@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264499AbUD1LW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264729AbUD1L02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbUD1LW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 07:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUD1LW3
+	id S264729AbUD1L02 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 07:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbUD1L02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 07:22:29 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:7436 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264499AbUD1LW2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 07:22:28 -0400
-Message-ID: <408F9447.2060504@aitel.hist.no>
-Date: Wed, 28 Apr 2004 13:23:51 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: no, en
+	Wed, 28 Apr 2004 07:26:28 -0400
+Received: from mail.gmx.de ([213.165.64.20]:17846 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264729AbUD1L01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 07:26:27 -0400
+X-Authenticated: #4512188
+Message-ID: <408F94DB.5040007@gmx.de>
+Date: Wed, 28 Apr 2004 13:26:19 +0200
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040413)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <20040427165819.GA23961@valve.mbsi.ca> <408E9771.7020302@mtu.edu> <F55B44BB-9870-11D8-85DF-000A95BCAC26@linuxant.com> <408E9C59.2090502@nortelnetworks.com>            <Pine.LNX.4.58.0404271950170.4424@alpha.polcom.net> <200404271854.i3RIsdaP017849@turing-police.cc.vt.edu>
-In-Reply-To: <200404271854.i3RIsdaP017849@turing-police.cc.vt.edu>
+CC: ross@datscreative.com.au, Len Brown <len.brown@intel.com>,
+       Jesse Allen <the3dfxdude@hotmail.com>,
+       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
+       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, a.verweij@student.tudelft.nl,
+       Allen Martin <AMartin@nvidia.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+ for idle=C1halt, 2.6.5
+References: <200404131117.31306.ross@datscreative.com.au> <20040422163958.GA1567@tesore.local> <1082654469.16333.351.camel@dhcppc4> <200404262141.24616.ross@datscreative.com.au> <408ED126.4030608@gmx.de>
+In-Reply-To: <408ED126.4030608@gmx.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 27 Apr 2004 19:53:39 +0200, Grzegorz Kulewski said:
+Prakash K. Cheemplavam wrote:
+> Hi all,
 > 
-> 
->>Maybe kernel should display warning only once per given licence or even 
->>once per boot (who needs warning about tainting tainted kernel?)
-> 
-> 
-> If your kernel is tainted by 3 different modules, it saves you 2 reboots when
-> trying to replicate a problem with an untainted kernel.
-> 
-> Other than that, there's probably no reason to complain on a re-taint.
-> 
-The tainting flag is in each module.  Instead of trying them all
-to see what taints the kernel, run "find"
-over /etc/modules/<kernelversion>
-to find all modules installed, and use some program
-that print out the taintedness for each file.  Simple, and
-works even for modules that never gets loaded during normal use.
+> I have just made soem interesting experience. It seems Len's timer 
+> routing patch (or whatever you wanna call it) stabilizes my system to a 
+> certain amount or NOT using AGP stabilizes it to an amount...
 
-I don't know if such a program exists, but it should be trivial
-to make, just paste the kernel "tainting" code into a
-ordinary program.
+[snip]
 
-Helge Hafting
+Btw, I found another possible reason for this behaviour, which would fit 
+into the idle temp problem I am experiencing again with 2.6.6-rc2-mm1 
+kernel (unless it seems I use Ross C1halt idle patch): Perhaps this 
+kernel uses the disconnect feature less often, so the probality of 
+lock-up goes down. That would explain my higher temps...
 
+Prakash

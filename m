@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUIEMnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUIEMt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266603AbUIEMnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 08:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUIEMnV
+	id S266613AbUIEMt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 08:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUIEMt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 08:43:21 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:1746 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266603AbUIEMnT (ORCPT
+	Sun, 5 Sep 2004 08:49:28 -0400
+Received: from smtp.wp.pl ([212.77.101.160]:32077 "EHLO smtp.wp.pl")
+	by vger.kernel.org with ESMTP id S266613AbUIEMt0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 08:43:19 -0400
-Message-ID: <1a56ea3904090505437e82b656@mail.gmail.com>
-Date: Sun, 5 Sep 2004 13:43:18 +0100
-From: DaMouse <damouse@gmail.com>
-Reply-To: DaMouse <damouse@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>, LKML <linux-kernel@vger.kernel.org>
+	Sun, 5 Sep 2004 08:49:26 -0400
+From: Piotr Neuman <sikkh@wp.pl>
+To: Kasper Sandberg <lkml@metanurb.dk>
 Subject: Re: Scheduler experiences
-In-Reply-To: <413B0872.1090607@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Sun, 5 Sep 2004 14:49:24 +0200
+User-Agent: KMail/1.6.2
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
 References: <1094386464.18114.0.camel@localhost>
-	 <1a56ea390409050525583d0438@mail.gmail.com>
-	 <413B0872.1090607@yahoo.com.au>
+In-Reply-To: <1094386464.18114.0.camel@localhost>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409051449.24392.sikkh@wp.pl>
+X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
+X-WP-AS1: NOSPAM  Body=2 Fuz1=2  Fuz2=2                        
+X-WP-AS2: NOSPAM 
+X-WP-SPAM: NO 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Sep 2004 22:37:06 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> DaMouse wrote:
-> 
-> >
-> > I personally like staircase, i also used to use nicksched but i prefer
-> > staircases simple design and structure. Nicksched was pretty fast but
-> > twiddling around all day with renicing X and now the HT issues are
-> > annoying and staircase has always worked perfectly for me without
-> > flipping fifty switches in the cockpit.
-> >
-> 
-> The HT issue should be fixed (I hope).
-> 
-> Why did you have to "twiddle around all day with renicing X"? I realise
-> you're overstating, but you really should be fine with just setting X
-> to -10 at startup and be done with it.
-> 
-> 
+> Hey, i wonder which scheduler you people have the best experiences with,
+> staircase or nicksched?
 
-http://forums.gentoo.org/viewtopic.php?t=217543 <-- see here, your
-mind makes it real... spooky :)
+I'm using staircase exclusively, but I did compare it to vanilla kernel's 
+scheduler and yes the interactivity is very good (I'm running x.org and KDE 
+3.2.3 here).
 
-Thats -mm2 but I can't find patches that fix the HT problems in that
-thread, mind pointing them out?
+I have had no sound skips or tvtime problems no matter what kind of disk IO 
+was being done, which includes MySQL database updates, cron scripts (running 
+rpm -V on all packages) and wwwoffle purging cached files (note I use the 
+default as IO sched). Also kernel compilation is no threat to interactivity 
+with staircase.
 
--DaMouse
+I'm a Mandrake user and since the release of Mandrake 10 it does not renice X 
+server to higher priority so I guess Nick's scheduler would force me to tweak 
+X startup script.
 
--- 
-I know I broke SOMETHING but its there fault for not fixing it before me
+The other things I like about staircase are that it gives you kernel.compute 
+and kernel.interactive sysctls that allow to perform serious computational 
+tasks with it. Also ability to use scheduling policies with schedtool is a 
+great plus, for example using SCHED_BATCH for cpu bound applications like 
+seti@home or folding@home.
+
+Overall staircase has been a great experience for me.
+
+Regards
+
+Piotr Neuman

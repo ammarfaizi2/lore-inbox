@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVA1E2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVA1EgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVA1E2d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 23:28:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVA1E2d
+	id S261445AbVA1EgN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 23:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVA1EgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 23:28:33 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:14532 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261439AbVA1E2a (ORCPT
+	Thu, 27 Jan 2005 23:36:13 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:64452 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261445AbVA1EgK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 23:28:30 -0500
-Date: Fri, 28 Jan 2005 05:28:15 +0100
+	Thu, 27 Jan 2005 23:36:10 -0500
+Date: Fri, 28 Jan 2005 05:35:37 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, pwil3058@bigpond.net.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling bugs
-Message-ID: <20050128042815.GA29751@elte.hu>
-References: <20041116113209.GA1890@elte.hu> <419A7D09.4080001@bigpond.net.au> <20041116232827.GA842@elte.hu> <Pine.LNX.4.58.0411161509190.2222@ppc970.osdl.org> <20050127165330.6f388054.pj@sgi.com>
+To: George Anzinger <george@mvista.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH] to fix xtime lock for in the RT kernel patch
+Message-ID: <20050128043537.GC29751@elte.hu>
+References: <41F04573.7070508@mvista.com> <20050121063519.GA19954@elte.hu> <41F0BA56.9000605@mvista.com> <20050121082125.GA28267@elte.hu> <41F0BFA4.5030107@mvista.com> <20050121084557.GA29550@elte.hu> <41F0C33D.60908@mvista.com> <20050121090014.GA30379@elte.hu> <41F0C686.5070903@mvista.com> <41F954CE.6040504@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050127165330.6f388054.pj@sgi.com>
+In-Reply-To: <41F954CE.6040504@mvista.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -33,47 +33,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Paul Jackson <pj@sgi.com> wrote:
+* George Anzinger <george@mvista.com> wrote:
 
-> A long time ago, Linus wrote:
-> > An atomic op is pretty much as expensive as a spinlock/unlock pair on x86.  
-> > Not _quite_, but it's pretty close.
+> Ingo, I have been looking at the code being proposed by John Stultz. 
+> It looks like it handles all the issues I am talking about here.  I
+> think it would be best to leave the RT patch as it is WRT this issue
+> and work on getting John's patch ready for prime time as any work I
+> would do here will just get tossed when his patch hits the steet.
 > 
-> Are both read and modify atomic ops relatively expensive on some CPUs,
-> or is it just modify atomic ops?
-> 
-> (Ignoring for this question the possibility that a mix of read and
-> modify ops could heat up a cache line on multiprocessor systems, and
-> focusing for the moment just on the CPU internals ...)
+> Meanwhile, I will (already have) get HRT working on RT and make that
+> available in the next few days.
 
-if by 'some CPUs' you mean x86 then it's the LOCK prefixed ops that are
-expensive. I.e. all the LOCK-prefixed RMW variants of instructions:
-
- atomic.h:               LOCK "addl %1,%0"
- atomic.h:               LOCK "subl %1,%0"
- atomic.h:               LOCK "subl %2,%0; sete %1"
- atomic.h:               LOCK "incl %0"
- atomic.h:               LOCK "decl %0"
- atomic.h:               LOCK "decl %0; sete %1"
- atomic.h:               LOCK "incl %0; sete %1"
- atomic.h:               LOCK "addl %2,%0; sets %1"
- atomic.h:               LOCK "xaddl %0, %1;"
- atomic.h:__asm__ __volatile__(LOCK "andl %0,%1" \
- atomic.h:__asm__ __volatile__(LOCK "orl %0,%1" \
-
-pure reads/writes are architecturally guaranteed to be atomic (so
-atomic.h uses them, not some fancy instruction) and they are (/better
-be) fast.
-
-interestingly, the x86 spinlock implementation uses a LOCK-ed
-instruction only on acquire - it uses a simple atomic write (and
-implicit barrier assumption) on the way out:
-
- #define spin_unlock_string \
-         "movb $1,%0" \
-                 :"=m" (lock->slock) : : "memory"
-
-no LOCK prefix. Due to this spinlocks can sometimes be _cheaper_ than
-doing the same via atomic inc/dec.
+sure, fine with me. You might want to sync up with Thomas Gleixner,
+who's working on some of the HRT issues too.
 
 	Ingo

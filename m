@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263378AbTJUVy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 17:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbTJUVy2
+	id S263385AbTJUVzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 17:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263387AbTJUVzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 17:54:28 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36868 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263378AbTJUVy0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 17:54:26 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Software RAID5 with 2.6.0-test
-Date: 21 Oct 2003 21:44:21 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bn49bl$jai$1@gatekeeper.tmr.com>
-References: <1065690658.10389.19.camel@slurv> <Pine.LNX.3.96.1031017125544.24004C-100000@gatekeeper.tmr.com> <yw1xu167kbcw.fsf@users.sourceforge.net> <20031017192419.GG8711@unthought.net>
-X-Trace: gatekeeper.tmr.com 1066772661 19794 192.168.12.62 (21 Oct 2003 21:44:21 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 21 Oct 2003 17:55:31 -0400
+Received: from [195.222.70.12] ([195.222.70.12]:56282 "EHLO mx01.belsonet.net")
+	by vger.kernel.org with ESMTP id S263385AbTJUVz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 17:55:26 -0400
+Date: Wed, 22 Oct 2003 00:53:28 +0300
+From: Alexander Bokovoy <ab@altlinux.org>
+To: M?ns Rullg?rd <mru@kth.se>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] 0/3 Dynamic cpufreq governor and updates to ACPI P-state driver
+Message-ID: <20031021215327.GH3133@sam-solutions.net>
+References: <88056F38E9E48644A0F562A38C64FB60077911@scsmsx403.sc.intel.com> <yw1xbrsaeu44.fsf@kth.se> <20031021203037.GB3133@sam-solutions.net> <yw1xoewaiavf.fsf@kth.se> <20031021211119.GE3133@sam-solutions.net> <yw1xfzhmi86r.fsf@kth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <yw1xfzhmi86r.fsf@kth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031017192419.GG8711@unthought.net>,
-Jakob Oestergaard  <jakob@unthought.net> wrote:
-
-| Now that I'm posting anyway - I thought of a plus for the HW RAID
-| controllers (hey, they're way behind on the scoreboard so far, so I
-| might as well be a gentleman and give them a point or two):
-| *) Battery backed write cache
-| 
-| This will allow the controller to say 'ok I'm done with your sync()',
-| way before the data actually reaches the disk platters.  For some
-| workloads this can be a big win.
-
-Unless the drives are battery backed up as well, I'm not sure that this
-is a good thing, or at least a safe thing. And if a write error happens
-after the controller tells you the sync() is done? That's a question,
-not a comment, I'm not sure Linux software RAID would relocate if the
-drive was out of spare sectors, either, but it at least could.
-
-I don't question your statement that caching helps performance, but I
-think there is some loss of reliability. I have no numbers to estimate
-the effect, so take it as a comment only.
+On Tue, Oct 21, 2003 at 11:37:16PM +0200, M?ns Rullg?rd wrote:
+> Alexander Bokovoy <ab@altlinux.org> writes:
+> 
+> >> What's your /proc/cpuinfo?  Mine says
+> >> 
+> >> processor	: 0
+> >> vendor_id	: GenuineIntel
+> >> cpu family	: 15
+> >> model	: 2
+> >> model name	: Mobile Intel(R) Pentium(R) 4 - M CPU 1.80GHz
+> >> stepping	: 7
+> 
+> > As I said, it is Centrino-based, with 1.3GHz Pentium M:
+> >
+> > processor	: 0
+> > vendor_id	: GenuineIntel
+> > cpu family	: 6
+> > model		: 9
+> > model name	: Intel(R) Pentium(R) M processor 1300MHz
+> > stepping	: 5
+> 
+> So, mine won't work, or what?
+If you can boot into 2.4.22 or .23pre with ACPI enabled and can see
+/proc/acpi/processor/CPU0/performance, then your processor should be
+supported by speedstep-ich or speedstep-piix4 modules (don't know which
+one exactly).
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+/ Alexander Bokovoy
+Samba Team                      http://www.samba.org/
+ALT Linux Team                  http://www.altlinux.org/
+Midgard Project Ry              http://www.midgard-project.org/

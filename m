@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316957AbSHGLxJ>; Wed, 7 Aug 2002 07:53:09 -0400
+	id <S317215AbSHGMTh>; Wed, 7 Aug 2002 08:19:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316997AbSHGLxJ>; Wed, 7 Aug 2002 07:53:09 -0400
-Received: from ns.suse.de ([213.95.15.193]:15876 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316957AbSHGLxI>;
-	Wed, 7 Aug 2002 07:53:08 -0400
-Date: Wed, 7 Aug 2002 13:56:43 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
-Message-ID: <20020807135643.A9340@wotan.suse.de>
-References: <20020807131813.A25485@wotan.suse.de> <200208071151.g77Bpmt19650@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S317232AbSHGMTh>; Wed, 7 Aug 2002 08:19:37 -0400
+Received: from [212.18.235.100] ([212.18.235.100]:55438 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S317215AbSHGMTg>; Wed, 7 Aug 2002 08:19:36 -0400
+From: kernel@street-vision.com
+Message-Id: <200208071222.g77CMKh32527@tench.street-vision.com>
+Subject: Re: kernel BUG at tg3.c:1557
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 7 Aug 2002 12:22:20 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1028726077.18478.284.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Aug 07, 2002 02:14:37 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208071151.g77Bpmt19650@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In a perfect would I'd be able to have config_experimental let me pick all
-> the stuff not tested on x86_64. To do that sanely we have to fix the
-> configuration language otherwise it will just never be maintainable and
-> we will spend the rest of 2.4 haunted by "Why has xyz vanished on Alpha 
-> in 2.4.21"
+> 
+> On Wed, 2002-08-07 at 12:40, Roland Kuhn wrote:
+> > On a dual Athlon MP with a 3ware-7850 RAID (640GB RAID-5) and 3C996B-T GE 
+> > NIC I can crash the machine with the above BUG message in virtually no 
+> > time simply by copying data both ways between the RAID and the NIC. The 
+> > BUG message shows that this can happen any time, it doesn't matter if the 
+> > interrupt is received in cpu_idle or something else. I tried noapic, but 
+> > to no avail.
+> > 
+> > Does anybody know about this problem?
+> 
+> I've never been able to get a broadcom chipset ethernet card stable on a
+> dual athlon with AMD 76x chipset. I have no idea what the problem is
+> although it certainly appears to be PCI versus main memory ordering
+> funnies.
 
-I severly doubt this will a problem. If you look at the drivers that
-I marked this way on x86-64 I will bet some beer that they never worked
-(some not even compiled) on alpha. Worrying about a userbase of drivers
-who have never worked does not seem to be very useful. It definitely would
-not be a regression at least.
+Mine is absolutely fine, but I only have 1 CPU in the box at the moment.
+3ware 7410 and 3C996B-T, Athlon MP.
 
-Can you please shortly explain what will not be maintainable with my
-proposal? 
-
--Andi
+Justin

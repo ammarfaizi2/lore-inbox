@@ -1,219 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbSLCDMr>; Mon, 2 Dec 2002 22:12:47 -0500
+	id <S266020AbSLCD02>; Mon, 2 Dec 2002 22:26:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265974AbSLCDMr>; Mon, 2 Dec 2002 22:12:47 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:3049 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S265139AbSLCDMo>; Mon, 2 Dec 2002 22:12:44 -0500
-Subject: 2.5.50 -- arch/ppc/syslib/i8259.c:188: In function `i8259_init': 
-	`SA_INTERRUPT' undeclared (first use in this function)
-From: Miles Lane <miles.lane@attbi.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 02 Dec 2002 19:20:08 -0800
-Message-Id: <1038885609.605.115.camel@jellybean>
-Mime-Version: 1.0
+	id <S266010AbSLCD02>; Mon, 2 Dec 2002 22:26:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29202 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266038AbSLCD01>;
+	Mon, 2 Dec 2002 22:26:27 -0500
+Message-ID: <3DEC2600.2070306@pobox.com>
+Date: Mon, 02 Dec 2002 22:33:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: netdev@oss.sgi.com, akpm@zip.com.au
+Subject: Network interface synchronization docs
+Content-Type: multipart/mixed;
+ boundary="------------050300030504070804060609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  gcc -Wp,-MD,arch/ppc/syslib/.i8259.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -I/usr/src/linux-2.5.50/arch/ppc -msoft-float -pipe
--ffixed-r2 -Wno-uninitialized -mmultiple -mstring -nostdinc -iwithprefix
-include    -DKBUILD_BASENAME=i8259 -DKBUILD_MODNAME=i8259   -c -o
-arch/ppc/syslib/i8259.o arch/ppc/syslib/i8259.c
-arch/ppc/syslib/i8259.c: In function `i8259_init':
-arch/ppc/syslib/i8259.c:188: `SA_INTERRUPT' undeclared (first use in
-this function)
-arch/ppc/syslib/i8259.c:188: (Each undeclared identifier is reported
-only once
-arch/ppc/syslib/i8259.c:188: for each function it appears in.)
-make[1]: *** [arch/ppc/syslib/i8259.o] Error 1
-make: *** [arch/ppc/syslib] Error 2
+This is a multi-part message in MIME format.
+--------------050300030504070804060609
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+I just updated Documentation/networking/netdevices.txt locally to the 
+attached file, which describes the synchronization rules for net drivers 
+in the 2.4.x and 2.5.x kernels.  (Astute readers will notice a striking 
+similarity to 2.2.x locking rules as well)
+
+Comments and corrections to the attached doc requested.  I realize it's 
+not much right now, but this is core info I want to make sure is 
+correct, and that everyone agrees on.
+
+Thanks to Robert Olsson for a pointer about dev->poll().
+
+Future notes:  this doc will hopefully expand in time to describe not 
+only the netdevice API but also standard ethernet and net driver 
+practices.  Patches welcome!
+
+	Jeff
 
 
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_HAVE_DEC_LOCK=y
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
+--------------050300030504070804060609
+Content-Type: text/plain;
+ name="netdevices.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="netdevices.txt"
 
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
 
-#
-# Loadable module support
-#
-# CONFIG_MODULES is not set
+Network Devices, the Kernel, and You!
 
-#
-# Platform support
-#
-CONFIG_PPC=y
-CONFIG_PPC32=y
-CONFIG_6xx=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_ALL_PPC=y
-CONFIG_PPC_STD_MMU=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_ALL_PPC_CH=y
-CONFIG_ALTIVEC=y
-CONFIG_TAU=y
-CONFIG_TAU_AVERAGE=y
-CONFIG_PM=y
 
-#
-# General setup
-#
-CONFIG_HIGHMEM=y
-CONFIG_PCI=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_KERNEL_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
+Introduction
+============
+The following is a random collection of documentation regarding
+network devices.
 
-#
-# Input device support
-#
-CONFIG_INPUT=y
 
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
 
-#
-# Input I/O drivers
-#
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_CT82C710=y
+struct net_device synchronization rules
+=======================================
+dev->open:
+	Synchronization: rtnl_lock() semaphore.
+	Context: process
 
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
+dev->stop:
+	Synchronization: rtnl_lock() semaphore.
+	Context: process
+	Notes: netif_running() is guaranteed false when this is called
 
-#
-# Macintosh device drivers
-#
-CONFIG_ADB_CUDA=y
-CONFIG_ADB_PMU=y
-CONFIG_PMAC_PBOOK=y
-CONFIG_PMAC_APM_EMU=y
-CONFIG_PMAC_BACKLIGHT=y
-CONFIG_MAC_FLOPPY=y
-CONFIG_MAC_SERIAL=y
-CONFIG_ADB=y
-CONFIG_ADB_MACIO=y
-CONFIG_INPUT_ADBHID=y
-CONFIG_MAC_EMUMOUSEBTN=y
+dev->do_ioctl:
+	Synchronization: rtnl_lock() semaphore.
+	Context: process
 
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_CS=y
-CONFIG_SERIAL_8250_EXTENDED=y
-CONFIG_SERIAL_8250_MANY_PORTS=y
-CONFIG_SERIAL_8250_DETECT_IRQ=y
+dev->get_stats:
+	Synchronization: dev_base_lock rwlock.
+	Context: nominally process, but don't sleep inside an rwlock
 
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
+dev->hard_start_xmit:
+	Synchronization: dev->xmit_lock spinlock.
+	Context: BHs disabled
 
-#
-# I2C support
-#
-CONFIG_I2C=y
-CONFIG_I2C_ALGOBIT=y
-CONFIG_I2C_ALGOPCF=y
-CONFIG_I2C_ELEKTOR=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_PROC=y
+dev->tx_timeout:
+	Synchronization: dev->xmit_lock spinlock.
+	Context: BHs disabled
 
-#
-# PCMCIA character devices
-#
-CONFIG_SYNCLINK_CS=y
-CONFIG_RAW_DRIVER=y
+dev->set_multicast_list:
+	Synchronization: dev->xmit_lock spinlock.
+	Context: BHs disabled
 
-#
-# Generic devices
-#
-CONFIG_SND_DUMMY=y
-CONFIG_SND_VIRMIDI=y
-CONFIG_SND_MTPAV=y
-CONFIG_SND_SERIAL_U16550=y
-CONFIG_SND_MPU401=y
+dev->poll:
+	Synchronization: __LINK_STATE_RX_SCHED bit in dev->state.  See
+		dev_close code and comments in net/core/dev.c for more info.
+	Context: softirq
 
-#
-# ALSA PowerMac devices
-#
-CONFIG_SND_POWERMAC=y
 
-#
-# USB Human Interface Devices (HID)
-#
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-
-#
-# USB Serial Converter support
-#
-CONFIG_USB_SERIAL=y
-CONFIG_USB_SERIAL_DEBUG=y
-CONFIG_USB_SERIAL_CONSOLE=y
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_USB_SERIAL_BELKIN=y
-CONFIG_USB_SERIAL_WHITEHEAT=y
-CONFIG_USB_SERIAL_DIGI_ACCELEPORT=y
-CONFIG_USB_SERIAL_EMPEG=y
-CONFIG_USB_SERIAL_FTDI_SIO=y
-CONFIG_USB_SERIAL_VISOR=y
-CONFIG_USB_SERIAL_IPAQ=y
-CONFIG_USB_SERIAL_IR=y
-CONFIG_USB_SERIAL_EDGEPORT=y
-CONFIG_USB_SERIAL_EDGEPORT_TI=y
-CONFIG_USB_SERIAL_KEYSPAN_PDA=y
-CONFIG_USB_SERIAL_KLSI=y
-CONFIG_USB_SERIAL_MCT_U232=y
-CONFIG_USB_SERIAL_PL2303=y
-CONFIG_USB_SERIAL_SAFE=y
-CONFIG_USB_SERIAL_SAFE_PADDED=y
-CONFIG_USB_SERIAL_CYBERJACK=y
-CONFIG_USB_SERIAL_XIRCOM=y
-CONFIG_USB_SERIAL_OMNINET=y
-CONFIG_USB_EZUSB=y
-
+--------------050300030504070804060609--
 

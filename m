@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSFDUis>; Tue, 4 Jun 2002 16:38:48 -0400
+	id <S316753AbSFDUkB>; Tue, 4 Jun 2002 16:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSFDUir>; Tue, 4 Jun 2002 16:38:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10759 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316728AbSFDUir>;
-	Tue, 4 Jun 2002 16:38:47 -0400
-Message-ID: <3CFD24C6.7050107@mandrakesoft.com>
-Date: Tue, 04 Jun 2002 16:36:22 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
-X-Accept-Language: en-us, en
+	id <S316755AbSFDUkA>; Tue, 4 Jun 2002 16:40:00 -0400
+Received: from mx2.fuse.net ([216.68.1.120]:59338 "EHLO mta02.fuse.net")
+	by vger.kernel.org with ESMTP id <S316753AbSFDUj7>;
+	Tue, 4 Jun 2002 16:39:59 -0400
+Message-ID: <3CFD25B7.2090108@fuse.net>
+Date: Tue, 04 Jun 2002 16:40:23 -0400
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020520 Debian/1.0rc2-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Michal Jaegermann <michal@harddata.com>
-CC: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-In-Reply-To: <000101c20bd5$b8f24560$010b10ac@sbp.uptime.at> <Pine.LNX.4.33.0206040749530.654-100000@geena.pdx.osdl.net> <20020604142317.B18238@mail.harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.20-dj2 : "Duplicate initializer" in drivers/scsi/aic7xxx/aic7xxx_linux.c
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Jaegermann wrote:
+gcc -D__KERNEL__ -I/home/wes/src/kernel/linux-2.5.20/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
+-malign-functions=4     -DKBUILD_BASENAME=aic7xxx_linux  -c -o 
+aic7xxx_linux.o aic7xxx_linux.c
+aic7xxx_linux.c:2829: unknown field `abort' specified in initializer
+aic7xxx_linux.c:2829: unknown field `reset' specified in initializer
+aic7xxx_linux.c:2829: duplicate initializer
+aic7xxx_linux.c:2829: (near initialization for 
+`driver_template.slave_attach')
+aic7xxx_linux.c:2829: duplicate initializer
+aic7xxx_linux.c:2829: (near initialization for `driver_template.bios_param')
+make[3]: *** [aic7xxx_linux.o] Error 1
 
->On Tue, Jun 04, 2002 at 08:19:49AM -0700, Patrick Mochel wrote:
->  
->
->>The short of it: 2.5.19 introduced a struct bus_type that describes each
->>bus type in the system.
->>    
->>
->
->Which immediately collided with 'static struct bus_type {...}'
->hidden in drivers/net/tulip/de4x5.c and, as result, the later does
->not compile anymore.  These two "bus_types" are quite dissimilar. :-)
->  
->
+Erhm, what's that mean? ^_^  And more importantly, how does one fix that?
 
-
-FWIW that s/bus_type/de4x5_bus_type/ patch was applied to 2.5.20 (and to 
-2.4.x too, even)
-
-    Jeff
-
-
+--Nathan
 
 

@@ -1,65 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbUBJOSW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 09:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUBJOSW
+	id S265902AbUBJOlV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 09:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265914AbUBJOlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 09:18:22 -0500
-Received: from [217.157.19.70] ([217.157.19.70]:61964 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S265883AbUBJOSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 09:18:18 -0500
-Date: Tue, 10 Feb 2004 14:18:15 +0000 (GMT)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: linux-kernel@vger.kernel.org, <linux-raid@vger.kernel.org>
-Subject: ATARAID userspace configuration tool
-Message-ID: <Pine.LNX.4.40.0402101405190.25784-100000@jehova.dsm.dk>
+	Tue, 10 Feb 2004 09:41:21 -0500
+Received: from cabm.rutgers.edu ([192.76.178.143]:1545 "EHLO
+	lemur.cabm.rutgers.edu") by vger.kernel.org with ESMTP
+	id S265902AbUBJOlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 09:41:17 -0500
+Date: Tue, 10 Feb 2004 09:41:16 -0500 (EST)
+From: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Kernel Fault 2.4.20
+In-Reply-To: <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.58.0402100936050.16491@puma.cabm.rutgers.edu>
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
+ <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be>
+ <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+There was a kernel fault today, I am not quite sure what 
+just happened, if anyone has any ideas and can point me in 
+the right direction.
+Thanks a lot 
 
-I'm writing a userspace utility to detect/configure Medley (and later
-other) ataraid devices in 2.6.
+	-A
 
-It's intended to run from initramfs (or initrd for those who use that).
-
-I have a couple of questions and requests for clarification.
-
-- Is there a "recommended" way to enumerate all block devices (not
-partitions) from userside? Since this is ATA RAID, I could of course just
-read the ideX majors from /proc/devices and try all the minors, but I
-would prefer to get a list of all detected block devices in a portable
-way.
-
-- After I have used the DM (and possible MD for some RAID types) to map
-the ataraid devices, is there a way to remove the partitions from the
-underlying disks from the kernel? This was my main reason for wanting to
-do kernel-level autodetection of these arrays, so I could prevent add_disk
-from being called and analysing the partition table (on these BIOS RAIDs,
-in striped mode the first disk contains the partition table for the entire
-array in sector 0, and if the user (or a script) tries to mount the
-partitions (or even read the extended partition table) it may try to read
-after the end of the disk and will in any case use wrong sector numbers -
-leading to possible disk corruption.
-
-On top of this it would be useful to make the underlying devices
-inaccessible after the mapped device is created (to prevent people from
-doing things like fdisk /dev/hda, when what they really wanted was
-something like fdisk /dev/ataraid/disc).
-
-Detecting the partition table in userspace would fix this, but it's not
-planned before 2.7 and I don't think it is safe to leave the false
-partitions exposed.
-
-- Some RAID types will need (I think) to use the MD framework as well as
-DM (e.g. RAID0+1), so the device the users would be the md device which
-would be composed of two dm devices. Is there a way to hide the underlying
-dm devices from the user so he they only see the ones they should use (or
-prevent these from being used directly some other way)?
-
-// Thomas
+Feb 10 08:04:34 n07 kernel: Unable to handle kernel paging 
+request at virtual address b70c1040
+Feb 10 08:04:34 n07 kernel:  printing eip:
+Feb 10 08:04:34 n07 kernel: c012cf87
+Feb 10 08:04:34 n07 kernel: *pde = 00000000
+Feb 10 08:04:34 n07 kernel: Oops: 0000 
+Feb 10 08:04:34 n07 kernel: nfs lockd sunrpc autofs 3c59x 
+bcm5700 ide-cd cdrom usb-ohci usbcore ext3 jbd raid1
+Feb 10 08:04:34 n07 kernel: CPU:    0
+Feb 10 08:04:34 n07 kernel: EIP:    0010:[<c012cf87>]    Not 
+tainted
+Feb 10 08:04:34 n07 kernel: EFLAGS: 00010286
+Feb 10 08:04:34 n07 kernel: 
+Feb 10 08:04:34 n07 kernel: EIP is at find_vma [kernel] 0x37 
+(2.4.20-20.7custom)
+Feb 10 08:04:34 n07 kernel: eax: f7649540   ebx: 07217a48   
+ecx: f7649540   edx: b70c1050
+Feb 10 08:04:34 n07 kernel: esi: f7736540   edi: c0116260   
+ebp: 07217a48   esp: f7143e10
+Feb 10 08:04:34 n07 kernel: ds: 0018   es: 0018   ss: 0018
+Feb 10 08:04:34 n07 kernel: Process pbs_mom (pid: 1100, 
+stackpage=f7143000)
+Feb 10 08:04:34 n07 kernel: Stack: f7736540 00000000 
+c01162ef f7736540 07217a48 c012b321 f7217ac0 f7142000
+Feb 10 08:04:34 n07 kernel:        f7142000 00000000 
+00000000 00030001 7fffffff f6eeb580 c02562d5 f6eeb580
+Feb 10 08:04:34 n07 kernel:        00000000 00000018 
+f75c0980 f6eeb580 ffffffec c1c40030 00000286 00000282
+Feb 10 08:04:34 n07 kernel: Call Trace:   [<c01162ef>] 
+do_page_fault [kernel] 0x8f (0xf7143e18))
+Feb 10 08:04:34 n07 kernel: [<c012b321>] do_wp_page [kernel] 
+0xc1 (0xf7143e24))
+Feb 10 08:04:34 n07 kernel: [<c02562d5>] unix_stream_connect 
+[kernel] 0x3c5 (0xf7143e48))
+Feb 10 08:04:34 n07 kernel: [<c020b57c>] sk_free [kernel] 
+0x6c (0xf7143e90))
+Feb 10 08:04:34 n07 kernel: [<c012c1f4>] handle_mm_fault 
+[kernel] 0x124 (0xf7143ea8))
+Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
+[kernel] 0x0 (0xf7143ebc))
+Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
+0x34 (0xf7143ec4))
+Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
+[kernel] 0x0 (0xf7143ee0))
+Feb 10 08:04:34 n07 kernel: [<c012cf87>] find_vma [kernel] 
+0x37 (0xf7143ef8))
+Feb 10 08:04:34 n07 kernel: [<c01162ef>] do_page_fault 
+[kernel] 0x8f (0xf7143f0c))
+Feb 10 08:04:34 n07 kernel: [<c0208f70>] sock_release 
+[kernel] 0x10 (0xf7143f3c))
+Feb 10 08:04:34 n07 kernel: [<c02094df>] sock_close [kernel] 
+0x2f (0xf7143f48))
+Feb 10 08:04:34 n07 kernel: [<c0143a6a>] filp_open [kernel] 
+0x3a (0xf7143f70))
+Feb 10 08:04:34 n07 kernel: [<c014eb4d>] getname [kernel] 
+0x5d (0xf7143f90))
+Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
+[kernel] 0x0 (0xf7143fb0))
+Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
+0x34 (0xf7143fb8))
+Feb 10 08:04:34 n07 kernel: 
+Feb 10 08:04:34 n07 kernel: 
+Feb 10 08:04:34 n07 kernel: Code: 39 5a f0 8d 42 e8 76 f1 39 
+5a ec 89 c1 77 e2 85 c9 74 03 89
+Feb 10 09:10:49 n07 syslogd 1.4.1: restart.
 

@@ -1,116 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266026AbTFWNkf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 09:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266019AbTFWNkf
+	id S266036AbTFWNo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 09:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266039AbTFWNo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 09:40:35 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:50299 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S266027AbTFWNkc
+	Mon, 23 Jun 2003 09:44:57 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:49594 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S266036AbTFWNoc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 09:40:32 -0400
-Subject: [PATCH] 2.5.73 synclink.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "torvalds@transmeta.com" <torvalds@transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056376499.2089.0.camel@diemos>
+	Mon, 23 Jun 2003 09:44:32 -0400
+Date: Mon, 23 Jun 2003 06:58:28 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       Larry McVoy <lm@bitmover.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+       lawrence@the-penguin.otak.com
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030623135828.GD6715@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+	Larry McVoy <lm@bitmover.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+	lawrence@the-penguin.otak.com
+References: <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <20030623135457.GF6353@lug-owl.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jun 2003 08:55:00 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030623135457.GF6353@lug-owl.de>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, CASHCASHCASH, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix arbitration between net open and tty open.
+> ...and then, there are those who do installations of complex software.
+> Either some admin who's already there can do the setup (and will need a
+> week to get it right), or you can do that for him, charging some $$$.
 
-Cleanup unused local resulting from latest tty changes.
-
-Please apply.
-
+Or you can fix your software so it just works.  If you don't, you are 
+leaving the door open for someone else to demonstrate how their software
+has a lower cost of ownership than yours.
 -- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
---- linux-2.5.72/drivers/char/synclink.c	2003-06-16 08:42:25.000000000 -0500
-+++ linux-2.5.72-mg/drivers/char/synclink.c	2003-06-18 10:31:00.000000000 -0500
-@@ -1,7 +1,7 @@
- /*
-  * linux/drivers/char/synclink.c
-  *
-- * $Id: synclink.c,v 4.9 2003/05/06 21:18:51 paulkf Exp $
-+ * $Id: synclink.c,v 4.12 2003/06/18 15:29:32 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink ISA and PCI
-  * high speed multiprotocol serial adapters.
-@@ -910,7 +910,7 @@
- MODULE_PARM(txholdbufs,"1-" __MODULE_STRING(MAX_TOTAL_DEVICES) "i");
- 
- static char *driver_name = "SyncLink serial driver";
--static char *driver_version = "$Revision: 4.9 $";
-+static char *driver_version = "$Revision: 4.12 $";
- 
- static int synclink_init_one (struct pci_dev *dev,
- 				     const struct pci_device_id *ent);
-@@ -3170,14 +3170,17 @@
- {
- 	struct mgsl_struct * info = (struct mgsl_struct *)tty->driver_data;
- 
--	if (!info || mgsl_paranoia_check(info, tty->name, "mgsl_close"))
-+	if (mgsl_paranoia_check(info, tty->name, "mgsl_close"))
- 		return;
- 	
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):mgsl_close(%s) entry, count=%d\n",
- 			 __FILE__,__LINE__, info->device_name, info->count);
- 			 
--	if (!info->count || tty_hung_up_p(filp))
-+	if (!info->count)
-+		return;
-+
-+	if (tty_hung_up_p(filp))
- 		goto cleanup;
- 			
- 	if ((tty->count == 1) && (info->count != 1)) {
-@@ -3493,16 +3496,11 @@
- 	info = mgsl_device_list;
- 	while(info && info->line != line)
- 		info = info->next_device;
--	if ( !info ){
--		printk("%s(%d):Can't find specified device on open (line=%d)\n",
--			__FILE__,__LINE__,line);
-+	if (mgsl_paranoia_check(info, tty->name, "mgsl_open"))
- 		return -ENODEV;
--	}
- 	
- 	tty->driver_data = info;
- 	info->tty = tty;
--	if (mgsl_paranoia_check(info, tty->name, "mgsl_open"))
--		return -ENODEV;
- 		
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):mgsl_open(%s), old ref count = %d\n",
-@@ -3562,6 +3560,8 @@
- 	
- cleanup:			
- 	if (retval) {
-+		if (tty->count == 1)
-+			info->tty = 0; /* tty layer will release tty struct */
- 		if(info->count)
- 			info->count--;
- 	}
-@@ -4461,7 +4461,6 @@
- int mgsl_init_tty(void);
- int mgsl_init_tty()
- {
--	struct mgsl_struct *info;
- 	serial_driver = alloc_tty_driver(mgsl_device_count);
- 	if (!serial_driver)
- 		return -ENOMEM;
-
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

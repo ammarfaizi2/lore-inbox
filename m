@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318974AbSHSSb6>; Mon, 19 Aug 2002 14:31:58 -0400
+	id <S318976AbSHSSrz>; Mon, 19 Aug 2002 14:47:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318975AbSHSSb6>; Mon, 19 Aug 2002 14:31:58 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:32447 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S318974AbSHSSbz>;
-	Mon, 19 Aug 2002 14:31:55 -0400
-Date: Mon, 19 Aug 2002 21:35:57 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Xuehua Chen <namniardniw@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A question about cache coherence
-Message-ID: <20020819183557.GU32427@mea-ext.zmailer.org>
-References: <20020819182121.93059.qmail@web13008.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S318982AbSHSSrz>; Mon, 19 Aug 2002 14:47:55 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:14471 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S318976AbSHSSry>; Mon, 19 Aug 2002 14:47:54 -0400
+Date: Mon, 19 Aug 2002 13:51:42 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
+Message-ID: <65670000.1029783102@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0208192034260.30906-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208192034260.30906-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20020819182121.93059.qmail@web13008.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 11:21:21AM -0700, Xuehua Chen wrote:
-> Met a problem in my research. I run some code on a
-> Xeon dual-processor machine. It seems to me that there is
-> a cache coherence problem. As I am not so familiar 
-> to this topic, I would like to ask some experts about 
-> the following questions.
-> 
-> 1. Do Xeon processors have hardware mechanisms to
->    maintain cache coherence?
 
-   Yes, in usual closely coupled SMP systems.
+--On Monday, August 19, 2002 08:36:24 PM +0200 Ingo Molnar <mingo@elte.hu>
+wrote:
 
-> 2. Does the SMP kernel handle the cache coherence
->     problem
+> well, this means that we'd still have to iterate through both lists in
+> wait4(), and we'd have to maintain the ptrace list(s) in all the relevant
+> codepaths - does this buy us anything relative to -B4?
 
-   In its own ways, yes.  It is relying on hardware doing
-   it in major part.
+The lists would constitute the tasks that wait4() should consider, at
+least.    And maintaining the list wouldn't be any more work than the
+current reparenting. I do admit that I don't see a significant win,
+codewise, other than aesthetics.
 
-> 3. What should I do if both of them don't handle cache
->    coherence.
+In looking at the code I was wondering something.  What happens to the real
+parent of a ptraced task when it calls wait4()?  If that's its only child,
+won't it return ECHILD?
 
-   Report the issue with lots of technical details
-   on  linux-smp@vger.kernel.org,  and possibly continue
-   discussion there.
+Dave McCracken
 
-   Data like:
-    - What machine, whose motherboard ?
-    - How much memory ?
-    - What steppings are the processors ?  (not same ?)
-    - How you configured the kernel ?
-       (Not quite the entire  .config  file, just first
-        50 lines or so telling processor details.)
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 
-   And most importantly:
-    - Describe why do you suspect there is cache-coherence
-      problem in the system ?   In the kernel side, or
-      in your application ?   How it is manifesting itself ?
-
-
-> Thanks.
-> Frank Samuel
-
-/Matti Aarnio

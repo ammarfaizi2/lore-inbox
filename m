@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269052AbRHFWHR>; Mon, 6 Aug 2001 18:07:17 -0400
+	id <S269057AbRHFWL1>; Mon, 6 Aug 2001 18:11:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269053AbRHFWG6>; Mon, 6 Aug 2001 18:06:58 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:39953 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269052AbRHFWGt>; Mon, 6 Aug 2001 18:06:49 -0400
+	id <S269061AbRHFWLR>; Mon, 6 Aug 2001 18:11:17 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:64979 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S269057AbRHFWK7>;
+	Mon, 6 Aug 2001 18:10:59 -0400
+Date: Mon, 06 Aug 2001 15:07:59 -0700
+From: richard offer <offer@sgi.com>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: getty problems
-Date: 6 Aug 2001 15:06:12 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9kn4ck$ovb$1@cesium.transmeta.com>
-In-Reply-To: <20010806142703.A25428@lech.pse.pl> <20010806154530.A26776@lech.pse.pl> <20010807020944.A24146@weta.f00f.org> <20010806182414.A29605@lech.pse.pl>
+cc: Red Phoenix <redph0enix@hotmail.com>
+Subject: Re: Linux C2-Style Audit Capability
+Message-ID: <1634130000.997135679@changeling.engr.sgi.com>
+In-Reply-To: <fa.hg36o7v.1076epo@ifi.uio.no>
+In-Reply-To: <fa.i3h9gdv.45k3go@ifi.uio.no> <fa.hg36o7v.1076epo@ifi.uio.no>
+X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
+X-HomePage: http://www.whitequeen.com/users/richard/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010806182414.A29605@lech.pse.pl>
-By author:    Lech Szychowski <lech.szychowski@pse.pl>
-In newsgroup: linux.dev.kernel
->
-> >     2.4.7-ac7:
-> >     ----------
-> [snip]
-> > 
-> > Are you use this kernel isn't devfs inflicted?
-> 
-> 2.4.7-ac7 is compiled without devfs, 2.4.5 has devfs support
-> compiled in but - IMHO - not used:
-> 
 
-Yes, this is a known pathology of devfs.  It will do this to you even
-if it isn't used.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+* frm alan@lxorguk.ukuu.org.uk "08/04/01 09:24:11 +0000" | sed '1,$s/^/* /'
+*
+*> System calls are overridden by pointing sys_call_table[system call] to a 
+*> replacement function which saves off the data for auditing purposes,
+*> then  calls the original system call.
+* 
+* Ugly but that bit probably ties in with all the other folks trying to put
+* together a unified security hook set for 2.5
+
+Simply wrapping the system calls isn't going to get a CAPP (or C2)
+compliant audit implementation. It also isn't how the "unified security
+hooks" (aka LSM, Linux Security Modules) are working.
+
+SGI is working towards a CAPP compliant audit implementation under the LSM
+framework, I'd suggest that you head over to http://lsm.immunix.org/ for
+more details on LSM.
+
+
+richard.
+
+-----------------------------------------------------------------------
+Richard Offer                     Technical Lead, Trust Technology, SGI
+"Specialization is for insects"
+_______________________________________________________________________
+

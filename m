@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbUDUOUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262996AbUDUOV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbUDUOUg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 10:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUDUOUg
+	id S262996AbUDUOV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 10:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUDUOV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 10:20:36 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:53164 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262974AbUDUOUe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 10:20:34 -0400
-Date: Wed, 21 Apr 2004 16:20:32 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Niclas Gustafsson <niclas.gustafsson@codesense.com>,
-       lkml <linux-kernel@vger.kernel.org>, Patricia Gaughen <gone@us.ibm.com>
-Subject: Re: Failing back to INSANE timesource :) Time stopped today.
-In-Reply-To: <1082495923.10026.36.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.55.0404211612010.28167@jurand.ds.pg.gda.pl>
-References: <1081416100.6425.45.camel@gmg.codesense.com> 
- <1081465114.4705.4.camel@cog.beaverton.ibm.com>  <1081932857.17234.37.camel@gmg.codesense.com>
-  <Pine.LNX.4.55.0404151633100.17365@jurand.ds.pg.gda.pl> 
- <1082048278.17234.144.camel@gmg.codesense.com>  <1082452873.20179.34.camel@gmg.codesense.com>
-  <Pine.LNX.4.55.0404201431360.28193@jurand.ds.pg.gda.pl>
- <1082495923.10026.36.camel@cog.beaverton.ibm.com>
-Organization: Technical University of Gdansk
+	Wed, 21 Apr 2004 10:21:58 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:10710 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S262974AbUDUOVz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 10:21:55 -0400
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: arjanv@redhat.com, Andrew Morton <akpm@osdl.org>,
+       Tuukka Toivonen <tuukkat@ee.oulu.fi>, b-gruber@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux-Interface
+References: <Pine.GSO.4.58.0402271451420.11281@stekt37>
+	<Pine.GSO.4.58.0404191124220.21825@stekt37>
+	<20040419015221.07a214b8.akpm@osdl.org>
+	<xb77jwci86o.fsf@savona.informatik.uni-freiburg.de>
+	<1082372020.4691.9.camel@laptop.fenrus.com>
+	<16518.20890.380763.581386@cse.unsw.edu.au>
+	<xb71xmhfu9j.fsf@savona.informatik.uni-freiburg.de>
+	<16518.27472.760406.691633@cse.unsw.edu.au>
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 21 Apr 2004 16:21:53 +0200
+In-Reply-To: <16518.27472.760406.691633@cse.unsw.edu.au>
+Message-ID: <xb7oeple7i6.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Apr 2004, john stultz wrote:
+>>>>> "Neil" == Neil Brown <neilb@cse.unsw.edu.au> writes:
 
-> >  If you are asking about the problematic code, then it's there since
-> > 2.3.x, so it's in 2.4, too.  It's a part of the NMI watchdog support,
-> > though it's used for ordinary timer interrupts for certain systems as
-> > well.
-> 
-> Are you saying that 2.4 will exhibit this problem as well, or that 2.4
-> already has an equivalent workaround?
+    >> BTW, how did you hack the /dev/psaux?
 
- The former.
+    Neil> It's not suitable for inclusion, but with this patch, I get
+    Neil> two modules, psdev and psmouse.  I load psdev and /dev/psaux
+    Neil> is raw.  I load psmouse and /dev/psaux is normal 2.6
+    Neil> behaviour.
 
-> >  Apparently there are problems with the workaround on certain AMD
-> > Athlon-based systems.  I suppose they need to be resolved somehow first.
-> 
-> Can you point me to any threads on this issue. I'd like to do what I can
-> to help get this workaround in.
+    [patch snipped]
 
- Here's my reply to a report which seems not to have reached LKML archives
-for some reason:  
-"http://www.uwsg.indiana.edu/hypermail/linux/kernel/0403.2/0384".  The
-important part of the original mail is quoted.
+
+I see.  Basically, we're both (re)inventing the same thing.  :)
+
+Now, it  is clear that there is  a need for direct  psaux port access.
+It's useful for 2 reasons:
+
+1) Compatibility with 2.4, 2.2, 2.0  kernels, so that programs need no
+   modification and work as before.  This provides an easier migration
+   path for those who want to upgrad to 2.6 for whatever reasons.
+
+2) To  enable  using "strange",  not  yet  supported hardwares,  whose
+   *mature* software  drivers are already available for 2.4, 2.2, 2.0,
+   etc.  Not every writer of  those software drivers are interested in
+   rewriting their programs in kernel space.
+
+
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
+

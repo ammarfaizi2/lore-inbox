@@ -1,99 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319026AbSIDDKS>; Tue, 3 Sep 2002 23:10:18 -0400
+	id <S319027AbSIDDQ4>; Tue, 3 Sep 2002 23:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319027AbSIDDKS>; Tue, 3 Sep 2002 23:10:18 -0400
-Received: from [199.106.20.3] ([199.106.20.3]:16349 "EHLO chaos.wsm.com")
-	by vger.kernel.org with ESMTP id <S319026AbSIDDKR>;
-	Tue, 3 Sep 2002 23:10:17 -0400
-Subject: 2.4.18 & 2.4.19 IDE chipset clash? Promise PDC20267/SvrWks CSB5
-From: Jeff Johnson <jeff@wsm.com>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S319029AbSIDDQz>; Tue, 3 Sep 2002 23:16:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28943 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319027AbSIDDQz>;
+	Tue, 3 Sep 2002 23:16:55 -0400
+Message-ID: <3D757F11.B72BB708@zip.com.au>
+Date: Tue, 03 Sep 2002 20:33:37 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ed Tomlinson <tomlins@cam.org>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.33-mm1
+References: <200209032251.54795.tomlins@cam.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8.99 
-Date: 03 Sep 2002 20:12:47 -0700
-Message-Id: <1031109167.4925.38.camel@eljefe.wsm.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Ed Tomlinson wrote:
+> 
+> On September 3, 2002 09:13 pm, Andrew Morton wrote:
+> 
+> > ext3_inode_cache     959   2430    448  264  270    1
+> >
+> > That's 264 pages in use, 270 total.  If there's a persistent gap between
+> > these then there is a problem - could well be that slablru is not locating
+> > the pages which were liberated by the pruning sufficiently quickly.
+> 
+> Sufficiently quickly is a relative thing.
 
-	I am trying to get a kernel running on an Intel SCB2 board. It has
-onboard Promise PDC20267 RAID and Serverworks IDE controllers. The
-problem I am seeing is when Promise support is compiled into the kernel
-the Serverworks IDE chip will appear but fail to become available. The
-CDROM drive attached to the Serverworks chip is never visible. If I
-disable the Promise chip in the board's bios and boot the same kernel
-the serverworks IDE attaches and the CDROM shows up and can be accessed.
+Those pages are useless!  It's silly having slab hanging onto them
+while we go and reclaim useful pagecache instead.
 
-	I have tried both 2.4.18 and 2.4.19 source and played with different
-config combinations. Nothing I change appears to correct the problem.
+I *really* think we need to throw away those pages instantly.
 
-	I am pretty sure this is something I am doing and not a bug. If someone
-would be kind enough to look at the dmesg and /proc/pci excerpts below
-along with the kernel config options below I would be grateful.
+The only possible reason for hanging onto them is because they're
+cache-warm.  And we need a global-scope cpu-local hot pages queue
+anyway.
 
-Thank You,
+And once we have that, slab _must_ release its warm pages into it.
+It's counterproductive for slab to hang onto warm pages when, say,
+a pagefault needs one.
 
-Jeff
+>  It could also be that by the time the
+> pages are reclaimed another <n> have been cleaned.  IMO its no worst than
+> have freeable pages on lru from any other source.  If we get close to oom
+> we will call kmem_cache_reap, otherwise we let the lru find the pages.
 
-dmesg excerpt 
--------------
-PDC20267: IDE controller on PCI bus 00 dev 10
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: ROM enabled at 0xfe7e0000
-PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
-Mode.
-    ide0: BM-DMA at 0x1440-0x1447, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x1448-0x144f, BIOS settings: hdc:pio, hdd:DMA
-SvrWks CSB5: IDE controller on PCI bus 00 dev 79
-PCI: Device 00:0f.1 not available because of resource collisions
-SvrWks CSB5: (ide_setup_pci_device:) Could not enable device.
-hda: IC35L040AVVN07-0, ATA DISK drive
-ide0 at 0x1400-0x1407,0x140a on irq 19
-blk: queue c03ced44, I/O limit 4095Mb (mask 0xffffffff)
-
-
-pci excerpt
------------
-PCI devices found:
-  Bus  0, device   2, function  0:
-    RAID bus controller: Promise Technology, Inc. 20267 (rev 2).
-      IRQ 19.
-      Master Capable.  Latency=64.
-      I/O at 0x1400 [0x1407].
-      I/O at 0x1408 [0x140b].
-      I/O at 0x1410 [0x1417].
-      I/O at 0x140c [0x140f].
-      I/O at 0x1440 [0x147f].
-      Non-prefetchable 32 bit memory at 0xfe7a0000 [0xfe7bffff].
-  Bus  0, device  15, function  1:
-    IDE interface: ServerWorks CSB5 IDE Controller (rev 146).
-      Master Capable.  Latency=64.
-      I/O at 0x0 [0x7].
-      I/O at 0x0 [0x3].
-      I/O at 0x0 [0x7].
-      I/O at 0x0 [0x3].
-      I/O at 0x3a0 [0x3af].
-      I/O at 0x410 [0x413].
-
-
-kernel config
--------------
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_OFFBOARD=y
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_PDC202XX_FORCE=y
-CONFIG_PDC202XX_BURST=y
-CONFIG_BLK_DEV_SVWKS=y
-# CONFIG_BLK_DEV_OSB4 is not set
-CONFIG_BLK_DEV_ATARAID=y
-CONFIG_BLK_DEV_ATARAID_PDC=y
-
-
+As I say, by not releasing those (useless to slab) pages, we're causing
+other (useful) stuff to be reclaimed.

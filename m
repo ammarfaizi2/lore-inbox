@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284175AbRLFT7d>; Thu, 6 Dec 2001 14:59:33 -0500
+	id <S284163AbRLFT5l>; Thu, 6 Dec 2001 14:57:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283924AbRLFT5m>; Thu, 6 Dec 2001 14:57:42 -0500
-Received: from sushi.toad.net ([162.33.130.105]:53642 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S284175AbRLFT5g>;
-	Thu, 6 Dec 2001 14:57:36 -0500
-Subject: [PATCH] 2.4.17-pre4 pnpbios driver available for testing
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 06 Dec 2001 14:58:30 -0500
-Message-Id: <1007668712.1384.52.camel@thanatos>
+	id <S283924AbRLFT5d>; Thu, 6 Dec 2001 14:57:33 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:48908 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S282670AbRLFT5W>; Thu, 6 Dec 2001 14:57:22 -0500
+Date: Thu, 6 Dec 2001 20:18:15 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre5
+Message-ID: <20011206201815.C24176@emma1.emma.line.org>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0112061536270.21518-100000@freak.distro.conectiva>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0112061536270.21518-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The pnpbios driver which was being developed in the 2.4.x-acy kernel
-series is now available as a patch against 2.4.17-pre4:
-  http://panopticon.csustan.edu/thood/patch-2.4.17-pre4-pnpbios_1
+On Thu, 06 Dec 2001, Marcelo Tosatti wrote:
 
-A link to the patch can be found at:
-  http://panopticon.csustan.edu/thood/tp600lnx.htm
+> pre5:
+...
+> - Networking updates				(David S. Miller)
 
-Interested parties: Please test and report back.
-
-Because this is the first cut of the patch and because the
-driver hasn't been tested in the non-ac kernel series before,
-I recommend caution, especially to Sony Vaio and Dell laptop
-users.
-
-Thomas Hood
-
+Would you deem it feasible to elaborate on these? "Networking updates"
+is quite opaque and does not carry any information useful to me (at
+least). Or is there a place I haven't known of until know where I can
+get that information?

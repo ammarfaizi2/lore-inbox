@@ -1,108 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbUKZXm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbUKZXqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbUKZXm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbUKZXjz
+	id S262375AbUKZXqL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbUKZXoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 18:39:55 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:49861 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263171AbUKZTqe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:46:34 -0500
-Message-ID: <4798.195.245.190.93.1101379116.squirrel@195.245.190.93>
-In-Reply-To: <20041125111344.GA17786@elte.hu>
-References: <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
-    <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-    <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
-    <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
-    <20041124112745.GA3294@elte.hu>
-    <21889.195.245.190.93.1101377024.squirrel@195.245.190.93>
-    <20041125111344.GA17786@elte.hu>
-Date: Thu, 25 Nov 2004 10:38:36 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-0
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Fri, 26 Nov 2004 18:44:03 -0500
+Received: from 82-43-72-5.cable.ubr06.croy.blueyonder.co.uk ([82.43.72.5]:9716
+	"EHLO home.chandlerfamily.org.uk") by vger.kernel.org with ESMTP
+	id S263159AbUKZXjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 18:39:07 -0500
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: ide-cd problem
+Date: Fri, 26 Nov 2004 23:39:01 +0000
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200411201842.15091.alan@chandlerfamily.org.uk> <20041123145112.GC13174@suse.de> <200411232149.31701.alan@chandlerfamily.org.uk>
+In-Reply-To: <200411232149.31701.alan@chandlerfamily.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 25 Nov 2004 10:39:32.0306 (UTC) FILETIME=[0C86FB20:01C4D2DB]
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411262339.01306.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Tuesday 23 November 2004 21:49, Alan Chandler wrote:
 
 >
-> * Rui Nuno Capela wrote:
->
->> last thing, at the moment, that "reliably" locks up the machine is
->> accessing the floppy-disk (dev/fd0). Yes, I still have one here, and
->> it was just yesterday that I've tried to mount on it and bang!
->> power-off and a cold-boot follows. Reproducibility? ALWAYS is often
->> enough. Nothing shows up via serial console.
->
-> will take a look.
+> Before, I thought my hardware was a little out of spec - now I think there
+> is something else at play here.
 >
 
-Thanks, as always ;)
+Firstly, I think there might be another race condition like the one Alan Cox 
+found.  I attach a patch below with the fix for that (against 2.6.10-rc2, an 
+including Alan's patch)   I'm not 100% sure its necessary, but it seems fix a 
+variation I have been seeing.
 
+With it in place, and apart from the ongoing issue - see below, I have managed 
+to remove the delay in drive_is_ready() altogether without any ill effects.
 
->> [...] Jackd XRUN rates are pretty low and on the same level (e.g. less
->> than 5 per hour with the default jack_test3.1 test), [...]
->
-> could you post the jack_test summary outputs?
->
+[my reading of the ATA spec is that 400ns is needed after reading the status 
+reg before IRQ is removed, I had wondered whether it would be better to 
+record the time here and then check whether we had used up the 400ns just 
+before returning from the interrupt state]
 
-Of course, but only later tonight (12 hours from now?). Sorry.
+> Nov 23 20:37:33 kanger kernel: ide-cd:cdrom_newpc_intr - cmd=0x0 stat=0x50
+> ireason=3 len=2048 rq len=0
+..
+> Nov 23 20:37:33 kanger kernel: ide-cd:cdrom_newpc_intr - cmd=0x1b stat=0x58
+> ireason=2 len=0 rq len=0
 
+I think these two lines hold the crux of the problem.  They are the result of 
+a printk in cdrom_newpc_intr just after reading the interrupt reason register 
+and byte count registers.
 
->> Oh well. But let's get back to reality :) How can I help on fixing
->> this floppy showstopper? I've tried with almost every debug option set
->> and nothing is dumped either on syslog or serial console. The only
->> visible thing is that, once the floppy starts spinning (LED is on) the
->> machine freezes. Weird.
->
-> how hard of a freeze is it? I.e. if you log in over the text console,
-> and do:
->
-> 	chrt -f 99 -p `pidof 'IRQ 1'`
-> 	chrt -f 99 -p $$
->
-> can you access the sysrq keys after the freeze happens?
+However, I have been unable to get any closer as to why DRQ gets set.
 
-The lockup is pretty hard indeed. Complete lockup. No sysrq, not even any
-output thru serial console. The only action that has some visible effect
-is turning the power/reset switch off :)
+The patch
 
+--- ide-cd.c 2004-11-26 20:29:59.000000000 +0000
++++ ide-cd.patch.c 2004-11-26 20:51:23.000000000 +0000
+@@ -890,8 +890,12 @@
+   ide_execute_command(drive, WIN_PACKETCMD, handler, ATAPI_WAIT_PC, 
+cdrom_timer_expiry);
+   return ide_started;
+  } else {
++  unsigned long flags; 
++  spin_lock_irqsave(&ide_lock, flags);
++  HWIF(drive)->OUTBSYNC(drive, WIN_PACKETCMD, IDE_COMMAND_REG);
++  ndelay(400);
++  spin_unlock_irqrestore(&ide_lock, flags);
+   /* packet command */
+-  HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
+   return (*handler) (drive);
+  }
+ }
+@@ -938,8 +942,12 @@
+   cmd_len = ATAPI_MIN_CDB_BYTES;
+ 
+  /* Send the command to the device. */
++ unsigned long flags; 
++ spin_lock_irqsave(&ide_lock, flags);
+  HWIF(drive)->atapi_output_bytes(drive, rq->cmd, cmd_len);
+-
++ ndelay(400);
++ spin_unlock_irqrestore(&ide_lock, flags);
++ 
+  /* Start the DMA if need be */
+  if (info->dma)
+   hwif->dma_start(drive);
 
-> If not, can you access them if you do:
->
-> 	echo 1 > /proc/sys/kernel/debug_direct_keyboard
->
-> ? And finally, if the above experiments suggest that it's a hard lockup,
-> do you have a working NMI watchdog? (i.e. do the NMI counts in
-> /proc/interrupt increase on all CPUs?)
->
-
-Yes, nmi_watchdog=1 was set but have to double-check if the NMI counts
-does really pump on /proc/interrupts. Will retry and check later, again.
-
-Bye.
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+Alan Chandler
+alan@chandlerfamily.org.uk
+First they ignore you, then they laugh at you,
+ then they fight you, then you win. --Gandhi

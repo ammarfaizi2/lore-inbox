@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272415AbRH3TM3>; Thu, 30 Aug 2001 15:12:29 -0400
+	id <S272418AbRH3TTJ>; Thu, 30 Aug 2001 15:19:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272416AbRH3TMJ>; Thu, 30 Aug 2001 15:12:09 -0400
-Received: from mons.uio.no ([129.240.130.14]:12436 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S272415AbRH3TMA>;
-	Thu, 30 Aug 2001 15:12:00 -0400
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same mountpoint
-In-Reply-To: <000901c13179$be7b9ae0$6caaa8c0@kevin>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 30 Aug 2001 21:12:11 +0200
-In-Reply-To: "Kevin P. Fleming"'s message of "Thu, 30 Aug 2001 10:32:29 -0700"
-Message-ID: <shsd75d2whg.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S272419AbRH3TS7>; Thu, 30 Aug 2001 15:18:59 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30994 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272418AbRH3TSq>; Thu, 30 Aug 2001 15:18:46 -0400
+Subject: Re: [PATCH] blkgetsize64 ioctl
+To: michael_e_brown@dell.com
+Date: Thu, 30 Aug 2001 20:18:06 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), tytso@mit.edu, bcrl@redhat.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108301403280.1213-200000@blap.linuxdev.us.dell.com> from "Michael E Brown" at Aug 30, 2001 02:10:42 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15cXKI-0001eF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Kevin P Fleming <kevin@labsysgrp.com> writes:
+> Alan,
+> 	Here is a patch that reserves the 108 and 109 ioctl numbers for
+> get/set last sector. This patch has already been merged into the ia64
+> tree, and is currently necessary in order to support the EFI GPT
+> partitioning scheme on ia64. It is also in the Red Hat kernel tree. I had
+> assumed that somebody at Red Hat would have forwarded it to you.
 
-     > Accidentally <G> I mounted a filesystem from my server onto my
-     > workstation twice. Mount gave me no error....
+Rejected. I still think this is an ugly evil hack and want no part in it.
+Its definitely not a 2.4 core tree thing.
 
-That's right. The 2.4 VFS removed the global restriction on the number
-of mounts on a single mountpoint. So?
-
-If people expect this to be an error, then the correct thing is for
-the VFS restriction to be reinstated. I see no reason why it should be
-the responsibility of the filesystem to check for this sort of
-thing. A mountpoint is after all the one place where the VFS is
-actually *designed* to override the filesystem.
-
-Cheers,
-  Trond
+Alan

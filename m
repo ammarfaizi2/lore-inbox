@@ -1,75 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbUKBPfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbUKBPK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbUKBPfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 10:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbUKBPc2
+	id S261266AbUKBPK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 10:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUKBO6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 10:32:28 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:8622 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S262201AbUKBPQb (ORCPT
+	Tue, 2 Nov 2004 09:58:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:49373 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262679AbUKBO4q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 10:16:31 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16775.42190.9404.303359@thebsh.namesys.com>
-Date: Tue, 2 Nov 2004 18:16:30 +0300
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] add requeue task
-In-Reply-To: <41877F2D.6070200@yahoo.com.au>
-References: <418707E5.90705@kolivas.org>
-	<41877F2D.6070200@yahoo.com.au>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+	Tue, 2 Nov 2004 09:56:46 -0500
+Date: Tue, 2 Nov 2004 15:55:41 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mathieu Segaud <matt@minas-morgul.org>
+Cc: Andrew Morton <akpm@osdl.org>, jfannin1@columbus.rr.com, agk@redhat.com,
+       christophe@saout.de, linux-kernel@vger.kernel.org, bzolnier@gmail.com
+Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
+Message-ID: <20041102145541.GV6821@suse.de>
+References: <20041026123651.GA2987@zion.rivenstone.net> <20041026135955.GA9937@agk.surrey.redhat.com> <20041026213703.GA6174@rivenstone.net> <20041026151559.041088f1.akpm@osdl.org> <87hdogvku7.fsf@barad-dur.crans.org> <20041026222650.596eddd8.akpm@osdl.org> <20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de> <877jpcgolt.fsf@barad-dur.crans.org> <20041102143919.GT6821@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041102143919.GT6821@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin writes:
- > Con Kolivas wrote:
- > > add requeue task
- > > 
- > > 
- > > 
- > > ------------------------------------------------------------------------
- > > 
- > > We can requeue tasks for cheaper then doing a complete dequeue followed by
- > > an enqueue. Add the requeue_task function and perform it where possible.
- > > 
- > > Change the granularity code to requeue tasks at their best priority
- > > instead of changing priority while they're running. This keeps tasks at
- > > their top interactive level during their whole timeslice.
- > > 
- > 
- > I wonder... these things are all in sufficiently rarely used places,
- > that the icache miss might be more costly than the operations saved.
- > 
- > But....
- > 
- > > Signed-off-by: Con Kolivas <kernel@kolivas.org>
- > > 
- > > Index: linux-2.6.10-rc1-mm2/kernel/sched.c
- > > ===================================================================
- > > --- linux-2.6.10-rc1-mm2.orig/kernel/sched.c	2004-11-02 14:48:54.686316718 +1100
- > > +++ linux-2.6.10-rc1-mm2/kernel/sched.c	2004-11-02 14:52:51.805763544 +1100
- > > @@ -579,6 +579,16 @@ static void enqueue_task(struct task_str
- > >  }
- > >  
- > >  /*
- > > + * Put task to the end of the run list without the overhead of dequeue
- > > + * followed by enqueue.
- > > + */
- > > +static void requeue_task(struct task_struct *p, prio_array_t *array)
- > > +{
- > > +	list_del(&p->run_list);
- > > +	list_add_tail(&p->run_list, array->queue + p->prio);
- > > +}
+On Tue, Nov 02 2004, Jens Axboe wrote:
+> On Wed, Oct 27 2004, Mathieu Segaud wrote:
+> > Jens Axboe <axboe@suse.de> disait dernièrement que :
+> > 
+> > 
+> > > This feels pretty icky, but should suffice for testing. Does it make a
+> > > difference?
+> > >
+> > > --- /opt/kernel/linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:29:51.866931262 +0200
+> > > +++ linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:41:20.292172299 +0200
+> > > @@ -987,8 +987,8 @@
+> > >  	isize = i_size_read(inode);
+> > >  	if (bytes_todo > (isize - offset))
+> > >  		bytes_todo = isize - offset;
+> > > -	if (!bytes_todo)
+> > > -		return 0;
+> > > +	if (bytes_todo < PAGE_SIZE)
+> > > +		bytes_todo = PAGE_SIZE;
+> > >  
+> > >  	for (seg = 0; seg < nr_segs && bytes_todo; seg++) {
+> > >  		user_addr = (unsigned long)iov[seg].iov_base;
+> > 
+> > As 2.6.10-rc1-mm1 failed (as expected), I tried tour fix applied upon
+> > 2.6.10-rc1-mm1. This did not make any difference.
+> > The only workaround for now is backing out dio-handle-eof-fix.patch and
+> > dio-handle-eof.patch
+> > I am willing to test anything you could send :)
+> 
+> Does this work, on top of 2.6.0-rc1-mm1?
+> 
+> --- /opt/kernel/linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:29:51.000000000 +0200
+> +++ linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-11-02 15:36:51.864411244 +0100
+> @@ -985,10 +985,12 @@
+>  	}
+>  
+>  	isize = i_size_read(inode);
+> -	if (bytes_todo > (isize - offset))
+> -		bytes_todo = isize - offset;
+> -	if (!bytes_todo)
+> -		return 0;
+> +	if (bytes_todo > (isize - offset)) {
+> +		if ((isize - offset))
+> +			bytes_todo = isize - offset;
+> +		if (bytes_todo > PAGE_SIZE)
+> +			bytes_todo = PAGE_SIZE;
+> +	}
 
-Shouldn't this be
+Ehm, that should be
 
-list_move_tail(&p->run_list, array->queue + p->prio);
+		if ((isize - offset))
+			bytes_todo = isize - offset;
+		else if (bytes_todo > PAGE_SIZE)
+			bytes_todo = PAGE_SIZE;
 
-?
 
-Nikita.
+--- /opt/kernel/linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:29:51.000000000 +0200
++++ linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-11-02 15:55:27.918459070 +0100
+@@ -985,10 +985,12 @@
+ 	}
+ 
+ 	isize = i_size_read(inode);
+-	if (bytes_todo > (isize - offset))
+-		bytes_todo = isize - offset;
+-	if (!bytes_todo)
+-		return 0;
++	if (bytes_todo > (isize - offset)) {
++		if ((isize - offset))
++			bytes_todo = isize - offset;
++		else if (bytes_todo > PAGE_SIZE)
++			bytes_todo = PAGE_SIZE;
++	}
+ 
+ 	for (seg = 0; seg < nr_segs && bytes_todo; seg++) {
+ 		user_addr = (unsigned long)iov[seg].iov_base;
+@@ -1008,10 +1010,9 @@
+ 		dio->curr_page = 0;
+ 
+ 		dio->total_pages = 0;
+-		if (user_addr & (PAGE_SIZE-1)) {
++		if (user_addr & (PAGE_SIZE-1))
+ 			dio->total_pages++;
+-			bytes -= PAGE_SIZE - (user_addr & (PAGE_SIZE - 1));
+-		}
++
+ 		dio->total_pages += (bytes + PAGE_SIZE - 1) / PAGE_SIZE;
+ 		dio->curr_user_address = user_addr;
+ 	
+
+-- 
+Jens Axboe
+

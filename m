@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbTJNMoL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 08:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbTJNMoL
+	id S262291AbTJNMmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 08:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTJNMmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 08:44:11 -0400
-Received: from smtrly01.smartm.com ([158.116.149.131]:40720 "EHLO
-	smtrly01.smartm.com") by vger.kernel.org with ESMTP id S262312AbTJNMoG
+	Tue, 14 Oct 2003 08:42:09 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:43502 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262291AbTJNMmG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 08:44:06 -0400
-Message-ID: <903E17B6FF22A24C96B4E28C2C0214D70104BDD5@sr-bng-exc01.int.tsbu.net>
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: "Daheriya, Adarsh" <Adarsh.Daheriya@fci.com>
-To: "Murray, Scott" <scott_murray@stream.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Hot Swap - Resource Allocation Problem.
-Date: Tue, 14 Oct 2003 18:18:04 +0530
+	Tue, 14 Oct 2003 08:42:06 -0400
+Message-ID: <3F8BEF14.6050503@mvista.com>
+Date: Tue, 14 Oct 2003 05:41:56 -0700
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-X-OriginalArrivalTime: 14 Oct 2003 12:42:58.0296 (UTC) FILETIME=[B24D5F80:01C39250]
+To: Pavel Machek <pavel@ucw.cz>
+CC: "'high-res-timers-discourse@lists.sourceforge.net'" 
+	<high-res-timers-discourse@lists.sourceforge.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] VST (tick elimination) is now available
+References: <3F873067.9020805@mvista.com> <20031014110218.GA20211@elf.ucw.cz>
+In-Reply-To: <20031014110218.GA20211@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hi Scott,
+Pavel Machek wrote:
+> Hi!
 > 
-> i am using your hot swap driver for one of our boards here. I have
-> back-ported the driver to 2.4.18 kernel.
 > 
-> the problem is as follows -
-> i have a board in the system slot of the chassis for which i am running
-> the hot swap driver.
-> when i hot insert another board (the configuration is given later) on some
-> peripheral slot, i am not able to allocate resources for some of the
-> devices beyond that.
+>>The first release of the VST package is now available.  VST or 
+>>Variable Scheduling Timeouts (or if you prefer, Variable Sleep Times) 
+>>contains code that, from the idle task, scans the timer list and, if 
+>>no timer is near, skips the timer interrupts that would otherwise be 
+>>generated.  The patch name is hrtimers-vst-*
+>>
+>>The net result is that a quite system will use far less power as it 
+>>does not need to wake up ever 1/HZ timer tick.
 > 
-> the hot swapped board has got a bridge that provides two pmc slots. I have
-> two bridges on these pmc slots and they provide 3 pci slots each. I have
-> two 82559 (e100) ethernet cards beyond the two bridges, one 82559 for
-> each. it looks something like this
 > 
-> peripheral slot ----------- P2P Bridge (Sentinel) -- P2P Bridge (21154) --
-> 82559 (resources  are  allocated)
->                                                                   |
-> 			                              -- P2P Bridge (21154)
-> -- 82559 (resources NOT allocated)
+> Do you have some measurements of how much power does it save? Making
+> Sharp Zaurus run longer on batteries would certainly be nice ;-).
+> 								Pavel
+
+Not just yet.  This is a first cut and a good deal of work still needs 
+doing.  I could also say that that is why I put it out there :)
 > 
-> i am able to assign the resources for the first 82559 correctly and it
-> works, but for the other 81559 i am not able to assign resources.
-> 
-> the following dump will help to see that the driver is trying to assign
-> resources to the other 82559 from a wrong resource tree.
-> (The debug messages are added by me.)
-> 
-> --------------------------------------------------------------------------
-> ---------------------------------
-> cpci_hotplug: cpci_configure_dev - enter
-> cpci_hotplug: assigning resource [0] (0000-0fff)
-> checking bus resource new (0000-0fff) of size 1000 with min 38000000
-> resources root->flags 0200 new->flags 0200
-> find_resource:root->start: 00000000 root->end:000fffff
-> find_resource: new->start: 38000000  new->end: 000fffff
-> allocate resource (prefetching) 0(38000000-fffff) failed.
->   PCI: FAILED to allocate resource 0(38000000-fffff) for 05:08.0
-> cpci_hotplug: assigning resource [1] (0000-003f)
-> checking bus resource new (0000-003f) of size 0040 with min 1000
-> resources root->flags 0100 new->flags 0101
-> find_resource:root->start: 00000000 root->end:00000fff
-> find_resource: new->start: 00001000  new->end: 00000fff
-> allocate resource (prefetching) 1(1000-0fff) failed.
->   PCI: FAILED to allocate resource 1(1000-0fff) for 05:08.0
-> cpci_hotplug: assigning resource [2] (0000-1ffff)
-> checking bus resource new (0000-1ffff) of size 20000 with min 38000000
-> resources root->flags 0200 new->flags 0200
-> find_resource:root->start: 00000000 root->end:000fffff
-> find_resource: new->start: 38000000  new->end: 000fffff
-> allocate resource (prefetching) 2(38000000-fffff) failed.
->   PCI: FAILED to allocate resource 2(38000000-fffff) for 05:08.0
-> cpci_hotplug: finished assigning resources for 05:08.0
-> --------------------------------------------------------------------------
-> --------------------------------------
-> 
-> Could you please give me some feed back to resolve this issue.
-> 
-> Regards,
-> -Adarsh.
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbUJYRDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbUJYREX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbUJYRDE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbUJYRAr
+	id S262059AbUJYREX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 13:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbUJYRDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 13:00:47 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:56544 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262030AbUJYQ73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 12:59:29 -0400
-Subject: Re: [patch] scheduler: active_load_balance fixes
-From: Darren Hart <dvhltc@us.ibm.com>
+	Mon, 25 Oct 2004 13:03:30 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:7051 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S262102AbUJYRA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:00:26 -0400
+Date: Mon, 25 Oct 2004 19:01:28 +0200
+From: Andrea Arcangeli <andrea@novell.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <piggin@cyberone.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       Matt Dobson <colpatch@us.ibm.com>, Martin J Bligh <mbligh@aracnet.com>,
-       Rick Lindsley <ricklind@us.ibm.com>
-In-Reply-To: <20041024023709.2e99cb6d.akpm@osdl.org>
-References: <1098488173.2854.13.camel@farah.beaverton.ibm.com>
-	 <4179EC91.2070100@cyberone.com.au>  <20041024023709.2e99cb6d.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 25 Oct 2004 09:58:29 -0700
-Message-Id: <1098723509.23374.10.camel@farah.beaverton.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: lowmem_reserve (replaces protection)
+Message-ID: <20041025170128.GF14325@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-24 at 02:37 -0700, Andrew Morton wrote:
-> Nick Piggin <piggin@cyberone.com.au> wrote:
-> >
-> > 
-> > 
-> > Darren Hart wrote:
-> > 
-> > >The following patch against the latest mm fixes several problems with
-> > >active_load_balance().
-> > >
-> > >
-> > 
-> > This seems much better. Andrew can you put this into -mm please.
-> > 
-> 
-> Whenever we touch the load balancing we get sad little reports about
-> performance regressions two months later.  How do we gain confidence in
-> this change?
-> 
+This is a forward port to 2.6 CVS of the lowmem_reserve VM feature in
+the 2.4 kernel.
 
-I did run a kernbench test and forgot to include the results, my
-apologies.  On a 16 way NUMA the new code was slightly faster.  The new
-code basically does what I believe the original code was intended to do,
-it doesn't take a radically new approach to load balancing.  It closes
-up some corner cases (like continuing to balance after the runqueue is
-empty) and fragile code (like removing the dependency on the order of
-the sched_group construction).  It also removes some of the artificial
-limits imposed by the old code, like always moving tasks to the last CPU
-of a completely idle group.
+	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.9/lowmem_reserve-1
 
-I will run some more tests on this code today to improve our confidence.
-It would help if others could do the same, particularly those who have
-experience balancing problems in the past.
+Lack of this feature might explain out of memory related killing or
+deadlocks hit on >2G boxes. so if anybody is having trouble with oom
+conditions this is a patch to try.
 
-Thanks,
+this is only slightly tested but works for me so far.
 
--- 
-Darren Hart
-IBM, Linux Technology Center
-503 578 3185
-dvhltc@us.ibm.com
+This is the first of a series of oom related fix I'm going to do and
+test within the next weeks to attempt to cure various oom regressions in
+2.6 (deadlocks turned into crazy early oom kills and the like).

@@ -1,123 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVCRLIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVCRLRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVCRLIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 06:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVCRLIQ
+	id S261575AbVCRLRP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 06:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVCRLRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 06:08:16 -0500
-Received: from fire.osdl.org ([65.172.181.4]:59060 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261540AbVCRLIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 06:08:06 -0500
-Date: Fri, 18 Mar 2005 03:07:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: rostedt@goodmis.org
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove lame schedule in journal inverted_lock (was: Re:
- [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks)
-Message-Id: <20050318030731.224aa95f.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503180531580.21994@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
-	<Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
-	<20050315133540.GB4686@elte.hu>
-	<Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
-	<20050316085029.GA11414@elte.hu>
-	<20050316011510.2a3bdfdb.akpm@osdl.org>
-	<20050316095155.GA15080@elte.hu>
-	<20050316020408.434cc620.akpm@osdl.org>
-	<20050316101906.GA17328@elte.hu>
-	<20050316024022.6d5c4706.akpm@osdl.org>
-	<Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
-	<20050316031909.08e6cab7.akpm@osdl.org>
-	<Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
-	<Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
-	<Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
-	<20050316131521.48b1354e.akpm@osdl.org>
-	<Pine.LNX.4.58.0503170406500.17019@localhost.localdomain>
-	<Pine.LNX.4.58.0503180415370.21994@localhost.localdomain>
-	<20050318013251.330e4d78.akpm@osdl.org>
-	<Pine.LNX.4.58.0503180531580.21994@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 18 Mar 2005 06:17:15 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:49640 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261575AbVCRLRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 06:17:07 -0500
+Date: Fri, 18 Mar 2005 12:16:58 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] docbook: fix escaping of kernel-doc
+Message-ID: <20050318111658.GM8617@admingilde.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200503112034.j2BKYMli008385@shell0.pdx.osdl.net> <20050314081319.GD8617@admingilde.org> <20050314004712.4746f2cf.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kZxC0s2ORSstvtHP"
+Content-Disposition: inline
+In-Reply-To: <20050314004712.4746f2cf.akpm@osdl.org>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> >
->  > I really should knock up a script to send out an email when I add a patch
->  > to -mm.
->  >
-> 
->  I thought you might have had something like that already, which was
->  another reason I thought you might have skipped this.
->
 
-I do now..
+--kZxC0s2ORSstvtHP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
->  > > I'd figure that you may have
->  > > missed this, since the subject didn't change.  So I changed the subject to
->  > > get your attention, and I've resent this. Here's the patch to get rid of
->  > > the the lame schedule that was in fs/jbd/commit.c.   Let me know if this
->  > > patch is appropriate.
->  >
->  > I'm rather aghast at all the ifdeffery and complexity in this one.  But I
->  > haven't looked at it closely yet.
->  >
-> 
->  I wanted to keep the wait logic out when it wasn't a problem. Basically,
->  the problem only occurs when bit_spin_trylock is defined as an actual
->  trylock. So I put in a define there to enable the wait queues.  I didn't
->  want to waste cycles checking the wait queue in jbd_unlock_bh_state when
->  there would never be anything on it.  Heck, I figured why even have the
->  wait queue wasting memory if it wasn't needed.  So that added the
->  ifdeffery complexity.
+hoi :)
 
-No, that code's just a problem.  For ranking reasons it's essentially doing
-this:
+the following patch fixes a bug I introduced with the last patches
+of the DocBook generation.
 
-repeat:
-	cond_resched();
-	spin_lock(j_list_lock);
-	....
-	if (!bit_spin_trylock(bh)) {
-		spin_unlock(j_list_lock);
-		schedule();
-		goto repeat;
-	}
+Signed-off-by: Martin Waitz <tali@admingilde.org>
 
-Now imagine that some other CPU holds the bit_spin_lock and is spinning,
-trying to get the spin_lock().  The above code assumes that the schedule()
-and cond_resched() will take "long enough" for the other CPU to get the
-spinlock, do its business then release the locks.
+---
+Please apply.
 
-So all the schedule() is really doing is "blow a few cycles so the other
-CPU can get in and grab the spinlock".  That'll work OK on normal SMP but I
-suspect that on NUMA setups with really big latencies we could end up
-starving the other CPU: this CPU would keep on grabbing the lock.  It
-depends on how the interconnect cache and all that goop works.
+=2E.. and I really have to redo my bitkeeper repository as it
+is full of merge artifacts as BK did not note the fact that
+the patches were applied using normal patches.
 
-So what to do?
+I guess I have to use one complete tree per patch and recreate
+the public repo as a combination of the individual ones.
+Alternatives?
 
-One approach would be to spin on the bit_spin_trylock after having dropped
-j_list_lock.  That'll tell us when the other CPU has moved on.
-
-Another approach would be to sleep on a waitqueue somewhere.  But that
-means that jbd_unlock_bh_state() needs to do wakeups all the time - costly.
-
-Another approach would be to simply whack an msleep(1) in there.  That
-might be OK - it should be very rare.
-
-Probably the first approach would be the one to use.  That's for mainline. 
-I don't know what the super-duper-RT fix would be.  Why did we start
-discussing this anyway?
-
-Oh, SCHED_FIFO.  kjournald doesn't run SCHED_FIFO, but someone may decide
-to make it do so.  But even then I don't see a problem for the mainline
-kernel, because this CPU's SCHED_FIFO doesn't stop the other CPU from
-running.
+diff -Nru a/scripts/kernel-doc b/scripts/kernel-doc
+--- a/scripts/kernel-doc	2005-03-18 11:51:17 +01:00
++++ b/scripts/kernel-doc	2005-03-18 11:51:17 +01:00
+@@ -1626,11 +1655,11 @@
+=20
+ # replace <, >, and &
+ sub xml_escape($) {
+-	shift;
+-	s/\&/\\\\\\amp;/g;
+-	s/\</\\\\\\lt;/g;
+-	s/\>/\\\\\\gt;/g;
+-	return $_;
++	my $text =3D shift;
++	$text =3D~ s/\&/\\\\\\amp;/g;
++	$text =3D~ s/\</\\\\\\lt;/g;
++	$text =3D~ s/\>/\\\\\\gt;/g;
++	return $text;
+ }
+=20
+ sub process_file($) {
 
 
+--=20
+Martin Waitz
+
+--kZxC0s2ORSstvtHP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFCOriqj/Eaxd/oD7IRAtgvAJ9XnTA+qbDynp+NGShPvoedD8EqFwCghN8t
+I6+wU/3A/7IzXjUxeBaQpe4=
+=2lor
+-----END PGP SIGNATURE-----
+
+--kZxC0s2ORSstvtHP--

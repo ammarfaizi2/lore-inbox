@@ -1,120 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbTISWvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 18:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTISWvJ
+	id S261845AbTISXNb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 19:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTISXNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 18:51:09 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:952 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261792AbTISWvB (ORCPT
+	Fri, 19 Sep 2003 19:13:31 -0400
+Received: from vena.lwn.net ([206.168.112.25]:42445 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S261845AbTISXKt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 18:51:01 -0400
-Date: Fri, 19 Sep 2003 15:54:33 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH][2.6.0-test5] fix oopses is kobject parent is removed before child
-Message-ID: <20030919225433.GA1389@beaverton.ibm.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Andrey Borzenkov <arvidjaar@mail.ru>, linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@infradead.org>
-References: <200309141737.04358.arvidjaar@mail.ru> <20030916174651.GC3893@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030916174651.GC3893@kroah.com>
-X-Operating-System: Linux 2.0.32 on an i486
-User-Agent: Mutt/1.5.4i
+	Fri, 19 Sep 2003 19:10:49 -0400
+Message-ID: <20030919231046.4626.qmail@lwn.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] RFC: Attributes in /sys/cdev
+cc: viro@parcelfarce.linux.theplanet.co.uk
+From: Jonathan Corbet <corbet@lwn.net>
+Date: Fri, 19 Sep 2003 17:10:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH [greg@kroah.com] wrote:
-> On Sun, Sep 14, 2003 at 05:37:04PM +0400, Andrey Borzenkov wrote:
-> > It is possible that parent is removed before child when child is in use. 
-> > Trivial example is mounted USB storage when you unplug it. The kobject for 
-> > USB device is removed but subordinate SCSI device remains. Then kernel oopses 
-> > on attempt to release child e.g. umount removed USB storage. This patch fixes 
-> > two problems:
-> > 
-> > - kset_hotplug. It oopses in get_kobj_path_length because child->parent points 
-> > to nowhere - even if parent has not yet been overwritten, its name is already 
-> > freed. Common oops I get is
-> 
-> No, the scsi code should be fixed to prevent this from happening.  This
-> used to happen in the past, but I thought the scsi people fixed it up.
-> The SCSI code should grab a reference on the parent device which will
-> prevent it from going away until the SCSI device does, preventing all of
-> these oopes.
-> 
-> thanks,
-> 
-> greg k-h
+I assume that the (empty, currently) entries in /sys/cdev are there for
+some purpose...  for purposes of my own, I've been thinking that it would
+be nice to be able to find which device numbers got assigned when using the
+new char dev registration functions.  Thus, the following patch, which adds
+default "dev" and "count" attributes to /sys/cdev entries.
 
-Sorry it took long to reply. I setup both a uml system and another
-system using the scsi_debug driver so I could step through the scsi ref
-counts. The ref counts look ok. I attached a small cut prior to the
-unmount. I believe the issue is that in scsi we are using the device_del
-and device_put instead of calling device_register. This in itself will
-not generate this problem, but to avoid an blk layer cleanup issue the
-device_del for sd is being called when ref counts go to zero. This could
-be some time after the device_del on the host was called. The kobject
-put / release calls follow a standard cleanup path with the parent
-staying in place until the last child goes away.
+I have no idea whether this follows the original plan for /sys/cdev.
+There *is* a plan for it, no...?
 
-I did use the patch provided by Andrey for our current method and the
-oops I was getting was gone which allowed me to get a non-garbled ref
-count output.
+jon
 
-While the patch seems to fix the problem, the better answer is to look
-into what it would take have sd call the blk layer cleanup functions
-during the remove even through there are still openers (having this
-change in remove_dir may still be a good idea). When I looked at
-this last I thought there was a need for a release function in the block
-layer instead of calling del_gendisk directly. I will look into this.
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
-
-FYI ref count during umount
-
-# umount /dev/sdd
-SCSI error : <2 0 0 0> return code = 0x10000
-end_request: I/O error, dev sdd, sector 2
-Buffer I/O error on device sdd, logical block 1
-lost page write due to I/O error on sdd
-kobject get scsi_device: ref 14 
-kobject put queue: ref 3 
-kobject put iosched: ref 1 
-kobject put iosched: ref 0 
-kobject iosched: cleaning up
-kobject put queue: ref 2 
-kobject put sdd: ref 4 
-kobject put queue: ref 1 
-kobject put queue: ref 0 
-kobject queue: cleaning up
-kobject put sdd: ref 3 
-kobject put 2:0:0:0: ref 2 
-kobject put block: ref 42 
-kobject put sdd: ref 2 
-kobject put sdd: ref 1 
-kobject put scsi: ref 13 
-kobject put host2: ref 2 
-kobject put 2:0:0:0: ref 1 
-kobject put host2: ref 1 
-kobject put 2:0:0:0: ref 0 
-kobject 2:0:0:0: cleaning up
-kobject put host2: ref 0 
-kobject host2: cleaning up
-kobject put adapter1: ref 0 
-kobject adapter1: cleaning up
-kobject put devices: ref 39 
-kobject put devices: ref 38 
-kobject put devices: ref 37 
-kobject put scsi_device: ref 13 
-kobject put sdd: ref 0 
-kobject sdd: cleaning up
-kobject put block: ref 41 
-
+diff -urN -X dontdiff test5-vanilla/fs/char_dev.c test5/fs/char_dev.c
+--- test5-vanilla/fs/char_dev.c	Mon Sep  8 13:50:01 2003
++++ test5/fs/char_dev.c	Sat Sep 20 06:46:24 2003
+@@ -342,7 +342,13 @@
+ 
+ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
+ {
+-	int err = kobject_add(&p->kobj);
++	int err;
++
++	/* Remember for sysfs; maybe caller should set these? */
++	p->firstdev = dev;
++	p->count = count;
++	
++	err = kobject_add(&p->kobj);
+ 	if (err)
+ 		return err;
+ 	err = kobj_map(cdev_map, dev, count, NULL, exact_match, exact_lock, p);
+@@ -383,6 +389,61 @@
+ 	}
+ }
+ 
++/*
++ * Simple /sys/cdev attribute stuff, added by corbet@lwn.net.  This is
++ * heavily patterned after the /sys/block code.
++ */
++struct cdev_attribute {
++	struct attribute attr;
++	ssize_t (*show)(struct cdev *, char *);
++};
++
++static ssize_t cdev_dev_read(struct cdev *cd, char *page)
++{
++	return sprintf(page, "%d:%d\n", MAJOR(cd->firstdev),
++			MINOR(cd->firstdev));
++}
++
++static ssize_t cdev_count_read(struct cdev *cd, char *page)
++{
++	return sprintf(page, "%d\n", cd->count);
++}
++
++static struct cdev_attribute cdev_attr_dev = {
++	.attr = { .name = "dev", .mode = S_IRUGO },
++	.show = cdev_dev_read
++};
++
++static struct cdev_attribute cdev_attr_count = {
++	.attr = { .name = "count", .mode = S_IRUGO },
++	.show = cdev_count_read
++};
++
++
++static struct attribute *default_cdev_attrs[] = {
++	&cdev_attr_dev.attr,
++	&cdev_attr_count.attr,
++	NULL
++};
++
++/*
++ * General show function.
++ */
++static ssize_t cdev_attr_show(struct kobject *kobj, struct attribute *attr,
++		char *page)
++{
++	struct cdev *cd = container_of(kobj, struct cdev, kobj);
++	struct cdev_attribute *cattr =
++		container_of(attr, struct cdev_attribute, attr);
++	if (cattr->show)
++		return cattr->show(cd, page);
++	return 0;
++}
++
++static struct sysfs_ops cdev_sysfs_ops = {
++	.show = cdev_attr_show
++};
++	
+ static decl_subsys(cdev, NULL, NULL);
+ 
+ static void cdev_default_release(struct kobject *kobj)
+@@ -400,10 +461,14 @@
+ 
+ static struct kobj_type ktype_cdev_default = {
+ 	.release	= cdev_default_release,
++	.sysfs_ops	= &cdev_sysfs_ops,
++	.default_attrs	= default_cdev_attrs,
+ };
+ 
+ static struct kobj_type ktype_cdev_dynamic = {
+ 	.release	= cdev_dynamic_release,
++	.sysfs_ops	= &cdev_sysfs_ops,
++	.default_attrs	= default_cdev_attrs,
+ };
+ 
+ static struct kset kset_dynamic = {
+diff -urN -X dontdiff test5-vanilla/include/linux/cdev.h test5/include/linux/cdev.h
+--- test5-vanilla/include/linux/cdev.h	Mon Sep  8 13:50:09 2003
++++ test5/include/linux/cdev.h	Sat Sep 20 06:12:52 2003
+@@ -3,6 +3,8 @@
+ #ifdef __KERNEL__
+ 
+ struct cdev {
++	dev_t firstdev;
++	int count;
+ 	struct kobject kobj;
+ 	struct module *owner;
+ 	struct file_operations *ops;

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262485AbRFOCor>; Thu, 14 Jun 2001 22:44:47 -0400
+	id <S262865AbRFOCsq>; Thu, 14 Jun 2001 22:48:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262865AbRFOCoh>; Thu, 14 Jun 2001 22:44:37 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:46884 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S262485AbRFOCo3>; Thu, 14 Jun 2001 22:44:29 -0400
-Message-ID: <3B29B05A.38E89B02@redhat.com>
-Date: Fri, 15 Jun 2001 02:51:06 -0400
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S262995AbRFOCsg>; Thu, 14 Jun 2001 22:48:36 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:3514 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S262865AbRFOCsZ>; Thu, 14 Jun 2001 22:48:25 -0400
+Date: Thu, 14 Jun 2001 19:47:44 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: <nick@snowman.net>
+cc: Kip Macy <kmacy@netapp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <Pine.LNX.4.21.0106141731030.16013-100000@ns>
+Message-ID: <Pine.LNX.4.33.0106141946560.10952-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-To: Kurt Garloff <garloff@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SMP spin-locks
-In-Reply-To: <Pine.LNX.3.95.1010614132506.10137B-100000@chaos.analogic.com> <20010614193501.F23383@garloff.etpnet.phys.tue.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff wrote:
-> 
-> On Thu, Jun 14, 2001 at 01:26:05PM -0400, Richard B. Johnson wrote:
-> > Question 2: What is the purpose of the code sequence, "repz nop"
-> 
-> Puts iP4 into low power mode.
+On Thu, 14 Jun 2001 nick@snowman.net wrote:
 
-Umm, slightly more accurate would be to say that it makes the P4 processor
-wait before resuming the loop to give the lock a chance to have been
-released.  It makes the code go from a constant busy loop to a check/wait
-small amount of time/check again loop.  This in turns keeps your processor
-from trying to constantly check the lock itself which is suppossed to have
-benefits in terms of inter-processor bus pressure.
+> Erm, that is going to be a problem.  Crypto benifits more from open source
+> than any other market segment, and binary only drivers for linux are not
+> the way to go.  I guess I need to get rid of my 5-10 3cr990s and replace
+> them with someone else's product?
 
--- 
+I would... 3Com hardware (as far as i'm concerned) is garbage
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
+

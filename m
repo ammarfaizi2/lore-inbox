@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUFRBUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264913AbUFRBU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbUFRBUv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 21:20:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUFRBUv
+	id S264913AbUFRBU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 21:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUFRBU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 21:20:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36523 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264912AbUFRBUu
+	Thu, 17 Jun 2004 21:20:57 -0400
+Received: from smtp-out6.xs4all.nl ([194.109.24.7]:20228 "EHLO
+	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S264913AbUFRBUz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 21:20:50 -0400
-Date: Fri, 18 Jun 2004 02:20:49 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
+	Thu, 17 Jun 2004 21:20:55 -0400
+Date: Fri, 18 Jun 2004 03:20:48 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.local
 To: 4Front Technologies <dev@opensound.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
 Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618012049.GU12308@parcelfarce.linux.theplanet.co.uk>
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <40D23EBD.50600@opensound.com>
-User-Agent: Mutt/1.4.1i
+Message-ID: <Pine.LNX.4.58.0406180313350.10292@scrub.local>
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
+ <40D23EBD.50600@opensound.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 06:00:45PM -0700, 4Front Technologies wrote:
- 
-> That's right Al, 4Front, ATI, Nvidia are all evil!. OK so now get on with 
-> life.
+Hi,
 
-How dare you?  What in damnation name had given you any reason to assume
-that demagogy has anything to do with that?
+On Thu, 17 Jun 2004, 4Front Technologies wrote:
 
-It's not about "evil" (whatever, if anything, that word might mean).
-It's not about Nvidia.
-It's not about ATI.
+> It's time everybody started to pay some attention to in-kernel interfaces because
+> Linux has graduated out of your personal sandbox to where other people want to use
+> Linux and they aren't kernel developers.
 
-It's about your (personal or institutional - I couldn't care less) lack
-of basic integrity.  It's about exercises in misdirection worth a politician.
-And it's about attempts to come and demand that which had been clearly
-denied to you by those who get to decide what you will be given.
+Look into your own diapers, learn the meaning of "documented interfaces" 
+and come back if you can show that SuSE broke exactly this.
 
-For the record, I have zero problems with whatever license you are using
-and my only problem with your business model is that you appear to assume
-that the mere fact of your existence gives you the right to demand something
-from people who owe you nothing.
-
-*PLONK*
+bye, Roman

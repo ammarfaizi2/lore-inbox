@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130284AbRBMXPn>; Tue, 13 Feb 2001 18:15:43 -0500
+	id <S129350AbRBMXPX>; Tue, 13 Feb 2001 18:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130466AbRBMXPe>; Tue, 13 Feb 2001 18:15:34 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34572 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130284AbRBMXP2>; Tue, 13 Feb 2001 18:15:28 -0500
-Subject: Re: Multicast on loopback?
-To: egb@erikburrows.com (Erik G. Burrows)
-Date: Tue, 13 Feb 2001 23:12:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0102131445030.11824-100000@centrum.jedi-group.com> from "Erik G. Burrows" at Feb 13, 2001 03:03:23 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130284AbRBMXPQ>; Tue, 13 Feb 2001 18:15:16 -0500
+Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:42244 "EHLO
+	benatar.snurgle.org") by vger.kernel.org with ESMTP
+	id <S129350AbRBMXPG>; Tue, 13 Feb 2001 18:15:06 -0500
+Date: Tue, 13 Feb 2001 18:14:49 -0500 (EST)
+From: William T Wilson <fluffy@snurgle.org>
+To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is this the ultimate stack-smash fix?
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>
+Message-ID: <Pine.LNX.4.21.0102131812260.14569-100000@benatar.snurgle.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SocF-0003Df-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> locally over the loopback interface. This does not work without adding a 
-> bogus route statement to get the kernel to hand up the packets from
-> loopback to my waiting application.
+On Tue, 13 Feb 2001, Jeremy Jackson wrote:
 
-The multicast ABI includes the ability to toggle loopback of multicast
-datagrams. Use the socket options instead
+> Next, gcc doesn't generate any code which would be placed in the
+> stack, nor does it generate any calls/jumps to the stack area.
+
+Unfortunately, you can't count on this.  Objective C, for one, requires an
+executable stack.
+
+While there have been "unofficial" patches (Solar Designer) to lock out
+executing the stack for a long time, and it does work in most cases, this
+isn't really doable as a general solution.
+
 

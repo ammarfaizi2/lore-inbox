@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVDBVDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVDBVD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVDBVDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 16:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVDBVDc
+	id S261282AbVDBVD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 16:03:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVDBVD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 16:03:32 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:52709 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261243AbVDBVDa (ORCPT
+	Sat, 2 Apr 2005 16:03:58 -0500
+Received: from box3.punkt.pl ([217.8.180.76]:12817 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S261282AbVDBVD4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 16:03:30 -0500
-Date: Sat, 2 Apr 2005 23:03:14 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove all kernel bugs
-In-Reply-To: <20050401091750.GS21175@lug-owl.de>
-Message-ID: <Pine.LNX.4.62.0504022301190.812@numbat.sonytel.be>
-References: <20050401090744.GD15453@waste.org> <20050401091750.GS21175@lug-owl.de>
+	Sat, 2 Apr 2005 16:03:56 -0500
+Message-ID: <424EFCF7.3070801@punkt.pl>
+Date: Sat, 02 Apr 2005 22:13:43 +0200
+From: |TEcHNO| <techno@punkt.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041122
+X-Accept-Language: en-gb, en-us, en-ca, en-au, ja, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fw: [SCSI] Driver broken in 2.6.x?
+References: <20050402112809.25dee339.akpm@osdl.org>
+In-Reply-To: <20050402112809.25dee339.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Apr 2005, Jan-Benedict Glaw wrote:
-> On Fri, 2005-04-01 01:07:44 -0800, Matt Mackall <mpm@selenic.com>
-> wrote in message <20050401090744.GD15453@waste.org>:
-> > I've been sitting on this patch for a while, figured it's high time I
-> > shared it with the world. This patch eliminates all kernel bugs, trims
-> > about 35k off the typical kernel, and makes the system slightly
-> > faster. The patch is against the latest bk snapshot, please apply.
-> > 
-> > Signed-off-by: Matt Mackall <mpm@selenic.com>
-> 
-> Well, the patch looks fine, but you forgot to also do the VAX-specific
-> part. Withoug the BUGs, maybe the VAX kernel would be even faster?
+Hi,
 
-Perhaps it's a good idea to get Linux/VAX merged in mainline first? After that
-people will start fixing all your bugs automagically ;-)
+If you'r asking:
+$ uname -r
+2.6.11.3
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+pozdrawiam     |"Help me master, I felt the burning twilight behind
+techno@punkt.pl|those gates of stell..." --Perihelion, Prophecy Sequence

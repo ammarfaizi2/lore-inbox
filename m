@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264631AbTARLIL>; Sat, 18 Jan 2003 06:08:11 -0500
+	id <S264646AbTARL11>; Sat, 18 Jan 2003 06:27:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264646AbTARLIL>; Sat, 18 Jan 2003 06:08:11 -0500
-Received: from vsmtp1.tin.it ([212.216.176.221]:16033 "EHLO smtp1.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S264631AbTARLIK>;
-	Sat, 18 Jan 2003 06:08:10 -0500
-Date: Sat, 18 Jan 2003 12:20:36 +0100
-From: Mattia Dongili <dongili@supereva.it>
-To: thunder7@xs4all.nl
+	id <S264654AbTARL11>; Sat, 18 Jan 2003 06:27:27 -0500
+Received: from B55aa.pppool.de ([213.7.85.170]:44937 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S264646AbTARL10>; Sat, 18 Jan 2003 06:27:26 -0500
+Subject: Re: any brand recomendation for a linux laptop ?
+From: Daniel Egger <degger@fhm.edu>
+To: hps@intermeta.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 doesn't boot - hangs after 'Uncompressing the kernel'
-Message-Id: <20030118122036.24c9958b.dongili@supereva.it>
-In-Reply-To: <20030118100955.GB1138@middle.of.nowhere>
-References: <20030118081408.GA1163@middle.of.nowhere>
-	<20030118093743.GB1483@mars.ravnborg.org>
-	<20030118100955.GB1138@middle.of.nowhere>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+In-Reply-To: <b091tq$hnc$1@forge.intermeta.de>
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+	 <1042733652.18213.35.camel@sonja>  <b091tq$hnc$1@forge.intermeta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dn5fxb6UVTBUfkWx2IrG"
+Organization: 
+Message-Id: <1042889460.25582.17.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 18 Jan 2003 12:31:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sat, 18 Jan 2003 11:09:55 +0100
-Jurriaan <thunder7@xs4all.nl> wrote:
-[...]
-> > People have problems after recent changes in vmlinux.lds.
-> > 
-> > Try apply the vmlinux patch from Andrew's set of patches:
-> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm2/
-> > 
-> > Usually report is an oops, but that may be UP only.
-> > 
-> No change, both 2.5.59-mm2 and 2.5.59 + the mm2 vmlinux patch hang just
-> in the same way.
-> 
-> This is on a Debian/Unstable system, btw.
+--=-dn5fxb6UVTBUfkWx2IrG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I have the same problem here, I tried 2.5.59 + vmlinux.patch. I'm Debian/testing.
-BTW, 2.5.58 didn't go further too.
+Am Fre, 2003-01-17 um 14.54 schrieb Henning P. Schmiedehausen:
+
+> One button mouse. Unusable keyboard --> Trash Can. An Apple notebook is
+> nice for, well, DVD watching and web surfing. Not for real work.
+
+FUD. The keyboard is a matter of taste and I for one haven't seen a
+better one fitting my typing needs. One mouse button is not a problem
+on the road, because I rarely need a mouse at all and the others are
+emulated. When really needing a mouse a trackpad is not a solution=20
+anyway because it often doesn't come with a scrollwheel (which would
+disqualify most notebooks but a few Sony Vaios anyway), solution is
+an external mouse which I always have with me (and also had to have with
+any other notebook I had so far FWIW).
+
+You can see quite a few developers in the opensource scene with an Apple
+notebook and you would be surprised where some applications would be
+today if those notebooks where "not for real work".
 
 --
-mattia
+Servus,
+       Daniel
+
+--=-dn5fxb6UVTBUfkWx2IrG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+KTr0chlzsq9KoIYRAkd7AJwNbwWO/B6jWiOoNNhAq0LA/OF4oQCfXApL
+M5i5yLNO/5dz8qpPnp0DKfw=
+=sZW4
+-----END PGP SIGNATURE-----
+
+--=-dn5fxb6UVTBUfkWx2IrG--
 

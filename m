@@ -1,36 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbUK1AzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbUK1BSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbUK1AzO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 19:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbUK1AzO
+	id S261383AbUK1BSa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 20:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbUK1BSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 19:55:14 -0500
-Received: from colin2.muc.de ([193.149.48.15]:14608 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261381AbUK1AzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 19:55:11 -0500
-Message-ID: <20041128005506.96454.qmail@colin2.muc.de>
-From: ak@muc.de
-Date: 28 Nov 2004 01:55:06 +0100
-To: Arnd Bergmann <arnd@arndb.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <35kb6-46Q-25@gated-at.bofh.it>
-References: <34Xo6-2P0-19@gated-at.bofh.it> <35i9f-2vZ-25@gated-at.bofh.it> <35iLS-2Uo-1@gated-at.bofh.it> <35kb6-46Q-25@gated-at.bofh.it>
-Date: Sun, 28 Nov 2004 01:55:06 +0100
+	Sat, 27 Nov 2004 20:18:30 -0500
+Received: from postman2.arcor-online.net ([151.189.20.157]:56229 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261383AbUK1BSW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 20:18:22 -0500
+Message-ID: <33262.192.168.0.2.1101597468.squirrel@192.168.0.10>
+In-Reply-To: <slrncqhqib.19r.psavo@varg.dyndns.org>
+References: <33133.192.168.0.2.1101499190.squirrel@192.168.0.10>
+    <32942.192.168.0.2.1101549298.squirrel@192.168.0.10>
+    <slrncqhqib.19r.psavo@varg.dyndns.org>
+Date: Sun, 28 Nov 2004 00:17:48 +0100 (CET)
+Subject: Re: Is controlling DVD speeds via SET_STREAMING supported?
+From: "Thomas Fritzsche" <tf@noto.de>
+To: "Pasi Savolainen" <psavo@iki.fi>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think we can get rid of this hack when we move to split kernel headers.
-> parisc, s390 and mips already have combined headers, and it should not be
-> too hard to combine the user ABI headers for sparc, ppc and x86_64 as well,
-> without having to merge the complete architecture and kernel header trees
-> for them.
+Hi Pasi,
 
-Please don't do that. x86_64 are not really synchronized in development
-(unlike s390/s390x) and I don't really want too coordinate too much
-with the i386 people when I change something in asm. There are also
-significant differences in some places already.
-Keep it separate is imho far better.
+the error message you receive means that your device don't support the SET
+STREAMING command. But I'm wondering because an other user reported
+success with exactly the DVD model you have. Do you use the latest FW? Do
+you have any other special software / hardware setup that could explain
+this difference?
+What Kernel do you use?
+I'm still testing on 2.4.27'er kernel.
 
--Andi
+Thanks for the feedback and regards,
+ Thomas
+
+
+
+> * Thomas Fritzsche <tf@noto.de>:
+>> Hi Jens,
+>>
+>> I build a new version that addresse this issues.
+>>
+>> Usage: speed -x <speed> <device>
+>> (speed = 0 means reset to defaults)
+>
+> Tried, didn't work. If there's some other info you need,
+> please tell me.
+>
+> Thanks.
+>
+>
+> # ./dvdspeed /dev/dvd
+> Command failed: b6 00 00 00 00 00 00 00 00 00 1c 00  - sense: 05.20.00
+> ERROR.
+>
+> # hdparm -i /dev/dvd
+>
+> /dev/dvd:
+>
+>  Model=SAMSUNG DVD-ROM SD-616E, FwRev=F502, SerialNo=
+>  Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+>  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+>  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+>  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+>  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
+>  UDMA modes: udma0 udma1 *udma2
+>  AdvancedPM=no
+>  Drive conforms to: device does not report version:
+>
+>  * signifies the current active mode
+>
+> # tail -f /var/log/messages
+> ...
+> Nov 27 22:52:49 tienel kernel: hdb: packet command error: status=0x51 {
+> DriveReady SeekComplete Error }
+> Nov 27 22:52:49 tienel kernel: hdb: packet command error: error=0x54
+> Nov 27 22:52:49 tienel kernel: ide: failed opcode was 100
+>
+>
+> --
+>    Psi -- <http://www.iki.fi/pasi.savolainen>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+
+

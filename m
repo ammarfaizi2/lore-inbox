@@ -1,128 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUITSKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUITSQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266901AbUITSKY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 14:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUITSKY
+	id S266912AbUITSQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 14:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266914AbUITSQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 14:10:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25506 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266901AbUITSKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 14:10:09 -0400
-Date: Mon, 20 Sep 2004 20:09:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: jmerkey@galt.devicelogics.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2 bio sickness with large writes
-Message-ID: <20040920180957.GB7616@suse.de>
-References: <4148D2C7.3050007@drdos.com> <20040916063416.GI2300@suse.de> <4149C176.2020506@drdos.com> <20040917073653.GA2573@suse.de> <20040917201604.GA12974@galt.devicelogics.com> <414F0F87.9040903@drdos.com>
+	Mon, 20 Sep 2004 14:16:57 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:58814 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266912AbUITSQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 14:16:48 -0400
+Date: Mon, 20 Sep 2004 11:16:45 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Unaligned kernel access in crypto/sha1.c
+Message-ID: <20040920181645.GA32526@lucon.org>
+References: <20040916231638.GA32514@lucon.org> <20040917221108.32545506.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <414F0F87.9040903@drdos.com>
+In-Reply-To: <20040917221108.32545506.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 20 2004, Jeff V. Merkey wrote:
-> jmerkey@galt.devicelogics.com wrote:
+On Fri, Sep 17, 2004 at 10:11:08PM -0700, Andrew Morton wrote:
+> "H. J. Lu" <hjl@lucon.org> wrote:
+> >
+> > I got
+> > 
+> > Sep 16 15:45:32 gnu-2 kernel: kernel unaligned access to
+> > 0xa0000002001c008e, ip=0xa0000001002135e0
+> > Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> > 0xa0000002002d005e, ip=0xa0000001002135e0
+> > Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> > 0xa0000002002d006e, ip=0xa0000001002135e0
+> > Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> > 0xa0000002002d007e, ip=0xa0000001002135e0
+> > Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> > 0xa0000002002d008e, ip=0xa0000001002135e0
+> > 
+> > on ia64 from sha1_transform in crypto/sha1.c:
+> > 
+> > /* Hash a single 512-bit block. This is the core of the algorithm. */
+> > static void sha1_transform(u32 *state, const u8 *in)
+> > {
+> >         u32 a, b, c, d, e;
+> >         u32 block32[16];
+> >                                                                                 
+> >         /* convert/copy data to workspace */
+> >         for (a = 0; a < sizeof(block32)/sizeof(u32); a++)
+> >           block32[a] = be32_to_cpu (((const u32 *)in)[a]);
+> > 				     ^^^^^^^^^^^^^^^^
+> > 				 This may not be aligned for u32 on ia64.
+> > 
+> > 
 > 
-> Jens,
+> We really need to know the call trace here.
 > 
-> Can you explain the circumstances related to the bio->bi_size callback. 
-> You stated (and I have observed)
-> that there may be callbacks from bi_end_io with bi_size set and that 
-> these should be ignored and
-> return a value of 1.
 
-Driver calls bio_endio() with bytes_done < bio->bi_size, thus the bio
-isn't completely ended. Drivers may do this for a variety of reasons.
+This is from a kernel with signed module support.
 
-> Can you explain to me under what circumstances I am likely to see this 
-> behavior? In other words, would
-
-On drivers that do partial completions :-)
-
-You should not worry about where you'll see it. Either you handle
-partial completions by taking bytes_done into account, or you ignore the
-issue and just look at bio->bi_size to determine whether all io in this
-bio has completed.
-
-> you explain the bio process start to finish with coalesced IO requests, 
-> at least as designed. Also, the whole
-
-Well, you build a bio and submit it. If another bio is built after that
-and is contig on disk (either before or after the other one), they are
-clustered in the request structure if they don't violate the
-restrictions of the hardware (max size of a single request, max number
-segments, etc).
-
-> page and offset sematics in the interface are also somewhat burdensome. 
-> Wouldn't a more reasonable
-> interface for async IO be:
-> 
-> address
-> length
-> address
-> length
-> 
-> rather than
-> 
-> page structure
-> offset in page structure
-> page structure
-> offset in page structure
-
-No, because { address, length } cannot fully describe all memory in any
-given machine.
-
-> The hardware doesn't care about page mapping above it just needs to see 
-> addresses (and not always 4 byte aligned addresses)
-> and lengths for building scatter gather lists. Forcing page sematics 
-> seems a little orthagonal.
-
-Any chunk of memory has a page associated with it, but it may not have a
-kernel address mapping associated with it. So some identifier was needed
-other than a virtual address, a page is as good as any so making one up
-would be silly.
-
-Once you understand this, it doesn't seem so odd. You need to pass in a
-single page or sg table to map for dma anyways, the sg table holds page
-pointers as well.
-
-> I can assume from the interface as designed that if you pass an offset 
-> for a page that is not page aligned,
-> and ask for a 4K write, then you will end up dropping the data on the 
-> floor than spans beyond the end of the page.
-
-What kind of bogus example is that? Asking for a 4K write from a 4K page
-but asking to start 1K in that page is just stupid and not even remotely
-valid.
-
-> No offense, but this is **BUSTED** behavior for an asynch interface. The 
-> whole page offset thing is a little
-> difficult to use and pushes needless complexity to someone just needing 
-> to submit IO to the disk. I think this
-
-It's not difficult at all. Apparently you don't understand it so you
-think it's difficult, that's only natural. But you have access to the
-page mapping of any given piece of data always, or if you have the
-virtual address only it's trivial to go to the { page, offset } mapping.
-
-> is great for mmap for the VFS layer, and it dure makes it a lot easier 
-> to submit IO for fs with the mmap layer,
-> but as a general purpose async layer on top of generic_make_request, 
-> it's a little tough to use, IMHO.
-
-I can only imagine that you are used to a very different interface on
-some other OS so you think it's difficult to use. Most of your
-complaints seem to be based on false assumptions or because you don't
-understand why certain design decisions were made.
-
-> Please advise,
-
-I'll advise that you read and understand Suparnas excellent description
-of bio in Documentation/block/biodoc.txt.
-
--- 
-Jens Axboe
+kernel unaligned access to 0xa0000002002e47ee, ip=0xa000000100211960
+ 
+Call Trace:
+ [<a000000100017490>] show_stack+0x90/0xc0
+                                sp=e00000017b8cf610
+bsp=e00000017b8c9330
+ [<a0000001000174f0>] dump_stack+0x30/0x60
+                                sp=e00000017b8cf7e0
+bsp=e00000017b8c9318
+ [<a000000100043100>] ia64_handle_unaligned+0x540/0x2600
+                                sp=e00000017b8cf7e0
+bsp=e00000017b8c9290
+ [<a0000001000101b0>] ia64_prepare_handle_unaligned+0x30/0x60
+                                sp=e00000017b8cf990
+bsp=e00000017b8c9290
+ [<a00000010000fbe0>] ia64_leave_kernel+0x0/0x260
+                                sp=e00000017b8cfba0
+bsp=e00000017b8c9290
+ [<a000000100211960>] sha1_transform+0x60/0x3160
+                                sp=e00000017b8cfd70
+bsp=e00000017b8c9128
+ [<a000000100214c60>] sha1_update+0x120/0x1a0
+                                sp=e00000017b8cfda0
+bsp=e00000017b8c90e0
+ [<a00000010020fd40>] update_kernel+0x60/0x100
+                                sp=e00000017b8cfda0
+bsp=e00000017b8c90b0
+ [<a0000001000b3340>] module_verify_sig+0x660/0x740
+                                sp=e00000017b8cfda0
+bsp=e00000017b8c8ff0
+ [<a0000001000aed80>] load_module+0x7e0/0x2ba0
+                                sp=e00000017b8cfda0
+bsp=e00000017b8c8ec0
+ [<a0000001000b1220>] sys_init_module+0xe0/0x640
+                                sp=e00000017b8cfe30
+bsp=e00000017b8c8e50
+ [<a00000010000fa80>] ia64_ret_from_syscall+0x0/0x20
+                                sp=e00000017b8cfe30
+bsp=e00000017b8c8e50
+ [<a000000000010620>] 0xa000000000010620
+                                sp=e00000017b8d0000
+bsp=e00000017b8c8e50
 

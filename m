@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287644AbRLaUic>; Mon, 31 Dec 2001 15:38:32 -0500
+	id <S287645AbRLaUkw>; Mon, 31 Dec 2001 15:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287481AbRLaUiW>; Mon, 31 Dec 2001 15:38:22 -0500
-Received: from peabody.ximian.com ([141.154.95.10]:17163 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP
-	id <S287642AbRLaUiO>; Mon, 31 Dec 2001 15:38:14 -0500
-Subject: 2.4.17 not booting on ThinkPad
-From: Kevin Breit <mrproper@ximian.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99+cvs.2001.12.21.18.01 (Preview Release)
-Date: 31 Dec 2001 15:44:35 -0600
-Message-Id: <1009835075.1404.0.camel@192>
-Mime-Version: 1.0
+	id <S287481AbRLaUkc>; Mon, 31 Dec 2001 15:40:32 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:54986 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S287649AbRLaUkW>;
+	Mon, 31 Dec 2001 15:40:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Dave Jones <davej@suse.de>
+Subject: Re: [patch] Prefetching file_read_actor()
+Date: Mon, 31 Dec 2001 12:40:19 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33.0112312045130.17274-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112312045130.17274-100000@Appserv.suse.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16L9EJ-0004Rf-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
-        For some reason, beyond my comprehension, 2.4.17 doesn't seem to
-want to boot on my IBM iSeries 1300 1171-NM1 laptop.
-        To compile the kernel, I took RedHat 7.2's config-i686 file,
-moved it into .config, ran a make oldconfig, and ran the kernel.  The
-boot dies when I get to:
+On December 31, 2001 11:47, Dave Jones wrote:
+> Completly puzzled right now. Moving the prefetching to copy_to_user
+> (and doing the tlb preload & prefetching the whole chunk to be copied
+> (or cachesize if smaller)) results in a performance drop instead of a win.
+>
+> My initial guess is that some of the callers of copy_to_user are
+> doing something that is harmed the prefetching.
+> (Maybe they are doing additional prefetch() calls)
 
-hda: 19640880 sectors (10056 MB) w/384KiB Cache, CHS=1222/255/63,
-UDMA(33)
-ide-floppy driver 0.97.sv
-Partition check:
- hda: hda1 hda2 hda3
+Maybe syscalls that only have to move a very small chunk of data 
+(gettimeofday(2), for instance), are hurt because of the wasted bytes they 
+are prefetching after the intended data? Also, for sizes greater than 512, 
+copy_to_user will call mmx_copy_user, which might call mmx_memcpy, which does 
+prefetching already on x86 CPUs that support it.
 
-The hard disk light stays on and the system freezes entirely (as in Caps
-Lock won't work either).
-
-If anyone has any pointers, I'd appreciate the help!
-
-Thanks
-
-Kevin Breit
-
+-Ryan

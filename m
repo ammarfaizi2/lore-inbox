@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbUCOWAq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 17:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUCOWAg
+	id S262772AbUCOWEK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 17:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbUCOWD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 17:00:36 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36358
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262808AbUCOV7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 16:59:45 -0500
-Date: Mon, 15 Mar 2004 23:00:22 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040315220022.GK30940@dualathlon.random>
-References: <20040309154102.GG8193@dualathlon.random> <Pine.LNX.4.44.0403141935020.1370-100000@dmt.cyclades>
+	Mon, 15 Mar 2004 17:03:29 -0500
+Received: from colino.net ([62.212.100.143]:38390 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262772AbUCOWDH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 17:03:07 -0500
+Date: Mon, 15 Mar 2004 23:02:20 +0100
+From: Colin Leroy <colin@colino.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Tom Rini <trini@kernel.crashing.org>, cieciwa@alpha.zarz.agh.edu.pl,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [SPARC64][PPC] strange error ..
+Message-Id: <20040315230220.3f35fd48@jack.colino.net>
+In-Reply-To: <20040315123953.3b6b863f.davem@redhat.com>
+References: <Pine.LNX.4.58L.0403151437360.16193@alpha.zarz.agh.edu.pl>
+	<Pine.LNX.4.58L.0403151939460.17732@alpha.zarz.agh.edu.pl>
+	<20040315190026.GG4342@smtp.west.cox.net>
+	<20040315123953.3b6b863f.davem@redhat.com>
+Organization: 
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403141935020.1370-100000@dmt.cyclades>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Mon__15_Mar_2004_23_02_20_+0100_x.NvyqNmytkv.Ngq"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 04:47:48PM -0300, Marcelo Tosatti wrote:
-> 
-> 
-> On Tue, 9 Mar 2004, Andrea Arcangeli wrote:
-> 
-> > this doesn't lockup for me (in 2.6 + objrmap), but the machine is not
-> > responsive, while pushing 1G into swap. Here a trace in the middle of the
-> > swapping while pressing C^c on your program doesn't respond for half a minute.
-> > 
-> > Mind to leave it running a bit longer before claiming a lockup?
-> > 
-> >  1 206 615472   4032     84 879332 11248 16808 16324 16808 2618 20311  0 43  0 57
-> >  1 204 641740   1756     96 878476 2852 16980  4928 16980 5066 60228  0 35  1 64
-> >  1 205 650936   2508    100 875604 2248 9928  3772  9928 1364 21052  0 34  2 64
-> >  2 204 658212   2656    104 876904 3564 12052  4988 12052 2074 19647  0 32  1 67
-> >  1 204 674260   1628    104 878528 3236 12924  5608 12928 2062 27114  0 47  0 53
-> >  1 204 678248   1988     96 879004 3540 4664  4360  4664 1988 20728  0 31  0 69
-> >  1 203 683748   4024     96 878132 2844 5036  3724  5036 1513 18173  0 38  0 61
-> >  0 206 687312   1732    112 879056 3396 4260  4424  4272 1704 13222  0 32  0 68
-> >  1 204 690164   1936    116 880364 2844 3400  3496  3404 1422 18214  0 35  0 64
-> >  0 205 696572   4348    112 877676 2956 6620  3788  6620 1281 11544  0 37  1 62
-> >  0 204 699244   4168    108 878272 3140 3528  3892  3528 1467 11464  0 28  0 72
-> >  1 206 704296   1820    112 878604 2576 4980  3592  4980 1386 11710  0 26  0 74
-> >  1 205 710452   1972    104 876760 2256 6684  3092  6684 1308 20947  0 34  1 66
-> >  2 203 714512   1632    108 877564 2332 4876  3068  4876 1295  9792  0 20  0 80
-> >  0 204 719804   3720    112 878128 2536 6352  3100  6368 1441 20714  0 39  0 61
-> > 124 200 724708   1636    100 879548 3376 5308  3912  5308 1516 20732  0 38  0 62
-> > procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
-> >  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
-> >  1 204 730908   4344    100 877528 2592 6356  3672  6356 1819 15894  0 35  0 65
-> >  0 204 733556   3836    104 878256 2312 3132  3508  3132 1294 10905  0 33  0 67
-> >  0 205 736380   3388    100 877376 3084 3364  3832  3364 1322 11550  0 30  0 70
-> >  1 206 747016   2032    100 877760 2780 13144  4272 13144 1564 17486  0 37  0 63
-> >  1 205 756664   2192     96 878004 1704 7704  2116  7704 1341 20056  0 32  0 67
-> >  9 203 759084   3200     92 878516 2748 3168  3676  3168 1330 18252  0 45  0 54
-> >  0 205 761752   3928     96 877208 2604 2984  3284  2984 1330 10395  0 35  0 65
-> > 
-> > most of the time is spent in "wa", though it's a 4-way, so it means at least
-> > two cpus are spinning. I'm pushing the box hard into swap. 2.6 swap extremely
-> > slow w/ or w/o objrmap, not much difference really w/o or w/o your exploit.
-> 
-> Andrea, 
-> 
-> I did some swapping tests with 2.6 and found out that it was really slow, 
-> too. Very unresponsive under heavy swapping.
-> 
-> -mm fixed things for me. Not sure parts of it do the trick, though.
-> 
-> Can you be more specific on the "slow swap" comment you made ?
+This is a multi-part message in MIME format.
 
-well, it's just the swapin/swapout rate being too slow as you noticed. I
-didn't benchmark -mm in swap workloads, so it may very well be fixed in
--mm with Nick's patches.  At this point in time I've more serious
-troubles than the swap speed, and -mm can't help me with those troubles
-(4:4 is a last resort I can take from the -mm tree, but I'm trying as
-much as I can to avoid forcing people to 4:4 on the <=16G machines that
-have huge margins with 3:1 and 2.4-aa, 32G are used to work fine too
-with 3:1 on 2.4-aa, infact I'm trying to avoid 4:4 even on the 64G
-machines).
+--Multipart=_Mon__15_Mar_2004_23_02_20_+0100_x.NvyqNmytkv.Ngq
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+On 15 Mar 2004 at 12h03, David S. Miller wrote:
+
+Hi, 
+
+> I think the best fix is to include linux/linkage.h in asm/unistd.h as
+> you seem to be suggesting, and therefore that is the change I will
+> push off to Linus to fix this on sparc32 and sparc64.
+
+My first patch did that :)
+See '[PATCH] 2.6.4-bk3 ppc32 compile fix' thread. 
+Re-attaching just in case.
+-- 
+Colin
+
+--Multipart=_Mon__15_Mar_2004_23_02_20_+0100_x.NvyqNmytkv.Ngq
+Content-Type: application/octet-stream;
+ name="2.6.4-bk3.compile.fix"
+Content-Disposition: attachment;
+ filename="2.6.4-bk3.compile.fix"
+Content-Transfer-Encoding: base64
+
+LS0tIGluY2x1ZGUvYXNtLXBwYy91bmlzdGQuaC5vbGQJMjAwNC0wMy0xNCAyMjo1Njo0Mi45MDEx
+MDU3ODQgKzAxMDAKKysrIGluY2x1ZGUvYXNtLXBwYy91bmlzdGQuaAkyMDA0LTAzLTE0IDIyOjU2
+OjQ1LjI3Njc0NDYzMiArMDEwMApAQCAtMzgwLDYgKzM4MCw3IEBACiAKICNpbmNsdWRlIDxsaW51
+eC9jb21waWxlci5oPgogI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CisjaW5jbHVkZSA8bGludXgv
+bGlua2FnZS5oPgogCiAvKgogICogU3lzdGVtIGNhbGwgcHJvdG90eXBlcy4K
+
+--Multipart=_Mon__15_Mar_2004_23_02_20_+0100_x.NvyqNmytkv.Ngq--

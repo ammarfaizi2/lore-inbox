@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130375AbRBRMZD>; Sun, 18 Feb 2001 07:25:03 -0500
+	id <S129252AbRBRM2M>; Sun, 18 Feb 2001 07:28:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131776AbRBRMYw>; Sun, 18 Feb 2001 07:24:52 -0500
-Received: from [212.17.18.2] ([212.17.18.2]:26635 "EHLO technoart.net")
-	by vger.kernel.org with ESMTP id <S130375AbRBRMYo>;
-	Sun, 18 Feb 2001 07:24:44 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Perchine <dyp@perchine.com>
+	id <S130534AbRBRM2C>; Sun, 18 Feb 2001 07:28:02 -0500
+Received: from limes.hometree.net ([194.231.17.49]:61548 "EHLO
+	limes.hometree.net") by vger.kernel.org with ESMTP
+	id <S129252AbRBRM1x>; Sun, 18 Feb 2001 07:27:53 -0500
 To: linux-kernel@vger.kernel.org
-Subject: fsync vs fdatasync on Linux
-Date: Sun, 18 Feb 2001 18:22:59 +0600
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01021818225902.00766@dyp.perchine.com>
-Content-Transfer-Encoding: 7BIT
+Date: Sun, 18 Feb 2001 12:26:24 +0000 (UTC)
+From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+Message-ID: <96of1g$jcp$1@forge.intermeta.de>
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+In-Reply-To: <96lrau$dcd$1@forge.intermeta.de>, <20010217230349.A4561@convergence.de>, <96od5j$ja6$1@forge.intermeta.de>
+Reply-To: hps@tanstaafl.de
+Subject: Re: [LONG RANT] Re: Linux stifles innovation...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I wrote:
 
-as fas as I can see from fdatasync man page, and from the latest kernel 
-sources (2.4.1ac3, fs/buffer.c), they are equivalent.
+>The matter with me is: "Vendors AAA ships its hardware product with a
+>driver for i386/Linux". The driver may be closed source, but at least
+>there _is_ a driver. Russell now says: "This is bad, because I can't use
+>the driver for my ARM box. So the vendor should ship no driver at
+>all. This is better than a i386-only driver". 
 
-Using of fdatasync in database can gain significant gain on systems which 
-supports it (on HP it gains up to 25% with pg_bench on PostgreSQL 7.1b5).
+Russell told me, that this is not what he said. I seem to have
+over-interpreted his statements. I apologize for that.
 
-Are there any plans to implement this correctly? And due to what problems it 
-was not implemented yet?
+	Regards
+		Henning
+
 
 -- 
-Sincerely Yours,
-Denis Perchine
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-----------------------------------
-E-Mail: dyp@perchine.com
-HomePage: http://www.perchine.com/dyp/
-FidoNet: 2:5000/120.5
-----------------------------------
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,132 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVB0Arh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVB0Ar7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVB0Arh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 19:47:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVB0Arh
+	id S261318AbVB0Ar7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 19:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVB0Ar7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 19:47:37 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63237 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261316AbVB0Ar0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 19:47:26 -0500
-Date: Sun, 27 Feb 2005 01:47:23 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/pcmcia/: possible cleanups
-Message-ID: <20050227004723.GR3311@stusta.de>
-Mime-Version: 1.0
+	Sat, 26 Feb 2005 19:47:59 -0500
+Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:37385 "EHLO
+	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id S261318AbVB0Arz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 19:47:55 -0500
+From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16929.6319.149849.305237@hertz.ikp.physik.tu-darmstadt.de>
+Date: Sun, 27 Feb 2005 01:47:43 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] partitions/msdos.c
+In-Reply-To: <Pine.LNX.4.58.0502261546380.25732@ppc970.osdl.org>
+References: <20050226213459.GA21137@apps.cwi.nl>
+	<16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de>
+	<Pine.LNX.4.58.0502261424430.25732@ppc970.osdl.org>
+	<20050226225203.GA25217@apps.cwi.nl>
+	<Pine.LNX.4.58.0502261510030.25732@ppc970.osdl.org>
+	<20050226234053.GA14236@apps.cwi.nl>
+	<Pine.LNX.4.58.0502261546380.25732@ppc970.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- remove the following unneeded EXPORT_SYMBOL's:
-  - ds.c: pcmcia_report_error
-  - ds.c: pcmcia_bus_type
+>>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+    Linus> On Sun, 27 Feb 2005, Andries Brouwer wrote:
+    >>  (Concerning the "size" version: it occurred to me that there is one
+    >> very minor objection: For extended partitions so far the size did not
+    >> normally play a role. Only the starting sector was significant.  If,
+    >> at some moment we decide also to check the size, then a weaker check,
+    >> namely only checking for non-extended partitions, might be better at
+    >> first.)
 
----
+    Linus> Yes. I agree - checking the size is likely _more_ dangerous and
+    Linus> likely to break something silly than checking the ID for zero.
 
- drivers/pcmcia/ds.c             |   10 +++++-----
- drivers/pcmcia/rsrc_nonstatic.c |    4 ++--
- include/pcmcia/cs.h             |    1 -
- include/pcmcia/ds.h             |    2 --
- 4 files changed, 7 insertions(+), 10 deletions(-)
+    Linus> So your patch it is. I'll put it in immediately after doing a
+    Linus> 2.6.11 (no need to worry about getting into 2.6.11, since afaik
+    Linus> the worst problem right now is an extra partition that isn't
+    Linus> usable).
 
---- linux-2.6.11-rc4-mm1-full/include/pcmcia/cs.h.old	2005-02-26 15:49:49.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/include/pcmcia/cs.h	2005-02-26 15:50:07.000000000 +0100
-@@ -417,7 +417,6 @@
- int pcmcia_resume_card(struct pcmcia_socket *skt);
- int pcmcia_eject_card(struct pcmcia_socket *skt);
- int pcmcia_insert_card(struct pcmcia_socket *skt);
--int pcmcia_report_error(client_handle_t handle, error_info_t *err);
- 
- struct pcmcia_socket * pcmcia_get_socket(struct pcmcia_socket *skt);
- void pcmcia_put_socket(struct pcmcia_socket *skt);
---- linux-2.6.11-rc4-mm1-full/include/pcmcia/ds.h.old	2005-02-26 15:45:28.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/include/pcmcia/ds.h	2005-02-26 15:45:32.000000000 +0100
-@@ -129,8 +129,6 @@
- 
- struct pcmcia_socket;
- 
--extern struct bus_type pcmcia_bus_type;
--
- struct pcmcia_driver {
- 	dev_link_t		*(*attach)(void);
- 	void			(*detach)(dev_link_t *);
---- linux-2.6.11-rc4-mm1-full/drivers/pcmcia/ds.c.old	2005-02-26 15:44:48.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pcmcia/ds.c	2005-02-26 15:49:33.000000000 +0100
-@@ -58,7 +58,7 @@
- MODULE_LICENSE("GPL");
- 
- #ifdef DEBUG
--int ds_pc_debug;
-+static int ds_pc_debug;
- 
- module_param_named(pc_debug, ds_pc_debug, int, 0644);
- 
-@@ -214,7 +214,7 @@
- };
- 
- 
--int pcmcia_report_error(client_handle_t handle, error_info_t *err)
-+static int pcmcia_report_error(client_handle_t handle, error_info_t *err)
- {
- 	int i;
- 	char *serv;
-@@ -244,7 +244,6 @@
- 
- 	return CS_SUCCESS;
- } /* report_error */
--EXPORT_SYMBOL(pcmcia_report_error);
- 
- /* end of code which was in cs.c before */
- 
-@@ -262,6 +261,8 @@
- static struct pcmcia_driver * get_pcmcia_driver (dev_info_t *dev_info);
- static struct pcmcia_bus_socket * get_socket_info_by_nr(unsigned int nr);
- 
-+static struct bus_type pcmcia_bus_type;
-+
- static void pcmcia_release_bus_socket(struct kref *refcount)
- {
- 	struct pcmcia_bus_socket *s = container_of(refcount, struct pcmcia_bus_socket, refcount);
-@@ -1610,12 +1611,11 @@
- };
- 
- 
--struct bus_type pcmcia_bus_type = {
-+static struct bus_type pcmcia_bus_type = {
- 	.name = "pcmcia",
- 	.match = pcmcia_bus_match,
- 	.dev_attrs = pcmcia_dev_attrs,
- };
--EXPORT_SYMBOL(pcmcia_bus_type);
- 
- 
- static int __init init_pcmcia_bus(void)
---- linux-2.6.11-rc4-mm1-full/drivers/pcmcia/rsrc_nonstatic.c.old	2005-02-26 18:41:19.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pcmcia/rsrc_nonstatic.c	2005-02-26 18:41:34.000000000 +0100
-@@ -606,7 +606,7 @@
- 
- ======================================================================*/
- 
--struct resource *nonstatic_find_io_region(unsigned long base, int num,
-+static struct resource *nonstatic_find_io_region(unsigned long base, int num,
- 		   unsigned long align, struct pcmcia_socket *s)
- {
- 	struct resource *res = make_resource(0, num, IORESOURCE_IO, s->dev.class_id);
-@@ -640,7 +640,7 @@
- 	return res;
- }
- 
--struct resource * nonstatic_find_mem_region(u_long base, u_long num, u_long align,
-+static struct resource * nonstatic_find_mem_region(u_long base, u_long num, u_long align,
- 				 int low, struct pcmcia_socket *s)
- {
- 	struct resource *res = make_resource(0, num, IORESOURCE_MEM, s->dev.class_id);
+Well,
 
+on a Suse 9.2 System with Suse Hotplug, the phantom partition was somehow
+recognized as Reiserfs, and then the Hotplug mechanism trying to mount the 
+bogus partition as a Reiser Filesystem ended in an Oops...
+
+-- 
+Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
+
+Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
+--------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------

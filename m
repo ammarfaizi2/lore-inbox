@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVBVSqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVBVSpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVBVSqE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 13:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVBVSqE
+	id S261275AbVBVSpS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 13:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVBVSpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 13:46:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:61570 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261278AbVBVSp6 (ORCPT
+	Tue, 22 Feb 2005 13:45:18 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:30704 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261275AbVBVSpL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 13:45:58 -0500
-Date: Tue, 22 Feb 2005 10:45:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: mingo@elte.hu, raybry@sgi.com, mort@wildopensource.com,
-       linux-kernel@vger.kernel.org, hilgeman@sgi.com
-Subject: Re: [PATCH/RFC] A method for clearing out page cache
-Message-Id: <20050222104535.0b3a3c65.akpm@osdl.org>
-In-Reply-To: <20050222032633.5cb38abb.pj@sgi.com>
-References: <20050214154431.GS26705@localhost>
-	<20050214193704.00d47c9f.pj@sgi.com>
-	<20050221192721.GB26705@localhost>
-	<20050221134220.2f5911c9.akpm@osdl.org>
-	<421A607B.4050606@sgi.com>
-	<20050221144108.40eba4d9.akpm@osdl.org>
-	<20050222075304.GA778@elte.hu>
-	<20050222032633.5cb38abb.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 13:45:11 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6: USB Storage hangs machine on bootup for ~2 minutes
+Date: Tue, 22 Feb 2005 13:44:58 -0500
+User-Agent: KMail/1.7.92
+Cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0502071115130.2261-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0502071115130.2261-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502221344.58420.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
+On Monday 07 February 2005 11:18 am, Alan Stern wrote:
+> > I am already running 2.6.11-rc3 and the problem has not gone away. Are
+> > there any relevant fixes in -bk?
 >
->  As Martin wrote, when he submitted this patch:
->  > The motivation for this patch is for setting up High Performance
->  > Computing jobs, where initial memory placement is very important to
->  > overall performance.
-> 
->  Any left over cache is wrong, for this situation.
+> No.
+>
+> > Attached is the bootup log after enabling CONFIG_USB_STORAGE_DEBUG.
+>
+> You said that the system hangs during bootup.  Where in the log does that
+> hang occur?  The log itself looks perfectly normal.  The Maxtor drive is
+> scanned, the partitions detected, and then apparently one or two
+> partitions are mounted.  There's no indication of any problem.
 
-So...  Cannot the applicaiton remove all its pagecache with posix_fadvise()
-prior to exitting?
+I have tracked down the reason for this hang  - it seems that kudzu gets stuck 
+in D state on usb_device_read - Below SysRQ+T from 2.6.11-rc4 - always 
+reproducible.
+
+kudzu         D 00000000ffffffff     0  4424   4472                     
+(NOTLB)
+ffff81002bebfd98 0000000000000086 ffff81002c538150 ffff81002f21d00e
+       000000078847ce40 ffff81002b5977c0 000000000000fd38 ffffffff803defc0
+       ffff81002bebfd88 ffffffff80219b32
+Call Trace:
+<ffffffff80219b32>{_atomic_dec_and_lock+290} <ffffffff80383835>{__down+421}
+       <ffffffff80133e30>{default_wake_function+0} 
+<ffffffff803868ae>{__down_failed+53}
+       <ffffffff802db9f1>{.text.lock.usb+5} 
+<ffffffff802edb35>{usb_device_read+229}
+       <ffffffff801998d1>{vfs_read+225} <ffffffff80199bd0>{sys_read+80}
+       <ffffffff8010ed1e>{system_call+126}
+
+Thereafter, if I try to mount the USB drive, even mount gets stuck.
+
+Parag

@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317628AbSGFLV3>; Sat, 6 Jul 2002 07:21:29 -0400
+	id <S317630AbSGFLbx>; Sat, 6 Jul 2002 07:31:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317629AbSGFLV2>; Sat, 6 Jul 2002 07:21:28 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:27361 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S317628AbSGFLV1>;
-	Sat, 6 Jul 2002 07:21:27 -0400
-Date: Sat, 6 Jul 2002 13:24:04 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Grega Fajdiga <Gregor.Fajdiga@telemach.net>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Where is Martin Dalecki?
-Message-ID: <20020706112403.GA27254@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Grega Fajdiga <Gregor.Fajdiga@telemach.net>,
-	linux-kernel@vger.kernel.org
-References: <20020706121859.2b137690.Gregor.Fajdiga@telemach.net> <20020706121838.A5127@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020706121838.A5127@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S317631AbSGFLbw>; Sat, 6 Jul 2002 07:31:52 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:27614 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S317630AbSGFLbu>; Sat, 6 Jul 2002 07:31:50 -0400
+Message-ID: <3D26D446.6050206@oracle.com>
+Date: Sat, 06 Jul 2002 13:28:06 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Consulting Premium Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Bug] 2.5.25 build as one user and install as root
+References: <29475.1025944546@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 06, 2002 at 12:18:38PM +0100, Russell King wrote:
-> On Sat, Jul 06, 2002 at 12:18:59PM +0200, Grega Fajdiga wrote:
-> > There has been a while since any IDE patches have gone into main tree.
-> > Also, it's been a while since Martin Dalecki released an IDE patch.
-> > Where is he? In lat two weeks or so only Bartolmej (did I spell this
-> > correctly?) has been releasing them. Could anyone elaborate?
+Keith Owens wrote:
+> 2.5.25 existing build system has a nasty bug.  Build as one user then
+> make install as root.  It does supurious recompiles of some files and
+> leaves them owned as root.  All of these files are now owned by root
+> and cause problems when the build user wants to rebuild.
 > 
-> He didn't show for his talk at OLS either, although he was in Ottawa
-> for the Kernel Summit.
+> arch/i386/boot/compressed/vmlinux.bin
+> arch/i386/boot/compressed/piggy.o
+> arch/i386/boot/compressed/vmlinux
+> arch/i386/boot/.setup.o.cmd
+> arch/i386/boot/setup.o
+> arch/i386/boot/setup
+> arch/i386/boot/vmlinux.bin
+> include/linux/compile.h
+> init/.version.o.cmd
+> init/version.o
+> init/init.o
+> .version
+> vmlinux
 
-No, that's not right. As far as I understood it he had been talked into a
-presentation replacing somebody else's:
-http://www.linuxsymposium.org/2002/view_txt.php?talk=85&text=abstract
+Doesn't happen for me.
 
-And then James Bottomley reported that he'd chickened out.
+[asuardi@dolphin asuardi]$ cd /usr/src/linux-2.5.25/arch/i386/boot/compressed/
+[asuardi@dolphin compressed]$ ls -l
+total 5492
+-rw-r--r--    1 asuardi  asuardi       904 Jul  6 02:27 head.o
+-rw-r--r--    1 asuardi  asuardi      2880 May  2 23:24 head.S
+-rw-r--r--    1 asuardi  asuardi       669 Jul  6 02:13 Makefile
+-rw-r--r--    1 asuardi  asuardi      9220 Jun 28 11:52 misc.c
+-rw-r--r--    1 asuardi  asuardi     14896 Jul  6 02:27 misc.o
+-rw-r--r--    1 asuardi  asuardi   1065041 Jul  6 02:27 piggy.o
+-rwxr-xr-x    1 asuardi  asuardi   1081033 Jul  6 02:27 vmlinux
+-rwxr-xr-x    1 asuardi  asuardi   2344608 Jul  6 02:27 vmlinux.bin
+-rw-r--r--    1 asuardi  asuardi   1064452 Jul  6 02:27 vmlinux.bin.gz
+-rw-r--r--    1 asuardi  asuardi       130 Jul  6 02:13 vmlinux.scr
 
-Anyway, they can both be seen here: http://ds9a.nl/ols/img_0015-1-0.shtml
+(My keyboard and mouse ceased to work, but that's another subject
+  and I'll post details in another email).
 
-Regards,
+--alessandro
 
-bert
+  "my actions make me beautiful / and dignify the flesh"
+                 (R.E.M., "Falls to Climb")
 
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

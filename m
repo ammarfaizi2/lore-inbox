@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290185AbSBKTJj>; Mon, 11 Feb 2002 14:09:39 -0500
+	id <S290206AbSBKTOJ>; Mon, 11 Feb 2002 14:14:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290125AbSBKTJ3>; Mon, 11 Feb 2002 14:09:29 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52998 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290185AbSBKTJL>; Mon, 11 Feb 2002 14:09:11 -0500
-Date: Mon, 11 Feb 2002 14:08:14 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Michael Cohen <lkml@ohdarn.net>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] 2.4.18-pre8-mjc
-In-Reply-To: <B887BD9B.3D6%lkml@ohdarn.net>
-Message-ID: <Pine.LNX.3.96.1020211140641.642B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290215AbSBKTN7>; Mon, 11 Feb 2002 14:13:59 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:3255 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S290206AbSBKTNs>; Mon, 11 Feb 2002 14:13:48 -0500
+Date: Mon, 11 Feb 2002 20:11:08 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APIC error on CPU0
+Message-Id: <20020211201108.7bc11699.kristian.peters@korseby.net>
+In-Reply-To: <Pine.LNX.4.44.0202111849540.17361-100000@netfinity.realnet.co.sz>
+In-Reply-To: <20020211172749.2bdadec7.kristian.peters@korseby.net>
+	<Pine.LNX.4.44.0202111849540.17361-100000@netfinity.realnet.co.sz>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Michael Cohen wrote:
-
-> On 2/7/02 5:03 AM, "Tarkan Erimer" <tarkane@solmaz.com.tr> wrote:
+Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
 > 
-> > Your patch list is very nice. Is there any chance to add XFS patch, also?
-> 
-> Shawn Starr has been working on this.
-> 
-> > If so, it would be wonderful for me and the others , I think, who uses XFS
-> > and want to use these patches, too. Because, if i patch my kernel with XFS,
-> > i can't add other patches, like yours.
-> 
-> Personally I think XFS ought to stay in fs/xfs already and stop encroaching
-> on the rest of the kernel.  It's also HUGE.  But hey, if Shawn wants to do
-> it, let him do it.
+> Mikael Pettersson submitted a patch which fixed that for me, its 
+> definately in 2.4 mainline. Which kernel is in Debian 3.0?
 
-The size is less an issue than having hooks all over the kernel, where
-other features can/will break and be broken.
+Hm... That's strange. When I disable serial console on ttyS0 (in inittab) linux will suspend correctly. Although this APIC error on CPU0: 00(40) appears though. Also my one and only fan in my power supply spins down completely. So the box will get quite hot after some minutes in standby mode... Maybe a hardware problem...
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Thanks anyway. ;-)
 
+*Kristian
+
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :.........................:: ~/$ kristian@korseby.net :

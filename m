@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291965AbSBYBmG>; Sun, 24 Feb 2002 20:42:06 -0500
+	id <S293189AbSBYB7U>; Sun, 24 Feb 2002 20:59:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292600AbSBYBlz>; Sun, 24 Feb 2002 20:41:55 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:17425 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S291965AbSBYBlq>; Sun, 24 Feb 2002 20:41:46 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: mingo@elte.hu, Matthew Kirkwood <matthew@hairy.beasts.org>,
+	id <S293257AbSBYB7J>; Sun, 24 Feb 2002 20:59:09 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:44785 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S293189AbSBYB6y>;
+	Sun, 24 Feb 2002 20:58:54 -0500
+Date: Sun, 24 Feb 2002 20:58:49 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>, mingo@elte.hu,
+        Matthew Kirkwood <matthew@hairy.beasts.org>,
         Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
         William Lee Irwin III <wli@holomorphy.com>,
         linux-kernel@vger.kernel.org
-Date: Mon, 25 Feb 2002 12:41:35 +1100
-Message-Id: <E16fA92-0007en-00@wagner.rustcorp.com.au>
+Subject: Re: your mail
+In-Reply-To: <E16fA92-0007en-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.GSO.4.21.0202242054410.1329-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: [PATCH] Lightweight userspace semaphores... 
-In-reply-to: Your message of "Sun, 24 Feb 2002 17:23:59 -0800."
-             <Pine.LNX.4.33.0202241719330.1420-100000@home.transmeta.com> 
 
-In message <Pine.LNX.4.33.0202241719330.1420-100000@home.transmeta.com> you wri
-te:
+
+On Mon, 25 Feb 2002, Rusty Russell wrote:
+
+> > Note that getting a file descriptor is really quite useful - it means that
+> > you can pass the file descriptor around through unix domain sockets, for
+> > example, and allow sharing of the semaphore across unrelated processes
+> > that way.
 > 
-> 
-> On Mon, 25 Feb 2002, Rusty Russell wrote:
-> >
-> > Bugger.  How about:
-> >
-> > 	sys_sem_area(void *pagestart, size_t len)
-> > 	sys_unsem_area(void *pagestart, size_t len)
-> >
-> > Is that sufficient?  Is sys_unsem_area required at all?
-> 
-> The above is sufficient, but I would personally actually prefer an
-> interface more like
-> 
-> 	fd = sem_initialize();
-> 	mmap(fd, ...)
-> 	..
-> 	munmap(..)
-> 
-> which gives you a handle for the semaphore.
+> First, fd passing sucks: you can't leave an fd somewhere and wait for
+> someone to pick it up, and they vanish when you exit.  Secondly, you
 
-No no no!  Implemented exactly that (and posted to l-k IIRC), and it's
-*horrible* to use.
+Yes, you can.  Please, RTFS - what is passed is not a descriptor, it's
+struct file *.  As soon as datagram is sent, descriptors are resolved and
+after that point descriptor table of sender (or, for that matter, survival
+of sender) doesn't matter.
 
-> Note that getting a file descriptor is really quite useful - it means that
-> you can pass the file descriptor around through unix domain sockets, for
-> example, and allow sharing of the semaphore across unrelated processes
-> that way.
-
-First, fd passing sucks: you can't leave an fd somewhere and wait for
-someone to pick it up, and they vanish when you exit.  Secondly, you
-have some arbitrary limit on the number of semaphores.  Thirdly,
-someone has to own them.
-
-Consider tdb, the Trivial Database.  There is no "master locking
-daemon".  There is no way for the first opener (who then has to create
-the semaphores in your model) to pass them to other openers: this is a
-library.
-
-With this interface, I can use them on the stack with clone().
-
-Most importantly, I can place the semaphores in a file and have them
-persistant.
-
-lock(1), unlock(1) => fast semaphores in shell scripts!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

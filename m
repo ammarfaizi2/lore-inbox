@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUECWj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264117AbUECWjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbUECWj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 18:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbUECWj1
+	id S264117AbUECWjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 18:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUECWjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 18:39:27 -0400
-Received: from main.gmane.org ([80.91.224.249]:16317 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264124AbUECWjY (ORCPT
+	Mon, 3 May 2004 18:39:16 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:3978 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264117AbUECWjP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 18:39:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: Re: 2.6.6-rc3-mm1
-Date: Mon, 3 May 2004 22:39:20 +0000 (UTC)
-Message-ID: <slrnc9digo.cgh.psavo@varg.dyndns.org>
-References: <20040430014658.112a6181.akpm@osdl.org> <slrnc98gnc.cgh.psavo@varg.dyndns.org> <4094CCF9.6070109@yahoo.com.au>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
-User-Agent: slrn/0.9.8.0 (Linux)
+	Mon, 3 May 2004 18:39:15 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16534.51724.578183.845357@napali.hpl.hp.com>
+Date: Mon, 3 May 2004 15:39:08 -0700
+To: arjanv@redhat.com
+Cc: davidm@hpl.hp.com, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, bunk@fs.tum.de, eyal@eyal.emu.id.au,
+       linux-dvb-maintainer@linuxtv.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
+In-Reply-To: <1083618424.3843.12.camel@laptop.fenrus.com>
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+	<408F9BD8.8000203@eyal.emu.id.au>
+	<20040501201342.GL2541@fs.tum.de>
+	<Pine.LNX.4.58.0405011536300.18014@ppc970.osdl.org>
+	<20040501161035.67205a1f.akpm@osdl.org>
+	<Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org>
+	<20040501175134.243b389c.akpm@osdl.org>
+	<16534.35355.671554.321611@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org>
+	<16534.45589.62353.878714@napali.hpl.hp.com>
+	<1083618424.3843.12.camel@laptop.fenrus.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nick Piggin <nickpiggin@yahoo.com.au>:
-> Pasi Savolainen wrote:
->> * Andrew Morton <akpm@osdl.org>:
->> 
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc3/2.6.6-rc3-mm1/
->> 
->> 
->> I'm having severe interactivity problems with 2.6 tree on a dual Athlon system.
->> I mostly get 'X screen freezes/mouse pointer immovable for a several
->> seconds' and rather often audio skips.
->> 
->
-> Make sure X is running at the normal priority (ie 0).
-> Does that improve things?
+>>>>> On Mon, 03 May 2004 23:07:04 +0200, Arjan van de Ven <arjanv@redhat.com> said:
 
-It already is at nice 0.
+  Arjan> Exporting sys_mlock() for a kernel module soooo sounds wrong
+  Arjan> to me
 
-The slab shrinking fix Andrew provided reduced all the swapping to
-minimum. So far 2.6.6-rc3+shrink_slab-handle-GFP_NOFS-fix has been the
-most 'responsive' 2.6 (I've been following rather closely sice 2.5.75).
+On what grounds?  What alternative are you suggesting?
 
-I can still trigger staggering and short (1/2sec) pauses when there's
-memory pressure and I quit some swapped-out application. It's been this
-way for a long time.
-
-Thanks.
--- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
-
+	--david

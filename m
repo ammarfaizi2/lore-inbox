@@ -1,82 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282540AbRKZVFX>; Mon, 26 Nov 2001 16:05:23 -0500
+	id <S282553AbRKZVKL>; Mon, 26 Nov 2001 16:10:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282531AbRKZVE3>; Mon, 26 Nov 2001 16:04:29 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:6160 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282524AbRKZVDZ>; Mon, 26 Nov 2001 16:03:25 -0500
-Message-ID: <3C02ADF2.E505E672@zip.com.au>
-Date: Mon, 26 Nov 2001 13:02:42 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S282551AbRKZVJz>; Mon, 26 Nov 2001 16:09:55 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54535 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S282550AbRKZVJl>; Mon, 26 Nov 2001 16:09:41 -0500
+Date: Mon, 26 Nov 2001 16:03:16 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Releases
+In-Reply-To: <m1d726zwdm.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.3.96.1011126154312.27112H-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Scalable page cache
-In-Reply-To: <3C02A00B.B9948342@zip.com.au>,
-		<3C029BE0.2BEA2264@zip.com.au>,
-			<Pine.LNX.4.33.0111262201420.18923-100000@localhost.localdomain>
-			<20011126.111854.102567147.davem@redhat.com>
-			<3C029BE0.2BEA2264@zip.com.au> <20011126.115723.41632923.davem@redhat.com> <200111262037.fAQKblt10496@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> In article <3C02A00B.B9948342@zip.com.au> you write:
-> >
-> >Here's the current rolled-up ext3 diff which I've been using.
-> >It needs to be resynced with pestiferous ext3 CVS, changelogged
-> >and pushed out this week.
-> >
-> >--- linux-2.4.15-pre9/fs/ext3/inode.c  Thu Nov 22 10:56:33 2001
-> >+++ linux-akpm/fs/ext3/inode.c Thu Nov 22 11:07:03 2001
-> >@@ -1026,9 +1026,20 @@ static int ext3_prepare_write(struct fil
-> >       if (ret != 0)
-> >               goto prepare_write_failed;
-> >
-> >-      if (ext3_should_journal_data(inode))
-> >+      if (ext3_should_journal_data(inode)) {
-> >               ret = walk_page_buffers(handle, page->buffers,
-> >                               from, to, NULL, do_journal_get_write_access);
-> >+              if (ret) {
-> >+                      /*
-> >+                       * We're going to fail this prepare_write(),
-> >+                       * so commit_write() will not be called.
-> >+                       * We need to undo block_prepare_write()'s kmap().
-> >+                       * AKPM: Do we need to clear PageUptodate?  I don't
-> >+                       * think so.
-> >+                       */
-> >+                      kunmap(page);
-> >+              }
-> >+      }
-> 
-> This is wrong.
-> 
-> The generic VM layer does the kmap/kunmap itself these days (it really
-> always should have - it needs the page mapped itself for the memcpy
-> anyway, and depending on the low-level FS to do kmap/kunmap was an ugly
-> layering violation).
+On Sun, 25 Nov 2001, Eric W. Biederman wrote:
 
-Actually the comment is a bit misleading.
+> Bah.  Some of the worst kernels I have seen have been distributors kernels.
+> Distributors seem to give in to the desire for more features, and don't
+> address the deep bugs.  
 
-We've called block_prepare_write(), which has done the kmap.
-But even though block_prepare_write() returned success, this
-call to the filesystem's ->prepare_write() is about to fail.
+You use the wrong distributor, try Alan Cox ;-)
+ 
+> What the developers produce primarily are correct kernels, especially
+> Linus.  I have never seen a distribution make a kernel more correct.
+> Instead what I have seen is distributors testing on a wide variety of
+> hardware and for those things that don't work they throw in the
+> current best work around.
 
-So the caller of ->prepare_write() isn't going to run ->commit_write(),
-and we have to undo the kmap here.
+I would regard a stable kernel which doesn't compile, or which corrupts
+filesystems in operation normal to all systems (umount) as correctness
+issues, which should be caught if even the smallest QA were being done.
 
-> So you should just remove all the kmap/kunmap stuff in
-> prepare/commit_write instead of adding more of them to handle the
-> brokenness.
+> Also distributors during development don't have the same number of
+> people testing a kernel as the global linux kernel project has.
 
-There have been a number of mistakes made over this particular kmap()
-operation.  NFS client had it wrong for a while. I think sct had
-some proposal for making it more robust.
+A point some folks sem to have missed.
 
--
+> To date Alan Cox has done a great job in maintaining the stable 2.2
+> series.  Giving us all something we can use reliably without fear.
+> And while I haven't watched it religiously Alan Cox has done the whole
+> release candidate thing, which really does help to catch stupid
+> typos..  And hopefully in his one way Marcello Tosatti will as well.
+> I honestly expect future 2.4.x kernels to be much more stable.
+
+> Linus has admitted he really doesn't have the temperament for
+> maintaining a long term stable release.  But as we have all seen he
+> does have the temperament to lead a development kernel.  And his
+> stepping down now from the stable branch now that the core of the
+> kernel is correct is the best sign for stability for 2.4.x that I have
+> seen.
+
+Agreed. But I would like to have seen it sooner, allowing all the
+developmental stuff to be fully developed in 2.5 before it was dropped
+into 2.4. By putting new features in 2.4.x we had the worst of possible
+results, end users got a less stable kernel and developers were slowed
+down by release cycles. This didn't really make anyone happy, I believe. I
+expect both 2.4 and 2.5 to work better now.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

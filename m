@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266081AbRGKUSI>; Wed, 11 Jul 2001 16:18:08 -0400
+	id <S266176AbRGKURZ>; Wed, 11 Jul 2001 16:17:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266200AbRGKUR4>; Wed, 11 Jul 2001 16:17:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:12299 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266081AbRGKURp>;
-	Wed, 11 Jul 2001 16:17:45 -0400
-Date: Wed, 11 Jul 2001 22:17:19 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dipankar Sarma <dipankar@sequent.com>
-Cc: mike.anderson@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: io_request_lock patch?
-Message-ID: <20010711221719.P712@suse.de>
-In-Reply-To: <20010710172545.A8185@in.ibm.com> <20010710160512.A25632@us.ibm.com> <20010711142311.B9220@in.ibm.com> <20010711090257.B27097@us.ibm.com> <20010711212022.H712@suse.de> <20010712014328.A14094@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010712014328.A14094@in.ibm.com>
+	id <S266081AbRGKURP>; Wed, 11 Jul 2001 16:17:15 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:25847 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S266074AbRGKURH>; Wed, 11 Jul 2001 16:17:07 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107112016.f6BKGgVq009480@webber.adilger.int>
+Subject: Re: disk full or not?  you decide...
+In-Reply-To: <3B4CA943.5EC6A127@zapmedia.com> "from Shawn Veader at Jul 11, 2001
+ 03:30:11 pm"
+To: Shawn Veader <shawn.veader@zapmedia.com>
+Date: Wed, 11 Jul 2001 14:16:42 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 12 2001, Dipankar Sarma wrote:
-> On Wed, Jul 11, 2001 at 09:20:22PM +0200, Jens Axboe wrote:
-> > True. In theory it would be possible to do request slot stealing from
-> > idle queues, in fact it's doable without adding any additional overhead
-> > to struct request. I did discuss this with [someone, forgot who] last
-> > year, when the per-queue slots where introduced.
-> > 
-> > I'm not sure I want to do this though. If you have lots of disks, then
-> > yes there will be some wastage if they are idle. IMO that's ok. What's
-> > not ok and what I do want to fix is that slower devices get just as many
-> > slots as a 15K disk for instance. For, say, floppy or CDROM devices we
-> > really don't need to waste that much RAM. This will change for 2.5, not
-> > before.
-> 
-> Unless there is some serious evidence substantiating the need for
-> stealing request slots from other devices to avoid starvation, it
-> makes sense to avoid it and go for a simpler scheme. I suspect that device
-> type based slot allocation should just suffice.
+Shawn Veader writes:
+> we are using reiserfs on a system running 2.4.3  we noticed recently
+> that the partition reported itself as being full. after a reboot
+> the system reported having 6G freed. now again after a day of use
+> the space has dissappered.
+> ----
+> does anyone know why this is happening? our guess is that the logs
+> to reiser are getting quite large. how do we flush them and force
+> a garbage collection? we save and remove several large files on this
+> partition as the system is running. therefore, i figure that the
+> space is kept around till the log is flushed in case it is needed for
+> replaying the journal. am i totaly off?
 
-My point exactly. And typically, if you have lots of queues you have
-lots of RAM. A standard 128meg desktop machine does not waste a whole
-lot.
+The problem is that something is keeping these files open, and the
+space cannot be freed until the process exits (or closes the files).
+You can use lsof to tell you which files are open, and which process is
+using them.  If it is your own code that is causing this problem, you
+need to ensure that you close all of the files that you open when you
+are done with them.
 
+The reiserfs journal is a fixed size, so it cannot be that.
+
+Note also that on reiserfs, if you have such a process which keeps
+files open after they are deleted and then you have a crash, the file
+is "orphaned" and the space is "lost" until you run reiserfsck again.
+It may be that Chris Mason's patch for this is in the latest kernels,
+but it may not be, and it might not be in the kernel you are running.
+
+Cheers, Andreas
 -- 
-Jens Axboe
-
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265752AbUBJI1k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 03:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUBJI1k
+	id S265755AbUBJI2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 03:28:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbUBJI2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 03:27:40 -0500
-Received: from ktown.kde.org ([131.246.103.200]:16790 "EHLO dot.kde.org")
-	by vger.kernel.org with ESMTP id S265752AbUBJI1j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 03:27:39 -0500
-Date: Tue, 10 Feb 2004 09:25:58 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: Steve Lee <steve@tuxsoft.com>
-Cc: gene.heskett@verizon.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: aRTS vs 2.6.3-rc1, aRTS loses
-In-Reply-To: <026201c3edf3$73ed8e50$e501a8c0@saturn>
-Message-ID: <Pine.LNX.4.58.0402100925320.26766@dot.kde.org>
-References: <026201c3edf3$73ed8e50$e501a8c0@saturn>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+	Tue, 10 Feb 2004 03:28:23 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:24039 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S265755AbUBJI2U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 03:28:20 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Matt Mackall <mpm@selenic.com>, Tom Rini <trini@kernel.crashing.org>
+Subject: Re: BitKeeper repo for KGDB
+Date: Tue, 10 Feb 2004 13:57:39 +0530
+User-Agent: KMail/1.5
+Cc: Pavel Machek <pavel@suse.cz>, akpm@osdl.org, george@mvista.com,
+       Andi Kleen <ak@suse.de>, jim.houston@comcast.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040127184029.GI32525@stop.crashing.org> <20040209173828.GG2315@waste.org> <200402101327.40378.amitkale@emsyssoft.com>
+In-Reply-To: <200402101327.40378.amitkale@emsyssoft.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402101357.39236.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004, Steve Lee wrote:
+Tom,
+Can you please post diffs wrt. 2.6.x kernels for the bitkeeper challanged
+(me :)?
 
-> I'm having the same problem you described in your original message.  I
-> built 2.6.3-rc1 as you described here, ".config + a make oldconfig" but
-> arts dies with a message saying, "Sound server error, CPU overload".
+Thanks.
 
-http://bugs.kde.org/show_bug.cgi?id=73461
+On Tuesday 10 Feb 2004 1:27 pm, Amit S. Kale wrote:
+> http://www.codemonkey.org.uk/projects/bitkeeper/kgdb/kgdb-2004-02-10.diff
+> has grown over 10MB. Something wrong in generating a diff?
+>
+> On Monday 09 Feb 2004 11:08 pm, Matt Mackall wrote:
+> > On Mon, Feb 09, 2004 at 08:50:13AM -0700, Tom Rini wrote:
+> > > On Sun, Feb 08, 2004 at 07:29:51PM -0600, Matt Mackall wrote:
+> > > > On Fri, Feb 06, 2004 at 04:02:54PM -0700, Tom Rini wrote:
+> > > > >  	if (!netpoll_trap() && len == 8 && !strncmp(msg, "$Hc-1#09", 8))
+> > > > > -		printk(KERN_CRIT "Someone is trying to attach\n");
+> > > > > -//		kgdb_schedule_breakpoint();
+> > > > > +		breakpoint();
+> > > > >
+> > > > >  	for (i = 0; i < len; i++) {
+> > > > > -		if (msg[i] == 3)	/* Check for ^C? */
+> > > > > -			printk(KERN_CRIT "Someone is trying to ^C?\n");
+> > > > > -//			kgdb_schedule_breakpoint();
+> > > > > +		if (msg[i] == 3)
+> > > > > +			breakpoint();
+> > > >
+> > > > The kgdb_schedule_breakpoint stuff in -mm didn't just appear to make
+> > > > things more complicated, it is in fact necessary. You cannot
+> > > > reasonably expect to break deep inside the network stack IRQ handler
+> > > > and then send more packets out the same interface. Expect especially
+> > > > nasty results on SMP. It only works for the serial case because that
+> > > > path is a priori known to be lockless.
+> > >
+> > > Ah, hmm...  I don't suppose there's any way to do this w/o touching
+> > > every arch's do_IRQ, is there?
+> >
+> > Probably not. On the other hand, it provides yet more motivation for
+> > an irq handling refactoring in 2.7.
 
-LLaP
-bero
-
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php

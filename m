@@ -1,106 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262804AbSKZEhT>; Mon, 25 Nov 2002 23:37:19 -0500
+	id <S262803AbSKZEe0>; Mon, 25 Nov 2002 23:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbSKZEhT>; Mon, 25 Nov 2002 23:37:19 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:39846 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S262804AbSKZEhS>; Mon, 25 Nov 2002 23:37:18 -0500
-Date: Mon, 25 Nov 2002 23:44:20 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: <linux-kernel@vger.kernel.org>,
-       "Adam J. Richter" <adam@freya.yggdrasil.com>
-Subject: Re: modutils for both redhat kernels and 2.5.x 
-In-Reply-To: <20021126013330.93A962C365@lists.samba.org>
-Message-ID: <Pine.GSO.4.33.0211252320530.6708-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262804AbSKZEe0>; Mon, 25 Nov 2002 23:34:26 -0500
+Received: from dp.samba.org ([66.70.73.150]:8938 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262803AbSKZEeZ>;
+	Mon, 25 Nov 2002 23:34:25 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: linux-kernel@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: Module Refcount & Stuff mini-FAQ 
+In-reply-to: Your message of "Mon, 25 Nov 2002 23:26:10 -0300."
+             <20021125232610.A22825@almesberger.net> 
+Date: Tue, 26 Nov 2002 14:16:44 +1100
+Message-Id: <20021126044142.48F332C07F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Nov 2002, Rusty Russell wrote:
->> I would beg and plead with Linus to back that "crap" out of the kernel
->> until such time as it has a snowball's chance of actually working ...
->> anywhere.  As it stands, 2.5 is now 100% unusable until modules works
->> again.
->
->Funny, other people seem to be using it.
+In message <20021125232610.A22825@almesberger.net> you write:
+> Rusty Russell wrote:
+> > There's currently no way to abort if you've exposed interfaces and then
+> > something fails ("don't do that" is great except noone knows that, and
+> > it's not always possible or nice)
+> 
+> Hmm, if "expose interface" == "publish symbol", why can't you simply
+> defer publishing until after initialization completes ? If "expose
+> interface" == "register something somewhere", then this has to be
+> undone anyway. Or am I overlooking something here ?
 
-I'm using a fresh redhat 8.0 install.  With the standard modutils, nothing
-loads.  With the updated 2.4.22 modutils, again, nothing loads.  With
-module-init-tool 0.7, none of the redhat startup scripts will work because
-they depend on "modprobe -c"
+Yes, but between doing and undoing (in the failure path) someone has
+started using the module.  The old modutils would unload it underneath
+them here.  I catch it (if CONFIG_MODULE_UNLOAD, otherwise I can't)
+and yell "module is now stuck" and leave it hanging.
 
->> Kernel symbol versioning no longer exists.
->
->That this patch has not yet been merged is crippling your development
->efforts HOW, exactly?  I was clearly mistaken when I thought that this
->was low priority.
+Given we have a method of isolating a module already, it seems logical
+to use it to prevent exactly this race.  Unfortunately my last attempt
+assumed noone did this, and broke IDE and SCSI (hence pissing
+*everyone* off 8).
 
-Well excuse me if I get more than a little ticked off after seeing people
-break prefectly functional systems that have been so for years.  Did the
-existing system need replacing?  Maybe.  Exactly what does a new "in
-kernel module loader" provide that demands it be included in the kernel
-right-this-very-minute?  What's so important that everything gets broken
-right at the moment things are supposed to be settling down? (I often
-wonder if Linus completely skipped source code management class.)
-
->> Depmod no longer exists.
->
->This is true.  It doesn't need to for 0.7, but it's being reintroduced
->in 0.8 for speed.
-
-And along those lines, we don't "need" modules either.
-
->> Modprobe blindly loads a string of modules without even looking to see
->> if it's already loaded.
->
->Yes, this is a bug (and one not reported by anyone, either).  Should
->be fixed in 0.8.
-
-You call it a bug; I call it a lame oversite.
-
->> The command line args for modprobe are laughingly few (and none of
->> the ones a redhat system needs to boot are implemented.)
->
->Really?  I don't recall seeing a bug report from you about it.  My
->Debian system boots fine.
-
-Read the man page for "modprobe".  How much of your version comes anywhere
-near that?  One cannot blindly change the command line interface of an
-integral tool without knowing they are going to seriously break things.
-
->> We're back to the flat module namespace (that patch of earth is now 100%
->> salt...)
->
->Um, we always had a flat module namespace.  *ALWAYS*.  We did put the
->modules into subdirectories though.  Due to Adam Richter's hard work,
->with 0.8 we can restore this (basically for the benifit of mkinitrd,
->which I also don't use).
-
-Really.  Then why the months of holy wars for and against directories?
-And at various points throughout history, there have been totally separate
-modules with the same name.
-
->> And every single object that forms a module will need to be
->> retooled to adhere to the new module API
->
->Really?  How fascinating.  I must admit that I hadn't noticed that.
-
-So, are *you* going to go rewrite every single one of those drivers?
-Don't, for one second, think the original author(s) and/or current
-maintainer(s) are gonna flock to the "new way".  As I pointed out, there
-are dozens of drivers that still haven't been converted to the new DMA
-format -- and that's been on the table for a lot longer.
-
-If Linus and company are happy to keep pushing 2.6/3.0/whatever back
-several more years, then, by all means, keep re-inventing long accepted
-core components and half integrated them a week after "feature freeze"
-and "code freeze".
-
-"Introducing, The New Wheel (tm)... 3.2% rounder than any previous wheel."
-
---Ricky
-
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbTEGExy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 00:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTEGExy
+	id S262473AbTEGEzg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 00:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbTEGEzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 00:53:54 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:26338 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262440AbTEGExx convert rfc822-to-8bit (ORCPT
+	Wed, 7 May 2003 00:55:35 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:16561 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262473AbTEGEze (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 00:53:53 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C8FDF50@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Greg KH'" <greg@kroah.com>, "'Max Krasnyansky'" <maxk@qualcomm.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'linux-usb-devel@lists.sourceforge.net'" 
-	<linux-usb-devel@lists.sourceforge.net>
-Subject: RE: [Bluetooth] HCI USB driver update. Support for SCO over HCI U
-	SB.
-Date: Tue, 6 May 2003 22:06:22 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 7 May 2003 00:55:34 -0400
+Date: Tue, 6 May 2003 22:08:02 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: tg3 - irq #: nobody cared!
+Message-Id: <20030506220802.6d494326.akpm@digeo.com>
+In-Reply-To: <1052283509.9817.1.camel@rth.ninka.net>
+References: <1052258580.4495.12.camel@w-jstultz2.beaverton.ibm.com>
+	<1052283509.9817.1.camel@rth.ninka.net>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 May 2003 05:08:01.0209 (UTC) FILETIME=[A1E07290:01C31456]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> From: Greg KH [mailto:greg@kroah.com]
+"David S. Miller" <davem@redhat.com> wrote:
 >
-> +int usb_init_urb(struct urb *urb)
-> +{
-> +	if (!urb)
-> +		return -EINVAL;
-> ...
-> ...
-> ...
-> @@ -38,13 +61,14 @@
->  		mem_flags);
->  	if (!urb) {
->  		err("alloc_urb: kmalloc failed");
-> -		return NULL;
-> +		goto exit;
-> +	}
-> +	if (usb_init_urb(urb)) {
-> +		kfree(urb);
-> +		urb = NULL;
->  	}
+> On Tue, 2003-05-06 at 15:03, john stultz wrote:
+> > 	Not sure if this is the proper fix, but it stops the kernel from
+> > complaining. I saw Andrew suggest something similar for a sound driver.
+> 
+> Definitely not the right fix.  If the hardware status struct
+> indicates no event is pending, then we return 0 since we
+> didn't "handle" the interrupt.
 
-If usb_init_urb() is already testing for !urb, why
-test it again? No doubt the compiler will probably
-catch it if inlining ... but I think the best is
-for usb_init_urb() to assume that urb is not NULL.
-Let the caller make that sure.
+This is about the fifth report of unhandled interrupts.  Against the fifth
+driver which looks to be correct.
 
-Sorry if this is a dup ... I am catching up with
-my mail ...
+So I'd be suspecting the scenario which Alan outlined: the IRQ handler looped
+around, scooped up the interrupt source before the APIC delivered the IRQ.
 
+I'm working on the actual detection code - it tries to filter out the false
+positives.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+Suggest we ignore these reports until that is sorted out.

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263497AbUCTR5m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 12:57:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbUCTR5m
+	id S263505AbUCTSQc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 13:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUCTSQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 12:57:42 -0500
-Received: from waste.org ([209.173.204.2]:15239 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263497AbUCTR5f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 12:57:35 -0500
-Date: Sat, 20 Mar 2004 11:57:09 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Carsten Otte <COTTE@de.ibm.com>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>,
-       "Martin J. Bligh" <mjbligh@us.ibm.com>
-Subject: Re: [RFC 0/6] sysfs backing store v0.3
-Message-ID: <20040320175708.GQ11010@waste.org>
-References: <20040318063306.GA27107@in.ibm.com>
-Mime-Version: 1.0
+	Sat, 20 Mar 2004 13:16:32 -0500
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:20750 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263505AbUCTSQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 13:16:31 -0500
+Message-ID: <20040320181630.27185.qmail@web10401.mail.yahoo.com>
+Date: Sat, 20 Mar 2004 10:16:30 -0800 (PST)
+From: "Michael W. Shaffer" <mwshaffer@yahoo.com>
+Subject: Kernel 2.6.4 Hang in utime() on swap file
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040318063306.GA27107@in.ibm.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 12:03:06PM +0530, Maneesh Soni wrote:
-> Hi,
-> 
-> Please find the following patch set for sysfs backing store. Thanks
-> to Carsten Otte and S390 Linux guys for reporting the bug while
-> unloading zfcp driver.
+I have a Debian Sarge system running a 2.6 kernel (tested with 2.6.2, 2.6.3,
+2.6.4 with the same behavior as described here), and am seeing un-killable
+hanging processes with our particular backup product.
 
-Could you rediff this to apply against 2.6.5-rc2? It's getting a fair
-number of rejects.
+When the backup disk agent process is running, one the the last files it
+tries to back up is a swap file at the path /swapfile00. The read of the
+file appears to work fine, but then it wants to call utime() to reset the
+atime/mtime on the file, and at this point the process becomes infinitely
+hung, doing nothing, no more output from strace, never terminating.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+This only occurs if the swapfile is actively in use when the backup runs. If
+I run swapoff to deactivate the swapfile, then the utime() call apparently
+completes and the process immediately finishes and exits normally. If the
+swapfile is not in use at all, everything works fine.
+
+As a workaround, I am just going to leave this swapfile inactive, since it's
+not really used much anyway. I do not observe this behavior on the same
+machine running a 2.4.21-xfs kernel.
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Finance Tax Center - File online. File on time.
+http://taxes.yahoo.com/filing.html

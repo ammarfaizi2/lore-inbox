@@ -1,49 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267545AbRGXOXu>; Tue, 24 Jul 2001 10:23:50 -0400
+	id <S267542AbRGXOSi>; Tue, 24 Jul 2001 10:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267546AbRGXOXj>; Tue, 24 Jul 2001 10:23:39 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:31374 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S267545AbRGXOXb>;
-	Tue, 24 Jul 2001 10:23:31 -0400
-Date: Tue, 24 Jul 2001 15:20:27 +0100 (IST)
+	id <S267543AbRGXOS2>; Tue, 24 Jul 2001 10:18:28 -0400
+Received: from [193.120.224.170] ([193.120.224.170]:20365 "EHLO
+	florence.itg.ie") by vger.kernel.org with ESMTP id <S267542AbRGXOSR>;
+	Tue, 24 Jul 2001 10:18:17 -0400
+Date: Tue, 24 Jul 2001 15:15:05 +0100 (IST)
 From: Paul Jakma <paulj@alphyra.ie>
-To: Dominik Kubla <kubla@sciobyte.de>
-cc: Paul Jakma <paul@clubi.ie>, <linux-kernel@vger.kernel.org>
+To: Michael Poole <poole@troilus.org>
+cc: Dominik Kubla <kubla@sciobyte.de>, Paul Jakma <paul@clubi.ie>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: Arp problem
-In-Reply-To: <20010724140916.F31198@intern.kubla.de>
-Message-ID: <Pine.LNX.4.33.0107241515100.14727-100000@rossi.itg.ie>
+In-Reply-To: <87k80y8qsz.fsf@cj46222-a.reston1.va.home.com>
+Message-ID: <Pine.LNX.4.33.0107241453110.14727-100000@rossi.itg.ie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Dominik Kubla wrote:
+On 24 Jul 2001, Michael Poole wrote:
 
-> IMHO this is definitely a linux bug, since the kernel can not now about
-> the true network topology:
+>
+> This may be a stupid question, but does
+>   cat 0 > /proc/sys/net/ipv4/conf/eth0/send_redirects
+> help the problem any (for the proper value of "eth0")?  A college
+> roommate of mine once had the same problem, and clearing
+> send_redirects for the interface fixed it for him.
+>
 
-but it does.. (see my other longer mail).
+i'll have to try this sometime... but i'm a bit doubtful.
 
-> Cable sharing might just be used for this one system doing the
-> routing/filtering/whatever between the two networks, while all the
-> other hosts are in seperated switch segments. Not a common setup
-> but you will see this often enough: head count is already 2... ;-)
+when i originally was looking at this (long time ago), i did consider
+disabling redirects, but decided against because:
 
-it should at least be possible..
+- i presumed that this would not affect network behaviour in any way
+bar suppressing redirects
 
-eg, the linux router in question also runs an IDS to monitor traffic.
-so even if windows /could/ follow redirects to other subnets i still
-would want the linux box to route the traffic.. (rather than going
-direct through the switch and never being seen by the linux IDS).
+- i actually do need redirects :)
 
-anyway..
+you see.....
 
-(and yeah, i know it is not secure, just presume i have the switch
-configured to lock certain ports to certain subnets).
+i actually have /multiple/ linux boxes, each acting with a physically
+independent subnet behind them, each box acting as router for that
+subnet. one linux box is the internet router/firewall/proxy/etc.. it
+is also the default gateway for the windows machines and the other
+linux routers.
 
-> Dominik
+
+eg, something like:
+
+			(internet)
+			   |
+			linux1
+                         |  |
+             (192.168.0/24) (192.168.3)
+-----------------------------------------------------------------
+  |          |                        | | | | | | | | | | | |
+ (192.168.0/24)
+linux2	   linux3       	    (windows hosts: 192.168.3/24)
+ |           |
+192.168.x/y  192.168.a/b
+
+so i need redirects in order for the linux boxes to properly route
+between themselves (they are all on the same logical subnet). however,
+i need the linux box to fully route between 192.168.0/24 and
+192.168.3/24 because the windows boxen are incapable of following
+redirects to hosts where dst net != own net. (not an unreasonable
+thing to do actually).
+
+eventually i had to put an extra NIC into linux1 to get it to route
+between 192.168.8.3.
+
+(ironically though... linux1 knows fine well that the the 2 seperate
+NICs are on the same wire - it will send replies to both nets from
+either NIC! so why could it not have done routing between the subnets
+when they were on the same NIC? it knew then too that it was the same
+wire!)
+
+eventually of course i'll throw the windows machines onto a
+/physically/ distinct network. however, still a PITA that linux will
+not route between subnets that are bound to the same link - and i'd
+love to know if it is possible to make linux do it. (i would have
+thought that would be the default behaviour).
+
+also: suggestions were made to try ipchains... however ipchains was
+already setup on the 'linux1' box with -j ACCEPT set for forwarding
+where src/dst == 192.168/16. (what more can be done??).
+
+so that isn't the answer, AFAICT.
+
+> -- Michael Poole
+
+regards,
 
 --paulj
 

@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVAXWhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVAXWuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVAXWhn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVAXWhC
+	id S261720AbVAXWuD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVAXWtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:37:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14054 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261704AbVAXWgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:36:00 -0500
-Date: Mon, 24 Jan 2005 14:35:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Jens Axboe <axboe@suse.de>, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, lennert.vanalboom@ugent.be
-Subject: Re: Memory leak in 2.6.11-rc1?
-In-Reply-To: <20050124125649.35f3dafd.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org>
-References: <20050121161959.GO3922@fi.muni.cz> <1106360639.15804.1.camel@boxen>
- <20050123091154.GC16648@suse.de> <20050123011918.295db8e8.akpm@osdl.org>
- <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org>
- <1106528219.867.22.camel@boxen> <20050124204659.GB19242@suse.de>
- <20050124125649.35f3dafd.akpm@osdl.org>
+	Mon, 24 Jan 2005 17:49:25 -0500
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:13447 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S261701AbVAXWsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:48:18 -0500
+Message-ID: <41F57B1C.6020204@am.sony.com>
+Date: Mon, 24 Jan 2005 14:47:56 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/8] core-small: Introduce CONFIG_CORE_SMALL from -tiny
+References: <1.464233479@selenic.com>	 <20050123004042.09f7f8eb.akpm@osdl.org>  <20050123175204.GV12076@waste.org> <1106596845.10239.91.camel@localhost.localdomain>
+In-Reply-To: <1106596845.10239.91.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> #define		SIZE_HASH(small, large)    CONFIG_CORE_SMALL ? (small):(large)
 
+I hate to be a "ditto-head", but I like this a lot.
 
-On Mon, 24 Jan 2005, Andrew Morton wrote:
-> 
-> Would indicate that the new pipe code is leaking.
-
-Duh. It's the pipe merging.
-
-		Linus
-
-----
---- 1.40/fs/pipe.c	2005-01-15 12:01:16 -08:00
-+++ edited/fs/pipe.c	2005-01-24 14:35:09 -08:00
-@@ -630,13 +630,13 @@
- 	struct pipe_inode_info *info = inode->i_pipe;
- 
- 	inode->i_pipe = NULL;
--	if (info->tmp_page)
--		__free_page(info->tmp_page);
- 	for (i = 0; i < PIPE_BUFFERS; i++) {
- 		struct pipe_buffer *buf = info->bufs + i;
- 		if (buf->ops)
- 			buf->ops->release(info, buf);
- 	}
-+	if (info->tmp_page)
-+		__free_page(info->tmp_page);
- 	kfree(info);
- }
- 
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

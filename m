@@ -1,88 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUB1DzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 22:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbUB1DzQ
+	id S263113AbUB1ECh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 23:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbUB1ECh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 22:55:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4243 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263117AbUB1DzI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 22:55:08 -0500
-Date: Fri, 27 Feb 2004 19:55:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, davem@redhat.com,
-       kenneth.w.chen@intel.com, olof@austin.ibm.com
-Subject: Re: [PATCH] performance problem with established hash
-Message-Id: <20040227195548.210f7204.akpm@osdl.org>
-In-Reply-To: <20040228022537.GR5801@krispykreme>
-References: <20040228022537.GR5801@krispykreme>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 23:02:37 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:18191 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S263113AbUB1ECe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 23:02:34 -0500
+Date: Fri, 27 Feb 2004 23:02:34 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about (or bug in?) the kobject implementation
+Message-ID: <Pine.LNX.4.44L0.0402272233330.4063-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
->
-> -		goal = min(10UL, goal);
->  +		goal = min(1UL << 10, goal);
+On Fri, 27 Feb 2004, Greg KH wrote:
 
-oops.  Better fix the route cache too.
+> Seriously, once kobject_del() is called, you can't safely call
+> kobject_get() anymore on that object.
+> 
+> If you can think of a way we can implement this in the code to prevent
+> people from doing this, please send a patch.  We've been getting by
+> without such a "safeguard" so far...
 
-I'm not sure what went wrong in there, sorry for letting that slip through.
-Obviously, doing
+The problem is unsolvable.  Let me explain...
 
-	if (a)
-		foo = bar;
-	else
-		foo = zot;
+We're actually discussing two different questions here.
 
-	if (b)
-		foo = rab;
-	else
-		foo = toz;
+    A.	Is it okay to call kobject_add() after calling kobject_del() -- 
+	this was my original question.
 
-does not make a ton of sense.
+    B.	Can we prevent people from doing kobject_get() after the kobject's
+	refcount has dropped to 0?
 
-This should fix it up.  We keep the table sizing identical to that which
-we had in 2.6.earlier, with a boot option override.
+Your earlier response amounted to saying that A isn't good because it
+might cause B to happen; once kobject_del() has returned it's possible
+that the refcount is 0.  But this begs the real question.  Suppose we
+_know_ that the refcount isn't 0, say because earlier we did an unmatched
+kobject_get().  Under those circumstances should it be legal to call
+kobject_add() after calling kobject_del()?  This is question A'.
 
 
- net/ipv4/route.c |    4 +---
- net/ipv4/tcp.c   |    4 +---
- 2 files changed, 2 insertions(+), 6 deletions(-)
+Question B can be divided into two subcases.
 
-diff -puN net/ipv4/route.c~ip_rt_init-sizing-fix net/ipv4/route.c
---- 25/net/ipv4/route.c~ip_rt_init-sizing-fix	2004-02-27 19:43:01.000000000 -0800
-+++ 25-akpm/net/ipv4/route.c	2004-02-27 19:51:02.000000000 -0800
-@@ -2753,9 +2753,7 @@ int __init ip_rt_init(void)
- 		panic("IP: failed to allocate ip_dst_cache\n");
- 
- 	goal = num_physpages >> (26 - PAGE_SHIFT);
--	if (!rhash_entries)
--		goal = min(10, goal);
--	else
-+	if (rhash_entries)
- 		goal = (rhash_entries * sizeof(struct rt_hash_bucket)) >> PAGE_SHIFT;
- 	for (order = 0; (1UL << order) < goal; order++)
- 		/* NOTHING */;
-diff -puN net/ipv4/tcp.c~ip_rt_init-sizing-fix net/ipv4/tcp.c
---- 25/net/ipv4/tcp.c~ip_rt_init-sizing-fix	2004-02-27 19:51:40.000000000 -0800
-+++ 25-akpm/net/ipv4/tcp.c	2004-02-27 19:52:27.000000000 -0800
-@@ -2621,9 +2621,7 @@ void __init tcp_init(void)
- 	else
- 		goal = num_physpages >> (23 - PAGE_SHIFT);
- 
--	if (!thash_entries)
--		goal = min(10UL, goal);
--	else
-+	if (thash_entries)
- 		goal = (thash_entries * sizeof(struct tcp_ehash_bucket)) >> PAGE_SHIFT;
- 	for (order = 0; (1UL << order) < goal; order++)
- 		;
+    B1.	The code calling kobject_get() knows that the kobject hasn't been
+	deallocated yet.  For example, it might be the cleanup routine 
+	itself calling kobject_get().
 
-_
+Such a thing is legal in Java, but you probably don't want to sanction 
+such pranks in the driver model.  So let's forget about B1.  Your big 
+concern really seems to be:
+
+    B2.	Everything else; the code calling kobject_get() doesn't know 
+	whether the kobject has been deallocated.
+
+This really is a programming error.  It means that kobject_get() has been 
+passed a possibly stale pointer.  Ipso facto, the call to kobject_put() 
+that decremented the refcount to 0 was made too early, while there were 
+still active pointers to the kobject floating around.
+
+It's impossible to prevent people from making programming errors or
+dereferencing stale pointers.  It doesn't matter _what_ code you put in
+kobject_get() -- it will crash when given a pointer to a kobject whose
+cleanup routine has already run and deallocated the storage.
+
+The best you can do is call people's attention to such errors and fail the
+operation gracefully whenever possible (i.e., when it doesn't generate an
+addressing error).  My personal choice would be to change kobject_get() as
+follows:
+
+struct kobject * kobject_get(struct kobject * kobj)
+{
+	if (kobj) {
+		if (atomic_read(&kobj->refcount) == 0) {
+			WARN_ON(1);
+			return NULL;
+		}
+		atomic_inc(&kobj->refcount);
+	}
+	return kobj;
+}
+
+I think that's about the best you can do.
+
+And what's the answer to A'?
+
+Alan Stern
 

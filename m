@@ -1,281 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268011AbUHSE2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUHSFoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268011AbUHSE2y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 00:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUHSE2y
+	id S265211AbUHSFoO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 01:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUHSFoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 00:28:54 -0400
-Received: from CPE0000c02944d6-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.215]:53650
-	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
-	id S268047AbUHSE2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 00:28:17 -0400
-Subject: [RFC][PATCH] inotify 0.8.1
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: linux-kernel@vger.kernel.org, nautilus-list@gnome.org,
-       gamin-list@gnome.org, rml@ximian.com,
-       viro@parcelfarce.linux.theplanet.co.uk
-Content-Type: multipart/mixed; boundary="=-hkXqn/hZUh6xvULIQqLs"
-Message-Id: <1092889961.31314.3.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 19 Aug 2004 00:32:41 -0400
+	Thu, 19 Aug 2004 01:44:14 -0400
+Received: from ozlabs.org ([203.10.76.45]:31630 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265211AbUHSFoL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 01:44:11 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16676.15957.61557.503764@cargo.ozlabs.ibm.com>
+Date: Thu, 19 Aug 2004 15:44:53 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 rtas_call was calling kmalloc too early
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At present rtas_call() can be called before the kmalloc subsystem is
+initialized, and if RTAS reports a hardware error, the code tries to
+do a kmalloc to make a copy of the error report.  This patch changes
+it so that we don't do the kmalloc in that situation.
 
---=-hkXqn/hZUh6xvULIQqLs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-I am resubmitting inotify for comments and review. Inotify has
-changed drastically from the earlier proposal that Al Viro did not
-approve of. There is no longer any use of (device number, inode number)
-pairs. Please give this version of inotify a fresh view.
-
-Inotify is designed as a replacement for dnotify. The key difference's
-are that inotify does not require the file to be opened to watch it,
-when you are watching something with inotify it can go away (if path
-is unmounted) and you will be sent an event telling you it is gone and
-events are delivered over a fd not by using signals.
-
-Inotify is a character device that when opened offers 2 IOCTL's.
-(It actually has 4 but the other 2 are used for debugging)
-
-INOTIFY_WATCH:
-        Which takes a path and event mask and returns a unique 
-        (to the instance of the driver) integer (wd [watcher descriptor]
-        from here on) that is a 1:1 mapping to the path passed. 
-        What happens is inotify gets the inode (and ref's the inode)
-        for the path and adds a inotify_watcher structure to the inodes
-        list of watchers. If this instance of the driver is already
-        watching the path, the event mask will be updated and
-        the original wd will be returned.
-
-INOTIFY_IGNORE:
-        Which takes an integer (that you got from INOTIFY_WATCH) 
-        representing a wd that you are not interested in watching
-        anymore. This will:
-
-        send an IGNORE event to the device
-        remove the inotify_watcher structure from the device and 
-        from the inode and unref the inode.
-        
-
-After you are watching 1 or more paths, you can read from the fd
-and get events. The events are struct inotify_event. If you are
-watching a directory and something happens to a file in the directory
-the event will contain the filename (just the filename not the full
-path).
-
-
-Aside from the inotify character device driver. 
-The changes to the kernel are very minor. 
-
-The first change is adding calls to inotify_inode_queue_event and
-inotify_dentry_parent_queue_event from the various vfs functions. This
-is identical to dnotify.
-
-The second change is more serious, it adds a call to
-inotify_super_block_umount
-inside generic_shutdown_superblock. What inotify_super_block_umount does
-is:
-
-find all of the inodes that are on the super block being shut down,
-sends each watcher on each inode the UNMOUNT and IGNORED event
-removes the watcher structures from each instance of the device driver 
-and each inode.
-unref's the inode.
-
-I have tested this code on my system for over three weeks now and have
-not had problems. I would appreciate design review, code review and
-testing.
-
-
-Attached is the patch to Linux 2.6.8
-
-John
-
---=-hkXqn/hZUh6xvULIQqLs
-Content-Disposition: attachment; filename=inotify-0.8.1.tar.gz
-Content-Type: application/x-compressed-tar; name=inotify-0.8.1.tar.gz
-Content-Transfer-Encoding: base64
-
-H4sIAFssJEEAA+w8a3caR7L5Cr+i46wdkACBLMmxibzBErK5QaALKI53s2fOMA9pVjBD5mFFG+u/
-36rq7pmeFyDHce491xxbQD+qq6vr3TU4rhc69l2z3fqu1dn76k95teH17PAQ3zvPDtvqu3x91Wl3
-Op32/lFnH9o7+4dHh1+xwz8HnfQrCkLdZ+yrMJyvHbepX25Evv8feTmp8z/XbyzbWVifdg2kx9HB
-Qen5H4jzbz97tt85egbnf7B/0PmKfRYi/j8//5OT4yvDqJ6cDXuvp8fNt/piwZpX1enkZHoseEML
-rSBsGUx+jUJnEbSMarXltYwX1crfaicndQZ/CUadNQ32t++rVYD0gqkgqlX124sMPC81tuXl4a4f
-z5peZjVjYeku4OcvWdNmOzBkpzXXb9Kj/mr6/9WvtPxnjvgTrbFB/g+fPlPkv70P8n94dHD0Rf4/
-x+sbxzUWkWmx74PQdLzW9ctqqmnhzLNtvuNeZdrugr3wbmUF+WagbphutQ03XKSbIteBpfKTHc/I
-DiWY1sIyCGrS8WgvCvy9wDf2Fo4b/bYn2uNvxNet60cwxQQT51qsNxxq573pj6z9my1eqKFC5q0s
-VzOt96xWr/5erWCTbXar1YptsmPqrT3ag34J9VGDjbXJ6Xg0fFfHYY7NajD0e9auM5hfWVm+7/ms
-9oim/pKa+4s6GaA/AgiVewDiW2Hku7TwPUfLWHiBxfHiKMXY+XJVVvMBBg1EFOr1AiSS3oLlfFqt
-+t5zTLaCcw61pR7c0Hr4gVakdrv2qP9TfzRjREEBCFHAYewJG4y03slJfzqtVyu0vJjEG+W6mRnn
-49PB2bvMDN5YMuNk0u/N+pkZvLFkxml/2M/N4I0lMyb9Ue88O4M3lszozWaTwavszqmxdOc/ZVfA
-ppLRl6Pz8eVolpkgWssoNRxPc4TCtpLx44v+KDMcm0pGD16PxpP+aWaCaH3EJJfJjl9cBHOfYjTr
-vQVcVgP1EhlhbKN5K/1VmI9J7huP2NvT48cmAGzwUa1bE1dLmJfVeDvxb1eBcDYY0iEePw6U6ej9
-uvrSqsdy51u6KbHjgtdghVjuJGjSp+bLW1QY7W78nfDhLVLgADgKo1geIDv/sTy7kAz1BCf6rhnX
-lnGT0gZiWugsrff6gt69KOzGagJUmBZY8NE2A1QaYkArfA/NhkBNaYx4awctGo4/O9X+0Z+Ma08Q
-AFITGqb9GW1AtsHeYArX0bi13Y7oa7DR5XAo/z4Ry/AZqvqJia67pqYwR1C01QJGQYC313COrNYR
-HIncqtCMtN9LqRpj4lQI8+S8+bY47REoh+MrMysp3pUjof2eWQtQs3zQHEDe8OYq/Vc0bjve8q0e
-Gtea6fgJmxmeG4DivwYHZQc6kC8bLHID58q1TLbw3KtELWfowaH51q8ReLnMucX9wd+WAIMnFPpm
-tGI10VIXAwSP4pvgm1syfsTLZJCJLIPReAZ6WXvbm528ASrB1Nj43arGT4h86czfHwNjPF6Y92CP
-QAoVHPkXKbcV215EwTVIhsm5RrFpiR2zfQuOXQFCSEkkHgeKuohX4RpDnMdtYnCByp5vabCb+EA4
-OdKG1y+kC9d9QBiCXhWckzHHRWRJJjrrTDQuD76Ahv5VkPcICnGaznqzaQNQeBBC8axSZGJcrNC0
-5tFVml4xh+IXPWattYj2Z6f9V5evgQr6A5FNZtK6pTj/1X73/5bXuvjv+hOtsSn/c3TYwfgPwr7D
-p0/bRxT/HT79Ev99jtc3ju1CQMQ0TYrQ5WwwnGpv4jgp3/Mwt637UV5Ut9TP6W7hIHT/qEXtbrAA
-3RIF3N2gDKlJjMoHdN1s/Am6r/qN5ZqO/WcprGL55xm/T7XGBvnvdI72ef7nsPOU5/8PDw6/5H8/
-y+tL/ieV/0ngZUzhI+7mLHXH5eKq+1dGQ2iSHfjyvixZhKJcK0wMJSEA+id7exVVb5BbI3FEFyZW
-NjWbu5SK/hAtisLD2Y/2lm649ygNRvrC04VlreAkmQ0u9CHEa6AazaDVavHgvBJgP6sdct+4UNmK
-VRUtWIJZKtj5qzn+y0t9pfX/pN87Pe9/6jU2+X9PO8/i/P/+Aeb/nx6ASfii/z/DKzn/n1srVB+s
-dkFvqBZIeTZvLN+1FvXk+o6rxH8a1/9iTgAhXeAsVwsLRs993b+jmehAoHKRirdanXksCiwWXsOU
-Wye8ZuBbLa29G9C1d17EXAv8rxCv8OA8Fgv2unc+GFVvrx1AxdBdNrfYla/P5zDK9r0lwLE4BGa8
-D0B7+e8tv/UlrHvwq9D/4984P3yCNdbKfwfE/+ggrv9oP3uK/t+zg8Mv8v85XhBa2KwZ+SNG1+Xc
-X2rut46IH0zfAbkK9tDNiZ0og20zqNpsNh8As9J5fvS82dlvPu2wzvMX7Tb8a0kD0WbN9mG7Xd3d
-3d1q7cp+u33QbH/X7DxnAKnTeXG4nwJ2AMB++AE+NNpst9N4fvCc/fBDdXdvp7rLdtjA9UArzfUA
-lA04U+BreqDWCLhj6KEDMSQpuSGi0sIpNO3EW935ztU1RLgndYYosP/yrl12bpxEIEi6G4+coRJc
-+R5otCWqUMpaBp4d3uq+1SV9iDrPt0wH3e15FFrMAZfTNfdg2aUHh3YHDQQrgvDdJ3UYWv4yYJ5N
-X16PLtlry7V8fcEuovnCMQBdw3JBBeuwNrYE17C/+R0OJ0hniMVUYMHOPIBMm+0yC/Q1LIKUhu9s
-v8Ew7aqHiKkPTi6OqgN6dwRnoYfJ4FbpppO9maD1Celr8JfhAwCG3d46YAZA7YPVsKNFg8FIgvN2
-MHszvpyx3ugde9ubTHqj2bsumRQv4hkDgoU2yQHQsBlfd8M7IAxNP+9PTt7AnN6rwXAwe4c7ORvM
-RngreTaesB676E1mg5PLYW/CLi4nF+Npv8XY1LIkWQlKCWltOh6gnmmFOhrJePdTyjA0Pdtuzu9e
-ZBiDgXL5IQSnWgeBaZnXQcvzr3DaXnUXuZLNxqfjFwTHcmG8YVH+o1YHpuH0usUW8rHhdJdwEkw4
-6bwXSWk7mGoBMtox5CSs4mHS3Am9FQVxuS5gughwK+ri/kFhV2AAjxX3QOyx8Iyb4s6FPi/ssIuR
-wzSOU9iz8hbFmC2dwIAABc6tsHtNl+M6YWFHHAHn9xOaEHQ+lHggocUL3fpOaM31EuLFse5LOmIR
-7Z73fo7zeKf9n6bsOwZ89dZinru4Y0G0Wnl+CI0UQoLoEoeUTOZXN/3JlB0dIJQeJrxIYxGwa/29
-hT0bQf33Zf+yf6rRVa6ENUYIKGm24wch2z88kpws9cGvkRWBXKtANe3VYIYBrjYd/KPPaqX47rHv
-6ipV1EGzAagG+sv+DUbRsQK2y2pv/rF3QFMwwgVJ10Nv6RhaKHenGaAnwy7b24O4PktkZd7N0lpq
-hg5TYO5OPBkbuiWDbkT2U4whRXAGCobSA1foXSMNxNQkW+rN/w0WS+CV6perlo9w0PJpvmWXdJL7
-T+tr9kK/CroJKR3KDdzUbMrrtlqtOsN8R8Ek9oTZdZ4+vmG1H/uTkdYb9icznFdX9mnBxuWijAsk
-6jkZKdxgfkJnKCVo9ASXCO4AK+WEDdKYyRDaXRArTLRyRBIkJdhW5pGVC8LItltCR2ZS1AKL36u7
-8r4VYWvXeIvPL/mRJBXJJJWKOEJBzIJJUkiwFwhSqVTSjAXNt7oTarQvmgOsQU0KPLxK9zWESpf3
-PnahR4Q32jgDD9Gi8ULrImr4jm2UzN/Ba2on5Fdzu/fquaa2znM/tFRt5QV1vhVo8u9q1FCc1W/Q
-OCFH+XtqoPrvfP8MCWCSOMkeODLDd1bgg8GQVKq+UhH4KpffoAd38EYfPqQ71PPbwZxV0XlUTNoa
-rS/G4veikU4yki9bNjBKBkbuEg+VM2QxmeXpmw+hsZjUYHxWvRys81FgnU1go48CG2kxV5AVkXIK
-Ygi+FKYWwhCVH4m70AbAyuj+CC+Xu/8k5rfXwvETIYH0kK4s0AqGvlhYZoNnH2gZzELoixuADZLP
-9QSYF9VpQnsmfCYEC36TDdwI4IAzFriEZRYrCW7SxXUW8DUTr5zwixexR55XaX5FVLSkeIUghJ5W
-tOCWZ6BOSQlnrO1hJVPjnF1Tbs00rAlSL8/SordD7wBLUZHknUEooTPXFGqO0QU+GbUKL+I4FpA1
-PJW4KKXBhuPxj5cX2tl4OBy/bbAnLuaTd3lBD06sk+aoSOuTWN9Xl6/RFp/2G+wRqNKFiQEc7Yrj
-ytPcMPXKA+6iKqndyj1hxDcBKLlmyyQqNl8KWuAgTXOQC2pir4TO2uXBnn6bWTVjaHd3sXGlh1iy
-AzFzYNXETgExcPxlAl2S7V45LNLfkYuwxHGlj4RjKRRsatVmczPuBDiH/Sqia1yx/fsCvZ4Sgp3U
-txq/Q02qQ9LXsnEFnmpmy8AK6YCB/DMcmuJEgUh7BqupjlSDvT670Hqz8fngpE4zBTd9zUet5ace
-MOEJEMWG2I5rJb6CWLv22Gw8NutUXYT7EzfJhTy2fgECCysIwI9XKdg3QmzVNWIKNF/KOkigxS0J
-XLojVeC1WxmMBjNtOJjOtDf93mntiRxMOqEbkyd9KiXoU0kl0kcMpniYb+EW4lLYhqi1lAOST5xO
-cNqusbqTRyZRzg9vYGTA5xQP/ef+4eG/YJvf/tL+tvsAjHUbkxeGt7pDr1CgW7wELR8X+m1cwvVY
-ni6xFirZRVvdA3BOBRVmzs0n9ZHVFbFwEMORlgDDZYVWWoiypRtFEia0hyolfBGhwXMIkWbZgrmK
-eLbZKeXZdncL2cFk2reK6CgnyJdM9AOvFkyrh2TkvRopKh6kdq0H4g60Bl/rQBVub5er8K72BJoE
-2kG9wGVCAGA+hLXm89cadAVey7V+CxEouEunHoUy4McIp4VohIYpwH2HHnkt0on+eype5hsGx0cU
-xZISlpGIxgvnKjWlkx0fq4Xn7MMH9gtyLb7yw2Q1eOmwJyy9WJ3rYdgVbRYjEwSF75iitGxMqaEP
-lwl6ialVwvIoqZixpe8P72UuaRyYf2LbhJIjYkLyShUe4fJSx+2WpkbW6lw+BPier0sUIP0C2tYD
-L9VeeLeWqHgFZiNlEwuvNEYo2QlT8H0LUjRfkp1vvkwf2YcP5RP4mXKks0sJMjiuUUCFrCVP6akY
-vDR7aePxADMekyyx45xsQmX8JuhHROMrSdLxTZC86iaE4gAgrdXARVUVwDqFFaMhchYbV7/nYpL1
-/VQB4NQ0Lb6fNSLwERz8dbEOZKTESo47Psty9ddNSAr2qcBGCJYxrXKWKTRsiSbffASCYvIQPFce
-gEr6wlwY3w6WCK4hNo+HZDE94pOYOkldPi6uClL7aNepvFBWX6hZztRRCHN6L8iUhSM8B44OhXyU
-d9X+Y/meNofol68tUkONTKZV0DYAAtBYlEx1vOhXSuvXEhKiig2ETCrwd39X6Pbhg3jkoIB++T1L
-5wQvJ/1tEG8nsicwLzMfBqh34EP5feNOOFFL47UNVkocnWgtinxSeWYe+mC+tT9UNaYY9DGRD2w2
-djFqj1dxhEJ7UAMgQUl89CdhR0Wjx35fyogoYUraGnGFwsPxuAcvIY6ZyOxlPc9klBYrltIxzhZj
-Ik2JkDCvqqG7IjQUfuQbT++xSG1I00IwIrcAijgoFZSoISw3cZPJeIKK7SROfaBrCDPRuMgjEzpO
-MsCaOCnjXK8DkPOvM0yYGpwwr2SNWFvEPJ7mlnzgk59xL7zJ8wg8t7kl0n+87CjxMK+thZnzJoUl
-2UqCN4hnnHPJKTiarRznWhu1NemLYpty2pdQlJTjdsqOZ5PIaFCpZ4Eay9FokweyScUJLpEOAzCz
-holhnuuMt4vPo6Wd1jiHLYRGFSfSG6Q4RG8BCwoevE+4TWByvwWh8OiJTA8ybltRZgMVVOMXxNcD
-BTRA7YTpovUU2LD/rD13Ak3er+VTk+vE6WPM4KeihLAvwsBk6NFJUaLAQyihBMYKn1KlFCbQZXYk
-dooyll2Oa/YHo596w7LEJPc3E4bNKauHgPsjDmyywGg8vTgpwbfEp41jtJzpzzLDdln27In6yz//
-QBPKpj0AybZliQ/1xBpKQoY/ei2UvxJxFfhGOKDcc06xXOWeqc5yingyPgU7Ea1MxTUOxLP5RTK/
-rfpLXwYz17rVhLcIffKbRLJAPWxtLWJYH47TSQ6ZlC3KkOD1UYJRASsBTUrUQrn5LGEfEZybViLz
-Hz5kzbOAqJq9eipgUrmtQHocKT2Z3Sb3WSWx5brzj++QCuOtfGVKodR9Cnqtp0RaTJTwoGjfUkq2
-3Hdu1+C4/kiJDNa7GIhKvVSihwMuyXUqxMg/1/iAbGaxlVUCHbF1R1PClD/mlanQVTZV46k1ak+d
-oui/fKpQriSDrbK17pMty6G5TcOY/s8X48lMm747fzUeaq8vhrXSg+JkymTtkEjaSvcxqaWMlWfK
-B6A5wfcHnGpKj0oofJ2CqFVec8fbN+mSO+ngM6mLf6RgO93bVQKe3OZrfEx8l154NCZdLStrZcLi
-LJpr6V9KW34OqSQqf9QXYsJVgUkvvh9QMs3lLkC3mi1PkpmL9AmUMGHRiCLJk2mR9KAud5DUdo6S
-0ILiF2u2dybEzbPiR+QVc9rQ1FWeyHpOhSJb7xarXTXjslEuq3FSWMyvZZfYlHJJlVRkax0Sxln5
-nmEFgRZRaRehGLNPUuqzw7u30rQNtoP3fKVhjRbotqVoVRwMaoEWiIuqhIuY5mrVJ5R3ecKHye1r
-HjkLc9Ou8G9sdIMIFtHmlFvZCeaNfMFTCRWoZk+RikIjIriKr5gyG1sZroooRuVcEszZ18csmBPr
-V0B7ho4bidX/ZBsnPSuW42x5hqrx2cDl8cmlTIpyEOIA47PLnFHaRiQHxWd1C+/wEyQL/IEEs0oB
-A4kxuKMAnTXgEQVcwV5VuhcKmjJ9rSXIk4RDxWcr4ppBVOqWb+sGFR/SQ41LOF66gl54t8IVE0IS
-m2E1MsTHDSSp0axxa9xg2K6F+hxbsHa3XlAXWGw7kmFcjyO85ssV4IteJVbVCX0oh9FSuEaNLy2D
-XQcLhnDpFNB0iXautCGFp3wJf/ViPBwORuwDfZicQoR5HkflmaFZhz7AXznTki3TpXgB2USxIfdr
-5pHdIAlCkvH5Bld5C8+2sWCeSh+Jn3m3yBNsd8m59gfFNhl45AFM7lIFo28F0YImccQ9wFwOgugY
-P572T4a9SV972xvM6Kq/xg/IiHw/dk8q+DyTCF9hXpLhQYDwjYONLXwJZ1SUxzyuqcodoNrRYhGX
-1otrXORu0pI8P/P9+p+i49qMY7g5oVRydazeHMsis+ZLO35MYKyNxqNXw/HJj1J7ygV7r3uDEXfl
-1RVlak7VTJrj/5q37jz0loX1NVVKnkgx8a2VpVNiCJFDcdcX2gp/jsW9qsmjkkYo0V24IMtdBEnM
-J/3prDeZTd9NqRnvTgUoXqbPajO8Xp1cjkaD0Wt5e7b03lsb8c1RPw+dAx+MZv3J5PJiNng17Mf1
-tNvc72/cJj3xFeFv74nv6jHkhxPCnM4Jx2xDkxxJWDFNYtn5WjfIfHg3tZ/6E/oBuslg1m+wGn8A
-oo76RfK8YHLFUfb9DMuf9S6HsxKWB5F77etzqsASegaFa30xRHITmNS/KDVwWTc6U+mRVFJkjijP
-+pweWOKINWeosmq09yfCuS+iAWqc3eN0VzdWUdjbZJ5USOlsKqdMzr9U90IPrbBaOrJFDbYpuIK1
-y7Kv9UQD8ow4gVPLFvf24Cv+GiY9PIsoQOPSMzk6gm70uVHyoFg9BnSr31gsWuEzsCE9T4T8h++e
-SxZZYLGFhCEkLVpp5Iv40Sp0wGtQeLvIYVddEPqR4XW5scTAbhG6VguK11LJrlzlGj73lk6mYSX5
-T0LrKtVfaTCqJbtZUnFBrdgAcQTr2WqGilq/oQBJV6zkZi2tJbBApsqlXVLoknWFM5Vexf2ZPCno
-qxx/JV14wsmjXpljTwiIKOdqofgvOxbdiEgvIrn7PmbTCwgC0bRCJIhv/dN4RPLMWOJz5L2LuNZC
-TqOttFJdaocduQY+KJ7Rf/EDa8pQ67eVA6LJjkvkLjHhhaSkYIFu0pWHC+UPOsnnulBOqC6yJAtb
-pKvEsxlYXRMndLeo+9oU728R7mej/fX3mSVRf7s02C/aoNRNm7dXVvwifoR3C9+vzK7FJvF+bbYm
-Xa+gakP5NM2WCjEpK8vze3G2Iacu/6e9Y21q40jeV/ErJs4VBltgSUiA8ZkLERCrCgsOkVxSdVdb
-gpUcnSWtTrvCoa7832+6p2d2XvsQkFQ+7KaCYXd6Hj09PT09/agVbEtZYjqoqzLJuZZHgdre7y2n
-4ZtKfRbGITrTI9sd9YGKfi25mqg9bT3pVpsOqy9zb45A61+uqpjHr+gXzfiSTl9+dWyZG0fjGCb+
-0P3kqMWdY+W+tqlf9EhBUgmNo98mun3tIOgNTnvXqZpqBrDl7LykoQVSs/QqsU5C9vosUHS9oZgd
-cGqcorMBWFLF6Hy5HO1w9ouO01qIFHKqHk5hB3ngVYBfJnWsDl//AwZZ4kYMq8O9Gg6lkh4QRh5E
-dbbgsSUhk5nyOBqG0D50WkjY2DrYw4kKyaJKzVi2ZjGSJAFOvTCOaKoMs8QKkyWkoaJ7D6stx0gp
-Akl2UXSU3meXvk3U2STzqQytAvbpIEPvrUl0DYu0ctrKbWpDN+yyLWdxcg08aDMjF4xpD+HvuCGI
-khnJk9fFP2ElzF8mDBS5XObHmC9KIkDfG4hwQ7zKR8/G1b9xNQECNfW1HFmnPZEVAp1BWKHVdKoc
-zArJwrZ8dK5kHkc42fifuDYQ7tWRwjeFe+BNjJYjdAGnOD+Ci0scf5Oe1AV/1iyXvHRbQLbWOIFj
-m5ZCOTuYkMOe2eIvXTIeK60we3U4tg1yFvKExZJysQgLSjFAC+VFT+SPF/ZxhWL055w7xUW0pyrX
-GzGtz/2WWY1szV+R72tmVRPT7Tqtxfrg3qnYayyjdk0SO7IcV3JBtMPjkRfl9hEzG+uySiGDmVW6
-B9LC+9fMJYUR/y0BbmGL8gu6KDDuaO5moW08MVx+MgzwPFJg5k2+R+Kkf99RhV8moa7VGC98Yr8h
-UcKyDXqX3eDml6uzLd7hbbimVJkhLrs3EMf3h15XKrL05ayA+9cC9NiB/Ll/7YHUYUH8ROBNhn9D
-QNjtlJm6SlQokOpQOULrAhC0JliTV4kqastXomb2CfW2uZ2yNLvP2Cs1Ywb64i8TPKtgL7EqlJON
-TCdHSJIFW7kBIRJjqA2c7mYWDwEEQBV6200iOWusfsWZQazbUmb2Ddu6VJF30VTSqE9sPLIfdPMr
-8t3YaBBWqGvhQYCUQQRfbH4kTObPMVbaysUuOwlzx4kJU9YaJkI4o/RtrpKr1zTGkd0RSoayXl8I
-qAzSUyapgns92yRoo/rqXiq4gpe2A4AOfElxOmUXx9EC9InQg93oy3y0rNXes5sPvQFknfvx4gx2
-jF3Q1MN7/TofP8BuqH+Av/EDaBH1D/A3QaBCxIDBN/gVcavD4Yu6CPOjYqmkMQrt7YgGMuOvl4z/
-9bE34Hzyl/7Jx143+Min8roOR9Phim/mgB0oDAoJ3qLcqV9gRwAt/OWmjibVDWMHDgJQUGs2qOA3
-CVOt6Vf45CihEXz3eP/5sD9N4sSkFlTgpxyYlyba8OwCLokZamGg4f5l/8wQjoW7k+kRKQ6YbOuF
-UYZLJ0hwORyTS9B4IzC4OPk+uDrp97p6IjOPwC1qphEhDsKRxALzoQHJXY9CkdFzvUh+x3Ubh7K9
-12tfp/O601nI94Bl9GD5nWm6qBxNYmP3kCFBv0+lY60tQexQlckJBM1lHk3gwGbQqa+3xtDfZRRy
-h1QKPTkjjn9dJSFnRmx0x8fMvuDPyd37zMOK/9zhPUcgQgRrC05+vPlweb31wgo6+zdf1Nlj5PcE
-eHo26F73rm56l/2tFz2UtoXmTNhL6UUvet2z/uBs68UPVxekAhYhY4lT6HwDPtNHMT36ZPGPa8Sk
-lgnL88JCyzLlIlLL0mkM6TZr7B919o9abgzpgoDUbl0F8agP6gfsNfz47rsN9u0GO7/s33w8uYIQ
-QqAjW7T3DnZX88kG29jhFLDzUINLeU6ruxFbDudhBL8kCWwn/Jd5wH9VLyCTSsQW+AYIdzfiK+nJ
-dch1xmtjGwzq++tW97J/3vsh+Olmu1bjVd8nCvL+Log5NxvN+e9gsh5NR7Phgv/xrw0I/AiWXelr
-vojGyS2AiXwvEEwaon4+3EbDZcgbzCeTcfxmmCRLJ1q5ep9JDqqETQLto06jBAl44Aumvdms77PX
-/CdNvBM+WKbccT/NFoEMo+x8DGluCqIEO3AqQ4/z5b+rKBlSiGi3L6O71XKSYJ04qsNO/ZAP63C/
-3mziwPgmwJSWTsTuYzXLjSucS/epeJQAHikF8TC4H05R8t4RwigVFNbr2t+i0looZTg0/t+S3hOy
-lCljT1yPGivwn4JMN07DFyXD0YDZDdc1nwmQyHZTp5SvhCDTkY59LSZ07KGP0ulDHqlTEQ+72ytH
-604FhcTeFtTeJnJPTbNp7kiYGYbhEs718QIscl+RkwvnDJi26D1LFbdCnYICkWmCkWq6NSsMVqsp
-yPgWCO3WfHk7/Xw7SWL8snMcC7NhtCmF12ZZKZE2irYtjikRptwzTfQhb5qoiD1NnaNmSZbkVFAw
-Ta0WzBL/6edJuZxgMfyEjP05mVIup+PnvTiac/6QZADbrKnVEiy3pQaofFrDCbr4RYudYyF5QzBS
-uWzrkH2BMwMMzunhZYKRcIBADEXAnqpM5bjQM7mOKK3ymmfxClgiNCCqYxHFSZDVW4RwGQviobPX
-QTx09g5y8DD7zFvxoUGoI/5keCjsbQYu9huHiIt9tRH7ccH/yEDynwwNsqNlieGgsYcIOGgc8I0b
-EbBa6E53KdsczdYc8OnZxVn5AYvSOXtlThX2vq1VRzs37yfcxcN1JxVXWAH3w/SdwMqBEGMODpt1
-TBPDBV26kwwjuHlVdW2z/vmAxZPp9GGJHo0hqqPinZ3k1xE/7iWQwYCfceJkFy4sdfSxzU32jdZ3
-aQF/2j3pfjgLeL3ng+Aa89WfoiJtxz+GP2wCshDoCC8kCQrKOtxv5Cyt+GHG2fVnc3FF01DR+Z9q
-fRX2NmOVvW3tIy7e7ikBCFYZhwyeZaU9bugQq2Ct4ePY005jPnW9mhwUtJrNTr3Z4tJFs9WuNztE
-ENN4BI1Jwrgfx4FYRgEmZhCN8Ua0RrE5/spq1kQWnRcIHMwrCEwdHTyf6BThYFl2AjAt1qM4kaRR
-gFVE4EJ4tSS9JeXYjDll6oIie2pVE9o6NqmrNDNVfShJKY87voDS3CcWi/d5UrEo4Z7T24flhGIb
-/onn9DwRNVdgfqxQnGZlcjtDOZScD0kqBr/toPT3trMv9/t0+V3dXMPl0NZY0idfJ70BvdoW+hqp
-rg9k0Jf8I/UYfLt8+/PlFUTIXu9crVWm1WE1YfGx2hhaxQSTmCB3LFcUQ50yTnFjTxxPG3tKCDo/
-DboX1wIC9/NjkeA2mgej30Z3WEmAwd1W81U84rt3iPbDcV0k9WamoQPVgTdVyuSozIgn04U16O7F
-5eAMe7XIHnhOSAa7UnNaqHYlNdHKBpAAMYDQhBQogXikcR4Vr3v0M8BkVr7Vr3/N4wF6Ofd4vNcp
-xwn8tTyNH6xEPu0/RmmnH3Hz+ATtwLDi+f57oFRzIsiZ8iMdo0SGVkDCFxddxOi+ARxtxYKSm7YE
-DiMuF83JfCgLcIfYCYAcU9RW4wVtnrYOT/ZMLgC+MZ50u2eDAXGN4kXkVNGTVdSZ+cmzTebzNgc6
-XUeyBY3BfSW+A/+LGeGSMczIfjt/RpBEHzUl+ZDPOCcfL0975788aU5EFb/nnMgW8uak/XaPn/he
-dxqNenMP5wS3CVJYRvdgnMX/4fsJZ+IAjO4T8AURCqUQfa/ZFuQGBPES7am2JYYLSgiU5yNcTIoJ
-zf6eLg12ZE/J+hMiEO200dPaWGfOHjNjZRtX06lJonhDzGBSC3ckDBPh24zoQ94+REXcLajUvaGv
-goLdZw/Pkfynf/fRs0TWQGGBebnBI3k2Wn4aze8eGDhRg0EqprxDlYSz44RLa0MZxrM3K2FxV7hH
-wX94Gw9OziglPMTJaKaHegjEqwDn99U4Jq1Lq4FSWKvRodHRqltGUSJvCVA3Dy/06MGSuLwxUG7p
-OPvrkh9eg1Bc8NO6wpo9n4fzaL61KRqD30l/BHoiAsmnKkLPmzSBKSsqkEllblGX2hpvS1BbXkUF
-VNfuoJYU/mk2SH1hJuWbBJJlofsKZPU8NbMo6zEnmIpQJmcO/6y9UtVgDUC8WbmYoZbUNjfNvCfv
-fIAwrD4aDjRksOvJvegbHCVTdL7w3iUTLvxDIrp3sN5kFtFoTMlMocQDpTApYkbmDKlFlTuPqlRJ
-AlLlH5l8O6u2NbNvH7TXS76d5t5+ROrtJ+Rh/nYynoejMQsuev0fU4f3D1oeWueLnhctFJletXB8
-6d8au3pnQiUq6IqyVP+i0uhJ6sVAM1rqq/1/w1tQUkNWRMgnbiY71TALHzG17ieKhCCriTfQf0+l
-qoLEiZ9HuiZI0y+pA3h6bBwld7u7bIMc+sCiUPYHDgfoqriMZiJlo7BqhK7MwENwsYzuJ5wKhjLr
-Ik6dSAwe87ez1TSZLKYqDaSyMtWwtZ3Om0r2SyJDrfEbEWMTcHQO9kOQn0zsalZuYSVcpFAtAwrT
-sU9cKIGlFKptQInLOgdI4DMFOjSAhMrdARJ6SAXUbBhA8irCAjq5ubnufa+AWikQrIRPkBgzofzs
-sYuQn85qCrTdsPBx77ZG0eYUzCHCnIp5H0vQaF7HfylPqgenQFqykmbDbBhVEg4IkKXqa8sCEUEA
-bBAKlyyB2haQsAV3EXpxQflkOOCYHgA84YtLRYKJ06TuaBWV/nk+wXJA4POQLYYxbwnzeHmcAnxp
-R01flP9JriAzdYqctilD5a/sbZHRfv1G84+VtsB2xmzNGYW9/MfL7AI/969Z21eDGA6XpXjR6y1P
-vXXWzHfx3va0KhwG8iptodedBxat8PMg9zIhyWY+B7YtYX3Jx6URM2NMrfxGVkHMB6EVbGYVpLzq
-KdvKKoi5PrUa25k1orNAWvAwqyDmPExrbOYNhuGo5YKhxWAFQIZVFIYq1Z1IP5M63EK2bxQbcIuA
-rQ6j53ASQd8v4egN9fy+YZTFFjfANJJ8Fd9yRsg3sISt4lFMO/7LWHNYLRcHmD05EPA7inMIOY+B
-yYjYWSYKcS8eiqhwkCSdvGtRLqFwkXaP1wgzKVgIRE6DCf5L9VRP9VRP9VRP9VRP9VRP9VRP9VRP
-9VRP9VRP9VRP9VRP9VRP9VRP9VRP9Tz7838x7aFLAMgAAA==
-
---=-hkXqn/hZUh6xvULIQqLs--
+diff -urN akpm-18aug/arch/ppc64/kernel/rtas.c akpm/arch/ppc64/kernel/rtas.c
+--- akpm-18aug/arch/ppc64/kernel/rtas.c	2004-08-03 08:07:43.000000000 +1000
++++ akpm/arch/ppc64/kernel/rtas.c	2004-08-19 15:20:22.927953816 +1000
+@@ -165,9 +165,12 @@
+ 
+ 	/* Log the error in the unlikely case that there was one. */
+ 	if (unlikely(logit)) {
+-		buff_copy = kmalloc(RTAS_ERROR_LOG_MAX, GFP_ATOMIC);
+-		if (buff_copy) {
+-			memcpy(buff_copy, rtas_err_buf, RTAS_ERROR_LOG_MAX);
++		buff_copy = rtas_err_buf;
++		if (mem_init_done) {
++			buff_copy = kmalloc(RTAS_ERROR_LOG_MAX, GFP_ATOMIC);
++			if (buff_copy)
++				memcpy(buff_copy, rtas_err_buf,
++				       RTAS_ERROR_LOG_MAX);
+ 		}
+ 	}
+ 
+@@ -176,7 +179,8 @@
+ 
+ 	if (buff_copy) {
+ 		log_error(buff_copy, ERR_TYPE_RTAS_LOG, 0);
+-		kfree(buff_copy);
++		if (mem_init_done)
++			kfree(buff_copy);
+ 	}
+ 	return ret;
+ }
+diff -urN akpm-18aug/include/asm-ppc64/system.h akpm/include/asm-ppc64/system.h
+--- akpm-18aug/include/asm-ppc64/system.h	2004-07-12 09:12:04.000000000 +1000
++++ akpm/include/asm-ppc64/system.h	2004-08-19 15:24:47.249973728 +1000
+@@ -128,6 +128,8 @@
+ }
+ #endif
+ 
++extern int mem_init_done;	/* set on boot once kmalloc can be called */
++
+ /* EBCDIC -> ASCII conversion for [0-9A-Z] on iSeries */
+ extern unsigned char e2a(unsigned char);
+ 

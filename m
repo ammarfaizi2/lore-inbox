@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVCHKVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVCHKUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVCHKVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 05:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVCHKVE
+	id S261956AbVCHKUK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 05:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVCHKUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 05:21:04 -0500
-Received: from styx.suse.cz ([82.119.242.94]:7128 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261961AbVCHKUm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 05:20:42 -0500
-Date: Tue, 8 Mar 2005 11:24:02 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: dtor_core@ameritech.net, Borislav Petkov <petkov@uni-muenster.de>,
-       perex@suse.cz, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] sound/pci/cs4281.c fix typos in the SUPPORT_JOYSTICK=n case
-Message-ID: <20050308102402.GE18021@ucw.cz>
-References: <20050304033215.1ffa8fec.akpm@osdl.org> <200503070941.59365.petkov@uni-muenster.de> <20050307215206.GH3170@stusta.de> <d120d50005030714126e345fe2@mail.gmail.com> <20050307230633.GJ3170@stusta.de>
+	Tue, 8 Mar 2005 05:20:08 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:33491 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261956AbVCHKRb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 05:17:31 -0500
+Date: Tue, 8 Mar 2005 15:57:00 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sebastien.dugue@bull.net, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, pbadari@us.ibm.com, daniel@osdl.org
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+Message-ID: <20050308102700.GA4207@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1110189607.11938.14.camel@frecb000686> <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com> <20050308011814.706c094e.akpm@osdl.org> <20050308094159.GA4144@in.ibm.com> <20050308014141.08a546a9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050307230633.GJ3170@stusta.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050308014141.08a546a9.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 12:06:33AM +0100, Adrian Bunk wrote:
-
-> This patch fixes typos in the SUPPORT_JOYSTICK=n case.
+On Tue, Mar 08, 2005 at 01:41:41AM -0800, Andrew Morton wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> >
+> > > > can you spot what is going wrong here that we have to try and
+> >  > > workaround this later ?
+> >  > 
+> >  > Good question.  Do we have the i_sem coverage to prevent a concurrent
+> >  > truncate?
+> >  > 
+> >  > But from Sebastien's description it doesn't soound as if a concurrent
+> >  > truncate is involved.
+> > 
+> >  Daniel McNeil has a testcase that reproduces the problem - seemed
+> >  like a single thread thing - that's what puzzles me.
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> OK.  It'd be nice if we could find a solution which gets around that i_size
+> access in the ISR, if someone has the time to look into it?
 
-Thanks; applied.
+We hold i_alloc_sem right until dio_complete, don't we ? Is it still
+a problem ? 
 
-> --- linux-2.6.11-mm1-full/sound/pci/cs4281.c.old	2005-03-07 23:45:01.000000000 +0100
-> +++ linux-2.6.11-mm1-full/sound/pci/cs4281.c	2005-03-07 23:45:27.000000000 +0100
-> @@ -1331,8 +1331,8 @@
->  	}
->  }
->  #else
-> -static inline int snd_cs4281_gameport(cs4281_t *chip) { return -ENOSYS; }
-> -static inline void snd_cs4281_gameport_free(cs4281_t *chip) { }
-> +static inline int snd_cs4281_create_gameport(cs4281_t *chip) { return -ENOSYS; }
-> +static inline void snd_cs4281_free_gameport(cs4281_t *chip) { }
->  #endif /* CONFIG_GAMEPORT || (MODULE && CONFIG_GAMEPORT_MODULE) */
+But, I'm wondering if this solution just covers up the real reason
+for the single thread problem ? We shouldn't even be issuing IOs
+beyond i_size into the user-space buffer !
+
+BTW, part of what I'd have liked in a rewrite would be to unify more of the
+AIO and sync io paths, consider doing all this in task context (like in
+the retry code) etc. Would reduce the number of cases to watch out for. 
+But that's a different matter, not for now. I agree that the buffered 
+vs DIO stuff in combo with AIO is what makes this really complex, so
+it is a hard problem.
+
+Regards
+Suparna
+
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

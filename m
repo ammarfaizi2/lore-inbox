@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267165AbSKMK7M>; Wed, 13 Nov 2002 05:59:12 -0500
+	id <S267166AbSKMLLA>; Wed, 13 Nov 2002 06:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267166AbSKMK7M>; Wed, 13 Nov 2002 05:59:12 -0500
-Received: from pluvier.ens-lyon.fr ([140.77.167.5]:14029 "EHLO
-	mailhost.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id <S267165AbSKMK7L>; Wed, 13 Nov 2002 05:59:11 -0500
-Date: Wed, 13 Nov 2002 12:06:01 +0100
-From: Brice Goglin <bgoglin@ens-lyon.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Duplicated code in grab_cache_page, __grab_cache_page, ...
-Message-ID: <20021113110601.GE11564@ens-lyon.fr>
+	id <S267167AbSKMLK7>; Wed, 13 Nov 2002 06:10:59 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:26852 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267166AbSKMLK7>;
+	Wed, 13 Nov 2002 06:10:59 -0500
+Date: Wed, 13 Nov 2002 12:17:45 +0100
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Steve Lord <lord@sgi.com>, Anders Gustafsson <andersg@0x63.nu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: linux/elf.h vs linux/module.h [was: 2.5-bk AT_GID clash]
+Message-ID: <20021113111744.GA10014@gagarin>
+References: <1037122398.27014.43.camel@jen.americas.sgi.com> <20021113071630.190EC2C077@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20021113071630.190EC2C077@lists.samba.org>
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Nov 13, 2002 at 05:07:03AM +1100, Rusty Russell wrote:
+> In message <1037122398.27014.43.camel@jen.americas.sgi.com> you write:
+> > On Tue, 2002-11-12 at 11:16, Rusty Russell wrote:
+> > > This might be kOK too, but in practice I don't think much will be in
+> > > moduleloader.h: asm/module.h only really defines struct
+> > > mod_arch_specific, which is embedded in struct module, and struct
+> > > module needs to be exposed for those inlines...
+> > 
+> > But does everyone who wants to implement a module need to be exposed
+> > to all the details of the elf header?
+> 
+> Well, linux/module.h -> asm/module.h -> linux/elf.h.  Although if you
+> use #define instead of typedef you can break the last link.  Feel free
+> to send a patch to split it into moduleload.h or something, but I
+> think it'll look tiny.
 
-I noticed a large part of code which looks duplicated
-in __grab_cache_page, grab_cache_page (and some parts of
-do_generic_file_read (in the "no_cached_page:" section))
-in mm/filemap.c.
+At least for i386 there is no inclusion of elf.h from asm/module.h, and they
+are already defines. And a quick grep in the other arches shows no direct
+include of elf.h. So removing elf.h from module.h should relieve all
+sourcefiles[*] including module.h implicitly including elf.h too, which imho
+is a good thing.
 
-I do not see the real difference between grab_cache_page
-and __grab_cache_page (except the additional
-"struct page *cached_page" argument).
-The fact that the first one is exported while the second
-one is static looks strange to me.
-Why not exporting both of them if the are really different ?
-Or why not merging them into a general purpose grab_cache_page ?
+[*] find . -name "*.c" | xargs grep "include <linux/module.h>" | wc -l
+   2479
 
-I've seen some small changes during 2.5 developpement
-(grab_cache_page moved to pagemap.h, __grab_cache_page
-got a new argument).
-I'd like to know whether you planned to clean this point
-in future 2.5 revisions ?
-
-Regards
-
---
-Brice Goglin,
-Laboratoire de l'Informatique du Parallelisme
-ENS Lyon - 46 allée d'Italie
-69007 LYON - France
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

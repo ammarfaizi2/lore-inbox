@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbTD2Vf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 17:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTD2Vf4
+	id S261861AbTD2VaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 17:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTD2VaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 17:35:56 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:51348
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261864AbTD2Vfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 17:35:55 -0400
-Subject: Re: Crash in vm86() on SMP boxes with vesa driver?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kendall Bennett <KendallB@scitechsoft.com>
+	Tue, 29 Apr 2003 17:30:17 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:54020 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261861AbTD2VaQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 17:30:16 -0400
+Date: Tue, 29 Apr 2003 23:45:05 +0200
+To: Scott Robert Ladd <coyote@coyotegulch.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EAE72E8.7176.1E3DFDF8@localhost>
-References: <3EAE72E8.7176.1E3DFDF8@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051649372.18198.51.camel@dhcp22.swansea.linux.org.uk>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030429214505.GA13088@hh.idb.hist.no>
+References: <Pine.LNX.4.44.0304282144200.22872-100000@mooru.gurulabs.com> <3EAEAB10.5060801@coyotegulch.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Apr 2003 21:49:33 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EAEAB10.5060801@coyotegulch.com>
+User-Agent: Mutt/1.5.3i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-29 at 20:41, Kendall Bennett wrote:
-> I will check into this. I am running into some strange problems on an 
-> NVIDIA GeForce4 integrated system right now, yet that same BIOS works 
-> perfectly in DOS and OS/2 so there is something up with the way the 
-> vm86() services are being handled. I will try to solve the problem I am 
-> seeing on this NVIDIA machine, and perhaps that will lead to a solution 
-> for both problems (assuming they are actually related of course ;-).
+On Tue, Apr 29, 2003 at 12:40:48PM -0400, Scott Robert Ladd wrote:
+[...]
+> The coherency you seek lies in seeing a common thread of wanting
+> something for nothing. Free software developers often clone products
+> developed by commercial companies; this is taking a free ride (something
+> for nothing) on the R&D budget of the corporation. The effort that goes
+> into designing quality software isn't just coding -- it's also research,
+> design, focus groups, testing, and QA. I think it is quite reasonable
+> for commercial entities to protect their investment in time, effort, and
+> personnel.
+> 
+Except that this isn't "something for nothing".  The free clone
+is the price paid - it is available for everybody, including that
+company. Companies are free to use free linux distributions, and
+get a lot that way.
 
-Another thing to do is to run it under the emulator x86 stuff in
-XFree86, see what that shows up differently to vm86 proper. And then
-there are lots of fun things that confuse video hardware - the fact
-Linux is a PnP OS, the PCI configuration problems and so on. In 
-paticular nobody right now (including X11 proper) virtualises
-conf1/conf2 etc properly so you can crash the box easily
-
-
+Helge Hafting

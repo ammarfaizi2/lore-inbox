@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280126AbRJaJnn>; Wed, 31 Oct 2001 04:43:43 -0500
+	id <S280125AbRJaJnD>; Wed, 31 Oct 2001 04:43:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280127AbRJaJnY>; Wed, 31 Oct 2001 04:43:24 -0500
-Received: from navy.csi.cam.ac.uk ([131.111.8.49]:1533 "EHLO
-	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280126AbRJaJnJ>; Wed, 31 Oct 2001 04:43:09 -0500
-Date: Wed, 31 Oct 2001 09:43:43 +0000
-From: Christophe Rhodes <csr21@cam.ac.uk>
+	id <S280126AbRJaJmy>; Wed, 31 Oct 2001 04:42:54 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:65453 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S280125AbRJaJmr>;
+	Wed, 31 Oct 2001 04:42:47 -0500
+Date: Wed, 31 Oct 2001 10:43:24 +0100
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
 To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SPARC and SA_SIGINFO signal handling
-Message-ID: <20011031094342.A27520@cam.ac.uk>
-In-Reply-To: <20011029190027.A21372@cam.ac.uk> <20011030.125134.93645850.davem@redhat.com>
+Subject: Re: 2.4.13-ac5 && vtun not working
+Message-ID: <20011031104323.A2263@schmorp.de>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.0.20011029174700.08e93090@mail1> <20011029.175312.26299226.davem@redhat.com> <20011031010500.B383@schmorp.de> <20011031.003056.63128206.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20011030.125134.93645850.davem@redhat.com>
-User-Agent: Mutt/1.3.23i
+In-Reply-To: <20011031.003056.63128206.davem@redhat.com>
+X-Operating-System: Linux version 2.4.13-ac5 (root@cerebro) (gcc version 2.95.4 20010319 (prerelease)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 12:51:34PM -0800, David S. Miller wrote:
-> 
-> You're doing something really wrong, it works perfectly
-> fine here:
-> 
-> ? cat test.c
-> #include <stdlib.h>
-> #include <sys/ucontext.h>
-> #include <signal.h>
-> 
-> void sigsegv_handler (int signo, siginfo_t *info, void *data) {
-> 	if (info != 0)
-        ^^^^
+On Wed, Oct 31, 2001 at 12:30:56AM -0800, "David S. Miller" <davem@redhat.com> wrote:
+> You're right, it should allow the "string has no '%' at all" case
+> as well.  Please, someone send me a patch which does this.
 
-This gets me the siginfo struct; this is fine, and I'm happy with this
-part.
+My original mail contained a one-line fix, suboptimal but works fine for me.
+I also found a more elaborate patch:
 
-However, what I don't see to get at is the usercontext/ucontext
-structure containing register contents and so on, which as far as I am
-aware should be in the third (data) argument to the sa_sigaction-type
-sighandler; that's where I'm getting my problems.
+   http://www.geocrawler.com/lists/3/SourceForge/12162/0/6896612/
 
-> 		exit(1);
-> 	exit(0);
-> }
-> [...]
+it seems to use a fancier algorithm and has been used by more people.
 
-Change the info above to data, and...
-
-[ x86 does what I expect... ]
-csr21@lambda:~$ uname -a
-Linux lambda 2.4.13-ac4 #1 Mon Oct 29 18:26:51 GMT 2001 i686 unknown
-csr21@lambda:~$ ./foo
-csr21@lambda:~$ echo $?
-1
-
-[ sparc doesn't ]
-csr21@caligula:~$ uname -a
-Linux caligula 2.4.6 #1 SMP Sun Sep 30 16:40:07 BST 2001 sparc64
-unknown
-csr21@caligula:~$ ./foo
-csr21@caligula:~$ echo $?
-0
-
-Thanks,
-
-Christophe
 -- 
-Jesus College, Cambridge, CB5 8BL                           +44 1223 510 299
-http://www-jcsu.jesus.cam.ac.uk/~csr21/                  (defun pling-dollar 
-(str schar arg) (first (last +))) (make-dispatch-macro-character #\! t)
-(set-dispatch-macro-character #\! #\$ #'pling-dollar)
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262223AbSJKAIU>; Thu, 10 Oct 2002 20:08:20 -0400
+	id <S262227AbSJKANF>; Thu, 10 Oct 2002 20:13:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262222AbSJKAIU>; Thu, 10 Oct 2002 20:08:20 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:14807 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S262223AbSJKAIT>;
-	Thu, 10 Oct 2002 20:08:19 -0400
-Date: Thu, 10 Oct 2002 17:14:03 -0700
+	id <S262241AbSJKANE>; Thu, 10 Oct 2002 20:13:04 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:48858 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262227AbSJKAL5>;
+	Thu, 10 Oct 2002 20:11:57 -0400
+Date: Thu, 10 Oct 2002 17:17:42 -0700
 To: irda-users@lists.sourceforge.net, Jeff Garzik <jgarzik@mandrakesoft.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: IrDA patches for 2.5.X on the way...
-Message-ID: <20021011001403.GA6645@bougret.hpl.hp.com>
+Subject: [PATCH 2.5] : ir251_lmp_timer_race-2.diff
+Message-ID: <20021011001742.GG6645@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,85 +23,104 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Jeff,
-
-	A more "normal" IrDA update this time (drivers, bug fixes) to
-flush my patch queue. Some of those patches have been on my web page
-for far too long, rediffed on 2.5.41.
-	Martin is working on the new irtty driver that should fix the
-last remaining big problem with IrDA in 2.5.X. Hopefully you will see
-that soon.
-	Have fun...
-
-	Jean
-
-----------------------------------------------------------------
-
-[FEATURE] : Add a new feature to the IrDA stack
-[CORRECT] : Fix to have the correct/expected behaviour
-[CRITICA] : Fix potential kernel crash
-
-ir251_vlsi_v4-2.diff :
---------------------
-	        <Following patch from Martin Diehl>
-        * merge+sync with changes from recent kernels: pci_[sg]et_drvdata,
-          __devexit_p, netdev->last_rx, irda header cleanup
-        * add netdev tx_timeout which re-initializes the whole thing
-        * add power management support consistent with pci driver api
-        * major rework of the ring descriptor operations
-        * make correct usage of consistent and streaming pci dma api
-        * nuke last virt_to_bus() and friends
-        * support MIR/FIR highspeed interaction pulse (SIP)
-        * review all paths for packet-size issues (rx and tx)
-        * fix an old issue requiring hw powercycle caused by a race
-          between IrLAP and hardware when switching _back_ to default
-          speed at LAP disconnect. This was opened by the complete async
-          behaviour of netdev->xmit but didn't happen before your latency
-          improvements went into the stack.
-        * add driver status readout under /proc/driver/vlsi_ir/irda%
-          For 2.5, this will probably go into driverfs once things have
-          stabilized.
-        * fix potential deadlock in speed changing code
-        * make identical driver working for both 2.4 and 2.5
-        * add __attribute__((packed)) to hardware-exposed struct
-        * add suggested pci_dma_prep_single() to flush cpu cache before
-          streaming dma buffer gets reused for busmastering
-
-ir254_donauboe-2.diff :
----------------------
-	        <Following patch from Martin Lucina & Christian Gennerat>
-	o [FEATURE] Rewrite of the toshoboe driver using documentation
-	o [FEATURE] Support Donau oboe chipsets.
-	o [FEATURE] FIR support
-	o [CORRECT] Probe chip before opening
-	o [FEATURE] suspend/resume support
-	o [FEATURE] Numerous other improvements/cleanups
-	o [CORRECT] (me) Remove save_flags()/cli() for spinlock
-		<Currently, we keep the old toshoboe driver around>
-	o [FEATURE] Config.help for ma600 driver (unrelated ;-)
-
-ir251_export_crc-2.diff :
------------------------
-	o [FEATURE] Export CRC16 helper so that drivers can use it
-
-ir251_ircomm_uninit_fix-6.diff :
-------------------------------
-	o [FEATURE] Fix spelling UNITIALISED => UNINITIALISED
-	o [CORRECT] Accept data from TTY before link initialisation
-		This seems necessary to avoid chat (via pppd) dropping chars
-	o [CRITICA] Remember allocated skb size to avoid to over-write it
-	o [FEATURE] Remove  LM-IAS object once connected
-	o [CORRECT] Avoid declaring link ready when it's not true
-
-ir251_qos_param-2.diff :
-----------------------
-	o [FEATURE] Fix some comments
-	o [FEATURE] printk warning when we detect buggy QoS from peer
-	o [CORRECT] Workaround NULL QoS bitfields
-	o [CORRECT] Workaround oversized QoS bitfields
-	o [FEATURE] Add sysctl "max_tx_window" to limit IrLAP Tx Window
-
 ir251_lmp_timer_race-2.diff :
 ---------------------------
 	o [CORRECT] Start timer before sending event to fix race condition
 	o [FEATURE] Improve the IrLMP event debugging messages.
+
+
+diff -u -p linux/net/irda/irlmp_event.d3.c linux/net/irda/irlmp_event.c
+--- linux/net/irda/irlmp_event.d3.c	Thu Oct 10 15:25:48 2002
++++ linux/net/irda/irlmp_event.c	Thu Oct 10 15:31:09 2002
+@@ -514,10 +514,10 @@ static int irlmp_state_disconnected(stru
+ 
+ 		irlmp_next_lsap_state(self, LSAP_SETUP_PEND);
+ 
+-		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+-
+ 		/* Start watchdog timer (5 secs for now) */
+ 		irlmp_start_watchdog_timer(self, 5*HZ);
++
++		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+ 		break;
+ 	case LM_CONNECT_INDICATION:
+ 		if (self->conn_skb) {
+@@ -529,8 +529,6 @@ static int irlmp_state_disconnected(stru
+ 
+ 		irlmp_next_lsap_state(self, LSAP_CONNECT_PEND);
+ 
+-		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+-
+ 		/* Start watchdog timer
+ 		 * This is not mentionned in the spec, but there is a rare
+ 		 * race condition that can get the socket stuck.
+@@ -543,10 +541,12 @@ static int irlmp_state_disconnected(stru
+ 		 * a backup plan. 1 second is plenty (should be immediate).
+ 		 * Jean II */
+ 		irlmp_start_watchdog_timer(self, 1*HZ);
++
++		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(2, "%s(), Unknown event %s\n",
+-			   __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(1, "%s(), Unknown event %s on LSAP %#02x\n",
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+ 		break;
+@@ -604,8 +604,8 @@ static int irlmp_state_connect(struct ls
+ 		irlmp_next_lsap_state(self, LSAP_DISCONNECTED);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
+-			 __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n", 
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+ 		break;
+@@ -666,8 +666,8 @@ static int irlmp_state_connect_pend(stru
+ 		irlmp_next_lsap_state(self, LSAP_DISCONNECTED);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
+-			    __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+ 		break;
+@@ -757,8 +757,8 @@ static int irlmp_state_dtr(struct lsap_c
+ 		irlmp_disconnect_indication(self, reason, skb);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
+-			    __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+ 		break;
+@@ -830,8 +830,8 @@ static int irlmp_state_setup(struct lsap
+ 		irlmp_disconnect_indication(self, LM_CONNECT_FAILURE, NULL);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
+-			    __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+ 		break;
+@@ -889,8 +889,8 @@ static int irlmp_state_setup_pend(struct
+ 		irlmp_disconnect_indication(self, reason, NULL);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
+-			   __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n",
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+ 		break;

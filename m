@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315264AbSE2N0B>; Wed, 29 May 2002 09:26:01 -0400
+	id <S315265AbSE2Nnk>; Wed, 29 May 2002 09:43:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSE2N0A>; Wed, 29 May 2002 09:26:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18816 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315264AbSE2NZ6>;
-	Wed, 29 May 2002 09:25:58 -0400
-Date: Wed, 29 May 2002 15:24:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: Pavel Machek <pavel@suse.cz>, Steve Whitehouse <Steve@ChyGwyn.com>,
-        linux kernel <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk,
-        chen_xiangping@emc.com
-Subject: Re: Kernel deadlock using nbd over acenic driver
-Message-ID: <20020529132454.GO17674@suse.de>
-In-Reply-To: <20020529112137.GA397@elf.ucw.cz> <200205291210.g4TCAgh32404@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S315266AbSE2Nnj>; Wed, 29 May 2002 09:43:39 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:57102 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315265AbSE2Nni>; Wed, 29 May 2002 09:43:38 -0400
+Date: Wed, 29 May 2002 15:43:23 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+In-Reply-To: <1022678678.4123.189.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0205291440420.17583-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29 2002, Peter T. Breuer wrote:
-> "A month of sundays ago Pavel Machek wrote:"
-> > > > Init routine is called from insmod context or at kernel bootup (from pid==1).
-> > > 
-> > > That's nitpicking!  
-> > 
-> > I did not want to be nitpicking. init() really is considered process
+Hi,
+
+On 29 May 2002, Alan Cox wrote:
+
+> I've met Victor several times including having discussions over open
+> source philosophy patents and the like. I think he is a good guy.
+
+I can't judge about this, my judgement comes from how he treats the RTAI
+developer.
+
+> The
+> patent grant says it can be used for GPL software. As a free software
+> author I have no problems at all with Victor's patent.
+
+GPL is not the only free software license.
+
+> It might be anti
+> how convenient I can mix the two and flog it for lots of money, but
+> thats not free software anyway.
+
+It's about "free speech" not "free beer".
+
+> > Victor denies the RTAI people any clear answers about the license.
 > 
-> Well, OK.
+> He told them that if they were not sure they should ask a lawyer. That
+> sounds to me rather correct advice. What kind of answer do you expect.
+> There are really only two that might be expected in such a situation,
+> they I suspect go
 > 
-> > context, and it looks to me like unplug is *blocking* operation so it
-> > really needs proceess context.
-> 
-> unplug unsets the plugged flag and calls the request function. The
-> question is whether the request function is allowed to block. I argue
-> that it is not, on several grounds:
-> 
->     1) it's also - and principally - been called from various task
->     queues, which aren't really associated with a process context, and
->     certainly not with the process context that set the task
+> 	"We think you need a license if you use proprietary software 
+> 	 with this" and "Ask a lawyer"
 
-It's called from tq_disk only, which is in process context. So at least
-on that ground lets say that it is at least not technically illegal to
-block.
+1. We are talking about a free software project here!
+2. They asked a lawyer, here is the result:
+   http://lwn.net/2002/0131/a/rtai-24.1.8.php3
+So according to this legal advice, normal application running under
+RTLinux/RTAI are not infringing the patent and therefore need no license.
+Victor now seems to see things different: "it would still not be permitted
+to link binary modules into the derived program without our
+permission.  RTAI "user space"  to me, does not escape this issue."
+Such statements are what creates the uncertainty and Victor does nothing
+to resolve this issue.
+That RTAI can be used in a commercial or even closed source environment
+doesn't matter here. I'm not happy about the binary module situation
+either, but you have to take that to Linus. Whatever is allowed in user
+space is clearly defined by the kernel license.
+The RTAI developer have the right to use their work however they wish,
+should there be a copyright problem, it should be correctly labeled as
+such and definitely doesn't need a patent license.
 
->     2) blocking is really bad news depending on how we got to the
->     request function, which is not a really predictable thing, since
->       i) it can change with every kernel version
->       ii) it depends on what somebody else does
-
-I don't agree with that. You get there from an unplug, which happens
-from process context as already established. If you get there from other
-places, it means that you are calling your request_fn from elsewhere in
-your driver (typically recalling request_fn from isr or bottom half to
-queue more I/O), and in that case it's your own responsibility.
-
->    3) if we block against memory for buffers, in particular, the 
->    the system is now very likely to be dead, since VM just went
->    synchronous.
-
-Of course that is a tricky area. You shouldn't be doing memory
-allocations inside the request_fn, that's just bad design, period.
-
-The one reason why blocking inside the request_fn is bad, is that it
-prevents the following queues on the tq_disk list from being run. And
-subsequent tq_disk runs will not unplug them, since run_task_queue()
-clears the list prior to starting.
-
--- 
-Jens Axboe
+bye, Roman
 

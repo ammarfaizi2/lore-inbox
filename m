@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVBRRFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVBRRHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVBRRFk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 12:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVBRRFk
+	id S261424AbVBRRHa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 12:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVBRRH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 12:05:40 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:37034 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261404AbVBRRFV (ORCPT
+	Fri, 18 Feb 2005 12:07:29 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:5992 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261420AbVBRRHW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 12:05:21 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6: drivers/input/power.c is never built
-Date: Fri, 18 Feb 2005 18:05:12 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@suse.cz>, Richard Purdie <rpurdie@rpsys.net>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dmitry.torokhov@gmail.com
-References: <20050213004729.GA3256@stusta.de> <20050218160153.GC12434@elf.ucw.cz> <20050218170036.GA1672@ucw.cz>
-In-Reply-To: <20050218170036.GA1672@ucw.cz>
+	Fri, 18 Feb 2005 12:07:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:reply-to:to:subject:date:user-agent:references:in-reply-to:mime-version:content-disposition:message-id:content-type:content-transfer-encoding;
+        b=gZUy6Q1nv+BrdrW9KZcLZnnpmZ0v5ZVL5r95p2CL1VaZ0IBAfmKouLXD8ePpNwNu3DnMl3OO1r52/miX4HMNfYaFQN6tiq4nyHypHuH7xsXGjy7cjJrTFbgYNrGvHPQDzKrdERbBk12TSmwdvMXY1aXxzGAhrbpnjWMXzDaWZ/8=
+From: Marc Cramdal <marc.cramdal@gmail.com>
+Reply-To: marc.cramdal@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Sis760 chipset support
+Date: Fri, 18 Feb 2005 19:07:16 +0100
+User-Agent: KMail/1.7.92
+References: <4213AB2B.2050604@giesskaennchen.de>
+In-Reply-To: <4213AB2B.2050604@giesskaennchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200502181805.13129.oliver@neukum.org>
+Message-Id: <200502181907.16586.marc.cramdal@gmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 18. Februar 2005 18:00 schrieb Vojtech Pavlik:
-> On Fri, Feb 18, 2005 at 05:01:53PM +0100, Pavel Machek wrote:
-> 
-> > > > It has quite a lot of #ifdefs for CONFIG_APM/CONFIG_ARM/CONFIG_ACPI,
-> > > > and it will not work on i386/APM, anyway. I still believe right
-> > > > solution is to add input interface to ACPI. /proc/acpi/events needs to
-> > > > die, being replaced by input subsystem.
-> > > 
-> > > But aren't there power events (battery low, etc) which are not
-> > > input events?
-> > 
-> > Yes, there are. They can probably stay... Or we can get "battery low"
-> > key.
->  
-> We even have an event class for that, EV_PWR in the input subsystem.
+Hello,
 
-Over that route we'd arrive at a situation where power management
-without the input layer is impossible. Think about embedded stuff I wonder
-whether this is viable.
+I can't make agpgart working (even when trying the agp_try_unsupported) 
+option. I have an AMD64 3000+ with a Sis760 chipset and agp doesn't seem to 
+be supported : I only get this with dmesg : "Linux agpgart interface v0.100 
+(c) Dave Jones". That's all...
 
-	Regards
-			Oliver
+So, is Sis760 chipset supported for agpgart under linux kernel ? if not, is 
+there plan to be, tweaks to do (I even tried the Sis Chipset driver 
+for !x86_64 by removing this entry in KConfig ... ) ?
+
+Marc

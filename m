@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274424AbRJNGMe>; Sun, 14 Oct 2001 02:12:34 -0400
+	id <S274468AbRJNGV4>; Sun, 14 Oct 2001 02:21:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274426AbRJNGMY>; Sun, 14 Oct 2001 02:12:24 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60690 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S274424AbRJNGMK>; Sun, 14 Oct 2001 02:12:10 -0400
-Date: Sun, 14 Oct 2001 08:12:34 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jelson <jelson@circlemud.org>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
-Message-ID: <20011014081233.A31752@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011002204836.B3026@bug.ucw.cz> <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu> <20011005205136.A1272@elf.ucw.cz> <m1n132x4qg.fsf@frodo.biederman.org> <20011008122013.B38@toy.ucw.cz> <m1wv1zqk37.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1wv1zqk37.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.3.20i
+	id <S274434AbRJNGVq>; Sun, 14 Oct 2001 02:21:46 -0400
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:17681 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S274468AbRJNGVb>;
+	Sun, 14 Oct 2001 02:21:31 -0400
+Message-ID: <3BC92F07.7030801@thock.com>
+Date: Sun, 14 Oct 2001 00:21:59 -0600
+From: Dylan Griffiths <dylang+kernel@thock.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010926
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jakob =?ISO-8859-1?Q?=D8stergaard?= <jakob@unthought.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: HPT 370 / RAID 5 possible corruption issue.]
+In-Reply-To: <3BC381DE.4090300@thock.com> <20011012012453.C6330@unthought.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jakob Østergaard wrote:
 
-> > > > Yep. And linmodem driver does signal processing, so it is big and
-> > > > ugly. And up till now, it had to be in kernel. With your patches, such
-> > > > drivers could be userspace (where they belong!). Of course, it would be 
-> > > > very good if your interface did not change...
-> > > 
-> > > I don't see how linmodem drivers apply.  At least not at the low-level
-> > > because you actually have to driver the hardware, respond to interrupts
-> > > etc.  On some of this I can see a driver split like there is for the video
-> > 
-> > You don't actually need interrupts -- you *know* when next sample arrives.
-> > And port io is completely fine with iopl() ;-).
+> I can't say what the current status is.   But some time ago some people I know
+> got burnt with silent corruption from using HPT cards with RAID5 and RAID0, the
+> cards were replaced with Promise cards, and the problem went away (as it should
+> - I've been running a lot of RAID on Promise cards and never saw the problem).
+
+
+I've got a spare Promise card now that I will test and keep posted of the 
+results.
+
+ 
+> As long as there are Promise cards to get, I'm not going anywhere near HPT.
 > 
-> But DMA? You are talking about what amounts to a sound card driver.
-> And since in the cases that burn cpu time you have to process raw
-> sound samples into modem data, you need to shift a fair amount of
-> data. inb and outb just don't have the bandwidth.  So you need a
-> kernel side component that drives the hardware to some extent.
+> Maybe there's a fix somewhere, maybe there's a magic BIOS setting or upgrade,
+> maybe something else can make it work, I don't know.  Promise cards are cheap
+> so I don't care.
+> 
+> Sorry for not being able to give you "good" information, but at least now you
+> got "some" information.   Hope it helps, for what it's worth.
+> 
 
-You need to push 8kHz/16bit, that's 16 kilobytes per second. Or maybe
-you can sample at 11kHz, getting 20 kilobytes per second. Comfortably
-done with inb/outb.
+I wonder, if the HPT card support is so bad, or the hardware itself is so 
+squirelly, why it's not marked as UNSTABLE or has a note about the HW 
+being evil.
 
-> Additionally you still don't need a FUSD driver for that case.  All
-> you need is to have is a ptty.  Because that is what modem drivers
-> are now.  And the ptty route has binary and source compatiblity
-> to multiple unix platforms.
-
-I do not think tty/pty pair does cut it for AT emulation. Can you
-really emulate all neccessary features using pty/tty?
-								Pavel
 -- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+     www.kuro5hin.org -- technology and culture, from the trenches.
+                          -=-=-=-=-=-
+Those that give up liberty to obtain safety deserve neither.
+  -- Benjamin Franklin
+   http://www.zdnet.com/zdnn/stories/news/0,4586,2812463,00.html
+   http://slashdot.org/article.pl?sid=01/09/16/1647231
+                          -=-=-=-=-=-
+

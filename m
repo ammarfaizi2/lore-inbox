@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268696AbUHZLOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268736AbUHZLfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268696AbUHZLOu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 07:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268753AbUHZLKJ
+	id S268736AbUHZLfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 07:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268805AbUHZLfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 07:10:09 -0400
-Received: from pop3.telefonica.net ([213.4.129.150]:60299 "EHLO
-	telesmtp3.mail.isp") by vger.kernel.org with ESMTP id S268722AbUHZLGu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 07:06:50 -0400
-Subject: 
-From: Emilio =?ISO-8859-1?Q?Jes=FAs?= Gallego Arias 
-	<egallego@telefonica.net>
-To: akpm@odsl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 26 Aug 2004 13:06:54 +0200
-Message-Id: <1093518414.4155.15.camel@localhost>
+	Thu, 26 Aug 2004 07:35:02 -0400
+Received: from omx2-ext.SGI.COM ([192.48.171.19]:955 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268652AbUHZLTz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 07:19:55 -0400
+Date: Thu, 26 Aug 2004 04:19:44 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: helge.hafting@hist.no, riel@redhat.com, mikulas@artax.karlin.mff.cuni.cz,
+       torvalds@osdl.org, hch@lst.de, reiser@namesys.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-Id: <20040826041944.567b0589.pj@sgi.com>
+In-Reply-To: <20040826104713.GA30449@mail.shareable.org>
+References: <Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com>
+	<412D968B.9030107@hist.no>
+	<20040826022137.1504ffb7.pj@sgi.com>
+	<20040826104713.GA30449@mail.shareable.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20040826032457.21377e94.akpm@osdl.org>
+> Too late.  We have xattrs already; many programs don't store them.
 
-Andrew Morton wrote:
+If by your "too late" you mean we can stop worrying about any more
+breakage of file system utilities, because there exists an example
+in which some were already broken, then you are absolutely wrong.
 
-> (Generally, getting all of userspace to agree on a particular library
-> is socially hard [*], but I don't see that as a reason for putting the
-> functionality into the kernel)
+Just because we caused some breakage doesn't give us license to cause
+even more.
 
-Implement it in libc?
-
-Really, I don't understand why people want file as directory occur magically.
-In Unix we already have files and directories, it's enough.
-
-You can modify libc creat("file", mode) to create a directory layout with a 
-file named #content (or whatever special name you want) and attributes are 
-files in this directory:
-
-emilio@ellugar:~/tm$ ls -lR
-.:
-total 4
-drwxr-xr-x  2 emilio emilio 4096 2004-08-26 12:58 file
-
-./file:
-total 0
--rw-r--r--  1 emilio emilio 0 2004-08-26 12:58 attribute1
--rw-r--r--  1 emilio emilio 0 2004-08-26 12:58 attribute2
--rw-r--r--  1 emilio emilio 0 2004-08-26 12:57 #content
-
-Of course we should modify open, rename, etc... so open("file", ...) will
-do open("file/#content", ...), etc.. but no need to touch any filesystem 
-and will work on any fs. 
-
-Of course there are lots of questions of being backwars compatible etc, but
-no more than doing it in the kernel.
-
-Regards,
-
-Emilio
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

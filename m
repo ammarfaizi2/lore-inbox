@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265947AbUAQBkr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 20:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUAQBkr
+	id S265934AbUAQByj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 20:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUAQByj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 20:40:47 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:47569 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265947AbUAQBkq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 20:40:46 -0500
-Date: Fri, 16 Jan 2004 17:40:20 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Greg Fitzgerald <gregf@bigtimegeeks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm4
-Message-ID: <20040117014020.GS1748@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Greg Fitzgerald <gregf@bigtimegeeks.com>,
-	linux-kernel@vger.kernel.org
-References: <20040115225948.6b994a48.akpm@osdl.org> <20040117013115.GA5524@evilbint>
+	Fri, 16 Jan 2004 20:54:39 -0500
+Received: from hell.org.pl ([212.244.218.42]:56072 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S265934AbUAQByi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 20:54:38 -0500
+Date: Sat, 17 Jan 2004 02:54:47 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [2.6.0-mm2] PM timer still has problems
+Message-ID: <20040117015447.GA30456@hell.org.pl>
+References: <20031230204831.GA17344@hell.org.pl> <1073340716.15645.96.camel@cog.beaverton.ibm.com> <200401052332.24739.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20040117013115.GA5524@evilbint>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200401052332.24739.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 16, 2004 at 08:31:15PM -0500, Greg Fitzgerald wrote:
-> Hi,
-> 
-> 	Just gave 2.6.1-mm4 a try hoping to fix my NFS problems. NFS seems
-> to be working better but now my mouse is not working properly. I have
-> psmouse.psmouse_proto=exps in my grub.conf. Anyone have ideas? Thanks in advance.
+Thus wrote Dmitry Torokhov:
+> Or that Karol's laptop has ACPI PM timer that is accessed through the
+> memory (ACPI_ADR_SPACE_SYSTEM_MEMORY), is there such implementations?
+> Right now timer_pm.c only supports IO-port based timer access.
 
-What does "properly" mean?
+Apparently, the PM timer now works as of 2.6.1-mm4:
+#v+
+Detected 1700.569 MHz processor.
+Using pmtmr for high-res timesource
+#v-
+
+But the BogoMIPS loop is still wrong:
+#v+
+Calibrating delay loop... 1683.45 BogoMIPS
+#v-
+
+It looks as if it needed to be multiplied by two, right?
+Additionally, the /proc/cpuinfo is not updated on governor change (I'm
+using the speedstep-ich driver which otherwise works fine), although the
+real CPU frequency certainly is. I'm not sure if this is in any way 
+related though.
+Best regards,
+
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289234AbSBJDx7>; Sat, 9 Feb 2002 22:53:59 -0500
+	id <S289243AbSBJEJE>; Sat, 9 Feb 2002 23:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289239AbSBJDxt>; Sat, 9 Feb 2002 22:53:49 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47634 "EHLO
+	id <S289250AbSBJEIx>; Sat, 9 Feb 2002 23:08:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64786 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289234AbSBJDxl>; Sat, 9 Feb 2002 22:53:41 -0500
+	id <S289243AbSBJEIm>; Sat, 9 Feb 2002 23:08:42 -0500
 To: linux-kernel@vger.kernel.org
 From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: [bk patch] Make cardbus compile in -pre4
-Date: Sun, 10 Feb 2002 03:52:32 +0000 (UTC)
+Date: Sun, 10 Feb 2002 04:07:24 +0000 (UTC)
 Organization: Transmeta Corporation
-Message-ID: <a44qq0$138$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208203931.X15496@lynx.turbolabs.com> <3C649F4F.7E190D26@mandrakesoft.com> <20020209002920.Z15496@lynx.turbolabs.com>
-X-Trace: palladium.transmeta.com 1013313212 19997 127.0.0.1 (10 Feb 2002 03:53:32 GMT)
+Message-ID: <a44rls$7nh$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020209093520.XVXR9607.femail47.sdc1.sfba.home.com@there> <877kpnt1tr.fsf@fadata.bg> <E16ZZ7M-0007Y7-00@starship.berlin>
+X-Trace: palladium.transmeta.com 1013314105 20251 127.0.0.1 (10 Feb 2002 04:08:25 GMT)
 X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 10 Feb 2002 03:53:32 GMT
+NNTP-Posting-Date: 10 Feb 2002 04:08:25 GMT
 Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
 X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020209002920.Z15496@lynx.turbolabs.com>,
-Andreas Dilger  <adilger@turbolabs.com> wrote:
+In article <E16ZZ7M-0007Y7-00@starship.berlin>,
+Daniel Phillips  <phillips@bonn-fries.net> wrote:
 >
->The problem is that (AFAIK) bk pull does not let Linus pick-and-choose
->which patches he wants to accept as easily as importing them at the time
->he reads each email.  It basically assumes that he wants everything that
->is in the repository he is pulling from.
+>Complaining and whining are not the same thing.  Some major contributors
+>have complained, that's why Linus takes this seriously.
 
-Yes and no.
+Well, in all honesty, it's not so much that I take it seriously - it's
+not as if the complaints are in any way new (or even more serious than
+before - I think we had a much more serious spat a few years ago).  The
+fact is, people will _always_ complain about the way things are done.
 
-I hope that the developers that I work enough with for it to matter tend
-to be fairly good at keeping things separate (ie separate BK trees for
-different development efforts etc), in which case it's not a big issue.
+[ This very _same_ "how to maintain" flameware is not only a regular
+  topic on linux-kernel, it's a regular topic on the BSD lists, on the
+  gcc lists, and probably on every single bigger software project,
+  whether open source or not. Why do you think there are so many
+  different source control packages? ;]
 
-And yes, from at least one developer I have already done a partial pull,
-ie taken only partial changes. In that case the changes I disagreed with
-were at the end, so it was easy enough to just do a "bk pull" into
-another tree, do a "bk undo", and only merge after that.
+But I _have_ promised Larry for the last two years or so to give BK a
+chance (the last time I promised him I'd start using it as of 2.5.0),
+and the discussion to a large degree just made me feel I had a good
+reason to take a week off and try it out. 
 
-But I agree - if I end up having to do that more than occasionally, I'm
-going to ask that developer to stop using bk at least as far as I'm
-concerned (ie he can use bk for himself, but I wouldn't accept bk
-patches from developers who cannot keep their stuff cleanly separated).
+I doubt bk per se will really change any of the real issues.  It will
+almost certainly make it somewhat easier to merge patches from some
+people, but I also suspect that those are largely the same people that I
+already was pretty good at merging patches from before. 
 
-		Linus
+The fundamental issue that I think I (or any human, for that matter)
+work best with just a few (on the order of ten) closer contacts, and
+that I want people to "network" more is pretty independent of BK or not.
+
+However, in the long run what BK may do is to make it easier to migrate
+to a "group model", where the traditional "linus tree" doesn't even
+exist any more. I'm not ready to do that yet, but clearly it has to
+happen at _some_ point. Nobody lives forever.
+
+And I do like BK so far.
+
+			Linus

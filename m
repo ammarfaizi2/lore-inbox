@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129851AbQKTBxH>; Sun, 19 Nov 2000 20:53:07 -0500
+	id <S129689AbQKTCC5>; Sun, 19 Nov 2000 21:02:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129960AbQKTBw6>; Sun, 19 Nov 2000 20:52:58 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:31502 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129689AbQKTBwq>; Sun, 19 Nov 2000 20:52:46 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4.0-test11-pre7: isapnp hang
-Date: 19 Nov 2000 17:22:09 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v9uc1$5c5$1@cesium.transmeta.com>
-In-Reply-To: <8v9rf6$54k$1@cesium.transmeta.com> <E13xfQ1-0003CR-00@the-village.bc.nu>
+	id <S130147AbQKTCCr>; Sun, 19 Nov 2000 21:02:47 -0500
+Received: from adonis.lbl.gov ([128.3.5.144]:14596 "EHLO adonis.lbl.gov")
+	by vger.kernel.org with ESMTP id <S129960AbQKTCCl>;
+	Sun, 19 Nov 2000 21:02:41 -0500
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Martin Mares <mj@suse.cz>, Steven Walter <srwalter@hapablap.dyn.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: "No IRQ known for interrupt pin A..." error message
+In-Reply-To: <Pine.LNX.4.10.10011191617420.21113-100000@innerfire.net>
+From: Alex Romosan <romosan@adonis.lbl.gov>
+Date: 19 Nov 2000 17:32:39 -0800
+In-Reply-To: <Pine.LNX.4.10.10011191617420.21113-100000@innerfire.net> (message from Gerhard Mack on Sun, 19 Nov 2000 16:18:43 -0800 (PST))
+Message-ID: <873dgnfmx4.fsf@adonis.lbl.gov>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E13xfQ1-0003CR-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> > Try reserving ports 0x300-0x31f on the kernel command line
-> > ("reserve=0x300,0x20").
-> > 
-> > I'm surprised isapnp uses a port in such a commonly used range,
-> > though.
-> 
-> It seems to be a combination of two bugs. The one I posted a patch for and
-> something odd that is taking port 0x279 before the pnp probe is run, which
-> suggests a link order issue. Although in truth _nobody_ should be claing
-> that anyway
+Gerhard Mack <gmack@innerfire.net> writes:
+
+> That looks exactly like the message I get if I tell the bios not to
+> assign an interrupt to my video card.
 > 
 
-It seems to me that it would be better to initialize all the (non-PnP)
-ISA cards first, and have them claim their preferred ranges.  Now you
-can pick the PnP isolate port out of what is left, and also have a
-much better idea of what is available.
+unfortunately, i don't get such a choice. and if what you say is true,
+isn't the message ("No IRQ known for interrupt pin A of device
+05:00.0. Please try using pci=biosirq") misleading? to me this means
+the kernel couldn't find the irq by itself, so it will ask the bios.
+but if the irq is not assigned in the bios, how can kernel find it
+then? maybe i should look at the code itself to try to understand what
+is going on here (chances are i won't understand the code anyway, so
+that's why i'm asking).
 
-	-hpa
+
+--alex--
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

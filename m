@@ -1,71 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264289AbTDKC0N (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 22:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbTDKC0N (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 22:26:13 -0400
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:28544 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S264289AbTDKC0M (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 22:26:12 -0400
-Date: Fri, 11 Apr 2003 11:35:43 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET] Support PC-9800 sub-architecture for 2.5.67-bk2
-Message-ID: <20030411023543.GA1059@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
+	id S264099AbTDKCoK (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 22:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264157AbTDKCoJ (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 22:44:09 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:37832 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264099AbTDKCoI (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 22:44:08 -0400
+Date: Thu, 10 Apr 2003 19:55:46 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 574] New: Toshiba Satellite - Intel 82801CA sound distortion since k. 2.5.66
+Message-ID: <217170000.1050029746@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for merging PC-9800 support patches.
-Here is the patchset to support NEC PC-9800 subarchitecture
-against 2.5.67-bk2.
-http://downloads.sourceforge.jp/linux98/3197/linux98-2.5.67-bk2.patch.tar.bz2
+http://bugme.osdl.org/show_bug.cgi?id=574
 
-Comments and test reports are wellcome.
+           Summary: Toshiba Satellite - Intel 82801CA sound distortion since
+                    k. 2.5.66
+    Kernel Version: 2.5.66 and 2.5.67
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: azote@slinux.net
 
-Description:
- Update for merged files.
- o fs-update.patch (1/1)
-   Fix compilation when configure PC98 partition and BSD disk label.
 
- Additional patches
- o apm.patch (1/16)
-   APM support for PC98. Including PC98's BIOS bug fix.
- o arch.patch (2/16)
-   Config and Make for PC98.
- o console.patch (3/16)
-   PC98 Standard console support (without japanese kanji character).
- o core-misc.patch (4/16)
-   Small patches for PC98 support core.
- o core.patch (5/16)
-   Patches for PC98 support core.
- o dma.patch (6/16)
-   DMA support for PC98.
- o ide.patch (7/16)
-   PC98 standard IDE I/F support.
- o kanji.patch (8/16)
-   japanese kanji character support for PC98 console.
- o parport.patch (9/16)
-   Parallel port support.
- o pci.patch (10/16)
-   Small changes for PCI support.
- o pcmcia.patch (11/16)
-   Small change for PCMCIA (16bits) support.
- o rtc.patch (12/16)
-   Support RTC for PC98, using mach-* scheme.
- o scsi.patch (13/16)
-   SCSI host adapter support.
- o smp.patch (14/16)
-   SMP support for PC98.
- o timer.patch (15/16)
-   Support difference of timer, using mach-* scheme.
- o video_card.patch (16/16)
-   PC-98 standard text mode video card driver.
+Distribution:Gentoo
+Hardware Environment:Toshiba Satellite 5205-S703
+Software Environment:all
+Problem Description: Alsa sound driver will make distortions after 3min of
+playing any music or video.
 
-Regards,
-Osamu Tomita <tomita@cinet.co.jp>
+ ICH - Intel 82801CA-ICH3
+                     Intel 82801CA-ICH3 at 0x1000, irq 11
+
+In the kernel 2.5.65 the sound works great ! but since 2.5.66 looks like it
+works ok but after some time of playing it .. starts distortioning...
+
+
+
+
+Steps to reproduce: just play any sound for more time than 4 min ;)
+
+I dont know if this will help but :
+
+ cat /proc/interrupts 
+           CPU0       
+  0:   24260113          XT-PIC  timer
+  1:       3024          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  4:          0          XT-PIC  ohci-hcd
+  5:     768368          XT-PIC  nvidia
+  6:      62490          XT-PIC  ohci-hcd
+  8:          2          XT-PIC  rtc
+  9:       1387          XT-PIC  acpi
+ 10:          0          XT-PIC  Toshiba America Info ToPIC95 PCI to Cardb
+ 11:    4927788          XT-PIC  Texas Instruments PCI1410 PC card Card,
+ehci-hcd, Intel 82801CA-ICH3, orinoco_cs
+ 12:         60          XT-PIC  i8042
+ 14:     187473          XT-PIC  ide0
+NMI:          0 
+LOC:          0 
+ERR:        266
+MIS:          0
+
 

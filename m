@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbUKRLgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbUKRLis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbUKRLgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 06:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbUKRLfE
+	id S262738AbUKRLis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 06:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbUKRLge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 06:35:04 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30443 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262733AbUKRLeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 06:34:23 -0500
-Date: Thu, 18 Nov 2004 12:34:23 +0100
-From: Jan Kara <jack@suse.cz>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] Add missing DQUOT_OFF
-Message-ID: <20041118113423.GB2767@atrey.karlin.mff.cuni.cz>
+	Thu, 18 Nov 2004 06:36:34 -0500
+Received: from mail.renesas.com ([202.234.163.13]:53635 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262733AbUKRLgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 06:36:09 -0500
+Date: Thu, 18 Nov 2004 20:35:56 +0900 (JST)
+Message-Id: <20041118.203556.1015281353.takata.hirokazu@renesas.com>
+To: rddunlap@osdl.org
+Cc: takata@linux-m32r.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc2-bk1] media: Update drivers/media/video/arv.c
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <419B7D9B.9050302@osdl.org>
+References: <20041117.153201.27776357.takata.hirokazu@renesas.com>
+	<419B7D9B.9050302@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="H+4ONPRPur6+Ovig"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---H+4ONPRPur6+Ovig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thank you for your kind comment, Randy.
 
-  Hello!
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Date: Wed, 17 Nov 2004 08:34:35 -0800
+> > -MODULE_PARM(freq, "i");
+> > -MODULE_PARM(vga, "i");
+> > -MODULE_PARM(vga_interlace, "i");
+> > +module_param(freq, int, 0644);
+> > +module_param(vga, bool, 0644);
+> > +module_param(vga_interlace, bool, 0644);
+> 
+> Do you want freq, vga, and vga_interface to be writeable _after_ the
+> driver is loaded?  (i.e., dynamic)
+> 
 
-  Attached patch adds missing DQUOT_OFF to the umount path of the root
-filesystem (it is only remounted read-only and so the usual path with
-DQUOT_OFF is not taken). Please apply.
+Yes.
 
-								Honza
+I think it is preferable to make a parameter "freq" writable,
+because system clock (or bus clock) might be changed dynamically
+in order to reduce system power consumption, especially for embedded systems.
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+btw, I have no idea whether the other parameters are required to be writable
+or not...
 
---H+4ONPRPur6+Ovig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-new-2.6.10-rc2-mm1-2-offadd.diff"
-
-Add quotaoff when unmounting root (actually remounting RO).
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupNX /home/jack/.kerndiffexclude linux-2.6.10-rc2-mm1-1-eqfix/fs/namespace.c linux-2.6.10-rc2-mm1-2-offadd/fs/namespace.c
---- linux-2.6.10-rc2-mm1-1-eqfix/fs/namespace.c	2004-11-16 16:39:08.000000000 +0100
-+++ linux-2.6.10-rc2-mm1-2-offadd/fs/namespace.c	2004-11-16 16:49:35.000000000 +0100
-@@ -423,6 +423,7 @@ static int do_umount(struct vfsmount *mn
- 		down_write(&sb->s_umount);
- 		if (!(sb->s_flags & MS_RDONLY)) {
- 			lock_kernel();
-+			DQUOT_OFF(sb);
- 			retval = do_remount_sb(sb, MS_RDONLY, NULL, 0);
- 			unlock_kernel();
- 		}
-
---H+4ONPRPur6+Ovig--
+-- Takata

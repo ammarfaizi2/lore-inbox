@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270439AbUJUBFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270656AbUJUBJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270439AbUJUBFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270617AbUJUBFH
+	id S270656AbUJUBJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270655AbUJUBJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 21:05:07 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:45309 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S270439AbUJUBDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 21:03:25 -0400
-Message-ID: <41770AC6.7090604@nortelnetworks.com>
-Date: Wed, 20 Oct 2004 19:03:02 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davids@webmaster.com
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <MDEHLPKNGKAHNMBLJOLKOEIDPCAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEIDPCAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 20 Oct 2004 21:09:13 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:39598 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S270520AbUJUBI7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 21:08:59 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Kgtnf/YyhCohaunKWRz+Gubb5QCtrtniLMOmbUJMAVN7ywqUA4DGMjgVFAExpwAjrZsO9lG/dvOy5JzE64XV2ab0/t4DXZXQL24cXjfAmpNedaK3TjvmbploDEHRJDrZrHLBjdw23UGKf/be5nUEBYpLGAT0Xp6O5ksQEIBfSqA
+Message-ID: <9e4733910410201808c0796c8@mail.gmail.com>
+Date: Wed, 20 Oct 2004 21:08:57 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Timothy Miller <miller@techsource.com>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4176E08B.2050706@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <4176E08B.2050706@techsource.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+I have heard a lot of complaints from embedded people about having few
+choices for graphics chips. Many of the low end chips from ATI/NVidia
+are no longer in production and you are forced into buying more chip
+than you want. You should ask about this on embedded developer lists.
 
-> 	Perhaps I missed the details, but under your proposal, how do you predict
-> at 'select' time what mode the socket will be in at 'recvmsg' time?!
+For the new X servers you have to have hardware alpha blending.
+Another important feature is accelerated drawing to off-screen
+buffers. Also, DMA command queues help a lot with parallelizing
+drawing.
 
-Well, if you've got a blocking socket, and do a nonblocking read with 
-MSG_DONTWAIT, everything works fine.  You lose a bit of performance, but it works.
+If you implement VGA you will be able to boot and work in any x86
+system without writing any code other than the BIOS.
 
-The problem case is if you create a socket, set O_NONBLOCK, do select, clear 
-O_NONBLOCK, then do a recvmsg().
-
-I suspect it's not a very common thing to do, so my proposal would still help 
-the vast majority of existing apps.
-
-Chris
+-- 
+Jon Smirl
+jonsmirl@gmail.com

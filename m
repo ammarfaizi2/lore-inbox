@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUCaLNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 06:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUCaLNF
+	id S261914AbUCaLun (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 06:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUCaLum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 06:13:05 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:17113 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261907AbUCaLNB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 06:13:01 -0500
-Date: Wed, 31 Mar 2004 13:13:00 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Len Brown <len.brown@intel.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Willy Tarreau <willy@w.ods.org>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-In-Reply-To: <4069D3D2.2020402@tmr.com>
-Message-ID: <Pine.LNX.4.55.0403311305000.24584@jurand.ds.pg.gda.pl>
-References: <4069A359.7040908@nortelnetworks.com> <1080668673.989.106.camel@dhcppc4>
- <4069D3D2.2020402@tmr.com>
-Organization: Technical University of Gdansk
+	Wed, 31 Mar 2004 06:50:42 -0500
+Received: from relay.inway.cz ([212.24.128.3]:62188 "EHLO relay.inway.cz")
+	by vger.kernel.org with ESMTP id S261914AbUCaLuk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 06:50:40 -0500
+Message-ID: <406AB08C.1040907@scssoft.com>
+Date: Wed, 31 Mar 2004 13:50:36 +0200
+From: Petr Sebor <petr@scssoft.com>
+Organization: SCS Software
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, jpaana@s2.org
+Subject: Re: [PATCH] Re: [sata] libata update
+References: <4064E691.2070009@pobox.com> <4069FBC3.2080104@scssoft.com> <406A8035.2080108@pobox.com>
+In-Reply-To: <406A8035.2080108@pobox.com>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigAAB711732AE2CFB62AC6B976"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, Bill Davidsen wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigAAB711732AE2CFB62AC6B976
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Is there no reasonable way to avoid using it in ACPI? It's not as if 
-> performance was critical there, or the code gets run often. Too bad it 
-> can't just be emulated like floating point, but I don't think it can on SMP.
+Jeff Garzik wrote:
 
- Well, "cmpxchg", "xadd", etc. can be easily emulated with an aid of a
-spinlock.  With SMP operation included.
+> Here's a potentially better patch, if you guys (or anyone else) would 
+> be willing to give it a quick test...?
+>
+>     Jeff
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Not good at all ...
+
+(eye-copied from the console @ boot time)
+
+2.6.5-rc3 + this patch:
+
+sata_via (0000:00:0f.0): PATA sharing not supported (0x2)
+via_sata: probe of (0000:00:0f.0) failed with error -5
+
+with following panic
+
+unable to mount root...
+
+wrt sata_via, no more messages are written...
+
+Regards,
+Petr
+
+
+--------------enigAAB711732AE2CFB62AC6B976
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFAarCMir6eWjmOQ6cRAg8UAJwKHRGQB31xajYnUcuHLNxpl9mVdQCfW9DH
+YUlulIEQRv9EFbGsHLVDsKw=
+=x/kb
+-----END PGP SIGNATURE-----
+
+--------------enigAAB711732AE2CFB62AC6B976--

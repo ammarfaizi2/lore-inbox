@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbUCEJOA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 04:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUCEJOA
+	id S262277AbUCEJUl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 04:20:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUCEJUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 04:14:00 -0500
-Received: from [152.101.81.89] ([152.101.81.89]:3335 "HELO southa.com")
-	by vger.kernel.org with SMTP id S262266AbUCEJN7 (ORCPT
+	Fri, 5 Mar 2004 04:20:41 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:39570 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262277AbUCEJUj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 04:13:59 -0500
-Message-ID: <088201c40293$5b27ce80$9c02a8c0@southa.com>
-From: "Kyle Wong" <kylewong@southa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: questions about io scheduler
-Date: Fri, 5 Mar 2004 17:22:17 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Fri, 5 Mar 2004 04:20:39 -0500
+Date: Fri, 5 Mar 2004 10:20:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Kyle Wong <kylewong@southa.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: questions about io scheduler
+Message-ID: <20040305092029.GB10923@suse.de>
+References: <088201c40293$5b27ce80$9c02a8c0@southa.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <088201c40293$5b27ce80$9c02a8c0@southa.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. Is  anticipatory io scheduler + echo 0 >
-/sys/block/hd*/queue/iosched/antic_expire = deadline scheduler?
+On Fri, Mar 05 2004, Kyle Wong wrote:
+> 1. Is  anticipatory io scheduler + echo 0 >
+> /sys/block/hd*/queue/iosched/antic_expire = deadline scheduler?
 
-2. Does io scheduler works with md RAID? Correct me if I'm wrong,
-io-schedular <-->  md driver <--> harddisks.
+It isn't 100% the same, but very very close.
 
-Regards,
-Kyle
+> 2. Does io scheduler works with md RAID? Correct me if I'm wrong,
+> io-schedular <-->  md driver <--> harddisks.
+
+No, it's md -> io scheduler -> hard drive.
+
+-- 
+Jens Axboe
 

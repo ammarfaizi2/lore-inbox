@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269040AbUJEOuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269012AbUJEO4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269040AbUJEOuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269049AbUJEOuO
+	id S269012AbUJEO4P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUJEO4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:50:14 -0400
-Received: from dialpool3-18.dial.tijd.com ([62.112.12.18]:49540 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S269040AbUJEOuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:50:09 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp: fix suspending with mysqld
-Date: Tue, 5 Oct 2004 16:46:34 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20041004122422.GA2601@elf.ucw.cz> <200410042109.58519.lkml@kcore.org> <20041004222647.GA4723@openzaurus.ucw.cz>
-In-Reply-To: <20041004222647.GA4723@openzaurus.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 5 Oct 2004 10:56:15 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:41104 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S269012AbUJEO4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 10:56:11 -0400
+Subject: Re: Core scsi layer crashes in 2.6.8.1
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Mark Lord <lsml@rtr.ca>
+Cc: Anton Blanchard <anton@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4162B345.9000806@rtr.ca>
+References: <1096401785.13936.5.camel@localhost.localdomain>	<1096467125.2028.11.camel@m
+	ulgrave> 	<20041005114951.GD22396@krispykreme.ozlabs.ibm.com>
+	<1096984590.1765.2.camel@mulgrave>  <4162B345.9000806@rtr.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410051646.35311.lkml@kcore.org>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 05 Oct 2004 09:56:00 -0500
+Message-Id: <1096988167.2064.7.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 October 2004 00:26, Pavel Machek wrote:
-> Hi!
->
-> > > mysqld does signal calls in pretty tight loop, and swsusp is not able
-> > > to stop processes in such case. This should fix it. Please apply,
-> >
-> > I applied your patch to 2.6.9-rc3. Unfortunately, now the system doesn't
-> > suspend anymore, it comes back almost immediately:
->
-> And it did work before that patch? I fail to see how this patch could have
-> broken anything.
+On Tue, 2004-10-05 at 09:44, Mark Lord wrote:
+> There seem to be other holes/races in this and related code.
+> 
+> The QStor driver implements hot insertion/removal of drives.
+> 
+> One thing it has to cope with at present is, after notifying
+> the mid-layer that a drive has been removed, the mid-layer calls
+> back with a synchronize-cache command for that drive..
 
-Suspending worked (besides mysql, which I had to kill manually). With this 
-patch it doesn't.
+This is expected behaviour.  For orderly removal an cache sync command
+must be sent to drives with a writeback cache before they're powered
+down.  For forced ejection, the driver has to error the command.
 
-Jan
+James
 
--- 
-BOFH excuse #418:
 
-Sysadmins busy fighting SPAM.

@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267038AbTCEC1I>; Tue, 4 Mar 2003 21:27:08 -0500
+	id <S267039AbTCECeV>; Tue, 4 Mar 2003 21:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbTCEC1I>; Tue, 4 Mar 2003 21:27:08 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:42770
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267038AbTCEC1H>; Tue, 4 Mar 2003 21:27:07 -0500
-Subject: Re: Kernel bloat 2.4 vs. 2.5
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: cw@f00f.org, degger@fhm.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <20030304183208.61b8ed2d.akpm@digeo.com>
-References: <1046817738.4754.33.camel@sonja>
-	 <20030304154105.7a2db7fa.akpm@digeo.com> <20030305015957.GA27985@f00f.org>
-	 <1046830980.999.78.camel@phantasy.awol.org>
-	 <20030304183208.61b8ed2d.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046831831.999.80.camel@phantasy.awol.org>
+	id <S267072AbTCECeU>; Tue, 4 Mar 2003 21:34:20 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:55306 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267039AbTCECeU>; Tue, 4 Mar 2003 21:34:20 -0500
+Date: Wed, 5 Mar 2003 03:44:46 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: IDE DMA/VIA woes on SuSE 2.4.19-167
+Message-ID: <20030305024446.GA13870@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 04 Mar 2003 21:37:11 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-04 at 21:32, Andrew Morton wrote:
+Hi,
 
-> well kallsyms is worth 150k.
-> 
-> Do `strings vmlinux' and take a look at it all.
+I have some issues here:
 
-Oh, yah.  If he has kallsyms enabled that explains most of it.
+Plextor PX-W4824TA 1.03 as hdc (no hdd)
+VIA KT133
 
-	Robert Love
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 10) (prog-if 8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 32
+        I/O ports at ffa0 [size=16]
+        Capabilities: [c0] Power Management version 2
 
+When I try to enable DMA (hdparm -d1 or hdparm -d1 -X66), hdparm -tT
+chokes, SuSE k_athlon-2.4.19-167. FreeBSD-5 (with atapicam) is fine and
+uses UDMA33.
+
+SuSE's kernel seems to be fine on a different hardware (VIA KT333 +
+Toshiba SD-M1612).
+
+I've tried 2.4.21-pre5 which crashes on boot, I haven't yet been able to
+go fishing for the Ooops and decode it (I have serial console here, so
+it's just a matter of finding the time to do that).
+
+ide-scsi makes no difference (not that I had expected that).
+
+Which kernel version should I try next before thinking about this for
+longer?
+
+-- 
+Matthias Andree

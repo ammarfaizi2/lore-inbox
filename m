@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUJVTsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267552AbUJVTtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267333AbUJVTsz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267376AbUJVTp7
+	id S267552AbUJVTtx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJVTtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:45:59 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:59901 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267338AbUJVTkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:40:55 -0400
-Message-ID: <4179623C.9050807@nortelnetworks.com>
-Date: Fri, 22 Oct 2004 13:40:44 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-Subject: Re: How is user space notified of CPU speed changes?
-References: <1098399709.4131.23.camel@krustophenia.net>	 <1098444170.19459.7.camel@localhost.localdomain> <1098468316.5580.18.camel@krustophenia.net>
-In-Reply-To: <1098468316.5580.18.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 22 Oct 2004 15:49:35 -0400
+Received: from main.gmane.org ([80.91.229.2]:24791 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267502AbUJVTsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:48:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Date: Fri, 22 Oct 2004 21:47:47 +0200
+Message-ID: <MPG.1be33691eb7f6cd59896ff@news.gmane.org>
+References: <4176E08B.2050706@techsource.com> <1098442636l.17554l.0l@hh>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-253-128.29-151.libero.it
+User-Agent: MicroPlanet-Gravity/2.70.2067
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Helge Hafting wrote:
+> * Consider a version to include on motherboards.  Low-end 3D shouldn't
+>   be a problem there, because those who really care about 3D always
+>   buys the latest 3D board anyway and never use the onboard thing.
+>   Not even if it is good 3D, because the very best is always newer.
+>   Make sure it works both as primary and secondary device in this case
+>   too.  It'll be nice for server boards - those rarely need  high-
+>   end 3D.  Those concerned about security might like the fact that
+>   hw bugs may be fixed by reprogramming the FPGA. It may also be an
+>   option for makers of cheap boards - they might want to boast about
+>   having on-board graphichs for a all-in-one motherboard, but they
+>   might not want to include a expensive high-end chip.
+>   Also, a deal with some board manufacturer might get you some volume
+>   for the chips.  The windows driver will probably be necessary for
+>   this.
 
-> Seems like you are implying that any userspace app that needs to know
-> the CPU speed is broken.  Is this correct?
+Very good post, Helge. Excellent, if I might say.
 
-No, we're saying that Intel's tsc implementation is broken.  <grin>
+Another important market to look into is laptops, IMO. 
+Especially when memory consumption comes in, if the card can do 
+"enough" 3D you could probably beat ATI and nVidia on the 
+market.
 
-x86 really could use an on-die register that increments at 1GHz independent of 
-clock speed and is synchronized across all CPUs in an SMP box.
+(Of course, the definition of "enough" is quite subjective ... 
+my 3D game is BZFlag, and for very complex maps at the max 
+quality settings even my nVidia GeForce2 Go has its problems at 
+1600x1200x32 ...)
 
-Chris
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

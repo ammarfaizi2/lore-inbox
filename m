@@ -1,80 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271042AbRHTDJ4>; Sun, 19 Aug 2001 23:09:56 -0400
+	id <S271046AbRHTDY7>; Sun, 19 Aug 2001 23:24:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271044AbRHTDJq>; Sun, 19 Aug 2001 23:09:46 -0400
-Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:62377 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S271042AbRHTDJd>; Sun, 19 Aug 2001 23:09:33 -0400
-Date: Sun, 19 Aug 2001 22:09:40 -0500
-From: Peter Fales <psfales@lucent.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UMSDOS problems in 2.4.9?
-Message-ID: <20010819220940.A1464@lucent.com>
-In-Reply-To: <20010818212401.A1814@lucent.com> <874rr3rgyv.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <874rr3rgyv.fsf@devron.myhome.or.jp>; from hirofumi@mail.parknet.co.jp on Mon, Aug 20, 2001 at 04:24:08AM +0900
+	id <S271048AbRHTDYs>; Sun, 19 Aug 2001 23:24:48 -0400
+Received: from [209.38.98.99] ([209.38.98.99]:56539 "EHLO srvr201.castmark.com")
+	by vger.kernel.org with ESMTP id <S271046AbRHTDYe>;
+	Sun, 19 Aug 2001 23:24:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fred Jackson <fred@arkansaswebs.com>
+To: tristan <fattymikefx@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: installing Linux over a network
+Date: Sun, 19 Aug 2001 22:24:42 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010820012137.8E169501DB@localhost.localdomain>
+In-Reply-To: <20010820012137.8E169501DB@localhost.localdomain>
+MIME-Version: 1.0
+Message-Id: <01081922244201.01772@bits.linuxball>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes.  It works!  Thanks!  Will that change go into the official kernel??
--- 
-Peter Fales			  Lucent Technologies, Room 5B-408
-N9IYJ            		  2000 N Naperville Rd PO Box 3033
-				  Naperville, IL 60566-7033
-internet: psfales@lucent.com  	  work:	(630) 979-8031
+I installed RedHat 7.1 using one floppy and a network card.
+use rawrite and image boot.net to make the floppy.
 
-On Mon, Aug 20, 2001 at 04:24:08AM +0900, OGAWA Hirofumi wrote:
-> Hi,
+I don't know if It's possible to install rh7.1 in 120MB though.
+
+Fred
+
+________________________________ 
+On Sunday 19 August 2001 08:21 pm, tristan wrote:
+> I havent been able to find a way of installing
+> Linux slackware or red hat with out using 90 or more
+> floppies, and i have no cd rom on my 386. Is there
+> a way to install Linux over a network on such an old machine.
+> It currently has windows 3.1 and DOS running. And 
+> has one 60 mb hard drive and one 120 mb hard drive.
+> I have found a small easy to install minix 386 that goes over
+> DOS so I may just use that to start off, in order to install
+> a very old linux kernel .01 or .02
 > 
-> Peter Fales <psfales@lucent.com> writes:
+> Tristan
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> > My UMSDOS file system stopped working when I switch from 2.4.8 to 
-> > 2.4.9.  I can mount the partition as "msdos" or even "vfat" but if
-> > I use "umsdos" there are no files visible.  Has anyone else seen this?
-> 
-> Probably I think it related to change of filldir_t.
-> This problem fixed with the following patch?
-> --
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-> 
-> diff -urN linux-2.4.9/fs/umsdos/dir.c umsdos_off_t-2.4.9/fs/umsdos/dir.c
-> --- linux-2.4.9/fs/umsdos/dir.c	Sat Feb 10 04:29:44 2001
-> +++ umsdos_off_t-2.4.9/fs/umsdos/dir.c	Sun Aug 19 16:13:25 2001
-> @@ -67,7 +67,7 @@
->  static int umsdos_dir_once (	void *buf,
->  				const char *name,
->  				int len,
-> -				off_t offset,
-> +				loff_t offset,
->  				ino_t ino,
->  				unsigned type)
->  {
-> diff -urN linux-2.4.9/fs/umsdos/ioctl.c umsdos_off_t-2.4.9/fs/umsdos/ioctl.c
-> --- linux-2.4.9/fs/umsdos/ioctl.c	Thu Apr 19 03:49:13 2001
-> +++ umsdos_off_t-2.4.9/fs/umsdos/ioctl.c	Sun Aug 19 16:16:36 2001
-> @@ -28,7 +28,7 @@
->  				     void *buf,
->  				     const char *name,
->  				     int name_len,
-> -				     off_t offset,
-> +				     loff_t offset,
->  				     ino_t ino,
->  				     unsigned type)
->  {
-> diff -urN linux-2.4.9/fs/umsdos/rdir.c umsdos_off_t-2.4.9/fs/umsdos/rdir.c
-> --- linux-2.4.9/fs/umsdos/rdir.c	Sat Feb 10 04:29:44 2001
-> +++ umsdos_off_t-2.4.9/fs/umsdos/rdir.c	Sun Aug 19 16:16:34 2001
-> @@ -32,7 +32,7 @@
->  static int rdir_filldir (	void *buf,
->  				const char *name,
->  				int name_len,
-> -				off_t offset,
-> +				loff_t offset,
->  				ino_t ino,
->  				unsigned int d_type)
->  {

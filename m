@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264690AbSK0TMr>; Wed, 27 Nov 2002 14:12:47 -0500
+	id <S264706AbSK0T2z>; Wed, 27 Nov 2002 14:28:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSK0TMr>; Wed, 27 Nov 2002 14:12:47 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:41423 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S264690AbSK0TMq>;
-	Wed, 27 Nov 2002 14:12:46 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Lee Leahu <lee@ricis.com>
-Date: Wed, 27 Nov 2002 20:19:50 +0100
+	id <S264702AbSK0T2z>; Wed, 27 Nov 2002 14:28:55 -0500
+Received: from packet.digeo.com ([12.110.80.53]:45239 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264706AbSK0T2y>;
+	Wed, 27 Nov 2002 14:28:54 -0500
+Message-ID: <3DE51EA7.5C971354@digeo.com>
+Date: Wed, 27 Nov 2002 11:36:07 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: vmware + aic7xxx + 2.4.19-4gb-smp = kernel panic
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <8BB282713D2@vcnet.vc.cvut.cz>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] page walker bugfix (was: 2.5.49-mm2)
+References: <3DE48C4A.98979F0C@digeo.com> <20021127171017.H5263@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Nov 2002 19:36:07.0218 (UTC) FILETIME=[3B0CF120:01C2964C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Nov 02 at 12:58, Lee Leahu wrote:
+Ingo Oeser wrote:
 > 
-> my hardware is this:
+> Hi Andrew,
+> hi list readers,
 > 
-> 2 pentium III 1.13 gb processors
-> tyan motharboard w/ via chipset
-> 1.5 gb ram
+> On Wed, Nov 27, 2002 at 01:11:38AM -0800, Andrew Morton wrote:
+> > .. Some code from Ingo Oeser to start using the expanded and cleaned up
+> >   user pagetable walker code.  This affects the st and sg drivers; I'm
+> >   not sure of the testing status of this?
 > 
-> adaptec 2490 scsi card.
-> plextor cd re-writer 8/2/20
+> The testing status is: None, but it compiles.
 > 
-> sound blaster live card
-> 
-> -----------------------------------------------------------
-> 
-> problem description:
-> 
-> when i have vmware up and running w2k server,
-> and i burn a cd from bash (as root) using cdrecord,
-> i am getting a kernel panic.
-> 
-> also to note,  the emu10k1 sound driver is loaded with xmms playing mp3s.
+> The sg-driver maintainer has already said he does some testing
+> and the author of the previous code in st.c was positive about
+> using these features. That's why I've choosen these as my "victims".
 
-How is your virtual machine configured? Do you use
-/dev/sg* for generic access to your SCSI, or
-/dev/sr* for accessing your CD drive from virtual machine? 
+Yes, Doug Gilbert will help us out here.
 
-In that case, try disconnecting this hardware from guest before
-using cdrecord. It is quite possible that your cdwriter gets mad
-if you are recording and at same time Windows try to detect whether
-you changed medium inside writer...
+> I also found a locking bug in walk_user_pages() in case of OOM or
+> SIGBUS. Fixed by the attached patch.
+> 
 
-Not that aic7xxx driver should panic due to that, but...
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+Thanks.
+
+We'll need to be concentrating on the shared pagetable code for
+a while, and your patch overlaps with that.  So I've swapped the
+applying order (you come second) and I'll probably break your
+stuff out separately for a while so Dave can generate clean patches.
+
+When mm3 emerges could you please check mm/mmap.c around here:
+
+        vma = NULL; /* needed for out-label */
+
+I may have misplaced that one...

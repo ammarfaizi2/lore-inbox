@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268746AbTBZNim>; Wed, 26 Feb 2003 08:38:42 -0500
+	id <S268747AbTBZNiv>; Wed, 26 Feb 2003 08:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268747AbTBZNil>; Wed, 26 Feb 2003 08:38:41 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:41668 "EHLO
+	id <S268748AbTBZNiv>; Wed, 26 Feb 2003 08:38:51 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:46020 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S268746AbTBZNik>; Wed, 26 Feb 2003 08:38:40 -0500
+	id <S268747AbTBZNit>; Wed, 26 Feb 2003 08:38:49 -0500
 Date: Wed, 26 Feb 2003 13:49:00 GMT
-Message-Id: <200302261349.h1QDn0Bh002816@deviant.impure.org.uk>
-To: linux-kernel@vger.kernel.org
+Message-Id: <200302261349.h1QDn06X002823@deviant.impure.org.uk>
+To: torvalds@transmeta.com, alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
 From: davej@codemonkey.org.uk
-Subject: Enabling L2 cache for overdrive CPUs.
+Subject: Tighten up serverworks workaround.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some CPU overdrives (such as those made by powerleap) mean
-that we get a CPU with L2 cache disabled by default, and
-a BIOS that doesn't know how to turn it on.
-The patch below is untested, and I'd like some feedback
-from folks (preferably those with these wacky overdrives,
-but also from regular intel CPUs too - disable L2 in your
-bios and try booting with 'enable-l2' and see what happens).
+Aparently on rev6 of the LE and above, this workaround
+isn't needed. Lets give it a try, and see what happens.
 
     Dave
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/kernel/cpu/intel.c linux-2.5/arch/i386/kernel/cpu/intel.c
---- bk-linus/arch/i386/kernel/cpu/intel.c	2003-02-25 13:10:08.000000000 -0100
-+++ linux-2.5/arch/i386/kernel/cpu/intel.c	2003-02-25 13:07:52.000000000 -0100
-@@ -8,6 +8,7 @@
- #include <asm/processor.h>
- #include <asm/msr.h>
- #include <asm/uaccess.h>
-+#include <asm/system.h>
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/kernel/cpu/mtrr/main.c linux-2.5/arch/i386/kernel/cpu/mtrr/main.c
+--- bk-linus/arch/i386/kernel/cpu/mtrr/main.c	2003-02-25 13:10:08.000000000 -0100
++++ linux-2.5/arch/i386/kernel/cpu/mtrr/main.c	2003-02-24 16:36:06.000000000 -0100
+@@ -75,20 +75,24 @@ void set_mtrr_ops(struct mtrr_ops * ops)
+ static int have_wrcomb(void)
+ {
+ 	struct pci_dev *dev = NULL;
+-
+-	/* WTF is this?
+-	 * Someone, please shoot me.
+-	 */
+-
+-	/* ServerWorks LE chipsets have problems with write-combining 
+-	   Don't allow it and leave room for other chipsets to be tagged */
++	u8 rev;
  
- #include "cpu.h"
- 
-@@ -75,6 +76,36 @@ static int __init P4_disable_ht(char *s)
- }
- __setup("noht", P4_disable_ht);
- 
-+/*
-+ * Some 'overdrive' boards, such as those from Powerleap don't have
-+ * the L2 cache enabled, and the BIOS doesn't know about it, so we
-+ * have this option to 'force' it on.
-+ */
-+static int __init P2_enable_L2(char *s)
-+{
-+	unsigned long cr0, lo, hi;
+ 	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
+ 		if ((dev->vendor == PCI_VENDOR_ID_SERVERWORKS) &&
+ 		    (dev->device == PCI_DEVICE_ID_SERVERWORKS_LE)) {
+-			printk(KERN_INFO
+-			       "mtrr: Serverworks LE detected. Write-combining disabled.\n");
+-			return 0;
 +
-+	printk ("CPU: Enabling L2 cache.\n");
-+
-+	__asm__ ("cli");
-+
-+	cr0 = read_cr0();
-+	cr0 |= 1<<30;
-+	write_cr0 (cr0);
-+
-+	rdmsr (0x11e, lo, hi);
-+	lo |= 0x40101;
-+	wrmsr (0x11e, lo, hi);
-+
-+	cr0 &= ~(1<<30);
-+	write_cr0 (cr0);
-+
-+	wbinvd();
-+	__asm__("sti");
-+	return 0;
-+}
-+__setup("enable-l2", P2_enable_L2);
-+
- #define LVL_1_INST	1
- #define LVL_1_DATA	2
- #define LVL_2		3
++			/* ServerWorks LE chipsets have problems with write-combining 
++			   Don't allow it and leave room for other chipsets to be tagged.
++			   Rumour has it that rev6 and above are ok. */
++			pci_read_config_byte(dev, PCI_CLASS_REVISION, &rev);  
++			if (rev > 5) {
++				printk ("mtrr: Serverworks LE rev %d detected. Earlier versions of this chipset had mtrr bugs\n", rev);
++				printk ("mtrr: Please send mail to linux-kernel@vger.kernel.org if this seems stable.\n");
++				return 1;
++			} else {
++				printk(KERN_INFO "mtrr: Serverworks LE detected. Write-combining disabled.\n");
++				return 0;
++			}
+ 		}
+ 	}
+ 	return (mtrr_if->have_wrcomb ? mtrr_if->have_wrcomb() : 0);

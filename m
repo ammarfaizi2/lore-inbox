@@ -1,97 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135363AbREHVeB>; Tue, 8 May 2001 17:34:01 -0400
+	id <S135532AbREHVhV>; Tue, 8 May 2001 17:37:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135404AbREHVdv>; Tue, 8 May 2001 17:33:51 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:8648 "EHLO
-	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
-	id <S135363AbREHVdp>; Tue, 8 May 2001 17:33:45 -0400
-Message-ID: <3AF8661D.F3A08367@mvista.com>
-Date: Tue, 08 May 2001 14:33:17 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S135491AbREHVhL>; Tue, 8 May 2001 17:37:11 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:30925 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S135404AbREHVg5>; Tue, 8 May 2001 17:36:57 -0400
+Date: Tue, 8 May 2001 23:32:21 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org, linux-mips@fnet.fr, linux-mips@oss.sgi.com
+Subject: Re: [patch] 2.4.4: mmap() fails for certain legal requests
+In-Reply-To: <15096.23421.564537.144351@pizda.ninka.net>
+Message-ID: <Pine.GSO.3.96.1010508232117.4713F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 
-In-Reply-To: <Pine.LNX.3.95.1010508154726.29540A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> To driver wizards:
-> 
-> I have a driver which needs to wait for some hardware.
-> Basically, it needs to have some code added to the run-queue
-> so it can get some CPU time even though it's not being called.
-> 
-> It needs to get some CPU time which can be "turned on" or
-> "turned off" as a result of an interrupt or some external
-> input from  an ioctl().
-> 
-> So I thought that the "tasklet" would be ideal. However, the
-> scheduler "thinks" that a tasklet is an interrupt, so any
-> attempt to sleep in the tasklet results in a kernel panic,
-> "ieee scheduling in an interrupt..., BUG sched.c line 688".
-> 
-> Next, I added code to try queue_task(). This has the same problem.
-> 
-> Basically the procedure needs to do:
-> 
-> procedure()
-> {
->     if(some_event)
->         schedule_timeout(n);               /* Needs to sleep */
->     else if(something_else)
->         do_something();
->    queue_task(procedure, &tq_immediate);   /* Needs to queue itself again */
-> }
-> 
-> Since I'm running against a time-line, I temporarily  gave the module
-> some CPU time through an ioctl(), i.e., a separate task that does nothing
-> except repeatably execute ioctl(GIVE_CPU, NULL); This shows that the
-> driver actually works. It's a GPIB driver so it needs to get the
-> CPU to find out if it's addressed to listen, etc. These events don't
-> produce interrupts.
-> 
-> So, what am I supposed to do to add a piece of driver code to the
-> run queue so it gets scheduled occasionally?
-> 
-> Cheers,
-> Dick Johnson
+On Tue, 8 May 2001, David S. Miller wrote:
 
-How about something like:
+> There are several get_unmapped_area() implementations besides the
+> standard one (search for HAVE_ARCH_UNMAPPED_AREA).  Please fix
+> them up too.
 
-#include <linux/timer.h>
+ Yep, I know (ia64 and sparc*).  But being lazy enough (and being short on
+time) I won't do it until I know the idea of the change is accepted.  I'm
+sorry -- I sent previous versions of the patch twice since last Summer
+with no response at all and doing bits no one is interested in is a waste
+of time.
 
-void queue_task(void process_timeout(void), unsigned long timeout,
-struct timer_list *timer, unsigned long data)
-{
-	unsigned long expire = timeout + jiffies;
+ Thanks for your response, though -- maybe there is someone interested,
+after all. 
 
-	init_timer(&timer);
-	timer->expires = expire;
-	timer->data = data;
-	timer->function = process_timeout;
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-	add_timer(&timer);
-}
-
-
-You will have to define the "struct timer_list timer".  This should
-cause the function passed to be called after "timeout" jiffies (1/HZ,
-not to be confused with 10 ms).  If you want to stop the timer early do:
-
-	del_timer_sync(&timer);
-
-"data" was not used in you example, but process_timeout will be passed
-"data" when it is called.  This routine is called as part of the timer
-interrupt, so it must be fast and should not do schedule() calls.  It
-could queue a tasklet, however, to relax constraints a bit.
-
-George

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261597AbSJJOav>; Thu, 10 Oct 2002 10:30:51 -0400
+	id <S261598AbSJJOdy>; Thu, 10 Oct 2002 10:33:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261598AbSJJOav>; Thu, 10 Oct 2002 10:30:51 -0400
-Received: from mailman.xyplex.com ([140.179.176.116]:48022 "EHLO
-	mailman.xyplex.com") by vger.kernel.org with ESMTP
-	id <S261597AbSJJOau>; Thu, 10 Oct 2002 10:30:50 -0400
-Message-ID: <19EE6EC66973A5408FBE4CB7772F6F0A046A3C@ltnmail.xyplex.com>
-From: "Dow, Benjamin" <bdow@itouchcom.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: kernel memory leak?
-Date: Thu, 10 Oct 2002 10:32:21 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261607AbSJJOdr>; Thu, 10 Oct 2002 10:33:47 -0400
+Received: from smtp07.iddeo.es ([62.81.186.17]:46273 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id <S261598AbSJJOdq>;
+	Thu, 10 Oct 2002 10:33:46 -0400
+Date: Thu, 10 Oct 2002 16:39:27 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Robert Love <rml@tech9.net>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More on O_STREAMING (goodby read pauses)
+Message-ID: <20021010143927.GA2193@werewolf.able.es>
+References: <20021009222349.GA2353@werewolf.able.es> <1034203433.794.152.camel@phantasy> <20021010034057.GC8805@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20021010034057.GC8805@mark.mielke.cc>; from mark@mark.mielke.cc on Thu, Oct 10, 2002 at 05:40:57 +0200
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
 
-> Write C code to reproduce this on normal machine, and post it to
-> bugtraq (its DoS, after all). Pretty aggresive but sure to get fixed
-> *fast*.
-> 
-> The same without going bugtraq should suffice, through.
-> 								
-> 	Pavel
-> 
-> -- 
-> I'm pavel@ucw.cz. "In my country we have almost anarchy and I 
-> don't care."
-> Panos Katsaloulis describing me w.r.t. patents at 
-> discuss@linmodems.org
-> 
+On 2002.10.10 Mark Mielke wrote:
+>On Wed, Oct 09, 2002 at 06:43:52PM -0400, Robert Love wrote:
+>> On Wed, 2002-10-09 at 18:23, J.A. Magallon wrote:
+>> > But I did the test with an addition: read a 1Gb file and print an '*'
+>> > after every 10M. Without O_STREAMING, when memory fills, the 'progress
+>> > bar' stalls for a few seconds while pages are sent to disk.
+>> > So the patch also favours a constant sustained rate of read from the
+>> > disk. Very interesting for things like video edition and so on.
+>> > I like it ;).
+>> This is 100% the point of the patch and hopefully the point I proved
+>> when I first posted it.
+>
+>I assume the stall is not 'while pages are sent to disk', but rather
+>until kswapd gets around to freeing enough pages to allow memory to
+>fill again. The stall is due to the pages being fully analyzed to
+>determine which ones should go, and which ones shouldn't. O_STREAMING
+>removes the pages ahead of time, so no analysis is ever required.
+>
 
-That's the problem; I haven't been able to reproduce it yet on a "normal"
-machine... I'm beginning to think it was a change to 2.4.9 that had some
-unexpected side-effect in 2.4.19, though that doesn't really sit well with
-me either.  I've been wracking my brain over this for days now, and
-nothing's making any sense... I even tried applying different patches from
-Andrea and Rik to change the VM behavior (since that was one of the biggest
-changes between 2.4.9 and 19), but nothing's made a bit of difference.
-Sorry, I'm just a bit frustrated.
+I can _hear_ the disk activity when the stall happens, so selecting what
+to drop is fast, but then you have to write it...
 
-Ben
-
-
-
- The information contained in this electronic mail is privileged and
-confidential, intended only for the use of the individual or entity named
-above. If the reader of this message is not the intended recipient, you are
-hereby notified that any dissemination, distribution, copying or other use
-of this communication is strictly prohibited. 
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-pre10-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))

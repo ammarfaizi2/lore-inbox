@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129084AbRBGPs7>; Wed, 7 Feb 2001 10:48:59 -0500
+	id <S129026AbRBGQBb>; Wed, 7 Feb 2001 11:01:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129144AbRBGPsu>; Wed, 7 Feb 2001 10:48:50 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:27147 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129084AbRBGPsg>; Wed, 7 Feb 2001 10:48:36 -0500
-Date: Wed, 07 Feb 2001 10:47:09 -0500
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>,
-        "zag@zag.botik.ru" <zag@zag.botik.ru>,
-        Alexander Zarochentcev <zam@namesys.com>,
-        Yury Shevchuk <sizif@botik.ru>,
-        Vladimir Demidov <vladimir_493451@mtu-net.ru>,
-        Vitaly Fertman <vetal@namesys.com>,
-        Edward Shushkin <edward@mail.infotel.ru>,
-        Nikita Danilov <god@namesys.com>,
-        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>,
-        Alexander Lyamin <flx@msu.ru>,
-        "Elena V. Gryaznova" <grev@uchcom.botik.ru>,
-        "gawain@torque.com" <gawain@torque.com>,
-        "ragnar@bigstorage.com" <ragnar@bigstorage.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: Apparent instability of reiserfs on 2.4.1
-Message-ID: <420500000.981560829@tiny>
-In-Reply-To: <3A813A63.EBD1B768@namesys.com>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+	id <S129031AbRBGQBV>; Wed, 7 Feb 2001 11:01:21 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:48530 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129026AbRBGQBK>; Wed, 7 Feb 2001 11:01:10 -0500
+Date: Wed, 7 Feb 2001 16:56:53 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: mingo@redhat.com, linux-kernel@vger.kernel.org, hpa@transmeta.com,
+        mikpe@csd.uu.se
+Subject: Re: UP APIC reenabling vs. cpu type detection ordering
+In-Reply-To: <20010207135824.A24476@vana.vc.cvut.cz>
+Message-ID: <Pine.GSO.3.96.1010207165119.1418A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Feb 2001, Petr Vandrovec wrote:
 
+>   Mikael Pettersson pointed to me that current kernel code should not
+> reenable local APIC on AMD K7, as it tests boot_cpu_data.x86_vendor.
+> But boot_cpu_data.x86_vendor is uninitialized (or contains wrong
+> value) when detect_init_APIC is invoked.
 
-Ok, how about we list the known bugs:
+ I'm working on CPU capabilities now.  I'll address the problem.
 
-zeros in log files, apparently only between bytes 2048 and 4096 (not
-reproduced yet).
-
-preallocated block leak on crash (fix in testing)
-
-hidden directory entry cleanup (still reproducing, very hard to hit).
-
-knfsd (patches in testing).
-
-oops in reiserfs_symlink, create_virtual_node (bug in redhat gcc 2.96,
-fixed by downloading the update).
-
-We've also had a few reports of other corruptions, most of which have been
-traced to hardware problems.  There are two where I'm not sure of the cause
-yet, but the method to trigger the bug was too simple to not be a hardware
-problem.
-
--chris
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

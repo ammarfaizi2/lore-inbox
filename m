@@ -1,52 +1,178 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288276AbSA0Ry1>; Sun, 27 Jan 2002 12:54:27 -0500
+	id <S288284AbSA0SEl>; Sun, 27 Jan 2002 13:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288284AbSA0RyR>; Sun, 27 Jan 2002 12:54:17 -0500
-Received: from pop.gmx.de ([213.165.64.20]:46941 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S288276AbSA0RyG>;
-	Sun, 27 Jan 2002 12:54:06 -0500
-Message-ID: <3C543E86.7F0FA37A@gmx.net>
-Date: Sun, 27 Jan 2002 18:53:10 +0100
-From: root <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: CRAP in 2.4.18-pre7
-In-Reply-To: <20020126171545.GB11344@fefe.de> <3C52E671.605FA2F3@mandrakesoft.com> <3C540A90.5020904@evision-ventures.com> <3C542FE6.7C56D6BD@mandrakesoft.com> <3C5439C1.6000305@evision-ventures.com>
+	id <S288288AbSA0SEW>; Sun, 27 Jan 2002 13:04:22 -0500
+Received: from altus.drgw.net ([209.234.73.40]:3594 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S288284AbSA0SEU>;
+	Sun, 27 Jan 2002 13:04:20 -0500
+Date: Sun, 27 Jan 2002 12:04:11 -0600
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64-bit divide tweaks
+Message-ID: <20020127120410.B14725@altus.drgw.net>
+In-Reply-To: <87r8oez0ks.fsf@fadata.bg>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <87r8oez0ks.fsf@fadata.bg>; from velco@fadata.bg on Fri, Jan 25, 2002 at 09:34:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
+On Fri, Jan 25, 2002 at 09:34:43PM +0200, Momchil Velikov wrote:
+> Hi there,
+> 
+> printk, etc. are broken wrt printing 64-bit numbers (%ll, %L).
+> 
+> This patch fixes do_div, which did (on some archs) 32-bit divide.
 
-> Jeff Garzik wrote:
->
-> >Martin Dalecki wrote:
-> >
-> >>I would like to notice that the changes in 2.4.18-pre7 to the
-> >>tulip eth driver are apparently causing absymal performance drops
-> >>on my version of this card. Apparently the performance is dropping
-> >>>from the expected 10MB/s to about 10kB/s. The only special
-> >>thing about the configuration in question is the fact that it's
-> >>a direct connection between two hosts. Well, more precisely it's
-> >>a cross-over link between my notebook and desktop.
-> >>
-> >
-> >Are you seeing collisions?
-> >
-> NO not at all! The transfer is one with scp over a corssover direct link
-> between two hosts.
-> No hub between involved.
+Have you tried compiling any of these arches? 
 
-You don't need a hub to have collisions.
+Anything that doesn't include libgcc will die a link missing symbols for 
+__udivdi3 and __umoddi3.
 
-Duplex mismatch (i.e. one card in full-duplex, the other in half-duplex)
-would just show 10-50 KByte/sec transfer rates typically.
+> 
+> Regards,
+> -velco
+> 
+> ===== drivers/net/sk98lin/skproc.c 1.1 vs edited =====
+> --- 1.1/drivers/net/sk98lin/skproc.c	Sat Dec  8 02:14:15 2001
+> +++ edited/drivers/net/sk98lin/skproc.c	Fri Jan 25 21:20:06 2002
+> @@ -339,17 +339,6 @@
+>   return (Rest);
+>  }
+>  
+> -
+> -#if 0
+> -#define do_div(n,base) ({ \
+> -long long __res; \
+> -__res = ((unsigned long long) n) % (unsigned) base; \
+> -n = ((unsigned long long) n) / (unsigned) base; \
+> -__res; })
+> -
+> -#endif
+> -
+> -
+>  /*****************************************************************************
+>   *
+>   * SkNumber - Print results
+> ===== include/asm-arm/div64.h 1.1 vs edited =====
+> --- 1.1/include/asm-arm/div64.h	Sat Dec  8 02:13:45 2001
+> +++ edited/include/asm-arm/div64.h	Fri Jan 25 21:21:56 2002
+> @@ -1,12 +1,11 @@
+>  #ifndef __ASM_ARM_DIV64
+>  #define __ASM_ARM_DIV64
+>  
+> -/* We're not 64-bit, but... */
+>  #define do_div(n,base)						\
+>  ({								\
+>  	int __res;						\
+> -	__res = ((unsigned long)n) % (unsigned int)base;	\
+> -	n = ((unsigned long)n) / (unsigned int)base;		\
+> +	__res = ((unsigned long long)n) % (unsigned int)base;	\
+> +	n = ((unsigned long long)n) / (unsigned int)base;		\
+>  	__res;							\
+>  })
+>  
+> ===== include/asm-cris/div64.h 1.1 vs edited =====
+> --- 1.1/include/asm-cris/div64.h	Sat Dec  8 02:13:57 2001
+> +++ edited/include/asm-cris/div64.h	Fri Jan 25 21:22:19 2002
+> @@ -3,12 +3,11 @@
+>  
+>  /* copy from asm-arm */
+>  
+> -/* We're not 64-bit, but... */
+>  #define do_div(n,base)						\
+>  ({								\
+>  	int __res;						\
+> -	__res = ((unsigned long)n) % (unsigned int)base;	\
+> -	n = ((unsigned long)n) / (unsigned int)base;		\
+> +	__res = ((unsigned long long)n) % (unsigned int)base;	\
+> +	n = ((unsigned long long)n) / (unsigned int)base;	\
+>  	__res;							\
+>  })
+>  
+> ===== include/asm-m68k/div64.h 1.1 vs edited =====
+> --- 1.1/include/asm-m68k/div64.h	Sat Dec  8 02:13:35 2001
+> +++ edited/include/asm-m68k/div64.h	Fri Jan 25 21:23:59 2002
+> @@ -26,8 +26,8 @@
+>  #else
+>  #define do_div(n,base) ({					\
+>  	int __res;						\
+> -	__res = ((unsigned long) n) % (unsigned) base;		\
+> -	n = ((unsigned long) n) / (unsigned) base;		\
+> +	__res = ((unsigned long long) n) % (unsigned) base;	\
+> +	n = ((unsigned long long) n) / (unsigned) base;		\
+>  	__res;							\
+>  })
+>  #endif
+> ===== include/asm-ppc/div64.h 1.1 vs edited =====
+> --- 1.1/include/asm-ppc/div64.h	Sat Dec  8 02:13:37 2001
+> +++ edited/include/asm-ppc/div64.h	Fri Jan 25 21:28:49 2002
+> @@ -4,10 +4,9 @@
+>  #ifndef __PPC_DIV64
+>  #define __PPC_DIV64
+>  
+> -#define do_div(n,base) ({ \
+> -int __res; \
+> -__res = ((unsigned long) n) % (unsigned) base; \
+> -n = ((unsigned long) n) / (unsigned) base; \
+> -__res; })
+> -
+> +#define do_div(n,base) ({					\
+> +	int __res;						\
+> +	__res = ((unsigned long long) n) % (unsigned) base;	\
+> +	n = ((unsigned long long) n) / (unsigned) base;		\
+> +	__res; })
+>  #endif
+> ===== include/asm-sh/div64.h 1.1 vs edited =====
+> --- 1.1/include/asm-sh/div64.h	Sat Dec  8 02:13:46 2001
+> +++ edited/include/asm-sh/div64.h	Fri Jan 25 21:29:31 2002
+> @@ -1,10 +1,9 @@
+>  #ifndef __ASM_SH_DIV64
+>  #define __ASM_SH_DIV64
+>  
+> -#define do_div(n,base) ({ \
+> -int __res; \
+> -__res = ((unsigned long) n) % (unsigned) base; \
+> -n = ((unsigned long) n) / (unsigned) base; \
+> -__res; })
+> -
+> +#define do_div(n,base) ({					\
+> +	int __res;						\
+> +	__res = ((unsigned long long) n) % (unsigned) base;	\
+> +	n = ((unsigned long long) n) / (unsigned) base;		\
+> +	__res; })
+>  #endif /* __ASM_SH_DIV64 */
+> ===== include/asm-sparc/div64.h 1.1 vs edited =====
+> --- 1.1/include/asm-sparc/div64.h	Sat Dec  8 02:13:36 2001
+> +++ edited/include/asm-sparc/div64.h	Fri Jan 25 21:25:39 2002
+> @@ -1,11 +1,10 @@
+>  #ifndef __SPARC_DIV64
+>  #define __SPARC_DIV64
+>  
+> -/* We're not 64-bit, but... */
+>  #define do_div(n,base) ({ \
+>  	int __res; \
+> -	__res = ((unsigned long) n) % (unsigned) base; \
+> -	n = ((unsigned long) n) / (unsigned) base; \
+> +	__res = ((unsigned long long) n) % (unsigned) base; \
+> +	n = ((unsigned long long) n) / (unsigned) base; \
+>  	__res; })
+>  
+>  #endif /* __SPARC_DIV64 */
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-The card's statistics about "collisions" and "late collisions" would
-positively prove if this is the case.
-
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Schulz

@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265687AbTBTXbk>; Thu, 20 Feb 2003 18:31:40 -0500
+	id <S264777AbTBTXam>; Thu, 20 Feb 2003 18:30:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbTBTXbk>; Thu, 20 Feb 2003 18:31:40 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:47085 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265687AbTBTXbi>; Thu, 20 Feb 2003 18:31:38 -0500
-Date: Thu, 20 Feb 2003 15:47:56 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: Updated Agenda for Con Call Feb 21 
-Message-ID: <135300000.1045784876@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S265687AbTBTXam>; Thu, 20 Feb 2003 18:30:42 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7686 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264777AbTBTXal>; Thu, 20 Feb 2003 18:30:41 -0500
+Date: Thu, 20 Feb 2003 15:36:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
+ reboots)
+In-Reply-To: <Pine.LNX.4.44.0302210020490.6298-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0302201536010.1304-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Linux Scalability Effort Agenda for Feb 21
+On Fri, 21 Feb 2003, Ingo Molnar wrote:
+> 
+> if possible i'd avoid putting more overhead into the scheduler - it's
+> clearly more performance-sensitive than the task create/exit path.
 
+This is a single non-serializing bit test, and if it means that the task 
+counters are _right_, that's definitely the right thing to do.
 
-I. Object Based Rmap: 
-		Rik van Riel, Dave McCracken, Martin J. Bligh
-
-	Dave's patch:
-	http://marc.theaimsgroup.com/?l=linux-mm&m=104578127622546&w=2
-
-	Martin's performance:
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=104571527829166&w=2
-
-	Rik's comments:
-	http://marc.theaimsgroup.com/?l=linux-mm&m=104576165220677&w=2
-
-II. Large Web Server Hang (aka- Scheduler Deadlock Fixes): 
-		Rick Lindsley, Hanna Linder, William Irwin
-
-	. Patches already accepted by Linus:
-
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1005?nav=index.html|ChangeSet@-1d
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1004?nav=index.html|ChangeSet@-1d
-
-III. gcc 2.96 vs 3.21 performance: Martin Bligh 
-
-	http://marc.theaimsgroup.com/?l=lse-tech&m=104431413716468&w=2
- 
-IV. Shared Memory Binding: Matthew Dobson (if time permits)
-
-	http://marc.theaimsgroup.com/?l=lse-tech&m=104499755801744&w=2
-
-V. Performance of ext3 on large systems (if time permits)
-
-	http://marc.theaimsgroup.com/?l=lse-tech&m=104544278811103&w=2
-
-
-USA Toll Free:      1-877-849-9636
-International Toll: +1-719-457-5110
-Passcode: 372406 
-9:30am PST (GMT-0800), 11:30am CST, 12:30pm EST every other Friday
-
-
+		Linus
 

@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTJQWXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 18:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263630AbTJQWXY
+	id S263616AbTJQWZo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 18:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTJQWZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 18:23:24 -0400
-Received: from waste.org ([209.173.204.2]:63438 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263628AbTJQWXX (ORCPT
+	Fri, 17 Oct 2003 18:25:44 -0400
+Received: from mail.g-housing.de ([62.75.136.201]:7635 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263616AbTJQWZm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 18:23:23 -0400
-Date: Fri, 17 Oct 2003 17:23:13 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
-Message-ID: <20031017222313.GF5725@waste.org>
-References: <200310171610.36569.bjorn.helgaas@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310171610.36569.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.3.28i
+	Fri, 17 Oct 2003 18:25:42 -0400
+Message-ID: <3F906C5F.8010401@g-house.de>
+Date: Sat, 18 Oct 2003 00:25:35 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20031010 Debian/1.4-6
+X-Accept-Language: de-de, de, en-gb, en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 3c59x + 2.6.0-test7
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 04:10:36PM -0600, Bjorn Helgaas wrote:
-> I expect there are probably different opinions about the idea
-> that "dd if=/dev/mem" exits without doing anything.  Sparc and
-> 68K have nearby code that bit-buckets writes and returns zeroes
-> for reads of page zero.  We could do that, too, but it seems like
-> kind of a hack, and holes on ia64 can be BIG (on the order of
-> 256GB for one box).
+hi,
 
-I don't see any reason not to returns zeros. A hole in a file does the
-same thing, after all. The fact that the hole is big makes no difference.
+this note will probably not fullfill the needs of a "bug filing", but at 
+least i'd like to say there "is something with the 3c59x driver". since 
+i've seen several other oddities with this driver on this list in the 
+last time, here it comes:
 
+i have a 3c905C-TX ("Vortex") in my ppc32 box, working fine under 
+2.4.22. with 2.6.0-test7 the 3c59x.ko module get loaded, but then the 
+machine just freezes. this is the behaviour during the standard booting 
+process. upon booting with "init=/bin/bash" i am able to do "modprobe 
+3c59x". the card gets loaded. i can assign an ip adress to the card, ok. 
+but after a couple of minutes or at least upon unloading the driver, the 
+machine just freezes. there is *no* oops shown, nothing in the logs, 
+SYS-REQ is not working, the machine just halts.
+
+yes, this is quite odd, reproducible perhaps only here@home, another 
+3c59x card is working fine with 2.6.0-test7 under ia32 in the next room.
+if this helps: gcc is 3.3.2, Debian/unstable, binutils 2.14.90.0.6, 
+compiled under 2.4.22.
+
+my .config is at http://nerdbynature.de/bits/.config
+
+evil@sheep:~$ cat /proc/cpuinfo
+cpu             : 604r
+clock           : ???
+revision        : 49.2 (pvr 0009 3102)
+bogomips        : 299.00
+machine         : PReP Utah (Powerstack II Pro4000)
+l2 cache        : 512KiB, parity disabled SRAM:synchronous, pipelined, 
+no parity
+evil@sheep:~$
+
+thanks,
+Christian.
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+BOFH excuse #427:
+
+network down, IP packets delivered via UPS
+

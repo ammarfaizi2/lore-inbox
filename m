@@ -1,226 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266023AbSIRK73>; Wed, 18 Sep 2002 06:59:29 -0400
+	id <S266033AbSIRLFb>; Wed, 18 Sep 2002 07:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266027AbSIRK72>; Wed, 18 Sep 2002 06:59:28 -0400
-Received: from penguin.cohaesio.net ([212.97.129.34]:49570 "EHLO
-	mail.cohaesio.net") by vger.kernel.org with ESMTP
-	id <S266023AbSIRK70>; Wed, 18 Sep 2002 06:59:26 -0400
-Subject: [PATCH] core file naming
-From: Jes Rahbek Klinke <jes@bodi-klinke.dk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Sep 2002 13:04:26 +0200
-Message-Id: <1032347067.1581.7.camel@albatros>
+	id <S266047AbSIRLFb>; Wed, 18 Sep 2002 07:05:31 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:48110 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S266033AbSIRLFa>; Wed, 18 Sep 2002 07:05:30 -0400
+Date: Wed, 18 Sep 2002 13:14:14 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS 2.4.19] Unable to handle kernel paging request at virtual address 7ec64585
+Message-ID: <20020918131414.G762@sexything>
+Reply-To: morten.helgesen@nextframe.net
+References: <20020917133338.B762@sexything>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020917133338.B762@sexything>
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan
+Hey again, 
 
-In case you were planning on including my patch to allow core file names
-to include the executable, hostname etc., I have ported it to apply
-directly to 2.4.20-pre5-ac6.
+now have a look at this - happens on the same box as the
+oops I reported yesterday. EIP still in iput(), but this time we were
+obviosuly working with swap instead of memory . This time
+it`s kswapd, and after the oops kswapd is :
 
-Regards
-Jes Klinke
+[13:19][admin@sql:~]$ ps -ewo user,pid,priority,stat,command,wchan | grep kswapd
+root         4   9 Z    [kswapd <defunct do_exit
 
-diff -urN -X dontdiff linux-2.4.20-pre5-ac6/fs/exec.c linux-2.4.20-pre5-ac6-core/fs/exec.c
---- linux-2.4.20-pre5-ac6/fs/exec.c     Wed Sep 18 08:57:59 2002
-+++ linux-2.4.20-pre5-ac6-core/fs/exec.c        Wed Sep 18 08:56:10 2002
-@@ -36,6 +36,7 @@
- #include <linux/spinlock.h>
- #include <linux/personality.h>
- #include <linux/swap.h>
-+#include <linux/utsname.h>
- #define __NO_VERSION__
- #include <linux/module.h>
- 
-@@ -48,6 +49,8 @@
- #endif
- 
- int core_uses_pid;
-+char core_pattern[65] = "core";
-+/* The maximal length of core_pattern is also specified in sysctl.c */ 
- 
- static struct linux_binfmt *formats;
- static rwlock_t binfmt_lock = RW_LOCK_UNLOCKED;
-@@ -961,10 +964,126 @@
-                __MOD_DEC_USE_COUNT(old->module);
- }
- 
-+#define CORENAME_MAX_SIZE 64
-+
-+/* format_corename will inspect the pattern parameter, and output a
-+ * name into corename, which must have space for at least
-+ * CORENAME_MAX_SIZE bytes plus one byte for the zero terminator.
-+ */
-+void format_corename(char *corename, const char *pattern, long signr)
-+{
-+       const char *pat_ptr = pattern;
-+       char *out_ptr = corename;
-+       char *const out_end = corename + CORENAME_MAX_SIZE;
-+       int rc;
-+       int pid_in_pattern = 0;
-+
-+       /* Repeat as long as we have more pattern to process and more output
-+          space */
-+       while (*pat_ptr) {
-+               if (*pat_ptr != '%') {
-+                       if (out_ptr == out_end)
-+                               goto out;
-+                       *out_ptr++ = *pat_ptr++;
-+               } else {
-+                       switch (*++pat_ptr) {
-+                       case 0:
-+                               goto out;
-+                       /* Double percent, output one percent */
-+                       case '%':
-+                               if (out_ptr == out_end)
-+                                       goto out;
-+                               *out_ptr++ = '%';
-+                               break;
-+                       /* pid */
-+                       case 'p':
-+                               pid_in_pattern = 1;
-+                               rc = snprintf(out_ptr, out_end - out_ptr,
-+                                             "%d", current->pid);
-+                               if (rc > out_end - out_ptr)
-+                                       goto out;
-+                               out_ptr += rc;
-+                               break;
-+                       /* uid */
-+                       case 'u':
-+                               rc = snprintf(out_ptr, out_end - out_ptr,
-+                                             "%d", current->uid);
-+                               if (rc > out_end - out_ptr)
-+                                       goto out;
-+                               out_ptr += rc;
-+                               break;
-+                       /* gid */
-+                       case 'g':
-+                               rc = snprintf(out_ptr, out_end - out_ptr,
-+                                             "%d", current->gid);
-+                               if (rc > out_end - out_ptr)
-+                                       goto out;
-+                               out_ptr += rc;
-+                               break;
-+                       /* signal that caused the coredump */
-+                       case 's':
-+                               rc = snprintf(out_ptr, out_end - out_ptr,
-+                                             "%ld", signr);
-+                               if (rc > out_end - out_ptr)
-+                                       goto out;
-+                               out_ptr += rc;
-+                               break;
-+                       /* UNIX time of coredump */
-+                       case 't': {
-+                               struct timeval tv;
-+                               do_gettimeofday(&tv);
-+                               rc = snprintf(out_ptr, out_end - out_ptr,
-+                                             "%d", tv.tv_sec);
-+                               if (rc > out_end - out_ptr)
-+                                       goto out;
-+                               out_ptr += rc;
-+                               break;
-+                       }
-+                       /* hostname */
-+                       case 'h':
-+                               down_read(&uts_sem);
-+                               rc = snprintf(out_ptr, out_end - out_ptr,
-+                                             "%s", system_utsname.nodename);
-+                               up_read(&uts_sem);
-+                               if (rc > out_end - out_ptr)
-+                                       goto out;
-+                               out_ptr += rc;
-+                               break;
-+                       /* executable */
-+                       case 'e':
-+                               rc = snprintf(out_ptr, out_end - out_ptr,
-+                                             "%s", current->comm);
-+                               if (rc > out_end - out_ptr)
-+                                       goto out;
-+                               out_ptr += rc;
-+                               break;
-+                       default:
-+                               break;
-+                       }
-+                       ++pat_ptr;
-+               }
-+       }
-+       /* Backward compatibility with core_uses_pid:
-+        *
-+        * If core_pattern does not include a %p (as is the default)
-+        * and core_uses_pid is set, then .%pid will be appended to
-+        * the filename */
-+       if (!pid_in_pattern
-+            && (core_uses_pid || atomic_read(&current->mm->mm_users) != 1)) {
-+               rc = snprintf(out_ptr, out_end - out_ptr,
-+                             ".%d", current->pid);
-+               if (rc > out_end - out_ptr)
-+                       goto out;
-+               out_ptr += rc;
-+       }
-+      out:
-+       *out_ptr = 0;
-+}
-+
- int do_coredump(long signr, struct pt_regs * regs)
- {
-        struct linux_binfmt * binfmt;
--       char corename[6+sizeof(current->comm)+10];
-+       char corename[CORENAME_MAX_SIZE + 1];
-        struct file * file;
-        struct inode * inode;
-        int retval = 0;
-@@ -979,9 +1098,7 @@
-        if (current->rlim[RLIMIT_CORE].rlim_cur < binfmt->min_coredump)
-                goto fail;
- 
--       memcpy(corename,"core", 5); /* include trailing \0 */
--       if (core_uses_pid || atomic_read(&current->mm->mm_users) != 1)
--               sprintf(&corename[4], ".%d", current->pid);
-+       format_corename(corename, core_pattern, signr);
-        file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW, 0600);
-        if (IS_ERR(file))
-                goto fail;
-diff -urN -X dontdiff linux-2.4.20-pre5-ac6/include/linux/sysctl.h linux-2.4.20-pre5-ac6-core/include/linux/sysctl.h
---- linux-2.4.20-pre5-ac6/include/linux/sysctl.h        Wed Sep 18 08:58:01 2002
-+++ linux-2.4.20-pre5-ac6-core/include/linux/sysctl.h   Wed Sep 18 08:53:30 2002
-@@ -124,6 +124,7 @@
-        KERN_CORE_USES_PID=52,          /* int: use core or core.%pid */
-        KERN_TAINTED=53,        /* int: various kernel tainted flags */
-        KERN_CADPID=54,         /* int: PID of the process to notify on CAD */
-+       KERN_CORE_PATTERN=55,   /* string: pattern for core-files */
- };
- 
- 
-diff -urN -X dontdiff linux-2.4.20-pre5-ac6/kernel/sysctl.c linux-2.4.20-pre5-ac6-core/kernel/sysctl.c
---- linux-2.4.20-pre5-ac6/kernel/sysctl.c       Wed Sep 18 08:58:01 2002
-+++ linux-2.4.20-pre5-ac6-core/kernel/sysctl.c  Wed Sep 18 08:53:30 2002
-@@ -49,6 +49,7 @@
- extern int max_queued_signals;
- extern int sysrq_enabled;
- extern int core_uses_pid;
-+extern char core_pattern[];
- extern int cad_pid;
- 
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
-@@ -191,6 +192,8 @@
-         0644, NULL, &proc_dointvec},
-        {KERN_CORE_USES_PID, "core_uses_pid", &core_uses_pid, sizeof(int),
-         0644, NULL, &proc_dointvec},
-+       {KERN_CORE_PATTERN, "core_pattern", core_pattern, 64,
-+        0644, NULL, &proc_dostring, &sysctl_string},
-        {KERN_TAINTED, "tainted", &tainted, sizeof(int),
-         0644, NULL, &proc_dointvec},
-        {KERN_CAP_BSET, "cap-bound", &cap_bset, sizeof(kernel_cap_t),
+This is not cool guys - no one else seing this ? 2.4.18 was running just fine
+on this box. I`m going back to 2.4.18 now and I`ll see if this keeps happening ... if
+it does it might be hardware related (even though that does not seem very likely) - as I
+said, the box has been running just fine with 2.4.18 for a long time.
+
+Sep 17 19:03:44 sql kernel: Unable to handle kernel paging request at virtual address e5881af5
+Sep 17 19:03:44 sql kernel: c0141edc
+Sep 17 19:03:44 sql kernel: *pde = 00000000
+Sep 17 19:03:44 sql kernel: Oops: 0000
+Sep 17 19:03:44 sql kernel: CPU:    0
+Sep 17 19:03:44 sql kernel: EIP:    0010:[<c0141edc>]    Not tainted
+Sep 17 19:03:44 sql kernel: EFLAGS: 00010282
+Sep 17 19:03:44 sql kernel: eax: 00000000   ebx: c574c600   ecx: c5f4c610   edx: c5f4c610
+Sep 17 19:03:44 sql kernel: esi: e5881ad5   edi: 00000000   ebp: 00000448   esp: c12f5f4c
+Sep 17 19:03:44 sql kernel: ds: 0018   es: 0018   ss: 0018
+Sep 17 19:03:44 sql kernel: Process kswapd (pid: 4, stackpage=c12f5000)
+Sep 17 19:03:44 sql kernel: Stack: c3598638 c3598620 c574c600 c01400b6 c574c600 00000019 000001d0 0000001c
+Sep 17 19:03:44 sql kernel:        00000005 c014037b 000004ac c0129f40 00000005 000001d0 00000005 000001d0
+Sep 17 19:03:44 sql kernel:        c02794f4 00000000 c02794f4 c0129f8f 0000001c c02794f4 00000001 c12f4000
+Sep 17 19:03:44 sql kernel: Call Trace:    [<c01400b6>] [<c014037b>] [<c0129f40>] [<c0129f8f>] [<c012a023>]
+Sep 17 19:03:44 sql kernel:   [<c012a07e>] [<c012a18d>] [<c0106ec8>]
+Sep 17 19:03:44 sql kernel: Code: 8b 7e 20 85 ff 74 0d 8b 47 10 85 c0 74 06 53 ff d0 83 c4 04
+
+>>EIP; c0141edc <iput+2c/19c>   <=====
+
+>>ebx; c574c600 <END_OF_CODE+545618c/????>
+>>ecx; c5f4c610 <END_OF_CODE+5c5619c/????>
+>>edx; c5f4c610 <END_OF_CODE+5c5619c/????>
+>>esi; e5881ad5 <END_OF_CODE+2558b661/????>
+>>ebp; 00000448 Before first symbol
+>>esp; c12f5f4c <END_OF_CODE+fffad8/????>
+
+Trace; c01400b6 <prune_dcache+c6/138>
+Trace; c014037b <shrink_dcache_memory+1b/34>
+Trace; c0129f40 <shrink_caches+68/80>
+Trace; c0129f8f <try_to_free_pages+37/58>
+Trace; c012a023 <kswapd_balance_pgdat+43/8c>
+Trace; c012a07e <kswapd_balance+12/28>
+Trace; c012a18d <kswapd+99/bc>
+Trace; c0106ec8 <kernel_thread+28/38>
+
+Code;  c0141edc <iput+2c/19c>
+00000000 <_EIP>:
+Code;  c0141edc <iput+2c/19c>   <=====
+   0:   8b 7e 20                  mov    0x20(%esi),%edi   <=====
+Code;  c0141edf <iput+2f/19c>
+   3:   85 ff                     test   %edi,%edi
+Code;  c0141ee1 <iput+31/19c>
+   5:   74 0d                     je     14 <_EIP+0x14> c0141ef0 <iput+40/19c>
+Code;  c0141ee3 <iput+33/19c>
+   7:   8b 47 10                  mov    0x10(%edi),%eax
+Code;  c0141ee6 <iput+36/19c>
+   a:   85 c0                     test   %eax,%eax
+Code;  c0141ee8 <iput+38/19c>
+   c:   74 06                     je     14 <_EIP+0x14> c0141ef0 <iput+40/19c>
+Code;  c0141eea <iput+3a/19c>
+   e:   53                        push   %ebx
+Code;  c0141eeb <iput+3b/19c>
+   f:   ff d0                     call   *%eax
+Code;  c0141eed <iput+3d/19c>
+  11:   83 c4 04                  add    $0x4,%esp
 
 
+== Morten
 
+-- 
 
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
 
-
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

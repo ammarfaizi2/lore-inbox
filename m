@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbUCEV3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 16:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbUCEV3Y
+	id S261232AbUCEVnH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:43:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbUCEVnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 16:29:24 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:26060 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262117AbUCEV3X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 16:29:23 -0500
-Date: Fri, 05 Mar 2004 13:28:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>
-cc: Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
-       riel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <63620000.1078522134@flay>
-In-Reply-To: <20040305152622.GA14375@elte.hu>
-References: <20040228072926.GR8834@dualathlon.random> <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143210.GA11897@elte.hu> <20040305145837.GZ4922@dualathlon.random> <20040305152622.GA14375@elte.hu>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 5 Mar 2004 16:43:05 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:53265 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261202AbUCEVmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 16:42:47 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: initrd does not boot in 2.6.3, working in 2.4.25
+Date: Fri, 5 Mar 2004 23:28:01 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+References: <200403051238.53470.vda@port.imtp.ilyichevsk.odessa.ua> <200403051831.31271.vda@port.imtp.ilyichevsk.odessa.ua> <20040305170619.GX655@holomorphy.com>
+In-Reply-To: <20040305170619.GX655@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200403052328.01720.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Andrea Arcangeli <andrea@suse.de> wrote:
-> 
->> It's a nogo for 64G but I would be really pleased to see a workload
->> triggering the zone-normal shortage in 32G, I've never seen any one. 
->> [...]
-> 
-> have you tried TPC-C/TPC-H?
+On Friday 05 March 2004 19:06, William Lee Irwin III wrote:
+> On Friday 05 March 2004 13:04, William Lee Irwin III wrote:
+> >> nfsroot works in 2.6.3 and above here. I'm not sure you need it per se
+> >> for initrd's; I think the way it's intended to work with that is for
+> >> the scripts to configure network interfaces, mount the nfsroot, and then
+> >> pivot_root(). Can you try without initrd?
+> >> Also, try passing ip= for these things.
+>
+> On Fri, Mar 05, 2004 at 06:31:31PM +0200, Denis Vlasenko wrote:
+> > I run these things everyday.
+> > nfsroot and ip=.... works, no question about that.
+> > Just imagine all-modular kernel which needs to load ethernet driver
+> > first, *then* mount nfs root and pivot_root. Or nfsroot-over-wireless :)
+> > --
+> > vda
+>
+> For this, you should probably script the initrd to do the IP
+> configuration and mount the nfsroot before pivot_root().
 
-We're doing those here. Publishing results will be tricky due to their
-draconian rules, but I'm sure you'll be able to read between the lines ;-)
+Exactly. For now I don't really need it, but decided to
+try it just in case I'll need it later. I stuffed
+udhcp and nfs tools into initrd, played with it a bit,
+and finally managed to make it work under 2.4.25.
 
-OASB (Oracle apps) is the other total killer I've found in the past.
+Then I tried 2.6.3 with the _same_ initrd and same
+bootloader.
 
-M.
+2.6.3 refuses to recognize my initrd as root fs.
+It even mounts it on / but then suddenly acts
+as if I specified root=/dev/nfs. I _didn't_.
+I said root=/dev/ram, then tried root=/dev/ram0,
+root=/dev/ram/0, root=/dev/rd/0.
+All to no avail:
+
+VFS: Mounted root (ext2 filesystem)  <-- mounts initrd on /
+Mounted devfs on /dev
+
+(here 2.4.25 would say "Freed unused kernel mem..." and happily exec init)
+
+Root-NFS: No NFS server available, giving up
+VFS: Unable to mount root fs via NFS, t
+--
+vda
 

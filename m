@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132465AbRDCTP4>; Tue, 3 Apr 2001 15:15:56 -0400
+	id <S132599AbRDCTTg>; Tue, 3 Apr 2001 15:19:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132560AbRDCTPj>; Tue, 3 Apr 2001 15:15:39 -0400
-Received: from gateway.sequent.com ([192.148.1.10]:21284 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S132465AbRDCTOI>; Tue, 3 Apr 2001 15:14:08 -0400
-Date: Tue, 3 Apr 2001 12:13:08 -0700
-From: Mike Kravetz <mkravetz@sequent.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: a quest for a better scheduler
-Message-ID: <20010403121308.A1054@w-mikek2.sequent.com>
-In-Reply-To: <3AC93417.7B7814FC@chromium.com> <Pine.LNX.4.30.0104031035271.2794-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.30.0104031035271.2794-100000@elte.hu>; from mingo@elte.hu on Tue, Apr 03, 2001 at 10:55:12AM +0200
+	id <S132589AbRDCTT0>; Tue, 3 Apr 2001 15:19:26 -0400
+Received: from gatekeeper.kati.fi ([194.197.204.34]:7430 "EHLO
+	gatekeeper.kati.fi") by vger.kernel.org with ESMTP
+	id <S132582AbRDCTTO>; Tue, 3 Apr 2001 15:19:14 -0400
+Date: Tue, 3 Apr 2001 22:10:04 +0300 (EEST)
+From: Juhani Rautiainen <jrauti@kati.fi>
+To: Andrew Chan <achan@achan.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise 20267 "working" but no UDMA
+In-Reply-To: <4.3.2.7.2.20010403172942.00b72ce0@cam-pop.cambridge.arm.com>
+Message-ID: <Pine.LNX.4.10.10104032156110.10737-100000@sasu1.kati.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 10:55:12AM +0200, Ingo Molnar wrote:
+On Tue, 3 Apr 2001, Ruth Ivimey-Cook wrote:
+
+> At 04:57 PM 4/3/01, you wrote:
+> >I have no choice since the motherboard has the chip on-board and with
+> >FastTrack BIOS.
 > 
-> you can easily make the scheduler fast in the many-processes case by
-> sacrificing functionality in the much more realistic, few-processes case.
-> None of the patch i've seen so far maintained the current scheduler's
-> few-processes logic. But i invite you to improve the current scheduler's
-> many-processes behavior, without hurting its behavior in the few-processes
-> case.
+> Ahh. I understand.
 > 
+> I didn't know these MBs had the FastTrak BIOS built in; I was assuming you 
+> were using the PCI card.
 
-Maintaining the current scheduler's logic is exactly what we are trying
-to do in the projects at:
+There are projects on the net which have modified Asus A7V BIOS so that
+20265 works with FastTrack BIOS (it's same chip as 20267). Maybe that could
+be done in reverse. For example check
+http://www.tweakhardware.com/guide/a7v-raid/ 
 
-http://lse.sourceforge.net/scheduling/
-
-A common design goal for the the two alternative scheduler
-implementations at this site is to maintain the current scheduler's
-behavior/scheduling decisions.  In the case of the priority queue
-scheduler, we have actually used a copy of the existing scheduler
-running in parallel (in the same kernel) to determine if we are
-making the same scheduling decisions.  Currently, in this implementation
-we only deviate from the current scheduler in a small number of cases
-where tasks get a boost due to having the same memory map.
-
-The multi-queue implementation is more interesting.  It is also
-designed to maintain the behavior of the current scheduler.  However,
-as the runqueues get longer (and we start getting contention on the
-runqueue locks) it starts to deviate from existing scheduler behavior
-and make more local scheduling decisions.  Ideally, this implementation
-will exhibit the behavior of the current scheduler at low thread
-counts and make more localized decisions as pressure on the scheduler
-is increased.
-
-Neither of these implementations are at a point where I would advocate
-their adoption; yet.
-
-Can someone tell me what a good workload/benchmark would be to
-examine 'low thread count' performance?  In the past people have
-used the 'spinning on sched_yield' benchmark.  However, this now
-makes little sense with the sched_yield optimizations introduced
-in 2.4.  In addition, such a benchmark mostly ignores the
-'reschedule_idle' component of the scheduler.  We have developed
-a 'token passing' benchmark which attempts to address these issues
-(called reflex at the above site).  However, I would really like
-to get a pointer to a community acceptable workload/benchmark for
-these low thread cases.
-
+Juhani 
 -- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
+Juhani Rautiainen			jrauti@iki.fi
+

@@ -1,58 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVCPNbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVCPNfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbVCPNbq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 08:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVCPNa7
+	id S262583AbVCPNfR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 08:35:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbVCPNfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 08:30:59 -0500
-Received: from smtpout19.mailhost.ntl.com ([212.250.162.19]:36706 "EHLO
-	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S262581AbVCPNaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 08:30:10 -0500
-Subject: Re: Bogus buffer length check in linux-2.6.11  read()
-From: Ian Campbell <ijc@hellion.org.uk>
-To: linux-os@analogic.com
-Cc: Tom Felker <tfelker2@uiuc.edu>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0503160724120.16304@chaos.analogic.com>
-References: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>
-	 <200503152056.16287.tfelker2@uiuc.edu>
-	 <Pine.LNX.4.61.0503160724120.16304@chaos.analogic.com>
-Content-Type: text/plain
-Date: Wed, 16 Mar 2005 13:30:00 +0000
-Message-Id: <1110979800.3057.69.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Mar 2005 08:35:04 -0500
+Received: from mail.dif.dk ([193.138.115.101]:33943 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262586AbVCPNcb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 08:32:31 -0500
+Date: Wed, 16 Mar 2005 14:33:56 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steven French <sfrench@us.ibm.com>
+Cc: smfrench@austin.rr.com, linux-kernel@vger.kernel.org
+Subject: [PATCH][5/7] cifs: file.c cleanups in incremental bits - new
+ cifs_convert_flags helper function
+Message-ID: <Pine.LNX.4.62.0503161430322.3141@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1433097632-1110980036=:3141"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-On Wed, 2005-03-16 at 07:29 -0500, linux-os wrote:
+--8323328-1433097632-1110980036=:3141
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> This means that the read() is no longer perfectly happy
-> to corrupt all of the user's memory which is the defacto
-> correct response for a bad buffer as shown. Instead, some
-> added "check in software" claims to prevent this, but
-> is wrong anyway because it can't possibly know how much
-> data area is available.
 
-The manpage for read(2) that I've got says
+This patch (attached) adds a new helper function called cifs_convert_flags 
+and uses it in cifs_open and cifs_reopen_file to fill in 'desiredAccess' 
+instead of having two duplicate codeblocks in those functions.
 
-       EFAULT buf is outside your accessible address space.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-which is exactly what it would appear
-        if (unlikely(!access_ok(VERIFY_WRITE, buf, count)))
-                return -EFAULT;
-checks for. Assuming this is the check you are bitching about -- you
-could be a little more precise if you are going to complain about stuff.
-
-Ian.
 
 -- 
-Ian Campbell
+Jesper Juhl
 
-flannister, n.:
-	The plastic yoke that holds a six-pack of beer together.
-		-- "Sniglets", Rich Hall & Friends
 
+--8323328-1433097632-1110980036=:3141
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=fs_cifs_file-cleanups-3-cifs_convert_flags.patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.62.0503161433560.3141@dragon.hyggekrogen.localhost>
+Content-Description: fs_cifs_file-cleanups-3-cifs_convert_flags.patch
+Content-Disposition: attachment; filename=fs_cifs_file-cleanups-3-cifs_convert_flags.patch
+
+ZGlmZiAtdXAgbGludXgtMi42LjExLW1tMy9mcy9jaWZzL2ZpbGUuYy53aXRo
+X3BhdGNoXzUgbGludXgtMi42LjExLW1tMy9mcy9jaWZzL2ZpbGUuYw0KLS0t
+IGxpbnV4LTIuNi4xMS1tbTMvZnMvY2lmcy9maWxlLmMud2l0aF9wYXRjaF81
+CTIwMDUtMDMtMTYgMDA6NTk6MTQuMDAwMDAwMDAwICswMTAwDQorKysgbGlu
+dXgtMi42LjExLW1tMy9mcy9jaWZzL2ZpbGUuYwkyMDA1LTAzLTE2IDEzOjM1
+OjMwLjAwMDAwMDAwMCArMDEwMA0KQEAgLTUxLDYgKzUxLDIyIEBAIHN0YXRp
+YyBpbmxpbmUgc3RydWN0IGNpZnNGaWxlSW5mbyAqY2lmc18NCiAJcmV0dXJu
+IHByaXZhdGVfZGF0YTsNCiB9DQogDQorc3RhdGljIGlubGluZSBpbnQgY2lm
+c19jb252ZXJ0X2ZsYWdzKHVuc2lnbmVkIGludCBmbGFncykNCit7DQorCWlm
+ICgoZmxhZ3MgJiBPX0FDQ01PREUpID09IE9fUkRPTkxZKQ0KKwkJcmV0dXJu
+IEdFTkVSSUNfUkVBRDsNCisJZWxzZSBpZiAoKGZsYWdzICYgT19BQ0NNT0RF
+KSA9PSBPX1dST05MWSkNCisJCXJldHVybiBHRU5FUklDX1dSSVRFOw0KKwll
+bHNlIGlmICgoZmxhZ3MgJiBPX0FDQ01PREUpID09IE9fUkRXUikgew0KKwkJ
+LyogR0VORVJJQ19BTEwgaXMgdG9vIG11Y2ggcGVybWlzc2lvbiB0byByZXF1
+ZXN0DQorCQkgICBjYW4gY2F1c2UgdW5uZWNlc3NhcnkgYWNjZXNzIGRlbmll
+ZCBvbiBjcmVhdGUgKi8NCisJCS8qIHJldHVybiBHRU5FUklDX0FMTDsgKi8N
+CisJCXJldHVybiAoR0VORVJJQ19SRUFEIHwgR0VORVJJQ19XUklURSk7DQor
+CX0NCisNCisJcmV0dXJuIDB4MjAxOTc7DQorfQ0KKw0KIC8qIGFsbCBhcmd1
+bWVudHMgdG8gdGhpcyBmdW5jdGlvbiBtdXN0IGJlIGNoZWNrZWQgZm9yIHZh
+bGlkaXR5IGluIGNhbGxlciAqLw0KIHN0YXRpYyBpbmxpbmUgaW50IGNpZnNf
+b3Blbl9pbm9kZV9oZWxwZXIoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0
+IGZpbGUgKmZpbGUsDQogCXN0cnVjdCBjaWZzSW5vZGVJbmZvICpwQ2lmc0lu
+b2RlLCBzdHJ1Y3QgY2lmc0ZpbGVJbmZvICpwQ2lmc0ZpbGUsDQpAQCAtMTI3
+LDcgKzE0Myw3IEBAIGludCBjaWZzX29wZW4oc3RydWN0IGlub2RlICppbm9k
+ZSwgc3RydWMNCiAJc3RydWN0IGNpZnNJbm9kZUluZm8gKnBDaWZzSW5vZGU7
+DQogCXN0cnVjdCBsaXN0X2hlYWQgKnRtcDsNCiAJY2hhciAqZnVsbF9wYXRo
+ID0gTlVMTDsNCi0JaW50IGRlc2lyZWRBY2Nlc3MgPSAweDIwMTk3Ow0KKwlp
+bnQgZGVzaXJlZEFjY2VzczsNCiAJaW50IGRpc3Bvc2l0aW9uOw0KIAlfX3Ux
+NiBuZXRmaWQ7DQogCUZJTEVfQUxMX0lORk8gKmJ1ZiA9IE5VTEw7DQpAQCAt
+MTc3LDE3ICsxOTMsOSBAQCBpbnQgY2lmc19vcGVuKHN0cnVjdCBpbm9kZSAq
+aW5vZGUsIHN0cnVjDQogCQlyZXR1cm4gLUVOT01FTTsNCiAJfQ0KIA0KLQlj
+RllJKDEsICgiIGlub2RlID0gMHglcCBmaWxlIGZsYWdzIGFyZSAweCV4IGZv
+ciAlcyIsIGlub2RlLCBmaWxlLT5mX2ZsYWdzLCBmdWxsX3BhdGgpKTsNCi0J
+aWYgKChmaWxlLT5mX2ZsYWdzICYgT19BQ0NNT0RFKSA9PSBPX1JET05MWSkN
+Ci0JCWRlc2lyZWRBY2Nlc3MgPSBHRU5FUklDX1JFQUQ7DQotCWVsc2UgaWYg
+KChmaWxlLT5mX2ZsYWdzICYgT19BQ0NNT0RFKSA9PSBPX1dST05MWSkNCi0J
+CWRlc2lyZWRBY2Nlc3MgPSBHRU5FUklDX1dSSVRFOw0KLQllbHNlIGlmICgo
+ZmlsZS0+Zl9mbGFncyAmIE9fQUNDTU9ERSkgPT0gT19SRFdSKSB7DQotCQkv
+KiBHRU5FUklDX0FMTCBpcyB0b28gbXVjaCBwZXJtaXNzaW9uIHRvIHJlcXVl
+c3QgKi8NCi0JCS8qIGNhbiBjYXVzZSB1bm5lY2Vzc2FyeSBhY2Nlc3MgZGVu
+aWVkIG9uIGNyZWF0ZSAqLw0KLQkJLyogZGVzaXJlZEFjY2VzcyA9IEdFTkVS
+SUNfQUxMOyAqLw0KLQkJZGVzaXJlZEFjY2VzcyA9IEdFTkVSSUNfUkVBRCB8
+IEdFTkVSSUNfV1JJVEU7DQotCX0NCisJY0ZZSSgxLCAoIiBpbm9kZSA9IDB4
+JXAgZmlsZSBmbGFncyBhcmUgMHgleCBmb3IgJXMiLA0KKwkJIGlub2RlLCBm
+aWxlLT5mX2ZsYWdzLCBmdWxsX3BhdGgpKTsNCisJZGVzaXJlZEFjY2VzcyA9
+IGNpZnNfY29udmVydF9mbGFncyhmaWxlLT5mX2ZsYWdzKTsNCiANCiAvKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqDQogICogIG9wZW4gZmxhZyBtYXBwaW5n
+IHRhYmxlOg0KQEAgLTMxOCw3ICszMjYsNyBAQCBzdGF0aWMgaW50IGNpZnNf
+cmVvcGVuX2ZpbGUoc3RydWN0IGlub2RlDQogCXN0cnVjdCBjaWZzRmlsZUlu
+Zm8gKnBDaWZzRmlsZTsNCiAJc3RydWN0IGNpZnNJbm9kZUluZm8gKnBDaWZz
+SW5vZGU7DQogCWNoYXIgKmZ1bGxfcGF0aCA9IE5VTEw7DQotCWludCBkZXNp
+cmVkQWNjZXNzID0gMHgyMDE5NzsNCisJaW50IGRlc2lyZWRBY2Nlc3M7DQog
+CWludCBkaXNwb3NpdGlvbiA9IEZJTEVfT1BFTjsNCiAJX191MTYgbmV0Zmlk
+Ow0KIA0KQEAgLTM1OCwxNiArMzY2LDcgQEAgc3RhdGljIGludCBjaWZzX3Jl
+b3Blbl9maWxlKHN0cnVjdCBpbm9kZQ0KIA0KIAljRllJKDEsICgiIGlub2Rl
+ID0gMHglcCBmaWxlIGZsYWdzIGFyZSAweCV4IGZvciAlcyIsDQogCQkgaW5v
+ZGUsIGZpbGUtPmZfZmxhZ3MsZnVsbF9wYXRoKSk7DQotCWlmICgoZmlsZS0+
+Zl9mbGFncyAmIE9fQUNDTU9ERSkgPT0gT19SRE9OTFkpDQotCQlkZXNpcmVk
+QWNjZXNzID0gR0VORVJJQ19SRUFEOw0KLQllbHNlIGlmICgoZmlsZS0+Zl9m
+bGFncyAmIE9fQUNDTU9ERSkgPT0gT19XUk9OTFkpDQotCQlkZXNpcmVkQWNj
+ZXNzID0gR0VORVJJQ19XUklURTsNCi0JZWxzZSBpZiAoKGZpbGUtPmZfZmxh
+Z3MgJiBPX0FDQ01PREUpID09IE9fUkRXUikgew0KLQkJLyogR0VORVJJQ19B
+TEwgaXMgdG9vIG11Y2ggcGVybWlzc2lvbiB0byByZXF1ZXN0ICovDQotCQkv
+KiBjYW4gY2F1c2UgdW5uZWNlc3NhcnkgYWNjZXNzIGRlbmllZCBvbiBjcmVh
+dGUgKi8NCi0JCS8qIGRlc2lyZWRBY2Nlc3MgPSBHRU5FUklDX0FMTDsgICAg
+ICAgICAgICAgICAgICAqLw0KLQkJZGVzaXJlZEFjY2VzcyA9IEdFTkVSSUNf
+UkVBRCB8IEdFTkVSSUNfV1JJVEU7DQotCX0NCisJZGVzaXJlZEFjY2VzcyA9
+IGNpZnNfY29udmVydF9mbGFncyhmaWxlLT5mX2ZsYWdzKTsNCiANCiAJaWYg
+KG9wbG9ja0VuYWJsZWQpDQogCQlvcGxvY2sgPSBSRVFfT1BMT0NLOw0K
+
+--8323328-1433097632-1110980036=:3141--

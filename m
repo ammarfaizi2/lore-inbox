@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284542AbRLMS0k>; Thu, 13 Dec 2001 13:26:40 -0500
+	id <S284603AbRLMSbk>; Thu, 13 Dec 2001 13:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284541AbRLMS0V>; Thu, 13 Dec 2001 13:26:21 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29090 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284603AbRLMS0I>; Thu, 13 Dec 2001 13:26:08 -0500
-Date: Thu, 13 Dec 2001 11:26:02 -0700
-Message-Id: <200112131826.fBDIQ2J28188@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "David C. Hansen" <haveblue@us.ibm.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Change locking in block_dev.c:do_open()
-In-Reply-To: <Pine.GSO.4.21.0112131242470.19799-100000@weyl.math.psu.edu>
-In-Reply-To: <200112131724.fBDHOqu27735@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0112131242470.19799-100000@weyl.math.psu.edu>
+	id <S284569AbRLMSba>; Thu, 13 Dec 2001 13:31:30 -0500
+Received: from goliath.siemens.de ([194.138.37.131]:46279 "EHLO
+	goliath.siemens.de") by vger.kernel.org with ESMTP
+	id <S284557AbRLMSbX> convert rfc822-to-8bit; Thu, 13 Dec 2001 13:31:23 -0500
+From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: APM idle problems - how to check if BIOS halts CPU?
+In-Reply-To: <XFMail.20011213123949.ast@domdv.de>
+In-Reply-To: <XFMail.20011213123949.ast@domdv.de>
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1008267923.2263.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 13 Dec 2001 21:31:09 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
+Oh, my! I am ashamed. I totally missed the fact that default idle task
+alredy halts CPU. I must be getting old :(
+
+
+On Чтв, 2001-12-13 at 14:39, Andreas Steinmetz wrote:
+> I posted an apm patch and asked Marcelo to apply it. What you do see is
+> kapm-idled and the idle task both racing for idle time. There's even more
+> problems (search lkml for subject kapm-idled and have a look at the reply from
+> Alan Cox on Dec 5 which does contain my original mail and the patch). With the
+> patch e.g. the fan control of my laptop works properly which it never did
+> before.
+
+
+Unfortunately, this patch does not works as I'd expected. This patch
+does hide systime, but it does not cool CPU. With this patch system runs
+4C hotter than it run when I replaced apm_do_idle() with apm_cpu_idle()
+in original apm.c
+
+I'll try to get a closer look at weekend; any hints how to debug it are
+welcome.
+
+ If you really do have a broken bios there's no other way than to
+> contact your system's vendor.
 > 
-> 
-> On Thu, 13 Dec 2001, Richard Gooch wrote:
-> 
-> > Al, I came up with a proposed solution for this race days ago. After
-> > switching to try_inc_mod_count() (based on your first comments), you
-> > haven't responded with whether you still see a problem with this
-> > approach (your first message implied there were multiple problems).
-> 
-> Sigh...  Please, take a look at sys_swapon() or get_sb_bdev() or
-> devfs_open().  Any version starting with 2.3.46-pre<something> when
-> devfs went into the tree.
 
-Wait a minute. Before poking holes at other code paths, can you please
-answer the question I'm asking? I repeat: for the devfs revalidate
-code, do you see any remaining problems if I increment the module
-usage count?
+Well, my vendor is ASUS and it is notorious for never answering bug
+reports from mere mortals. I also do not know how important Linux market
+is for them and Windows runs fine with ACPI (and Linux with ACPI does
+not have this problem as well. But I run Mandrake and they currently do
+not want to enable ACPI for different reasons). But I'll try anyway.
 
-If you want to point out other problem paths, that's fine. But please
-answer specific questions so that progress can be made.
+Thank you 
 
-> All of them have ->bd_op set from devfs handle and follow that with
-> blkdev_get() - directly or indirectly via def_blk_fops.open().  That
-> function blocks.  Think what will happen if entry is removed while
-> blkdev_get() sleeps on semaphore.
-
-When you say "entry is removed", are you actually referring to a devfs
-entry being removed? Or are you talking more generally about the
-module being removed?
-For the case where devfs_open() is running, the devfs entry remains
-valid over the lifetime of the open(). In fact, it remains valid over
-the lifetime of the dentry.
-
-> BTW, I'd described that to you several times - last one couple of
-> months ago on l-k.
-
-And since then the refcounting code has gone in, and many of your old
-concerns have been addressed. I'm trying to engage you in a productive
-dialogue to resolve any remaining issues.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-andrej

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267621AbRHRUhG>; Sat, 18 Aug 2001 16:37:06 -0400
+	id <S267140AbRHRUaq>; Sat, 18 Aug 2001 16:30:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbRHRUg5>; Sat, 18 Aug 2001 16:36:57 -0400
-Received: from pille1.addcom.de ([62.96.128.35]:8467 "HELO pille1.addcom.de")
-	by vger.kernel.org with SMTP id <S267621AbRHRUgq>;
-	Sat, 18 Aug 2001 16:36:46 -0400
-Date: Sat, 18 Aug 2001 22:29:04 +0200 (CEST)
-From: Frank Neuber <frank.neuber@gmx.de>
-To: Jussi Laako <jlaako@pp.htv.fi>
-cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: BUGFIX: UDMA-SiS5513 chipset support
-In-Reply-To: <3B7EC60B.5BFFA6D8@pp.htv.fi>
-Message-ID: <Pine.LNX.3.96.1010818222443.5810A-100000@mars.private.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267196AbRHRUah>; Sat, 18 Aug 2001 16:30:37 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:33803 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S267140AbRHRUa1>; Sat, 18 Aug 2001 16:30:27 -0400
+Date: Sat, 18 Aug 2001 16:30:39 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
+To: linux-kernel@vger.kernel.org
+Cc: alan@redhat.com
+Subject: [PATCH] fs/unistr.c needs to include linux/kernel.h
+Message-ID: <20010818163039.C6893@mueller.datastacks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, alan@redhat.com
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Aug 2001, Jussi Laako wrote:
-> 
-> Same mobo here, with -ac kernel. I've never had any problems with any kernel
-> version (IBM/Maxtor/Seagate HDDs). So I'd suggest faulty HDD, not the
-> controller nor driver.
-With my old kernel linux-2.0.34 I had no problems with UDMA. Maybe you are
-right, my ATAPI-CD-Drive works with UDMA on 2.4.7.
 
-Thanks for your response
- Frank
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---
-     _/_/_/_/ _//   _/ Frank Neuber
-    _/       _/_/  _/  frank.neuber@gmx.de (private)
-   _/_/_/   _/ _/ _/
-  _/       _/  _/_/    neuber@opensource-systemberatung.de
- _/       _/    // http://www.opensource-systemberatung.de
+Subject pretty much says it all, fs/unistr.h uses min(),
+but does not include linux/kernel.h
 
+This causes build errors.
+
+-- 
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch-2.4.9-cd-unistr.c_include_kernel.h"
+
+--- linux/fs/ntfs/unistr.c.include	Sat Aug 18 16:19:28 2001
++++ linux/fs/ntfs/unistr.c	Sat Aug 18 16:19:06 2001
+@@ -21,6 +21,7 @@
+  * Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ 
++#include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <asm/byteorder.h>
+ 
+
+--NzB8fVQJ5HfG6fxh--

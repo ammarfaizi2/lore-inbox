@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264891AbSJ3TXV>; Wed, 30 Oct 2002 14:23:21 -0500
+	id <S264829AbSJ3T2E>; Wed, 30 Oct 2002 14:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264892AbSJ3TXN>; Wed, 30 Oct 2002 14:23:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29964 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264891AbSJ3TXL>; Wed, 30 Oct 2002 14:23:11 -0500
-Date: Wed, 30 Oct 2002 11:29:18 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] SCSI and FibreChannel Hotswap for linux 2.5.44-bk2
-In-Reply-To: <1036007128.5141.119.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0210301127170.7614-100000@home.transmeta.com>
+	id <S264832AbSJ3T2E>; Wed, 30 Oct 2002 14:28:04 -0500
+Received: from d196069.dynamic.cmich.edu ([141.209.196.69]:39313 "EHLO euclid")
+	by vger.kernel.org with ESMTP id <S264829AbSJ3T2D> convert rfc822-to-8bit;
+	Wed, 30 Oct 2002 14:28:03 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: "Matthew J. Fanto" <mattf@mattjf.com>
+Reply-To: mattf@mattjf.com
+Organization: mattjf.com
+To: linux-kernel@vger.kernel.org
+Subject: The Ext3sj Filesystem
+Date: Wed, 30 Oct 2002 14:34:17 -0500
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210301434.17901.mattf@mattjf.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 30 Oct 2002, Alan Cox wrote:
->
-> On Wed, 2002-10-30 at 18:54, Steven Dake wrote:
-> > This patch has been reviewed by Alan Cox, Greg KH, Christoph Hellwig, 
-> > Patrick Mansfield, Rob Landly, Jeff Garzik, Scott Murray, James 
-> 
-> Glanced at briefly once, not reviewed.
+I am annoucing the development of the ext3sj filesystem. Ext3sj is a new 
+encrypted filesystem based off ext3. Ext3sj is an improvement over the 
+current loopback solution because we do not in fact require a loopback 
+device. Encryption/decryption is transparent to the user, so the only thing 
+they will need to know is their key, and how to mount a device. We do not 
+encrypt the entire volume under the same key as some solutions do (this can 
+not only aid in a known-plaintext attack, but it gives the users less 
+options). Instead, every file is encrypted seperately under the key of the 
+users choice. We are also adding support for reading keys off floppies, 
+cdroms, and USB keychain drives. Currently, ext3sj supports the following 
+algorithms: AES, 3DES, Twofish, Serpent, RC6, RC5, RC2, Blowfish, CAST-256, 
+XTea, Safer+, SHA1, SHA256, SHA384, SHA512, MD5, with more to come. 
+If anyone has any comments, questions, or would like to request an algorithm 
+be added, please let me know. 
 
-I'm going to leave the merging of this to the scsi people, in particular 
-James and Doug. My personal feeling right now is that it's not going in 
-the feature freeze, but as a driver thing I'm also convinced that 
-especially if vendors need it, they'll add it anyway - and drivers tend to 
-be less "frozen" than core code anyway (by necessity: we've always had to 
-accept new drivers even in stable series).
-
-		Linus
-
+-Matthew J. Fanto

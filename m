@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317643AbSGUGLN>; Sun, 21 Jul 2002 02:11:13 -0400
+	id <S317647AbSGUGyl>; Sun, 21 Jul 2002 02:54:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317647AbSGUGLN>; Sun, 21 Jul 2002 02:11:13 -0400
-Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:1512 "EHLO
-	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S317643AbSGUGLM>; Sun, 21 Jul 2002 02:11:12 -0400
-Date: Sun, 21 Jul 2002 00:14:13 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Andre Hedrick <andre@linux-ide.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Thunder from the hill <thunder@ngforever.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
-In-Reply-To: <20020721055823.GA14352@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0207210006410.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317649AbSGUGyk>; Sun, 21 Jul 2002 02:54:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:61448 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317647AbSGUGyk>;
+	Sun, 21 Jul 2002 02:54:40 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com.suse.lists.linux.kernel> <1027199147.16819.39.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Jul 2002 08:57:45 +0200
+In-Reply-To: Alan Cox's message of "20 Jul 2002 21:58:23 +0200"
+Message-ID: <p731y9xva8m.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-On Sun, 21 Jul 2002, Tomas Szepe wrote:
-> > Give Bartlomiej a break!
+> > o EVMS (Enterprise Volume Management System)      (EVMS team)
 > 
-> Hmm? I was pointing my finger at Martin, not Bart.
+> or LVM2, which already appears to be scrubbed down and clean
 
-I guess he meant "a start".
+Is there any reason why not both can go in? As far as I know neither
+of them needs much of core changes, they are more like independent "drivers"
+of the generic block layer stacking interface. There are already multiple
+drivers of this - LVM and the various MD personalities.
 
-> o  He has exhibited understanding of the subtleties of the IDE code --
-> 	unlike MD.
-> o  He doesn't have a conflicting/macho personality -- unlike MD.
-> o  He actually knows what has to be done and has planned out a long-term
-> 	schedule -- unlike MD.
+One disadvantage of the LVM2 concept is that it relies a lot on compatible
+user space and there is unlikely to be a stable API. While I'm normally
+all for putting things in user space where it makes sense I think the
+mounting of your root file system is a bit of exception. 
 
-Whatever, I think there are some problems with the current IDE 
-development. Martin is possibly a good developer, but he doesn't always 
-seem all that experienced regarding IDE. Also, he releases too many testal 
-patches which simply aren't going to work. Unfortunately, Linus ate them 
-at once, so we sometimes had deadly situations.
+I used LVM1 for some brief period and managing the different incompatible
+user space tools if you wanted to boot different kernels with different
+incompatible user space tool versions in parallel for development was
+just hell. I don't see LVM2 being much better here - as soon as you want
+to run more than a single kernel version you will likely run into problems
+with the user space tool versioning.
 
-These facts make me think that Martin is probably not the best maintainer 
-for it. He might be a good developer - whatever -, but what is worth, he's 
-certainly not the best one when it comes to planning. Thus, I think the 
-question is: will it be better for IDE if Martin has the lead, current 
-situation, or if Martin can unfold all his powerfulness in testing while 
-someone else takes up the pieces and makes IDE of it, planning what comes 
-next?
+With EVMS' concept of having more stuff in kernel space (especially the
+initial recovery) it looks much more likely that one can keep using it
+over multiple kernel versions with minimal hazzle.
+Of course LVM2 is still the much elegant design, but at least for some
+use cases (like mine) I see space for EVMS.
 
-I'm not proposing a Martin Dalecki frontend, I'm just propagating an 
-election.
+But then they are essentially device drivers anyways. No reason why not
+both can be merged. 
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+-Andi

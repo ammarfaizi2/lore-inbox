@@ -1,60 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263693AbTEYTeM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 15:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTEYTeM
+	id S263700AbTEYTmB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 15:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTEYTmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 15:34:12 -0400
-Received: from pc2-alde1-3-cust225.glfd.cable.ntl.com ([213.107.78.225]:16723
-	"EHLO mayday.local") by vger.kernel.org with ESMTP id S263693AbTEYTeL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 15:34:11 -0400
-Date: Sun, 25 May 2003 20:47:17 +0100 (BST)
-To: Ryan Anderson <ryan@michonline.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] I love Linux!
-In-Reply-To: <20030525090353.GE585@michonline.com>
-X-URL: <http://www.cix.co.uk/~mayday>
-X-Dev86-Version: 0.16.11
-Reply-By: 01 jan 2001 00:00:00
-X-Message-Flag: Linux: The choice of a GNU generation.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-From: Robert de Bath <robert$@mayday.cix.co.uk>
-Message-ID: <a4a60a0843bb213f@mayday.cix.co.uk>
-X-Mailer: Pine for Linux
+	Sun, 25 May 2003 15:42:01 -0400
+Received: from smtp02.web.de ([217.72.192.151]:17413 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263700AbTEYTl6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 15:41:58 -0400
+Date: Sun, 25 May 2003 22:11:15 +0200
+From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+To: Ben Collins <bcollins@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
+Message-Id: <20030525221115.31b9f0ac.l.s.r@web.de>
+In-Reply-To: <20030525181622.GD602@phunnypharm.org>
+References: <20030525112150.3994df9b.l.s.r@web.de>
+	<3ED0FC58.D1F04381@gmx.de>
+	<20030525210509.09429aaa.l.s.r@web.de>
+	<20030525181622.GD602@phunnypharm.org>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 25 May 2003 14:16:22 -0400 Ben Collins <bcollins@debian.org> wrote:
+> Your strlcat doesn't take into consideration that a zero bufsize could
+> mean that dest is not NUL-terminated, in which case strlen(dest) could
+> blow up in your face.
 
-On Sun, 25 May 2003, Ryan Anderson wrote:
+You are right. How about that one?
 
-> On Sat, May 24, 2003 at 09:52:00AM +0100, Robert de Bath wrote:
-> > > *** ext3 journal has been deleted - filesystem is now ext2 only ***
->
-> Did you ever put the journal back on?
+René
 
-No actually I haven't, (by choice) the FS is now read-only too as it's
-"only" /boot.
 
-> [...]
->
-> > Wow! I love Linux!
->
-> I do too - but after watching that happen, I'd be checking my backups.
-> :)  That's a lot of luck to burn through in one day.
 
-Actually I didn't believe it at first, so I recovered the files from
-backup before I risked a reboot; but when they compared the same as the
-backup I tried it anyway. I've also checked all the other filesystems
-and done a fresh (verified!) L0 backup. :)
-
-Anyway I might have balanced out a bit on the luck front; I had one of
-those 'Oh shit' moments with a 'doze system a couple of days ago.
-I thought I was wiping the start of a virtual (vmware) disk ...
-
--- 
-Rob.                          (Robert de Bath <robert$ @ debath.co.uk>)
-                                       <http://www.cix.co.uk/~mayday>
-Google Homepage:   http://www.google.com/search?btnI&q=Robert+de+Bath
-
+diff -ur linux-a/include/linux/string.h linux-b/include/linux/string.h
+--- linux-a/include/linux/string.h	2003-05-05 01:53:13.000000000 +0200
++++ linux-b/include/linux/string.h	2003-05-25 19:25:01.000000000 +0200
+@@ -77,6 +77,12 @@
+ #ifndef __HAVE_ARCH_MEMCHR
+ extern void * memchr(const void *,int,__kernel_size_t);
+ #endif
++#ifndef __HAVE_ARCH_STRLCPY
++__kernel_size_t strlcpy(char *, const char *, __kernel_size_t);
++#endif
++#ifndef __HAVE_ARCH_STRLCAT
++__kernel_size_t strlcat(char *, const char *, __kernel_size_t);
++#endif
+ 
+ #ifdef __cplusplus
+ }
+diff -ur linux-a/kernel/ksyms.c linux-b/kernel/ksyms.c
+--- linux-a/kernel/ksyms.c	2003-05-05 01:52:49.000000000 +0200
++++ linux-b/kernel/ksyms.c	2003-05-25 19:25:21.000000000 +0200
+@@ -588,6 +588,8 @@
+ EXPORT_SYMBOL(strnicmp);
+ EXPORT_SYMBOL(strspn);
+ EXPORT_SYMBOL(strsep);
++EXPORT_SYMBOL(strlcpy);
++EXPORT_SYMBOL(strlcat);
+ 
+ /* software interrupts */
+ EXPORT_SYMBOL(tasklet_init);
+diff -ur linux-a/lib/string.c linux-b/lib/string.c
+--- linux-a/lib/string.c	2003-05-05 01:53:40.000000000 +0200
++++ linux-b/lib/string.c	2003-05-25 22:04:06.000000000 +0200
+@@ -5,6 +5,11 @@
+  */
+ 
+ /*
++ * The implementations of strlcpy() and strlcat() are taken from Samba, and
++ * Copyright (C) Andrew Tridgell 2001.
++ */
++
++/*
+  * stupid library routines.. The optimized versions should generally be found
+  * as inline code in <asm-xx/string.h>
+  *
+@@ -17,6 +22,11 @@
+  * * Sat Feb 09 2002, Jason Thomas <jason@topic.com.au>,
+  *                    Matthew Hawkins <matt@mh.dropbear.id.au>
+  * -  Kissed strtok() goodbye
++ *
++ * * Sun May 25 2003, René Scharfe <l.s.r@web.de>
++ * - Imported strlcpy() and strlcat() from Samba.
++ * - Fixed strlcpy() return value in case of a zero-sized buffer.
++ * - Made strlcat() able to cope with a zero-sized buffer.
+  */
+  
+ #include <linux/types.h>
+@@ -527,3 +537,56 @@
+ }
+ 
+ #endif
++
++#ifndef __HAVE_ARCH_STRLCPY
++/**
++ * strlcpy - Copy a length-limited, %NUL-terminated string
++ * @dest: Where to copy the string to
++ * @src: Where to copy the string from
++ * @bufsize: Size of the destination buffer
++ *
++ * Returns the length of @src. Unlike strncpy(), strlcpy() always
++ * %NUL-terminates @dest (unless @bufsize is 0) and does no padding.
++ */
++size_t strlcpy(char *dest, const char *src, size_t bufsize)
++{
++	size_t len = strlen(src);
++	size_t ret = len;
++
++	if (bufsize == 0)
++		return ret;
++	if (len >= bufsize)
++		len = bufsize-1;
++	memcpy(dest, src, len);
++	dest[len] = '\0';   
++	return ret;
++}
++#endif
++
++#ifndef __HAVE_ARCH_STRLCAT
++/**
++ * strlcat - Append a length-limited, %NUL-terminated string to another
++ * @dest: The string to be appended to
++ * @src: The string to append to it
++ * @bufsize: Size of the destination buffer
++ *
++ * Returns the sum of the initial lengths of @src and @dest. The resulting
++ * string is always %NUL-terminated (unless @bufsize is 0).
++ */
++size_t strlcat(char *dest, const char *src, size_t bufsize)
++{
++	size_t len1 = strnlen(dest, bufsize);
++	size_t len2 = strlen(src);
++	size_t ret = len1 + len2;
++
++	if (bufsize == 0)
++		return ret;
++	if (len1+len2 >= bufsize)
++		len2 = bufsize - (len1+1);
++	if (len2 > 0) {
++		memcpy(dest+len1, src, len2);
++		dest[len1+len2] = '\0';
++	}
++	return ret;
++}
++#endif

@@ -1,38 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVCSTJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVCSTKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbVCSTJN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 14:09:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVCSTJN
+	id S261739AbVCSTKR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 14:10:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVCSTJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 14:09:13 -0500
-Received: from mail.charite.de ([160.45.207.131]:55476 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S262652AbVCSTJK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 14:09:10 -0500
-Date: Sat, 19 Mar 2005 20:05:12 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.6.10 (EIP is at hid_init_reports+0x151/0x1d0 [usbhid])
-Message-ID: <20050319190512.GF9506@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050318160554.GY6542@charite.de> <20050318152819.102e71bf.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050318152819.102e71bf.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 19 Mar 2005 14:09:42 -0500
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:36797
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S261739AbVCSTJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 14:09:33 -0500
+Message-ID: <423C78E8.3040200@ev-en.org>
+Date: Sat, 19 Mar 2005 19:09:28 +0000
+From: Baruch Even <baruch@ev-en.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Relayfs question
+References: <Pine.LNX.4.61.0503191852520.21324@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0503191852520.21324@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton <akpm@osdl.org>:
+Jan Engelhardt wrote:
+> according to the relayfs description on opersys.com,
 > 
-> Could you please test 2.6.11 or, even better, 2.6.12-rc1?
+> |As the Linux kernel matures, there is an ever increasing number of facilities
+> |and tools that need to relay large amounts of data from kernel space to user
+> |space. Up to this point, each of these has had its own mechanism for relaying
+> |data. To supersede the individual mechanisms, we introduce the "high-speed
+> |data relay filesystem" (relayfs). As such, things like LTT, printk, EVLog,
+> |etc.
+> 
+> This sounds to me like it would obsolete most character-based devices, e.g.
+> random and urandom.
+> 
+> What do the relayfs developers say to this?
 
-I will do that, once Debian has such a kernel :|
+I'm not a relayfs developer, just a happy user...
 
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+The latest relayfs versions are slimmed down of the original and are 
+unlikely to be useful as a character-based device, but are much better 
+as a data-transport facility.
+
+There is no longer any interface for character based reading so it can't 
+be used for the device replace purposes.
+
+The current method is to just manage buffers and enable applications to 
+mmap the buffers to read them with some signalling on when a buffer is 
+to be read and when the kernel can overwrite it.
+
+A character device is unlikely to need such interface since you do want 
+16 bytes of random data and not several pages of mapped random numbers. 
+If you really need a lot of random numbers you need something in 
+user-space anyway since you'll deplete the kernel entropy pool pretty 
+fast anyway.
+
+If you have a device that needs to transfer lots of data doesn't mind it 
+being batched and doesn't really need the character device interface 
+then relayfs could be useful.
+
+Baruch

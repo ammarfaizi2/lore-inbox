@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262621AbTCTVhP>; Thu, 20 Mar 2003 16:37:15 -0500
+	id <S261898AbTCTVjR>; Thu, 20 Mar 2003 16:39:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262623AbTCTVhP>; Thu, 20 Mar 2003 16:37:15 -0500
-Received: from cygnus-ext.enyo.de ([212.9.189.162]:21254 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id <S262621AbTCTVhN>;
-	Thu, 20 Mar 2003 16:37:13 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Release of 2.4.21
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Thu, 20 Mar 2003 22:48:13 +0100
-In-Reply-To: <20030320211011$5967@gated-at.bofh.it> (Jeff Garzik's message
- of "Thu, 20 Mar 2003 22:10:11 +0100")
-Message-ID: <87of45emle.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
-References: <20030320205011$1378@gated-at.bofh.it>
-	<20030320205011$0acb@gated-at.bofh.it>
-	<20030320205011$2c88@gated-at.bofh.it>
-	<20030320211011$5967@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262284AbTCTVjQ>; Thu, 20 Mar 2003 16:39:16 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:61840 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261898AbTCTVjP>;
+	Thu, 20 Mar 2003 16:39:15 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 20 Mar 2003 22:50:14 +0100 (MET)
+Message-Id: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] alternative dev patch
+Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+From: Roman Zippel <zippel@linux-m68k.org>
 
-> On Thu, Mar 20, 2003 at 09:43:01PM +0100, Florian Weimer wrote:
->> Releasing an official 2.4.21 with some fixes (and no new features) is
->> just a PR issue.  I've already seen people comparing the alleged IIS
->> bug (or this new IE hole) and the ptrace() bug...
->
-> Comparing, how?  There is no comparison.
+> Here is a more detailed explanation of the patch
 
-You know it, I know it, our readers know it.  But the press puts them
-on the same level nevertheless.
+Thanks!
 
-> This specific ptrace hole is closed, yay.  Now what about the other
-> 10,001 that still exist?  People are blowing this ptrace bug WAY
-> out of proportion.
+However, I am unconvinced.
 
-I agree completely.  Local security on traditional UNIX-like systems
-is *so* poor that this bug doesn't really matter.  No admin of a sane
-mind lets untrusted users access important systems.
+(i)
+There was some unused code, and you decide to start using that
+in order to speed up the open() of a chardev. Is that urgent?
+Is the speed of opening a chardev a bottleneck?
+I think something is wrong with this philosophy.
+Look at what happens on open("/dev/ttyS1") - there is a hash
+lookup of the "dev", then a hash lookup of the "ttyS1", then
+we find that this is device (4,65) and do a hash lookup for
+(4,65). You want to eliminate this last hash lookup by building
+infrastructure to cache it? That is possible of course.
+Some extra code, an extra slab cache, a field i_cdev in struct inode,
+a semaphore, refcounting..
+I have not benchmarked anything but it sure feels like a lot of
+machinery to avoid a simple hash lookup.
 
-> The only reason why it demands a modicum of vendor responsibility is
-> that a-holes are making easy-to-use exploits available for the
-> script kiddies.
+I very much doubt that Al had speeding up the open() in mind when
+he wrote that (so far unused) infrastructure.
 
-No, you miss a point.  These exploits are important to keep you kernel
-developers honest.  Otherwise, you would have fixed this quitely, like
-a couple of other bugs.  Admins would assume that kernels offered a
-decent level of local security, which can lead to very questionable
-decisions.
+(ii)
+> Further he introduces a new function register_chrdev_region(),
+> which is only needed by the tty code and rather hides the problem
+> than solves it.
+
+What does one want? A driver announces the device number regions
+that it wants to cover. Simple and straightforward.
+Hardly a new idea. How is this done for block devices?
+Using blk_register_region(). How is register_chrdev_region()
+hiding problems? It eliminates the tty kludges that you only
+move to a different file.
+
+[Al muttered for an entirely different reason:
+He wants to specify the region like "dev_t dev, unsigned long range",
+where I left the parts of dev separate. I plan (eventually, there is
+no hurry) to turn the dev_t here into a kdev_t since that is much
+faster, and once that is done both blk_register_region() and
+register_chrdev_region() can get a kdev_t as first parameter.]
+
+(iii)
+> this patch helps drivers to manage them without huge tables
+> (this latter part is also missing in Andries patch).
+
+I am not sure I understand. Where are these huge tables?
+And how did you remove them?
+
+Andries

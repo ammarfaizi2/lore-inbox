@@ -1,41 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264566AbUAaSOM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 13:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbUAaSOM
+	id S264941AbUAaS1G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 13:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbUAaS1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 13:14:12 -0500
-Received: from pop.gmx.net ([213.165.64.20]:20678 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264566AbUAaSOK convert rfc822-to-8bit
+	Sat, 31 Jan 2004 13:27:05 -0500
+Received: from wblv-36-186.telkomadsl.co.za ([165.165.36.186]:29572 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264941AbUAaS1B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 13:14:10 -0500
-X-Authenticated: #11949556
-From: Michael Schierl <schierlm-usenet@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.2-rc3
-Date: Sat, 31 Jan 2004 19:14:07 +0100
-Reply-To: schierlm@gmx.de
-References: <1jTdb-1DB-1@gated-at.bofh.it>
-In-Reply-To: <1jTdb-1DB-1@gated-at.bofh.it>
-X-Mailer: Forte Agent 1.93/32.576 English (American)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S264566AbUAaSOK/20040131181410Z+125@vger.kernel.org>
+	Sat, 31 Jan 2004 13:27:01 -0500
+Subject: Re: [ANNOUNCE] udev 015 release
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040131181559.GA22442@vrfy.org>
+References: <20040126215036.GA6906@kroah.com>
+	 <1075395125.7680.21.camel@nosferatu.lan> <20040129215529.GB9610@kroah.com>
+	 <20040131031718.GA21129@vrfy.org> <1075571697.7232.11.camel@nosferatu.lan>
+	 <20040131181559.GA22442@vrfy.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wV3O/EuhZtRHEZXxgkzu"
+Message-Id: <1075573621.7232.14.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 31 Jan 2004 20:27:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Jan 2004 03:40:05 +0100, in linux.kernel you wrote:
 
->Michael Schierl:
->  o [APM] Is this the correct way to fix suspend bug introduced
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--=-wV3O/EuhZtRHEZXxgkzu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-LOL && thanks for applying,
+On Sat, 2004-01-31 at 20:15, Kay Sievers wrote:
 
-Michael
--- 
-"New" PGP Key! User ID: Michael Schierl <schierlm@gmx.de>
-Key ID: 0x58B48CDD    Size: 2048    Created: 26.03.2002
-Fingerprint:  68CE B807 E315 D14B  7461 5539 C90F 7CC8
-http://home.arcor.de/mschierlm/mschierlm.asc
+> > get time to test your latest patch - anything specific you need testing
+> > of ?
+>=20
+> Nothing specific, I just need to know if it's working on other setups too=
+ :)
+>=20
+> Just compile it with DEBUG=3Dtrue and let the '/etc/hotplug.d/default/ude=
+v.hotplug'
+> symlink point to udevsend instead of udev. udevd will be automatically st=
+arted.
+> On reboot the first sequence I get in the syslog is 138 and udevd is pid =
+[51].
+>=20
+> Don't mount /udev as tmpfs. udevd places its socket and lock file in ther=
+e,
+> long before you mount it over. I just recognized it cause I had two
+> udevd running. /var/lock doesn't work cause it's also cleaned up after we
+> are running.
+>=20
+
+Our setup runs udev for creating /dev _very_ early, so I do not think
+this will be a problem - will let you know.
+
+> You may watch the syslog while connecting/disconnecting devices, to see i=
+f
+> the events are applied in the right order.
+>=20
+> thanks,
+> Kay
+--=20
+Martin Schlemmer
+
+--=-wV3O/EuhZtRHEZXxgkzu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAG/N1qburzKaJYLYRAo31AJ4nn5YaX16aZeFGVFlcc+VlIoYFagCgndeh
+9BYzXQgxmozo7+q01Wolwz8=
+=rZFm
+-----END PGP SIGNATURE-----
+
+--=-wV3O/EuhZtRHEZXxgkzu--
+

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262730AbSKDUY5>; Mon, 4 Nov 2002 15:24:57 -0500
+	id <S262721AbSKDU3m>; Mon, 4 Nov 2002 15:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262743AbSKDUY4>; Mon, 4 Nov 2002 15:24:56 -0500
-Received: from kim.it.uu.se ([130.238.12.178]:43720 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262730AbSKDUYz>;
-	Mon, 4 Nov 2002 15:24:55 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
+	id <S262743AbSKDU3l>; Mon, 4 Nov 2002 15:29:41 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:37054 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S262721AbSKDU3l>;
+	Mon, 4 Nov 2002 15:29:41 -0500
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Mon, 4 Nov 2002 13:34:20 -0700
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021104133420.E20427@duath.fsmlabs.com>
+References: <20021030233605.A32411@jaquet.dk> <20021031132607.E21801@borg.org> <20021031185308.GE30193@opus.bloom.county> <200211012054.34338.landley@trommello.org> <20021104195005.GB27298@opus.bloom.county>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15814.55581.459295.2217@kim.it.uu.se>
-Date: Mon, 4 Nov 2002 21:31:25 +0100
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] performance counters 3.1 for 2.5.45 [4/4]: kernel
-	changes
-In-Reply-To: <1036440740.18668.5.camel@dell_ss3.pdx.osdl.net>
-References: <200210312310.AAA07615@kim.it.uu.se>
-	<1036440740.18668.5.camel@dell_ss3.pdx.osdl.net>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021104195005.GB27298@opus.bloom.county>; from trini@kernel.crashing.org on Mon, Nov 04, 2002 at 12:50:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger writes:
- > On Thu, 2002-10-31 at 15:10, Mikael Pettersson wrote:
- > > This is part 4 of 4 of perfctr-3.1 for the 2.5.45 kernel:
- > > kernel changes to integrate the low and high-level drivers.
-...
- > 
- > Rather than adding yet another system call, shouldn't this be done by
- > extending the cpu part of sysfs (or /proc)?
+I'm with you on that.  People who clammer ignorantly about image size
+without looking at what they actually need should have opened their eyes in
+the last few years.  Flash and RAM sizes under 32M are nearly unheard of
+now-a-days.
 
-Why?
-ptrace() is a system call
-fork() is a system call
-write() is a system call
-other arch's performance counter interfaces are system calls
-...
+It would be a real disaster to construct a screwy and hard-to-maintain
+config system in order to achieve something that isn't necessary.  Image
+size does matter sometimes but a _maintainable_ and easy to use config
+system is far more important.
 
- > It looks like the operations in sys_vperfctr could be easily mapped to a
- > RAM based file system.  As it stands it reminds me of one of the old DEC
- > graphic libraries with one API entry for all the operations, and 65
- > different flag values.
+There are cases where squeezing the image is necessary for extremely
+specific applications of the system but those are darn rare now.
 
-There are about half a dozen operations, not 65. I could use 6 system calls,
-no problem, but as long as Linus is silent about this I have no reason to
-change it speculatively in random directions.
-
-/Mikael
+} CONFIG_TINY is an attempt to make it 'easier' on the embedded world.  I
+} work in the embedded world.  I'm trying to point out that kernel size is
+} not the biggest problem facing embedded linux people.  It's making the
+} kernel flexible enough, without being a guru of every subsystem you need
+} to change.

@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVCJGTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVCJGTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVCJGTO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 01:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVCJGPm
+	id S262383AbVCJGTX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 01:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVCIT7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 01:15:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39082 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262376AbVCJGN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 01:13:27 -0500
-Message-ID: <422FE571.7010101@pobox.com>
-Date: Thu, 10 Mar 2005 01:13:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: "David S. Miller" <davem@davemloft.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: bk commits and dates
-References: <1110422519.32556.159.camel@gaston>	 <20050309194744.6aef66b7.davem@davemloft.net> <1110433821.32524.176.camel@gaston>
-In-Reply-To: <1110433821.32524.176.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 14:59:16 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.98]:25086 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261213AbVCIThc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 14:37:32 -0500
+Date: Wed, 9 Mar 2005 11:37:28 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Dan Stromberg <strombrg@dcs.nac.uci.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: huge filesystems
+Message-ID: <20050309193728.GA7070@taniwha.stupidest.org>
+References: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> On Wed, 2005-03-09 at 19:47 -0800, David S. Miller wrote:
-> 
->>On Thu, 10 Mar 2005 13:41:59 +1100
->>Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->>
->>
->>>I don't know if I'm the only one to have a problem with that, but it
->>>would be nice if it was possible, when you pull a bk tree, to have the
->>>commit messages for the csets in that tree be dated from the day you
->>>pulled, and not the day when they went in the source tree.
->>
->>When I'm working, I just do "bk csets" after I pull from Linus's
->>tree to review what went in since the last time I pulled.
-> 
-> 
-> Yes, but the commit list archive is handy. I have quite good search
-> capabilities in my mailer for example, and sometimes, when doign
-> regression, it's quite useful to browse what went in between two
-> releases with it (it's just more handy than bk csets).
+On Wed, Mar 09, 2005 at 10:53:48AM -0800, Dan Stromberg wrote:
 
-Speaking strictly in terms of implementation, David Woodhouse's 
-bk-commits mailer scripts could probably easily be tweaked to -not- set 
-an explicit Date header on the outgoing emails.
+> My question is, what is the current status of huge filesystems - IE,
+> filesystems that exceed 2 terabytes, and hopefully also exceeding 16
+> terabytes?
 
-It then becomes a matter of deciding whether this is a good idea or not :)
+people can and do have >2T filesystems now.  some people on x86 have
+hit the 16TB limit and others are large still with 64-bit CPUs
 
-	Jeff
+> Am I correct in assuming that the usual linux buffer cache only goes
+> to 16 terabytes?
 
+for 32-bit CPUs
 
+> What about the "LBD" patches - what limits are involved there, and
+> have they been rolled into a Linus kernel, or one or more vendor
+> kernels?
 
+LBD is in 2.6.x and is required for >2TB but sometimes that means >1TB
+or even smaller depending on the drivers
+
+many drivers simply won't go above 2T even with CONFIG_LBD so you need
+to poke about and see what works for you (or use md/raid to glue
+together multiple 2TB volumes)

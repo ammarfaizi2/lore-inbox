@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUABAJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 19:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUABAJ2
+	id S261974AbUABASR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 19:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbUABASQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 19:09:28 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:58788 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S261784AbUABAJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 19:09:27 -0500
-Date: Fri, 2 Jan 2004 01:08:36 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, trond.myklebust@fys.uio.no,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] disable gcc warnings of sign/unsigned comparison
-Message-ID: <20040102000836.GC32477@louise.pinerecords.com>
-References: <20040101043333.186a3268.pj@sgi.com> <1072977297.1399.14.camel@nidelv.trondhjem.org> <20040101151516.236cb610.pj@sgi.com> <20040101153303.75d37307.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040101153303.75d37307.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Jan 2004 19:18:16 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:58292 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261974AbUABASF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 19:18:05 -0500
+Date: Thu, 1 Jan 2004 18:17:43 -0600
+Subject: Re: udev and devfs - The final word
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v553)
+Cc: Rob Love <rml@ximian.com>, Nathan Conrad <lk@bungled.net>,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+To: Tommi Virtanen <tv@tv.debian.net>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+In-Reply-To: <3FF34522.8060106@tv.debian.net>
+Message-Id: <15B77182-3CB9-11D8-A498-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.553)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan-01 2004, Thu, 15:33 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+On Wednesday, Dec 31, 2003, at 15:52 US/Central, Tommi Virtanen wrote:
+> I think devfs names are accepted as root= arguments, so that's a bit of
+> a loss.. with udev, your /dev and your root= are equal only if you
+> follow the standard naming.
+>
+> For root=, I can see how early userspace can move that to userspace.
+> But what about swsuspend?
+>
+> Are there any more kernel options taking file names? I think now would
+> be a good time to stop adding more of them :)
 
-> Paul Jackson <pj@sgi.com> wrote:
-> >
-> >  Right now, compiling a 2.6.0-mm1 (what I had handy) with the 3.3 gcc on
-> >  my Pentium system for arch i386 generates 1386 signed and unsigned
-> >  warnings
-> 
-> ugh, that is unacceptable.
-> 
-> Unless anyone has a better idea, yes, we should apply your patch.
+"console=" takes driver-supplied names which usually happen to match 
+/dev node names. For example, drivers/serial/8250.c names itself 
+"ttyS", so "console=ttyS0" will end up going to that driver, regardless 
+of the state of /dev.
 
-Hmm, this doesn't happen for me with gcc 3.3.2.  Paul, could you please
-send me your .config?  (Off-list, preferably.)
+I'm not saying that's good or bad, but what's the alternative? 
+"console=class/tty/ttyS0"?
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Hollis Blanchard
+IBM Linux Technology Center
+

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267572AbSLSGvY>; Thu, 19 Dec 2002 01:51:24 -0500
+	id <S267541AbSLSG5c>; Thu, 19 Dec 2002 01:57:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267573AbSLSGvY>; Thu, 19 Dec 2002 01:51:24 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:6929
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S267572AbSLSGvY>; Thu, 19 Dec 2002 01:51:24 -0500
-Subject: Re: modules oops in 2.5.52
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021219063839.40F322C080@lists.samba.org>
-References: <20021219063839.40F322C080@lists.samba.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040281164.1709.5.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 18 Dec 2002 22:59:24 -0800
+	id <S267543AbSLSG5c>; Thu, 19 Dec 2002 01:57:32 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:31435 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267541AbSLSG5b>; Thu, 19 Dec 2002 01:57:31 -0500
+Date: Wed, 18 Dec 2002 23:05:27 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Timothy D. Witham" <wookie@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Message-ID: <747650000.1040281526@titus>
+In-Reply-To: <1040276082.1476.30.camel@localhost.localdomain>
+References: <200212181908.gBIJ82M03155@devserv.devel.redhat.com>
+ <1040276082.1476.30.camel@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-18 at 21:55, Rusty Russell wrote:
-> Yes, it would be a problem.  But I don't think that's the problem
-> here, and I don't think it can actually happen (it's a pretty insane
-> idea).
-> 
-> BTW, I can't reproduce your problem, maybe because I can't unload
-> parport_pc here:
-> 
-> Module parport cannot be unloaded due to unsafe usage in drivers/parport/init.c:234
-> Module parport_pc cannot be unloaded due to unsafe usage in drivers/parport/parport_pc.c:1239
+> Related thought:
+>
+>   One of the things that we are trying to do is to automate
+> patch testing.
+>
+>   The PLM (www.osdl.org/plm) takes every patch that it gets
+> and does a quick "Does it compile test".  Right now there
+> are only 4 kernel configuration files that we try but we are
+> going to be adding more.  We could expand this to 100's
+> if needed as it would just be a matter of adding additional
+> hardware to make the compiles go faster in parallel.
 
-Well, I don't have any problem unloading it.  It doesn't show any
-messages or other warnings.  It also doesn't crash any more, so I'm not
-sure what's happening...
+URL doesn't seem to work. But would be cool if you had one SMP
+config, one UP with IO/APIC, and one without IO/APIC. I seem
+to break the middle one whenever I write a patch ;-(
 
-	J
+M.
 

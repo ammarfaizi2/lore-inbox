@@ -1,23 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285422AbRLGGBb>; Fri, 7 Dec 2001 01:01:31 -0500
+	id <S285423AbRLGGIW>; Fri, 7 Dec 2001 01:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285424AbRLGGBJ>; Fri, 7 Dec 2001 01:01:09 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:31758 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S285423AbRLGGBF>;
-	Fri, 7 Dec 2001 01:01:05 -0500
-Date: Thu, 6 Dec 2001 22:00:48 -0800
-From: Randy Dunlap <rddunlap@osdl.org>
-Message-Id: <200112070600.fB760mX25452@osdlab.pdx.osdl.net>
-To: clavoie@bmed.mcgill.ca, mikeg@wen-online.de
-Subject: Re: 2.4.17-pre5 will not boot
-Cc: davej@suse.de, linux-kernel@vger.kernel.org
+	id <S285424AbRLGGIM>; Fri, 7 Dec 2001 01:08:12 -0500
+Received: from ns.crrstv.net ([216.94.219.4]:19149 "EHLO mail.crrstv.net")
+	by vger.kernel.org with ESMTP id <S285423AbRLGGIC>;
+	Fri, 7 Dec 2001 01:08:02 -0500
+Date: Fri, 7 Dec 2001 02:07:44 -0400 (AST)
+From: skidley <skidley@crrstv.net>
+X-X-Sender: <skidley@localhost.localdomain>
+To: <devnull@geisel.info>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17-pre5 "make bzImage" fails
+In-Reply-To: <20011206195702.GA12755@geisel.info>
+Message-ID: <Pine.LNX.4.33L2.0112070206360.2900-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a loadlin replacement for larger kernels.
-See this email thread:
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=100252779201791&w=2
+On Thu, 6 Dec 2001 devnull@geisel.info wrote:
 
-  ~Randy
+> On Thu, Dec 06, 2001 at 02:53:16PM -0500, Jeff Garzik wrote:
+> > did you upgrade your binutils recently?
+>
+> Yes, I upgraded to binutils-2.11.92.0.7-3mdk from Mandrake cooker today.
+>
+That's the problem I had same version. I did rpm -Uvh --oldpackage of the
+old versions of binutils, libbinutils and it compiled fine
+-- 
+Chad Young
+Registered Linux User #195191 @ http://counter.li.org
 

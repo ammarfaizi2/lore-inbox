@@ -1,72 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318726AbSHQSoC>; Sat, 17 Aug 2002 14:44:02 -0400
+	id <S318710AbSHQSgQ>; Sat, 17 Aug 2002 14:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318729AbSHQSoC>; Sat, 17 Aug 2002 14:44:02 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:47781 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318726AbSHQSoA>;
-	Sat, 17 Aug 2002 14:44:00 -0400
-Date: Sat, 17 Aug 2002 20:48:57 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CLONE_DETACHED and exit notification (was user-vm-unlock-2.5.31-A2)
-In-Reply-To: <Pine.LNX.4.44.0208161033090.3193-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208172044540.16707-100000@localhost.localdomain>
+	id <S318711AbSHQSgQ>; Sat, 17 Aug 2002 14:36:16 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41745
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318710AbSHQSgP>; Sat, 17 Aug 2002 14:36:15 -0400
+Date: Sat, 17 Aug 2002 11:30:33 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+In-Reply-To: <5.1.0.14.2.20020817192217.02179a50@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.10.10208171127580.23171-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 16 Aug 2002, Linus Torvalds wrote:
+Anton,
 
-> Oh, good. If it turns out that even pthreads wants the futex, let's just
-> do it that way. Pls send in a patch once you have something tested
-> ready, ok?
+They will become PIO over DMA, and it will become interesting.
+But you are correct, we are stuck wit PIO regardless.
 
-tested patch (against BK-curr-ish) attached. glibc/pthreads had been
-updated to use the TID-futex, this removes an extra system-call and it
-also simplifies the pthread_join() code. The pthreads testcode works just
-fine with the new kernel and does not work with a kernel that does not do
-the futex wakeup, so it's working fine.
+Andre Hedrick
+LAD Storage Consulting Group
 
-	Ingo
+On Sat, 17 Aug 2002, Anton Altaparmakov wrote:
 
---- linux/include/linux/futex.h.orig	Sat Aug 17 20:45:01 2002
-+++ linux/include/linux/futex.h	Sat Aug 17 20:45:07 2002
-@@ -6,4 +6,6 @@
- #define FUTEX_WAKE (1)
- #define FUTEX_FD (2)
- 
-+extern asmlinkage int sys_futex(void *uaddr, int op, int val, struct timespec *utime);
-+
- #endif
---- linux/kernel/fork.c.orig	Sat Aug 17 20:45:17 2002
-+++ linux/kernel/fork.c	Sat Aug 17 20:46:30 2002
-@@ -26,6 +26,7 @@
- #include <linux/mman.h>
- #include <linux/fs.h>
- #include <linux/security.h>
-+#include <linux/futex.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -370,12 +371,14 @@
- 		tsk->vfork_done = NULL;
- 		complete(vfork_done);
- 	}
--	if (tsk->user_tid)
-+	if (tsk->user_tid) {
- 		/*
- 		 * We dont check the error code - if userspace has
- 		 * not set up a proper pointer then tough luck.
- 		 */
- 		put_user(0UL, tsk->user_tid);
-+		sys_futex(tsk->user_tid, FUTEX_WAKE, 1, NULL);
-+	}
- }
- 
- static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
+> At 19:16 17/08/02, Jan-Benedict Glaw wrote:
+> >On Fri, 2002-08-16 18:35:29 -0700, Linus Torvalds <torvalds@transmeta.com>
+> >wrote in message <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>:
+> > > On Fri, 16 Aug 2002, Alexander Viro wrote:
+> >
+> > >     - in particular, it would only bother with PCI (or better)
+> > >       controllers, and with UDMA-only setups.
+> >[...]
+> > > And then in five years, in Linux-3.2, we might finally just drop support
+> > > for the old IDE code with PIO etc. Inevitably some people will still use
+> >
+> >That's bad. Then, you're nailed to use old kernels without having
+> >possibilities of recent kernels only because you're working with eg. old
+> >Alphas, PCMCIA-IDE things or so? Bad, bad, badhorribly bad. Even it's
+> >sloooow, there'll always some need for PIO-only controller support...
+> 
+> I don't think it is possible to have DMA only drivers. On DMA 
+> failure/timeouts/whatever, the current DMA drivers always fall back to PIO 
+> mode and this is a good thing. Otherwise many transfers would simply fail. 
+> Dropping PIO mode fallback would mean a lot of IO errors. Any system put 
+> under stress will at some point fall back to PIO mode (at least judgjing 
+> from the limited number of systems I have) because it doesn't manage to do 
+> the DMA transfers in time. That was very visible during the period when 
+> Andre's new IDE core went into 2.5.something_early and it turned out that 
+> PIO was broken at that point. For example my VIA box was running just fine 
+> then in DMA mode but as soon as I put it under stress it blew up due to it 
+> falling out of DMA and the then broken PIO mode... And VIA686b is 
+> mainstream hardware...
+> 
+> Best regards,
+> 
+>          Anton
+> 
+> 
+> -- 
+>    "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+> -- 
+> Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+> Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+> WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

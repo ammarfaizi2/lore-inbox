@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267656AbTBRFy0>; Tue, 18 Feb 2003 00:54:26 -0500
+	id <S267671AbTBRGFP>; Tue, 18 Feb 2003 01:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267671AbTBRFy0>; Tue, 18 Feb 2003 00:54:26 -0500
-Received: from brynhild.mtroyal.ab.ca ([142.109.10.24]:43181 "EHLO
-	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S267656AbTBRFyY>; Tue, 18 Feb 2003 00:54:24 -0500
-Date: Mon, 17 Feb 2003 23:04:22 -0700 (MST)
-From: James Bourne <jbourne@mtroyal.ab.ca>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: lockups with 2.4.20 (tg3? net/core/dev.c|deliver_to_old_ones)
-In-Reply-To: <20030217.211214.26525652.davem@redhat.com>
-Message-ID: <Pine.LNX.4.51.0302172300380.12264@skuld.mtroyal.ab.ca>
-References: <Pine.LNX.4.51.0302141254160.32083@skuld.mtroyal.ab.ca>
- <20030217.184841.39166568.davem@redhat.com> <Pine.LNX.4.51.0302172117200.6864@skuld.mtroyal.ab.ca>
- <20030217.211214.26525652.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
+	id <S267675AbTBRGFP>; Tue, 18 Feb 2003 01:05:15 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:63912 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267671AbTBRGFN>; Tue, 18 Feb 2003 01:05:13 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH]  Add v850 version of `init_irq_proc' for sysctl
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20030218061507.6134837C2@mcspd15.ucom.lsi.nec.co.jp>
+Date: Tue, 18 Feb 2003 15:15:07 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Feb 2003, David S. Miller wrote:
-
-> Just because you have to do it doesn't mean anything to me.
-> 
-> That disclaimer is a liability for me, because it means that
-> I could get into trouble if I put your bug report into a database (for
-> example) and then forward that posting to other people privately in
-> order to work on the bug.
-
-This I understand, thanks for the explanation.  I will also pass it onto
-others at our institution as it then becomes a problem if I want to send a
-bug report to you...  Of course, I could always just use my home email I
-guess...
-
-Regards
-James
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
-
-
-"There are only 10 types of people in this world: those who
-understand binary and those who don't."
-
+diff -ruN -X../cludes linux-2.5.62-uc0.orig/arch/v850/kernel/irq.c linux-2.5.62-uc0/arch/v850/kernel/irq.c
+--- linux-2.5.62-uc0.orig/arch/v850/kernel/irq.c	2002-12-24 15:01:07.000000000 +0900
++++ linux-2.5.62-uc0/arch/v850/kernel/irq.c	2003-02-18 11:41:09.000000000 +0900
+@@ -1,8 +1,8 @@
+ /*
+  * arch/v850/kernel/irq.c -- High-level interrupt handling
+  *
+- *  Copyright (C) 2001,02  NEC Corporation
+- *  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
++ *  Copyright (C) 2001,02,03  NEC Corporation
++ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
+  *  Copyright (C) 1994-2000  Ralf Baechle
+  *  Copyright (C) 1992  Linus Torvalds
+  *
+@@ -713,3 +713,9 @@
+ 		base_irq += interval;
+ 	}
+ }
++
++#if defined(CONFIG_PROC_FS) && defined(CONFIG_SYSCTL)
++void init_irq_proc(void)
++{
++}
++#endif /* CONFIG_PROC_FS && CONFIG_SYSCTL */

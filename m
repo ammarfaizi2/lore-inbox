@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265603AbSKOCch>; Thu, 14 Nov 2002 21:32:37 -0500
+	id <S265608AbSKOCkb>; Thu, 14 Nov 2002 21:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbSKOCcg>; Thu, 14 Nov 2002 21:32:36 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:4038 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265603AbSKOCcg>; Thu, 14 Nov 2002 21:32:36 -0500
-Date: Thu, 14 Nov 2002 18:35:47 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <396026666.1037298946@[10.10.2.3]>
-In-Reply-To: <1037325839.13735.4.camel@rth.ninka.net>
-References: <1037325839.13735.4.camel@rth.ninka.net>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S265628AbSKOCka>; Thu, 14 Nov 2002 21:40:30 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:39339 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S265608AbSKOCka>; Thu, 14 Nov 2002 21:40:30 -0500
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <15828.24830.494099.469378@sofia.bsd2.kbnes.nec.co.jp>
+Date: Fri, 15 Nov 2002 11:50:38 +0900
+To: Skip Ford <skip.ford@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module-init-tools breaks kallsyms
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> While I have this on my mind I want to express this now since the
-> very first bug that hit my mailbox had this issue.
-> 
-> I DO NOT want to be working on bugs on anything other than Linus's
-> actualy sources.  The first bug I got was a networking bug with
-> Andrew Morton's -mm patches applied.
-> 
-> This isn't going to work if that is what people are going to be
-> allowed to do.
-> 
-> I want to suggest that all reported bug in the database must be
-> reporducable with some release done by Linus or his BK sources.
-> And also that we can automatically close any BUG submissions that
-> have other patches applied.
+Skip Ford writes on lkml:
 
-Hmmm ... I'm not sure that being that restrictive is going to help.
-Whilst bugs against any randomly patched version of the kernel
-probably aren't that interesting, things in major trees like -mm, 
--ac, -dj etc are likely going to end up in mainline sooner or later
-anyway ... wouldn't you rather know of the breakage sooner rather
-than later?
+> Install of module-init-tools moves the old tools to *.old but it
+> doesn't address kallsyms. In the case of kallsyms being a link to
+> insmod, it breaks. Since the new insmod is supposed to call
+> insmod.old when appropriate, I'm not sure why it breaks. But it
+> doesn't work here.
 
-Recall when some random idiot broke sparc64 by mucking with 
-free_area_init_node? Those changes had been sitting in -mm tree
-for a while ;-) (and yes, that was me).
+> To successfully compile a kernel < 2.5.47-bk2 after
+> module-init-tools installation, with kallsyms being a symlink, you
+> need to link it to insmod.old instead.
 
-M.
+I've made a merged rpm of modutils and module-init-tools that deals
+with this and sent it to Rusty.
 

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315485AbSEHCul>; Tue, 7 May 2002 22:50:41 -0400
+	id <S315488AbSEHCtf>; Tue, 7 May 2002 22:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315490AbSEHCuk>; Tue, 7 May 2002 22:50:40 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:15249 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315485AbSEHCuj>;
-	Tue, 7 May 2002 22:50:39 -0400
-Message-ID: <3CD89247.8ECB01A4@vnet.ibm.com>
-Date: Tue, 07 May 2002 21:49:43 -0500
-From: Dave Engebretsen <engebret@vnet.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
-X-Accept-Language: en
+	id <S315486AbSEHCte>; Tue, 7 May 2002 22:49:34 -0400
+Received: from [61.177.73.15] ([61.177.73.15]:20451 "HELO john")
+	by vger.kernel.org with SMTP id <S315484AbSEHCtd>;
+	Tue, 7 May 2002 22:49:33 -0400
+From: =?gb2312?q?=B7=B2=C8=CB_<ese@371.net>?=
+Reply-To: ese@371.net
+Subject: =?gb2312?q?=D2=BB=B8=F6=C8=AB=B9=FA=D0=D4=B5=C4=C6=A4=B7=F4=D0=D4=B2=A1=C2=DB=CC=B3=A3=AC=BB=E3=BC=AF=BE=AD=D1=E9=D3=EB=D7=A8=BC=D2=D2=E2=BC=FB?=
+Date: Wed, 08 May 2002 10:49:36 +0800
 MIME-Version: 1.0
-To: justincarlson@cmu.edu
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Memory Barrier Definitions
-In-Reply-To: <E175BY8-0008S4-00@the-village.bc.nu> <1020809750.13627.24.camel@gs256.sp.cs.cmu.edu>
-X-MIMETrack: Itemize by SMTP Server on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
- 05/07/2002 09:49:50 PM,
-	Serialize by Router on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
- 05/07/2002 09:49:52 PM,
-	Serialize complete at 05/07/2002 09:49:52 PM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="7924cf42-992a-4a1a-aee9-96668e251a9f"
+Message-Id: <20020508024933Z315484-22651+24768@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-justincarlson@cmu.edu wrote:
-> 
-> On Tue, 2002-05-07 at 16:27, Alan Cox wrote:
-> > and our current heirarchy is a little bit more squashed than that. I'd
-> > agree. We actually hit a corner case of this on the IDT winchip x86 where
-> > we run relaxed store ordering and have to define wmb() as a locked add of
-> > zero to the top of stack - which does have a penalty that isnt needed
-> > for CPU ordering.
-> >
-> > How much of this impacts Mips64 ?
-> 
-> In terms of the MIPS{32|64} ISA, the current primitives seem fine;
-> there's only 1 option defined in the ISA:  'sync'.  Order for all
-> off-cache accesses is guaranteed around a sync.
-> 
-> It gets a bit more complicated when you talk about what particular
-> implementations do, and ordering rules for uncached vs cached accesses,
-> but to the best of my knowledge there aren't any fundamental problems as
-> described for the PPC.
-> 
-> -Justin
 
-PPC also guarantees every ordering when using the 'sync' instruction, so
-that will give correctness at the price of a 1000 cycles or so.  You
-refer to different rules for cached vs uncached on other implementations
--- that is the essence of our problem.  Are there different barrier
-instructions in MIPS which provide different levels of performance for
-different ordering enforcements?
+This is a multi-part message in MIME format
+--7924cf42-992a-4a1a-aee9-96668e251a9f
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: quoted-printable
 
-Dave.
+=C6=A4=B7=F4=CA=C7=C8=CB=B5=C4=B5=DA=D2=BB=BC=FE=D2=C2=B7=FE=A3=AC=D2=B2=CA=C7=
+=CE=A8=D2=BB=BC=B8=BA=F5=CE=DE=B7=A8=B8=FC=BB=BB=B5=C4=D2=C2=B7=FE=A3=A1
+=B1=A3=BB=A4=BA=C3=C6=A4=B7=F4=B1=E3=CA=C7=C8=CB=C8=CB=B5=C4=CF=A3=CD=FB=A3=AC=
+=C8=BB=B6=F8=C6=A4=B7=F4=B7=BD=C3=E6=B5=C4=BC=B2=B2=A1=BB=B9=CA=C7
+=CA=B1=CA=B1=C7=D6=C8=C5=D7=C5=CE=D2=C3=C7=A3=AC=B8=F8=CE=D2=C3=C7=B4=F8=C0=B4=
+=D6=D6=D6=D6=B2=BB=B1=E3=A3=AC=CE=AA=B4=CB=B7=B2=C8=CB=C9=E7=C7=F8
+=CC=D8=BF=AA=C9=E8=C6=A4=B7=F4=D0=D4=B2=A1=C2=DB=CC=B3=A3=AC=D6=D8=B5=E3=CC=D6=
+=C2=DB=D6=CE=C1=C6=BE=AD=D1=E9=B2=A2=C1=D0=BE=D9=D7=A8=BC=D2=D2=E2
+=BC=FB=A1=A3=C8=E7=B9=FB=C4=FA=D3=D0=C8=CE=BA=CE=CE=CA=CC=E2=A3=AC=CF=E0=D0=C5=
+=D5=E2=C0=EF=B5=C4=D7=A8=BC=D2=B6=BC=BB=E1=B8=F8=C4=FA=C2=FA=D2=E2
+=B5=C4=B4=F0=B8=B4=A1=A3
+       =BE=AB=D0=C4=BA=C7=BB=A4=C4=FA=B5=C4=C6=A4=B7=F4=A3=AC=B4=D3=CF=D6=D4=
+=DA=BF=AA=CA=BC=A3=A1
+http://ems.ma.cx/forumdisplay.php?s=3D&forumid=3D131  
+--7924cf42-992a-4a1a-aee9-96668e251a9f--
+

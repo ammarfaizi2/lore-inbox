@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275258AbTHMPyL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 11:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275264AbTHMPyK
+	id S275266AbTHMP5W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 11:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275268AbTHMP5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 11:54:10 -0400
-Received: from angband.namesys.com ([212.16.7.85]:49554 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S275258AbTHMPyI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 11:54:08 -0400
-Date: Wed, 13 Aug 2003 19:54:07 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Catalin BOIE <util@deuroconsult.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test2mm4 reiser bug? Buffer I/O error on device hda2, logica...
-Message-ID: <20030813155407.GA27436@namesys.com>
-References: <Pine.LNX.4.56.0308131151070.11964@hosting.rdsbv.ro>
+	Wed, 13 Aug 2003 11:57:22 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:24257 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S275266AbTHMP5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 11:57:19 -0400
+Date: Thu, 14 Aug 2003 01:54:50 +1000
+From: CaT <cat@zip.com.au>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Message-ID: <20030813155449.GA488@zip.com.au>
+References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0308131151070.11964@hosting.rdsbv.ro>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1060654733.684.267.camel@localhost>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Aug 11, 2003 at 07:18:53PM -0700, Robert Love wrote:
+> On Mon, 2003-08-11 at 19:02, CaT wrote:
+> > Is there any interest ins omeone 'fixing up' as many structs in the
+> > kernel from the form:
+> 
+> Yes, indeed, especially for 2.6. There has been a lot of work already in
+> this direction -- not too much should be left.
 
-On Wed, Aug 13, 2003 at 11:55:25AM +0300, Catalin BOIE wrote:
+Cool. Since noone screamed 'OH FOR THE LOVE OF GOD, NO!' I'll do it (or
+at least try to :) Should hopefully have something by the weekend. :)
 
-> But I get something like:
-> vs-8115: get_num_ver: not directory item
-> Do I have to worry?
+> > And if so, what form should I feed it back in? Big patches? 1 patch
+> > per file? 1 per dir?
+> 
+> Whatever makes most sense. One per directory is probably OK for most
+> things.
 
-Time to get latest reiserfsprogs off ftp.namesys.com and check your
-filesystem it seems.
+Cool.
 
-Bye,
-    Oleg
+-- 
+"How can I not love the Americans? They helped me with a flat tire the
+other day," he said.
+	- http://tinyurl.com/h6fo

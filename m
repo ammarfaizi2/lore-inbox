@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSFOWlI>; Sat, 15 Jun 2002 18:41:08 -0400
+	id <S315709AbSFOWl6>; Sat, 15 Jun 2002 18:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSFOWlH>; Sat, 15 Jun 2002 18:41:07 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:50264 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S315708AbSFOWlF>; Sat, 15 Jun 2002 18:41:05 -0400
-Message-Id: <5.0.2.1.2.20020616003031.02a06330@pop.puretec.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sun, 16 Jun 2002 00:40:50 +0200
-To: Douglas Gilbert <dougg@torque.net>, Andries.Brouwer@cwi.nl
-From: Sancho Dauskardt <sancho@dauskardt.de>
-Subject: Re: /proc/scsi/map
-Cc: garloff@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net,
-        linux1394-devel@lists.sourceforge.net
-In-Reply-To: <3D0BBF4B.42E355A6@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S315717AbSFOWl4>; Sat, 15 Jun 2002 18:41:56 -0400
+Received: from waste.org ([209.173.204.2]:20404 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S315709AbSFOWlm>;
+	Sat, 15 Jun 2002 18:41:42 -0400
+Date: Sat, 15 Jun 2002 17:41:28 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][TRIVIAL] Print a KERN_INFO after a module gets loaded 
+In-Reply-To: <Pine.LNX.4.44.0206151110140.5254-100000@alumno.inacap.cl>
+Message-ID: <Pine.LNX.4.44.0206151739270.26335-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 15 Jun 2002, Robinson Maureira Castillo wrote:
 
+> On Sat, 15 Jun 2002, Zwane Mwaikambo wrote:
+> >
+> > And when this gets to mainline, what stops your hacker from removing the
+> > printk from displaying? The way i see it, if the person is loading modules
+> > you're screwed beyond help.
+> >
 >
->In lk 2.5 we are hoping that driverfs will give us an
->"information bridge" between scsi pseudo devices
->and other driver subsystems such as ide, usb and iee1394.
->Mike Sullivan's persistent naming patch (that I mentioned
->in my previous post on this thread) adds driverfs capability
->into the scsi subsystem. Driverfs capability is already
->in the ide and usb subsystems.
-Driverfs will hopefully solve the problem, of "oh there's a SCSI device. 
-how is it connected ?".
+> That's why I was asking for a better place to put this printk,
 
-But to date, SCSI doesn't know about the GUID's, right ?
-And without this, we won't get a uniform way of creating stable names for 
-hot-plugable devices...
+The better place is before the attacker gets root access. After that, all
+bets are off.
 
-- sda
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUIOPpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUIOPqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266490AbUIOPpW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIOPpW
+	id S266513AbUIOPqy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUIOPqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:45:22 -0400
-Received: from pyxis.pixelized.ch ([213.239.200.113]:30126 "EHLO
-	pyxis.pixelized.ch") by vger.kernel.org with ESMTP id S266490AbUIOPpN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:45:13 -0400
-Message-ID: <4148637F.9060706@debian.org>
-Date: Wed, 15 Sep 2004 17:45:03 +0200
-From: "Giacomo A. Catenazzi" <cate@debian.org>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Wed, 15 Sep 2004 11:46:54 -0400
+Received: from zero.aec.at ([193.170.194.10]:19462 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266513AbUIOPqt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:46:49 -0400
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+References: <2EJTp-7bx-1@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 15 Sep 2004 17:46:46 +0200
+In-Reply-To: <2EJTp-7bx-1@gated-at.bofh.it> (Ingo Molnar's message of "Wed,
+ 15 Sep 2004 17:30:07 +0200")
+Message-ID: <m3vfefa61l.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Tonnerre <tonnerre@thundrix.ch>
-CC: Ian Campbell <icampbell@arcom.com>, Greg KH <greg@kroah.com>,
-       "Marco d'Itri" <md@Linux.IT>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: udev is too slow creating devices
-References: <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian> <20040915152019.GD24818@thundrix.ch>
-In-Reply-To: <20040915152019.GD24818@thundrix.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> writes:
 
+> the attached patch is a new approach to get rid of Linux's Big Kernel
+> Lock as we know it today.
 
-Tonnerre wrote:
-> 
-> On Wed, Sep 15, 2004 at 03:36:06PM +0100, Ian Campbell wrote:
-> 
->>I wonder if it would be feasible for modprobe (or some other utility) to
->>have a new option: --wait-for=/dev/something which would wait for the
->>device node to appear. Perhaps by:
->>	- some mechanism based on HAL, DBUS, whatever
->>	- dnotify on /dev/?
->>	- falling back to spinning and waiting.
-> 
-> 
-> This would  end up  as hideous misfeature  as you can't  guarantee the
-> device to show up *at* *all*.
-> 
-> The reason udev is there is that we can dynamically respond to created
-> device nodes and  devices that show up. They  might have changed since
-> the last boot. Maybe they don't show up at all.
-> 
-> Thus you should trigger your actions from /etc/dev.d.
+Interesting approach. Did you measure what it does to context
+switch rates? Usually adding semaphores tends to increase them
+a lot.
 
-It is right.
-But an option --wait would be sufficient.
-This option will require modprobe to wait (with a timeout of
-x seconds) that hotplug event finish (so if device is created or
-not is no more a problem).
-Ideally this should be done modifing only hotplug and IMHO
-should be enabled by default.
+One minor comment only: 
+Please CSE "current" manually. It generates much better code
+on some architectures because the compiler cannot do it for you.
 
-ciao
-	cate
+-Andi
+

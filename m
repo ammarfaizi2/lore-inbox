@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLKRGN>; Mon, 11 Dec 2000 12:06:13 -0500
+	id <S129423AbQLKR0A>; Mon, 11 Dec 2000 12:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbQLKRGE>; Mon, 11 Dec 2000 12:06:04 -0500
-Received: from virtualro.ic.ro ([194.102.78.138]:37387 "EHLO virtualro.ic.ro")
-	by vger.kernel.org with ESMTP id <S129226AbQLKRFt>;
-	Mon, 11 Dec 2000 12:05:49 -0500
-Date: Mon, 11 Dec 2000 18:34:30 +0200 (EET)
-From: Jani Monoses <jani@virtualro.ic.ro>
-To: mj@suse.cz
-cc: linux-kernel@vger.kernel.org
-Subject: [minor patch] pci.h 
-Message-ID: <Pine.LNX.4.10.10012111826110.2565-100000@virtualro.ic.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129464AbQLKRZv>; Mon, 11 Dec 2000 12:25:51 -0500
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:54487 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S129423AbQLKRZp>; Mon, 11 Dec 2000 12:25:45 -0500
+From: Ulrich.Weigand@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: linux-kernel@vger.kernel.org
+cc: schwidefsky@de.ibm.com
+Message-ID: <C12569B2.005C9182.00@d12mta01.de.ibm.com>
+Date: Mon, 11 Dec 2000 17:51:04 +0100
+Subject: NFS: set_bit on an 'int' variable OK for 64-bit?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Martin
-	this patch makes computing of pci_resource_len a bit more
-straightforward and hopefully still correct.Plus an aesthetic change in a
-struct declaration :)
 
---- /usr/src/clean/linux/include/linux/pci.h	Mon Dec 11 16:49:19 2000
-+++ pci.h	Mon Dec 11 17:54:24 2000
-@@ -432,8 +432,7 @@
- 	int (*write_dword)(struct pci_dev *, int where, u32 val);
- };
- 
--struct pbus_set_ranges_data
--{
-+struct pbus_set_ranges_data {
- 	int found_vga;
- 	unsigned long io_start, io_end;
- 	unsigned long mem_start, mem_end;
-@@ -636,9 +635,8 @@
- #define pci_resource_end(dev,bar)     ((dev)->resource[(bar)].end)
- #define pci_resource_flags(dev,bar)   ((dev)->resource[(bar)].flags)
- #define pci_resource_len(dev,bar) \
--	((pci_resource_start((dev),(bar)) == 0 &&	\
--	  pci_resource_end((dev),(bar)) ==		\
--	  pci_resource_start((dev),(bar))) ? 0 :	\
-+	(!(pci_resource_start((dev),(bar)) ||		\
-+	   pci_resource_end((dev),(bar)))  ? 0 :	\
- 	  						\
- 	 (pci_resource_end((dev),(bar)) -		\
- 	  pci_resource_start((dev),(bar)) + 1))
+Hello,
+
+since test11, the NFS code uses the set_bit and related routines
+to manipulate the wb_flags member of the nfs_page struct (nfs_page.h).
+Unfortunately, wb_flags has still data type 'int'.
+
+This is a problem (at least) on the 64-bit S/390 architecture,
+as our ..._bit macros assume bit 0 is the least significant bit
+of a 'long', which means due to big-endian byte order that bit 0
+resides in the 7th byte of the variable.  As an int occupies only
+4 bytes, however, set_bit(0, int) clobbers memory.
+
+Now the question is, who's correct?
+
+At all other places (I found, at least), the ..._bit macros
+are indeed used only on 'long' variables (or arrays).
+
+However, on the Alpha, the ..._bit routines assume bit 0 to
+be the least significant bit of an 'int'. Sparc64 on the other
+hand also uses 'long'  :-/
+
+What do you suggest we should do?   Fix nfs_page to use a 'long'
+variable, or change our bitops macros to use ints?
+
+
+Mit freundlichen Gruessen / Best Regards
+
+Ulrich Weigand
+
+--
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
 
 
 -

@@ -1,66 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262184AbUCGQIl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 11:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUCGQIl
+	id S262143AbUCGQQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 11:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbUCGQQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 11:08:41 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:29917 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262184AbUCGQIj (ORCPT
+	Sun, 7 Mar 2004 11:16:08 -0500
+Received: from ns.suse.de ([195.135.220.2]:55684 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262143AbUCGQPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 11:08:39 -0500
-Date: Sun, 7 Mar 2004 17:08:24 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andreas Gruenbacher <agruen@suse.de>, Sam Ravnborg <sam@ravnborg.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "kbuild-devel@lists.sourceforge.net" 
-	<kbuild-devel@lists.sourceforge.net>
-Subject: Re: External kernel modules, second try
-Message-ID: <20040307160824.GA14967@devserv.devel.redhat.com>
-References: <1078620297.3156.139.camel@nb.suse.de> <20040307125348.GA2020@mars.ravnborg.org> <1078664629.9812.1.camel@laptop.fenrus.com> <1078667199.3594.50.camel@nb.suse.de> <1078668091.9106.1.camel@laptop.fenrus.com> <20040307160527.GA2027@mars.ravnborg.org>
+	Sun, 7 Mar 2004 11:15:52 -0500
+Date: Sun, 7 Mar 2004 17:15:50 +0100
+From: Olaf Hering <olh@suse.de>
+To: nathans@sgi.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: linux-2.5 cset 1.1654.1.2  xfs filemap_flush() unresolved
+Message-ID: <20040307161550.GA2812@suse.de>
+References: <20040307052556.4BABC468E4@mandarine.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20040307160527.GA2027@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040307052556.4BABC468E4@mandarine.suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Mar 07, 2004 at 05:05:27PM +0100, Sam Ravnborg wrote:
-> On Sun, Mar 07, 2004 at 03:01:31PM +0100, Arjan van de Ven wrote:
-> > >  and it's missing the symbols from
-> > > module files.
-> >=20
-> > sure but the module files are generally installed...
-> I'm aiming for a situation where I can build external modules,
-> using an almost clean kernel src tree.
-
-Personally I don't see the point. I'm perfectly happy with the current
-situation with the exception of not using System.map and co.
-
-=46rom a distribution kernel pov; I already ship a subset of files for buil=
-ding
-modules against (basically include/, the KConfig and makefiles), which only
-not 100% works because I don't ship vmlinux.
+filemap_flush() is not an exported symbol, at least not in my tree.
 
 
---MGYHOYXEY6WxJCY8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> ChangeSet
+>   1.1654.1.2 04/03/06 14:47:10 nathans@sgi.com +1 -0
+>   [XFS] Fix out-of-space deadlock when flushing delalloc data with pages locked under write.
+>   
+>   SGI Modid: xfs-linux:xfs-kern:167948a
+> 
+>   fs/xfs/linux/xfs_super.c
+>     1.70 04/03/06 14:46:51 nathans@sgi.com +1 -1
+>     [XFS] Fix out-of-space deadlock when flushing delalloc data with pages locked under write.
+> 
+> .........................................................................
+> # This is a BitKeeper generated patch for the following project:
+> # Project Name: Linux kernel tree
+> # This patch format is intended for GNU patch command version 2.5 or higher.
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.1654.1.1 -> 1.1654.1.2
+> #	fs/xfs/linux/xfs_super.c	1.69    -> 1.70   
+> #
+> # The following is the BitKeeper ChangeSet Log
+> # --------------------------------------------
+> # 04/03/06	nathans@sgi.com	1.1654.1.2
+> # [XFS] Fix out-of-space deadlock when flushing delalloc data with pages locked under write.
+> # 
+> # SGI Modid: xfs-linux:xfs-kern:167948a
+> # --------------------------------------------
+> #
+> diff -Nru a/fs/xfs/linux/xfs_super.c b/fs/xfs/linux/xfs_super.c
+> --- a/fs/xfs/linux/xfs_super.c	Sun Mar  7 06:25:54 2004
+> +++ b/fs/xfs/linux/xfs_super.c	Sun Mar  7 06:25:54 2004
+> @@ -247,7 +247,7 @@
+>  {
+>  	struct inode	*inode = LINVFS_GET_IP(XFS_ITOV(ip));
+>  
+> -	filemap_fdatawrite(inode->i_mapping);
+> +	filemap_flush(inode->i_mapping);
+>  }
+>  
+>  void
+> .........................................................................
+> # vim: syntax=diff
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+-- 
+USB is for mice, FireWire is for men!
 
-iD8DBQFAS0j3xULwo51rQBIRApWdAJ9ue9FTMNFuXYjPhawsezYGahajpgCfdbIX
-4+LpaMLE5w7Wth9TMyeRBcE=
-=/mDQ
------END PGP SIGNATURE-----
-
---MGYHOYXEY6WxJCY8--
+sUse lINUX ag, nÜRNBERG

@@ -1,99 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTJFNLO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 09:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbTJFNLO
+	id S262072AbTJFNaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTJFNaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 09:11:14 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:50370 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262041AbTJFNLL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 09:11:11 -0400
-Message-ID: <3F816AB6.6020709@terra.com.br>
-Date: Mon, 06 Oct 2003 10:14:30 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>, cgoos@syskonnect.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux@syskonnect.de
-Subject: [PATCH] release region in skfddi driver
-Content-Type: multipart/mixed;
- boundary="------------050105000606010901090809"
+	Mon, 6 Oct 2003 09:30:12 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:41195 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id S262072AbTJFNaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 09:30:06 -0400
+Date: Mon, 06 Oct 2003 15:29:56 +0200
+From: Domen Puncer <domen@coderock.org>
+Subject: 3c59x on 2.6.0-test3->test6 slow
+To: linux-kernel@vger.kernel.org
+Message-id: <200310061529.56959.domen@coderock.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.5.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050105000606010901090809
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi.
 
-	Hi Jeff/Christoph,
+[cc me in reply]
 
-	Patch against 2.6.0-test6.
+Works slow (~35kB/s) on kernels 2.6.0-test3 and newer. I can trace this to wol
+removal patch. (reloading doesn't help, like in test2 case, see below)
 
-	- Check the return value of request_region;
+But there's another problem:
+On 2.6.0-test2 it works normal, but only when i reload (rmmod/modprobe) the
+driver.
+After this reloading i can't get it back into "slow" mode even if i use test3 or
+newer driver.
+One thing to note: when it works ok, i get this in dmesg:
+eth0: Setting full-duplex based on MII #24 link partner capability of 0141.
 
-	- Only increment the global adapter value if request_region returned 
-a valid pointer;
+erikm suggested running mii-tool -r eth0, output i get:
+# mii-tool -r eth0
+SIOCGMIIPHY on 'eth0' failed: Operation not supported
+# mii-tool
+SIOCGMIIPHY on 'eth0' failed: Operation not supported
+no MII interfaces found
 
-	- release_region if global adapter value > 0;
+# lspci -v
+00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 34)
+        Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
+        Flags: bus master, medium devsel, latency 32, IRQ 10
+        I/O ports at d000 [size=128]
+        Memory at db000000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 1
 
-	Found by smatch.
+# lspci -vv
+00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 34)
+        Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2500ns min, 2500ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at d000 [size=128]
+        Region 1: Memory at db000000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
 
-	Please review and consider applying,
 
-	Cheers.
 
-Felipe
+If there's any more testing/trying patches i can do, i'll be glad to.
 
---------------050105000606010901090809
-Content-Type: text/plain;
- name="skfddi-region.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="skfddi-region.patch"
 
---- linux-2.6.0-test6/drivers/net/skfp/skfddi.c.orig	2003-10-06 09:47:16.000000000 -0300
-+++ linux-2.6.0-test6/drivers/net/skfp/skfddi.c	2003-10-06 10:03:14.000000000 -0300
-@@ -394,11 +394,15 @@
- 			skb_queue_head_init(&smc->os.SendSkbQueue);
- 
- 			if (skfp_driver_init(dev) == 0) {
-+				if (!request_region(dev->base_addr,
-+					       FP_IO_LEN, dev->name)){
-+					kfree (dev);
-+					return -EBUSY;
-+				}
-+
- 				// only increment global board 
- 				// count on success
- 				num_boards++;
--				request_region(dev->base_addr,
--					       FP_IO_LEN, dev->name);
- 				if ((SubSysId & 0xff00) == 0x5500 ||
- 					(SubSysId & 0xff00) == 0x5800) {
- 				printk("%s: SysKonnect FDDI PCI adapter"
-@@ -411,11 +415,8 @@
- 			} else {
- 				kfree(dev);
- 				i = SKFP_MAX_NUM_BOARDS;	// stop search
--
- 			}
--
- 		}		// if (dev != NULL)
--
- 	}			// for SKFP_MAX_NUM_BOARDS
- 
- 	/*
-@@ -427,6 +428,7 @@
- 	if (num_boards > 0)
- 		return (0);
- 	else {
-+		release_region (dev->base_addr, FP_IO_LEN);
- 		printk("no SysKonnect FDDI adapter found\n");
- 		return (-ENODEV);
- 	}
-
---------------050105000606010901090809--
+	Domen
 

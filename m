@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265824AbUFDPrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265828AbUFDPsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265824AbUFDPrk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 11:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUFDPrk
+	id S265828AbUFDPsz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 11:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbUFDPsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 11:47:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49028 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265824AbUFDPri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 11:47:38 -0400
-Date: Fri, 4 Jun 2004 08:47:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Andy Lutomirski <luto@myrealbox.com>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, suresh.b.siddha@intel.com,
-       jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
-In-Reply-To: <20040604154142.GF16897@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org>
-References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de>
- <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com>
- <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org>
- <20040604154142.GF16897@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Jun 2004 11:48:55 -0400
+Received: from [82.228.82.76] ([82.228.82.76]:15866 "EHLO
+	paperstreet.colino.net") by vger.kernel.org with ESMTP
+	id S265828AbUFDPsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 11:48:47 -0400
+Date: Fri, 4 Jun 2004 17:48:18 +0200
+From: Colin Leroy <colin@colino.net>
+To: Michel <daenzer@debian.org>, Benjamin <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.7-rc2: no more AGP?
+Message-Id: <20040604174818.03a4f795@jack.colino.net>
+Organization: 
+X-Mailer: Sylpheed version 0.9.10claws67.4 (GTK+ 2.4.0; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+just a lousy bugreport... I noticed that agpgart doesn't work anymore on
+2.6.7-rc2. Xorg reports that AGP isn't supported, and dmesg doesn't show
+the
+agpgart: Putting AGP V2 device at 0000:00:0b.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:00:10.0 into 4x mode
 
-On Fri, 4 Jun 2004, Arjan van de Ven wrote:
-> 
-> the prelink rpm on Fedora has such a tool already fwiw.
-> (it's part of prelink because the elf manipulations needed are quite similar
-> to the ones prelink does so infrastructure is shared)
+It only shows
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected Apple UniNorth 2 chipset
+agpgart: Maximum main memory to use for agp memory: 565M
+agpgart: configuring for size idx: 4
+agpgart: AGP aperture is 16M @ 0x0
 
-Just for fun, can somebody that has the required hardware just test old 
-apps with NX turned on? 
+Using 2.6.6, it works fine. 
 
-I know we used to put the signal handler trampoline on the stack, but
-these days that should all be handled with the magic executable syscall
-page, so _normally_ I don't think an old application should even really
-care.
-
-In fact, it would be interesting to just hear somebody running an older
-distribution with a new CPU and a new kernel, and see just how many
-programs need to be marked non-NX in "normal running".
-
-		Linus
+hth,
+-- 
+Colin

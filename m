@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131194AbRCKCUf>; Sat, 10 Mar 2001 21:20:35 -0500
+	id <S131201AbRCKC1f>; Sat, 10 Mar 2001 21:27:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131196AbRCKCUZ>; Sat, 10 Mar 2001 21:20:25 -0500
-Received: from s057.dhcp212-109.cybercable.fr ([212.198.109.57]:62728 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131194AbRCKCUP>; Sat, 10 Mar 2001 21:20:15 -0500
-Message-ID: <3AAAE073.4C18B7F8@baretta.com>
-Date: Sun, 11 Mar 2001 03:18:27 +0100
-From: Alex Baretta <alex@baretta.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible bug with poll syscall
-In-Reply-To: <3AAA2ADE.E8FF41E3@baretta.com> <3AAA5273.67DC90EF@baretta.com>
+	id <S131204AbRCKC1P>; Sat, 10 Mar 2001 21:27:15 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:29169 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S131201AbRCKC1F>;
+	Sat, 10 Mar 2001 21:27:05 -0500
+Date: Sat, 10 Mar 2001 18:30:20 -0800
+From: Greg KH <greg@kroah.com>
+To: David Huggins-Daines <dhd@eradicator.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac12 and ac13 breaks usb-visor
+Message-ID: <20010310183020.A11479@wirex.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	David Huggins-Daines <dhd@eradicator.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E14aQA9-0001br-00@the-village.bc.nu> <20010307172056.A8647@austin.rr.com> <20010307173640.A14818@kroah.com> <20010308140103.A17993@austin.rr.com> <20010308160758.A16296@kroah.com> <20010309141332.A29339@austin.rr.com> <20010309133112.A17792@kroah.com> <871ys6xtk7.fsf@monolith.eradicator.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <871ys6xtk7.fsf@monolith.eradicator.org>; from dhd@eradicator.org on Fri, Mar 09, 2001 at 09:10:32PM -0500
+X-Operating-System: Linux 2.4.2-ac14 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Baretta wrote:
-> 
-> Alex Baretta wrote:
-> >
-> > I am using poll with the POLLIN flag to wait for connection
-> > requests on a set of listening sockets in a server process.
-> > Although clients attempt to connect to those sockets, poll does
-> > returns zero after the expiration of the timeout.
-...
+On Fri, Mar 09, 2001 at 09:10:32PM -0500, David Huggins-Daines wrote:
+> It's the one listed in arch/i386/defconfig.  Of course, it's debatable
+> whether that actually means 'default' or not (since in fact it's more
+> like 'what Linus uses'), but plenty of people will see it as such.
 
-There was a bug in my code. I am unable to find it, but I wrote a
-minimal to case to prove my point, and actually I proved myself
-wrong. Test case follows. If I ever find the time I'll try to
-experiment and discover why in "the real thing" poll did not work
-for me.
+Thanks for pointing that out to me, I think it's time for a
+documentation patch :)
 
+greg k-h
 
-#include <sys/poll.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdio.h>
-
-int main(int argc, char **argv) {
-  struct pollfd fds;
-  int res1, res2, nevents;
-  struct sockaddr_in sockaddr;
-
-  fds.fd = socket(PF_INET, SOCK_STREAM, 0);
-  fds.events = POLLIN;
-  
-  
-  sockaddr.sin_family = AF_INET;
-  sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  sockaddr.sin_port = htons(50000);
-  
-  res1 = bind(fds.fd, (struct sockaddr *)&sockaddr,
-sizeof(sockaddr));
-  res2 = listen(fds.fd, 20);
-
-  if (fds.fd == -1 || res1 == -1 || res2 == -1) {
-    fprintf(stderr, "The program failed miserably.\n");
-    exit(1);
-  }
-  
-  fprintf(stderr, "I'm about to suspend myself on a poll
-syscall!\n");
-  nevents = poll(&fds, 1, -1);
-  fprintf(stderr, "Waking up: nevents = %d\n", nevents);
-  
-  return 0;
-};
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg

@@ -1,61 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUHSNGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUHSNHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUHSNGE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 09:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUHSNGE
+	id S261857AbUHSNHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 09:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265974AbUHSNHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 09:06:04 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:37774 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261252AbUHSNFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 09:05:51 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 19 Aug 2004 15:04:50 +0200
-To: rlrevell@joe-job.com, diegocg@teleline.es
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
-       kernel@wildsau.enemy.org, diablod3@gmail.com
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <4124A572.nail7YU5JK0TN@burner>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>
- <d577e5690408190004368536e9@mail.gmail.com>
- <1092915160.830.9.camel@krustophenia.net>
- <20040819140659.6f61edcd.diegocg@teleline.es>
-In-Reply-To: <20040819140659.6f61edcd.diegocg@teleline.es>
-User-Agent: nail 11.2 8/15/04
+	Thu, 19 Aug 2004 09:07:55 -0400
+Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:7926 "EHLO
+	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S261857AbUHSNHk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 09:07:40 -0400
+Message-ID: <4124A582.4060300@ttnet.net.tr>
+Date: Thu, 19 Aug 2004 16:05:06 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+CC: marcelo.tosatti@cyclades.com
+Subject: [PATCH 2.4] another gcc-3.4 lvalue fix (i2c-proc)
+Content-Type: multipart/mixed;
+	boundary="------------000202020103030807050103"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From diegocg@teleline.es  Thu Aug 19 14:07:10 2004
+This is a multi-part message in MIME format.
+--------------000202020103030807050103
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
 
->El Thu, 19 Aug 2004 07:32:40 -0400 Lee Revell <rlrevell@joe-job.com> escribió:
+Taken from i2c-2.8.x. Please review and apply to 2.4.28.
+This hunk was missed in the patch posted at
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109182440417014&w=2 .
 
->> On Thu, 2004-08-19 at 03:04, Patrick McFarland wrote:
->> > If no one has noticed yet, thanks to the additional license
->> > restrictions Joerg Schilling has added to cdrecord (due to this
->> > thread), it may be now moved to non-free in Debian in the near future.
->> 
->> What restrictions?  Do you have a link?
+Ozkan Sezer
 
->See http://weblogs.mozillazine.org/gerv/archives/006193.html (which may not
->be the best interpretation of the changes)
+--------------000202020103030807050103
+Content-Type: text/plain;
+	name="gcc34_i2c-proc.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="gcc34_i2c-proc.diff"
 
-Unfortunately the person who did write this has no clue on the Copyright law :-(
+--- 28p1/drivers/i2c/i2c-proc.c~	2004-02-18 15:36:31.000000000 +0200
++++ 28p1/drivers/i2c/i2c-proc.c	2004-08-19 15:38:29.000000000 +0300
+@@ -198,19 +198,19 @@
+ 
+ void i2c_deregister_entry(int id)
+ {
+-	ctl_table *table;
+-	char *temp;
+ 	id -= 256;
++
+ 	if (i2c_entries[id]) {
+-		table = i2c_entries[id]->ctl_table;
+-		unregister_sysctl_table(i2c_entries[id]);
+-		/* 2-step kfree needed to keep gcc happy about const points */
+-		(const char *) temp = table[4].procname;
+-		kfree(temp);
+-		kfree(table);
+-		i2c_entries[id] = NULL;
+-		i2c_clients[id] = NULL;
++		struct ctl_table_header *hdr = i2c_entries[id];
++		struct ctl_table *tbl = hdr->ctl_table;
++
++		unregister_sysctl_table(hdr);
++		kfree(tbl->child->child->procname);
++		kfree(tbl); /* actually the whole anonymous struct */
+ 	}
++
++	i2c_entries[id] = NULL;
++	i2c_clients[id] = NULL;
+ }
+ 
+ /* Monitor access for /proc/sys/dev/sensors; make unloading i2c-proc.o 
 
-The Copyright law is _very_ explicit about the fact that Authors that do minor
-contributions have no right to influence the license or the way of publishing.
-
-It is obvious that SuSE versions of cdrecord impact the original authors' 
-reputations which is prohibited by the GPL.
-
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+--------------000202020103030807050103--

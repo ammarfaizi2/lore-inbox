@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316839AbSEVDRT>; Tue, 21 May 2002 23:17:19 -0400
+	id <S316837AbSEVDI6>; Tue, 21 May 2002 23:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316840AbSEVDRS>; Tue, 21 May 2002 23:17:18 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:15890 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S316839AbSEVDRS>;
-	Tue, 21 May 2002 23:17:18 -0400
-Date: Wed, 22 May 2002 04:17:12 +0100 (IST)
-From: Mel <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Updated Commentry Patches v2
-Message-ID: <Pine.LNX.4.44.0205220411260.9241-100000@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316838AbSEVDI6>; Tue, 21 May 2002 23:08:58 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:62469 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S316837AbSEVDI5>; Tue, 21 May 2002 23:08:57 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256BC1.001146A6.00@smtpnotes.altec.com>
+Date: Tue, 21 May 2002 22:02:49 -0500
+Subject: Re: Linux-2.5.17
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've updated the five previous patches (previously against pre7) that try
-to comment and document how the VM in 2.4.19pre8 works. I've posted them
-before on the list so I'm just going to include URL's this time because
-the changes are minor.
 
-I've corrected a number of spelling mistakes, included some commentry from
-William Lee Irwin and fixed comments so they should be picked up by
-kernel-doc scripts
 
-They are available as
+I can live with not building, crashing, or even eating filesystems.  Those
+things will be fixed sooner or later.  But breaking userspace programs -- that
+may well be permanent.  If there was a good chance it would be working again by
+the time 2.6 comes out, it wouldn't bother me.  But I really don't expect this
+to change, so it looks like I won't be able to use 2.5 (or anything later) until
+I get another version of gtop, or fix this one myself.  And so there will be yet
+another nonstandard change to my patchwork system that I'll have to deal with
+(if I even remember it) the next time I try to upgrade (i.e., reinstall)
+Slackware.
 
-2.4.19pre8_paging_commentry
-http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.19pre8_paging_commentry
-  Provides some documentation on the page replacement and paging mechanism
-  in Documentation/vm. Expands on comments on vmscan.c and memory.c
-  relating to page replacement
 
-2.4.19pre8_documentation_numa
-http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.19pre8_documentation_numa
-  Extends the Documentation/vm/numa file to try and describe NUMA and
-  related data structures a bit better
 
-2.4.19pre8_page_alloc_commentry
-http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.19pre8_page_alloc_commentry
-  This extends the documentation on page_alloc.c to describe how the buddy
-  allocator works
 
-2.4.19pre8_slab_commentry
-http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.19pre8_slab_commentry
-  Extends the commentry on the slab allocator slightly
 
-2.4.19pre8_vmalloc_commentry
-http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.19pre8_vmalloc_commentry
-  Documents how vmalloc works
+Russell King <rmk@arm.linux.org.uk> on 05/21/2002 06:29:23 PM
 
-If there is no complaints, I'll see what I can do about getting them
-integrated into the main 2.4 branch. I'm not sure how relevant they are to
-2.5. Thanks to all those who provided feedback with them
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   linux-kernel@vger.kernel.org
 
--- 
-		Mel Gorman
+Subject:  Re: Linux-2.5.17
+
+
+
+On Tue, May 21, 2002 at 06:20:56PM -0500, Wayne.Brown@altec.com wrote:
+> So, I'm just getting used to the idea of using new tools to build kernels,
+> and now I learn that 2.5 breaks an ordinary program that I use all day,
+> every day. It just keeps getting better and better...
+
+The 2.<odd> series, like 2.5 is a strictly development kernel series; new
+features go into these all the time.  You can expect it to:
+
+1. not build.
+2. crash.
+3. silently eat your filesystems.
+4. break userspace programs.
+
+or any combination of the above.  If you're looking for stability, stick
+with the 2.<even> series.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
 

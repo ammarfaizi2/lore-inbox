@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262608AbSI0VYp>; Fri, 27 Sep 2002 17:24:45 -0400
+	id <S262616AbSI0VmW>; Fri, 27 Sep 2002 17:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262612AbSI0VYo>; Fri, 27 Sep 2002 17:24:44 -0400
-Received: from magic.adaptec.com ([208.236.45.80]:51680 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S262608AbSI0VYk>; Fri, 27 Sep 2002 17:24:40 -0400
-Date: Fri, 27 Sep 2002 15:29:36 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: James Bottomley <James.Bottomley@steeleye.com>, mjacob@feral.com
-cc: Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while 
- doingfiletransfers
-Message-ID: <2646716224.1033162176@aslan.btc.adaptec.com>
-In-Reply-To: <200209272123.g8RLNAi21161@localhost.localdomain>
-References: <200209272123.g8RLNAi21161@localhost.localdomain>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
-MIME-Version: 1.0
+	id <S262619AbSI0VmV>; Fri, 27 Sep 2002 17:42:21 -0400
+Received: from waste.org ([209.173.204.2]:58341 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262616AbSI0VmV>;
+	Fri, 27 Sep 2002 17:42:21 -0400
+Date: Fri, 27 Sep 2002 16:47:22 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Jacobowitz <dan@debian.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Does kernel use system stdarg.h?
+Message-ID: <20020927214721.GK21969@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20020927140543.GA5613@nevyn.them.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That was true of 2.2, 2.3 (and I think early 2.4) but it isn't true of
-> late  2.4 and 2.5
+On Fri, Sep 27, 2002 at 10:05:43AM -0400, Daniel Jacobowitz wrote:
+> On Fri, Sep 27, 2002 at 03:18:35PM -0200, Denis Vlasenko wrote:
+> > Reading specs from /usr/lib/gcc-lib/i686-pc-linux-gnu/3.0.3/specs
+> > Configured with: ../gcc-3.0.3/configure --prefix=/usr/app/gcc-3.0.3posix --exec-prefix=/usr/app/gcc-3.0.3posix --bindir=/usr/app/gcc-3.0.3posix/bin --libdir=/usr/lib --infodir=/usr/app/gcc-3.0.3posix/info --mandir=/usr/app/gcc-3.0.3posix/man --with-slibdir=/usr/lib --with-local-prefix=/usr/local --with-gxx-include-dir=/usr/include/g++-v3 --enable-threads=posix
+> > Thread model: posix
+> > gcc version 3.0.3
+> >  /usr/lib/gcc-lib/i686-pc-linux-gnu/3.0.3/cpp0 -lang-c -nostdinc -v
+> >                                                        ^^^^^^^^^
+> 
+> That's not the problem.
+> 
+> > -I/usr/src/linux-2.5.36/include
+> > -iprefix /usr/sbin/../../lib/gcc-lib/i686-pc-linux-gnu/3.0.3/
+> 
+> That's the problem.  Where's the -iprefix coming from?   Your configure
+> doesn't specify /usr/sbin anywhere.
+> 
+> Verdict: bad GCC install or a 3.0.3 bug.  Might have to do with your
+> libdir-outside-of-prefix.
 
-I have see 0 changes in 2.4 that indicate that it is safe to have the
-mid-layer do queuing.
+I've got the same problem with -nostdinc with my Debian gcc-3.0 that
+I've been patching around. I assumed it was a problem with the
+kernel's Makefile, now you're saying it's the Debian package?
 
---
-Justin
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

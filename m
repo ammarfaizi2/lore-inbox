@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbTLUMk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 07:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTLUMk7
+	id S262817AbTLUMoR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 07:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbTLUMoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 07:40:59 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:12770 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262838AbTLUMk5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 07:40:57 -0500
-Message-ID: <3FE594D0.8000807@colorfullife.com>
-Date: Sun, 21 Dec 2003 13:40:48 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-References: <3FE492EF.2090202@colorfullife.com> <20031221113640.GF3438@mail.shareable.org>
-In-Reply-To: <20031221113640.GF3438@mail.shareable.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Dec 2003 07:44:17 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:50612 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262817AbTLUMoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 07:44:16 -0500
+Date: Sun, 21 Dec 2003 13:44:13 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: 2.6.0-test11 BK: sg and scanner modules not auto-loaded?
+Message-ID: <20031221124413.GA22924@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20031219181039.GI3017@kroah.com> <20031221003020.63E6A2C0B8@lists.samba.org> <20031221012531.GB30123@merlin.emma.line.org> <200312211337.30900.baldrick@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312211337.30900.baldrick@free.fr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+On Sun, 21 Dec 2003, Duncan Sands wrote:
 
->Manfred Spraul wrote:
->  
->
->>What about switching to rcu?
->>    
->>
->
->What about killing fasync_helper altogether and using the method that
->epoll uses to register "listeners" which send a signal when the poll
->state of a device changes?
->
-I think it would be a step in the wrong direction: poll should go away 
-from a simple wake-up to an interface that transfers the band info 
-(POLL_IN, POLL_OUT, etc). Right now at least two passes over the f_poll 
-functions are necessary, because the info which event actually triggered 
-is lost. kill_fasync transfers the band info, thus I don't want to 
-remove it.
+> I haven't been following this thread, so I don't know if this is relevant:
+> do you have the *very latest* hotplug scripts?  The previous ones tested
+> the kernel version against "2.5", while the latest test against that and also
+> "2.6".  I think this was in the usb script.  Without the "2.6" test device
+> scripts are not run, at least for usb devices.
 
->
->That would trim off code all over the place, make the fast paths a
->little bit faster (in the case that there aren't any listeners), and
->most importantly make SIGIO reliable for every kind of file descriptor,
->instead of the pot luck you get now.
->
->Just an idea :)
->
-It's a good idea, but requires lots of changes - perhaps it will be 
-necessary to change the pollwait and f_poll prototypes.
+You bet SuSE Linux 8.2 isn't 2.6 ready (I wonder if 9.0 ships with
+current hotplug), so I'll have to update my hotplug.  Thanks for the
+pointer.
 
---
-    Manfred
+-- 
+Matthias Andree
 
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289297AbSA3Pgg>; Wed, 30 Jan 2002 10:36:36 -0500
+	id <S289312AbSA3PmQ>; Wed, 30 Jan 2002 10:42:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289301AbSA3Pg0>; Wed, 30 Jan 2002 10:36:26 -0500
-Received: from waste.org ([209.173.204.2]:37298 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S289297AbSA3PgT>;
-	Wed, 30 Jan 2002 10:36:19 -0500
-Date: Wed, 30 Jan 2002 09:36:12 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Chris Funderburg <Chris@Funderburg.com>
-cc: "'Jeff Garzik'" <garzik@havoc.gtf.org>,
-        "'Daniel Phillips'" <phillips@bonn-fries.net>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: bug tracking (was Re: A modest proposal -- We need a patch
- penguin)
-In-Reply-To: <000901c1a96f$13963680$0105360a@bti.com>
-Message-ID: <Pine.LNX.4.44.0201300921300.1957-100000@waste.org>
+	id <S289314AbSA3PmH>; Wed, 30 Jan 2002 10:42:07 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:1427 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289312AbSA3Plz>;
+	Wed, 30 Jan 2002 10:41:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+Subject: Re: Wanted: Volunteer to code a Patchbot
+Date: Wed, 30 Jan 2002 16:46:05 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+        killeri@iki.fi
+In-Reply-To: <Pine.LNX.4.33.0201301306190.7674-100000@serv> <20020130161105.E9765@jaquet.dk> <20020130162851.H9765@jaquet.dk>
+In-Reply-To: <20020130162851.H9765@jaquet.dk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vww1-0000FS-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Chris Funderburg wrote:
+On January 30, 2002 04:28 pm, Rasmus Andersen wrote:
+> On Wed, Jan 30, 2002 at 04:11:05PM +0100, Rasmus Andersen wrote:
+> > If I understand correctly, the bot would, in its basic incarnation,
+> > accept patches (at patchbot@somewhere), stamp them with an uid,
+> > and forward them to various places, e.g., lists, maintainers etc
+> > and let the sumbitter know the patch uid. A mailing list archive
+> > would then be the patch store. Basic filtering could be done by
+> > the bot to reject non-patches etc.
+> 
+> Somehow, I totally forgot the security disclaimer for some of
+> the points. Obviously, mindlessly patching a makefile and
+> executing it would be a Bad Idea. If no satisfying solution
+> to this can be found, this (execute/compile) step could be 
+> foregone.
+> 
+> Thanks to Tommy Faasen for raising this point.
 
-> Wouldn't Bugzilla be perfect for this?  I run a slightly modified
-> version for the company I work for.  You could have as many
-> administrators as you need, and use categories for different kernel
-> subsystems.  The maintainers could be set-up as QA contacts, and it's
-> really easy to maintain.
+I'd say, don't try to run it, just see if it applies cleanly.
 
-Bugzilla would be fine. But the tools alone are only a small part of the
-problem. Good bug tracking requires people to enter good bug descriptions,
-and sift through the database and remove duplicates, close old bugs,
-adjust priorities, etc. I personally loathe such work even though I
-recognize the value of it, and I suspect most of the major maintainers do
-too. The problem is, they're the ones getting the bug reports. We have to
-move from the current situation to one where there are trusted and
-effective bug database trackers receiving the reports and that's a pretty
-big transition.
+Speaking of security, we can't expect Matti to take care of blocking spam
+on the patch lists the way he does on lkml, so that is going to have to
+be handled, or the system will fall apart.  Well, spammers are not going
+to be bright enough to send correctly formed patches that apply without
+rejects I hope, so maybe that is a non-problem.
 
-Note that MJC already has a bugzilla up for his tree. Don't know if he's
-found someone to manage it yet though. If that Bugzilla were to track,
-say, the dj tree and the rmap patch too, it might get closer to critical
-mass. Redhat's already got a Bugzilla for their mostly AC kernel, and
-they might be willing to copy mainline kernel bugs to another Bugzilla.
+The patchbot will have to understand the concept of a patch set, a
+series of patches that apply in a particular order.  If it can handle
+that it probably doesn't need a general way of handling inter-patch
+relationships, at least to start.
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Daniel

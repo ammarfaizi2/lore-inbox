@@ -1,24 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268533AbUJSLEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUJSKAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268533AbUJSLEb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 07:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUJSKDW
+	id S268132AbUJSKAi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 06:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268139AbUJSJ64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 06:03:22 -0400
-Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:1508 "EHLO
-	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S268145AbUJSJnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 05:43:17 -0400
-Date: Tue, 19 Oct 2004 10:43:08 +0100 (BST)
+	Tue, 19 Oct 2004 05:58:56 -0400
+Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:28646 "EHLO
+	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S268142AbUJSJmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 05:42:45 -0400
+Date: Tue, 19 Oct 2004 10:42:43 +0100 (BST)
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 18/37] Re: [2.6-BK-URL] NTFS: 2.1.21 - Big update with race/bug
+Subject: [PATCH 16/37] Re: [2.6-BK-URL] NTFS: 2.1.21 - Big update with race/bug
  fixes
-In-Reply-To: <Pine.LNX.4.60.0410191042440.24986@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0410191042560.24986@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.60.0410191042200.24986@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0410191042320.24986@hermes-1.csi.cam.ac.uk>
 References: <Pine.LNX.4.60.0410191017070.24986@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0410191038250.24986@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0410191038570.24986@hermes-1.csi.cam.ac.uk>
  <Pine.LNX.4.60.0410191039140.24986@hermes-1.csi.cam.ac.uk>
  <Pine.LNX.4.60.0410191039320.24986@hermes-1.csi.cam.ac.uk>
  <Pine.LNX.4.60.0410191039510.24986@hermes-1.csi.cam.ac.uk>
@@ -32,8 +34,6 @@ References: <Pine.LNX.4.60.0410191017070.24986@hermes-1.csi.cam.ac.uk>
  <Pine.LNX.4.60.0410191041420.24986@hermes-1.csi.cam.ac.uk>
  <Pine.LNX.4.60.0410191041590.24986@hermes-1.csi.cam.ac.uk>
  <Pine.LNX.4.60.0410191042200.24986@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0410191042320.24986@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0410191042440.24986@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
@@ -42,10 +42,12 @@ X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 18/37 in the series.  It contains the following ChangeSet:
+This is patch 16/37 in the series.  It contains the following ChangeSet:
 
-<aia21@cantab.net> (04/10/07 1.2030)
-   NTFS: Remove unused {__,}format_mft_record() from fs/ntfs/mft.c.
+<aia21@cantab.net> (04/10/05 1.2022.1.2)
+   NTFS: Switch fs/ntfs/index.h::ntfs_index_entry_mark_dirty() to using the
+         new helper fs/ntfs/aops.c::mark_ntfs_record_dirty() and remove the no
+         longer needed fs/ntfs/index.[hc]::__ntfs_index_entry_mark_dirty().
    
    Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
@@ -61,96 +63,107 @@ WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 ===================================================================
 
 diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
---- a/fs/ntfs/ChangeLog	2004-10-19 10:14:11 +01:00
-+++ b/fs/ntfs/ChangeLog	2004-10-19 10:14:11 +01:00
-@@ -58,6 +58,7 @@
- 	  include errors.
- 	- Move the typedefs for runlist_element and runlist from types.h to
- 	  runlist.h and fix resulting include errors.
-+	- Remove unused {__,}format_mft_record() from fs/ntfs/mft.c.
+--- a/fs/ntfs/ChangeLog	2004-10-19 10:14:04 +01:00
++++ b/fs/ntfs/ChangeLog	2004-10-19 10:14:04 +01:00
+@@ -51,6 +51,9 @@
+ 	  marks all buffers belonging to an ntfs record dirty, followed by
+ 	  marking the page the ntfs record is in dirty and also marking the vfs
+ 	  inode containing the ntfs record dirty (I_DIRTY_PAGES).
++	- Switch fs/ntfs/index.h::ntfs_index_entry_mark_dirty() to using the
++	  new helper fs/ntfs/aops.c::mark_ntfs_record_dirty() and remove the no
++	  longer needed fs/ntfs/index.[hc]::__ntfs_index_entry_mark_dirty().
  
  2.1.20 - Fix two stupid bugs introduced in 2.1.18 release.
  
-diff -Nru a/fs/ntfs/mft.c b/fs/ntfs/mft.c
---- a/fs/ntfs/mft.c	2004-10-19 10:14:11 +01:00
-+++ b/fs/ntfs/mft.c	2004-10-19 10:14:11 +01:00
-@@ -32,79 +32,6 @@
- #include "ntfs.h"
+diff -Nru a/fs/ntfs/index.c b/fs/ntfs/index.c
+--- a/fs/ntfs/index.c	2004-10-19 10:14:04 +01:00
++++ b/fs/ntfs/index.c	2004-10-19 10:14:04 +01:00
+@@ -459,58 +459,3 @@
+ 	err = -EIO;
+ 	goto err_out;
+ }
+-
+-#ifdef NTFS_RW
+-
+-/**
+- * __ntfs_index_entry_mark_dirty - mark an index allocation entry dirty
+- * @ictx:	ntfs index context describing the index entry
+- *
+- * NOTE: You want to use fs/ntfs/index.h::ntfs_index_entry_mark_dirty() instead!
+- * 
+- * Mark the index allocation entry described by the index entry context @ictx
+- * dirty.
+- *
+- * The index entry must be in an index block belonging to the index allocation
+- * attribute.  Mark the buffers belonging to the index record as well as the
+- * page cache page the index block is in dirty.  This automatically marks the
+- * VFS inode of the ntfs index inode to which the index entry belongs dirty,
+- * too (I_DIRTY_PAGES) and this in turn ensures the page buffers, and hence the
+- * dirty index block, will be written out to disk later.
+- */
+-void __ntfs_index_entry_mark_dirty(ntfs_index_context *ictx)
+-{
+-	ntfs_inode *ni;
+-	struct page *page;
+-	struct buffer_head *bh, *head;
+-	unsigned int rec_start, rec_end, bh_size, bh_start, bh_end;
+-
+-	BUG_ON(ictx->is_in_root);
+-	ni = ictx->idx_ni;
+-	page = ictx->page;
+-	BUG_ON(!page_has_buffers(page));
+-	/*
+-	 * If the index block is the same size as the page cache page, set all
+-	 * the buffers in the page, as well as the page itself, dirty.
+-	 */
+-	if (ni->itype.index.block_size == PAGE_CACHE_SIZE) {
+-		__set_page_dirty_buffers(page);
+-		return;
+-	}
+-	/* Set only the buffers in which the index block is located dirty. */
+-	rec_start = (unsigned int)((u8*)ictx->ia - (u8*)page_address(page));
+-	rec_end = rec_start + ni->itype.index.block_size;
+-	bh_size = ni->vol->sb->s_blocksize;
+-	bh_start = 0;
+-	bh = head = page_buffers(page);
+-	do {
+-		bh_end = bh_start + bh_size;
+-		if ((bh_start >= rec_start) && (bh_end <= rec_end))
+-			set_buffer_dirty(bh);
+-		bh_start = bh_end;
+-	} while ((bh = bh->b_this_page) != head);
+-	/* Finally, set the page itself dirty, too. */
+-	__set_page_dirty_nobuffers(page);
+-}
+-
+-#endif /* NTFS_RW */
+diff -Nru a/fs/ntfs/index.h b/fs/ntfs/index.h
+--- a/fs/ntfs/index.h	2004-10-19 10:14:04 +01:00
++++ b/fs/ntfs/index.h	2004-10-19 10:14:04 +01:00
+@@ -30,6 +30,7 @@
+ #include "inode.h"
+ #include "attrib.h"
+ #include "mft.h"
++#include "aops.h"
  
  /**
-- * __format_mft_record - initialize an empty mft record
-- * @m:		mapped, pinned and locked for writing mft record
-- * @size:	size of the mft record
-- * @rec_no:	mft record number / inode number
-- *
-- * Private function to initialize an empty mft record. Use one of the two
-- * provided format_mft_record() functions instead.
-- */
--static void __format_mft_record(MFT_RECORD *m, const int size,
--		const unsigned long rec_no)
--{
--	ATTR_RECORD *a;
+  * @idx_ni:	index inode containing the @entry described by this context
+@@ -115,8 +116,6 @@
+ 		flush_dcache_page(ictx->page);
+ }
+ 
+-extern void __ntfs_index_entry_mark_dirty(ntfs_index_context *ictx);
 -
--	memset(m, 0, size);
--	m->magic = magic_FILE;
--	/* Aligned to 2-byte boundary. */
--	m->usa_ofs = cpu_to_le16((sizeof(MFT_RECORD) + 1) & ~1);
--	m->usa_count = cpu_to_le16(size / NTFS_BLOCK_SIZE + 1);
--	/* Set the update sequence number to 1. */
--	*(le16*)((char*)m + ((sizeof(MFT_RECORD) + 1) & ~1)) = cpu_to_le16(1);
--	m->lsn = cpu_to_le64(0LL);
--	m->sequence_number = cpu_to_le16(1);
--	m->link_count = 0;
--	/* Aligned to 8-byte boundary. */
--	m->attrs_offset = cpu_to_le16((le16_to_cpu(m->usa_ofs) +
--			(le16_to_cpu(m->usa_count) << 1) + 7) & ~7);
--	m->flags = 0;
--	/*
--	 * Using attrs_offset plus eight bytes (for the termination attribute),
--	 * aligned to 8-byte boundary.
--	 */
--	m->bytes_in_use = cpu_to_le32((le16_to_cpu(m->attrs_offset) + 8 + 7) &
--			~7);
--	m->bytes_allocated = cpu_to_le32(size);
--	m->base_mft_record = cpu_to_le64((MFT_REF)0);
--	m->next_attr_instance = 0;
--	a = (ATTR_RECORD*)((char*)m + le16_to_cpu(m->attrs_offset));
--	a->type = AT_END;
--	a->length = 0;
--}
--
--/**
-- * format_mft_record - initialize an empty mft record
-- * @ni:		ntfs inode of mft record
-- * @mft_rec:	mapped, pinned and locked mft record (optional)
-- *
-- * Initialize an empty mft record. This is used when extending the MFT.
-- *
-- * If @mft_rec is NULL, we call map_mft_record() to obtain the
-- * record and we unmap it again when finished.
-- *
-- * We return 0 on success or -errno on error.
-- */
--int format_mft_record(ntfs_inode *ni, MFT_RECORD *mft_rec)
--{
--	MFT_RECORD *m;
--
--	if (mft_rec)
--		m = mft_rec;
--	else {
--		m = map_mft_record(ni);
--		if (IS_ERR(m))
--			return PTR_ERR(m);
--	}
--	__format_mft_record(m, ni->vol->mft_record_size, ni->mft_no);
--	if (!mft_rec) {
--		// FIXME: Need to set the mft record dirty!
--		unmap_mft_record(ni);
--	}
--	return 0;
--}
--
--/**
-  * ntfs_readpage - external declaration, function is in fs/ntfs/aops.c
-  */
- extern int ntfs_readpage(struct file *, struct page *);
+ /**
+  * ntfs_index_entry_mark_dirty - mark an index entry dirty
+  * @ictx:	ntfs index context describing the index entry
+@@ -140,7 +139,8 @@
+ 	if (ictx->is_in_root)
+ 		mark_mft_record_dirty(ictx->actx->ntfs_ino);
+ 	else
+-		__ntfs_index_entry_mark_dirty(ictx);
++		mark_ntfs_record_dirty(ictx->idx_ni, ictx->page,
++			(u8*)ictx->ia - (u8*)page_address(ictx->page));
+ }
+ 
+ #endif /* NTFS_RW */

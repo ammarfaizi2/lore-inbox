@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293632AbSEELXH>; Sun, 5 May 2002 07:23:07 -0400
+	id <S293680AbSEEL0Y>; Sun, 5 May 2002 07:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293680AbSEELXG>; Sun, 5 May 2002 07:23:06 -0400
-Received: from mnh-1-03.mv.com ([207.22.10.35]:23045 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S293632AbSEELXG>;
-	Sun, 5 May 2002 07:23:06 -0400
-Message-Id: <200205051225.HAA01629@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Guest section DW <dwguest@win.tue.nl>, Gerrit Huizenga <gh@us.ibm.com>,
-        linux-kernel@vger.kernel.org,
-        user-mode-linux-devel@lists.sourceforge.net,
-        user-mode-linux-user@lists.sourceforge.net
-Subject: Re: UML is now self-hosting! 
-In-Reply-To: Your message of "Sun, 05 May 2002 01:25:05 MST."
-             <20020505082505.GE2392@matchmail.com> 
+	id <S293722AbSEEL0X>; Sun, 5 May 2002 07:26:23 -0400
+Received: from noose.gt.owl.de ([62.52.19.4]:39185 "HELO noose.gt.owl.de")
+	by vger.kernel.org with SMTP id <S293680AbSEEL0W>;
+	Sun, 5 May 2002 07:26:22 -0400
+Date: Sun, 5 May 2002 13:25:38 +0200
+From: Florian Lohoff <flo@rfc822.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ivan@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sparc64 cleanup cyclades.c
+Message-ID: <20020505112538.GA534@paradigm.rfc822.org>
+In-Reply-To: <20020504162518.GA7785@paradigm.rfc822.org> <20020505.001158.128654145.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 05 May 2002 07:25:00 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: rfc822 - pure communication
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mfedyk@matchmail.com said:
-> How would that benefit Apache, and why does is have any use for an
-> imbedded kernel?
 
-See http://user-mode-linux.sourceforge.net/slides/wvu2002/wvu2002.htm, which 
-are the slides from a talk I gave at WVU and MorLUG in which I explained this
-more clearly than I had managed before.  The section that's relevant here
-starts at http://user-mode-linux.sourceforge.net/slides/wvu2002/img9.htm
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> How would this be better than MOSIX, or other clustering solutions? 
+On Sun, May 05, 2002 at 12:11:58AM -0700, David S. Miller wrote:
+> This looks suspicious, did you really need it?
 
-MOSIX (or Compaq's SSI) would certainly be a way of doing it.  It happens
-that there's a particularly simple way of doing it with UML.  You'd partition
-UML's 'physical' memory between the hosts, and use the fact that those pages
-are really virtual to fault them between hosts as needed.  This would perform
-particularly badly, but its simplicity appeals to me.
+Not explicetly - Drop that - It was just a consistency issue.
 
-				Jeff
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-5201-669912
+                        Heisenberg may have been here.
 
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE81RayUaz2rXW+gJcRAsoBAKClSH8aFNcOJ/EYsWtqLYd0jSTk8wCfTgry
+Mb0oaAfxd7H9cjPY4b6XuZk=
+=fYzM
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--

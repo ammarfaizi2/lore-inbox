@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264442AbTLGPy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 10:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTLGPy2
+	id S264437AbTLGQDA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 11:03:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTLGQDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 10:54:28 -0500
-Received: from sitemail3.everyone.net ([216.200.145.37]:27593 "EHLO
-	omta08.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S264442AbTLGPy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 10:54:27 -0500
-Content-Type: text/plain
-Content-Disposition: inline
+	Sun, 7 Dec 2003 11:03:00 -0500
+Received: from sphere.barak.net.il ([212.150.48.98]:22696 "EHLO
+	sphere.barak.net.il") by vger.kernel.org with ESMTP id S264437AbTLGQDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 11:03:00 -0500
+From: "Amir Hermelin" <amir@montilio.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Creating a page struct for HIGHMEM pages
+Date: Sun, 7 Dec 2003 18:02:46 +0200
+Organization: Montilio
+Message-ID: <006c01c3bcdb$92290f50$1d01a8c0@CARTMAN>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Sun, 7 Dec 2003 07:54:26 -0800 (PST)
-From: Neo Wee Teck <weeteck@linux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel include file
-Reply-To: weeteck@linux.net
-X-Originating-Ip: [202.156.2.210]
-Message-Id: <20031207155426.68385396C@sitemail.everyone.net>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
+Suppose I want to create a page struct pointing to high memory (e.g. IO
+mapped memory), that is, allocate the memory for the page struct myself and
+fill in the values, what are the necessary flags/values (other than the
+'virtual' field) I must be sure to set?  Does the page* need to be located
+anywhere specific?  Does the pte field need to be set in anyway? The
+question is relevant to kernel versions 2.4.20 and up.
 
-  After upgrading to a newer version of the kernel, should I also copy/update the include folder to  /usr/include?
+Thanks,
+Amir.
 
-  
 
-Cheers
-
-Neo
-
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/

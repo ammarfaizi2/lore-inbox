@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261443AbTCGIQm>; Fri, 7 Mar 2003 03:16:42 -0500
+	id <S261435AbTCGIS5>; Fri, 7 Mar 2003 03:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbTCGIQm>; Fri, 7 Mar 2003 03:16:42 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:31482 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261443AbTCGIQl>;
-	Fri, 7 Mar 2003 03:16:41 -0500
-Message-ID: <3E6857CC.5040307@mvista.com>
-Date: Fri, 07 Mar 2003 00:26:52 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Joel.Becker@oracle.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>, wim.coekaerts@oracle.com
-Subject: Re: [RFC][PATCH] linux-2.5.64_monotonic-clock_A0
-References: <1046996126.16608.509.camel@w-jstultz2.beaverton.ibm.com>	 <3E67F6C6.6090708@mvista.com> <1047001687.16614.522.camel@w-jstultz2.beaverton.ibm.com>
-In-Reply-To: <1047001687.16614.522.camel@w-jstultz2.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261441AbTCGIS5>; Fri, 7 Mar 2003 03:18:57 -0500
+Received: from pop.gmx.net ([213.165.65.60]:65296 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261435AbTCGIS4>;
+	Fri, 7 Mar 2003 03:18:56 -0500
+Message-Id: <5.2.0.9.2.20030307092747.00cf64b0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 07 Mar 2003 09:34:02 +0100
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303070913370.5173-100000@localhost.localdom
+ ain>
+References: <5.2.0.9.2.20030307085949.00ce8008@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Thu, 2003-03-06 at 17:32, george anzinger wrote:
-> 
->>IMHO I solved this problem in the high-res timers patch.  I have 
->>posted the core of the conversion stuff as a path (last night at 
->>23:24) with this subject "[PATCH] Functions to do easy scaled math." 
->>It consists of a header file containing a handful of inline asm code 
->>to do the messy stuff (i.e. the stuff C can't do due to standard 
->>restrictions).  I also provided an asm-generic version to fill the gap 
->>on other archs.  Oh, and there is even a text file to explain it all.
-> 
-> 
-> Well... that's absurdly convenient. :)
-> 
-> I'll start looking at your code immediately. 
-> 
-If it looks useful, may be we can get it in...
+At 09:15 AM 3/7/2003 +0100, Ingo Molnar wrote:
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+>On Fri, 7 Mar 2003, Mike Galbraith wrote:
+>
+> > I can (could with your earlier patches anyway) eliminate the X stalls by
+> > setting X junk to SCHED_FIFO.  I don't have ram to plug in, but I'm as
+> > certain as I can be without actually doing so that it's not ram
+> > shortage.
+>
+>okay. Can you eliminate the X stalls with setting X priority to -10 or so
+>(or SCHED_FIFO - although SCHED_FIFO is much more dangerous). And how does
+>interactivity under the same load look like with vanilla .64, as compared
+>to .64+combo? First step is to ensure that the new changes did not
+>actually hurt interactivity.
+
+Oh, it's definitely _much_ better than .virgin.  I didn't mean to imply 
+that damage was done ;-)  With .virgin, I have a _heck_ of a time grabbing 
+the build window to kill it.  With combo, rodent jerkiness makes it hard to 
+find/grab, and multisecond stalls are still there, but much improved.
+
+         -Mike 
 

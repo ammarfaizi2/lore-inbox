@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264407AbRGCN6s>; Tue, 3 Jul 2001 09:58:48 -0400
+	id <S264475AbRGCOpu>; Tue, 3 Jul 2001 10:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264423AbRGCN62>; Tue, 3 Jul 2001 09:58:28 -0400
-Received: from jalon.able.es ([212.97.163.2]:17331 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S264407AbRGCN6T>;
-	Tue, 3 Jul 2001 09:58:19 -0400
-Date: Tue, 3 Jul 2001 15:58:01 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Erik Meusel <erik@wh58-709.st.uni-magdeburg.de>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: include/asm-i386/checksum.h
-Message-ID: <20010703155801.A1206@werewolf.able.es>
-In-Reply-To: <2487.994146067@kao2.melbourne.sgi.com> <Pine.LNX.4.33.0107031356200.16796-200000@wh58-709.st.uni-magdeburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.33.0107031356200.16796-200000@wh58-709.st.uni-magdeburg.de>; from erik@wh58-709.st.uni-magdeburg.de on Tue, Jul 03, 2001 at 13:58:58 +0200
-X-Mailer: Balsa 1.1.6
+	id <S264482AbRGCOpk>; Tue, 3 Jul 2001 10:45:40 -0400
+Received: from web4201.mail.yahoo.com ([216.115.104.134]:14095 "HELO
+	web4201.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264475AbRGCOpd>; Tue, 3 Jul 2001 10:45:33 -0400
+Message-ID: <20010703144532.11007.qmail@web4201.mail.yahoo.com>
+Date: Tue, 3 Jul 2001 16:45:32 +0200 (CEST)
+From: =?iso-8859-1?q?Guillaume=20Lancelin?= <guillaumelancelin@yahoo.es>
+Subject: Memory access
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Writing a device driver for a IO card, I have the following message from
+the kernel:
+Unable to handle kernel paging request at virtual address 000d0804.
+[then it gives the register values]
+Segmentation fault."
 
-On 20010703 Erik Meusel wrote:
->On Tue, 3 Jul 2001, Keith Owens wrote:
->
->> >P.S.: would it be possible to patch the menuconfig in that way, that it
->> >does look in the whole include-path for the <ncurses.h> and relating
->> >files? they aren't in /usr/include/ in my system and I'm tired of patching
->> >linux/scripts/lxdialog/Makefile all the time. :)
->> Where is it on your system?  What patch do you apply?
->It is in /usr/local/include/ since I installed it myself, months ago.
->The patch is attached. Just made silly to use /usr/local/ instead of /usr/.
->
+This address (0xd0804) is the location of a "mailbox" reserved by the IO
+card, and from which commands are passed to the card.
 
-make a couple symlinks and you will not have to touch kernel makefiles:
-ln -s /usr/local/include/ncurses /usr/include
+My question: is the kernel using or protecting this area of the memory,
+and is there a way to deprotect it??? (how dangerous!)
+
+Thanks
+Guillaume
 
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac23 #1 SMP Tue Jul 3 01:58:06 CEST 2001 i686
+
+_______________________________________________________________
+Do You Yahoo!?
+Yahoo! Messenger: Comunicación instantánea gratis con tu gente -
+http://messenger.yahoo.es

@@ -1,40 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130072AbQL1OTY>; Thu, 28 Dec 2000 09:19:24 -0500
+	id <S129823AbQL1OYe>; Thu, 28 Dec 2000 09:24:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130063AbQL1OTE>; Thu, 28 Dec 2000 09:19:04 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:64272 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130061AbQL1OS4>; Thu, 28 Dec 2000 09:18:56 -0500
-Date: Thu, 28 Dec 2000 09:56:06 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: chris@freedom2surf.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Repeatable Oops in 2.4t13p4ac2
-In-Reply-To: <978009656.3a4b3e38c7455@www.freedom2surf.net>
-Message-ID: <Pine.LNX.4.21.0012280955310.11471-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129881AbQL1OYZ>; Thu, 28 Dec 2000 09:24:25 -0500
+Received: from p3EE3C765.dip.t-dialin.net ([62.227.199.101]:14084 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S129823AbQL1OYN> convert rfc822-to-8bit; Thu, 28 Dec 2000 09:24:13 -0500
+Date: Thu, 28 Dec 2000 14:53:37 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Linux 2.2.18: /proc/apm slows system time (was: Linux 2.2.19pre3)
+Message-ID: <20001228145337.A2887@emma1.emma.line.org>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001228112305.A2571@emma1.emma.line.org> <E14Bc2d-0003e0-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14Bc2d-0003e0-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 28, 2000 at 12:20:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Dec 2000, Alan Cox wrote:
 
-On Thu, 28 Dec 2000 chris@freedom2surf.net wrote:
-
-> Hi - we are seeing the following repeatable Oops in 2.4t13p4ac2 compiled using 
-> gcc 2.95.2 for PIII running on IDE disks. Occurs whilst copying lots of files 
-> to/from remote filesystems.
+> > CONFIG_APM_ALLOW_INTS. I'll investigate this right now and report back
+> > what I find.
 > 
-> Thank you
-> 
-> Chris
-> 
-> Unable to handle kernel paging request at virtual address 00040000
+> That would be interesting
 
-Just to confirm: it always oopses on virtual address 00040000 ? 
+Forget this all.
 
-Thanks
+I found the problem trigger, it's reading from /proc/apm, for a reason I
+cannot currently see.
 
+Current config, as far as it's APM-related:
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+# CONFIG_APM_CPU_IDLE is not set
+# CONFIG_APM_DISPLAY_BLANK is not set
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_ALLOW_INTS=y
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+# CONFIG_TOSHIBA is not set
+
+I had found out that my clock was slow while dnetc was running. I had a
+dummy loader that just did while(1) {} which did not slow my clock. Now, I
+straced that dnetc beast and found out that it reads /proc/apm quite
+often.
+
+I can have my clock almost halt with this one:
+
+while cat /proc/apm ; do : ; done
+
+If I leave this running for 15 s, my system time drifts back 11½ s.
+
+
+Relevant dmesg:
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.13)
+
+
+Board: Gigabyte 7ZXR, BIOS rev. F4 (VIA KT133 chip set, AMIBIOS).
+
+
+
+I can and will test further, also with recompiled kernels, but I need
+directions what to test.
+
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

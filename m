@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267557AbUHPL7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUHPL7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267557AbUHPL7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 07:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUHPL7O
+	id S267561AbUHPL7o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 07:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267563AbUHPL7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 07:59:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62184 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267557AbUHPL7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 07:59:12 -0400
-Date: Mon, 16 Aug 2004 13:58:13 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: DRM and 2.4 ...
-Message-ID: <20040816115813.GD13029@devserv.devel.redhat.com>
-References: <Pine.LNX.4.58.0408160652350.9944@skynet> <1092640312.2791.6.camel@laptop.fenrus.com> <412081C6.20601@tungstengraphics.com> <20040816094622.GA31696@devserv.devel.redhat.com> <412088A5.6010106@tungstengraphics.com> <20040816101426.GB31696@devserv.devel.redhat.com> <Pine.LNX.4.58.0408161137330.21177@skynet> <41209DBB.1060909@tungstengraphics.com>
+	Mon, 16 Aug 2004 07:59:44 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:45795 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267561AbUHPL7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 07:59:42 -0400
+Subject: Re: High CPU usage (up to server hang) under heavy I/O load
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408161013.13829.m.watts@eris.qinetiq.com>
+References: <20040813140229.4F48B2FC2C@illicom.com>
+	 <1092435364.24960.35.camel@localhost.localdomain>
+	 <200408161013.13829.m.watts@eris.qinetiq.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092653845.20528.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3Pql8miugIZX0722"
-Content-Disposition: inline
-In-Reply-To: <41209DBB.1060909@tungstengraphics.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 16 Aug 2004 11:57:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---3Pql8miugIZX0722
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Mon, Aug 16, 2004 at 12:42:51PM +0100, Keith Whitwell wrote:
+On Llu, 2004-08-16 at 10:13, Mark Watts wrote:
+> Would this also mean that if I stick a 64bit SATA raid card (a 3Ware 8506-4LP 
+> in this case) into a 32bit pci slot, then I/O is always going to suck badly?
 > 
-> Dave's hit the nail on the head here.  If you'd like some changes, feel 
-> free to make suggestions.
+> ... cos I do, and I/O sucks :)
 
-once the new intel DRM driver hits Linus' tree I want to start an experiment
-to make it look like a linux driver.. (I'm waiting for that driver since
-most of my hw is intel gfx based)
+Seperate issue.
 
---3Pql8miugIZX0722
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+64bit DMA is 64bit addressing (ie can DMA from above 4GB). 64bit wide
+slot is double the speed for transfers. The 3ware 8xxx I thought could
+do 64bit addressing although the driver seems to indicate it cannot,
+so with over 4Gb it would hurt.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBIKFVxULwo51rQBIRAtWtAJ9ltiPJyOBN6HcvCq3/0h5P/ho+lQCfcVJ3
-kQwB+4rPvqQAheSKUImhhIs=
-=4JZ0
------END PGP SIGNATURE-----
-
---3Pql8miugIZX0722--

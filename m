@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbTHYKBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 06:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTHYKBI
+	id S261586AbTHYKDk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 06:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTHYKDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 06:01:08 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:6663 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S261720AbTHYKBG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 06:01:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [PATCH] Fix ide unregister vs. driver model
-Date: Mon, 25 Aug 2003 13:01:00 +0300
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1061730317.31688.10.camel@gaston>
-In-Reply-To: <1061730317.31688.10.camel@gaston>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308251301.00267.insecure@mail.od.ua>
+	Mon, 25 Aug 2003 06:03:40 -0400
+Received: from vtens.prov-liege.be ([193.190.122.60]:41892 "EHLO
+	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
+	id S261586AbTHYKDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 06:03:36 -0400
+To: <akpm@osdl.org>
+Subject: [PATCH 2.6.0-test2] security fixes
+From: <ffrederick@prov-liege.be>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Mon, 25 Aug 2003 12:28:30 CEST
+Reply-To: <ffrederick@prov-liege.be>
+X-Priority: 3 (Normal)
+X-Originating-Ip: [10.10.0.30]
+X-Mailer: NOCC v0.9.5
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <S261586AbTHYKDg/20030825100336Z+189147@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 August 2003 16:05, Benjamin Herrenschmidt wrote:
->  static void hwif_register (ide_hwif_t *hwif)
->  {
->  	/* register with global device tree */
->  	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
->  	hwif->gendev.driver_data = hwif;
-> +	if (hwif->gendev.parent == NULL) {
->  	if (hwif->pci_dev)
->  		hwif->gendev.parent = &hwif->pci_dev->dev;
->  	else
->  		hwif->gendev.parent = NULL; /* Would like to do = &device_legacy */
-> +	}
+Andrew,
+             Here's a patch against 2.6.0-test2 security :
+Summary:
+ 	-Adding some doc to enough_memory proc
+	-Reordering checks (overcommit_memory is _rare_ case)
 
-inner if() should be indented
---
-vda
+	Could you apply ?
+
+Regards,
+Fabian
+
+diff -Naur orig/security/capability.c edited/security/capability.c
+--- orig/security/capability.c	2003-07-27 17:00:30.000000000 +0000
++++ edited/security/capability.c	2003-08-16 10:31:33.000000000 +0000
+@@ -295,12 +295,7 @@
+ 
+ 	vm_acct_memory(pages);
+ 
+-        /*
+-	 * Sometimes we want to use more memory than we have
+-	 */
+-	if (sysctl_overcommit_memory == 1)
+-		return 0;
+-
++	/* We estimate memory ourselves (major cases)*/
+ 	if (sysctl_overcommit_memory == 0) {
+ 		free = get_page_cache_size();
+ 		free += nr_free_pages();
+@@ -322,10 +317,16 @@
+ 
+ 		if (free > pages)
+ 			return 0;
++
+ 		vm_unacct_memory(pages);
+ 		return -ENOMEM;
+ 	}
+ 
++	/* Kernel assumes allocation */
++	if (sysctl_overcommit_memory == 1)
++		return 0;
++	
++	/* sysctl_overcommit_memory must be 2 which means strict_overcommit*/
+ 	allowed = totalram_pages * sysctl_overcommit_ratio / 100;
+ 	allowed += total_swap_pages;
+ 
+
+
+___________________________________
+
+
+

@@ -1,53 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135943AbRDTRWX>; Fri, 20 Apr 2001 13:22:23 -0400
+	id <S135827AbRDTR1d>; Fri, 20 Apr 2001 13:27:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135976AbRDTRWN>; Fri, 20 Apr 2001 13:22:13 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:2235 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S135943AbRDTRWI>; Fri, 20 Apr 2001 13:22:08 -0400
-Date: Sat, 21 Apr 2001 03:30:19 +1000
-From: john slee <indigoid@higherplane.net>
-To: Harald Welte <laforge@gnumonks.org>
-Cc: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Documentation of module parameters.
-Message-ID: <20010421033019.N10345@higherplane.net>
-In-Reply-To: <3ADBB8C9.CC7FD941@nc.rr.com> <p05100b07b7017fc83c2e@[207.213.214.34]> <20010420133722.D2461@tatooine.laforge.distro.conectiva> <20010421031920.M10345@higherplane.net>
+	id <S135874AbRDTR1Y>; Fri, 20 Apr 2001 13:27:24 -0400
+Received: from hermes.sistina.com ([208.210.145.141]:6920 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S135827AbRDTR1O>;
+	Fri, 20 Apr 2001 13:27:14 -0400
+Date: Fri, 20 Apr 2001 19:24:13 +0000
+From: "Heinz J. Mauelshagen" <Mauelshagen@sistina.com>
+To: linux-lvm@sistina.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
+Message-ID: <20010420192413.A17717@sistina.com>
+Reply-To: Mauelshagen@sistina.com
+In-Reply-To: <20010419144815.J10345@sistina.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="n/aVsWSeQ4JHkrmm"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010421031920.M10345@higherplane.net>; from indigoid@higherplane.net on Sat, Apr 21, 2001 at 03:19:20AM +1000
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010419144815.J10345@sistina.com>; from lewis@sistina.com on Thu, Apr 19, 2001 at 02:48:15PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---n/aVsWSeQ4JHkrmm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Having just a couple of days of vacation I got informed today that
+a number of people got pissed off and decided to open a new Linux LVM mailing
+list <linux-openlvm@nl.linux.org>.
 
-On Sat, Apr 21, 2001 at 03:19:20AM +1000, john slee wrote:
-> it sounded like a challenge.  this might help someone who can't be
+Facts people complained about included:
 
-and it might be even more helpful if it didnt appear with a stupid
-mimetype.
+ 1. people got dropped from the list
 
-attempt #2
+ 2. messages bouncing
+
+ 3. lack of (small) LVM patches to the Linux kernel
+
+ 4. submitted patches being ignored
+
+
+WRT points 1 and 2:
+-------------------
+our Linux LVM mailing list <linux-lvm@sistina.com> is now completely open
+in order to avoid such kind of problems in the future.
+
+We apologize for any kind of trouble this caused in the past!
+
+We kindly ask everybody to stay at <linux-lvm@sistina.com> or to join it
+in order to avoid a mailing list split.
+
+Thanks a lot!
+
+
+WRT point 3:
+------------
+we will regard the Linus kernel as *the* repository for LVM driver changes
+rather than our public CVS repository from now on!
+
+In order to ease this migration we are working to create a bunch of small
+patches to submit them to the comunity.
+
+We will announce when they are available ASAP and would appreciate if
+people like Alan Cox, Andrea Arcangeli and Andreas Dilger
+could check them *before* we start submitting them to Linus.
+
+Thanks a lot in advance for your support.
+
+
+WRT point 4:
+------------
+a lot of patches send in by the comunity have been included
+in the actual LVM source.
+We appreciate all your valuable related work!
+
+Nevertheless about 30 patches which would have changed too much have been
+postponed for LVM 1.1 *because* we are in a feature freeze since a couple
+of weeks heading to a production stable LVM 1.0.
+
+The submitters have been informed about this fact.
+
+We will make these postponed patches accessable to everybody and will
+discuss the status of future patches in the public on the list from now on
+in order to avoid any further lack of information here.
+
+None of the patches which showed up on the lvm mailing lists
+have been discarded without notice!
+
+
+General statement:
+------------------
+Linux LVM is a Sistina GPL project and there's no danger at all
+that we want to change its GPL nature!
+
+We apologize for any inconveniences and kindly ask everybody to continue to
+help us making a better Linux LVM.
 
 -- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
 
---n/aVsWSeQ4JHkrmm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kernel-module-info.sh"
+Regards,
+Heinz    -- The LVM Guy --
 
-#!/bin/sh
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-# john slee <indigoid@higherplane.net>
-# Sat Apr 21 03:17:55 EST 2001
-# quick and dirty.  run from a kernel source dir somewhere.
-
-find . -name "*.c" | xargs egrep 'MODULE_DESCRIPTION|MODULE_PARM_DESC' \
-	| sed '/#undef/d; s/^\.\///; s/[:()]/	/g; s/[";]//g; /MODULE_PARM_DESC/s/,[ ]*/	/; /^[	 ]*$/d'
-
---n/aVsWSeQ4JHkrmm--
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

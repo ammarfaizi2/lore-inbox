@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315593AbSGJLSt>; Wed, 10 Jul 2002 07:18:49 -0400
+	id <S315595AbSGJLUp>; Wed, 10 Jul 2002 07:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315595AbSGJLSs>; Wed, 10 Jul 2002 07:18:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14091 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315593AbSGJLSr>; Wed, 10 Jul 2002 07:18:47 -0400
-Subject: Re: Oops with kernel BUG at dcache.c:345
-To: a.d.opmeer@student.utwente.nl (Arjan Opmeer)
-Date: Wed, 10 Jul 2002 12:38:17 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020710054916.GA1800@Ado.student.utwente.nl> from "Arjan Opmeer" at Jul 10, 2002 07:49:16 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315627AbSGJLUo>; Wed, 10 Jul 2002 07:20:44 -0400
+Received: from mail.storm.ca ([209.87.239.66]:29913 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S315595AbSGJLUm>;
+	Wed, 10 Jul 2002 07:20:42 -0400
+Message-ID: <3D2C0C3A.FB0FFBE9@storm.ca>
+Date: Wed, 10 Jul 2002 06:28:10 -0400
+From: Sandy Harris <pashley@storm.ca>
+Organization: Flashman's Dragoons
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+References: <Pine.GSO.4.21.0207100050050.3293-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17SFnV-0006to-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My Linux machine just crashed during the morning cronjob with an Oops. Yes,
-> I know my kernel is tainted because I have the NVidia driver loaded, but
-> consider that maybe this driver is not the direct cause of the Oops but only
-> exposing an obscure bug in the kernel?
+Alexander Viro wrote:
 
-You'll have to ask Nvidia about that. Only they have enough source code
-to tell
+> Again, the real mess is due to the way we use cpp. ...
+> 
+> As it is, we have way too many ifdefs to hope that any automated tool
+> would be able to cope with the damn thing.  It used to be worse -
+> these days several really nasty piles of ifdefs are gone.  However,
+> we still have quite a few remaining.
+> 
+> Quick-and-dirty search shows ~1.2e4 ifdefs on CONFIG_... in the tree.
+> Most of them - patently ridiculous ...
 
-Please don't send tainted and nvidia reports to the kernel list
+There's a classic Usenix paper "#ifdef Considered Harmful":
+http://www.google.ca/search?q=cache:kOjOJGuyArgC:www.literateprogramming.com/ifdefs.pdf+ifdef+considered+harmful&hl=en&ie=UTF-8

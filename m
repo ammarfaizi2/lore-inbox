@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUFHJdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUFHJeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264911AbUFHJdV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 05:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUFHJdV
+	id S262322AbUFHJeK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 05:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUFHJeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 05:33:21 -0400
-Received: from gate.corvil.net ([213.94.219.177]:11015 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S264911AbUFHJdU (ORCPT
+	Tue, 8 Jun 2004 05:34:10 -0400
+Received: from gprs214-162.eurotel.cz ([160.218.214.162]:21632 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262322AbUFHJeA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 05:33:20 -0400
-Message-ID: <40C58781.1060200@draigBrady.com>
-Date: Tue, 08 Jun 2004 10:31:45 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Egger <de@axiros.com>
-CC: David Woodhouse <dwmw2@infradead.org>, cijoml@volny.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: jff2 filesystem in vanilla
-References: <200406041000.41147.cijoml@volny.cz> <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com> <1086390590.4588.70.camel@imladris.demon.co.uk> <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com>
-In-Reply-To: <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 8 Jun 2004 05:34:00 -0400
+Date: Tue, 8 Jun 2004 11:17:09 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APM realy sucks on 2.6.x
+Message-ID: <20040608091709.GC2569@elf.ucw.cz>
+References: <40C0E91D.9070900@scienion.de> <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de> <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de> <20040607144841.GD1467@elf.ucw.cz> <40C53D80.2080603@tequila.co.jp> <20040608085814.GA1269@elf.ucw.cz> <40C580BE.1030802@tequila.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40C580BE.1030802@tequila.co.jp>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger wrote:
-> Believe it or not but JFFS2 is the only filesystem that works
-> reasonably on CF, especially when the system is used mostly read
-> only and the device is cut off from power every now and then. ;)
+Hi!
+
+> |>| PCMCIA... well, that's another obsolete technology. Too bad.
+> |>
+> |>PCMCIA is obsolete? Did I miss something, or was this a joke?
+> |
+> |
+> | Obsoleted by cardbus, I believe. (cardbus cards look like PCMCIA
+> | cards, but electrical protocol is different) Plus, as someone else
+> | noted, stuff moves into mainboard. USB also replacs part of what
+> | PCMCIA was for.
 > 
-> I tried different FS which we used read-only (and remounted it
-> r/w in case we needed it) in the last tries but we still were
-> able to kill a card without a problem and had FS corruption which
-> needed a console to fix.
+> hmm, I didn't know that there is a change from PCMCIA to cardbus.
+> Thought still there are lot of pcmcia stuff around. wlan cards, eg my
+> dial up card (CF card into a PCMCIA adapter). Well I wouldn't abandon
+> PCMCIA so fast. At least the linux kernel is know for beeing able to use
+> very old hardware in a very good way ...
 
-Can you give more detail on how you were able to "kill a card".
-Were there hot spots in those filesystems?
+Yes, pcmcia still survives in form of compactflash, mostly used by
+low-powered handhelds etc. That's where ISA survives too.
 
-Pádraig.
+I agree that supporting PCMCIA is usefull, and that linux should run
+on old hardware; but you can see that PCMCIA and APM is in "old
+hardware" category, along with ISA, Pentium I CPUs and serial ports.
+
+Linux still tries to support 386 cpus, and its right. However its not
+same level of support as modern hardware.
+								Pavel 
+-- 
+934a471f20d6580d5aad759bf0d97ddc

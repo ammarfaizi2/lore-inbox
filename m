@@ -1,270 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267261AbSLEJrs>; Thu, 5 Dec 2002 04:47:48 -0500
+	id <S267263AbSLEKGG>; Thu, 5 Dec 2002 05:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267263AbSLEJrs>; Thu, 5 Dec 2002 04:47:48 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:7412 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267261AbSLEJro>;
-	Thu, 5 Dec 2002 04:47:44 -0500
-Message-ID: <3DEF20E2.5AEE3E78@mvista.com>
-Date: Thu, 05 Dec 2002 01:48:18 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+	id <S267266AbSLEKGG>; Thu, 5 Dec 2002 05:06:06 -0500
+Received: from turn6.biologie.uni-konstanz.de ([134.34.128.74]:4249 "EHLO
+	turn6.biologie.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id <S267263AbSLEKGF>; Thu, 5 Dec 2002 05:06:05 -0500
+Message-ID: <3DEF26D3.7A4236D7@uni-konstanz.de>
+Date: Thu, 05 Dec 2002 11:13:39 +0100
+From: Kay Diederichs <kay.diederichs@uni-konstanz.de>
+Organization: =?iso-8859-1?Q?Universit=E4t?= Konstanz
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-mosix i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <Pine.LNX.4.44.0212042009340.11869-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------AA310F86EFA8D4CFF6104849"
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: stock 2.4.20: loading amd76x_pm makes time jiggle on A7M266-D
+References: <3DEDF543.51C80677@uni-konstanz.de> <1039009531.15353.13.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is a multi-part message in MIME format.
---------------AA310F86EFA8D4CFF6104849
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Linus Torvalds wrote:
+Alan Cox wrote:
 > 
-> On Wed, 4 Dec 2002, george anzinger wrote:
+> On Wed, 2002-12-04 at 12:29, Kay Diederichs wrote:
+> > the subject says it all:
 > >
-> > Once it changes the system call (eax, right), could the new
-> > call code then just get the parms from the restart_block.
+> > if I use the powersaving module amd76x_pm then the time is not kept. The
+> > hardware is Asus A7M266-D with 2 MP1900 processors, BIOS is 1004 (but I
+> > tried later BIOS versions as well).
 > 
-> Agreed.
-> 
-> > I think it would be best to keep this as generic as
-> > possible, i.e. let the new call code fetch its own
-> > paramerers from the restart_block.
-> 
-> We could even have one _single_ a generic "restart" system call, and have
-> the function pointer for that be in the restart block.
-> 
-> > My question is who sets up these values?  I think you are
-> > saying it should be the system call.  Is this right?
-> 
-> Whatever system call that return -ERESTART_RESTARTBLOCK, yes.
-> 
-> So it would never get set up at all in the fast path. Only in the error
-> case path of a system call that wants to have restarting capabilities.
-> 
->                 Linus
+> Boot with "notsc". Unfortunately I dont think there is a way I can make
+> the module turn off tsc at runtime.
 
-Ok, here is a patch to do all this.  This is against
-2.5.50-bk4.  (Bk5 did not get posted this evening.)
+To use "notsc" I had to set CONFIG_X86_TSC_DISABLE=y , but then init
+fails (booting stops after freeing some kernel memory). Configure.help
+says one has to install a TSC-checking glibc if that happens; I 
+installed the latest glibc-2.2.4-31 from redhat/7.2/updates but still
+init fails. Are there RH7.2 compatible versions of glibc which are
+TSC-checking?
 
-I think this covers all the bases.  It builds boots and
-runs.  I haven't tested nano_sleep to see if it does the
-right thing yet...
+I also tried 
+echo 01 >/proc/irq/0/smp_affinity
+and it seems to improve the situation but I'm not sure if this is a good
+workaround.
 
+Kay
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
---------------AA310F86EFA8D4CFF6104849
-Content-Type: text/plain; charset=us-ascii;
- name="regs-fix-2.5.50-bk4.1.0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="regs-fix-2.5.50-bk4.1.0.patch"
-
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-2.5.50-bk4-kb/arch/i386/kernel/entry.S	Wed Dec  4 23:28:20 2002
-+++ linux/arch/i386/kernel/entry.S	Wed Dec  4 23:48:49 2002
-@@ -769,6 +769,7 @@
- 	.long sys_epoll_wait
-  	.long sys_remap_file_pages
-  	.long sys_set_tid_address
-+	.long sys_restart_syscall
- 
- 
- 	.rept NR_syscalls-(.-sys_call_table)/4
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/arch/i386/kernel/signal.c linux/arch/i386/kernel/signal.c
---- linux-2.5.50-bk4-kb/arch/i386/kernel/signal.c	Thu Oct  3 10:41:57 2002
-+++ linux/arch/i386/kernel/signal.c	Thu Dec  5 00:27:21 2002
-@@ -507,6 +507,7 @@
- 		/* If so, check system call restarting.. */
- 		switch (regs->eax) {
- 			case -ERESTARTNOHAND:
-+		        case -ERESTART_RESTARTBLOCK:
- 				regs->eax = -EINTR;
- 				break;
- 
-@@ -589,6 +590,10 @@
- 		    regs->eax == -ERESTARTSYS ||
- 		    regs->eax == -ERESTARTNOINTR) {
- 			regs->eax = regs->orig_eax;
-+			regs->eip -= 2;
-+		}
-+		if (regs->eax == -ERESTART_RESTARTBLOCK){
-+			regs->eax = __NR_restart_syscall;
- 			regs->eip -= 2;
- 		}
- 	}
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/include/asm-i386/thread_info.h linux/include/asm-i386/thread_info.h
---- linux-2.5.50-bk4-kb/include/asm-i386/thread_info.h	Mon Sep  9 10:35:03 2002
-+++ linux/include/asm-i386/thread_info.h	Thu Dec  5 01:07:23 2002
-@@ -20,6 +20,12 @@
-  * - if the contents of this structure are changed, the assembly constants must also be changed
-  */
- #ifndef __ASSEMBLY__
-+struct restart_block {
-+	int (*fun)(void *);
-+	long arg0;
-+	long arg1;
-+};
-+
- struct thread_info {
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain	*exec_domain;	/* execution domain */
-@@ -31,6 +37,7 @@
- 					 	   0-0xBFFFFFFF for user-thead
- 						   0-0xFFFFFFFF for kernel-thread
- 						*/
-+	struct restart_block    restart_block;
- 
- 	__u8			supervisor_stack[0];
- };
-@@ -44,6 +51,7 @@
- #define TI_CPU		0x0000000C
- #define TI_PRE_COUNT	0x00000010
- #define TI_ADDR_LIMIT	0x00000014
-+#define TI_RESTART_BLOCK 0x0000018
- 
- #endif
- 
-@@ -63,6 +71,9 @@
- 	.cpu		= 0,			\
- 	.preempt_count	= 1,			\
- 	.addr_limit	= KERNEL_DS,		\
-+	.restart_block = {                      \
-+		.fun = 0,                       \
-+	},		                        \
- }
- 
- #define init_thread_info	(init_thread_union.thread_info)
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
---- linux-2.5.50-bk4-kb/include/asm-i386/unistd.h	Wed Nov 27 15:49:22 2002
-+++ linux/include/asm-i386/unistd.h	Wed Dec  4 23:48:46 2002
-@@ -263,7 +263,7 @@
- #define __NR_sys_epoll_wait	256
- #define __NR_remap_file_pages	257
- #define __NR_set_tid_address	258
--
-+#define __NR_restart_syscall    259
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/include/linux/errno.h linux/include/linux/errno.h
---- linux-2.5.50-bk4-kb/include/linux/errno.h	Mon Sep  9 10:35:15 2002
-+++ linux/include/linux/errno.h	Wed Dec  4 23:53:21 2002
-@@ -10,6 +10,7 @@
- #define ERESTARTNOINTR	513
- #define ERESTARTNOHAND	514	/* restart if no handler.. */
- #define ENOIOCTLCMD	515	/* No ioctl command */
-+#define ERESTART_RESTARTBLOCK 516 /* restart by calling sys_restart_syscall */
- 
- /* Defined for the NFSv3 protocol */
- #define EBADHANDLE	521	/* Illegal NFS file handle */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/kernel/signal.c linux/kernel/signal.c
---- linux-2.5.50-bk4-kb/kernel/signal.c	Wed Dec  4 23:27:02 2002
-+++ linux/kernel/signal.c	Thu Dec  5 01:18:20 2002
-@@ -1351,6 +1351,15 @@
-  * System call entry points.
-  */
- 
-+asmlinkage long
-+sys_restart_syscall( void *parm)
-+{
-+	if ( ! current_thread_info()->restart_block.fun){
-+		return current_thread_info()->restart_block.fun(&parm);
-+	}
-+	return -ENOSYS;
-+}
-+
- /*
-  * We don't need to get the kernel lock - this is all local to this
-  * particular thread.. (and that's good, because this is _heavily_
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/kernel/timer.c linux/kernel/timer.c
---- linux-2.5.50-bk4-kb/kernel/timer.c	Wed Dec  4 23:27:02 2002
-+++ linux/kernel/timer.c	Thu Dec  5 01:16:03 2002
-@@ -1020,19 +1020,39 @@
- 	return current->pid;
- }
- 
-+struct nano_sleep_call {
-+	struct timespec *rqtp; 
-+	struct timespec *rmtp;
-+};
-+
-+asmlinkage long sys_nanosleep_restart( struct nano_sleep_call * parms);
-+
- asmlinkage long sys_nanosleep(struct timespec *rqtp, struct timespec *rmtp)
- {
- 	struct timespec t;
- 	unsigned long expire;
-+	struct  restart_block *restart_block;
- 
--	if(copy_from_user(&t, rqtp, sizeof(struct timespec)))
--		return -EFAULT;
--
--	if (t.tv_nsec >= 1000000000L || t.tv_nsec < 0 || t.tv_sec < 0)
--		return -EINVAL;
-+	if (rqtp) {
-+		if(copy_from_user(&t, rqtp, sizeof(struct timespec)))
-+			return -EFAULT;
- 
--	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
-+		if (t.tv_nsec >= 1000000000L || t.tv_nsec < 0 || t.tv_sec < 0)
-+			return -EINVAL;
-+		expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
- 
-+	}else{
-+		restart_block = &current_thread_info()->restart_block;
-+		if( restart_block->fun != 
-+		    (int (*)(void *))sys_nanosleep_restart ||
-+		    ! restart_block->arg0){
-+			return  -EFAULT;
-+		}
-+		restart_block->fun = NULL;
-+		expire = restart_block->arg0 - jiffies;
-+		if (expire < 0)
-+			return 0;
-+	}
- 	current->state = TASK_INTERRUPTIBLE;
- 	expire = schedule_timeout(expire);
- 
-@@ -1042,10 +1062,19 @@
- 			if (copy_to_user(rmtp, &t, sizeof(struct timespec)))
- 				return -EFAULT;
- 		}
--		return -EINTR;
-+		restart_block = &current_thread_info()->restart_block;
-+		restart_block->fun = (int (*)(void *))sys_nanosleep_restart;
-+		restart_block->arg0 = jiffies + expire;
-+		return -ERESTART_RESTARTBLOCK;
- 	}
- 	return 0;
- }
-+
-+asmlinkage long sys_nanosleep_restart( struct nano_sleep_call * parms)
-+{
-+	return sys_nanosleep(NULL, parms->rmtp);
-+}
-+
- 
- /*
-  * sys_sysinfo - fill in sysinfo struct
-
---------------AA310F86EFA8D4CFF6104849--
-
+Kay Diederichs         http://strucbio.biologie.uni-konstanz.de/~kay 
+email: Kay.Diederichs @ uni-konstanz.de  Tel +49 7531 88 4049 Fax 3183
+When replying to my email, please remove the blanks before and after the
+"@" !
+Fakultaet fuer Biologie, Universitaet Konstanz, Box M656, D-78457
+Konstanz

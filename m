@@ -1,171 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289056AbSBMWq4>; Wed, 13 Feb 2002 17:46:56 -0500
+	id <S289081AbSBMW6T>; Wed, 13 Feb 2002 17:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSBMWqq>; Wed, 13 Feb 2002 17:46:46 -0500
-Received: from relay04.valueweb.net ([216.219.253.238]:26130 "EHLO
-	relay04.valueweb.net") by vger.kernel.org with ESMTP
-	id <S289047AbSBMWqk>; Wed, 13 Feb 2002 17:46:40 -0500
-From: Craig Christophel <merlin@transgeek.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH] -- filesystems.c::sys_nfsservctl 2.5.5-pre1
-Date: Wed, 13 Feb 2002 17:46:26 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-In-Reply-To: <20020213205144Z282414-24962+32@thor.valueweb.net> <shsd6z9dqes.fsf@charged.uio.no>
-In-Reply-To: <shsd6z9dqes.fsf@charged.uio.no>
+	id <S289062AbSBMW6J>; Wed, 13 Feb 2002 17:58:09 -0500
+Received: from fw.aub.dk ([195.24.1.194]:37760 "EHLO Princess")
+	by vger.kernel.org with ESMTP id <S289058AbSBMW5y>;
+	Wed, 13 Feb 2002 17:57:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Allan Sandfeld <linux@sneulv.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-rc1
+Date: Wed, 13 Feb 2002 23:53:41 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.21.0202131732330.20915-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0202131732330.20915-100000@freak.distro.conectiva>
+X-BeenThere: crackmonkey@crackmonkey.org
+X-Fnord: +++ath
+X-Message-Flag: Message text blocked
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_EXTHK8KXV23EIECJ89Z1"
-Message-Id: <20020213224618Z281597-18043+38@thor.valueweb.net>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16b8HV-0001JS-00@Princess>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 13 February 2002 20:33, Marcelo Tosatti wrote:
+> So here it goes.
+>
+> rc1:
+<snip>
+> - Merge some -ac bugfixes			(Alan Cox)
 
---------------Boundary-00=_EXTHK8KXV23EIECJ89Z1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Here's a crazy idea. Why not branch off the new pre-tree when commiting a 
+rc-kernel? 
+There's a number of patches in the ac-tree you proberbly already have 
+commited to the next pre-kernel in your mind. The basic idea is that when you 
+release a patch as release candidate, you shortly after release the first 
+pre-patch for next kernel. For the release candidate there is test delay, 
+such that at least 1 maybe 2 weeks has to pass without an unsolved release 
+critical bug, before a release candidat can be promoted to be a stable 
+version. This would for periods of time result in two patches for the stable 
+tree. (yes, I am Debian user, how did you guess?)
 
-> What would remain to protect 'nfsd_linkage' if you removed the BKL?
+The advantages are two fold, not only could it ease the presure to allow a 
+rc-patch to stay rc for longer, it would even out the load on you as 
+mainterner, as you could always accept new patches into the next pre-patch as 
+there will always be one.  I.e you would only have to make decisions of 
+whether this patch is critical or not for the stable release or merely 
+something for the next release.
+The disadvantage, might be that fewer hackers would test the rc, although 
+this could even out with the longer rc-period, and that you might see an 
+increase in your work-load if you both have the test the rc and maintain the 
+next release tree.
 
-
-ok here is a patch with that changed. inlined for commenting and attached for 
-patching.  (kmail screws up my inlines occasionally) 
-All of this extra checking is only in place if nfsd is a module.  rw_sems 
-shouldn't impost that much overhead in the normal case.  
-
-	The while is there to catch extremely unlikely cases of the module unloading 
-during this loop, ie:  the cleanup_module section of nfsd is waiting for the 
-semaphore.
-
-===== fs/filesystems.c 1.4 vs edited =====
---- 1.4/fs/filesystems.c	Fri Feb  8 22:10:55 2002
-+++ edited/fs/filesystems.c	Wed Feb 13 17:43:41 2002
-@@ -16,19 +16,28 @@
- 
- #if defined(CONFIG_NFSD_MODULE)
- struct nfsd_linkage *nfsd_linkage = NULL;
-+DECLARE_RWSEM(nfsd_linkage_lock);
- 
- long
- asmlinkage sys_nfsservctl(int cmd, void *argp, void *resp)
- {
- 	int ret = -ENOSYS;
- 	
--	lock_kernel();
--
--	if (nfsd_linkage ||
--	    (request_module ("nfsd") == 0 && nfsd_linkage))
--		ret = nfsd_linkage->do_nfsservctl(cmd, argp, resp);
--
--	unlock_kernel();
-+	down_read(&nfsd_linkage_lock);
-+	while(!nfsd_linkage) {
-+		up_read(&nfsd_linkage_lock);
-+		down_write(&nfsd_linkage_lock);
-+		if (!nfsd_linkage)
-+			if (request_module ("nfsd") != 0) {
-+				up_write(&nfsd_linkage_lock);
-+				goto out;
-+			}
-+		up_write(&nfsd_linkage_lock);
-+		down_read(&nfsd_linkage_lock);
-+	}
-+	ret = nfsd_linkage->do_nfsservctl(cmd, argp, resp);
-+	up_read(&nfsd_linkage_lock);
-+out:
- 	return ret;
- }
- EXPORT_SYMBOL(nfsd_linkage);
-===== fs/nfsd/nfsctl.c 1.10 vs edited =====
---- 1.10/fs/nfsd/nfsctl.c	Fri Feb  8 22:10:55 2002
-+++ edited/fs/nfsd/nfsctl.c	Wed Feb 13 17:33:17 2002
-@@ -290,6 +290,7 @@
- 	do_nfsservctl: handle_sys_nfsservctl,
- };
- 
-+extern struct nfsd_linkage_lock;
- /*
-  * Initialize the module
-  */
-@@ -307,7 +308,9 @@
- void
- cleanup_module(void)
- {
-+	down_write(&nfsd_linkage_lock);
- 	nfsd_linkage = NULL;
-+	up_write(&nfsd_linkage_lock);
- 	nfsd_export_shutdown();
- 	nfsd_cache_shutdown();
- 	remove_proc_entry("fs/nfs/exports", NULL);
-
---------------Boundary-00=_EXTHK8KXV23EIECJ89Z1
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="filesystems-remove-lock_kernel-nfsd.diff"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="filesystems-remove-lock_kernel-nfsd.diff"
-
-===== fs/filesystems.c 1.4 vs edited =====
---- 1.4/fs/filesystems.c	Fri Feb  8 22:10:55 2002
-+++ edited/fs/filesystems.c	Wed Feb 13 17:43:41 2002
-@@ -16,19 +16,28 @@
- 
- #if defined(CONFIG_NFSD_MODULE)
- struct nfsd_linkage *nfsd_linkage = NULL;
-+DECLARE_RWSEM(nfsd_linkage_lock);
- 
- long
- asmlinkage sys_nfsservctl(int cmd, void *argp, void *resp)
- {
- 	int ret = -ENOSYS;
- 	
--	lock_kernel();
--
--	if (nfsd_linkage ||
--	    (request_module ("nfsd") == 0 && nfsd_linkage))
--		ret = nfsd_linkage->do_nfsservctl(cmd, argp, resp);
--
--	unlock_kernel();
-+	down_read(&nfsd_linkage_lock);
-+	while(!nfsd_linkage) {
-+		up_read(&nfsd_linkage_lock);
-+		down_write(&nfsd_linkage_lock);
-+		if (!nfsd_linkage)
-+			if (request_module ("nfsd") != 0) {
-+				up_write(&nfsd_linkage_lock);
-+				goto out;
-+			}
-+		up_write(&nfsd_linkage_lock);
-+		down_read(&nfsd_linkage_lock);
-+	}
-+	ret = nfsd_linkage->do_nfsservctl(cmd, argp, resp);
-+	up_read(&nfsd_linkage_lock);
-+out:
- 	return ret;
- }
- EXPORT_SYMBOL(nfsd_linkage);
-===== fs/nfsd/nfsctl.c 1.10 vs edited =====
---- 1.10/fs/nfsd/nfsctl.c	Fri Feb  8 22:10:55 2002
-+++ edited/fs/nfsd/nfsctl.c	Wed Feb 13 17:33:17 2002
-@@ -290,6 +290,7 @@
- 	do_nfsservctl: handle_sys_nfsservctl,
- };
- 
-+extern struct nfsd_linkage_lock;
- /*
-  * Initialize the module
-  */
-@@ -307,7 +308,9 @@
- void
- cleanup_module(void)
- {
-+	down_write(&nfsd_linkage_lock);
- 	nfsd_linkage = NULL;
-+	up_write(&nfsd_linkage_lock);
- 	nfsd_export_shutdown();
- 	nfsd_cache_shutdown();
- 	remove_proc_entry("fs/nfs/exports", NULL);
-
---------------Boundary-00=_EXTHK8KXV23EIECJ89Z1--
+Anyway, just a random thought.
+Greetings
+-Allan

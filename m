@@ -1,150 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264588AbRFYOqj>; Mon, 25 Jun 2001 10:46:39 -0400
+	id <S264592AbRFYOuT>; Mon, 25 Jun 2001 10:50:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264589AbRFYOq3>; Mon, 25 Jun 2001 10:46:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29966 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264588AbRFYOqT>; Mon, 25 Jun 2001 10:46:19 -0400
-Date: Mon, 25 Jun 2001 15:46:02 +0100
-From: Alan Cox <laughing@shared-source.org>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.2.20pre6
-Message-ID: <20010625154602.A7354@lightning.swansea.linux.org.uk>
-Mail-Followup-To: Alan Cox <laughing@shared-source.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264589AbRFYOuJ>; Mon, 25 Jun 2001 10:50:09 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:9346 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264593AbRFYOtu>; Mon, 25 Jun 2001 10:49:50 -0400
+Date: Mon, 25 Jun 2001 10:49:12 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Shutko <ats@acm.org>
+cc: Michael Meissner <meissner@spectacle-pond.org>,
+        Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: sizeof problem in kernel modules
+In-Reply-To: <87ofrcbryf.fsf@wesley.springies.com>
+Message-ID: <Pine.LNX.3.95.1010625094914.7314A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Jun 2001, Alan Shutko wrote:
 
-Linux 2.2 is now firmly into maintainance state. Patches for neat new ideas
-belong in 2.4. Generally new drivers belong in 2.4 (possibly in 2.2 as well
-after 2.4 shows them stable). Expect me to be very picky on changes to the
-core code now. 
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+> 
+> > This means that it must be some place else than where it's denoted
+> > in a visual representation of the structure.
+> 
+> No, that's not true.
+> 
+> ISO/IEC 9899:1990 6.5.2.1:
+> 
+>   As discussed in 6.1.2.5, a structure is a type consisting of a
+>   sequence of named members, whose storage is allocated in an ordered
+>   sequence, and a union [stuff we don't care about].
+>
 
-2.2.20pre6
-o	Merge all the pending ISDN updates		(Kai Germaschewski)
-	| These are sizable changes and want a good testing
-o	Fix sg deadlock bug as per 2.4			(Douglas Gilbert)
-o	Count socket/pipe in quota inode use		(Paul Menage)
-o	Fix some missing configuration help texts	(Steven Cole)
-o	Fix Rik van Riel's credits entry		(Rik van Riel)
-o	Mark xtime as volatile in extern definition	(various people)
-o	Fix open error return checks			(Andries Brouwer)
+Does "ordered sequence" mean "incremental"? I think not.
+ 
+>   Within a structure object, the non-bit-field members and the units
+>   in which bit-fields reside have addresses that increase in the order
+>   in which they declared.
 
-2.2.20pre5
-o	Fix a patch generation error, replaces 2.2.20pre4 which is
-	wrong on ad1848
 
-2.2.20pre4
-o	Fix small corruption bug in 82596		(Andries Brouwer)
-o	Fix usb printer probing				(Pete Zaitcev)
-o	Fix swapon/procfs race				(Paul Menage)
-o	Handle ide dma bug in the CS5530		(Mark Lord)
-o	Backport 2.4 ipv6 neighbour discovery changes	(Dave Miller)
-o	FIx sock_wmalloc error handling			(Dave Miller)
-o	Enter quickack mode for out of window TCP data	(Andi Kleen)
-o	Fix Established v SYN-ACK TCP state error	(Alexey Kuznetsov)
-o	Sparc updates, ptrace changes etc		(Dave Miller)
-o	Fix wrong printk in vdolive masq		(Keitaro Yosimura)
-o	Fix core dump handling bugs in 2.2		(Al Viro)
-o	Update hdlc and synclink drivers		(Paul Fulghum)
-o	Update netlink help texts			(Magnus Damm)
-o	Fix rtl8139 keeping files open			(Andrew Morton)
-o	Further sk98 driver updates. fix wrong license	(Mirko Lindner)
-	text in files
-o	Jonathan Woithe has moved			(Jonathan Woithe)
-o	Update cpqarray driver				(Charles White)
-o	Update cciss driver				(Charles White)
-o	Don't delete directories on an fs that reports	(Ingo Oeser)
-	then 0 size when doing distclean
-o	Add support for the 2.4 boot extensions to 2.2	(H Peter Anvin)
-o	Fix nfs cache locking corruption on SMP		(Craig Hagan)
-o	Add missing check to cdrom readaudio ioctl	(Jani Jaakkola)
-o	Fix refclock build with newer gcc		(Jari Ruusu)
-o	koi8-r fixes					(Andy Rysin)
-o	Spelling fixes for documentation		(Andries Brouwer)
+Really?? Did you TYPE this in or did you copy it from somewhere??
+When I was on an ANSI committee (nothing to do with software), we
+made damn sure that we used the correct English.
 
-2.2.20pre3
-o	FPU/ptrace corruption fixes			(Victor Zandy)
-o	Resync belkin usb serial with 2.4		(Greg Kroah-Hartmann)
-o	Resync digiport usb serial with 2.4		(Greg Kroah-Hartmann)
-o	Rsync empeg usb serial with 2.4			(Greg Kroah-Hartmann)
-o	Resync ftdi_sio against 2.4			(Greg Kroah-Hartmann)
-o	Bring keyscan usb back into line with 2.4	(Greg Kroah-Hartmann)
-o	Resync keyspan_pda usb with 2.4			(Greg Kroah-Hartmann)
-o	Resync omninet usb with 2.4.5			(Greg Kroah-Hartmann)
-o	Resync usb-serial driver with 2.4.5		(Greg Kroah-Hartmann)
-o	Resync visor usb driver with 2.4.5		(Greg Kroah-Hartmann)
-o	Rsync whiteheat driver with 2.4.5		(Greg Kroah-Hartmann)
-o	Add edgeport USB serial				(Greg Kroah-Hartmann)
-o	Add mct_u232 USB serial				(Greg Kroah-Hartmann)
-o	Update usb storage device list		(Stas Bekman, Kaz Sasayma)
-o	Bring usb acm driver into line with 2.4.5	(Greg Kroah-Hartmann)
-o	Bring bluetooth driver into line with 2.4.5	(Greg Kroah-Hartmann)
-o	Bring dabusb driver into line with 2.4.5	(Greg Kroah-Hartmann)
-o	Bring usb dc2xx driver into line with 2.4.5	(Greg Kroah-Hartmann)
-o	Bring mdc800 usb driver into line with 2.4.5	(Greg Kroah-Hartmann)
-o	Bring rio driver into line with 2.4.5		(Greg Kroah-Hartmann)
-o	Bring USB scanner drivers into line with 2.4.5	(Greg Kroah-Hartmann)
-o	Update ov511 driver to match 2.4.5		(Greg Kroah-Hartmann)
-o	Update PCIIOC ioctls (esp for sparc)		(Dave Miller)
-o	General sparc bugfixes				(Dave Miller)
-o	Fix possible oops in fbmem ioctls		(Dave Miller)
-o	Fix reboot/halt bug on "Alcor" Alpha boxes	(Tom Vier)
-o	Update osst driver 				(Willem Riede)
-o	Fix syncppp negotiation bug			(Bob Dunlop)
-o	SMBfs bug fixes from 2.4 series			(Urban Widmark)
-o	3ware IDE raid driver updates			(Adam Radford)
-o	Fix incorrect use of bitops on non long types	(Dave Miller)
-o	Fix reboot/halt bug on 'Miata' Alpha boxes	(Tom Vier)
-o	Update Tim Waugh's contact info			(Tim Waugh)
-o	Add TIOCGSERIAL to sun serial on PCI sparc32	(Lars Kellogg-Stedman)
-o	ov511 check user data more carefully		(Marc McClelland)
-o	Fix netif_wake_queue compatibility macro	(Andi Kleen)
+Look at:
+ "have addresses that increase in the order in which they declared."
 
-2.2.20pre2
-o	Fix ip_decrease_ttl as per 2.4			(Dave Miller)
-o	Fix tcp retransmit state bug			(Alexey Kuznetsov)
-o	Fix a few obscure sparc tree bugs		(Dave Miller)
-o	Fix fb /proc bug and OF fb name size bug	(Segher Boessenkool)
-o	Fix complie with CONFIG_INTEL_RNG=y		(Andrzej Krzysztofowicz)
-o	Fix rio driver when HZ!=100			(Andrzej Krzysztofowicz)
-o	Stop 3c509 grabbing other EISA boards		(Andrzej Krzysztofowicz)
-o	Remove surplus defines for root= names		(Andrzej Krzysztofowicz)
-o	Revert pre1 APIC change
+I think this was added, in the copy you cite, by somebody who didn't
+know English grammar, to support the argument..."
 
-2.2.20pre1
-o	Fix SMP deadlock in NFS				(Trond Myklebust)
-o	Fix missing printk in bluesmoke handler		(me)
-o	Fix sparc64 nfs					(Dave Miller)
-o	Update io_apic code to avoid breaking dual	(Johannes Erdfelt)
-	Athlon 760MP
-o	Fix includes bugs in toshiba driver		(Justin Keene,
-							 Greg Kroah-Hartmann)
-o	Fix wanpipe cross compile			(Phil Blundell)
-o	AGPGART copy_from_user fix			(Dawson Engler)
-o	Fix alpha resource setup error			(Allan Frank)
-o	Eicon driver updates				(Armind Schindler)
-o	PC300 driver update				(Daniela Squassoni)
-o	Show lock owner on flocks			(Jim Mintha)
-o	Update cciss driver to 1.0.3			(Charles White)
-o	Backport cciss/cpqarray security fixes		(me)
-o	Update i810 random number generator		(Jeff Garzik)
-o	Update sk98 driver				(Mirko Lindner)
-o	Update sis900 ethernet driver			(Hui-Fen Hsu)
-o	Fix checklist glitch in make menuconfig		(Moritz Schulte)
-o	Update synclink driver				(Paul Fulghum)
-o	Update advansys scsi driver			(Bob Frey)
-o	Ver_linux fixes for 2.2				(Steven Cole)
-o	Bring 2.2 back into line with the master ISDN	(Kai Germaschewski)
-o	Whiteheat usb driver update			(Greg Kroah-Hartmann)
-o	Fix via_rhine byte counters			(Adam Lackorzynski)
-o	Fix modem control on rio serial			(Rogier Wolff)
-o	Add more Iomega Zip to the usb storage list	(Wim Coekaerts)
-o	Add ZF Micro watchdog 				(Fernando Fuganti)
+ "in which they were declared."
+                ^^^^
+
+And... If this was a part of a C specification it would prevent
+the inclusion of const data within a structure unless the entire
+structure was of type const. And, it is well known that any
+data types may be structure members so this cannot be correct.
+
+    A pointer to a structure object, suitably
+>   converted, points to its initial member (or if that member is a
+>   bit-field, then to the unit in which it resides, and vice versa.
+>   There may therefore be unnammed padding withing a structure object,
+                           ^^^^^^^^         ^^^^^^^
+
+Unnamed and within are spelled incorrectly. This is not a valid
+document.
+
+
+>   but not at its beginning, as necessary to achieve the appropriate
+>   alignment.
+> 
+>   There may also be unnamed padding at the end of a structure or
+>   union, as necessary to achieve the appropriate alignment were the
+>   structure or union to be an element of an array.
+>
+ 
+> You can look at other things too... you can memcpy structures, pass
+> them into functions, call sizeof, put them in arrays... it _is_ a
+> physical representation.
+> 
+
+memcpy()...
+Maybe you can memcpy() structures. Maybe you and I usually get away
+with it, but provisions were made to handle the problems previously
+discussed, by using the assigment operator "=" to copy structures.
+This way, the compiler "knows" where things are and handles duplication
+accordingly. And copying a structure that contains a mix of const
+and writable data is probably a bug since the copy can't support
+data of type 'const'.
+
+Pass to functions...
+Since any memory object(s) including structure members are simply
+data contained at addresses, of course you can pass them to functions
+although doing this is probably done by mistake, rather than design.
+Generally, one would pass a pointer to a structure. Which, according
+to previously-cited rules, represents the address of the first structure
+member.
+
+"call?" sizeof...
+Returns the allocation size of the structure. So? The compiler
+can certainly add up the length of all the structure members plus
+any padding and return the result. Note that you can't allocate data
+of type 'const' so when copying any structure by any means, the
+copy contains no 'const' data, even if the original structure contained
+'const' data members. The const data is/are not missing, they are
+just no longer const.
+
+Put into arrays...
+Of course. Nothing has to be physical representation as a requisite
+for being put into arrays.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

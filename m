@@ -1,98 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289306AbSBEAIa>; Mon, 4 Feb 2002 19:08:30 -0500
+	id <S289313AbSBEALa>; Mon, 4 Feb 2002 19:11:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289308AbSBEAIR>; Mon, 4 Feb 2002 19:08:17 -0500
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:64058
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S289306AbSBEAIA>; Mon, 4 Feb 2002 19:08:00 -0500
-Message-ID: <001d01c1add9$3a3ab900$0300000a@hypnos>
-From: "Jon Anderson" <jon-anderson@rogers.com>
-To: "Ken Brownfield" <brownfld@irridia.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200202031027.g13ARMN03118@ns.home.local> <20020204172942.C14297@asooo.flowerfire.com>
-Subject: Re: 760MPX IO/APIC Errors...
-Date: Mon, 4 Feb 2002 19:08:23 -0500
+	id <S289312AbSBEALV>; Mon, 4 Feb 2002 19:11:21 -0500
+Received: from www3.aname.net ([62.119.28.103]:1482 "EHLO www3.aname.net")
+	by vger.kernel.org with ESMTP id <S289313AbSBEALI>;
+	Mon, 4 Feb 2002 19:11:08 -0500
+From: "Johan Ekenberg" <johan@ekenberg.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops in mm/page_alloc.c: __free_pages_ok, kernel = patched 2.4.17
+Date: Tue, 5 Feb 2002 01:09:38 +0100
+Message-ID: <000301c1add9$66bd3930$050010ac@FUTURE>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.112.215.28] using ID <jon-anderson@rogers.com> at Mon, 4 Feb 2002 19:07:54 -0500
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2377.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get as far as APIC init. As soon as  that happens, I get a flood (many
-hundred or more per second) of these "APIC error on CPU0: 04(04)" errors,
-and any progress seems to cease. The machine may in fact still be booting,
-but I can't tell because any startup messages/login prompts would flash by
-too quickly for me to notice them. (Plus, I think booting becomes painfully
-slow because of all the error reporting.) My problem seems to be different
-from Willy Tarreau's problem, in that he has two CPUs, and his disabling
-MPS1.4 fixes his problem. For me, I have one CPU, and disabling MPS1.4 does
-not solve the problem. My only option is disabling all APIC support in the
-kernel. The APIC is probably still spitting out errors at an incredible
-rate, I just can't see them. :-) Though my problem is not typical.
+System:
+     Intel SMP
+Kernel:
+     2.4.17
+Relevant patches:
+     quota-for-reiserfs patches
+     Andreas ptrace patch (fixes an oops in kernel/ptrace.c - from
+2.4.18-pre?)
+     Ben LaHaise's page_cache_release.patch (from 2.4.18-pre3)
+     A tar.gz with all applied patches + .config can be found here:
+     http://www.ekenberg.se/oops/against-2.4.17.tar.gz
+Modules:
+     none
+Other:
+     Please Cc: me since I'm not currently subscribed to LKM.
 
-I've been searching through the linux-kernel and linux-smp mailing lists for
-situations similar to mine, and there have been (as far as I can find) two
-identical incidents reported, both by people with one CPU in the Asus
-A7M266-D, a 2 CPU board. In my case, a single Duron (morgan core -
-reportedly SMPable) and in the other guy's case, a single Athlon MP. Since
-nobody else complains, I assume it's because the majority people who own the
-A7M266-D also own 2 CPUs - which doesn't seem to cause problems. My
-suggestion would then be that if you want to get an A7M266-D, make sure your
-budget can accomodate 2 CPUs. :-)
+2 x Oops:
 
-I hope my input is helpful,
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[__free_pages_ok+40/524]    Not tainted
+EFLAGS: 00010282
+eax: c14bce9c   ebx: c1be2300   ecx: c1be2300   edx: e709b4f4
+esi: c1be2300   edi: 00000000   ebp: 000001f2   esp: f7ee3f28
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=f7ee3000)
+Stack: c9692600 c1be2300 0000000c 000001f2 c1be2300 000001d0 c9692600
+c1be2300
+       c012c2e2 c012d138 c012c329 00000020 000001d0 00000020 00000006
+f7ee2000
+       f7ee2000 000031c6 000001d0 c02711d0 c012c592 00000006 00000021
+00000006
+Call Trace: [shrink_cache+526/908] [__free_pages+28/32]
+[shrink_cache+597/908] [shrink_caches+86/132] [try_to_free_pages+60/92]
+[kswapd_balance_pgdat+67/140] [kswapd_balance+18/40] [kswapd+153/188]
+[kernel_thread+40/56]
+Code: 0f 0b 89 d8 2b 05 4c b6 2e c0 c1 f8 06 3b 05 40 b6 2e c0 72
 
-jon anderson
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[__free_pages_ok+40/524]    Not tainted
+EFLAGS: 00010282
+eax: 00000009   ebx: c1be2300   ecx: c1be2300   edx: e709b4f4
+esi: 00001000   edi: 00000000   ebp: 00000380   esp: d3cb9f08
+ds: 0018   es: 0018   ss: 0018
+Process mysqld (pid: 13273, stackpage=d3cb9000)
+Stack: c1be2300 00001000 e709b4f4 00000380 c1be2300 c1be2300 f7f9fcb0
+e709b4f4
+       0000037f c012d138 c01263ad d3cb9f8c c1be2300 00000000 00001000
+00000000
+       ffffffea 00000000 00200000 00001000 00000001 00000000 00000000
+e709b440
+Call Trace: [__free_pages+28/32] [do_generic_file_read+577/1124]
+[generic_file_read+126/300] [file_read_actor+0/208] [sys_read+143/196]
+[system_call+51/56]
+Code: 0f 0b 89 d8 2b 05 4c b6 2e c0 c1 f8 06 3b 05 40 b6 2e c0 72
 
 
------ Original Message -----
-From: "Ken Brownfield" <brownfld@irridia.com>
-To: "Willy Tarreau" <wtarreau@free.fr>
-Cc: <jon-anderson@rogers.com>; <linux-kernel@vger.kernel.org>
-Sent: Monday, February 04, 2002 6:29 PM
-Subject: Re: 760MPX IO/APIC Errors...
+Is this a known bug, and if so: is there a patch for it?
 
-
-> At what point do your machines stop booting, i.e., what was the last
-> printed kernel message on the console?  Also, can you send me full
-> dmesgs from your machines after booting?
->
-> I'm trying to corelate these issues with APIC issues I've had in the
-> past (and I'm thinking of getting the A7M266D at some point).
->
-> Thanks,
-> --
-> Ken.
-> brownfld@irridia.com
->
-> PS: MPS1.4 ==> APIC_DM_FIXED?
->
-> On Sun, Feb 03, 2002 at 11:27:22AM +0100, Willy Tarreau wrote:
-> | Hi Jon,
-> |
-> | same motherboard here, but with 2 XP1800+.
-> | It couldn't boot until I either disabled IO/APIC or disable MPS1.4
-support
-> | in the bios setup. Finally, I disabled MPS1.4 and let IO/APIC enabled
-and
-> | it works really well in SMP. (In fact, I couldn't really imagine how
-fast
-> | this could be !)
-> |
-> | Regards,
-> | Willy
-> |
-> | -
-> | To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> | the body of a message to majordomo@vger.kernel.org
-> | More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> | Please read the FAQ at  http://www.tux.org/lkml/
+Thanks,
+/Johan Ekenberg
 

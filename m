@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263200AbTDGChg (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTDGChg (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:37:36 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:51146 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263200AbTDGChe (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 22:37:34 -0400
-Message-ID: <33182.4.64.238.61.1049683748.squirrel@webmail.osdl.org>
-Date: Sun, 6 Apr 2003 19:49:08 -0700 (PDT)
-Subject: Re: Wanted: a limit on kernel log buffer size
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <76306.1226@compuserve.com>
-In-Reply-To: <200304062137_MC3-1-3346-A97E@compuserve.com>
-References: <200304062137_MC3-1-3346-A97E@compuserve.com>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.11 [cvs])
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id S263197AbTDGCfs (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTDGCfs (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:35:48 -0400
+Received: from granite.he.net ([216.218.226.66]:46606 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263197AbTDGCfr (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 22:35:47 -0400
+Date: Sun, 6 Apr 2003 13:16:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Jens Ansorg <jens@ja-web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB devices in 2.5.xx do not show in /dev
+Message-ID: <20030406201638.GC18279@kroah.com>
+References: <1049632582.3405.0.camel@lisaserver>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049632582.3405.0.camel@lisaserver>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Some people (who will mercifully go unnamed) just will _not_
-> read the documentation, and set the kernel log buffer shift
-> to 31 on a 256MB machine.  This attempt to allocate 2GB of memory
-> for the buffer results in an unbootable kernel.
->
->  Suggestions?
+On Sun, Apr 06, 2003 at 02:36:23PM +0200, Jens Ansorg wrote:
+> I'm trying an 2.5.66-mm kernel on 1386
+> 
+> I have 3 USB devices connected.
+> The mouse works - mostly (no wheel support)
+> But scanner and printer do not work.
+> 
+> The modules scanner and usblp seem to load fine
+> 
+> Apr  6 14:14:37 lisaserver kernel: drivers/usb/core/usb.c: registered
+> new driver usbscanner
+> Apr  6 14:14:37 lisaserver kernel: drivers/usb/image/scanner.c:
+> 0.4.11:USB Scanner Driver
+> Apr  6 14:15:50 lisaserver kernel: drivers/usb/core/usb.c: registered
+> new driver usblp
+> Apr  6 14:15:50 lisaserver kernel: drivers/usb/class/usblp.c: v0.13: USB
+> Printer Device Class driver
+> 
+> 
+> but I do not get the devices under /dev to actually use them
 
-This is a multi-part answer.  Say, 5 parts.
+You have to have an actual device for the /dev node to show up.  Do you
+have any USB devices plugged in?  What does:
+	tree /sys/bus/usb/
+show?
 
-a.  If someone won't read the help text, how can we help them?
+thanks,
 
-b.  If we make a 2 GB log buffer size a compile-time error, will
-they read that?
-
-c.  If we make it a compile-time warning, will they read that?
-
-d.  What limit(s) do you suggest?  I can try to add some limits.
-
-e.  This kind of config limiting should be done in the config system IMO.
-I've asked Roman for that capability....
-
-~Randy
-
-
-
+greg k-h

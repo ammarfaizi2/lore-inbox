@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262358AbREVCwK>; Mon, 21 May 2001 22:52:10 -0400
+	id <S262550AbREVDBD>; Mon, 21 May 2001 23:01:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262549AbREVCwB>; Mon, 21 May 2001 22:52:01 -0400
-Received: from smtp1.Stanford.EDU ([171.64.14.23]:36771 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S262358AbREVCvx>; Mon, 21 May 2001 22:51:53 -0400
-Message-Id: <5.0.2.1.2.20010521193935.00ae8cb8@pxwang.pobox.stanford.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 21 May 2001 19:50:41 -0700
-To: alan@lxorguk.ukuu.org.uk
-From: Philip Wang <PXWang@stanford.edu>
-Subject: [PATCH] drivers/acpi/driver.c
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Dawson Engler <engler@cs.Stanford.EDU>
+	id <S262551AbREVDAx>; Mon, 21 May 2001 23:00:53 -0400
+Received: from [209.250.53.92] ([209.250.53.92]:8968 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S262550AbREVDAm>; Mon, 21 May 2001 23:00:42 -0400
+Date: Mon, 21 May 2001 21:59:27 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
+Message-ID: <20010521215927.B31289@hapablap.dyn.dhs.org>
+In-Reply-To: <3B090C81.53F163C3@TeraPort.de> <9ebbg2$m62$1@tazenda.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9ebbg2$m62$1@tazenda.transmeta.com>; from hpa@transmeta.com on Mon, May 21, 2001 at 08:16:18AM -0700
+X-Uptime: 7:36pm  up 1 day,  3:31,  1 user,  load average: 1.30, 1.21, 1.19
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, May 21, 2001 at 08:16:18AM -0700, H. Peter Anvin wrote:
+> Followup to:  <3B090C81.53F163C3@TeraPort.de>
+> By author:    "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+> In newsgroup: linux.dev.kernel
+> >
+> > Hi,
+> > 
+> >  while trying to enhance a small hardware inventory script, I found that
+> > cpuinfo is missing the details of L1, L2 and L3 size, although they may
+> > be available at boot time. One could of cource grep them from "dmesg"
+> > output, but that may scroll away on long lived systems.
+> > 
+> 
+> Any particular reason this needs to be done in the kernel, as opposed
+> to having your script read /dev/cpu/*/cpuid?
 
-There is a bug in driver.c of not freeing memory on error 
-paths.  buf.pointer is allocated but not freed if copy_to_user fails.  The 
-addition I made was to kfree buf.pointer before returning -EFAULT.  Thanks!
-
-Philip
-
---- /2.4.4/linux/drivers/acpi/driver.c  Fri Feb  9 11:45:58 2001
-+++ driver.c    Mon May 21 19:21:14 2001
-@@ -311,8 +311,10 @@
-		size = buf.length - file->f_pos;
-		if (size > *len)
-			size = *len;
--		if (copy_to_user(buffer, data, size))
--			return -EFAULT;
-+		if (copy_to_user(buffer, data, size)) {
-+			kfree(buf.pointer);
-+			return -EFAULT;
-+		}
-	}
-
-	kfree(buf.pointer);
-
+Wouldn't that be the same reason we have /anything/ in cpuinfo?
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

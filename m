@@ -1,156 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264990AbSJRGcf>; Fri, 18 Oct 2002 02:32:35 -0400
+	id <S264978AbSJRGjU>; Fri, 18 Oct 2002 02:39:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264991AbSJRGcf>; Fri, 18 Oct 2002 02:32:35 -0400
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:3473
+	id <S264988AbSJRGjU>; Fri, 18 Oct 2002 02:39:20 -0400
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:5009
 	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S264990AbSJRGcd>; Fri, 18 Oct 2002 02:32:33 -0400
-Subject: Re: Posix capabilities
+	id <S264978AbSJRGjS>; Fri, 18 Oct 2002 02:39:18 -0400
+Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
 From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200210171322.g9HDME7o024177@pincoya.inf.utfsm.cl>
-References: <200210171322.g9HDME7o024177@pincoya.inf.utfsm.cl>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Andrew Vasquez <praka@san.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3DAE858C.8010501@metaparadigm.com>
+References: <1034710299.1654.4.camel@localhost.localdomain>
+	 <200210152153.08603.simon.roscic@chello.at>
+	 <3DACD41F.2050405@metaparadigm.com> <1034740592.29313.0.camel@localhost>
+	 <3DACEB6E.6050700@metaparadigm.com> <3DACEC85.3020208@tmsusa.com>
+	 <3DACF908.70207@metaparadigm.com> <20021016054035.GM15552@clusterfs.com>
+	 <20021017015903.GA20960@praka.local.home> <1034822651.27.3.camel@localhost>
+	 <20021017031125.GA21251@praka.local.home>
+	 <3DAE858C.8010501@metaparadigm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: Digitalroadkill.net
-Message-Id: <1034923112.10326.18.camel@localhost>
+Message-Id: <1034923515.10332.27.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 18 Oct 2002 01:38:33 -0500
+Date: 18 Oct 2002 01:45:19 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-17 at 08:22, Horst von Brand wrote:
-> GrandMasterLee <masterlee@digitalroadkill.net> said:
-> > On Wed, 2002-10-16 at 22:26, Theodore Ts'o wrote:
+On Thu, 2002-10-17 at 04:40, Michael Clark wrote:
+> On 10/17/02 11:11, Andrew Vasquez wrote:
+> > On Wed, 16 Oct 2002, GrandMasterLee wrote:
+> > 
+> > 
+> >>On Wed, 2002-10-16 at 20:59, Andrew Vasquez wrote:
+> >>
+> >>>The stack issues were a major problem in the 5.3x series driver.  I
+> >>>believe, I can check tomorrow, 5.38.9 (the driver Dell distributes)
+> >>>contains fixes for the stack clobbering -- qla2x00-rh1-3 also contain
+> >>>the fixes.
+> >>
+> >>Does this mean that 6.01 will NOT work either? What drivers will be
+> >>affected? We've already made the move to remove LVM from the mix, but
+> >>your comments above give me some doubt as to how definite it is, that
+> >>the stack clobbering will be fixed by doing so. 
+> >>
+> > 
+> > The 6.x series driver basically branched from the 5.x series driver.  
+> > Changes made, many moons ago, are already in the 6.x series driver.
+> > To quell your concerns, yes, stack overflow is not an issue with the
+> > 6.x series driver. 
+> > 
+> > I believe if we are to get anywhere regarding this issue, we need to 
+> > shift focus from stack corruption in early versions of the driver.
 > 
-> [...]
+> Well corruption of bufferheads was happening for me with a potentially
+> stack deep setup (ext3+LVM+qlogic). Maybe it has been fixed in the
+> non-LVM case but is still an issue as I have had it with 6.0.1b3 -
+> The stack fix is listed in 6.0b13 which is quite a few release behind
+> the one i've had the problem with.
+
+I don't disagree, but I saw the same things with XFS filesystems on LVM
+also. This leads me to my next question. Does anyone on this list use
+XFS plus QLA2300's with 500GB+ mounted by several volumes on Qlogic
+driver 5.38.x or > and have greater than 20 days uptime to date?
+
+
+> I posted the oops to lk about 3 weeks ago. Wasn't sure it was a qlogic
+> problem at the time, and still am not certain - maybe just sum of
+> stack(ext3+lvm+qlogic). Even if qla stack was trimmed for the common case,
+> it may still be a problem when LVM is active as there would be much
+> deeper stacks during block io.
 > 
-> > > Personally, I'm not so convinced that capabilities are such a great
-> > > idea.  System administrators have a hard enough time keeping 12 bits
-> > > of permissions correct on executable files; with capabilities they
-> > > have to keep track of several hundred bits of capabilties flags, which
-> > > must be set precisely correctly, or the programs will either (a) fail
-> > > to function, or (b) have a gaping huge security hole.  
-> 
-> Nodz.
-> 
-> > While working with LIDS in it's early stages of implementation, and
-> >... 
-> 
-> It is easier on the sysadmin for the people upstream (developers,
-> distributors, ...) to set up stuff sanely in the executable. Sure, a lot of
-> flexibility is lost this way.
 
-I think the real perspective on this should be that lots of flexibility
-can be lost this way, but not necessarily so that it inherently will be
-lost. I say that because programming with the specification in mind that
-flexibility should be as maintained as possible, while attempting to
-provide the security in a sane and well thought out manner is a better
-vehicle to acceptance. Thus people adopt things which are secure, but
-flexible. 
-
-I respect the *BSD folks for taking a somewhat inverse approach to this
-though, since a lot of flexibility is maintained while security is job
-one.
-
-> > > This probablem could be solved with some really scary, complex user
-> > > tools (which no one has written yet). 
-> 
-> > Looking at CA Unicenter, they have an ACLs and CAPs product which does
-> > centralized management of those attributes to keep the configs sane
-> > across your environment. Not trying to advertise for them, but the point
-> > is, if a commercial product exists to do this, then it should be highly
-> > possible in the OSS community as well.
-> 
-> Sorry, but I gather the vast mayority of Linux instalations to be
-> single-machine (home use, ...). I have yet to see a hundred-machine setup
-> myself (maximal is some 30 around here),
-
-I have over 100 linux machines, which could benefit from this sort of
-thing, which is why I mentioned CA eTrust's suite for this purpose. I
-still have unanswered questions to this, but we'll probably give it a
-trial run and see just what it really can/can't do. I'll be taking notes
-of course to see what the OSS community can benefit from this
-methodology. 
-
->  so this is out of the league of
-> most people anyway. Plus Linux is falling more and more into the hands of
-> the unwashed masses, who have a dificult time remembering not to do
-> everything as root (leave alone fix up permissions).
-
-I don't really agree about the unwashed masses bit, though I do
-understand that viewpoint. To really open Linux to the world though, the
-"unwashed masses" should be allowed to have input into something even if
-they don't understand it fully. Their viewpoints and opinions will help
-to fine tune some of the corner cases in the security area, and others
-too. 
-
-All that aside, Linux in the enterprise is becoming *very* common. If
-all goes well in our environment, we'll have several 2TB+ DBs in
-production by this time next year.
-
-> > >  Alternatively you could just
-> > > let programs continue to be setuid root....
->
-> > To make management easy for the admins when I dealt with LIDS and making
-> > it *very* tight, I had to write several wrappers, replace commands, etc
-> > so they ran chrooted automatically, etc. It was a PITA. Cool when it
-> > worked, but it was still a PITA.
-> 
-> But a once-in-the-development PITA, not a once-for-each-installation PITA
-
-That's not really what I was getting at. The problem is that I had to
-make these things not a PITA for the admins, and it was a PITA, compared
-to an "every day" system, to administer. In a sense all functionality
-was there, but there were many more hoops to jump to do normal
-administration. In a sense, it was re-learning how to administer 100
-boxen, which just got more tedious. 
-
-The missing piece in this overall security architecture, to make things
-more flexible, or semi-automated, was a distributed(or centralized)
-state management system and repository for all ACLs and CAPs for all
-users and the commands, filesystems, etc, affected. If there'd been
-something like Kerberos on Steroids, thus supporting all ACLs and CAPs
-in an authoritative way, it would've been much easier to configure and
-maintain those configurations. 
-
-> > > It perhaps only gives you 90% of the benefits of the full-fledged
-> > > capabilities model, but it's much more fool proof, and much easier to
-> > > administer.
-> 
-> > Perhaps exntending the security module to actually have a centralized
-> > host configuration utility, using say AES or diffie-hellman and SSL or
-> > SSH to do the configuration management of this. Centralizing, or
-> > distributing the management of this, but with a decided upon security
-> > architecture is what, imho, will actually make this type of
-> > configuration very useable, and manageable. 
-> 
-> Have you seen any such centralized configuration management in real use?
-
-Yes, as a matter of fact, we rolled our own, but it is still very basic,
-though far more capable than just kickstart.
-
-> The nearest we come here is Red Hat's kickstart for configuring the whole
-> Lab (mostly) the same when installing, and that is for only slightly
-> heterogeneous machines that must look the same to users.
-
-Using something like System Imager, or the SystemInstaller suite from
-IBM and Brian Finely, you can couple Kickstart with an image and then
-version that image, with some custom programming around it, very easily.
-You could, take it so far as to even use CVS or something similar, to
-just keep track of changes in a cron'd manner just using a few scripts,
-and have the images update as you please. 
-
-You should look at a combination of Kickstart, Current, and SI. I think
-with a little work on top of all of those pieces, you could easily have
-a free, kick ass configuration management system. (which btw, the SI
-suite is becoming very good at that.)
-
-The real point of all of this rhetoric though, is that CAPs are good,
-ACLs are good, and extended attributes are good. It's just that darn
-administrative bit that becomes a hassle in large environments. 
-
- --The GrandMaster
+Kewl..thanks much.

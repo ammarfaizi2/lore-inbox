@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262771AbVCDDSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbVCDDap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262771AbVCDDSs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 22:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVCDDQU
+	id S262808AbVCDDap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 22:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVCDDZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 22:16:20 -0500
-Received: from mail.dif.dk ([193.138.115.101]:51422 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262694AbVCDCrg (ORCPT
+	Thu, 3 Mar 2005 22:25:20 -0500
+Received: from mail.dif.dk ([193.138.115.101]:59358 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262747AbVCDCsL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 21:47:36 -0500
-Date: Fri, 4 Mar 2005 03:48:32 +0100 (CET)
+	Thu, 3 Mar 2005 21:48:11 -0500
+Date: Fri, 4 Mar 2005 03:49:08 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][6/10] verify_area cleanup : ppc, ppc64, m68k, m68knommu
-Message-ID: <Pine.LNX.4.62.0503040337260.2801@dragon.hygekrogen.localhost>
+Subject: [PATCH][9/10] verify_area cleanup : misc remaining archs
+Message-ID: <Pine.LNX.4.62.0503040341130.2801@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Convert verify_area to access_ok for ppc, ppc64, m68k and m68knommu
+The last remaining archs that have not already been converted from 
+verify_area to access_ok by the previous patches are all taken care of by 
+this one.
 
 
 Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-diff -urp linux-2.6.11-orig/arch/ppc/kernel/align.c linux-2.6.11/arch/ppc/kernel/align.c
---- linux-2.6.11-orig/arch/ppc/kernel/align.c	2005-03-02 08:38:34.000000000 +0100
-+++ linux-2.6.11/arch/ppc/kernel/align.c	2005-03-03 20:34:35.000000000 +0100
-@@ -248,7 +248,7 @@ fix_alignment(struct pt_regs *regs)
- 		 */
- 		p = (long __user *) (regs->dar & -L1_CACHE_BYTES);
- 		if (user_mode(regs)
--		    && verify_area(VERIFY_WRITE, p, L1_CACHE_BYTES))
-+		    && !access_ok(VERIFY_WRITE, p, L1_CACHE_BYTES))
- 			return -EFAULT;
- 		for (i = 0; i < L1_CACHE_BYTES / sizeof(long); ++i)
- 			if (__put_user(0, p+i))
-@@ -328,7 +328,7 @@ fix_alignment(struct pt_regs *regs)
- 
- 	/* Verify the address of the operand */
- 	if (user_mode(regs)) {
--		if (verify_area((flags & ST? VERIFY_WRITE: VERIFY_READ), addr, nb))
-+		if (!access_ok((flags & ST? VERIFY_WRITE: VERIFY_READ), addr, nb))
- 			return -EFAULT;	/* bad address */
- 	}
- 
-diff -urp linux-2.6.11-orig/arch/ppc/kernel/signal.c linux-2.6.11/arch/ppc/kernel/signal.c
---- linux-2.6.11-orig/arch/ppc/kernel/signal.c	2005-03-02 08:38:33.000000000 +0100
-+++ linux-2.6.11/arch/ppc/kernel/signal.c	2005-03-03 20:34:35.000000000 +0100
-@@ -118,7 +118,7 @@ sys_sigaction(int sig, const struct old_
+diff -urp linux-2.6.11-orig/arch/sh/kernel/signal.c linux-2.6.11/arch/sh/kernel/signal.c
+--- linux-2.6.11-orig/arch/sh/kernel/signal.c	2005-03-02 08:38:34.000000000 +0100
++++ linux-2.6.11/arch/sh/kernel/signal.c	2005-03-03 22:28:34.000000000 +0100
+@@ -100,7 +100,7 @@ sys_sigaction(int sig, const struct old_
  
  	if (act) {
  		old_sigset_t mask;
@@ -59,401 +40,7 @@ diff -urp linux-2.6.11-orig/arch/ppc/kernel/signal.c linux-2.6.11/arch/ppc/kerne
  		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
  		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
  			return -EFAULT;
-@@ -130,7 +130,7 @@ sys_sigaction(int sig, const struct old_
- 	ret = do_sigaction(sig, (act? &new_ka: NULL), (oact? &old_ka: NULL));
- 
- 	if (!ret && oact) {
--		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
-+		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
- 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
- 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
- 			return -EFAULT;
-@@ -376,7 +376,7 @@ handle_rt_signal(unsigned long sig, stru
- 	/* create a stack frame for the caller of the handler */
- 	newsp -= __SIGNAL_FRAMESIZE + 16;
- 
--	if (verify_area(VERIFY_WRITE, (void __user *) newsp, origsp - newsp))
-+	if (!access_ok(VERIFY_WRITE, (void __user *) newsp, origsp - newsp))
- 		goto badframe;
- 
- 	/* Put the siginfo & fill in most of the ucontext */
-@@ -445,7 +445,7 @@ int sys_swapcontext(struct ucontext __us
- 		return -EINVAL;
- 
- 	if (old_ctx != NULL) {
--		if (verify_area(VERIFY_WRITE, old_ctx, sizeof(*old_ctx))
-+		if (!access_ok(VERIFY_WRITE, old_ctx, sizeof(*old_ctx))
- 		    || save_user_regs(regs, &old_ctx->uc_mcontext, 0)
- 		    || __copy_to_user(&old_ctx->uc_sigmask,
- 				      &current->blocked, sizeof(sigset_t))
-@@ -454,7 +454,7 @@ int sys_swapcontext(struct ucontext __us
- 	}
- 	if (new_ctx == NULL)
- 		return 0;
--	if (verify_area(VERIFY_READ, new_ctx, sizeof(*new_ctx))
-+	if (!access_ok(VERIFY_READ, new_ctx, sizeof(*new_ctx))
- 	    || __get_user(tmp, (u8 __user *) new_ctx)
- 	    || __get_user(tmp, (u8 __user *) (new_ctx + 1) - 1))
- 		return -EFAULT;
-@@ -464,7 +464,7 @@ int sys_swapcontext(struct ucontext __us
- 	 * image of the user's registers, we can't just return -EFAULT
- 	 * because the user's registers will be corrupted.  For instance
- 	 * the NIP value may have been updated but not some of the
--	 * other registers.  Given that we have done the verify_area
-+	 * other registers.  Given that we have done the access_ok
- 	 * and successfully read the first and last bytes of the region
- 	 * above, this should only happen in an out-of-memory situation
- 	 * or if another thread unmaps the region containing the context.
-@@ -487,7 +487,7 @@ int sys_rt_sigreturn(int r3, int r4, int
- 
- 	rt_sf = (struct rt_sigframe __user *)
- 		(regs->gpr[1] + __SIGNAL_FRAMESIZE + 16);
--	if (verify_area(VERIFY_READ, rt_sf, sizeof(struct rt_sigframe)))
-+	if (!access_ok(VERIFY_READ, rt_sf, sizeof(struct rt_sigframe)))
- 		goto bad;
- 	if (do_setcontext(&rt_sf->uc, regs, 1))
- 		goto bad;
-@@ -572,7 +572,7 @@ int sys_debug_setcontext(struct ucontext
- 	 * image of the user's registers, we can't just return -EFAULT
- 	 * because the user's registers will be corrupted.  For instance
- 	 * the NIP value may have been updated but not some of the
--	 * other registers.  Given that we have done the verify_area
-+	 * other registers.  Given that we have done the access_ok
- 	 * and successfully read the first and last bytes of the region
- 	 * above, this should only happen in an out-of-memory situation
- 	 * or if another thread unmaps the region containing the context.
-@@ -622,7 +622,7 @@ handle_signal(unsigned long sig, struct 
- 	/* create a stack frame for the caller of the handler */
- 	newsp -= __SIGNAL_FRAMESIZE;
- 
--	if (verify_area(VERIFY_WRITE, (void __user *) newsp, origsp - newsp))
-+	if (!access_ok(VERIFY_WRITE, (void __user *) newsp, origsp - newsp))
- 		goto badframe;
- 
- #if _NSIG != 64
-@@ -680,7 +680,7 @@ int sys_sigreturn(int r3, int r4, int r5
- 	restore_sigmask(&set);
- 
- 	sr = (struct mcontext __user *) sigctx.regs;
--	if (verify_area(VERIFY_READ, sr, sizeof(*sr))
-+	if (!access_ok(VERIFY_READ, sr, sizeof(*sr))
- 	    || restore_user_regs(regs, sr, 1))
- 		goto badframe;
- 
-diff -urp linux-2.6.11-orig/arch/ppc/kernel/syscalls.c linux-2.6.11/arch/ppc/kernel/syscalls.c
---- linux-2.6.11-orig/arch/ppc/kernel/syscalls.c	2005-03-02 08:38:26.000000000 +0100
-+++ linux-2.6.11/arch/ppc/kernel/syscalls.c	2005-03-03 20:34:35.000000000 +0100
-@@ -77,7 +77,7 @@ sys_ipc (uint call, int first, int secon
- 
- 		if (!ptr)
- 			break;
--		if ((ret = verify_area (VERIFY_READ, ptr, sizeof(long)))
-+		if ((ret = access_ok(VERIFY_READ, ptr, sizeof(long)) ? 0 : -EFAULT)
- 		    || (ret = get_user(fourth.__pad, (void __user *__user *)ptr)))
- 			break;
- 		ret = sys_semctl (first, second, third, fourth);
-@@ -93,7 +93,7 @@ sys_ipc (uint call, int first, int secon
- 
- 			if (!ptr)
- 				break;
--			if ((ret = verify_area (VERIFY_READ, ptr, sizeof(tmp)))
-+			if ((ret = access_ok(VERIFY_READ, ptr, sizeof(tmp)) ? 0 : -EFAULT)
- 			    || (ret = copy_from_user(&tmp,
- 					(struct ipc_kludge __user *) ptr,
- 					sizeof (tmp)) ? -EFAULT : 0))
-@@ -117,8 +117,8 @@ sys_ipc (uint call, int first, int secon
- 	case SHMAT: {
- 		ulong raddr;
- 
--		if ((ret = verify_area(VERIFY_WRITE, (ulong __user *) third,
--				       sizeof(ulong))))
-+		if ((ret = access_ok(VERIFY_WRITE, (ulong __user *) third,
-+				       sizeof(ulong)) ? 0 : -EFAULT))
- 			break;
- 		ret = do_shmat (first, (char __user *) ptr, second, &raddr);
- 		if (ret)
-@@ -213,7 +213,7 @@ ppc_select(int n, fd_set __user *inp, fd
- 	if ( (unsigned long)n >= 4096 )
- 	{
- 		unsigned long __user *buffer = (unsigned long __user *)n;
--		if (verify_area(VERIFY_READ, buffer, 5*sizeof(unsigned long))
-+		if (!access_ok(VERIFY_READ, buffer, 5*sizeof(unsigned long))
- 		    || __get_user(n, buffer)
- 		    || __get_user(inp, ((fd_set __user * __user *)(buffer+1)))
- 		    || __get_user(outp, ((fd_set  __user * __user *)(buffer+2)))
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/align.c linux-2.6.11/arch/ppc64/kernel/align.c
---- linux-2.6.11-orig/arch/ppc64/kernel/align.c	2005-03-02 08:38:33.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/align.c	2005-03-03 20:34:35.000000000 +0100
-@@ -273,7 +273,7 @@ fix_alignment(struct pt_regs *regs)
- 
- 	/* Verify the address of the operand */
- 	if (user_mode(regs)) {
--		if (verify_area((flags & ST? VERIFY_WRITE: VERIFY_READ), addr, nb))
-+		if (!access_ok((flags & ST? VERIFY_WRITE: VERIFY_READ), addr, nb))
- 			return -EFAULT;	/* bad address */
- 	}
- 
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/nvram.c linux-2.6.11/arch/ppc64/kernel/nvram.c
---- linux-2.6.11-orig/arch/ppc64/kernel/nvram.c	2005-03-02 08:37:47.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/nvram.c	2005-03-03 20:34:35.000000000 +0100
-@@ -89,7 +89,7 @@ static ssize_t dev_nvram_read(struct fil
- 		return -ENODEV;
- 	size = ppc_md.nvram_size();
- 
--	if (verify_area(VERIFY_WRITE, buf, count))
-+	if (!access_ok(VERIFY_WRITE, buf, count))
- 		return -EFAULT;
- 	if (*ppos >= size)
- 		return 0;
-@@ -129,7 +129,7 @@ static ssize_t dev_nvram_write(struct fi
- 		return -ENODEV;
- 	size = ppc_md.nvram_size();
- 
--	if (verify_area(VERIFY_READ, buf, count))
-+	if (!access_ok(VERIFY_READ, buf, count))
- 		return -EFAULT;
- 	if (*ppos >= size)
- 		return 0;
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/rtas_flash.c linux-2.6.11/arch/ppc64/kernel/rtas_flash.c
---- linux-2.6.11-orig/arch/ppc64/kernel/rtas_flash.c	2005-03-02 08:38:26.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/rtas_flash.c	2005-03-03 20:34:35.000000000 +0100
-@@ -224,7 +224,6 @@ static ssize_t rtas_flash_read(struct fi
- 	struct proc_dir_entry *dp = PDE(file->f_dentry->d_inode);
- 	struct rtas_update_flash_t *uf;
- 	char msg[RTAS_MSG_MAXLEN];
--	int error;
- 	int msglen;
- 
- 	uf = (struct rtas_update_flash_t *) dp->data;
-@@ -241,8 +240,7 @@ static ssize_t rtas_flash_read(struct fi
- 	if (ppos && *ppos != 0)
- 		return 0;	/* be cheap */
- 
--	error = verify_area(VERIFY_WRITE, buf, msglen);
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, msglen))
- 		return -EINVAL;
- 
- 	if (copy_to_user(buf, msg, msglen))
-@@ -365,7 +363,6 @@ static ssize_t manage_flash_read(struct 
- 	struct rtas_manage_flash_t *args_buf;
- 	char msg[RTAS_MSG_MAXLEN];
- 	int msglen;
--	int error;
- 
- 	args_buf = (struct rtas_manage_flash_t *) dp->data;
- 	if (args_buf == NULL)
-@@ -378,8 +375,7 @@ static ssize_t manage_flash_read(struct 
- 	if (ppos && *ppos != 0)
- 		return 0;	/* be cheap */
- 
--	error = verify_area(VERIFY_WRITE, buf, msglen);
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, msglen))
- 		return -EINVAL;
- 
- 	if (copy_to_user(buf, msg, msglen))
-@@ -477,7 +473,6 @@ static ssize_t validate_flash_read(struc
- 	struct rtas_validate_flash_t *args_buf;
- 	char msg[RTAS_MSG_MAXLEN];
- 	int msglen;
--	int error;
- 
- 	args_buf = (struct rtas_validate_flash_t *) dp->data;
- 
-@@ -488,8 +483,7 @@ static ssize_t validate_flash_read(struc
- 	if (msglen > count)
- 		msglen = count;
- 
--	error = verify_area(VERIFY_WRITE, buf, msglen);
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, msglen))
- 		return -EINVAL;
- 
- 	if (copy_to_user(buf, msg, msglen))
-@@ -531,7 +525,7 @@ static ssize_t validate_flash_write(stru
- 		args_buf->status = VALIDATE_INCOMPLETE;
- 	}
- 
--	if (verify_area(VERIFY_READ, buf, count)) {
-+	if (!access_ok(VERIFY_READ, buf, count)) {
- 		rc = -EFAULT;
- 		goto done;
- 	}
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/rtasd.c linux-2.6.11/arch/ppc64/kernel/rtasd.c
---- linux-2.6.11-orig/arch/ppc64/kernel/rtasd.c	2005-03-02 08:37:53.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/rtasd.c	2005-03-03 20:34:35.000000000 +0100
-@@ -289,8 +289,7 @@ static ssize_t rtas_log_read(struct file
- 
- 	count = rtas_error_log_buffer_max;
- 
--	error = verify_area(VERIFY_WRITE, buf, count);
--	if (error)
-+	if (!access_ok(VERIFY_WRITE, buf, count))
- 		return -EFAULT;
- 
- 	tmp = kmalloc(count, GFP_KERNEL);
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/scanlog.c linux-2.6.11/arch/ppc64/kernel/scanlog.c
---- linux-2.6.11-orig/arch/ppc64/kernel/scanlog.c	2005-03-02 08:38:26.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/scanlog.c	2005-03-03 20:34:35.000000000 +0100
-@@ -73,7 +73,7 @@ static ssize_t scanlog_read(struct file 
- 		return -EINVAL;
- 	}
- 
--	if (verify_area(VERIFY_WRITE, buf, count))
-+	if (!access_ok(VERIFY_WRITE, buf, count))
- 		return -EFAULT;
- 
- 	for (;;) {
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/signal.c linux-2.6.11/arch/ppc64/kernel/signal.c
---- linux-2.6.11-orig/arch/ppc64/kernel/signal.c	2005-03-02 08:37:30.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/signal.c	2005-03-03 20:34:35.000000000 +0100
-@@ -313,7 +313,7 @@ int sys_swapcontext(struct ucontext __us
- 		return -EINVAL;
- 
- 	if (old_ctx != NULL) {
--		if (verify_area(VERIFY_WRITE, old_ctx, sizeof(*old_ctx))
-+		if (!access_ok(VERIFY_WRITE, old_ctx, sizeof(*old_ctx))
- 		    || setup_sigcontext(&old_ctx->uc_mcontext, regs, 0, NULL, 0)
- 		    || __copy_to_user(&old_ctx->uc_sigmask,
- 				      &current->blocked, sizeof(sigset_t)))
-@@ -321,7 +321,7 @@ int sys_swapcontext(struct ucontext __us
- 	}
- 	if (new_ctx == NULL)
- 		return 0;
--	if (verify_area(VERIFY_READ, new_ctx, sizeof(*new_ctx))
-+	if (!access_ok(VERIFY_READ, new_ctx, sizeof(*new_ctx))
- 	    || __get_user(tmp, (u8 __user *) new_ctx)
- 	    || __get_user(tmp, (u8 __user *) (new_ctx + 1) - 1))
- 		return -EFAULT;
-@@ -331,7 +331,7 @@ int sys_swapcontext(struct ucontext __us
- 	 * image of the user's registers, we can't just return -EFAULT
- 	 * because the user's registers will be corrupted.  For instance
- 	 * the NIP value may have been updated but not some of the
--	 * other registers.  Given that we have done the verify_area
-+	 * other registers.  Given that we have done the access_ok
- 	 * and successfully read the first and last bytes of the region
- 	 * above, this should only happen in an out-of-memory situation
- 	 * or if another thread unmaps the region containing the context.
-@@ -363,7 +363,7 @@ int sys_rt_sigreturn(unsigned long r3, u
- 	/* Always make any pending restarted system calls return -EINTR */
- 	current_thread_info()->restart_block.fn = do_no_restart_syscall;
- 
--	if (verify_area(VERIFY_READ, uc, sizeof(*uc)))
-+	if (!access_ok(VERIFY_READ, uc, sizeof(*uc)))
- 		goto badframe;
- 
- 	if (__copy_from_user(&set, &uc->uc_sigmask, sizeof(set)))
-@@ -403,7 +403,7 @@ static int setup_rt_frame(int signr, str
- 
- 	frame = get_sigframe(ka, regs, sizeof(*frame));
- 
--	if (verify_area(VERIFY_WRITE, frame, sizeof(*frame)))
-+	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
- 		goto badframe;
- 
- 	err |= __put_user(&frame->info, &frame->pinfo);
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/signal32.c linux-2.6.11/arch/ppc64/kernel/signal32.c
---- linux-2.6.11-orig/arch/ppc64/kernel/signal32.c	2005-03-02 08:38:26.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/signal32.c	2005-03-03 20:34:35.000000000 +0100
-@@ -637,7 +637,7 @@ static int handle_rt_signal32(unsigned l
- 	/* create a stack frame for the caller of the handler */
- 	newsp -= __SIGNAL_FRAMESIZE32 + 16;
- 
--	if (verify_area(VERIFY_WRITE, (void __user *)newsp, origsp - newsp))
-+	if (!access_ok(VERIFY_WRITE, (void __user *)newsp, origsp - newsp))
- 		goto badframe;
- 
- 	compat_from_sigset(&c_oldset, oldset);
-@@ -721,7 +721,7 @@ long sys32_swapcontext(struct ucontext32
- 
- 	if (old_ctx != NULL) {
- 		compat_from_sigset(&c_set, &current->blocked);
--		if (verify_area(VERIFY_WRITE, old_ctx, sizeof(*old_ctx))
-+		if (!access_ok(VERIFY_WRITE, old_ctx, sizeof(*old_ctx))
- 		    || save_user_regs(regs, &old_ctx->uc_mcontext, 0)
- 		    || __copy_to_user(&old_ctx->uc_sigmask, &c_set, sizeof(c_set))
- 		    || __put_user((u32)(u64)&old_ctx->uc_mcontext, &old_ctx->uc_regs))
-@@ -729,7 +729,7 @@ long sys32_swapcontext(struct ucontext32
- 	}
- 	if (new_ctx == NULL)
- 		return 0;
--	if (verify_area(VERIFY_READ, new_ctx, sizeof(*new_ctx))
-+	if (!access_ok(VERIFY_READ, new_ctx, sizeof(*new_ctx))
- 	    || __get_user(tmp, (u8 __user *) new_ctx)
- 	    || __get_user(tmp, (u8 __user *) (new_ctx + 1) - 1))
- 		return -EFAULT;
-@@ -739,7 +739,7 @@ long sys32_swapcontext(struct ucontext32
- 	 * image of the user's registers, we can't just return -EFAULT
- 	 * because the user's registers will be corrupted.  For instance
- 	 * the NIP value may have been updated but not some of the
--	 * other registers.  Given that we have done the verify_area
-+	 * other registers.  Given that we have done the access_ok
- 	 * and successfully read the first and last bytes of the region
- 	 * above, this should only happen in an out-of-memory situation
- 	 * or if another thread unmaps the region containing the context.
-@@ -763,7 +763,7 @@ long sys32_rt_sigreturn(int r3, int r4, 
- 
- 	rt_sf = (struct rt_sigframe32 __user *)
- 		(regs->gpr[1] + __SIGNAL_FRAMESIZE32 + 16);
--	if (verify_area(VERIFY_READ, rt_sf, sizeof(*rt_sf)))
-+	if (!access_ok(VERIFY_READ, rt_sf, sizeof(*rt_sf)))
- 		goto bad;
- 	if (do_setcontext32(&rt_sf->uc, regs, 1))
- 		goto bad;
-@@ -812,7 +812,7 @@ static int handle_signal32(unsigned long
- 	/* create a stack frame for the caller of the handler */
- 	newsp -= __SIGNAL_FRAMESIZE32;
- 
--	if (verify_area(VERIFY_WRITE, (void __user *) newsp, origsp - newsp))
-+	if (!access_ok(VERIFY_WRITE, (void __user *) newsp, origsp - newsp))
- 		goto badframe;
- 
- #if _NSIG != 64
-@@ -879,7 +879,7 @@ long sys32_sigreturn(int r3, int r4, int
- 	restore_sigmask(&set);
- 
- 	sr = (struct mcontext32 __user *)(u64)sigctx.regs;
--	if (verify_area(VERIFY_READ, sr, sizeof(*sr))
-+	if (!access_ok(VERIFY_READ, sr, sizeof(*sr))
- 	    || restore_user_regs(regs, sr, 1))
- 		goto badframe;
- 
-diff -urp linux-2.6.11-orig/arch/ppc64/kernel/sys_ppc32.c linux-2.6.11/arch/ppc64/kernel/sys_ppc32.c
---- linux-2.6.11-orig/arch/ppc64/kernel/sys_ppc32.c	2005-03-02 08:38:38.000000000 +0100
-+++ linux-2.6.11/arch/ppc64/kernel/sys_ppc32.c	2005-03-03 20:34:35.000000000 +0100
-@@ -241,7 +241,7 @@ int cp_compat_stat(struct kstat *stat, s
- 	    !new_valid_dev(stat->rdev))
- 		return -EOVERFLOW;
- 
--	err  = verify_area(VERIFY_WRITE, statbuf, sizeof(*statbuf));
-+	err  = access_ok(VERIFY_WRITE, statbuf, sizeof(*statbuf)) ? 0 : -EFAULT;
- 	err |= __put_user(new_encode_dev(stat->dev), &statbuf->st_dev);
- 	err |= __put_user(stat->ino, &statbuf->st_ino);
- 	err |= __put_user(stat->mode, &statbuf->st_mode);
-@@ -1195,7 +1195,7 @@ unsigned long sys32_mmap2(unsigned long 
- 
- int get_compat_timeval(struct timeval *tv, struct compat_timeval __user *ctv)
- {
--	return (verify_area(VERIFY_READ, ctv, sizeof(*ctv)) ||
-+	return (!access_ok(VERIFY_READ, ctv, sizeof(*ctv)) ||
- 		__get_user(tv->tv_sec, &ctv->tv_sec) ||
- 		__get_user(tv->tv_usec, &ctv->tv_usec)) ? -EFAULT : 0;
- }
-Only in linux-2.6.11/arch/ppc64/kernel: sys_ppc32.c~
-diff -urp linux-2.6.11-orig/arch/m68k/kernel/signal.c linux-2.6.11/arch/m68k/kernel/signal.c
---- linux-2.6.11-orig/arch/m68k/kernel/signal.c	2005-03-02 08:38:13.000000000 +0100
-+++ linux-2.6.11/arch/m68k/kernel/signal.c	2005-03-03 20:34:35.000000000 +0100
-@@ -130,7 +130,7 @@ sys_sigaction(int sig, const struct old_
- 
- 	if (act) {
- 		old_sigset_t mask;
--		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
-+		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
- 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
- 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
- 			return -EFAULT;
-@@ -142,7 +142,7 @@ sys_sigaction(int sig, const struct old_
+@@ -112,7 +112,7 @@ sys_sigaction(int sig, const struct old_
  	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
  
  	if (!ret && oact) {
@@ -462,27 +49,345 @@ diff -urp linux-2.6.11-orig/arch/m68k/kernel/signal.c linux-2.6.11/arch/m68k/ker
  		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
  		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
  			return -EFAULT;
-@@ -510,7 +510,7 @@ asmlinkage int do_sigreturn(unsigned lon
+@@ -239,7 +239,7 @@ asmlinkage int sys_sigreturn(unsigned lo
  	sigset_t set;
- 	int d0;
+ 	int r0;
  
 -	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
 +	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
  		goto badframe;
- 	if (__get_user(set.sig[0], &frame->sc.sc_mask) ||
- 	    (_NSIG_WORDS > 1 &&
-@@ -540,7 +540,7 @@ asmlinkage int do_rt_sigreturn(unsigned 
+ 
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+@@ -273,7 +273,7 @@ asmlinkage int sys_rt_sigreturn(unsigned
+ 	stack_t st;
+ 	int r0;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+diff -urp linux-2.6.11-orig/arch/um/include/sysdep-i386/checksum.h linux-2.6.11/arch/um/include/sysdep-i386/checksum.h
+--- linux-2.6.11-orig/arch/um/include/sysdep-i386/checksum.h	2005-03-02 08:38:34.000000000 +0100
++++ linux-2.6.11/arch/um/include/sysdep-i386/checksum.h	2005-03-03 22:28:34.000000000 +0100
+@@ -41,7 +41,7 @@ unsigned int csum_partial_copy_from(cons
+  *	passed in an incorrect kernel address to one of these functions.
+  *
+  *	If you use these functions directly please don't forget the
+- *	verify_area().
++ *	access_ok().
+  */
+ 
+ static __inline__
+diff -urp linux-2.6.11-orig/arch/um/include/sysdep-x86_64/checksum.h linux-2.6.11/arch/um/include/sysdep-x86_64/checksum.h
+--- linux-2.6.11-orig/arch/um/include/sysdep-x86_64/checksum.h	2005-03-02 08:37:54.000000000 +0100
++++ linux-2.6.11/arch/um/include/sysdep-x86_64/checksum.h	2005-03-03 22:28:34.000000000 +0100
+@@ -19,7 +19,7 @@ extern unsigned csum_partial(const unsig
+  *	passed in an incorrect kernel address to one of these functions.
+  *
+  *	If you use these functions directly please don't forget the
+- *	verify_area().
++ *	access_ok().
+  */
+ 
+ static __inline__
+diff -urp linux-2.6.11-orig/arch/um/sys-i386/ldt.c linux-2.6.11/arch/um/sys-i386/ldt.c
+--- linux-2.6.11-orig/arch/um/sys-i386/ldt.c	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.11/arch/um/sys-i386/ldt.c	2005-03-03 22:28:34.000000000 +0100
+@@ -17,7 +17,7 @@ extern int modify_ldt(int func, void *pt
+ 
+ int sys_modify_ldt_tt(int func, void __user *ptr, unsigned long bytecount)
+ {
+-	if (verify_area(VERIFY_READ, ptr, bytecount))
++	if (!access_ok(VERIFY_READ, ptr, bytecount))
+ 		return -EFAULT;
+ 
+ 	return modify_ldt(func, ptr, bytecount);
+diff -urp linux-2.6.11-orig/arch/um/sys-i386/signal.c linux-2.6.11/arch/um/sys-i386/signal.c
+--- linux-2.6.11-orig/arch/um/sys-i386/signal.c	2005-03-02 08:38:17.000000000 +0100
++++ linux-2.6.11/arch/um/sys-i386/signal.c	2005-03-03 22:28:34.000000000 +0100
+@@ -211,8 +211,8 @@ int setup_signal_stack_sc(unsigned long 
+ 
+ 	stack_top &= -8UL;
+ 	frame = (struct sigframe *) stack_top - 1;
+-	if(verify_area(VERIFY_WRITE, frame, sizeof(*frame)))
+-		return(1);
++	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
++		return 1;
+ 
+ 	restorer = (void *) frame->retcode;
+ 	if(ka->sa.sa_flags & SA_RESTORER)
+@@ -261,8 +261,8 @@ int setup_signal_stack_si(unsigned long 
+ 
+ 	stack_top &= -8UL;
+ 	frame = (struct rt_sigframe *) stack_top - 1;
+-	if(verify_area(VERIFY_WRITE, frame, sizeof(*frame)))
+-		return(1);
++	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
++		return 1;
+ 
+ 	restorer = (void *) frame->retcode;
+ 	if(ka->sa.sa_flags & SA_RESTORER)
+diff -urp linux-2.6.11-orig/arch/um/sys-i386/syscalls.c linux-2.6.11/arch/um/sys-i386/syscalls.c
+--- linux-2.6.11-orig/arch/um/sys-i386/syscalls.c	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.11/arch/um/sys-i386/syscalls.c	2005-03-03 22:28:34.000000000 +0100
+@@ -175,7 +175,7 @@ long sys_sigaction(int sig, const struct
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -187,7 +187,7 @@ long sys_sigaction(int sig, const struct
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+diff -urp linux-2.6.11-orig/arch/um/sys-x86_64/syscalls.c linux-2.6.11/arch/um/sys-x86_64/syscalls.c
+--- linux-2.6.11-orig/arch/um/sys-x86_64/syscalls.c	2005-03-02 08:38:37.000000000 +0100
++++ linux-2.6.11/arch/um/sys-x86_64/syscalls.c	2005-03-03 22:28:34.000000000 +0100
+@@ -29,8 +29,8 @@ long sys_modify_ldt_tt(int func, void *p
+ 	/* XXX This should check VERIFY_WRITE depending on func, check this
+ 	 * in i386 as well.
+ 	 */
+-	if(verify_area(VERIFY_READ, ptr, bytecount))
+-		return(-EFAULT);
++	if (!access_ok(VERIFY_READ, ptr, bytecount))
++		return -EFAULT;
+ 	return(modify_ldt(func, ptr, bytecount));
+ }
+ #endif
+diff -urp linux-2.6.11-orig/arch/arm/kernel/signal.c linux-2.6.11/arch/arm/kernel/signal.c
+--- linux-2.6.11-orig/arch/arm/kernel/signal.c	2005-03-02 08:37:31.000000000 +0100
++++ linux-2.6.11/arch/arm/kernel/signal.c	2005-03-03 22:28:34.000000000 +0100
+@@ -102,7 +102,7 @@ sys_sigaction(int sig, const struct old_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -114,7 +114,7 @@ sys_sigaction(int sig, const struct old_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -317,7 +317,7 @@ asmlinkage int sys_sigreturn(struct pt_r
+ 
+ 	frame = (struct sigframe __user *)regs->ARM_sp;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof (*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof (*frame)))
+ 		goto badframe;
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+ 	    || (_NSIG_WORDS > 1
+@@ -365,7 +365,7 @@ asmlinkage int sys_rt_sigreturn(struct p
+ 
+ 	frame = (struct rt_sigframe __user *)regs->ARM_sp;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof (*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof (*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+diff -urp linux-2.6.11-orig/arch/frv/kernel/signal.c linux-2.6.11/arch/frv/kernel/signal.c
+--- linux-2.6.11-orig/arch/frv/kernel/signal.c	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6.11/arch/frv/kernel/signal.c	2005-03-03 22:28:34.000000000 +0100
+@@ -114,7 +114,7 @@ asmlinkage int sys_sigaction(int sig,
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -126,7 +126,7 @@ asmlinkage int sys_sigaction(int sig,
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -197,7 +197,7 @@ asmlinkage int sys_sigreturn(void)
  	sigset_t set;
- 	int d0;
+ 	int gr8;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__get_user(set.sig[0], &frame->sc.sc_oldmask))
+ 		goto badframe;
+@@ -228,7 +228,7 @@ asmlinkage int sys_rt_sigreturn(void)
+ 	stack_t st;
+ 	int gr8;
  
 -	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
 +	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
  		goto badframe;
  	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
  		goto badframe;
-diff -urp linux-2.6.11-orig/arch/m68knommu/kernel/signal.c linux-2.6.11/arch/m68knommu/kernel/signal.c
---- linux-2.6.11-orig/arch/m68knommu/kernel/signal.c	2005-03-02 08:38:12.000000000 +0100
-+++ linux-2.6.11/arch/m68knommu/kernel/signal.c	2005-03-03 20:34:36.000000000 +0100
+diff -urp linux-2.6.11-orig/arch/parisc/kernel/sys_parisc32.c linux-2.6.11/arch/parisc/kernel/sys_parisc32.c
+--- linux-2.6.11-orig/arch/parisc/kernel/sys_parisc32.c	2005-03-02 08:37:55.000000000 +0100
++++ linux-2.6.11/arch/parisc/kernel/sys_parisc32.c	2005-03-03 22:28:34.000000000 +0100
+@@ -422,7 +422,7 @@ get_fd_set32(unsigned long n, u32 *ufdse
+ 	if (ufdset) {
+ 		unsigned long odd;
+ 
+-		if (verify_area(VERIFY_WRITE, ufdset, n*sizeof(u32)))
++		if (!access_ok(VERIFY_WRITE, ufdset, n*sizeof(u32)))
+ 			return -EFAULT;
+ 
+ 		odd = n & 1UL;
+Only in linux-2.6.11/arch/parisc/kernel: sys_parisc32.c~
+diff -urp linux-2.6.11-orig/arch/cris/arch-v10/drivers/eeprom.c linux-2.6.11/arch/cris/arch-v10/drivers/eeprom.c
+--- linux-2.6.11-orig/arch/cris/arch-v10/drivers/eeprom.c	2005-03-02 08:38:03.000000000 +0100
++++ linux-2.6.11/arch/cris/arch-v10/drivers/eeprom.c	2005-03-03 22:28:34.000000000 +0100
+@@ -599,7 +599,7 @@ static ssize_t eeprom_write(struct file 
+   int i, written, restart=1;
+   unsigned long p;
+ 
+-  if (verify_area(VERIFY_READ, buf, count))
++  if (!access_ok(VERIFY_READ, buf, count))
+   {
+     return -EFAULT;
+   }
+diff -urp linux-2.6.11-orig/arch/cris/arch-v10/drivers/gpio.c linux-2.6.11/arch/cris/arch-v10/drivers/gpio.c
+--- linux-2.6.11-orig/arch/cris/arch-v10/drivers/gpio.c	2005-03-02 08:38:34.000000000 +0100
++++ linux-2.6.11/arch/cris/arch-v10/drivers/gpio.c	2005-03-03 22:28:34.000000000 +0100
+@@ -355,7 +355,7 @@ static ssize_t gpio_write(struct file * 
+ 		return -EFAULT;
+ 	}
+     
+-	if (verify_area(VERIFY_READ, buf, count)) {
++	if (!access_ok(VERIFY_READ, buf, count)) {
+ 		return -EFAULT;
+ 	}
+ 	clk_mask = priv->clk_mask;
+diff -urp linux-2.6.11-orig/arch/cris/arch-v10/kernel/signal.c linux-2.6.11/arch/cris/arch-v10/kernel/signal.c
+--- linux-2.6.11-orig/arch/cris/arch-v10/kernel/signal.c	2005-03-02 08:37:47.000000000 +0100
++++ linux-2.6.11/arch/cris/arch-v10/kernel/signal.c	2005-03-03 22:28:34.000000000 +0100
+@@ -125,7 +125,7 @@ sys_sigaction(int sig, const struct old_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -137,7 +137,7 @@ sys_sigaction(int sig, const struct old_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -231,7 +231,7 @@ asmlinkage int sys_sigreturn(long r10, l
+         if (((long)frame) & 3)
+                 goto badframe;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+ 	    || (_NSIG_WORDS > 1
+@@ -273,7 +273,7 @@ asmlinkage int sys_rt_sigreturn(long r10
+         if (((long)frame) & 3)
+                 goto badframe;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+diff -urp linux-2.6.11-orig/arch/m32r/kernel/signal.c linux-2.6.11/arch/m32r/kernel/signal.c
+--- linux-2.6.11-orig/arch/m32r/kernel/signal.c	2005-03-02 08:38:07.000000000 +0100
++++ linux-2.6.11/arch/m32r/kernel/signal.c	2005-03-03 22:28:34.000000000 +0100
+@@ -147,7 +147,7 @@ sys_rt_sigreturn(unsigned long r0, unsig
+ 	stack_t st;
+ 	int result;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+diff -urp linux-2.6.11-orig/arch/m32r/kernel/sys_m32r.c linux-2.6.11/arch/m32r/kernel/sys_m32r.c
+--- linux-2.6.11-orig/arch/m32r/kernel/sys_m32r.c	2005-03-02 08:38:34.000000000 +0100
++++ linux-2.6.11/arch/m32r/kernel/sys_m32r.c	2005-03-03 22:28:34.000000000 +0100
+@@ -171,9 +171,9 @@ asmlinkage int sys_ipc(uint call, int fi
+ 	case SHMAT: {
+ 		ulong raddr;
+ 
+-		if ((ret = verify_area(VERIFY_WRITE, (ulong __user *) third,
+-				      sizeof(ulong))))
+-			return ret;
++		if (!access_ok(VERIFY_WRITE, (ulong __user *) third,
++				      sizeof(ulong)))
++			return -EFAULT;
+ 		ret = do_shmat (first, (char __user *) ptr, second, &raddr);
+ 		if (ret)
+ 			return ret;
+diff -urp linux-2.6.11-orig/arch/s390/kernel/compat_signal.c linux-2.6.11/arch/s390/kernel/compat_signal.c
+--- linux-2.6.11-orig/arch/s390/kernel/compat_signal.c	2005-03-02 08:38:26.000000000 +0100
++++ linux-2.6.11/arch/s390/kernel/compat_signal.c	2005-03-03 22:28:34.000000000 +0100
+@@ -231,7 +231,7 @@ sys32_sigaction(int sig, const struct ol
+ 
+         if (act) {
+ 		compat_old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(sa_handler, &act->sa_handler) ||
+ 		    __get_user(sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -247,7 +247,7 @@ sys32_sigaction(int sig, const struct ol
+ 	if (!ret && oact) {
+ 		sa_handler = (unsigned long) old_ka.sa.sa_handler;
+ 		sa_restorer = (unsigned long) old_ka.sa.sa_restorer;
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(sa_handler, &oact->sa_handler) ||
+ 		    __put_user(sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -416,7 +416,7 @@ asmlinkage long sys32_sigreturn(struct p
+ 	sigframe32 __user *frame = (sigframe32 __user *)regs->gprs[15];
+ 	sigset_t set;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set.sig, &frame->sc.oldmask, _SIGMASK_COPY_SIZE32))
+ 		goto badframe;
+@@ -446,7 +446,7 @@ asmlinkage long sys32_rt_sigreturn(struc
+ 	int err;
+ 	mm_segment_t old_fs = get_fs();
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+Only in linux-2.6.11/arch/s390/kernel: compat_signal.c~
+diff -urp linux-2.6.11-orig/arch/s390/kernel/signal.c linux-2.6.11/arch/s390/kernel/signal.c
+--- linux-2.6.11-orig/arch/s390/kernel/signal.c	2005-03-02 08:38:18.000000000 +0100
++++ linux-2.6.11/arch/s390/kernel/signal.c	2005-03-03 22:28:34.000000000 +0100
 @@ -116,7 +116,7 @@ sys_sigaction(int sig, const struct old_
  
  	if (act) {
@@ -501,21 +406,304 @@ diff -urp linux-2.6.11-orig/arch/m68knommu/kernel/signal.c linux-2.6.11/arch/m68
  		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
  		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
  			return -EFAULT;
-@@ -360,7 +360,7 @@ asmlinkage int do_sigreturn(unsigned lon
+@@ -214,7 +214,7 @@ asmlinkage long sys_sigreturn(struct pt_
+ 	sigframe __user *frame = (sigframe __user *)regs->gprs[15];
  	sigset_t set;
- 	int d0;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set.sig, &frame->sc.oldmask, _SIGMASK_COPY_SIZE))
+ 		goto badframe;
+@@ -240,7 +240,7 @@ asmlinkage long sys_rt_sigreturn(struct 
+ 	rt_sigframe __user *frame = (rt_sigframe __user *)regs->gprs[15];
+ 	sigset_t set;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set.sig, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+diff -urp linux-2.6.11-orig/arch/v850/kernel/signal.c linux-2.6.11/arch/v850/kernel/signal.c
+--- linux-2.6.11-orig/arch/v850/kernel/signal.c	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6.11/arch/v850/kernel/signal.c	2005-03-03 22:28:35.000000000 +0100
+@@ -102,7 +102,7 @@ sys_sigaction(int sig, const struct old_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -114,7 +114,7 @@ sys_sigaction(int sig, const struct old_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -178,7 +178,7 @@ asmlinkage int sys_sigreturn(struct pt_r
+ 	sigset_t set;
+ 	int rval;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+@@ -209,7 +209,7 @@ asmlinkage int sys_rt_sigreturn(struct p
+ 	stack_t st;
+ 	int rval;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+diff -urp linux-2.6.11-orig/arch/v850/kernel/syscalls.c linux-2.6.11/arch/v850/kernel/syscalls.c
+--- linux-2.6.11-orig/arch/v850/kernel/syscalls.c	2005-03-02 08:38:12.000000000 +0100
++++ linux-2.6.11/arch/v850/kernel/syscalls.c	2005-03-03 22:28:35.000000000 +0100
+@@ -62,7 +62,7 @@ sys_ipc (uint call, int first, int secon
+ 
+ 		if (!ptr)
+ 			break;
+-		if ((ret = verify_area (VERIFY_READ, ptr, sizeof(long)))
++		if ((ret = access_ok(VERIFY_READ, ptr, sizeof(long)) ? 0 : -EFAULT)
+ 		    || (ret = get_user(fourth.__pad, (void **)ptr)))
+ 			break;
+ 		ret = sys_semctl (first, second, third, fourth);
+@@ -78,7 +78,7 @@ sys_ipc (uint call, int first, int secon
+ 
+ 			if (!ptr)
+ 				break;
+-			if ((ret = verify_area (VERIFY_READ, ptr, sizeof(tmp)))
++			if ((ret = access_ok(VERIFY_READ, ptr, sizeof(tmp)) ? 0 : -EFAULT)
+ 			    || (ret = copy_from_user(&tmp,
+ 						(struct ipc_kludge *) ptr,
+ 						sizeof (tmp))))
+@@ -104,8 +104,8 @@ sys_ipc (uint call, int first, int secon
+ 		default: {
+ 			ulong raddr;
+ 
+-			if ((ret = verify_area(VERIFY_WRITE, (ulong*) third,
+-					       sizeof(ulong))))
++			if ((ret = access_ok(VERIFY_WRITE, (ulong*) third,
++					       sizeof(ulong)) ? 0 : -EFAULT))
+ 				break;
+ 			ret = do_shmat (first, (char *) ptr, second, &raddr);
+ 			if (ret)
+diff -urp linux-2.6.11-orig/arch/sh64/kernel/signal.c linux-2.6.11/arch/sh64/kernel/signal.c
+--- linux-2.6.11-orig/arch/sh64/kernel/signal.c	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.11/arch/sh64/kernel/signal.c	2005-03-03 22:28:35.000000000 +0100
+@@ -125,7 +125,7 @@ sys_sigaction(int sig, const struct old_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -137,7 +137,7 @@ sys_sigaction(int sig, const struct old_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -293,7 +293,7 @@ asmlinkage int sys_sigreturn(unsigned lo
+ 	sigset_t set;
+ 	long long ret;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+@@ -330,7 +330,7 @@ asmlinkage int sys_rt_sigreturn(unsigned
+ 	stack_t __user st;
+ 	long long ret;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+diff -urp linux-2.6.11-orig/arch/alpha/kernel/osf_sys.c linux-2.6.11/arch/alpha/kernel/osf_sys.c
+--- linux-2.6.11-orig/arch/alpha/kernel/osf_sys.c	2005-03-02 08:37:30.000000000 +0100
++++ linux-2.6.11/arch/alpha/kernel/osf_sys.c	2005-03-03 22:28:35.000000000 +0100
+@@ -437,11 +437,10 @@ asmlinkage int
+ osf_getdomainname(char __user *name, int namelen)
+ {
+ 	unsigned len;
+-	int i, error;
++	int i;
+ 
+-	error = verify_area(VERIFY_WRITE, name, namelen);
+-	if (error)
+-		goto out;
++	if (!access_ok(VERIFY_WRITE, name, namelen))
++		return -EFAULT;
+ 
+ 	len = namelen;
+ 	if (namelen > 32)
+@@ -454,8 +453,8 @@ osf_getdomainname(char __user *name, int
+ 			break;
+ 	}
+ 	up_read(&uts_sem);
+- out:
+-	return error;
++
++	return 0;
+ }
+ 
+ asmlinkage long
+@@ -996,7 +995,7 @@ osf_select(int n, fd_set __user *inp, fd
+ 	if (tvp) {
+ 		time_t sec, usec;
+ 
+-		if ((ret = verify_area(VERIFY_READ, tvp, sizeof(*tvp)))
++		if ((ret = access_ok(VERIFY_READ, tvp, sizeof(*tvp)) ? 0 : -EFAULT)
+ 		    || (ret = __get_user(sec, &tvp->tv_sec))
+ 		    || (ret = __get_user(usec, &tvp->tv_usec)))
+ 			goto out_nofds;
+diff -urp linux-2.6.11-orig/arch/alpha/kernel/signal.c linux-2.6.11/arch/alpha/kernel/signal.c
+--- linux-2.6.11-orig/arch/alpha/kernel/signal.c	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.11/arch/alpha/kernel/signal.c	2005-03-03 22:28:35.000000000 +0100
+@@ -91,7 +91,7 @@ osf_sigaction(int sig, const struct osf_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags))
+ 			return -EFAULT;
+@@ -103,7 +103,7 @@ osf_sigaction(int sig, const struct osf_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags))
+ 			return -EFAULT;
+@@ -298,7 +298,7 @@ do_sigreturn(struct sigcontext __user *s
+ 	sigset_t set;
+ 
+ 	/* Verify that it's a good sigcontext before using it */
+-	if (verify_area(VERIFY_READ, sc, sizeof(*sc)))
++	if (!access_ok(VERIFY_READ, sc, sizeof(*sc)))
+ 		goto give_sigsegv;
+ 	if (__get_user(set.sig[0], &sc->sc_mask))
+ 		goto give_sigsegv;
+@@ -336,7 +336,7 @@ do_rt_sigreturn(struct rt_sigframe __use
+ 	sigset_t set;
+ 
+ 	/* Verify that it's a good ucontext_t before using it */
+-	if (verify_area(VERIFY_READ, &frame->uc, sizeof(frame->uc)))
++	if (!access_ok(VERIFY_READ, &frame->uc, sizeof(frame->uc)))
+ 		goto give_sigsegv;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto give_sigsegv;
+@@ -446,7 +446,7 @@ setup_frame(int sig, struct k_sigaction 
+ 
+ 	oldsp = rdusp();
+ 	frame = get_sigframe(ka, oldsp, sizeof(*frame));
+-	if (verify_area(VERIFY_WRITE, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+ 		goto give_sigsegv;
+ 
+ 	err |= setup_sigcontext(&frame->sc, regs, sw, set->sig[0], oldsp);
+@@ -497,7 +497,7 @@ setup_rt_frame(int sig, struct k_sigacti
+ 
+ 	oldsp = rdusp();
+ 	frame = get_sigframe(ka, oldsp, sizeof(*frame));
+-	if (verify_area(VERIFY_WRITE, frame, sizeof(*frame)))
++	if (!access_ok(VERIFY_WRITE, frame, sizeof(*frame)))
+ 		goto give_sigsegv;
+ 
+ 	err |= copy_siginfo_to_user(&frame->info, info);
+diff -urp linux-2.6.11-orig/arch/h8300/kernel/signal.c linux-2.6.11/arch/h8300/kernel/signal.c
+--- linux-2.6.11-orig/arch/h8300/kernel/signal.c	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.11/arch/h8300/kernel/signal.c	2005-03-03 22:28:35.000000000 +0100
+@@ -113,7 +113,7 @@ sys_sigaction(int sig, const struct old_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -125,7 +125,7 @@ sys_sigaction(int sig, const struct old_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -222,7 +222,7 @@ asmlinkage int do_sigreturn(unsigned lon
+ 	sigset_t set;
+ 	int er0;
  
 -	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
 +	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
  		goto badframe;
  	if (__get_user(set.sig[0], &frame->sc.sc_mask) ||
  	    (_NSIG_WORDS > 1 &&
-@@ -392,7 +392,7 @@ asmlinkage int do_rt_sigreturn(unsigned 
+@@ -253,7 +253,7 @@ asmlinkage int do_rt_sigreturn(unsigned 
  	sigset_t set;
- 	int d0;
+ 	int er0;
  
 -	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
 +	if (!access_ok(VERIFY_READ, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
+ 		goto badframe;
+diff -urp linux-2.6.11-orig/arch/arm26/kernel/signal.c linux-2.6.11/arch/arm26/kernel/signal.c
+--- linux-2.6.11-orig/arch/arm26/kernel/signal.c	2005-03-02 08:37:51.000000000 +0100
++++ linux-2.6.11/arch/arm26/kernel/signal.c	2005-03-03 22:28:35.000000000 +0100
+@@ -102,7 +102,7 @@ sys_sigaction(int sig, const struct old_
+ 
+ 	if (act) {
+ 		old_sigset_t mask;
+-		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
+ 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
+ 			return -EFAULT;
+@@ -114,7 +114,7 @@ sys_sigaction(int sig, const struct old_
+ 	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
+ 
+ 	if (!ret && oact) {
+-		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
+ 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
+ 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
+ 			return -EFAULT;
+@@ -186,7 +186,7 @@ asmlinkage int sys_sigreturn(struct pt_r
+ 
+ 	frame = (struct sigframe *)regs->ARM_sp;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof (*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof (*frame)))
+ 		goto badframe;
+ 	if (__get_user(set.sig[0], &frame->sc.oldmask)
+ 	    || (_NSIG_WORDS > 1
+@@ -231,7 +231,7 @@ asmlinkage int sys_rt_sigreturn(struct p
+ 
+ 	frame = (struct rt_sigframe *)regs->ARM_sp;
+ 
+-	if (verify_area(VERIFY_READ, frame, sizeof (*frame)))
++	if (!access_ok(VERIFY_READ, frame, sizeof (*frame)))
  		goto badframe;
  	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
  		goto badframe;

@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbULKAxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbULKBDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbULKAxh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 19:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbULKAxh
+	id S261896AbULKBDK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 20:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbULKBDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 19:53:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64726 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261895AbULKAxd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 19:53:33 -0500
-Date: Fri, 10 Dec 2004 16:57:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: clameter@sgi.com, torvalds@osdl.org, benh@kernel.crashing.org,
-       nickpiggin@yahoo.com.au, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and
- performance tests
-Message-Id: <20041210165745.38c1930e.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0412110036330.807-100000@localhost.localdomain>
-References: <20041210161835.5b0b0828.akpm@osdl.org>
-	<Pine.LNX.4.44.0412110036330.807-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Dec 2004 20:03:10 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:59098 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261896AbULKBDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 20:03:07 -0500
+Subject: Re: VM86 interrupt emulation breakage and FIXes for 2.6.x kernel
+	series
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pavel Pisa <pisa@cmp.felk.cvut.cz>, Ingo Molnar <mingo@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+In-Reply-To: <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
+References: <200412091459.51583.pisa@cmp.felk.cvut.cz>
+	 <1102712732.3264.73.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1102723114.4774.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 10 Dec 2004 23:58:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> On Fri, 10 Dec 2004, Andrew Morton wrote:
-> > Hugh Dickins <hugh@veritas.com> wrote:
-> > > But why is do_anonymous_page adding anything to lru_cache_add_active,
-> > > when its other callers leave it at that?  What's special about the
-> > > do_anonymous_page case?
-> > 
-> > do_swap_page() is effectively doing the same as do_anonymous_page(). 
-> > do_wp_page() and do_no_page() appear to be errant.
-> 
-> Demur.  do_swap_page has to mark_page_accessed because the page from
-> the swap cache is already on the LRU, and for who knows how long.
+On Gwe, 2004-12-10 at 22:55, Linus Torvalds wrote:
+> On Fri, 10 Dec 2004, Alan Cox wrote:
+> The vm86 interrupt does not allow sharing. And it really _has_ to be 
+> disabled until user mode has cleared the irq source, or you'll have a very 
+> dead machine.
 
-Well.  Some of the time.  If the page was just read from swap, it's known
-to be on the active list.
+Until the 10,000th event it actually seems to work rather happily
+without
+that change. The interrupt has already occurred at this point and it was
+edge triggered so the interrupt will be cleared down by the kernel on
+the irq handler return path. Nothing expects that interrupt to get
+re-enabled, or deals with refcounting in his patch, or with races. It
+doesn't need disable_irq except for level triggered and vm86 has never
+handled that. In fact right now it can't because multiple signals are
+merged and you never know how many IRQ events occurred.
 
-> The others (and count in fs/exec.c's install_arg_page) are dealing
-> with a freshly allocated page they are putting onto the active LRU.
-> 
-> My inclination would be simply to remove the mark_page_accessed
-> from do_anonymous_page; but I have no numbers to back that hunch.
-> 
+That limit works because the old vm86 irq hack only works with the edge
+triggered old style PC ISA interrupts.
 
-With the current implementation of page_referenced() the
-software-referenced bit doesn't matter anyway, as long as the pte's
-referenced bit got set.  So as long as the thing is on the active list, we
-can simply remove the mark_page_accessed() call.
-
-Except one day the VM might get smarter about pages which are both
-software-referenced and pte-referenced.

@@ -1,90 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261933AbSIYHWI>; Wed, 25 Sep 2002 03:22:08 -0400
+	id <S261930AbSIYHRs>; Wed, 25 Sep 2002 03:17:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSIYHWI>; Wed, 25 Sep 2002 03:22:08 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60763 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S261933AbSIYHWH>; Wed, 25 Sep 2002 03:22:07 -0400
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
-       "'Andy Pfiffer'" <andyp@osdl.org>, cgl_discussion@osdl.org,
-       "Rhoads, Rob" <rob.rhoads@intel.com>,
-       hardeneddrivers-discuss@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Hardeneddrivers-discuss] RE: [cgl_discussion] Some Initial Comments on DDH-Spec-0.5h.pdf
-References: <Pine.LNX.4.10.10209242018450.6896-100000@master.linux-ide.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Sep 2002 01:12:14 -0600
-In-Reply-To: <Pine.LNX.4.10.10209242018450.6896-100000@master.linux-ide.org>
-Message-ID: <m13cryk0fl.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261931AbSIYHRs>; Wed, 25 Sep 2002 03:17:48 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:19145 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261930AbSIYHRp>;
+	Wed, 25 Sep 2002 03:17:45 -0400
+Date: Wed, 25 Sep 2002 17:22:50 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Consolidate asm/ucontext.h
+Message-Id: <20020925172250.21d8d17b.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
+Hi all,
 
+8 of our architectures use the same struct ucontext.  This patch
+creates asm-generic/ucontext.h and changes the 8 architectures to use it.
+When the sigcontext_struct -> sigcontext patch goes in, PPC and PPC64
+will also be able to use asm-generic/ucontext.h.
 
-> Jeff, 
-> 
-> You know that every hardware vendor will clam it works well under
-> MicroSoft, so why does it fail under Linux.  This is the classic one-liner
-> we all have gotten.   The reality is closed software is used to hide all
-> the flaws and failures of made by the ASIC people.  I would love to shove
-> the brain dead asic designer of the original PIIX4 AB/EB off a cliff on
-> fire for being absolutely "stupid".  Sorry this is as nice an clean as I
-> can say this and not dust off the flame thrower.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Right.  So we need to get to a situation where ASIC designers are not afraid
-to admit they messed up.  I have seen this from all vendors.  More than
-anything this is the reason we have a documentation shortage.  Just when
-we really need more documentation, and more code review to make certain
-that the drivers are solid in the face of hardware bugs the vendors
-stop talking.
-
-As for ``It works well under windows so why does it fail under
-Linux?'' line of arguing that is just a first reflex from people that
-aren't used to dealing with Linux.  Putting it in a business case and
-saying noting that the vendors can ship X million more in volume, or
-become part of Y prestigious system.  People stop knee jerking and
-start helping.
-
-Getting those channels open through the business side takes time.  And
-the more independent software developers don't always have access to
-those kinds of arguments.  So we really need a way to shame a vendor
-on a driver by driver basis that makes it worse to hide their
-documentation than to admit to their bugs.  
-
-Being able to say we could not ``harden'' the vendors driver because
-the vendor did not give us the real specification, and errata
-information, might be enough to shame change that.  If not we can try
-other methods.
-
-> > I don't see driver hardening being very feasible on such drivers, where 
-> > the vendor refuses to allow kernel engineers access needed to get their 
-> > hardware working and stable.  [why vendors want crappy Linux support, 
-> > I'll never know]
-> 
-> Worse is getting a spec that says, "no work around".
-> When the reality is the OEM hardware vendor will not take ownership of 
-> their errors and disclose a good proper work-around.
-
-If the vendor has not figured out a work around this is understandable
-if undesirable.  
-
-As for what can be done about it to get good Linux drivers, it is best
-to remember that businesses do not have clear and consistent
-policies.  Instead businesses are susceptible to the attack of many
-pokes, and enticements by people waving cash.  So by pure persistence
-and repetition we should be able to get the word out.
-
-We just need to come up with arguments that are just as persistent as
-the ip lawyers who say you need secret ``ip''.   And some
-embarrassement that is stronger than the embarrassement at the quality
-of their work.
-
-
-Eric
+diff -ruN 2.5.38/include/asm-arm/ucontext.h 2.5.38-ucontext/include/asm-arm/ucontext.h
+--- 2.5.38/include/asm-arm/ucontext.h	1998-01-21 11:39:43.000000000 +1100
++++ 2.5.38-ucontext/include/asm-arm/ucontext.h	2002-09-25 16:14:17.000000000 +1000
+@@ -1,12 +1,6 @@
+ #ifndef _ASMARM_UCONTEXT_H
+ #define _ASMARM_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif /* !_ASMARM_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-cris/ucontext.h 2.5.38-ucontext/include/asm-cris/ucontext.h
+--- 2.5.38/include/asm-cris/ucontext.h	2001-02-09 11:32:44.000000000 +1100
++++ 2.5.38-ucontext/include/asm-cris/ucontext.h	2002-09-25 16:15:08.000000000 +1000
+@@ -1,12 +1,6 @@
+ #ifndef _ASM_CRIS_UCONTEXT_H
+ #define _ASM_CRIS_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif /* !_ASM_CRIS_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-generic/ucontext.h 2.5.38-ucontext/include/asm-generic/ucontext.h
+--- 2.5.38/include/asm-generic/ucontext.h	1970-01-01 10:00:00.000000000 +1000
++++ 2.5.38-ucontext/include/asm-generic/ucontext.h	2002-09-25 16:11:13.000000000 +1000
+@@ -0,0 +1,12 @@
++#ifndef _ASM_GENERIC_UCONTEXT_H
++#define _ASM_GENERIC_UCONTEXT_H
++
++struct ucontext {
++	unsigned long	  uc_flags;
++	struct ucontext  *uc_link;
++	stack_t		  uc_stack;
++	struct sigcontext uc_mcontext;
++	sigset_t	  uc_sigmask;	/* mask last for extensibility */
++};
++
++#endif /* !_ASM_GENERIC_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-i386/ucontext.h 2.5.38-ucontext/include/asm-i386/ucontext.h
+--- 2.5.38/include/asm-i386/ucontext.h	1997-12-02 05:45:24.000000000 +1100
++++ 2.5.38-ucontext/include/asm-i386/ucontext.h	2002-09-25 16:15:37.000000000 +1000
+@@ -1,12 +1,6 @@
+ #ifndef _ASMi386_UCONTEXT_H
+ #define _ASMi386_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif /* !_ASMi386_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-mips/ucontext.h 2.5.38-ucontext/include/asm-mips/ucontext.h
+--- 2.5.38/include/asm-mips/ucontext.h	2000-05-14 01:31:25.000000000 +1000
++++ 2.5.38-ucontext/include/asm-mips/ucontext.h	2002-09-25 16:17:30.000000000 +1000
+@@ -11,12 +11,6 @@
+ #ifndef _ASM_UCONTEXT_H
+ #define _ASM_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif /* _ASM_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-mips64/ucontext.h 2.5.38-ucontext/include/asm-mips64/ucontext.h
+--- 2.5.38/include/asm-mips64/ucontext.h	2001-09-10 03:43:02.000000000 +1000
++++ 2.5.38-ucontext/include/asm-mips64/ucontext.h	2002-09-25 16:18:14.000000000 +1000
+@@ -10,12 +10,6 @@
+ #ifndef _ASM_UCONTEXT_H
+ #define _ASM_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif /* _ASM_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-parisc/ucontext.h 2.5.38-ucontext/include/asm-parisc/ucontext.h
+--- 2.5.38/include/asm-parisc/ucontext.h	2000-12-06 07:29:39.000000000 +1100
++++ 2.5.38-ucontext/include/asm-parisc/ucontext.h	2002-09-25 16:18:54.000000000 +1000
+@@ -1,12 +1,6 @@
+ #ifndef _ASMPARISC_UCONTEXT_H
+ #define _ASMPARISC_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif /* !_ASMPARISC_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-sh/ucontext.h 2.5.38-ucontext/include/asm-sh/ucontext.h
+--- 2.5.38/include/asm-sh/ucontext.h	1999-08-31 11:12:59.000000000 +1000
++++ 2.5.38-ucontext/include/asm-sh/ucontext.h	2002-09-25 16:20:40.000000000 +1000
+@@ -1,12 +1,6 @@
+ #ifndef __ASM_SH_UCONTEXT_H
+ #define __ASM_SH_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif /* __ASM_SH_UCONTEXT_H */
+diff -ruN 2.5.38/include/asm-x86_64/ucontext.h 2.5.38-ucontext/include/asm-x86_64/ucontext.h
+--- 2.5.38/include/asm-x86_64/ucontext.h	2002-02-20 14:13:21.000000000 +1100
++++ 2.5.38-ucontext/include/asm-x86_64/ucontext.h	2002-09-25 16:22:36.000000000 +1000
+@@ -1,12 +1,6 @@
+ #ifndef _ASMX8664_UCONTEXT_H
+ #define _ASMX8664_UCONTEXT_H
+ 
+-struct ucontext {
+-	unsigned long	  uc_flags;
+-	struct ucontext  *uc_link;
+-	stack_t		  uc_stack;
+-	struct sigcontext uc_mcontext;
+-	sigset_t	  uc_sigmask;	/* mask last for extensibility */
+-};
++#include <asm-generic/ucontext.h>
+ 
+ #endif

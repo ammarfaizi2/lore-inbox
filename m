@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283428AbRLDUmL>; Tue, 4 Dec 2001 15:42:11 -0500
+	id <S283439AbRLDUnl>; Tue, 4 Dec 2001 15:43:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283376AbRLDUkp>; Tue, 4 Dec 2001 15:40:45 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:43433
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S283379AbRLDUjj>; Tue, 4 Dec 2001 15:39:39 -0500
-Date: Tue, 4 Dec 2001 13:39:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavlov Peter <Peter_Pavlov@BetaResearch.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error by make zImage
-Message-ID: <20011204203936.GW17651@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <6BC16425F21921409CFE741208B1440337AC92@GAUGUIN.betaresearch.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
+	id <S283376AbRLDUmO>; Tue, 4 Dec 2001 15:42:14 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:8832 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S283424AbRLDUl7>; Tue, 4 Dec 2001 15:41:59 -0500
+Message-ID: <3C0D350F.9010408@optonline.net>
+Date: Tue, 04 Dec 2001 15:41:51 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 05:39:14PM +0100, Pavlov Peter wrote:
+Doug Ledford wrote:
 
-> 
-> trying to compile the linux-2.4.16 with this config
->  <<conf>> 
-> I've got this errors. 
-> I hope that will help you to find some bugs
+> There is a new version of the driver (0.07) on my web site.  It has 
+> this issue and one other issue fixed (hopefully).  The other issue is 
+> when using artsd with the 0.06 driver, I had a report that artsd would 
+> end up waiting on select forever and never getting woken up.  The 0.07 
+> driver changes wait queue and lvi handling in a few strategic places, 
+> so it should work.  However, it's untested.  Reports welcome. 
 
-1) CONFIG_NVRAM on PPC is powermac-specific, turn that off
-2) The 8xx i2c code isn't yet in the kernel.org tree, turn that off
+With 0.07, the kernel goes into an endless sleep as soon as artsd calls 
+select(). I don't think the looping changes to i810_poll are correct... 
+or even necessary? though the userfragsize change is probably appropriate.
 
-You'll probably have much better luck with one of the PPC trees, at
-http://penguinppc.org/dev/kernel.shtml
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

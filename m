@@ -1,85 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131155AbRCMRum>; Tue, 13 Mar 2001 12:50:42 -0500
+	id <S131158AbRCMSIS>; Tue, 13 Mar 2001 13:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131163AbRCMRud>; Tue, 13 Mar 2001 12:50:33 -0500
-Received: from toscano.org ([64.50.191.142]:13784 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S131155AbRCMRuU>;
-	Tue, 13 Mar 2001 12:50:20 -0500
-Date: Tue, 13 Mar 2001 12:49:54 -0500
-From: Pete Toscano <pete.lkml@toscano.org>
-To: Greg KH <greg@wirex.com>, linux-kernel@vger.kernel.org
+	id <S131163AbRCMSII>; Tue, 13 Mar 2001 13:08:08 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:17653 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S131158AbRCMSHz>;
+	Tue, 13 Mar 2001 13:07:55 -0500
+Date: Tue, 13 Mar 2001 10:12:27 -0800
+From: Greg KH <greg@wirex.com>
+To: Pete Toscano <pete.lkml@toscano.org>, linux-kernel@vger.kernel.org
 Subject: Re: APIC  usb MPS 1.4 and the 2.4.2 kernel
-Message-ID: <20010313124954.B5626@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
-	Greg KH <greg@wirex.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org> <20010313002513.A1664@bubba.toscano.org> <20010313092837.A805@wirex.com>
+Message-ID: <20010313101227.B805@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	Pete Toscano <pete.lkml@toscano.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org> <20010313002513.A1664@bubba.toscano.org> <20010313092837.A805@wirex.com> <20010313124954.B5626@bubba.toscano.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010313092837.A805@wirex.com>; from greg@wirex.com on Tue, Mar 13, 2001 at 09:28:37AM -0800
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 12:46pm  up  3:48,  4 users,  load average: 0.06, 0.08, 0.02
+In-Reply-To: <20010313124954.B5626@bubba.toscano.org>; from pete.lkml@toscano.org on Tue, Mar 13, 2001 at 12:49:54PM -0500
+X-Operating-System: Linux 2.4.2-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 13, 2001 at 12:49:54PM -0500, Pete Toscano wrote:
+> 
+> Very interesting.  I had not heard about this.  Are there any SMP boards
+> with a VIA chipset that does work well with Linux and USB?  I have an
+> old P2B-DS that I had replace with this board as I needed more PCI
+> slots.  Heck, for that matter are there any SMP boards that work well
+> with Linux and USB that have six or more PCI slots?
 
---VS++wcV0S1rZb1Fb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+If you really want USB to work in APIC mode on the Tiger 133 board,
+spend $25 on a USB pci card.  That should work just fine :)
 
+> > But, Linux does seem to run just fine with USB and SMP in the noapic
+> > mode, which is a lot better than Win2000 can say, as it doesn't even
+> > support the VIA USB chipset on this board at all :)
+> 
+> How would this express itself?  I recently upgraded from WinME to Win2k
+> and it all _seems_ to be working well.  Where would I look to verify
+> this?
 
+All I know is this:
+	http://support.microsoft.com/support/kb/articles/Q233/1/63.ASP
+as I've not run Win2000 on this machine, thankfully....
 
-On Tue, 13 Mar 2001, Greg KH wrote:
+Also the message board at:
+	http://www.usbman.com
+is full of comments about the VIA chipsets and the difficulties of
+getting them to work properly under Windows.
 
-> On Tue, Mar 13, 2001 at 12:25:13AM -0500, Pete Toscano wrote:
-> > Well, I can't speak for the consequences of noapic (I've wondered as
-> > much myself), but I know that there's been a problem with SMP 2.4
-> > kernels (even the 2.4 test kernels) and USB running on VIA chipsets for
-> > a while now.  I'm told by the linux-usb maintainers that it's a problem
-> > with the PCI IRQ routing for the VIA chipsets, but I've been unable to
-> > get anyone who knows about this to do anything (and I've been asking for
-> > a while).  Alas, since this stuff is beyond me, I just accept the fact
-> > that it'll probably always be broke.
+> Thanks for the info and the update.
 
-> It seems that the APIC on this motherboard does not have most of the
-> pins connected, so that even if we could get the USB interrupt to work
-> properly (which we couldn't) there would be no benefit to run in APIC
-> mode.  I was going to run some crude benchmarks on the box with and
-> without APIC mode just to get an sense if we are missing anything
-> running in noapic mode, but I haven't gotten around to it yet.
+No problem, sorry I didn't get back to you sooner with this.
 
-Very interesting.  I had not heard about this.  Are there any SMP boards
-with a VIA chipset that does work well with Linux and USB?  I have an
-old P2B-DS that I had replace with this board as I needed more PCI
-slots.  Heck, for that matter are there any SMP boards that work well
-with Linux and USB that have six or more PCI slots?
+greg k-h
 
-> But, Linux does seem to run just fine with USB and SMP in the noapic
-> mode, which is a lot better than Win2000 can say, as it doesn't even
-> support the VIA USB chipset on this board at all :)
-
-How would this express itself?  I recently upgraded from WinME to Win2k
-and it all _seems_ to be working well.  Where would I look to verify
-this?
-
-Thanks for the info and the update.
-
-pete
-
---VS++wcV0S1rZb1Fb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6rl3CsMikd2rK89sRAhC8AJ96mC8KtD3+bmVG/2mecwtrzB/LEQCghUWD
-dntbMdA0L5WS2pMICZJxG/8=
-=RSEL
------END PGP SIGNATURE-----
-
---VS++wcV0S1rZb1Fb--
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316250AbSGATTX>; Mon, 1 Jul 2002 15:19:23 -0400
+	id <S316258AbSGATVo>; Mon, 1 Jul 2002 15:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSGATTW>; Mon, 1 Jul 2002 15:19:22 -0400
-Received: from quake.mweb.co.za ([196.2.45.76]:2734 "EHLO quake.mweb.co.za")
-	by vger.kernel.org with ESMTP id <S316250AbSGATTU>;
-	Mon, 1 Jul 2002 15:19:20 -0400
-Subject: EXT3 errors
-From: Bongani <bonganilinux@mweb.co.za>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8-1mdk 
-Date: 01 Jul 2002 21:24:15 +0200
-Message-Id: <1025551456.1587.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S316309AbSGATVn>; Mon, 1 Jul 2002 15:21:43 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:41925 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S316289AbSGATVl>; Mon, 1 Jul 2002 15:21:41 -0400
+Date: Mon, 1 Jul 2002 14:24:03 -0500 (CDT)
+From: "Justin M. Forbes" <kernelmail@attbi.com>
+X-X-Sender: jmforbes@leaper.linuxtx.org
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] Kernel release management
+In-Reply-To: <Pine.NEB.4.44.0207012045110.24810-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0207011418200.27325-100000@leaper.linuxtx.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Mon, 1 Jul 2002, Adrian Bunk wrote:
 
-Does anyone what cause's these message. I have a 41M messages file
-because of the.
+> On Mon, 1 Jul 2002, Bill Davidsen wrote:
+> 
+> > I suggested that 2.5 be opened when 2.4 came out, so I like the idea of
+> > 2.7 starting when 2.6 is released. I think developers will maintain the
+> > 2.6 work out of pride and desire to have a platform for the "next big
+> > thing." And their code can always be placed on hold for 2.7 until they
+> > clarify their thinking on 2.6, if that's really needed.
+> > <Snip>
+> 
+>   If 2.7 doesn't start before 2.6 is _really_ stable everyone who wants
+>   to have a new development tree is more interested in making 2.6 a really
+>   good kernel instead of focussing immediately on 2.7 .
+> 
+> 
+> Just my 0.02 (Euro-)cent
+> Adrian
+> 
 
+I would have to agree with Adrian here.  I think that with the feature 
+freeze happening in October, many people will be sitting on new ideas for 
+immediate implementation into 2.7 as soon as that kernel is available.  If 
+the venue is there for 2.7 work to really begin, alot of attention will be 
+taken away from the 2.6 tree.  If 2.6 is out for a while before 2.7, 
+people will spend more time stabilizing the 2.6 tree, and can continue to 
+test their pre 2.7 work against current 2.6.  Waiting doesnt stifle the 
+work process for new features too much, but tends to encourage 
+stabilization of 2.6 in the meantime.
 
-Jul  1 04:02:14 localhost kernel: EXT3-fs error (device ide0(3,70)):
-ext3_new_block: Allocating block in system zone - block = 32802
-Jul  1 04:02:14 localhost kernel: EXT3-fs error (device ide0(3,70)):
-ext3_new_block: Allocating block in system zone - block = 32803
-Jul  1 04:02:14 localhost kernel: EXT3-fs error (device ide0(3,70)):
-ext3_new_block: Allocating block in system zone - block = 32804
-Jul  1 04:02:15 localhost kernel: EXT3-fs error (device ide0(3,70)):
-ext3_free_blocks: Freeing blocks in system zones - Block = 32802, count
-= 3
-Jul  1 04:06:02 localhost kernel: attempt to access beyond end of device
-Jul  1 04:06:02 localhost kernel: 03:46: rw=0, want=1025837100,
-limit=6345643
-Jul  1 04:06:02 localhost kernel: EXT3-fs error (device ide0(3,70)):
-ext3_readdir: directory #17205 contains a hole at offset 0
-Jul  1 04:06:02 localhost kernel: attempt to access beyond end of device
-Jul  1 04:06:02 localhost kernel: 03:46: rw=0, want=226335104,
-limit=6345643
-Jul  1 04:06:02 localhost kernel: EXT3-fs error (device ide0(3,70)):
-ext3_readdir: directory #17205 contains a hole at offset 4096
-Jul  1 04:06:02 localhost kernel: attempt to access beyond end of device
-Jul  1 04:06:02 localhost kernel: 03:46: rw=0, want=362922408,
-limit=6345643
-Jul  1 04:06:02 localhost kernel: EXT3-fs error (device ide0(3,70)):
-ext3_readdir: directory #17205 contains a hole at offset 8192
-
-I was using linux-2.4.19-pre10-aa when I found these messages this
-morning.
-
-Thanx
-	
-   -- Bongani
+Justin
 

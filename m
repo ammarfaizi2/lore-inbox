@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262739AbRE3LiV>; Wed, 30 May 2001 07:38:21 -0400
+	id <S262741AbRE3LsF>; Wed, 30 May 2001 07:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262741AbRE3LiL>; Wed, 30 May 2001 07:38:11 -0400
-Received: from [216.74.100.93] ([216.74.100.93]:1550 "EHLO
-	host7.hrwebservices.net") by vger.kernel.org with ESMTP
-	id <S262739AbRE3Lhz>; Wed, 30 May 2001 07:37:55 -0400
-Message-ID: <001f01c0e948$90ef68a0$c1a5fea9@spunky>
-Reply-To: <james@spunkysoftware.com>
-From: <james@spunkysoftware.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: POSIX/1003.b/whatever docs free?
-Date: Wed, 30 May 2001 21:38:57 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S262742AbRE3Lrz>; Wed, 30 May 2001 07:47:55 -0400
+Received: from ns.caldera.de ([212.34.180.1]:4328 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S262741AbRE3Lrg>;
+	Wed, 30 May 2001 07:47:36 -0400
+Date: Wed, 30 May 2001 13:47:29 +0200
+Message-Id: <200105301147.f4UBlTA32401@ns.caldera.de>
+From: hch@caldera.de (Christoph Hellwig)
+To: Marcus.Meissner@caldera.de (Marcus Meissner)
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: 3c509 PNP80f7 id
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010530130905.A29368@caldera.de>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there somewhere I can download the collection of POSIX standards docs
-free of charge?
+In article <20010530130905.A29368@caldera.de> you wrote:
+> Hi,
+>
+> This adds the PNP80f7 compat Id to 3c509.c, making it now autodetect my 
+> '3C509B EtherLink III'.
+>
+> BTW, there is a problem there:
+>
+> It has a card id of TCM5094 and a function id of PNP80f7, the cardid is
+> already there, but only probed as function id...
+>
+> Anyway, I will let the dust settle on the ISAPNP module issue first before
+> fixing it ;)
 
-;-)
+An option might be to use the proper isapnp_probe_devs() function instead
+of hand-coded probing code...
 
-Thankyou,
-James
+	Christoph
 
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

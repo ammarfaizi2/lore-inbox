@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281244AbRKTTk4>; Tue, 20 Nov 2001 14:40:56 -0500
+	id <S281286AbRKTTkg>; Tue, 20 Nov 2001 14:40:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281284AbRKTTkm>; Tue, 20 Nov 2001 14:40:42 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:23545 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281244AbRKTTk3>;
-	Tue, 20 Nov 2001 14:40:29 -0500
-Date: Tue, 20 Nov 2001 12:39:15 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: =?iso-8859-1?Q?Lu=EDs_Henriques?= <lhenriques@criticalsoftware.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: copy to suer space
-Message-ID: <20011120123915.W1308@lynx.no>
-Mail-Followup-To: =?iso-8859-1?Q?Lu=EDs_Henriques?= <lhenriques@criticalsoftware.com>,
-	Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <200111201714.fAKHEc276467@criticalsoftware.com> <20011120114124.T1308@lynx.no> <200111201849.fAKInr205178@criticalsoftware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200111201849.fAKInr205178@criticalsoftware.com>; from lhenriques@criticalsoftware.com on Tue, Nov 20, 2001 at 06:44:08PM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S281284AbRKTTk1>; Tue, 20 Nov 2001 14:40:27 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:63467 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S281244AbRKTTkR> convert rfc822-to-8bit;
+	Tue, 20 Nov 2001 14:40:17 -0500
+Date: Tue, 20 Nov 2001 17:49:32 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+Cc: Chris Wedgwood <cw@f00f.org>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: What Athlon chipset is most stable in Linux?
+In-Reply-To: <3BFA09B3.20F31B78@randomlogic.com>
+Message-ID: <20011120173825.G1836-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 20, 2001  18:44 +0000, Luís Henriques wrote:
-> > Maybe if you describe the actual problem that you are trying to solve, and
-> > not the actual way you are trying to solve it, there may be a better
-> > method. Usually, if something you are trying to do is very hard to do,
-> > there is a different (much better) way of doing it.
-> 
-> I'm developping a kernel module that needs to delay a process, that is, he 
-> receives a PID and, when a specific event occurs, that process shall be 
-> delayed. This delay shall be done in a way that the process keeps burning CPU 
-> time (it can not be, e.g., put in a waiting-list...).
 
-Putting it into a waiting-list is by far the best solution.  This is a normal
-Unix operation, like SIGSTOP, SIGCONT, and could even be done from user space.
 
-What is the requirement that it keeps burning CPU for?  Generally, this is
-what you do NOT want to do.
+On Mon, 19 Nov 2001, Paul G. Allen wrote:
 
-Depending on what that is for, you could just increment the "system time"
-ticks in the process, which is kind of a hack, but not nearly so ugly as
-changing the user-space code (which is truly dreadful, and I don't think
-anyone on this list would ever help you do that, even if they could).
+> Chris Wedgwood wrote:
+> >
+> > On Wed, Nov 14, 2001 at 05:03:21PM -0800, Paul G. Allen wrote:
+> >
+> >     I am running 2.4.9ac10 with a few minor tweaks, agpgart slightly
+> >     tweaked compiled in, and a tweaked Detonator 3 nVidia driver. I
+> >     plan to upgrade all these soon and see what happens.
+> >
+> > Is this different from 1541? If so, where might I find this
+> >
+>
+> I just D/L, modified and compiled 1541. A cat of /proc/nv/card0 shows:
+>
+> [root@keroon /root]# cat /proc/nv/card0
+> ----- Driver Info -----
+> NVRM Version: 1.0-1541
+> ------ Card Info ------
+> Model:        GeForce3
+> IRQ:          17
+> Video BIOS:   03.20.00.10
+> ------ AGP Info -------
+> AGP status:   Enabled
+> AGP Driver:   NVIDIA
+> Bridge:       AMD Irongate MP
+> SBA:          Supported [enabled]
+> FW:           Supported [disabled]
+> Rates:        4x 2x 1x  [4x]
+> Registers:    0x0f000217:0x00000304
+> [root@keroon /root]#
+>
+> So, AGP 4x and Side Band Addressing is enabled, but for some reason Fast
+> Writes are not. I am still using the 2.06 Tyan BIOS (as shipped) and
+> need to upgrade to the latest (I've had trouble getting the BIOS file
+> from the Tyan web site). agpgart is not compiled into this kernel, so as
+> you can see it's using the NVIDIA driver instead. I e-mailed developer
+> support at nVidia to ask why FW is disabled even though it's supported
+> (it could very well be the BIOS).
 
-The other alternative is to make your module such that upon entry, the
-user process simply busy-waits until the delay is complete.  This is also
-easy to do, with something like udelay().
+May-be, FW works quite well here, but they just want to enable it in some
+future driver version and then claim 50% speed improvement. :-) :o)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+To be serious, FW needs special handling in AGP, notably flow-control by
+the target using WBF for example. As a result, it could well be broken for
+your board forever due to some errata in signalling.
+
+> I also installed thier GLX libraries.
+
+You seem to like bloat. :)
+
+  Gérard.
 

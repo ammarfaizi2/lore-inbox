@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267889AbTGHW52 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 18:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267890AbTGHW52
+	id S265422AbTGHWyu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 18:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265440AbTGHWyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 18:57:28 -0400
-Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:26847 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S267889AbTGHW50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 18:57:26 -0400
-Message-ID: <20030708231157.7322.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	Tue, 8 Jul 2003 18:54:50 -0400
+Received: from devil.servak.biz ([209.124.81.2]:18140 "EHLO devil.servak.biz")
+	by vger.kernel.org with ESMTP id S265422AbTGHWyt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 18:54:49 -0400
+Subject: Re: compactflash cards dying in < hour?
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030708204931.GA602@elf.ucw.cz>
+References: <20030708204931.GA602@elf.ucw.cz>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057700055.3414.71.camel@torrey.et.myrio.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Jul 2003 14:34:16 -0700
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Clayton Weaver" <cgweav@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 08 Jul 2003 18:11:56 -0500
-Subject: Re: PTY DOS vulnerability?
-X-Originating-Ip: 172.147.196.167
-X-Originating-Server: ws3-4.us4.outblaze.com
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - devil.servak.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems to me that a pty ulimit and making
-sure that root can always access an unused
-pty on demand are separate issues.
+We have some SanDisk CF's here which have withstood at least 20 cycles
+of fdisk, mke3fs, and installation of a mini-linux distribution.  They
+are all still running ok.  (64 MB mostly, some 128 MB)
 
-The ulimit is the same issue that it is for
-open files, disk quota, aggregate per-user
-memory utilization, etc, maintaining the
-"multi-user" aspect of system usability.
+They have been accessed through SanDisk USB-to-CF adapters, and also
+directly to the IDE channel of Geode-based embedded systems.
 
-Making sure that root has the tools to do
-what is needed in a pty resource exhaustion
-situation deserves perhaps a different
-mechanism, like dynamic, on-demand pty device
-creation for root (which seems to me more
-robust than a "reserved for root" mechanism,
-which allows the possibility that root
-processes have already used up that many
-ptys when root needs one in an emergency).
+Torrey Hoffman
+torrey.hoffman@myrio.com (work) - thoffman@arnor.net (home)		
 
-Regards,
+On Tue, 2003-07-08 at 13:49, Pavel Machek wrote:
+> Hi!
+> 
+> I had three diferent CF cards, from two different manufacturers
+> (Apacer and Transcend), and both died *really fast*.
+> 
+> Last one (transcend) died in less than 10 minutes: mke2fs, cat
+> /dev/urandom > foo; md5sum foo (few times); cat /dev/urandom > foo and
+> I could no longer do cat /dev/urandom because of disk errors.
+> 
+> I know CompactFlash cards are *crap*, but they should not be *so*
+> crappy...?! [I'm testing them from toshiba satellite 4030cdt via
+> Apacer PCMCIA-to-CF adapter and in sharp zaurus].
+> 
+> Are there "known good" 256MB compact flash cards?
+> 
+> 							Pavel
 
-Clayton Weaver
-<mailto: cgweav@email.com>
-
-PS: Linux Golf Howto addenda
-
-Long grass: when hitting out of long grass,
-the grass tends to wrap around the heel of the club, where the club face meets the club shaft,
-without offering comparable resistance to the
-toe of the club face. This tends to close the
-club face and deliver it to the ball at not
-quite the intended angle. Solution: tilt the
-toe of the club away from the ball a few
-degrees before gripping the club. Soft,
-well-watered green grass a few inches long
-needs less opening of the club face than
-foot long dry grass (more fiber in stems
-than leaves) to accomplish the necessary
-adjustment.
-
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-CareerBuilder.com has over 400,000 jobs. Be smarter about your job search
-http://corp.mail.com/careers
 

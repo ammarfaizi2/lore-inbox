@@ -1,55 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbTAGU1M>; Tue, 7 Jan 2003 15:27:12 -0500
+	id <S267500AbTAGUdQ>; Tue, 7 Jan 2003 15:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267450AbTAGU1M>; Tue, 7 Jan 2003 15:27:12 -0500
-Received: from nameservices.net ([208.234.25.16]:31062 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S267449AbTAGU1K>;
-	Tue, 7 Jan 2003 15:27:10 -0500
-Message-ID: <3E1B3975.41201B4B@opersys.com>
-Date: Tue, 07 Jan 2003 15:32:53 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S267492AbTAGUcR>; Tue, 7 Jan 2003 15:32:17 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:17613 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267491AbTAGUbL>; Tue, 7 Jan 2003 15:31:11 -0500
+Date: Tue, 07 Jan 2003 12:20:13 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] (2/7) make i386 topology caching
+Message-ID: <594450000.1041970813@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] High-speed data relay filesystem
-References: <3E1B17DF.BCC51B3@opersys.com> <20030107124016.Z31555@schatzie.adilger.int>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch originally by Matt Dobson. Reworked a little by me.
 
-Andreas Dilger wrote:
-> The main drawback is that our 5MB buffer fills in about 1 second on a
-> fast machine, so if we had an efficient file interface to user-space
-> like relayfs we might be able to keep up and collect longer traces, or
-> we might just be better off writing the logs directly to a file from
-> the kernel to avoid 2x crossing of user-kernel interface.  I wonder if
-> we mmap the relayfs file and write with O_DIRECT if that would be zero
-> copy from kernel space to kernel space, or if it would just blow up?
+Stores the mappings between cpus and nodes in an array, instead of
+working them out every time. Gives about 4% off systime for kernel
+compile (we use these for every page allocation), and removes one
+of the two only usages of apicid->cpu mapping, which is really awkward
+to keep for systems with large apic spaces, and is genererally pretty
+useless anyway (later patch removes).
 
-That's similar to how we've been operating for LTT for a while now. The
-kernel buffers are allocated using rvmalloc and mmapped to user-space.
-When the daemon needs to dump to file, it issues a write using the pointer
-to the mmapped area. There's no data crossing the user-kernel interface
-at any point. It's a zero-copy system. This way, we've been able to handle
-mutli-MB buffers very efficiently (and on fast machines MB trace buffers
-fill very fast).
+diff -urpN -X /home/fletch/.diff.exclude 01-apicid_to_node/arch/i386/kernel/smpboot.c 02-i386_caching_topo/arch/i386/kernel/smpboot.c
+--- 01-apicid_to_node/arch/i386/kernel/smpboot.c	Thu Jan  2 22:04:58 2003
++++ 02-i386_caching_topo/arch/i386/kernel/smpboot.c	Tue Jan  7 09:24:51 2003
+@@ -503,6 +503,39 @@ static struct task_struct * __init fork_
+ 	return do_fork(CLONE_VM|CLONE_IDLETASK, 0, &regs, 0, NULL, NULL);
+ }
 
-> In any case, having relayfs would probably allow us to remove a bunch
-> of excess baggage from our code.
++#ifdef CONFIG_NUMA
++
++/* which logical CPUs are on which nodes */
++volatile unsigned long node_2_cpu_mask[MAX_NR_NODES] =
++						{ [0 ... MAX_NR_NODES-1] = 0 };
++/* which node each logical CPU is on */
++volatile int cpu_2_node[NR_CPUS] = { [0 ... NR_CPUS-1] = 0 };
++
++/* set up a mapping between cpu and node. */
++static inline void map_cpu_to_node(int cpu, int node)
++{
++	printk("Mapping cpu %d to node %d\n", cpu, node);
++	node_2_cpu_mask[node] |= (1 << cpu);
++	cpu_2_node[cpu] = node;
++}
++
++/* undo a mapping between cpu and node. */
++static inline void unmap_cpu_to_node(int cpu)
++{
++	int node;
++
++	printk("Unmapping cpu %d from all nodes\n", cpu);
++	for (node = 0; node < MAX_NR_NODES; node ++)
++		node_2_cpu_mask[node] &= ~(1 << cpu);
++	cpu_2_node[cpu] = -1;
++}
++#else /* !CONFIG_NUMA */
++
++#define map_cpu_to_node(cpu, node)	({})
++#define unmap_cpu_to_node(cpu)	({})
++
++#endif /* CONFIG_NUMA */
++
+ /* which physical APIC ID maps to which logical CPU number */
+ volatile int physical_apicid_2_cpu[MAX_APICID];
+ /* which logical CPU number maps to which physical APIC ID */
+@@ -537,6 +570,7 @@ static inline void map_cpu_to_boot_apici
+ 	if (clustered_apic_mode) {
+ 		logical_apicid_2_cpu[apicid] = cpu;	
+ 		cpu_2_logical_apicid[cpu] = apicid;
++		map_cpu_to_node(cpu, apicid_to_node(apicid));
+ 	} else {
+ 		physical_apicid_2_cpu[apicid] = cpu;	
+ 		cpu_2_physical_apicid[cpu] = apicid;
+@@ -552,6 +586,7 @@ static inline void unmap_cpu_to_boot_api
+ 	if (clustered_apic_mode) {
+ 		logical_apicid_2_cpu[apicid] = -1;	
+ 		cpu_2_logical_apicid[cpu] = -1;
++		unmap_cpu_to_node(cpu);
+ 	} else {
+ 		physical_apicid_2_cpu[apicid] = -1;	
+ 		cpu_2_physical_apicid[cpu] = -1;
+diff -urpN -X /home/fletch/.diff.exclude 01-apicid_to_node/include/asm-i386/topology.h 02-i386_caching_topo/include/asm-i386/topology.h
+--- 01-apicid_to_node/include/asm-i386/topology.h	Sun Nov 17 20:29:26 2002
++++ 02-i386_caching_topo/include/asm-i386/topology.h	Tue Jan  7 09:24:51 2003
+@@ -27,12 +27,17 @@
+ #ifndef _ASM_I386_TOPOLOGY_H
+ #define _ASM_I386_TOPOLOGY_H
 
-Great, glad you're interested.
+-#ifdef CONFIG_X86_NUMAQ
++#ifdef CONFIG_NUMA
 
-Karim
+-#include <asm/smpboot.h>
++/* Mappings between logical cpu number and node number */
++extern volatile unsigned long node_2_cpu_mask[];
++extern volatile int cpu_2_node[];
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+ /* Returns the number of the node containing CPU 'cpu' */
+-#define __cpu_to_node(cpu) (cpu_to_logical_apicid(cpu) >> 4)
++static inline int __cpu_to_node(int cpu)
++{
++	return cpu_2_node[cpu];
++}
+
+ /* Returns the number of the node containing MemBlk 'memblk' */
+ #define __memblk_to_node(memblk) (memblk)
+@@ -41,49 +46,22 @@
+    so it is a pretty simple function! */
+ #define __parent_node(node) (node)
+
+-/* Returns the number of the first CPU on Node 'node'.
+- * This should be changed to a set of cached values
+- * but this will do for now.
+- */
+-static inline int __node_to_first_cpu(int node)
+-{
+-	int i, cpu, logical_apicid = node << 4;
+-
+-	for(i = 1; i < 16; i <<= 1)
+-		/* check to see if the cpu is in the system */
+-		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
+-			/* if yes, return it to caller */
+-			return cpu;
+-
+-	BUG(); /* couldn't find a cpu on given node */
+-	return -1;
+-}
+-
+-/* Returns a bitmask of CPUs on Node 'node'.
+- * This should be changed to a set of cached bitmasks
+- * but this will do for now.
+- */
++/* Returns a bitmask of CPUs on Node 'node'. */
+ static inline unsigned long __node_to_cpu_mask(int node)
+ {
+-	int i, cpu, logical_apicid = node << 4;
+-	unsigned long mask = 0UL;
+-
+-	if (sizeof(unsigned long) * 8 < NR_CPUS)
+-		BUG();
+-
+-	for(i = 1; i < 16; i <<= 1)
+-		/* check to see if the cpu is in the system */
+-		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
+-			/* if yes, add to bitmask */
+-			mask |= 1 << cpu;
++	return node_2_cpu_mask[node];
++}
+
+-	return mask;
++/* Returns the number of the first CPU on Node 'node'. */
++static inline int __node_to_first_cpu(int node)
++{
++	return __ffs(__node_to_cpu_mask(node));
+ }
+
+ /* Returns the number of the first MemBlk on Node 'node' */
+ #define __node_to_memblk(node) (node)
+
+-#else /* !CONFIG_X86_NUMAQ */
++#else /* !CONFIG_NUMA */
+ /*
+  * Other i386 platforms should define their own version of the
+  * above macros here.
+@@ -91,6 +69,6 @@ static inline unsigned long __node_to_cp
+
+ #include <asm-generic/topology.h>
+
+-#endif /* CONFIG_X86_NUMAQ */
++#endif /* CONFIG_NUMA */
+
+ #endif /* _ASM_I386_TOPOLOGY_H */
+

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132171AbRAJJWT>; Wed, 10 Jan 2001 04:22:19 -0500
+	id <S132937AbRAJJXT>; Wed, 10 Jan 2001 04:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132937AbRAJJWK>; Wed, 10 Jan 2001 04:22:10 -0500
-Received: from pat.uio.no ([129.240.130.16]:59326 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S132171AbRAJJWB>;
-	Wed, 10 Jan 2001 04:22:01 -0500
+	id <S135187AbRAJJXJ>; Wed, 10 Jan 2001 04:23:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8196 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132937AbRAJJW4>;
+	Wed, 10 Jan 2001 04:22:56 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101100654.f0A6sjJ02453@flint.arm.linux.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+To: mantel@suse.de (Hubert Mantel)
+Date: Wed, 10 Jan 2001 06:54:45 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20010110013755.D13955@suse.de> from "Hubert Mantel" at Jan 10, 2001 01:37:55 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14940.10672.413028.265595@charged.uio.no>
-Date: Wed, 10 Jan 2001 10:21:52 +0100 (CET)
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <200101092119.NAA05633@pizda.ninka.net>
-In-Reply-To: <200101080124.RAA08134@pizda.ninka.net>
-	<shs4rz8vnmf.fsf@charged.uio.no>
-	<200101091342.FAA02414@pizda.ninka.net>
-	<14939.11765.649805.239618@charged.uio.no>
-	<200101092119.NAA05633@pizda.ninka.net>
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David S Miller <davem@redhat.com> writes:
+Hubert Mantel writes:
+> is this part of 2.2.19pre7 really a good idea? Even in 2.4.0 the size
+> field is still a short.
+>  #define NFS_MAXFHSIZE		64
+>  struct nfs_fh {
+> -	unsigned short		size;
+> +	unsigned int		size;
+>  	unsigned char		data[NFS_MAXFHSIZE];
+>  };
 
-     >    Date: Tue, 9 Jan 2001 16:27:49 +0100 (CET) From: Trond
-     >    Myklebust <trond.myklebust@fys.uio.no>
-
-     >    OK, but can you eventually generalize it to non-stream
-     >    protocols (i.e. UDP)?
-
-     > Sure, this is what MSG_MORE is meant to accomodate.  UDP could
-     > support it just fine.
-
-Great! I've been waiting for something like this. In particular the
-knfsd TCP server code can get very buffer-intensive without it since
-you need to pre-allocate 1 set of buffers per TCP connection (else you
-get DOS due to buffer saturation when doing wait+retry for blocked
-sockets).
-
-If it all gets in to the kernel, I'll do the work of adapting the NFS
-+ sunrpc stuff.
-
-Cheers,
-  Trond
+This is an internal kernel data structure.  Do you know of some program
+that breaks as a result of this?
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

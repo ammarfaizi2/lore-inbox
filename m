@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbTEPHSb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 03:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbTEPHSb
+	id S264363AbTEPHck (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 03:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbTEPHck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 03:18:31 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:61904 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S264358AbTEPHSa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 03:18:30 -0400
-Date: Fri, 16 May 2003 09:27:54 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: David Gibson <hermes@gibson.dropbear.id.au>,
-       Andrew Morton <akpm@digeo.com>, jt@hpl.hp.com, jt@bougret.hpl.hp.com,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org, breed@almaden.ibm.com,
-       achirica@ttd.net, jkmaline@cc.hut.fi
-Subject: Re: airo and firmware upload (was Re: 2.6 must-fix list, v3)
-Message-ID: <20030516072754.GA14661@ranty.ddts.net>
-Reply-To: ranty@debian.org
-References: <20030514233235.GA11581@bougret.hpl.hp.com> <20030514163826.6459cd93.akpm@digeo.com> <20030515010459.GC23670@zax>
+	Fri, 16 May 2003 03:32:40 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:58995 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264363AbTEPHck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 03:32:40 -0400
+Date: Fri, 16 May 2003 00:47:07 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [BENCHMARK AIM9] Regressions in 2.5.69
+Message-Id: <20030516004707.140b8b11.akpm@digeo.com>
+In-Reply-To: <20030505211942.1606.qmail@linuxmail.org>
+References: <20030505211942.1606.qmail@linuxmail.org>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030515010459.GC23670@zax>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 May 2003 07:45:26.0606 (UTC) FILETIME=[1D7D66E0:01C31B7F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 11:04:59AM +1000, David Gibson wrote:
-> On Wed, May 14, 2003 at 04:38:26PM -0700, Andrew Morton wrote:
-> > Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
-> > >
-> > > firmwares blobs 
-> > 
-> > well for the purposes of tracking 2.6 activities I'll separate this issue
-> > of firmware access policy out from drivers/net/wireless/. 
-> > 
-> > yeah, it would be nice if the core kernel provided a "give me my firmware"
-> > API or something.
+"Paolo Ciarrocchi" <ciarrocchi@linuxmail.org> wrote:
+>
+> Hi all/Andrew/Martin,
+>  I noticed regression in a few tests,
+>  I deleted the results of tests that don't show differences between the two kernel version.
 > 
-> Well, Manuel Estrada (also author of the orinoco USB patches) has
-> proposed one on lkml.  Doesn't look like people were happy with that
-> version, but I think he's still working on revising it based on
-> feedback.
+>  Hope it helps.
+> 
+>  Ciao,
+>  		Paolo
+>  		
+>  2.5.67
+>  2.5.69
+> 
+>  creat-clo 10010 86.8132        86813.19 File Creations and Closes/second
+>  creat-clo 10030 22.0339        22033.90 File Creations and Closes/second
+>  ^^^^BIG REGRESSION
 
- Yep, I posted it yesterday. Please provide feedback so I can get it
- "right (TM)" and it gets in the kernel for all to enjoy.
+I cannot repeat any of this.  In fact 2.5.69-mm is a bit faster than
+2.5.67.
 
- Thanks
+I tested ext2 mainly.  But a spot-check of creat-clo on reiserfs showed
+no regression either.
 
- 	Manuel
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.

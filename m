@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261521AbTCZJMH>; Wed, 26 Mar 2003 04:12:07 -0500
+	id <S261511AbTCZJJA>; Wed, 26 Mar 2003 04:09:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261522AbTCZJMH>; Wed, 26 Mar 2003 04:12:07 -0500
-Received: from p508205DB.dip0.t-ipconnect.de ([80.130.5.219]:16619 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S261521AbTCZJMF>;
-	Wed, 26 Mar 2003 04:12:05 -0500
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Arne Koewing <ark@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Synaptics touchpad with Trackpoint needs ps/2 reset
-From: Arne Koewing <ark@gmx.net>
-Date: Wed, 26 Mar 2003 10:22:47 +0100
-In-Reply-To: <20030326095010.A17442@ucw.cz> (Vojtech Pavlik's message of
- "Wed, 26 Mar 2003 09:50:10 +0100")
-Message-ID: <87r88uiis8.fsf@gmx.net>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
-References: <87r88uv7hf.fsf@localhost.i-did-not-set--mail-host-address--so-tickle-me>
-	<20030326095010.A17442@ucw.cz>
+	id <S261513AbTCZJI7>; Wed, 26 Mar 2003 04:08:59 -0500
+Received: from mx12.arcor-online.net ([151.189.8.88]:47023 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id <S261511AbTCZJI7>; Wed, 26 Mar 2003 04:08:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Ro0tSiEgE LKML <lkml@ro0tsiege.org>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Boot Speedup
+Date: Wed, 26 Mar 2003 10:23:24 +0100
+X-Mailer: KMail [version 1.3.2]
+References: <1046909941.1028.1.camel@gandalf.ro0tsiege.org>
+In-Reply-To: <1046909941.1028.1.camel@gandalf.ro0tsiege.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030326092010.3EDA8124023@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+On Thu 06 Mar 03 01:19, Ro0tSiEgE LKML wrote:
+> What are some things I can change/disable/etc. to cut down the boot time
+> of the kernel (i386) ? I would like to get one to boot in a couple
+> seconds, tops. Is this possible, and how?
 
-> On Tue, Mar 25, 2003 at 08:25:47AM +0100, Arne Koewing wrote:
->> Hi!
->> 
->> I recently posted this to linux-kernel (with a different subject)
->> I had included a wrong ptch there, i think this one is ok.
->
-> Do we really need RESET_BAT? Doesn't any other command help?
->
-I've used this because it is what tpconfig is using.
-I've tried all I could think of 
-(except of Synaptics-specials that I might not know)
-RESET_BAT is the only one that works...
+I just noticed this post in an oldish Kernel Traffic.  I got the following 
+timing for booting a uml kernel to an IDE root disk:
 
-I'll study the Synaptics TP Interfacing Guide again...
+time ./linux ubd0=/dev/hda6 init=/sbin/halt >/dev/null
+real    0m3.146s
+user    0m0.310s
+sys     0m0.040s
 
-Arne
+This includes shutdown, and the IDE disk is only 5400 RPM (1 GHz PIII).  UML 
+isn't initializing any physical devices, which would account for most of the 
+delay on a native kernel.  It doesn't do any decompression either.  On the 
+other hand, there are ways to trim the boot time further, e.g., with run-time 
+precedence relations to control task start order.  As others have mentioned, 
+the limiting factor is likely to be hard disk spin-up time.
 
+To cut down the bios initialization time, use Linux Bios:
+
+   http://www.linuxbios.org/index.html
+
+Claimed fastest boot time is 3 seconds, which sounds like they are talking 
+about a full kernel boot as opposed to just bios start.
+
+I suppose a cold start time in the one second range is achievable without 
+major hacking of the kernel, using a flash disk, Linux Bios, and minimal 
+startup scripts.
+
+Regards,
+
+Daniel

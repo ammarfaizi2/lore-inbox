@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271772AbRHRE4o>; Sat, 18 Aug 2001 00:56:44 -0400
+	id <S271783AbRHRFbI>; Sat, 18 Aug 2001 01:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271773AbRHRE4e>; Sat, 18 Aug 2001 00:56:34 -0400
-Received: from smtp-rt-8.wanadoo.fr ([193.252.19.51]:18561 "EHLO
-	lantana.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S271772AbRHRE4Z>; Sat, 18 Aug 2001 00:56:25 -0400
-Message-ID: <3B7DF521.FA49BB13@wanadoo.fr>
-Date: Sat, 18 Aug 2001 06:54:57 +0200
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: fattymikefx@yahoo.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: more kernel .01
-In-Reply-To: <20010817204358.38BAB501D7@localhost.localdomain>
+	id <S271785AbRHRFa6>; Sat, 18 Aug 2001 01:30:58 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:34636 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S271784AbRHRFar>; Sat, 18 Aug 2001 01:30:47 -0400
+Date: Sat, 18 Aug 2001 01:31:01 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: johannes@erdfelt.com
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: Patch for bizzare oops in USB
+Message-ID: <20010818013101.A7058@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tristan wrote:
-> 
-> The reason i was hoping to run an old version of the kernel,
-> .01 or .02(as someone proposed), is so i can use it as a basis
-> for learning to add on to, compile, and change an os's kernel.
-> I know i can do this with all kernels, but the .01 kernel is very small
-> and the very beginning of the kernel so i can build on it. i am
-> open to installing say red hat 5.2 and then running .01 on a
-> VM, but i only have it on a cd, and the 386 has no cdrom drive.
-> Does anyone know of a place i can get an old version of red hat
-> ive been searching for awhile, or a way to copy the cd to
-> multiple floppies that are able to be install.
-> Id really rather have away of just installing it over the DOS partition
-> but it seems everyone thinks it would be best to install minix of red
-> hat first, and im fine with that.
-> So if anyone has information on old red hat version i would
-> be very greatful
-> 
+I ran webcam(1) with ov511 and if I hit ^C, the box oopses.
+Apparently, the following happens:
 
-Slackware-3.0 (kernel 1.2.13) is installable from floppies (a lot of).
+1. On SIGINT, v4l closes ov511, which isses a string of
+   control requests to quescent the cam.
+2. One of those requests enters usb_internal_control_msg
+   where it submits the URB and does schedule_timeout().
+3. Since the signal is pending [sic], it does not wait,
+   but spins testing urb->status.
+4. The interrupt is taken on other CPU and it gets into
+   sohci_return_urb, then clears status and calls urb_rm_priv.
+5. The user thread sees that status becomes zero and *frees the URB*.
+6. The urb_rm_priv takes a spinlock and does its dirty buseness.
+7. User thread reallocates the URB and resubmits it,
+   waiting on the spinlock meanwhile.
+8. urb_rm_priv zaps urb->dev in the URB which was already
+   freed and reallocated and releases the spinlock.
+9. The user thread keels over deep inside td_submit_urb()
+   dereferencing urb->dev->something
 
-http://www.buckosoft.com/linux/slakware.html
-http://ftp.gcu-squad.org/mirrors/slackware-3.0/
+Took me a couple of days to figure it all out. :)
 
-Pierre
--- 
-------------------------------------------------
- Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+diff -ur -X dontdiff linux-2.4.8/drivers/usb/usb.c linux-2.4.8-e/drivers/usb/usb.c
+--- linux-2.4.8/drivers/usb/usb.c	Tue Jul 24 14:20:56 2001
++++ linux-2.4.8-e/drivers/usb/usb.c	Fri Aug 17 22:03:27 2001
+@@ -1066,7 +1066,7 @@
+   
+ 	awd.wakeup = &wqh;
+ 	init_waitqueue_head(&wqh); 	
+-	current->state = TASK_INTERRUPTIBLE;
++	current->state = TASK_UNINTERRUPTIBLE;	/* MUST BE SO. -- zaitcev */
+ 	add_wait_queue(&wqh, &wait);
+ 	urb->context = &awd;
+ 	status = usb_submit_urb(urb);

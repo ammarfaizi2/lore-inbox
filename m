@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264975AbTAESt0>; Sun, 5 Jan 2003 13:49:26 -0500
+	id <S264956AbTAESoD>; Sun, 5 Jan 2003 13:44:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264986AbTAESt0>; Sun, 5 Jan 2003 13:49:26 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3596 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264975AbTAEStO>; Sun, 5 Jan 2003 13:49:14 -0500
-Date: Sun, 5 Jan 2003 10:51:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@muc.de>
-cc: davem@redhat.com, <andrew.morton@digeo.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
-In-Reply-To: <m3k7hjq5ag.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.44.0301051040020.11848-100000@home.transmeta.com>
+	id <S264962AbTAESoD>; Sun, 5 Jan 2003 13:44:03 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:18949 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S264956AbTAESoB>;
+	Sun, 5 Jan 2003 13:44:01 -0500
+Message-ID: <3E187EB3.8010001@walrond.org>
+Date: Sun, 05 Jan 2003 18:51:31 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: venom@sns.it
+CC: linux-kernel@vger.kernel.org
+Subject: Re: P4 Xeon operational temperature range
+References: <Pine.LNX.4.43.0301051848090.31226-100000@cibs9.sns.it>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hmmm. This is a dual xeon 2.6 blade in a very tight cluster and seems to 
+hovering around 55C. I had a couple strange crashes and wonder if this 
+might be the cause I'm unwilling to blame 2.5 ;)
 
-On 5 Jan 2003, Andi Kleen wrote:
+Can anybody recommend a good 1u cooler assembly for socket 603 ?
+
+venom@sns.it wrote:
+> depends on the PIV version,
 > 
-> Regarding the EFLAGS handling: why can't you just do 
-> a pushfl in the vsyscall page before pushing the 6th arg on the stack
-> and a popfl afterwards. 
+> latest 0.13 micron has a maximum temperature of 69 degrees, but if you are going
+> under full load over the 50/55 start to be worried.
+> 
+> Luigi
+> 
+> p.s.
+> For AThlon AMD talks about 95 degrees, but
+> you should ttry not to go over the 60...
+> 
+> 
+> On Sun, 5 Jan 2003, Andrew Walrond wrote:
+> 
+> 
+>>Date: Sun, 05 Jan 2003 13:48:11 +0000
+>>From: Andrew Walrond <andrew@walrond.org>
+>>To: linux-kernel@vger.kernel.org
+>>Subject: P4 Xeon operational temperature range
+>>
+>>Does anybody know off the top of their head the max tempature at which I
+>>can expect a P4 Xeon to operate ?
+>>
+>>TIA Andrew
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+> 
+> 
 
-I did that originally, but timings from Jamie convinced me that it's 
-actually a quite noticeable overhead for the system call path.
-
-You should realize that the 5-9% slowdown in schedule (which I don't like)  
-comes with a 360% speedup on a P4 in simple system call handling (which I
-_do_ like). My P4 does a system call in 428 cycles as opposed to 1568
-cycles according to my benchmarks.
-
-And part of the reason for the huge speedup is that the vsyscall/sysenter
-path is actually pretty much the fastest possible. Yes, it would have been
-faster just from using sysenter/sysexit, but not by 360%. The other
-speedups come from not reloading segment registers multiple times
-(noticeable on a PIII, not a P4) and from avoiding things liek the flags
-pushing.
-
-NOTE! We could trivially speed up the task switching by making 
-"load_esp0()" a bit smarter. Right now it actually re-writes _both_ 
-SYSENTER_CS and SYSENTER_ESP on a taskswitch, and that's because a process 
-that was in vm86 mode will have cleared SYSENTER_CS (so that sysenter will 
-cause a GP fault inside vm86 mode).
-
-Now, that SYSENTER_CS thing is very rare indeed, and by keeping track of 
-what the previous value was (ie just caching the SYSENTER_CS value in the 
-thread_struct), we could get rid of it with a conditional jump instead. 
-Want to try it?
-
-> This would also eliminate the random IOPL problem Luca noticed.
-
-Nope, it wouldn't. A "popfl" in user mode does nothing for iopl. You have 
-to have the popfl in kernel mode.
-
-			Linus
 

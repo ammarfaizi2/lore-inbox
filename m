@@ -1,50 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290817AbSAYVml>; Fri, 25 Jan 2002 16:42:41 -0500
+	id <S290818AbSAYVpY>; Fri, 25 Jan 2002 16:45:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290818AbSAYVmY>; Fri, 25 Jan 2002 16:42:24 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:45065 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S290817AbSAYVmN>; Fri, 25 Jan 2002 16:42:13 -0500
-Date: Fri, 25 Jan 2002 22:42:11 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: <simon@baydel.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbols __udivdi3 and __umoddi3
-In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33.0201252234530.18494-100000@gans.physik3.uni-rostock.de>
+	id <S290820AbSAYVpO>; Fri, 25 Jan 2002 16:45:14 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3200 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290818AbSAYVpG>; Fri, 25 Jan 2002 16:45:06 -0500
+Date: Fri, 25 Jan 2002 16:45:13 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Uptime again
+Message-ID: <Pine.LNX.3.95.1020125164226.443A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jan 2002, Richard B. Johnson wrote:
 
-> On Fri, 25 Jan 2002,  wrote:
->
-> > I am writing a module and would like to perform arithmetic on long
-> > long variables. When I try to do this the module does not load due
-> > to the unresolved symbols __udivdi3 and __umoddi3. I notice these
-> > are normally defined in libc. Is there any way I can do this in a
-> > kernel module.
-> >
-> > Many Thanks
-> >
-> > Simon.
->
-> Normally, in modules, the granularity is such that divisions can
-> be made by powers-of-two. In a 32-bit world, the modulus that you
-> obtain with umoddi3 (the remainder from a long-long, division) should
-> normally fit within a 32-bit variable. If you insist upon doing 64-bit
-> math in a 32-bit world, then you can either make your own procedures
-> and link them, of you can "appropriate" them from the 'C' runtime
-> library code, include them with your source, assemble, and link them
-> in.
+I just accidentally deleted all the messages about uptime including
+the code sent to me to test to see if it was a user-mode problem.
 
-If 64-bit arithmetics cannot be avoided, the do_div64() macro defined in
-include/asm/div64.h comes in handy.
-  mod = do_div((unsigned long) x, (long) y)
-will set  x  to the quotient x/y  and  mod  to the remainder  x%y .
+It seems to be a user-mode problem:
 
-Tim
+
+Script started on Fri Jan 25 16:38:52 2002
+# cat >xxx.c
+
+#include <stdio.h>
+#include <sys/sysinfo.h>
+
+struct sysinfo info;
+#define SECS_MIN 60
+#define SECS_HR (SECS_MIN * 60)
+#define SECS_DAY (SECS_HR * 24)
+
+int main(void) {
+
+        long uptime;
+        long days, hrs, min, sec;
+
+
+        sysinfo(&info);
+        printf("uptime: %ld sec\n", info.uptime);
+
+        uptime  = info.uptime;
+        days    = info.uptime / SECS_DAY;
+        uptime -= (days * SECS_DAY);
+        hrs     = uptime / SECS_HR;
+        uptime -= (hrs * SECS_HR);
+        min     = uptime / SECS_MIN;
+        sec     = uptime - (min * SECS_MIN);
+        printf("uptime %ldd %02ld:%02ld:%02ld\n", days, hrs, min, sec);
+        return(0);
+}
+^Z
+
+# gcc -o xxx xxx.c
+# ./xxx
+uptime: 11153047 sec
+uptime 129d 02:04:07
+# ./xxx
+uptime: 11153055 sec
+uptime 129d 02:04:15
+# exit
+Script done on Fri Jan 25 16:39:27 2002
+
+
+Hand-made 'uptime' shows more than 128 days.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

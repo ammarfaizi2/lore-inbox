@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271184AbTHLVmk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 17:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271185AbTHLVmk
+	id S271183AbTHLVyR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 17:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271185AbTHLVyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 17:42:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8422 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271184AbTHLVmi (ORCPT
+	Tue, 12 Aug 2003 17:54:17 -0400
+Received: from gate.firmix.at ([80.109.18.208]:19921 "EHLO buffy.firmix.at")
+	by vger.kernel.org with ESMTP id S271183AbTHLVyQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 17:42:38 -0400
-Date: Tue, 12 Aug 2003 14:28:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: data corruption using raid0+lvm2+jfs with 2.6.0-test3
-Message-Id: <20030812142846.46eacc48.akpm@osdl.org>
-In-Reply-To: <3F3951F1.9040605@tupshin.com>
-References: <3F3951F1.9040605@tupshin.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 12 Aug 2003 17:54:16 -0400
+Subject: Re: generic strncpy - off-by-one error
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Anthony Truong <Anthony.Truong@mascorp.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1060708460.12532.59.camel@dhcp22.swansea.linux.org.uk>
+References: <1060653362.5294.58.camel@huykhoi> 
+	<1060708460.12532.59.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 12 Aug 2003 23:53:58 +0200
+Message-Id: <1060725239.1500.22.camel@gimli.at.home>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tupshin Harper <tupshin@tupshin.com> wrote:
->
-> raid0_make_request bug: can't convert block across chunks or bigger than 
-> 8k 12436792 8
+On Tue, 2003-08-12 at 19:14, Alan Cox wrote:
+> On Maw, 2003-08-12 at 02:56, Anthony Truong wrote:
+> > Thanks for pointing that out to me.  However, I don't think the kernel
+> > strncpy implementation is exactly the same as that of Standard C lib
+> 
+> It is true it doesnt need to be
 
-There is a fix for this at
+Nevertheless it is defined the inefficient way by the C-Standard and
+lots of people actually really know this.
+So IMHO (re)implementing a function called "strncpy" differently doesn't
+make much sense.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm1/broken-out/bio-too-big-fix.patch
+> > implementation.  Iwas just looking at it from the kernel code context. 
 
-Results of testing are always appreciated...
+The kernel is implemented in C. And the function strncpy() _is_ already
+defined by C. So please use at least another name. Given the existence
+of strlcpy() -  http://www.courtesan.com/todd/papers/strlcpy.html- this
+problem already has been solved.
+
+> > There's a point in doing it the "kernel" way, to save precious CPU
+> > cycles from being wasted otherwise.
+> 
+> CPU cycles, got lots of those 8). If its going to do anything it might
+> be to reference an extra cache line. For people who dont need padding
+> 2.6 has strlcpy. Lots of drivers assume strncpy fills the entire block
+
+ACK. To use strlcpy() is correct solution (if padding is not required).
+
+	Bernd
+

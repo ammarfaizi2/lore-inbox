@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265893AbTL3W1r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbTL3W1R
+	id S265882AbTL3WbI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265903AbTL3Wai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:27:17 -0500
-Received: from mail4.bluewin.ch ([195.186.4.74]:61105 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S265893AbTL3W0k (ORCPT
+	Tue, 30 Dec 2003 17:30:38 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:53483 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S265872AbTL3W3k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:26:40 -0500
-Date: Tue, 30 Dec 2003 23:24:03 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Andy Isaacson <adi@hexapodia.org>,
-       Thomas Molina <tmolina@cablespeed.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-Message-ID: <20031230222403.GA8412@k3.hellgate.ch>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andy Isaacson <adi@hexapodia.org>,
-	Thomas Molina <tmolina@cablespeed.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <20031230012551.GA6226@k3.hellgate.ch> <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain> <20031230132145.B32120@hexapodia.org> <20031230194051.GD22443@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Dec 2003 17:29:40 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH] Fix 2.4 megaraid virt_to_bus() usage
+Date: Tue, 30 Dec 2003 15:29:30 -0700
+User-Agent: KMail/1.5.4
+Cc: atulm@lsil.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031230194051.GD22443@holomorphy.com>
-X-Operating-System: Linux 2.6.0-test11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312301529.30065.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Dec 2003 11:40:51 -0800, William Lee Irwin III wrote:
-> Thus far interpretations of information collected this way have been
-> somewhat lacking. Roger Luethi has identified various points at which
-> regressions happened over the course of 2.5, but it appears that
-> information hasn't yet been and still needs to be acted on.
+This has been in the ia64 patch for ages.  It
+	- removes two unused variables,
+	- fixes a printk format string, and
+	- removes a virt_to_bus() that doesn't work on some
+	  ia64 boxes
 
-My data is interesting for kbuild/efax type work loads and it looks
-like bk export might be different. Thomas Molina tested with the patch
-I have occasionally posted to revert some VM changes in 2.6.0-test3: No
-apparent change in run time (hard to tell for sure since 2.6 increased
-variance considerably for some work loads).
+The virt_to_bus() usage was removed from 2.6 in the
+upgrade to version 2.03 of the driver:
+    http://linux.bkbits.net:8080/linux-2.5/cset@1.971.136.1?nav=index.html|src/.|src/drivers|src/drivers/scsi|related/drivers/scsi/megaraid.c
 
-I'm not sure how to classify the bk export. It may be the qsbench type
-or something new. If it is the former, then 2.5.39 performs a lot worse
-than 2.5.38 (and 2.6.0, for that matter).
+Please apply to 2.4.
 
-It would also be interesting to see the numbers for 2.5.27: That's when
-physical scanning was introduced -- IMO that performance should be the
-minimal goal for 2.6.
+Bjorn
 
-Roger
+
+diff -urN linux-2.4/drivers/scsi/megaraid.c linux-ia64-2.4/drivers/scsi/megaraid.c
+--- linux-2.4/drivers/scsi/megaraid.c	2003-12-29 17:05:18.000000000 -0700
++++ linux-ia64-2.4/drivers/scsi/megaraid.c	2003-12-29 17:05:55.000000000 -0700
+@@ -2234,9 +2234,6 @@
+ 
+ 
+ #if DEBUG
+-static unsigned int cum_time = 0;
+-static unsigned int cum_time_cnt = 0;
+-
+ static void showMbox (mega_scb * pScb)
+ {
+ 	mega_mailbox *mbox;
+@@ -2245,7 +2242,7 @@
+ 		return;
+ 
+ 	mbox = (mega_mailbox *) pScb->mboxData;
+-	printk ("%u cmd:%x id:%x #scts:%x lba:%x addr:%x logdrv:%x #sg:%x\n",
++	printk ("%lu cmd:%x id:%x #scts:%x lba:%x addr:%x logdrv:%x #sg:%x\n",
+ 		pScb->SCpnt->pid,
+ 		mbox->cmd, mbox->cmdid, mbox->numsectors,
+ 		mbox->lba, mbox->xferaddr, mbox->logdrv, mbox->numsgelements);
+@@ -3569,10 +3566,14 @@
+ 	mbox[0] = IS_BIOS_ENABLED;
+ 	mbox[2] = GET_BIOS;
+ 
+-	mboxpnt->xferaddr = virt_to_bus ((void *) megacfg->mega_buffer);
++	mboxpnt->xferaddr = pci_map_single(megacfg->dev,
++				(void *) megacfg->mega_buffer, (2 * 1024L),
++				PCI_DMA_FROMDEVICE);
+ 
+ 	ret = megaIssueCmd (megacfg, mbox, NULL, 0);
+ 
++	pci_unmap_single(megacfg->dev, mboxpnt->xferaddr, 2 * 1024L, PCI_DMA_FROMDEVICE);
++
+ 	return (*(char *) megacfg->mega_buffer);
+ }
+ 
+

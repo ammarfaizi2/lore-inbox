@@ -1,97 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbTEARih (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 13:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbTEARih
+	id S261858AbTEARzC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 13:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEARzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 13:38:37 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:27538 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261775AbTEARif (ORCPT
+	Thu, 1 May 2003 13:55:02 -0400
+Received: from verein.lst.de ([212.34.181.86]:41991 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S261858AbTEARy7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 13:38:35 -0400
-Subject: Re: [RFC] clustered apic irq affinity fix for i386
-From: Keith Mannthey <kmannth@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
+	Thu, 1 May 2003 13:54:59 -0400
+Date: Thu, 1 May 2003 20:07:19 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030430192205.13491d61.akpm@digeo.com>
-References: <1051744032.16886.80.camel@dyn9-47-17-180.beaverton.ibm.com>
-	<20030430163637.04f06ba6.akpm@digeo.com>
-	<1051751157.16886.91.camel@dyn9-47-17-180.beaverton.ibm.com> 
-	<20030430192205.13491d61.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 May 2003 10:51:12 -0700
-Message-Id: <1051811474.16886.159.camel@dyn9-47-17-180.beaverton.ibm.com>
+Subject: [PATCH] make <linux/blk.h> obsolete
+Message-ID: <20030501200719.A16182@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Remind me again what the patch actually does?  It seems to be purely adding
-> debug checks?
+This file was _the_ header for block-device related stuff in earlier
+Linux versions, but nowdays there's just a few prototypes left that
+really belong into blkdev.h or genhd.h (and in one case elevator.h).
+
+This patch moves them over and removes everything but including
+blkdev.h from blk.h  Note that blkdev.h gets all the headers that
+were included in blk.h inmplicitly too.  Now we can start removing
+all references to it an maybe kill it off before 2.6.  *sniff*
 
 
-
-> Won't it just go BUG if someone boots the kernel and then tries to manually
-> set affinity?
-
-  I would assume if someone was setting the affinity from /proc they
-would have disabled the kernel irqbalancer and the flag
-irqbalance_disabled would be set.
-  What I am trying to avoid is a branching for both kirqd and user space
-setting affinity.  I see though I hadn't fully thought out user trying
-to set affinity and have for following idea.  This would also make
-Martin happy :)  
-
---- ../linux-2.5.68/arch/i386/kernel/irq.c	Sat Apr 19 19:48:50 2003
-+++ arch/i386/kernel/irq.c	Fri May  2 14:01:12 2003
-@@ -871,8 +871,11 @@
- 		return -EINVAL;
- 
- 	irq_affinity[irq] = new_value;
--	irq_desc[irq].handler->set_affinity(irq, new_value);
+--- 1.35/include/linux/blk.h	Sun Apr 20 19:22:00 2003
++++ edited/include/linux/blk.h	Thu May  1 17:20:09 2003
+@@ -1,41 +1,2 @@
+-#ifndef _BLK_H
+-#define _BLK_H
 -
-+	if (irqbalance_disabled) {
-+		irq_desc[irq].handler->set_affinity(irq, new_value);
-+	} else {
-+		do_irq_balance();
-+	}	
- 	return full_count;
++/* this file is obsolete, please use <linux/blkdev.h> instead */
+ #include <linux/blkdev.h>
+-#include <linux/elevator.h>
+-#include <linux/config.h>
+-#include <linux/spinlock.h>
+-#include <linux/compiler.h>
+-
+-extern void set_device_ro(struct block_device *bdev, int flag);
+-extern void set_disk_ro(struct gendisk *disk, int flag);
+-extern void add_disk_randomness(struct gendisk *disk);
+-extern void rand_initialize_disk(struct gendisk *disk);
+-
+-/*
+- * end_request() and friends. Must be called with the request queue spinlock
+- * acquired. All functions called within end_request() _must_be_ atomic.
+- *
+- * Several drivers define their own end_request and call
+- * end_that_request_first() and end_that_request_last()
+- * for parts of the original function. This prevents
+- * code duplication in drivers.
+- */
+-
+-extern int end_that_request_first(struct request *, int, int);
+-extern int end_that_request_chunk(struct request *, int, int);
+-extern void end_that_request_last(struct request *);
+-extern void end_request(struct request *req, int uptodate);
+-struct request *elv_next_request(request_queue_t *q);
+-
+-static inline void blkdev_dequeue_request(struct request *req)
+-{
+-	BUG_ON(list_empty(&req->queuelist));
+-
+-	list_del_init(&req->queuelist);
+-
+-	if (req->q)
+-		elv_remove_request(req->q, req);
+-}
+-
+-#endif /* _BLK_H */
+--- 1.101/include/linux/blkdev.h	Thu Apr 24 06:23:09 2003
++++ edited/include/linux/blkdev.h	Thu May  1 17:21:03 2003
+@@ -349,6 +349,30 @@
  }
  
-
- This would make the /proc call tie into kirqd in cases where the
-irq_balance has not been disabled. 
-
- 
-> Seems a bit racy too. setup_ioapic_dest() does:
-> 
->                         pending_irq_balance_apicid[irq] = mask;
->         ==> window here
->                         set_ioapic_affinity(irq, mask);
-> 
-> ioapic_lock is not held, so there is a window where
-> pending_irq_balance_apicid[irq] can be set to some other value and
-> io_apic_write_affinity() will accidentally go BUG.
-  
-  It don't think it is the ioapic_lock we would need to hold it would be
-the desc->lock.  This is also early in the boot sequence, but I could
-grab the lock anyway.  
-
-> Is it not possible to fix set_ioapic_affinity() for real for clustered APIC
-> mode?  What is involved in that?
- 
-   The real issue is in clustered apic mode not all possible masks are
-possible.  If flat mode you have 8 bits (00000000) where each bit
-represents a cpu.  In clusterd mode you have 8 bits (0000-node id
-0000-cpu id) also.  If the cpu mask you want to write has cpus on
-different nodes it impossible (except in special cases) to write that
-value the ioapic.  
-  In clustered apic mode I can only mask an irq to a single cpu, cpus on
-the same node, all cpus, or I beleive the Nth cpu on every node.  It
-can't do everything flat apic mode can.  This makes it difficult to
-decide what a real fix should be.  
-
-
-Keith 
-
+ /*
++ * end_request() and friends. Must be called with the request queue spinlock
++ * acquired. All functions called within end_request() _must_be_ atomic.
++ *
++ * Several drivers define their own end_request and call
++ * end_that_request_first() and end_that_request_last()
++ * for parts of the original function. This prevents
++ * code duplication in drivers.
++ */
++extern int end_that_request_first(struct request *, int, int);
++extern int end_that_request_chunk(struct request *, int, int);
++extern void end_that_request_last(struct request *);
++extern void end_request(struct request *req, int uptodate);
++
++static inline void blkdev_dequeue_request(struct request *req)
++{
++	BUG_ON(list_empty(&req->queuelist));
++
++	list_del_init(&req->queuelist);
++
++	if (req->q)
++		elv_remove_request(req->q, req);
++}
++
++/*
+  * get ready for proper ref counting
+  */
+ #define blk_put_queue(q)	do { } while (0)
+--- 1.18/include/linux/elevator.h	Sun Jan 12 09:10:40 2003
++++ edited/include/linux/elevator.h	Thu May  1 17:21:24 2003
+@@ -54,6 +54,7 @@
+ extern void elv_merged_request(request_queue_t *, struct request *);
+ extern void elv_remove_request(request_queue_t *, struct request *);
+ extern int elv_queue_empty(request_queue_t *);
++extern struct request *elv_next_request(struct request_queue *q);
+ extern struct request *elv_former_request(request_queue_t *, struct request *);
+ extern struct request *elv_latter_request(request_queue_t *, struct request *);
+ extern int elv_register_queue(struct gendisk *);
+--- 1.51/include/linux/genhd.h	Fri Apr 25 18:16:28 2003
++++ edited/include/linux/genhd.h	Thu May  1 17:20:09 2003
+@@ -190,6 +190,14 @@
+ extern void del_gendisk(struct gendisk *gp);
+ extern void unlink_gendisk(struct gendisk *gp);
+ extern struct gendisk *get_gendisk(dev_t dev, int *part);
++
++extern void set_device_ro(struct block_device *bdev, int flag);
++extern void set_disk_ro(struct gendisk *disk, int flag);
++
++/* drivers/char/random.c */
++extern void add_disk_randomness(struct gendisk *disk);
++extern void rand_initialize_disk(struct gendisk *disk);
++
+ static inline sector_t get_start_sect(struct block_device *bdev)
+ {
+ 	return bdev->bd_offset;

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbUAITWd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 14:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbUAITWd
+	id S263544AbUAITby (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 14:31:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUAITby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 14:22:33 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:3200 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263850AbUAITWc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 14:22:32 -0500
-Date: Fri, 9 Jan 2004 14:22:12 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: PATCH 1/2: Make gotoxy & siblings use unsigned variables
-In-Reply-To: <1073672901.2069.15.camel@laptop-linux>
-Message-ID: <Pine.LNX.4.53.0401091415430.571@chaos>
-References: <1073672901.2069.15.camel@laptop-linux>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 14:31:54 -0500
+Received: from mail023.syd.optusnet.com.au ([211.29.132.101]:18577 "EHLO
+	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263544AbUAITbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 14:31:51 -0500
+Subject: Re: file system technical comparisons
+From: Stewart Smith <stewart@flamingspork.com>
+To: Steve Glines <sglines@is-cs.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3FF5E4CE.60606@is-cs.com>
+References: <3FF5E4CE.60606@is-cs.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bA/a2mUNP7jXZeC+SdL5"
+Message-Id: <1073676726.7366.3.camel@faith>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 10 Jan 2004 06:32:06 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jan 2004, Nigel Cunningham wrote:
 
-> This patch makes console X and Y coordinates unsigned, rather than
-> signed. Issues with wide (> 128 char?) consoles, seen when developing
-> Software Suspend's 'nice display' are thus fixed. A brief examination of
-> related code showed that this use of signed variables was the exception
-> rather than the rule.
->
-> Regards,
->
-> Nigel
-[SNIPPED...]
+--=-bA/a2mUNP7jXZeC+SdL5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Question: Shouldn't we be using "size_t" for unsigned int, and
-"ssize_t" for signed? If the "ints" are going to be changed,
-they probably should be changed only once. As I recall, size_t
-was the largest unsigned int that would fit into a register and
-ssize_t was the largest signed int that would fit.
+http://www.flamingspork.com/honors/
 
-Cheers,
+I did some (theoretical) comparisons between a number of file systems in
+my Honors thesis. Notable exceptions are NTFS and JFS. Some good
+reasoning behind why some designs are better than others.
 
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+On Sat, 2004-01-03 at 08:38, Steve Glines wrote:
+> I'm looking for a technical comparison between the major file systems.=20
+> At a minimum I'd like to see a comparison between ext3, reiserfs, xfs=20
+> and jfs. In the oh so perfect world I'd like to see detailed info on all=20
+> supported file systems.
+>=20
+> Please CC or mail me directly as I am not a subscriber to this list.
+>=20
+> Thanks
 
+--=-bA/a2mUNP7jXZeC+SdL5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA//wG23tgLgERgy8oRAqiwAJ9B5+o1qTP/zrdtpSjXUEDxM+gTZQCgyc8p
+2ajDIagOreqHxw7bF8KJ5dg=
+=WoB6
+-----END PGP SIGNATURE-----
+
+--=-bA/a2mUNP7jXZeC+SdL5--
 

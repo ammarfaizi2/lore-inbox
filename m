@@ -1,97 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263478AbUCTQlY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUCTQlY
+	id S261474AbUCTQss (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 11:48:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbUCTQss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:41:24 -0500
-Received: from 69-90-55-107.fastdsl.ca ([69.90.55.107]:6332 "EHLO
-	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id S263479AbUCTQlH
+	Sat, 20 Mar 2004 11:48:48 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:62338 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261474AbUCTQsr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:41:07 -0500
-Subject: Re: badness in kernel/softirq.c
-From: Brad Laue <brad@brad-x.com>
-Reply-To: brad@brad-x.com
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1079800804.13796.5.camel@Discovery.brad-x.com>
-References: <1079800804.13796.5.camel@Discovery.brad-x.com>
-Content-Type: multipart/mixed; boundary="=-TcNOZNaJz3YGGxxUlIo1"
-Organization: brad-x.com
-Message-Id: <1079800910.13796.7.camel@Discovery.brad-x.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 20 Mar 2004 11:41:50 -0500
+	Sat, 20 Mar 2004 11:48:47 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 20 Mar 2004 08:48:43 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+In-Reply-To: <s5gznab4lhm.fsf@patl=users.sf.net>
+Message-ID: <Pine.LNX.4.44.0403200845200.2382-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20 Mar 2004, Patrick J. LoPresti wrote:
 
---=-TcNOZNaJz3YGGxxUlIo1
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Sat, 2004-03-20 at 11:40, Brad Laue wrote:
-> This is a followup to my earlier mail 'ksoftirqd using mysteriously high
-> amounts of CPU time'. After working briefly with Andrew Morton on the
-> issue we seem to have identified the 'pppoe' userspace program as the
-> culprit for that issue.
+> What happens if the disk fills while you are making the copy?  Will
+> open(2) on an *existing file* then return ENOSPC?
 > 
-> After some playing with kernel options I switched my PPPoE connection
-> options from asynctty to synctty, and observed almost no usage of
-> ksoftirqd/0 at all, as it should be.
-> 
-> However, the pppoe process maintains an extreme amount of CPU
-> utilization, cutting off the machines ability to send and receive at its
-> fastest possible rate. Additionally the attached error fills dmesg after
-> a couple of days (vanilla 2.6.3 kernel).
-> 
-> I'm hoping the PPP stuff in the kernel is well enough maintained that a
-> problem/solution can be identified..
-> 
-> Thanks in advance!
-> 
-> Brad
+> I do not think you can implement this without changing the interface
+> to open(2).  Which means applications have to be made aware of it
+> anyway.  Which means you might as well leave your implementation as-is
+> and let userspace worry about creating the copy (and dealing with the
+> resulting errors).
 
-I apparently need to be reminded to actually attach attachments. :-)
+FWIW I did this quite some time ago to speed up copy+diff linux kernel 
+trees:
 
---=-TcNOZNaJz3YGGxxUlIo1
-Content-Disposition: attachment; filename=dmesg.log
-Content-Type: text/plain; name=dmesg.log; charset=
-Content-Transfer-Encoding: 7bit
+http://www.xmailserver.org/flcow.html
 
-Badness in local_bh_enable at kernel/softirq.c:126
-Call Trace:
- [<c0121d46>] local_bh_enable+0x86/0x90
- [<d087ac3b>] ppp_sync_push+0x5b/0x170 [ppp_synctty]
- [<d087a63d>] ppp_sync_wakeup+0x2d/0x60 [ppp_synctty]
- [<c024363a>] do_tty_hangup+0x3ea/0x460
- [<c0244bcd>] release_dev+0x62d/0x660
- [<c0142d53>] unmap_page_range+0x43/0x70
- [<c0168b62>] dput+0x22/0x210
- [<c0244faa>] tty_release+0x2a/0x60
- [<c0152ec0>] __fput+0x100/0x120
- [<c0151529>] filp_close+0x59/0x90
- [<c011f594>] put_files_struct+0x54/0xc0
- [<c01201fd>] do_exit+0x18d/0x410
- [<c012051a>] do_group_exit+0x3a/0xb0
- [<c0109387>] syscall_call+0x7/0xb
-
-Badness in local_bh_enable at kernel/softirq.c:126
-Call Trace:
- [<c0121d46>] local_bh_enable+0x86/0x90
- [<d087ac3b>] ppp_sync_push+0x5b/0x170 [ppp_synctty]
- [<d087a63d>] ppp_sync_wakeup+0x2d/0x60 [ppp_synctty]
- [<c024363a>] do_tty_hangup+0x3ea/0x460
- [<c0244bcd>] release_dev+0x62d/0x660
- [<c0142d53>] unmap_page_range+0x43/0x70
- [<c0168b62>] dput+0x22/0x210
- [<c0244faa>] tty_release+0x2a/0x60
- [<c0152ec0>] __fput+0x100/0x120
- [<c0151529>] filp_close+0x59/0x90
- [<c011f594>] put_files_struct+0x54/0xc0
- [<c01201fd>] do_exit+0x18d/0x410
- [<c012051a>] do_group_exit+0x3a/0xb0
- [<c0109387>] syscall_call+0x7/0xb
+It is entirely userspace and uses LD_PRELOAD on my dev shell.
 
 
---=-TcNOZNaJz3YGGxxUlIo1--
+
+- Davide
+
 

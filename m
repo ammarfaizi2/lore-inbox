@@ -1,52 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbTFGQew (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 12:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTFGQew
+	id S263270AbTFGQgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 12:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTFGQgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 12:34:52 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:19205 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263250AbTFGQev (ORCPT
+	Sat, 7 Jun 2003 12:36:15 -0400
+Received: from crack.them.org ([146.82.138.56]:26079 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id S263270AbTFGQgH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 12:34:51 -0400
-Date: Sat, 7 Jun 2003 18:48:25 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       linux-kernel@vger.kernel.org
+	Sat, 7 Jun 2003 12:36:07 -0400
+Date: Sat, 7 Jun 2003 12:49:36 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
 Subject: Re: __user annotations
-Message-ID: <20030607164825.GA20413@mars.ravnborg.org>
+Message-ID: <20030607164936.GA18862@nevyn.them.org>
 Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	linux-kernel@vger.kernel.org
-References: <20030607143219.U626@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.44.0306070917150.2840-100000@home.transmeta.com> <20030607164330.GA20312@mars.ravnborg.org>
+	Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+References: <16097.12932.161268.783738@argo.ozlabs.ibm.com> <Pine.LNX.4.44.0306061738200.31112-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030607164330.GA20312@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0306061738200.31112-100000@home.transmeta.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 06:43:30PM +0200, Sam Ravnborg wrote:
-> Since we start to know your checker by the name sparse, why not
-> call the default executable sparse?
+On Fri, Jun 06, 2003 at 05:43:58PM -0700, Linus Torvalds wrote:
+> 
+> On Sat, 7 Jun 2003, Paul Mackerras wrote:
+> > Linus Torvalds writes:
+> > 
+> > > You can get check from
+> > > 
+> > > 	bk://kernel.bkbits.net/torvalds/sparse
+> > 
+> > Is that up to date?  I cloned that repository and said "make" and got
+> > heaps of compile errors.  First there were a heap of warnings like
+> > this:
+> 
+> You need to have a modern compiler. The "heaps of errors" is what you get 
+> if you use a stone-age compiler that doesn't support anonymous structure 
+> and union members or other C99 features.
+> 
+> Gcc has supported them since some pre-3.x version (which is pretty late,
+> since they've been around in other compilers for much longer). They are a
+> great way to make readable data structures that have internal structure
+> _without_ having to have that structure show up unnecessarily in usage.
 
-And then we can update the top-level Makefile in the kernel.
+Actually, I believe they are an extension, which GCC honors.  Unnamed
+structures in standard C99 are actually declaring an unnamed type, not
+an unnamed member.  Try it:
 
-	Sam
+     struct {
+       int a;
+       union {
+         int b;
+         float c;
+       };
+       int d;
+     } foo;
 
-Rename Linus' checker tool to sparse, and avoid the hardcoded path.
+int bar()
+{
+  return foo.a + foo.d + foo.b;
+}
 
-===== Makefile 1.410 vs edited =====
---- 1.410/Makefile	Tue Jun  3 23:27:14 2003
-+++ edited/Makefile	Sat Jun  7 18:44:22 2003
-@@ -204,7 +204,7 @@
- DEPMOD		= /sbin/depmod
- KALLSYMS	= scripts/kallsyms
- PERL		= perl
--CHECK		= /home/torvalds/parser/check
-+CHECK		= sparse
- MODFLAGS	= -DMODULE
- CFLAGS_MODULE   = $(MODFLAGS)
- AFLAGS_MODULE   = $(MODFLAGS)
+
+With -std=c99, the reference to foo.b is an error; with -std=gnu99 or
+-std=gnu89, it is accepted.
+
+
+I don't know why they were getting rejected for Paul, though.  Did you
+have GNU set to -ansi mode?
+
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

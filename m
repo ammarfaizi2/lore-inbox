@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRAYTlW>; Thu, 25 Jan 2001 14:41:22 -0500
+	id <S129143AbRAYTlc>; Thu, 25 Jan 2001 14:41:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRAYTlM>; Thu, 25 Jan 2001 14:41:12 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:21519 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129051AbRAYTkz>;
-	Thu, 25 Jan 2001 14:40:55 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101251940.WAA10110@ms2.inr.ac.ru>
-Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
-To: davem@redhat.COM (David S. Miller)
-Date: Thu, 25 Jan 2001 22:40:40 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <14960.22256.322768.447815@pizda.ninka.net> from "David S. Miller" at Jan 25, 1 07:45:00 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129390AbRAYTlX>; Thu, 25 Jan 2001 14:41:23 -0500
+Received: from firewall.fesppr.br ([200.238.157.11]:20986 "EHLO
+	smtp2.fesppr.br") by vger.kernel.org with ESMTP id <S129101AbRAYTlJ>;
+	Thu, 25 Jan 2001 14:41:09 -0500
+To: linux-kernel@vger.kernel.org
+Subject: non-random IP IDs
+Message-ID: <980451650.3a7081428753c@webmail.fesppr.br>
+Date: Thu, 25 Jan 2001 17:40:50 -0200 (BRST)
+From: Alexandre Hautequest <hquest@fesppr.br>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 172.16.60.100
+X-WebMail-Company: Fundacao de Estudos Sociais do Parana
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi all.
 
->  > What exaclty were the issues with the intel cards and sg+csum?
->  > 
->  > Any idea how much work it'd require to surmount them?
-> 
-> Getting Intel to release full specs on how to make use of
-> TX hardware checksum assist with the eepro100.
+I was playing a bit on some of my machines with Nessus (www.nessus.org), and it
+told me the following text:
 
-It simply does not exist for 82559* in all the steppings.
-eepro100 is pretty poor device.
+    "The remote host uses non-random IP IDs, that is, it is
+     possible to predict the next value of the ip_id field of
+     the ip packets sent by this host.
 
-Probably, it exists for card identified as Gamla (D102) (82559 is D101).
+     An attacker may use this feature to determine if the remote
+     host sent a packet in reply to another request. This may be
+     used for portscanning and other things.
 
-Alexey
+     Solution : Contact your vendor for a patch
+     Risk factor : Low"
+
+Is there some option to dinamically enable this random IP ID's, or I need to 
+change something and recompile, or just "No way!"?
+
+Please cc me as i'm not subscribed to the list.
+
+Thanks in advance.
+
+--
+Alexandre Hautequest
+hquest at fesppr.br
+
+"Globalização: Um paraguaio dirigindo pelas estradas brasileiras um carro 
+francês fabricado na Argentina ouvindo música americana num som japonês."
+
+-------------------------------------------------
+Esta mensagem foi enviada pelo WebMail da FESP.
+Conheça a FESP: http://www.fesppr.br/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

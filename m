@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130780AbRBQAex>; Fri, 16 Feb 2001 19:34:53 -0500
+	id <S131035AbRBQAhN>; Fri, 16 Feb 2001 19:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130759AbRBQAen>; Fri, 16 Feb 2001 19:34:43 -0500
-Received: from borg.denalics.net ([209.112.170.15]:9741 "HELO
-	borg.denalics.net") by vger.kernel.org with SMTP id <S130735AbRBQAe3>;
-	Fri, 16 Feb 2001 19:34:29 -0500
-Date: Fri, 16 Feb 2001 15:35:20 -0900 (AKST)
-From: "Christopher E. Brown" <cbrown@denalics.net>
-To: "Willis L. Sarka" <wlsarka@the-republic.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multiport NICs and ether channel?
-In-Reply-To: <Pine.LNX.4.30.0102170006240.24008-100000@matrix.the-republic.org>
-Message-ID: <Pine.LNX.4.10.10102161533240.13397-100000@borg.denalics.net>
+	id <S131062AbRBQAhD>; Fri, 16 Feb 2001 19:37:03 -0500
+Received: from anime.net ([63.172.78.150]:27908 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S131035AbRBQAgx>;
+	Fri, 16 Feb 2001 19:36:53 -0500
+Date: Fri, 16 Feb 2001 16:35:02 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Carlos Fernandez Sanz <cfernandez@myalert.com>
+cc: James Sutherland <jas88@cam.ac.uk>,
+        "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
+        Rik van Riel <riel@conectiva.com.br>, Alan Olsen <alan@clueserver.org>,
+        Mark Haney <mhaney@info4cars.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <058701c09875$1977efa0$f40237d1@MIACFERNANDEZ>
+Message-ID: <Pine.LNX.4.30.0102161634420.12971-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Feb 2001, Willis L. Sarka wrote:
+On Fri, 16 Feb 2001, Carlos Fernandez Sanz wrote:
+> I did some research on the patent database and found nothing regarding such
+> a patent. There's patent on word processors (not the concept but related to)
+> and uses tab on the description...and that patent is from 1980.
 
-> Greetings,
-> 
-> Just a general question or two.. Please point me to a URL or tell me where
-> to RTFM, or answer back ;-).
-> 
-> What is the status/condition of using muliport NICs  and bonding
-> them together to form a larger pipe (i.e. a quad channel ethernet card for
-> an Intel box, bonding all four interfaces together to get a theoretical
-> 400Mbps pipe)?  Are there any highly recommended cards of this type?  Will
-> the bonding work when connected to a Cisco catalyst switch with ether
-> channel?
+You know XOR is patented (yes, the logical bit operation XOR).
 
-
-
-	Linux bonding is compat with Sun EtherTrunking and Cisco
-EtherChannel/FastEtherChannel.
-
-
-	On the Cisco side you follow their setup examples, *except*
-you *must* trun keepalives off on the cisco.  These are a Cisco
-extension.  If you fail to do this the Cisco will toggle the
-onterfaces *off* every 10 - 30 seconds.
-
- ---
-        The roaches seem to have survived, but they are not routing packets
-correctly.
-        --About the Internet and nuclear war.
-
+-Dan
 

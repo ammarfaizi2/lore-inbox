@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265328AbUAPI6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 03:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUAPI6V
+	id S265335AbUAPJ2e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 04:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUAPJ2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 03:58:21 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:57259 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S265328AbUAPI6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 03:58:20 -0500
-Subject: Re: Linux 2.4.25-pre5
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: marcelo.tosatti@cyclades.com, davem@redhat.com,
-       linux-kernel@vger.kernel.org, sim@netnation.com,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <20040116004516.5fea2995.akpm@osdl.org>
-References: <Pine.LNX.4.58L.0401151816320.17528@logos.cnet>
-	 <20040115145519.79beddc3.davem@redhat.com>
-	 <Pine.LNX.4.58L.0401152110020.17528@logos.cnet>
-	 <1074239098.31120.27.camel@imladris.demon.co.uk>
-	 <20040116004516.5fea2995.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1074243491.31120.49.camel@imladris.demon.co.uk>
+	Fri, 16 Jan 2004 04:28:33 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:30408 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S265333AbUAPJ23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 04:28:29 -0500
+Date: Fri, 16 Jan 2004 10:24:47 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Matt Domsch <Matt_Domsch@dell.com>, Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Scott Long <scott_long@adaptec.com>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: Proposed enhancements to MD
+Message-ID: <20040116092447.GF22417@marowsky-bree.de>
+References: <40033D02.8000207@adaptec.com> <16389.52150.148792.875315@notabene.cse.unsw.edu.au> <20040115155221.A31378@lists.us.dell.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Fri, 16 Jan 2004 08:58:11 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040115155221.A31378@lists.us.dell.com>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-16 at 00:45 -0800, Andrew Morton wrote:
-> Really, the init_waitqueue_head() should be done prior to putting the inode
-> back into slab.
+On 2004-01-15T15:52:21,
+   Matt Domsch <Matt_Domsch@dell.com> said:
 
-I had that version first but preferred doing it with all the other inode
-initialisation in alloc_inode() rather than in destroy_inode(). If you
-do it this way, you reinit even when you're about to discard the slab
-pages. I don't care much though. 
+> * Solution works in both 2.4 and 2.6 kernels
+>   - less ideal of two different solutions are needed
 
-===== inode.c 1.48 vs edited =====
---- 1.48/fs/inode.c	Wed Jan 14 20:51:18 2004
-+++ edited/inode.c	Fri Jan 16 08:56:14 2004
-@@ -127,6 +127,10 @@
- {
- 	if (inode_has_buffers(inode))
- 		BUG();
-+	/* Reinitialise the waitqueue head because __wait_on_freeing_inode()
-+	   may have left stale entries on it which it can't remove (since
-+	   it knows we're freeing the inode right now */
-+	init_waitqueue_head(&inode->i_wait);
- 	if (inode->i_sb->s_op->destroy_inode)
- 		inode->i_sb->s_op->destroy_inode(inode);
- 	else
+Sure, this is important.
+
+> * RAID 0,1 DDF format
+> * Bootable from degraded R1
+
+We were looking at extending the boot loader (grub/lilo) to have
+additional support for R1 & multipath. (ie, booting from the first
+drive/path in the set where a consistent image can be read.) If the BIOS
+supports DDF too, this would get even better.
+
+For the boot drive, this is highly desireable!
+
+Do you know whether DDF can also support simple multipathing?
+
+> * Boot from degraded RAID1 requires setup method early in boot
+>   process, either initrd or kernel code.
+
+This is needed with DDF too; we need to parse the DDF data somewhere
+afterall.
+
+> From what I see about md:
+> * RAID 0,1 there today, no DDF
+
+Supporting additional metadata is desireable. For 2.6, this is already
+in the code, and I am looking forward to having this feature.
+
+> Am I way off base here? :-)
+
+I don't think so. But for 2.6, the functionality should go either into
+DM or MD, not into emd. I don't care which, really, both sides have good
+arguments, none of which _really_ matter from a user-perspective ;-)
+
+(If, in 2.7 time, we rip out MD and fully integrate it all into DM, then
+we can see further.)
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-dwmw2
-
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 

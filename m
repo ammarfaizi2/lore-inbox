@@ -1,93 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317767AbSIESAN>; Thu, 5 Sep 2002 14:00:13 -0400
+	id <S317978AbSIESBI>; Thu, 5 Sep 2002 14:01:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317950AbSIESAN>; Thu, 5 Sep 2002 14:00:13 -0400
-Received: from cats-mx2.ucsc.edu ([128.114.129.35]:24452 "EHLO cats.ucsc.edu")
-	by vger.kernel.org with ESMTP id <S317767AbSIESAL>;
-	Thu, 5 Sep 2002 14:00:11 -0400
-Subject: CMD649: siig 'Ultra ATA-100 pci' secondary channel mapped as ide1?
-From: "T. Ryan Halwachs" <halwachs@cats.ucsc.edu>
-To: kernel mailing list <linux-kernel@vger.kernel.org>,
-       ataraid mailing list <ataraid-list@redhat.com>
-Cc: Andre Hedrick <andre@linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 05 Sep 2002 11:02:58 -0700
-Message-Id: <1031248988.4320.156.camel@p700m700>
-Mime-Version: 1.0
-X-UCSC-CATS-MailScanner: Found to be clean
+	id <S317986AbSIESBI>; Thu, 5 Sep 2002 14:01:08 -0400
+Received: from dsl-213-023-039-222.arcor-ip.net ([213.23.39.222]:17576 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317978AbSIESBG>;
+	Thu, 5 Sep 2002 14:01:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Subject: Re: [RFC] Alternative raceless page free, updated
+Date: Thu, 5 Sep 2002 20:06:57 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org, Christian Ehrhardt <ulcae@in-ulm.de>
+References: <3D644C70.6D100EA5@zip.com.au> <E17myRo-00068H-00@starship> <20020905160431.1671.qmail@thales.mathematik.uni-ulm.de>
+In-Reply-To: <20020905160431.1671.qmail@thales.mathematik.uni-ulm.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17n11u-00069h-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this a feature of CMD649? What if I want to use the second channel on my MOBO?
- 
-> Sep  2 23:49:12 array kernel: Uniform Multi-Platform E-IDE driver Revision: 6.31 
-> Sep  2 23:49:12 array kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> Sep  2 23:49:12 array kernel: PIIX4: IDE controller on PCI bus 00 dev 39 
-> Sep  2 23:49:12 array kernel: PIIX4: chipset revision 1
-> Sep  2 23:49:13 array kernel: PIIX4: not 100%% native mode: will probe irqs later
-> Sep  2 23:49:13 array kernel:     ide0: BM-DMA at 0x14a0-0x14a7, BIOS settings: hda:DMA, hdb:pio
-> Sep  2 23:49:13 array kernel: PDC20267: IDE controller on PCI bus 00 dev 68
-> Sep  2 23:49:13 array kernel: PCI: Sharing IRQ 11 with 00:11.0
-> Sep  2 23:49:14 array kernel: PDC20267: chipset revision 2
-> Sep  2 23:49:14 array kernel: PDC20267: not 100%% native mode: will probe irqs later
-> Sep  2 23:49:14 array kernel: PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-> Sep  2 23:49:15 array kernel:     ide2: BM-DMA at 0x1400-0x1407, BIOS settings: hde:DMA, hdf:pio
-> Sep  2 23:49:15 array kernel:     ide3: BM-DMA at 0x1408-0x140f, BIOS settings: hdg:DMA, hdh:pio
-> Sep  2 23:49:15 array kernel: PDC20267: IDE controller on PCI bus 00 dev 70
-> Sep  2 23:49:15 array kernel: PCI: Found IRQ 10 for device 00:0e.0
-> Sep  2 23:49:15 array kernel: PDC20267: chipset revision 2
-> Sep  2 23:49:16 array kernel: PDC20267: not 100%% native mode: will probe irqs later
-> Sep  2 23:49:16 array kernel: PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-> Sep  2 23:49:16 array kernel:     ide4: BM-DMA at 0x1440-0x1447, BIOS settings: hdi:DMA, hdj:pio
-> Sep  2 23:49:16 array kernel:     ide5: BM-DMA at 0x1448-0x144f, BIOS settings: hdk:DMA, hdl:pio
-> Sep  2 23:49:16 array kernel: CMD649: IDE controller on PCI bus 00 dev 80
-> Sep  2 23:49:17 array kernel: PCI: Found IRQ 9 for device 00:10.0
-> Sep  2 23:49:17 array kernel: PCI: Sharing IRQ 9 with 00:07.2
-> Sep  2 23:49:17 array kernel: CMD649: chipset revision 2
-> Sep  2 23:49:17 array kernel: CMD649: not 100%% native mode: will probe irqs later				      *
-														    *
-> Sep  2 23:49:17 array kernel:     ide1: BM-DMA at 0x14b0-0x14b7, BIOS settings: hdc:pio, hdd:pio                * * * * * * * * *
-														    * 
-> Sep  2 23:49:17 array kernel:     ide6: BM-DMA at 0x14b8-0x14bf, BIOS settings: hdm:pio, hdn:pio		      *
-> Sep  2 23:49:17 array kernel: hda: QUANTUM FIREBALL_TM3840A, ATA DISK drive
-> Sep  2 23:49:17 array kernel: hdc: WDC WD1200BB-00CAA1, ATA DISK drive
-> Sep  2 23:49:17 array kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx 
-> Sep  2 23:49:17 array kernel: hde: WDC WD1200AB-00CBA1, ATA DISK drive
-> Sep  2 23:49:17 array kernel: hdg: WDC WD1200AB-00CBA1, ATA DISK drive
-> Sep  2 23:49:17 array kernel: hdi: WDC WD1200AB-00CBA1, ATA DISK drive
-> Sep  2 23:49:17 array kernel: hdk: IC35L120AVVA07-0, ATA DISK drive
-> Sep  2 23:49:17 array kernel: hdm: WDC WD1200AB-00CBA1, ATA DISK drive
-> Sep  2 23:49:17 array kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Sep  2 23:49:17 array kernel: ide1 at 0x1800-0x1807,0x14f6 on irq 9
-> Sep  2 23:49:18 array kernel: ide2 at 0x14d0-0x14d7,0x14c6 on irq 11
-> Sep  2 23:49:18 array kernel: ide3 at 0x14c8-0x14cf,0x14c2 on irq 11
-> Sep  2 23:49:18 array kernel: ide4 at 0x14e8-0x14ef,0x14de on irq 10
-> Sep  2 23:49:18 array kernel: ide5 at 0x14e0-0x14e7,0x14da on irq 10
-> Sep  2 23:49:18 array kernel: ide6 at 0x14f8-0x14ff,0x14f2 on irq 9
-> Sep  2 23:49:18 array kernel: hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> Sep  2 23:49:18 array kernel: hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> Sep  2 23:49:18 array kernel: hda: 7539840 sectors (3860 MB) w/76KiB Cache, CHS=935/128/63, DMA
-> Sep  2 23:49:18 array kernel: hdc: host protected area => 1
-> Sep  2 23:49:18 array kernel: hdc: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(100)
-> Sep  2 23:49:18 array kernel: hde: host protected area => 1
-> Sep  2 23:49:18 array kernel: hde: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(100)
-> Sep  2 23:49:18 array kernel: hdg: host protected area => 1
-> Sep  2 23:49:18 array kernel: hdg: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(100)
-> Sep  2 23:49:18 array kernel: hdi: host protected area => 1
-> Sep  2 23:49:18 array kernel: hdi: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(100)
-> Sep  2 23:49:18 array kernel: hdk: host protected area => 1
-> Sep  2 23:49:18 array kernel: hdk: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=239340/16/63, UDMA(100)
-> Sep  2 23:49:18 array kernel: hdm: host protected area => 1
-> Sep  2 23:49:18 array kernel: hdm: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(100)
-> Sep  2 23:49:18 array kernel: Partition check:
-> Sep  2 23:49:18 array kernel:  hda: [PTBL] [469/255/63] hda1 hda2
-> Sep  2 23:49:18 array kernel:  hdc: hdc1
-> Sep  2 23:49:18 array kernel:  hde: hde1
-> Sep  2 23:49:19 array kernel:  hdg: hdg1
-> Sep  2 23:49:19 array kernel:  hdi: hdi1
-> Sep  2 23:49:19 array kernel:  hdk: hdk1
-> Sep  2 23:49:19 array kernel:  hdm: hdm1
+Here's an updated patch with improved/corrected page count handling
+in shrink_cache along the lines we discussed:
+
+   http://people.nl.linux.org/~phillips/patches/lru.race-2.4.19-3
+
+-- 
+Daniel
 

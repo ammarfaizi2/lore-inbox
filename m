@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268762AbRG0DCJ>; Thu, 26 Jul 2001 23:02:09 -0400
+	id <S268757AbRG0Czt>; Thu, 26 Jul 2001 22:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268761AbRG0DCA>; Thu, 26 Jul 2001 23:02:00 -0400
-Received: from [209.226.93.226] ([209.226.93.226]:31992 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S268759AbRG0DBt>; Thu, 26 Jul 2001 23:01:49 -0400
-Date: Thu, 26 Jul 2001 23:01:34 -0400
-Message-Id: <200107270301.f6R31Y401074@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: aia21@cus.cam.ac.uk (Anton Altaparmakov), linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.7 Add support for Dynamic Disks
-In-Reply-To: <200107262352.f6QNqbf488387@saturn.cs.uml.edu>
-In-Reply-To: <E15Pu2w-0005bt-00@libra.cus.cam.ac.uk>
-	<200107262352.f6QNqbf488387@saturn.cs.uml.edu>
+	id <S268759AbRG0Czl>; Thu, 26 Jul 2001 22:55:41 -0400
+Received: from imo-d09.mx.aol.com ([205.188.157.41]:30674 "EHLO
+	imo-d09.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S268757AbRG0Czf>; Thu, 26 Jul 2001 22:55:35 -0400
+Date: Thu, 26 Jul 2001 22:55:39 -0400
+From: hochakhung@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: Lock the page
+Message-ID: <03E90795.17A1F592.0F45C3B8@netscape.net>
+X-Mailer: Atlas Mailer 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Albert D. Cahalan writes:
-> > - Patch adds support for Dynamic Disks which are introduced by Windows
-> > 2000 and are also used by Windows XP, thus allowing people with dual-boot
-> > configurations access to their Windows dynamic disk partitions from Linux.
-> ...
-> > Note that we just do it for all partitions in order. We perform no special
-> > treatment when partitions are part of raid arrays, etc, we just create
-> > each member partition as one device (hdb5, etc), handling raid arrays is
-> > up to future extensions / user space tools / the users to deal with.
-> 
-> Linux has long held an interoperability advantage over UNIX and BSD
-> due to the use of normal PC disk partitions.
-> 
-> Now a new standard is here. We must swallow our pride and accept it,
-> tossing out our old LVM format. It's time to embrace and extend.
+After getting a page from alloc_pages(mask, order), is it necessary to lock the page to prevent it from being swapped out? Can I assume that I already have exclusive access to the page? Can I assume that the page is free and no other kernel control paths would use it?
 
-I don't see why we can't have both. It's just another partition
-format.
+Any help would be greatly appreciated
 
-				Regards,
+Thanks
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+__________________________________________________________________
+Your favorite stores, helpful shopping tools and great gift ideas. Experience the convenience of buying online with Shop@Netscape! http://shopnow.netscape.com/
+
+Get your own FREE, personal Netscape Mail account today at http://webmail.netscape.com/
+

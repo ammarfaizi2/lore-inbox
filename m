@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282905AbRLBQyV>; Sun, 2 Dec 2001 11:54:21 -0500
+	id <S281488AbRLBQyv>; Sun, 2 Dec 2001 11:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281488AbRLBQyN>; Sun, 2 Dec 2001 11:54:13 -0500
-Received: from mail.cogenit.fr ([195.68.53.173]:27776 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S282836AbRLBQxy>;
-	Sun, 2 Dec 2001 11:53:54 -0500
-Date: Sun, 2 Dec 2001 17:53:50 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: Balazs Javor <jb3@freemail.hu>
-Cc: Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Filesystem corruptions etc. - Which is the last safe kernel?
-Message-ID: <20011202175350.A2801@se1.cogenit.fr>
-In-Reply-To: <020801c17b3d$574fbeb0$0501a8c0@llama>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <020801c17b3d$574fbeb0$0501a8c0@llama>; from jb3@freemail.hu on Sun, Dec 02, 2001 at 03:26:31PM +0100
-X-Organisation: Marie's fan club - II
+	id <S282836AbRLBQyi>; Sun, 2 Dec 2001 11:54:38 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:36108 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S282904AbRLBQyP>; Sun, 2 Dec 2001 11:54:15 -0500
+Message-ID: <3C0A5A61.62A0F885@evision-ventures.com>
+Date: Sun, 02 Dec 2001 17:44:17 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.4.17.2: make ext2 smaller
+In-Reply-To: <3C0A1105.18B76D64@mandrakesoft.com>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balazs Javor <jb3@freemail.hu> :
-[...]
-> I run a linux machine currently with kernel 2.4.14 at home as a fileserver
-> where I keep all my personal files etc. on to
-> 80GB harddrives.
-> I am a little bit nervouse, though...
+Jeff Garzik wrote:
+> 
+> I do not plan to submit this patch to Linus/Marcelo.
+> 
+> This patch applies an obvious technique to the kernel:  increase the
+> amount of code compiled in a single compilation unit, to increase the
+> overall knowledge the compiler has of the code, to allow for better
+> optimization and dead code removal.  KDE does this, with definite
+> success, though they definitely are not the first to do this.
+> 
+> Simply, all ext2 files are #include'd into a single file, ext2_all.c,
+> and all functions and data structures are declared static.
+> 
+> This technique can be used in the kernel, userspace applications, and
+> userspace libraries to decrease icache footprint and overall size of
+> your applications.
+> 
+> Results from 2.4.17-pre2 plus the attached patch:  1135 bytes saved in
+> vmlinux, simply from making all the functions static.
+> (*.orig is prior to my patch.  kernel is P2 SMP-based)
+> > [jgarzik@rum linux-e2all]$ ls -l vmlinux* arch/i386/boot/bzImage*
+> > -rw-r--r--    1 jgarzik  jgarzik   1030259 Dec  2 06:18 arch/i386/boot/bzImage
+> > -rw-r--r--    1 jgarzik  jgarzik   1030263 Dec  2 06:04 arch/i386/boot/bzImage.orig
+> > -rwxr-xr-x    1 jgarzik  jgarzik   2814631 Dec  2 06:18 vmlinux*
+> > -rwxr-xr-x    1 jgarzik  jgarzik   2815766 Dec  2 06:04 vmlinux.orig*
+r
 
-If you trust a single disk, whatever the kernel, you have good reasons to be 
-nervous.
+size vmlinux
+and 
+size vmlinux.orig
 
--- 
-Ueimor - currently rebuilding raid1 arrays...
+would be a bit more telling whatever the reaons of the impact is.

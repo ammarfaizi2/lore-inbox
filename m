@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319398AbSIFU5z>; Fri, 6 Sep 2002 16:57:55 -0400
+	id <S319389AbSIFUxm>; Fri, 6 Sep 2002 16:53:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319396AbSIFU51>; Fri, 6 Sep 2002 16:57:27 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:62454
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319397AbSIFUzw>; Fri, 6 Sep 2002 16:55:52 -0400
-Subject: Re: RE:Re: ide drive dying?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hell.Surfers@cwctv.net
-Cc: degger@fhm.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
-References: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 06 Sep 2002 22:01:29 +0100
-Message-Id: <1031346090.10612.90.camel@irongate.swansea.linux.org.uk>
+	id <S319393AbSIFUxb>; Fri, 6 Sep 2002 16:53:31 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:8320 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319389AbSIFUwM>;
+	Fri, 6 Sep 2002 16:52:12 -0400
+Date: Fri, 6 Sep 2002 10:28:50 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+Cc: venom@sns.it, ahu@ds9a.nl, linux-kernel@vger.kernel.org
+Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
+Message-ID: <20020906102849.A35@toy.ucw.cz>
+References: <20020905153709.29686.qmail@linuxmail.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020905153709.29686.qmail@linuxmail.org>; from ciarrocchi@linuxmail.org on Thu, Sep 05, 2002 at 11:37:09PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 21:40, Hell.Surfers@cwctv.net wrote:
-> Is a drive you cant rely on worth having?
+Hi!
 
-Thats up to the owner. There are lots of uses for such drives - /tmp,
-swap, in a raid array, etc
+> > I usually run byte bench regularly with every new kernel, so I see some
+> > strange results here.
+> > 
+> > From your numbers, I would say you are using a PIII 600/900 Mhz (more or
+> > less). It is not an AMD AThlon or a PIV, since float and double are too
+> > slow, not it is a K6 because they are too fast.
+> Yes, I ran the test on a HP Omnibook 600 (PIII@900)
 
-Mind you I collect drives that have nice properties like "hangs the
-entire scsi bus when inserted into an SCA connector" for testing with
+APM or ACPI? How did you guarantee not going powersave?
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

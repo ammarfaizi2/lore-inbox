@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbTDBCyE>; Tue, 1 Apr 2003 21:54:04 -0500
+	id <S261317AbTDBDHS>; Tue, 1 Apr 2003 22:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261372AbTDBCyE>; Tue, 1 Apr 2003 21:54:04 -0500
-Received: from h-69-3-230-179.CHCGILGM.covad.net ([69.3.230.179]:9512 "EHLO
-	the-breaks.com") by vger.kernel.org with ESMTP id <S261364AbTDBCyE>;
-	Tue, 1 Apr 2003 21:54:04 -0500
-Date: Tue, 1 Apr 2003 21:12:39 -0600 (CST)
-From: xombi@accessus.net
-X-X-Sender: xombi@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-Subject: Re: A more balanced view of user priviliges
-In-Reply-To: <503755781.1049233111@resnet146-209.resnet.buffalo.edu>
-Message-ID: <Pine.LNX.4.44.0304012111400.8903-100000@localhost.localdomain>
+	id <S261391AbTDBDHS>; Tue, 1 Apr 2003 22:07:18 -0500
+Received: from web20005.mail.yahoo.com ([216.136.225.68]:56651 "HELO
+	web20005.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261317AbTDBDHQ>; Tue, 1 Apr 2003 22:07:16 -0500
+Message-ID: <20030402031840.60077.qmail@web20005.mail.yahoo.com>
+Date: Tue, 1 Apr 2003 19:18:40 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: mmap-related questions
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030401125020.E25225@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, "Linus Torvalds" wrote:
-> I've always tried to keep our work separate from religious and political
-> influences, however I also feel that incorporating suggestions from all
-> categories of users is part of what makes Linux, and Open Source in
-> general, so great.
+--- Benjamin LaHaise <bcrl@redhat.com> wrote:
+> the act of unmapping them transfers the
+> dirty bit from the page 
+> tables into the page cache where fsync() acts on
+> them.
+>
+Should this info be included with Mel Gorman's
+excellent doc:
+http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/node31.html#SECTION009411000000000000000
+Or is it there, but I missed it?
 
-Is there some way to use procmail on vger to filter out these pathetic
-fakes?
+> The
+> one case this breaks down 
+> on is when the mmap()'d file is on NFS -- the
+> reordering there can result in 
+> writebacks from mmap()s occuring in unexpected ways.
+I sometimes wish mmap was not supported on NFS, or at
+least require a special MAP_NFS flag be used.  It has
+caused lots of pain over the years.
 
--- 
-\ \/ / _       |~\  _ In God We Trust. All Others Pay Cash.
- >  < / \|\  /|+-< | |  "The world is a comedy to those that think,
-/ /\ \\_/| \/ ||__)|_|   a tragedy to those who feel." - Horace Walpole
+Thanks again for this info, it has helped greatly!
 
+-Kenny
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Tax Center - File online, calculators, forms, and more
+http://tax.yahoo.com

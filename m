@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbUKTGDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbUKTGT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbUKTGDl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 01:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUKTGDk
+	id S261485AbUKTGT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 01:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUKTGT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 01:03:40 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:51644 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261445AbUKTGDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 01:03:39 -0500
-Date: Fri, 19 Nov 2004 22:03:30 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, davem@redhat.com
-Subject: Re: [6/7] Xen VMM patch set : add alloc_skb_from_cache
-Message-ID: <20041120060330.GA23850@taniwha.stupidest.org>
-References: <E1CVI7o-0004cT-00@mta1.cl.cam.ac.uk> <Xine.LNX.4.44.0411192103150.12779-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
+	Sat, 20 Nov 2004 01:19:57 -0500
+Received: from mail.joq.us ([67.65.12.105]:3212 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261485AbUKTGTM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 01:19:12 -0500
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Torben Hohn <torbenh@informatik.uni-bremen.de>,
+       Jody McIntyre <scjody@modernduck.com>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH] Realtime LSM
+References: <87y8ha1wcb.fsf@sulphur.joq.us>
+	<1100922902.1424.8.camel@krustophenia.net>
+From: "Jack O'Quin" <joq@io.com>
+Date: 20 Nov 2004 00:19:24 -0600
+In-Reply-To: <1100922902.1424.8.camel@krustophenia.net>
+Message-ID: <878y8xhwk3.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0411192103150.12779-100000@thoron.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 09:11:04PM -0500, James Morris wrote:
+Lee Revell <rlrevell@joe-job.com> writes:
 
-> Most of this is duplicated code with alloc_skb(), perhaps make a
-> function:
->
->   __alloc_skb(size, gfp_mask, alloc_func)
->
-> Then alloc_skb() and alloc_skb_from_cache() can just be wrappers
-> which pass in different alloc_funcs.  I'm not sure what peformance
-> impact this might have though.
+> On Tue, 2004-11-09 at 16:39 -0600, Jack O'Quin wrote:
+> > +#include <linux/module.h>
+> > +#include <linux/security.h>
+> 
+> These seem to be the only two includes that are needed.
+> 
+> Any other objections to the patch?
 
-I wonder if this would have a measurable performance hit on some
-platforms where the additional call/indirection could hurt?
+Fine with me, as long as you're certain.  I'll be away for a few days,
+so I can't make that change and test it right now, myself.
+-- 
+  joq

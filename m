@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268734AbUJECdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268739AbUJECel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268734AbUJECdy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 22:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268739AbUJECdy
+	id S268739AbUJECel (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 22:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268745AbUJECel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 22:33:54 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:28873 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268734AbUJECdw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 22:33:52 -0400
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: [PATCH] I/O space write barrier
-Date: Mon, 4 Oct 2004 19:33:25 -0700
-User-Agent: KMail/1.7
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       benh@kernel.crashing.org
-References: <1096922369.2666.177.camel@cube> <200410041420.01266.jbarnes@engr.sgi.com> <1096936344.2674.198.camel@cube>
-In-Reply-To: <1096936344.2674.198.camel@cube>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Oct 2004 22:34:41 -0400
+Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:59327 "EHLO
+	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S268739AbUJECej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 22:34:39 -0400
+References: <200410050216.i952Gb620657@unix-os.sc.intel.com>
+Message-ID: <cone.1096943670.717018.10082.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: =?ISO-8859-1?B?Q2hlbiw=?= Kenneth W <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in sched.c:activate_task()
+Date: Tue, 05 Oct 2004 12:34:30 +1000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-Message-Id: <200410041933.25522.jbarnes@sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, October 04, 2004 5:32 pm, Albert Cahalan wrote:
-> Ideally, it would be eieio, and the eieio in each
-> of the IO operations would be removed. Finding and
-> fixing all the drivers that break looks impossible
-> though; most driver developers will be on x86 boxes.
+Chen, Kenneth W writes:
 
-Well, I won't pretend to understand how the PPC ordering rules work, so I'll 
-defer to benh on that one.
+> Update p->timestamp to "now" in activate_task() doesn't look right
+> to me at all.  p->timestamp records last time it was running on a
+> cpu.  activate_task shouldn't update that variable when it queues
+> a task on the runqueue.
+> 
+> This bug (and combined with others) triggers improper load balancing.
 
-> In that case: wmmiob
->
-> (or something longer, like mmio_write_fence maybe)
->
-> As a name, "wmb" sucks almost as much as "cli" and "sti" do.
-> It dates back to the Alpha port, where it's an opcode.
+The updated timestamp was placed there by Ingo to detect on-runqueue time. 
+If it is being used for load balancing then it is being used in error.
 
-The other option I briefly considered was wwjd(), but I don't think He has an 
-official position on posted write ordering.
+Con
 
-Jesse

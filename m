@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282436AbRKZTml>; Mon, 26 Nov 2001 14:42:41 -0500
+	id <S282451AbRKZTpv>; Mon, 26 Nov 2001 14:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282430AbRKZTmf>; Mon, 26 Nov 2001 14:42:35 -0500
-Received: from mta23-acc.tin.it ([212.216.176.76]:53705 "EHLO fep23-svc.tin.it")
-	by vger.kernel.org with ESMTP id <S282436AbRKZTmA>;
-	Mon, 26 Nov 2001 14:42:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Flavio Stanchina <flavio.stanchina@tin.it>
-Organization: not at all
-To: "David C. Hansen" <haveblue@us.ibm.com>
-Subject: Re: [PATCH] Remove needless BKL from release functions
-Date: Mon, 26 Nov 2001 20:41:52 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200111231047.fANAlA105874@ns.caldera.de> <3C028008.6000605@us.ibm.com>
-In-Reply-To: <3C028008.6000605@us.ibm.com>
+	id <S282444AbRKZToO>; Mon, 26 Nov 2001 14:44:14 -0500
+Received: from roc-66-66-84-128.rochester.rr.com ([66.66.84.128]:50560 "EHLO
+	krw.2y.net") by vger.kernel.org with ESMTP id <S282434AbRKZTn0>;
+	Mon, 26 Nov 2001 14:43:26 -0500
+Date: Mon, 26 Nov 2001 14:43:07 -0500 (EST)
+From: Ken Witherow <phantoml@rochester.rr.com>
+X-X-Sender: ken@krw.2y.net
+Reply-To: Ken Witherow <phantoml@rochester.rr.com>
+To: Sinisa Milivojevic <sinisa@mysql.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.15 and GNU 3.0.2
+In-Reply-To: <15362.38250.28569.234338@sinisa.nasamreza.org>
+Message-ID: <Pine.LNX.4.40.0111261439560.405-100000@krw.2y.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011126194153.MIQN11444.fep23-svc.tin.it@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 November 2001 18:46, David C. Hansen wrote:
+On Mon, 26 Nov 2001, Sinisa Milivojevic wrote:
 
-> In the patch, in the open function, you do this:
->     if (handler)
->         new_fops = fops_get(handler->fops);
+> it could be due to 8139... sources !!
 >
-> But, the fops_get() #define already cheecks to make sure handler isn't
-> null: #define fops_get(fops) \
->         (((fops) && (fops)->owner)      \
->                 ? ( try_inc_mod_count((fops)->owner) ? (fops) : NULL ) \
->                 : (fops))
+> May be you do not have an Ethernet or have not configured kernel for
+> it ??
+>
+> I can  try with 2.4.16 and report the exact kernel panic if you want
+> me to ...
 
-Look closer, it doesn't check 'handler' (it couldn't).
+Linux version 2.4.16 (ken@krw.2y.net) (gcc version 3.0.2) #3 Mon Nov 26
+11:07:33 EST 2001
+
+8139TOO compiled directly into the kernel. No problems to report.
 
 -- 
-Ciao,
-    Flavio Stanchina
-    Trento - Italy
+ Ken Witherow <phantoml AT rochester.rr.com> ICQ: 21840670
+    Linux 2.4.16 - because I'd like to get there today
+to remain free, we must remain free of intrusive government
 
-"The best defense against logic is ignorance."
-http://spazioweb.inwind.it/fstanchina/
+

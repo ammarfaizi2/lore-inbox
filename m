@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSDZEmu>; Fri, 26 Apr 2002 00:42:50 -0400
+	id <S313657AbSDZFSq>; Fri, 26 Apr 2002 01:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313645AbSDZEmt>; Fri, 26 Apr 2002 00:42:49 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:50836 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S313638AbSDZEmt>;
-	Fri, 26 Apr 2002 00:42:49 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: Kernel Build for 2.5, Release 2.2 is available 
-Date: Fri, 26 Apr 2002 14:42:28 +1000
-Message-ID: <10571.1019796148@kao2.melbourne.sgi.com>
+	id <S313660AbSDZFSp>; Fri, 26 Apr 2002 01:18:45 -0400
+Received: from adsl-64-174-67-42.dsl.sntc01.pacbell.net ([64.174.67.42]:27535
+	"EHLO moon.timocharis.com") by vger.kernel.org with ESMTP
+	id <S313657AbSDZFSo>; Fri, 26 Apr 2002 01:18:44 -0400
+Date: Thu, 25 Apr 2002 22:16:56 -0700
+From: Akkana <akkana@shallowsky.com>
+To: Andries.Brouwer@cwi.nl
+Cc: DCox@SnapServer.com, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net, mdharm-usb@one-eyed-alien.net
+Subject: Re: [NEW] A SDDR-09 driver
+Message-ID: <20020426051656.GF19104@shallowsky.com>
+Mail-Followup-To: Akkana <akkana@shallowsky.com>, Andries.Brouwer@cwi.nl,
+	DCox@SnapServer.com, linux-kernel@vger.kernel.org,
+	linux-usb-devel@lists.sourceforge.net,
+	mdharm-usb@one-eyed-alien.net
+In-Reply-To: <UTC200204161548.g3GFmiD07271.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+--cWoXeonUoKmBZSoM
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Release 2.2 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
-release 2.2.
+Andries.Brouwer@cwi.nl writes:
+> A moment ago I have made available on ftp.XX.kernel.org
+> under linux/kernel/people/aeb/sddr09.c a new SDDR-09 driver,
+> namely one that not only reads but also writes.
+> 
+> It works for me.
+> 
+> Will submit some version for inclusion in 2.5 next week
+> or so. Feedback is welcome.
 
-   kbuild-2.5-core-7.bz2
+I've been using your SDDR-09 patches in both 2.4.19-pre7 and 2.5.8,
+and they've been working great with my Zio.  I can finally write to
+the smartmedia card as well as read from it (woohoo!) and I haven't
+seen any problems that weren't already there in the existing driver
+(no serious problems at all).
 
-   kbuild-2.5-common-2.4.18-6.bz2
-   kbuild-2.5-i386-2.4.18-2.bz2
-   kbuild-2.5-sparc64-2.4.18-2.bz2
+I'd love to see your patch get checked in to both 2.4 and 2.5.
+It makes the driver a lot more useful (there aren't that many working
+USB smartmedia readers for Linux), and there are a fair number
+of people who have this device.  SDDR-09 is still marked experimental,
+so those of us who use it know the risks. :-)
 
-   kbuild-2.5-common-2.5.10-1.bz2
-   kbuild-2.5-i386-2.5.10-1.bz2
+I wonder if it's worth mentioning in the configure help that this
+also supports the Zio?  I'll attach a patch for that in case you want to
+include it.  Curiously, the help for CONFIG_USB_STORAGE_DPCM just above
+SDDR09 says it's for smartmedia as well as compact flash; but my Zio!
+SM reader has product id 0003 (matching SDDR09), not 0005 (DPCM).
 
-Changes from core-6 to core-7.
+	...Akkana
 
-   Use cp -f/mv -f in case target files are marked read only.
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="config.diff"
 
-   Fix bug where a key could be read from a record that had moved.
+--- Documentation/Configure.help.bak	Thu Apr 25 22:13:01 2002
++++ Documentation/Configure.help	Thu Apr 25 22:13:12 2002
+@@ -13895,6 +13895,7 @@
+ CONFIG_USB_STORAGE_SDDR09
+   Say Y here to include additional code to support the Sandisk SDDR-09
+   SmartMedia reader in the USB Mass Storage driver.
++  Also works for the Microtech Zio! SmartMedia reader.
+ 
+ USB Diamond Rio500 support
+ CONFIG_USB_RIO500
 
-   Fix bug in handling of absolute link_subdirs().
-
-   Unlink obsolete dependencies correctly.
-
-   Reinstate checks for changed commands in user_command().
-
-Changes from common-2.4.18-5 to common-2.4.18-6.
-
-   Add tftpboot.img.
-
-   Update 53c700 generated script.
-
-   Add -traditional to scsi script pre-processing (unbalanced ' in comments).
-
-Thanks to Tom Duffy for testing above and beyond the call of duty and
-for the sparc64 patch.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE8yNqyi4UHNye0ZOoRAlZVAKC4kEnB/bYlOQrrjZsJFYQdTMKT0ACffoXB
-x2BOQgfM1BPsWqqhZ980pfo=
-=AIFS
------END PGP SIGNATURE-----
-
+--cWoXeonUoKmBZSoM--

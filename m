@@ -1,53 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312335AbSCYHxs>; Mon, 25 Mar 2002 02:53:48 -0500
+	id <S312345AbSCYIEu>; Mon, 25 Mar 2002 03:04:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312337AbSCYHxj>; Mon, 25 Mar 2002 02:53:39 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35384 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312335AbSCYHxa>; Mon, 25 Mar 2002 02:53:30 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Nice values for kernel modules
-In-Reply-To: <Pine.LNX.4.33.0203161300300.1089-100000@einstein.homenet.suse.lists.linux.kernel>
-	<E16mICa-0006mr-00@the-village.bc.nu.suse.lists.linux.kernel>
-	<p73d6y4187b.fsf@oldwotan.suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Mar 2002 00:47:27 -0700
-Message-ID: <m1pu1tum0g.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S312348AbSCYIEk>; Mon, 25 Mar 2002 03:04:40 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:53466 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S312345AbSCYIEY>; Mon, 25 Mar 2002 03:04:24 -0500
+Date: Mon, 25 Mar 2002 09:53:24 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Dave Jones <davej@suse.de>
+Cc: Boris Bezlaj <boris@kista.gajba.net>,
+        kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mdacon.c minor cleanups
+In-Reply-To: <20020324194254.A14465@suse.de>
+Message-ID: <Pine.LNX.4.44.0203250951520.14794-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+The mdacon probe code doesn't seem to work well, if i have it compiled in 
+it *always* detects an MDA card, even if there isn't one actually in the 
+box. I can provide the dmesg if anyone's interested.
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> 
-> > > Ability to bypass the stupid commercial time-locked licences (at some time
-> > > wordperfect demo was locked like that and my timetravel module turned a
-> > > demo into full product -- users were happy, at least according to emails I
-> > > received :)
-> > 
-> > Not any more. Under the DMCA your time travel module probably makes you
-> > a fugtive from US justice 8)
-> > 
-> > In general though calling into the syscall table by hand is a bad move. If
-> > the function you are calling is generically useful then its much better to
-> > work out whether the real function should be exported.
-> 
-> Some programs depends on tapping the system call table. For example private
-> ice and oprofile do this for execve and other calls to know when a new 
-> process is started. It would be possible to add function pointers to all these
-> functions, but just tapping the system call table actually looks cleaner
-> to me. 
-> 
-> [yes, the approach has module unload races, but these modules tend to just 
-> make themselves not unloadable]
+	Zwane
 
-What is wrong with using ptrace?  That should already give you a hook into
-every syscall.
-
-Eric
 

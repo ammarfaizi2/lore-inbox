@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265669AbUBJHHi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 02:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265673AbUBJHHi
+	id S265673AbUBJHQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 02:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUBJHQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 02:07:38 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:640 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S265669AbUBJHHh (ORCPT
+	Tue, 10 Feb 2004 02:16:56 -0500
+Received: from Mail.MNSU.EDU ([134.29.1.12]:55427 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S265673AbUBJHQz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 02:07:37 -0500
-Date: Tue, 10 Feb 2004 08:07:35 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: psmouse.c, throwing 3 bytes away
-Message-ID: <20040210070735.GA257@ucw.cz>
-References: <200402041820.39742.wnelsonjr@comcast.net> <200402060006.32732.wnelsonjr@comcast.net> <20040207004700.0dd5e626.mikeserv@bmts.com> <200402070911.42569.murilo_pontes@yahoo.com.br> <20040209004812.GA18512@ucw.cz> <20040210025627.GA2117@yggdrasil.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040210025627.GA2117@yggdrasil.localdomain>
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Feb 2004 02:16:55 -0500
+Message-ID: <40288560.4080603@mnsu.edu>
+Date: Tue, 10 Feb 2004 01:16:48 -0600
+From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.3-rc2
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 09, 2004 at 08:56:27PM -0600, Greg Norris wrote:
-> On Mon, Feb 09, 2004 at 01:48:12AM +0100, Vojtech Pavlik wrote:
-> > And here is a fix. Damn stupid mistake I made.
-> 
-> This appears to squash my problem as well (the "usb mouse/keyboard
-> problems under 2.6.2" thread).  Thanx!!!
+Please include the patch as in:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107633360814958&w=2
 
-USB?? This was for PS/2 mice. If it fixed your USB mouse problem, you
-were using PS/2 drivers with your USB mouse, which is wrong (although it
-can work). You need to use USB drivers.
+otherwise the Buslogic driver will not compile with gcc-2.95.4
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+Linus Torvalds wrote:
+
+>Uhhuh. There was a bit more pending, so here's a -rc2. Now please calm 
+>down, I'd like this to have some time to stabilize..
+>
+>The rc1->rc2 changes are mostly driver side stuff: PnP update, USB, ACPI,
+>IRDA, i2c, hotplug-PCI and netdrivers etc. But there's a NFSv4 update and
+>soem XFS fixes there too.
+>
+>And some ARM and sparc updates.
+>
+>  
+>

@@ -1,13 +1,13 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbVAIXo5 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 9 Jan 2005 18:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVAIXo5
+	id S262047AbVAJAOa (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 9 Jan 2005 19:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVAJAO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 18:44:57 -0500
-Received: from server2.pe-servers.com ([64.71.151.83]:53649 "EHLO
+	Sun, 9 Jan 2005 19:14:29 -0500
+Received: from server2.pe-servers.com ([64.71.151.83]:46222 "EHLO
 	server2.pe-servers.com") by vger.kernel.org with ESMTP
-	id S261979AbVAIXoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 18:44:54 -0500
+	id S262038AbVAJANz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 19:13:55 -0500
 Subject: TSUNAMI RELIEF AIDS APPEAL
 From: stones <tsunamirehab@hotmail.com>
 X-Priority: 3 (Normal)
@@ -15,8 +15,8 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 X-Mailer: RLSP Mailer
-Message-Id: <E1Cnlpn-0006Cl-W6@server2.pe-servers.com>
-Date: Sun, 09 Jan 2005 14:46:56 -0800
+Message-Id: <E1CnlsS-0006Rp-DY@server2.pe-servers.com>
+Date: Sun, 09 Jan 2005 14:49:40 -0800
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - server2.pe-servers.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -28,7 +28,7 @@ X-Source-Dir:
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261979AbVAIXo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262047AbVAJAOa@vger.kernel.org>
 
 
 Dear Sir/Madam,

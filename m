@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbUHEDgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUHEDsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265654AbUHEDgr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 23:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267473AbUHEDgr
+	id S261375AbUHEDsO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 23:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUHEDsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 23:36:47 -0400
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:11753 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S265654AbUHEDgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 23:36:46 -0400
-Message-ID: <4111AB49.5010003@bigpond.net.au>
-Date: Thu, 05 Aug 2004 13:36:41 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Albert Cahalan <albert@users.sf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
-Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
-References: <1091638227.1232.1750.camel@cube> <41118AAE.7090107@bigpond.net.au> <41118D0C.9090103@yahoo.com.au> <411196EE.9050408@bigpond.net.au> <41119A3B.2020202@yahoo.com.au> <4111A39C.40200@bigpond.net.au> <4111A418.5030101@yahoo.com.au>
-In-Reply-To: <4111A418.5030101@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 4 Aug 2004 23:48:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30848 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261375AbUHEDsN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 23:48:13 -0400
+Date: Wed, 4 Aug 2004 20:46:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Message-Id: <20040804204640.64cd65fc.akpm@osdl.org>
+In-Reply-To: <200408042216.12215.gene.heskett@verizon.net>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
+	<200408042216.12215.gene.heskett@verizon.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Peter Williams wrote:
+Gene Heskett <gene.heskett@verizon.net> wrote:
+>
+> On Monday 02 August 2004 09:14, Brett Charbeneau wrote:
+>  >Greetings,
+>  >
+>  >	I am getting the oops below - twice since 7/26, but I haven't a
+>  >clue what's causing it.
+>  >	I am not a subscriber, so any replies directed to me would be
+>  >gratefully received.
+>  >	Thank you for your hard work on this!
 > 
->> Nick Piggin wrote:
->>
->>> However if you add or remove scheduling policies, your
->>> p->policy method breaks.
->>
->>
->>
->> Not if Albert's numbering system is used.
->>
-> 
-> What if another realtime policy is added? Or one is removed?
+>  The attachment this gentleman included specifically points to 
+>  prune_dcache().  Thats nice.  It also means I'm not alone.  See the 
+>  'prune_dcache() Oops, the saga continues' thread.
 
-What if the "prio" field is removed?
+Except he's running a 2.4 kernel.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
+Is there any reason why I'm wrong in thinking that you have dodgy
+hardware?

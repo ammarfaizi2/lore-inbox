@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVAOBv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVAOB41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbVAOBv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 20:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVAOBtt
+	id S262122AbVAOB41 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 20:56:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVAOBs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 20:49:49 -0500
-Received: from colin2.muc.de ([193.149.48.15]:7695 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262102AbVAOBoq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 20:44:46 -0500
-Date: 15 Jan 2005 02:44:40 +0100
-Date: Sat, 15 Jan 2005 02:44:40 +0100
-From: Andi Kleen <ak@muc.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: brking@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-Message-ID: <20050115014440.GA1308@muc.de>
-References: <41E3086D.90506@us.ibm.com> <1105454259.15794.7.camel@localhost.localdomain> <20050111173332.GA17077@muc.de> <1105626399.4664.7.camel@localhost.localdomain> <20050113180347.GB17600@muc.de> <1105641991.4664.73.camel@localhost.localdomain> <20050113202354.GA67143@muc.de> <1105645491.4624.114.camel@localhost.localdomain> <20050113215044.GA1504@muc.de> <1105743914.9222.31.camel@localhost.localdomain>
+	Fri, 14 Jan 2005 20:48:56 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:58857 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262136AbVAOBp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 20:45:27 -0500
+Subject: Re: thoughts on kernel security issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Dave Jones <davej@redhat.com>, Marek Habersack <grendel@caudium.net>,
+       Chris Wright <chrisw@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0501140020470.2867@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	 <20050112174203.GA691@logos.cnet>
+	 <1105627541.4624.24.camel@localhost.localdomain>
+	 <20050113194246.GC24970@beowulf.thanes.org>
+	 <20050113115004.Z24171@build.pdx.osdl.net>
+	 <20050113202905.GD24970@beowulf.thanes.org>
+	 <1105645267.4644.112.camel@localhost.localdomain>
+	 <20050113210229.GG24970@beowulf.thanes.org>
+	 <20050113213002.GI3555@redhat.com>
+	 <20050113214814.GA9481@beowulf.thanes.org>
+	 <20050113220652.GJ3555@redhat.com>
+	 <Pine.LNX.4.61.0501140020470.2867@dragon.hygekrogen.localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105748095.9838.88.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105743914.9222.31.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 15 Jan 2005 00:34:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 15, 2005 at 12:33:08AM +0000, Alan Cox wrote:
-> On Iau, 2005-01-13 at 21:50, Andi Kleen wrote:
-> > I could see it as a problem when it happens on a bridge, but why
-> > should it be a problem when some arbitary, nothing to do with X
-> > leaf is temporarily not available? 
-> 
-> Because X will believe that PCI address range is free and right now in
-> some circumstances older X may want to play with PCI layout itself.
+On Iau, 2005-01-13 at 23:30, Jesper Juhl wrote:
+> The users are still vulnerable during the time you are preparing your 
+> kernel packages.
 
-Yuck. sounds as broken as it can be. Hopefully nobody uses
-such X servers anymore.
+Vulnerable to what - a bug that has probably taken months to be located
+and isn't know to the bad guys right now ?
 
-Then it won't work with this BIST hardware anyways - if it tries
-to read config space of a device that is currently in BIST 
-it will just get a bus abort and no useful information.
+> proper fix is being developed.  I can't do that if I'm in the dark until 
+> vendors feel comfortable and ready to release packaged bug free kernels - 
+> and all the time I'm waiting some black hat idiot may have found the same 
+> bug and cracked my system.
 
-The only point of this whole patch exercise is to avoid the bus abort
-to satisfy the more strict hardware error checking on PPC64. On PCs
-it really won't make any difference.
+Let me save you some hassle. On current models anything you are running
+more than 5000 lines long probably has serious flaws in it. Your
+processor probably has flaws too, and even if you put up your firewall
+someone might break into your house with a sledgehammer and take your
+computer away (eg the music industry ;))
 
--Andi
+Its also about -risk- levels and the sum of risk to all parties
+involved.
+

@@ -1,43 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315971AbSF0Ps2>; Thu, 27 Jun 2002 11:48:28 -0400
+	id <S316795AbSF0P6e>; Thu, 27 Jun 2002 11:58:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316770AbSF0Ps1>; Thu, 27 Jun 2002 11:48:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:49878 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315971AbSF0Ps0>;
-	Thu, 27 Jun 2002 11:48:26 -0400
-Date: Thu, 27 Jun 2002 08:47:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@tech9.net>
-Cc: Bongani <bonganilinux@mweb.co.za>,
-       Alexandre Pereira Nunes <alex@PolesApart.dhs.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
-Message-ID: <20020627154712.GO22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Love <rml@tech9.net>, Bongani <bonganilinux@mweb.co.za>,
-	Alexandre Pereira Nunes <alex@PolesApart.dhs.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206222202400.7601-100000@PolesApart.dhs.org> <20020626204721.GK22961@holomorphy.com> <1025125214.1911.40.camel@localhost.localdomain> <1025128477.1144.3.camel@icbm> <20020627005431.GM22961@holomorphy.com> <1025192465.1084.3.camel@icbm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1025192465.1084.3.camel@icbm>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316822AbSF0P6d>; Thu, 27 Jun 2002 11:58:33 -0400
+Received: from mons.uio.no ([129.240.130.14]:48003 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S316795AbSF0P6c>;
+	Thu, 27 Jun 2002 11:58:32 -0400
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo, Norway
+Subject: Fragment flooding in 2.4.x/2.5.x
+Date: Thu, 27 Jun 2002 17:57:39 +0200
+User-Agent: KMail/1.4.1
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_3CGD5AIS88TX9N8JDLPN"
+Message-Id: <200206271757.39577.trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-06-26 at 20:54, William Lee Irwin III wrote:
->> Well, my concern here is for the pte_chain_lock() / pte_chain_unlock()
->> bits. Teaching them about preemption should be all that's needed there.
 
-On Thu, Jun 27, 2002 at 11:40:39AM -0400, Robert Love wrote:
-> The newest patch should have the code I shared with you.  So we are OK,
-> no?
+--------------Boundary-00=_3CGD5AIS88TX9N8JDLPN
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-That should cover it, yes. The only questions left are if the user is
-using the right version and where the bug is.
+Hi David,
+
+  I have a question about the case of non-blocking sends in 
+ip_build_xmit_slow(). While investigating a problem with the RH7.3 kernel 
+causing the Netapp filer IP stack to blow up, we've observed that use of the 
+MSG_DONTWAIT flag causes some pretty nasty behaviour.
+
+The fact that fragments are immediately queued for sending means that if 
+sock_alloc_send_skb() fails at some point in the middle of the process of 
+building the message, then you've ended up sending off a bunch of fragments 
+for which there is not even a header (can be a large source of wasted 
+bandwidth given heavy NFS traffic).
+
+The appended patch which was originally designed purely to test inverting the 
+sending order of fragments (on the hypothesis that the receiving devices were 
+making buffer management assumptions based on ordering), removes this effect 
+because it delays sending off the fragments until the entire message has been 
+built.
+Would such a patch be acceptable, or is there a better way of doing this?
 
 Cheers,
-Bill
+  Trond
+--------------Boundary-00=_3CGD5AIS88TX9N8JDLPN
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="ip_build_xmit_slow.dif"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="ip_build_xmit_slow.dif"
+
+--- linux-2.4.19-smp/net/ipv4/ip_output.c.orig	Mon May 13 23:34:37 2002
++++ linux-2.4.19-smp/net/ipv4/ip_output.c	Mon Jun 17 23:13:28 2002
+@@ -437,6 +437,8 @@
+ 		  struct rtable *rt,
+ 		  int flags)
+ {
++	struct sk_buff_head frags;
++	struct sk_buff * skb;
+ 	unsigned int fraglen, maxfraglen, fragheaderlen;
+ 	int err;
+ 	int offset, mf;
+@@ -512,10 +514,10 @@
+ 	 */
+ 
+ 	id = sk->protinfo.af_inet.id++;
++	skb_queue_head_init(&frags);
+ 
+ 	do {
+ 		char *data;
+-		struct sk_buff * skb;
+ 
+ 		/*
+ 		 *	Get the memory we require with some space left for alignment.
+@@ -599,7 +601,11 @@
+ 		fraglen = maxfraglen;
+ 
+ 		nfrags++;
++		__skb_queue_head(&frags, skb);
++	} while (offset >= 0);
+ 
++	/* Ensure we send fragments in order of increasing offset */
++	while ((skb = __skb_dequeue(&frags)) != NULL) {
+ 		err = NF_HOOK(PF_INET, NF_IP_LOCAL_OUT, skb, NULL, 
+ 			      skb->dst->dev, output_maybe_reroute);
+ 		if (err) {
+@@ -608,7 +614,7 @@
+ 			if (err)
+ 				goto error;
+ 		}
+-	} while (offset >= 0);
++	}
+ 
+ 	if (nfrags>1)
+ 		ip_statistics[smp_processor_id()*2 + !in_softirq()].IpFragCreates += nfrags;
+@@ -617,6 +623,10 @@
+ 
+ error:
+ 	IP_INC_STATS(IpOutDiscards);
++	while ((skb = __skb_dequeue(&frags)) != NULL) {
++		kfree_skb(skb);
++		nfrags--;
++	}
+ 	if (nfrags>1)
+ 		ip_statistics[smp_processor_id()*2 + !in_softirq()].IpFragCreates += nfrags;
+ 	return err; 
+
+--------------Boundary-00=_3CGD5AIS88TX9N8JDLPN--

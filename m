@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278634AbRJXQAx>; Wed, 24 Oct 2001 12:00:53 -0400
+	id <S278629AbRJXQEX>; Wed, 24 Oct 2001 12:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278603AbRJXQAo>; Wed, 24 Oct 2001 12:00:44 -0400
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:61202 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S278615AbRJXQA0>;
-	Wed, 24 Oct 2001 12:00:26 -0400
-Date: Wed, 24 Oct 2001 09:03:09 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Vitezslav Samel <samel@mail.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
-In-Reply-To: <20011024174010.A603@pc11.op.pod.cz>
-Message-ID: <Pine.LNX.4.10.10110240902210.21638-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278633AbRJXQEN>; Wed, 24 Oct 2001 12:04:13 -0400
+Received: from sith.mimuw.edu.pl ([193.0.97.1]:3334 "EHLO sith.mimuw.edu.pl")
+	by vger.kernel.org with ESMTP id <S278629AbRJXQDz>;
+	Wed, 24 Oct 2001 12:03:55 -0400
+Date: Wed, 24 Oct 2001 18:04:14 +0200
+From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: acenic breakage in 2.4.13-pre
+Message-ID: <20011024180414.A16921@sith.mimuw.edu.pl>
+Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
+	"David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011024.082925.68578636.davem@redhat.com>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux 2.4.7 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works here, I just created a 130GB partition using 2.4.12.
-glibc-2.2.4 running on debian.
+On Wed, 24 Oct 2001, David S. Miller wrote:
 
-	Gerhard
-
- 
-
-On Wed, 24 Oct 2001, Vitezslav Samel wrote:
-
-> 	Hi!
+>    From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+>    Date: Wed, 24 Oct 2001 16:45:33 +0200
+>    
+>    Speaking of acenic - it's broken in 2.4.13-pre. I have 3c985 and all I
+>    get with 2.4.13-pre is "Firmware NOT running!". After I backed the
+>    changes from -pre patch it started and works fine. Maybe the problem is
+>    I have it in 32bit PCI slot?
 > 
->   This is MeToo(tm) message. Limits set to unlimited, glibc-2.2.2 compiled
-> against 2.4.0 headers.
->   Booting into 2.4.10-ac10 kernel problem "solved".
-> 
-> > When I try to create a partition of 2GB using fdisk or parted, I get the
-> > error "File size limit exceeded (core dumped)". I already read about this
-> > error on the mailing list, but sadly not of any solution.
-> > 
-> > Has anybody got one?
-> > 
-> > Btw: If happend with fdisk from util-linux-2.10f until util-linux-2.11l.
-> 
->   Looking forward to proper fix.
-> 
-> 	Cheers,
-> 		Vita
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Do you have CONFIG_HIGHMEM enabled?  If so, please try with
+> it turned off.
 
---
-Gerhard Mack
+Nope. No HIGHMEM here.
 
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+Jan
+-- 
+Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
+baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
+BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio

@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbUCHTOq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 14:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUCHTNz
+	id S262537AbUCHTNn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 14:13:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbUCHTNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 14:13:55 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:41146 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S262539AbUCHTNo (ORCPT
+	Mon, 8 Mar 2004 14:13:42 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:54720 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S262537AbUCHTNj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 14:13:44 -0500
+	Mon, 8 Mar 2004 14:13:39 -0500
 From: Bjorn Helgaas <bjorn.helgaas@hp.com>
 To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com,
        Russell King <rmk@arm.linux.org.uk>
 Subject: Re: [PATCH] fix PCI interrupt setting for ia64
-Date: Mon, 8 Mar 2004 12:13:22 -0700
+Date: Mon, 8 Mar 2004 12:12:04 -0700
 User-Agent: KMail/1.5.4
 Cc: iod00d@hp.com, kaneshige.kenji@jp.fujitsu.com, linux-ia64@vger.kernel.org,
        linux-kernel@vger.kernel.org
 References: <3ACA40606221794F80A5670F0AF15F8401B1A017@PDSMSX403.ccr.corp.intel.com> <20040308.182552.55855095.t-kochi@bq.jp.nec.com>
 In-Reply-To: <20040308.182552.55855095.t-kochi@bq.jp.nec.com>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403081213.22095.bjorn.helgaas@hp.com>
+Content-Disposition: inline
+Message-Id: <200403081212.04213.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

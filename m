@@ -1,124 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263209AbSJIAPm>; Tue, 8 Oct 2002 20:15:42 -0400
+	id <S263323AbSJIAUn>; Tue, 8 Oct 2002 20:20:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263321AbSJIAPm>; Tue, 8 Oct 2002 20:15:42 -0400
-Received: from gw.openss7.com ([142.179.199.224]:2320 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id <S263209AbSJIAPk>;
-	Tue, 8 Oct 2002 20:15:40 -0400
-Date: Tue, 8 Oct 2002 18:21:19 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, LiS <linux-streams@gsyc.escet.urjc.es>
-Subject: Re: [PATCH] Re: export of sys_call_table
-Message-ID: <20021008182119.A17372@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	LiS <linux-streams@gsyc.escet.urjc.es>
-References: <20021004164151.D2962@openss7.org> <20021004.153804.94857396.davem@redhat.com> <20021008162017.A11261@openss7.org> <20021008.161838.15299897.davem@redhat.com>
+	id <S263331AbSJIAUn>; Tue, 8 Oct 2002 20:20:43 -0400
+Received: from n1x6.imsa.edu ([143.195.1.6]:58294 "EHLO mail.imsa.edu")
+	by vger.kernel.org with ESMTP id <S263323AbSJIAUl>;
+	Tue, 8 Oct 2002 20:20:41 -0400
+Date: Tue, 8 Oct 2002 19:26:23 -0500
+From: Maciej Babinski <maciej@imsa.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.41 oops on reboot
+Message-ID: <20021008192623.A1314@imsa.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021008.161838.15299897.davem@redhat.com>; from davem@redhat.com on Tue, Oct 08, 2002 at 04:18:38PM -0700
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
-
-On Tue, 08 Oct 2002, David S. Miller wrote:
-
-> Oh really?
-
-Many apologies.  Of course it is the wrong patch...
-(My excuse: Finger trouble late in the day.)
-
-Here is the correct patch:
-
---- arch/i386/kernel/entry.S.orig	2002-08-02 19:39:42.000000000 -0500
-+++ arch/i386/kernel/entry.S	2002-10-08 15:43:08.000000000 -0500
-@@ -584,8 +584,8 @@
- 	.long SYMBOL_NAME(sys_capset)           /* 185 */
- 	.long SYMBOL_NAME(sys_sigaltstack)
- 	.long SYMBOL_NAME(sys_sendfile)
--	.long SYMBOL_NAME(sys_ni_syscall)		/* streams1 */
--	.long SYMBOL_NAME(sys_ni_syscall)		/* streams2 */
-+	.long SYMBOL_NAME(sys_getpmsg)		/* streams1 */
-+	.long SYMBOL_NAME(sys_putpmsg)		/* streams2 */
- 	.long SYMBOL_NAME(sys_vfork)            /* 190 */
- 	.long SYMBOL_NAME(sys_getrlimit)
- 	.long SYMBOL_NAME(sys_mmap2)
---- kernel/ksyms.c.orig	2002-08-02 19:39:46.000000000 -0500
-+++ kernel/ksyms.c	2002-10-08 15:44:37.000000000 -0500
-@@ -497,6 +497,11 @@
- EXPORT_SYMBOL(seq_release);
- EXPORT_SYMBOL(seq_read);
- EXPORT_SYMBOL(seq_lseek);
-+extern void register_streams_calls(int (*putpmsg) (int,void *,void *,int,int),
-+				   int (*getpmsg) (int,void *,void *,int,int));
-+extern void unregister_streams_calls(void);
-+EXPORT_SYMBOL(register_streams_calls);
-+EXPORT_SYMBOL(unregister_streams_calls);
- 
- /* Program loader interfaces */
- EXPORT_SYMBOL(setup_arg_pages);
---- kernel/sys.c.orig	2002-08-02 19:39:46.000000000 -0500
-+++ kernel/sys.c	2002-10-08 16:46:55.000000000 -0500
-@@ -167,6 +167,45 @@
- 	return notifier_chain_unregister(&reboot_notifier_list, nb);
- }
- 
-+static int (*do_putpmsg) (int, void *, void *, int, int) = NULL;
-+static int (*do_getpmsg) (int, void *, void *, int, int) = NULL;
-+
-+static DECLARE_RWSEM(streams_call_sem) ;
-+
-+long asmlinkage sys_putpmsg(int fd, void *ctlptr, void *datptr, int band, int flags)
-+{
-+	int ret = -ENOSYS;
-+	down_read(&streams_call_sem);
-+	if (do_putpmsg)
-+		ret = (*do_putpmsg) (fd, ctlptr, datptr, band, flags);
-+	up_read(&streams_call_sem);
-+	return ret;
-+}
-+
-+long asmlinkage sys_getpmsg(int fd, void *ctlptr, void *datptr, int band, int flags)
-+{
-+	int ret = -ENOSYS;
-+	down_read(&streams_call_sem);
-+	if (do_getpmsg)
-+		ret = (*do_getpmsg) (fd, ctlptr, datptr, band, flags);
-+	up_read(&streams_call_sem);
-+	return ret;
-+}
-+
-+void register_streams_calls(int (*putpmsg) (int, void *, void *, int, int),
-+			    int (*getpmsg) (int, void *, void *, int, int))
-+{
-+	down_write(&streams_call_sem);
-+	do_putpmsg = putpmsg;
-+	do_getpmsg = getpmsg;
-+	up_write(&streams_call_sem);
-+}
-+
-+void unregister_streams_calls(void)
-+{
-+	register_streams_calls(NULL, NULL);
-+}
-+
- asmlinkage long sys_ni_syscall(void)
- {
- 	return -ENOSYS;
+I got this oops when rebooting my fresh 2.5.41 build. reboot failed, and
+there were no other processes running, so this is hand copied.
 
 
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+ksymoops 2.4.6 on i586 2.4.19.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.5.41/ (specified)
+     -m /kernel/System.map-2.5.41 (specified)
+
+No modules in ksyms, skipping objects
+CPU:    0
+EIP:    0060:[<c015d448>]  Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: c0205fb7   ebx: 0000005c     ecx: 0000005c       edx: 00000077
+esi: 00000000   edi: c110ece8     ebp: c110ec00       esp: c5475e18
+ds: 0068 es: 0068 ss: 0068
+Stack: c110ec4c c022cc7c c13c3528 c0181523 c110ece8 c0205e7c c110ec4c c110ec4c
+       00000000 c015b863 c110ec4c c022cc7c c110ec00 c110ec00 c02b7654 00000000
+       c015c22b c110ec00 c02b7700 c01b025b c110ec00 c02b7700 00000001 c01ad155
+Call Trace: [<c0181423>] [<c015b863>] [<c015c22b>] [<c01b025b>] [<c01ad155>] [c011ed6c>] [<c011f1b8>] [<c01c64e8>] [<c01c1b6c>] [<c01f05b0>] [<c01f0585>] [<c012b323>] [<c01b9964>] [<c012b323>] [<c014a2ec>] [<c0138bf5>] [<c0137097>] [<c0137105>] [<c0107357>]
+Code: ff 4e 5c 0f 88 5f 02 00 00 8b 5c 24 14 53 8b 4f 04 51 e8 61
+
+
+>>EIP; c015d448 <driverfs_remove_file+28/90>   <=====
+
+>>eax; c0205fb7 <__func__.0+1e75/2388>
+
+Trace; c0181423 <device_remove_file+23/40>
+Trace; c015b863 <driverfs_remove_partitions+53/a0>
+Trace; c015c22b <del_gendisk+b/40>
+Trace; c01b025b <idedisk_cleanup+4b/70>
+Trace; c01ad155 <ide_notify_reboot+a5/b0>
+
+Code;  c015d448 <driverfs_remove_file+28/90>
+00000000 <_EIP>:
+Code;  c015d448 <driverfs_remove_file+28/90>   <=====
+   0:   ff 4e 5c                  decl   0x5c(%esi)   <=====
+Code;  c015d44b <driverfs_remove_file+2b/90>
+   3:   0f 88 5f 02 00 00         js     268 <_EIP+0x268> c015d6b0 <.text.lock.inode+64/a4>
+Code;  c015d451 <driverfs_remove_file+31/90>
+   9:   8b 5c 24 14               mov    0x14(%esp,1),%ebx
+Code;  c015d455 <driverfs_remove_file+35/90>
+   d:   53                        push   %ebx
+Code;  c015d456 <driverfs_remove_file+36/90>
+   e:   8b 4f 04                  mov    0x4(%edi),%ecx
+Code;  c015d459 <driverfs_remove_file+39/90>
+  11:   51                        push   %ecx
+Code;  c015d45a <driverfs_remove_file+3a/90>
+  12:   e8 61 00 00 00            call   78 <_EIP+0x78> c015d4c0 <driverfs_remove_dir+10/110>
+

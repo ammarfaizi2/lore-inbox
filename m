@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129734AbQKRXpT>; Sat, 18 Nov 2000 18:45:19 -0500
+	id <S131933AbQKRXq3>; Sat, 18 Nov 2000 18:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131933AbQKRXpK>; Sat, 18 Nov 2000 18:45:10 -0500
-Received: from anime.net ([63.172.78.150]:52746 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S129734AbQKRXpC>;
-	Sat, 18 Nov 2000 18:45:02 -0500
-Date: Sat, 18 Nov 2000 15:15:28 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: bert hubert <ahu@ds9a.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 sendfile() not doing as manpage promises?
-In-Reply-To: <20001119001558.B10579@home.ds9a.nl>
-Message-ID: <Pine.LNX.4.30.0011181513290.5897-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132012AbQKRXqT>; Sat, 18 Nov 2000 18:46:19 -0500
+Received: from 3dyn88.com21.casema.net ([212.64.94.88]:40976 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S131933AbQKRXqF>;
+	Sat, 18 Nov 2000 18:46:05 -0500
+Date: Sat, 18 Nov 2000 23:53:52 +0100
+From: Jasper Spaans <spaans@delft.corps.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] raid5 link error? (was [PATCH] raid5 fix after xor.c cleanup)
+Message-ID: <20001118235352.D2226@spaans.ds9a.nl>
+In-Reply-To: <20001117234144.A14461@spaans.ds9a.nl> <20001118123536.A5674@spaans.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001118123536.A5674@spaans.ds9a.nl>; from jasper@spaans.ds9a.nl on Sat, Nov 18, 2000 at 12:35:36PM +0100
+Organization: http://www.insultant.nl/
+X-Copyright: Copyright 2000 C. Jasper Spaans - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Nov 2000, bert hubert wrote:
-> After some exploring with 'ddd' (a very nice graphical frontend for gdb,
-> which includes tools to display and traverse structs), I found that this
-> probably means that sendfile() can only be used to send files from
-> blockdevices which support mmap()-like functionality. Is this correct?
+On Sat, Nov 18, 2000 at 12:35:36PM +0100, Jasper Spaans wrote:
 
-Correct.
+> Hmm, next time I'll need to eat my own dogfood -- this patch doesn't work,
+> it only compiles. Don't use it.
 
-> In that case, the wording of the manpage needs to be changed, as it
-> implies that 'either or both' of the filedescriptors can be sockets.
+It seems to me the original code was correct, but the linking isn't in the
+right order and the initcalls are in the wrong order (ie,
+raid5.c::raid5_init() is being called before xor.c::calibrate_xor_block() --
+any linking gurus out there who can help me out on this one?
 
-Its quite clear.
+Feeling a bit of a schizo, but getting used to my brown paper bag,
 
-DESCRIPTION
-       This  call copies data between file descriptor and another
-       file  descriptor  or  socket.   in_fd  should  be  a  file
-       descriptor   opened  for  reading.   out_fd  should  be  a
-       descriptor opened for writing or a connected socket.
-
-in_fd must be a file, out_fd can be a file or socket.
-
--Dan
-
+Regards
+-- 
+  Q_.        Jasper Spaans  <mailto:jspaans@mediakabel.nl>        -o)
+ `~\         Conditional Access/DVB-C/OpenTV/Unix-adviseur        /\\
+Mr /\                                                            _\_v
+Zap     Een ongezellig dure consultant nodig? Mail sales@insultant.nl
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

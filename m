@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130791AbQKKNvC>; Sat, 11 Nov 2000 08:51:02 -0500
+	id <S129751AbQKKNwE>; Sat, 11 Nov 2000 08:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130801AbQKKNun>; Sat, 11 Nov 2000 08:50:43 -0500
-Received: from limes.hometree.net ([194.231.17.49]:26912 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S130767AbQKKNu3>; Sat, 11 Nov 2000 08:50:29 -0500
-To: linux-kernel@vger.kernel.org
-Date: Sat, 11 Nov 2000 13:29:03 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <8ujhiv$1ps$1@forge.tanstaafl.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <3A0C5EDC.3F30BE9C@timpanogas.org>, <20001110151232.A16552@sendmail.com>
-Reply-To: hps@tanstaafl.de
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
+	id <S129419AbQKKNv4>; Sat, 11 Nov 2000 08:51:56 -0500
+Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:58103 "EHLO
+	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129714AbQKKNvj>; Sat, 11 Nov 2000 08:51:39 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: Max Inux <maxinux@bigfoot.com>, H Peter Anvin <hpa@transmeta.com>
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+Date: Sat, 11 Nov 2000 13:49:29 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0011110323020.10847-100000@shambat>
+In-Reply-To: <Pine.LNX.4.30.0011110323020.10847-100000@shambat>
+MIME-Version: 1.0
+Message-Id: <00111113514000.08702@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sendmail+ca@sendmail.org (Claus Assmann) writes:
+On Sat, 11 Nov 2000, Max Inux wrote:
+> >gzip, actually.  I can verify here "make bzImage" does the expected thing
+> >and it looks normal-sized to me.
+> 
+> I believe there is zImage (gzip) and bzImage (bzip2). (Or is it compress
+> vs gzip, but then why bzImage vs gzImage?)
 
->> Sending a 50 MB file is OK here. So it's not a TCP/IP bug. 
+Neither. They are both compressed the same way (gzip, IIRC) - the difference is
+in how they are loaded. bzImage (= BIG zImage) has a loader which can handle
+>1Mb RAM; zImage has to be loaded into normal DOS memory, so it has a size
+limitation.
 
->Ok, hopefully this reaches everyone who has been "involved"
->by Jeff into this "problem".
+> >> On x86 machines there is a size limitation on booting.  Though I thought
+> >> it was 1024K as the max, 900K should be fine.
+> >>
+> >
+> >No, there isn't.  There used to be, but it has been fixed.
+> 
+> Ok then, I was on crank, and apparently so is he =)
 
-So it is _once_ _again_ a Jeff "I have no clue but I know Linux-Kernel
-list is cheaper than tech support or a real admin, but my real problem
-sits on the chair in front of the display" Merkey problem.
+ROFL! What is this "crank" stuff, BTW - some sort of auto lubricant, or ...?
 
-This makes me puke. Again and again.
 
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

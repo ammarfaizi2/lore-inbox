@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317791AbSGVXWh>; Mon, 22 Jul 2002 19:22:37 -0400
+	id <S316794AbSGVXVl>; Mon, 22 Jul 2002 19:21:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317828AbSGVXWg>; Mon, 22 Jul 2002 19:22:36 -0400
-Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:22527 "EHLO
-	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317791AbSGVXWf>; Mon, 22 Jul 2002 19:22:35 -0400
-Date: Mon, 22 Jul 2002 17:25:31 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, <martin@dalecki.de>
-Subject: Re: please DON'T run 2.5.27 with IDE!
-In-Reply-To: <20020722203942.GA2917@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0207221723340.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317791AbSGVXVl>; Mon, 22 Jul 2002 19:21:41 -0400
+Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:34549 "HELO
+	dardhal.mired.net") by vger.kernel.org with SMTP id <S316794AbSGVXVk>;
+	Mon, 22 Jul 2002 19:21:40 -0400
+Date: Tue, 23 Jul 2002 01:24:42 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Compile error 2.5.27: [ad1848_lib.o] Error 1
+Message-ID: <20020722232442.GA1178@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020722233021.4713583a.diegocg@teleline.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020722233021.4713583a.diegocg@teleline.es>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday, 22 July 2002, at 23:30:21 +0200,
+Diego Calleja wrote:
 
-On Mon, 22 Jul 2002, Andries Brouwer wrote:
-> another funny is that for me netscape 4.79 with flash works
-> under 2.4.17 and doesn't work under 2.5.25 or 2.5.27; have
-> not yet tried to trace it down; does this sound like
-> something well-known?
+> ad1848_lib.c: At top level:
+> ad1848_lib.c:1181: parse error before `module_exit'
+> ad1848_lib.c:1182: parse error at end of input
+> make[3]: *** [ad1848_lib.o] Error 1
+> make[3]: Leaving directory `/usr/src/unstable/sound/isa/ad1848'
+> make[2]: *** [ad1848] Error 2
+> make[2]: Leaving directory `/usr/src/unstable/sound/isa'
+> make[1]: *** [isa] Error 2
+> make[1]: Leaving directory `/usr/src/unstable/sound'
+> make: *** [sound] Error 2
+> root@diego:/usr/src/unstable#
+> 
+WORKAROUND/PATCH: see lkml "Subject: PATCH: 2.5.27 Fix dump non compile in ad1848 audio"
 
-I use to get SIGBUS w/Netscape 4 all over the place. The well-working 
-versions are 3 Gold (almost no crashes, but ugly), 4.79 works sometimes, 
-and 6 works just fine, except the usual crap since they inherited an older 
-version of Mozilla...
-
-I'm not sure if the Netscape 4 crashes are supposed to be kernel bugs...
-
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Woody (Linux 2.4.19-pre6aa1)

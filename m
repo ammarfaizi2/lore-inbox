@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268912AbTGJEta (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 00:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbTGJEta
+	id S268954AbTGJFKe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 01:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268957AbTGJFKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 00:49:30 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:48066 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268912AbTGJEt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 00:49:29 -0400
-Message-ID: <33376.4.4.25.4.1057813446.squirrel@www.osdl.org>
-Date: Wed, 9 Jul 2003 22:04:06 -0700 (PDT)
-Subject: Re: [PATCH] add seq file helpers from 2.5 (fwd)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <marcelo@conectiva.com.br>
-In-Reply-To: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva>
-X-Priority: 3
-Importance: Normal
-Cc: <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>, <kernel@infidigm.net>
-X-Mailer: SquirrelMail (version 1.2.11)
+	Thu, 10 Jul 2003 01:10:32 -0400
+Received: from krynn.se.axis.com ([193.13.178.10]:43194 "EHLO
+	krynn.se.axis.com") by vger.kernel.org with ESMTP id S268954AbTGJFKY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 01:10:24 -0400
+From: "Mikael Starvik" <mikael.starvik@axis.com>
+To: "'Greg KH'" <greg@kroah.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: CRIS architecture update
+Date: Thu, 10 Jul 2003 07:24:58 +0200
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB03277A7D@mailse01.axis.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB034C5655@mailse01.axis.se>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+Ok, do you have any other suggestion on how to make the driver 
+compilable for both >= 2.4.20 and < 2.4.20?
 
-I didn't apply and build it, but it looks very much like the
-patch that I sent to you on 2003-04-17 [1], to which you replied: [2]
-  Saved to 2.4.22-pre folder.
+/Mikael
 
-I suggest that you apply it.  :)
-
-~Randy
-
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=105061808602830&w=2
-[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=105094575909669&w=2
-
-
-> Viro,
->
-> I think you are the right person to review that.
->
-> Would you do me the favour?
->
-> ---------- Forwarded message ----------
-> Date: Wed, 09 Jul 2003 20:16:54 -0400
-> From: Jeff Muizelaar <kernel@infidigm.net>
-> To: Marcelo Tosatti <marcelo@conectiva.com.br>
-> Subject: [PATCH] add seq file helpers from 2.5
->
-> Marcelo,
->
-> The attached patch adds the single_* helpers that have been in 2.5 since May
-> 2002, it also adds some missing includes that are in 2.5.
->
-> -Jeff
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Greg KH
+Sent: Wednesday, July 09, 2003 10:15 PM
+To: Linux Kernel Mailing List
+Subject: Re: CRIS architecture update
 
 
+> diff -Nru a/arch/cris/drivers/usb-host.c b/arch/cris/drivers/usb-host.c
+> --- a/arch/cris/drivers/usb-host.c	Wed Jul  9 12:06:00 2003
+> +++ b/arch/cris/drivers/usb-host.c	Wed Jul  9 12:06:00 2003
+> +#if LINUX_VERSION_CODE >= KERNEL_VERSION (2, 4, 20)
+> +typedef struct urb urb_t, *purb_t;
+> +typedef struct iso_packet_descriptor iso_packet_descriptor_t; typedef 
+> +struct usb_ctrlrequest devrequest; #endif
+
+ICK ICK ICK!  Please do not do this.  These typedefs were removed for a
+reason!
+
+greg k-h
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org More majordomo info at
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264657AbUEJLhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUEJLxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264657AbUEJLhz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 07:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264644AbUEJLfe
+	id S264643AbUEJLxX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 07:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264644AbUEJLxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 07:35:34 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:52356 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S264653AbUEJLen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 07:34:43 -0400
-Subject: Re: [PATCH] usblp.c (Was: usblp_write spins forever after an error)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Greg KH <greg@kroah.com>, Andy Lutomirski <luto@myrealbox.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Oliver Neukum <oliver@neukum.org>
-In-Reply-To: <4048C2E7.8050907@grupopie.com>
-References: <402FEAD4.8020602@myrealbox.com>
-	 <20040216035834.GA4089@kroah.com>  <4030DEC5.2060609@grupopie.com>
-	 <1078399532.4619.129.camel@hades.cambridge.redhat.com>
-	 <4047221E.9050500@grupopie.com>
-	 <1078479692.12176.32.camel@imladris.demon.co.uk>
-	 <40488E45.7070901@grupopie.com>  <4048C2E7.8050907@grupopie.com>
-Content-Type: text/plain
-Message-Id: <1084188865.21553.28.camel@imladris.demon.co.uk>
+	Mon, 10 May 2004 07:53:23 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:3087 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S264643AbUEJLxV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 07:53:21 -0400
+Date: Mon, 10 May 2004 13:53:18 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Gabriel Paubert <paubert@iram.es>
+Cc: Linus Torvalds <torvalds@osdl.org>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: get_cmos_time() takes up to a second on boot
+Message-ID: <20040510115318.GA8632@wsdw14.win.tue.nl>
+References: <409C2CBA.8040709@am.sony.com> <Pine.LNX.4.58.0405071908060.3271@ppc970.osdl.org> <20040510105230.GA14104@iram.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1.dwmw2.1) 
-Date: Mon, 10 May 2004 12:34:25 +0100
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040510105230.GA14104@iram.es>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-05 at 18:11 +0000, Paulo Marques wrote:
-> Anyway, this time I tested it using blocking and non-blocking I/O and it works 
-> for both cases. Even better, this patch only changes the behaviour for 
-> non-blocking I/O, and keeps the same behaviour for the more usual blocking I/O 
-> (at least on kernel 2.6).
+On Fri, May 07, 2004 at 07:15:53PM -0700, Linus Torvalds wrote:
 
-I'm still seeing problems with an HP LaserJet 1200. 
+>> These days, I think we do the write-back only if we use an external clock 
+>> (NTP), so we probably _could_ just remove the synchronization at 
+>> read-time (removing it at write-time doesn't sound like a good idea).
+>>
+>> I don't think we should necessarily disable the synchronization, but we
+>> could certainly make it optional for cases that don't care about it. We
+>> might even make the default be "don't care about the read
+>> synchronization".
 
-May  7 07:12:56 imladris kernel: usb 1-1.3.2: new full speed USB device using address 10
-May  7 07:12:56 imladris kernel: drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 10 if 0 alt 1 proto 2 vid 0x03F0 pid 0x0317
-May  8 20:26:12 imladris kernel: drivers/usb/class/usblp.c: usblp0: nonzero read/write bulk status received: -110
-May  8 20:26:12 imladris kernel: drivers/usb/class/usblp.c: usblp0: failed reading printer status
-May  8 20:26:12 imladris kernel: drivers/usb/class/usblp.c: usblp0: nonzero read/write bulk status received: -110
-May  8 20:26:12 imladris kernel: drivers/usb/class/usblp.c: usblp0: error -110 reading printer status
-May  8 20:26:43 imladris last message repeated 10225 times
-May  8 20:27:09 imladris last message repeated 8780 times
+On Mon, May 10, 2004 at 12:52:30PM +0200, Gabriel Paubert wrote:
 
--- 
-dwmw2
+> I'm for one against dropping the synchronization and even making the
+> default not to synchronize, I'd rather see this as an option under
+> the embedded subset for the people who really want fast boot time.
 
+There is hwclock that will read or write the CMOS clock,
+and it synchronizes.
+
+So if one wants to synchronize with the CMOS clock (rather than, say,
+with an external clock), and wants the better-than-1-sec accuracy,
+then that can be done in a boot script.
+
+Andries
+
+[I think everybody likes fast boot time.
+Ah - 30 years ago my system booted in the fraction of a second
+needed to print the command prompt.
+Why have computers become so slow?]
 

@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbUKJVgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUKJVfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262046AbUKJVgl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 16:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUKJVfw
+	id S262138AbUKJVfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 16:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbUKJVde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 16:35:52 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.30]:42217 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262046AbUKJVZy
+	Wed, 10 Nov 2004 16:33:34 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:55703 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261990AbUKJVcU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 16:25:54 -0500
-Date: Wed, 10 Nov 2004 22:24:47 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: marcelo.tosatti@cyclades.com, zaphodb@zaphods.net,
-       linux-kernel@vger.kernel.org, piggin@cyberone.com.au
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041110212447.GB25410@mail.muni.cz>
-References: <20041103222447.GD28163@zaphods.net> <20041104121722.GB8537@logos.cnet> <20041104181856.GE28163@zaphods.net> <20041109164113.GD7632@logos.cnet> <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109224423.GC18366@mail.muni.cz> <20041109203348.GD8414@logos.cnet> <20041110203547.GA25410@mail.muni.cz> <20041110130943.32918c69.akpm@osdl.org>
+	Wed, 10 Nov 2004 16:32:20 -0500
+Date: Wed, 10 Nov 2004 22:28:35 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: sebastian.ionita@focomunicatii.ro
+Cc: seby@focomunicatii.ro, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       alan@redhat.com, jgarzik@pobox.com
+Subject: Re: ZyXEL GN650-T
+Message-ID: <20041110212835.GA23758@electric-eye.fr.zoreil.com>
+References: <20041107214427.20301.qmail@focomunicatii.ro> <20041107224803.GA29248@electric-eye.fr.zoreil.com> <20041109000006.GA14911@electric-eye.fr.zoreil.com> <20041109232510.GA5582@electric-eye.fr.zoreil.com> <20041110201010.18341.qmail@focomunicatii.ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041110130943.32918c69.akpm@osdl.org>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041110201010.18341.qmail@focomunicatii.ro>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 01:09:43PM -0800, Andrew Morton wrote:
-> Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
-> >
-> > 2.6.10-rc1-mm3 with CONFIG_PREEMPT=y and  CONFIG_PREEMPT_BKL=y
-> > results with: (and many more xfs related calls)
-> > 
-> > Nov 10 21:21:05 undomiel1 kernel: BUG: using smp_processor_id() in preemptible [00000001] code: swapper/1
-> > Nov 10 21:21:05 undomiel1 kernel: caller is xfs_dir2_lookup+0x26/0x157
-> > Nov 10 21:21:05 undomiel1 kernel:  [<c025dbf4>] smp_processor_id+0xa8/0xb8
-> > Nov 10 21:21:05 undomiel1 kernel:  [<c020679b>] xfs_dir2_lookup+0x26/0x157
-> > Nov 10 21:21:05 undomiel1 kernel:  [<c020679b>] xfs_dir2_lookup+0x26/0x157
-> > Nov 10 21:21:05 undomiel1 kernel:  [<c025a4e7>] send_uevent+0x148/0x1a0
-> 
-> That's XFS_STATS_INC() and friends.
-> 
-> I don't think there's really a bug here.  It's a tiny bit racy, but that
-> will merely cause a small inaccuracy in the stats.
-> 
-> I think I'll just drop the debug patch.  You can disable
-> CONFIG_DEBUG_PREEMPT to shut things up.
+sebastian.ionita@focomunicatii.ro <sebastian.ionita@focomunicatii.ro> :
+[...]
+> The kernel compiles but I have 1 unresolved simbole in the via-velocity 
+> modul
+> depmod: *** Unresolved symbols in 
+> /lib/modules/2.4.28-rc2/kernel/drivers/net/via-velocity.o
+> depmod:         crc_ccitt_R3771b461 
 
-It did not help :( I had to disable CONFIG_PREEMPT to shut it up.
+Can you grep for crc_ccitt the output of 'nm lib/lib.a' in your build
+tree and check that CONFIG_CRC_CCITT is enabled in your .config ?
 
-I had:
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_DEBUG_PREEMPT=y
+crc_ccitt is EXPORT_SYMBOLed by lib/crc-ccitt.c and should be linked in
+your new kernel.
 
-It did what I wrote.
-Then I had:
-CONFIG_PREEMPT=y
-#CONFIG_PREEMPT_BKL=y
-#CONFIG_DEBUG_PREEMPT=y
-
-and I had the same (or similar messages)
-
-Now I have disabled all the preempt stuff and it is ok. (but not ok with
-allocation failure, see next mail)
-
--- 
-Luká¹ Hejtmánek
+--
+Ueimor

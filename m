@@ -1,79 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbQJaMAm>; Tue, 31 Oct 2000 07:00:42 -0500
+	id <S129522AbQJaMP4>; Tue, 31 Oct 2000 07:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129522AbQJaMAc>; Tue, 31 Oct 2000 07:00:32 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:18442 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129436AbQJaMAX>; Tue, 31 Oct 2000 07:00:23 -0500
-Date: Tue, 31 Oct 2000 05:59:59 -0600
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Keith Owens <kaos@ocs.com.au>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7
-Message-ID: <20001031055959.A1041@wire.cadcamlab.org>
-In-Reply-To: <11462.972947019@ocs3.ocs-net> <Pine.LNX.4.10.10010301508360.1085-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S129694AbQJaMPp>; Tue, 31 Oct 2000 07:15:45 -0500
+Received: from smtp2.Mountain.Net ([198.77.1.5]:50629 "EHLO
+	nabiki.mountain.net") by vger.kernel.org with ESMTP
+	id <S129522AbQJaMPf>; Tue, 31 Oct 2000 07:15:35 -0500
+Message-ID: <39FEB5CB.C9AE37E6@mountain.net>
+Date: Tue, 31 Oct 2000 07:06:35 -0500
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18pre13 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Fencepost error in ipv4/tulip?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10010301508360.1085-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 30, 2000 at 03:15:57PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-[Linus]
-> In short, we should _remove_ all traces of stuff like
-> 
-> 	O_OBJS = $(filter-out $(export-objs), $(obj-y))
-> 
-> It's wrong.
-> 
-> We should just have
-> 
-> 	O_OBJS = $(obj-y)
-> 
-> which is always right.
+Sometimes it almost works. I sent test10-pre6 to another
+local machine (stock rh6.2). The problem box was running
+vanilla test10-pre5, i486, gcc-2.95.2. The ether setup is
+pnic2/tulip. mru is 1500.
 
-This part I agree with..
+Here's what came out the other end:
 
-> And it should make all this FIRST/LAST object file mockery a total
-> non-issue, because the whole concept turns out to be completely
-> unnecessary.
-> 
-> Is there anything that makes this more complex than what I've
-> outlined above?
+$ md5sum test10-pre6.bz2
+d8453f77b50b48e7dafd683199cd132e  test10-pre6.bz2
+$ ls -l test10-pre6.bz2
+-rw-r--r--    1 tleete   tleete     333190 Oct 28 04:44
+test10-pre6.bz2
+$ cp test10-pre6.bz2 test10-pre6.bz2.bad
+$ cp /mnt/floppy/test10-pre6.bz2 test10-pre6.bz2.good
+$ md5sum test10-pre6.bz2.good
+f71f05ce094e5c7cfabcb88a54e03e91  test10-pre6.bz2.good
+$ cmp -l test10-pre6.bz2.bad test10-pre6.bz2.good
+>bad-good.cmp
 
-One thing.  The main benefit of $(sort), which I haven't heard you
-address yet, is to remove duplicate files.  Think about 8390.o, and how
-many net drivers require it.  There are two ways to handle this:
+The md5sum of *.good agrees on both machines.
 
-  obj-$(CONFIG_WD80x3) += wd.o 8390.o
-  obj-$(CONFIG_EL2) += 3c503.o 8390.o
-  obj-$(CONFIG_NE2000) += ne.o 8390.o
-  obj-$(CONFIG_NE2_MCA) += ne2.o 8390.o
-  obj-$(CONFIG_HPLAN) += hp.o 8390.o
+[Summary of bad-good.cmp]
 
-and then remove duplicates from $(obj-y) using $(sort)...
+bad[28814-29694] = {\367,..good[n+2]..,\232,\167}
+good[28814-29694] = {\345,\125,\052,...}
 
-...Or do horrible games with 'if' statements and temporary variables
-with names like $(NEED_8390) to ensure that it gets included once if
-needed and not if not -- thereby pretty much defeating the readability
-of the new-style makefiles.
+bad[108003-110590] = {\070,\363,..good[n+2]..,\153,\344}
+good[108003-110590] = {\234,\003,\012,\152,...}
 
-Oh.  There's a third way: ignore the issue and hope users don't feel
-the need for both ne.o and wd.o linked into the same kernel.  I do hope
-you aren't advocating *that* solution, which unfortunately appears to
-be the status quo in drivers/net/Makefile.  I guess solution #2 was
-seen as too much trouble there.
+bad[307121-314366] = {\170,\363,..good[n+2]..,\201,\355}
+good[307121-314366] = {\101,\027,\351,\174,...}
 
-The horrible games with 'if' statements have been played in any number
-of kernel makefiles and I'd really like to see them go away.
+bad[330977-331744] = {\270,\363,..good[n+2]..,\321,\125}
+good[330977-331744] = {\235,\223,\045,\132,...}
 
-That is the real reason I like LINK_FIRST.
 
-Peter
+I'd expect the error always to be present if it were from
+miscompiling structs or bad userspace ftp. If it were
+simple, the first block of errors would have the same
+structure as the others.
+
+I am puzzled.
+
+Tom
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

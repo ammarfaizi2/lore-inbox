@@ -1,124 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269456AbUHZTht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269459AbUHZThz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269456AbUHZTht (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269466AbUHZTgg
+	id S269459AbUHZThz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUHZTfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:36:36 -0400
-Received: from dsl092-149-163.wdc2.dsl.speakeasy.net ([66.92.149.163]:5893
-	"EHLO localhost") by vger.kernel.org with ESMTP id S269485AbUHZTWn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:22:43 -0400
-Subject: Sandisk 256MB Compact Flash (SDCFH-256) hangs on access (2.4.26)
-From: Brian Beattie <beattie@beattie-home.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1093548140.2903.35.camel@kokopelli>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 26 Aug 2004 15:22:21 -0400
+	Thu, 26 Aug 2004 15:35:12 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:10650 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S269336AbUHZT3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:29:49 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] propagate pci_enable_device() errors
+Date: Thu, 26 Aug 2004 13:29:16 -0600
+User-Agent: KMail/1.6.2
+Cc: Jeff Garzik <jgarzik@pobox.com>, ecd@atecom.com, chas@cmf.nrl.navy.mil,
+       linux-atm-general@lists.sourceforge.net, kkeil@suse.de,
+       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+       stelian.pop@fr.alcove.com, support@auvertech.fr, amax@us.ibm.com,
+       davies@maniac.ultranet.com, tulip-users@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408261329.16825.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If there is a better forum for this question, please let me know.
-
-I'm running Debian Sarge/2.4.26-1-i686-smp, trying to access this
-compact flash using a CF/IDE adapter from ACS (ACS-CF-IDEToCFA).  This
-works fine for every other CF I have tried (128 and 64).  I have a
-number of these parts and they all act the same and they work fine in an
-PCMCIA/CF adapter and a USB CF reader.   I have set up what I think is
-the simplest case, I have run fdisk and mkfs on another machine using
-the PCMCIA adapter.
-
-When I try to mount the CF it hangs and I start getting "lost
-interrupt",  does anybody have experience or clues that might help me?
-
-------------------------
-Linux version 2.4.26-1-686-smp (horms@tabatha) (gcc version 3.3.4
-(Debian 1:3.34
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009f400 (usable)
- BIOS-e820: 000000000009f400 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000d2000 - 00000000000d4000 (reserved)
- BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000f7efd000 (usable)
- BIOS-e820: 00000000f7efd000 - 00000000f7f00000 (ACPI NVS)
- BIOS-e820: 00000000f7f00000 - 00000000f7f80000 (usable)
- BIOS-e820: 00000000f7f80000 - 00000000f8000000 (reserved)
- BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
- BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
-3071MB HIGHMEM available.
-896MB LOWMEM available.
-found SMP MP-table at 000f6810
-
-...
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-hda: SanDisk SDCFH-256, CFA DISK drive
-hdc: CD-232E, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hdc: attached ide-cdrom driver.
-hdc: ATAPI 32X CD-ROM drive, 128kB Cache
-Uniform CD-ROM driver Revision: 3.12
-
-...
-
-Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
-permitted by applicable law.
-Eagle3:~# sfdisk -l /dev/hda
-hda: attached ide-disk driver.
-hda: 501760 sectors (257 MB) w/1KiB Cache, CHS=980/16/32
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
-
-Disk /dev/hda: 980 cylinders, 16 heads, 32 sectors/track
-Units = cylinders of 262144 bytes, blocks of 1024 bytes, counting from 0
-
-   Device Boot Start     End   #cyls    #blocks   Id  System
-/dev/hda1          0+    640     641-    164080   83  Linux
-/dev/hda2        641     673      33       8448   83  Linux
-/dev/hda3        674     979     306      78336   83  Linux
-/dev/hda4          0       -       0          0    0  Empty
-Eagle3:~# mount /dev/hda1 /mnt/tmp
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
-hda: lost interrupt
-hda: lost interrupt
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hda: drive not ready for command
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hda: drive not ready for command
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hda: drive not ready for command
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hda: drive not ready for command
-ide0: reset: master: error (0x00?)
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hda: drive not ready for command
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hda: drive not ready for command
-
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-
--- 
-Brian Beattie   LFS12947 | "Honor isn't about making the right choices.
-beattie@beattie-home.net | It's about dealing with the consequences."
-www.beattie-home.net     | -- Midori Koto
+Jeff Garzik pointed out that I should have propagated the error returned
+from pci_enable_device() rather than making up -ENODEV.
 
 
+Propagate pci_enable_device() error returns rather than using -ENODEV.
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+===== drivers/atm/idt77252.c 1.25 vs edited =====
+--- 1.25/drivers/atm/idt77252.c	2004-08-24 03:08:33 -06:00
++++ edited/drivers/atm/idt77252.c	2004-08-26 13:08:03 -06:00
+@@ -3684,9 +3684,9 @@
+ 	int i, err;
+ 
+ 
+-	if (pci_enable_device(pcidev)) {
++	if ((err = pci_enable_device(pcidev))) {
+ 		printk("idt77252: can't enable PCI device at %s\n", pci_name(pcidev));
+-		return -ENODEV;
++		return err;
+ 	}
+ 
+ 	if (pci_read_config_word(pcidev, PCI_REVISION_ID, &revision)) {
+===== drivers/isdn/tpam/tpam_main.c 1.12 vs edited =====
+--- 1.12/drivers/isdn/tpam/tpam_main.c	2004-08-24 03:08:33 -06:00
++++ edited/drivers/isdn/tpam/tpam_main.c	2004-08-26 13:09:52 -06:00
+@@ -88,10 +88,10 @@
+ 	tpam_card *card, *c;
+ 	int i, err;
+ 
+-	if (pci_enable_device(dev)) {
++	if ((err = pci_enable_device(dev))) {
+ 		printk(KERN_ERR "TurboPAM: can't enable PCI device at %s\n",
+ 			pci_name(dev));
+-		return -ENODEV;
++		return err;
+ 	}
+ 
+ 	/* allocate memory for the board structure */
+===== drivers/misc/ibmasm/module.c 1.3 vs edited =====
+--- 1.3/drivers/misc/ibmasm/module.c	2004-08-24 03:08:34 -06:00
++++ edited/drivers/misc/ibmasm/module.c	2004-08-26 13:11:17 -06:00
+@@ -59,13 +59,13 @@
+ 
+ static int __init ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ {
+-	int result = -ENOMEM;
++	int err, result = -ENOMEM;
+ 	struct service_processor *sp;
+ 
+-	if (pci_enable_device(pdev)) {
++	if ((err = pci_enable_device(pdev))) {
+ 		printk(KERN_ERR "%s: can't enable PCI device at %s\n",
+ 			DRIVER_NAME, pci_name(pdev));
+-		return -ENODEV;
++		return err;
+ 	}
+ 
+ 	sp = kmalloc(sizeof(struct service_processor), GFP_KERNEL);
+===== drivers/net/tulip/de4x5.c 1.40 vs edited =====
+--- 1.40/drivers/net/tulip/de4x5.c	2004-08-25 11:34:58 -06:00
++++ edited/drivers/net/tulip/de4x5.c	2004-08-26 13:13:04 -06:00
+@@ -2242,8 +2242,8 @@
+ 		return -ENODEV;
+ 
+ 	/* Ok, the device seems to be for us. */
+-	if (pci_enable_device (pdev))
+-		return -ENODEV;
++	if ((error = pci_enable_device (pdev)))
++		return error;
+ 
+ 	if (!(dev = alloc_etherdev (sizeof (struct de4x5_private)))) {
+ 		error = -ENOMEM;

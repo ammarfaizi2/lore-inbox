@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269570AbRHAAfw>; Tue, 31 Jul 2001 20:35:52 -0400
+	id <S269575AbRHAAkN>; Tue, 31 Jul 2001 20:40:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269571AbRHAAfm>; Tue, 31 Jul 2001 20:35:42 -0400
-Received: from srvr2.telecom.lt ([212.59.0.1]:59940 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S269570AbRHAAfi>;
-	Tue, 31 Jul 2001 20:35:38 -0400
-Message-Id: <200108010035.CAA1058949@mail.takas.lt>
-Date: Wed, 1 Aug 2001 02:35:09 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re[2]: cannot copy files larger than 40 MB from CD
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <Pine.LNX.4.10.10108010028220.18588-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10108010028220.18588-100000@coffee.psychology.mcmaster.ca>
-X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+	id <S269573AbRHAAkD>; Tue, 31 Jul 2001 20:40:03 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:35332 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S269571AbRHAAjo>; Tue, 31 Jul 2001 20:39:44 -0400
+Date: Tue, 31 Jul 2001 18:39:55 -0600
+Message-Id: <200108010039.f710dtA05003@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Mike Panetta <mpanetta@applianceware.com>
+Cc: Eric Youngdale <eric@andante.org>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [RFT] Support for ~2144 SCSI discs
+In-Reply-To: <20010731153808.B6638@tetsuo.applianceware.com>
+In-Reply-To: <200107310030.f6V0UeJ13558@mobilix.ras.ucalgary.ca>
+	<001801c119ca$9fc74750$4d0310ac@fairfax.mkssoftware.com>
+	<20010731153808.B6638@tetsuo.applianceware.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, 1 Aug 2001 00:29:25 +0000 (GMT) Mark Hahn <hahn@coffee.psychology.mcmaster.ca> wrote:
+Mike Panetta writes:
+> Any maybe target mode?  That would be nice to
+> have :) Or is it already here?
 
-MH> > Just began to use 2.4.7 instead of 2.2.19. If I copy file larger than 40 MB,
-MH> > only these 40 MB are copied (40960000 bytes exactly), and then cp
-MH> > segfaults (the same happens with mc). The same problem is with mkisofs -
-MH> > only 40 MB of image is created. I get "File size limit exceeded".
-MH> 
-MH> type "ulimit -a" and look at /etc/security/limits.conf
+Well, I haven't done that. I haven't looked for it myself. I don't
+have any plans for that.
 
-Thanks a lot, that was exactly it! I probably lied that cp segfaulted - but mc did.
-Will report to mc-devel.
+> > > diff -urN linux-2.4.7/Documentation/Configure.help
 
-Regards,
-Nerijus
+BTW: next time please don't quote the patch. No need to chew extra
+bandwidth.
 
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTLWWXm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 17:23:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTLWWXm
+	id S262794AbTLWWaP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 17:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbTLWWaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 17:23:42 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:45517 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S263166AbTLWWXl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 17:23:41 -0500
-Date: Tue, 23 Dec 2003 13:50:46 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Yaroslav Klyukin <skintwin@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 and x86_64
-Message-ID: <20031223215046.GW6438@matchmail.com>
-Mail-Followup-To: Yaroslav Klyukin <skintwin@mail.ru>,
-	linux-kernel@vger.kernel.org
-References: <3FE8B339.8080708@mail.ru>
+	Tue, 23 Dec 2003 17:30:14 -0500
+Received: from peabody.ximian.com ([141.154.95.10]:46310 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262794AbTLWWaJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 17:30:09 -0500
+Subject: RE: DEVFS is very good compared to UDEV
+From: Rob Love <rml@ximian.com>
+To: hzhong@cisco.com
+Cc: "'Jari Soderholm'" <Jari.Soderholm@edu.stadia.fi>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <008401c3c9a3$0d11abe0$ca41cb3f@amer.cisco.com>
+References: <008401c3c9a3$0d11abe0$ca41cb3f@amer.cisco.com>
+Content-Type: text/plain
+Message-Id: <1072218603.6987.57.camel@fur>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE8B339.8080708@mail.ru>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Tue, 23 Dec 2003 17:30:04 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 04:27:21PM -0500, Yaroslav Klyukin wrote:
-> Did anybody have any experience with %subj%?
-> I am curious about stability.
+On Tue, 2003-12-23 at 17:21, Hua Zhong wrote:
 
-You need a big patch that hasn't been merged into stock 2.6.0.
+> But I do have sth fair to say about this "unmaintained" part.
+> 
+> From my memory, at some point in time, somebody (Al Viro?) reviewed
+> devfs code and flamed the author in public (klml), throwing lots of bad
+> impolite words to him, which I think was the biggest reason that the
+> author stopped maintaining it. This was one of the projects that got
+> killed by flames, or improper handling with flames (another one that
+> comes to mind is CML2).
+> 
+> Correct (but not flame :-) me if I am wrong.
 
-There was a patch posted the same day of the 2.6.0 relese.
+Well, Al definitely shot forth many flames over devfs, for sure :)
 
-Mike
+I do not know the time line of the flames vs. any decisions made by
+Richard, though.  Some flamage was definitely earlier, when Richard was
+active, and some flames were definitely after Richard scaled back his
+kernel development.  And, yes, Al flames very hard and a bit rude -- but
+I have never seen him wrong, that is for sure ;-)
+
+So I cannot comment over _why_ defvs is unmaintained, but that is not
+the point: either way, it stands that devfs is unmaintained.  That is a
+problem in and of itself.
+
+	Rob Love
+
+

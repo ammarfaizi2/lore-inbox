@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317035AbSGXNKb>; Wed, 24 Jul 2002 09:10:31 -0400
+	id <S317022AbSGXNK2>; Wed, 24 Jul 2002 09:10:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSGXNKb>; Wed, 24 Jul 2002 09:10:31 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43476 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317035AbSGXNKa>; Wed, 24 Jul 2002 09:10:30 -0400
-Date: Wed, 24 Jul 2002 15:13:22 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Ingo Molnar <mingo@elte.hu>
-cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] irqlock patch 2.5.27-H4
-In-Reply-To: <Pine.LNX.4.44.0207241344160.14551-100000@localhost.localdomain>
-Message-ID: <Pine.SOL.4.30.0207241505430.15605-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317035AbSGXNK2>; Wed, 24 Jul 2002 09:10:28 -0400
+Received: from bitmover.com ([192.132.92.2]:13506 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S317022AbSGXNK2>;
+	Wed, 24 Jul 2002 09:10:28 -0400
+Date: Wed, 24 Jul 2002 06:13:39 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bk://linux.bkbits.net/linux-2.[45] pull error
+Message-ID: <20020724061339.E2703@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"James H. Cloos Jr." <cloos@jhcloos.com>,
+	linux-kernel@vger.kernel.org
+References: <m37kjlmt2k.fsf@lugabout.jhcloos.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m37kjlmt2k.fsf@lugabout.jhcloos.org>; from cloos@jhcloos.com on Wed, Jul 24, 2002 at 04:24:51AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 24 Jul 2002, Ingo Molnar wrote:
-
-> the latest irqlock patch can be found at:
->
->    http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-H4
->
-> Changes in -H4:
->
->  - fix the cli()/sti() hack in ide/main.c, per Marcin Dalecki's
->    suggestion. [this leaves the tty layer as the only remaining subsystem
->    that still has cli()/sti() related hacks.]
-
-Hi Ingo,
-
-Marcin's suggestions will bring you nowhere.
-
-You should remove all these locking from ide_unregister_subdriver()
-because in 100% cases it is already called with ide_lock held.
-
-Also in ide subsystem ide-tape.c needs fixing, however it is already
-broken and proper locking fixing may be non-trivial task.
-
-Regards
---
-Bartlomiej
-
+We ran out of disk space, it's fixed.  Thanks for the message.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

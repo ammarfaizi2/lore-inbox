@@ -1,25 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVCNAge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVCNAis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVCNAge (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 19:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVCNAge
+	id S261608AbVCNAis (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 19:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVCNAir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 19:36:34 -0500
-Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:12466 "EHLO
-	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261605AbVCNAg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 19:36:27 -0500
+	Sun, 13 Mar 2005 19:38:47 -0500
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:11427 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261608AbVCNAig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 19:38:36 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16948.56475.116221.135256@wombat.chubb.wattle.id.au>
-Date: Mon, 14 Mar 2005 11:36:43 +1100
+Message-ID: <16948.56612.119258.653782@wombat.chubb.wattle.id.au>
+Date: Mon, 14 Mar 2005 11:39:00 +1100
 From: Peter Chubb <peterc@gelato.unsw.edu.au>
 To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Peter Chubb <peterc@gelato.unsw.edu.au>,
+       linux-kernel@vger.kernel.org
 Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
-In-Reply-To: <9e473391050312075548fb0f29@mail.gmail.com>
+In-Reply-To: <9e473391050312082777a02001@mail.gmail.com>
 References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
-	<9e473391050312075548fb0f29@mail.gmail.com>
+	<20050311102920.GB30252@elf.ucw.cz>
+	<9e473391050312082777a02001@mail.gmail.com>
 X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
@@ -30,26 +33,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 >>>>> "Jon" == Jon Smirl <jonsmirl@gmail.com> writes:
 
-Jon> On Fri, 11 Mar 2005 14:36:10 +1100, Peter Chubb
-Jon> <peterc@gelato.unsw.edu.au> wrote:
->>  As many of you will be aware, we've been working on infrastructure
->> for user-mode PCI and other drivers.  The first step is to be able
->> to handle interrupts from user space. Subsequent patches add
->> infrastructure for setting up DMA for PCI devices.
+Jon> On Fri, 11 Mar 2005 11:29:20 +0100, Pavel Machek <pavel@ucw.cz>
+Jon> wrote:
+>> Hi!
+>> 
+>> > As many of you will be aware, we've been working on
+>> infrastructure for > user-mode PCI and other drivers.  The first
+>> step is to be able to > handle interrupts from user
+>> space. Subsequent patches add > infrastructure for setting up DMA
+>> for PCI devices.
+>> >
+>> > The user-level interrupt code doesn't depend on the other
+>> patches, and > is probably the most mature of this patchset.
+>> 
+>> Okay, I like it; it means way easier PCI driver development.
 
-Jon> I've tried implementing this before and could not get around the
-Jon> interrupt problem. Most interrupts on the x86 architecture are
-Jon> shared.  Disabling the IRQ at the PIC blocks all of the shared
+Jon> It won't help with PCI driver development. I tried implementing
+Jon> this for UML. If your driver has any bugs it won't get the
+Jon> interrupts acknowledged correctly and you'll end up rebooting.
 
-Fortunately, most interrupts on IA64, ARM, etc.,  are unshared.  And
-with PCI-Express, the problem will go away.  Even on X86, things
-aren't all bad: one can usually find a PCI slot which doesn't share
-interrupts with anything you care about.
-
-The scenario I'm thinking about with these patches are things like
-low-latency user-level networking between nodes in a cluster, where
-for good performance even with a kernel driver you don't want to share
-your interrupt line with anything else.
+That's not actually true, at least when we developed drivers here.
+The only times we had to reboot were the times we mucked up the dma
+register settings, and dma'd all over the kernel by mistake...
 
 -- 
 Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au

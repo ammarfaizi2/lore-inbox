@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266840AbSKOWWh>; Fri, 15 Nov 2002 17:22:37 -0500
+	id <S266868AbSKOWbk>; Fri, 15 Nov 2002 17:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266834AbSKOWWc>; Fri, 15 Nov 2002 17:22:32 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:45780 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S266840AbSKOWVX>;
-	Fri, 15 Nov 2002 17:21:23 -0500
-Subject: Re: ACPI patches updated (20021111)
-From: Stian Jordet <liste@jordet.nu>
-To: Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021115150113.GA18126@resonant.org>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A4F9@orsmsx119.jf.intel.com>
-	 <1037223183.16635.59.camel@dell_ss3.pdx.osdl.net>
-	 <20021115150113.GA18126@resonant.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037399340.984.0.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 15 Nov 2002 23:29:00 +0100
+	id <S266903AbSKOWbN>; Fri, 15 Nov 2002 17:31:13 -0500
+Received: from pool-151-196-237-149.balt.east.verizon.net ([151.196.237.149]:39096
+	"EHLO starbug.reddwarf") by vger.kernel.org with ESMTP
+	id <S266868AbSKOWaQ>; Fri, 15 Nov 2002 17:30:16 -0500
+Message-ID: <3DD57713.4040305@yossman.net>
+Date: Fri, 15 Nov 2002 17:37:07 -0500
+From: Brian Davids <dlister@yossman.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-rc1-ac3 compile warnings/errors (test)
+References: <200211151323.gAFDNlt01818@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre, 2002-11-15 kl. 16:01 skrev Zed Pobre:
-> On Wed, Nov 13, 2002 at 01:33:03PM -0800, Stephen Hemminger wrote:
-> > Will this fix problems with IRQ routing.
-> > On our SMP test machines, ACPI has to be disabled otherwise the SCSI
-> > disk controllers don't work.
-> 
->     As a further data point, if ACPI is enabled on my non-SMP test
-> machine, USB stops working.
-Very good to hear I'm not the only one with that problem, though, I have
-a smp-machine, but it utterly refuses to work with acpi.
+Alan Cox wrote:
 
-Regards,
-Stian Jordet
+>>  -nostdinc -iwithprefix include -DKBUILD_BASENAME=rmap  -c -o rmap.o rmap.c
+>>In file included from rmap.c:31:
+>>/usr/src/linux-2.4.20-rc1-ac3/include/asm/smplock.h:17:1: warning: 
+>>"kernel_locked" redefined
+> 
+> 
+> Weird indeed. are you trying to build SMP or non SMP ?
+
+I was trying to build non-SMP.  I have only UP boards at the moment.
+
+
+Brian Davids
 

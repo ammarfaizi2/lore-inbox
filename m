@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272977AbTGaKkI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 06:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272979AbTGaKkI
+	id S272970AbTGaKs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 06:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272976AbTGaKs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 06:40:08 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:43185 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272977AbTGaKkG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 06:40:06 -0400
-Message-ID: <3F28F3A1.B7114CD@in.ibm.com>
-Date: Thu, 31 Jul 2003 16:16:57 +0530
-From: Raj Inguva <rajsk@in.ibm.com>
-X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kirill Korotaev <kksx@mail.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: atomic_set & gcc. atomicity question
-References: <E19iAEA-0006Fy-00.kksx-mail-ru@f6.mail.ru>
+	Thu, 31 Jul 2003 06:48:27 -0400
+Received: from smithers.nildram.co.uk ([195.112.4.34]:36114 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S272970AbTGaKsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 06:48:23 -0400
+Date: Thu, 31 Jul 2003 11:48:23 +0100
+From: Joe Thornber <thornber@sistina.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Patch 1/6] dm: don't use MODULE_PARM
+Message-ID: <20030731104823.GE394@fib011235813.fsnet.co.uk>
+References: <20030731104517.GD394@fib011235813.fsnet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030731104517.GD394@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> #define atomic_set(v,i)         (((v)->counter) = (i))
+MODULE_PARM is deprecated in 2.6. Use the new module_param() macro.
+[Kevin Corry]
 
-'v' is of type atomic_t which is a structure.
-
-> If we call atomic_set() with constant 2nd argument it's ok - it's a > simple write to var. But what if we do atomic_set(var, var1+var2)?
-
-It will expand to (((var)->counter) = (var1+var2))
-
-'counter' is 'volatile' .
+--- diff/drivers/md/dm.c	2003-07-28 11:55:33.000000000 +0100
++++ source/drivers/md/dm.c	2003-07-31 11:13:11.000000000 +0100
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/blkpg.h>
+ #include <linux/bio.h>
+ #include <linux/mempool.h>
+@@ -916,7 +917,7 @@
+ module_init(dm_init);
+ module_exit(dm_exit);
+ 
+-MODULE_PARM(major, "i");
++module_param(major, uint, 0);
+ MODULE_PARM_DESC(major, "The major number of the device mapper");
+ MODULE_DESCRIPTION(DM_NAME " driver");
+ MODULE_AUTHOR("Joe Thornber <thornber@sistina.com>");

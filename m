@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288071AbSBWWTm>; Sat, 23 Feb 2002 17:19:42 -0500
+	id <S293230AbSBWWZd>; Sat, 23 Feb 2002 17:25:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293220AbSBWWTb>; Sat, 23 Feb 2002 17:19:31 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:13071 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288071AbSBWWTM>;
-	Sat, 23 Feb 2002 17:19:12 -0500
-Date: Sat, 23 Feb 2002 23:18:50 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: adam@os.inf.tu-dresden.de, fernando@quatro.com.br,
-        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
-Message-Id: <20020223231850.4ea9d3ca.skraw@ithnet.com>
-In-Reply-To: <E16efs1-0005cE-00@the-village.bc.nu>
-In-Reply-To: <20020223173857.3db89749.skraw@ithnet.com>
-	<E16efs1-0005cE-00@the-village.bc.nu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S293227AbSBWWZN>; Sat, 23 Feb 2002 17:25:13 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:40207 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S293229AbSBWWZC>;
+	Sat, 23 Feb 2002 17:25:02 -0500
+Date: Sat, 23 Feb 2002 15:23:37 -0700
+From: yodaiken@fsmlabs.com
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Roman Zippel <zippel@linux-m68k.org>, yodaiken@fsmlabs.com,
+        Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] only irq-safe atomic ops
+Message-ID: <20020223152337.A3577@hq.fsmlabs.com>
+In-Reply-To: <3C773C02.93C7753E@zip.com.au>, <1014444810.1003.53.camel@phantasy> <3C773C02.93C7753E@zip.com.au> <1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au> <20020223043815.B29874@hq.fsmlabs.com> <1014488408.846.806.camel@phantasy> <20020223120648.A1295@hq.fsmlabs.com> <3C781037.EA4ADEF5@linux-m68k.org> <3C781351.DCB40AD3@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C781351.DCB40AD3@zip.com.au>; from akpm@zip.com.au on Sat, Feb 23, 2002 at 02:10:25PM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Feb 2002 17:22:01 +0000 (GMT)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> > <4>CPU1<T0:1339376,T1:446448,D:8,S:446460,C:1339380>
-> > <4>checking TSC synchronization across CPUs: passed.
-> > <4>Waiting on wait_init_idle (map = 0x2)
-> > <4>All processors have done init_idle
+On Sat, Feb 23, 2002 at 02:10:25PM -0800, Andrew Morton wrote:
+> Roman Zippel wrote:
 > > 
-> > I would say this means the TSC skew fix is broken and shooting down your box. What do you think, Alan?
+> > Hi,
+> > 
+> > yodaiken@fsmlabs.com wrote:
+> > 
+> > > Right. Without preemption it is safe to do
+> > >         c = smp_get_cpuid();
+> > >        ...
+> > >         x = ++local_cache[c]
+> > >        ..
+> > >
+> > >        y = ++different_local_cache[c];
+> > >       ..
+> > 
+> > Just add:
+> >         smp_put_cpuid();
+> > 
+> > Is that so much worse?
+> > 
 > 
-> Seems a reasonable guess. However that TSC skew itself may point to other
-> problems. It means one processor started running successfully a little after
-> the other. That might be normal behaviour for that board or might point to 
-> something else 
+> ooh.  me likee.
 
-It seems no normal behaviour, I checked several other boards of this type and none had a TSC skew (and all work). Purely guessing I would suggest two try some other 2 processors to verify the behaviour is really processor-independent. Another guess would of course be the MB itself being broken to some extent.
+Cool. 
+Me likee code with unmatched smp_get_cpuid/smp_put_cpuid.
+Much nicer to write
+	x = ++local_cache[smp_getcpuid()];
+	smp_put_cuid();
+than boring old
+	x = ++ local_cache[c];
 
-Has anybody ever seen a _working_ skew correction? Is this known-to-work code?
+Is this part of some scheme to make the GPL support model actually
+pay?
 
-Regards,
-Stephan
+
+	c = smp_get_cpuid(); // disables preemption
+
+	...
+	f(); // oops, me forgotee, this function also references cpuid
+	..
+	x = ++local_cache[c]; // live dangerously
+	smp_put_cpuid(); // G_d knows what that does now.
+
+Oh, wait, I know - reference counts for get_cpuid! How hard can that
+be? See how simple it is?  One simple step at a time.
+
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

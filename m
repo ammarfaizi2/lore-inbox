@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbTJHWev (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 18:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbTJHWev
+	id S261815AbTJHWnt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 18:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbTJHWnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 18:34:51 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34320 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261812AbTJHWeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 18:34:50 -0400
+	Wed, 8 Oct 2003 18:43:49 -0400
+Received: from c-36a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.54]:11904
+	"EHLO ford.pronto.tv") by vger.kernel.org with ESMTP
+	id S261815AbTJHWnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 18:43:49 -0400
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: devfs and udev
-Date: 8 Oct 2003 15:34:29 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bm23dl$a99$1@cesium.transmeta.com>
-References: <20031007131719.27061.qmail@web40910.mail.yahoo.com> <Pine.LNX.4.58.0310071354580.19220@dlang.diginsite.com>
+Subject: Software RAID5 with 2.6.0-test
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Thu, 09 Oct 2003 00:43:43 +0200
+Message-ID: <yw1xoewrfizk.fsf@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.58.0310071354580.19220@dlang.diginsite.com>
-By author:    David Lang <david.lang@digitalinsight.com>
-In newsgroup: linux.dev.kernel
-> 
-> the namespace was different becouse Linus demanded that it be different,
-> origionally it had a mode where it would generate all the same names (and
-> another mode that generated sun style names) one of the requirements
-> before it was put in was to change it to the existing devfs-only names.
-> 
-> blame devfs for a lot of things (bugs, etc) but not the names.
-> 
 
-Actually, this is bullshit.  If you go back and look what Linus
-actually said, it was:
+Is software RAID5 stable in Linux 2.6.0-test7?  A while back I tried
+running a software RAID5 with a 2.6.0-test kernel, and had to spend
+the evening running fsck.  The corruption could have been caused by
+something other than the RAID layer.  So, is it considered safe to use
+RAID5 in 2.6.0 kernels?  I sort of dislike the try and see approach
+with matters like this.
 
-- One namespace only.  If you're going to a new namespace, then that's
-  going to be it.  You're not going to put two namespaces in the
-  kernel.
-
-- If you're going hierarcial, do it right, not the Sun-like halfassed
-  thing.
-
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Måns Rullgård
+mru@users.sf.net

@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274111AbRISRVs>; Wed, 19 Sep 2001 13:21:48 -0400
+	id <S274106AbRISRSI>; Wed, 19 Sep 2001 13:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274114AbRISRVi>; Wed, 19 Sep 2001 13:21:38 -0400
-Received: from c007-h008.c007.snv.cp.net ([209.228.33.214]:42113 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274111AbRISRV0>;
-	Wed, 19 Sep 2001 13:21:26 -0400
-X-Sent: 19 Sep 2001 17:21:40 GMT
-Message-ID: <3BA8D1E0.BD027FBA@distributopia.com>
-Date: Wed, 19 Sep 2001 12:12:00 -0500
-From: "Christopher K. St. John" <cks@distributopia.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Dan Kegel <dank@kegel.com>, davidel@xmailserver.org
-Subject: Re: [PATCH] /dev/epoll update ...
-In-Reply-To: <3BA80108.C830D602@kegel.com> <3BA84367.239FA0B4@distributopia.com> <3BA8BBC9.EA1D0636@kegel.com>
+	id <S274109AbRISRR6>; Wed, 19 Sep 2001 13:17:58 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:50438 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274106AbRISRRp>;
+	Wed, 19 Sep 2001 13:17:45 -0400
+Message-ID: <XFMail.20010919102126.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3BA80108.C830D602@kegel.com>
+Date: Wed, 19 Sep 2001 10:21:26 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Dan Kegel <dank@kegel.com>
+Subject: re: [PATCH] /dev/epoll update ...
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
+
+On 19-Sep-2001 Dan Kegel wrote:
+> Davide wrote:
 > 
-> >  My vote would be to always report the initial state, but
-> > that would make the driver more complicated.
-> >
-> Stevens [UNPV1, in chapter on nonblocking accept] suggests that readiness
-> notifications from the OS should only be considered hints, and that user
-> programs should behave properly even if the OS feeds it false readiness
-> events.
->
+>> The /dev/epoll patch has been updated :
+>> 
+>> *) Stale events removal
+>> *) Help in Configure.help ( thanks to David E. Weekly )
+>> *) Fit 2.4.9
+>> ...
+>> http://www.xmailserver.org/linux-patches/nio-improve.html
+> 
+> Davide, 
+> I'm getting ready to stress-test /dev/epoll finally.
+> In porting my Poller_devpoll.{cc,h} to support /dev/epoll, I noticed
+> the following issues:
 
- I agree that apps must properly handle incorrect hints, but
-there's a difference between:
-
- A) Signalling readiness when the fd really isn't ready. This
-    happens because of the nature of the universe, and isn't
-    avoidable (because the state can change after the signal is
-    sent but before the signal is received)
-
- B) Not reliably signalling readiness when the fd is ready.
-    This is a bug, because it makes the mechanism 99%
-    useless (If you must manually poll all the fd's to make
-    sure there hasn't been a lost event, then you haven't
-    gained very much)
-
- Not signalling initial state isn't as bad as (B), because the
-app can code around it. But boy it's ugly, and because the
-kernel already knows the information, it's 100% fixable in the
-driver. (Although I'm not sure how much complexity it would
-add to the driver, so I can't comment if the tradeoff it 
-worth it)
+Pls wait the end of today to let me update the patch correctly.
 
 
-> Thus one possible approach would be for /dev/epoll (or users of /dev/epoll)
-> to assume that an fd is initially ready for all (normal) events, and just
-> try handling them all. 
->
+> 
+> 2. The names made visible to userland by your patch do not follow
+>    a consistent naming convention.  May I suggest that you use
+>    EPOLL_ as a uniform prefix, and epoll.h as the user-visible include file?
+>    http://www.opengroup.org/onlinepubs/007908799/xsh/compilation.html
+>    shows that Posix cares greatly about this kind of namespace issue,
+>    and it'd be nice to follow their lead, even though this isn't a Posix
+>    interface.
 
- Right, that's the solution mentioned in the BMD paper, and
-that's what I've done. But it's (IMHO) ugly and (as you point
-out) unexpected. 
-
- Anybody know what Solaris /dev/poll does? The man page I 
-read wasn't clear, and I don't have Solaris box to try it
-out on.
+Posix spoke :) I'll change it in the next versions.
 
 
--- 
-Christopher St. John cks@distributopia.com
-DistribuTopia http://www.distributopia.com
+
+> 3. You modify asm/poll.h.  Can your modifications be restricted to epoll.h 
+>    instead?  (Hey, I don't know much, maybe there's a good reason you did this.)
+
+This is where flags are stored and using an external file could lead to a collision
+when other coders will add flags. IMHO is better to have a centralized definition
+of these flags.
+
+
+
+
+- Davide
+

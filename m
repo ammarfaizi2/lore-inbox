@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265443AbUAJWIu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 17:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUAJWIu
+	id S265513AbUAJWON (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 17:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAJWON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 17:08:50 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:62596 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265443AbUAJWIs
+	Sat, 10 Jan 2004 17:14:13 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:55273 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265513AbUAJWOK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 17:08:48 -0500
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1073771694.2290.17.camel@thor.asgaard.local>
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com>
-	 <1072958618.1603.236.camel@thor.asgaard.local>
-	 <1072959055.5717.1.camel@laptop.fenrus.com>
-	 <1072959820.1600.252.camel@thor.asgaard.local>
-	 <20040101122851.GA13671@devserv.devel.redhat.com>
-	 <1072967278.1603.270.camel@thor.asgaard.local>
-	 <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
-	 <1073771694.2290.17.camel@thor.asgaard.local>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fUIxjoVi/oCSn1dLUGAA"
-Organization: Red Hat, Inc.
-Message-Id: <1073772500.4432.5.camel@laptop.fenrus.com>
+	Sat, 10 Jan 2004 17:14:10 -0500
+Date: Sat, 10 Jan 2004 14:14:02 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+Message-ID: <20040110221402.GB17845@matchmail.com>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0401102100180.5835-100000@poirot.grange> <1073771855.3958.15.camel@nidelv.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 10 Jan 2004 23:08:20 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073771855.3958.15.camel@nidelv.trondhjem.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 10, 2004 at 04:57:36PM -0500, Trond Myklebust wrote:
+> P? lau , 10/01/2004 klokka 15:04, skreiv Guennadi Liakhovetski:
+> > Not change - keep (from 2.4). You see, the problem might be - somebody
+> > updates the NFS-server from 2.4 to 2.6 and then suddenly some clients fail
+> > to work with it. Seems a non-obvious fact, that after upgrading the server
+> > clients' configuration might have to be changed. At the very least this
+> > must be documented in Kconfig.
+> 
+> Non-obvious????? You have to change modutils, you have to upgrade
+> nfs-utils, glibc, gcc... and that's only the beginning of the list.
+> 
+> 2.6.x is a new kernel it differs from 2.4.x, which again differs from
+> 2.2.x, ... Get over it! There are workarounds for your problem, so use
+> them.
 
---=-fUIxjoVi/oCSn1dLUGAA
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+I have to admit, I haven't been following NFS on TCP very much.  Is the code
+in the stock 2.4 and 2.6 kernels ready for production use?  It seemed from
+what I read it was still experemental (and even marked as such in the
+config). 
 
-On Sat, 2004-01-10 at 22:54, Michel D=C3=A4nzer wrote:
-> First of all, thanks for all the suggestions I've received in this
-> thread.
->=20
-> New patch up at http://penguinppc.org/~daenzer/DRI/drm-nopage.diff; does
-> this look acceptable to those who are going to do merges between the
-> trees? :)
-
-I like this one a whole lot better than the previous ones...
-One could argue that you want the do_ function set the pagefault type
-itself (and just igore the result in the 2.4 variants) but that's minor
-nitpicking at most.
-
---=-fUIxjoVi/oCSn1dLUGAA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAAHfUxULwo51rQBIRAqLDAJ9byXOcb7eYTsuhl1SpWeJ/20gTqQCfbNsM
-suGsQoxeKqhhGqYsOe1etGU=
-=SWo/
------END PGP SIGNATURE-----
-
---=-fUIxjoVi/oCSn1dLUGAA--

@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVAPVZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVAPVkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbVAPVZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 16:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAPVZ3
+	id S262615AbVAPVkq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 16:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVAPVkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 16:25:29 -0500
-Received: from smtp3.oregonstate.edu ([128.193.0.12]:11478 "EHLO
-	smtp3.oregonstate.edu") by vger.kernel.org with ESMTP
-	id S262613AbVAPVZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 16:25:14 -0500
-Message-ID: <41EADBB4.9070908@engr.orst.edu>
-Date: Sun, 16 Jan 2005 13:25:08 -0800
-From: Micheal Marineau <marineam@engr.orst.edu>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050105)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz,
-       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, trivial@rustcorp.com.au
-Subject: [PATCH][resend] Disable Sidewinder debug messages
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig9A6E8583548E1A8C935377F5"
+	Sun, 16 Jan 2005 16:40:46 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:36357 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262615AbVAPVkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 16:40:42 -0500
+Subject: Re: 2.6.11-rc1-mm1
+From: Arjan van de Ven <arjan@infradead.org>
+To: Robert Wisniewski <bob@watson.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, karim@opersys.com, hch@infradead.org,
+       tglx@linutronix.de, linux-kernel@vger.kernel.org
+In-Reply-To: <16874.54187.919814.272833@kix.watson.ibm.com>
+References: <20050114002352.5a038710.akpm@osdl.org>
+	 <1105740276.8604.83.camel@tglx.tec.linutronix.de>
+	 <41E85123.7080005@opersys.com> <20050116162127.GC26144@infradead.org>
+	 <41EAC560.30202@opersys.com> <16874.50688.68959.36156@kix.watson.ibm.com>
+	 <20050116123212.1b22495b.akpm@osdl.org>
+	 <16874.54187.919814.272833@kix.watson.ibm.com>
+Content-Type: text/plain
+Date: Sun, 16 Jan 2005 22:40:24 +0100
+Message-Id: <1105911624.8734.55.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9A6E8583548E1A8C935377F5
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Sun, 2005-01-16 at 16:06 -0500, Robert Wisniewski wrote:
 
-Sorry for the resend (again). Last time I accidently let the patch
-line wrap, so this one will actually apply.  This patch is
-needed because currently the sidewinder produces a load of
-debugging output.
+> :-) - as above.  Furthermore, it seems that reducing the places where
+> interrupts are disabled would be a good thing?  
 
-signed-off-by: Michael Marineau <marineam@gentoo.org>
+depends at the price. On several cpus, disabling interupts is hundreds
+of times cheaper than doing an atomic op. 
 
---- linux-2.6.10.orig/drivers/input/joystick/sidewinder.c       2005-01-01 23:06:57.580682749 -0800
-+++ linux-2.6.10/drivers/input/joystick/sidewinder.c    2005-01-01 23:08:38.938770296 -0800
-@@ -45,7 +45,7 @@
-  * as well as break everything.
-  */
-
--#define SW_DEBUG
-+/* #define SW_DEBUG */         /* Enable lots of debugging output */
-
- #define SW_START       400     /* The time we wait for the first bit [400 us] */
- #define SW_STROBE      45      /* Max time per bit [45 us] */
-
-
--- 
-Michael Marineau
-marineam@gentoo.org
-Gentoo Linux Developer
-Oregon State University
-
---------------enig9A6E8583548E1A8C935377F5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB6tu5iP+LossGzjARAlIEAJ9XqCXVvF19xW8U/iyAEOVdPF64vACfZSTq
-4xPssoq8cIC6ra5nzDGF2jQ=
-=9C50
------END PGP SIGNATURE-----
-
---------------enig9A6E8583548E1A8C935377F5--

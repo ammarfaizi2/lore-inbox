@@ -1,29 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274246AbRIXXai>; Mon, 24 Sep 2001 19:30:38 -0400
+	id <S274248AbRIXXe2>; Mon, 24 Sep 2001 19:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274248AbRIXXa2>; Mon, 24 Sep 2001 19:30:28 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9998 "EHLO
+	id <S274250AbRIXXeS>; Mon, 24 Sep 2001 19:34:18 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12558 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274246AbRIXXaP>; Mon, 24 Sep 2001 19:30:15 -0400
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
-To: pgallen@randomlogic.com (Paul G. Allen)
-Date: Tue, 25 Sep 2001 00:35:46 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3BAFC01D.20FA8240@randomlogic.com> from "Paul G. Allen" at Sep 24, 2001 04:22:05 PM
+	id <S274248AbRIXXeI>; Mon, 24 Sep 2001 19:34:08 -0400
+Subject: Re: Binary only module overview
+To: linux-security-module@wirex.com
+Date: Tue, 25 Sep 2001 00:39:46 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BAF966C.8040906@wirex.com> from "Crispin Cowan" at Sep 24, 2001 01:24:12 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15lfGM-00046c-00@the-village.bc.nu>
+Message-Id: <E15lfKE-00047d-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If this passes, everyone working in computer security can be arrested and thrown in prison for life. In addition, people such as Kevin Mitnick can be thrown
-> > back in prison even though they have already paid for their crime (double jeopardy?).
-> > 
-> > http://www.securityfocus.com/news/257
+> ever be permitted to be proprietary. Some feel that all LSM modules 
+> should be OSD-compliant Open Source software, while others feel that LSM 
+> should continue the existing Linux module policy of permitting 
+> proprietary modules only if they do not require changes to the Linux 
+> kernel (which would make them a derived work of the kernel).
 
-Cuba is within small boat distance. I thought it was going to be twenty
-years before the direction changed, now Im not so sure
+With the current lunatic US congress proposals on security, crypto and
+building big brother into all PC's I'd say allowing non GPL security modules
+is positively dangerous to the well being of non US citizens

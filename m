@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285052AbRLQJEd>; Mon, 17 Dec 2001 04:04:33 -0500
+	id <S285055AbRLQJFN>; Mon, 17 Dec 2001 04:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285055AbRLQJEX>; Mon, 17 Dec 2001 04:04:23 -0500
-Received: from elin.scali.no ([62.70.89.10]:15364 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S285052AbRLQJET> convert rfc822-to-8bit;
-	Mon, 17 Dec 2001 04:04:19 -0500
-Subject: Re: O_DIRECT wierd behavior..
-From: Terje Eggestad <terje.eggestad@scali.no>
-To: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
-Cc: Andrew Morton <akpm@zip.com.au>, GOTO Masanori <gotom@debian.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <Pine.GSO.4.02A.10112161208160.25791-100000@aramis.rutgers.edu>
-In-Reply-To: <Pine.GSO.4.02A.10112161208160.25791-100000@aramis.rutgers.edu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 Dec 2001 10:04:07 +0100
-Message-Id: <1008579848.12274.0.camel@pc-16.office.scali.no>
+	id <S285058AbRLQJEy>; Mon, 17 Dec 2001 04:04:54 -0500
+Received: from adsl-63-207-97-74.dsl.snfc21.pacbell.net ([63.207.97.74]:19189
+	"EHLO nova.botz.org") by vger.kernel.org with ESMTP
+	id <S285055AbRLQJEk> convert rfc822-to-8bit; Mon, 17 Dec 2001 04:04:40 -0500
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: Alexander Viro <viro@math.psu.edu>
+cc: Robert Love <rml@tech9.net>,
+        =?ISO-8859-1?Q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
+	<raul@viadomus.com>,
+        Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is /dev/shm needed? 
+In-Reply-To: Message from Alexander Viro <viro@math.psu.edu> 
+   of "Sun, 16 Dec 2001 18:27:33 EST." <Pine.GSO.4.21.0112161825210.937-100000@weyl.math.psu.edu> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 17 Dec 2001 01:03:50 -0800
+Message-ID: <13376.1008579830@nova.botz.org>
+From: Jurgen Botz <jurgen@botz.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Someone, wonder if it wasn't Andrea, pointet out to me that it should be
-device block size, not page size for alignment and length.
-Appearently it was just simpler to do page alignment, don't expect a
-patch for that in any immediate future. 
+Alexander Viro wrote:
+> On 16 Dec 2001, Robert Love wrote:
+> > have lots of memory to spare, give it a try.  Mount /tmp or all of /var
+> > in tmpfs.
+> 
+> What?  /var contains things like /var/spool/mail.  I _really_ doubt
+> that mailboxes disappearing after reboot will make anyone happy.
 
-Other than that; you've got it.
+The original impetus for separating /var from /usr was not that stuff
+in /var is temporary, but that anything that the system has to write
+to in the course of normal operation goes there... that was so that
+/usr could be a filesystem that was shared by many machines (i.e.
+NFS mount for diskless workstations, etc.)  /var is for data that is
+"variable" from machine to machine, so that /usr can be "constant".
 
-TJ
+:j
 
- 
-søn, 2001-12-16 kl. 18:43 skrev Suresh Gopalakrishnan:
-> 
-> On Sun, 16 Dec 2001, Terje Eggestad wrote:
-> > The problem is that the kernel that don't support O_DIRECT has
-> > erronous handling of the O_DIRECT flag. Meaning they happily accept
-> > it. In order to figure out ifthe running kernel support O_DIRECT you
-> > MUST attempt an unaligned read/write, if it succed the kernel DON'T
-> > support O_DIRECT. TJ
-> 
-> You are right! It went through on 2.4.2 even with an unaligned buffer.
-> 
-> So direct i/o has to be multiple of page size blocks, from page aligned
-> buffer, and apparently into page aligned offset in the file! Is this the
-> expected behavior?
-> 
-> --suresh
-> 
-> > > Thanks for the patches. There seems to be one more fix required: the test
-> > > program below works in 2.4.16 only if the write size is a multiple of 4K.
-> > > (Why) are all writes expected to be page size, in addition to being page
-> > > aligned? (It works fine on 2.4.2 for all sizes). Any quick fixes? :)
-> > > --suresh
-> 
+
 -- 
-_________________________________________________________________________
+Jürgen Botz                       | While differing widely in the various
+jurgen@botz.org                   | little bits we know, in our infinite
+                                  | ignorance we are all equal. -Karl Popper
 
-Terje Eggestad                  terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
-N-0621 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
 

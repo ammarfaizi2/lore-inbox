@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286289AbRLTQa3>; Thu, 20 Dec 2001 11:30:29 -0500
+	id <S286287AbRLTQnd>; Thu, 20 Dec 2001 11:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286290AbRLTQaT>; Thu, 20 Dec 2001 11:30:19 -0500
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:20955 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S286287AbRLTQaE>; Thu, 20 Dec 2001 11:30:04 -0500
-Message-ID: <3C22129C.4A4E2269@kegel.com>
-Date: Thu, 20 Dec 2001 08:32:28 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: "David S. Miller" <davem@redhat.com>, bcrl <bcrl@redhat.com>,
-        billh <billh@tierra.ucsd.edu>, torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>
-Subject: Re: aio
-In-Reply-To: <Pine.LNX.4.33.0112201127400.2656-100000@localhost.localdomain>
+	id <S286292AbRLTQnU>; Thu, 20 Dec 2001 11:43:20 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:44402 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S286287AbRLTQnM>; Thu, 20 Dec 2001 11:43:12 -0500
+Date: Thu, 20 Dec 2001 17:43:01 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Samuel Maftoul <maftoul@esrf.fr>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: NFS > 2Gb
+Message-ID: <20011220174301.B1395@athlon.random>
+In-Reply-To: <20011220134414.A19648@pcmaftoul.esrf.fr> <shs3d26f1zv.fsf@charged.uio.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <shs3d26f1zv.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Thu, Dec 20, 2001 at 02:35:32PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Thu, Dec 20, 2001 at 02:35:32PM +0100, Trond Myklebust wrote:
+> >>>>> " " == Samuel Maftoul <maftoul@esrf.fr> writes:
+> 
+>      > Hello, I didn't find anywhere a clear explication on the
+>      > question: Does linux support large file over NFS v3 ?  Does it
+> 
+> Clear explanation:
+> 
+> 2.2.x
+>   No
 
-> it's not a fair comparison. The system was set up to not exhibit any async
-> IO load. So a pure, atomic sendfile() outperformed TUX slightly, where TUX
-> did something slightly more complex (and more RFC-conform as well - see
-> Date: caching in X12 for example). Not something i'd call a proof - this
-> simply works around the async IO interface. (which RT-signal driven,
-> fasync-helped async IO interface, as phttpd has proven, is not only hard
-> to program and is unrobust, it also performs *very badly*.)
+btw, 2.2aa yes.
 
-Proper wrapper code can make them (almost) easy to program with.
-See http://www.kegel.com/dkftpbench/doc/Poller_sigio.html for an example
-of a wrapper that automatically handles the fallback to poll() on overflow.
-Using this wrapper I wrote ftp clients and servers which use a thin wrapper
-api that lets the user choose from select, poll, /dev/poll, kqueue/kevent, and RT signals
-at runtime.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20aa1.bz2
 
-That said, I think that using the RT signal queue is just plain the
-wrong way to go, and I can't wait for better approaches to make it
-into the standard kernel someday.
-
-- Dan
+Andrea

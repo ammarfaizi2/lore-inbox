@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbTILC7a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 22:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTILC73
+	id S261498AbTILC5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 22:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbTILC5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 22:59:29 -0400
-Received: from lpz9-d9ba689f.pool.mediaWays.net ([217.186.104.159]:42142 "EHLO
-	router.abc") by vger.kernel.org with ESMTP id S261502AbTILC7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 22:59:25 -0400
-Message-ID: <3F613680.6020200@baldauf.org>
-Date: Fri, 12 Sep 2003 04:59:12 +0200
-From: =?ISO-8859-1?Q?Xu=E2n_Baldauf?= 
-	<xuan--lkml--2003.09.12@baldauf.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: de-de, en-us
-MIME-Version: 1.0
+	Thu, 11 Sep 2003 22:57:42 -0400
+Received: from smtp1.globo.com ([200.208.9.168]:7611 "EHLO mail.globo.com")
+	by vger.kernel.org with ESMTP id S261498AbTILC5i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 22:57:38 -0400
+From: Marcelo Penna Guerra <eu@marcelopenna.org>
 To: linux-kernel@vger.kernel.org
-Subject: "busy" load counters
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: SII SATA request size limit
+Date: Thu, 11 Sep 2003 23:57:06 -0300
+User-Agent: KMail/1.5.9
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200309112357.41592.eu@marcelopenna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, tools like "top" show stats like
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  Cpu(s):  92.1% user,   6.9% system,   0.0% nice,   1.0% idle
+Hi,
 
-Unfortunately, these stats are not sufficient to determine wether the 
-system is "busy". Determining wether the system is "busy" is very useful 
-in case an interactive application (e.g. a shell or some shell command) 
-does not respond.
-Maybe it just hangs (waits for input) or does serious work (e.g. uses 
-the CPU or accesses the disk). Disk access is not visible in "top". 
-Depending on the machine, on disk accesses, there might be a slight or 
-significant rise in the "system" portion of those stats, but this is not 
-trustable.
+In recent kernels, the siimage driver limits the max kb per request size to 15 
+(7.5kb). As I was having no problems with rqsize of 128 (64kb), I decided to 
+comment out this part of the code and my system is rock solid.
 
-I'd like a new stat "busy", which simply is one minus the time, when the 
-system is idle but does _not_ have outstanding IO requests. Users may 
-judge from this stat, wether their application waits for input or just 
-needs some time. This way, they know better what to do when they get 
-impatient, and they now it faster. (Yes, they can know it by looking up 
-all processes of their application, strace them and check wether the 
-actions observed involve just waiting and polling or maybe IO. But this 
-is very tedious.)
+I'm not suggesting that it should be removed, as it probably is necessary on 
+other systems, but as the performance impact is huge (with 15 hdparm tests 
+show an average 26mb/s and with 128 it's 47mb/s), I think the user should be 
+warnned of this and there could be a option to set it to 128 in 2.6.x 
+kernels, so people can try to see if it's stable. I really don't beleive that 
+I have such an unique hardware configuration, so this should benefit other 
+people.
 
-How do you think about this? Would kernel hackers oppose such a 
-"feature" for any reason?
+Marcelo Penna Guerra
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Xuân.
-
-
+iD8DBQE/YTYjD/U0kdg4PFoRAhBnAJ0TyeJx5nrxzDS5Rib5AEWQHx4iSACeKcn8
+wg7cUhLobywfTCcPl8GqNCc=
+=VuVw
+-----END PGP SIGNATURE-----

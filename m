@@ -1,85 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbSKWMPO>; Sat, 23 Nov 2002 07:15:14 -0500
+	id <S266989AbSKWMVw>; Sat, 23 Nov 2002 07:21:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266989AbSKWMPO>; Sat, 23 Nov 2002 07:15:14 -0500
-Received: from angband.namesys.com ([212.16.7.85]:10631 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S265246AbSKWMPN>; Sat, 23 Nov 2002 07:15:13 -0500
-Date: Sat, 23 Nov 2002 15:22:23 +0300
-From: Oleg Drokin <green@namesys.com>
-To: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Problem in using kobjects for block devices and partitions
-Message-ID: <20021123152223.A17314@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S266995AbSKWMVw>; Sat, 23 Nov 2002 07:21:52 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:6017 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S266989AbSKWMVv> convert rfc822-to-8bit; Sat, 23 Nov 2002 07:21:51 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+Date: Sat, 23 Nov 2002 23:30:27 +1100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Rik van Riel <riel@conectiva.com.br>
+Subject: [BENCHMARK] 2.4.19-rmap15 with contest
+Message-Id: <200211232330.38419.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-   Problem code is in register_disk, and though it was included at the end of
-   November, but problems started to appear very recently.
+Here is a set of contest (http://contest.kolivas.net) benchmarks for 
+2.4.19-rmap15
 
-   At the beginning of register_disk() we see this snippet:
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [5]              71.7    93      0       0       0.99
+2.4.19 [5]              69.0    97      0       0       0.95
+2.4.19-rmap15 [3]       73.1    92      0       0       1.01
 
-           s = strchr(disk->kobj.name, '/');
-           if (s)
-                   *s = '!';
-           kobject_register(&disk->kobj);
-           disk_sysfs_symlinks(disk);
+cacherun:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [2]              66.6    99      0       0       0.92
+2.4.19 [2]              68.0    99      0       0       0.94
+2.4.19-rmap15 [3]       67.7    99      0       0       0.94
 
-   And now kobject_register() frees disk structure if registration was
-   unsuccesful, so doing anything else with this structure is not very
-   nice thing. This is especially observable if you turn on SLAB poisoning,
-   then it will die during disk_sysfs_symlinks (actually two levels deeper).
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              109.5   57      119     44      1.51
+2.4.19 [3]              106.5   59      112     43      1.47
+2.4.19-rmap15 [3]       112.7   56      123     44      1.56
 
-   I think here we should at least check return value of kobject_register
-   and print something useful. This won't help much against crashing since
-   accessing /proc/partition afterwards will still kill the box (in case
-   of SLAB poisoning, otherwise some other unpredictable stuff will happen).
+Marginally slower here.
 
-   It seems that making register_disk() to return error back to caller
-   does not makes much sence either, since struct gendisk is already destroyed
-   and we cannot get it off the lists that easily.
 
-   May be it was just a bad decision to destroy whole structure of underlying
-   object when kobject creation have failed? 
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              117.4   63      1       7       1.62
+2.4.19 [2]              106.5   70      1       8       1.47
+2.4.19-rmap15 [3]       98.4    77      1       6       1.36
 
-   Anyway at least below patch is a good thing to easy problem diagnostics
-   when kobject_register() fails during registering block devices (e.g. because
-   some of them have same base name).
-   
-Bye,
-    Oleg
+First significant difference. Notably faster while creating tars.
 
-===== fs/partitions/check.c 1.88 vs edited =====
---- 1.88/fs/partitions/check.c	Thu Nov 21 06:08:39 2002
-+++ edited/fs/partitions/check.c	Sat Nov 23 15:17:28 2002
-@@ -400,13 +400,23 @@
- 	struct block_device *bdev;
- 	char *s;
- 	int j;
-+	int error;
-+	 /* In case of error disk structure will be freed, so we cannot
-+	    dereference it. Let's save some useful info so that we can
-+	    print meaningful error message. */
-+	int minor=disk->first_minor, major=disk->major;
- 
- 	strncpy(disk->kobj.name,disk->disk_name,KOBJ_NAME_LEN);
- 	/* ewww... some of these buggers have / in name... */
- 	s = strchr(disk->kobj.name, '/');
- 	if (s)
- 		*s = '!';
--	kobject_register(&disk->kobj);
-+
-+	error = kobject_register(&disk->kobj);
-+	if ( error ) {
-+		printk(KERN_ERR "%s: Failed to create kernel object for disk major %d, first minor %d. Reason: %d\n", __FUNCTION__, major, minor, error );
-+		return;
-+	}
- 	disk_sysfs_symlinks(disk);
- 
- 	if (disk->flags & GENHD_FL_CD)
+
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              150.8   49      2       8       2.09
+2.4.19 [1]              132.4   55      2       9       1.83
+2.4.19-rmap15 [3]       130.2   55      1       19      1.80
+
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              474.1   15      36      10      6.56
+2.4.19 [3]              492.6   14      38      10      6.81
+2.4.19-rmap15 [3]       222.9   33      13      9       3.08
+
+Well this is nice. io_load is the most felt of the slowdowns and rmap manages 
+to blunt the effect io load has (note io load uses quite a bit of ram to do 
+the io load).
+
+
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              102.3   70      6       3       1.41
+2.4.19 [2]              134.1   54      14      5       1.85
+2.4.19-rmap15 [3]       129.5   56      20      5       1.79
+
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              90.2    76      1       17      1.25
+2.4.19 [1]              89.8    77      1       20      1.24
+2.4.19-rmap15 [3]       90.4    76      0       12      1.25
+
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              103.3   70      32      3       1.43
+2.4.19 [3]              100.0   72      33      3       1.38
+2.4.19-rmap15 [3]       105.3   72      37      5       1.46
+
+Note that while mem_load is marginally slower with rmap, the machine was in a 
+much more usable state after running the mem_load. Much less was coming back 
+from swap upon using it after the benchmark, and contest cant show this 
+effect.
+
+
+Looking good Rik.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE933TmF6dfvkL3i1gRAsPGAJsGcgRoKaMUtIVebjIHlFeyuzBgeACePG7N
+GUhW6kzYg7amphsfe4W5GQ4=
+=+NY1
+-----END PGP SIGNATURE-----

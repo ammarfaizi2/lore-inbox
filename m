@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269572AbRHHV6p>; Wed, 8 Aug 2001 17:58:45 -0400
+	id <S269547AbRHHWFR>; Wed, 8 Aug 2001 18:05:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269583AbRHHV6g>; Wed, 8 Aug 2001 17:58:36 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:27923 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269580AbRHHV6Z>; Wed, 8 Aug 2001 17:58:25 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] parport_pc.c PnP BIOS sanity check
-Date: 8 Aug 2001 14:58:12 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ksclk$k45$1@cesium.transmeta.com>
-In-Reply-To: <no.id> <E15UV8M-0005SE-00@the-village.bc.nu>
+	id <S269580AbRHHWFH>; Wed, 8 Aug 2001 18:05:07 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:64521 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S269547AbRHHWE5>;
+	Wed, 8 Aug 2001 18:04:57 -0400
+Date: Wed, 8 Aug 2001 23:04:31 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: <ankry@green.mif.pg.gda.pl>, Mark Atwood <mra@pobox.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <m11ymmvn5o.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33.0108082302060.12565-100000@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E15UV8M-0005SE-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> > The following would seem to be required to protect against
-> > the case in which PnP BIOS reports an IRQ of 0 for a 
-> > parport with disabled IRQ.      // Thomas  jdthood_AT_yahoo.co.uk
-> 
-> IRQ 0 is a legal valid IRQ. I suspect the problem is that pnpbios shouldnt
-> be reporting an IRQ or we should be using some kind of NO_IRQ cookie
->
+Hi Eric.
 
-IRQ 0 is hardwired to the system timer in PC systems, though, so it
-could simply be assumed that IRQ 0 will never be used for any other
-purposes.
+ >> 1. NFS-root needs to have RARP/NFS servers on eth0.
 
-Reminds me back in the days when you had to worry about DRQs as well;
-DRQ 0 was hardwired in the original PC but then became available in
-the AT; there was a whole bunch of things that assumed DRQ 0 wasn't
-usable, even though it was perfectly fine.  Not to mention the
-motherboard I had which would lock up solid if anything ever used
-DRQ 5.
+ >> How can you deal with it if you have two boards supported by a
+ >> single driver and, unfortunately, the one you need is detected
+ >> as eth1 ? Assume that you cannot switch them as they use
+ >> different media type...
 
-Good riddance, all this crap...
+ > Hmm. Then my system that does DHCP/NFS root with 2.4.7 and comes
+ > up on eth2 is doesn't work?  Hmm it looks like it works to me.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I have no personal experience of NFS-Root but the documentation I've
+seen all implied that it did the RARP broadcast in parallel on all
+configured NIC's and used the one that replied from there on. I'm glad
+to hear that my reading of the documentation was correct.
+
+Best wishes from Riley.
+

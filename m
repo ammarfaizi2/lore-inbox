@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271703AbTGXPzL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 11:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271706AbTGXPzL
+	id S271701AbTGXPvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271703AbTGXPvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 11:55:11 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:19421 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S271703AbTGXPzD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 11:55:03 -0400
-Subject: Re: Posting format
-From: Steven Cole <elenstev@mesatop.com>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
-       Tomas Szepe <szepe@pinerecords.com>
-In-Reply-To: <20030724154732.GJ32585@rdlg.net>
-References: <20030723201801.GB32585@rdlg.net>
-	 <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net>
-	 <20030723225333.GC16244@louise.pinerecords.com>
-	 <bfn5v6$m20$1@gatekeeper.tmr.com>
-	 <1059059667.1672.202.camel@spc9.esa.lanl.gov>
-	 <20030724154732.GJ32585@rdlg.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1059062739.1668.214.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 24 Jul 2003 10:05:39 -0600
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 11:51:54 -0400
+Received: from routeree.utt.ro ([193.226.8.102]:55218 "EHLO klesk.etc.utt.ro")
+	by vger.kernel.org with ESMTP id S271701AbTGXPvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 11:51:49 -0400
+Message-ID: <5783.194.138.39.55.1059063130.squirrel@webmail.etc.utt.ro>
+Date: Thu, 24 Jul 2003 19:12:10 +0300 (EEST)
+Subject: Re: [PATCH] O8int for interactivity
+From: "Szonyi Calin" <sony@etc.utt.ro>
+To: <felipe_alfaro@linuxmail.org>
+In-Reply-To: <1058978784.740.4.camel@teapot.felipe-alfaro.com>
+References: <200307232155.27107.kernel@kolivas.org>
+        <1058978784.740.4.camel@teapot.felipe-alfaro.com>
+X-Priority: 3
+Importance: Normal
+Cc: <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-24 at 09:47, Robert L. Harris wrote:
-> 
-> Thus spake Steven Cole (elenstev@mesatop.com):
 
-[snippage]
-> > 
-> > More exposition regarding top vs bottom posting: Replying at the bottom
-> > results in an easily parseable tree. Consider the following conversation
-> > where everyone replies at the bottom.
-> 
-> 
-> On the other hand if everyone posted at the top it would be considerably
-> easier reading for those who have been following the conversation
-> without having to scroll down and figure out where comments and the
-> conversation is at.  You could read just the top post and go from there.
-> For those new to the conversation they can just start at the bottom and
-> scroll up.  When the next post comes in they just read the top post
-> again instead of scrolling down to the bottom or middle somewhere to
-> figure out what/when/where.
-> 
-> Using VI and Mutt, the cursor starts at the top not the bottom or
-> anywhere in the middle so there's and ease of use for CLI mail readers
-> as well instead of the GUI oriented.
-> 
-> 
-> :wq!
-> ---------------------------------------------------------------------------
-> Robert L. Harris                     | GPG Key ID: E344DA3B
+Felipe Alfaro Solana said:
+>
+> I'm playing a bit with tunables to see if I can tune the scheduler a
+> little bit for my system/workload. I've had good results reducing max
+> timeslice to 100 (yeah, I know I shouldn't do this too).
+>
+> Will keep you informed :-)
+>
 
-Using a consistent agglutination policy results in more easily
-understandable conversations.  You've done a good job advocating top
-posting, but until recently the linux-kernel norm was bottom posting.
+same thing here. Reducing max timeslice to 100 is much better.
+It's the only thing that allow me to watch a movie while compiling
+the kernel with make -j 2 bzImage on my Duron 700Mhz with 256M RAM
 
-The mix of the two is what is being objected to.  Standards exist for
-good reasons, and Tomas pointed out RFC 1855 and the lkml FAQ.
+I have to find some docs about those tunables.
 
-Please reply at the bottom.  Thanks.
+Thanks
+Bye
+Calin
 
-Steven
+
+
+-----------------------------------------
+This email was sent using SquirrelMail.
+   "Webmail for nuts!"
+http://squirrelmail.org/
+
 

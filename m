@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284337AbRLMQYA>; Thu, 13 Dec 2001 11:24:00 -0500
+	id <S284330AbRLMQZk>; Thu, 13 Dec 2001 11:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284330AbRLMQXy>; Thu, 13 Dec 2001 11:23:54 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:62868 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S284337AbRLMQXb>; Thu, 13 Dec 2001 11:23:31 -0500
-Date: Thu, 13 Dec 2001 08:22:51 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Repost: could ia32 mmap() allocations grow downward?
-In-Reply-To: <BDD02BB0D67@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.33.0112130803260.19406-100000@mf1.private>
+	id <S284366AbRLMQZd>; Thu, 13 Dec 2001 11:25:33 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:55451 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S284330AbRLMQZP>;
+	Thu, 13 Dec 2001 11:25:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: esr@thyrsus.com, Keith Owens <kaos@ocs.com.au>
+Subject: Re: [kbuild-devel] CML2 1.9.7 is available
+Date: Thu, 13 Dec 2001 09:29:05 -0700
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011212023556.A8819@thyrsus.com> <16992.1008153373@ocs3.intra.ocs.com.au> <20011213034930.A8337@thyrsus.com>
+In-Reply-To: <20011213034930.A8337@thyrsus.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011213162508.F30944674@ldl.fc.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, Petr Vandrovec wrote:
+On Thursday 13 December 2001 1:49 am, Eric S. Raymond wrote:
+> Keith Owens <kaos@ocs.com.au>:
+> > OUCH!  The output from make menuconfig has significantly more options
+> > than make oldconfig when given exactly the same input.  I thought one
+> > of the selling points for CML2 was different front ends but with
+> > identical back end processing.  I don't like the way that the
+> > resulting config varies when fed to different front ends.
+>
+> Not a big deal -- all the produced config.outs are logically equivalent.
 
-> If you have legacy app, how it comes that it uses mmap?
+Not a big deal in theory, maybe, but it is very convenient to use diff to 
+compare .config files, and diff doesn't know about logical equivalence.
 
-Very good question.  The app per se does not call mmap(), but mmap() is
-called once when I execute it.  So it must be something from libc:
-
-[whitney@mf1 whitney]$ ldd `which magma`
-	not a dynamic executable
-[whitney@mf1 whitney]$ magma
-[ . . .]
-[2]+  Stopped                 magma
-[whitney@mf1 whitney]$ cat /proc/`pidof magma`/maps
-08048000-08afb000 r-xp 00000000 21:07 64318 magma
-08afb000-08c3e000 rw-p 00ab2000 21:07 64318 magma     
-08c3e000-0bc54000 rwxp 00000000 00:00 0
-40000000-40001000 rw-p 00000000 00:00 0
-bfffd000-c0000000 rwxp ffffe000 00:00 0
-
-> So maybe MAGMA uses some API which it should not use under any
-> circumstances... Such as that you linked it with libc6 stdio.
-
-Indeed.  How can I avoid the map at 0x40000000?  Must I avoid using
-certain glibc2 functions, and then link the executable carefully to leave
-out their initialization routines?  Or can I set some magic environment
-variable to tell glibc2 to mmap() the single map with MAP_FIXED at a
-higher addresss?  Of course I could modify glibc2 so that it does all (or
-most) of its mmap()'s with MAP_FIXED at a higher address.  Is there an
-alternative libc that might work out of the box or require less
-modification?
-
-So it seems like for MAGMA I should be able to work around the fact that
-mmap()'s start at 0x40000000.  But as difficulties with other programs
-come up here fairly regularly, I still think it makes sense to fully
-understand the downside of modifying the kernel to allocate mmap() VMAs
-going downward.  If the downside is small, I think it is a good tradeoff.
-
-Cheers, Wayne
-
-
+-- 
+Bjorn Helgaas - bjorn_helgaas@hp.com
+Linux Systems Operation R&D
+Hewlett-Packard

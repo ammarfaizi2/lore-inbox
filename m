@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262690AbSJHWi7>; Tue, 8 Oct 2002 18:38:59 -0400
+	id <S262508AbSJHWhG>; Tue, 8 Oct 2002 18:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262913AbSJHWi6>; Tue, 8 Oct 2002 18:38:58 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:46809 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262690AbSJHWiD>;
-	Tue, 8 Oct 2002 18:38:03 -0400
-Date: Tue, 8 Oct 2002 23:45:29 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Dave Jones <davej@codemonkey.org.uk>, "David S. Miller" <davem@redhat.com>,
-       skip.ford@verizon.net, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021008224529.GA16585@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, skip.ford@verizon.net,
-	jgarzik@pobox.com, linux-kernel@vger.kernel.org
-References: <20021008222444.GB12379@suse.de> <20021008.150444.118305428.davem@redhat.com> <200210060846.g968klWf000632@pool-141-150-241-241.delv.east.verizon.net> <3D9FFD21.8040404@pobox.com> <8973.1034111628@passion.cambridge.redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20143.1034116001@passion.cambridge.redhat.com>
+	id <S262602AbSJHWhF>; Tue, 8 Oct 2002 18:37:05 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:62623 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262508AbSJHWhD>; Tue, 8 Oct 2002 18:37:03 -0400
+Subject: Re: The end of embedded Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: simon@baydel.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021008.130402.96131900.davem@redhat.com>
+References: <3DA1CF36.19659.13D4209@localhost>
+	<3DA2BD70.14919.2C6951@localhost>
+	<1034076314.26473.47.camel@irongate.swansea.linux.org.uk> 
+	<20021008.130402.96131900.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Oct 2002 23:53:01 +0100
+Message-Id: <1034117581.31449.27.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20143.1034116001@passion.cambridge.redhat.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 11:26:41PM +0100, David Woodhouse wrote:
+On Tue, 2002-10-08 at 21:04, David S. Miller wrote:
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: 08 Oct 2002 12:25:14 +0100
+>    
+>    [BTW that also came up in the large
+>    computing world too - we never merged a driver for the AP-1000+ fddi
+>    because there were only two cards on the planet 8)]
+> 
+> Actually, that driver was in the tree for a long time.
 
- > >  How about 'stable' and 'devel', then we won't have to worry about
- > > renaming/resubscribing when we switch revisions. 
- > 
- > Would you suggest sending 2.4 and 2.6 changesets to the same 'stable' list 
- > or making a new one for each release? I'd suggest the latter option, 
- > hence making the naming explicit from the start.
+Are you sure - the drivers for many things were, but not afaik the fddi
+one
 
- Good point.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

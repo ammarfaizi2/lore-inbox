@@ -1,145 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUHFU6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUHFVAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268301AbUHFU6f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 16:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268294AbUHFU55
+	id S268299AbUHFVAm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 17:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268291AbUHFU6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 16:57:57 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:47234 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268284AbUHFU4F
+	Fri, 6 Aug 2004 16:58:46 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:40335 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268299AbUHFU4P
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 16:56:05 -0400
-Subject: Re: [patch] add kobject_get_path
-From: Robert Love <rml@ximian.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040806205022.GA26135@kroah.com>
-References: <1091824013.7939.66.camel@betsy>
-	 <1091824903.7939.80.camel@betsy>  <20040806205022.GA26135@kroah.com>
-Content-Type: text/plain
-Date: Fri, 06 Aug 2004 16:56:03 -0400
-Message-Id: <1091825763.7939.84.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Aug 2004 16:56:15 -0400
+Message-Id: <200408062055.i76KtcY08296@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Hirokazu Takahashi'" <taka@valinux.co.jp>
+Cc: <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>, "Seth, Rohit" <rohit.seth@intel.com>
+Subject: RE: Hugetlb demanding paging for -mm tree
+Date: Fri, 6 Aug 2004 13:55:38 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcR7CpiRO5L3Ta0STvi8XV0xji5onwA7LdvQ
+In-Reply-To: <20040806.013522.74731251.taka@valinux.co.jp>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-06 at 13:50 -0700, Greg KH wrote:
+Hirokazu Takahashi wrote on Thursday, August 05, 2004 9:35 AM
+> >
+> > ---------------------
+> > 00.demandpaging.patch
+> > ---------------------
+>
+> I noticed some problems in your patch.
+>
+>   - unmap_hugepage_range() may over-decrease mm->rss, since
+>     some pte's may not assigned pages yet.
+>
+>   - Some architectures may require to call update_mmu_cache() right after
+>     a pte is updated.
 
-> I do too.  One problem though, get_kobj_path_length and fill_kobj_path
-> are only built if CONFIG_HOTPLUG is enabled.  Care to respin this patch
-> by moving the functions outside of that #define?
+Thanks for review.  Updated incremental patch for all arch.
 
-Hrm, did not notice that.  kobject_get_path() was inside there, too.
-
-I presume these functions are still meaningful if !CONFIG_HOTPLUG?
-
-Here we go.  Thanks,
-
-	Robert Love
-
-
-Add a new kobject helper, kobject_get_path(), which is the greatest
-function ever.
-Signed-Off-By: Robert Love <rml@ximian.com>
-
- include/linux/kobject.h |    2 ++
- lib/kobject.c           |   36 +++++++++++++++++++++++++++---------
- 2 files changed, 29 insertions(+), 9 deletions(-)
-
-diff -urN linux-2.6.8-rc3-mm1/include/linux/kobject.h linux/include/linux/kobject.h
---- linux-2.6.8-rc3-mm1/include/linux/kobject.h	2004-08-06 14:03:04.882742673 -0400
-+++ linux/include/linux/kobject.h	2004-08-06 16:25:02.797522366 -0400
-@@ -58,6 +58,8 @@
- 
- extern void kobject_hotplug(const char *action, struct kobject *);
- 
-+extern char * kobject_get_path(struct kset *, struct kobject *, int);
-+
- struct kobj_type {
- 	void (*release)(struct kobject *);
- 	struct sysfs_ops	* sysfs_ops;
-diff -urN linux-2.6.8-rc3-mm1/lib/kobject.c linux/lib/kobject.c
---- linux-2.6.8-rc3-mm1/lib/kobject.c	2004-08-06 14:03:06.229569894 -0400
-+++ linux/lib/kobject.c	2004-08-06 16:53:24.484278248 -0400
-@@ -58,14 +58,11 @@
- 	return error;
- }
- 
--
- static inline struct kobject * to_kobj(struct list_head * entry)
- {
- 	return container_of(entry,struct kobject,entry);
- }
- 
--
--#ifdef CONFIG_HOTPLUG
- static int get_kobj_path_length(struct kset *kset, struct kobject *kobj)
- {
- 	int length = 1;
-@@ -98,6 +95,31 @@
- 	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
- }
- 
-+/**
-+ * kobject_get_path - generate and return the path associated with a given kobj
-+ * and kset pair.  The result must be freed by the caller with kfree().
-+ *
-+ * @kset:	kset in question, with which to build the path
-+ * @kobj:	kobject in question, with which to build the path
-+ * @gfp_mask:	the allocation type used to allocate the path
-+ */
-+char * kobject_get_path(struct kset *kset, struct kobject *kobj, int gfp_mask)
-+{
-+	char *path;
-+	int len;
-+
-+	len = get_kobj_path_length (kset, kobj);
-+	path = kmalloc (len, gfp_mask);
-+	if (!path)
-+		return NULL;
-+	memset (path, 0x00, len);
-+	fill_kobj_path (kset, kobj, path, len);
-+
-+	return path;
-+}
-+
-+#ifdef CONFIG_HOTPLUG
-+
- #define BUFFER_SIZE	1024	/* should be enough memory for the env */
- #define NUM_ENVP	32	/* number of env pointers */
- static unsigned long sequence_num;
-@@ -112,7 +134,6 @@
- 	char *scratch;
- 	int i = 0;
- 	int retval;
--	int kobj_path_length;
- 	char *kobj_path = NULL;
- 	char *name = NULL;
- 	unsigned long seq;
-@@ -163,12 +184,9 @@
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "SEQNUM=%ld", seq) + 1;
- 
--	kobj_path_length = get_kobj_path_length (kset, kobj);
--	kobj_path = kmalloc (kobj_path_length, GFP_KERNEL);
-+	kobj_path = kobject_get_path (kset, kobj, GFP_KERNEL);
- 	if (!kobj_path)
- 		goto exit;
--	memset (kobj_path, 0x00, kobj_path_length);
--	fill_kobj_path (kset, kobj, kobj_path, kobj_path_length);
- 
- 	envp [i++] = scratch;
- 	scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
-@@ -626,7 +644,7 @@
+diff -Nurp linux-2.6.7/arch/i386/mm/hugetlbpage.c linux-2.6.7.hugetlb/arch/i386/mm/hugetlbpage.c
+--- linux-2.6.7/arch/i386/mm/hugetlbpage.c	2004-08-06 11:44:59.000000000 -0700
++++ linux-2.6.7.hugetlb/arch/i386/mm/hugetlbpage.c	2004-08-06 13:03:58.000000000 -0700
+@@ -234,7 +234,7 @@ void unmap_hugepage_range(struct vm_area
+ 			continue;
+ 		page = pte_page(pte);
+ 		put_page(page);
++		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
  	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
+ 	flush_tlb_range(vma, start, end);
  }
- 
+diff -Nurp linux-2.6.7/arch/ia64/mm/hugetlbpage.c linux-2.6.7.hugetlb/arch/ia64/mm/hugetlbpage.c
+--- linux-2.6.7/arch/ia64/mm/hugetlbpage.c	2004-08-06 11:44:59.000000000 -0700
++++ linux-2.6.7.hugetlb/arch/ia64/mm/hugetlbpage.c	2004-08-06 13:03:38.000000000 -0700
+@@ -249,8 +249,8 @@ void unmap_hugepage_range(struct vm_area
+ 		page = pte_page(*pte);
+ 		put_page(page);
+ 		pte_clear(pte);
++		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
+ 	flush_tlb_range(vma, start, end);
+ }
+
+diff -Nurp linux-2.6.7/arch/ppc64/mm/hugetlbpage.c linux-2.6.7.hugetlb/arch/ppc64/mm/hugetlbpage.c
+--- linux-2.6.7/arch/ppc64/mm/hugetlbpage.c	2004-08-06 11:44:59.000000000 -0700
++++ linux-2.6.7.hugetlb/arch/ppc64/mm/hugetlbpage.c	2004-08-06 13:10:28.000000000 -0700
+@@ -407,10 +407,9 @@ void unmap_hugepage_range(struct vm_area
+ 					    pte, local);
+
+ 		put_page(page);
++		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
+ 	}
+ 	put_cpu();
 -
-+EXPORT_SYMBOL(kobject_get_path);
- EXPORT_SYMBOL(kobject_init);
- EXPORT_SYMBOL(kobject_register);
- EXPORT_SYMBOL(kobject_unregister);
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
+ }
+
+ /* Because we have an exclusive hugepage region which lies within the
+diff -Nurp linux-2.6.7/arch/sh/mm/hugetlbpage.c linux-2.6.7.hugetlb/arch/sh/mm/hugetlbpage.c
+--- linux-2.6.7/arch/sh/mm/hugetlbpage.c	2004-08-06 11:44:59.000000000 -0700
++++ linux-2.6.7.hugetlb/arch/sh/mm/hugetlbpage.c	2004-08-06 13:04:20.000000000 -0700
+@@ -204,7 +204,7 @@ void unmap_hugepage_range(struct vm_area
+ 			pte_clear(pte);
+ 			pte++;
+ 		}
++		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
+ 	flush_tlb_range(vma, start, end);
+ }
+diff -Nurp linux-2.6.7/arch/sparc64/mm/hugetlbpage.c linux-2.6.7.hugetlb/arch/sparc64/mm/hugetlbpage.c
+--- linux-2.6.7/arch/sparc64/mm/hugetlbpage.c	2004-08-06 11:44:59.000000000 -0700
++++ linux-2.6.7.hugetlb/arch/sparc64/mm/hugetlbpage.c	2004-08-06 13:04:38.000000000 -0700
+@@ -201,7 +201,7 @@ void unmap_hugepage_range(struct vm_area
+ 			pte_clear(pte);
+ 			pte++;
+ 		}
++		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
+ 	flush_tlb_range(vma, start, end);
+ }
+diff -Nurp linux-2.6.7/mm/hugetlb.c linux-2.6.7.hugetlb/mm/hugetlb.c
+--- linux-2.6.7/mm/hugetlb.c	2004-08-06 11:44:59.000000000 -0700
++++ linux-2.6.7.hugetlb/mm/hugetlb.c	2004-08-06 13:15:24.000000000 -0700
+@@ -276,9 +276,10 @@ retry:
+ 	}
+
+ 	spin_lock(&mm->page_table_lock);
+-	if (pte_none(*pte))
++	if (pte_none(*pte)) {
+ 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
+-	else
++		update_mmu_cache(vma, addr, *pte);
++	} else
+ 		put_page(page);
+ out:
+ 	spin_unlock(&mm->page_table_lock);
 
 

@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272360AbRIKJzr>; Tue, 11 Sep 2001 05:55:47 -0400
+	id <S272359AbRIKJzh>; Tue, 11 Sep 2001 05:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272357AbRIKJzh>; Tue, 11 Sep 2001 05:55:37 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:25350 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S272360AbRIKJz1>; Tue, 11 Sep 2001 05:55:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: linux-2.4.10-pre5
-Date: Tue, 11 Sep 2001 12:02:51 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0109101937370.2490-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0109101937370.2490-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010911095541Z16308-26183+1020@humbolt.nl.linux.org>
+	id <S272357AbRIKJz2>; Tue, 11 Sep 2001 05:55:28 -0400
+Received: from [195.89.159.99] ([195.89.159.99]:11511 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S272359AbRIKJzT>; Tue, 11 Sep 2001 05:55:19 -0400
+Date: Tue, 11 Sep 2001 10:55:32 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: nfs is stupid ("getfh failed")
+Message-ID: <20010911105532.A20301@kushida.degree2.com>
+In-Reply-To: <002b01c136e1$3bb36a80$81d4870a@cartman> <20010907025947.E7329@kushida.degree2.com> <15261.47090.893483.500877@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15261.47090.893483.500877@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Tue, Sep 11, 2001 at 05:06:26PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 11, 2001 12:39 am, Rik van Riel wrote:
-> On Mon, 10 Sep 2001, Linus Torvalds wrote:
+Neil Brown wrote:
+> > I'm seeing this message quite often with one Linux 2.4.7 system
+> > automounting another.  As long as A has B's filesystem mounted, all is
+> > ok.  Then A times out, unmounts, and later wants to remount B's
+> > filesystem.  Then, sometimes, I see a message much like yours.
+> > 
+> > It doesn't seem to need a reboot to cause this problem, and the fix I
+> > have found is to kill and restart the NFS server: /etc/init.d/nfs
+> > restart.
+> > 
+> > I have no idea why it happens, or why restarting nfsd or mountd fixes it.
 > 
-> > (Ugly secret: because I tend to have tons of memory, I sometimes do
-> >
-> > 	find tree1 tree2 -type f | xargs cat > /dev/null
+> Show me your /etc/exports....
 > 
-> This suggests we may want to do agressive readahead on the
-> inode blocks.
-> 
-> They are small enough to - mostly - cache and should reduce
-> the amount of disk seeks quite a bit. In an 8 MB block group
-> with one 128 byte inode every 8 kB, we have a total of 128 kB
-> of inodes...
+> If you export a directory and a subdirectory of that directory - both
+> on the same filesysem, you can get this.
+> If you export a directory to both an IP address (or subnet) and a
+> hostname (or wildcard or netgroup) this can also happen.
 
-I tested this idea by first doing a ls -R on the tree, then Linus's find 
-command:
+Yes, I'm doing the second of those.  No alternative -- I need write
+access from some hosts, and read access to all the rest (who are
+dynamically allocated) on the subnet.
 
-    time ls -R linux >/dev/null
-    time find linux -type f | xargs cat > /dev/null
+It's clearly a bug in the NFS server then.
 
-the plan being that the ls command would read all the inode blocks and hardly 
-any of the files would be big enough to have an index block, so we would 
-effectively have all metadata in cache.
+-- Jamie
 
-According to your theory the total time for the two commands should be less 
-than the second command alone.  But it wasn't, the two commands together took 
-almost exactly the same time as the second command by itself.
+/etc/exports:
 
-There goes that theory.
+# I want ro granted to all hosts in the 172.30.* subnet, but rw
+# granted to the machines in @aquarius_outside which is within that
+# subnet.  Doesn't work, whichever order I write the lines.
+# (The machines in @aquarius_hosts always get read only access).
+#
+# Solution, though I don't like it: write the host names explicitly.
+#
+# The 192.168.64.192/19 subnetwork is for temporarily assigned IPs on
+# the Aquarius test network.  /kickstart is used for kickstart
+# installations on machines plugged in temporarily.
 
---
-Daniel
+/home		172.30.0.0/16(ro,root_squash) \
+		galatea.degree2.com(rw,root_squash) \
+		ariel.degree2.com(rw,root_squash) \
+		@aquarius_hosts(rw,root_squash) \
+		@aquarius_outside(rw,root_squash)
+
+/kickstart	172.30.0.0/16(ro,root_squash) \
+		@aquarius_hosts(ro,root_squash) \
+		@aquarius_outside(ro,root_squash) \
+		192.168.64.192/255.255.255.224(ro,root_squash)

@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273415AbRIWMDB>; Sun, 23 Sep 2001 08:03:01 -0400
+	id <S273419AbRIWMEl>; Sun, 23 Sep 2001 08:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273419AbRIWMCv>; Sun, 23 Sep 2001 08:02:51 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60166 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S273415AbRIWMCe>; Sun, 23 Sep 2001 08:02:34 -0400
-Date: Sun, 23 Sep 2001 07:58:20 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon/K7-Opimisation problems
-In-Reply-To: <Pine.LNX.4.10.10109211552370.12592-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.3.96.1010923074900.3296A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273421AbRIWMEX>; Sun, 23 Sep 2001 08:04:23 -0400
+Received: from co3000407-a.belrs1.nsw.optushome.com.au ([203.164.252.88]:60646
+	"EHLO bozar") by vger.kernel.org with ESMTP id <S273419AbRIWMEL>;
+	Sun, 23 Sep 2001 08:04:11 -0400
+Date: Sun, 23 Sep 2001 22:03:52 +1000
+From: Andre Pang <ozone@algorithm.com.au>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org, safemode@speakeasy.net,
+        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
+        george@mvista.com
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+Mail-Followup-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+	safemode@speakeasy.net, Dieter.Nuetzel@hamburg.de,
+	iafilius@xs4all.nl, ilsensine@inwind.it, george@mvista.com
+In-Reply-To: <1000939458.3853.17.camel@phantasy> <1001131036.557760.4340.nullmailer@bozar.algorithm.com.au> <1001139027.1245.28.camel@phantasy> <1001143341.117502.5311.nullmailer@bozar.algorithm.com.au> <1001228764.864.53.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1001228764.864.53.camel@phantasy>
+User-Agent: Mutt/1.3.22i
+Message-Id: <1001246632.952193.13493.nullmailer@bozar.algorithm.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Mark Hahn wrote:
+On Sun, Sep 23, 2001 at 03:05:41AM -0400, Robert Love wrote:
 
-> > The problem I have is seen only when I use Athlon code enabled with
-> > menuconfig, so the question is if the code is bad (as in timing
-> > sensitive), or if the compiler might be generating bad code for Athlon.
+> You are right, those older kernels are showing much better response
+> times than your kernel.  One would think your newer kernel, with
+> preemption or low-latency patch, would be an improvement.
 > 
-> or the chipset/motherboard/dram can't handle the 2-3x bandwidth
-> demanded by the athlon code in the kernel.  the latter is conventional
-> wisdom for the past 6-8 months.
+> I honestly don't know what to tell you.  It could be a piece of hardware
+> (or, more accurately) its driver ... 
 
-The so-called Athlon patch fixed the problem for me on my Abit KK266R
-board, I stress tested it at 146MHz FSB (10% o/c) just to see if it was
-stable, and it seems all the problems have gone away in both kernel and
-user land.
+I found out why, it's the driver.  I'm an idiot for not trying
+this before ... I was previously using ALSA's snd-card-ymfpci
+driver; I switchted to the OSS ymfpci driver that comes with the
+kernel.  My latencies used to be 15ms on average, with spikes >
+30ms; they're now ~3ms with some occasional spikes up to 10ms.
 
-It could be that the bit cleared slows memory, I haven't checked to see if
-playing with memory parameters will do the same thing.
+The graphs and numbers are up at
+http://www.algorithm.com.au/hacking/linux-lowlatency/
+
+> the /proc/latencytimes output shows us that no single lock is accounting
+> for your bad times.  In fact, all your locks aren't that bad, so...
+> 
+> maybe the problem is in the "overruns" -- I don't know what that means
+> exactly.  maybe someone else on the list can shed some light? 
+> otheriwse, you can email the author perhaps.
+
+An over-run occurs when the latencytest program, which plays a
+continuous sound, doesn't get re-scheduled quickly enough.  This
+results in a sound dropout because it can't re-fill its buffer.
+This is similar to what you would get in XMMS, except that
+latencytest simulates professional audio applications which must
+run with _very_ small buffers in order to get low latencies.
+(Imagine your computer being sync'ed in realtime with lots of
+other music equipment and have it drag behind by 30ms -- it
+doesn't sound good :).
+
+But I guess my problem's solved ... thanks so much to Andrew,
+yourself, MontaVista, Dietel and all the other guys who spend
+their hours benchmarking so this can be improved!  If you still
+want me to run benchmarks, let me know.  The 15 kernels I've
+compiled since starting testing have gotta be useful for
+something.
+
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save

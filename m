@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276877AbRJHS0A>; Mon, 8 Oct 2001 14:26:00 -0400
+	id <S276929AbRJHS1k>; Mon, 8 Oct 2001 14:27:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276929AbRJHSZw>; Mon, 8 Oct 2001 14:25:52 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18960 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277060AbRJHSZn>; Mon, 8 Oct 2001 14:25:43 -0400
-Subject: Re: Whining about NUMA. :)  [Was whining about 2.5...]
-To: Martin.Bligh@us.ibm.com
-Date: Mon, 8 Oct 2001 19:31:04 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), landley@trommello.org,
-        riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
-In-Reply-To: <1812679136.1002540059@mbligh.des.sequent.com> from "Martin J. Bligh" at Oct 08, 2001 11:20:59 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276972AbRJHS1Y>; Mon, 8 Oct 2001 14:27:24 -0400
+Received: from [213.97.199.90] ([213.97.199.90]:3200 "HELO fargo")
+	by vger.kernel.org with SMTP id <S276929AbRJHS1L> convert rfc822-to-8bit;
+	Mon, 8 Oct 2001 14:27:11 -0400
+From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
+Date: Mon, 8 Oct 2001 20:24:42 +0200 (CEST)
+X-X-Sender: <huma@fargo>
+To: Riley Williams <rhw@MemAlpha.cx>
+cc: Mike Fedyk <mfedyk@matchmail.com>,
+        David =?unknown-8bit?Q?G=F3mez?= <davidge@jazzfree.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE DMA errors [was: Some ext2 errors]
+In-Reply-To: <Pine.LNX.4.21.0110081207060.4085-100000@Consulate.UFP.CX>
+Message-ID: <Pine.LNX.4.33.0110082020150.1521-100000@fargo>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qfBA-0001Rt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The worst possible case I can conceive (in the future architectures 
-> that I know of)  is 4 different levels. I don't think the number of access
-> speed levels is ever related to the number of processors ?
-> (users of other NUMA architectures feel free to slap me at this point).
 
-The classzone code seems to deal in combinations of memory zones, not in
-specific zones. It lacks docs and the comments seem at best bogus and
-from the old code so I may be wrong.  So its relative weightings for
-each combination of memory we might want to consider for each case
+> > But we don't know what is happening with David's system.
+>
+> Only David can know that - I can only comment on what I experienced
+> here, and suggest that he consider that his problem MIGHT be the same.
 
-Andrea ?
+I've already tested the memory with memtest86 and the disk with badblocks,
+and no errors appeared so i think the cause is really the PSU, but unlike
+a memory error it doesn't show up very frequently. If i see it more times
+i'll replace the power supply with a new one.
 
-Alan
+> Unfortunately, even PSU's fail given enough time...
+
+Yep, now i know ;)
+
+>
+> > David, let us know what you find...
+>
+> I'll be interested as well...
+
+I'll let you know if i change my PSU. Thanks both of you for your help
+
+
+
+
+David Gómez
+
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra
+
+

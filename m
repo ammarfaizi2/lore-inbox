@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272362AbTGaAQd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 20:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272368AbTGaAQd
+	id S272363AbTGaAaU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 20:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272366AbTGaAaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 20:16:33 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:18635
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S272362AbTGaAQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 20:16:31 -0400
-Date: Thu, 31 Jul 2003 02:16:36 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linas@austin.ibm.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       olh@suse.de, olof@austin.bim.com
-Subject: Re: PATCH: Race in 2.6.0-test2 timer code
-Message-ID: <20030731001636.GE322@dualathlon.random>
-References: <20030730082848.GC23835@dualathlon.random> <Pine.LNX.4.44.0307301223450.13299-100000@localhost.localdomain> <20030730184317.B23750@forte.austin.ibm.com> <20030730235607.GC322@dualathlon.random> <20030730165418.2f2db960.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030730165418.2f2db960.akpm@osdl.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Wed, 30 Jul 2003 20:30:19 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:55003 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S272363AbTGaA3i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 20:29:38 -0400
+Date: Wed, 30 Jul 2003 20:27:58 -0400 (EDT)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+To: James Morris <jmorris@intercode.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm1 & ipsec-tools (xfrm_type_2_50?)
+In-Reply-To: <Mutt.LNX.4.44.0307310959390.20194-100000@excalibur.intercode.com.au>
+Message-ID: <Pine.LNX.4.56.0307302019430.9619@onqynaqf.yrkvatgba.voz.pbz>
+References: <Mutt.LNX.4.44.0307310959390.20194-100000@excalibur.intercode.com.au>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 04:54:18PM -0700, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > 2.6 will kernel crash like we did in 2.4 only if it calls
-> > add_timer_on from timer context (of course with a cpuid != than the
-> > smp_processor_id()), that would be fixed by the timer->lock everywhere
-> > that we've in 2.4 right now.  (but there's no add_timer_on in 2.4
-> > anyways)
-> 
-> add_timer_on() was added specifically for slab bringup.  If we need extra
-> locking to cope with it then the best solution would probably be to rename
-> it to add_timer_on_dont_use_this_for_anything_else().
+On Thu, 31 Jul 2003, James Morris wrote:
 
-yes. I wasn't actually suggesting to add locking everywhere just for
-this. It sounds reasonable to leave it unsafe from timer context.
+> > most of the module not found messages are fine, its xfrm_type_2_50 that
+> > I'm worried about... What am I missing ?
+>
+> Possibly some aliases in /etc/modprobe.conf
+>
+> alias xfrm-type-2-50    esp4
+> alias xfrm-type-2-51    ah4
+> alias xfrm-type-2-108   ipcomp
+> alias xfrm-type-10-50   esp6
+> alias xfrm-type-10-51   ah6
+> alias xfrm-type-10-108  ipcomp6
 
-> But if we are going to rely on timer handlers only ever running on the
-> adding CPU for locking purposes then can we please have a big comment
-> somewhere describing what's going on?  It's very subtle...
+Well, I'll be...  I grepped through both the kernel and ipsec-tools
+source (and google) and completely missed that - where did you find it ?
 
-agreed, it definitely deserves the big fat comment somewhere ;)
+THANKS !!!
 
-thanks,
+Now, that allows me to actually make the connection (after changing from
+transport to tunnel mode), and actually use it :)
 
-Andrea
+But I'm not out of the woods yet...
+Something is getting lost wrt tracking IPSEC packets; my log is very
+full of the following:
+
+Jul 31 00:16:14 renegade kernel: nf_hook: hook 0 already set.
+Jul 31 00:16:14 renegade kernel: skb: pf=2 (unowned) dev=eth0 len=52
+Jul 31 00:16:14 renegade kernel: PROTO=6 9.51.94.26:23 9.30.62.131:34521
+L=52 S=0x10 I=14806 F=0x4000 T=64
+Jul 31 00:16:14 renegade kernel: nf_hook: hook 1 already set.
+Jul 31 00:16:14 renegade kernel: skb: pf=2 (unowned) dev=eth0 len=52
+Jul 31 00:16:14 renegade kernel: PROTO=6 9.51.94.26:23 9.30.62.131:34521
+L=52 S=0x10 I=14806 F=0x4000 T=64
+Jul 31 00:16:14 renegade kernel: nf_hook: hook 0 already set.
+Jul 31 00:16:14 renegade kernel: skb: pf=2 (unowned) dev=eth0 len=52
+Jul 31 00:16:14 renegade kernel: PROTO=6 9.51.94.26:23 9.30.62.131:34521
+L=52 S=0x10 I=14807 F=0x4000 T=64
+Jul 31 00:16:14 renegade kernel: nf_hook: hook 1 already set.
+Jul 31 00:16:14 renegade kernel: skb: pf=2 (unowned) dev=eth0 len=52
+Jul 31 00:16:14 renegade kernel: PROTO=6 9.51.94.26:23 9.30.62.131:34521
+L=52 S=0x10 I=14807 F=0x4000 T=6
+
+-- 
+Rick Nelson
+I can saw a woman in two, but you won't want to look in the box when I do
+'For My Next Trick I'll Need a Volunteer' -- Warren Zevon

@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319323AbSH2UAK>; Thu, 29 Aug 2002 16:00:10 -0400
+	id <S319324AbSH2UDb>; Thu, 29 Aug 2002 16:03:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319324AbSH2UAK>; Thu, 29 Aug 2002 16:00:10 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26639
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319323AbSH2UAJ>; Thu, 29 Aug 2002 16:00:09 -0400
-Date: Thu, 29 Aug 2002 13:02:16 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /pub/linux/kernel/people/hedrick/ide-2.5.32
-In-Reply-To: <3D6E7CBB.407299E3@zip.com.au>
-Message-ID: <Pine.LNX.4.10.10208291300130.24156-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319326AbSH2UDb>; Thu, 29 Aug 2002 16:03:31 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:52896 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319324AbSH2UDa>;
+	Thu, 29 Aug 2002 16:03:30 -0400
+Subject: [TRIVIAL][PATCH] fix __FUNCTION__ pasting in wd7000.c
+From: Paul Larson <plars@linuxtestproject.org>
+To: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 Aug 2002 14:56:53 -0500
+Message-Id: <1030651016.5180.55.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trivial fix for __FUNCTION__ pasting in wd7000.c against current bk tree.
 
-Andrew,
+-Paul Larson
 
-I am just now getting back to crawling speeds in the 2.5 tree.
-I can only comment on what works and what Viro tells me.
-But if you think it needs to be globally set, until the updates from Jens
-arrive, please send to Linus.  I am running my stuff by Viro and company.
-
-Cheers,
-
-On Thu, 29 Aug 2002, Andrew Morton wrote:
-
-> Andre Hedrick wrote:
-> > 
-> > ...
-> > There is one more thing to fix.
-> > 
-> > ./fs/mpage.c
-> > 
-> > /*
-> >  * The largest-sized BIO which this code will assemble, in bytes.  Set this
-> >  * to PAGE_CACHE_SIZE if your drivers are broken.
-> >  */
-> > #define MPAGE_BIO_MAX_SIZE 32768        //BIO_MAX_SIZE
-> > 
-> > This is confirmed with Al Viro and was required to make things sane!
-> 
-> You'll need to do the same thing to fs/direct-io.c:DIO_BIO_MAX_SIZE
-> in that case.
-> 
-> I'd suggest that you just go in and change BIO_MAX_SECTORS
-> to 64.   Or 32 if you happen to be using a qlogic controller :(
-> 
-> So everything's broken in there - a hardwired constant doesn't
-> cut it.   Jens is cooking up an `add_page_to_bio()' API which
-> will do the right thing based upon q->max_sectors.  But that
-> is not yet available.
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.556   -> 1.557  
+#	drivers/scsi/wd7000.c	1.8     -> 1.9    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/29	plars@austin.ibm.com	1.557
+# fix __FUNCTION__ pasting in wd7000
+# --------------------------------------------
+#
+diff -Nru a/drivers/scsi/wd7000.c b/drivers/scsi/wd7000.c
+--- a/drivers/scsi/wd7000.c	Thu Aug 29 15:25:10 2002
++++ b/drivers/scsi/wd7000.c	Thu Aug 29 15:25:10 2002
+@@ -621,16 +621,16 @@
+ 	(void)get_options(str, ARRAY_SIZE(ints), ints);
+ 
+ 	if (wd7000_card_num >= NUM_CONFIGS) {
+-		printk(KERN_ERR __FUNCTION__
+-			": Too many \"wd7000=\" configurations in "
+-			"command line!\n");
++		printk(KERN_ERR
++			"%s: Too many \"wd7000=\" configurations in "
++			"command line!\n", __FUNCTION__);
+ 		return 0;
+ 	}
+ 
+ 	if ((ints[0] < 3) || (ints[0] > 5)) {
+-		printk(KERN_ERR __FUNCTION__ ": Error in command line!  "
++		printk(KERN_ERR "%s: Error in command line!  "
+ 			"Usage: wd7000=<IRQ>,<DMA>,IO>[,<BUS_ON>"
+-			"[,<BUS_OFF>]]\n");
++			"[,<BUS_OFF>]]\n", __FUNCTION__ );
+ 	} else {
+ 		for (i = 0; i < NUM_IRQS; i++)
+ 			if (ints[1] == wd7000_irq[i])
+@@ -1743,8 +1743,8 @@
+ 	    ip[2] = info[2];
+ 
+ 	    if (info[0] == 255)
+-		printk(KERN_INFO __FUNCTION__ ": current partition table is "
+-			"using extended translation.\n");
++		printk(KERN_INFO "%s: current partition table is "
++			"using extended translation.\n", __FUNCTION__ );
+ 	}
+     }
+ 
 

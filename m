@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267264AbTBDN7T>; Tue, 4 Feb 2003 08:59:19 -0500
+	id <S267270AbTBDN6w>; Tue, 4 Feb 2003 08:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267271AbTBDN7S>; Tue, 4 Feb 2003 08:59:18 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:15025 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S267264AbTBDN7R> convert rfc822-to-8bit; Tue, 4 Feb 2003 08:59:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Axel Kittenberger <Axel.Kittenberger@maxxio.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch: oom_kill
-Date: Tue, 4 Feb 2003 08:07:03 -0600
-User-Agent: KMail/1.4.1
-Cc: riel@nl.linux.org
-References: <200302041332.05096.Axel.Kittenberger@maxxio.com>
-In-Reply-To: <200302041332.05096.Axel.Kittenberger@maxxio.com>
+	id <S267271AbTBDN6w>; Tue, 4 Feb 2003 08:58:52 -0500
+Received: from k101-11.bas1.dbn.dublin.eircom.net ([159.134.101.11]:58116 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S267270AbTBDN6v>;
+	Tue, 4 Feb 2003 08:58:51 -0500
+Message-ID: <3E3FC898.4040809@draigBrady.com>
+Date: Tue, 04 Feb 2003 14:05:12 +0000
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302040807.03214.pollard@admin.navo.hpc.mil>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc 2.95 vs 3.21 performance
+References: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com> <3E3F9C82.7000607@Linux.ie> <3E3FBC1C.167E779A@aitel.hist.no>
+In-Reply-To: <3E3FBC1C.167E779A@aitel.hist.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 February 2003 06:32 am, Axel Kittenberger wrote:
-> A small patch to discuss, it's about killing an process in an out-of-memory
-> condition. First from the code I don't see any prohibition that it kills
-> init, if reaches maximum badness points, don't think thats something
-> anybody anytime wants. Sure for desktop systems this very unlikely to ever
-> occur, but for small embedded systems that could happen.
+Helge Hafting wrote:
+> Padraig@Linux.ie wrote:
+> [...]
+> 
+>>Interesting. I just noticed that I get 50% decrease in
+>>the speed of my program if I just insert a printf(). I.E.
+>>my program is like:
+>>
+>>printf()
+>>for(;;) {
+>>     do_sorting_loop_test();
+>>}
+>>
+>>If I remove the initial printf it doubles in speed?
+>>I assume this is some weird caching thing?
+> 
+> 
+> Looks like a cacheline alignment issue to me.
+> This loop of yours occupy x cachelines on your cpu,
+> moving it in memory by adding the printf
+> might cause it to ocupy x+1 cachelines.
+> That might be noticeable if x is a really small number,
+> such as 1.
 
-ok.
+OK it is (as I suspected and as you explained nicely)
+related to the cachelines on my CPU (866 celery).
 
-> Second proposal is to give processes that are direct childs from init a
-> special bonus, normally that are those we don't want to get killed. They
-> are either important or get respawned eitherway creating an endless oom
-> condition loop when killing them.
+===============================
+GCC options		loops/s
+===============================
+gcc			2283
+gcc -O3 -falign-loops=2	3451
+gcc -O3 -falign-loops=4	3443
+gcc -O3 -falign-loops=8	7045
+gcc -march=i686 -O3	9101
+===============================
 
-And what about processes that get reparented to init? These could be causing
-the OOM. I didn't think that the p_ptr was null when reparenting happens.
+cheers,
+Pádraig.
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

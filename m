@@ -1,77 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbTHYWhN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 18:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbTHYWhN
+	id S262391AbTHYWlA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 18:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbTHYWlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 18:37:13 -0400
-Received: from codepoet.org ([166.70.99.138]:6305 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S262382AbTHYWhL (ORCPT
+	Mon, 25 Aug 2003 18:41:00 -0400
+Received: from gate.firmix.at ([80.109.18.208]:43969 "EHLO buffy.firmix.at")
+	by vger.kernel.org with ESMTP id S262391AbTHYWk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 18:37:11 -0400
-Date: Mon, 25 Aug 2003 16:37:12 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] sizeof C types ...
-Message-ID: <20030825223711.GA7809@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>,
-	linux-kernel@vger.kernel.org
-References: <20030825191339.GA28525@www.13thfloor.at> <20030825202721.A10828@infradead.org> <20030825193837.GB28525@www.13thfloor.at>
+	Mon, 25 Aug 2003 18:40:57 -0400
+Subject: Re: [PATCH] 2.6.0-test4: Trivial /sys/power/state patch, sleep
+	status report
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: "P. Christeas" <p_christ@hol.gr>
+Cc: acpi-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200308260125.30194.p_christ@hol.gr>
+References: <200308260125.30194.p_christ@hol.gr>
+Content-Type: multipart/mixed; boundary="=-ykqYJFslnnQ6Pcgb/vDd"
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 26 Aug 2003 00:40:18 +0200
+Message-Id: <1061851218.12331.23.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030825193837.GB28525@www.13thfloor.at>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Aug 25, 2003 at 09:38:37PM +0200, Herbert Pötzl wrote:
-> thanks, almost figured that, but I'm looking for
-> a tabular info where the different architectures
-> are present like the folowing:
+
+--=-ykqYJFslnnQ6Pcgb/vDd
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2003-08-26 at 00:25, P. Christeas wrote:
+> Just found out that by 'echo sth_wrong > /sys/power/state' the kernel would 
+> oops in a fatal way (no clean exit from there).
+> The oops suggested that the code would enter an invalid fn.
 > 
-> 	      i386 | ia64 | alpha | sparc | wossname ...
-> -----------+-------+------+-------+-------+-------------------
-> char	   |     8 |      |       |       |
-> short      |    16 |      |       |       |
-> int        |    32 |      |       |       |
-> long       |    32 |      |       |       |
-> long long  |    64 |      |       |       |
+> You may apply the included patch to solve the bug. IMHO doing a clean exit is 
+> much preferrable than having BUG() there.
+[...]
+> ----
+[...]
+> diff -Bbur /diskb/users/panos/linux-off/kernel/power/main.c /usr/src/linux/kernel/power/main.c
+> --- /diskb/users/panos/linux-off/kernel/power/main.c	2003-08-23 12:13:17.000000000 +0300
+> +++ /usr/src/linux/kernel/power/main.c	2003-08-26 00:59:34.000000000 +0300
+> @@ -500,7 +514,7 @@
+>  		if (s->name && !strcmp(buf,s->name))
+>  			break;
+>  	}
+> -	if (s)
+> +	if ( (s) && (state < PM_SUSPEND_MAX) )
+>  		error = enter_state(state);
+>  	else
+>  		error = -EINVAL;
 
-If one cares about the exact number of bits, IMHO one should be
-using stdint.h, as defined by ISO-IEC-9899-1999 (C99), section
-7.18 Integer types.  
+What do you think about the attached patch to solve the bug and remove a
+warning?
 
-Using type such as int8_t, int16_t, int32_t, int64_t, and
-uint8_t, uint16_t, uint32_t, uint64_t are the One True Way of
-reliably, portably, getting the number of bits you want.  It
-would be very nice if the kernel were converted to use these
-types as well.  It would also be nice if every architecture
-properly supported C99.  Unfortunately, that is not true on
-either count.  For example, if you want your code to interoperate
-with windoz, you will want to do something such as....
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-#if defined(_WIN32) || defined(__WIN32__)
-# define uint8_t  unsigned __int8
-# define uint16_t unsigned __int16
-# define uint32_t unsigned __int32
-# define uint64_t unsigned __int64
-# define int8_t  __int8
-# define int16_t __int16
-# define int32_t __int32
-# define int64_t __int64
-#else
-# include <stdint.h>
-#endif
+--=-ykqYJFslnnQ6Pcgb/vDd
+Content-Disposition: attachment; filename=power-main.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=power-main.patch; charset=ISO-8859-1
 
- -Erik
+--- linux-2.6.0-test4/kernel/power/main.c	Sat Aug 23 01:53:13 2003
++++ linux-2.6.0-test4-patched/kernel/power/main.c	Mon Aug 25 21:16:50 2003
+@@ -492,7 +492,7 @@
+ static ssize_t state_store(struct subsystem * subsys, const char * buf, si=
+ze_t n)
+ {
+ 	u32 state;
+-	struct pm_state * s;
++	struct pm_state * s =3D NULL;
+ 	int error;
+=20
+ 	for (state =3D 0; state < PM_SUSPEND_MAX; state++) {
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+--=-ykqYJFslnnQ6Pcgb/vDd--
+

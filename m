@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289620AbSAOTtb>; Tue, 15 Jan 2002 14:49:31 -0500
+	id <S289612AbSAOTwa>; Tue, 15 Jan 2002 14:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289617AbSAOTsg>; Tue, 15 Jan 2002 14:48:36 -0500
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:45469 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S289612AbSAOTsP>; Tue, 15 Jan 2002 14:48:15 -0500
-Date: Tue, 15 Jan 2002 19:48:12 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Martin Eriksson <nitrax@giron.wox.org>
-cc: Kent Borg <kentborg@borg.org>, linux-kernel@vger.kernel.org
+	id <S289639AbSAOTwY>; Tue, 15 Jan 2002 14:52:24 -0500
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:16284
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S289612AbSAOTtZ>; Tue, 15 Jan 2002 14:49:25 -0500
+Date: Tue, 15 Jan 2002 14:49:09 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: <nico@xanadu.home>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Why not "attach" patches?
-In-Reply-To: <00a301c19dfc$26928320$0201a8c0@HOMER>
-Message-ID: <Pine.SOL.3.96.1020115194458.26402B-100000@libra.cus.cam.ac.uk>
+In-Reply-To: <E16QZFv-0005wy-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0201151448050.5892-100000@xanadu.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Slightly off topic to lkml so replies off list please...
+On Tue, 15 Jan 2002, Alan Cox wrote:
 
-On Tue, 15 Jan 2002, Martin Eriksson wrote:
-> PS. I really hate OE. Anyone care to recommend THE Windoze Mail+News reader
-> program, with EXTREME filtering capabilities AND not looking like crap?
+> BTW: If you are sending me anything DO use attachments. Especially if you
+> use any of the following, which seem to have some versions that mangle 
+> inline diffs
+> 
+> 	Lotus Notes
+> 	Pine
+> 	Kmail
+> 	Mozilla
+> 	Netscape
+> 	MS Outlook
 
-I use two:
+Pine always worked fine when patches are imported with ^R.
 
-Eudora 5 for mail
-Forte Free Agent for news
 
-IMO the best GUI clients full stop.
-
-For sending inlined patches I use elm (on Solaris) which while basic gets
-the job done guaranteed without messing up the precious white space...
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Nicolas
 

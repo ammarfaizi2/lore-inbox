@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287858AbSCGAEv>; Wed, 6 Mar 2002 19:04:51 -0500
+	id <S288019AbSCGAIN>; Wed, 6 Mar 2002 19:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288012AbSCGAEm>; Wed, 6 Mar 2002 19:04:42 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:30630 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S287858AbSCGAE2>; Wed, 6 Mar 2002 19:04:28 -0500
-Date: Wed, 6 Mar 2002 17:04:13 -0700
-Message-Id: <200203070004.g2704Dm19478@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jeff Dike <jdike@karaya.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        hpa@zytor.com (H. Peter Anvin), bcrl@redhat.com (Benjamin LaHaise),
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-In-Reply-To: <6920.1015450061@redhat.com>
-In-Reply-To: <200203062025.PAA03727@ccure.karaya.com>
-	<6920.1015450061@redhat.com>
+	id <S288012AbSCGAID>; Wed, 6 Mar 2002 19:08:03 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:4369 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S288019AbSCGAHx>;
+	Wed, 6 Mar 2002 19:07:53 -0500
+Date: Thu, 7 Mar 2002 00:11:56 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: <tigran@einstein.homenet>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: chroot_fs_refs and pivot_root question
+In-Reply-To: <Pine.LNX.4.33.0203062221030.2531-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.33.0203070008430.3122-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse writes:
-> 
-> jdike@karaya.com said:
-> >  Yeah, MADV_DONTNEED looks right.  UML and Linux/s390 (assuming VM has
-> > the equivalent of MADV_DONTNEED) would need a hook in free_pages to
-> > make that happen. 
-> 
->        MADV_DONTNEED
->               Do  not expect access in the near future.  (For the
->               time being, the application is  finished  with  the
->               given range, so the kernel can free resources asso­
->               ciated with it.)
-> 
-> It's not clear from that that the host kernel is actually permitted to
-> discard the data.
-> 
-> alan@lxorguk.ukuu.org.uk said:
-> >  VM allows you to give it back a page and if you use it again you get
-> > a clean copy. What it seems to lack is the more ideal "here have this
-> > page and if I reuse it trap if you did throw it out" semantic. 
-> 
-> I've wittered on occasion about other situations where such
-> semantics might be useful -- essentially 'drop these pages if you
-> need to as if they were clean, and tell me when I next touch them so
-> I can recreate their data'.
+Amazing that nobody knew the answer but I think I understand now the
+reason, the /proc/1/cwd and /proc/1/root point to "/" and the comment
+above sys_pivot_root says:
 
-Indeed. I'd love such a feature. It's got applications in
-numerical/scientific code, not just UML.
+ * Note:
+ *  - we don't move root/cwd if they are not at the root (reason: if
+something
+ *    cared enough to change them, it's probably wrong to force them
+elsewhere)
 
-				Regards,
+So, that is why the /sbin/init wasn't moved, because it's root/cwd were at
+/initrd so when it got pivoted to / (and / put to /sysroot) the init was
+left alone. Well, either the above policy is wrong or I need to figure out
+a way to convince init to move peacebly where I want it to... :)
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+On Wed, 6 Mar 2002, Tigran Aivazian wrote:
+
+> Hello,
+>
+> Looking at (2.4.9's) sys_pivot_root() implementation I can see that it
+> moves all the processes' root/pwd references from the old root to the new
+> one.
+>
+> However, somehow /sbin/init managed to survive the move and is keeping the
+> filesystem busy:
+>
+> # lsof /sysroot
+> COMMAND PID     USER  FD   TYPE DEVICE    SIZE  NODE NAME
+> init      1        0 txt    REG  22,65   28220 11217 /sysroot/sbin/init
+> init      1        0 mem    REG  22,65  468849 10376
+> /sysroot/lib/ld-2.2.2.so
+> init      1        0 mem    REG  22,65 5636080 10370
+> /sysroot/lib/i686/libc-2.2.2.so
+>
+> # cat /proc/1/maps
+> 08048000-0804f000 r-xp 00000000 16:41 11217      /sysroot/sbin/init
+> 0804f000-08050000 rw-p 00006000 16:41 11217      /sysroot/sbin/init
+> 08050000-08054000 rwxp 00000000 00:00 0
+> 15556000-1556c000 r-xp 00000000 16:41 10376      /sysroot/lib/ld-2.2.2.so
+> 1556c000-1556d000 rw-p 00015000 16:41 10376      /sysroot/lib/ld-2.2.2.so
+> 1556d000-1556e000 rw-p 00000000 00:00 0
+> 15573000-15699000 r-xp 00000000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
+> 15699000-1569f000 rw-p 00125000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
+> 1569f000-156a3000 rw-p 00000000 00:00 0
+> 3fffe000-40000000 rwxp fffff000 00:00 0
+>
+> Any clues why and how to force it to exec a binary on the new root (or
+> get rid of it in any other way)?
+>
+> Regards,
+> Tigran
+>
+>
+>
+>
+

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268510AbRHAWbU>; Wed, 1 Aug 2001 18:31:20 -0400
+	id <S268514AbRHAWea>; Wed, 1 Aug 2001 18:34:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268514AbRHAWbK>; Wed, 1 Aug 2001 18:31:10 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:25107 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268510AbRHAWa4>; Wed, 1 Aug 2001 18:30:56 -0400
-Date: Wed, 1 Aug 2001 15:29:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <Andries.Brouwer@cwi.nl>
-cc: <alan@lxorguk.ukuu.org.uk>, <hch@caldera.de>, <viro@math.psu.edu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vxfs fix
-In-Reply-To: <200108012103.VAA93890@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.33.0108011522590.21247-100000@penguin.transmeta.com>
+	id <S268516AbRHAWeU>; Wed, 1 Aug 2001 18:34:20 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:55247 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S268514AbRHAWeD>; Wed, 1 Aug 2001 18:34:03 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDE005@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'ebuddington@wesleyan.edu'" <ebuddington@wesleyan.edu>,
+        linux-kernel@vger.kernel.org
+Subject: RE: 2.4.7-ac3 panic on boot (acpi?)
+Date: Wed, 1 Aug 2001 15:33:50 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Would you mind doing the following:
 
-On Wed, 1 Aug 2001 Andries.Brouwer@cwi.nl wrote:
->
-> When mount continues to try all types, it may try V7.
-> That always succeeds, there is no test for magic or so,
-> and after garbage has been mounted as a V7 filesystem,
-> the kernel crashes or hangs or fails in other sad ways.
+1) Try 2.4.7 patched with the latest ACPI debug version from:
 
-Even on filesystems that have bad (limited or non-existent) magic numbers,
-the read_super() function should really be able to do a fair amount of
-sanity-checking. If nothing else, then things like verifying that the root
-inode really is a directory with a proper size, for example.
+ftp://download.intel.com/technology/IAPC/acpi/downloads/acpica-linux-debug-2
+0010717.tar.gz
 
-I don't think V7 has a magic number at all. But checking that the size and
-nr-of-inodes fields make sense, together with verifying that the root
-inode really is a directory with (size % 512) == 0, and possibly verifying
-things like "if the root directory is not large enough to have a
-doubly/triply indirect block, then that doubly/triply indirect blocknumber
-had better be zero"  would catch 99.9% of everything.
+...and send me your dmesg? We can proceed from there. ;-)
 
-Whether those kind of tests are really worth adding, considering the
-rather limited number of people who actually enable the FS, I don't know.
+Regards -- Andy
 
-		Linus
-
+> From: Eric Buddington 
+> I began to report this bug a couple weeks back, under 
+> 2.4.6-ac3, but left on vacation before
+> capturing and parsing the panic.

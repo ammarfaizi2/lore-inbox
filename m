@@ -1,31 +1,27 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVCPO7l (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 16 Mar 2005 09:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVCPO7k
+	id S261478AbVCRFPm (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 18 Mar 2005 00:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVCRFPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:59:40 -0500
-Received: from [211.36.37.49] ([211.36.37.49]:7571 "HELO mail.qsv19.com")
-	by vger.kernel.org with SMTP id S262614AbVCPO6t (ORCPT
+	Fri, 18 Mar 2005 00:15:42 -0500
+Received: from [221.126.230.41] ([221.126.230.41]:51461 "HELO
+	<rnddg[2]>.<rnddg[2]>.<rnddg[2]>.<rnddg[2]>") by vger.kernel.org
+	with SMTP id S261478AbVCRFPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:58:49 -0500
-Date: 16 Mar 2005 19:56:06 +0900
-Message-ID: <20050316105606.23918.qmail@mail.qsv19.com>
-From: info@qsv19.com
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=20=1B$B!z%j%K%e!<%=22%?= =?ISO-8859-1?Q?k!&%*!<%W%s$7$^$?=
-	=?ISO-8859-1?Q?7$=3F!z=1B(B?=
+	Fri, 18 Mar 2005 00:15:41 -0500
+Date: Fri, 18 Mar 2005 05:13:50 +0000
+From: clabaut@rpi.edu
+Subject: 150.00$=Ad0bePhotoshopCS+IlIustratorCS+lnDesignCS
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <05JJ6F7GK74JGEK2@vger.kernel.org>
+In-Reply-To: <05JJ6F7GK74JGEK2@vger.kernel.org>
+Message-ID: <4862CK00310I1211@rpi.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262618AbVCPO7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261478AbVCRFPm@vger.kernel.org>
 
+http://NXKYr.qnxmzpo.biz/?L.Nkh0LVkjm81ffrXJiOK
 
-東京限定でオープンして好評だった無料掲示板サイト”東京ラブストーリー”が全国
-版にてリニューアルオープンしました。相手のアドレス見放題で完全な無料。今まで
-楽しめなかった方、怪しいサイトやさくらばかりでお嘆きのあなたに・・・。芸能人
-やＡＶ女優など関連の業界から広告宣伝しています。みんなで捜してみてね。あっと
-ビックリ玉手箱！男性・女性も完全無料です。
-
-東京ラブストーリー（ＰＣ・携帯両対応）
-http://loves.qsv20.com/
-
-《ご注意》18歳未満の方や援助交際などの利用や投稿は一切出来ません。

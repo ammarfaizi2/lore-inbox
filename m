@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262862AbUCSN22 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 08:28:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbUCSN22
+	id S262987AbUCSNdr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 08:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbUCSNdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 08:28:28 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:4332 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262862AbUCSN20
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 08:28:26 -0500
-Date: Fri, 19 Mar 2004 14:28:25 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Robert_Hentosh@Dell.com
-Cc: fleury@cs.auc.dk, linux-kernel@vger.kernel.org
-Subject: RE: spurious 8259A interrupt
-In-Reply-To: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com>
-Message-ID: <Pine.LNX.4.55.0403191426180.18215@jurand.ds.pg.gda.pl>
-References: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Mar 2004 08:33:47 -0500
+Received: from ns.suse.de ([195.135.220.2]:4332 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262987AbUCSNdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 08:33:45 -0500
+Subject: Re: CONFIG_PREEMPT and server workloads
+From: Chris Mason <mason@suse.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Eric St-Laurent <ericstl34@sympatico.ca>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <s5hu10laxnl.wl@alsa2.suse.de>
+References: <40591EC1.1060204@geizhals.at>
+	 <20040318060358.GC29530@dualathlon.random> <s5hlllycgz3.wl@alsa2.suse.de>
+	 <1079665660.7609.6.camel@orbiter>  <s5hu10laxnl.wl@alsa2.suse.de>
+Content-Type: text/plain
+Message-Id: <1079703354.11057.116.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 19 Mar 2004 08:35:54 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Mar 2004 Robert_Hentosh@Dell.com wrote:
-
-> > Sometimes the processor would unmask IRQ10 almost immediately after
-> reading the status
-> > register in the NIC, which results in IRQ10 being unmasked before the
-> IRQ10 signal has
-> > finished going high.  This causes the PIC to think that there is
-> another IRQ10, but, 
-> > by the time the processor asks for the vector, IRQ10 is no longer
-> asserted.
+On Fri, 2004-03-19 at 06:23, Takashi Iwai wrote:
+> At Thu, 18 Mar 2004 22:07:41 -0500,
+> Eric St-Laurent wrote:
+> > 
+> > On Thu, 2004-03-18 at 10:28, Takashi Iwai wrote:
+> > 
+> > > in my case with reiserfs, i got 0.4ms RT-latency with my test suite
+> > > (with athlon 2200+).
+> > > 
+> > > there is another point to be fixed in the reiserfs journal
+> > > transaction.  then you'll get 0.1ms RT-latency without preemption.
+> > 
+> > Are you talking about the following patch recently merged in Linus tree?
+> > 
+> > [PATCH] resierfs: scheduling latency improvements
+> > http://linus.bkbits.net:8080/linux-2.5/cset@40571b49jtE7PzOtsXjBx65-GoDijg
 > 
-> The PIC defaults to IRQ7 because of its design, when IRQ10 was already
-> cleared. Sticking delays in is not viable in a generic ISR routing.  A
-> possible fix to this issue would be to issue the EOI after the read to
-> the status register on the NIC, and I see some documentation on the PIC
-> that actually suggests that this is the way to service an interrupt.
-> This seemed like a risky change, since sending the EOI and using the
-> mask has been in use for some time and the change would effect all
-> devices using interrupts.
+> i've tested the suse kernel, so the patch above was already in it.
+> i'm not sure whether mm tree already includes the all relevant
+> fixes... Chris?
+> 
+The whole reiserfs patcheset from -suse is now at:
 
- The best way to deal with spurious interrupts is to ack the interrupt at
-the device ASAP in the handler, especially if you know that the response
-is slow.
+ftp.suse.com/pub/people/mason/patches/data-logging/experimental/2.6.4
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+The mm tree does already have the most important reiserfs latency fix,
+which is named reiserfs-lock-lat.  Andrew sent along to linus as well,
+so it should be in mainline.
+
+> what i wrote above about is loops in do_journal_end().  but i can't
+> tell you surely unless i test the mm kernel again.
+> 
+The spot you found in do_journal_end still needs the cond_resched.  The
+patches above don't include that one yet (I'll upload it today).
+
+-chris
+
+

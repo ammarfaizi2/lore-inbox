@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbTEQC6k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 22:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTEQC6k
+	id S261181AbTEQDVG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 23:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbTEQDVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 22:58:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:23730 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261175AbTEQC6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 22:58:39 -0400
-Date: Fri, 16 May 2003 20:10:48 -0700 (PDT)
-Message-Id: <20030516.201048.116377975.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       davidm@hpl.hp.com, rth@twiddle.net
-Subject: Re: [PATCH] Unlimited per-cpu allocation 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030517030820.E17F72C018@lists.samba.org>
-References: <20030516.193847.15241922.davem@redhat.com>
-	<20030517030820.E17F72C018@lists.samba.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 16 May 2003 23:21:06 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:59777
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S261181AbTEQDVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 23:21:05 -0400
+Date: Fri, 16 May 2003 23:23:35 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Dave Jones <davej@codemonkey.org.uk>,
+       Alexander Hoogerhuis <alexh@ihatent.com>,
+       Andrew Morton <akpm@digeo.com>, "" <linux-kernel@vger.kernel.org>,
+       "" <linux-mm@kvack.org>
+Subject: Re: [OOPS] 2.5.69-mm6
+In-Reply-To: <20030516191711.GX8978@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0305162322360.2023-100000@montezuma.mastecende.com>
+References: <20030516015407.2768b570.akpm@digeo.com> <87fznfku8z.fsf@lapper.ihatent.com>
+ <20030516180848.GW8978@holomorphy.com> <20030516185638.GA19669@suse.de>
+ <20030516191711.GX8978@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Sat, 17 May 2003 13:07:21 +1000
-   
-   The question is not whether we need this allocator to implement
-   percpu inside modules (we do), but whether it can also be used for
-   kmalloc_percpu.
+On Fri, 16 May 2003, William Lee Irwin III wrote:
 
-I hadn't caught this distinction, and thus I misunderstood what was
-going on here.  Thanks for clarifying.
+> Yes, if he could try that too it would help. I got a private reply
+> saying he'd be out of the picture for over 24 hours. I'm looking for
+> someone with a radeon to fill in the gap until then.
+
+Could you alco specify your GCC version? Your disassembly looks rather 
+odd.
+
+-- 
+function.linuxpower.ca

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318542AbSIFMfG>; Fri, 6 Sep 2002 08:35:06 -0400
+	id <S318546AbSIFMkT>; Fri, 6 Sep 2002 08:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318552AbSIFMfG>; Fri, 6 Sep 2002 08:35:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:46720 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318542AbSIFMfF>; Fri, 6 Sep 2002 08:35:05 -0400
-Date: Fri, 6 Sep 2002 08:41:18 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Zwane Mwaikambo <zwane@mwaikambo.name>
-cc: Andreas Dilger <adilger@clusterfs.com>,
-       Peter Surda <shurdeek@panorama.sth.ac.at>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Uptime timer-wrap
-In-Reply-To: <Pine.LNX.4.44.0209061447390.1116-100000@linux-box.realnet.co.sz>
-Message-ID: <Pine.LNX.3.95.1020906083954.3240A-100000@chaos.analogic.com>
+	id <S318552AbSIFMkT>; Fri, 6 Sep 2002 08:40:19 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:9700 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S318546AbSIFMkS>; Fri, 6 Sep 2002 08:40:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Axel Siebenwirth <axel@hh59.org>, Christoph Hellwig <hch@infradead.org>,
+       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OOPS:2.5.33] Re: [Jfs-discussion] crash with JFS assert
+Date: Fri, 6 Sep 2002 07:44:43 -0500
+X-Mailer: KMail [version 1.4]
+Cc: rml@tech9.net, akpm@zip.com.au
+References: <Pine.LNX.4.43.0209051006480.887-100000@leo.uni-sw.gwdg.de> <20020906010641.A24706@infradead.org> <20020906001602.GA393@prester.freenet.de>
+In-Reply-To: <20020906001602.GA393@prester.freenet.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209060744.43231.shaggy@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Sep 2002, Zwane Mwaikambo wrote:
+On Thursday 05 September 2002 19:16, Axel Siebenwirth wrote:
+> Aaaah! I got it. I just wanted to write an email expressing that for
+> some strange reason latest 2.4 kernels (2.4.19-ac4,
+> 2.4.20-pre5+latest ACPI) work without a problem.
+> You know what the difference to my 2.5 kernels is..... CONFIG_PREEMPT
+> is not enabled with my 2.4 kernels but with 2.5 it is!
+>
+> Here we go.
+>
+> Maybe someone can now get an idea on what the problem is and maybe
+> how to fix it?!
 
-> On Fri, 6 Sep 2002, Richard B. Johnson wrote:
-> 
-> > Do you have an idea where to look? I need to prevent the possibility
-> > of waiting forever for an event that may never occur, with interrupts
-> > disabled, on at least one embedded system. Any wait-forever possibility
-> > must be interruptible because any watch-dog timer that re-boots will end
-> > up destroying data that must never be lost.
-> 
-> Remove the 'wait forever' (really if you're waiting forever you have a 
-> bug anyway, be it hardware or otherwise) and break the entire kernel? Or 
-> perhaps sprinkle timeouts in every little crevice of the kernel code.
-> 
-> 	Zwane
+Okay, I haven't played around with CONFIG_PREEMPT.  I probably won't get 
+to it until Monday, but I'll see if I can reproduce this one now.
 
-The kernel is waiting forever as previously shown.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

@@ -1,104 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263830AbTLOSTF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 13:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTLOSTF
+	id S263921AbTLOSYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 13:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTLOSYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 13:19:05 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:27778 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263830AbTLOSRu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 13:17:50 -0500
-Date: Mon, 15 Dec 2003 13:20:24 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Mares <mj@ucw.cz>
+	Mon, 15 Dec 2003 13:24:23 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:32424 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S263921AbTLOSYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 13:24:15 -0500
+Date: Mon, 15 Dec 2003 19:23:10 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: PCI Express support for 2.4 kernel
-In-Reply-To: <3FDDEE32.7050900@intel.com>
-Message-ID: <Pine.LNX.4.53.0312151304480.14778@chaos>
-References: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca>
- <3FDDD8C6.3080804@intel.com> <3FDDDC68.80209@backtobasicsmgmt.com>
- <3FDDE39E.1050300@intel.com> <Pine.LNX.4.53.0312151150090.10342@chaos>
- <3FDDEE32.7050900@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20031215182310.GE11260@louise.pinerecords.com>
+References: <20031215173816.GC10857@louise.pinerecords.com> <6230.1071512197@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6230.1071512197@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003, Vladimir Kondratiev wrote:
+On Dec-16 2003, Tue, 05:16 +1100
+Keith Owens <kaos@ocs.com.au> wrote:
 
-> Richard B. Johnson wrote:
-> <discussion regarding initializers for static vars>
->
-> Let's stop this discussion, it leads to nowhere. Probable, yes,
-> initializer do add bytes to the data segment. But it does not make
-> difference for memory image after loading, do it?
->
+> Does gcc 3.3.2 handle sections correctly when it optimizes zero
+> assignments to use bss?  With just this line in x.c
+> 
+> static int __attribute__ ((__section__ (".init.data"))) a1 = 0;
+> 
+> what does objdump -h report?  If bss is 4 bytes then gcc 3.3.2 is
+> breaking the kernel's use of init data.  If bss is 0 and .init.data is
+> 4 then we are OK.
 
-It definitely does. It makes the difference between having stuff
-work or not in many embedded systems.
+$ gcc --version| grep GCC
+gcc (GCC) 3.3.2
+$ cat x.c
+static int __attribute__ ((__section__ (".init.data"))) a1 = 0;
+$ gcc -c -o x.o x.c
+$ objdump -h x.o
 
-> Does this difference in executable size worth potential risk of error?
->
-> Anyway, common style in kernel seems to be to do initialize static vars,
-> even to 0. There are plenty of examples, including the same file, (for
-> 2.4.23)
->
-> arch/i386/kernel/pci-pc.c:32
-> static int pci_using_acpi_prt = 0;
->
+x.o:     file format elf32-i386
 
-This is a BUG. This wastes space that may end up being embedded
-in NVRAM, then copied to RAM. If it was not initialized, it would
-never exist in NVRAM at all.
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000000  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00000000  00000000  00000034  2**2
+                  ALLOC
+  3 .init.data    00000004  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  4 .comment      00000012  00000000  00000000  00000038  2**0
+                  CONTENTS, READONLY
 
-> or
->
-> arch/i386/kernel/setup.c:1241
-> static int tsc_disable __initdata = 0;
->
+Good.
 
-This is not a BUG because "__initdata" is defined to be in a segment
-that is initialized and discarded after use.
-
-> Finally, let's stop this thread. Let it be up to person who will be (if
-> it will happen) checking this code into kernel, to decide on coding
-> style. I, personally, value code clarity more then 4 bytes in executable
-> size. But I will not object if more experienced kernel maintainers have
-> another priority.
->
-> Vladimir.
->
-
-It's not style. It's misuse of variables and well-defined
-conventions. Often data is not some simple variable, but an
-aggregate type such as a structure or an array. FYI "style"
-relates to naming conventions and where you put curley braces.
-Even that is supposed to be controlled to some liberal extent.
-
-static long xtable[0x100] = {0,};
-
-MUST be in the .data segment, while...
-
-static long xtable[0x100];
-
-MUST be in the .bss segment, while...
-
-static const long xtable[0x100]={0,1,2,3,4,5,6,7,8,9,.....};
-
-MUST be in the .const segment. It's that simple. If you
-violate that, your code will only work by fiat, i.e., it
-was defined to work, not designed to work.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269417AbUINV6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269462AbUINWif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269417AbUINV6i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 17:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUINVui
+	id S269462AbUINWif (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 18:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUINWer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 17:50:38 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:27153 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S269653AbUINVnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 17:43:04 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: Kernel stack overflow on 2.6.9-rc2
-Date: Wed, 15 Sep 2004 00:42:57 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       netdev@oss.sgi.com
-References: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua> <20040914163347.GE3197@schnapps.adilger.int>
-In-Reply-To: <20040914163347.GE3197@schnapps.adilger.int>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Tue, 14 Sep 2004 18:34:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18640 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269653AbUINWXE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 18:23:04 -0400
+Date: Tue, 14 Sep 2004 15:18:36 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to find out which kernel release contains some code
+Message-Id: <20040914151836.5d15e4f0.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0409131132570.3202-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0409131132570.3202-100000@ida.rowland.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409150042.57208.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 September 2004 19:33, Andreas Dilger wrote:
-> On Sep 14, 2004  17:23 +0300, Denis Vlasenko wrote:
-> > I am putting to use an ancient box. Pentium 66.
-> > It gives me stack overflow errors on 2.6.9-rc2:
-> >
-> > To save you filtering out functions with less than 100
-> > bytes of stack:
-> >
-> > udp_sendmsg+0x35e/0x61a [220]
-> > sock_sendmsg+0x88/0xa3 [208]
-> > __nfs_revalidate_inode+0xc7/0x308 [152]
-> > nfs_lookup_revalidate+0x257/0x4ed [312]
-> > load_elf_binary+0xc4f/0xcc8 [268]
-> > load_script+0x1ea/0x220 [136]
-> > do_execve+0x153/0x1b9 [336]
->
-> do_execve() can be trivially fixed to allocate bprm (328 bytes) instead
-> putting it on the stack.  Given the frequency of exec and the odd size
-> it should probably be in its own slab (and fix the goofy prototype
-> indenting while you're there too ;-).
->
-> load_elf_binary() on the other hand is a big mess, 132 bytes of int/long
-> variables.
+On Mon, 13 Sep 2004 11:41:50 -0400 (EDT) Alan Stern wrote:
 
-268 bytes according to checkstack.
+| Randy:
+| 
+| Is there any simple easy way to find out in which kernel release a 
+| particular line of code first appeared?  Or to find out whether that line 
+| is or isn't present in a particular release?
+
+Hi Alan,
+
+I usually try to use BK's web interface "Browse the source tree"
+for this:
+  http://linux.bkbits.net:8080/linux-2.5/src?nav=index.html
+
+E.g., I can browse uhci-hcd.c, version 1.89, and see on what date
+and who it thinks was responsible for a line of source code:
+http://linux.bkbits.net:8080/linux-2.5/anno/drivers/usb/host/uhci-hcd.c%401.89?nav=index.html|src/.|src/drivers|src/drivers/usb|src/drivers/usb/host
+But that won't say what kernel version it is (first) contained in.
+Just a merge date.
+
+| The timestamps in BitKeeper don't help much.  They seem to reflect the 
+| first time the code was put into _any_ BitKeeper repository, not the time 
+| it was entered into Linus's tree.
+
+Yes, that bugs me too.
+
+| The web interface to the linux-2.6 tree 
+| doesn't offer any way to view a particular source file as of a particular 
+| release tag.
+| 
+| I don't fancy downloading lots and lots of enormous patch files, searching
+| for one small entry.  Or lots of kernel source tarballs, for that matter.
+| 
+| There's got to be an easier way.  Do you know of one?
+
+Not really.  You could ask on the bk-users mailing list.  See here:
+  http://www.bitkeeper.com/Support.Mailing.html
+
+Or there may be features in the commercial version of BK that help
+out with this more that the free version does.  I dunno.
+
 --
-vda
-
+~Randy

@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbTKPRdL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 12:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbTKPRdL
+	id S263024AbTKPR2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 12:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTKPR2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 12:33:11 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:22913 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S263107AbTKPRdI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 12:33:08 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: Valdis.Kletnieks@vt.edu, Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [PATCH] 2.6.0-test9 - document elevator= parameter
-Date: Sun, 16 Nov 2003 12:33:05 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200311160259.hAG2x4La006117@turing-police.cc.vt.edu> <Pine.LNX.4.53.0311161510280.14183@gockel.physik3.uni-rostock.de> <200311161657.hAGGvRLa028307@turing-police.cc.vt.edu>
-In-Reply-To: <200311161657.hAGGvRLa028307@turing-police.cc.vt.edu>
-Organization: None that appears to be detectable by casual observers
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 16 Nov 2003 12:28:25 -0500
+Received: from h80ad26be.async.vt.edu ([128.173.38.190]:20108 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263024AbTKPR2Y (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 12:28:24 -0500
+Message-Id: <200311161727.hAGHRbLa028984@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, mfedyk@matchmail.com,
+       reiser@namesys.com, herbert@gondor.apana.org.au, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Debian Kernels was: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431" 
+In-Reply-To: Your message of "Sun, 16 Nov 2003 18:05:09 +0100."
+             <20031116170509.GB201@elf.ucw.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au> <20031102014011.09001c81.akpm@osdl.org> <20031116130558.GB199@elf.ucw.cz> <20031116151522.6ef9d2e1.skraw@ithnet.com>
+            <20031116170509.GB201@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_2037539920P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311161233.05347.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.12.17] at Sun, 16 Nov 2003 11:33:06 -0600
+Date: Sun, 16 Nov 2003 12:27:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 November 2003 11:57, Valdis.Kletnieks@vt.edu wrote:
->On Sun, 16 Nov 2003 15:15:27 +0100, Tim Schmielau said:
->> IIRC cfq isn't yet in mainline, thus it seems a bit too early to
->> document it...
->
->Thanks for catching that, cfq is indeed a -mm feature.
+--==_Exmh_2037539920P
+Content-Type: text/plain; charset=us-ascii
 
-since I'm running a test9-mm3 kernel, where might i find a discussion 
-of this scheduler?
+On Sun, 16 Nov 2003 18:05:09 +0100, Pavel Machek said:
 
-Although I have to say that for me, deadline is working great.
+> Okay, in the perfect world we'd have just one distribution with all
+> packages unmodified. Well.. but we are not there yet.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Then why do we have a -mm kernel and a -ac kernel and a.....?
 
+It's interesting that we've apparently decided that Andrew Morton or
+Alan Cox or any of the other -initial kernel streams are allowed to have
+different goals (and thus different code to achieve those goals) but
+we seem to think that distributions are not allowed to do the same thing...
+
+-exec-shield is OK if it shows up in Andrew's stuff, but not when it's
+in the RedHat from whence it came?  What's wrong with THAT?
+
+--==_Exmh_2037539920P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/t7OIcC3lWbTT17ARArYyAKDaCNJROBWucr6VawggWxts3inNyQCcC2xg
+eGYV5gFsnswaCOr10YyPtks=
+=qqXr
+-----END PGP SIGNATURE-----
+
+--==_Exmh_2037539920P--

@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267783AbUGaIlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUGaI5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267783AbUGaIlp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 04:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267876AbUGaIlp
+	id S261724AbUGaI5U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 04:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUGaI5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 04:41:45 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:42503 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S267783AbUGaIkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 04:40:52 -0400
-Date: Sat, 31 Jul 2004 10:33:08 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: greearb@candelatech.com, akpm@osdl.org, alan@redhat.com,
-       jgarzik@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-Message-ID: <20040731083308.GA24496@alpha.home.local>
-References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au>
+	Sat, 31 Jul 2004 04:57:19 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:18423 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261724AbUGaI5R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 04:57:17 -0400
+Date: Sat, 31 Jul 2004 14:24:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] RCU - cpu-offline-cleanup [1/3]
+Message-ID: <20040731085402.GA4612@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1BqkzY-0003mK-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Herbert,
+Andrew,
 
-On Sat, Jul 31, 2004 at 01:57:04PM +1000, Herbert Xu wrote:
-> Willy Tarreau <willy@w.ods.org> wrote:
-> > no, because the driver has no change_mtu() function, so it uses the generic
-> > one, eth_change_mtu(), which is bound to 1500.
-> 
-> What is preventing you from implementing a change_mtu() function?
+There is a series of patches in my tree and these 3 are the first
+ones that should probably be merged down the road. Descriptions are on 
+top of the patches. Please include them in -mm.
 
-well, now I see where you want to bring me :-)
+A lot of RCU code will be cleaned up later in order to support
+call_rcu_bh(), the separate RCU interface that considers softirq
+handler completion a quiescent state.
 
-So several reasons :
-  - the change_mtu() function might be called at any time after driver
-    initialization. I don't know at all if there are things to do to
-    "lock" the hardware during such changes, as well as I don't know
-    what parts of the code I will need to extract to change the hard
-    MTU. The initial MTU is really different since it's used to
-    initialize hardware registers. The generic change_mtu() function
-    only plays with dev->mtu and not hardware since it never goes
-    above standard size. I could try, but if it works I would offer
-    no warranties for other hardware.
+Thanks
+Dipankar
 
-  - I really, really, really... lack time. I would do this during
-    my few hours nighty sleep and I wouldn't want to use the resulting
-    code :-)
 
-  - many (all ?) other drivers already have an MTU parameter, and many
-    of them don't have a problem with using generic change_mtu(). So why
-    would this one in particular need such a change ? (and please don't
-    tell me that *I* will have to do this for all others :-))
 
-As previously said, I can take a few minutes to add the 'MODULE_PARM'
-line, it's not much more than replying to this mail. At least it will
-be a good start.
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
 
-Cheers,
-Willy
+Minor cleanup of the hotplug code to remove #ifdef in cpu
+event notifier handler. If CONFIG_HOTPLUG_CPU is not defined,
+CPU_DEAD case will be optimized off.
 
+
+ kernel/rcupdate.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+diff -puN kernel/rcupdate.c~cpu-offline-cleanup kernel/rcupdate.c
+--- linux-2.6.8-rc2-rcu/kernel/rcupdate.c~cpu-offline-cleanup	2004-07-29 13:35:18.000000000 +0530
++++ linux-2.6.8-rc2-rcu-dipankar/kernel/rcupdate.c	2004-07-29 13:41:18.000000000 +0530
+@@ -242,6 +242,12 @@ unlock:
+ 	tasklet_kill_immediate(&RCU_tasklet(cpu), cpu);
+ }
+ 
++#else
++
++static void rcu_offline_cpu(int cpu)
++{
++}
++
+ #endif
+ 
+ void rcu_restart_cpu(int cpu)
+@@ -325,11 +331,9 @@ static int __devinit rcu_cpu_notify(stru
+ 	case CPU_UP_PREPARE:
+ 		rcu_online_cpu(cpu);
+ 		break;
+-#ifdef CONFIG_HOTPLUG_CPU
+ 	case CPU_DEAD:
+ 		rcu_offline_cpu(cpu);
+ 		break;
+-#endif
+ 	default:
+ 		break;
+ 	}
+
+_

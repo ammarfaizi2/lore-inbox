@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265986AbUAEWyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265985AbUAEWyF
+	id S266006AbUAEXAa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUAEXA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:54:05 -0500
-Received: from hell.org.pl ([212.244.218.42]:39177 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S265986AbUAEWxz (ORCPT
+	Mon, 5 Jan 2004 18:00:29 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:62889 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265993AbUAEW5j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:53:55 -0500
-Date: Mon, 5 Jan 2004 23:54:00 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.0-mm2] PM timer still has problems
-Message-ID: <20040105225400.GA5495@hell.org.pl>
-References: <20031230204831.GA17344@hell.org.pl> <1073340716.15645.96.camel@cog.beaverton.ibm.com> <20040105221758.GA13727@hell.org.pl> <1073341969.15645.106.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <1073341969.15645.106.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 5 Jan 2004 17:57:39 -0500
+Message-ID: <3FF9EABF.7050906@us.ibm.com>
+Date: Mon, 05 Jan 2004 14:52:47 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       Andrew Morton <akpm@osdl.org>,
+       Trivial Patch Monkey <trivial@rustcorp.com.au>
+Subject: Re: [TRIVIAL PATCH] Use valid node number when unmapping CPUs
+References: <3FE74801.2010401@us.ibm.com> <3FE78F53.9090302@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote john stultz:
-> > > If the override boot option failed, its most likely your system doesn't
-> > > have an ACPI PM time source.  Instead it seems your system is having
-> > Well, I don't have the slightest idea on how to determine this, though I
-> > read somewhere that all ACPI-compliant systems have those.
-> More debug output is probably needed. 
+Nick Piggin wrote:
+> 
+> 
+> Matthew Dobson wrote:
+> 
+>> The cpu_2_node array for i386 is initialized to 0 for each CPU, 
+>> effectively mapping all CPUs to node 0 unless changed.  When we unmap 
+>> CPUs, however, we stick a -1 in the array, mapping the CPU to an 
+>> invalid node.  This really isn't helpful.  We should map the CPU to 
+>> node 0, to make sure that callers of cpu_to_node() and friends aren't 
+>> returned a bogus node number.  This trivial patch changes the 
+>> unmapping code to place a 0 in the node mapping for removed CPUs.
+>>
+>> Cheers!
+> 
+> 
+> 
+> I'd prefer it got initialised to -1 for each cpu, and either set to -1
+> or not touched during unmap.
+ >
+> 
+> 0 is more bogus than the alternatives, isn't it? At least for the subset
+> of CPUs not on node 0. Callers should be fixed.
 
-I'll be happy to provide it :)
+Not really...  These macros are usually used for things like scheduling, 
+memory placement and other decisions.  Right now the value doesn't have 
+to be error-checked, because it is assumed to always return a valid 
+node.  For these types of uses, it's far better to schedule/allocate 
+something on the wrong node (ie: node 0) than on an invalid node (ie: 
+node -1).  Having a possible negative value for this will break things 
+when used as an array index (as it often is), and will force us to put 
+tests to ensure it is a valid value before using it, and introduce 
+possible races in the future (ie: imagine testing if CPU 17's node 
+mapping is non-negative, simultaneously unmapping the CPU, then using 
+the macro again to make a node decision.  You may get a negative value 
+back, thus causing you to index way off the end of your array... BOOM). 
+  If we stick with the convention that we always have a valid (even if 
+not *correct*) value in these arrays, the worst we should get is poor 
+performance, not breakage.
 
-> > > trouble using the PIT as a time source (which seems not all that
-> > > uncommon unfortunately). 
-> > Perhaps, though bear in mind it behaves so only if clock=pmtmr has been
-> > appended and works fine with clock=pit.
-> Ah, I must have missed that point. Indeed that is very odd. When booting
-> without the clock= what time source is used? Does booting w/
-> "clock=crazy" also show the problem?
+Cheers!
 
-It depends -- generally either PIT (that's 2.4) or TSC, the latter switches
-back to PIT once CPUFreq is used. I've never seen any problems with the
-bogomips loop or /proc/cpuinfo, except when it could be directly attributed
-to CPUFreq bugs.
+-Matt
 
-I booted the following with clock=crazy:
-1) 2.6.1-rc1-mm1 with Dmitry's patch: deadlock as before
-2) 2.6.0-test11-almost vanilla (Nigel's swsusp patches): passed, results
-   similar to -rc1-mm1 vanilla, i.e. cpuinfo shows 0 MHz and bogomips is
-   miscalculated.
-
-So it seems to be a more generic problem.
-2.6.1-rc1 is on the way.
-
-Best regards,
-
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293424AbSBYQkM>; Mon, 25 Feb 2002 11:40:12 -0500
+	id <S293425AbSBYQqn>; Mon, 25 Feb 2002 11:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292482AbSBYQkC>; Mon, 25 Feb 2002 11:40:02 -0500
-Received: from radio-112-20.poa.terraempresas.com.br ([200.176.112.20]:62984
-	"EHLO rush.interage.com.br") by vger.kernel.org with ESMTP
-	id <S291969AbSBYQj7>; Mon, 25 Feb 2002 11:39:59 -0500
-Message-ID: <3C7A693E.17FEE86@interage.com.br>
-Date: Mon, 25 Feb 2002 13:41:34 -0300
-From: Mauricio Pretto <pretto@interage.com.br>
-Organization: Interage Integradora
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: rc.devfs
+	id <S293432AbSBYQqe>; Mon, 25 Feb 2002 11:46:34 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:55035
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S293425AbSBYQqX>; Mon, 25 Feb 2002 11:46:23 -0500
+Date: Mon, 25 Feb 2002 08:46:39 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Holger Lubitz <h.lubitz@internet-factory.de>, linux-kernel@vger.kernel.org
+Subject: Re: Boot problem with PDC20269
+Message-ID: <20020225164639.GU20060@matchmail.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Holger Lubitz <h.lubitz@internet-factory.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C7A61BD.22F4CDAF@internet-factory.de> <E16fO9l-0005Mf-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.32)
+Content-Disposition: inline
+In-Reply-To: <E16fO9l-0005Mf-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the 2.4.17 tree i cant find the rc.devfs script
-have been discontinued?
+On Mon, Feb 25, 2002 at 04:39:17PM +0000, Alan Cox wrote:
+> > > http://www.tecchannel.de/hardware/817/index.html
+> > 
+> > Interesting article. After the stability issues with VIA that are
+> > believed to be solved, we are now getting to performance issues. Any
+> > chance of the "magic performance booster workaround" done by VIAs 1.04
+> > driver finding its way into linux?
+> 
+> Only if someone can find out what it actually does, or VIA document it
+> 
 
--- 
-----------------------------------
-	Mauricio Pretto
-     Analista De Suporte
-    Interage  Integradora
-     www.interage.com.br
----------------------------------
+The unofficial one is documented, and improves performance greatly on those
+chipsets...

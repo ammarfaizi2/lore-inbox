@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265217AbSIREpg>; Wed, 18 Sep 2002 00:45:36 -0400
+	id <S265262AbSIRFEe>; Wed, 18 Sep 2002 01:04:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265262AbSIREpg>; Wed, 18 Sep 2002 00:45:36 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:14598 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265217AbSIREpf>;
-	Wed, 18 Sep 2002 00:45:35 -0400
-Date: Tue, 17 Sep 2002 21:50:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Daya Cooppan <dcooppan@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.19 error with usbcore.o
-Message-ID: <20020918045042.GB6262@kroah.com>
-References: <3D87FFCC.6040003@attbi.com>
+	id <S265264AbSIRFEe>; Wed, 18 Sep 2002 01:04:34 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:49926
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265262AbSIRFEd>; Wed, 18 Sep 2002 01:04:33 -0400
+Subject: Re: [PATCH] schedule() in_atomic() fix
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Cc: Andrew Morton <akpm@digeo.com>
+In-Reply-To: <3D88099C.9B5F044D@digeo.com>
+References: <1032324404.4593.764.camel@phantasy> 
+	<3D88099C.9B5F044D@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Sep 2002 01:09:37 -0400
+Message-Id: <1032325778.4588.791.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D87FFCC.6040003@attbi.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 11:23:40PM -0500, Daya Cooppan wrote:
-> Hi
+On Wed, 2002-09-18 at 01:05, Andrew Morton wrote:
+
+> Robert Love wrote:
+> > 
+> > +    printk(KERN_ERR "scheduling while non-atomic!\n");
 > 
-> The default for the USB section is to included USB support (y) in the 
-> kernel. I am assuming the usbcore.o got incorporated into the kernel 
-> build tree during [make dep; make bzImage; make modules; make 
-> modules_install]. I continued to get mousedev errors ...verified that I 
-> had mouse support, hid support, uhci support, all this look good. As 
-> soon as I changed "USB Support" from (y) to (m), i.e. made usbcore.o a 
-> loadable module WALLA! usb devices started to work. Question: Is there a 
-> bug with (y) support for "USB Support" ?
+> When did this become illegal?  :-)
 
-No, you need to set CONFIG_INPUT to y if you are also selecting the HID
-driver to be compiled into the kernel.  That should solve your problem.
+Ugh, reality is blurred... thanks.
 
-thanks,
+Linus, this patch reduces the kernel by 4 bytes over the previous. 
+Please, apply.
 
-greg k-h
+	Robert Love
+
+diff -urN linux-2.5.36/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.36/kernel/sched.c	Tue Sep 17 20:58:48 2002
++++ linux/kernel/sched.c	Wed Sep 18 00:41:09 2002
+@@ -940,9 +940,6 @@
+ 	struct list_head *queue;
+ 	int idx;
+ 
+-	if (unlikely(in_atomic()))
+-		BUG();
+-
+ #if CONFIG_DEBUG_HIGHMEM
+ 	check_highmem_ptes();
+ #endif
+@@ -950,8 +947,20 @@
+ 	preempt_disable();
+ 	prev = current;
+ 	rq = this_rq();
+-
+ 	release_kernel_lock(prev);
++
++	/*
++	 * Test if we are atomic.  Since do_exit() needs to call into
++	 * schedule() atomically, we ignore that for now.  Otherwise,
++	 * whine if we are scheduling when we should not be.
++	 */
++	if (likely(current->state != TASK_ZOMBIE)) {
++		if (unlikely((preempt_count() & ~PREEMPT_ACTIVE) != 1)) {
++			printk(KERN_ERR "scheduling while atomic!\n");
++			dump_stack();
++		}
++	}
++
+ 	prev->sleep_timestamp = jiffies;
+ 	spin_lock_irq(&rq->lock);
+ 
+
+

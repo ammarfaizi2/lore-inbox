@@ -1,62 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265764AbSKAUbM>; Fri, 1 Nov 2002 15:31:12 -0500
+	id <S265734AbSKAUYp>; Fri, 1 Nov 2002 15:24:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265769AbSKAUbL>; Fri, 1 Nov 2002 15:31:11 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17469 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S265764AbSKAUag>; Fri, 1 Nov 2002 15:30:36 -0500
-Date: Fri, 1 Nov 2002 20:37:56 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Joel Becker <Joel.Becker@oracle.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0211012003290.2206-100000@localhost.localdomain>
+	id <S265739AbSKAUYp>; Fri, 1 Nov 2002 15:24:45 -0500
+Received: from user141.3eti.com ([65.220.88.141]:6416 "EHLO mail.aeptec.local")
+	by vger.kernel.org with ESMTP id <S265734AbSKAUYm>;
+	Fri, 1 Nov 2002 15:24:42 -0500
+Message-ID: <EF5625F9F795C94BA28B150706A215480DF84D@MAIL>
+From: "Donepudi, Suneeta" <sdonepudi@3eti.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'Matt D. Robinson'" <yakker@aparity.com>
+Subject: RE: Kernel Panic during memcpy_toio to PCI card
+Date: Fri, 1 Nov 2002 15:34:45 -0500 
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Nov 2002, Linus Torvalds wrote:
-> On Fri, 1 Nov 2002, Joel Becker wrote:
-> > 
-> > 	I always liked the AIX dumper choices.  You could either dump to
-> > the swap area (and startup detects the dump and moves it to the
-> > filesystem before swapon) or provide a dedicated dump partition.  The
-> > latter was prefered.
-> 
-> Ehh.. That was on closed hardware that was largely designed with and for
-> the OS.
->... 
-> In other words: it's a huge risk to play with the disk when the system is
-> already known to be unstable. The disk drivers tend to be one of the main
-> issues even when everything else is _stable_, for chrissake!
-> 
-> To add insult to injury, you will not be able to actually _test_ any of 
-> the real error paths in real life. Sure, you will be able to test forced 
-> dumps on _your_ hardware, but while that is fine in the AIX model ("we 
-> control the hardware, and charge the user five times what it is worth"), 
-> again that doesn't mean _squat_ in the PC hardware space.
 
-I dealt with crash dumps quite a lot over 10 years with SCO UNIX,
-OpenServer and UnixWare: which were addressing the PC market, not
-own hardware.
+Matt,
 
-It's a real worry that writing a crash dump to disk might stomp in the
-wrong place, but I don't recall it ever happening in practice.  But
-occasionally, yes, a dump was not generated at all, or not completed.
+Thanks for the response, I am using a 2.4.18 kernel with
+a busybox. This is an embedded system with the file system
+laid out by an 'initrd.gz'. I am new to Linux. Can LKCD
+still be used in our case ?
 
-Of course, you could argue that SCO's disk drivers were more stable :-)
-which might or might not be a compliment to them.
 
-Hugh
+Suneeta
 
+-----Original Message-----
+From: Matt D. Robinson [mailto:yakker@aparity.com]
+Sent: Friday, November 01, 2002 3:26 PM
+To: Donepudi, Suneeta; Matt D. Robinson
+Subject: Re: Kernel Panic during memcpy_toio to PCI card
+
+
+Hey, Suneeta.  Can you try LKCD and see if you can get
+a crash dump with it?  Also, is this 2.4 or 2.5?
+
+--Matt
+
+On Fri, 1 Nov 2002, Donepudi, Suneeta wrote:
+|>Hi,
+|>
+|>I would like help in diagnosing a kernel panic while accessing a PCI
+device.
+|>
+|>Everything runs fine for sometime and in about 1/2 hour I get a Kernel
+Panic
+|>message saying :
+|>
+|>"Unable to handle kernel paging request at virtual address 0xc2821000"
+|>
+|>Analysis with Ksymoops shows that it is happening during a memcpy_toio()
+|>with the PCI card. The PCI card uses three Base Address Registers with
+|>virtual addresses mapped as follows (after ioremap has been issued):
+|>
+|>BAR0 = 0xc280f000
+|>BAR1 = 0xc2811000
+|>BAR2 = 0xc2822000
+|>
+|>It seems like the kernel panic is complaining about an address which is a
+|>combination of BAR1 (lower bytes) and BAR2 (upper bytes). It should really
+|>be accessing the BAR1 address at the point the crash occurred.
+|>
+|>I put the following if-statement just before the memcpy_toio():
+|>-----------------------------------------------------------
+|>if (((long int)pci_bar1) == 0xc2821000)
+|>{
+|>	printk (KERN_ERR "Illegal address for BAR1\n");
+|>	return -1;
+|>}
+|>memcpy_toio (pci_bar1, in_ptr, len);
+|>------------------------------------------------------------
+|>
+|>It still caused the crash in the same manner and at the same location.
+|>Could someone help me with pointers to where I should start looking ?
+|>Disabling interrupts around the memcpy_toio() did not make any
+|>difference. Is this a hardware problem with the PCI card ? We are using
+|>a Xilinx core with out FPGA build into it.
+|>Is there a book I could read to learn more about debugging this in the 
+|>Kernel ?
+|>
+|>Thanks a bunch,
+|>Suneeta

@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUHPFsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUHPF45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUHPFsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 01:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUHPFsZ
+	id S267445AbUHPF45 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 01:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUHPF45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 01:48:25 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:28349 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267449AbUHPFsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 01:48:02 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040816050248.GA16522@elte.hu>
-References: <1092624221.867.118.camel@krustophenia.net>
-	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092630122.810.25.camel@krustophenia.net>
-	 <20040816043302.GA14979@elte.hu> <1092632236.801.1.camel@krustophenia.net>
-	 <20040816050248.GA16522@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092635332.793.5.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 01:48:52 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 01:56:57 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:36255 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S267445AbUHPF44 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 01:56:56 -0400
+Date: Mon, 16 Aug 2004 06:56:29 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: dri-devel@lists.sf.net
+Cc: linux-kernel@vger.kernel.org
+Subject: DRM and 2.4 ...
+Message-ID: <Pine.LNX.4.58.0408160652350.9944@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-16 at 01:02, Ingo Molnar wrote:
-> yeah. If it's the first chunk then we could perhaps avoid it by doing it
-> outside of the lock.
-> 
 
-Hmm, this is odd:
+At the moment we are adding a lot of 2.6 stuff to the DRM under
+development in the DRM CVS tree and what will be merged into the -mm and
+Linus trees eventually, this has meant ifdefing stuff out so 2.4 will
+still work,
 
-preemption latency trace v1.0
------------------------------
- latency: 71 us, entries: 6 (6)
- process: XFree86/518, uid: 0
- nice: -10, policy: 0, rt_priority: 0
-=======>
- 0.000ms (+0.000ms): sched_clock (schedule)
- 0.000ms (+0.000ms): deactivate_task (schedule)
- 0.000ms (+0.000ms): dequeue_task (deactivate_task)
- 0.001ms (+0.000ms): __switch_to (schedule)
- 0.068ms (+0.066ms): finish_task_switch (schedule)
- 0.069ms (+0.000ms): check_preempt_timing (sub_preempt_count)
+At some point we are going to make a change that will break 2.4, and I
+won't be able to patch it up nicely...
 
-Lee
+So the question is do we want to a final stable DRM for 2.4 in the next
+2.4 release? and after that point I can tag the 2.4 release in the DRM CVS
+tree (and maybe branch it ...),
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

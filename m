@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265407AbRGEPWs>; Thu, 5 Jul 2001 11:22:48 -0400
+	id <S265408AbRGEPcl>; Thu, 5 Jul 2001 11:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265410AbRGEPWi>; Thu, 5 Jul 2001 11:22:38 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:46469 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S265407AbRGEPWa>; Thu, 5 Jul 2001 11:22:30 -0400
-Message-ID: <3B448684.8355DB69@uow.edu.au>
-Date: Fri, 06 Jul 2001 01:23:48 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Manfred H. Winter" <mahowi@gmx.net>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S265411AbRGEPcb>; Thu, 5 Jul 2001 11:32:31 -0400
+Received: from pop.gmx.net ([194.221.183.20]:51234 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S265408AbRGEPcV>;
+	Thu, 5 Jul 2001 11:32:21 -0400
+Date: Thu, 5 Jul 2001 17:19:56 +0200
+From: "Manfred H. Winter" <mahowi@gmx.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-In-Reply-To: <3B4450DF.82EEC851@uow.edu.au> <20010705162812.A602@marvin.mahowi.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20010705171955.A986@marvin.mahowi.de>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20010705162035.Q17051@athlon.random>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux 2.4.5 i686
+X-Editor: VIM - Vi IMproved 5.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Manfred H. Winter" wrote:
+Andrea Arcangeli schrieb am Donnerstag, den 05. Juli 2001:
+
+> On Wed, Jul 04, 2001 at 11:28:17PM +0200, Manfred H. Winter wrote:
+> > Hi!
+> > 
+> > I tried to install kernel 2.4.6 with same configuration as 2.4.5, but
+> > booting failed with:
+> > 
+> > kernel BUG at softirq.c:206!
 > 
-> ...
-> > --- linux-2.4.6/kernel/softirq.c      Wed Jul  4 18:21:32 2001
-> > +++ lk-ext3/kernel/softirq.c  Thu Jul  5 21:32:08 2001
-> > @@ -202,8 +202,10 @@ static void tasklet_hi_action(struct sof
-> >               if (!tasklet_trylock(t))
-> >                       BUG();
-> >  repeat:
-> > -             if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
-> > +             if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state)) {
-> > +                     printk("func: %p\n", t->func);
-> >                       BUG();
-> > +             }
-> >               if (!atomic_read(&t->count)) {
-> >                       local_irq_enable();
-> >                       t->func(t->data);
-> >
+> do you have any problem with those patches applied?
 > 
-> Okay, here's the output of gdb:
-> 
-> (gdb) x/10i 0xc0118028
-> 0xc0118028 <bh_action>: mov    0x4(%esp,1),%eax
-> 0xc011802c <bh_action+4>:       cmpl   $0x0,0xc025c2e4
-> 0xc0118033 <bh_action+11>:      jne    0xc0118043 <bh_action+27>
-> 0xc0118035 <bh_action+13>:      mov    0xc024af20(,%eax,4),%eax
-> 0xc011803c <bh_action+20>:      test   %eax,%eax
-> 0xc011803e <bh_action+22>:      je     0xc0118042 <bh_action+26>
-> 0xc0118040 <bh_action+24>:      call   *%eax
-> 0xc0118042 <bh_action+26>:      ret
-> 0xc0118043 <bh_action+27>:      lea    (%eax,%eax,4),%eax
-> 0xc0118046 <bh_action+30>:      lea    0xc025bf80(,%eax,4),%eax
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/00_ksoftirqd-7
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/00_softirq-fixes-4
 > 
 
-Well I guess it tells us it's not random uninitialised
-crud.
+I didn't know about these patches but I'll give them a try.
 
-Just for interest: what happens if you swap around the lines
-
-        time_init();
-        softirq_init();
-
-in init/main.c?
-
--
+Manfred
+-- 
+ /"\                        | PGP-Key available at Public Key Servers
+ \ /  ASCII ribbon campaign | or "http://www.mahowi.de/pgp/mahowi.asc"
+  X   against HTML mail     | RSA: 0xC05BC0F5 * DSS: 0x4613B5CA
+ / \  and postings          | AIM: mahowi42   * ICQ: 61597169

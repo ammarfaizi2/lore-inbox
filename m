@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268960AbRHBOju>; Thu, 2 Aug 2001 10:39:50 -0400
+	id <S268963AbRHBOhv>; Thu, 2 Aug 2001 10:37:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268961AbRHBOjk>; Thu, 2 Aug 2001 10:39:40 -0400
-Received: from waste.org ([209.173.204.2]:35418 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S268960AbRHBOjW>;
-	Thu, 2 Aug 2001 10:39:22 -0400
-Date: Thu, 2 Aug 2001 09:39:02 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: george anzinger <george@mvista.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Chris Friesen <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <3B68ED37.BB46A1AD@mvista.com>
-Message-ID: <Pine.LNX.4.30.0108020928230.2340-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268961AbRHBOhb>; Thu, 2 Aug 2001 10:37:31 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:4623 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S268958AbRHBOhT>; Thu, 2 Aug 2001 10:37:19 -0400
+Date: Thu, 2 Aug 2001 08:37:20 -0600
+Message-Id: <200108021437.f72EbKw18361@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
+In-Reply-To: <200108020751.f727pnMf010874@webber.adilger.int>
+In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
+	<200108020751.f727pnMf010874@webber.adilger.int>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, george anzinger wrote:
+Andreas Dilger writes:
+> Richard writes:
+> >   Hi, all. Below is my second cut of a patch that adds support for
+> > large numbers of SCSI discs (approximately 2144). I'd like people to
+> > try this out. I've fixed a couple of "minor" typos that happened to
+> > disable sd detection. I've also tested this patch: it works fine on my
+> > 3 drive system. In addition, I've switched to using vmalloc() for key
+> > data structures, so the kmalloc() limitations shouldn't hit us. I've
+> > added an in_interrupt() test to sd_init() just in case.
+> 
+> The real question is whether this code is limited to adding only SCSI
+> major numbers, or if it could be used to assign major numbers to
+> other subsystems (sorry I haven't looked at the code yet)?
 
-> > Never set the next hit of the timer to (now + MIN_INTERVAL).
->
-> The overhead under load is _not_ the timer interrupt, it is the context
-> switch that needs to set up a "slice" timer, most of which never
-> expire.  During a kernel compile on an 800MHZ PIII I am seeing ~300
-> context switches per second (i.e. about every 3 ms.)   Clearly the
-> switching is being caused by task blocking.  With the ticked system the
-> "slice" timer overhead is constant.
+This patch leverages some new infrastructure that I developed in a
+recent devfs patch, and Linus included that in 2.4.7. The key
+functions are <devfs_alloc_major> and <devfs_dealloc_major>. I wrote
+these functions primarily for block drivers (although you can allocate
+char majors as well, keeping in mind there are far fewer left
+unassigned), which due to our aging block I/O layer require majors.
 
-Can you instead just not set up a reschedule timer if the timer at the
-head of the list is less than MIN_INTERVAL?
+So, yes, you can already patch other subsystems to dynamically assign
+major numbers in 2.4.7. I'd like to see people do that. My patch for
+sd.c can also serve as a demonstration on how to use the new API.
 
-if(slice_timer_needed)
-{
-	if(time_until(next_timer)>TASK_SLICE)
-	{
-		next_timer=jiffies()+TASK_SLICE;
-		add_timer(TASK_SLICE);
-	}
-	slice_timer_needed=0;
-}
+>  From our discussion last week, it _should_ be able to assign major
+> numbers to other systems like EVMS, which you would probably want to
+> use on top of those 2144 SCSI disks anyways.  However, since you are
+> billing this as the "2144 SCSI disk patch", I thought I would
+> confirm.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+This patch only touches sd.c. But everything you need for other
+drivers is already in 2.4.7. Go forth and allocate!
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

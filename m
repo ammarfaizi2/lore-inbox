@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263880AbTL2RdK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 12:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTL2RdE
+	id S263568AbTL2RgN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 12:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263667AbTL2RgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 12:33:04 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:23474 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263850AbTL2Rc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 12:32:57 -0500
-Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b7).
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B060ED8F@AVEXCH02.qlogic.org>
-References: <B179AE41C1147041AA1121F44614F0B060ED8F@AVEXCH02.qlogic.org>
+	Mon, 29 Dec 2003 12:36:12 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:42382 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S263568AbTL2RfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 12:35:21 -0500
+Subject: RE: ataraid in 2.6.?
+From: Christophe Saout <christophe@saout.de>
+To: Nicklas Bondesson <nicke@nicke.nu>
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 29 Dec 2003 11:32:46 -0600
-Message-Id: <1072719168.1878.34.camel@mulgrave>
+Message-Id: <1072719337.5152.142.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 29 Dec 2003 18:35:37 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-12-05 at 19:15, Andrew Vasquez wrote:
-> > A new version of the 8.x series driver for Linux 2.6.x kernels has
-> > been uploaded to SourceForge: 
-> > 
-> > 	http://sourceforge.net/projects/linux-qla2xxx/
-> >
-> 
-> False start.  I've uploaded 8.00.00b8 to the SF site.  This driver
-> instructs the mid-layer to perform its initial scan with
-> scsi_scan_host().  During testing, I disable the scan.  Sorry for
-> the confusion.
+Am Mo, den 29.12.2003 schrieb Nicklas Bondesson um 18:27:
 
-OK, I've begun the BK process again.
+> How do you set this (device mapping) up using the 2.6 kernel. I like the
+> ease of using ataraid in 2.4.x. Why not have both alternatives as options
+> (both ataraid and devicemapper)?
 
-This driver is now in BK at
+I think the reason is to avoid unnecessary code duplication.
+device-mapper provides a generic method to do such things. Also the
+developers are heading towards removing code from the kernel that can be
+done in userspace. There are plans to remove partition detection from
+the kernel in 2.7 and move the detection and setup code to a userspace
+program (using device-mapper) which can be placed in the initramfs (so
+that the user won't notice any difference). Ataraid detection and setup
+could also be placed there later.
 
-bk://linux-scsi.bkbits.net/scsi-qla2xxx-2.6
+If someone writes an ataraid detection and setup program in userspace it
+could be placed on an initrd.
 
-I didn't see any comments about Christoph's patches, so is it OK if I
-apply them?
+You can find the dmsetup tool in Sistina's device-mapper package.
 
-I plan to let it mature in it's own tree for a short while with the
-object being to get it into the right shape for a 2.6 inclusion
-candidate.
-
-The two items we still need to do something about are:
-
-- Multi Pathing.  This really doesn't belong in the kernel
-- The odd ioctl set to the qla device...I'd much rather see something
-more standard that all FC drivers can use.
-
-James
-
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbULHHXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbULHH1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbULHHXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbULHHXg
+	id S262048AbULHH1J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 02:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbULHH1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:23:36 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5539 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262050AbULHHVw (ORCPT
+	Wed, 8 Dec 2004 02:27:09 -0500
+Received: from dp.samba.org ([66.70.73.150]:25052 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262048AbULHH04 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:21:52 -0500
-Date: Wed, 8 Dec 2004 08:20:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Time sliced CFQ io scheduler
-Message-ID: <20041208072052.GC19522@suse.de>
-References: <20041202195232.GA26695@suse.de> <20041208003736.GD16322@dualathlon.random> <1102467253.8095.10.camel@npiggin-nld.site> <20041208013732.GF16322@dualathlon.random> <20041207180033.6699425b.akpm@osdl.org> <20041208022020.GH16322@dualathlon.random> <20041207182557.23eed970.akpm@osdl.org> <1102473213.8095.34.camel@npiggin-nld.site> <20041208065858.GH3035@suse.de> <1102490086.8095.63.camel@npiggin-nld.site>
-Mime-Version: 1.0
+	Wed, 8 Dec 2004 02:26:56 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102490086.8095.63.camel@npiggin-nld.site>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16822.44167.836780.288332@samba.org>
+Date: Wed, 8 Dec 2004 18:25:59 +1100
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: make -j4 gets stuck w/ ccache over NFS
+In-Reply-To: <20041207022429.GA5295@jupiter.solarsys.private>
+References: <20041207022429.GA5295@jupiter.solarsys.private>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08 2004, Nick Piggin wrote:
-> On Wed, 2004-12-08 at 07:58 +0100, Jens Axboe wrote:
-> > On Wed, Dec 08 2004, Nick Piggin wrote:
-> > > On Tue, 2004-12-07 at 18:25 -0800, Andrew Morton wrote:
-> 
-> > > I think we could detect when a disk asks for more than, say, 4
-> > > concurrent requests, and in that case turn off read anticipation
-> > > and all the anti-starvation for TCQ by default (with the option
-> > > to force it back on).
-> > 
-> > CFQ only allows a certain depth a the hardware level, you can control
-> > that. I don't think you should drop the AS behaviour in that case, you
-> > should look at when the last request comes in and what type it is.
-> > 
-> > With time sliced cfq I'm seeing some silly SCSI disk behaviour as well,
-> > it gets harder to get good read bandwidth as the disk is trying pretty
-> > hard to starve me. Maybe killing write back caching would help, I'll
-> > have to try.
-> > 
-> 
-> I "fixed" this in AS. It gets (or got, last time we checked, many months
-> ago) pretty good read latency even with a big write and a very large
-> tag depth.
-> 
-> What were the main things I had to do... hmm, I think the main one was
-> to not start on a new batch until all requests from a previous batch
-> are reported to have completed. So eg. you get all reads completing
-> before you start issuing any more writes. The write->read side of things
-> isn't so clear cut with your "smart" write caches on the IO systems, but
-> no doubt that helps a bit.
+Mark,
 
-I can see the read/write batching being helpful there, at least to
-prevent writes starving reads if you let the queue drain completely
-before starting a new batch.
+ > I'm using ccache version 2.4 [1].  I just changed ~/.ccache to a symbolic
+ > link to a directory which is NFS mounted [2].  The kernel source itself is
+ > on a local FS.  With the ccache suitably primed, when I do a kernel compile
+ > using 'make -j4' it seems to get stuck for seconds at a time.  When it gets
+ > unstuck, it blows through a handful of files and then gets stuck again.
 
-CFQ does something similar, just not batched together. But it does let
-the depth build up a little and drain out. In fact I think I'm missing
-a little fix there thinking about it, that could be why the read
-latencies hurt on write intensive loads (the dispatch queue is drained,
-the hardware queue is not fully).
+I'd suggest you first narrow down the problem to either being a
+locking problem or a file IO problem. To do that, change lock_fd() in
+util.c in ccache to just "return 0;". That will mean the ccache stats
+file could become corrupted, but if it runs fast then you know that it
+is a locking problem. I have noticed severe speed problem with NFS
+locking on Linux previosly, which is why I mention this as a
+possibility.
 
-> Of course, after you do all that your database performance has well and
-> truly gone down the shitter. It is also hampered by the more fundamental
-> issue that read anticipating can block up the pipe for IO that is cached
-> on the controller/disks and would get satisfied immediately.
+Note that removing this locking will not cause ccache to produce
+incorrect object files, it will just mean the stats printed with
+"ccache -s" may be inaccurate.
 
-I think we need to end up with something that sets the machine profile
-for the interesting disks. Some things you can check for at runtime
-(like the writes being extremely fast is a good indicator of write
-caching), but it is just not possible to cover it all. Plus, you end up
-with 30-40% of the code being convoluted stuff added to detect it.
+Cheers, Tridge
 
--- 
-Jens Axboe
+PS: I also wonder why you're not just using distcc. It's usually a lot
+more appropriate in a distributed environment.
 

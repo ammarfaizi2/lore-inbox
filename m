@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275067AbRIYQQW>; Tue, 25 Sep 2001 12:16:22 -0400
+	id <S275086AbRIYQQc>; Tue, 25 Sep 2001 12:16:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275084AbRIYQQM>; Tue, 25 Sep 2001 12:16:12 -0400
-Received: from mail.delfi.lt ([213.197.128.86]:54792 "HELO
-	mx-outgoing.delfi.lt") by vger.kernel.org with SMTP
-	id <S275067AbRIYQP6>; Tue, 25 Sep 2001 12:15:58 -0400
-Date: Tue, 25 Sep 2001 18:15:43 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: all files are executable in vfat
-To: Alexander Viro <viro@math.psu.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S275083AbRIYQQW>; Tue, 25 Sep 2001 12:16:22 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:49680 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S275082AbRIYQQK>; Tue, 25 Sep 2001 12:16:10 -0400
+Date: Tue, 25 Sep 2001 13:16:19 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Pau Aliagas <linux4u@wanadoo.es>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.9-ac15 painfully sluggish
+In-Reply-To: <Pine.LNX.4.33.0109251729270.1401-100000@pau.intranet.ct>
+Message-ID: <Pine.LNX.4.33L.0109251315130.26091-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <Pine.GSO.4.21.0109251207290.24321-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0109251207290.24321-100000@weyl.math.psu.edu>
-X-Mailer: Mahogany, 0.64 'Sparc', compiled for Linux 2.4.7 i686
-Message-Id: <20010925161622.0795B8F616@mail.delfi.lt>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001 12:09:30 -0400 (EDT) Alexander Viro <viro@math.psu.edu> wrote:
+On Tue, 25 Sep 2001, Pau Aliagas wrote:
 
-AV> > All files are executable in vfat (kernel 2.4.10), although I have
-AV> > /dev/hda1  /mnt/c   vfat   defaults,user,noexec,umask=0,quiet 0 0
-AV> > in /etc/fstab. They were not in 2.4.7.
-AV> 
-AV> Really? Try to execute a binary from there.  cp /bin/ls /mnt/c && /mnt/c/ls
+> My impressions of the latest Alan's kernel are very bad, compared to
+> 2.4.9-ac10 which I'm happily running in a Pentium III laptop with 128Mb
+> RAM and 400Mb swap.
+>
+> It hardly touches swap (not at least in top) but the IDE disk never stops.
+> If I run setiathome it's absolutely impossible to do anything at all.
+> Large applications that take seconds to start now take minutes!!
 
-bash: /mnt/c/ls: Permission denied. But:
-$ ls -l ls
--rwxrwxrwx    1 nerijus  nerijus     45724 Rgs 25 18:12 ls
+Interesting, the VM changes done to -ac15 seem to have
+improved performance for all reports I've received up
+to now.
 
-The problem is, mc sees such files as executables and I cannot view
-archives by pressing enter on them, instead mc tries to execute them.
-Was this change intentional?
+Could you give me some info on how much memory is being
+used by the various caches (first lines of top) and maybe
+a few lines of vmstat output ?
 
-Regards,
-Nerijus
+Lets try to fix this problem...
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314467AbSDRVlH>; Thu, 18 Apr 2002 17:41:07 -0400
+	id <S314468AbSDRVo7>; Thu, 18 Apr 2002 17:44:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314468AbSDRVlG>; Thu, 18 Apr 2002 17:41:06 -0400
-Received: from zero.tech9.net ([209.61.188.187]:13835 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S314467AbSDRVlF>;
-	Thu, 18 Apr 2002 17:41:05 -0400
-Subject: Re: [PATCH] migration thread fix
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Erich Focht <efocht@ess.nec.de>, linux-kernel@vger.kernel.org,
-        Ingo Molnar <mingo@elte.hu>, torvalds@transmeta.com
-In-Reply-To: <20020418212851.GW21206@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 18 Apr 2002 17:41:04 -0400
-Message-Id: <1019166066.5395.99.camel@phantasy>
+	id <S314471AbSDRVo6>; Thu, 18 Apr 2002 17:44:58 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:47620 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314468AbSDRVo5>;
+	Thu, 18 Apr 2002 17:44:57 -0400
+Date: Thu, 18 Apr 2002 13:43:50 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1 of 2] PCI Hotplug Config.in fix
+Message-ID: <20020418204350.GA7762@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-18 at 17:28, William Lee Irwin III wrote:
-> I have a patch to fix #2 as well. Did you see it? Did you try it?
 
-Eric, I am interested in your opinion of wli's patch, too.  I really
-liked his approach.
+Hi,
 
-You seem to remove a lot of code since, after starting the first thread,
-you rely on set_cpus_allowed and the existing migration_thread to push
-the task to the correct place.  I suppose this will work .. but it may
-depend implicitly on behavior of the migration_threads and load_balance
-(not that the current code doesn't rely on load_balance - it does).
+Here's a patch against 2.4.19-pre7 that fixes the pci hotplug Config.in
+file so as to not build the IBM PCI Hotplug driver unless
+CONFIG_X86_IO_APIC is enabled.
 
-What happens if a migration_thread comes up on a CPU without a migration
-thread and then you call set_cpus_allowed?
+thanks,
 
-I am also curious what causes #1 you mention.  Do you see it in the
-_normal_ code or just with your patch?  I cannot see what we race
-against wrt interrupts ... disabling interrupts, however, would disable
-load_balance and that is a potential pitfall with using
-migration_threads to migrate migration_threads as noted above.
+greg k-h
 
-	Robert Love
+
+diff -Nru a/drivers/hotplug/Config.in b/drivers/hotplug/Config.in
+--- a/drivers/hotplug/Config.in	Thu Apr 18 09:15:02 2002
++++ b/drivers/hotplug/Config.in	Thu Apr 18 09:15:02 2002
+@@ -8,7 +8,9 @@
+ 
+ dep_tristate '  Compaq PCI Hotplug driver' CONFIG_HOTPLUG_PCI_COMPAQ $CONFIG_HOTPLUG_PCI $CONFIG_X86
+ dep_mbool '    Save configuration into NVRAM on Compaq servers' CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM $CONFIG_HOTPLUG_PCI_COMPAQ
+-dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86_IO_APIC $CONFIG_X86
++if [ "$CONFIG_X86_IO_APIC" = "y" ]; then
++   dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86_IO_APIC $CONFIG_X86
++fi
+ dep_tristate '  ACPI PCI Hotplug driver' CONFIG_HOTPLUG_PCI_ACPI $CONFIG_ACPI $CONFIG_HOTPLUG_PCI
+ 
+ endmenu
 

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312575AbSDENNn>; Fri, 5 Apr 2002 08:13:43 -0500
+	id <S312579AbSDENTP>; Fri, 5 Apr 2002 08:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312576AbSDENNd>; Fri, 5 Apr 2002 08:13:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:49300 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312575AbSDENNX>;
-	Fri, 5 Apr 2002 08:13:23 -0500
-Date: Fri, 05 Apr 2002 05:07:06 -0800 (PST)
-Message-Id: <20020405.050706.109220970.davem@redhat.com>
-To: jurgen@pophost.eunet.be
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre6 doesn't compile on Alpha and sparc64
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020405130224.GF22422@sparkie.is.traumatized.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S312581AbSDENTG>; Fri, 5 Apr 2002 08:19:06 -0500
+Received: from [65.169.177.0] ([65.169.177.0]:31117 "EHLO
+	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
+	id <S312579AbSDENSx>; Fri, 5 Apr 2002 08:18:53 -0500
+Date: Fri, 5 Apr 2002 07:17:06 -0600
+From: Benjamin Pharr <ben@benpharr.com>
+To: Arnvid Karstad <arnvid@karstad.org>, linux-kernel@vger.kernel.org
+Subject: Re: Problems rebooting from linux to windows...
+Message-ID: <20020405131706.GA26501@benix.dyndns.org>
+In-Reply-To: <20020405130948.17108.qmail@nextgeneration.speedroad.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-pre4
+X-PGP-ID: 0x6859792C
+X-PGP-Key: http://www.benpharr.com/public_key.asc
+X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
-   Date: Fri, 5 Apr 2002 15:02:24 +0200
+I have this problem with my Dell Inspiron 7000. I just use "shutdown -h
+now" and then power back up. Someone told me it was a BIOS issue once
+upon a time, but I've never messed with it. Not that big of a problem
+for me.
 
-   On Fri, Apr 05, 2002 at 03:00:11PM +0200, Jurgen Philippaerts wrote:
-   > On Fri, Apr 05, 2002 at 02:00:14PM +0200, Alexander Viro wrote:
-   > > 
-   > > > init/do_mounts.c:45: parse error before `mount_initrd'
-   > > [snip]
-   > > 
-   > > Looks like a missing init.h - sorry, this sucker didn't get caught (on
-   > > x86 slab.h ends up pulling it in, on alpha it doesn't).
-   > > 
-   > > Fix: add #include <linux/init.h> in init/do_mounts.c
-   > 
-   > same on sparc64.
-   > adding the extra #include fixes it.
-   
-   but then it goes wrong with `make modules`
-   
-Add include of linux/init.h, fix declarations of TS_open and
-TS_release to return int instead of ssize_t.
+Ben Pharr
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+
+On Fri, Apr 05, 2002 at 03:09:48PM +0200, Arnvid Karstad wrote:
+> Hi, 
+> 
+> recently I've seen a few problems with several laptops and if one are so 
+> unfortunate that one needs to reboot into Windows after a session in linux.
+> Normal restart of windows never have a problem on the same machines, but if 
+> you go from Linux to for instance Windows by shutdown -r or reboot it will 
+> freeze half way into the booting process. 
+> 
+> A power cycle will hower fix this. 
+> 
+> Anyone got an idea about where to start looking? 
+> 
+> Best regards 
+> 
+> Arnvid Karstad
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270961AbTGPRIc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270966AbTGPRHX
+	id S270952AbTGPRIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270961AbTGPRHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:07:23 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:20882 "EHLO
-	genius.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270961AbTGPRGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:06:08 -0400
-Date: Wed, 16 Jul 2003 18:20:20 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: vojtech@suse.cz, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716172020.GC21896@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jens Axboe <axboe@suse.de>, vojtech@suse.cz,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <20030716170911.GB21896@suse.de> <20030716171323.GL833@suse.de>
+	Wed, 16 Jul 2003 13:07:34 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:50189 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S270952AbTGPRFH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:05:07 -0400
+Date: Wed, 16 Jul 2003 18:19:56 +0100
+From: John Levon <levon@movementarian.org>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+Subject: Re: [PATCH] Use of Performance Monitoring Counters based on Model number
+Message-ID: <20030716171956.GC19910@compsoc.man.ac.uk>
+References: <C8C38546F90ABF408A5961FC01FDBF1902C7D0F9@fmsmsx405.fm.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030716171323.GL833@suse.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1902C7D0F9@fmsmsx405.fm.intel.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19cpwa-0005zT-KW*Md2Y1s3tIlg*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 07:13:23PM +0200, Jens Axboe wrote:
+On Wed, Jul 16, 2003 at 10:07:49AM -0700, Pallipadi, Venkatesh wrote:
 
- > > Ah right, I thought cdparanoia was still ripper de jour..
- > > What's recommended these days?
- > 
- > It is, unfortunately it uses read/write on /dev/sg* directly so cannot
- > be used with "new path" that is so much faster. It's been a while since
- > I looked, I can check for a good cdda ripper that uses SG_IO tomorrow if
- > you don't find one first.
+> Attached is a small patch to make Linux kernel use of performance
+> monitoring MSRs based on known processor models. Future processor
+> implementation models may not support the same MSR layout.
 
-Ok. I'll add a note about this to post-halloween-2.5 sometime too
-when www.codemonkey.org.uk reappears again.
-[sidenote: please folks, no more mails telling me about this site going away,
- it'll be back real soon, it just had to be 'upgraded' to a raq2, which didn't
- go quite as smoothly as planned.].
+If you're going to do this you should fix up arch/i386/oprofile/ to
+error out similarly at least
 
- > I'm about to cave in and add block emulation of that part, too. It's a
- > bit more code, though.
-
-If it'll make apps like cdparanoia take the fast path without needing
-rewriting, then that sounds like a good idea, if only to stop the
-'dancing mouse' problem, though this does seem to be running away
-from a bug rather than fixing it. The real question is why are the
-two interacting with each other like this..
-
-		Dave
-
+regards
+john

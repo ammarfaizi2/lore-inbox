@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVA1R3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVA1RfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVA1R3F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 12:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVA1R3E
+	id S261312AbVA1RfE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 12:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVA1RfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 12:29:04 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26116 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261502AbVA1R2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 12:28:41 -0500
-Date: Fri, 28 Jan 2005 18:28:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Add CONFIG_X86_APIC_OFF for i386/UP
-Message-ID: <20050128172836.GQ28047@stusta.de>
-References: <20050128133927.GC6703@wotan.suse.de> <Pine.LNX.4.61.0501281421410.7109@goblin.wat.veritas.com> <20050128143010.GE6703@wotan.suse.de> <Pine.LNX.4.61.0501281506100.7207@goblin.wat.veritas.com> <20050128151839.GI6703@wotan.suse.de> <Pine.LNX.4.61.0501281534420.7304@goblin.wat.veritas.com> <20050128154953.GJ6703@wotan.suse.de>
+	Fri, 28 Jan 2005 12:35:03 -0500
+Received: from colo.lackof.org ([198.49.126.79]:53716 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261312AbVA1RcK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 12:32:10 -0500
+Date: Fri, 28 Jan 2005 10:32:22 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
+Message-ID: <20050128173222.GC30791@colo.lackof.org>
+References: <9e47339105011719436a9e5038@mail.gmail.com> <20050125042459.GA32697@kroah.com> <9e473391050127015970e1fedc@mail.gmail.com> <200501270828.43879.jbarnes@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050128154953.GJ6703@wotan.suse.de>
+In-Reply-To: <200501270828.43879.jbarnes@sgi.com>
+X-Home-Page: http://www.parisc-linux.org/
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 04:49:53PM +0100, Andi Kleen wrote:
->...
-> Also I must add in addition to the CONFIG there are valuable bugfixes
-> in there too.
+On Thu, Jan 27, 2005 at 08:28:43AM -0800, Jesse Barnes wrote:
+> But then again,
+> I suppose if a platform supports more than one legacy I/O space,
 
-If a patch contains both bugfixes and a new feature it's the common way 
-to send them as different patches.
+Eh?! there can only be *one* legacy I/O space.
+We can support multipl IO port spaces, but only one can be the "legacy".
 
-> -Andi
+Moving the VGA device can only function within that legacy space
+the way the code is written now (using hard coded addresses).
+If it is intended to work with multiple IO Port address spaces,
+then it needs to use the pci_dev->resource[] and mangle that appropriately.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+grant

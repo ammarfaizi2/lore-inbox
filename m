@@ -1,100 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbTH2Tqk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 15:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTH2Tqj
+	id S261741AbTH2UGV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 16:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTH2UGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 15:46:39 -0400
-Received: from web12807.mail.yahoo.com ([216.136.174.42]:51028 "HELO
-	web12807.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261684AbTH2Tqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 15:46:37 -0400
-Message-ID: <20030829194636.33817.qmail@web12807.mail.yahoo.com>
-Date: Fri, 29 Aug 2003 12:46:36 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: [VM PATCH] Faster reclamation of dirty pages and unused inode/dcache entries in 2.4.22
-To: Andrea Arcangeli <andrea@suse.de>, Antonio Vargas <wind@cocodriloo.com>,
-       linux-kernel@vger.kernel.org,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-In-Reply-To: <20030829192844.GB24409@dualathlon.random>
-MIME-Version: 1.0
+	Fri, 29 Aug 2003 16:06:21 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:24056 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261741AbTH2T5x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 15:57:53 -0400
+Date: Fri, 29 Aug 2003 22:57:37 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
+Message-ID: <20030829195737.GI150921@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0308291325480.29088@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0308291325480.29088@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea,
+On Fri, Aug 29, 2003 at 01:35:25PM -0300, you [Marcelo Tosatti] wrote:
+> 
+> So NMI and sysrq doesnt help. I suggest you a few things:
+> 
+> Try to make the bug easy to reproduce. Force the Oracle dumps again and
+> again to crash the box. 
 
-I'll test and submit a patch against -aa.  Also, is
-there a common benchmark that you use to test for
-regression?
+I happened to work towards that direction this morning (before I read your
+mail). Taking the stance that this very probably had something to do with io
+stress, I played around with several io loads. Eventually I found out that
+fsx on scsi disk reliably caused the box to either lock up or the aic7xxx
+driver to barf. What's more, it took under 15 minutes to trigger.
 
-Thanks,
-Shantanu
+So I copied the rootfs and everything else from the scsi disk to the ide
+disk (just barely had enough space), and took all the scsi disk partitions
+away from fstab. After reboot, I have been unable to lock it up with fsx
+(scsi disk is not accessed at all), but it will take several weeks before
+I'm confident that the lock up is cured.
 
---- Andrea Arcangeli <andrea@suse.de> wrote:
-> On Fri, Aug 29, 2003 at 11:57:28AM -0700, Mike Fedyk
-> wrote:
-> > [CCing AA & MCP]
-> > 
-> > > --- Mike Fedyk <mfedyk@matchmail.com> wrote:
-> > > > But have you compared your patch with the VM
-> patches
-> > > > in -aa?  Will your
-> > > > patch apply on -aa and make improvements there
-> too?
-> > > > 
-> > > > In other words: Why would I want to use this
-> patch
-> > > > when I could use -aa?
-> > 
-> > On Fri, Aug 29, 2003 at 11:46:44AM -0700, Shantanu
-> Goel wrote:
-> > > I prefer to run stock kernels so I don't have as
-> much
-> > > experience with the -aa patches.  However, I
-> took a
-> > > look at the relevant code in 2.4.22pre7aa1 and I
-> > > believe my patch should help there as well.  The
-> > > writepage() and page rotation behaviour is
-> similar to
-> > > stock 2.4.22 though the inactive_list is
-> per-classzone
-> > > in -aa.  I am less sure about the inode/dcache
-> part
-> > > though under -aa.
-> > 
-> > You need to integrate with -aa on the VM.  It has
-> been hard enough for
-> > Andrea to get his stuff in, I doubt you will fair
-> any better.
-> > 
-> > If your patch shows improvements when applied on
-> -aa Andrea will probably
-> > integrate it.
-> 
-> yes, at this point in time I'm willing to merge only
-> anything that is an
-> obvious improvement. More doubious things would
-> better go in 2.6.
-> 
-> I didn't see the patch in question, Shantanu, if
-> you're interested to
-> merge it in -aa, could you submit against
-> 2.4.22pre7aa1? Otherwise I'll
-> check it and possibly merge it myself later (i've
-> quite some backlog to
-> merge already for the short term, but it can go in
-> queue)
-> 
-> > Marc/Andrea, what do you think?  Any holes to poke
-> in this here patch?
-> 
-> didn't check it yet.
-> 
-> Andrea
+aic7xxx / scsi hw seems quite strong suspect for the lock ups. 2.2 possibly
+worked because it has the older aic7xxx 5.x driver.
+
+> Can you try it or its a production machine?
+
+It is a sort-of-a production machine -- that's way I have been so wary on
+trying different things. Sorry for that...
+ 
+> BTW, can you describe this "Oracle dumps" in more detail? What do they do?
+> Save lots of data to disk and thats all or ?
+
+They dump the oracle data base to a backup file.
+
+${ORAHOME}/bin/exp \
+        ***/*** full=Y grants=Y \
+        file=${DMPDIR}/fullexp.dmp 1>${LOGDIR}/fulllog.`date '+%a'` 2>&1
+ 
+So basically just heavy IO afaict.
+
+> Hope we can trace this down.
+
+I'm still not 100% sure that the aic7xxx brafs (see
+http://lkml.org/lkml/2003/7/29/33 for an example) and the lockups are of
+the same origin. But it seems at least 99.5% certain.
+
+If aic7xxx/scsi is to blame, then is it the
+  - 2940 scsi adapter
+  - the disk
+  - the cabling or something (I've checked the termination)
+  - the motherboard (irq routing?)
+  - the aic7xxx driver?
+  - some other kernel issue?
+
+The hw is:
+ Intel 815EEA2LU (i815 Chipset)
+ Celeron 1.3GHz (Tualatin)
+ Adaptec AHA-2940 / AIC-7871
+   - Disk (rootfs) SEAGATE  Model: ST19171W Rev: 0024
+   - Tape Drive    HP       Model: C1537A Rev: L708
+ 30GB IDE disk (scratch)
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+-- v --
+
+v@iki.fi
+

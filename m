@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263192AbUCXKOk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 05:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263208AbUCXKOk
+	id S263214AbUCXKRW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 05:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbUCXKRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 05:14:40 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:5248 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S263192AbUCXKOg (ORCPT
+	Wed, 24 Mar 2004 05:17:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:39844 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263214AbUCXKRU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 05:14:36 -0500
-Date: Wed, 24 Mar 2004 11:14:31 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Andrew Morton <akpm@osdl.org>
+	Wed, 24 Mar 2004 05:17:20 -0500
+Date: Wed, 24 Mar 2004 11:17:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: slindber@uiuc.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm2
-Message-Id: <20040324111431.49071a9f@phoebee>
-In-Reply-To: <20040324020538.654905ee.akpm@osdl.org>
-References: <20040323232511.1346842a.akpm@osdl.org>
-	<20040324110014.4cdb7597@phoebee>
-	<20040324020538.654905ee.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.10claws27 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+Subject: Re: [Problem]: "access beyond end" of DVD-R
+Message-ID: <20040324101717.GL3377@suse.de>
+References: <21ddee39.25333f6f.81c3b00@expms3.cites.uiuc.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__24_Mar_2004_11_14_31_+0100_LffQcSpP2pQd/AEM"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21ddee39.25333f6f.81c3b00@expms3.cites.uiuc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__24_Mar_2004_11_14_31_+0100_LffQcSpP2pQd/AEM
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-On Wed, 24 Mar 2004 02:05:38 -0800
-Andrew Morton <akpm@osdl.org> bubbled:
-
-> Martin Zwickel <martin.zwickel@technotrend.de> wrote:
-> >
-> > Hi Andrew!
-> > 
-> > I'm unable to start my X server with this patch.
-> > I have the nvidia 5336 module loaded and if I start the X server, the
-> > machine completely freezes. With 2.6.5-rc2 everything works ok...
+On Mon, Mar 22 2004, slindber@uiuc.edu wrote:
+> attempt to access beyond end of device
+> hdc: rw=0, want=8174536, limit=8123200
+> Buffer I/O error on device hdc, logical block 2043633
 > 
-> -mm kernels currently are using 4k kernel stacks.  The nvidia driver
-> doesn't have a hope of running in that environment.
+> There are more attempt to "access beyond end of device" messages, but
+> they are similar so I've snipped them.
+> 
+> I've had this problem on every kernel I've used (2.4.22 and 2.6.3 from
+> gentoo, and 2.6.4-rc1-mm1).  I've had it with three different discs,
+> ISO, ISO/UDF, and UDF only (the output comes from the last disc).  The
+> entire disc is readable in Windows.
 
-Oh, thought it's a config option and 8k is set as default.
-Thx for the answer! So back to 2.6.5-rc2 :( I like your mm patches so much since
-they improve performance most times for my needs.
+Does this make a difference for you (2.6 patch)?
 
-Regards,
-Martin
+===== drivers/ide/ide-cd.c 1.75 vs edited =====
+--- 1.75/drivers/ide/ide-cd.c	Tue Mar 16 09:39:41 2004
++++ edited/drivers/ide/ide-cd.c	Wed Mar 24 11:16:22 2004
+@@ -2372,7 +2372,7 @@
+ 
+ 	/* Now try to get the total cdrom capacity. */
+ 	stat = cdrom_get_last_written(cdi, &last_written);
+-	if (!stat && last_written) {
++	if (!stat && (last_written > toc->capacity)) {
+ 		toc->capacity = last_written;
+ 		set_capacity(drive->disk, toc->capacity * sectors_per_frame);
+ 	}
 
 -- 
-MyExcuse:
-Electrons on a bender
+Jens Axboe
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Wed__24_Mar_2004_11_14_31_+0100_LffQcSpP2pQd/AEM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAYV+JmjLYGS7fcG0RAljdAJ9cUUxTnW4jqpq9iwoMhLiDz24LagCfUpxy
-WL68jHDqk9bNz0qnnwcLlIg=
-=aN0H
------END PGP SIGNATURE-----
-
---Signature=_Wed__24_Mar_2004_11_14_31_+0100_LffQcSpP2pQd/AEM--

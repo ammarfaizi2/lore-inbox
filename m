@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268200AbUIPUaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268213AbUIPUaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268200AbUIPUaD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 16:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268213AbUIPUaD
+	id S268213AbUIPUaI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 16:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUIPUaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 16:30:03 -0400
-Received: from gprs214-49.eurotel.cz ([160.218.214.49]:896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268200AbUIPU37 (ORCPT
+	Thu, 16 Sep 2004 16:30:08 -0400
+Received: from gprs214-49.eurotel.cz ([160.218.214.49]:1920 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268213AbUIPUaF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 16:29:59 -0400
-Date: Thu, 16 Sep 2004 21:22:08 +0200
+	Thu, 16 Sep 2004 16:30:05 -0400
+Date: Thu, 16 Sep 2004 21:26:22 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: JBeulich@novell.com
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>, seife@suse.de
-Subject: swsusp: solving build issue leads to crash on x86-64
-Message-ID: <20040916192208.GA1009@elf.ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: vojtech@suse.cz
+Subject: very strange issues on x86-64 with console switching
+Message-ID: <20040916192622.GA3713@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,26 +25,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Do you remember that build issue, where you needed to added ', "aw"'
-to make linker happy? Well, too late I found that it breaks swsusp in
-quite a ugly way. Try it on x86-64: it works without "aw", breaks with
-it.
-
-I'm doing this for now. I'll probably just rewrite assemlby not to
-require those variables, but understanding what went wrong there would
-be welcome.
-
-#       .section .data.nosave, "aw"
-        .section .data.nosave
-        .align 8
-loop:
-        .quad 0
-loop2:
-        .quad 0
-        .previous
-
-								Pavel
-
+I do not understand what went wrong, but (after swsusp?) I now can
+only console switch once. After console switch "alt" key is forgotten
+and I have to release it and press it again if I want to switch to
+other console... Strange.
+								Pavel 
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265247AbTFROSh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 10:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbTFROSh
+	id S265251AbTFRO2O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 10:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbTFRO2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 10:18:37 -0400
-Received: from ida.rowland.org ([192.131.102.52]:2052 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S265247AbTFROS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 10:18:26 -0400
-Date: Wed, 18 Jun 2003 10:32:22 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       "'Kevin P. Fleming'" <kpfleming@cox.net>,
-       "'Patrick Mochel'" <mochel@osdl.org>,
-       "'Russell King'" <rmk@arm.linux.org.uk>, "'Greg KH'" <greg@kroah.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <20030618081227.GA6754@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44L0.0306181018540.741-100000@ida.rowland.org>
+	Wed, 18 Jun 2003 10:28:14 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:41932 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265251AbTFRO2M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 10:28:12 -0400
+Date: Wed, 18 Jun 2003 07:42:04 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 827] New: System time runs too fast.
+Message-ID: <10940000.1055947324@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jun 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+           Summary: System time runs too fast.
+    Kernel Version: 2.5.72
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: ialiashkevich@epo.org
 
-> BS.  There is nothing to stop you from having a block device that talks
-> to userland process instead of any form of hardware.  As the matter of
-> fact, we already have such a beast - nbd.  There is also RAID - where
-> there fsck is 1:1 here?  There's also such thing as RAID5 over partitions
-> that sit on several disks - where do you see 1:1 or 1:n or n:1?
-> There is such thing as e.g. encrypted loop over NFS.  There are all
-> sorts of interesting things, with all sorts of interesting relationship
-> to some pieces of hardware.
 
-This is the sort of thing that bothers me.  Block devices deserve their 
-own "view", so we have /sys/block/ -- perhaps to be renamed 
-/sys/class/block/.  Fine.
+Distribution:
 
-But what other sorts of things deserve their own "view" as well?  Some
-are already established, maybe others aren't.  How's a developer supposed
-to know whether the driver he's working on deserves its own entry in
-/sys/class/ or not?  How's a user supposed to know where in the hierarchy
-to look for a particular device?
+Hardware Environment:
+Notebook Maxdata Eco 3000X
+Processor: P4 2Gz
+Chipset: SIS650
 
-Here's a suggestion for something that would definitely help.  Create a
-listing (maybe in Documentation/driver-model/) of all the major kernel
-subsystems that deserve to have their own entries in /sys/class/ (or the
-equivalent).  Explain clearly that any device driver that registers with
-one of those subsystems will receive a directory in the /sys/class/
-hierarchy where it can register its class devices, and say what the name
-of that directory will be.  Explain that a driver that doesn't register
-with one of these subsystems will simply have to create its own entry in
-/sys/devices/ under its parent node.
+Software Environment:
+RedHat 8.0 + kernel 2.5.70
+RedHat 9.0 + kernel 2.5.72
+kernels were built by gcc 3.2.3 using default .config from arch/i386
 
-Not all this infrastructure has been created yet.  For instance, there 
-isn't at the moment any place under /sys/class/usb/ for a USB host 
-controller driver to register its class device.  But if these ideas were 
-formalized and written down, it would be straightforward to fill in the 
-missing pieces.
+Problem Description:
+System time runs at least twice faster than necessary.
+As a result have problems with keyboard timings:
+   very short delay before repeat mode and very fast repeat rate
+problems with mouse:
+   very fast double-click speed
+   
+Steps to reproduce:
+  buld, install kernel and restart :)
 
-Alan Stern
+
+-----------------------------------------
+
+
+PS. We've noticed this too on an x440 ;-)
+
+Martin.
 

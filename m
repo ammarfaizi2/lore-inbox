@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262126AbREXQBR>; Thu, 24 May 2001 12:01:17 -0400
+	id <S262163AbREXQK7>; Thu, 24 May 2001 12:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262127AbREXQBH>; Thu, 24 May 2001 12:01:07 -0400
-Received: from geos.coastside.net ([207.213.212.4]:47019 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S262126AbREXQA5>; Thu, 24 May 2001 12:00:57 -0400
+	id <S262168AbREXQKt>; Thu, 24 May 2001 12:10:49 -0400
+Received: from marine.sonic.net ([208.201.224.37]:13112 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S262163AbREXQKa>;
+	Thu, 24 May 2001 12:10:30 -0400
+Message-ID: <20010524090920.A24268@sonic.net>
+Date: Thu, 24 May 2001 09:09:20 -0700
+From: David Hinds <dhinds@sonic.net>
+To: Praveen Srinivasan <praveens@stanford.edu>, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] rsrc_mgr.c - null ptr fix for 2.4.4
+In-Reply-To: <200105240734.f4O7YB404249@smtp1.Stanford.EDU>
 Mime-Version: 1.0
-Message-Id: <p05100304b732e04cf9aa@[207.213.214.37]>
-In-Reply-To: <E152w81-00053C-00@the-village.bc.nu>
-In-Reply-To: <E152w81-00053C-00@the-village.bc.nu>
-Date: Thu, 24 May 2001 09:00:20 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        tori@unhappy.mine.nu (Tobias Ringstrom)
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] drivers/net/others
-Cc: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
-        jgarzik@mandrakesoft.com (Jeff Garzik), akpm@uow.edu.au,
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel list)
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <200105240734.f4O7YB404249@smtp1.Stanford.EDU>; from Praveen Srinivasan on Thu, May 24, 2001 at 12:35:17AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:30 PM +0100 2001-05-24, Alan Cox wrote:
->  > > -		printk(version);
->>  > +		printk("%s", version);
->>  >
->>  Could you please explain the purpose of this change?  To me it looks less
->>  efficient in both performance and memory usage.
->
->its called 'programming in C not taking ugly shortcuts'
->>
+On Thu, May 24, 2001 at 12:35:17AM -0700, Praveen Srinivasan wrote:
+> Hi,
+> This fixes an unchecked ptr bug in the resource manager code for the PCMCIA 
+> driver (rsrc_mgr.c).
 
-Fine. But:
+I would instead suggest:
 
-At 3:02 AM +0200 2001-05-24, Andrzej Krzysztofowicz wrote:
->-	printk(version);
->+#ifdef MODULE
->+	printk("s", version);
->  	printed_version = 1;
->+#endif /* MODULE */
-
-...is playing it just a little too safe, wouldn't you say?
-
-I assume that MODULE ifdef is related to version being initdata otherwise?
--- 
-/Jonathan Lundell.
+--- ../linux/./drivers/pcmcia/rsrc_mgr.c	Tue Mar  6 19:28:32 2001
++++ ./drivers/pcmcia/rsrc_mgr.c	Mon May  7 22:09:09 2001
+@@ -189,6 +189,12 @@
+     
+     /* First, what does a floating port look like? */
+     b = kmalloc(256, GFP_KERNEL);
++
++    if(b == NULL){
++      printk(" kmalloc failed!\n");
++      return;
++    }
++
+     memset(b, 0, 256);
+     for (i = base, most = 0; i < base+num; i += 8) {
+ 	if (check_io_resource(i, 8))

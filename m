@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTDDREe (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbTDDRE0 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:04:26 -0500
-Received: from ip67-93-141-189.z141-93-67.customer.algx.net ([67.93.141.189]:61170
-	"EHLO datapower.ducksong.com") by vger.kernel.org with ESMTP
-	id S263861AbTDDQ6E (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 11:58:04 -0500
-Date: Fri, 4 Apr 2003 12:09:29 -0500
-From: "Patrick R. McManus" <mcmanus@ducksong.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Justin Cormack <justin@street-vision.com>, Paul Rolland <rol@as2917.net>,
-       "'Michael Knigge'" <Michael.Knigge@set-software.de>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Strange e1000
-Message-ID: <20030404170929.GA1461@ducksong.com>
-References: <043501c2faaf$da061e10$3f00a8c0@witbe> <1049467531.2676.87.camel@lotte> <20030404154842.GA10607@gtf.org> <20030404170214.GA1457@ducksong.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263884AbTDDR2I (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTDDRXO (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:23:14 -0500
+Received: from smtp01.web.de ([217.72.192.180]:34832 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263881AbTDDRWo (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 12:22:44 -0500
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: Burton Windle <bwindle@fint.org>
+Subject: Re: 2.5.66-bk9 compile problem
+Date: Fri, 4 Apr 2003 19:32:19 +0200
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.43.0304041217230.1464-100000@morpheus>
+In-Reply-To: <Pine.LNX.4.43.0304041217230.1464-100000@morpheus>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030404170214.GA1457@ducksong.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200304041932.19272.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 04 April 2003 19:17, you wrote:
+> CONFIG_I2C_SENSOR=m
+>
+> Set this to y and recompile.
 
-> I can confirm this is isolated to the managed netgear switches.. I
-> started the other thread jeff mentions and, just this morning, cobbled
-> together a network without them and had no problems. I'll see if I can
-> create a setup without spanning tree to test that explicitly.
+When I set this to y and do a
+make bzImage
+or a
+make menuconfig
+it's automatically reset to m.
 
-yes - turning off spanning tree on the netgear switches 'fixes' this
-issue with the intel 1000 MT.
+What's the options for CONFIG_I2C_SENSOR in menuconfig (I didn't find it).
+
+Regards
+Michael Buesch.
+
+-- 
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
 

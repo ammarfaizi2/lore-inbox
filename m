@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLGVTS>; Thu, 7 Dec 2000 16:19:18 -0500
+	id <S129340AbQLGVnW>; Thu, 7 Dec 2000 16:43:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQLGVTI>; Thu, 7 Dec 2000 16:19:08 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:23527 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129226AbQLGVS6>; Thu, 7 Dec 2000 16:18:58 -0500
-Date: Thu, 7 Dec 2000 21:48:14 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "H. Peter Anvin" <hpa@zytor.com>, Hugh Dickins <hugh@veritas.com>
+	id <S129345AbQLGVnM>; Thu, 7 Dec 2000 16:43:12 -0500
+Received: from d06lmsgate-2.uk.ibm.com ([195.212.29.2]:54420 "EHLO
+	d06lmsgate-2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S129340AbQLGVnB>; Thu, 7 Dec 2000 16:43:01 -0500
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: Andi Kleen <ak@suse.de>, root@chaos.analogic.com,
+        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] setup.c notsc Re: Microsecond accuracy
-In-Reply-To: <Pine.LNX.4.21.0012071856280.1138-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.3.96.1001207204019.8897B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <802569AE.00747B7E.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Thu, 7 Dec 2000 21:09:47 +0000
+Subject: Re: Why is double_fault serviced by a trap gate?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Hugh Dickins wrote:
 
-> The present situation is inconsistent: "notsc" removes cpuinfo's
-> "tsc" flag in the UP case (when cpu_data[0] is boot_cpu_data), but
-> not in the SMP case.  I don't believe HPA's recent mods affected that
-> behaviour, but it is made consistent (cleared in SMP case too) by the
-> patch I sent him a couple of days ago, below updated for test12-pre7...
 
- My original code was specifically tested on a SMP system -- having no
-suitable system I wrote it mainly to make sure TSC-less SMP systems (i.e. 
-486 ones) run fine.  If it doesn't work as expected anymore, then an error
-slipped in somehow since then. 
+Which surely we can on today's x86 systems. Even back in the days of OS/2
+2.0 running on a 386 with 4Mb RAM we used a taskgate for both NMI and
+Double Fault. You need only a minimal stack - 1K, sufficient to save state
+and restore ESP to a known point before switching back to the main TSS to
+allow normal exception handling to occur.
 
-> I didn't test userland access to the TSC, but my reading of the code
-> was that prior to this patch, it would be disallowed on the boot cpu,
-> but still allowed on auxiliaries - because disable_tsc set X86_CR4_TSD
-> if cpu_has_tsc, but initing boot cpu forces cpu_has_tsc to !cpu_has_tsc.
+There no architectural restriction that some folks have hinted at - as long
+as the DPL for the task gates is 3.
 
- Note that identify_cpu() rereads feature flags, so everything should be
-fine.
+There's no problem under MP since the double fault exception will be only
+presented on the processor that instigated the problem.
 
-> I have removed the "FIX-HPA" comment line: of course, that's none of my
-> business, but if you approve the patch I imagine you'd want that to go too
-> (I agree it's a bit ugly there, but safest to disable cpu_has_tsc soonest).
+As for NMIs I didn't think they  were presented to all processors
+simultaneously. If they are then the way to handle that is to map a page of
+the GDT,  to a  unique physical address per-processor - i.e. processor
+local storage. The virtual address will be the same on each. This is what
+we did under OS/2 SMP.
+We also alisaed these pages to unique virtual addresses so that they could
+be seen by the kernel from any processor context.
 
- It might probably be done in identify_cpu() but do we want to fiddle with
-cr4 there?
+The only time you want the NMI handler to be fast is when it's being used
+for hand-shaking, which some disk devices do. And perhaps for APIC NMI
+class interprocessor interrupts. But I honestly don't think that's really a
+good enough reason not to have a task gate for NMI.
 
- Well, it appears an error slipped in, indeed.  The following change is
-the key one.  Everything should be fine once it's changed. 
+The unpredictablility of the abort (NMI or Double-fault) refers to fact
+that in general it is indeterminate as to whether it is  a fault or trap.
+And that's a matter of whether the EIP point at ot after the instruction
+related to the exception. The abort nature  of theses exceptions is not
+really a problem for the exception handler.
 
- Peter would you accept the patch (see below)? 
+In summary I'd say the lack of a task gate is at the very least an
+oversight, if not a bug.
 
-  Maciej
+If no one else wants to do it I'll see if I can code up the task gates for
+the double-fault and NMI.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Richard
 
-diff -up --recursive --new-file linux-2.4.0-test11.macro/arch/i386/kernel/setup.c linux-2.4.0-test11/arch/i386/kernel/setup.c
---- linux-2.4.0-test11.macro/arch/i386/kernel/setup.c	Mon Nov 20 07:03:47 2000
-+++ linux-2.4.0-test11/arch/i386/kernel/setup.c	Thu Dec  7 20:43:24 2000
-@@ -1959,7 +1959,7 @@ void __init identify_cpu(struct cpuinfo_
- 	 */
- 
- 	/* TSC disabled? */
--#ifdef CONFIG_TSC
-+#ifndef CONFIG_X86_TSC
- 	if ( tsc_disable )
- 		clear_bit(X86_FEATURE_TSC, &c->x86_capability);
- #endif
+
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
+
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

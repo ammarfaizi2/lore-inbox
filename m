@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264164AbUDOOdX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 10:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbUDOOdX
+	id S264149AbUDOOln (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 10:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264159AbUDOOln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 10:33:23 -0400
-Received: from tench.street-vision.com ([212.18.235.100]:42679 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S262022AbUDOOdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 10:33:21 -0400
-Subject: Re: poor sata performance on 2.6
-From: Justin Cormack <justin@street-vision.com>
-To: kos@supportwizard.com
-Cc: Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <200404151826.54488.kos@supportwizard.com>
-References: <200404150236.05894.kos@supportwizard.com>
-	 <200404151734.03786.kos@supportwizard.com>
-	 <1082037632.19567.72.camel@lotte.street-vision.com>
-	 <200404151826.54488.kos@supportwizard.com>
-Content-Type: text/plain
-Message-Id: <1082039593.19568.75.camel@lotte.street-vision.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 15 Apr 2004 15:33:13 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Apr 2004 10:41:43 -0400
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:4758 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S264149AbUDOOlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 10:41:42 -0400
+Date: Thu, 15 Apr 2004 10:41:28 -0400 (EDT)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@blue.engin.umich.edu
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+In-Reply-To: <20040415130028.GB2150@dualathlon.random>
+Message-ID: <Pine.GSO.4.58.0404151037420.6707@blue.engin.umich.edu>
+References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu> <69200000.1081804458@flay>
+ <Pine.LNX.4.58.0404141616530.25848@rust.engin.umich.edu>
+ <20040415000529.GX2150@dualathlon.random> <Pine.GSO.4.58.0404142323160.21462@sapphire.engin.umich.edu>
+ <20040415130028.GB2150@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-15 at 15:26, Konstantin Sobolev wrote:
-> On Thursday 15 April 2004 18:00, Justin Cormack wrote:
-> > hmm, odd. I get 50MB/s or so from normal (7200, 8MB cache) WD disks, and
-> > Seagate from the same controller. Can you send lspci, /proc/interrupts
-> > and dmesg...
-> 
-> Attached are files for 2.6.5-mm5 with highmem, ACPI and APIC turned off.
 
-ah. Make a filesystem on it and mount it and try again. I see you have
-no partition table and so probably no filesystem. This means the block
-size is set to default 512byte not 4k which makes disk operations slow.
-Any filesystem should default to block size of 4k, eg ext2.
+> > I don't know why bit_spin_lock with vma->vm_flags should be a problem
+> > if it is used without mmap_sem. Can you explain ?
+>
+> you seem not to know all rules about the atomic operations in smp, you
+> cannot just set_bit on one side and use non-atomic operations on the
+> other side, and expect the set_bit not to invalidate the non-atomic
+> operations.
+>
+> The effect of the mprotect may be deleted by your new concurrent
+> set_bit and stuff like that.
 
-Justin
+Thank you very much for that. Stupid me. I didn't read the code in
+page->flags properly. Thanks again.
+
+Rajesh
 
 

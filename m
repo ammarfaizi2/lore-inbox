@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263843AbTLORFa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 12:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbTLORFa
+	id S263796AbTLORR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 12:17:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbTLORR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 12:05:30 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:29454 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S263843AbTLORFX (ORCPT
+	Mon, 15 Dec 2003 12:17:59 -0500
+Received: from gprs214-241.eurotel.cz ([160.218.214.241]:11648 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263796AbTLORRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 12:05:23 -0500
-Date: Mon, 15 Dec 2003 18:05:17 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Ludovic Drolez <ludovic.drolez@linbox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Simple partition not detected with 2.6
-Message-ID: <20031215170517.GA12267@win.tue.nl>
-References: <20031215141746.GA27006@joebar.freealter.fr>
+	Mon, 15 Dec 2003 12:17:51 -0500
+Date: Mon, 15 Dec 2003 18:18:49 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Multiple keyboard/monitor vs linux-2.6?
+Message-ID: <20031215171849.GA345@elf.ucw.cz>
+References: <fa.da53dsa.dho216@ifi.uio.no> <20031212214310.GA744@node1.opengeometry.net> <20031213131405.GA11073@hh.idb.hist.no> <20031213211234.GB448@node1.opengeometry.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031215141746.GA27006@joebar.freealter.fr>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20031213211234.GB448@node1.opengeometry.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 03:17:46PM +0100, Ludovic Drolez wrote:
+Hi!
 
-> I have one computer which has two partitions per disk.
-> This partition is seen by a 2.4.xx kernel (knoppix) but
-> not by a 2.6.0t7 kernel.
+> > > > The functionality can be found at linuxconsole.sourceforge.net.
+> > > > Will this be included into mainline near term? Say 2.6.[12]?
+> > > > The ruby-2.6 is against 2.6.0-test9 so it's almost uptodate.
+> > > 
+> > > Does it work?
+> > > 
+> > It works with 2.6.0-test11.  Prepare a kernel source tree,
+> > check out ruby from cvs, copy the ruby-2.6 parts into
+> > the kernel tree.
+> > 
+> > I run my home machine this way:
+> > 2 standard keyboards, one connected to the keyboard port and
+> > another connected to the ps2 mouse port.
 > 
-> When booting the knoppix, dmesg says:
-> 
-> hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63
-> hdc: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63
-> ide-cd: passing drive hde to ide-scsi emulation.
-> Partition check:
-> hda: [PTBL] [9729/255/63] hda1 hda2
-> hdc: [PTBL] [9729/255/63] hdc1 hdc2
-> 
-> 
-> But the 2.6.0t7 does not see the partition table. 
-> Other disks are properly recognized, so it seems to
-> be a problem with [PTBL] and 2.6 ...
+> Plug PS/2 keyboard into PS/2 mouse port???  I didn't know you can do
+> that.
 
-The [PTBL] part just says that this 2.4 kernel first concluded to
-a 155061/16/63 geometry but then saw the partition table and
-changed it mind to 9729/255/63.
-It is unrelated to partition recognition.
-
-Check that your kernel was compiled without CONFIG_PARTITION_ADVANCED,
-or, in case you selected advanced, has CONFIG_MSDOS_PARTITION selected.
-
-If it is something else, come back (and show fdisk output).
-
+Yep, that works, with proper software.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265773AbSKTFR3>; Wed, 20 Nov 2002 00:17:29 -0500
+	id <S267628AbSKTFYP>; Wed, 20 Nov 2002 00:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbSKTFR2>; Wed, 20 Nov 2002 00:17:28 -0500
-Received: from im2.mail.tds.net ([216.170.230.92]:49793 "EHLO im2.sec.tds.net")
-	by vger.kernel.org with ESMTP id <S265773AbSKTFRZ>;
-	Wed, 20 Nov 2002 00:17:25 -0500
-Date: Wed, 20 Nov 2002 00:24:03 -0500 (EST)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@cerberus.localhost
-To: archaios <quack@bigpond.net.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <002301c2905f$ec818800$0100000a@r1a4n3>
-Message-ID: <Pine.LNX.4.44.0211200022360.21801-100000@cerberus.localhost>
-References: <Pine.LNX.4.44.0211192036530.30881-100000@blessed.joshisanerd.com>
- <Pine.LNX.4.44L.0211200057370.4103-100000@imladris.surriel.com>
- <20021120042624.GA21122@willow.seitz.com> <002301c2905f$ec818800$0100000a@r1a4n3>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267629AbSKTFYP>; Wed, 20 Nov 2002 00:24:15 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5138 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267628AbSKTFYP>;
+	Wed, 20 Nov 2002 00:24:15 -0500
+Date: Tue, 19 Nov 2002 21:24:43 -0800
+From: Greg KH <greg@kroah.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH(2.5.48): Eliminate pcidev.driver_data
+Message-ID: <20021120052442.GF21953@kroah.com>
+References: <20021119211626.A2389@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021119211626.A2389@baldur.yggdrasil.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blatantly false. Have you even _read_ the GPL? It doesn't seem that way - 
-in which case why are you discussing it?
+On Tue, Nov 19, 2002 at 09:16:26PM -0800, Adam J. Richter wrote:
+> At 2.5.45, I reposted this
+> patch and Greg Kroah-Hartman said that he would submit it to you in
+> "the next round of pci cleanups I'm going to be sending to Linus", but
+> it seems to have fallen through the cracks since then.
 
-Please get your facts straight. While you're at it, please avoid making 
-yourself look like an idiot in the future.
+I've been on "vacation" this week, and wanted to get my pcibios cleanup
+changes done first (which I just sent off.)  Sorry for the delay.
 
-On Wed, 20 Nov 2002, archaios wrote:
+This patch looks good, and if Linus doesn't take it directly, I'll put
+it up in a tree to send to him later :)
 
-> When you GPL a piece of software, you sign over your rights to the FSF. Therefore, there is very little that can be done about this;
-> from a legal perspective, the FSF _itself_ determines what is and what isn't construed as a derived work.
-> 
-> - David McIlwraith
-> ----- Original Message -----
-> From: Ross Vandegrift <ross@willow.seitz.com>
-> To: Rik van Riel <riel@conectiva.com.br>
-> Cc: <linux-kernel@vger.kernel.org>
-> Sent: Wednesday, November 20, 2002 3:26 PM
-> Subject: Re: spinlocks, the GPL, and binary-only modules
-> 
-> 
-> On Wed, Nov 20, 2002 at 12:59:26AM -0200, Rik van Riel wrote:
-[snip]
+Sorry again for the delay,
 
+greg k-h

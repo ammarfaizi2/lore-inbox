@@ -1,95 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263580AbUACQak (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 11:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUACQak
+	id S263592AbUACQh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 11:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUACQh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 11:30:40 -0500
-Received: from mail6.speakeasy.net ([216.254.0.206]:30925 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S263580AbUACQai
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 11:30:38 -0500
-Date: Sat, 3 Jan 2004 10:30:23 -0600
-From: John Lash <jlash@speakeasy.net>
-To: Alex Buell <alex.buell@munted.org.uk>
-Cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: inode_cache / dentry_cache not being reclaimed aggressively
- enough  on low-memory PCs
-Message-Id: <20040103103023.77bf91b5.jlash@speakeasy.net>
-In-Reply-To: <Pine.LNX.4.58.0401031128100.2605@slut.local.munted.org.uk>
-References: <Pine.LNX.4.58.0401031128100.2605@slut.local.munted.org.uk>
-X-Mailer: Sylpheed version 0.9.6claws71 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 3 Jan 2004 11:37:56 -0500
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:64139 "HELO
+	develer.com") by vger.kernel.org with SMTP id S263592AbUACQhz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 11:37:55 -0500
+Message-ID: <3FF6EFE0.9030109@develer.com>
+Date: Sat, 03 Jan 2004 17:37:52 +0100
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: vojtech@suse.cz
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: bad scancode for USB keyboard
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Jan 2004 11:35:36 +0000 (GMT)
-Alex Buell <alex.buell@munted.org.uk> wrote:
+Hello,
 
-> I've just run across a problem with 2.4.x (and probably 2.6.x as well, if
-> reports I've see are correct). When updatedb is run overnight, it builds
-> up large amounts of inode_cache and dentry_cache. This is a big problem on
-> low memory boxes as those caches are not being reclaimed aggressively
-> enough, which means the box will be constantly swapping if it runs out of
-> free memory. I've looked at archives and I find that there's similar
-> reports going back to 2.4.16, and doesn't seem to have been solved as this
-> problem is apparently in 2.6.0 as well!
->  
-> The only solution I've found so far is to run L*rry McV*y's lmdd to force
-> reclaimation of those caches but this isn't ideal. What patches are out
-> there that solves this problem?
-> 
+I have a USB keyboard (Logitech Internet Navigator).
+This keyboard has two "backslash + bar" keys, one of which
+is located next to the RETURN key.
 
-After taking the 30 minute tour of the 2.6.0 dcache code, one thing that seems
-possible is shrink_dcache_memory() is causing you the problem. It is doing some
-manipulation of the nr_unused value to prevent all unused dcache entries from
-being removed and thereby blowing away all recently used entries as well as the
-ones that are really stale.
+The backslash key always worked fine in 2.4.x, but in 2.6.x
+and 2.6.0, the scancode reported by showkey is "84", which is
+usually associated with the "Prevconsole" function in most
+keymaps.
 
-As it stands, it will maintain as many unused entries as there are used entries.
-If this low memory system las a large, stable, number of inuse dentry objects,
-the unused entries will match it thereby holding double the memory and possibly
-causing the problem you see.
+Editing the keymap fixes the problem, but of course this must
+be a bug in the kernel driver.  I compared the 2.4.23 version
+of kbdmap.c with 2.6.0, but didn't find any obvious reason for
+this difference.
 
-here are the lines I mean:
-	nr_unused = dentry_stat.nr_unused;
-	nr_used = dentry_stat.nr_dentry - nr_unused;
-	if (nr_unused < nr_used * unused_ratio)
-		return 0;
-	return nr_unused - nr_used * unused_ratio;  /* unused_ratio = 1 at the top of
-the fn */
-
-Check on your system, /proc/sys/fs/dentry-state, first two values appear to be
-nr_dentry and nr_unused. Plug those values into the above code and if you get
-something around zero, that's why the memory is stuck.
-
-A couple of solutions come to mind. The one I like best would be to adjust the
-above code to make it conscious of the total memory in the system and keep
-nr_unused to a reasonable percentage. Another is to allow unused_ratio to be
-less than 1, Possibly some/proc entry to lower it (.5, .25, whatever), or to
-avoid the float, provide another  parameter to do an integer divisor for
-unused_ratio. Something like:
-
-	nr_unused - nr_used * unused_ratio / ratio_fraction
-
-If that's not why the memory is stuck, then it's something deeper in the reclaim
-code. Either way, I'd be curious to know what you find. Depending on what your
-system shows, I could provide a patch to try some things out.
-
---john
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
 
-> Thanks,
-> Alex.
-> -- 
-> http://www.munted.org.uk
-> 
-> Your mother cooks socks in hell
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130202AbRAMOK6>; Sat, 13 Jan 2001 09:10:58 -0500
+	id <S130321AbRAMORE>; Sat, 13 Jan 2001 09:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130765AbRAMOKs>; Sat, 13 Jan 2001 09:10:48 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:17081 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S130202AbRAMOKa>; Sat, 13 Jan 2001 09:10:30 -0500
-X-Gnus-Agent-Meta-Information: mail nil
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] symlink creation broken in shmem.c
-From: Christoph Rohland <cr@sap.com>
-Message-ID: <m3g0ink1ss.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-Date: 13 Jan 2001 15:14:30 +0100
+	id <S130397AbRAMOQz>; Sat, 13 Jan 2001 09:16:55 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:604 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S130321AbRAMOQr>; Sat, 13 Jan 2001 09:16:47 -0500
+Message-ID: <3A60634A.54BB21ED@linux.com>
+Date: Sat, 13 Jan 2001 06:16:42 -0800
+From: David Ford <david@linux.com>
+Reply-To: david+validemail@kalifornia.com
+Organization: Talon Technology, Intl.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Christoph Rohland <cr@sap.com>
+CC: david+validemail@kalifornia.com, linux-kernel@vger.kernel.org
+Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
+In-Reply-To: <m366jj20si.fsf@linux.local> <3A604B26.53EC029F@linux.com> <m33denk0p2.fsf@linux.local>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+> It is a filesystem which lives in RAM and can swap out. SYSV shm and
+> shared anonymous maps are still build on top of this (The config
+> option only disables the part not needed for this).
+>
+> I am quite open about naming, but "shm" is not appropriate any more
+> since the fs does a lot more than shared memory. Solaris calles this
+> "tmpfs" but I did not want to 'steal' their name and I also do not
+> think that it's a very good name.
+>
+> So any suggestions for a better name?
 
-The shmem_symlink function is completely broken in 2.4.0 and never
-worked.
+Hmm, ok, what are the activities that use this other than shm?
 
-This patch removes the function from 2.4.0
+-d
 
-Greetings
-                Christoph
+-- ---NOTICE
 
-P.S.: For those which test read/write support patch: I will post patch
-      for my swapfs soon which will make it working on top of that
+-- fwd: fwd: fwd: type emails will be deleted automatically.
+      "There is a natural aristocracy among men. The grounds of this are
+      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
 
 
-diff -uNr 2.4.0/mm/shmem.c 2.4.0-nosymlink/mm/shmem.c
---- 2.4.0/mm/shmem.c	Sat Jan 13 14:20:51 2001
-+++ 2.4.0-nosymlink/mm/shmem.c	Sat Jan 13 14:18:26 2001
-@@ -374,8 +374,7 @@
- 			inode->i_fop = &shmem_dir_operations;
- 			break;
- 		case S_IFLNK:
--			inode->i_op = &page_symlink_inode_operations;
--			break;
-+			BUG();
- 		}
- 		spin_lock (&shmem_ilock);
- 		list_add (&inode->u.shmem_i.list, &shmem_inodes);
-@@ -528,19 +527,6 @@
- 	return error;
- }
- 
--static int shmem_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
--{
--	int error;
--
--	error = shmem_mknod(dir, dentry, S_IFLNK | S_IRWXUGO, 0);
--	if (!error) {
--		int l = strlen(symname)+1;
--		struct inode *inode = dentry->d_inode;
--		error = block_symlink(inode, symname, l);
--	}
--	return error;
--}
--
- static int shmem_mmap(struct file * file, struct vm_area_struct * vma)
- {
- 	struct vm_operations_struct * ops;
-@@ -677,7 +663,6 @@
- 	lookup:		shmem_lookup,
- 	link:		shmem_link,
- 	unlink:		shmem_unlink,
--	symlink:	shmem_symlink,
- 	mkdir:		shmem_mkdir,
- 	rmdir:		shmem_rmdir,
- 	mknod:		shmem_mknod,
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

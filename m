@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVCVD5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVCVDo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbVCVD5J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 22:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVCVDyz
+	id S262380AbVCVDo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVCVCXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 22:54:55 -0500
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:16748 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262247AbVCVDtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 22:49:18 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Patrick McFarland <pmcfarland@downeast.net>
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Mon, 21 Mar 2005 22:49:08 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200503201557.58055.pmcfarland@downeast.net> <200503212215.58544.dtor_core@ameritech.net> <200503212241.26780.pmcfarland@downeast.net>
-In-Reply-To: <200503212241.26780.pmcfarland@downeast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503212249.09512.dtor_core@ameritech.net>
+	Mon, 21 Mar 2005 21:23:35 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:49547 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262351AbVCVBgU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 20:36:20 -0500
+Message-Id: <20050322013457.707786000@abc>
+References: <20050322013427.919515000@abc>
+Date: Tue, 22 Mar 2005 02:23:58 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Francois Romieu <romieu@fr.zoreil.com>
+Content-Disposition: inline; filename=dvb-saa7146-static-init.patch
+X-SA-Exim-Connect-IP: 217.231.55.169
+Subject: [DVB patch 25/48] saa7146: static initialization
+X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 March 2005 22:41, Patrick McFarland wrote:
-> On Monday 21 March 2005 10:15 pm, Dmitry Torokhov wrote:
-> > Looks good, I was wondering if you had GAMEPORT=m and SND_ENS1371=y.
-> 
-> Yes, that would be quite silly. ;)
-> 
-> > > For the curious, what was the first kernel to be released that had your
-> > > sysfs stuff in it?
-> >
-> > 2.6.11-mm and 2.6.12-rc1. Vanilla 2.6.11 does not have it.
-> 
-> I'll go compile 2.6.11 to see if it works there.
-> 
-> > Could you verify that you enabled joystick port on card? What does
-> > "cat /sys/module/snd_ens1371/parameters/joystick_port" show?
-> 
-> 0,0,0,0,0,0,0,0
-> 
+Static initialization.
 
-Ok, it looks like setup problem. Try doing:
+Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
-	modprobe snd-ens1371 joystick_port=1
+ saa7146_core.c |   29 ++---------------------------
+ 1 files changed, 2 insertions(+), 27 deletions(-)
 
--- 
-Dmitry
+Index: linux-2.6.12-rc1-mm1/drivers/media/common/saa7146_core.c
+===================================================================
+--- linux-2.6.12-rc1-mm1.orig/drivers/media/common/saa7146_core.c	2005-03-21 23:27:57.000000000 +0100
++++ linux-2.6.12-rc1-mm1/drivers/media/common/saa7146_core.c	2005-03-22 00:18:04.000000000 +0100
+@@ -20,11 +20,9 @@
+ 
+ #include <media/saa7146.h>
+ 
+-/* global variables */
+-struct list_head saa7146_devices;
+-struct semaphore saa7146_devices_lock;
++LIST_HEAD(saa7146_devices);
++DECLARE_MUTEX(saa7146_devices_lock);
+ 
+-static int initialized = 0;
+ static int saa7146_num = 0;
+ 
+ unsigned int saa7146_debug = 0;
+@@ -527,12 +525,6 @@ int saa7146_register_extension(struct sa
+ {
+ 	DEB_EE(("ext:%p\n",ext));
+ 
+-	if( 0 == initialized ) {
+-		INIT_LIST_HEAD(&saa7146_devices);
+-		init_MUTEX(&saa7146_devices_lock);
+-		initialized = 1;
+-	}
+-
+ 	ext->driver.name = ext->name;
+ 	ext->driver.id_table = ext->pci_tbl;
+ 	ext->driver.probe = saa7146_init_one;
+@@ -550,23 +542,6 @@ int saa7146_unregister_extension(struct 
+ 	return 0;
+ }
+ 
+-static int __init saa7146_init_module(void)
+-{
+-	if( 0 == initialized ) {
+-		INIT_LIST_HEAD(&saa7146_devices);
+-		init_MUTEX(&saa7146_devices_lock);
+-		initialized = 1;
+-	}
+-	return 0;
+-}
+-
+-static void __exit saa7146_cleanup_module(void)
+-{
+-}
+-
+-module_init(saa7146_init_module);
+-module_exit(saa7146_cleanup_module);
+-
+ EXPORT_SYMBOL_GPL(saa7146_register_extension);
+ EXPORT_SYMBOL_GPL(saa7146_unregister_extension);
+ 
+
+--
+

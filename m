@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUGIEiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUGIEmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUGIEiM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 00:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUGIEiM
+	id S264113AbUGIEmS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 00:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUGIEmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 00:38:12 -0400
-Received: from web13702.mail.yahoo.com ([216.136.175.135]:54535 "HELO
-	web13702.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264085AbUGIEiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 00:38:05 -0400
-Message-ID: <20040709043804.50539.qmail@web13702.mail.yahoo.com>
-Date: Thu, 8 Jul 2004 21:38:04 -0700 (PDT)
-From: Martins Krikis <mkrikis@yahoo.com>
-Subject: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.26
-To: linux-kernel@vger.kernel.org, linux-kernel-announce@vger.kernel.org
-Cc: mkrikis@yahoo.com
-In-Reply-To: <20040221024833.16640.qmail@web13707.mail.yahoo.com>
-MIME-Version: 1.0
+	Fri, 9 Jul 2004 00:42:17 -0400
+Received: from mail-relay-2.tiscali.it ([212.123.84.92]:53647 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S264113AbUGIEmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 00:42:16 -0400
+Date: Fri, 9 Jul 2004 06:42:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mason@suse.com
+Subject: Re: writepage fs corruption fixes
+Message-ID: <20040709044205.GF20947@dualathlon.random>
+References: <20040709040151.GB20947@dualathlon.random> <20040708212923.406135f0.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040708212923.406135f0.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 0.1.4 of the Intel Sofware RAID driver (iswraid) is now
-available for the 2.4 series kernels at
-http://prdownloads.sourceforge.net/iswraid/2.4.26-libata-iswraid.patch.gz?download
+Hi Andrew,
 
-It is an ataraid "subdriver" but uses the SCSI subsystem to find the
-RAID member disks. It depends on the libata library, particularly the
-ata_piix driver that enables the Serial ATA capabilities in ICH5/ICH6
-chipsets. The libata patch by Jeff Garzik should be applied before
-applying this patch. There is more information and some ICH6R related
-patches at the project's home page at http://iswraid.sourceforge.net/.
+On Thu, Jul 08, 2004 at 09:29:23PM -0700, Andrew Morton wrote:
+> ooh, nasty, yes.  You must be testing the crap out if it.
 
-The changes WRT version 0.1.3 are as follows:
-* a fix for CONFIG_HIGHMEM systems; 
-* reasonable handling of missing disks; 
-* when RAID1 goes degraded, the I/O succeeds; 
-* new mode that does not fail degraded RAID1 ever; 
-* metadata updates started from the scheduler's queue; 
-* slab caches instead of kmalloc-s; 
-* small /proc filesystem tweaks; 
-* serial number extraction fixed; 
-* unused disks properly freed; 
-* added documentation file; 
-* major style changes and more comments about implementation choices.
+;) thanks for the immediate review!
 
-If you have any questions or comments, please CC me directly because
-I no longer read this list.
+BTW, the new mpage code looks great, it's a pity that reiserfs and ext3
+don't use it yet.
 
-           Martins Krikis
-           Storage Components Division (SCD)
-           Intel Massachusetts
+> PG_writeback protects the page from truncate, from invalidate and from page
+> reclaim.  pagevec_strip() won't touch the buffers due to the
+> PageWriteback() test in try_to_release_page().  So I think we're OK in
+> there.  I can add a couple more coment fixes for this.
 
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - Helps protect you from nasty viruses.
-http://promotions.yahoo.com/new_mail
+Indeed, sorry. I should have watched more carefully for the writeback
+bitflag but I was still in "anything that looks a bug close it and try
+again" mode when I made the two "noop" changes ;)

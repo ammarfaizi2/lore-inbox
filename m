@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261595AbSJFMfY>; Sun, 6 Oct 2002 08:35:24 -0400
+	id <S261594AbSJFMeq>; Sun, 6 Oct 2002 08:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263395AbSJFMfY>; Sun, 6 Oct 2002 08:35:24 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:1854 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id <S261595AbSJFMfS>; Sun, 6 Oct 2002 08:35:18 -0400
-From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-To: "'Russell King'" <rmk@arm.linux.org.uk>
-Cc: "Linux Kernel Development List" <linux-kernel@vger.kernel.org>
-Subject: RE: Good Idea (tm): Code Consolidation for Functions and Macros that Access the Process Address Space
-Date: Sun, 6 Oct 2002 07:40:44 -0500
-Message-ID: <000801c26d35$9d6ac670$81281c43@joe>
+	id <S261598AbSJFMeq>; Sun, 6 Oct 2002 08:34:46 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:39555 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261594AbSJFMeo>;
+	Sun, 6 Oct 2002 08:34:44 -0400
+Message-ID: <3DA02F30.8040904@colorfullife.com>
+Date: Sun, 06 Oct 2002 14:40:16 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re:  BK MetaData License Problem?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <20021006105008.B27487@flint.arm.linux.org.uk>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> On Sat, Oct 05, 2002 at 07:58:55PM -0500, Joseph D. Wagner wrote:
->> SUBJECT: Good Idea (tm): Code Consolidation for Functions and Macros
->> that Access the Process Address Space
->>...
->> Remember, if a function call has no place for a returned value to go,
->> nothing bad happens; the returned value is simply ignored/discarded.
+>                              By transmitting the Metadata
+>      to an Open Logging server, You hereby grant BitMover,
+>      or any other operator of an Open Logging server, per-
+>      mission  to  republish  the Metadata sent by the Bit-
+>      Keeper Software to the Open Logging server.
+> 
 
-> And the compiler warning?
+Where is the problem? This asks for a permission, not for exclusive rights.
 
-See WHY THIS SHOULD BE CHANGED #3 "Forces better coding structures and
-procedures..."  Frankly, error controls should have been programmed into
-the code anyway.  It's just good programming practice.
 
->> SOLUTION:
+> 	By transmitting the MetaData to an Open Logging server, You 
+>         hereby also agree to license the MetaData under the same license
+>         you license the data it describes.
+> 
+> (or something to that extent - i'm not a lawyer.)
+> 
 
-> Get rid of the _ret forms.  Their use is frowned on today anyway
-because
-> they hide the real meaning of what the code is trying to do, and
-hiding
-> the fact that a function can return in the middle of what looks like a
-> macro call is _REAL_ _BAD_.
+That's a problem for Linux, not for Larry.
 
-While I respectively disagree with you, I really don't care which set of
-functions/macros are eliminated for consolidation purposes.  My original
-point still stands that maintaining duplicate functions -- well, near
-duplicate with the exception of the returned error code -- is a waste of
-time, resources, and coding, and for the purpose of simplified
-maintenance, one of the sets of duplicate functions/macros should be
-eliminated.
+If you send a patch to Linus this means you distribute a modification to 
+GPLed source, which means it's automatically placed under the GPL.
 
-Joseph Wagner
+What's missing is a comment in the BK-usage document that informs the 
+submitter that he must give the permission to republish the commit info. 
+i.e. asking Linus to pull from an url is not a private message to Linus, 
+it's the equivalent of sending a mail to a public, moderated mailing list.
+
+--
+	Manfred
 

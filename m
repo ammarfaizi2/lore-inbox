@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262988AbUKRVX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbUKRVU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262988AbUKRVX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 16:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUKRVVn
+	id S261173AbUKRVU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 16:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUKRVTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 16:21:43 -0500
-Received: from mail.suse.de ([195.135.220.2]:16086 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262978AbUKRVUs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:20:48 -0500
-Date: Thu, 18 Nov 2004 21:46:02 +0100
-From: Andi Kleen <ak@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: discuss@x86-64.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ak@suse.de
-Subject: Re: [discuss] [PATCH 2.6.10-rc2] x86_64: only single-step into signal handlers if the tracer asked for it
-Message-ID: <20041118204602.GB31342@wotan.suse.de>
-References: <200411150203.iAF23Trb024677@hera.kernel.org> <20041118154219.GJ4583@smtp.west.cox.net>
+	Thu, 18 Nov 2004 16:19:07 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10958 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261173AbUKRVRQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 16:17:16 -0500
+Date: Thu, 18 Nov 2004 13:16:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin =?ISO-8859-1?B?TU9LUkVKX18=?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+Cc: chris@tebibyte.org, marcelo.tosatti@cyclades.com, andrea@novell.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       piggin@cyberone.com.au, riel@redhat.com, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+Message-Id: <20041118131655.6782108e.akpm@osdl.org>
+In-Reply-To: <419CD8C1.4030506@ribosome.natur.cuni.cz>
+References: <20041111112922.GA15948@logos.cnet>
+	<4193E056.6070100@tebibyte.org>
+	<4194EA45.90800@tebibyte.org>
+	<20041113233740.GA4121@x30.random>
+	<20041114094417.GC29267@logos.cnet>
+	<20041114170339.GB13733@dualathlon.random>
+	<20041114202155.GB2764@logos.cnet>
+	<419A2B3A.80702@tebibyte.org>
+	<419B14F9.7080204@tebibyte.org>
+	<20041117012346.5bfdf7bc.akpm@osdl.org>
+	<419CD8C1.4030506@ribosome.natur.cuni.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041118154219.GJ4583@smtp.west.cox.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 08:42:19AM -0700, Tom Rini wrote:
-> On Mon, Nov 15, 2004 at 08:56:31AM +0000, torvalds@ppc970.osdl.org wrote:
+Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz> wrote:
+>
+>    I'm sorry for the delay. I had to re-invent my old memory tests.
+>  I have just compared 2.4.26-gentoo-r9 kernel, plain 2.4.28 and
+>  plain 2.6.10-rc2. The last has OOM problems, as it kills unnecessarilly
+>  2 xterms "in addition" to the application which caused memory outsourcing.
 > 
-> > ChangeSet 1.2159, 2004/11/15 00:56:31-08:00, torvalds@ppc970.osdl.org
-> > 
-> > 	x86: only single-step into signal handlers if the tracer
-> > 	asked for it.
-> 
-> x86_64 looks to have the same issue.  But I deferr to the experts (and
-> hope this isn't a dupe).
+>     I'm not sure which patches sent to the list last days still make
+>  sense to be tested.
 
-Looks good, thanks.
-
--Andi
+Please test
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/broken-out/vmscan-ignore-swap-token-when-in-trouble.patch
+against 2.6.10-rc2, or latest -linus.

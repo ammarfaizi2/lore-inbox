@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264781AbRFSU5a>; Tue, 19 Jun 2001 16:57:30 -0400
+	id <S264784AbRFSVDu>; Tue, 19 Jun 2001 17:03:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264785AbRFSU5U>; Tue, 19 Jun 2001 16:57:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1664 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264781AbRFSU5H>;
-	Tue, 19 Jun 2001 16:57:07 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S264785AbRFSVDk>; Tue, 19 Jun 2001 17:03:40 -0400
+Received: from 63-217-58-35.sdsl.cais.net ([63.217.58.35]:31244 "EHLO
+	corp-p1.gemplex.com") by vger.kernel.org with ESMTP
+	id <S264784AbRFSVDa>; Tue, 19 Jun 2001 17:03:30 -0400
+Message-ID: <A5F553757C933442ADE9B31AF50A273B028DB9@corp-p1.gemplex.com>
+From: "McHarry, John" <john.mcharry@gemplex.com>
+To: "'Tom Diehl'" <tdiehl@pil.net>, linux-kernel@vger.kernel.org
+Subject: RE: How to compile on one machine and install on another?
+Date: Tue, 19 Jun 2001 17:04:02 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15151.48287.782428.953466@pizda.ninka.net>
-Date: Tue, 19 Jun 2001 13:57:03 -0700 (PDT)
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-In-Reply-To: <p05100302b7553d481172@[10.128.7.49]>
-In-Reply-To: <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca>
-	<3B2F769C.DCDB790E@kegel.com>
-	<20010619090956.R3089@work.bitmover.com>
-	<p05100302b7553d481172@[10.128.7.49]>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Jonathan Lundell writes:
- > Sun (or at least SPARC) is a bit of a special case, though. SPARC's 
- > register-window architecture makes thread-switching (not to mention 
- > recursion) significantly more expensive than on most other 
- > architectures.
 
-The register window flush is a relatively constant cost with a fixed
-upper bound, regardless of whether you are switching threads or
-processes, the process is the same.
+ -----Original Message-----
+From: 	Tom Diehl [mailto:tdiehl@pil.net] 
+Sent:	Tuesday, June 19, 2001 4:55 PM
+To:	linux-kernel@vger.kernel.org
+Subject:	Re: How to compile on one machine and install on another?
 
-This cost is honestly lost in the noise during a context switch.  The
-trap entry/exit in and out of userspace usually costs more cycles than
-the window flush at schedule() time.
+On Tue, 19 Jun 2001, Alan Cox wrote:
 
-The worst case whole window flush to the stack can fit (several times
-over) in the store cache of UltraSPARC-III.
+> Other than making sure you configure it for the box it will eventually run
+> on - nope you have it all sorted. If you use modules you'll want to
+install
+> the modules on the target machine too
 
-So my basic point is that I don't want people to read what you said
-and believe "oh then the difference between threads vs. different
-processes under Solaris is due to Sparc hw architecture reasons
-instead of sw reasons" which simply isn't true.
+What is the best way to install the modules? Is there a directory _all_ of
+the modules exist in b4 you do "make modules_install". I usually end up
+setting EXTRAVERSION to something unique and doing a make modules_install.
+That way it does not hose up the modules for the build machine.
+Is there a better way?
 
-<axe_grind>
-Solaris just simply bites it at context switching threads in the
-kernel.
-</axe_grind>
+I found it puts the new ones in a unique directory under /lib/modules.  I
+just copied that also.  
 
-The same identical code flushes the register windows for processes and
-threads under Linux, and there is no reason this should not be the
-case.
 
-<axe_grind>
-
-Don't believe me that Solaris sucks here?  Run this experiment under
-Solaris-latest and Linux on a sparc64 system (using lmbench):
-
-Under Solaris: ./lat_proc fork
-Under Linux: strace -f ./lat_proc fork
-
-I bet the Linux case does better than the Solaris run by some orders
-of magnitude.  That's how poor their fork/exit/switch code is.
-
-</axe_grind>
-
-Later,
-David S. Miller
-davem@redhat.com
-
+I didn't go into the issues, but I am getting an error message from the
+target box that "/dev/md0 must be a nonpersistent RAID0 or LINEAR array!"
+This is OK in 2.2.17, which is currently running on the machine.

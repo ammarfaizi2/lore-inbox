@@ -1,210 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288155AbSACDER>; Wed, 2 Jan 2002 22:04:17 -0500
+	id <S288157AbSACDF2>; Wed, 2 Jan 2002 22:05:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288152AbSACDEI>; Wed, 2 Jan 2002 22:04:08 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:14249 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S288155AbSACDDz>; Wed, 2 Jan 2002 22:03:55 -0500
-Date: Thu, 3 Jan 2002 03:06:03 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj11
-Message-ID: <20020103030603.A26386@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S288156AbSACDFU>; Wed, 2 Jan 2002 22:05:20 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:41998 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288152AbSACDFB>;
+	Wed, 2 Jan 2002 22:05:01 -0500
+Date: Wed, 2 Jan 2002 19:03:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Roger Leblanc <r_leblanc@videotron.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock in kernel on USB shutdown
+Message-ID: <20020103030356.GA5313@kroah.com>
+In-Reply-To: <3C33A22F.40906@videotron.ca> <20020103001816.GB4162@kroah.com> <3C33A4EC.1040300@videotron.ca> <20020103002827.GA4462@kroah.com> <3C33AF4F.7000703@videotron.ca> <20020103013231.GA4952@kroah.com> <3C33BD88.3010903@videotron.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <3C33BD88.3010903@videotron.ca>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 06 Dec 2001 00:56:15 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resync, and merge lots of pending fixes.
-This gets things mostly usable for quite a few boxes I've
-tried on, there's still a lot of breakage, and some of the
-kdev_t fixes applied here may not be final.
+On Wed, Jan 02, 2002 at 09:10:16PM -0500, Roger Leblanc wrote:
+> umount seg-faults while unmounting /proc/bus/usb! Then modprobe also 
+> seg-faults while unloading usb-uhci!!! But the system stays up.
+> After that, I cannot make my scanner to work even if I run 
+> ".../init.d/usb start".
 
-Patch against 2.5.1 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+Can you run that first oops through ksymoops and send it.  Actually do
+it for both oopses.
 
-Enjoy,
-  -- Davej.
+> B.T.W. Did I tell you that I can bring the kernel down just by turning 
+> the scanner off and then back again?
 
-2.5.1-dj11
-o   Merge up to 2.5.2pre6
-    | Plus various compile fixes.		(Me, Jeff Garzik,
-		    				 Frank Davis, Martin Dalecki)
-o   Don't enable APIC on newer Dell laptops.	(Mikael Pettersson)
-o   Add more missing MODULE_LICENSE tags.	(Me)
-o   Report out-of-spec SMP Athlons.		(Me)
-    | Flames to /dev/null
-o   More fbdev/console clean up.		(James Simmons)
-o   Sync up with latest bootproto.		(H. Peter Anvin)
-o   Reiserfs Sparc alignment fix.		(Alexander Zarochentcev)
-o   Remove some bogus headers left around.	(Christoph Hellwig)
-o   Fix wanrouter build.			(Me)
-o   Various bio surgery on SCSI drivers.	(Arnaldo Carvalho de Melo)
-o   Reiserfs getblk cleanups.			(Christoph Hellwig)
-o   make DASD use generic BLKGETSIZE{64} again	(Christoph Hellwig)
-o   Fix devfs & tty breakage.			(James Simmons)
+Hm, sounds like the scanner driver has some problems :)
+You might email the author with this info and see if he has any ideas.
 
-
-2.5.1-dj10
-o   Remove one of the NFS changes. Better fix in mainline.	(Me)
-o   Add switch to enable 486 string copies.			(Me)
-    | 486 users please try this out, and give feedback
-    | so we can see how broken this actually is.
-    | It's in the 'kernel hacking' menu.
-o   JFFS2 corruption fix.			(David Woodhouse)
-o   Bridging CONFIG_INET cleanup.		(Lennert Buytenhek)
-o   Bridging recursion bugfix.			(Lennert Buytenhek)
-o   Fix up port state handling.			(Lennert Buytenhek)
-o   Improved fbdev init.			(James Simmons)
-o   PNPOS simple bootflag fix.			(Thomas Hood)
-o   Drop most of the USB changes on Greg's request.
-    | Newer versions should appear in -linus soon.
-    | Some bits still remain, but if I've broke it, blame
-    | me and not Greg.
-o   Experimental preload_cache() function.	(Me)
-o   Ugly hack to file_read_actor() to use the above	(Me)
-    | Just playing, this needs more work.
-
-
-2.5.1-dj9
-o   Merge up to 2.5.2pre4.
-    | Also fix up a bunch of build errors.
-o   Add support for Sony DSC-P5 to USB unusual devs.	(Gregor Jasny)
-o   First part of new console locking infrastructure.	(James Simmons)
-o   Cleaner/Lighter fbdev api.				(James Simmons,
-							 Geert Uytterhoeven)
-o   Don't coredump framebuffer contents.		(Andrew Morton)
-o   Fix hang on close of serial tty.			(Russell King)
-o   Remove the set_current_state() patch, needs work.	(Me)
-o   Drop ICH2 addition to ioapic Whitelist. 		(Me)
-o   Do the asm/segment.h crapectomy properly.		(David Woodhouse)
-o   Reactivate the PNPBIOS Configure.help entry.
-
-
-2.5.1-dj8
-o   Remove leftover EISA cruft in x86 ksyms.		(Me)
-o   Add a missing part of the split visws support.	(Me)
-o   Make reiserfs partitions mountable again.		(Al Viro,
-							 Andrew Morton, Me)
-o   Make x86 math emulation work with dynamic LDT.	(Manfred Spraul)
-o   Fix problems with tdfxfb & high pixelclocks.	(Jurriaan)
-    | Only tested on PCI 4500, feedback to thunder7@xs4all.nl
-o   Replace text.lock with .subsection			(Keith Owens)
-o   Remove Cyrix SLOP workaround.			(Me)
-    | Can be done in userspace/initramfs.
-o   Merge pnpbios support.				(Thomas Hood)
-    | Should work, but may be nice to bend into shape
-    | to fit the new driverfs model at some point.
-
-
-2.5.1-dj7
-o   Merge 2.5.2pre3
-    | Drop some of the reiserfs changes. Looks like -dj has
-    | a more complete set of fixes from 2.4. This is getting
-    | a little hairy, so handle with care.
-o   Make rootfs compile.				(Me)
-o   Dynamically grow LDT.				(Manfred Spraul)
-o   Randomness for ext2 generation numbers.		(Manfred Spraul)
-o   Give Manfreds threaded coredump a retry.		(Manfred Spraul)
-o   Add missing ad1848 formats.				(Alan Cox)
-o   Make ide-floppy compile without PROC_FS.		(Robert Love)
-o   generic_serial, rio_linux, serial_tx3912,		(Rasmus Andersen)
-    sh-sci and sx drivers janitor work.
-o   opl3sa2 Power management support & update.		(Zwane Mwaikambo)
-    | Add Zwane to MAINTAINERS for this too.
-o   Fix buggy MODINC i2o_config macro.			(Andreas Dilger)
-o   Cyclades driver /proc/ioports oops fix.		(Andrew Morton)
-    | Untested afaik, but looks sane.
-    | rmmod cyclades.o ; cat /proc/ioports to see if this works.
-o   SX driver, DCD-HylaFAX problem solved.		(Heinz-Ado Arnolds)
-o   Only look in 1KB of EBDA for MP table.		(Zwane Mwaikambo) 
-    | Follows the MP1.4 Spec closer, let me know of any
-    | SMP problems if any with this change.
-o   Better fix for the sunrpc 'missing include'.	(David Woodhouse)
-o   Remove bogus <asm/segment.h> includes.		(David Woodhouse)
-o   ps2esdi spinlock typo.				(Me)
-
-
-2.5.1-dj6
-o   Merge 2.5.2pre2
-    | Includes updated for 2.5 SCSI debug driver.	(Douglas Gilbert)
-o   Merge 2.4.18pre1
-o   Missing include in sunrpc sched.c			(David S. Miller)
-o   Remove incorrect devinit's from bttv & USB.		(Andrew Morton)
-o   Remove redundant EISA_bus__is_a_macro macro.	(Me)
-o   Split visws support to setup-visws.c		(Me)
-    | Can someone with one of these beasts test this, and maybe
-    | even *gulp* maintain it ?
-o   pc110pad spinlock thinko				(Peter T. Breuer)
-o   Fix reiserfs + highmem possible oops.		(Oleg Drokin)
-o   Fix reiserfs fsx breakage.				(Oleg Drokin)
-o   Make IPV6 accept timestamps in response to SYNs.	(Alexey Kuznetsov)
-o   NCR5380_timer_fn needs to be static.		(Rasmus Andersen)
-o   CONFIG_SERIAL_ACPI is IA64 only.			(Me)
-
-
-2.5.1-dj5
-o   Sync up to 2.5.2pre1
-o   Merge 2.4.17final.
-o   Gravis ultrasound PnP update		(Andrey Panin)
-
-
-2.5.1-dj4
-o   Merge with 2.4.17-rc2
-    | Most was already here, more or less just fixes for
-    | reiserfs & netfilter, and some VM changes.
-
-
-2.5.1-dj3
-o   Drop Manfreds multithread coredump changes		(Me)
-    | They caused ltp waitpid05 regression on 2.5
-    | (Same patch is fine for 2.4)
-o   Intermezzo compile fix.				(Chris Wright)
-o   Fix ymfpci & hisax merge errors.			(Me)
-o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
-o   Make hpfs work again.				(Al Viro)
-o   Alpha Jensen compile fixes.				(Ronald Lembcke)
-o   Make NCR5380 compile non modularly.			(Erik Andersen)
-
-
-2.5.1-dj2
-o   bio fixes for qlogicfas.			(brett@bad-sports.com)
-o   Correct x86 CPU helptext.			(Me)
-o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
-o   Use better ide-floppy fixes.		(Jens Axboe)
-o   Make NFS 'fsx' proof.			(Trond Mykelbust)
-    | 2 races & 4 bugs, hopefully this is all.
-o   devfs update				(Richard Gooch)
-o   Backout early CPU init, needs more work.	(Me)
-    | This should fix several strange reports.
-o   drop new POSIX kill semantics for now	(Me)
-
-
-2.5.1-dj1
-o   Resync with 2.5.1
-    | drop reiserfs changes. 2.4's look to be more complete.
-o   Fix potential sysvfs oops.				(Christoph Hellwig)
-o   Loopback driver deadlock fix.			(Andrea Arcangeli)
-o   __devexit cleanups in drivers/net/			(Daniel Chen,
-    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
-o   Configure.help updates				(Eric S. Raymond)
-o   Make reiserfs compile again.				(Me)
-o   bio changes for ide floppy					(Me)
-    | handle with care, compiles, but is unfinished.
-o   Make x86 identify_cpu() happen earlier			(Me)
-    | PPro errata workaround & APIC setup got a little
-    | cleaner as a result.
-o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
-o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
-o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
-    atyfb & fbmem.
-
-
--- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+greg k-h

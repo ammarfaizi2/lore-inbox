@@ -1,113 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268458AbRGZRLb>; Thu, 26 Jul 2001 13:11:31 -0400
+	id <S268436AbRGZRQb>; Thu, 26 Jul 2001 13:16:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268371AbRGZRLW>; Thu, 26 Jul 2001 13:11:22 -0400
-Received: from smtp.monmouth.com ([209.191.58.6]:6152 "EHLO smtp.monmouth.com")
-	by vger.kernel.org with ESMTP id <S268358AbRGZRLN>;
-	Thu, 26 Jul 2001 13:11:13 -0400
-Message-ID: <3B604125.D11E95F8@monmouth.com>
-Date: Thu, 26 Jul 2001 12:11:18 -0400
-From: Dipak Biswas <dipak@monmouth.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-6.1smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Facing problem
-In-Reply-To: <20010725030855.696.qmail@pc7.prs.nunet.net>
-Content-Type: multipart/mixed;
- boundary="------------0404E55CD7C51E668835FADC"
+	id <S268371AbRGZRQV>; Thu, 26 Jul 2001 13:16:21 -0400
+Received: from co3000407-a.belrs1.nsw.optushome.com.au ([203.164.252.88]:44452
+	"EHLO bozar") by vger.kernel.org with ESMTP id <S268436AbRGZRQK>;
+	Thu, 26 Jul 2001 13:16:10 -0400
+Date: Fri, 27 Jul 2001 03:15:51 +1000
+From: Andre Pang <ozone@algorithm.com.au>
+To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com> <20010726095452.L27780@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010726095452.L27780@work.bitmover.com>
+User-Agent: Mutt/1.3.18i
+Message-Id: <996167751.209473.2263.nullmailer@bozar.algorithm.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This is a multi-part message in MIME format.
---------------0404E55CD7C51E668835FADC
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thu, Jul 26, 2001 at 09:54:52AM -0700, Larry McVoy wrote:
 
-Hi all,
-    I'm facing problem to bring up 2.4.5 kernel properly. The eth0 is not
-coming up and lockd is failing because of lockdsvc function not found. I'm
-attaching part of /var/log/boot.log file for your info.
+> What I'm trying to say is that I think Daniel is one of the good guys,
+> even though his user interface could stand improvement (a common thing
+> amongst smart people) and it looks like it would be smart to figure out
+> how to work with him.
 
-Thanks in advance,
-Dipak
+there's a work-in-progress called ReiserSMTP[1] which rewrites
+some bits of qmail so it works better with ReiserFS, although i
+can imagine that it would improve things on Linux as a whole.
 
+this is getting off-topic, but since the various parties involved
+(Linux vs djb/Wietse/etc[2]) are probably never going to agree
+on semantics, i'm wondering if it's possible to ask them to
+write the software in such a way that it's possible to 'drop in'
+your own functions relevant for sync'ing.  then the MTA writers
+can go and use their traditional filesystem assumptions and
+Linux users can produce very small patches to support the
+correct behaviour under Linux.
 
+it would be _nice_ if the ext3 guys would be more willing to
+implement directory-syncing on link/rename/etc, though, even as
+an option.  a 'mount -o dirsync' would be enough; no need for
+chattr +D stuff.  Linux tends to have a bad name as a platform
+as an MTA just because of all this, which is a shame.  it would be
+nice if a fix is possible.  *nudge nudge Mr. Morton* :)
 
---------------0404E55CD7C51E668835FADC
-Content-Type: text/plain; charset=us-ascii;
- name="bootlog.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bootlog.txt"
+    [1] http://www.jedi.claranet.fr/reisersmtp.html
 
-Jul 26 09:57:56 mozart syslog: syslogd startup succeeded
-Jul 26 09:57:56 mozart syslog: klogd startup succeeded
-Jul 26 09:57:56 mozart identd: identd startup succeeded
-Jul 26 09:57:57 mozart atd: atd startup succeeded
-Jul 26 09:57:57 mozart crond: crond startup succeeded
-Jul 26 09:57:57 mozart rc: Starting pcmcia succeeded
-Jul 26 09:57:45 mozart rc.sysinit: Mounting proc filesystem succeeded 
-Jul 26 09:57:45 mozart sysctl: net.ipv4.ip_forward = 0 
-Jul 26 09:57:45 mozart sysctl: net.ipv4.conf.all.rp_filter = 1 
-Jul 26 09:57:45 mozart sysctl: kernel.sysrq = 0 
-Jul 26 09:57:45 mozart sysctl: error: 'net.ipv4.ip_always_defrag' is an unknown key 
-Jul 26 09:57:45 mozart rc.sysinit: Configuring kernel parameters succeeded 
-Jul 26 09:57:45 mozart date: Thu Jul 26 09:57:45 EDT 2001 
-Jul 26 09:57:45 mozart rc.sysinit: Setting clock : Thu Jul 26 09:57:45 EDT 2001 succeeded 
-Jul 26 09:57:45 mozart rc.sysinit: Activating swap partitions succeeded 
-Jul 26 09:57:45 mozart rc.sysinit: Setting hostname mozart succeeded 
-Jul 26 09:57:45 mozart fsck: /dev/hda8: clean, 38953/218176 files, 291624/435755 blocks 
-Jul 26 09:57:45 mozart rc.sysinit: Checking root filesystem succeeded 
-Jul 26 09:57:45 mozart rc.sysinit: Remounting root filesystem in read-write mode succeeded 
-Jul 26 09:57:45 mozart rc.sysinit: Finding module dependencies succeeded 
-Jul 26 09:57:45 mozart aumix-minimal: aumix:  error opening mixer 
-Jul 26 09:57:45 mozart rc.sysinit: Loading mixer settings failed 
-Jul 26 09:57:45 mozart fsck: /dev/hda1: clean, 31/6024 files, 9908/24066 blocks 
-Jul 26 09:57:45 mozart fsck: /dev/hda6: clean, 2123/641280 files, 264924/1281175 blocks 
-Jul 26 09:57:45 mozart fsck: /dev/hda7: clean, 319/256512 files, 8082/512064 blocks 
-Jul 26 09:57:45 mozart fsck: /dev/hda5: clean, 144942/1310720 files, 876420/2616579 blocks 
-Jul 26 09:57:45 mozart rc.sysinit: Checking filesystems succeeded 
-Jul 26 09:57:45 mozart rc.sysinit: Mounting local filesystems succeeded 
-Jul 26 09:57:45 mozart rc.sysinit: Turning on user and group quotas for local filesystems succeeded 
-Jul 26 09:57:58 mozart inet: inetd startup succeeded
-Jul 26 09:57:46 mozart rc.sysinit: Enabling swap space succeeded 
-Jul 26 09:57:55 mozart kudzu:  succeeded 
-Jul 26 09:57:55 mozart sysctl: net.ipv4.ip_forward = 0 
-Jul 26 09:57:55 mozart sysctl: net.ipv4.conf.all.rp_filter = 1 
-Jul 26 09:57:55 mozart sysctl: kernel.sysrq = 0 
-Jul 26 09:57:55 mozart sysctl: error: 'net.ipv4.ip_always_defrag' is an unknown key 
-Jul 26 09:57:55 mozart network: Setting network parameters succeeded 
-Jul 26 09:57:55 mozart network: Bringing up interface lo succeeded 
-Jul 26 09:57:55 mozart ifup: Delaying eth0 initialization. 
-Jul 26 09:57:55 mozart network: Bringing up interface eth0 failed 
-Jul 26 09:57:55 mozart portmap: portmap startup succeeded 
-Jul 26 09:57:55 mozart rpc.lockd: lockdsvc: Function not implemented 
-Jul 26 09:57:55 mozart nfslock: rpc.lockd startup failed 
-Jul 26 09:57:56 mozart nfslock: rpc.statd startup succeeded 
-Jul 26 09:57:56 mozart apmd: apmd startup succeeded 
-Jul 26 09:57:56 mozart random: Initializing random number generator succeeded 
-Jul 26 09:57:58 mozart lpd: lpd startup succeeded
-Jul 26 09:57:56 mozart mount: mount: RPC: Unable to send; errno = Network is unreachable 
-Jul 26 09:57:56 mozart mount: mount: RPC: Unable to send; errno = Network is unreachable 
-Jul 26 09:57:58 mozart keytable: Loading keymap: 
-Jul 26 09:57:56 mozart netfs: Mounting NFS filesystems failed 
-Jul 26 09:57:56 mozart netfs: Mounting other filesystems succeeded 
-Jul 26 09:57:58 mozart keytable: Loading /usr/lib/kbd/keymaps/i386/qwerty/us.kmap.gz
-Jul 26 09:57:58 mozart keytable: Loading system font: 
-Jul 26 09:57:58 mozart rc: Starting keytable succeeded
-Jul 26 09:57:58 mozart gpm: gpm startup succeeded
-Jul 26 09:57:59 mozart httpd: [Thu Jul 26 09:57:59 2001] [alert] httpd: Could not determine the server's fully qualified domain name, using 127.0.0.1 for ServerName
-Jul 26 09:57:59 mozart httpd: 
-Jul 26 09:57:59 mozart httpd: httpd startup succeeded
-Jul 26 09:58:23 mozart tomcat: Using classpath: /var/tomcat/lib/ant.jar:/var/tomcat/lib/jasper.jar:/var/tomcat/lib/jaxp.jar:/var/tomcat/lib/parser.jar:/var/tomcat/lib/servlet.jar:/var/tomcat/lib/test:/var/tomcat/lib/webserver.jar:/usr/java/jdk1.3.0_02/lib/tools.jar
-Jul 26 09:58:23 mozart tomcat: tomcat startup succeeded
-Jul 26 09:58:25 mozart xfs: xfs startup succeeded
-Jul 26 09:58:26 mozart linuxconf: Linuxconf final setup
-Jul 26 09:58:28 mozart rc: Starting linuxconf succeeded
+    [2] hey, this might be the first time they agree on
+        anything!
 
 
---------------0404E55CD7C51E668835FADC--
-
+-- 
+#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save

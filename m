@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbTJISWo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 14:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTJISWo
+	id S262384AbTJIS1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 14:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTJIS1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 14:22:44 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31504 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262377AbTJISWl
+	Thu, 9 Oct 2003 14:27:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65169 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262384AbTJIS1o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 14:22:41 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-Date: 9 Oct 2003 18:12:59 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bm48fb$599$1@gatekeeper.tmr.com>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAwtz+A6aJAkeufXSGK2GIiwEAAAAA@casabyte.com> <Pine.LNX.4.44.0310071743370.32358-100000@home.osdl.org>
-X-Trace: gatekeeper.tmr.com 1065723179 5417 192.168.12.62 (9 Oct 2003 18:12:59 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Thu, 9 Oct 2003 14:27:44 -0400
+Date: Thu, 9 Oct 2003 19:27:43 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
+Message-ID: <20031009182743.GD7665@parcelfarce.linux.theplanet.co.uk>
+References: <20031009174604.GC7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310091049150.22318-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310091049150.22318-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0310071743370.32358-100000@home.osdl.org>,
-Linus Torvalds  <torvalds@osdl.org> wrote:
+On Thu, Oct 09, 2003 at 11:03:14AM -0700, Linus Torvalds wrote:
+> 
+> On Thu, 9 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> >
+> > a) on x86:
+> > static void end_8259A_irq (unsigned int irq)
+> > {
+> >         if (!(irq_desc[irq].status & (IRQ_DISABLED|IRQ_INPROGRESS)) &&
+> >				 irq_desc[irq].action)
+				^^^^^^^^^^^^^^^^^^^^^^^
+> >                enable_8259A_irq(irq);
+> > }
+> 
+> This matches the "if IRQ is disabled for whatever reason" test in irq.c, 
+> and as such it makes some amount of sense. However, from a logical 
+> standpoint it is indeed not very sensible. It's hard to see why the code 
+> does what it does.
 
-| The reason people use threads is that sharing the VM space has real 
-| advantages: it makes context switching much cheaper (fewer hw resources in 
-| the form of TLB usages) and it allows for much faster synchronization 
-| through a shared address space.
-| 
-| But the same isn't true of file descriptors or a lot of other software-
-| level abstractions. There are no inherent advantages to sharing, and in
-| fact sharing just gives more opportunity for race conditions, bad
-| interaction etc.
+The underlined bit is absent on alpha version of the same function.
 
-That depends on what you're doing. It can be lower cost to have threads
-putting fd's on a chain to be serviced by another thread than to start
-another thread to do the service and use IPC to do serialization
-between threads. And abstractions like SysV message queues are
-inherently shared. Sometimes there are savings to be had by sharing.
+Note that this piece is bogus - if .action is NULL, we are already caught
+by IRQ_INPROGRESS check.  So it's not exactly a bug, but considering
+your arguments about exact same check slightly earlier in handle_irq()...
 
-Your base point that resources shouldn't be shared needlessly is
-correct, or course.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+It's from cset1.437.22.19 by mingo; the same changeset had done unconditional
+removal of IRQ_INPROGRESS, so there it made sense.  After the irq.c part
+had been reverted (1.497.61.30 from you), i8259.c one should be killed
+too, AFAICS...

@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269164AbUJTXKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270563AbUJTXPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269164AbUJTXKE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUJTXFv
+	id S270563AbUJTXPR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270561AbUJTXKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:05:51 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:44251 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S270527AbUJTXAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:00:42 -0400
-Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending
-	Config-Requests"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@redhat.com>
-In-Reply-To: <1098199942.2857.7.camel@deimos.microgate.com>
-References: <20041019131240.A20243@flint.arm.linux.org.uk>
-	 <1098195468.8467.7.camel@deimos.microgate.com>
-	 <1098199942.2857.7.camel@deimos.microgate.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098309449.12411.57.camel@localhost.localdomain>
+	Wed, 20 Oct 2004 19:10:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:49049 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269066AbUJTXAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:00:18 -0400
+Date: Thu, 21 Oct 2004 00:56:25 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       sparclinux@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-m68k@vger.kernel.org, linux-sh@m17n.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, parisc-linux@parisc-linux.org,
+       linux-ia64@vger.kernel.org, linux-390@vm.marist.edu,
+       linux-mips@linux-mips.org
+Subject: Re: [discuss] Re: [PATCH] Add key management syscalls to non-i386 archs
+Message-ID: <20041020225625.GD995@wotan.suse.de>
+References: <3506.1098283455@redhat.com> <20041020150149.7be06d6d.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 20 Oct 2004 22:57:31 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041020150149.7be06d6d.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-10-19 at 16:32, Paul Fulghum wrote:
-> PPP line disciplines rely on the previous behavior
-> of calling ldisc->close on hangup as a method for
-> indicating hangup to the line discipline.
-> This is explicitly called out in the PPP ldisc comments.
+On Wed, Oct 20, 2004 at 03:01:49PM -0700, David S. Miller wrote:
+> 
+> David, I applaud your effort to take care of this.
+> However, this patch will conflict with what I've
+> sent into Linus already for Sparc.  I also had to
+> add the sys_altroot syscall entry as well.
+> 
+> I've mentioned several times that perhaps the best
+> way to deal with this problem is to purposefully
+> break the build of platforms when new system calls
+> are added.
+> 
+> Simply adding a:
+> 
+> #error new syscall entries for X and Y needed
+> 
+> to include/asm-*/unistd.h would handle this just
+> fine I think.
 
-I had no choice about that really with the current locking. It's on the
-list to do further work although I'd not realised some odder pppd
-configurations relied upon it until the bug report.
+I don't think that's a good idea.  Normally new system calls 
+are relatively obscure and the system works fine without them,
+so urgent action is not needed.
 
-Once I've put out -ac1 to fix the other bugs I consider urgent (not tty)
-I'll see what I can do. Really it would nice if the ppp maintainer would
-look at this and also fix all the horrible things the code does wrongly
-if for example the first byte of a received buffer is an error marker -
-in general serial error processing is not robust in the ppp code it
-appears.
+And I think we can trust architecture maintainers to regularly
+sync the system calls with i386.
 
-Alan
-
+-Andi

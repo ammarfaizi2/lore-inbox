@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbSJOCr6>; Mon, 14 Oct 2002 22:47:58 -0400
+	id <S262283AbSJOCsc>; Mon, 14 Oct 2002 22:48:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262283AbSJOCr6>; Mon, 14 Oct 2002 22:47:58 -0400
-Received: from h-64-105-137-41.SNVACAID.covad.net ([64.105.137.41]:38058 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262289AbSJOCr4>; Mon, 14 Oct 2002 22:47:56 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 14 Oct 2002 19:53:40 -0700
-Message-Id: <200210150253.TAA02434@adam.yggdrasil.com>
-To: ebiederm@xmission.com
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
-Cc: eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk
+	id <S262290AbSJOCsc>; Mon, 14 Oct 2002 22:48:32 -0400
+Received: from [12.36.124.2] ([12.36.124.2]:56237 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S262283AbSJOCsb>; Mon, 14 Oct 2002 22:48:31 -0400
+Mime-Version: 1.0
+Message-Id: <p05200b57b9d133abc6d6@[207.213.214.37]>
+In-Reply-To: <20021015043722.A9562@wotan.suse.de>
+References: <288F9BF66CD9D5118DF400508B68C44604758B78@orsmsx113.jf.intel.com>
+ <20021015043722.A9562@wotan.suse.de>
+Date: Mon, 14 Oct 2002 19:54:15 -0700
+To: Andi Kleen <ak@suse.de>, "Feldman, Scott" <scott.feldman@intel.com>
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: Re: Update on e1000 troubles (over-heating!)
+Cc: "'Ben Greear'" <greearb@candelatech.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman writes:
->>       You do not understand.  The fundamental problem is that
->> sys_reboot in linux-2.5.42/kernel/sys.c makes exactly the same power
->> management call for a reboot and for a halt (device_shutdown()).  I
->> want my IDE, SCSI, USB, and FireWire hard disks to spin down if I do a
->> halt.  I do not want them to do that when I reboot.  I also do not
->> want my reboot to wait for an interrupt from a sound card because
->> remove() needs to determine if it is being called because the device
->> had just been unplugged.  It is not just about IDE disk drives.
-[...]
->Do you seriously have a hot-plug sound card, that waits for an
->interrupt to be certain the card is plugged in during remove?
+At 4:37am +0200 10/15/02, Andi Kleen wrote:
+>  > Ben, I checked the datasheet for the part shown in the lspci dump, and it
+>>  shows an operating temperature of 0-55 degrees C.  You said you measured 50
+>>  degrees C, so you're within the safe range.  Did the fans help?
+>
+>The thermometer he used likely showed a much lower temperature than what was
+>actually on the die. 5-10 C more are not unlikely. It's hard to measure chip
+>temperatures accurately without an on die thermal diode or special kit.
+>So I would expect that when an external normal thermometer showed 50C
+>it was already operating out of spec.
 
-        Although I was being hypothetical, come to think of it, I do
-some USB speakers that I have not been using, and detecting their
-removal is done by the host contoller polling the hub for an
-"interrupt", typically once per millisecond.
-
->If there is non-trivial work to detect if a card is present it
->probably makes sense to factor remove into
->->quiet() and ->remove()
->Where quiet would put the device into a quiescent state, and
->remove would simply clean up the driver state.
-
-        Splitting into ->quiet() and ->removed() would be helpful
-in any case, where removed() would normally not touch the hardware,
-since it is quite possible the device has already been removed,
-since the callers of these routines generally know if they are
-calling because the device has been removed or because they want
-just want to turn it off, while ->remove() currently has to guess,
-which not only wastes time but also can be difficult to do safely
-when you don't know if the device that you're talking to is even
-present anymore.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
+The datasheet's for the card, so the operating temperature is surely 
+ambient, not die temperature. "Ambient measured how?" would be a 
+reasonable question, though.
+-- 
+/Jonathan Lundell.

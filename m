@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267836AbUG3Uyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUG3VAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267836AbUG3Uyh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 16:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUG3Uyh
+	id S267839AbUG3VAo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 17:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267838AbUG3VAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 16:54:37 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:22409 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S267844AbUG3Uye (ORCPT
+	Fri, 30 Jul 2004 17:00:44 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:26543 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267839AbUG3VAm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 16:54:34 -0400
-Date: Fri, 30 Jul 2004 22:54:36 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Jon Smirl <jonsmirl@yahoo.com>,
+	Fri, 30 Jul 2004 17:00:42 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: Exposing ROM's though sysfs
+Date: Fri, 30 Jul 2004 14:00:11 -0700
+User-Agent: KMail/1.6.2
+Cc: Martin Mares <mj@ucw.cz>, Jon Smirl <jonsmirl@yahoo.com>,
        Matthew Wilcox <willy@debian.org>,
        Christoph Hellwig <hch@infradead.org>,
        lkml <linux-kernel@vger.kernel.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730205436.GA5887@ucw.cz>
-References: <20040730201052.GA5249@ucw.cz> <20040730203225.81054.qmail@web14926.mail.yahoo.com> <20040730204121.GA5718@ucw.cz> <200407301349.12020.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20040730201052.GA5249@ucw.cz> <200407301349.12020.jbarnes@engr.sgi.com> <20040730205436.GA5887@ucw.cz>
+In-Reply-To: <20040730205436.GA5887@ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200407301349.12020.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407301400.11391.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't think anyone wants an x86 emulator builtin to the kernel for this 
-> purpose.
+On Friday, July 30, 2004 1:54 pm, Martin Mares wrote:
+> > I don't think anyone wants an x86 emulator builtin to the kernel for this
+> > purpose.
+>
+> Well, most people probably do not want a x86 emulator running random ROMs
+> in the userspace, either :-)  But unfortunately the world is ugly (at least
+> these parts of it).
 
-Well, most people probably do not want a x86 emulator running random ROMs
-in the userspace, either :-)  But unfortunately the world is ugly (at least
-these parts of it).
+Yep. :(
 
-However, point taken.  (Although it will not be easy, since you have to avoid
-kernel drivers touching the device until you can run the ROM in userspace.)
+> However, point taken.  (Although it will not be easy, since you have to
+> avoid kernel drivers touching the device until you can run the ROM in
+> userspace.)
 
-> We can get away without caching a copy of the ROM in the kernel if we require 
-> userspace to cache it before the driver takes control of the card (i.e. at 
-> POST time).  Otherwise, the kernel will have to take care of it.
+Yeah, it's a pain.
 
-In case of the video cards, it is probably the right path to go.
+> > We can get away without caching a copy of the ROM in the kernel if we
+> > require userspace to cache it before the driver takes control of the card
+> > (i.e. at POST time).  Otherwise, the kernel will have to take care of it.
+>
+> In case of the video cards, it is probably the right path to go.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Maintenance-free:  When it breaks, it can't be fixed...
+Great, glad we agree!
+
+Thanks,
+Jesse

@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269432AbUIYWkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269433AbUIYWtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269432AbUIYWkt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 18:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbUIYWks
+	id S269433AbUIYWtK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 18:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269437AbUIYWtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 18:40:48 -0400
-Received: from mailfe08.swip.net ([212.247.154.225]:35237 "EHLO
-	mailfe08.swip.net") by vger.kernel.org with ESMTP id S269432AbUIYWkr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 18:40:47 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Sun, 26 Sep 2004 00:40:43 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeremy Allison <jra@samba.org>,
-       YOSHIFUJI Hideaki / ???????????? <yoshfuji@linux-ipv6.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] smbfs & "du" illness
-Message-ID: <20040925224043.GE2971@bouh.is-a-geek.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Jeremy Allison <jra@samba.org>,
-	YOSHIFUJI Hideaki / ???????????? <yoshfuji@linux-ipv6.org>,
-	linux-kernel@vger.kernel.org
-References: <20040925174406.GP580@jeremy1> <Pine.LNX.4.58.0409251054490.2317@ppc970.osdl.org> <20040925182907.GS580@jeremy1> <Pine.LNX.4.58.0409251218170.2317@ppc970.osdl.org> <20040925195256.GB580@jeremy1> <Pine.LNX.4.58.0409251317410.2317@ppc970.osdl.org> <20040925211055.GC580@jeremy1> <Pine.LNX.4.58.0409251445470.2317@ppc970.osdl.org> <20040925220843.GD580@jeremy1> <Pine.LNX.4.58.0409251513290.2317@ppc970.osdl.org>
+	Sat, 25 Sep 2004 18:49:10 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:49397 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269433AbUIYWtH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 18:49:07 -0400
+Message-ID: <5d6b657504092515493c5f73da@mail.gmail.com>
+Date: Sun, 26 Sep 2004 00:49:07 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: Stephan Dreyer <stephan.dreyer@t-online.de>
+Subject: Re: Get ip before accept
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1CBJgr-2AiaYq0@fwd01.sul.t-online.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0409251513290.2317@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i-nntp
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1CBJgr-2AiaYq0@fwd01.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le sam 25 sep 2004 à 15:18:50 -0700, Linus Torvalds a tapoté sur son clavier :
-> Samuel, does this patch work for you?
+On Sat, 25 Sep 2004 23:02:48 +0200, Stephan Dreyer
+<stephan.dreyer@t-online.de> wrote:
+> Hi
+> I'm trying to get a client ip before calling accept
+> Any ideas how?
+> It should be possible to get ip from connection queue when switching to
+> kernel space should it?
+> If ip doesnt't match a given list i want to close the not fully established
+> connection
 
-Yes it does, thanks !
+Try netfilter/iptables:
+http://www.netfilter.org/documentation/HOWTO//netfilter-hacking-HOWTO.html
+ 
 
-Regards,
-Samuel Thibault
+Cheers,
+Buddy

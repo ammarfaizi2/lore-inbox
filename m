@@ -1,134 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265216AbUBEMom (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 07:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUBEMom
+	id S261567AbUBEMtW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 07:49:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUBEMtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 07:44:42 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:12458 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265216AbUBEMoi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 07:44:38 -0500
-Date: Thu, 5 Feb 2004 10:44:31 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.25-rc1
-Message-ID: <Pine.LNX.4.58L.0402051037190.9788@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Thu, 5 Feb 2004 07:49:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51386 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261567AbUBEMtS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 07:49:18 -0500
+Date: Thu, 5 Feb 2004 13:48:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Antony Gelberg <antony@antgel.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD-ROMs not working in 2.6
+Message-ID: <20040205124845.GZ11683@suse.de>
+References: <20040205120103.GE1952@brain.pulsesol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040205120103.GE1952@brain.pulsesol.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 05 2004, Antony Gelberg wrote:
+> I asked for a CC which is why I didn't see the reply until I looked in
+> Google groups and it is also why the thread will now be broken as I had
+> to cut and paste the reply as a new message.  Please CC me any replies.
 
-Here goes the first release candidate.
+Well you were cc'ed, messages was received at your end at 2004-02-04
+11:06:30 CET. So either look harder, or fix your mail setup.
 
-It contains mostly networking updates, XFS update, amongst others.
+Now, if you would like me to read your mail within a few hours (instead
+of days), then you need to CC me.
 
-This release contains a fix for excessive inode memory pressure with
-highmem boxes. Help is specially wanted with testing this on heavy-load
-highmem machines.
+> Jens Axboe wrote:
+> >On Wed, Feb 04 2004, Antony Gelberg wrote:
+> >> Hi all,
+> >> 
+> >> I'd appreciate a CC as I'm not subbed.
+> >> 
+> >> I'm running 2.6.0 from the Debian source packages.  All is good,
+> >> except
+> >> my CDROM drives don't work.  Here's some relevant output from
+> >> /var/log/dmesg:
+> >> 
+> >> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> >> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> >> idebus=xx
+> >> VP_IDE: IDE controller at PCI slot 0000:00:11.1
+> >> ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 - using
+> >> IRQ 255
+> >> VP_IDE: chipset revision 6
+> >> VP_IDE: not 100% native mode: will probe irqs later
+> >> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> >> idebus=xx
+> >> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+> >>     ide0: BM-DMA at 0x8800-0x8807, BIOS settings: hda:pio, hdb:pio
+> >>     ide1: BM-DMA at 0x8808-0x880f, BIOS settings: hdc:DMA, hdd:pio
+> >> hdc: 54X CD-ROM, ATAPI CD/DVD-ROM drive
+> >> ide1 at 0x170-0x177,0x376 on irq 15
+> >> end_request: I/O error, dev hdc, sector 0
+> >> hdc: ATAPI 52X CD-ROM drive, 128kB Cache, UDMA(33)
+> >> Uniform CD-ROM driver Revision: 3.12
+> >> libata version 0.81 loaded.
+> >> sata_promise version 0.86
+> >> ata1: SATA max UDMA/133 cmd 0xE0824200 ctl 0xE0824238 bmdma 0x0 irq 17
+> >> ata2: SATA max UDMA/133 cmd 0xE0824280 ctl 0xE08242B8 bmdma 0x0 irq 17
+> >> 
+> >> Now lspci:
+> >> 00:11.1 IDE interface: VIA Technologies, Inc.
+> >> VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev
+> >> 06)
+> >> 
+> >> Can anyone shed any light on this?  I've tried a different IDE cable.
+> >> I
+> >> disconnected the other drive that was the slave, but no dice.  hdc and
+> >> hdd both reported the I/O error when they were both connected.  The
+> >> system doesn't recognise data or audio discs.
+> >
+> >Maybe if you would let us know what doesn't work?! At least post the
+> >full boot messages and make sure you aren't doing anything like passing
+> >hdc/d=ide-scsi through lile/grub.
+> 
+> Sorry, I thought it was obvious.  I'll requote:
+> 
+> >> The system doesn't recognise data or audio discs.
 
+That doesn't contain any sort of real info.
 
-Summary of changes from v2.4.25-pre8 to v2.4.25-rc1
-============================================
+> What I meant was that mounting fails with "no such device", and playing
+> audio CD's fails as well.  No error, just no recognition of the CD.
 
-<chrisw:osdl.org>:
-  o Verify interpreter arch
+What does cat /proc/sys/dev/cdrom/info contain?
 
-<davej:redhat.com>:
-  o fix agpgart warning
+> 
+> >> end_request: I/O error, dev hdc, sector 0
+> 
+> I think that this is the problem, but I don't know what it means.  I
+> don't think posting the rest of my bootlog is patricularly helpful, but
+> please let me know if it is.  I am not passing any parameters to lilo.
 
-<davem:nuts.davemloft.net>:
-  o [IRDA]: Mark driver init/exit funcs static where possible
-  o [SPARC64]: Fix TUNSETIFF ioctl compat, it takes an ifreq ptr not an int
-  o [TG3]: Bump version and reldate
-  o [SPARC64}: Fix ultra-III and later support of new-style SILO booting
+No, it likely has nothing to do with it.
 
-<grundler:parisc-linux.org>:
-  o [TG3]: Fix DMA test failures
-  o [TG3]: Only fetch NVRAM_CMD reg if TG3_FLAG_NVRAM
+> I have attached my kernel config in the hope that the list doesn't strip
+> all attachments.
 
-<jlcooke:certainkey.com>:
-  o [CRYPTO]: Help gcc optimize sha256/sha512 better
+I don't care for your config, attach the boot messages like I asked.
 
-<jmorris:redhat.com>:
-  o [CRYPTO]: Make padding[] array static in sha{256,512}_final()
-  o Zero last byte of mount option page
-
-<marcelo:logos.cnet>:
-  o Changed EXTRAVERSION to -rc1
-
-<rml:ximian.com>:
-  o Fix sys_readahead(): Count free pages on maximum ra size calculation
-
-Adrian Bunk:
-  o fix a compile warning in amd76x_pm.c
-  o fix a compile warning in tipar.c
-  o fix a compile warning in InterMezzo file.c
-
-Ben Collins:
-  o [SPARC64]: Add comment for HdrS ver 0x201
-  o [SPARC64]: Add header for section boundary references
-  o [SPARC64]: Changes to accomodate booting from non-phys_base memory
-
-Chas Williams:
-  o [ATM]: [idt77252] fix dma_addr_t type error with CONFIG_HIGHMEM64G=y (by "Randy.Dunlap" <rddunlap@osdl.org>)
-  o [ATM]: [clip] check return code from kmem_cache_create (by "Randy.Dunlap" <rddunlap@osdl.org>)
-
-Christoph Hellwig:
-  o [XFS] Small ktrace fixes
-  o [XFS] Don't fail pagebuf allocations
-
-David Brownell:
-  o usb/gadget/file_storage.c doesn't compile with gcc 2.95
-
-David S. Miller:
-  o [DECNET]: Fix filling in of header length field
-  o [CREDITS]: Update Bjorn Ekwall's address
-
-David Stevens:
-  o [IPV4]: Add per-device sysctl to force IGMP version
-  o [IPV4]: Fix IGMP device reference counting
-
-Harald Welte:
-  o [NETFILTER]: Fix ipt_conntrack/ipt_state module refcounting
-  o [NETFILTER]: Really fix ipt_state/ipt_conntrack refcounting
-
-Herbert Xu:
-  o invalid kfree in ntfs_printcb
-
-Luca Tettamanti:
-  o Fix ac97_plugin_ad1980.c compilation warning
-  o Fix aha1542.c compilation warning
-  o Fix cpqfcTSi2c.c compilation warning
-  o IEEE1394(r1123): Fix compile warning
-  o Fix amd7930_fn.h compilation warning
-  o Fix drivers/net/wan/8253x/crc32.c compilation warning
-  o Fix vac-serial.c compilation warning
-
-Mirko Lindner:
-  o sk98lin: Reset Xmac when stopping the port
-
-Nathan Scott:
-  o [XFS] Remove xfsidbg debugger interfaces, not useful without kdb
-  o [XFS] Fix a warning from some gcc variants after recent flags botch
-  o [XFS] Add the security extended attributes namespace
-  o [XFS] Remove no-longer-needed debug symbol exports
-
-Patrick McHardy:
-  o [NET_SCHED]: Add HFSC packet scheduler
-
-Russell Cattelan:
-  o [XFS] Christoph has signed over copyrights
-  o [XFS] Move bits around to better manage common code.  No functional change
-  o [XFS] Remove non 2.4 ifdefs from the linux-2.4 dir
-
-Rusty Russell:
-  o [NETFILTER]: ipt_limit fix for HZ=1000
-
-Scott Feldman:
-  o e100 sync with 2.6
+-- 
+Jens Axboe
 

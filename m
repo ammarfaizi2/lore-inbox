@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265856AbUA1FR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 00:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265859AbUA1FR0
+	id S265849AbUA1FWP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 00:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbUA1FWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 00:17:26 -0500
-Received: from ozlabs.org ([203.10.76.45]:26501 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265856AbUA1FRM (ORCPT
+	Wed, 28 Jan 2004 00:22:14 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:9659 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265849AbUA1FVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 00:17:12 -0500
-Date: Wed, 28 Jan 2004 16:16:07 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: [PPC64] Trivial cleanups to hugepage support
-Message-ID: <20040128051607.GA21455@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+	Wed, 28 Jan 2004 00:21:41 -0500
+Subject: [PATCH] locks on pcnet32 watchdog timer
+From: chinmay albal <albal@in.ibm.com>
+To: linux-net <linux-net@vger.kernel.org>
+Cc: tsbogend <tsbogend@alpha.franken.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075267496.4113.11.camel@gprix.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 28 Jan 2004 10:54:56 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply.  These are some trivial cleanups to the hugepage
-ppc64 support
+Hi,
 
-===================================================================
---- working.orig/arch/ppc64/mm/hugetlbpage.c	2004-01-28 15:40:24.000000000 +1100
-+++ working/arch/ppc64/mm/hugetlbpage.c	2004-01-28 15:40:47.000000000 +1100
-@@ -654,10 +654,9 @@
- 	unsigned long hpteflags, prpn, flags;
- 	long slot;
- 
--	ea &= ~(HPAGE_SIZE-1);
+We sometimes receive a "Bus master arbitration failure, status ffff" 
+error on pcnet32 drivers while running a huge network load on a 2.6.x 
+kernel. Applying spinlocks on the watchdog timer routine helps getting 
+across the problem. A patch for the same is given below.
+
+This patch has been created on 2.6.2-rc1 and tested on an SMP system on
+IA32 platform.
+
+Please cc me.
+
+-------------------------------8<--------------------------------------
+
+--- pcnet32-orig.c	2004-01-28 10:43:04.000000000 +0530
++++ pcnet32.c	2004-01-28 10:45:00.000000000 +0530
+@@ -1695,12 +1695,14 @@
+ static void pcnet32_watchdog(struct net_device *dev)
+ {
+     struct pcnet32_private *lp = dev->priv;
 -
- 	/* We have to find the first hugepte in the batch, since
- 	 * that's the one that will store the HPTE flags */
-+	ea &= HPAGE_MASK;
- 	ptep = hugepte_offset(mm, ea);
++    unsigned long flags;
++    spin_lock_irqsave(&lp->lock, flags);
+     /* Print the link status if it has changed */
+     if (lp->mii)
+ 	mii_check_media (&lp->mii_if, 1, 0);
  
- 	/* Search the Linux page table for a match with va */
-@@ -885,10 +884,11 @@
- 			spin_unlock(&htlbpage_lock);
- 		}
- 		htlbpage_max = htlbpage_free = htlbpage_total = i;
--		printk("Total HugeTLB memory allocated, %d\n", htlbpage_free);
-+		printk(KERN_INFO "Total HugeTLB memory allocated, %d\n",
-+		       htlbpage_free);
- 	} else {
- 		htlbpage_max = 0;
--		printk("CPU does not support HugeTLB\n");
-+		printk(KERN_INFO "CPU does not support HugeTLB\n");
- 	}
+     mod_timer (&(lp->watchdog_timer), PCNET32_WATCHDOG_TIMEOUT);
++    spin_unlock_irqrestore(&lp->lock, flags);
+ }
  
- 	return 0;
+ static struct pci_driver pcnet32_driver = {
+
+---------------------------------8<--------------------------------------
+
+Regards,
+
+Chinmay Albal
+Linux Technology Centre,
+IBM Software Labs, Bangalore,
+mail - albal@in.ibm.com
 
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson

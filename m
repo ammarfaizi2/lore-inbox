@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbTAIHCj>; Thu, 9 Jan 2003 02:02:39 -0500
+	id <S261701AbTAIG7p>; Thu, 9 Jan 2003 01:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbTAIHCi>; Thu, 9 Jan 2003 02:02:38 -0500
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:37899 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id <S261724AbTAIHCi>; Thu, 9 Jan 2003 02:02:38 -0500
-Subject: 2.4.21-pre3 fails compile of ehci-hcd.c
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 09 Jan 2003 02:11:15 -0500
-Message-Id: <1042096276.8219.126.camel@madmax>
+	id <S261721AbTAIG7o>; Thu, 9 Jan 2003 01:59:44 -0500
+Received: from adsl-66-112-90-25-rb.spt.centurytel.net ([66.112.90.25]:1664
+	"EHLO carthage") by vger.kernel.org with ESMTP id <S261701AbTAIG7o>;
+	Thu, 9 Jan 2003 01:59:44 -0500
+Date: Thu, 9 Jan 2003 00:56:42 -0600
+From: James Curbo <phoenix@sandwich.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: small fix for nforce ide chipset driver in 2.5.54
+Message-ID: <20030109065642.GA6251@carthage>
+Reply-To: James Curbo <phoenix@sandwich.net>
+References: <20030108075539.GA4128@carthage> <1042034033.24099.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042034033.24099.2.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+On Jan 08, Alan Cox wrote:
+> On Wed, 2003-01-08 at 07:55, James Curbo wrote:
+> > so I added a #define for PCI_DEVICE_ID_NVIDIA_NFORCE_IDE as 0x0065. It
+> > compiled fine and I am in fact running that kernel now. I would have
+> > just sent a patch but I am new to kernel hacking, this is just a one
+> > liner and I'm sure you know where it goes better than I do.
+> 
+> Someone deleted it about 2.5.50, and though I sent in the fix twice Linus
+> still hasn't applied it 8(
 
-Noticed that I could not get patch-2.4.21-pre3 to compile:
-
-	make[3]: Entering directory `/usr/src/kernels/linux-2.4.20/drivers/usb'
-	ld -m elf_i386 -r -o usbcore.o usb.o usb-debug.o hub.o devio.o inode.o drivers.o devices.o hcd.o
-	gcc -D__KERNEL__ -I/usr/src/kernels/linux-2.4.20/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -iwithprefix include -DKBUILD_BASENAME=ehci_hcd  -c -o hcd/ehci-hcd.o hcd/ehci-hcd.chcd/ehci-hcd.c: In function `ehci_start':
-	hcd/ehci-hcd.c:343: parse error before `;'
-	hcd/ehci-hcd.c:416: parse error before `;'
-	hcd/ehci-hcd.c: In function `ehci_stop':
-	hcd/ehci-hcd.c:501: parse error before `;'
-	hcd/ehci-hcd.c: In function `ehci_irq':
-	hcd/ehci-hcd.c:685: parse error before `;'
-
-I'm not sure why gcc 2.95.3 is failing on the macro expansion, but it is
-turning:
-	ehci_warn (ehci, "illegal capability!\n");
-into:
-	printk("<4>"  "%s %s: "   "illegal capability!\n" , hcd_name, ( ehci   ) ;
-which is missing the ->... structure reference.  The macros in
-ehci-dbg.c work just fine if you give them one or more arguments
-following the format string definition.
-
-Compiler is gcc 2.95.3, binutils 2.12.90.0.9 20020526, glibc 2.2.5 on a
-Slackware 8.0 distribution.
-
-Kris
-
-
+Well, I thought this deal was over but apparently not. My 2.5.54 kernel
+is still working fine, but when I compiled 2.4.20-ac2, it didn't pick up
+my Nforce2 IDE. On a whim I checked include/linux/pci_ids.h and it has a
+different PCI ID for PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, namely 0x01bc.
+(lspci -v reports 0x0065 here). Perhaps 0x01bc is the nforce1 ide
+chipset and 0x0065 is the nforce2 ide chipset?
+		
+-- 
+James Curbo <hannibal@adtrw.org> <phoenix@sandwich.net>
+GPG public key available at http://sandwich.net/~phoenix/keys/

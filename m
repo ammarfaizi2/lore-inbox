@@ -1,55 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265617AbTF3Rps (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 13:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265645AbTF3Rps
+	id S265645AbTF3SDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 14:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265613AbTF3SDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 13:45:48 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:64993 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265617AbTF3Rpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 13:45:43 -0400
-Date: Mon, 30 Jun 2003 11:00:02 -0700
-From: Greg KH <greg@kroah.com>
-To: martin f krafft <madduck@madduck.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: restarting a kernel thread
-Message-ID: <20030630180002.GA25461@kroah.com>
-References: <20030630171033.GA27703@diamond.madduck.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030630171033.GA27703@diamond.madduck.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Jun 2003 14:03:16 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:2572 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265645AbTF3SDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 14:03:14 -0400
+Message-ID: <3F007EBF.9020506@sbcglobal.net>
+Date: Mon, 30 Jun 2003 13:17:35 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
+Subject: FS Corruption with VIA MVP3 + UDMA/DMA
+References: <16128.19218.139117.293393@charged.uio.no>
+In-Reply-To: <16128.19218.139117.293393@charged.uio.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 30, 2003 at 07:10:33PM +0200, martin f krafft wrote:
-> i am doing some USB development these days and just managed to crash
-> khubd:
-> 
->   kernel:  <6>note: khubd[9] exited with preempt_count 1
-> 
-> the system seems happy still, USB is not working anymore, though.
-> 
-> I have USB support built into the kernel, and a custom driver
-> written as a module.
-> 
-> Restarting would fix the problem and get USB back into operation,
-> but I am wondering if there is a way to restart the khubd kernel
-> thread manually. Is there?
+I was wondering if anyone knows about this issue or has had this problem?
 
-Not really, sorry.  Make usbcore a module and then just reload it will
-work.
+I've been fighting FS corruption since switching to a UDMA hard drive 
+(Maxtor) on my FIC PA2013 with the VIA MVP3, but I didn't really know 
+that since the change was a result of a dying drive.  Finally, through 
+the chance of having installed an older Quantum drive that only allowed 
+DMA MultiMode 2 as the fastest mode, I found the problem. 
 
-> I am soon going to switch to UML for this kind of development...
+At least on my board, the IDE UDMA/DMA implementation appears flawed 
+[lspci gives: "VT82C586/B/686A/B PI (rev 6)"].  I've had the same 
+problem with three UDMA DVD drives -- two Toshibas and a Pioneer.  They 
+would all lock-up installing software or corrupt the data being 
+installed causing the installation to fail.  I've also had four other 
+Maxtor hard drives (3 factory certified, one retail) randomly corrupt 
+content on the drives (fs type doesn't matter [NTFS, FAT, FAT32, EXT2, 
+REISERFS have been tried]).  That means that every UDMA drive I've 
+plugged in has had data corruption issues (trying no less than 10 IDE 
+cables, which I confirmed good on the Promise and I've tried both IDE 
+channels on the MVP3).  I started with Linux kernel version 2.2 and the 
+problem remains up to 2.5.73.  I've also confirmed the issue in Windows 
+98SE, Windows XP and Windows 2003 RC2.  At this point, one might as well 
+stick in a PCI adapter, since with "hdparm -t" I get between 5.5-8.5 
+MB/s.  With the same mode on my Promise 20269 I get 12 MB/s , so clearly 
+something is odd.  I know the hard drive can do better since I can get 
+20MB/s in UDMA 2 on the MVP3, but of course that's not safe.
 
-For USB development?  Ok...please send us the patches that get USB
-support working under UML as others have wanted to do this for quite
-some time :)
+Even at DMA multiword 2, I can force r/w errors by heavy io.  Moving to 
+DMA mode 1 clears up the errors, but performance degrades to a 
+consistent 5.49 MB/s (all the higher modes actually vary 2-6 MB/s 
+between runs of hdparm) while the Promise in the same mode still gets 12 
+MB/s consistently.  I've found that copying a 300 MB file to my drive on 
+the Promise, making 12 new files while making 12 duplicates to the drive 
+on the MVP3 can still force errors in dma multiword 2.  I check for 
+write errors by comparing the copied files to the source file.  It's 
+much easier to create errors in any of the UDMA modes.  Errors actually 
+seem more likely to occur during actual use of the system since they are 
+fairly common even in multiword 2, but the copying method makes it 
+extremely repeatable (though not all the files are corrupted, that 
+part's random).
 
-Oh, what kind of driver are you working on?
+My current configuration has the Promise as the boot device with a 
+single drive on the primary.  I have my DVD (UDMA) on the secondary of 
+the Promise.  My other Maxtor hard drive is on the primary channel 
+(alone) of the MVP3 with UDMA disabled in the bios (and thus not used by 
+WinXP/2003 or Linux).  Finally my cd writer and IDE Zip are on the 
+secondary channel of the MVP3.  I'd put my hard drive on the secondary 
+channel of the Promise, but for some reason the computer won't boot with 
+both hard drives on the Promise (even though they're on different 
+cables)...  I don't remember right now if it just locks up during OS 
+loading or if it won't post.  I can test it if that information is required.
 
-thanks,
+Otherwise my machine is fairly stable (3+weeks, but I usually have to 
+boot to Windows for Illustrator and such before then) and I don't get 
+any corruption when copying files around on my Promise controller.  I 
+can get errors even copying from my MVP3 drive to itself (making 
+defragging dangerous on my shared FAT32 partition) even in DMA multiword 2.
 
-greg k-h
+Is there anything that can be done with the IDE drivers for this chipset 
+to make it "safe" without resorting to forcing DMA mode 1?
+
+Thanks,
+Wes Janzen
+

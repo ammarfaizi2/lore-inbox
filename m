@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263949AbTE0RJF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTE0RJE
+	id S263957AbTE0ROC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbTE0ROC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:09:04 -0400
-Received: from plg2.math.uwaterloo.ca ([129.97.140.200]:54252 "EHLO
-	plg2.math.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S263949AbTE0RJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:09:04 -0400
-Date: Tue, 27 May 2003 13:19:35 -0400
-From: Richard C Bilson <rcbilson@plg2.math.uwaterloo.ca>
-Message-Id: <200305271719.NAA27011@plg2.math.uwaterloo.ca>
-To: Eric.Piel@Bull.Net, george@mvista.com
-Subject: Re: setitimer 1 usec fails
-Cc: akpm@digeo.com, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+	Tue, 27 May 2003 13:14:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14098 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263957AbTE0ROB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:14:01 -0400
+Date: Tue, 27 May 2003 10:26:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ricky Beam <jfbeam@bluetronic.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.70
+In-Reply-To: <Pine.GSO.4.33.0305271245290.4448-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.LNX.4.44.0305271024060.6597-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From Eric.Piel@Bull.Net  Tue May 27 05:05:53 2003
+
+On Tue, 27 May 2003, Ricky Beam wrote:
 > 
-> With the patch atatched the bug seems to go away, for the 030521 release
-> of IA64 patch (and probably the previous release also). Could you
-> confirm, Richard? I think it's kind of architecture specific because
-> this bug shouldn't happen with HZ=1000 (i386) ;-)
+> Count up the number of drivers that haven't been updated to the current
+> PCI, hotplug, and modules interfaces.
 
-Yes -- it fixes the program I posted, as well as my original program.
-Thanks very much, Eric!
+Tough. If people don't use them, they don't get supported. It's that easy.
 
-- Richard
+The thing is, these things won't change before 2.6 (or at least a 
+pre-2.6). When 2.6.0 comes out, and somebody notices that they haven't 
+bothered to try the 2.5.x series, _then_ maybe some of those odd-ball 
+drivers get fixed.
+
+Or not. Some of them may be literally due for retirement, with users just 
+running an old kernel on old hardware.
+
+Btw, this is nothing new. It has _always_ been the case that a lot of 
+people didn't use the latest stable kernel until it was released, and then 
+they complained because the drivers they used weren't up to spec.
+
+			Linus
+

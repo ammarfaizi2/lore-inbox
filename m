@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263933AbTICRC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbTICRC2
+	id S263947AbTICRDg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbTICRDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:02:28 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35597
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263933AbTICRCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:02:21 -0400
-Subject: Re: pdflush question...
-From: Robert Love <rml@tech9.net>
-To: Daniel Blueman <daniel.blueman@gmx.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <14227.1062581053@www37.gmx.net>
-References: <14227.1062581053@www37.gmx.net>
-Content-Type: text/plain
-Message-Id: <1062609171.7000.3.camel@boobies.awol.org>
+	Wed, 3 Sep 2003 13:03:36 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8910 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263947AbTICRDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:03:20 -0400
+Date: Wed, 3 Sep 2003 19:02:56 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, campbell@torque.net,
+       linux-scsi@vger.kernel.org
+Subject: 2.6.0-test4-mm5: SCSI imm driver doesn't compile
+Message-ID: <20030903170256.GA18025@fs.tum.de>
+References: <20030902231812.03fae13f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 03 Sep 2003 13:12:51 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030902231812.03fae13f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-03 at 05:24, Daniel Blueman wrote:
-> Is it worth having a kernel config option to vary the number of 'pdflush'
-> kernel threads?
+The following compile error (tested with gcc 2.95) seems to come from 
+Linus' tree:
 
-I suspect no.
+<--  snip  -->
 
-> For embedded, systems with no swap and maybe uniproc (?), perhaps one
-> pdflush kthread would do?
+...
+  CC [M]  drivers/scsi/imm.o
+In file included from drivers/scsi/imm.c:55:
+drivers/scsi/imm.h:105: duplicate array index in initializer
+drivers/scsi/imm.h:105: (near initialization for `IMM_MODE_STRING')
+make[2]: *** [drivers/scsi/imm.o] Error 1
 
-Yes.  Definitely.  In fact, I think that, for all systems, the initial
-default should perhaps be one.
+<--  snip  -->
 
-But note that the reason for n>1 pdflush threads is neither swap or
-processor related.  The multiple threads can keep multiple block devices
-busy, since one thread blocking on I/O will not affect another one.
+The problem is the following code in imm.h (with 
+CONFIG_SCSI_IZIP_EPP16 enabled):
 
-I guess the real test would be to set MIN_PDFLUSH_THREADS to one and see
-if one is enough for the average machines.  If the number quickly jumps
-to 2 or more... then we know its a bad idea.
+<--  snip  -->
 
-> Perhaps more generally, the number could be linked to the number of
-> processors and/or swap devices or spindles- this would eliminate having to configure
-> it, and improve downward and upward scaling, perhaps?
+...
+static char *IMM_MODE_STRING[] =
+{
+        [IMM_AUTODETECT] = "Autodetect",
+        [IMM_NIBBLE]     = "SPP",
+        [IMM_PS2]        = "PS/2",
+        [IMM_EPP_8]      = "EPP 8 bit",
+        [IMM_EPP_16]     = "EPP 16 bit",
+#ifdef CONFIG_SCSI_IZIP_EPP16
+        [IMM_EPP_16]     = "EPP 16 bit",
+#else
+        [IMM_EPP_32]     = "EPP 32 bit",
+#endif
+        [IMM_UNKNOWN]    = "Unknown",
+};
+...
 
-Number of spindles, yes.  But how do we know that?  And its just the
-number of busy spindles, really.
+<--  snip  -->
 
-I say we drop down to one.
+cu
+Adrian
 
-	Robert Love
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

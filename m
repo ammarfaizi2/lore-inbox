@@ -1,644 +1,321 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319417AbSIFWMg>; Fri, 6 Sep 2002 18:12:36 -0400
+	id <S319410AbSIFW0Y>; Fri, 6 Sep 2002 18:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319386AbSIFWLh>; Fri, 6 Sep 2002 18:11:37 -0400
-Received: from nameservices.net ([208.234.25.16]:44932 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S319414AbSIFWI7>;
-	Fri, 6 Sep 2002 18:08:59 -0400
-Message-ID: <3D792965.F71C306F@opersys.com>
-Date: Fri, 06 Sep 2002 18:17:09 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: LTT-Dev <ltt-dev@shafik.org>
-Subject: [PATCH] 8/8 LTT for 2.5.33: MIPS trace support
+	id <S319414AbSIFW0Y>; Fri, 6 Sep 2002 18:26:24 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:20352 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319410AbSIFW0U>;
+	Fri, 6 Sep 2002 18:26:20 -0400
+Date: Sat, 7 Sep 2002 00:29:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, alan@redhat.com,
+       torvalds@transmeta.com
+Subject: Re: IDE support for suspend -- prevent data corruption
+Message-ID: <20020906222859.GC10888@elf.ucw.cz>
+References: <20020905230605.GA26735@elf.ucw.cz> <Pine.LNX.4.10.10209052328020.11256-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10209052328020.11256-100000@master.linux-ide.org>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-This patch adds trace support for the MIPS. These files are modified:
-arch/mips/config.in
-arch/mips/ddb5476/irq.c
-arch/mips/kernel/irq.c
-arch/mips/kernel/scall_o32.S
-arch/mips/kernel/time.c
-arch/mips/kernel/traps.c
-arch/mips/kernel/unaligned.c
-arch/mips/kernel/fault.c
-include/asm-mips/trace.h
+> Go for it, all I ask is you put a stub rapper around it as to isolate the
+> code.  I just am asking for a variable reduction on features until I clear
+> all business w/ Alan.  I am trying to do clean up for Jens on the
+> portforward stuff.
 
-This patch needed some revision. I have received updates for it. I
-post it only for completeness. Once the updates are integrated I
-will post it again.
+You surely don't want #ifdef around every change, do you?
 
-diff -urN linux-2.5.33/arch/mips/config.in linux-2.5.33-ltt/arch/mips/config.in
---- linux-2.5.33/arch/mips/config.in	Sat Aug 31 18:05:30 2002
-+++ linux-2.5.33-ltt/arch/mips/config.in	Fri Sep  6 12:03:20 2002
-@@ -477,6 +477,8 @@
- 
- source drivers/usb/Config.in
- 
-+source drivers/trace/Config.in
-+
- mainmenu_option next_comment
- comment 'Kernel hacking'
- 
-diff -urN linux-2.5.33/arch/mips/ddb5476/irq.c linux-2.5.33-ltt/arch/mips/ddb5476/irq.c
---- linux-2.5.33/arch/mips/ddb5476/irq.c	Sat Aug 31 18:05:31 2002
-+++ linux-2.5.33-ltt/arch/mips/ddb5476/irq.c	Fri Sep  6 12:03:20 2002
-@@ -3,6 +3,10 @@
-  *
-  *  Copyright (C) 2000 Geert Uytterhoeven <geert@sonycom.com>
-  *                     Sony Software Development Center Europe (SDCE), Brussels
-+ *
-+ *  ---- for LTT patch ----
-+ * Copyright (C) 2001 Takuzo O'Hara (takuzo@sm.sony.co.jp).
-+ *
+Impact should be introducing driver model (you want that even without
+CONFIG_SOFTWARE_SUSPEND). idedisk_suspend/idedisk_resume can only be
+called by software suspend or ACPI S3. No need for #ifdef hell.
+
+Turned drive->blocked test into BUG_ON(). If it triggers you'll know
+it triggered, but I can promise you it will not on
+!CONFIG_SOFTWARE_SUSPEND case.
+
+New patch attached, please apply.
+								Pavel
+
+--- linux-swsusp.2/drivers/ide/ide-disk.c	2002-09-05 23:30:28.000000000 +0200
++++ linux-swsusp/drivers/ide/ide-disk.c	2002-09-07 00:19:06.000000000 +0200
+@@ -365,6 +365,7 @@
   */
- #include <linux/config.h>
- #include <linux/init.h>
-@@ -12,6 +16,8 @@
- #include <linux/interrupt.h>
- #include <linux/ioport.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/ptrace.h>
-@@ -184,6 +190,7 @@
- 	/* Handle the timer interrupt first */
- 	if (mask & (1 << NILE4_INT_GPT)) {
- 		nile4_disable_irq(NILE4_INT_GPT);
-+		TRACE_IRQ_ENTRY(nile4_to_irq(NILE4_INT_GPT), ((regs->cp0_status & ST0_KSU) == KSU_KERNEL));
- 		do_IRQ(nile4_to_irq(NILE4_INT_GPT), regs);
- 		nile4_enable_irq(NILE4_INT_GPT);
- 		mask &= ~(1 << NILE4_INT_GPT);
-@@ -193,8 +200,10 @@
- 			nile4_disable_irq(nile4_irq);
- 			if (nile4_irq == NILE4_INT_INTC) {
- 				int i8259_irq = nile4_i8259_iack();
-+				TRACE_IRQ_ENTRY(i8259_irq, ((regs->cp0_status & ST0_KSU) == KSU_KERNEL));
- 				i8259_do_irq(i8259_irq, regs);
- 			} else {
-+			        TRACE_IRQ_ENTRY(nile4_to_irq(nile4_irq), ((regs->cp0_status & ST0_KSU) == KSU_KERNEL));
- 				do_IRQ(nile4_to_irq(nile4_irq), regs);
- 			}
- 			nile4_enable_irq(nile4_irq);
-@@ -204,6 +213,7 @@
- 		ddb5476_led_d3(0);
- 	ddb5476_led_hex(nesting < 16 ? nesting : 15);
- #endif
-+        TRACE_IRQ_EXIT();
- }
- 
- void ddb_local1_irqdispatch(void)
-diff -urN linux-2.5.33/arch/mips/kernel/irq.c linux-2.5.33-ltt/arch/mips/kernel/irq.c
---- linux-2.5.33/arch/mips/kernel/irq.c	Sat Aug 31 18:04:50 2002
-+++ linux-2.5.33-ltt/arch/mips/kernel/irq.c	Fri Sep  6 12:03:20 2002
-@@ -7,6 +7,10 @@
-  *
-  * Copyright (C) 1992 Linus Torvalds
-  * Copyright (C) 1994 - 2000 Ralf Baechle
-+ *
-+ *  ---- for LTT patch ----
-+ * Copyright (C) 2001 Takuzo O'Hara (takuzo@sm.sony.co.jp).
-+ *
-  */
- #include <linux/kernel.h>
- #include <linux/irq.h>
-@@ -19,6 +23,8 @@
- #include <linux/sched.h>
- #include <linux/seq_file.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/system.h>
- 
- /*
-@@ -244,6 +250,8 @@
- 	struct irqaction * action;
- 	unsigned int status;
- 
-+	TRACE_IRQ_ENTRY(irq, ((regs->cp0_status & ST0_KSU) == KSU_KERNEL));
-+
- 	kstat.irqs[cpu][irq]++;
- 	spin_lock(&desc->lock);
- 	desc->handler->ack(irq);
-@@ -302,6 +310,8 @@
- 	 */
- 	desc->handler->end(irq);
- 	spin_unlock(&desc->lock);
-+
-+        TRACE_IRQ_EXIT();
- 
- 	if (softirq_pending(cpu))
- 		do_softirq();
-diff -urN linux-2.5.33/arch/mips/kernel/scall_o32.S linux-2.5.33-ltt/arch/mips/kernel/scall_o32.S
---- linux-2.5.33/arch/mips/kernel/scall_o32.S	Sat Aug 31 18:05:31 2002
-+++ linux-2.5.33-ltt/arch/mips/kernel/scall_o32.S	Fri Sep  6 12:03:20 2002
-@@ -4,7 +4,12 @@
-  * for more details.
-  *
-  * Copyright (C) 1997, 1998, 1999, 2000 by Ralf Baechle
-+ *
-+ *  ---- for LTT patch ----
-+ * Copyright (C) 2001 Takuzo O'Hara (takuzo@sm.sony.co.jp).
-+ *
-  */
-+	
- #include <asm/asm.h>
- #include <linux/errno.h>
- #include <asm/current.h>
-@@ -48,6 +53,10 @@
- 	bgez	t0, stackargs
- 
- stack_done:
-+#if (CONFIG_TRACE || CONFIG_TRACE_MODULE)
-+        sw      a3, PT_R26(sp)          # save for syscall restart
-+	b	ltt_trace_a_syscall
-+#endif /* (CONFIG_TRACE || CONFIG_TRACE_MODULE) */ 
-         sw      a3, PT_R26(sp)          # save for syscall restart
- #error	lw	t0, TASK_PTRACE($28)	# syscall tracing enabled?
- 	andi	t0, PT_TRACESYS
-@@ -95,6 +104,35 @@
- 	SAVE_STATIC
- 	jal	schedule
- 	b	o32_ret_from_sys_call
-+
-+/* ------------------------------------------------------------------------ */
-+
-+#if (CONFIG_TRACE || CONFIG_TRACE_MODULE)
-+ltt_trace_a_syscall:
-+	SAVE_STATIC
-+	sw	t2, PT_R1(sp)
-+	move	a0, sp
-+	jal	trace_real_syscall_entry
-+	lw	t2, PT_R1(sp)
-+
-+	lw	a0, PT_R4(sp)		# Restore argument registers
-+	lw	a1, PT_R5(sp)
-+	lw	a2, PT_R6(sp)
-+	lw	a3, PT_R7(sp)
-+	jalr	t2
-+
-+	li	t0, -EMAXERRNO - 1	# error?
-+	sltu	t0, t0, v0
-+	sw	t0, PT_R7(sp)		# set error flag
-+	beqz	t0, 1f
-+
-+	negu	v0			# error
-+	sw	v0, PT_R0(sp)		# set flag for syscall restarting
-+1:	sw	v0, PT_R2(sp)		# result
-+
-+	jal	trace_real_syscall_exit
-+	j	o32_ret_from_sys_call
-+#endif /* (CONFIG_TRACE || CONFIG_TRACE_MODULE) */	
- 
- /* ------------------------------------------------------------------------ */
- 
-diff -urN linux-2.5.33/arch/mips/kernel/time.c linux-2.5.33-ltt/arch/mips/kernel/time.c
---- linux-2.5.33/arch/mips/kernel/time.c	Sat Aug 31 18:04:59 2002
-+++ linux-2.5.33-ltt/arch/mips/kernel/time.c	Fri Sep  6 12:03:20 2002
-@@ -368,6 +368,8 @@
+ static ide_startstop_t do_rw_disk (ide_drive_t *drive, struct request *rq, unsigned long block)
  {
- 	int cpu = smp_processor_id();
- 
-+	TRACE_IRQ_ENTRY(irq, ((regs->cp0_status & ST0_KSU) == KSU_KERNEL));
-+
- 	irq_enter(cpu, irq);
- 	kstat.irqs[cpu][irq]++;
- 
-@@ -375,6 +377,8 @@
- 	timer_interrupt(irq, NULL, regs);
- 	
- 	irq_exit(cpu, irq);
-+
-+	TRACE_IRQ_EXIT();
- 
- 	if (softirq_pending(cpu))
- 		do_softirq();
-diff -urN linux-2.5.33/arch/mips/kernel/traps.c linux-2.5.33-ltt/arch/mips/kernel/traps.c
---- linux-2.5.33/arch/mips/kernel/traps.c	Sat Aug 31 18:04:58 2002
-+++ linux-2.5.33-ltt/arch/mips/kernel/traps.c	Fri Sep  6 12:03:20 2002
-@@ -10,6 +10,10 @@
-  *
-  * Kevin D. Kissell, kevink@mips.com and Carsten Langgaard, carstenl@mips.com
-  * Copyright (C) 2000, 01 MIPS Technologies, Inc.
-+ *
-+ *  ---- for LTT patch ----
-+ * Copyright (C) 2001 Takuzo O'Hara (takuzo@sm.sony.co.jp).
-+ *
-  */
- #include <linux/config.h>
- #include <linux/init.h>
-@@ -20,6 +24,8 @@
- #include <linux/smp_lock.h>
- #include <linux/spinlock.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/bootinfo.h>
- #include <asm/branch.h>
- #include <asm/cpu.h>
-@@ -34,6 +40,7 @@
- #include <asm/system.h>
- #include <asm/uaccess.h>
- #include <asm/mmu_context.h>
-+#include <asm/unistd.h>
- 
- /*
-  * Machine specific interrupt handlers
-@@ -186,6 +193,86 @@
- 	}
++	BUG_ON(drive->blocked);
+ 	if (!(rq->flags & REQ_CMD)) {
+ 		blk_dump_rq_flags(rq, "do_rw_disk - bad command");
+ 		idedisk_end_request(drive, 0);
+@@ -1514,12 +1515,65 @@
+  	ide_add_setting(drive,	"max_failures",		SETTING_RW,					-1,			-1,			TYPE_INT,	0,	65535,				1,	1,	&drive->max_failures,		NULL);
  }
  
-+#if (CONFIG_TRACE || CONFIG_TRACE_MODULE)
-+asmlinkage void trace_real_syscall_entry(struct pt_regs * regs)
++static int idedisk_suspend(struct device *dev, u32 state, u32 level)
 +{
-+#if 0
-+        int                 use_depth;
-+	int                 use_bounds;
-+	int                 depth = 0;
-+        int                 seek_depth;
-+        unsigned long       lower_bound;
-+        unsigned long       upper_bound;
-+	unsigned long       addr;
-+	unsigned long*      stack;
-+#endif
-+	trace_syscall_entry trace_syscall_event;
++	ide_drive_t *drive = dev->driver_data;
 +
-+        /* Set the syscall ID */
-+        trace_syscall_event.syscall_id = (uint8_t) (regs->regs[2] - __NR_Linux); /* v0 */
++	/* I hope that every freeze operations from the upper levels have
++	 * already been done...
++	 */
 +
-+	/* Set the address in any case */
-+	trace_syscall_event.address  = regs->cp0_epc;
++	BUG_ON(in_interrupt());
 +
-+	/* Are we in the kernel (This is a kernel thread)? */
-+	if((regs->cp0_status & ST0_KSU) == KSU_KERNEL)
-+	  /* Don't go digining anywhere */
-+	    goto trace_syscall_end; // takuzo: why? noone wants to monitor kernel threads?
++	if (level != SUSPEND_SAVE_STATE)
++		return 0;
 +
-+#if 0   // takuzo: I'll just do it later
-+	/* Get the trace configuration */
-+	if(trace_get_config(&use_depth,
-+			    &use_bounds,
-+			    &seek_depth,
-+			    (void*)&lower_bound,
-+			    (void*)&upper_bound) < 0)
-+	  goto trace_syscall_end;
++	/* wait until all commands are finished */
++	/* FIXME: waiting for spinlocks should be done instead. */
++	while (HWGROUP(drive)->handler)
++		yield();
 +
-+	/* Do we have to search for an eip address range */
-+	if((use_depth == 1) || (use_bounds == 1))
-+	  {
-+	  /* Start at the top of the stack (bottom address since stacks grow downward) */
-+	  stack = (unsigned long*) regs->esp;
++	/* set the drive to standby */
++	printk(KERN_INFO "suspending: %s ", drive->name);
++	if (drive->driver) {
++		if (drive->driver->standby)
++			drive->driver->standby(drive);
++	}
++	drive->blocked = 1;
 +
-+	  /* Keep on going until we reach the end of the process' stack limit (wherever it may be) */
-+	  while(!get_user(addr, stack))
-+	    {
-+	    /* Does this LOOK LIKE an address in the program */
-+	    if((addr > current->mm->start_code)
-+             &&(addr < current->mm->end_code))
-+	      {
-+	      /* Does this address fit the description */
-+              if(((use_depth == 1) && (depth == seek_depth))
-+               ||((use_bounds == 1) && (addr > lower_bound) && (addr < upper_bound)))
-+		{
-+		/* Set the address */
-+		trace_syscall_event.address = addr;
-+
-+		/* We're done */
-+		goto trace_syscall_end;
-+		}
-+	      else
-+		/* We're one depth more */
-+		depth++;
-+	      }
-+	    /* Go on to the next address */
-+	    stack++;
-+    }
-+	  }
-+#endif /* 0 */
-+
-+trace_syscall_end:
-+	/* Trace the event */
-+	trace_event(TRACE_EV_SYSCALL_ENTRY, &trace_syscall_event);
++	return 0;
 +}
 +
-+asmlinkage void trace_real_syscall_exit(void)
++static int idedisk_resume(struct device *dev, u32 level)
 +{
-+        trace_event(TRACE_EV_SYSCALL_EXIT, NULL);
++	ide_drive_t *drive = dev->driver_data;
++
++	if (level != RESUME_RESTORE_STATE)
++		return 0;
++	if (!drive->blocked)
++		panic("ide: Resume but not suspended?\n");
++
++	drive->blocked = 0;
++	return 0;
 +}
 +
-+#endif /* (CONFIG_TRACE || CONFIG_TRACE_MODULE) */
 +
- spinlock_t die_lock;
- 
- extern void __die(const char * str, struct pt_regs * regs, const char *where,
-@@ -312,20 +399,28 @@
- 
- asmlinkage void do_ibe(struct pt_regs *regs)
- {
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
- 	ibe_board_handler(regs);
-+//	TRACE_TRAP_EXIT();
- }
- 
- asmlinkage void do_dbe(struct pt_regs *regs)
- {
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
- 	dbe_board_handler(regs);
-+//	TRACE_TRAP_EXIT();
- }
- 
- asmlinkage void do_ov(struct pt_regs *regs)
- {
--	if (compute_return_epc(regs))
--		return;
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
-+        if (compute_return_epc(regs)) {
-+//       	TRACE_TRAP_EXIT();
-+	        return;
-+	}
- 
- 	force_sig(SIGFPE, current);
-+//	TRACE_TRAP_EXIT();
- }
- 
- /*
-@@ -333,6 +428,7 @@
-  */
- asmlinkage void do_fpe(struct pt_regs *regs, unsigned long fcr31)
- {
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
- 	if (fcr31 & FPU_CSR_UNI_X) {
- 		extern void save_fp(struct task_struct *);
- 		extern void restore_fp(struct task_struct *);
-@@ -366,14 +462,18 @@
- 		if (sig)
- 			force_sig(sig, current);
- 
-+//       	TRACE_TRAP_EXIT();
- 		return;
- 	}
- 
--	if (compute_return_epc(regs))
-+	if (compute_return_epc(regs)){
-+//       	TRACE_TRAP_EXIT();
- 		return;
-+	}
- 
- 	force_sig(SIGFPE, current);
- 	printk(KERN_DEBUG "Sent send SIGFPE to %s\n", current->comm);
-+//     	TRACE_TRAP_EXIT();
- }
- 
- static inline int get_insn_opcode(struct pt_regs *regs, unsigned int *opcode)
-@@ -395,6 +495,8 @@
- 	unsigned int opcode, bcode;
- 	unsigned int *epc;
- 
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
-+
- 	epc = (unsigned int *) regs->cp0_epc +
- 	      ((regs->cp0_cause & CAUSEF_BD) != 0);
- 	if (get_user(opcode, epc))
-@@ -428,10 +530,12 @@
- 	default:
- 		force_sig(SIGTRAP, current);
- 	}
-+//	TRACE_TRAP_EXIT();
- 	return;
- 
- sigsegv:
- 	force_sig(SIGSEGV, current);
-+//	TRACE_TRAP_EXIT();
- }
- 
- asmlinkage void do_tr(struct pt_regs *regs)
-@@ -493,21 +597,27 @@
- 
- 	if (!user_mode(regs))
- 		BUG();
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
- 
- 	if (!get_insn_opcode(regs, &opcode)) {
- 		if ((opcode & OPCODE) == LL) {
- 			simulate_ll(regs, opcode);
-+			//	TRACE_TRAP_EXIT();
- 			return;
- 		}
- 		if ((opcode & OPCODE) == SC) {
- 			simulate_sc(regs, opcode);
-+			//	TRACE_TRAP_EXIT();
- 			return;
- 		}
- 	}
- 
--	if (compute_return_epc(regs))
-+	if (compute_return_epc(regs)) {
-+	  //	TRACE_TRAP_EXIT();
- 		return;
-+	}
- 	force_sig(SIGILL, current);
-+//	TRACE_TRAP_EXIT();
- }
- 
- /*
-@@ -623,6 +733,8 @@
- 	void fpu_emulator_init_fpu(void);
- 	int sig;
- 
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
-+
- 	cpid = (regs->cp0_cause >> CAUSEB_CE) & 3;
- 	if (cpid != 1)
- 		goto bad_cid;
-@@ -631,8 +743,10 @@
- 		goto fp_emul;
- 
- 	regs->cp0_status |= ST0_CU1;
--	if (last_task_used_math == current)
-+	if (last_task_used_math == current) {
-+	  //	TRACE_TRAP_EXIT();
- 		return;
-+	}
- 
- 	if (current->used_math) {		/* Using the FPU again.  */
- 		lazy_fpu_switch(last_task_used_math);
-@@ -641,6 +755,7 @@
- 		current->used_math = 1;
- 	}
- 	last_task_used_math = current;
-+//	TRACE_TRAP_EXIT();
- 	return;
- 
- fp_emul:
-@@ -654,10 +769,12 @@
- 	last_task_used_math = current;
- 	if (sig)
- 		force_sig(sig, current);
-+//	TRACE_TRAP_EXIT();
- 	return;
- 
- bad_cid:
- 	force_sig(SIGILL, current);
-+//	TRACE_TRAP_EXIT();
- }
- 
- asmlinkage void do_watch(struct pt_regs *regs)
-@@ -666,7 +783,9 @@
- 	 * We use the watch exception where available to detect stack
- 	 * overflows.
- 	 */
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
- 	show_regs(regs);
-+//      TRACE_TRACE_EXIT();
- 	panic("Caught WATCH exception - probably caused by stack overflow.");
- }
- 
-@@ -684,7 +803,9 @@
- 	 * caused by a new unknown cpu type or after another deadly
- 	 * hard/software error.
- 	 */
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
- 	show_regs(regs);
-+//      TRACE_TRACE_EXIT();
- 	panic("Caught reserved exception - should not happen.");
- }
- 
-diff -urN linux-2.5.33/arch/mips/kernel/unaligned.c linux-2.5.33-ltt/arch/mips/kernel/unaligned.c
---- linux-2.5.33/arch/mips/kernel/unaligned.c	Sat Aug 31 18:04:47 2002
-+++ linux-2.5.33-ltt/arch/mips/kernel/unaligned.c	Fri Sep  6 12:03:20 2002
-@@ -8,6 +8,9 @@
-  * Copyright (C) 1996, 1998 by Ralf Baechle
-  * Copyright (C) 1999 Silicon Graphics, Inc.
-  *
-+ *  ---- for LTT patch ----
-+ * Copyright (C) 2001 Takuzo O'Hara (takuzo@sm.sony.co.jp).
-+ *
-  * This file contains exception handler for address error exception with the
-  * special capability to execute faulting instructions in software.  The
-  * handler does not try to handle the case when the program counter points
-@@ -78,6 +81,8 @@
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/asm.h>
- #include <asm/branch.h>
- #include <asm/byteorder.h>
-@@ -400,6 +405,8 @@
- 		return;
- 	}
- 
-+//	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
-+
- 	/*
- 	 * Did we catch a fault trying to load an instruction?
- 	 * This also catches attempts to activate MIPS16 code on
-@@ -409,8 +416,10 @@
- 		goto sigbus;
- 
- 	pc = regs->cp0_epc + ((regs->cp0_cause & CAUSEF_BD) ? 4 : 0);
--	if (compute_return_epc(regs))
-+	if (compute_return_epc(regs)){
-+	  //    TRACE_TRAP_EXIT();
- 		return;
-+	}
- 	if ((current->thread.mflags & MF_FIXADE) == 0)
- 		goto sigbus;
- 
-@@ -419,11 +428,13 @@
- 	unaligned_instructions++;
- #endif
- 
-+//      TRACE_TRAP_EXIT();
- 	return;
- 
- sigbus:
- 	die_if_kernel ("Kernel unaligned instruction access", regs);
- 	force_sig(SIGBUS, current);
- 
-+//      TRACE_TRAP_EXIT();
- 	return;
- }
-diff -urN linux-2.5.33/arch/mips/mm/fault.c linux-2.5.33-ltt/arch/mips/mm/fault.c
---- linux-2.5.33/arch/mips/mm/fault.c	Sat Aug 31 18:04:53 2002
-+++ linux-2.5.33-ltt/arch/mips/mm/fault.c	Fri Sep  6 12:03:20 2002
-@@ -4,6 +4,10 @@
-  * for more details.
-  *
-  * Copyright (C) 1995 - 2000 by Ralf Baechle
-+ *
-+ *  ---- for LTT patch ----
-+ * Copyright (C) 2001 Takuzo O'Hara (takuzo@sm.sony.co.jp).
-+ *
-  */
- #include <linux/signal.h>
- #include <linux/sched.h>
-@@ -19,12 +23,18 @@
- #include <linux/smp_lock.h>
- #include <linux/version.h>
- 
-+#include <linux/trace.h>
-+
- #include <asm/hardirq.h>
- #include <asm/pgalloc.h>
- #include <asm/mmu_context.h>
- #include <asm/softirq.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
-+#include <asm/mipsregs.h>
-+#include <asm/unistd.h>
-+
-+#define EXC_CODE(x)     ((CAUSEF_EXCCODE & (x)) >> CAUSEB_EXCCODE)
- 
- #define development_version (LINUX_VERSION_CODE & 0x100)
- 
-@@ -87,6 +97,10 @@
-  * we can handle it..
-  */
- good_area:
-+	// takuzo: 
-+	// I only made this to log page faults for reasonable usermode context.
-+	// page faults in kernel, fixups, sigbuses are siliently ignored...
-+	TRACE_TRAP_ENTRY(EXC_CODE(regs->cp0_cause), regs->cp0_epc);
- 	info.si_code = SEGV_ACCERR;
- 
- 	if (write) {
-@@ -116,6 +130,7 @@
- 	}
- 
- 	up_read(&mm->mmap_sem);
-+//      TRACE_TRAP_EXIT();
- 	return;
- 
- /*
-diff -urN linux-2.5.33/include/asm-mips/trace.h linux-2.5.33-ltt/include/asm-mips/trace.h
---- linux-2.5.33/include/asm-mips/trace.h	Wed Dec 31 19:00:00 1969
-+++ linux-2.5.33-ltt/include/asm-mips/trace.h	Fri Sep  6 12:03:21 2002
-@@ -0,0 +1,15 @@
-+/*
-+ * linux/include/asm-mips/trace.h
-+ *
-+ * Copyright (C) 2002, Karim Yaghmour
-+ *
-+ * MIPS definitions for tracing system
++/* This is just a hook for the overall driver tree.
 + */
 +
-+#include <linux/trace.h>
++static struct device_driver idedisk_devdrv = {
++	.lock = RW_LOCK_UNLOCKED,
++	.suspend = idedisk_suspend,
++	.resume = idedisk_resume,
++};
 +
-+/* Current arch type */
-+#define TRACE_ARCH_TYPE TRACE_ARCH_TYPE_MIPS
+ static void idedisk_setup (ide_drive_t *drive)
+ {
+ 	int i;
+ 	
+ 	struct hd_driveid *id = drive->id;
+ 	unsigned long capacity;
++	int myid = -1;
+ 	
+ 	idedisk_add_settings(drive);
+ 
+@@ -1542,11 +1596,21 @@
+ 		ide_hwif_t *hwif = HWIF(drive);
+ 
+ 		if (drive != &hwif->drives[i]) continue;
++		myid = i;
+ 		hwif->gd[i]->de_arr[i] = drive->de;
+ 		if (drive->removable)
+ 			hwif->gd[i]->flags[i] |= GENHD_FL_REMOVABLE;
+ 		break;
+ 	}
++	{
++		ide_hwif_t *hwif = HWIF(drive);
++		sprintf(drive->device.bus_id, "%d", myid);
++		sprintf(drive->device.name, "ide-disk");
++		drive->device.driver = &idedisk_devdrv;
++		drive->device.parent = &hwif->device;
++		drive->device.driver_data = drive;
++		device_register(&drive->device);
++	}
+ 
+ #if 1
+ 	(void) probe_lba_addressing(drive, 1);
+@@ -1632,6 +1696,8 @@
+ 	ide_hwif_t *hwif = HWIF(drive);
+ 	int unit = drive - hwif->drives;
+ 	struct gendisk *g = hwif->gd[unit];
 +
-+/* Current variant type */
-+#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_NONE
++	put_device(&drive->device);
+ 	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
+ 		if (do_idedisk_flushcache(drive))
+ 			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+--- linux-swsusp.2/drivers/ide/ide-pnp.c	2002-08-28 23:12:14.000000000 +0200
++++ linux-swsusp/drivers/ide/ide-pnp.c	2002-09-06 00:28:57.000000000 +0200
+@@ -57,6 +57,7 @@
+ static int __init pnpide_generic_init(struct pci_dev *dev, int enable)
+ {
+ 	hw_regs_t hw;
++	ide_hwif_t *hwif;
+ 	int index;
+ 
+ 	if (!enable)
+@@ -69,9 +70,10 @@
+ 			generic_ide_offsets, (ide_ioreg_t) DEV_IO(dev, 1),
+ 			0, NULL, DEV_IRQ(dev, 0));
+ 
+-	index = ide_register_hw(&hw, NULL);
++	index = ide_register_hw(&hw, &hwif);
+ 
+ 	if (index != -1) {
++		hwif->pci_dev = dev;
+ 	    	printk("ide%d: %s IDE interface\n", index, DEV_NAME(dev));
+ 		return 0;
+ 	}
+--- linux-swsusp.2/drivers/ide/ide-probe.c	2002-09-05 23:30:28.000000000 +0200
++++ linux-swsusp/drivers/ide/ide-probe.c	2002-09-06 00:28:57.000000000 +0200
+@@ -46,6 +46,7 @@
+ #include <linux/delay.h>
+ #include <linux/ide.h>
+ #include <linux/spinlock.h>
++#include <linux/pci.h>
+ 
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+@@ -477,6 +478,14 @@
+ 
+ static void hwif_register (ide_hwif_t *hwif)
+ {
++	sprintf(hwif->device.bus_id, "%04x", hwif->io_ports[IDE_DATA_OFFSET]);
++	sprintf(hwif->device.name, "ide");
++	hwif->device.driver_data = hwif;
++	if (hwif->pci_dev)
++		hwif->device.parent = &hwif->pci_dev->dev;
++	else
++		hwif->device.parent = NULL; /* Would like to do = &device_legacy */
++	device_register(&hwif->device);
+ 	if (((unsigned long)hwif->io_ports[IDE_DATA_OFFSET] | 7) ==
+ 	    ((unsigned long)hwif->io_ports[IDE_STATUS_OFFSET])) {
+ 		ide_request_region(hwif->io_ports[IDE_DATA_OFFSET], 8, hwif->name);
+--- linux-swsusp.2/drivers/ide/ide-proc.c	2002-09-05 23:30:28.000000000 +0200
++++ linux-swsusp/drivers/ide/ide-proc.c	2002-09-06 00:20:43.000000000 +0200
+@@ -562,14 +562,14 @@
+ 	(char *page, char **start, off_t off, int count, int *eof, void *data)
+ {
+ 	ide_drive_t	*drive = (ide_drive_t *) data;
+-	ide_driver_t    *driver = (ide_driver_t *) drive->driver;
++	ide_driver_t    *driver = drive->driver;
+ 	int		len;
+ 
+ 	if (!driver)
+ 		len = sprintf(page, "(none)\n");
+         else
+ 		len = sprintf(page,"%llu\n",
+-			      (unsigned long long) ((ide_driver_t *)drive->driver)->capacity(drive));
++			      (unsigned long long) drive->driver->capacity(drive));
+ 	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
+ }
+ 
+@@ -601,7 +601,7 @@
+ 	(char *page, char **start, off_t off, int count, int *eof, void *data)
+ {
+ 	ide_drive_t	*drive = (ide_drive_t *) data;
+-	ide_driver_t	*driver = (ide_driver_t *) drive->driver;
++	ide_driver_t	*driver = drive->driver;
+ 	int		len;
+ 
+ 	if (!driver)
+@@ -718,7 +718,6 @@
+ 	struct proc_dir_entry *ent;
+ 	struct proc_dir_entry *parent = hwif->proc;
+ 	char name[64];
+-//	ide_driver_t *driver = drive->driver;
+ 
+ 	if (drive->present && !drive->proc) {
+ 		drive->proc = proc_mkdir(drive->name, parent);
+@@ -760,7 +759,6 @@
+ 
+ 	for (d = 0; d < MAX_DRIVES; d++) {
+ 		ide_drive_t *drive = &hwif->drives[d];
+-//		ide_driver_t *driver = drive->driver;
+ 
+ 		if (drive->proc)
+ 			destroy_proc_ide_device(hwif, drive);
+--- linux-swsusp.2/drivers/ide/ide.c	2002-09-05 23:30:28.000000000 +0200
++++ linux-swsusp/drivers/ide/ide.c	2002-09-06 00:31:24.000000000 +0200
+@@ -141,9 +141,7 @@
+ #include <linux/genhd.h>
+ #include <linux/blkpg.h>
+ #include <linux/slab.h>
+-#ifndef MODULE
+ #include <linux/init.h>
+-#endif /* MODULE */
+ #include <linux/pci.h>
+ #include <linux/delay.h>
+ #include <linux/ide.h>
+@@ -152,6 +150,8 @@
+ #include <linux/reboot.h>
+ #include <linux/cdrom.h>
+ #include <linux/seq_file.h>
++#include <linux/device.h>
++#include <linux/kmod.h>
+ 
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+@@ -161,9 +161,6 @@
+ 
+ #include "ide_modes.h"
+ 
+-#ifdef CONFIG_KMOD
+-#include <linux/kmod.h>
+-#endif /* CONFIG_KMOD */
+ 
+ /* default maximum number of failures */
+ #define IDE_DEFAULT_MAX_FAILURES 	1
+@@ -1957,6 +1954,7 @@
+ 	hwif = &ide_hwifs[index];
+ 	if (!hwif->present)
+ 		goto abort;
++	put_device(&hwif->device);
+ 	for (unit = 0; unit < MAX_DRIVES; ++unit) {
+ 		drive = &hwif->drives[unit];
+ 		if (!drive->present)
+--- linux-swsusp.2/include/linux/ide.h	2002-09-05 23:30:41.000000000 +0200
++++ linux-swsusp/include/linux/ide.h	2002-09-06 00:39:30.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include <linux/proc_fs.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/bio.h>
++#include <linux/device.h>
+ #include <asm/byteorder.h>
+ #include <asm/system.h>
+ #include <asm/hdreg.h>
+@@ -477,6 +478,7 @@
+ 	unsigned autotune	: 2;	/* 1=autotune, 2=noautotune, 0=default */
+ 	unsigned remap_0_to_1	: 2;	/* 0=remap if ezdrive, 1=remap, 2=noremap */
+ 	unsigned ata_flash	: 1;	/* 1=present, 0=default */
++	unsigned blocked        : 1;	/* 1=powermanagment told us not to do anything, so sleep nicely */
+ 	unsigned addressing;		/*	: 3;
+ 					 *  0=28-bit
+ 					 *  1=48-bit
+@@ -530,6 +532,7 @@
+ 	unsigned int	failures;	/* current failure count */
+ 	unsigned int	max_failures;	/* maximum allowed failure count */
+ 	struct list_head list;
++	struct device	device;
+ } ide_drive_t;
+ 
+ /*
+@@ -765,6 +768,7 @@
+ 	byte		straight8;	/* Alan's straight 8 check */
+ 	void		*hwif_data;	/* extra hwif data */
+ 	byte		bus_state;	/* power state of the IDE bus */
++	struct device	device;
+ } ide_hwif_t;
+ 
+ /*
+
+
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

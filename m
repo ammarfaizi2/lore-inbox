@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265350AbRF2AiJ>; Thu, 28 Jun 2001 20:38:09 -0400
+	id <S265340AbRF2A35>; Thu, 28 Jun 2001 20:29:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265354AbRF2Ah6>; Thu, 28 Jun 2001 20:37:58 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:28947 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265350AbRF2Ahz>;
-	Thu, 28 Jun 2001 20:37:55 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: ankry@green.mif.pg.gda.pl, elenstev@mesatop.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.6-pre6 fix drivers/net/Config.in error 
-In-Reply-To: Your message of "Thu, 28 Jun 2001 16:40:51 -0400."
-             <3B3B9653.A8331780@mandrakesoft.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Jun 2001 10:37:48 +1000
-Message-ID: <11982.993775068@ocs3.ocs-net>
+	id <S265361AbRF2A3r>; Thu, 28 Jun 2001 20:29:47 -0400
+Received: from thetis.deor.org ([207.106.86.210]:27400 "EHLO thetis.deor.org")
+	by vger.kernel.org with ESMTP id <S265350AbRF2A3i>;
+	Thu, 28 Jun 2001 20:29:38 -0400
+Date: Thu, 28 Jun 2001 17:29:36 -0700
+From: "A. Melon" <juicy@melontraffickers.com>
+Comments: This message did not originate from the Sender address above.
+	It was remailed automatically by anonymizing remailer software.
+	Please report problems or inappropriate use to the
+	remailer administrator at <abuse@melontraffickers.com>.
+	Please read http://melontraffickers.com/remailer.html
+	before contacting the administrator.
+To: linux-kernel@vger.kernel.org
+Subject: RE: Cosmetic JFFS patch.
+Message-ID: <a1f8a20e896653666c09770f78da67e3@melontraffickers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001 16:40:51 -0400, 
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
->Keith Owens wrote:
->> True, but the line is a cut and paste from higher up in
->> drivers/net/Config.in.  Even though it is redundant, it is consistent
->> with the rest of the file.
->
->It is not redundant because in theory CONFIG_EISA could exist without
->CONFIG_ISA.
+Linus Torvalds hath spoken:
+> I don't _have_ any instances of my name being printed out to annoy the
+> user, so that's a very theoretical argument.
 
-Really?  I checked all the arch config.in files in the kernel and none
-allow EISA without ISA first.
+There is, of course, only one way to be fair about this.
+
+And that is to apply this patch to init/main.c:
+
+518a519
+>       printk("Linux is a registered trademark of Linus Torvalds.\n");
 

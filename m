@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264052AbTGBQug (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 12:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTGBQug
+	id S264075AbTGBQxB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 12:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTGBQxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 12:50:36 -0400
-Received: from [65.248.4.67] ([65.248.4.67]:697 "EHLO verdesmares.com")
-	by vger.kernel.org with ESMTP id S264052AbTGBQue (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 12:50:34 -0400
-Message-ID: <000701c340bb$e48b43e0$19dfa7c8@bsb.virtua.com.br>
-From: "Breno" <brenosp@brasilsec.com.br>
-To: "Kernel List" <linux-kernel@vger.kernel.org>
-Subject: about send task
-Date: Wed, 2 Jul 2003 14:03:38 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-XTmail: http://www.verdesmares.com
+	Wed, 2 Jul 2003 12:53:01 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2815 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264075AbTGBQw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 12:52:58 -0400
+Date: Wed, 2 Jul 2003 19:07:17 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc 2.95.4 vs gcc 3.3 ?
+Message-ID: <20030702170717.GW282@fs.tum.de>
+References: <20030702141345.GD13653@rdlg.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030702141345.GD13653@rdlg.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people , i am thinking about process migration.
-And the idea to transfer a simples task is:
+On Wed, Jul 02, 2003 at 10:13:45AM -0400, Robert L. Harris wrote:
+> 
+>   I'm trying to compile the 2.4.21-ac3 kernel for some work machines.
+> One of the users is insisting on gcc 3.3 to compile.  Reading the
+> web page on www.kernel.org this is recomended against.
+> 
+>   Perchance is this old news, is the 3.3 compiled kernel going to kill
+> something or anything that should be related to users or any bosses?
 
+gcc 3.3 is relatively new and _much_ less tested than 2.95. A new gcc 
+might either contain bugs or it might unleash bugs in the kernel that 
+weren't visible before (e.g. via better optimizations).
 
+Usually gcc 3.3 works fine (and my PC at home runs a 2.4.21 compiled
+with 3.3) but if you want stability in production envvironments 2.95 (or
+the unofficial 2.96 >= 2.96-74) is the recommended compiler.
 
-Thread1 in NODE A    <-------TCP CONN----------->   Thread2 in NODE B
-__________________
-__________________
+> Robert
 
-- select task by
-    -verify the availability  of these virtual addresses.
+cu
+Adrian
 
-if it busy , free the memory of these virtual addresses.
-- get structs mm , vma , task , zone , page
-  and copy all buffers existing in the
+-- 
 
-         -alloc all the buffer of task.
-
-
-- send all buffers to
-        -re-build structs (alloc_task_struct,page_zone,pte_page...)
-
-                                                                            
-               -INIT_LIST_HEAD()
-
-                                                                            
-               -wake_up_process()
--send all virtual addresses to thread2
-
-
-
-Please , i´d like some comments/ideas about this.
-
-thanks
-Breno
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbUAQOyM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 09:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUAQOyM
+	id S266049AbUAQPSh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 10:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbUAQPSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 09:54:12 -0500
-Received: from heavymos.kumin.ne.jp ([61.114.158.133]:58059 "HELO
-	emerald.kumin.ne.jp") by vger.kernel.org with SMTP id S266048AbUAQOyK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 09:54:10 -0500
-Message-Id: <200401171453.AA00009@prism.kumin.ne.jp>
-Date: Sat, 17 Jan 2004 23:53:41 +0900
-To: linux-kernel@vger.kernel.org
-Cc: <tao@acc.umu.se>
-Subject: linux-2.0.40-rc7
-From: Seiichi Nakashima <nakasima@kumin.ne.jp>
-In-Reply-To: <200303041229.AA00001@prism.kumin.ne.jp>
-References: <200303041229.AA00001@prism.kumin.ne.jp>
-MIME-Version: 1.0
-X-Mailer: AL-Mail32 Version 1.13
-Content-Type: text/plain; charset=us-ascii
+	Sat, 17 Jan 2004 10:18:37 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:12754 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266049AbUAQPSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 10:18:32 -0500
+Subject: Re: [PATCH] Intel Alder IOAPIC fix
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <m13cagbgrc.fsf@ebiederm.dsl.xmission.com>
+References: <1073876117.2549.65.camel@mulgrave>
+	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
+	<1073948641.4178.76.camel@mulgrave>
+	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
+	<1073954751.4178.98.camel@mulgrave>
+	<Pine.LNX.4.58.0401121621220.14305@evo.osdl.org>
+	<1074012755.2173.135.camel@mulgrave>
+	<m1smihg56u.fsf@ebiederm.dsl.xmission.com>
+	<1074185897.1868.118.camel@mulgrave>
+	<m17jztau8l.fsf@ebiederm.dsl.xmission.com>
+	<1074196460.1868.250.camel@mulgrave> 
+	<m13cagbgrc.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 17 Jan 2004 10:18:23 -0500
+Message-Id: <1074352704.2015.8.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 2004-01-16 at 00:32, Eric W. Biederman wrote:
+> Yes, this is the extreme case.  In normal cases I would just
+> expect to push to one side and probably shrink it to 0.  I guess
+> I have something against implying a hierarchal relationship that
+> does not exist.
 
-I update linux-2.0.40-rc7 from 2.0.40-rc6.
-But compile error occured.
+Well, it makes sense to me that the resource would be a child of the
+reserved area, because the reserved area covers the APICs and this
+rather annoying PCI device has one of the IO APICs tied to BAR0.
 
-=====
+In this case, we have a PCI device claiming something we already
+discovered and made use of long ago in bootup.
 
-ialloc.c: In function `ext2_new_inode':
-ialloc.c:302: warning: `bh2' might be used uninitialized in this function
-ialloc.c:452: warning: `bh' might be used uninitialized in this function
-skbuff.c: In function `skb_copy_grow':
-skbuff.c:960: structure has no member named `priority'
-skbuff.c:960: structure has no member named `priority'
-skbuff.c:962: structure has no member named `dst'
-skbuff.c:962: warning: implicit declaration of function `dst_clone'
-skbuff.c:962: structure has no member named `dst'
-skbuff.c:964: structure has no member named `nh'
-skbuff.c:964: structure has no member named `nh'
-skbuff.c:966: structure has no member named `cb'
-skbuff.c:966: structure has no member named `cb'
-skbuff.c:966: structure has no member named `cb'
-skbuff.c:966: structure has no member named `cb'
-skbuff.c:966: structure has no member named `cb'
-skbuff.c:966: structure has no member named `cb'
-skbuff.c:966: structure has no member named `cb'
-skbuff.c:968: structure has no member named `is_clone'
-skbuff.c:969: warning: implicit declaration of function `atomic_set'
-skbuff.c:973: structure has no member named `security'
-skbuff.c:973: structure has no member named `security'
-skbuff.c: In function `skb_pad':
-skbuff.c:991: too few arguments to function `kfree_skb'
-make[3]: *** [skbuff.o] Error 1
-make[2]: *** [first_rule] Error 2
-make[1]: *** [sub_dirs] Error 2
-make: *** [linuxsubdirs] Error 2
+> Right.  To me it looks like separate cases.  What I keep envisioning
+> scanning the PCI devices and then realizing they are behind
+> a bridge.  Before I go to far I guess I should ask.
+> 
+> The splitting/pushing aside looks especially useful for those
+> cases where you subdivide the resource again.
+> 
+> As for the bridge case I think that is something different.  
 
---------------------------------
-  Seiichi Nakashima
-  Email   nakasima@kumin.ne.jp
---------------------------------
+The pragmatist in me says we can handle them all as a single case. 
+Simply put, it means insert_resource() says "I know this belongs in the
+resource tree, just put it in where it should go, please".  As long as
+we make sure we only use it for the exception cases, it should all work
+fine.
+
+All I really want is to get the alter 4 and 8 way boxes working again,
+I'm happy to go with whatever people decide about resources.  What other
+uses are there for the TENTATIVE regions?
+
+James
+
+

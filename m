@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265636AbSK1QSf>; Thu, 28 Nov 2002 11:18:35 -0500
+	id <S265633AbSK1Q2N>; Thu, 28 Nov 2002 11:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265643AbSK1QSf>; Thu, 28 Nov 2002 11:18:35 -0500
-Received: from bitmover.com ([192.132.92.2]:12703 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S265636AbSK1QSe>;
-	Thu, 28 Nov 2002 11:18:34 -0500
-Date: Thu, 28 Nov 2002 08:25:50 -0800
-From: Larry McVoy <lm@bitmover.com>
-Message-Id: <200211281625.gASGPo804227@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: connectivity to bkbits.net?
-X-MailScanner: Found to be clean
+	id <S265643AbSK1Q2N>; Thu, 28 Nov 2002 11:28:13 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:57058 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S265633AbSK1Q2L>; Thu, 28 Nov 2002 11:28:11 -0500
+X-Envelope-From: kraxel@bytesex.org
+From: Gerd Knorr <kraxel@bytesex.org>
+Message-Id: <200211281616.gASGGOE6012229@bytesex.org>
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [RELEASE] module-init-tools 0.8
+In-Reply-To: <20021128023017.91FAC2C250@lists.samba.org>
+References: <20021128023017.91FAC2C250@lists.samba.org>
+Date: Thu, 28 Nov 2002 17:16:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've been having problems getting out to certain parts of the net for the
-last few days, in particular, we can't get to sgi.com which is unusual.
-If you are having problems getting to bkbits.net, let me know.  We have
-a couple of machines at rackspace and I can push repos over there.
+>  Please report any bugs to rusty@rustcorp.com.au.
 
-traceroute to sgi.com (128.167.58.40), 30 hops max, 38 byte packets
- 1  bitmover (10.3.9.3)  0.535 ms  0.103 ms  0.100 ms
- 2  cisco (192.132.92.1)  1.236 ms  1.175 ms  1.228 ms
- 3  s9-1-1-6-0.ar2.SFO1.gblx.net (64.214.96.229)  3.080 ms  3.205 ms  2.982 ms
- 4  64.215.195.189 (64.215.195.189)  3.052 ms  3.256 ms  3.114 ms
- 5  64.211.147.86 (64.211.147.86)  4.592 ms  4.623 ms  4.468 ms
- 6  so6-0-0-2488M.br2.PAO2.gblx.net (207.136.163.126)  4.586 ms  4.530 ms  4.701 ms
- 7  p4-0.paix-bi1.bbnplanet.net (4.0.6.81)  4.627 ms  4.467 ms  4.427 ms
- 8  p6-0.snjpca1-br1.bbnplanet.net (4.24.7.61)  5.179 ms  5.678 ms  5.215 ms
- 9  p1-0.sjccolo-dbe1.bbnplanet.net (4.24.6.253)  5.431 ms  5.214 ms  5.235 ms
-10  vlan40.sjccolo-isw03-rc1.bbnplanet.net (128.11.200.91)  5.326 ms  5.396 ms  5.464 ms
-11  128.11.16.169 (128.11.16.169)  5.581 ms  5.470 ms  5.654 ms
-12  *
+System (SuSE 8.1) still doesn't boot up cleanly.  After logging in as
+root I can see a number of modprobe processes hanging around in the
+process table:
+
+bogomips root ~# ps -ax | grep modprobe
+  621 ?        S      0:00 /sbin/modprobe -- char-major-6
+  622 ?        D      0:00 /sbin/modprobe -- parport_lowlevel
+  805 ?        D      0:00 /sbin/modprobe -- autofs
+  809 ?        D      0:00 /sbin/modprobe -- autofs
+  867 ?        D      0:00 /sbin/modprobe -- autofs
+  872 ?        D      0:00 /sbin/modprobe -- net-pf-17
+ 1184 ttyS0    S      0:00 grep modprobe
+bogomips root ~# grep char-major-6 /etc/modprobe.conf
+alias char-major-6 lp
+alias char-major-67 coda
+bogomips root ~# grep parport_lowlevel /etc/modprobe.conf
+alias parport_lowlevel parport_pc
+
+Smells like a deadlock due to request_module() in some modules init
+function or something like this.
+
+lsmod doesn't work at this point (hangs too, likely the same lock).
+The deadlock prevents any further module loading (autofs, nfs and
+others) and makes the system unusable.
+
+
+Module debugging is next to impossible right now.  The apm.o module
+oopses for me in 2.5.50.  ksymoops isn't able to translate any symbol
+located in modules.  The in-kernel symbol decoder (CONFIG_KALLSYMS)
+doesn't work too.
+
+  Gerd
+
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

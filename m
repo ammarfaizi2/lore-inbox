@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267785AbUI1VEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267930AbUI1VGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267785AbUI1VEb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 17:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUI1VEb
+	id S267930AbUI1VGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 17:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267935AbUI1VGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 17:04:31 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:9673 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S267785AbUI1VE3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 17:04:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 28 Sep 2004 17:06:15 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:39211 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S267930AbUI1VGC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 17:06:02 -0400
+Message-ID: <32791.192.168.1.5.1096405439.squirrel@192.168.1.5>
+In-Reply-To: <32798.192.168.1.5.1096402672.squirrel@192.168.1.5>
+References: <1094683020.1362.219.camel@krustophenia.net>   
+    <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>   
+    <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu>   
+    <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>   
+    <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu>   
+    <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu>
+    <32798.192.168.1.5.1096402672.squirrel@192.168.1.5>
+Date: Tue, 28 Sep 2004 22:03:59 +0100 (WEST)
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       "K.R. Foley" <kr@cybsft.com>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.9-rc2-mm4 e100 enable_irq unbalanced from
-Date: Tue, 28 Sep 2004 14:03:56 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF6375@orsmsx402.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.9-rc2-mm4 e100 enable_irq unbalanced from
-Thread-Index: AcSkx7A6Zk7HejZdSDSQLQl0m5f8+gA1lV1A
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Paul Fulghum" <paulkf@microgate.com>,
-       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 Sep 2004 21:03:58.0297 (UTC) FILETIME=[AC0A0490:01C4A59E]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 28 Sep 2004 21:05:59.0612 (UTC) FILETIME=[F45937C0:01C4A59E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> My Wacom Graphire USB mouse wheel stopped to work properly, at least on
+> X. Trying to scroll with the mouse wheel just causes flicker and the
+> view stucks in the same position.
+>
+> Again this was surely introduced on -mm4.
+>
 
-> I suspect the correct thing is to remove
-> disable_irq/enable_irq from e100_up.
-> I don't see any purpose for these calls in e100_up.
+Apparently this was solved by applying the specific kernel stuff from
+linuxwacom-0.6.4 (http://linuxwacom.sourceforge.net).
 
-I don't either!  This doesn't look right to me at all.  
+The curious thing is that the tablet is working flawlessly on 2.6.9-rc2
+kernels since before -mm4 (either vanilla or VP).
 
-These enable_irq/disable_irq calls got added recently to -mm, probably
-in the fix-for-spurious-interrupts-on-e100-resume-2.patch.  Maybe just
-the disable_irq call is all that is needed to solve the spurious
-interrupt case?
+Just to clear things out, for now.
 
-Ganesh, can we back out patch out of -mm and go back to the drawing
-board on the original problem?  This patch will cause problems.
+Sorry for garbage :)
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
--scott

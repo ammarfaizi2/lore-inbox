@@ -1,77 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVCYEWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVCYE2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVCYEWf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 23:22:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVCYEWe
+	id S261283AbVCYE2N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 23:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVCYE2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 23:22:34 -0500
-Received: from fire.osdl.org ([65.172.181.4]:53740 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261217AbVCYEWa (ORCPT
+	Thu, 24 Mar 2005 23:28:13 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:51426 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261221AbVCYE2A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 23:22:30 -0500
-Date: Thu, 24 Mar 2005 20:22:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS running "ls -l /sys/class/i2c-adapter/*"-- 2.6.12-rc1-mm2
-Message-Id: <20050324202215.663bd8a9.akpm@osdl.org>
-In-Reply-To: <a44ae5cd05032420122cd610bd@mail.gmail.com>
-References: <20050324044114.5aa5b166.akpm@osdl.org>
-	<a44ae5cd05032420122cd610bd@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 24 Mar 2005 23:28:00 -0500
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+	(2.6.11)
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <42432972.5020906@pobox.com>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>
+	 <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com>
+	 <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda>
+	 <42432972.5020906@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mk/wpIFvznOj3BqSIXUb"
+Organization: MIPT
+Date: Fri, 25 Mar 2005 07:34:42 +0300
+Message-Id: <1111725282.23532.130.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 25 Mar 2005 07:27:28 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane <miles.lane@gmail.com> wrote:
->
-> root@Monkey100:/sys/class/i2c-adapter# ls * -l
->  root@Monkey100:/sys# cat */*/*/*
-> 
->  ksymoops 2.4.9 on i686 2.6.12-rc1-mm2.  Options used
->       -o /lib/modules/2.6.12-rc1-mm2 (specified)
->       -m /boot/System.map-2.6.12-rc1-mm2 (specified)
-> 
->  Unable to handle kernel paging request at virtual address 24fc1024
->  c0198448
->  *pde = 00000000
->  Oops: 0000 [#1]
->  CPU:    0
->  EIP:    0060:[<c0198448>]    Not tainted VLI
 
-I wonder why the EIP sometimes doesn't get decoded.
+--=-mk/wpIFvznOj3BqSIXUb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->  Using defaults from ksymoops -t elf32-i386 -a i386
->  EFLAGS: 00210206   (2.6.12-rc1-mm2)
->  eax: 00000001   ebx: c039f820   ecx: 00000001   edx: 24fc1000
->  esi: e75b6cc4   edi: f7c015e4   ebp: e7b93e94   esp: e7b93e94
->  ds: 007b   es: 007b   ss: 0068
->  Stack: e7b93eb8 c0198644 f7c01694 00000000 f7c015e4 e7b93eb8 c039f820 e75b6cc4
->         f7c015e4 e7b93edc c0198790 f7c01694 f7c015e4 e712a000 f7c01694 e712a000
->         fffffff4 e7b93f10 e7b93ef8 c019884f e75b6cc4 e712a000 ffffffea e75b6cc4
->  Call Trace:
->   [<c010410f>] show_stack+0x7f/0xa0
->   [<c01042aa>] show_registers+0x15a/0x1c0
->   [<c01044ac>] die+0xfc/0x190
->   [<c011450b>] do_page_fault+0x31b/0x670
->   [<c0103cf3>] error_code+0x4f/0x54
->   [<c0198644>] sysfs_get_target_path+0x14/0x80
->   [<c0198790>] sysfs_getlink+0xe0/0x150
->   [<c019884f>] sysfs_follow_link+0x4f/0x60
->   [<c016b46f>] generic_readlink+0x2f/0x90
->   [<c01635b6>] sys_readlink+0x86/0x90
->   [<c0103249>] syscall_call+0x7/0xb
->  Code: 42 70 e8 a4 fc 19 00 e9 f3 fe ff ff 90 90 90 90 90 90 90 90 90
->  90 90 90 90 90 90 90 90 90 90 90 90 90 90 55 31 c0 89 e5 8b 55 08<8b>
->  52 24 40 85 d2 75 f8 c9 c3 8d b4 26 00 00 00 00 8d bc 27 00
-> 
-> 
->  >>EIP; c0198448 <object_depth+8/20>   <=====
+On Thu, 2005-03-24 at 15:56 -0500, Jeff Garzik wrote:
 
-I can't repeat it here.  Are you able to narrow it down to a specific sysfs
-file?
+> > Idea to validate entropy data is good in general,=20
+> > but it should be implemented in a way allowing external both in-kernel
+> > and userspace
+> > processes to contribute data.
+> > So for in-kernel use we need such a mechanism, and userspace gkernel
+> > daemon
+> > should use it(as the latest "step") too.
+>=20
+> See the earlier discussion, when data validation was -removed- from the=20
+> original Intel RNG driver, and moved to userspace.
+>=20
 
-The .config might help.
+I'm not arguing against userspace validation, but if data produced
+_is_ cryptographically strong, why revalidate it again?
+
+I definitely prefer such mechanism to be implemented, and if you want,
+it
+can be turned by default off, and can be turned on using new ioctl()=20
+over /dev/random.
+
+> > Your changes are correct, ioctl(RNDADDENTROPY) could even use it instea=
+d
+> > of direct
+> > add_entropy_words()/credit_entropy_store(), but without external entrop=
+y
+> > contributors
+> > it will not be applied by maintainers.
+>=20
+> No changes are needed, as the system is currently functional without=20
+> these changes.
+
+And how HIFN driver can contribute entropy?
+It needs to create /dev/hifn_random, and rngd should be patched too?
+And even using any existing crypto framework why add 2 kernel/user
+copying, if we _want_ fast RNG and _know_ that it is valid?
+
+You may say, that hardware can be broken and thus produces=20
+wrong data, but if user want, it can turn it on or off.
+
+What about new ioctl() that will enable/disable entropy contribution
+from kernelspace without validating it? I can create a patch on
+top of David's.
+
+> 	Jeff
+>=20
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-mk/wpIFvznOj3BqSIXUb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCQ5TiIKTPhE+8wY0RAoIoAJ4ourW0+0c9LURCZY+UnppmNty+owCbBiTj
+1+B6ZLXjtmkOolC5KKx6Z3M=
+=MP9k
+-----END PGP SIGNATURE-----
+
+--=-mk/wpIFvznOj3BqSIXUb--
 

@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268306AbUJDSxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268328AbUJDSyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268306AbUJDSxh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 14:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268409AbUJDSxh
+	id S268328AbUJDSyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 14:54:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268411AbUJDSyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 14:53:37 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:60097 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S268306AbUJDSxU convert rfc822-to-8bit (ORCPT
+	Mon, 4 Oct 2004 14:54:25 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:35752 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S268328AbUJDSyU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 14:53:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Fw: 2.6.8-rc2-mm4 does not link (PPC)
-Date: Mon, 4 Oct 2004 11:52:49 -0700
-Message-ID: <468F3FDA28AA87429AD807992E22D07E02C29A52@orsmsx408>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Fw: 2.6.8-rc2-mm4 does not link (PPC)
-Thread-Index: AcSoBZywprSMVPEYRamMG4MtRDs24wCLNhLQ
-From: "Sy, Dely L" <dely.l.sy@intel.com>
-To: "Greg KH" <greg@kroah.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: <sgala@apache.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Oct 2004 18:52:50.0669 (UTC) FILETIME=[590BC1D0:01C4AA43]
+	Mon, 4 Oct 2004 14:54:20 -0400
+Subject: [PATCH] set membase in serial8250_request_port
+From: Alex Williamson <alex.williamson@hp.com>
+To: rmk+serial@arm.linux.org.uk
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: LOSL
+Date: Mon, 04 Oct 2004 12:54:22 -0600
+Message-Id: <1096916062.4510.20.camel@tdi>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, October 01, 2004 3:25 PM, Greg KH wrote:
-> > It looks like a trivial error: a structure used in PCI architecture
-> > independent code (quirks.c) gets defined (only) in i386 architecture
-> > (raw_pci_ops). I'm not an expert and cannot help to define this
-under
-> > ppc arch:
-> 
-> > drivers/built-in.o(.text+0x350a): In function
-`quirk_pcie_aspm_read':
-> > : undefined reference to `raw_pci_ops'
-> > drivers/built-in.o(.text+0x351e): In function
-`quirk_pcie_aspm_read':
-> > : undefined reference to `raw_pci_ops'
-> > drivers/built-in.o(.text+0x3566): In function
-`quirk_pcie_aspm_write':
-> > : undefined reference to `raw_pci_ops'
-> > drivers/built-in.o(.text+0x35a6): In function
-`quirk_pcie_aspm_write':
-> > : undefined reference to `raw_pci_ops'
-> > make: *** [.tmp_vmlinux1] Error 1
-> >
-> > I sent a typo for rc2-mm2. Just to report that it never booted after
-> > the typo was corrected. hard freeze.
 
-> Dely, we need to move this quirk to i386 specific code.  Will we also
-> have to do this for the x86-64 platform too?
+   I'm running into a problem that seems to be caused by this really old
+changeset:
 
-> Care to send a patch to fix this?
+http://linux.bkbits.net:8080/linux-2.5/cset@3d9f67f2BWvXiLsZCFwD-8s_E9AN6A
 
-We need to have the quirk for x86-64 platform too. I'll look into moving
-the quirk to architecture specific code and send out a patch.  
+When I run 'setserial /dev/ttyS1 uart 16450' on an ia64 system w/ MMIO
+UARTs, I get a NAT consumption oops from the kernel.  The problem is
+that this code path calls serial8250_release_port() where the membase
+gets cleared.  However, the subsequent call to serial8250_request_port()
+doesn't restore membase, causing a read from a bad address.  I don't see
+many users of the UPF_IOREMAP flag, so I think the solution is to simply
+make the remap case symmetric to the unmap case.  Patch below.  Thanks,
 
-Thanks,
-Dely
+	Alex
+
+-- 
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+
+===== drivers/serial/8250.c 1.67 vs edited =====
+--- 1.67/drivers/serial/8250.c	2004-09-13 18:23:24 -06:00
++++ edited/drivers/serial/8250.c	2004-10-04 12:12:34 -06:00
+@@ -1733,7 +1733,7 @@
+ 	/*
+ 	 * If we have a mapbase, then request that as well.
+ 	 */
+-	if (ret == 0 && up->port.flags & UPF_IOREMAP) {
++	if (ret == 0 && up->port.iotype == UPIO_MEM && up->port.mapbase) {
+ 		int size = res->end - res->start + 1;
+ 
+ 		up->port.membase = ioremap(up->port.mapbase, size);
+
 

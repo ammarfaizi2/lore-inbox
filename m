@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293288AbSCOV3N>; Fri, 15 Mar 2002 16:29:13 -0500
+	id <S293289AbSCOVbD>; Fri, 15 Mar 2002 16:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293306AbSCOV3D>; Fri, 15 Mar 2002 16:29:03 -0500
-Received: from users.ccur.com ([208.248.32.211]:5003 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id <S293289AbSCOV2s>;
-	Fri, 15 Mar 2002 16:28:48 -0500
-From: jak@rudolph.ccur.com (Joe Korty)
-Message-Id: <200203152126.VAA27719@rudolph.ccur.com>
-Subject: Re: [PATCH] 2.4.18 scheduler bugs
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Fri, 15 Mar 2002 16:26:59 -0500 (EST)
-Cc: joe.korty@ccur.com, marcelo@conectiva.com.br, mingo@elte.hu,
-        alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Reply-To: joe.korty@ccur.com (Joe Korty)
-In-Reply-To: <E16lzQW-0004j4-00@the-village.bc.nu> from "Alan Cox" at Mar 15, 2002 09:39:52 PM
-X-Mailer: ELM [version 2.5 PL0b1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293314AbSCOVax>; Fri, 15 Mar 2002 16:30:53 -0500
+Received: from zero.tech9.net ([209.61.188.187]:19718 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293289AbSCOVak>;
+	Fri, 15 Mar 2002 16:30:40 -0500
+Subject: Re: [OOPS] Kernel powerdown
+From: Robert Love <rml@tech9.net>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, andrew.grover@intel.com
+In-Reply-To: <3C9264EC.CCCBEDD1@delusion.de>
+In-Reply-To: <3C9264EC.CCCBEDD1@delusion.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 15 Mar 2002 16:30:41 -0500
+Message-Id: <1016227843.1148.49.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> - ksoftirqd() - change daemon nice(2) value from 19 to -19.
->> 
->>     SoftIRQ servicing was less important than the most lowly of batch
->>     tasks.  This patch makes it more important than all but the realtime
->>     tasks.
-> 
-> Bad idea - the right fix to this is to stop using ksoftirqd so readily
-> under load. If it bales after 20 iterations life is good. As shipped life
-> is bad.
-> 
-> Once ksoftirq triggers its because we are seriously overloaded (or without
-> fixing its use slightly randomly). In that case we want other stuff to
-> do work before we potentially unleash the next flood.
+ On Fri, 2002-03-15 at 16:17, Udo A. Steinberg wrote:
 
-That certainly makes sense.  Thanks.
-Joe
+> flushing ide devices: hda hdb hde 
+> Power down.
+> NMI Watchdog detected LOCKUP on CPU0
+
+I suspect ACPI or whatever is not disabling the NMI watchdog on
+shutdown.  The OOPS is harmless, but obviously does need to be fixed.
+
+	Robert Love
+

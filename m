@@ -1,78 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271547AbRHUEjd>; Tue, 21 Aug 2001 00:39:33 -0400
+	id <S271555AbRHUElD>; Tue, 21 Aug 2001 00:41:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271545AbRHUEjY>; Tue, 21 Aug 2001 00:39:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:37795 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S271541AbRHUEjR>; Tue, 21 Aug 2001 00:39:17 -0400
-Importance: Normal
-Subject: Re: Kernel 2.4.6 and 2.4.7 networking performance: Seeing serious delays
-To: "kuznet" <kuznet%ms2.inr..ac.rus@boulder.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF6AC1553A.5DC17765-ON88256AAF.00123D09@boulder.ibm.com>
-From: "Nivedita Singhvi" <nivedita@us.ibm.com>
-Date: Mon, 20 Aug 2001 21:00:19 -0700
-X-MIMETrack: Serialize by Router on D03NM104/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 08/20/2001 10:39:31 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S271553AbRHUEkx>; Tue, 21 Aug 2001 00:40:53 -0400
+Received: from rj.SGI.COM ([204.94.215.100]:30150 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S271549AbRHUEkk>;
+	Tue, 21 Aug 2001 00:40:40 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: depmod -a: unresolved symbols 
+In-Reply-To: Your message of "Mon, 20 Aug 2001 17:35:57 +0300."
+             <632639585.20010820173557@port.imtp.ilyichevsk.odessa.ua> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 21 Aug 2001 14:40:38 +1000
+Message-ID: <29026.998368838@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alexey,
-
-Thanks for the clarification on the pingpong behaviour!
-Some more questions..
-
->> I'm still wondering why the next ack isnt delayed as well, though.
+On Mon, 20 Aug 2001 17:35:57 +0300, 
+VDA <VDA@port.imtp.ilyichevsk.odessa.ua> wrote:
+>In kernel sources I see:
+>nfsd_linkage defined and EXPORT_SYMBOLed in fs/filesystems.c
+>(linked in vmlinux and bzimage, I see it in System.map),
+>referenced from fs/nfsd/nfsctl.c (later linked into nfsd.o)
+>So, why modprobe can't see it?
 >
->Because out tcp is enough clever to understand that it made
->a shit delaying ACK for previous packet. But not enough psychic
->to foresee future and to avoid delay. :-)
+>kernel: 2.4.5
+>I did
+>make dep && \
+>make clean && \
+>make bzImage && \
+>make modules && \
+>make modules_install
 
-
->.100 experiences delack timeout, which is considered as an error.
->It is really error. So, tcp clears pingpong and returns to quickack.
-
-So I understand that we're allowing pingpong to retain state of whether
-it makes sense to delay right now or not, based on whats been happening,
-and trying to avoid a delayed ack timer expiry..
-
-But...
-
->This loop would repeat infinitely, if connection were not closed.
->Kernel sees that user replies fastly, switches to canonical BSD mode
->to allow ack piggibacking and tries to delay ack, but silly user does
->not want to reply more. So, we have reduced amount of timeouts twice,
->but this is not a big win in this case.
->
->I am writing this mostly because it is the best demonstration
->why TCP_QUICKACK:=0 is invalidated. :-)
-
-Then whats the point of TCP_QUICKACK socket option at all? If its only
-a user hint that gets erased on the first go through, that is one full system call just
- to avoid a delay on one packet. The user isnt going to write an application full of
-setsockopt() calls based on his data sends, right?
-
-
->What's about advice to use TCP_NODELAY in this case, it is _absolutely_
->wrong and in fact presents violation of protocol, this app sends silly
->spagetti of pakets which must be coalesced. It is exactly the situation
->when TCP_NODELAY is straight bug. This app should use TCP_CORK or,
->even better from the viewpoint of performance, to coalesce writes at user
->user  level not abusing tcp.
-
-True, this is an abuse of TCP :). But we should have the freedom to do so, right? :)
-i.e. User may need to send small amounts of data at a time.  The user might even
-want to have that data sent out immediately, and not want  the kernel to delay the send.
-After all, if the application is sending down large full frames, the kernel is by default
-not going to be halted by Nagle. Its really  only when you are sending small packets
-at a time that youre affected by Nagle and might want to set NODELAY, especially
-if that application is highly interactive?.
-
-thanks,
-Nivedita
+http://www.tux.org/lkml/#s8-8
 

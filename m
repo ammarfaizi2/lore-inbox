@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271224AbTHHBlr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 21:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271225AbTHHBlr
+	id S271214AbTHHBlP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 21:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271222AbTHHBlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 21:41:47 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:11282 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S271224AbTHHBlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 21:41:45 -0400
-Date: Thu, 7 Aug 2003 21:29:46 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-Cc: Linux Lernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with Yamaha opl3sa2 under 2.4.20 and ongoing PCMCIA &
- USB problems on 2.6.0-test2
-In-Reply-To: <3F32417D.3090000@longlandclan.hopto.org>
-Message-ID: <Pine.LNX.4.53.0308072127590.12875@montezuma.mastecende.com>
-References: <3F32417D.3090000@longlandclan.hopto.org>
+	Thu, 7 Aug 2003 21:41:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:736 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271214AbTHHBlN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 21:41:13 -0400
+Message-ID: <3F32FFAD.1050203@pobox.com>
+Date: Thu, 07 Aug 2003 21:41:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Enck <wenck@wapu.org>
+CC: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [bk patches] 2.6.x net driver updates
+References: <20030808000508.GA4464@gtf.org> <20030808013649.GA20003@chaos.byteworld.com>
+In-Reply-To: <20030808013649.GA20003@chaos.byteworld.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Aug 2003, Stuart Longland wrote:
+William Enck wrote:
+> On Thu, Aug 07, 2003 at 08:05:08PM -0400, Jeff Garzik wrote:
+> 
+>>Linus, please do a
+>>
+>>	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.6
+>>
+>>Others may download the patch from
+>>
+>>ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test2-bk7-netdrvr1.patch.bz2
+>>
+>>This will update the following files:
+> 
+> ..snip..
+> 
+>> drivers/net/wireless/orinoco_cs.c   |   16 -
+> 
+> 
+> dmesg gave the folloing with 2.6.0-test2-bk7
+> 
+> orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
+> orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
+> orinoco_cs: RequestIRQ: Unsupported mode
+> 
+> I thought the above patch might fix it, so I patched and recompiled. I
+> still see the following in 2.6.0-test2-bk7-netdrvr1
+> 
+> orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
+> orinoco_cs: RequestIRQ: Unsupported mode
+> 
+> The module loaded and worked fine in -test2 and -test2-mm4. 
 
-> Under 2.4.20:
-> 	Everything works flawlessly, except the sound card (Yamaha OPL3-SAx)
-> refuses to work, the opl3sa2 driver does not recognise the card.
 
-Hmm i wonder how that got broken..
+Can you test -test2-bk7 (without my patch)?
 
-> Is it possible to, say, backport the opl3sa2 driver to Linux 2.4.2x?
+	Jeff
 
-I'll fix the 2.4 one instead, there are a number of differences in the PnP 
-system in 2.5 and 2.4 which would make backporting more work (with more 
-likelyhood of bugs being introduced).
 
-Thanks,
-	Zwane
--- 
-function.linuxpower.ca
+

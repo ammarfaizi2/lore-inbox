@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbRBLHDB>; Mon, 12 Feb 2001 02:03:01 -0500
+	id <S129092AbRBLHFV>; Mon, 12 Feb 2001 02:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129122AbRBLHCu>; Mon, 12 Feb 2001 02:02:50 -0500
-Received: from [206.112.106.250] ([206.112.106.250]:17412 "EHLO
-	mercury.illtel.denver.co.us") by vger.kernel.org with ESMTP
-	id <S129091AbRBLHCn>; Mon, 12 Feb 2001 02:02:43 -0500
-Date: Sun, 11 Feb 2001 23:03:14 -0800 (PST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: Pavel Machek <pavel@suse.cz>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Serial device with very large buffer
-In-Reply-To: <20010209201243.D16776@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10102112257060.908-100000@mercury>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129122AbRBLHFL>; Mon, 12 Feb 2001 02:05:11 -0500
+Received: from ns1.bmlv.gv.at ([193.171.152.34]:59407 "EHLO mail.bmlv.gv.at")
+	by vger.kernel.org with ESMTP id <S129092AbRBLHFE>;
+	Mon, 12 Feb 2001 02:05:04 -0500
+Message-Id: <3.0.6.32.20010212080459.0090ce80@pop3.bmlv.gv.at>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Mon, 12 Feb 2001 08:04:59 +0100
+To: linux-kernel@vger.kernel.org
+From: "Ph. Marek" <marek@mail.bmlv.gv.at>
+Subject: 2.4.[01] and duron - unresolved symbol _mmx_memcpy
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Feb 2001, Pavel Machek wrote:
+Hi everybody,
 
-> > >   I also propose to increase the size of flip buffer to 640 bytes (so the
-> > > flipping won't occur every time in the middle of the full buffer), however
-> > > I understand that it's a rather drastic change for such a simple goal, and
-> > > not everyone will agree that it's worth the trouble:
-> > 
-> > Going to a 1K flip buffer would make sense IMHO for high speed devices too
-> 
-> Actually bigger flipbufs are needed for highspeed serials and
-> irda. Tytso received patch to make flipbuf size settable by the
-> driver. (Setting it to 1K is not easy, you need to change allocation
-> mechanism of buffers.)
+Some time ago I tried 2.4.0 compiled with option for duron-processors,
+yesterday I tried 2.4.1; both give problems on insmod/modprobe with some
+modules, eg. tulip.
 
-  The need for changes in allocation mechanism was the reason why I have
-limited the buffer increase to 640 bytes. If changes already exist, and
-there is no some hidden overhead associated with them, I am all for it.
+The offending function is _mmx_memcpy, which can be found in the System.map
+(but, opposed to other functions, with an upper "T" instead of "t").
 
-  Still it's not a replacement for the change in serial driver that I have
-posted -- assumption that hardware is slower than we are, that it has
-limited buffer in the way, and that it's ok to discard all the data beyond
-our buffer's size is, to say least, silly.
+/proc/cpuinfo says that I have mmx, 3dnow and so on, but there seems to be
+a problem getting _mmx_memcpy it into the bzlilo-target.
 
--- 
-Alex
+I saw that CONFIG_X86_HAS_3DNOW is set in include/config/x86/use/3dnow.h,
+so I thought that the #defines should be ok. 
+
+
+So, is this already solved (couldn't find it on linux24.sourceforge.net),
+is it known? should I do some more investigation?
+
+
+Regards,
+
+Phil
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

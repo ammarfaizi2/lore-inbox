@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265877AbUFDRRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265834AbUFDRTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265877AbUFDRRn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 13:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUFDRRn
+	id S265834AbUFDRTw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 13:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUFDRTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 13:17:43 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:28351 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S265877AbUFDRRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 13:17:41 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Asus SK8N (x86_64) motherboard ata1 DMA timeout (Promise SATA)
-Date: Fri, 4 Jun 2004 19:26:06 +0200
-User-Agent: KMail/1.5
-Cc: len.brown@intel.com
-References: <200406041045.36908.andrew@walrond.org>
-In-Reply-To: <200406041045.36908.andrew@walrond.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Jun 2004 13:19:51 -0400
+Received: from mail.ccur.com ([208.248.32.212]:53764 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S265834AbUFDRTp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 13:19:45 -0400
+Date: Fri, 4 Jun 2004 13:19:44 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] exec-shield patch for 2.6.7-rc2-bk2, integrated with NX
+Message-ID: <20040604171944.GA9877@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <20040602210421.GA22011@elte.hu> <20040604155906.GA1378@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406041926.06568.rjwysocki@sisk.pl>
+In-Reply-To: <20040604155906.GA1378@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 of June 2004 11:45, Andrew Walrond wrote:
-> Using linux-2.6.7-rc2 (32bit), two SATA drives on Promise TX2plus. The bios
-> has been upgraded to latest version 1007.
->
-> Without any kernel parameters, the i/o locks after a short time copying
-> files. Copied by hand from dmesg after i/o freeze:
->
-> ata1 DMA timeout
-> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x2a 00 04 ae a2 f2 00 00 08
-> 00 Current sda: sense = 70 3
-> ASC= c ASCQ= 2
-> Raw sense data: 0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 0x00
-> 0x0c 0x02
-> end_request: I/O error, dev sda, sector 78553842
+On Fri, Jun 04, 2004 at 04:59:06PM +0100, Christoph Hellwig wrote:
+> On Wed, Jun 02, 2004 at 11:04:21PM +0200, Ingo Molnar wrote:
+> > 
+> > Here's the latest exec-shield patch for 2.6.7-rc2-bk2, integrated with
+> > the 'NX' feature (see the announcement from earlier today):
+> > 
+> >   http://redhat.com/~mingo/exec-shield/exec-shield-on-nx-2.6.7-rc2-bk2-A7
+> 
+> Any chance to split this up a bit?  Having the pure non-exec stack
+> (and maybe heap) would be really nice while the randomization feature are
+> a litte bit too much security by obscurity for my taste.
 
-I saw something like this on a SiI 3114 controller, but then I thought it was 
-because of a failing drive, since the second one that was attached to another 
-SATA channel worked just fine at the same time.  I didn't try it with the 
-acpi=off setting (the system was a dual Opteron w/ AMD chipset, and the 
-kernel was a 2.6.7-rc1, AFAIR).
+It's no more security by obscurity than keeping your key secret is security
+by obscurity.  (One can think of the randomization as a white-noise key).
 
-rjw
-
+Joe

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271935AbRIIJnF>; Sun, 9 Sep 2001 05:43:05 -0400
+	id <S271936AbRIIJoP>; Sun, 9 Sep 2001 05:44:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271936AbRIIJm4>; Sun, 9 Sep 2001 05:42:56 -0400
-Received: from home.nohrsc.nws.gov ([192.46.108.2]:53212 "HELO nohrsc.nws.gov")
-	by vger.kernel.org with SMTP id <S271935AbRIIJmn>;
-	Sun, 9 Sep 2001 05:42:43 -0400
-Date: Sun, 9 Sep 2001 04:42:59 -0500 (CDT)
-From: kelley eicher <keicher@nws.gov>
-X-X-Sender: <keicher@home.nohrsc.nws.gov>
+	id <S271939AbRIIJoF>; Sun, 9 Sep 2001 05:44:05 -0400
+Received: from alcatraz.fdf.net ([209.245.242.221]:7552 "HELO alcatraz.fdf.net")
+	by vger.kernel.org with SMTP id <S271936AbRIIJnz>;
+	Sun, 9 Sep 2001 05:43:55 -0400
+Date: Sun, 9 Sep 2001 04:44:04 -0500 (CDT)
+From: Dustin Marquess <jailbird@alcatraz.fdf.net>
 To: <linux-kernel@vger.kernel.org>
-cc: <keicher@nws.gov>
-Subject: 2.4.9-10pre4 kernel: __alloc_pages errors
-Message-ID: <Pine.LNX.4.33.0109090412220.11522-100000@home.nohrsc.nws.gov>
+Subject: PATCH - Software RAID Autodetection for OSF partitions
+Message-ID: <Pine.LNX.4.33.0109090443440.369-100000@alcatraz.fdf.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
 
-i've been using the 2.4.9-10pre4 kernel on various intel i686 servers as
-of late and the result is log files filled with messages similar to the
-following:
+Here's a quick patch that I wrote-up for 2.4.10-pre5 (should work with
+other 2.4.x kernels too), so that the OSF partition code should
+auto-detect partitions with a fstype of 0xFD (software RAID).
 
--
+It seems to work for me, except that the software RAID code in 2.4.10-pre5
+(both with and without my patch) keep dying with superblock errors on line
+1574 of md.c.  If anybody knows how to fix this error, please let me know
+:).
 
-Sep  9 00:49:22 ofs1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x70/1).
-Sep  9 00:50:07 ofs1 last message repeated 153 times
-Sep  9 00:50:07 ofs1 kernel: cation failed (gfp=0x70/1).
-Sep  9 00:50:07 ofs1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x70/1).
-Sep  9 00:50:07 ofs1 last message repeated 69 times
+Thanks,
+-Dustin
 
--
+--- linux/fs/partitions/osf.c	Fri Feb 16 18:02:37 2001
++++ /usr/src/linux-2.4.10-pre5/fs/partitions/osf.c	Sat Sep  8 22:53:37 2001
+@@ -17,6 +17,12 @@
+ #include "check.h"
+ #include "osf.h"
 
-this is happening constantly on machines with heavy filesystem activity
-and frequently on machines with less filesystem activity.
++#if CONFIG_BLK_DEV_MD
++extern void md_autodetect_dev(kdev_t dev);
++#include <asm/unaligned.h>
++#define P_FSTYPE(p)	(get_unaligned(&p->p_fstype))
++#endif
++
+ int osf_partition(struct gendisk *hd, kdev_t dev, unsigned long first_sector,
+ 		  int current_minor)
+ {
+@@ -77,6 +83,12 @@
+ 			add_gd_partition(hd, current_minor,
+ 				first_sector+le32_to_cpu(partition->p_offset),
+ 				le32_to_cpu(partition->p_size));
++#if CONFIG_BLK_DEV_MD
++			if (P_FSTYPE(partition) == LINUX_RAID_PARTITION) {
++				md_autodetect_dev(MKDEV(hd->major,current_minor));
++			}
++#endif
++
+ 		current_minor++;
+ 	}
+ 	printk("\n");
 
-i have read some of the recent email regarding '__alloc_pages' errors and
-see that `kswapd` is a matter of discussion. on my servers, this process
-seems to eat a ton of cpu time until the machine crashes. so far i have seen
-some machines crash completely. i.e. no response from network or console. i
-have seen others die incompletely. i.e. fail to repond to `sync` and `reboot`
-most notably but are mostly available for system use otherwise<including
-network services>.
-
-does anyone have any thoughts or suggestions for me regarding this
-situation? many many more details about hardware or system configuration
-can be provided if necessary.
-
-thanx in advance for any response,
--kelley
-
-ps: please keep my email<keicher@nws.gov> carbon copied as i am not
-currently on this list. thanx...
 

@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUEFQ2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUEFQ3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbUEFQ2f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 12:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUEFQ2e
+	id S261169AbUEFQ3u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 12:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUEFQ3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 12:28:34 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:55944
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261186AbUEFQ2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 12:28:31 -0400
-From: Rob Landley <rob@landley.net>
-To: romano@dea.icai.upco.es
-Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
-Date: Thu, 6 May 2004 11:22:48 -0500
-User-Agent: KMail/1.5.4
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <200405042018.23043.rob@landley.net> <20040506154328.GA6245@pern.dea.icai.upco.es>
-In-Reply-To: <20040506154328.GA6245@pern.dea.icai.upco.es>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 May 2004 12:29:50 -0400
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:29703
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S261169AbUEFQ3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 12:29:45 -0400
+Date: Thu, 6 May 2004 09:29:43 -0700
+From: Brad Boyer <flar@allandria.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Zhenmin Li <zli4@cs.uiuc.edu>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [OPERA] Potential bugs detected by static analysis tool in 2.6.4
+Message-ID: <20040506162943.GA1205@pants.nu>
+References: <002701c4331c$092a3b40$76f6ae80@Turandot> <Pine.GSO.4.58.0405061141290.12096@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405061122.48644.rob@landley.net>
+In-Reply-To: <Pine.GSO.4.58.0405061141290.12096@waterleaf.sonytel.be>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 May 2004 10:43, Romano Giannetti wrote:
-> On Tue, May 04, 2004 at 08:18:23PM -0500, Rob Landley wrote:
-> > I'm one of the people for whom Patrick's suspend worked and yours didn't.
-> >  Now I've been busy with other things for a couple months (Penguicon 2.0
-> > went quite well, by the way), and there's talk of yanking Patrick's
-> > suspend code from the kernel.  Right, so I've got to deal with this.  I
-> > can't say I'm thrilled, but I DO want to continue to be able to suspend
-> > my laptop.
->
-> Hi!
->     Just a couple of lines to tell you that I was convinced of the same (PM
->     works, SWSUSP-vanilla no). But from 2.6.3 --- to which I am stuck, had
->     no time to play, just to work, with my laptop till then --- swsusp
-> works quite well (modulo pcmcia modem sometime getting stuck after resume
-> and sometime no, misteries of life). Pavel told me that if PMDISK worked,
-> SWSUSP (vanilla) should work, too, and he was right (tm).
->
->     The other way around is trying suspend2, given that Nigel is very
->     responsive; it will be the first thing I'll try again when having a
->     little time after IMTC04. It didn't work one month ago, but Nigel
-> thinks he have fixed it.
->
->     By the way, I have a vaio FX701.
+On Thu, May 06, 2004 at 11:43:45AM +0200, Geert Uytterhoeven wrote:
+> On Wed, 5 May 2004, Zhenmin Li wrote:
+> > 8. /arch/m68k/mac/iop.c, Line 164:
+> 
+> Should be line 264?
 
-Thinkpad iSeries of some kind here.  It didn't work in 2.6.5, but I'll give 
-2.6.6 a try and report back then...
+Perhaps they cut out the comments before counting lines? There are
+around 100 lines of comments at the top explaining the whole mess.
 
-The last one I _know_ worked was 2.6.2, but then I skipped 3 and 4.  Too 
-busy...
+In any case, line 264 sounds right. It's shortly after
 
-I'm happy to debug problems with stuff I actually use, modulo the whole "too 
-busy" thing...
+if(macintosh_config->adb_type == MAC_ADB_IOP) {
 
-Rob
+> > iop_base[IOP_NUM_SCC]->status_ctrl = 0;
+> >
+> > Maybe change to:
+> > iop_base[IOP_NUM_ISM]->status_ctrl = 0;
+> 
+> Mac guys, is this correct?
+
+Actually, I think it is. It looks like this is a bug that crept in
+during the last IOP rewrite (back in 2.2). It's not the same line
+number in 2.2 and 2.4, but there is a similar situation. I'll see
+if I can find some time to get my Mac IIfx running again and try
+out a fix. I did get a 2.6 kernel running on it once before.
+
+And as a note to the person who reported this, please include at
+least a line or two of context around the change. If you use
+diff -u, that's even better.
+
+	Brad Boyer
+	flar@allandria.com
 

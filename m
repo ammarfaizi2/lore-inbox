@@ -1,96 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270348AbSISIDz>; Thu, 19 Sep 2002 04:03:55 -0400
+	id <S270382AbSISIOv>; Thu, 19 Sep 2002 04:14:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270373AbSISIDy>; Thu, 19 Sep 2002 04:03:54 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:19402 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S270348AbSISICZ>; Thu, 19 Sep 2002 04:02:25 -0400
-Message-ID: <20020919080602.2986.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S270509AbSISIOv>; Thu, 19 Sep 2002 04:14:51 -0400
+Received: from packet.digeo.com ([12.110.80.53]:36748 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S270382AbSISIOu>;
+	Thu, 19 Sep 2002 04:14:50 -0400
+Message-ID: <3D89889C.F5868818@digeo.com>
+Date: Thu, 19 Sep 2002 01:19:40 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 19 Sep 2002 16:06:02 +0800
-Subject: [chatroom benchmark version 1.0.1] Results
-X-Originating-Ip: 194.185.48.246
-X-Originating-Server: ws4-4.us4.outblaze.com
+To: Daniel Phillips <phillips@arcor.de>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       "lse-tech@lists.sourceforge.net" <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.35-mm1
+References: <3D858515.ED128C76@digeo.com> <E17rw5X-0000vG-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Sep 2002 08:19:46.0490 (UTC) FILETIME=[508C81A0:01C25FB5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-yesterday I played a bit with the chatroom benchmark.
-I don't want to discuss about number (you are the right people to do that, not me).
+Daniel Phillips wrote:
+> 
+> On Monday 16 September 2002 09:15, Andrew Morton wrote:
+> > A 4x performance regression in heavy dbench testing has been fixed. The
+> > VM was accidentally being fair to the dbench instances in page reclaim.
+> > It's better to be unfair so just a few instances can get ahead and submit
+> > more contiguous IO.  It's a silly thing, but it's what I meant to do anyway.
+> 
+> Curious... did the performance hit show anywhere other than dbench?
 
---- What is the chat bench ---
-Usage: chat_c ip_addr [num_rooms] [num_messages] [server_port]
+Other benchmarky tests would have suffered, but I did not check.
 
-       ip_addr:		server ip address that the client connects to.
-       [num_rooms]:	the number of chat rooms.
-			default is 10.
-       [num_messages]:	the number of messages sent by each chat room member.
-			default is 100.	
-       [port]:		server port number the client connects to.
-			default is 9999.
+I have logic in there which is designed to throttle heavy writers
+within the page allocator, as well as within balance_dirty_pages.
+basically:
 
-This benchmark includes both a client and server.  The benchmark is
-modeled after a chat room.  This benchmark will create a lot of threads,
-tcp connections, and send and receive a lot of messages.  The client side
-of the benchmark will report the number of messages sent per second.
+	generic_file_write()
+	{
+		current->backing_dev_info = mapping->backing_dev_info;
+		alloc_page()
+		current->backing_dev_info = 0;
+	}
 
-The number of chat rooms and messages will control the workload.
-The default number of chat rooms is 10.
-The default number of messages is 100.  The size of each message is 100 bytes.
-Both of these parameters are specified on the client side.
-
-(1) Each chat room has 20 users.
-(2) 10 chat rooms represents 20*10 or 200 users.
-(3) For each user in the chat room, the client will make a connection
-    to the server.
-(4) 10 chat rooms will create 10*20 or 200 connections between the client
-    and server.
-(5) For each user (or connection) in the chat room, 1 'send' thread is created
-    and 1 'receive' thread is created.
-(6) 10 chat rooms will create 10*20*2 or 400 client threads and 400 server
-    threads for a total of 800 threads.
-(7) Each client 'send' thread will send the specified number of messages
-    to the server.
-(8) For 10 chat rooms and 100 messages, the client will send 10*20*100 or
-    20,000 messages.  The server 'receive' thread will receive the
-    corresponding number of messages.
-(9) The chat room server will echo each of the messages back to the other
-    users in the chat room.
-(10) For 10 chat rooms and 100 messages, the server 'send' thread will send
-     10*20*100*19 or 380,000 messages.  The client 'receive' thread will
-     receive the corresponding number of messages.
-(11) The client will report the message throughput at the end of the test.
-(12) The server loops and accepts another start message from the client.
-
-What I did:
-Boot in single mode with apm off
-./chat_s 127.0.0.1 &
-./chat_c 127.0.0.1 30 1000 9999
-
-And now the results:
-2.4.19-ck7.results:Average throughput : 55928 messages per second
-2.4.19.results:Average throughput : 44851 messages per second
-2.5.33.results:Average throughput : 59522 messages per second
-2.5.34.results:Average throughput : 62941 messages per second
-2.5.36.results:Average throughput : 60858 messages per second
-
-2.4.19-ck7 is preemption ON
-2.5.33 and 2.5.34 are preemption ON
-2.5.36 is preemption OFF (Robert, 2.5.36 with preemption ON oops at boot)
-
-Ciao,
-            Paolo
+	shrink_list()
+	{
+		if (PageDirty(page)) {
+			if (page->mapping->backing_dev_info == current->backing_dev_info)
+				blocking_write(page->mapping);
+			else
+				nonblocking_write(page->mapping);
+		}
+	}
 
 
--- 
-Get your free email from www.linuxmail.org 
+What this says is "if this task is prepared to block against this
+page's queue, then write the dirty data, even if that would block".
 
+This means that all the dbench instances will write each other's
+dirty data as it comes off the tail of the LRU.  Which provides
+some additional throttling, and means that we don't just refile
+the page.
 
-Powered by Outblaze
+But the logic was not correctly implemented.  The dbench instances
+were performing non-blocking writes.  This meant that all 64 instances
+were cheerfully running all the time, submitting IO all over the disk.
+The /proc/meminfo:Writeback figure never even hit a megabyte.  That
+number tells us how much memory is currently in the request queue.
+Clearly, it was very fragmented.
+
+By forcing the dbench instance to block on the queue, particular instances
+were able to submit decent amounts of IO.  The `Writeback' figure went
+back to around 4 megabytes, because the individual requests were
+larger - more merging.

@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268011AbTBMKIU>; Thu, 13 Feb 2003 05:08:20 -0500
+	id <S268016AbTBMK1k>; Thu, 13 Feb 2003 05:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268014AbTBMKIT>; Thu, 13 Feb 2003 05:08:19 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:18441 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S268011AbTBMKIT>; Thu, 13 Feb 2003 05:08:19 -0500
-Date: Thu, 13 Feb 2003 11:17:58 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Dominik Brodowski <linux@brodo.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, <davej@suse.de>,
-       <linux-kernel@vger.kernel.org>, <cpufreq@www.linux.org.uk>
-Subject: Re: [PATCH] cpufreq: move frequency table helpers to extra module
-In-Reply-To: <20030213091131.GA8909@brodo.de>
-Message-ID: <Pine.LNX.4.44.0302131114100.32518-100000@serv>
-References: <20030213091131.GA8909@brodo.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268019AbTBMK1k>; Thu, 13 Feb 2003 05:27:40 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50193 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268016AbTBMK1c>; Thu, 13 Feb 2003 05:27:32 -0500
+Date: Thu, 13 Feb 2003 11:37:22 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Kill "testing by UNISYS" message
+Message-ID: <20030213103721.GE14151@atrey.karlin.mff.cuni.cz>
+References: <20030210171336.GA10875@elf.ucw.cz> <1044969854.12906.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044969854.12906.18.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Thu, 13 Feb 2003, Dominik Brodowski wrote:
 
-> +config CPU_FREQ_TABLE
-> +       tristate "CPU frequency table helpers"
-> +       depends on CPU_FREQ
-> +       default y
-> +       help
-> +         Many CPUFreq drivers use these helpers, so only say N here if
-> +	 the CPUFreq driver of your choice doesn't need these helpers.
-> +
-> +	 If in doubt, say Y.
-> +
->  config X86_ACPI_CPUFREQ
->  	tristate "ACPI Processor P-States driver"
-> -	depends on CPU_FREQ && ACPI_PROCESSOR
-> +	depends on CPU_FREQ && ACPI_PROCESSOR && CPU_FREQ_TABLE
->  	help
->  	  This driver adds a CPUFreq driver which utilizes the ACPI
->  	  Processor Performance States.
+> > -	printk(KERN_INFO "Linux NET4.0 for Linux 2.4\n");
+> > -	printk(KERN_INFO "Based upon Swansea University Computer Society NET3.039\n");
+> > -
+> 
+> No problem with that but please ensure the Swansea University Computer Society part is
+> already in, or ends up in the top of file comments so the copyright info is preserved.
 
-If CPU_FREQ_TABLE itself depends on CPU_FREQ, then X86_ACPI_CPUFREQ 
-automatically depends on CPU_FREQ too, so you can remove CPU_FREQ from the 
-dependency list.
-You can also put X86_ACPI_CPUFREQ and all following options, which depend 
-on CPU_FREQ_TABLE, within an "if CPU_FREQ_TABLE" ... "endif" block.
+Updated patch follows... hope it is okay this way.
 
-bye, Roman
+									Pavel
 
+--- clean/net/socket.c	2003-02-11 17:41:48.000000000 +0100
++++ linux/net/socket.c	2003-02-12 22:27:45.000000000 +0100
+@@ -55,6 +55,7 @@
+  *	This module is effectively the top level interface to the BSD socket
+  *	paradigm. 
+  *
++ *	Based upon Swansea University Computer Society NET3.039
+  */
+ 
+ #include <linux/config.h>
+@@ -1854,9 +1855,6 @@
+ {
+ 	int i;
+ 
+-	printk(KERN_INFO "Linux NET4.0 for Linux 2.4\n");
+-	printk(KERN_INFO "Based upon Swansea University Computer Society NET3.039\n");
+-
+ 	/*
+ 	 *	Initialize all address (protocol) families. 
+ 	 */
+
+
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

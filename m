@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVCTNEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVCTNOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVCTNEY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 08:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVCTNEY
+	id S261203AbVCTNOW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 08:14:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVCTNOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 08:04:24 -0500
-Received: from fire.osdl.org ([65.172.181.4]:46010 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261196AbVCTNEV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 08:04:21 -0500
-Date: Sun, 20 Mar 2005 05:04:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Short sleep precision
-Message-Id: <20050320050403.672bf30a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0503201316320.18044@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503201316320.18044@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Mar 2005 08:14:22 -0500
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:56272 "EHLO
+	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261203AbVCTNOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 08:14:20 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: [PATCH] don't do pointless NULL checks and casts before kfree() in security/
+To: Ralph Corderoy <ralph@inputplus.co.uk>, Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 20 Mar 2005 14:18:43 +0100
+References: <fa.p25ihnj.4026at@ifi.uio.no> <fa.iqmuavi.o6kfai@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DD0KL-0000jp-KL@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> I have found that FreeBSD has a very good precision of small sleeps --
+Ralph Corderoy <ralph@inputplus.co.uk> wrote:
+> Hi Jesper,
 
-Linux nanosleep() used to have a busywait loop for sleeps less than two
-milliseconds.  2.4.x still does.
-
-We thought it was stupid and took it out.
-
->  what's holding Linux back from doing the same? Using the code snippet below, 
->  FBSD yields between 2 and 80 us on the average while Linux is at 
->  "constantly" ~100 (with HZ=1000) and ~1000 (HZ=100).
+>> kfree() handles NULL pointers, so checking a pointer for NULL before
+>> calling kfree() on it is pointless.
 > 
+> Not necessarily.  It helps tell the reader that the pointer may be NULL
+> at that point.  This has come up before.
 
-You can spin on the gettimeofday() result in userspace.
+If you want to comment code, use comments.

@@ -1,99 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbUJ1ARY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbUJ1AO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbUJ1ARY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 20:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUJ1ANS
+	id S262659AbUJ1AO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 20:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUJ1AON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 20:13:18 -0400
-Received: from cantor.suse.de ([195.135.220.2]:55511 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262691AbUJ1AKl (ORCPT
+	Wed, 27 Oct 2004 20:14:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49844 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262699AbUJ1ALk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 20:10:41 -0400
-Date: Thu, 28 Oct 2004 02:10:01 +0200
-From: Andi Kleen <ak@suse.de>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
-Message-ID: <20041028001001.GF23595@wotan.suse.de>
-References: <20041026142826.A24417@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041026142826.A24417@unix-os.sc.intel.com>
+	Wed, 27 Oct 2004 20:11:40 -0400
+Date: Wed, 27 Oct 2004 17:11:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove some divide instructions
+In-Reply-To: <41801DE1.6000007@vmware.com>
+Message-ID: <Pine.LNX.4.58.0410271704520.28839@ppc970.osdl.org>
+References: <417FC982.7070602@vmware.com> <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
+ <41801DE1.6000007@vmware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 02:28:26PM -0700, Venkatesh Pallipadi wrote:
+
+
+On Wed, 27 Oct 2004, Zachary Amsden wrote:
 > 
-> Add links for p4-clockmod driver in x86-64 cpufreq. 
+> Backed out everything but i386 and generic.  For the generic version, I 
+> compiled and tested this code outside of the kernel.  Actually, I found 
+> that at least for my tool chain, the generic version
+> 
+> +# define do_div(n,base) ({                                             \
+> +       uint32_t __rem;                                                 \
+> +       if (__builtin_constant_p(base) && !((base) & ((base)-1))) {     \
+> +               __rem = ((uint64_t)(n)) % (base);                       \
+> +               (n) = ((uint64_t)(n)) / (base);                         \
+> +       } else {                                                        \
+> +               uint32_t __base = (base);                               \
+> +               __rem = ((uint64_t)(n)) % __base;                       \
+> +               (n) = ((uint64_t)(n)) / __base;                         \
+> +       }                                                               \
+> +       __rem;          
+> 
+> Does indeed generate different code for the constant case - without it, 
+> due to the assignment to __base, the shift / mask optimization does not 
+> take place.
 
-I added it with a clarified description and made it dependent on 
-CONFIG_EMBEDDED to prevent mistakes (perhaps that should be done on i386 too?) 
+Oh, damn. That's a separate issue, apparently, and there you just use 
+"__builtin_constant_p()" as a way to check that there are no side effects 
+on "base".
 
-Thanks.
+Might as well drop the check for the value, since it doesn't matter.
 
--Andi
+Alternatively, we could just document the fact that neither "base" nor "n"
+are normal arguments to a function. After all, we already _do_ change "n", 
+and the strange calling convention is already documented as nothing but a 
+sick hack to make architectures able to use inline assembly efficiently.
 
+I could add a sparse check for "no side effects", if anybody cares (so 
+that you could do
 
-Here's the patch for your reference:
+	__builtin_warning(
+		!__builtin_nosideeffects(base),
+		"expression has side effects");
 
+in macros like these.. Sparse already has the logic internally..
 
-
-Add links for p4-clockmod driver in x86-64 cpufreq. 
-
-AK: Made it dependent on EMBEDDED because the driver is only
-useful in some special situations and should be normally not used.
-
-Signed-off-by: "Venkatesh Pallipadi" <venkatesh.pallipadi@intel.com>
-Signed-off-by: Andi Kleen <ak@suse.de> 
- 
-Index: linux/arch/x86_64/kernel/cpufreq/Makefile
-===================================================================
---- linux.orig/arch/x86_64/kernel/cpufreq/Makefile	2004-10-19 01:55:08.%N +0200
-+++ linux/arch/x86_64/kernel/cpufreq/Makefile	2004-10-28 02:02:00.%N +0200
-@@ -7,7 +7,11 @@
- obj-$(CONFIG_X86_POWERNOW_K8) += powernow-k8.o
- obj-$(CONFIG_X86_SPEEDSTEP_CENTRINO) += speedstep-centrino.o
- obj-$(CONFIG_X86_ACPI_CPUFREQ) += acpi.o
-+obj-$(CONFIG_X86_P4_CLOCKMOD) += p4-clockmod.o
-+obj-$(CONFIG_X86_SPEEDSTEP_LIB) += speedstep-lib.o
- 
- powernow-k8-objs := ${SRCDIR}/powernow-k8.o
- speedstep-centrino-objs := ${SRCDIR}/speedstep-centrino.o
- acpi-objs := ${SRCDIR}/acpi.o
-+p4-clockmod-objs := ${SRCDIR}/p4-clockmod.o
-+speedstep-lib-objs := ${SRCDIR}/speedstep-lib.o
-Index: linux/arch/x86_64/kernel/cpufreq/Kconfig
-===================================================================
---- linux.orig/arch/x86_64/kernel/cpufreq/Kconfig	2004-10-25 04:47:15.%N +0200
-+++ linux/arch/x86_64/kernel/cpufreq/Kconfig	2004-10-28 02:09:04.%N +0200
-@@ -88,5 +88,29 @@
- 
- 	  If in doubt, say N.
- 
-+config X86_P4_CLOCKMOD
-+	tristate "Intel Pentium 4 clock modulation"
-+	depends on CPU_FREQ_TABLE && EMBEDDED
-+	help
-+	  This adds the clock modulation driver for Intel Pentium 4 / XEON
-+	  processors.  When enabled it will lower CPU temperature by skipping 
-+	  clocks. 
-+	  
-+	  This driver should be only used in exceptional
-+	  circumstances when very low power is needed because it causes severe 
-+	  slowdowns and noticeable latencies.  Normally Speedstep should be used 
-+	  instead.
-+
-+	  For details, take a look at <file:Documentation/cpu-freq/>.
-+
-+	  Unless you are absolutely sure say N.
-+
-+
-+config X86_SPEEDSTEP_LIB
-+        tristate
-+        depends on (X86_P4_CLOCKMOD)
-+        default (X86_P4_CLOCKMOD)
-+
-+
- endmenu
- 
+		Linus

@@ -1,118 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267609AbUG2O4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUG2SMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267609AbUG2O4z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 10:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267627AbUG2OyY
+	id S267505AbUG2SMR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 14:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUG2SJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 10:54:24 -0400
-Received: from styx.suse.cz ([82.119.242.94]:59029 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S264750AbUG2OIG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:08:06 -0400
-To: torvalds@osdl.org, vojtech@suse.cz, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 1/47] Add 64-bit compatible ioctls for hiddev.
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 29 Jul 2004 16:09:54 +0200
-X-Mailer: gregkh_patchbomb_levon_offspring
-In-Reply-To: <20040729140728.GA18817@ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
-Message-Id: <10911101941048@twilight.ucw.cz>
+	Thu, 29 Jul 2004 14:09:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:37567 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264936AbUG2SEy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 14:04:54 -0400
+Date: Thu, 29 Jul 2004 20:04:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
+Message-ID: <20040729180411.GA16323@elte.hu>
+References: <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040727162759.GA32548@elte.hu> <1090968457.743.3.camel@mindpipe> <20040728050535.GA14742@elte.hu> <1091051452.791.52.camel@mindpipe> <1091063295.18598.2.camel@mindpipe>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091063295.18598.2.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
 
-===================================================================
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-ChangeSet@1.1612.1.20, 2004-05-19 00:13:58+02:00, akropel1@rochester.rr.com
-  input: Add 64-bit compatible ioctls for hiddev.
+> Here are some more results.  I am up to 56 million interrupts and I
+> have yet to trigger a latency higher than 46 usecs.  It looks like
+> this is a hard upper limit.
 
+nice - what is the average (and minimum?) latency reported by jackd? 
+I'd say 46 usecs on a 600 MHz box is quite close to what it takes to
+handle an interrupt and schedule to the cache-cold jackd task. It should
+definitely be well below the latency required for jackd to do its job
+reliably.
 
- drivers/usb/input/hiddev.c   |    2 +-
- fs/compat_ioctl.c            |    2 ++
- include/linux/compat_ioctl.h |   17 +++++++++++++++++
- include/linux/hiddev.h       |    8 +++++++-
- 4 files changed, 27 insertions(+), 2 deletions(-)
-
-===================================================================
-
-diff -Nru a/drivers/usb/input/hiddev.c b/drivers/usb/input/hiddev.c
---- a/drivers/usb/input/hiddev.c	Thu Jul 29 14:42:28 2004
-+++ b/drivers/usb/input/hiddev.c	Thu Jul 29 14:42:28 2004
-@@ -642,7 +642,7 @@
- 				goto inval;
- 
- 			if (cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) {
--				if (uref_multi->num_values >= HID_MAX_USAGES || 
-+				if (uref_multi->num_values >= HID_MAX_MULTI_USAGES || 
- 				    uref->usage_index >= field->maxusage || 
- 				   (uref->usage_index + uref_multi->num_values) >= field->maxusage)
- 					goto inval;
-diff -Nru a/fs/compat_ioctl.c b/fs/compat_ioctl.c
---- a/fs/compat_ioctl.c	Thu Jul 29 14:42:28 2004
-+++ b/fs/compat_ioctl.c	Thu Jul 29 14:42:28 2004
-@@ -114,6 +114,8 @@
- #include <linux/filter.h>
- #include <linux/msdos_fs.h>
- 
-+#include <linux/hiddev.h>
-+
- #undef INCLUDES
- #endif
- 
-diff -Nru a/include/linux/compat_ioctl.h b/include/linux/compat_ioctl.h
---- a/include/linux/compat_ioctl.h	Thu Jul 29 14:42:28 2004
-+++ b/include/linux/compat_ioctl.h	Thu Jul 29 14:42:28 2004
-@@ -720,3 +720,20 @@
- COMPATIBLE_IOCTL(SIOCGIWRETRY)
- COMPATIBLE_IOCTL(SIOCSIWPOWER)
- COMPATIBLE_IOCTL(SIOCGIWPOWER)
-+/* hiddev */
-+COMPATIBLE_IOCTL(HIDIOCGVERSION)
-+COMPATIBLE_IOCTL(HIDIOCAPPLICATION)
-+COMPATIBLE_IOCTL(HIDIOCGDEVINFO)
-+COMPATIBLE_IOCTL(HIDIOCGSTRING)
-+COMPATIBLE_IOCTL(HIDIOCINITREPORT)
-+COMPATIBLE_IOCTL(HIDIOCGREPORT)
-+COMPATIBLE_IOCTL(HIDIOCSREPORT)
-+COMPATIBLE_IOCTL(HIDIOCGREPORTINFO)
-+COMPATIBLE_IOCTL(HIDIOCGFIELDINFO)
-+COMPATIBLE_IOCTL(HIDIOCGUSAGE)
-+COMPATIBLE_IOCTL(HIDIOCSUSAGE)
-+COMPATIBLE_IOCTL(HIDIOCGUCODE)
-+COMPATIBLE_IOCTL(HIDIOCGFLAG)
-+COMPATIBLE_IOCTL(HIDIOCSFLAG)
-+COMPATIBLE_IOCTL(HIDIOCGCOLLECTIONINDEX)
-+COMPATIBLE_IOCTL(HIDIOCGCOLLECTIONINFO)
-diff -Nru a/include/linux/hiddev.h b/include/linux/hiddev.h
---- a/include/linux/hiddev.h	Thu Jul 29 14:42:28 2004
-+++ b/include/linux/hiddev.h	Thu Jul 29 14:42:28 2004
-@@ -128,10 +128,11 @@
- 
- /* hiddev_usage_ref_multi is used for sending multiple bytes to a control.
-  * It really manifests itself as setting the value of consecutive usages */
-+#define HID_MAX_MULTI_USAGES 1024
- struct hiddev_usage_ref_multi {
- 	struct hiddev_usage_ref uref;
- 	__u32 num_values;
--	__s32 values[HID_MAX_USAGES];
-+	__s32 values[HID_MAX_MULTI_USAGES];
- };
- 
- /* FIELD_INDEX_NONE is returned in read() data from the kernel when flags
-@@ -213,6 +214,11 @@
-  */
- 
- #ifdef CONFIG_USB_HIDDEV
-+struct hid_device;
-+struct hid_usage;
-+struct hid_field;
-+struct hid_report;
-+
- int hiddev_connect(struct hid_device *);
- void hiddev_disconnect(struct hid_device *);
- void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,
-
+	Ingo

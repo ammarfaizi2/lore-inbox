@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265267AbSJXAHX>; Wed, 23 Oct 2002 20:07:23 -0400
+	id <S265101AbSJXANh>; Wed, 23 Oct 2002 20:13:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265271AbSJXAHX>; Wed, 23 Oct 2002 20:07:23 -0400
-Received: from [24.84.51.71] ([24.84.51.71]:30141 "HELO
-	cherenkov.orbis-terrarum.net") by vger.kernel.org with SMTP
-	id <S265267AbSJXAHW>; Wed, 23 Oct 2002 20:07:22 -0400
-Date: Wed, 23 Oct 2002 17:13:32 -0700
-From: Robin Johnson <robbat2@orbis-terrarum.net>
-To: linux-kernel@vger.kernel.org
-Subject: SGI Visual Support?
-Message-ID: <20021024001332.GA6151@cherenkov.orbis-terrarum.net>
+	id <S265265AbSJXANh>; Wed, 23 Oct 2002 20:13:37 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5135 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265101AbSJXANg>;
+	Wed, 23 Oct 2002 20:13:36 -0400
+Date: Wed, 23 Oct 2002 17:18:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Steven Dake <sdake@mvista.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorquk.ukuu.org.uk
+Subject: Re: [PATCH] Advanced TCA SCSI/FC disk hotswap driver for kernel 2.5.44
+Message-ID: <20021024001818.GH17413@kroah.com>
+References: <3DB7304A.3030903@mvista.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <3DB7304A.3030903@mvista.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 23, 2002 at 04:27:06PM -0700, Steven Dake wrote:
+> 
+> Changes from kernel 2.4.19 to 2.5.44 release:
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+First off, your patch is line wrapped, please fix your email client.
 
-Greetings list
+Also, please read Documentation/CodingStyle and use tabs.  Unless this
+is a side effect of your email client munging the patch.
 
-I am writing to enquire of the status of SGI Visual Workstation support
-in the 2.5 series.
+> * ioctls deleted and replaced by ramfs scsi_hotswap_fs (suggested by
+> Greg KH)
 
-The Linux VISWS page on sourceforge
-http://sourceforge.net/projects/linux-visws
-Has a patch for 2.5.24
-This currently doesn't apply 2.5.44 due to the i386 arch split in
-2.5.37.
+Any reason you can't use driverfs for the 2.5 code?
 
-It seems the patch on the site developed from this thread, but ends
-inconclusively:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D102465834001728&w=3D2
 
-Did anybody get it working more than this?
-Does anybody have any more input about the VISWS code working/not
-working?
+> +/*
+> + * Core file read/write operations interfaces
+> + */
+> +static char scsi_hotswap_insert_by_scsi_id_usage[] = {
+> +    "Usage: echo \"[host] [channel] [lun] [id]\" > insert_by_scsi_id\n"
+> +};
 
-I ask because I have a lot of VISWS 320 boxes at my disposal now and I
-am interested in using them because of the really nice SCSI system they
-have.  I've got one connected to a 20Gb DLT drive for doing backups
-presently, running 2.2.10 (the only kernel I could get to work). But I
-need a more recent kernal with netfilter for some firewalling issues.
+I really like this, a user friendly kernel interface :)
 
-Here was the patch for 2.4.17:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D101009267028328&w=3D2
+thanks,
 
-(please CC your replies to me, as I am not subscribed)=20
-
---=20
-Robin Hugh Johnson
-E-Mail     : robbat2@orbis-terrarum.net
-Home Page  : http://www.orbis-terrarum.net/?l=3Dpeople.robbat2
-ICQ#       : 30269588 or 41961639
-GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-Comment: Robbat2 @ Orbis-Terrarum Networks
-
-iD8DBQE9tzsssnuUTjSIToURAmlpAJwJjyK7NgT+wvy5QHHyz5827FELRwCfTokP
-HaxB/vowdJCzY0O1Me+N4xE=
-=46gR
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
+greg k-h

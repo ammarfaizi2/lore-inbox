@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbULBTwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbULBTyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261740AbULBTwx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 14:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbULBTwx
+	id S261741AbULBTyz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 14:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbULBTyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 14:52:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2436 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261740AbULBTwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 14:52:43 -0500
-Date: Thu, 2 Dec 2004 20:52:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: Time sliced CFQ io scheduler
-Message-ID: <20041202195232.GA26695@suse.de>
-References: <20041202130457.GC10458@suse.de> <20041202134801.GE10458@suse.de> <20041202114836.6b2e8d3f.akpm@osdl.org>
+	Thu, 2 Dec 2004 14:54:54 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:59050 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261741AbULBTyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 14:54:52 -0500
+Date: Thu, 2 Dec 2004 20:54:22 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Stefan Schmidt <zaphodb@zaphods.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041202195422.GA20771@mail.muni.cz>
+References: <20041109203348.GD8414@logos.cnet> <20041110212818.GC25410@mail.muni.cz> <20041110181148.GA12867@logos.cnet> <20041111214435.GB29112@mail.muni.cz> <4194A7F9.5080503@cyberone.com.au> <20041113144743.GL20754@zaphods.net> <20041116093311.GD11482@logos.cnet> <20041116170527.GA3525@mail.muni.cz> <20041121014350.GJ4999@zaphods.net> <20041121024226.GK4999@zaphods.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20041202114836.6b2e8d3f.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041121024226.GK4999@zaphods.net>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > as:
-> > Reader: 27985KiB/sec (max_lat=34msec)
-> > Writer:    64KiB/sec (max_lat=1042msec)
-> > 
-> > cfq:
-> > Reader: 12703KiB/sec (max_lat=108msec)
-> > Writer:  9743KiB/sec (max_lat=89msec)
-> > 
-> > If you look at vmstat while running these tests, cfq and deadline give
-> > equal bandwidth for the reader and writer all the time, while as
-> > basically doesn't give anything to the writer (a single block per second
-> > only). Nick, is the write batching broken or something?
-> 
-> Looks like it.  We used to do 2/3rds-read, 1/3rd-write in that testcase.
+Hello,
 
-But 'as' has had no real changes in about 9 months time, it's really
-strange. Twiddling with write expire and write batch expire settings
-make no real difference. Upping the ante to 4 clients, two readers and
-two writers work about the same: 27MiB/sec aggregate read bandwidth,
-~100KiB/sec write.
+I found out that 2.6.6-bk4 kernel is OK. 
 
-At least something needs to be done about it. I don't know what kernel
-this is a regression against, but at least it means that current 2.6
-with its default io scheduler has basically zero write performance in
-presence of reads.
+Bugs in 2.6.9 results e.g. in a blocking select on the network socket :(
 
 -- 
-Jens Axboe
-
+Luká¹ Hejtmánek

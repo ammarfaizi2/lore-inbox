@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUFAPXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265085AbUFAPXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUFAPXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 11:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUFAPXQ
+	id S265085AbUFAPXP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 11:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUFAPXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 11:23:16 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:21258 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S265084AbUFAPVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 11:21:55 -0400
-Date: Tue, 1 Jun 2004 11:21:53 -0400
-To: Thomas Babut <tb@dsc-shop.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS: Problem with user and group IDs
-Message-ID: <20040601152153.GB31631@fieldses.org>
-References: <40BC997B.2070505@dsc-shop.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40BC997B.2070505@dsc-shop.de>
-User-Agent: Mutt/1.5.6i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Tue, 1 Jun 2004 11:23:01 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:3088 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S262106AbUFAPW1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 11:22:27 -0400
+Message-ID: <1086094667.40bc7d4b63f91@vds.kolivas.org>
+Date: Tue,  1 Jun 2004 22:57:47 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: ICH5 irq fails in 100% native mode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 04:58:03PM +0200, Thomas Babut wrote:
-> I've got a problem with 'squashing' user and group IDs under NFS.
-> 
-> On the NFS Server there is the directory /data/test with owner ID 1011 
-> and group ID 100.
-> 
-> Here is the /etc/exports file on the NFS server:
-> /data/test 
-> 172.16.10.1(ro,root_squash,all_squash,anon_uid=65534,anongid=65534)
-> 
-> On the client side I mount it with the command:
-> mount -t nfs 172.16.10.2:/data/test /mnt/test
-> 
-> After it has been successfully mounted, the directory on the client 
-> system has the owner ID 1011 and group ID 100, like on the server.
-> 
-> But the expected result for me is, that on the client system the 
-> directory has owner ID 65534 and group ID 65534 like it has been set in 
-> the /etc/exports file on the server.
 
-Root-squashing only modifies the way your client credentials are seen on
-the server; it isn't applied to uid's that are returned to the client
-e.g.  when listing a directory.  So if you create a new file as a user
-on the client, that new file will be given anonymous uid and gid.  But
-if you "ls" a directory, the uid's you see will be unaffected by
-squashing.
 
---Bruce Fields
+While recently setting up a new machine with 2.6.3 and then 2.6.7-rc2 I
+discovered this over and over again causing system stalls:
+
+disabling IRQ18
+
+syslog showed:
+
+Jun  2 00:31:28 localhost kernel: irq 18: nobody cared!
+Jun  2 00:31:28 localhost kernel:  [__report_bad_irq+42/121] 
+[note_interrupt+145/175]  [do_IRQ+279/321]  [common_interrupt+24/32] 
+[__do_softirq+66/177]
+[do_softirq+45/47]  [do_IRQ+286/321]  [common_interrupt+24/32] 
+[default_idle+0/44]  [default_idle+41/44]  [cpu_idle+46/60] 
+[start_kernel+407/467]  [unkno
+wn_bootoption+0/294]
+
+dmesg revealed this:
+ICH5: 100%% native mode on irq 18
+
+Adding "noapic" to boot options simply moved the error to IRQ5 and occurred
+routinely during boot at the ICH5 definition.
+
+
+A quick google revealed the IDE settings in BIOS might be related so I disabled
+the "ENHANCED" option for the ide controller which is both P-ATA and S-ATA and
+chose the "COMPATIBLE" option.
+
+The error went away, and now dmesg shows this:
+
+ICH5: not 100%% native mode: will probe irqs later
+
+
+While I am not able to determine whether there is any performance penalty for
+this it seems that the probing of irqs at this point is responsible.
+
+The hardware is an ASUS P4P800S motherboard with i848 chipset + ICH5 and a 2.8C
+P4HT.
+
+While this is a workaround I wonder what I/we need to do to make it work in
+native mode.
+
+Advice?
+
+Con

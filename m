@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbUJXXCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbUJXXDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbUJXXCI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 19:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbUJXXBz
+	id S261618AbUJXXDG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 19:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbUJXXCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 19:01:55 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:62614 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261612AbUJXXBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 19:01:50 -0400
-Subject: Re: [PATCH] SCSI: Replace semaphores with wait_even
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: tglx@linutronix.de
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <1098648414.22387.46.camel@thomas>
-References: <1098300579.20821.65.camel@thomas>
-	<1098647869.10824.247.camel@mulgrave>  <1098648414.22387.46.camel@thomas>
+	Sun, 24 Oct 2004 19:02:16 -0400
+Received: from gate.crashing.org ([63.228.1.57]:11724 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261612AbUJXXCA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 19:02:00 -0400
+Subject: Re: [2.6.10-rc1] Segmentation fault in program "X"
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Thomas Meyer <thomas.mey3r@arcor.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410241323140.13209@ppc970.osdl.org>
+References: <417B6A17.8010904@arcor.de>
+	 <200410241313.31151.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <417BF02F.20704@arcor.de>
+	 <Pine.LNX.4.58.0410241323140.13209@ppc970.osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 24 Oct 2004 19:01:23 -0400
-Message-Id: <1098658889.10906.361.camel@mulgrave>
+Message-Id: <1098658803.11740.206.camel@gaston>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 25 Oct 2004 09:00:03 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-24 at 16:06, Thomas Gleixner wrote:
-> Hmm, strange. It works on two systems here and others using this
-> modification had no problem either. 
-> I will check again.
+On Mon, 2004-10-25 at 06:24, Linus Torvalds wrote:
 
-Yes, very strange given what the mistake is:
+> > Signal SIGSEGV happens while doing sys function
+> > "ioctl(5, FBIOBLANK <unfinished ...>"
+> > 
+> > seems to be some changes between 2.6.9 and 2.6.10-rc1 in file "fbmem.c"
+> 
+> Do you have radeon hardware? Is there any oops in your logs?
 
--               down_interruptible(&sem);
-+               wait_event_interruptible(eh_wait, shost->eh_kill ||
-+                               (shost->host_busy ==
-shost->host_failed));
+A Oops log would be useful...
 
-This condition is always true when the eh thread first starts because
-the default quiescent state of a scsi host is
+I don't see anything, are you sure he is using radeonfb ? Look at the
+fix posted by Tony Dapalas today fixing a possible Oops on blank for
+fbdev's that have no blank() callback ...
 
-shost->host_busy = shost->host_failed = 0
-
-so your change makes the eh_thread spin forever locking everything else
-off the CPU.  On a UP system, this is a complete hang.
-
-James
+Ben.
 
 

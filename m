@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271719AbRICOZp>; Mon, 3 Sep 2001 10:25:45 -0400
+	id <S271722AbRICObF>; Mon, 3 Sep 2001 10:31:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271721AbRICOZg>; Mon, 3 Sep 2001 10:25:36 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:32266 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S271719AbRICOZ2>; Mon, 3 Sep 2001 10:25:28 -0400
-Message-ID: <3B9392D8.BC963F23@folkwang-hochschule.de>
-Date: Mon, 03 Sep 2001 16:25:28 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
-	<nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Fred <fred@arkansaswebs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8-ac11 lockup when burning cds
-In-Reply-To: <3B922604.A8E3EB5F@folkwang-hochschule.de> <3B9232D8.143FC76D@folkwang-hochschule.de> <01090216434100.01174@bits.linuxball>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S271723AbRICOa4>; Mon, 3 Sep 2001 10:30:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8712 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S271722AbRICOar>;
+	Mon, 3 Sep 2001 10:30:47 -0400
+Date: Mon, 3 Sep 2001 15:31:04 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
+        alan@lxorguk.ukuu.org.uk, willy@debian.org, thunder7@xs4all.nl,
+        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc architecture
+Message-ID: <20010903153104.H5126@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <E15dghq-0000bZ-00@the-village.bc.nu.suse.lists.linux.kernel> <oup66b0zq9j.fsf@pigdrop.muc.suse.de> <20010903.011530.62340995.davem@redhat.com> <20010903104105.A3398@gruyere.muc.suse.de> <3B935FF8.935244CE@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B935FF8.935244CE@namesys.com>; from reiser@namesys.com on Mon, Sep 03, 2001 at 02:48:24PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fred wrote:
+On Mon, Sep 03, 2001 at 02:48:24PM +0400, Hans Reiser wrote:
+> Ok, so the sum of this is that Jeff's patches work on the platforms he wrote
+> them for, and we need one more fix for PA-RISC.
 > 
-> burning on 2.4.9-ac5 works fine for me with
-> amd 500
-> 12x ide cdrw
-> 256MB ram
-> ali mainboard
-> 
-> what's your hardware config?
+> So, we can reasonably send Jeff's patches to Linus, and test and then put the
+> PA-RISC patch into the AC tree, any disagreement?
 
-#cdrecord -scanbus
-Cdrecord 1.9 (i686-suse-linux) Copyright (C) 1995-2000 Jörg
-Schilling
-Linux sg driver version: 3.1.20
-Using libscg version 'schily-0.1'
-scsibus0:
-        0,0,0     0) 'IBM     ' 'DCAS-34330W     ' 'S65A' Disk
-        0,2,0     2) 'TOSHIBA ' 'CD-ROM XM-6201TA' '1037' Removable
-CD-ROM
-scsibus2:
-        2,0,0   200) 'PHILIPS ' 'CDD3610 CD-R/RW ' '2.02' Removable
-CD-ROM
-
-there is another pci scsi adaptor (a symbios) for my scanner, but i
-only load the module on demand, and it wasn't loaded when the lockup
-occured.
-
-i see you are running UP, perhaps it's a SMP related problem ?
-
-will try playing with some debug options and linus' release...
-
-
+If you don't align on sparc, alpha, et al, then it will be slower than
+it could be; don't you want to fix that first?
 
 -- 
-Jörn Nettingsmeier     
-home://Kurfürstenstr.49.45138.Essen.Germany      
-phone://+49.201.491621
-http://spunk.dnsalias.org
-http://www.linuxdj.com/audio/lad/
+Revolutions do not require corporate support.

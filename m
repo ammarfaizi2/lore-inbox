@@ -1,161 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbUJYOIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbUJYOJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbUJYOIj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 10:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbUJYOIj
+	id S261813AbUJYOJO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 10:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUJYOJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 10:08:39 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:37899 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261817AbUJYODe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:03:34 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Temporary NFS problem when rpciod is SIGKILLed
-Date: Mon, 25 Oct 2004 17:02:58 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+	Mon, 25 Oct 2004 10:09:14 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:16256 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261813AbUJYOJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 10:09:10 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410251702.58622.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <16765.2298.953135.524930@alkaid.it.uu.se>
+Date: Mon, 25 Oct 2004 16:08:58 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "mobil@wodkahexe.de" <mobil@wodkahexe.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4 No local APIC present or hardware disabled
+In-Reply-To: <Pine.LNX.4.58L.0410241615350.14448@blysk.ds.pg.gda.pl>
+References: <20041012195448.2eaabcea.mobil@wodkahexe.de>
+	<Pine.LNX.4.58L.0410132311190.17462@blysk.ds.pg.gda.pl>
+	<16750.23132.41441.649851@alkaid.it.uu.se>
+	<Pine.LNX.4.58L.0410142225160.25607@blysk.ds.pg.gda.pl>
+	<16751.54873.668167.981073@alkaid.it.uu.se>
+	<Pine.LNX.4.58L.0410241615350.14448@blysk.ds.pg.gda.pl>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond.
+Maciej W. Rozycki writes:
+ > > I agree with Alan that accusing the BIOS of being buggy is unwarranted.
+ > 
+ >  I disagree.  If the firmware performs any actions on hardware without
+ > asking the OS for permission, it *must* be prepared for it to be in any
+ > possible state and handle it correctly, including any transitional states
+ > (as it does respect spinlocks).  Otherwise it's buggy.
 
-I observed a problem with NFS root in 2.6 kernel
-(actually it was a 2.5 back then).
-It is still present in 2.6.9, thus I am resending
-my previous mail:
-- - - - - - - - - - - - - - - - - - - - - - - -
+But in this case the BIOS explicitly disabled the local APIC. It may
+have a legitimate reason for doing so (e.g. old #SMM code), so if the
+Linux kernel overrides that disablement and things break, it really is
+the kernel's fault not the BIOS'.
 
-I am using NFS root. At shutdown, when I kill
-all processes with killall5 -9, NFS temporarily
-misbehaves. I narrowed it down to rpciod feeling
-bad when signalled with SIGKILL:
+ > patch-2.6.9-lapic-7
 
-# killall5 -9;ps -AH e;read junk;ps -AH e
-bash: /bin/ps: Input/output error
-<--- I press [Enter] here
-PID TTY STAT TIME COMMAND
-1 ? S 0:05 /bin/sh /init.vda
-2 ? SWN 0:00 [ksoftirqd/0]
-3 ? SW< 0:00 [events/0]
-4 ? SW< 0:00 [kblockd/0]
-5 ? SW 0:00 [pdflush]
-6 ? SW 0:00 [pdflush]
-8 ? SW< 0:00 [aio/0]
-7 ? SW 0:00 [kswapd0]
-49 ? SW 0:00 [rpciod]
-50 ? SW 0:00 [lockd]
-812 vc/2 S 0:00 -bash HOME=/home/vda PATH=/sbin:/bin:/usr/sbin:/usr
-1369 tty2 R 0:00 ps -AH e PWD=/app/shutdown-0.0.5/script GROFF_NO_
-1368 ? S 0:00 sleep 32000
+I'm Ok with this patch.
 
-# kill -9 49;ps -AH e;read junk;ps -AH e
-bash: /bin/ps: Input/output error
-<--- I press [Enter] here
-PID TTY STAT TIME COMMAND
-1 ? S 0:05 /bin/sh /init.vda
-2 ? SWN 0:00 [ksoftirqd/0]
-3 ? SW< 0:00 [events/0]
-4 ? SW< 0:00 [kblockd/0]
-5 ? SW 0:00 [pdflush]
-6 ? SW 0:00 [pdflush]
-8 ? SW< 0:00 [aio/0]
-7 ? SW 0:00 [kswapd0]
-49 ? SW 0:00 [rpciod]
-50 ? SW 0:00 [lockd]
-812 vc/2 S 0:00 -bash HOME=/home/vda PATH=/sbin:/bin:/usr/sbin:/usr
-1369 tty2 R 0:00 ps -AH e PWD=/app/shutdown-0.0.5/script GROFF_NO_
-1368 ? S 0:00 sleep 32000
-
-# cat /proc/mounts
-rootfs / rootfs rw 0 0
-172.16.42.75:/.rootfs/.std / nfs ro,v3,rsize=8192,wsize=8192,hard,udp,lock,addr=172.16.42.75 0 0
-none /dev devfs rw 0 0
-none /proc proc rw 0 0
-none /sys sysfs rw 0 0
-172.16.42.75:/.share /.share nfs rw,v3,rsize=8192,wsize=8192,hard,intr,udp,nolock,addr=172.16.42.75 0 0
-172.16.42.75:/.1 /.1 nfs rw,v3,rsize=8192,wsize=8192,hard,intr,udp,nolock,addr=172.16.42.75 0 0
-172.16.42.75:/.share /.local nfs rw,v3,rsize=8192,wsize=8192,hard,intr,udp,nolock,addr=172.16.42.75 0 0
-automount(pid684) /.local/mnt/auto autofs rw 0 0
-/dev/hda1 /.local/mnt/auto/vfat.hda1 vfat rw,noatime,nodiratime,nosuid,noexec,fmask=0022,dmask=0022,codepage=cp866,iocharset=koi8-r,shortname=win95,quiet,uni_xlate 0 0
-none /dev/pts devpts rw 0 0
-
-# lsof -nP
-COMMAND PID USER FD TYPE DEVICE SIZE NODE NAME
-init.vda 1 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-init.vda 1 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-init.vda 1 root txt REG 0,12 437844 71410 /bin/bash (172.16.42.75:/.rootfs/.std)
-init.vda 1 root mem REG 0,12 832636 8248 /app/glibc-2.3/lib/ld-2.3.so (172.16.42.75:/.rootfs/.std)
-init.vda 1 root mem REG 0,12 14831 47164 /lib/libtermcap.so.2.0.8 (172.16.42.75:/.rootfs/.std)
-init.vda 1 root mem REG 0,12 50088 8252 /app/glibc-2.3/lib/libdl-2.3.so (172.16.42.75:/.rootfs/.std)
-init.vda 1 root mem REG 0,12 16153080 8249 /app/glibc-2.3/lib/libc-2.3.so (172.16.42.75:/.rootfs/.std)
-init.vda 1 root mem REG 0,12 312114 8268 /app/glibc-2.3/lib/libnss_compat-2.3.so (172.16.42.75:/.rootfs/.std)
-init.vda 1 root mem REG 0,12 1164667 8265 /app/glibc-2.3/lib/libnsl-2.3.so (172.16.42.75:/.rootfs/.std)
-init.vda 1 root mem REG 0,12 360212 8257 /app/glibc-2.3/lib/libnss_files-2.3.so (172.16.42.75:/.rootfs/.std)
-init.vda 1 root 3r REG 0,12 678 65407 /init.vda (172.16.42.75:/.rootfs/.std)
-ksoftirqd 2 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-ksoftirqd 2 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-events/0 3 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-events/0 3 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-kblockd/0 4 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-kblockd/0 4 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-pdflush 5 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-pdflush 5 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-pdflush 6 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-pdflush 6 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-kswapd0 7 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-kswapd0 7 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-aio/0 8 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-aio/0 8 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-rpciod 49 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-rpciod 49 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-lockd 50 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-lockd 50 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-bash 812 root cwd DIR 0,12 1024 69388 /app/shutdown-0.0.5/script (172.16.42.75:/.rootfs/.std)
-bash 812 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-bash 812 root txt REG 0,12 437844 71410 /bin/bash (172.16.42.75:/.rootfs/.std)
-bash 812 root mem REG 0,12 832636 8248 /app/glibc-2.3/lib/ld-2.3.so (172.16.42.75:/.rootfs/.std)
-bash 812 root mem REG 0,12 14831 47164 /lib/libtermcap.so.2.0.8 (172.16.42.75:/.rootfs/.std)
-bash 812 root mem REG 0,12 50088 8252 /app/glibc-2.3/lib/libdl-2.3.so (172.16.42.75:/.rootfs/.std)
-bash 812 root mem REG 0,12 16153080 8249 /app/glibc-2.3/lib/libc-2.3.so (172.16.42.75:/.rootfs/.std)
-bash 812 root mem REG 0,12 360212 8257 /app/glibc-2.3/lib/libnss_files-2.3.so (172.16.42.75:/.rootfs/.std)
-bash 812 root mem REG 0,14 15795 619809 /.share/usr/app/samba-2.2.2/lib/libnss_winbind.so (172.16.42.75:/.share)
-bash 812 root mem REG 0,12 1207520 93906 /app/gcc-3.2/lib/libgcc_s.so.1 (172.16.42.75:/.rootfs/.std)
-bash 812 root 0u CHR 4,2 22 /dev/vc/2
-bash 812 root 1u CHR 4,2 22 /dev/vc/2
-bash 812 root 2u CHR 4,2 22 /dev/vc/2
-bash 812 root 255u CHR 4,2 22 /dev/vc/2
-sleep 1368 root cwd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-sleep 1368 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-sleep 1368 root txt REG 0,12 5200 71631 /bin/sleep (172.16.42.75:/.rootfs/.std)
-sleep 1368 root mem REG 0,12 832636 8248 /app/glibc-2.3/lib/ld-2.3.so (172.16.42.75:/.rootfs/.std)
-sleep 1368 root mem REG 0,12 69355 8254 /app/glibc-2.3/lib/libcrypt-2.3.so (172.16.42.75:/.rootfs/.std)
-sleep 1368 root mem REG 0,12 16153080 8249 /app/glibc-2.3/lib/libc-2.3.so (172.16.42.75:/.rootfs/.std)
-lsof 1376 root cwd DIR 0,12 1024 69388 /app/shutdown-0.0.5/script (172.16.42.75:/.rootfs/.std)
-lsof 1376 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-lsof 1376 root txt REG 0,14 87748 572607 /.share/usr/app/lsof-4.57/bin/lsof (172.16.42.75:/.share)
-lsof 1376 root mem REG 0,12 832636 8248 /app/glibc-2.3/lib/ld-2.3.so (172.16.42.75:/.rootfs/.std)
-lsof 1376 root mem REG 0,12 16153080 8249 /app/glibc-2.3/lib/libc-2.3.so (172.16.42.75:/.rootfs/.std)
-lsof 1376 root 0u CHR 4,2 22 /dev/vc/2
-lsof 1376 root 1w REG 0,14 1484 309496 /.local/var/KILLbug (172.16.42.75:/.share)
-lsof 1376 root 2w REG 0,14 1484 309496 /.local/var/KILLbug (172.16.42.75:/.share)
-lsof 1376 root 3r DIR 0,3 0 1 /proc
-lsof 1376 root 4r DIR 0,3 0 90177545 /proc/1376/fd
-lsof 1376 root 5w FIFO 0,7 4192 pipe
-lsof 1376 root 6r FIFO 0,7 4193 pipe
-lsof 1377 root cwd DIR 0,12 1024 69388 /app/shutdown-0.0.5/script (172.16.42.75:/.rootfs/.std)
-lsof 1377 root rtd DIR 0,12 1024 65282 / (172.16.42.75:/.rootfs/.std)
-lsof 1377 root txt REG 0,14 87748 572607 /.share/usr/app/lsof-4.57/bin/lsof (172.16.42.75:/.share)
-lsof 1377 root mem REG 0,12 832636 8248 /app/glibc-2.3/lib/ld-2.3.so (172.16.42.75:/.rootfs/.std)
-lsof 1377 root mem REG 0,12 16153080 8249 /app/glibc-2.3/lib/libc-2.3.so (172.16.42.75:/.rootfs/.std)
-lsof 1377 root 4r FIFO 0,7 4192 pipe
-lsof 1377 root 7w FIFO 0,7 4193 pipe
---
-vda
-
+/Mikael

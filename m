@@ -1,110 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263999AbRFMTgM>; Wed, 13 Jun 2001 15:36:12 -0400
+	id <S264041AbRFMTcM>; Wed, 13 Jun 2001 15:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264200AbRFMTgD>; Wed, 13 Jun 2001 15:36:03 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:50410 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S264183AbRFMTfx>; Wed, 13 Jun 2001 15:35:53 -0400
-Message-Id: <4.3.1.0.20010613105628.02083e80@mail1>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
-Date: Wed, 13 Jun 2001 12:35:44 -0700
-To: esr@thyrsus.com, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: Undocumented configuration symbols in 2.4.6pre2
-In-Reply-To: <20010610100935.A11098@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S263999AbRFMTcC>; Wed, 13 Jun 2001 15:32:02 -0400
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:15628 "EHLO
+	mail.communicationsboard.net") by vger.kernel.org with ESMTP
+	id <S264041AbRFMTbt>; Wed, 13 Jun 2001 15:31:49 -0400
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.6-pre2, pre3 VM Behavior
+Message-ID: <992460707.3b27bfa31aa98@eargle.com>
+Date: Wed, 13 Jun 2001 15:31:47 -0400 (EDT)
+From: Tom Sightler <ttsig@tuxyturvy.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
+Hi All,
 
->CONFIG_BLUEZ
->CONFIG_BLUEZ_HCIEMU
->CONFIG_BLUEZ_HCIUART
->CONFIG_BLUEZ_HCIUSB
->CONFIG_BLUEZ_L2CAP
->
->Would the people responsible for these symbols please write Configure.help entries and send them to me?  
-Yep, those are mine. They belong to Linux Bluetooth subsystem.
+I have been using the 2.4.x kernels since the 2.4.0-test days on my Dell 5000e
+laptop with 320MB of RAM and have experienced first hand many of the problems
+other users have reported with the VM system in 2.4.  Most of these problems
+have been only minor anoyances and I have continued testing kernels as the 2.4
+series has continued, mostly without noticing much change.
 
-btw Linux is the first OS that has official Bluetooth support.
+With 2.4.6-pre2, and -pre3 I can say that I have seen a marked improvement on my
+machine, especially in interactive response, for my day to day workstation uses.
+ However, I do have one observation that seems rather strange, or at least wrong.
 
-Here we go:
+I, on occasion, have the need to transfer relatively large files (750MB-1GB)
+from our larger Linux servers to my machine.  I usually use ftp to transfer
+these files and this is where I notice the following:
 
-CONFIG_BLUEZ
-   Bluetooth is low-cost, low-power, short-range wireless technology. 
-   It was designed as a replacement for cables and other short-range 
-   technologies like IrDA. Bluetooth operates in personal area range
-   that typically extends up to 10 meters.
-   More information about Bluetooth can be found at http://www.bluetooth.com
+1.  Transfer of the first 100-150MB is very fast (9.8MB/sec via 100Mb Ethernet,
+close to wire speed).  At this point Linux has yet to write the first byte to
+disk.  OK, this might be an exaggerated, but very little disk activity has
+occured on my laptop.
 
-   Linux Bluetooth subsystem consist of several layers:
-                 HCI Core (device and connection manager, scheduler)
-                 HCI Device drivers (interface to the hardware)
-                 L2CAP Module (L2CAP protocol)
+2.  Suddenly it's as if Linux says, "Damn, I've got a lot of data to flush,
+maybe I should do that" then the hard drive light comes on solid for several
+seconds.  During this time the ftp transfer drops to about 1/5 of the original
+speed.
 
-   Say Y here to enable Linux Bluetooth support and to build HCI Core 
-   layer.
+3.  After the initial burst of data is written things seem much more reasonable,
+and data streams to the disk almost continually while the rest of the transfer
+completes at near full speed again.
 
-   To use Linux Bluetooth subsystem, you will need several user-space utilities 
-   like hciconfig and hcid. These utilities and updates to Bluetooth kernel 
-   modules are provided in the BlueZ package.
-   For more information, see http://bluez.sf.net.
+Basically, it seems the kernel buffers all of the incoming file up to nearly
+available memory before it begins to panic and starts flushing the file to disk.
+ It seems it should start to lazy write somewhat ealier.  Perhaps some of this
+is tuneable from userland and I just don't know how.
 
-   If you want to compile HCI Core as module (hci.o) say M here.
+This was much less noticeable on a server with a much faster SCSI hard disk
+subsystem as it took significantly less time to flush the information to the
+disk once it finally starterd, but laptop hard drives are traditionally poor
+performers and at 15MB/s it take 10-15 seconds before things stable out, just
+from transferring a file.
 
-   Not unsure ? say N.
+Anyway, things are still much better, with older kernels things would almost
+seem locked up during those 10-15 seconds but now my apps stay fairly responsive
+(I can still type in AbiWord, browse in Mozilla, etc).
 
-CONFIG_BLUEZ_L2CAP
-   L2CAP (Logical Link Control and Adaptation Protocol) provides connection 
-   oriented and connection-less data transport. L2CAP support is required for 
-   most Bluetooth applications.
-
-   Say Y here to compile L2CAP support into the kernel or say M to compile it 
-   as module (l2cap.o).
-
-   Not unsure ? say M.
-
-CONFIG_BLUEZ_HCIUART
-   Bluetooth HCI UART driver.
-   This driver is required if you want to use Bluetooth devices with serial
-   port interface.
-
-   Say Y here to compile support for Bluetooth UART devices into the kernel 
-   or say M to compile it as module (hci_uart.o).
-
-   Not unsure ? say M.
-
-
-CONFIG_BLUEZ_HCIUSB
-   Bluetooth HCI USB driver.
-   This driver is required if you want to use Bluetooth devices with USB
-   interface. 
-
-   Say Y here to compile support for Bluetooth USB devices into the kernel 
-   or say M to compile it as module (hci_usb.o).
-
-   Not unsure ? say M.
-
-CONFIG_BLUEZ_HCIEMU
-   Bluetooth Virtual HCI device driver.
-   This driver is required if you want to use HCI Emulation software.
-
-   Say Y here to compile support for Virtual HCI devices into the kernel or 
-   say M to compile it as module (hci_usb.o).
-
-   Not unsure ? say M.
-
-Thanks
-Max
-
-Maksim Krasnyanskiy		
-Senior Kernel Engineer
-Qualcomm Incorporated
-
-maxk@qualcomm.com
-(408) 557-1092
-
+Later,
+Tom

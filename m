@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262178AbSJVE6h>; Tue, 22 Oct 2002 00:58:37 -0400
+	id <S262154AbSJVEzz>; Tue, 22 Oct 2002 00:55:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262180AbSJVE6h>; Tue, 22 Oct 2002 00:58:37 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:11786
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262178AbSJVE6g>; Tue, 22 Oct 2002 00:58:36 -0400
-Subject: Re: Son of crunch time: the list v1.2.
-From: Robert Love <rml@tech9.net>
-To: landley@trommello.org
-Cc: george@mvista.net, georgeanz@users.sourceforge.net,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200210211900.42772.landley@trommello.org>
-References: <20021021135137.2801edd2.rusty@rustcorp.com.au>
-	<200210211642.10435.landley@trommello.org>
-	<1035256849.1044.3.camel@phantasy> 
-	<200210211900.42772.landley@trommello.org>
-Content-Type: text/plain
+	id <S262159AbSJVEzz>; Tue, 22 Oct 2002 00:55:55 -0400
+Received: from hank-fep8-0.inet.fi ([194.251.242.203]:35303 "EHLO
+	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S262154AbSJVEzz>; Tue, 22 Oct 2002 00:55:55 -0400
+Message-ID: <3DB4DBC8.8647E32E@pp.inet.fi>
+Date: Tue, 22 Oct 2002 08:02:00 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Herbert Valerio Riedel <hvr@hvrlab.org>
+CC: "David S. Miller" <davem@rth.ninka.net>, Sandy Harris <sandy@storm.ca>,
+       Mitsuru KANDA <mk@linux-ipv6.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, cryptoapi-devel@kerneli.org,
+       design@lists.freeswan.org, usagi@linux-ipv6.org
+Subject: Re: [CryptoAPI-devel] Re: [Design] [PATCH] USAGI IPsec
+References: <m3k7kpjt7c.wl@karaba.org>  <3DB41338.3070502@storm.ca> 
+			<1035168066.4817.1.camel@rth.ninka.net> <1035185654.21824.11.camel@janus.txd.hvrlab.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 01:04:21 -0400
-Message-Id: <1035263062.1044.7.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-21 at 20:00, Rob Landley wrote:
-
-> Anybody know if he made this change?
-
-I don't think so.  Its an implementation detail that can be worked out
-after the freeze, anyhow.
-
-> Any comments on which of these three patches Linus should
-> personally have the opportunity to turn down after the 27th?
+Herbert Valerio Riedel wrote:
+> On Mon, 2002-10-21 at 04:41, David S. Miller wrote:
+> > A completely new CryptoAPI subsystem has been implemented so that
+> > full lists of page vectors can be passed into the ciphers, which is
+> > necessary for a clean IPSEC implementation.
 > 
-> http://sourceforge.net/projects/high-res-timers
+> oh... nice to learn about your plans (so late) at all ;-)
+> 
+> well, it would be cool if you'd cooperate (or at least share
+> information) with us (the official cryptoapi project ;-), as we're open
+> for the design requirements of the next generation cryptoapi...
 
-I do not think Linus should have the opportunity to turn down any of
-these patches.
+Official cryptoapi? Define official.
 
-Only one of them has been sent to him, the high-res-timers, and I think
-he should merge it.
+> ...otherwise this may render the kerneli.org/cryptoapi effort completely
+> useless :-/ ...of course, if it's your long term goal to take the
+> cryptoapi development away from kerneli.org, I'd like to know too ;-)
 
-	Robert Love
+kerneli.org/cryptoapi _is_ useless joke for many needs. Fortunately other
+people are able to see the limitations/sillyness of kerneli.org/cryptoapi:
+
+1)  You are trying to replace link/insmod time overhead with runtime
+    overhead + unnecessary bloat.
+2)  No direct link access to low level cipher functions or higher level
+    functions.
+3)  No clean way to replace cipher code with processor type optimized
+    assembler implementations.
+
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>
 

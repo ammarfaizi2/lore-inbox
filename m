@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUIXOau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268786AbUIXOms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268769AbUIXOau (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 10:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268786AbUIXOau
+	id S268786AbUIXOms (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 10:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUIXOmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 10:30:50 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:60423 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S268769AbUIXOar
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 10:30:47 -0400
-Message-ID: <41542F96.2000700@arcom.com>
-Date: Fri, 24 Sep 2004 15:30:46 +0100
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040912)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: rmk+serial@arm.linux.org.uk
-Subject: Serial: Request resources if not autoconfiguring new ports
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Sep 2004 14:34:58.0906 (UTC) FILETIME=[AB0693A0:01C4A243]
+	Fri, 24 Sep 2004 10:42:47 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5021 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S268786AbUIXOmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 10:42:44 -0400
+Date: Fri, 24 Sep 2004 09:41:47 -0500
+From: Robin Holt <holt@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Christoph Lameter <christoph@lameter.com>, Paul Jackson <pj@sgi.com>,
+       simon.derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [rfc][patch] 1/2 Additional cpuset features
+Message-ID: <20040924144147.GA14367@lnx-holt.americas.sgi.com>
+References: <Pine.LNX.4.58.0409101036090.2891@daphne.frec.bull.fr> <20040911010808.2b283c9a.pj@sgi.com> <Pine.LNX.4.58.0409231238350.11694@server.home> <20040923164139.506d65d3.pj@sgi.com> <Pine.LNX.4.58.0409231651550.17168@server.home> <20040924011751.GA20592@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040924011751.GA20592@krispykreme>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 24, 2004 at 11:17:51AM +1000, Anton Blanchard wrote:
+>  
+> Hi,
+> 
+> > > But the jist of the matter is simple.  Just as we (SGI) did with
+> > > cpumemsets and perfmon on 2.4 kernels, so should we do with cpusets and
+> > > perfmon on 2.6 kernels.  And that is to perform this translation in
+> > > perfmon code.  Is it only SGI's dplace that requires the cpuset-relative
+> > > numbering?
+> > 
+> > pfmon, sched_setaffinity, dplace. And this is only what I saw today.
+> > Might develop into a longer list. The 2.4 solutions were rather
+> > complicated.
+> 
+> Are pfmon and dplace SGI specific? sched_affinity users already have to
+> deal with potentially discontiguous cpu maps. Ive been teaching IBM
+> applications about this fact as I find problems.
+> 
 
-This makes serial core request resources when adding new ports if the 
-port isn't to be autoconfigured (UPF_BOOT_AUTOCONF is not set).  This 
-also means the UPF_IOREMAP flag now works.
+pfmon comes from HP's perfmon package.  dplace is an SGI specific that is
+being open sourced.  It allows very complex process placement within a
+cpuset.  It uses process aggregates to migrate processes based upon stuff
+like number of invocations of this name goes to this relative cpu.
 
---- linux-2.6-armbe.orig/drivers/serial/serial_core.c	2004-09-23 
-15:04:08.000000000 +0100
-+++ linux-2.6-armbe/drivers/serial/serial_core.c	2004-09-24 
-15:27:01.000000000 +0100
-@@ -2007,7 +2007,8 @@
-  	if (port->flags & UPF_BOOT_AUTOCONF) {
-  		port->type = PORT_UNKNOWN;
-  		port->ops->config_port(port, flags);
--	}
-+	} else
-+		port->ops->request_port(port);
+Paul, aren't we going to adjust dplace so it uses the user libraries to
+interpret the relative placement information provided in the application's
+configuration file into kernel logical cpus before passing that into the
+kernel module?
 
-  	if (port->type != PORT_UNKNOWN) {
-  		unsigned long flags;
-
-David Vrabel
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+> > > The kernel-user boundary should stick to a single, system-wide, numbering
+> > > of CPUs.
+> > 
+> > That leads to lots of complicated scripts doing logical -> physical
+> > translation with the danger of access or attempting accesses to not
+> > allowed CPUs. It may be easier to contain tasks into a range of cpus if
+> > the CPUs in use are easily enumerable.
+> 
+> I would think you could write this in your userspace library.
+> 
+> > The patch would allow the use of the existing tools as if the machine
+> > only had N cpus (as you said a soft partitioning of the machine). If
+> > scripts are to be used with the current approach then they need to know
+> > about all the CPUs in the system and perform the mapping. Its going to be
+> > a nightmare to develop scripts that partition off a 512 cpu cluster
+> > appropriately and that track the physical cpu numbers instead of the cpu
+> > number within the cpuset.
+> 
+> What happens when an application (or user) looks in /proc/cpuinfo?
+> And how does /sys/.../cpus match? Also what happens when you hotplug out 
+> a cpu and your memory map becomes discontiguous? 
+> 
+> Anton
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

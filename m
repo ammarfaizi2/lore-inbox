@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270480AbTGSCva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 22:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270482AbTGSCva
+	id S270483AbTGSCyf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 22:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTGSCyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 22:51:30 -0400
-Received: from modemcable029.129-200-24.mtl.mc.videotron.ca ([24.200.129.29]:19072
-	"EHLO mainframe1.boofer.ca") by vger.kernel.org with ESMTP
-	id S270480AbTGSCva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 22:51:30 -0400
-Message-ID: <3F18B603.70405@yahoo.ca>
-Date: Fri, 18 Jul 2003 23:07:47 -0400
-From: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030716
-X-Accept-Language: en-ca
+	Fri, 18 Jul 2003 22:54:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28387 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270483AbTGSCyd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 22:54:33 -0400
+Date: Fri, 18 Jul 2003 20:09:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] General filesystem cache
+In-Reply-To: <23055.1058538289@warthog.warthog>
+Message-ID: <Pine.LNX.4.44.0307182000300.6370-100000@home.osdl.org>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test1 Cannot login in X or console
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have succesfully compiled and booted the 2.6.0-test1 kernel. After i 
-enter my username and password succesfuly the login window simply stays 
-there:
 
-Login: user <enter>
-Password: xxxx<enter>
-<freezes>
+On Fri, 18 Jul 2003, David Howells wrote:
+> 
+> Here's a patch to add a quasi-filesystem ("CacheFS") that turns a block device
+> into a general cache for any other filesystem that cares to make use of its
+> facilities.
+> 
+> This is primarily intended for use with my AFS filesystem, but I've designed
+> it such that it needs to know nothing about the filesystem it's backing, and
+> so it may also be useful for NFS, SMB and ISO9660 for example.
 
-Same thing with gdm. I do not have this problem with 2.4.21+swsup+preempt.
-There is no error written in the system log.
-Is it possible that PAM + 2.6.0-test1 results in this problem ?
-The single runlevel works fine.(booted with single as kernel arg)
-I am running gentoo.
+Ok. Sounds good. In fact, it's something I've wanted for a while, since 
+it's also potentially the solution to performance-critical things like 
+virtual filesystems based on revision control logic etc (traditionally 
+done with fake NFS servers).
 
-Any insight appreciated.
+I did a very very quick scan, and didn't see anything that raised my 
+hackles. But it's late in the 2.6.x game, and as a result I'm not going to 
+apply it until I get a lot of feedback from actual users too.
 
-Joe
+		Linus
 

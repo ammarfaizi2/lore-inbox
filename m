@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318641AbSHAIiP>; Thu, 1 Aug 2002 04:38:15 -0400
+	id <S318663AbSHAIqb>; Thu, 1 Aug 2002 04:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318663AbSHAIiO>; Thu, 1 Aug 2002 04:38:14 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:24238 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S318641AbSHAIiO>;
-	Thu, 1 Aug 2002 04:38:14 -0400
-Date: Thu, 1 Aug 2002 18:40:09 +1000
-To: linux-kernel@vger.kernel.org
-Subject: LKML Digest to HTML converter
-Message-ID: <20020801084009.GA5721@ellington>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-fortune: Good day for a change of scene. Repaper the bedroom wall. 
-From: Ian Wienand <ianw@ieee.org>
+	id <S318666AbSHAIqb>; Thu, 1 Aug 2002 04:46:31 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:496 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S318663AbSHAIqa>;
+	Thu, 1 Aug 2002 04:46:30 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Lincoln Dale <ltd@cisco.com>
+Cc: David Luyer <david_luyer@pacific.net.au>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+Date: Thu, 1 Aug 2002 10:49:19 +0200
+Message-Id: <20020801084920.15476@192.168.4.1>
+In-Reply-To: <200208010133.g711Xq7338295@saturn.cs.uml.edu>
+References: <200208010133.g711Xq7338295@saturn.cs.uml.edu>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>2.2.xx i386 as shipped by Linus
+>2.4.xx i386 with HZ modified
+>
+>Come on, write the code if you think it's so easy.
+>You get bonus points for supporting 2.0.xx kernels
+>and the IA-64 kernel with that same executable.
+>
+>Maybe you think I should tell these people to go to Hell?
+>In that case, what about the Alpha systems that ran HZ at
+>1200 instead of 1024?
 
-This may be of interest to those of you who read this email in the
-digest version of this list.
+Isn't HZ value passed down to userland via the ELF aux table ?
 
-My python script converts the digest version of this list into a HTML
-file that is a little more convenient to read.  It does things like
-build a linked contents section, link messages for easy scrolling,
-colour replies and highlight urls/emails.
+(At least the "userland visible" one, which isn't the kernel
+internal one in recent 2.5's, oh well...)
 
-You can call it manually from mutt or put it in procmail.
+That's a reason I don't understand why Linus did this separation
+between "userland visibl" HZ and kernel internal HZ. I would have
+just changed the kernel HZ and let userland be fixed to use the
+value passed via the aux table instead of hard coding it.
 
-Available here :
+Ben.
 
-http://www.wienand.org/files/lkmld2html/lkmld2html.tar.gz
 
-(sample output can be seen at
-http://www.wienand.org/files/lkmld2html/sample.html)
-
-Regards,
-
-i
--
-ianw@ieee.org
-http://www.wienand.org

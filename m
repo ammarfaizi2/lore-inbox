@@ -1,84 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264283AbUDTWQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264521AbUDTWUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264283AbUDTWQw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbUDTWPt
+	id S264521AbUDTWUj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbUDTWT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:15:49 -0400
-Received: from legolas.restena.lu ([158.64.1.34]:37782 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264283AbUDTTu3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 15:50:29 -0400
-Subject: Re: System hang with ATI's lousy driver
-From: Craig Bradney <cbradney@zip.com.au>
-To: Timothy Miller <miller@techsource.com>
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4085753B.2010700@techsource.com>
-References: <Pine.LNX.4.44.0404201158580.10469-100000@twin.uoregon.edu>
-	 <4085753B.2010700@techsource.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7JF+kfz8igj5ymBf9Llb"
-Message-Id: <1082490625.6555.22.camel@amilo.bradney.info>
+	Tue, 20 Apr 2004 18:19:26 -0400
+Received: from [202.65.75.150] ([202.65.75.150]:58586 "EHLO
+	pythia.bakeyournoodle.com") by vger.kernel.org with ESMTP
+	id S264534AbUDTVKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 17:10:39 -0400
+From: Tony Breeds <tony@bakeyournoodle.com>
+Date: Wed, 21 Apr 2004 05:01:11 +0800
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Kconfig dependancy update for drivers/misc/ibmasm
+Message-ID: <20040420210110.GD3445@bakeyournoodle.com>
+Mail-Followup-To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 20 Apr 2004 21:50:25 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-7JF+kfz8igj5ymBf9Llb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hello,
+	Some weeks ago I saw this compile error posted to lkml:
 
-On Tue, 2004-04-20 at 21:08, Timothy Miller wrote:
-> Joel Jaeggli wrote:
-> > On Tue, 20 Apr 2004, Timothy Miller wrote:
-> >=20
-> >=20
-> >>So, since XFree86's lousy open-source Radeon driver won't do OpenGL=20
-> >>right, I am forced to use ATI's lousy proprietary Radeon driver.  With=20
-> >>that, I can do OpenGL right, but when I exit the X server, the system=20
-> >>hangs completely.  I get lots of vertical lines on the screen, but I=20
-> >>can't even ping the computer.
-> >=20
-> >=20
-> > you didn't specify which ati card?
->=20
-> Sorry.  Radeon 9000 Pro.
->=20
-> > =20
-> >=20
-> >>Does anyone know of any conflict between using ATI's X11 driver and the=
-=20
-> >>Radeon console driver at the same time?
-> >>
-> >>I'm using kernel gentoo-2.4.25.
-> >>
-> >>
-> >>I'm getting really sick of not being able to get new graphics cards to=20
-> >>just work properly under Linux.
+---
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o(.text+0x435e1): In function `ibmasm_register_uart':
+> : undefined reference to `register_serial'
+> drivers/built-in.o(.text+0x43649): In function `ibmasm_unregister_uart':
+> : undefined reference to `unregister_serial'
+> make: *** [.tmp_vmlinux1] Error 1
+> summer@Dolphin:~/pebble/kernel/linux-2.6.4$
+---
 
-I have a 9000 Pro running under gentoo-dev-sources 2.6.5 with 3d/opengl
-supported...
+This was created because ibmasm was set to yes BUT the 8250 was a
+module.  I believe the correct (tested) fix is below.
 
-and I had it running with 2.4.x ages ago with gentoo-sources.
+################################################################################
+--- 2.6.4.clean/drivers/misc/Kconfig	2004-03-11 17:57:23.000000000 +1100
++++ 2.6.4.noconfig/drivers/misc/Kconfig	2004-03-30 09:32:07.000000000 +1000
+@@ -6,7 +6,7 @@
+ 
+ config IBM_ASM
+ 	tristate "Device driver for IBM RSA service processor"
+-	depends on X86
++	depends on X86 && SERIAL_8250
+ 	default n
+ 	---help---
+ 	  This option enables device driver support for in-band access to the
+################################################################################
 
-Also have a 9000 M9 Mobility in this laptop with direct rendering
-running ok.
+Yours Tony
 
-Craig
+        linux.conf.au       http://lca2005.linux.org.au/
+	Apr 18-23 2005      The Australian Linux Technical Conference!
 
---=-7JF+kfz8igj5ymBf9Llb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+----- End forwarded message -----
 
-iD8DBQBAhX8Bi+pIEYrr7mQRAkpTAJ9+4/35NK0SVRFS65oiNbYY9buJ3QCgg1B+
-uwfjJxkpa16+FTP17mfnsiU=
-=uocL
------END PGP SIGNATURE-----
+Yours Tony
 
---=-7JF+kfz8igj5ymBf9Llb--
+        linux.conf.au       http://lca2005.linux.org.au/
+	Apr 18-23 2005      The Australian Linux Technical Conference!
 

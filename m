@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261613AbSKKXQN>; Mon, 11 Nov 2002 18:16:13 -0500
+	id <S265909AbSKKXdY>; Mon, 11 Nov 2002 18:33:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262295AbSKKXQN>; Mon, 11 Nov 2002 18:16:13 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13768 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261613AbSKKXQM>;
-	Mon, 11 Nov 2002 18:16:12 -0500
-Date: Mon, 11 Nov 2002 18:23:00 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-cc: dm@uk.sistina.com, linux-lvm@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] make device mapper compile on 2.5.4x
-In-Reply-To: <20021111225340.GA3587@lina.inka.de>
-Message-ID: <Pine.GSO.4.21.0211111821210.29617-100000@steklov.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265960AbSKKXdY>; Mon, 11 Nov 2002 18:33:24 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:8633 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265909AbSKKXdX>;
+	Mon, 11 Nov 2002 18:33:23 -0500
+Date: Mon, 11 Nov 2002 15:38:45 -0800 (PST)
+Message-Id: <20021111.153845.69968013.davem@redhat.com>
+To: roland@topspin.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <52r8drn0jk.fsf_-_@topspin.com>
+References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
+	<20021111.151929.31543489.davem@redhat.com>
+	<52r8drn0jk.fsf_-_@topspin.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+So how are apps able to specify such larger hw addresses to configure
+a driver if IFHWADDRLEN is still 6?
 
-On Mon, 11 Nov 2002, Bernd Eckenfels wrote:
-
-> -	set_device_ro(dm_kdev(md), 0/*(param->flags & DM_READONLY_FLAG)*/);
-> +	bdev = bdget(kdev_t_to_nr(dm_kdev(md)));
-> +	if (!bdev)
-> +		return -ENXIO;
-> +	set_device_ro(bdev, (param->flags & DM_READONLY_FLAG));
-> +	bdput(bdev);
-
-That is simply wrong.  set_device_ro() works only on opened block_device.
-Correct fix is to use set_disk_ro() and it's already in the tree (1.830
-on bkbits).
-
+I'm not going to increase MAX_ADDR_LEN if there is no user ABI capable
+of configuring such larger addresses properly.

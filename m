@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132690AbRDOPwT>; Sun, 15 Apr 2001 11:52:19 -0400
+	id <S129282AbRDOQDa>; Sun, 15 Apr 2001 12:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132691AbRDOPwK>; Sun, 15 Apr 2001 11:52:10 -0400
-Received: from ppp100-yorkpa.netrax.net ([205.231.165.100]:38929 "EHLO
-	yinyang.hjsoft.com") by vger.kernel.org with ESMTP
-	id <S132690AbRDOPvy>; Sun, 15 Apr 2001 11:51:54 -0400
-Date: Sun, 15 Apr 2001 11:55:49 -0400 (EDT)
-From: "Mr. Shannon Aldinger" <god@yinyang.hjsoft.com>
-Reply-To: <god@yinyang.hjsoft.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: "uname -p" prints unknown for Athlon K7 optimized kernel?
-In-Reply-To: <20010415155706.A188@elfie>
-Message-ID: <Pine.LNX.4.31.0104151152400.26676-100000@yinyang.hjsoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132692AbRDOQDV>; Sun, 15 Apr 2001 12:03:21 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:53769 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S129282AbRDOQDN>;
+	Sun, 15 Apr 2001 12:03:13 -0400
+Date: Sun, 15 Apr 2001 12:04:30 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.1.1, wiuth experimental fast mode
+Message-ID: <20010415120430.A29710@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Anton Altaparmakov <aia21@cam.ac.uk>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104150345.f3F3jxG16241@snark.thyrsus.com> <5.0.2.1.2.20010415112829.00b11ec0@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.0.2.1.2.20010415112829.00b11ec0@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Sun, Apr 15, 2001 at 11:41:36AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Anton Altaparmakov <aia21@cam.ac.uk>:
+> Much better now! make xconfig still seems to be the old way (hadn't tried 
+> it before)? - At least I get two shades of green. The lighter one is 
+> completely unreadable on the silver background. Could I suggest to get rid 
+> of the light/dark green distinction altogether, do it like the new 
+> menuconfig colors, they are much improved now.
 
-On Sun, 15 Apr 2001, it was written:
+Yeah, that was a typo.  It will work this way in 1.1.2.
 
-> elfie:~ # uname -p
-> unknown
->
-> elfie:~ # uname -a
-> Linux elfie 2.4.3 #1 Fri Apr 13 21:08:29 CEST 2001 i586 unknown
->
-I get the same on my Sun Ultra 1, and various x86 boxes. I'm sure this is
-normal, I'm just not sure how you would change that label. I know gcc
-compiles everything with a target of gcc-linux-unkown on my machines, so
-the uknown may be coming from there...
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Made with pgp4pine 1.75
+> On my Pentium 133S with fastmode I get a more than 2 fold increase in speed 
+> and  it feels a lot more usable. Still have to wait between key presses but 
+> it is better than before.
 
-iEYEARECAAYFAjrZxI0ACgkQwtU6L/A4vVCO6wCdGoot4MMYmrdW4N2ankreoHXn
-t1UAoJLpUTlsEY+jQCcSrz6ezId2oUqM
-=sCuV
------END PGP SIGNATURE-----
+Uh oh.  
 
+If you still have to wait I'd better make fastmode disable more stuff :-(.
+ 
+> One general note: scrolling between entries (up/down arrow) seems slower 
+> than it should be.
 
+That should be fixed now.  I found a way to recode menuconfig's screen refresh
+that will be faster and eliminate the screen flicker.
+
+> Keep up the good work. You are on the right track. (-:
+
+Thanks!
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"Rightful liberty is unobstructed action, according to our will, within limits
+drawn around us by the equal rights of others."
+	-- Thomas Jefferson

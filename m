@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbUL0QDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbUL0QJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbUL0QDh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 11:03:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUL0QDh
+	id S261922AbUL0QJU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 11:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUL0QJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 11:03:37 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:4363 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261914AbUL0QCF (ORCPT
+	Mon, 27 Dec 2004 11:09:19 -0500
+Received: from holomorphy.com ([207.189.100.168]:27601 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261922AbUL0QJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 11:02:05 -0500
-Message-ID: <41D031FD.9000601@domdv.de>
-Date: Mon, 27 Dec 2004 17:02:05 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-ac1
-References: <1104103881.16545.2.camel@localhost.localdomain>	 <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de>	 <58cb370e041226174019e75e23@mail.gmail.com>	 <8783be660412270645717b89d1@mail.gmail.com>	 <58cb370e0412270738fbc045c@mail.gmail.com> <41D02EEC.4090000@domdv.de> <58cb370e04122707544be6d600@mail.gmail.com>
-In-Reply-To: <58cb370e04122707544be6d600@mail.gmail.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Dec 2004 11:09:05 -0500
+Date: Mon, 27 Dec 2004 08:08:48 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       James.Bottomley@HansenPartnership.com, paulus@samba.org,
+       davem@davemloft.net, lethal@linux-sh.org, davidm@hpl.hp.com,
+       schwidefsky@de.ibm.com, takata@inux-m32r.org, ak@suse.de,
+       rth@twiddle.net, matthew@wil.cx
+Subject: Re: [PATCH] fix conflicting cpu_idle() declarations
+Message-ID: <20041227160848.GC771@holomorphy.com>
+References: <41D033FE.7AD17627@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D033FE.7AD17627@tv-sign.ru>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> Ah, so the problem only affects native PCI IRQs.
-> Is it possible that it is a buggy IDE host driver not a generic IDE problem?
+On Mon, Dec 27, 2004 at 07:10:38PM +0300, Oleg Nesterov wrote:
+> cpu_idle() declared/defined in
+> init/main.c:				void cpu_idle(void)
+> i386/kernel/process.c			void cpu_idle(void)
+> i386/kernel/smpboot.c:		int  cpu_idle(void)
+> i386/mach-voyager/voyager_smp.c:	int  cpu_idle(void)
+> ppc/kernel/idle.c:			int  cpu_idle(void)
+> ppc/kernel/smp.c:			int  cpu_idle(void *unused)
+> ppc64/kernel/idle.c:			int  cpu_idle(void)
+> ppc64/kernel/smp.c:			int  cpu_idle(void *unused)
+> sparc/kernel/process.c:		int  cpu_idle(void)
+> sparc64/kernel/process.c:		int  cpu_idle(void)
+> sh/kernel/process.c:			void cpu_idle(void *unused)
+> sh/kernel/smp.c:			int  cpu_idle(void *unused)
+> ia64/kernel/smpboot.c:		int  cpu_idle(void)
+> ia64/kernel/process.c:		void cpu_idle(void *unused)
 
-No, I tried 3 different pci cards requiring three different drivers. The 
-problem appeared with all three the same way.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+It's remarkable that several arches are internally inconsistent. Anyway,
+this will likely be a shoo-in, as it removes more code than it adds. The
+mess surrounding cpu_idle() has been aggravating for some time.
+
+
+-- wli

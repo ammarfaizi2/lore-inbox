@@ -1,41 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSHGXYb>; Wed, 7 Aug 2002 19:24:31 -0400
+	id <S316912AbSHHAJS>; Wed, 7 Aug 2002 20:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316649AbSHGXYb>; Wed, 7 Aug 2002 19:24:31 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48400 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316582AbSHGXYb>; Wed, 7 Aug 2002 19:24:31 -0400
-Date: Wed, 7 Aug 2002 19:08:06 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, nick.orlov@mail.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pdc20265 problem.
-In-Reply-To: <1028720492.18130.251.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1020807190543.14463E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316928AbSHHAJS>; Wed, 7 Aug 2002 20:09:18 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:51114 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S316912AbSHHAJR>; Wed, 7 Aug 2002 20:09:17 -0400
+Date: Wed, 7 Aug 2002 17:12:38 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org, Rob Radez <rob@osinvestor.com>,
+       Matt Domsch <Matt_Domsch@dell.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       marcelo@conectiva.com.br
+Subject: [PATCH] [2.4.20-pre1] Watchdog Stuff (1/4)
+Message-ID: <20020808001238.GB1038@nic1-pc.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Aug 2002, Alan Cox wrote:
+        Here are four patches for the watchdog drivers.  These patches
+are an update to 2.4.20-pre1 of the original set against 2.4.19-pre9.
+The first patch (this one) adds WDIOC_SETTIMEOUT support to
+wafer5823wdt.c.  The second patch adds Matt Domsch's 'nowayout' module
+option to the drivers that currently don't have it.  The third patch
+fixes a bug where most of the "magic close character" capable drivers
+don't use get_user().  The fourth patch adds "magic close character"
+support to almost all of the remaining drivers.  It also adds
+WDIOF_MAGICCLOSE to the driver info flags.                                 
 
-> That would ensure the southbridge IDE stayed in one place. Another
-> alternative is to enumerate all the IDE devices by class (we can do that
-> nice and easy, with a little tweak for the fasttrak stuff) then hand
-> them off according to the enumeration position. That would preserve the
-> old semantics nicely for pci IDE. (Plug in ISA IDE is pretty rare and
-> since we can't probe those its kind of hard to do anything much about
-> it).
+Joel
 
-ISA my foot, real men went to the VESA bus as soon as it came out, to get
-32 bit i/o. I have a 486 router, with 2.4.9 or so, maybe I should refresh
-my memory as to what hardware lives there. Last install moderately recent,
-it had the new bind and I had to convert all the files.
+diff -uNr linux-2.4.20-pre1/drivers/char/wafer5823wdt.c linux-2.4.20-pre1-settimeout/drivers/char/wafer5823wdt.c
+--- linux-2.4.20-pre1/drivers/char/wafer5823wdt.c	Fri Aug  2 17:39:43 2002
++++ linux-2.4.20-pre1-settimeout/drivers/char/wafer5823wdt.c	Wed Aug  7 15:24:03 2002
+@@ -54,6 +54,7 @@
+ #define WDT_STOP 0x843
+ 
+ #define WD_TIMO 60		/* 1 minute */
++static int wd_margin = WD_TIMO;
+ 
+ static void wafwdt_ping(void)
+ {
+@@ -67,7 +68,7 @@
+ static void wafwdt_start(void)
+ {
+ 	/* start up watchdog */
+-	outb_p(WD_TIMO, WDT_START);
++	outb_p(wd_margin, WDT_START);
+ 	inb_p(WDT_START);
+ }
+ 
+@@ -94,8 +95,10 @@
+ static int wafwdt_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
+ 	     unsigned long arg)
+ {
++	int new_margin;
+ 	static struct watchdog_info ident = {
+-		WDIOF_KEEPALIVEPING, 1, "Wafer 5823 WDT"
++		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++		1, "Wafer 5823 WDT"
+ 	};
+ 	int one=1;
+ 
+@@ -114,6 +117,18 @@
+ 	case WDIOC_KEEPALIVE:
+ 		wafwdt_ping();
+ 		break;
++
++	case WDIOC_SETTIMEOUT:
++		if (get_user(new_margin, (int *)arg))
++			return -EFAULT;
++		if ((new_margin < 1) || (new_margin > 255))
++			return -EINVAL;
++		wd_margin = new_margin;
++		wafwdt_stop();
++		wafwdt_start();
++		/* Fall */
++	case WDIOC_GETTIMEOUT:
++		return put_user(wd_margin, (int *)arg);
+ 
+ 	default:
+ 		return -ENOTTY;
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 
+"What do you take me for, an idiot?"  
+        - General Charles de Gaulle, when a journalist asked him
+          if he was happy.
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,83 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbUDHCnX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 22:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUDHCnX
+	id S261468AbUDHDBq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 23:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUDHDBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 22:43:23 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:47831 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261462AbUDHCnU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 22:43:20 -0400
-Message-Id: <200404080243.i382hG6K003775@eeyore.valparaiso.cl>
-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel stack challenge 
-In-Reply-To: Your message of "Wed, 07 Apr 2004 10:54:18 MST."
-             <20040407175418.17681.qmail@web40503.mail.yahoo.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Wed, 07 Apr 2004 22:43:16 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Wed, 7 Apr 2004 23:01:46 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:43169 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S261468AbUDHDBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 23:01:43 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: probable Linux Kernel GPL violation
+Date: Thu, 08 Apr 2004 05:00:00 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.04.08.02.59.59.697592@smurf.noris.de>
+References: <40743064.1030106@royfranz.com>
+NNTP-Posting-Host: kiste.smurf.noris.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1081393199 11668 192.109.102.35 (8 Apr 2004 02:59:59 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Thu, 8 Apr 2004 02:59:59 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
-> --- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+Hi, Roy Franz wrote:
 
-[...]
+> They claim that the GPL does not
+> apply to those changes.
 
-> > And then there is the technology of _inventing_ a
-> > language tailored to the
-> > task at hand... even better than your list of
-> > high-level languages.
+... which is quite obviously wrong.
 
-> I started exactly with that. I found out shortly that
-> have no idea of functionality needed for such kind of
-> system.
+I'd alert them to the fact that they're about to get a lot of
+well-deserved negative publicity about this.
 
-Come back when you have found out.
-
->         It was clear that requirments for this sytem
-> can change rapidly.
-
-I would not trust anything with "rapidly changing requirements" as security
-infrastructure.
-
->                     Only general purpose language can
-> address this problem (if we want to save time of
-> development and introduction of new security models).
-
-A security model has to be exhaustively scrutinized, proved correct and
-complete, and well-tested. The implementation language is completely
-irrelevant, the hard work is _not_ programming.
-
-> Example. Current security policies are 'static'.
-
-In what sense?
-
->                                                  It
-> seems, that it would be nice to have 'dynamic'
-> policies (with support from security model).
-
-Again, what does this mean?
-
->                                              Now,
-> policy describes resources available for subsystem.
-
-No...
-
->                                                     It
-> may be useful to limit the sequence of access to
-> resources - 'behaviour' of subsystem. I'm not sure if
-> I want to implement that right away, but there is
-> commercial system which does exactly that already (it
-> was created later than VXE).
-
-What is the use of restricting access sequences? If sequence A, B, C is
-forbidden, chances are that C, B, A (or any of the other 4 permutations)
-will give an attacker exactly what he wants.
+Other than that, wait until Linus is back.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Matthias Urlichs

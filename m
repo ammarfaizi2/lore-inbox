@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316673AbSHOK1A>; Thu, 15 Aug 2002 06:27:00 -0400
+	id <S316675AbSHOK2K>; Thu, 15 Aug 2002 06:28:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSHOK1A>; Thu, 15 Aug 2002 06:27:00 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:23307 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S316673AbSHOK1A>;
-	Thu, 15 Aug 2002 06:27:00 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: James Simmons <jsimmons@infradead.org>
-Date: Thu, 15 Aug 2002 12:30:11 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [Linux-fbdev-devel] [PATCH] broken cfb* support in the 
-CC: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fbdev-devel@lists.sourceforge.net>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <212B36E116D@vcnet.vc.cvut.cz>
+	id <S316677AbSHOK2K>; Thu, 15 Aug 2002 06:28:10 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:13278 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S316675AbSHOK2J>; Thu, 15 Aug 2002 06:28:09 -0400
+Date: Thu, 15 Aug 2002 11:31:48 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] user-vm-unlock-2.5.31-A2
+Message-ID: <20020815113148.A28398@kushida.apsleyroad.org>
+References: <20020815050343.A27963@kushida.apsleyroad.org> <Pine.LNX.4.44.0208150837510.2197-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208150837510.2197-100000@localhost.localdomain>; from mingo@elte.hu on Thu, Aug 15, 2002 at 08:45:23AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Aug 02 at 21:30, James Simmons wrote:
-> > Hi Linus, hello others,
-> >   please apply this.
-> >
-> > line_length, type and visual moved from display struct to the fb_info's fix
-> > structure during last fbdev updates. Unfortunately generic code was not updated
-> > together, so now every fbdev driver is broken.
+Ingo Molnar wrote:
+> > I wonder if it makes more sense for the release word to be a futex --
+> > then various ways of actually waiting for the stack are available.
 > 
-> That was done to push people to port there drivers to the new api. I
-> applied the patch to the Bk repository but expect more breakage.
+> the window for locking is really small (and will always be small), so it's
+> cheaper for the fastpath to implement this as a spinlock, with the
+> stack-user being the lock holder.
 
-Which new API? If you are going to remove logo and unaccelerated fbcon-cfb*,
-then remove them completely. If you are not going to remove unaccelerated
-fbcon-cfb*, then there is no reason for breaking them.
+I'm thinking that any _clean_ threading library (pthreads or not)
+should do these two things:
 
-I'm not going to remove unaccelerated code from the matroxfb. Never.
-                                                     Petr Vandrovec
-                                                     vandrove@vc.cvut.cz
+   - intercept all the system calls that might call mmput(); that is,
+     exit() and execve()), just so it can move the thread-specific data
+     (including the stack) onto the "potentially free list".
+
+   - free the stack memory as soon as possible after a thread has died,
+     _without_ depending on garbage collection.  What if all the other
+     threads are compute-bound?  There's a lump of unnecessary stack
+     taking up memory for an indefinite time.
+
+It seems that you're using a futex anyway -- so why not eliminate that
+pesky system call _and_ make sure pthread_join() work if some library
+you're linked to exits without calling pthread_exit()..
+
+-- Jamie

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281557AbRLRM2v>; Tue, 18 Dec 2001 07:28:51 -0500
+	id <S281836AbRLRMuQ>; Tue, 18 Dec 2001 07:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281818AbRLRM2l>; Tue, 18 Dec 2001 07:28:41 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29201 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281557AbRLRM2e>; Tue, 18 Dec 2001 07:28:34 -0500
-Date: Tue, 18 Dec 2001 10:28:25 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Troy Benjegerdes <hozer@drgw.net>,
-        Andre Hedrick <andre@linux-ide.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Domian Validation (Re: 2.5.1 - intermediate bio stuff..)
-In-Reply-To: <20011217224454.Y23507@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33L.0112181027480.10000-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S281818AbRLRMuG>; Tue, 18 Dec 2001 07:50:06 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:51617 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S281836AbRLRMty>; Tue, 18 Dec 2001 07:49:54 -0500
+Message-ID: <3C1F3AC3.7070109@antefacto.com>
+Date: Tue, 18 Dec 2001 12:46:59 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mike Castle <dalgoda@ix.netcom.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ramdisk size clarification
+In-Reply-To: <3C1E587C.9060300@antefacto.com> <20011217211429.GA8826@thune.mrc-home.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Larry McVoy wrote:
-> On Mon, Dec 17, 2001 at 10:12:21PM -0800, Linus Torvalds wrote:
-> > No. Sound software engineering principles is to design good interfaces,
-> > and make the low level code adhere to them.
->
-> Last week, Linus Torvalds wrote:
-> > I _am_ claiming that the people who think you "design" software are
-> > seriously simplifying the issue, and don't actually realize how they
-> > themselves work.
->
-> So which is it?
+Mike Castle wrote:
 
-It must be the latter, since Linus has always stated a
-preference for simplifying issues.  Oh wait, that one
-is incompatible with both ;)
+> On Mon, Dec 17, 2001 at 08:41:32PM +0000, Padraig Brady wrote:
+> 
+>>and also there is no upper limit on the amount of RAM used,
+>>so the following will kill your system (well it did for me):
+>>dd if=/dev/zero of=/dev/ram0
+>>
+> 
+> Bug in recent 2.4.*.  It *should* stop.  One line patch has been
+> posted to the linux-kernel list a couple of times.  Check the archive.
+> It's probably in the recent pre-release kernels as well.
+> 
 
-cheers,
+Great thanks!
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100797607432139&w=2
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Padraig.
 

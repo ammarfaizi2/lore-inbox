@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130450AbRBCAcd>; Fri, 2 Feb 2001 19:32:33 -0500
+	id <S130451AbRBCAkN>; Fri, 2 Feb 2001 19:40:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129439AbRBCAcX>; Fri, 2 Feb 2001 19:32:23 -0500
-Received: from mail-dns1-nj.dialogic.com ([146.152.228.10]:24595 "EHLO
-	mail-dns1-nj.dialogic.com") by vger.kernel.org with ESMTP
-	id <S129111AbRBCAcF>; Fri, 2 Feb 2001 19:32:05 -0500
-Message-ID: <EFC879D09684D211B9C20060972035B1D4684F@exchange2ca.sv.dialogic.com>
-From: "Miller, Brendan" <Brendan.Miller@Dialogic.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: bidirectional named pipe?
-Date: Fri, 2 Feb 2001 19:33:09 -0500 
+	id <S130481AbRBCAkE>; Fri, 2 Feb 2001 19:40:04 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:16682 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S130451AbRBCAj6>; Fri, 2 Feb 2001 19:39:58 -0500
+Message-ID: <3A7B52D8.733CFECC@sgi.com>
+Date: Fri, 02 Feb 2001 16:37:44 -0800
+From: Rajagopal Ananthanarayanan <ananth@sgi.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-4SGI_20smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: mingo@elte.hu
+CC: Benjamin LaHaise <bcrl@redhat.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, linux-aio@kvack.org,
+        kiobuf-io-devel@lists.sourceforge.net,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [Kiobuf-io-devel] Re: 1st glance at kiobuf overhead in kernelaiovs  
+ pread vs user aio
+In-Reply-To: <Pine.LNX.4.30.0102030023530.8627-100000@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> 
+> On Fri, 2 Feb 2001, Rajagopal Ananthanarayanan wrote:
+> 
+> > Do you really have worker threads? In my reading of the patch it seems
+> > that the wtd is serviced by keventd. [...]
+> 
+> i think worker threads (or any 'helper' threads) should be avoided. It can
+> be done without any extra process context, and it should be done that way.
+> Why all the trouble with async IO requests if requests are going to end up
+> in a worker thread's context anyway? (which will be a serializing point,
+> otherwise why does it end up there?)
+> 
 
-I've countless web searches and linux-kernel archives, but I haven't yet
-found the answer to my question.
+Good point. Can you expand on how you plan to service pending
+chunks of work (eg. issuing readpage() on some pages) without
+the use of threads?
 
-I'm porting some software to Linux that requires use of a bidirectional,
-named pipe.  The architecture is as follows:  A server creates a named pipe
-in the /tmp directory.  Any client can then open("/tmp/pipename",
-O_RDWR|O_NDELAY) and gain access to the server.  The pipe is bidirectional,
-so the client and server communicate on the same pipe.  I support a number
-of clients on the single pipe using file-locking to prohibit from two
-clients from writing/reading at once.
+thanks,
 
-How can I do this under Linux?  In SVR4 Unices, I just use pipe() as it's
-pipes are bidirectional, and I can attach a name with fattach().  In SVR3
-Unices, I go through a bunch of hacking using the "stream clone device --
-/dev/spx".  I experiemented with socket-based pipes under Linux, but I
-couldn't gain access to them by open()ing the name.  Is there help?  I
-really don't want to use LiS (the Linux Streams) package, as I'd rather do
-something native and not be dependent on another module.  Plus, I read
-somewhere that this was a poor way to do things.
 
-Brendan
-
-Please cc: me personally, as I am not subscribed.
+--------------------------------------------------------------------------
+Rajagopal Ananthanarayanan ("ananth")
+Member Technical Staff, SGI.
+--------------------------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

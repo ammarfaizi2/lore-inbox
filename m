@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281184AbRLDRE4>; Tue, 4 Dec 2001 12:04:56 -0500
+	id <S281005AbRLDRL0>; Tue, 4 Dec 2001 12:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281129AbRLDRDa>; Tue, 4 Dec 2001 12:03:30 -0500
-Received: from t2.redhat.com ([199.183.24.243]:37358 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S281165AbRLDRCY>; Tue, 4 Dec 2001 12:02:24 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3C0CFF5F.3090404@dplanet.ch> 
-In-Reply-To: <3C0CFF5F.3090404@dplanet.ch>  <20011204111115.A15160@thyrsus.com> <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com> <20011204140050.A10691@caldera.de> <20011204081640.A12658@thyrsus.com> <20011204142958.A14069@caldera.de> <19642.1007484062@redhat.com> 
-To: Giacomo Catenazzi <cate@dplanet.ch>
-Cc: esr@thyrsus.com, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5 
-Mime-Version: 1.0
+	id <S281202AbRLDRJ6>; Tue, 4 Dec 2001 12:09:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42244 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281077AbRLDRJc>; Tue, 4 Dec 2001 12:09:32 -0500
+Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
+To: davidm@hpl.hp.com
+Date: Tue, 4 Dec 2001 17:18:17 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjanv@redhat.com (Arjan van de Ven),
+        linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org,
+        marcelo@conectiva.com.br, davem@redhat.com
+In-Reply-To: <15372.63827.716885.948119@napali.hpl.hp.com> from "David Mosberger" at Dec 04, 2001 08:26:59 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 04 Dec 2001 17:02:17 +0000
-Message-ID: <21945.1007485337@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16BJCz-0002jc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I think the issue at hand is whether, longer term, it is desirable to
+> move all bounce buffer handling into the PCI DMA layer or whether
+> Linux should continue to make bounce buffer management visible to
+> drivers.  I'd be interested in hearing opinions.
 
-cate@dplanet.ch said:
->  I don't think esr changed non problematic rules, but one: all rules
-> without help become automatically dependent to CONFIG_EXPERIMENTAL. I
-> don't like it, but I understand why he makes this decision. 
+I think the performance figures we see currently answer that already. Bounce
+management in a sense is PCI layer, but its PCI layer in the sense of
+helpers called by subsystems or devices not as a global layer in the middle.
 
-That is precisely the kind of bogus change which should _not_ be done in 
-such an underhand way. 
+On a box with 32bit limited cards you need to do zone stuff and play with
+the high zone even though your kmap is a nop. It's not ideal but its the
+real world. IA64 also needs to correct its GFP_DMA to mean "low 16Mb" for
+ISA DMA. While there is no ISA DMA on ia64 (thankfully) many PCI cards have
+26-31 bit limits.
 
-With the exception of obvious and undisputed bug fixes, the behaviour of 
-the first CML2 version should precisely match the behaviour of the last 
-CML1 version.
-
-If you want to make symbols without help depend on CONFIG_EXPERIMENTAL, 
-submit the equivalent patch for CML1 and watch it get shot down in flames.
-
-Then go away.
-
-But don't let this dissuade you from doing something that's actually 
-useful, like CML2 could be.
-
-On the other hand, perhaps we could reach some kind of a deal.... Eric, if
-you can manage to also sneak a kernel debugger past Linus as part of your
-big-patch-which-hides-controversial-changes, I for one would be happy enough
-to deal with the bogus config changes :)
-
---
-dwmw2
-
-
+Alan

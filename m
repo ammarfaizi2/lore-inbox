@@ -1,81 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263193AbTHVMux (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 08:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbTHVMuY
+	id S263262AbTHVM5R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 08:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbTHVMvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 08:50:24 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:65231
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263194AbTHVMYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 08:24:35 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH]O18int
-Date: Fri, 22 Aug 2003 22:31:20 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Y0gR/6qCS75acy8"
-Message-Id: <200308222231.25059.kernel@kolivas.org>
+	Fri, 22 Aug 2003 08:51:04 -0400
+Received: from trappist.elis.UGent.be ([157.193.204.1]:17826 "EHLO
+	trappist.elis.UGent.be") by vger.kernel.org with ESMTP
+	id S263241AbTHVMjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 08:39:06 -0400
+Subject: [PATCH] sched: find_busiest_node
+From: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 22 Aug 2003 14:39:05 +0200
+Message-Id: <1061555945.3341.26.camel@tom>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---Boundary-00=_Y0gR/6qCS75acy8
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: clearsigned data
-Content-Disposition: inline
+In order to get the best possible resolution we need to use NR_CPUS instead of the constant value 10.
+load is an int, so no need to worry about overflows...
 
-=2D----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Here is a small patchlet.
+Frank.
 
-It is possible tasks were getting more sleep_avg credit on requeuing than t=
-hey=20
-could burn off while running so I've removed the on runqueue bonus to=20
-requeuing task.=20
 
-Note this applies onto O16.3 or 2.6.0-test3-mm3 as O17 was dropped.
+ sched.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-This patch is also available here along with a patch against 2.6.0-test3:
-http://kernel.kolivas.org/2.5
 
-Con
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Fri Aug 22 14:24:11 2003
++++ b/kernel/sched.c	Fri Aug 22 14:24:11 2003
+@@ -849,7 +849,7 @@
+  *      load_{t} = load_{t-1}/2 + nr_node_running_{t}
+  * This way sudden load peaks are flattened out a bit.
+  * Node load is divided by nr_cpus_node() in order to compare nodes
+- * of different cpu count but also [first] multiplied by 10 to 
++ * of different cpu count but also [first] multiplied by NR_CPUS to 
+  * provide better resolution.
+  */
+ static int find_busiest_node(int this_node)
+@@ -859,14 +859,14 @@
+ 	if (!nr_cpus_node(this_node))
+ 		return node;
+ 	this_load = maxload = (this_rq()->prev_node_load[this_node] >> 1)
+-		+ (10 * atomic_read(&node_nr_running[this_node])
++		+ (NR_CPUS * atomic_read(&node_nr_running[this_node])
+ 		/ nr_cpus_node(this_node));
+ 	this_rq()->prev_node_load[this_node] = this_load;
+ 	for_each_node_with_cpus(i) {
+ 		if (i == this_node)
+ 			continue;
+ 		load = (this_rq()->prev_node_load[i] >> 1)
+-			+ (10 * atomic_read(&node_nr_running[i])
++			+ (NR_CPUS * atomic_read(&node_nr_running[i])
+ 			/ nr_cpus_node(i));
+ 		this_rq()->prev_node_load[i] = load;
+ 		if (load > maxload && (100*load > NODE_THRESHOLD*this_load)) {
 
-iD8DBQE/Rg0aZUg7+tp6mRURAhw+AJ9s3xwkNodB280E81VZnizvSRU0RQCghKT/
-IN6uMO2E4heihDxjBE/JG7c=3D
-=3D5G4+
-=2D----END PGP SIGNATURE-----
 
---Boundary-00=_Y0gR/6qCS75acy8
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-O16.3-O18int"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="patch-O16.3-O18int"
-
---- linux-2.6.0-test3-mm2-O16.3/kernel/sched.c	2003-08-18 21:02:15.000000000 +1000
-+++ linux-2.6.0-test3-mm3/kernel/sched.c	2003-08-22 22:06:46.000000000 +1000
-@@ -1418,12 +1418,6 @@ void scheduler_tick(int user_ticks, int 
- 
- 			dequeue_task(p, rq->active);
- 			set_tsk_need_resched(p);
--			/*
--			 * Tasks with interactive credit get all their
--			 * time waiting on the run queue credited as sleep
--			 */
--			if (HIGH_CREDIT(p))
--				p->activated = 2;
- 			p->prio = effective_prio(p);
- 			enqueue_task(p, rq->active);
- 		}
-
---Boundary-00=_Y0gR/6qCS75acy8--
 

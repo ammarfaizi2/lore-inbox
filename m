@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269497AbUICB2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269531AbUICB2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269497AbUICB2N (ORCPT <rfc822;willy@w.ods.org>);
+	id S269531AbUICB2N (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Sep 2004 21:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269474AbUICBY0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269497AbUICBYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 21:24:26 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:9648 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S269497AbUICBXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 21:23:41 -0400
-Message-Id: <200409030118.i831IUc6006797@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: David Masover <ninja@slaphack.com>
-Cc: Oliver Neukum <oliver@neukum.org>, Spam <spam@tnonline.net>,
-       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives 
-In-Reply-To: Your message of "Thu, 02 Sep 2004 19:43:34 CDT."
-             <4137BE36.5020504@slaphack.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040826150202.GE5733@mail.shareable.org> <4136E0B6.4000705@namesys.com> <1117111836.20040902115249@tnonline.net> <200409021309.04780.oliver@neukum.org>
-            <4137BE36.5020504@slaphack.com>
+	Thu, 2 Sep 2004 21:24:48 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:2441 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S269522AbUICBW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 21:22:27 -0400
+Subject: Re: [RFC&PATCH] Alternative RCU implementation
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jack Steiner <steiner@sgi.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       rusty@rustcorp.com.au
+In-Reply-To: <41378EB9.2060508@colorfullife.com>
+References: <m3brgwgi30.fsf@new.localdomain>
+	 <20040830004322.GA2060@us.ibm.com>
+	 <1093886020.984.238.camel@new.localdomain>
+	 <20040830185223.GF1243@us.ibm.com>
+	 <1093922569.1003.159.camel@new.localdomain>
+	 <20040901035350.GH1241@us.ibm.com>
+	 <1094043719.986.51.camel@new.localdomain>
+	 <20040902163854.GC1258@us.ibm.com>
+	 <1094151272.985.103.camel@new.localdomain>
+	 <41378EB9.2060508@colorfullife.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1094174357.985.169.camel@new.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-23110438P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 02 Sep 2004 21:19:17 -0400
 Content-Transfer-Encoding: 7bit
-Date: Thu, 02 Sep 2004 21:18:30 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-23110438P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 2004-09-02 at 17:20, Manfred Spraul wrote:
+> Jim Houston wrote:
+> 
+> >We add the following /proc files:
+> >/proc/shield/ltmrs
+> >	Setting a bit limits the use of local timers on the 
+> >	corresponding cpu.
+> >
+> How do you handle schedule_delayed_work_on()?
+> slab uses it to drain the per-cpu caches. It's not fatal if a cpu 
+> doesn't drain it's caches (just some wasted memory), but it should be 
+> documented.
 
-On Thu, 02 Sep 2004 19:43:34 CDT, David Masover said:
+Hi Manfred,
 
-> And on apps.  Should I teach OpenOffice.org to do version control?
-> Seems a lot easier to just do it in the kernel, and teach everything to
-> do version control in one fell swoop.
+The timer shielding migrates most of the timers to non-shielded cpus
+but does keep track of timers queued with add_timer_on().  These
+are polled periodically from a non-shielded cpu, and an inter-processsor
+interrupt is used to force the shielded cpu to handle their expiry.
 
-Including files you didn't really want to keep version control of?
-
-How many temp files does gcc create and unlink in the course of a kernel build?
-(And remember, you can't say "don't enable that on /tmp" - gcc respects the
-setting of $TMPDIR - so an 'export TMPDIR=~/tmp' confuses things quite
-nicely...)
-
-And it's hard for the kernel to know that an unlink() done by gcc should be
-treated differently than the "recover the last version" you *want* it do be able
-to do after you work on a source file for a long while, save it, and then
-fumble-finger a 'rm * .o' - you can't even use a heuristic like "don't version
-control it unless it's N seconds or more old"
-
-(Note that the "obvious" solution of creating a chattr flag has its own
-complexity issues - should versioning be turned on by default for some types
-and not others, etc...)
-
-There be dragons here - it's not as simple as "drop in a plugin and be happy".
+Jim Houston - Concurrent Computer Corp.
 
 
---==_Exmh_-23110438P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBN8ZlcC3lWbTT17ARAtJ+AKDCmCTMTbYG2bfgiJjAM+aRIEuB8QCgkvRs
-JDyIqCoKQrdEz/06hyUnucs=
-=R3QE
------END PGP SIGNATURE-----
-
---==_Exmh_-23110438P--

@@ -1,124 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265434AbTLSDKj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 22:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbTLSDKi
+	id S265435AbTLSDKq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 22:10:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbTLSDKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 22:10:38 -0500
-Received: from dp.samba.org ([66.70.73.150]:45768 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265434AbTLSDKf (ORCPT
+	Thu, 18 Dec 2003 22:10:46 -0500
+Received: from dp.samba.org ([66.70.73.150]:46280 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265435AbTLSDKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 18 Dec 2003 22:10:35 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Module Alias back compat code
-Date: Fri, 19 Dec 2003 14:08:47 +1100
-Message-Id: <20031219031034.A38502C06C@lists.samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, Matthias Andree <matthias.andree@gmx.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: 2.6.0-test11 BK: sg and scanner modules not auto-loaded? 
+In-reply-to: Your message of "Thu, 18 Dec 2003 09:14:04 -0800."
+             <20031218091404.4b2f743b.akpm@osdl.org> 
+Date: Fri, 19 Dec 2003 11:03:57 +1100
+Message-Id: <20031219031034.B28F62C0FA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The provides backwards compat for old char and block aliases.
+In message <20031218091404.4b2f743b.akpm@osdl.org> you write:
+> 
+> Rusty, is this something obvious?  (What are the new MODULE_ALIAS rules,
+> btw?  Why are they now growing an extra numeric field?)>
 
-MODULE_ALIAS_BLOCK() and MODULE_ALIAS_CHAR() define aliases of form
-"XXX-<major>-<minor>", so we should probe for modules using this
-form.  Unfortunately in 2.4, block aliases were "XXX-<major>" and
-char aliases were of both forms.
+Because some did, some didn't have a minor number.
 
-Ideally, all modules would now be using MODULE_ALIAS() macros to
-define their aliases, and the old configuration files wouldn't
-matter as much.  Unfortunately, this hasn't happened, so we make
-request_module() return the exit status of modprobe, and then
-do fallback when probing for char and block devices.
+I standardized on char-major-x-y, because an alias is trivial
+(char-major-180-*), and almost all the modules are supposed to supply
+their own aliases, so this should be an entirely in-kernel issue, but
+they don't, and Linus stopped taking patches.
 
-Please apply.
+More aliases below.
+
+> Similar considerations apply to scanner:
+> alias char-major-180-48 scanner
+
+Where did this alias come from?  Of course, scanner.c could put in
+such an alias, but is it really constant?  If so, by all means add a
+MODULE_ALIAS_CHARDEV() line in scanner.c.  Otherwise, leave it to the
+hotplug code.
+
+MODULE_ALIAS* patches welcome,
 Rusty.
-
-Name: Backwards Compatibility For Old block and char Aliases
-Author: Rusty Russell
-Status: Tested on 2.6.0
-
-D: MODULE_ALIAS_BLOCK() and MODULE_ALIAS_CHAR() define aliases of form
-D: "XXX-<major>-<minor>", so we should probe for modules using this
-D: form.  Unfortunately in 2.4, block aliases were "XXX-<major>" and
-D: char aliases were of both forms.
-D: 
-D: Ideally, all modules would now be using MODULE_ALIAS() macros to
-D: define their aliases, and the old configuration files wouldn't
-D: matter as much.  Unfortunately, this hasn't happened, so we make
-D: request_module() return the exit status of modprobe, and then
-D: do fallback when probing for char and block devices.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1494-linux-2.6.0/drivers/block/genhd.c .1494-linux-2.6.0.updated/drivers/block/genhd.c
---- .1494-linux-2.6.0/drivers/block/genhd.c	2003-10-09 18:02:51.000000000 +1000
-+++ .1494-linux-2.6.0.updated/drivers/block/genhd.c	2003-12-19 13:40:15.000000000 +1100
-@@ -296,7 +296,9 @@ extern int blk_dev_init(void);
- 
- static struct kobject *base_probe(dev_t dev, int *part, void *data)
- {
--	request_module("block-major-%d", MAJOR(dev));
-+	if (request_module("block-major-%d-%d", MAJOR(dev), MINOR(dev)) > 0)
-+		/* Make old-style 2.4 aliases work */
-+		request_module("block-major-%d", MAJOR(dev));
- 	return NULL;
- }
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1494-linux-2.6.0/fs/char_dev.c .1494-linux-2.6.0.updated/fs/char_dev.c
---- .1494-linux-2.6.0/fs/char_dev.c	2003-11-24 15:42:32.000000000 +1100
-+++ .1494-linux-2.6.0.updated/fs/char_dev.c	2003-12-19 13:40:23.000000000 +1100
-@@ -434,7 +434,9 @@ void cdev_init(struct cdev *cdev, struct
- 
- static struct kobject *base_probe(dev_t dev, int *part, void *data)
- {
--	request_module("char-major-%d-%d", MAJOR(dev), MINOR(dev));
-+	if (request_module("char-major-%d-%d", MAJOR(dev), MINOR(dev)) > 0)
-+		/* Make old-style 2.4 aliases work */
-+		request_module("char-major-%d", MAJOR(dev));
- 	return NULL;
- }
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1494-linux-2.6.0/include/linux/kmod.h .1494-linux-2.6.0.updated/include/linux/kmod.h
---- .1494-linux-2.6.0/include/linux/kmod.h	2003-09-22 10:28:12.000000000 +1000
-+++ .1494-linux-2.6.0.updated/include/linux/kmod.h	2003-12-19 13:26:50.000000000 +1100
-@@ -24,6 +24,8 @@
- #include <linux/compiler.h>
- 
- #ifdef CONFIG_KMOD
-+/* modprobe exit status on success, -ve on error.  Return value
-+ * usually useless though. */
- extern int request_module(const char * name, ...) __attribute__ ((format (printf, 1, 2)));
- #else
- static inline int request_module(const char * name, ...) { return -ENOSYS; }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1494-linux-2.6.0/kernel/kmod.c .1494-linux-2.6.0.updated/kernel/kmod.c
---- .1494-linux-2.6.0/kernel/kmod.c	2003-10-26 14:52:50.000000000 +1100
-+++ .1494-linux-2.6.0.updated/kernel/kmod.c	2003-12-19 13:25:48.000000000 +1100
-@@ -182,16 +182,21 @@ static int wait_for_helper(void *data)
- {
- 	struct subprocess_info *sub_info = data;
- 	pid_t pid;
-+	struct k_sigaction sa;
-+
-+	/* Install a handler: if SIGCLD isn't handled sys_wait4 won't
-+	 * populate the status, but will return -ECHILD. */
-+	sa.sa.sa_handler = SIG_IGN;
-+	sa.sa.sa_flags = 0;
-+	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
-+	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
-+	allow_signal(SIGCHLD);
- 
--	sub_info->retval = 0;
- 	pid = kernel_thread(____call_usermodehelper, sub_info, SIGCHLD);
- 	if (pid < 0)
- 		sub_info->retval = pid;
- 	else
--		/* We don't have a SIGCHLD signal handler, so this
--		 * always returns -ECHILD, but the important thing is
--		 * that it blocks. */
--		sys_wait4(pid, NULL, 0, NULL);
-+		sys_wait4(pid, &sub_info->retval, 0, NULL);
- 
- 	complete(sub_info->complete);
- 	return 0;
-
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: More Aliases
+Author: Steve Youngs, Stephen Hemminger
+Status: Trivial
+
+D: Add more MODULE_ALIASes where required.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/drivers/net/pppoe.c .995-linux-2.6.0.updated/drivers/net/pppoe.c
+--- .995-linux-2.6.0/drivers/net/pppoe.c	2003-11-28 12:27:23.000000000 +1100
++++ .995-linux-2.6.0.updated/drivers/net/pppoe.c	2003-12-19 10:36:26.000000000 +1100
+@@ -1151,3 +1151,4 @@ module_exit(pppoe_exit);
+ MODULE_AUTHOR("Michal Ostrowski <mostrows@speakeasy.net>");
+ MODULE_DESCRIPTION("PPP over Ethernet driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_NETPROTO(PF_PPPOX);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/drivers/scsi/sg.c .995-linux-2.6.0.updated/drivers/scsi/sg.c
+--- .995-linux-2.6.0/drivers/scsi/sg.c	2003-11-24 15:42:31.000000000 +1100
++++ .995-linux-2.6.0.updated/drivers/scsi/sg.c	2003-12-19 10:37:45.000000000 +1100
+@@ -2974,3 +2974,4 @@ sg_proc_version_info(char *buffer, int *
+ 
+ module_init(init_sg);
+ module_exit(exit_sg);
++MODULE_ALIAS_CHARDEV_MAJOR(SCSI_GENERIC_MAJOR);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/fs/isofs/inode.c .995-linux-2.6.0.updated/fs/isofs/inode.c
+--- .995-linux-2.6.0/fs/isofs/inode.c	2003-10-09 18:02:58.000000000 +1000
++++ .995-linux-2.6.0.updated/fs/isofs/inode.c	2003-12-19 10:36:26.000000000 +1100
+@@ -1463,4 +1463,5 @@ static void __exit exit_iso9660_fs(void)
+ module_init(init_iso9660_fs)
+ module_exit(exit_iso9660_fs)
+ MODULE_LICENSE("GPL");
+-
++/* Actual filesystem name is iso9660, as requested in filesystems.c */
++MODULE_ALIAS("iso9660");
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/sound/core/sound.c .995-linux-2.6.0.updated/sound/core/sound.c
+--- .995-linux-2.6.0/sound/core/sound.c	2003-09-29 10:26:17.000000000 +1000
++++ .995-linux-2.6.0.updated/sound/core/sound.c	2003-12-19 10:36:26.000000000 +1100
+@@ -31,6 +31,7 @@
+ #include <sound/initval.h>
+ #include <linux/kmod.h>
+ #include <linux/devfs_fs_kernel.h>
++#include <linux/device.h>
+ 
+ #define SNDRV_OS_MINORS 256
+ 
+@@ -52,6 +53,7 @@ MODULE_PARM_SYNTAX(major, "default:116,s
+ MODULE_PARM(cards_limit, "i");
+ MODULE_PARM_DESC(cards_limit, "Count of soundcards installed in the system.");
+ MODULE_PARM_SYNTAX(cards_limit, "default:8,skill:advanced");
++MODULE_ALIAS_CHARDEV_MAJOR(CONFIG_SND_MAJOR);
+ #ifdef CONFIG_DEVFS_FS
+ MODULE_PARM(device_mode, "i");
+ MODULE_PARM_DESC(device_mode, "Device file permission mask for devfs.");
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .995-linux-2.6.0/sound/sound_core.c .995-linux-2.6.0.updated/sound/sound_core.c
+--- .995-linux-2.6.0/sound/sound_core.c	2003-09-22 10:28:16.000000000 +1000
++++ .995-linux-2.6.0.updated/sound/sound_core.c	2003-12-19 10:36:26.000000000 +1100
+@@ -45,6 +45,7 @@
+ #include <linux/major.h>
+ #include <linux/kmod.h>
+ #include <linux/devfs_fs_kernel.h>
++#include <linux/device.h>
+ 
+ #define SOUND_STEP 16
+ 
+@@ -547,6 +548,7 @@ EXPORT_SYMBOL(mod_firmware_load);
+ MODULE_DESCRIPTION("Core sound module");
+ MODULE_AUTHOR("Alan Cox");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_CHARDEV_MAJOR(SOUND_MAJOR);
+ 
+ static void __exit cleanup_soundcore(void)
+ {

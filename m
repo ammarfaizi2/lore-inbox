@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLPBdJ>; Fri, 15 Dec 2000 20:33:09 -0500
+	id <S129716AbQLPBmN>; Fri, 15 Dec 2000 20:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130686AbQLPBc7>; Fri, 15 Dec 2000 20:32:59 -0500
-Received: from mx1.sac.fedex.com ([199.81.208.10]:4616 "EHLO mx1.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S129183AbQLPBcv>;
-	Fri, 15 Dec 2000 20:32:51 -0500
-Date: Sat, 16 Dec 2000 08:58:55 +0800
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Message-Id: <200012160058.eBG0wtr29000@silk.corp.fedex.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Test12 ll_rw_block error.
+	id <S130153AbQLPBmD>; Fri, 15 Dec 2000 20:42:03 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129716AbQLPBlz>; Fri, 15 Dec 2000 20:41:55 -0500
+Date: Fri, 15 Dec 2000 17:11:07 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kurt Garloff <garloff@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, miquels@cistron.nl,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: TIOCGDEV ioctl
+In-Reply-To: <20001216015537.G21372@garloff.suse.de>
+Message-ID: <Pine.LNX.4.10.10012151710040.1325-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now, I also agree that we should be able to clean this up properly for
-> 2.5.x, and actually do exactly this for the anonymous buffers, so that
-> the VM no longer needs to worry about buffer knowledge, and fs/buffer.c
-> becomes just another user of the writepage functionality.  That is not
-> all that hard to do, it mainly just requires some small changes to how
 
-Why not incorporate this change into 2.4.x?
 
-Jeff
+On Sat, 16 Dec 2000, Kurt Garloff wrote:
+> 
+> The kernel provides this information -- sort of:
+> It contains the TIOCTTYGSTRUCT syscall which returns a struct. Of course,
+> it changes between different kernel archs and revisions, so using it is
+> an ugly hack. Grab for TIOCTTYGSTRUCT_HACK in the bootlogd.c file of the
+> sysvinit sources. Shudder!
+
+Please instead do the same thing /dev/tty does, namely a sane interface
+that shows it as a symlink in /proc (or even in /dev)
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbUCITIL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbUCITIK
+	id S262128AbUCITHj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:07:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUCITHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:08:10 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:5303 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262113AbUCITFv (ORCPT
+	Tue, 9 Mar 2004 14:07:39 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:42694 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262107AbUCITFO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:05:51 -0500
-Date: Tue, 9 Mar 2004 11:05:50 -0800
+	Tue, 9 Mar 2004 14:05:14 -0500
+Date: Tue, 9 Mar 2004 11:05:12 -0800
 To: "David S. Miller" <davem@redhat.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] (4/14) irttp exports
-Message-ID: <20040309190550.GE14543@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] (3/14) hashbin export symbols
+Message-ID: <20040309190512.GD14543@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,108 +26,121 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir264_irsyms_04_irttp.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+ir264_irsyms_03_hashbin.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Stephen Hemminger>
-(4/14) irttp exports
+(3/14) hashbin export symbols
 
-Move irttp_exports out of irsyms
+Move hashbin_X exports out of irsyms and into irqueue.
 
 
-diff -u -p -r linux/net/irda.s3/irsyms.c linux/net/irda/irsyms.c
---- linux/net/irda.s3/irsyms.c	Mon Mar  8 18:55:49 2004
-+++ linux/net/irda/irsyms.c	Mon Mar  8 18:57:25 2004
-@@ -68,17 +68,6 @@ extern void irsock_cleanup(void);
- extern int  irlap_driver_rcv(struct sk_buff *, struct net_device *, 
- 			     struct packet_type *);
+diff -u -p -r linux/net/irda.s2/irqueue.c linux/net/irda/irqueue.c
+--- linux/net/irda.s2/irqueue.c	Wed Mar  3 17:02:55 2004
++++ linux/net/irda/irqueue.c	Mon Mar  8 18:55:49 2004
+@@ -191,6 +191,7 @@
+  *
+  * Jean II
+  */
++#include <linux/module.h>
  
--/* IrTTP */
--EXPORT_SYMBOL(irttp_open_tsap);
--EXPORT_SYMBOL(irttp_close_tsap);
--EXPORT_SYMBOL(irttp_connect_response);
--EXPORT_SYMBOL(irttp_data_request);
--EXPORT_SYMBOL(irttp_disconnect_request);
--EXPORT_SYMBOL(irttp_flow_request);
--EXPORT_SYMBOL(irttp_connect_request);
--EXPORT_SYMBOL(irttp_udata_request);
--EXPORT_SYMBOL(irttp_dup);
--
- /* Main IrDA module */
- #ifdef CONFIG_IRDA_DEBUG
- EXPORT_SYMBOL(irda_debug);
-diff -u -p -r linux/net/irda.s3/irttp.c linux/net/irda/irttp.c
---- linux/net/irda.s3/irttp.c	Wed Dec 17 18:58:57 2003
-+++ linux/net/irda/irttp.c	Mon Mar  8 18:57:25 2004
-@@ -450,6 +450,7 @@ struct tsap_cb *irttp_open_tsap(__u8 sts
+ #include <net/irda/irda.h>
+ #include <net/irda/irqueue.h>
+@@ -374,6 +375,7 @@ hashbin_t *hashbin_new(int type)
  
- 	return self;
+ 	return hashbin;
  }
-+EXPORT_SYMBOL(irttp_open_tsap);
++EXPORT_SYMBOL(hashbin_new);
+ 
  
  /*
-  * Function irttp_close (handle)
-@@ -525,6 +526,7 @@ int irttp_close_tsap(struct tsap_cb *sel
+@@ -427,6 +429,7 @@ int hashbin_delete( hashbin_t* hashbin, 
  
  	return 0;
  }
-+EXPORT_SYMBOL(irttp_close_tsap);
++EXPORT_SYMBOL(hashbin_delete);
  
- /*
-  * Function irttp_udata_request (self, skb)
-@@ -562,6 +564,8 @@ err:
- 	dev_kfree_skb(skb);
- 	return -1;
+ /********************* HASHBIN LIST OPERATIONS *********************/
+ 
+@@ -478,6 +481,7 @@ void hashbin_insert(hashbin_t* hashbin, 
+ 		spin_unlock_irqrestore(&hashbin->hb_spinlock, flags);
+ 	} /* Default is no-lock  */
  }
-+EXPORT_SYMBOL(irttp_udata_request);
-+
++EXPORT_SYMBOL(hashbin_insert);
  
- /*
-  * Function irttp_data_request (handle, skb)
-@@ -672,6 +676,7 @@ err:
- 	dev_kfree_skb(skb);
- 	return ret;
+ /* 
+  *  Function hashbin_remove_first (hashbin)
+@@ -628,6 +632,7 @@ void* hashbin_remove( hashbin_t* hashbin
+ 		return NULL;
+ 	
  }
-+EXPORT_SYMBOL(irttp_data_request);
++EXPORT_SYMBOL(hashbin_remove);
+ 
+ /* 
+  *  Function hashbin_remove_this (hashbin, entry)
+@@ -690,6 +695,7 @@ void* hashbin_remove_this( hashbin_t* ha
+ 
+ 	return entry;
+ }
++EXPORT_SYMBOL(hashbin_remove_this);
+ 
+ /*********************** HASHBIN ENUMERATION ***********************/
+ 
+@@ -743,6 +749,7 @@ void* hashbin_find( hashbin_t* hashbin, 
+ 
+ 	return NULL;
+ }
++EXPORT_SYMBOL(hashbin_find);
  
  /*
-  * Function irttp_run_tx_queue (self)
-@@ -1058,6 +1063,7 @@ void irttp_flow_request(struct tsap_cb *
- 		IRDA_DEBUG(1, "%s(), Unknown flow command!\n", __FUNCTION__);
+  * Function hashbin_lock_find (hashbin, hashv, name)
+@@ -771,6 +778,7 @@ void* hashbin_lock_find( hashbin_t* hash
+ 
+ 	return entry;
+ }
++EXPORT_SYMBOL(hashbin_lock_find);
+ 
+ /*
+  * Function hashbin_find (hashbin, hashv, name, pnext)
+@@ -812,6 +820,7 @@ void* hashbin_find_next( hashbin_t* hash
+ 
+ 	return entry;
+ }
++EXPORT_SYMBOL(hashbin_find_next);
+ 
+ /*
+  * Function hashbin_get_first (hashbin)
+@@ -843,6 +852,7 @@ irda_queue_t *hashbin_get_first( hashbin
+ 	 */
+ 	return NULL;
+ }
++EXPORT_SYMBOL(hashbin_get_first);
+ 
+ /*
+  * Function hashbin_get_next (hashbin)
+@@ -900,3 +910,4 @@ irda_queue_t *hashbin_get_next( hashbin_
  	}
+ 	return NULL;
  }
-+EXPORT_SYMBOL(irttp_flow_request);
++EXPORT_SYMBOL(hashbin_get_next);
+diff -u -p -r linux/net/irda.s2/irsyms.c linux/net/irda/irsyms.c
+--- linux/net/irda.s2/irsyms.c	Mon Mar  8 18:53:59 2004
++++ linux/net/irda/irsyms.c	Mon Mar  8 18:55:49 2004
+@@ -129,18 +129,6 @@ EXPORT_SYMBOL(irlmp_get_saddr);
+ EXPORT_SYMBOL(irlmp_dup);
+ EXPORT_SYMBOL(lmp_reasons);
  
- /*
-  * Function irttp_connect_request (self, dtsap_sel, daddr, qos)
-@@ -1153,6 +1159,7 @@ int irttp_connect_request(struct tsap_cb
- 	return irlmp_connect_request(self->lsap, dtsap_sel, saddr, daddr, qos,
- 				     tx_skb);
- }
-+EXPORT_SYMBOL(irttp_connect_request);
- 
- /*
-  * Function irttp_connect_confirm (handle, qos, skb)
-@@ -1397,6 +1404,7 @@ int irttp_connect_response(struct tsap_c
- 
- 	return ret;
- }
-+EXPORT_SYMBOL(irttp_connect_response);
- 
- /*
-  * Function irttp_dup (self, instance)
-@@ -1455,6 +1463,7 @@ struct tsap_cb *irttp_dup(struct tsap_cb
- 
- 	return new;
- }
-+EXPORT_SYMBOL(irttp_dup);
- 
- /*
-  * Function irttp_disconnect_request (self)
-@@ -1549,6 +1558,7 @@ int irttp_disconnect_request(struct tsap
- 
- 	return ret;
- }
-+EXPORT_SYMBOL(irttp_disconnect_request);
- 
- /*
-  * Function irttp_disconnect_indication (self, reason)
+-/* Queue */
+-EXPORT_SYMBOL(hashbin_new);
+-EXPORT_SYMBOL(hashbin_insert);
+-EXPORT_SYMBOL(hashbin_delete);
+-EXPORT_SYMBOL(hashbin_remove);
+-EXPORT_SYMBOL(hashbin_remove_this);
+-EXPORT_SYMBOL(hashbin_find);
+-EXPORT_SYMBOL(hashbin_lock_find);
+-EXPORT_SYMBOL(hashbin_find_next);
+-EXPORT_SYMBOL(hashbin_get_next);
+-EXPORT_SYMBOL(hashbin_get_first);
+-
+ /* IrLAP */
+ EXPORT_SYMBOL(irlap_open);
+ EXPORT_SYMBOL(irlap_close);

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbSADVmc>; Fri, 4 Jan 2002 16:42:32 -0500
+	id <S280588AbSADVnw>; Fri, 4 Jan 2002 16:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281797AbSADVmW>; Fri, 4 Jan 2002 16:42:22 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:54940 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S280588AbSADVmT>; Fri, 4 Jan 2002 16:42:19 -0500
-Message-ID: <3C362308.E36E0B02@nortelnetworks.com>
-Date: Fri, 04 Jan 2002 16:47:52 -0500
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S281797AbSADVnm>; Fri, 4 Jan 2002 16:43:42 -0500
+Received: from mout02.kundenserver.de ([195.20.224.133]:61541 "EHLO
+	mout02.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S280588AbSADVne>; Fri, 4 Jan 2002 16:43:34 -0500
+Date: Fri, 4 Jan 2002 22:45:20 +0100
+From: Heinz Diehl <hd@cavy.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: kernel log messages using wrong timezone -- solved
-In-Reply-To: <3C360D22.F6FFFAD6@nortelnetworks.com>
+Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
+Message-ID: <20020104214520.GA5972@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.NEB.4.43.0201042111580.19208-100000@mimas.fachschaften.tu-muenchen.de> <Pine.LNX.4.33.0201042324210.14208-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201042324210.14208-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.25-current-20020102i (Linux 2.4.17-spc i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Friesen, Christopher [CAR:3R60:EXCH]" wrote:
-> 
-> How does the kernel figure out how to timestamp the log output?  The reason I'm
-> asking is that we have a system that has /etc/localtime pointing to the
-> Americas/Montreal timezone, but the log output from the kernel appears to be
-> UTC.
+On Fri Jan 04 2002, Ingo Molnar wrote:
 
-Well, it turns out that klogd was the culprit.  We were booting a ramdisk,
-setting the time, starting syslog, and then setting the timezone from an
-NFS-mounted file.  klogd checks the timezone on startup only, so changing the
-timezone did not affect the output of klogd.  Guess we'll have to restart syslog
-after setting the timezone.
+> thanks for the detective work - i've reverted this part of the 2.4.17
+> patch and have uploaded the -A2 patch.
 
-Thanks to those who responded.
+The -A2 patch applies well to 2.4.17, however compilation fails:
 
-Chris
-
+[....]
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6    -DEXPORT_SYMTAB -c filemap.c
+In file included from filemap.c:26:
+/usr/src/linux/include/linux/compiler.h:13: warning: likely' redefined
+/usr/src/linux/include/linux/sched.h:445: warning: this is the location of
+the previous definition
+/usr/src/linux/include/linux/compiler.h:14: warning: unlikely' redefined
+/usr/src/linux/include/linux/sched.h:444: warning: this is the location of
+the previous definition
+filemap.c: In function page_cache_read':
+filemap.c:696: SCHED_YIELD' undeclared (first use in this function)
+filemap.c:696: (Each undeclared identifier is reported only once
+filemap.c:696: for each function it appears in.)
+make[2]: *** [filemap.o] Error 1
+make[2]: Leaving directory /usr/src/linux/mm'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory /usr/src/linux/mm'
+make: *** [_dir_mm] Error 2
+elfie:/usr/src/linux #
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+# Heinz Diehl, 68259 Mannheim, Germany

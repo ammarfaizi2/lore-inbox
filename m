@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265719AbUFOQA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265733AbUFOQBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265719AbUFOQA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 12:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbUFOQA1
+	id S265733AbUFOQBx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 12:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUFOQBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 12:00:27 -0400
-Received: from ned.cc.purdue.edu ([128.210.189.24]:42625 "EHLO
-	ned.cc.purdue.edu") by vger.kernel.org with ESMTP id S265719AbUFOQA0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 12:00:26 -0400
-From: Patrick Finnegan <pat@computer-refuge.org>
-To: linux-kernel@vger.kernel.org
-Subject: Compile problems on alpha: 2.6.6, 2.6.7-rc2
-Date: Tue, 15 Jun 2004 11:00:25 -0500
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jun 2004 12:01:33 -0400
+Received: from holomorphy.com ([207.189.100.168]:34983 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265724AbUFOQBY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 12:01:24 -0400
+Date: Tue, 15 Jun 2004 09:00:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Micah Anderson <micah@riseup.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.6.6 grinds to a halt with moderate I/O
+Message-ID: <20040615160049.GX1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Micah Anderson <micah@riseup.net>, linux-kernel@vger.kernel.org
+References: <20040615154745.GD22650@riseup.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406151100.25284.pat@computer-refuge.org>
+In-Reply-To: <20040615154745.GD22650@riseup.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not quite sure what's causing this, but I get the following error
-message (make V=1):
+On Tue, Jun 15, 2004 at 10:47:45AM -0500, Micah Anderson wrote:
+> Following the format from REPORTING-BUGS please see the below information.
+> I unfortunately cannot subscribe to the list, but will follow the thread. I
+> have searched high and low, read a number of threads somewhat tangential to
+> this problem, and asked a few times in #kernelnewbies before I got to my
+> wits end and now will try here. I really appreciate any insight anyone has,
+> and will be happy to provide more information or additional tests
+> 1. When doing moderate I/O on a 2.6.6 system the machine becomes unusable.
+> 2. I found that with HIGHMEM support compiled into the kernel, when I
+> did a cp -vr /var /usr/tmp it would work fine until it got about
+> halfway through the large ldap.log file (approximately 500 megs) when
+> the system would no longer be able to fork new processes. Your
+> existing shell would function, but if you tried to run top, free, etc.
+> it would hang. vmstat 1 would print the first line, but never
+> continue. I ran a million different kernel configs to try and isolate
+> things, and I thought I had it nailed down with passing apic=off to
+> the kernel at boot because the large logfile copy test would
+> pass, but when rsyncing maildirs tonight the same problem appeared. Early
+> in my tests I thought the problem was dm-crypt, but the problem existed
+> even when no encrypted filesystems were involved, and existed when I
+> removed dm-crypt support from the kernel. Disabling HIGHMEM support seems
+> to make the problem go away.
 
-        ld  -static -N  -T arch/alpha/kernel/vmlinux.lds.s 
-arch/alpha/kernel/head.o   init/built-in.o --start-group  usr/built-in.o  
-arch/alpha/kernel/built-in.o  arch/alpha/mm/built-in.o  
-arch/alpha/math-emu/built-in.o  kernel/built-in.o  mm/built-in.o  
-fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  
-lib/lib.a  arch/alpha/lib/lib.a  lib/built-in.o  
-arch/alpha/lib/built-in.o  drivers/built-in.o  sound/built-in.o  
-net/built-in.o --end-group  -o .tmp_vmlinux1
-local symbol 0: discarded in section `.exit.text' from drivers/built-in.o
+Thanks for the bugreport. I'm going to file this in the Debian BTS
+after I get the FPU fixes out. Could you send along a dmesg
+(/var/log/dmesg on Debian) and /proc/meminfo and /proc/cpuinfo at some
+point when you can log into the box? I'll also try to reproduce this.
 
-make then aborts at this step.  At other times, I've gotten errors that
-read the same as the above line, for symbols "1" through "4", in order.
+Thanks.
 
-I'm going to guess there's a problem with one of the drivers I've got 
-built-in to the kernel, but I haven't been able to figure much else out..
-I tried using readelf, but didn't find the "0" symbol.
 
-.config and drivers/built-in.o are at http://x-ray.rcs.purdue.edu/alpha-2.6/
-
-gcc version is "gcc (GCC) 3.3.3 (Debian 20040422)"
-binutils version is "2.14.90.0.7 20031029 Debian GNU/Linux"
-
-Pat
--- 
-Purdue University ITAP/RCS        ---  http://www.itap.purdue.edu/rcs/
-The Computer Refuge               ---  http://computer-refuge.org
+-- wli

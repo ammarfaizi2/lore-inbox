@@ -1,144 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279611AbRJXVtR>; Wed, 24 Oct 2001 17:49:17 -0400
+	id <S279608AbRJXVx5>; Wed, 24 Oct 2001 17:53:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279612AbRJXVtI>; Wed, 24 Oct 2001 17:49:08 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:29377 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S279611AbRJXVsz>; Wed, 24 Oct 2001 17:48:55 -0400
-Message-ID: <3BD73755.1050708@ws.localnet>
-Date: Wed, 24 Oct 2001 23:49:09 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: de-de, en-us
-MIME-Version: 1.0
+	id <S279612AbRJXVxr>; Wed, 24 Oct 2001 17:53:47 -0400
+Received: from newssvr17-ext.news.prodigy.com ([207.115.63.157]:14047 "EHLO
+	newssvr17.news.prodigy.com") by vger.kernel.org with ESMTP
+	id <S279608AbRJXVxi>; Wed, 24 Oct 2001 17:53:38 -0400
 To: linux-kernel@vger.kernel.org
-Subject: depmod: unresolved symbol _mmx_memcpy with 2.4.12
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Path: not-for-mail
+Newsgroups: linux.dev.kernel
+Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
+In-Reply-To: <3BD6E413.5AF9D7EF@firsdown.demon.co.uk>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: davidsen@deathstar.prodigy.com (Bill Davidsen)
+Message-ID: <3MGB7.4641$142.807307317@newssvr17.news.prodigy.com>
+NNTP-Posting-Host: 192.168.192.240
+X-Complaints-To: abuse@prodigy.net
+X-Trace: newssvr17.news.prodigy.com 1003960447 000 192.168.192.240 (Wed, 24 Oct 2001 17:54:07 EDT)
+NNTP-Posting-Date: Wed, 24 Oct 2001 17:54:07 EDT
+Date: Wed, 24 Oct 2001 21:54:07 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I just helped a friend of mine getting his new 2.4.12 kernel working.
-Using any kind of modules while optimizing it for K7 resulted in 
-unresolved symbol _mmx_memcpy. Selecting 686 as processor type worked fine.
-Since he only needs parport and parport_pc i replaced all memcpy's with 
-__memcpy, but this is obvious not the solution.
-We didn't try 2.4.13, but we may tomorrow. Maybe anyone can verify this.
-Patrick
+In article <3BD6E413.5AF9D7EF@firsdown.demon.co.uk>,
+Dave Garry <daveg@firsdown.demon.co.uk> wrote:
+| 
+| Tim Waugh wrote:
+| > 
+| > On Wed, Oct 24, 2001 at 04:02:00PM +0100, Dave Garry wrote:
+| > 
+| > > Thanks for the tip, but it's not helping. I've tried
+| > > "irq=auto" and "irq=7" but it still wont play.
+| > >
+| > > I just noticed that CONFIG_PARPORT_PC_FIFO is set to NO
+| > > and I'm rebuilding with it set to YES to see if that
+| > > helps...
+| > 
+| > Yes, you need that enabled or it won't even have the code for using
+| > the FIFO compiled in.
+| 
+| Enabling CONFIG_PARPORT_PC_FIFO has not helped, I now
+| get the following:
+| 
+| # modprobe parport_pc verbose_probing=1 irq=auto
 
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_MK7=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
+Curious. I Get rejected when I use irq=auto with 2.4.13-pre6.
+
+#================ config
+# Parallel port support
+#
 CONFIG_PARPORT=m
 CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+# CONFIG_PARPORT_SERIAL is not set
 CONFIG_PARPORT_PC_FIFO=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_EEPRO100=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_R128=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_JFFS2_FS_DEBUG=0
-CONFIG_TMPFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_SMB_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SOUND_VIA82CXXX=y
-CONFIG_MIDI_VIA82CXXX=y
-CONFIG_SOUND_OSS=y
-CONFIG_SOUND_TRACEINIT=y
-CONFIG_SOUND_DMAP=y
+# CONFIG_PARPORT_PC_SUPERIO is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
+#================
 
+I did set 1284 mode, and assume you have as well. I don't have super-io
+set, since I have an old chipset, perhaps that's an issue as well.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

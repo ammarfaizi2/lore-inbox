@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbTANOuu>; Tue, 14 Jan 2003 09:50:50 -0500
+	id <S263491AbTANO4a>; Tue, 14 Jan 2003 09:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbTANOut>; Tue, 14 Jan 2003 09:50:49 -0500
-Received: from home.wiggy.net ([213.84.101.140]:10976 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S263246AbTANOut>;
-	Tue, 14 Jan 2003 09:50:49 -0500
-Date: Tue, 14 Jan 2003 15:59:41 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
+	id <S263544AbTANO4a>; Tue, 14 Jan 2003 09:56:30 -0500
+Received: from web11102.mail.yahoo.com ([216.136.131.149]:64659 "HELO
+	web11102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263491AbTANO43>; Tue, 14 Jan 2003 09:56:29 -0500
+Message-ID: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
+Date: Tue, 14 Jan 2003 12:05:21 -0300 (ART)
+From: "=?iso-8859-1?q?Rodrigo=20F.=20Baroni?=" <rodrigobaroni@yahoo.com.br>
+Reply-To: rodrigobaroni@yahoo.com.br
+Subject: Docs to a beginner
 To: linux-kernel@vger.kernel.org
-Subject: Re: IPMI
-Message-ID: <20030114145941.GH606@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030114084011.6AB412C466@lists.samba.org> <3E241ECD.6000108@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E241ECD.6000108@mvista.com>
-User-Agent: Mutt/1.3.28i
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Corey Minyard wrote:
-> config IPMI_HANDLER
->       tristate 'IPMI top-level message handler'
->       help
->         This enables the central IPMI message handler, required for IPMI
->         to work.  Note that you must have this enabled to enable any
->         other IPMI things.  IPMI is a standard for managing sensors
->         (temperature, voltage, etc.) in a system.  If you don't know
->         what it is, your system probably doesn't have it and you can
->         ignore this option.  See Documentation/IPMI.txt for more
->         details on the driver.
+Hello all,
 
-With modern systems it is quite likely that the system does have IPMI
-but the user has no idea wat IPMI is.
 
-Wichert.
+    I'm a computer science grad student, and I would
+like to know some suggestions about links, docs and
+books to start study the kernel linux, if wouldn't
+bother anyone.
 
--- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+    I like assembly a lot too. Is there some good
+place to work with assembly in Linux that is very
+applicable ?
+
+
+  Thanks a lot
+Rodrigo F Baroni
+Computer Science Grad Student
+Sao Paulo, Brazil
+
+    
+
+_______________________________________________________________________
+Busca Yahoo!
+O melhor lugar para encontrar tudo o que você procura na Internet
+http://br.busca.yahoo.com/

@@ -1,77 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbTDWD6k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 23:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263948AbTDWD6k
+	id S263952AbTDWEPl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 00:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTDWEPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 23:58:40 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:40118 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263946AbTDWD6i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 23:58:38 -0400
-Message-ID: <20030423041036.28763.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Apr 2003 00:15:41 -0400
+Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:47206 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id S263952AbTDWEPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 00:15:40 -0400
+Date: Wed, 23 Apr 2003 06:27:44 +0200 (CEST)
+From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [SPARC64] 2.5.68-bk3: problems compiling Creator 3D fb and drm
+Message-ID: <Pine.LNX.4.53.0304230620020.12279@trider-g7.ext.fabbione.net>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: kernel-janitor-discuss@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, smatch-discuss@lists.sf.net
-Date: Tue, 22 Apr 2003 23:10:36 -0500
-Subject: smatch/kbugs.org update 2.5.68
-X-Originating-Ip: 66.127.101.73
-X-Originating-Server: ws3-5.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just returned from vacation yesterday.  So the kbugs.org 
-update is a bit late.
 
-The notable thing this release is the update to the UnFree 
-script.  Credit for that goes to Oleg Drokin.  Apparently I 
-screwed the script up with one of my merges.
+Hi all,
+	as in the Subject:
 
-For the 2.5.67 results there was a bug in the ifcond.pm 
-module and that is why the Dereference and UnFree bug count 
-was higher than it should have been.  There are still problems 
-remaining with ifcond.pm which may be causing false positives 
-in the Dereference and UnFree checks.
+drivers/char/drm/drm_drv.h: In function `drm_init':
+drivers/char/drm/drm_drv.h:550: warning: unused variable `retcode'
+drivers/char/drm/ffb_drv.c: At top level:
+drivers/char/drm/ffb_drv.c:386: redefinition of `ffb_options'
+drivers/char/drm/drm_drv.h:138: `ffb_options' previously defined here
+{standard input}: Assembler messages:
+{standard input}:3018: Error: symbol `ffb_options' is already defined
+make[3]: *** [drivers/char/drm/ffb_drv.o] Error 1
+make[2]: *** [drivers/char/drm] Error 2
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
 
-mysql> select count(*), script, kernelver from bugs where 
-kernelver = "2.5.67" or kernelver = "2.5.68" 
-group by kernelver,script order by script,kernelver;
-+----------+-------------------+-----------+
-| count(*) | script            | kernelver |
-+----------+-------------------+-----------+
-|      411 | Dereference       | 2.5.67    |
-|      326 | Dereference       | 2.5.68    |
-|        2 | GFP_DMA           | 2.5.67    |
-|        5 | GFP_DMA           | 2.5.68    |
-|       49 | ReleaseRegion     | 2.5.67    |
-|       50 | ReleaseRegion     | 2.5.68    |
-|       44 | SpinlockUndefined | 2.5.67    |
-|       44 | SpinlockUndefined | 2.5.68    |
-|        6 | SpinSleepLazy     | 2.5.67    |
-|        5 | SpinSleepLazy     | 2.5.68    |
-|      122 | UncheckedReturn   | 2.5.67    |
-|      112 | UncheckedReturn   | 2.5.68    |
-|      874 | UnFree            | 2.5.67    |
-|      132 | UnFree            | 2.5.68    |
-|       29 | UnreachedCode     | 2.5.67    |
-|       26 | UnreachedCode     | 2.5.68    |
-+----------+-------------------+-----------+
+Both fbdev and drm are compiled in.
 
-There are a total of 700 possible bugs for 2.5.68.  In 
-terms of moderation, 74 have been moderated as bugs and 
-73 as false positives.
-
-best regards,
-dan carpenter
-
-
--- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
+Thanks
+Fabio

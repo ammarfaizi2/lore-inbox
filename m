@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSJPTZw>; Wed, 16 Oct 2002 15:25:52 -0400
+	id <S261323AbSJPTYH>; Wed, 16 Oct 2002 15:24:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261278AbSJPTZw>; Wed, 16 Oct 2002 15:25:52 -0400
-Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:15577 "EHLO
-	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261340AbSJPTYa>; Wed, 16 Oct 2002 15:24:30 -0400
-Date: Wed, 16 Oct 2002 17:30:04 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][DOC]  kernelnewbies helpful hint #1
-Message-ID: <Pine.LNX.4.44L.0210161729140.22993-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261329AbSJPTYH>; Wed, 16 Oct 2002 15:24:07 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:6048 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S261323AbSJPTYF>; Wed, 16 Oct 2002 15:24:05 -0400
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: v4l2 in 2.5.x?
+Date: 16 Oct 2002 19:37:55 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrnaqrg0j.gcm.kraxel@bytesex.org>
+References: <20021016144309.27994.qmail@web11304.mail.yahoo.com>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1034797075 16791 127.0.0.1 (16 Oct 2002 19:37:55 GMT)
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alex Deucher wrote:
+>  What's the status on v4l2?  I thought it was supposed to go in during
+>  the 2.5 series.  I seem to recall some stuff going in around 2.5.5ish,
+>  but as I recall that was just some revamping of v41.  Just curious...
 
-this little patch documents a point in the scheduler where many people
-seem to get confused.
+Still work-in-progress.  The v4l2 API currently is reworked a bit.  No
+fundamental changes, but alot of small cleanups.  Check the video4linux
+list archives for more details.
 
+I still plan to get v4l2 in 2.5 before the freeze deadline.
 
-===== kernel/sched.c 1.140 vs edited =====
---- 1.140/kernel/sched.c	Mon Oct 14 10:30:06 2002
-+++ edited/kernel/sched.c	Wed Oct 16 17:28:29 2002
-@@ -1035,6 +1035,12 @@
+  Gerd
 
- 		prepare_arch_switch(rq, next);
- 		prev = context_switch(prev, next);
-+		/*
-+		 * Kernelnewbies hint:  at this point the current process
-+		 * has switched from prev to next.  Prev is sitting on the
-+		 * run queue and next unlocks the runqueue, either here or
-+		 * in ret_from_fork (for newly forked processes).
-+		 */
- 		barrier();
- 		rq = this_rq();
- 		finish_arch_switch(rq, prev);
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

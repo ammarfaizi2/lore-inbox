@@ -1,24 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSGBKYL>; Tue, 2 Jul 2002 06:24:11 -0400
+	id <S316693AbSGBKZm>; Tue, 2 Jul 2002 06:25:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316705AbSGBKYK>; Tue, 2 Jul 2002 06:24:10 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:16388 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S316693AbSGBKYI>; Tue, 2 Jul 2002 06:24:08 -0400
-Date: Tue, 2 Jul 2002 03:26:27 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S316705AbSGBKZl>; Tue, 2 Jul 2002 06:25:41 -0400
+Received: from unthought.net ([212.97.129.24]:17897 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S316693AbSGBKZj>;
+	Tue, 2 Jul 2002 06:25:39 -0400
+Date: Tue, 2 Jul 2002 12:28:05 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Zwane Mwaikambo <zwane@mwaikambo.name>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: lilo/raid?
-Message-ID: <20020702032627.D28771@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+Message-ID: <20020702102805.GA23296@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Zwane Mwaikambo <zwane@mwaikambo.name>,
+	Helge Hafting <helgehaf@aitel.hist.no>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
 	Kernel mailing list <linux-kernel@vger.kernel.org>
 References: <3D216157.FC60B17E@aitel.hist.no> <Pine.LNX.4.44.0207021111050.21320-100000@netfinity.realnet.co.sz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.44.0207021111050.21320-100000@netfinity.realnet.co.sz>; from zwane@mwaikambo.name on Tue, Jul 02, 2002 at 11:12:03AM +0200
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0207021111050.21320-100000@netfinity.realnet.co.sz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -43,23 +50,16 @@ On Tue, Jul 02, 2002 at 11:12:03AM +0200, Zwane Mwaikambo wrote:
 > to, he could have just interleaved normal swap partitions and gotten the 
 > same effect.
 
-Not a config i would recommend.  While spreading swap over
-multiple spindles that way is good for speed it multiplies the
-likelihood that a disk failure will down the system.  If you
-think a dead filesystem is a mess, just watch what happens
-when swap goes dead.
+If it is a RAID-1 device, there are very good reasons for creating a
+RAID device for the swapping  :)
 
-Much better to put swap on several RAID-1 volumes if
-you want to spread it around.  Disks just aren't that
-expensive anymore.  RAID-5 though would be a bad move since
-swap gets an order of magnitude more writes than reads.  On
-account of the heavy write tendencies i lean toward
-so-called hardware RAID for swap in order to offload the PCI
-buss.
+But other than that, you are right. There is no reason for creating a
+RAID-0 device for swapping.
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

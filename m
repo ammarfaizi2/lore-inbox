@@ -1,88 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUFXPAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265396AbUFXO7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUFXPAF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 11:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbUFXO76
+	id S265396AbUFXO7b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 10:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbUFXO7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 10:59:58 -0400
-Received: from [213.171.41.46] ([213.171.41.46]:53523 "EHLO
-	kaamos.homelinux.net") by vger.kernel.org with ESMTP
-	id S265395AbUFXO7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 10:59:16 -0400
-From: Alexey Kopytov <alexeyk@mysql.com>
-Organization: MySQL AB
-To: linux-kernel@vger.kernel.org
-Subject: Followup to random file I/O regressions
-Date: Thu, 24 Jun 2004 18:58:23 +0400
-User-Agent: KMail/1.6.2
+	Thu, 24 Jun 2004 10:59:30 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:47607 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265360AbUFXO7O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 10:59:14 -0400
+Date: Thu, 24 Jun 2004 16:59:02 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jamal Hadi Salim <hadi@znyx.com>, Linus Torvalds <torvalds@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: [NET]: Add tc extensions infrastructure.
+In-Reply-To: <200406240108.i5O184QA014889@hera.kernel.org>
+Message-ID: <Pine.GSO.4.58.0406241658050.5358@waterleaf.sonytel.be>
+References: <200406240108.i5O184QA014889@hera.kernel.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406241858.23356.alexeyk@mysql.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 16 Jun 2004, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1722.151.1, 2004/06/15 20:37:41-07:00, hadi@znyx.com
+>
+> 	[NET]: Add tc extensions infrastructure.
+>
+> 	Signed-off-by: Jamal Hadi Salim <hadi@znyx.com>
+> 	Signed-off-by: David S. Miller <davem@redhat.com>
 
-As a follow-up to my previous benchmark results posted a while back, I ran 
-some more benchmarks on 2.4.27-rc1 and 2.6.7. Basically I was trying to spot 
-a reason for remaining regressions. Summing up the results, 2.6.7 performs 
-much better on this workload as compared to previous 2.6 kernels, but it 
-seems like large file sizes and large numbers of files cause 2.6 to perform 
-slower than 2.4 in the sysbench fileio tests.
+> diff -Nru a/net/sched/Kconfig b/net/sched/Kconfig
+> --- a/net/sched/Kconfig	2004-06-23 18:08:15 -07:00
+> +++ b/net/sched/Kconfig	2004-06-23 18:08:15 -07:00
+> @@ -274,6 +274,22 @@
+>  	  To compile this code as a module, choose M here: the
+>  	  module will be called cls_u32.
+>
+> +config CLS_U32_PERF
+> +	bool "     U32 classifier perfomance counters"
+> +	depends on NET_CLS_U32
+> +	help
+> +	  gathers stats that could be used to tune u32 classifier perfomance.
+                                                                  ^^^^^^^^^^
+performance
 
-Test setup was an IDE hard drive with an ext3 partition with data=ordered, 
-anticipatory scheduler for 2.6.7, LinuxThreads. The filesystem was remounted 
-before each test run. All results below are average execution times of 3 
-sequential test runs with the same parameters.
+Gr{oetje,eeting}s,
 
-16 threads, 128 files, variable total file size:
-        2.4.27-rc1      2.6.7
-1 GB    73.78           75.75
-2 GB    86.8            88.09
-4 GB    99.02           108.99
-8 GB    115.07          124.53
-16 GB   134.69          136.63
+						Geert
 
-It's interesting that 2.6 shows a significant regression on 4 and 8 GB, but 
-only a minor regression on 16 GB.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-1 thread, 4 GB total file size, variable number of files:
-        2.4.27-rc1      2.6.7
-1       94              93.02
-2       95.03           93.37
-4       94.27           93.94
-8       95.55           94.28
-16      95.67           95.36
-32      95.87           96.93
-64      97.39           99.39
-128     99.36           101.89
-256     103.51          103.8
-
-Here 2.6 shows better results for small number of files but worse for 32 and 
-above files.
-
-1 file, 4 GB total file size, variable number of threads:
-        2.4.27-rc1      2.6.7
-1       94              93.02
-2       96.6            93.26
-4       94.93           90.16
-8       89.49           87.45
-16      86.25           86.2
-32      88.14           85.13
-
-Here 2.6 performs better in all tests.
-
-Formatted results and graphs are published on the sysbench homepage at 
-http://sysbench.sourceforge.net/results/fileio/20040623.html
-
-Regards,
-Alexey.
-
--- 
-Alexey Kopytov, Software Developer
-MySQL AB, www.mysql.com
-
-Are you MySQL certified?  www.mysql.com/certification
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281327AbRKQK53>; Sat, 17 Nov 2001 05:57:29 -0500
+	id <S281329AbRKQLKA>; Sat, 17 Nov 2001 06:10:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281329AbRKQK5S>; Sat, 17 Nov 2001 05:57:18 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:53520 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S281327AbRKQK5D>;
-	Sat, 17 Nov 2001 05:57:03 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Christoph Hellwig <hch@caldera.de>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] mconfig 0.20 available 
-In-Reply-To: Your message of "Fri, 16 Nov 2001 17:38:40 BST."
-             <20011116173840.A15515@caldera.de> 
+	id <S281330AbRKQLJu>; Sat, 17 Nov 2001 06:09:50 -0500
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:149 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S281329AbRKQLJa>; Sat, 17 Nov 2001 06:09:30 -0500
+Date: Sat, 17 Nov 2001 06:09:26 -0500
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: linux-kernel@vger.kernel.org
+Cc: Tony Reed <Tony@TRLJC.COM>
+Subject: Re: Totally Stumped
+Message-ID: <20011117110925.GA1090@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org, Tony Reed <Tony@TRLJC.COM>
+In-Reply-To: <20011116201702.1317C15B48@kubrick.trljc.com> <E164rg7-0005Mz-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Nov 2001 21:56:51 +1100
-Message-ID: <16782.1005994611@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E164rg7-0005Mz-00@the-village.bc.nu>
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001 17:38:40 +0100, 
-Christoph Hellwig <hch@caldera.de> wrote:
->The mconfig release 0.20 is now available.
->
->Mconfig is a tool to configure the linux kernel, similar to
->make {menu,x,}config, but written in C and with a proper yacc
->parser.
+On 20011116 (Fri) at 2241:43 +0000, Alan Cox wrote:
+> > [1.0] Won't compile 8139too
+> 
+> Please dont use gcc 3.x to compile kernels
+> 
+> >     (nil)) 8139too.c:2432: Internal compiler error in
+> >     reload_cse_simplify_operands, at reload1.c:8355 Please submit a full
+> >     bug report, with preprocessed source if appropriate.  See
+> >     <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
+> 
+> But do report the data on the compiler failure to the URL above
 
-Christoph, could you explain why this is being added now and how it
-compares to CML1 and/or CML2?
+Don't bother.  I did, a couple of weeks ago, and was told it had been
+reported before.
 
-kbuild 2.[45] is completely agnostic about how .config and autoconf.h
-are built, the only requirement is that .config be internally
-consistent before it goes into the main build phase.  I don't care how
-.config is built, but I do want to understand why another version of
-CML is being developed.
-
+-- 
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSHRKqO>; Sun, 18 Aug 2002 06:46:14 -0400
+	id <S314149AbSHRLOp>; Sun, 18 Aug 2002 07:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSHRKqO>; Sun, 18 Aug 2002 06:46:14 -0400
-Received: from go-gw.beelinegprs.com ([217.118.66.254]:12924 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S313898AbSHRKqN>; Sun, 18 Aug 2002 06:46:13 -0400
-Date: Sun, 18 Aug 2002 14:49:48 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "H. J. Lu" <hjl@lucon.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, dhinds <dhinds@sonic.net>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: New fix for CardBus bridge behind a PCI bridge
-Message-ID: <20020818144948.A1241@localhost.park.msu.ru>
-References: <20020812110431.A14125@sonic.net> <20020812112911.A18947@lucon.org> <20020812122158.A27172@sonic.net> <20020812140730.A21710@lucon.org> <20020812154851.A20073@sonic.net> <20020812202942.A27362@lucon.org> <20020816194825.A7086@jurassic.park.msu.ru> <20020816224950.A17930@lucon.org> <3D5E6B10.9070106@mandrakesoft.com> <20020817083601.A26274@lucon.org>
+	id <S314277AbSHRLOp>; Sun, 18 Aug 2002 07:14:45 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:64719 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314149AbSHRLOp>;
+	Sun, 18 Aug 2002 07:14:45 -0400
+Date: Sun, 18 Aug 2002 13:15:15 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Anton Altaparmakov <aia21@cantab.net>, alan@lxorguk.ukuu.org,
+       andre@linux-ide.org, axboe@suse.de, vojtech@suse.cz, bkz@linux-ide.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020818131515.A15547@ucw.cz>
+References: <Pine.SOL.3.96.1020817004411.25629B-100000@draco.cus.cam.ac.uk> <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020817083601.A26274@lucon.org>; from hjl@lucon.org on Sat, Aug 17, 2002 at 08:36:01AM -0700
+In-Reply-To: <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 16, 2002 at 05:10:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 17, 2002 at 08:36:01AM -0700, H. J. Lu wrote:
-> It could be. But I doubt it. At least, I don't think you can treat a
-> AGP bridge like a 82801BAM/CAM bridge. I think 82801BAM/CAM is a
-> special case. You really have to read the datasheet to know for sure.
+On Fri, Aug 16, 2002 at 05:10:12PM -0700, Linus Torvalds wrote:
 
-You're right by all means. AGP bridges are _always_ positive decoders.
-The problems you've seen were caused by the wrong semicolon somehow
-sneaked into the patch:
+> On Sat, 17 Aug 2002, Anton Altaparmakov wrote:
+> > 
+> > Out of curiosity, who is going to be IDE 2.5 kernel maintainer now?
+> 
+> Well, as I implied, Alan seems to be not completely unwilling to work on 
+> it, and unlike me he _can_ interact with Andre most of the time. Possibly 
+> Jens will do the 2.5.x side, of it (with Alan working on 2.4), but we've 
+> not talked it through.
+> 
+> I'd like Vojtech to be a bit involved too, he seemed to do some
+> much-needed cleanups for PIIX4 IDE (now gone, since we couldn't save just
+> those parts..)
 
-+static void __init pci_fixup_transparent_bridge(struct pci_dev *dev)
-+{
-+	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_PCI &&
-+	    (dev->device & 0xff00) == 0x2400);
-					     ^ Ugh..
-+		dev->class |= 1;
-+}
+I'll make patches for 2.5 to bring the low-level driver cleanups back.
+Not just piix.c - also aec62xx.c and amd74xx.c - the last one was in 2.5
+for a LONG time already and I'm not particularly happy it got lost.
 
-Which means that I'm setting bit 0 in the ProgIf for _all_ Intel devices...
-I'm really sorry about that.
-Thanks for the pci dump - it's very useful anyway.
+If desirable (What's your opinion, Alan?) I can make equivalent patches
+for 2.4 as well.
 
-Ivan.
+-- 
+Vojtech Pavlik
+SuSE Labs

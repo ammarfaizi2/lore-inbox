@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVDBQ7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVDBRLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVDBQ7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 11:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVDBQ7K
+	id S261693AbVDBRLk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 12:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVDBRLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 11:59:10 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:64900 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261658AbVDBQ7G
+	Sat, 2 Apr 2005 12:11:40 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:26696 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261693AbVDBRLh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 11:59:06 -0500
-Message-ID: <424ECF4D.6070800@tiscali.de>
-Date: Sat, 02 Apr 2005 18:58:53 +0200
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Diego Calleja <diegocg@gmail.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Sat, 2 Apr 2005 12:11:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=dfTdFpi9xkbiNAiFJZZxkoQfLbiGSIjXmig/jEFUcW0zyG4oBpHqTsg4hMuRHraW4LoSk7QqeUS+L5spYsqikdQuXoIcZy6OSGRtNtWW9LeKZexmJRGKqS0VWsTIv7fztw/Cqa/TOpSC+w084I1R3zi7AM5T8QfgHrOsrNl6Nms=
+Date: Sat, 2 Apr 2005 19:11:40 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: make OOM more "user friendly"
+Message-Id: <20050402191140.3de10df2.diegocg@gmail.com>
+In-Reply-To: <424ECF4D.6070800@tiscali.de>
 References: <20050402180545.29e10629.diegocg@gmail.com>
-In-Reply-To: <20050402180545.29e10629.diegocg@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	<424ECF4D.6070800@tiscali.de>
+X-Mailer: Sylpheed version 1.9.7+svn (GTK+ 2.6.2; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja schrieb:
+El Sat, 02 Apr 2005 18:58:53 +0200,
+Matthias-Christian Ott <matthias.christian@tiscali.de> escribió:
 
->When people gets OOM messages, many of them don't know what is happening or what
->OOM means. This brief message explains it.
->
->--- stable/mm/oom_kill.c.orig	2005-04-02 17:44:14.000000000 +0200
->+++ stable/mm/oom_kill.c	2005-04-02 18:01:02.000000000 +0200
->@@ -189,7 +189,8 @@
-> 		return;
-> 	}
-> 	task_unlock(p);
->-	printk(KERN_ERR "Out of Memory: Killed process %d (%s).\n", p->pid, p->comm);
->+	printk(KERN_ERR "The system has run Out Of Memory (RAM + swap), a process will be killed to free some memory\n");
->+	printk(KERN_ERR "OOM: Killed process %d (%s).\n", p->pid, p->comm);
-> 
-> 	/*
-> 	 * We give our sacrificial lamb high priority and access to
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-I disagree this is _not_ usefull. If the user don't knows what OOM means 
-he can use google to get this information.
+> I disagree this is _not_ usefull. If the user don't knows what OOM means 
+> he can use google to get this information.
 
-Matthias-Christian Ott
+And google will take them to what random source of information? There's no "official"
+meaning of what OOM is outside the kernel.... And anyway, why shouldn't the kernel tell
+what's happening? That printk is not exactly a fifty-page explanation, it just says "your
+system has run out of memory" instead of "OOM", which is what it's really happening and
+it's not verbose at all, and it doesn't scare users.
+
+OOM doesn't prints just those messages, if prints a lot of "debugging info" about the state
+of the memory subsystem, I've found people in usenet who reboots their systems when
+they see that because they think it's a critical failure or something - and looking at how it's
+printed, I don't blame them. This is the reason why I submitted this patch.
+
+(and I'd have added a "look at Documentation/oom.txt", but there's zero documentation of
+what OOM is, what are the causes of it, tips of how to find apps triggering it and tips to fix
+it, and I'm not the right person to write it, so...)

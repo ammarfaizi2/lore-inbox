@@ -1,153 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277349AbRJJSOd>; Wed, 10 Oct 2001 14:14:33 -0400
+	id <S277353AbRJJSON>; Wed, 10 Oct 2001 14:14:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277352AbRJJSOO>; Wed, 10 Oct 2001 14:14:14 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51444 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S277349AbRJJSOI> convert rfc822-to-8bit; Wed, 10 Oct 2001 14:14:08 -0400
-Message-ID: <3BC48FEC.B3D8BA15@mvista.com>
+	id <S277352AbRJJSOD>; Wed, 10 Oct 2001 14:14:03 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:58616 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S277349AbRJJSNw>;
+	Wed, 10 Oct 2001 14:13:52 -0400
 Date: Wed, 10 Oct 2001 11:14:04 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Andrea Arcangeli <andrea@suse.de>, Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <3BC3D916.B0284E00@zip.com.au>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: RFC : Wireless Netlink events
+Message-ID: <20011010111404.D17439@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20011009184700.B16874@bougret.hpl.hp.com> <200110101749.VAA04827@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110101749.VAA04827@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Wed, Oct 10, 2001 at 09:49:52PM +0400
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Wed, Oct 10, 2001 at 09:49:52PM +0400, kuznet@ms2.inr.ac.ru wrote:
+> Hello!
 > 
-> Dieter Nützel wrote:
-> >
-> > Andrew have you a current version of your lowlatency patches handy?
-> >
+> > 	o Is there a way to do a reverse of SIOCGIFINDEX ? If you have
+> > an interface index, how do you get its name ?
 > 
-> mm..  Nice people keep sending me updates.  It's at
-> http://www.uow.edu.au/~andrewm/linux/schedlat.html and applies
-> to 2.4.11 with one little reject.  I don't know how it's
-> performing at present - it's time for another round of tuning
-> and testing.
-> 
-> wrt this discussion: I would assume that xmms is simply stalling
-> on disk access.  All it takes is for one of its text pages to be
-> dropped and it could have to wait a very long time indeed to
-> come back to life.  The disk read latency could easily exceed
-> any sane buffering in the sound card or its driver.
-> 
-> The application should be using mlockall(MCL_FUTURE) and it should
-> run `nice -19'  (SCHED_FIFO and SCHED_RR are rather risky - if the
-> app gets stuck in a loop, it's time to hit the big button).  
+> SIOCGIFNAME.
 
-When running any RT tasks it is aways wise to have an open shell running
-at a higher priority.  It is also neccessary to have an open console
-path to the shell which may mean that X needs to be up there too.  But
-if this is just a back door, an alternative console could be outside of
-X and do the trick.
+	Err... I feel stupid...
 
-George
+> But this does not matter, applications using rtnetlink should
+> not use these ioctls. They have all the information from rtnetlink.
 
-> If the
-> app isn't doing both these things then it just doesn't have a chance.
+	That would not be the case of Wireless Events, the event would
+just contain the type of change and the interface index. See reasons
+for that below.
+
+> > 	o Any other comments ?
 > 
-> I don't understand why Andrea is pointing at write throttling?  xmms
-> doesn't do any disk writes, does it??
-> 
-> Andrea's VM has a rescheduling point in shrink_cache(), which is the
-> analogue of the other VM's page_launder().  This rescheduling point
-> is *absolutely critial*, because it opens up what is probably the
-> longest-held spinlock in the kernel (under common use).  If there
-> were a similar reschedulig point in page_launder(), comparisons
-> would be more valid...
-> 
-> I would imagine that for a (very) soft requirement such as audio
-> playback, the below patch, combined with mlockall and renicing
-> should fix the problems.  I would expect that this patch will
-> give effects which are similar to the preempt patch.  This is because
-> most of the other latency problems are under locks - icache/dcache
-> shrinking and zap_page_range(), etc.
-> 
-> This patch should go into the stock 2.4 kernel.
-> 
-> Oh.  And always remember to `renice -19' your X server.
-> 
-> --- linux-2.4.11/mm/filemap.c   Tue Oct  9 21:31:40 2001
-> +++ linux-akpm/mm/filemap.c     Tue Oct  9 21:47:51 2001
-> @@ -1230,6 +1230,9 @@ found_page:
->                 page_cache_get(page);
->                 spin_unlock(&pagecache_lock);
-> 
-> +               if (current->need_resched)
-> +                       schedule();
-> +
->                 if (!Page_Uptodate(page))
->                         goto page_not_up_to_date;
->                 generic_file_readahead(reada_ok, filp, inode, page);
-> @@ -2725,6 +2728,9 @@ generic_file_write(struct file *file,con
->                 if (!PageLocked(page)) {
->                         PAGE_BUG(page);
->                 }
-> +
-> +               if (current->need_resched)
-> +                       schedule();
-> 
->                 kaddr = kmap(page);
->                 status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
-> --- linux-2.4.11/fs/buffer.c    Tue Oct  9 21:31:40 2001
-> +++ linux-akpm/fs/buffer.c      Tue Oct  9 22:08:51 2001
-> @@ -29,6 +29,7 @@
->  /* async buffer flushing, 1999 Andrea Arcangeli <andrea@suse.de> */
-> 
->  #include <linux/config.h>
-> +#include <linux/compiler.h>
->  #include <linux/sched.h>
->  #include <linux/fs.h>
->  #include <linux/slab.h>
-> @@ -231,6 +232,10 @@ static int write_some_buffers(kdev_t dev
->  static void write_unlocked_buffers(kdev_t dev)
->  {
->         do {
-> +               if (unlikely(current->need_resched)) {
-> +                       __set_current_state(TASK_RUNNING);
-> +                       schedule();
-> +               }
->                 spin_lock(&lru_list_lock);
->         } while (write_some_buffers(dev));
->         run_task_queue(&tq_disk);
-> --- linux-2.4.11/fs/proc/array.c        Sun Sep 23 12:48:44 2001
-> +++ linux-akpm/fs/proc/array.c  Tue Oct  9 21:47:51 2001
-> @@ -414,6 +414,9 @@ static inline void statm_pte_range(pmd_t
->                 pte_t page = *pte;
->                 struct page *ptpage;
-> 
-> +               if (current->need_resched)
-> +                       schedule();     /* For `top' and `ps' */
-> +
->                 address += PAGE_SIZE;
->                 pte++;
->                 if (pte_none(page))
-> --- linux-2.4.11/fs/proc/generic.c      Sun Sep 23 12:48:44 2001
-> +++ linux-akpm/fs/proc/generic.c        Tue Oct  9 21:47:51 2001
-> @@ -98,6 +98,9 @@ proc_file_read(struct file * file, char
->                                 retval = n;
->                         break;
->                 }
-> +
-> +               if (current->need_resched)
-> +                       schedule();     /* Some proc files are large */
-> 
->                 /* This is a hack to allow mangling of file pos independent
->                  * of actual bytes read.  Simply place the data at page,
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I am not sure that it is right and in right place. I would not create one
+> more message type for such... mmm... special case.
+> Probably, you could add a new attribute to RTM_*LINK sort of
+> IFLA_MISC and to send ifinfo messages.
+
+	The problem is that I need to propagate the "command" field
+(the ioctl number leading to the event), and there is no space for
+that in the ifinfo structure. None of the flags in the ifinfo
+structure would change when those ioctls are called.
+	I don't mind adding a new attribute to struct ifinfo, but that
+will break existing netlink apps (unless I missed something).
+
+> But I see logical flaw: no way to _retrieve_ information about state
+> on demand.
+
+	Hu ? Just query any of the Wireless IOCTLs, and you get the
+info you need. Check iwconfig.c on how to do that. I don't see the
+need of duplicating the ioctl functionality in netlink, especially
+that those ioctl can be big (encryption key, iwspy), complex (power
+management) and have a variable geometry.
+	The IOCTLs have been working to satisfaction, and I don't want
+to duplicate this code. What I want is just a channel to propagate an
+event.
+
+> Hence no right application cannot rely only on these messages.
+> Hence you should go all the way and to allow to dump this and,
+> probably, to add statistics shown in /proc/net/wireless.
+
+	On the contrary. The app get the event and can query the
+related ioctl to see what has changed. I want those event to be *very*
+lightweigth so that it is minimal overhead for the vast majority of
+applications that could not care less about them and will end up
+discarding them anyway.
+	The whole Wireless configuration is in the order of 624 bytes
+(including /proc/net/wireless, excluding iwspy/aplist and assuming
+only one encryption key). You surely don't want me to push that with
+every event ?
+	The idea is like select() + read(). Select gives you the basic
+event, you need to use read to get the data.
+
+> Alexey
+
+	It seems to me that what you are implying is that RTnetlink is
+not the right place for me to propagate events. Any idea of what
+mechanism might be better to propagate those events ? Maybe I should
+create my own event channel.
+
+	Thanks for the comments !
+
+	Jean

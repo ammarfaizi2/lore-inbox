@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbTFJNxI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 09:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbTFJNxI
+	id S262771AbTFJN6G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 09:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbTFJN6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 09:53:08 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:63360
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S262497AbTFJNxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 09:53:06 -0400
-Date: Tue, 10 Jun 2003 09:51:34 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel@vger.kernel.org, "" <willy@w.ods.org>, "" <gibbs@scsiguy.com>,
-       "" <marcelo@conectiva.com.br>, "" <green@namesys.com>
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-In-Reply-To: <20030610153815.57f7a563.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.50.0306100949040.19137-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
- <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
- <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
- <20030605181423.GA17277@alpha.home.local> <20030608131901.7cadf9ea.skraw@ithnet.com>
- <20030608134901.363ebe42.skraw@ithnet.com> <20030609171011.7f940545.skraw@ithnet.com>
- <Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
- <20030610123015.4242716e.skraw@ithnet.com>
- <Pine.LNX.4.50.0306100847580.19137-100000@montezuma.mastecende.com>
- <20030610153815.57f7a563.skraw@ithnet.com>
+	Tue, 10 Jun 2003 09:58:06 -0400
+Received: from kempelen.iit.bme.hu ([152.66.241.120]:32661 "EHLO
+	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S262771AbTFJN6E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 09:58:04 -0400
+Date: Tue, 10 Jun 2003 16:11:42 +0200 (MET DST)
+From: =?ISO-8859-2?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.5 patch] let COMX depend on PROC_FS
+In-Reply-To: <20030610145721.A27349@infradead.org>
+Message-ID: <Pine.GSO.4.00.10306101611260.15153-100000@kempelen.iit.bme.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jun 2003, Stephan von Krawczynski wrote:
-
-> On Tue, 10 Jun 2003 08:51:35 -0400 (EDT)
-> Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+Christoph Hellwig:
+> > Is the case the same with the SCSI drivers, IDE drivers, network core,
+> > filesystems and everything that creates directories and file entries in
+> > procfs?
 > 
-> > > Can you clarify? Do you mean options "nosmp noapic" or just "noapic" on SMP
-> > > kernel?
-> > 
-> > Kernel built with CONFIG_SMP and booted with 'noapic' kernel parameter
-> 
-> Ok. To speed up the tests I  call it "ok" if there are no verify errors within
-> 70 GB and "fail" if there are one or more.
-> I have tried rc7+aic20030603 SMP with noapic and it is ok.
+> No.  The problem with comx is that unlike other driver it doesn't
+> not use the published procfs API but instead tries to implemented
+> half of an own filesystem abusing procfs infrastructure.
 
-Can you also test it with an SMP kernel and only maxcpus=1 ?
+It'll get updated and fixed.
 
-> Reading around the whole interrupt stuff I came across a very simple idea which
-> I am going to test right now. See you in some hours ;-)
+                 ----------------------------------------------
+                 |  If you can't learn to do something well,  |
+                 |      learn to enjoy doing it poorly.       |
+                 ----------------------------------------------
 
-Cool
-
-	Zwane
--- 
-function.linuxpower.ca

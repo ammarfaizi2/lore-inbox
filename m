@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbUC1MWx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 07:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUC1MWx
+	id S261610AbUC1MVw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 07:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUC1MVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 07:22:53 -0500
-Received: from mail.shareable.org ([81.29.64.88]:50578 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261635AbUC1MWv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 07:22:51 -0500
-Date: Sun, 28 Mar 2004 13:22:42 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040328122242.GB32296@mail.shareable.org>
-References: <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com> <20040325174942.GC11236@mail.shareable.org> <m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com> <20040325194303.GE11236@mail.shareable.org> <m1ptb0zjki.fsf@ebiederm.dsl.xmission.com> <20040327102828.GA21884@mail.shareable.org> <m1vfkq80oy.fsf@ebiederm.dsl.xmission.com> <20040327214238.GA23893@mail.shareable.org> <m1ptax97m6.fsf@ebiederm.dsl.xmission.com> <m1brmhvm1s.fsf@ebiederm.dsl.xmission.com>
+	Sun, 28 Mar 2004 07:21:52 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:63753 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261610AbUC1MVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 07:21:47 -0500
+Date: Sun, 28 Mar 2004 14:21:39 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, faith@valinux.com
+Subject: [PATCH-2.4.26] drm/radeon_mem cleanup
+Message-ID: <20040328122139.GE24421@pcw.home.local>
+References: <20040328042608.GA17969@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1brmhvm1s.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040328042608.GA17969@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> > The addictive thing about the prototype implementation was that you
-> > could do ``ln --cow / /some/other/directory'' and you would have an
-> > atomic snapshot of your filesystem.  Definitely not a feature for the
-> > first implementation but certainly something to dream about.
-> 
-> Addictive but broken by design.  If any of the files inside your
-> directory tree have hard links outside of the tree there is no way
-> short of recursing through all of the subdirectories directories to
-> tell if a given inode has is in use.  Except in the special case
-> where you are taking a cow copy of the entire filesystem.  At which
-> point a magic mount option is likely a better interface.
+Hi Marcelo,
 
-I don't understand this explanation.  Can you explain again?  What is
-the problem with inodes being in use?
+drm/radeon_mem ouputs a warning because print_heap() is never
+used in 2.4.26-rc1. I only commented it out to keep it useful
+for debugging purposes. Please apply.
 
--- Jamie
+Willy
+
+--- ./drivers/char/drm/radeon_mem.c.orig	Sun Mar 28 14:07:38 2004
++++ ./drivers/char/drm/radeon_mem.c	Sun Mar 28 14:08:16 2004
+@@ -131,6 +131,7 @@
+ 	}
+ }
+ 
++#if 0
+ static void print_heap( struct mem_block *heap )
+ {
+ 	struct mem_block *p;
+@@ -140,6 +141,7 @@
+ 			  p->start, p->start + p->size,
+ 			  p->size, p->pid);
+ }
++#endif
+ 
+ /* Initialize.  How to check for an uninitialized heap?
+  */

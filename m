@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbTJYKyS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 06:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbTJYKyS
+	id S262573AbTJYLFY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 07:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJYLFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 06:54:18 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:61194 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262572AbTJYKyN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 06:54:13 -0400
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NLS as module
-References: <Pine.LNX.4.44.0310232155320.3344-100000@poirot.grange>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 25 Oct 2003 19:53:49 +0900
-In-Reply-To: <Pine.LNX.4.44.0310232155320.3344-100000@poirot.grange>
-Message-ID: <87d6cloaf6.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 25 Oct 2003 07:05:23 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:34576 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262573AbTJYLFR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 07:05:17 -0400
+Date: Sat, 25 Oct 2003 13:05:14 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Vid Strpic <vms@bofhlet.net>, linux-kernel@vger.kernel.org
+Subject: Re: *FAT problem in 2.6.0-test8
+Message-ID: <20031025110514.GA9553@win.tue.nl>
+References: <20031024103225.GC1046@home.bofhlet.net> <20031024185953.GA9265@win.tue.nl> <87ismdoc2s.fsf@devron.myhome.or.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87ismdoc2s.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski <g.liakhovetski@gmx.de> writes:
+On Sat, Oct 25, 2003 at 07:18:03PM +0900, OGAWA Hirofumi wrote:
 
-> Problem: NLS support can only be compiled in the kernel - and not as a
-> module. And if you don't configure one of Joliet / FAT and some other
-> filesystems at kernel compile-time, you can't compile these filesystems
-> later as modules(*). However, I see nothing that would prevent one from
-> compiling nls_base as a module. I tried - it worked, but I didn't actually
-> use any of the codepages. Just tried insmod nls_base, insmod <fs>, mount.
-> So, is it desired / really this trivial or are there some real reasons why
-> nls_base cannot be properly done as a module? I am attaching a naive
-> patch - but not really understanding NLS internals and not being able to
-> extensively test it, it might be not quite correct.
+> It looks like it doesn't conform to Microsoft's or SmartMedia's
+> specifications.
+> 
+> Yes. It will be important to know how it was formated. 
 
-Sound good to me. And I like this, but it may be more test needed
-(i.e. module autoload etc.). So I suggest it start on development
-tree. And backport after it.
+Yesterday I wondered whether I should propose a patch,
+say something like
 
->  # msdos and Joliet want NLS
-> -if [ "$CONFIG_JOLIET" = "y" -o "$CONFIG_FAT_FS" != "n" \
-> -	-o "$CONFIG_NTFS_FS" != "n" -o "$CONFIG_NCPFS_NLS" = "y" \
-> +if [ "$CONFIG_JOLIET" = "y" -o "$CONFIG_FAT_FS" = "y" \
-> +	-o "$CONFIG_NTFS_FS" = "y" -o "$CONFIG_NCPFS_NLS" = "y" \
->  	-o "$CONFIG_SMB_NLS" = "y" ]; then
->    define_bool CONFIG_NLS y
->  else
-> -  define_bool CONFIG_NLS n
-> +  tristate 'Base NLS support'	CONFIG_NLS
->  fi
+--- /linux/2.6/linux-2.6.0test6/linux/fs/fat/inode.c    Sat Aug  9 22:16:54 2003
++++ ./inode.c   Sat Oct 25 00:04:18 2003
+@@ -931,13 +931,17 @@
+                error = first;
+                goto out_fail;
+        }
+-       if (FAT_FIRST_ENT(sb, media) != first
+-           && (media != 0xf8 || FAT_FIRST_ENT(sb, 0xfe) != first)) {
+-               if (!silent) {
++       if (FAT_FIRST_ENT(sb, media) == first) {
++               /* all is as it should be */
++       } else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xfe) == first) {
++               /* bad, reported on pc9800 */
++       } else if (first == 0) {
++               /* bad, reported once with a SmartMedia card */
++       } else {
++               if (!silent)
+                        printk(KERN_ERR "FAT: invalid first entry of FAT "
+                               "(0x%x != 0x%x)\n",
+                               FAT_FIRST_ENT(sb, media), first);
+-               }
+                goto out_invalid;
+        }
+ 
+but maybe a single report does not suffice. It would be good to confirm
+that certain devices write 0 there. (I would have asked the reporter
+to do "dd if=/dev/zero of=/dev/something" and reinsert the card into
+the camera, but fiddling with smartmedia cards is a bit dangerous -
+not all readers and not all cameras are able to recover from such a
+situation, so the card might become unusable without access to other
+readers or other cameras.)
 
-Looks like module dependency was broken.
+Andries
 
-> +static int __init init_nls_base(void)
-> +{
-> +	return 0;
-> +}
-> +
-> +static void __exit exit_nls_base(void)
-> +{
-> +}
-> +
-> +module_init(init_nls_base)
-> +module_exit(exit_nls_base)
+[BTW - Does anyone have more information about this other nonstandard
+value, apparently found on pc9800?]
 
-Was this really needed?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

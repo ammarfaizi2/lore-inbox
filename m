@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266578AbRGVQht>; Sun, 22 Jul 2001 12:37:49 -0400
+	id <S267997AbRGVQm6>; Sun, 22 Jul 2001 12:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267997AbRGVQhj>; Sun, 22 Jul 2001 12:37:39 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:26400
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S266578AbRGVQh1>; Sun, 22 Jul 2001 12:37:27 -0400
-Date: Sun, 22 Jul 2001 09:37:32 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Brian J. Watson" <Brian.J.Watson@compaq.com>,
-        Larry McVoy <lm@bitmover.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Common hash table implementation
-Message-ID: <20010722093732.A6000@work.bitmover.com>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	"Brian J. Watson" <Brian.J.Watson@compaq.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <01071815464209.12129@starship> <3B58CBA3.BD2C194@compaq.com> <01072122255100.02679@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <01072122255100.02679@starship>; from phillips@bonn-fries.net on Sat, Jul 21, 2001 at 10:25:51PM +0200
+	id <S268000AbRGVQms>; Sun, 22 Jul 2001 12:42:48 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:24584 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S267997AbRGVQmb>;
+	Sun, 22 Jul 2001 12:42:31 -0400
+Message-Id: <200107221642.f6MGgAfl019732@sleipnir.valparaiso.cl>
+To: "Mike Black" <mblack@csihq.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: 2.4.7: wtf is "ksoftirqd_CPU0" 
+In-Reply-To: Message from "Mike Black" <mblack@csihq.com> 
+   of "Sun, 22 Jul 2001 06:24:06 -0400." <009601c11298$70a3da80$b6562341@cfl.rr.com> 
+Date: Sun, 22 Jul 2001 12:42:04 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, Jul 21, 2001 at 10:25:51PM +0200, Daniel Phillips wrote:
->   1) How random is the hash
->   2) How efficient is it
+"Mike Black" <mblack@csihq.com> said:
+> Actually -- is it possible (or desirable) to make ALL kernel daemons begin
+> with say "_" or some other special character to distinguish them from
+> userland threads?  The "k......d" paradigm is OK but not very distinctive.
+> That way you have a simple line in the kernel docs that says "Any process
+> with a leading _ is a kernel process and should NEVER be killed or otherwise
+> messed with except as noted elsewhere in the docs".
 
-The hash is not the only part to consider for performance.  The rest of the
-code is important as well.  The code I pointed you to has been really carefully
-tuned for performance.  And it can be made to be MP safe, SGI did that and
-managed to get 455,000 random fetches/second on an 8 way R4400 (each of
-these is about the same as the original Pentium at 150Mhz).
+It is rather easy to fake any process name.
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

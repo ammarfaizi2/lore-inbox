@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272163AbRIIQnw>; Sun, 9 Sep 2001 12:43:52 -0400
+	id <S272552AbRIIQoX>; Sun, 9 Sep 2001 12:44:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272544AbRIIQnn>; Sun, 9 Sep 2001 12:43:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22021 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272163AbRIIQnZ>; Sun, 9 Sep 2001 12:43:25 -0400
-Subject: Re: Purpose of the mm/slab.c changes
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sun, 9 Sep 2001 17:47:12 +0100 (BST)
-Cc: manfred@colorfullife.com (Manfred Spraul),
-        andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33.0109090925080.14365-100000@penguin.transmeta.com> from "Linus Torvalds" at Sep 09, 2001 09:25:29 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S272544AbRIIQoM>; Sun, 9 Sep 2001 12:44:12 -0400
+Received: from rdu26-230-138.nc.rr.com ([66.26.230.138]:38026 "EHLO
+	gateway.house") by vger.kernel.org with ESMTP id <S272552AbRIIQn6>;
+	Sun, 9 Sep 2001 12:43:58 -0400
+Subject: Re: nfs is stupid ("getfh failed")
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9nfesc$ctr$1@forge.intermeta.de>
+In-Reply-To: <m2ae06a6t7.fsf@euler.axel.nom>
+	<E15fiJ6-0003sK-00@the-village.bc.nu>  <9nfesc$ctr$1@forge.intermeta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15g7jk-0007Rb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 09 Sep 2001 12:44:00 -0400
+Message-Id: <1000053842.27177.34.camel@gromit.house>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > doesn't matter which free page is used first/last.
-> 
-> You're full of crap.
-> LIFO is obviously superior due to cache re-use.
+On 09 Sep 2001 10:05:00 +0000, Henning P. Schmiedehausen wrote:
 
-Interersting question however. On SMP without sufficient per CPU slab caches
-is tht still the case ?
+> And it currently looks "Linux only", which kind of defeats IMHO the
+> purpose.
+
+Considering I use only Linux at home, that's fine with me. :) For
+Windows interaction, I use samba. I have not even booted my Sparc into
+Solaris in ... oh, about a year.
+
+Is intermezzo usable? Reliable? Any horror stories? Success stories? 
+
+-M
+

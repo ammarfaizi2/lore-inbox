@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318060AbSFSXrL>; Wed, 19 Jun 2002 19:47:11 -0400
+	id <S318061AbSFSXsg>; Wed, 19 Jun 2002 19:48:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSFSXrK>; Wed, 19 Jun 2002 19:47:10 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25335 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S318060AbSFSXrK>; Wed, 19 Jun 2002 19:47:10 -0400
-Subject: Re: [patch] scheduler bits from 2.5.23-dj1
-From: Robert Love <rml@tech9.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0206200123470.25434-100000@e2>
-References: <Pine.LNX.4.44.0206200123470.25434-100000@e2>
-Content-Type: text/plain
+	id <S318063AbSFSXsf>; Wed, 19 Jun 2002 19:48:35 -0400
+Received: from ip68-9-71-221.ri.ri.cox.net ([68.9.71.221]:58235 "EHLO
+	mail.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S318061AbSFSXsa>; Wed, 19 Jun 2002 19:48:30 -0400
+Message-ID: <3D111840.30605@blue-labs.org>
+Date: Wed, 19 Jun 2002 19:48:16 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020618
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dax Kelson <dax@gurulabs.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Anyone using NFSv4?
+References: <11E89240C407D311958800A0C9ACF7D13A7881@EXCHANGE>	<200206171900.03955.rwhite@pobox.com> 	<008001c216c8$d0bfdba0$294b82ce@connecttech.com> <1024462781.17191.18.camel@thud>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 19 Jun 2002 16:47:00 -0700
-Message-Id: <1024530423.917.21.camel@sinai>
-Mime-Version: 1.0
+X-Bmilter: Processing completed, Bmilter version 0.1.0 build 753; timestamp 2002-06-19 19:48:18, message serial number 40352
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-06-19 at 16:35, Ingo Molnar wrote:
+My first glance at it suggested that only ext2/ext3 filesystems were 
+supported.  I run all reiserfs so I'l have to wait.
 
-> the scheduler optimisation in 2.5.23-dj1, from James Bottomley, look fine
-> to me. I did some modifications:
+David
 
-Nice.
+Dax Kelson wrote:
 
-> +static inline unsigned int task_cpu(struct task_struct *p)
-> +static inline unsigned int set_task_cpu(struct task_struct *p, unsigned int cpu)
-
-Technically, shouldn't we make these `unsigned long' ?
-
-I know on x86 we store cpu as a `u32' so it does not matter per se, but
-in reality it is an unsigned long and other architectures may export it
-as such.
-
-Further, we compare and set it against the various CPU bitmaps and they
-are all `unsigned long' and we do shifts against 1UL ...
-
-	Robert Love
+>I noticed that the CITI group release a new June snapshot of NFSv4
+>support for Linux. It is a patch against 2.4.18.
+>
+>http://www.citi.umich.edu/projects/nfsv4/june_2002_rel/index.html
+>
+>They say, "The current version passes all Connectathon tests, and
+>interoperates with other implementations".
+>
+>Currently NFSv2/3 is too insecure for my tastes, I'm greatly looking
+>forward to the strong authentication, integrity, and privacy that NFSv4
+>with secure RPC offers. I can envision handy uses for the "pseudo path"
+>feature of NFSv4 as well.
+>
+>I was just wondering if anyone (other that CITI) is keeping an eye on
+>it? Are there any pieces worth merging yet?  Just curious.
+>
+>Dax Kelson
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 

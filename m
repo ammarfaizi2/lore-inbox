@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbULMWmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbULMWd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbULMWmU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 17:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbULMWe0
+	id S261255AbULMWd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 17:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbULMWWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 17:34:26 -0500
-Received: from h142-az.mvista.com ([65.200.49.142]:55192 "HELO
-	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S261215AbULMWTY
+	Mon, 13 Dec 2004 17:22:22 -0500
+Received: from h142-az.mvista.com ([65.200.49.142]:40600 "HELO
+	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S261206AbULMWPn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 17:19:24 -0500
+	Mon, 13 Dec 2004 17:15:43 -0500
 From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Mon, 13 Dec 2004 15:19:21 -0700
+Date: Mon, 13 Dec 2004 15:15:41 -0700
 To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
 Cc: Ralf Baechle <ralf@linux-mips.org>, Russell King <rmk@arm.linux.org.uk>,
        Manish Lachwani <mlachwani@mvista.com>,
        Brian Waite <brian@waitefamily.us>,
        "Steven J. Hill" <sjhill@realitydiluted.com>
-Subject: [PATCH 5/6] mv643xx_eth: Add support for platform device interface
-Message-ID: <20041213221921.GE19951@xyzzy>
+Subject: [PATCH 3/6] mv643xx_eth: fix hw checksum generation on transmit
+Message-ID: <20041213221541.GC19951@xyzzy>
 References: <20041213220949.GA19609@xyzzy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,384 +27,529 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds platform device support to the mv643xx_eth driver.
-
-This is a change to the driver's programming interface.  Platform
-code must now pass in the address of the MV643xx ethernet registers
-and IRQ.  If firmware doesn't set the MAC address, platform code
-must also pass in the MAC address.
-
-Also, note that local MV_READ/MV_WRITE macros are used rather than
-using global macros.
+This patch fixes the code that enables hardware checksum generation.
+The previous code has so many problems that it appears to never have worked.
 
 Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
 
 Index: linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c
 ===================================================================
---- linux-2.5-marvell-submit.orig/drivers/net/mv643xx_eth.c	2004-12-13 14:30:37.436993510 -0700
-+++ linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c	2004-12-13 14:30:39.866524559 -0700
-@@ -65,6 +65,8 @@
+--- linux-2.5-marvell-submit.orig/drivers/net/mv643xx_eth.c	2004-12-13 14:29:55.829024727 -0700
++++ linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c	2004-12-13 14:30:34.651531163 -0700
+@@ -29,6 +29,7 @@
+  */
+ #include <linux/init.h>
+ #include <linux/tcp.h>
++#include <linux/udp.h>
+ #include <linux/etherdevice.h>
+ #include <linux/bitops.h>
+ #include <linux/delay.h>
+@@ -57,6 +58,11 @@
+ #define INT_CAUSE_CHECK_BITS		INT_CAUSE_UNMASK_ALL
+ #define INT_CAUSE_CHECK_BITS_EXT	INT_CAUSE_UNMASK_ALL_EXT
  #endif
++#ifdef MV64340_CHECKSUM_OFFLOAD_TX
++#define MAX_DESCS_PER_SKB	(MAX_SKB_FRAGS + 1)
++#else
++#define MAX_DESCS_PER_SKB	1
++#endif
  
  /* Static function declarations */
-+static void eth_port_uc_addr_get(struct net_device *dev,
-+		                                 unsigned char *MacAddr);
  static int mv64340_eth_real_open(struct net_device *);
- static int mv64340_eth_real_stop(struct net_device *);
- static int mv64340_eth_change_mtu(struct net_device *, int);
-@@ -74,11 +76,19 @@
- static int mv64340_poll(struct net_device *dev, int *budget);
- #endif
+@@ -333,25 +339,29 @@
+ 		 * last skb releases the whole chain.
+ 		 */
+ 		if (pkt_info.return_info) {
+-			dev_kfree_skb_irq((struct sk_buff *)
+-					  pkt_info.return_info);
+-			released = 0;
+ 			if (skb_shinfo(pkt_info.return_info)->nr_frags)
+ 				pci_unmap_page(NULL, pkt_info.buf_ptr,
+ 					pkt_info.byte_cnt, PCI_DMA_TODEVICE);
++			else
++				pci_unmap_single(NULL, pkt_info.buf_ptr,
++					pkt_info.byte_cnt, PCI_DMA_TODEVICE);
  
--unsigned char prom_mac_addr_base[6];
--unsigned long mv64340_sram_base;
-+static void __iomem *mv64x60_eth_shared_base;
- 
- static spinlock_t mv64340_eth_phy_lock = SPIN_LOCK_UNLOCKED;
- 
-+#undef MV_READ
-+#define MV_READ(offset)	\
-+	readl(mv64x60_eth_shared_base - MV64340_ETH_SHARED_REGS + offset)
+-			if (mp->tx_ring_skbs != 1)
+-				mp->tx_ring_skbs--;
++			dev_kfree_skb_irq((struct sk_buff *)
++					  pkt_info.return_info);
++			released = 0;
 +
-+#undef MV_WRITE
-+#define MV_WRITE(offset, data)	\
-+	writel((u32)data,	\
-+		mv64x60_eth_shared_base - MV64340_ETH_SHARED_REGS + offset)
-+
- /*
-  * Changes MTU (maximum transfer unit) of the gigabit ethenret port
-  *
-@@ -1300,29 +1310,43 @@
- }
++			/* 
++			 * Decrement the number of outstanding skbs counter on
++			 * the TX queue.
++			 */
++			if (mp->tx_ring_skbs == 0)
++				panic("ERROR - TX outstanding SKBs"
++						"counter is corrupted");
++			mp->tx_ring_skbs--;
+ 		} else 
+ 			pci_unmap_page(NULL, pkt_info.buf_ptr,
+ 					pkt_info.byte_cnt, PCI_DMA_TODEVICE);
  
- /*/
-- * mv64340_eth_init
-+ * mv64340_eth_probe
-  *								       
-  * First function called after registering the network device. 
-  * It's purpose is to initialize the device as an ethernet device, 
-- * fill the structure that was given in registration with pointers
-- * to functions, and setting the MAC address of the interface
-+ * fill the ethernet device structure with pointers * to functions,
-+ * and set the MAC address of the interface
-  *
-- * Input : number of port to initialize
-- * Output : -ENONMEM if failed , 0 if success
-+ * Input : struct device *
-+ * Output : -ENOMEM or -ENODEV if failed , 0 if success
-  */
--static struct net_device *mv64340_eth_init(int port_num)
-+static int mv64340_eth_probe(struct device *ddev)
- {
-+	struct platform_device *pdev = to_platform_device(ddev);
-+	struct mv64xxx_eth_platform_data *pd;
-+	int port_num = pdev->id;
- 	struct mv64340_private *mp;
- 	struct net_device *dev;
-+	u8 *p;
-+	struct resource *res;
- 	int err;
+-		/* 
+-		 * Decrement the number of outstanding skbs counter on
+-		 * the TX queue.
+-		 */
+-		if (mp->tx_ring_skbs == 0)
+-			panic("ERROR - TX outstanding SKBs counter is corrupted");
  
- 	dev = alloc_etherdev(sizeof(struct mv64340_private));
- 	if (!dev)
--		return NULL;
-+		return -ENOMEM;
-+
-+ 	dev_set_drvdata(ddev, dev);
- 
- 	mp = netdev_priv(dev);
- 
--	dev->irq = ETH_PORT0_IRQ_NUM + port_num;
-+	if ((res = platform_get_resource(pdev, IORESOURCE_IRQ, 0)))
-+		dev->irq = res->start;
-+	else {
-+		err = -ENODEV;
-+		goto out;
-+	}
-+
-+	mp->port_num = port_num;
- 
- 	dev->open = mv64340_eth_open;
- 	dev->stop = mv64340_eth_stop;
-@@ -1355,58 +1379,111 @@
- #endif
- #endif
- 
--	mp->port_num = port_num;
- 
- 	/* Configure the timeout task */
-         INIT_WORK(&mp->tx_timeout_task,
-                   (void (*)(void *))mv64340_eth_tx_timeout_task, dev);
- 
- 	spin_lock_init(&mp->lock);
--
--	/* set MAC addresses */
--	memcpy(dev->dev_addr, prom_mac_addr_base, 6);
--	dev->dev_addr[5] += port_num;
-+	
-+	/* set default config values */
-+	eth_port_uc_addr_get(dev, dev->dev_addr);
-+	pd = pdev->dev.platform_data;
-+	if (pd) {
-+		if (pd->mac_addr != NULL)
-+			memcpy(dev->dev_addr, pd->mac_addr, 6);
-+	}
- 
- 	err = register_netdev(dev);
- 	if (err)
--		goto out_free_dev;
-+		goto out;
- 
--	printk(KERN_NOTICE "%s: port %d with MAC address %02x:%02x:%02x:%02x:%02x:%02x\n",
--		dev->name, port_num,
--		dev->dev_addr[0], dev->dev_addr[1], dev->dev_addr[2],
--		dev->dev_addr[3], dev->dev_addr[4], dev->dev_addr[5]);
-+	p = dev->dev_addr;
-+	printk(KERN_NOTICE
-+		"%s: port %d with MAC address %02x:%02x:%02x:%02x:%02x:%02x\n",
-+		dev->name, port_num, p[0], p[1], p[2], p[3], p[4], p[5]);
- 
- 	if (dev->features & NETIF_F_SG)
--		printk("Scatter Gather Enabled  ");
-+		printk(KERN_NOTICE "%s: Scatter Gather Enabled", dev->name);
- 
- 	if (dev->features & NETIF_F_IP_CSUM)
--		printk("TX TCP/IP Checksumming Supported  \n");
-+		printk(KERN_NOTICE "%s: TX TCP/IP Checksumming Supported\n",
-+								dev->name);
-+
-+#ifdef MV64340_CHECKSUM_OFFLOAD_TX
-+	printk(KERN_NOTICE "%s: RX TCP/UDP Checksum Offload ON \n", dev->name);
-+#endif
- 
--	printk("RX TCP/UDP Checksum Offload ON, \n");
--	printk("TX and RX Interrupt Coalescing ON \n");
-+#ifdef MV64340_COAL
-+	printk(KERN_NOTICE "%s: TX and RX Interrupt Coalescing ON \n",
-+								dev->name);
-+#endif
- 
- #ifdef MV64340_NAPI
--	printk("RX NAPI Enabled \n");
-+	printk(KERN_NOTICE "%s: RX NAPI Enabled \n", dev->name);
- #endif
- 
--	return dev;
-+	return 0;
- 
--out_free_dev:
-+out:
- 	free_netdev(dev);
- 
--	return NULL;
-+	return err;
- }
- 
--static void mv64340_eth_remove(struct net_device *dev)
-+static int mv64340_eth_remove(struct device *ddev)
- {
-+	struct net_device *dev = dev_get_drvdata(ddev);
-+
- 	unregister_netdev(dev);
- 	flush_scheduled_work();
-+
- 	free_netdev(dev);
-+	dev_set_drvdata(ddev, NULL);
-+	return 0;
- }
- 
--static struct net_device *mv64340_dev0;
--static struct net_device *mv64340_dev1;
--static struct net_device *mv64340_dev2;
-+static int mv64340_eth_shared_probe(struct device *ddev)
-+{
-+	struct platform_device *pdev = to_platform_device(ddev);
-+	struct resource *res;
-+
-+	printk(KERN_NOTICE "MV-643xx 10/100/1000 Ethernet Driver\n");
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (res == NULL)
-+		return -ENODEV;
-+
-+	mv64x60_eth_shared_base = ioremap(res->start,
-+						MV64340_ETH_SHARED_REGS_SIZE);
-+	if (mv64x60_eth_shared_base == NULL)
-+		return -ENOMEM;
-+
-+	return 0;
-+
-+}
-+
-+static int mv64340_eth_shared_remove(struct device *ddev)
-+{
-+	iounmap(mv64x60_eth_shared_base);
-+	mv64x60_eth_shared_base = NULL;
-+
-+	return 0;
-+}
-+
-+static struct device_driver mv643xx_eth_driver = {
-+	.name	= MV64XXX_ETH_NAME,
-+	.bus	= &platform_bus_type,
-+	.probe	= mv64340_eth_probe,
-+	.remove	= mv64340_eth_remove,
-+};
-+
-+static struct device_driver mv643xx_eth_shared_driver = {
-+	.name	= MV64XXX_ETH_SHARED_NAME,
-+	.bus	= &platform_bus_type,
-+	.probe	= mv64340_eth_shared_probe,
-+	.remove	= mv64340_eth_shared_remove,
-+};
- 
- /*
-  * mv64340_init_module
-@@ -1419,30 +1496,15 @@
-  */
- static int __init mv64340_init_module(void)
- {
--	printk(KERN_NOTICE "MV-643xx 10/100/1000 Ethernet Driver\n");
-+	int rc;
- 
--#ifdef CONFIG_MV643XX_ETH_0
--	mv64340_dev0 = mv64340_eth_init(0);
--	if (!mv64340_dev0) {
--		printk(KERN_ERR
--		       "Error registering MV-64360 ethernet port 0\n");
--	}
--#endif
--#ifdef CONFIG_MV643XX_ETH_1
--	mv64340_dev1 = mv64340_eth_init(1);
--	if (!mv64340_dev1) {
--		printk(KERN_ERR
--		       "Error registering MV-64360 ethernet port 1\n");
-+	rc = driver_register(&mv643xx_eth_shared_driver);
-+	if (!rc) {
-+		rc = driver_register(&mv643xx_eth_driver);
-+		if (rc)
-+			driver_unregister(&mv643xx_eth_shared_driver);
  	}
--#endif
--#ifdef CONFIG_MV643XX_ETH_2
--	mv64340_dev2 = mv64340_eth_init(2);
--	if (!mv64340_dev2) {
--		printk(KERN_ERR
--		       "Error registering MV-64360 ethernet port 2\n");
--	}
--#endif
--	return 0;
-+	return rc;
+ 
+@@ -489,7 +499,8 @@
+ 		/* UDP change : We may need this */
+ 		if ((eth_int_cause_ext & 0x0000ffff) &&
+ 		    (mv64340_eth_free_tx_queue(dev, eth_int_cause_ext) == 0) &&
+-		    (MV64340_TX_QUEUE_SIZE > mp->tx_ring_skbs + 1))
++		    (MV64340_TX_QUEUE_SIZE >
++					mp->tx_ring_skbs + MAX_DESCS_PER_SKB))
+                                          netif_wake_queue(dev);
+ #ifdef MV64340_NAPI
+ 	} else {
+@@ -1004,22 +1015,27 @@
+ 
+ 	while (eth_tx_return_desc(mp, &pkt_info) == ETH_OK) {
+ 		if (pkt_info.return_info) {
+-			dev_kfree_skb_irq((struct sk_buff *)
+-                                                  pkt_info.return_info);
+ 			if (skb_shinfo(pkt_info.return_info)->nr_frags) 
+                                  pci_unmap_page(NULL, pkt_info.buf_ptr,
+                                              pkt_info.byte_cnt,
+                                              PCI_DMA_TODEVICE);
++			else
++                                 pci_unmap_single(NULL, pkt_info.buf_ptr,
++                                             pkt_info.byte_cnt,
++                                             PCI_DMA_TODEVICE);
+ 
+-                         if (mp->tx_ring_skbs != 1)
+-                                  mp->tx_ring_skbs--;
++			dev_kfree_skb_irq((struct sk_buff *)
++                                                  pkt_info.return_info);
++
++                        if (mp->tx_ring_skbs != 0)
++                                mp->tx_ring_skbs--;
+                 } else 
+                        pci_unmap_page(NULL, pkt_info.buf_ptr, pkt_info.byte_cnt,
+                                       PCI_DMA_TODEVICE);
+ 	}
+ 
+ 	if (netif_queue_stopped(dev) &&
+-            MV64340_TX_QUEUE_SIZE > mp->tx_ring_skbs + 1)
++            MV64340_TX_QUEUE_SIZE > mp->tx_ring_skbs + MAX_DESCS_PER_SKB)
+                        netif_wake_queue(dev);
  }
  
- /*
-@@ -1456,19 +1518,16 @@
-  */
- static void __exit mv64340_cleanup_module(void)
+@@ -1118,39 +1134,75 @@
+ 
+ 	/* Update packet info data structure -- DMA owned, first last */
+ #ifdef MV64340_CHECKSUM_OFFLOAD_TX
+-	if (!skb_shinfo(skb)->nr_frags || (skb_shinfo(skb)->nr_frags > 3)) {
+-#endif
+-		pkt_info.cmd_sts = ETH_TX_ENABLE_INTERRUPT |
+-	    	                   ETH_TX_FIRST_DESC | ETH_TX_LAST_DESC;
++	if (!skb_shinfo(skb)->nr_frags) {
++		if (skb->ip_summed != CHECKSUM_HW)
++			pkt_info.cmd_sts = ETH_TX_ENABLE_INTERRUPT |
++							   ETH_TX_FIRST_DESC |
++							   ETH_TX_LAST_DESC;
++		else {
++			u32		ipheader = skb->nh.iph->ihl << 11;
+ 
++			pkt_info.cmd_sts = ETH_TX_ENABLE_INTERRUPT |
++					ETH_TX_FIRST_DESC | ETH_TX_LAST_DESC |
++					ETH_GEN_TCP_UDP_CHECKSUM |
++					ETH_GEN_IP_V_4_CHECKSUM |
++					ipheader;
++			/* CPU already calculated pseudo header checksum. */
++			if (skb->nh.iph->protocol == IPPROTO_UDP) {
++				pkt_info.cmd_sts |= ETH_UDP_FRAME;
++				pkt_info.l4i_chk = skb->h.uh->check;
++			}
++			else if (skb->nh.iph->protocol == IPPROTO_TCP)
++				pkt_info.l4i_chk = skb->h.th->check;
++			else {
++				printk(KERN_ERR
++				       "%s: chksum proto != TCP or UDP\n",
++				       dev->name);
++				spin_unlock_irqrestore(&mp->lock, flags);
++				return 1;
++			}
++		}
+ 		pkt_info.byte_cnt = skb->len;
+ 		pkt_info.buf_ptr = pci_map_single(0, skb->data, skb->len,
+ 		                                  PCI_DMA_TODEVICE);
+-
+-
+ 		pkt_info.return_info = skb;
+ 		status = eth_port_send(mp, &pkt_info);
+ 		if ((status == ETH_ERROR) || (status == ETH_QUEUE_FULL))
+ 			printk(KERN_ERR "%s: Error on transmitting packet\n",
+ 				       dev->name);
+ 		mp->tx_ring_skbs++;
+-#ifdef MV64340_CHECKSUM_OFFLOAD_TX
+ 	} else {
+ 		unsigned int    frag;
+-		u32		ipheader;
++		u32		ipheader = skb->nh.iph->ihl << 11;
+ 
+                 /* first frag which is skb header */
+                 pkt_info.byte_cnt = skb_headlen(skb);
+                 pkt_info.buf_ptr = pci_map_single(0, skb->data,
+                                         skb_headlen(skb), PCI_DMA_TODEVICE);
+                 pkt_info.return_info = 0;
+-                ipheader = skb->nh.iph->ihl << 11;
+-                pkt_info.cmd_sts = ETH_TX_FIRST_DESC | 
+-					ETH_GEN_TCP_UDP_CHECKSUM |
++                pkt_info.cmd_sts = ETH_TX_FIRST_DESC;
++
++		if (skb->ip_summed == CHECKSUM_HW) {
++			/* CPU already calculated pseudo header checksum. */
++			pkt_info.cmd_sts |= ETH_GEN_TCP_UDP_CHECKSUM |
+ 					ETH_GEN_IP_V_4_CHECKSUM |
+-                                        ipheader;
+-		/* CPU already calculated pseudo header checksum. So, use it */
+-                pkt_info.l4i_chk = skb->h.th->check;
++					ipheader;
++			/* CPU already calculated pseudo header checksum. */
++			if (skb->nh.iph->protocol == IPPROTO_UDP) {
++				pkt_info.cmd_sts |= ETH_UDP_FRAME;
++				pkt_info.l4i_chk = skb->h.uh->check;
++			}
++			else if (skb->nh.iph->protocol == IPPROTO_TCP)
++				pkt_info.l4i_chk = skb->h.th->check;
++			else {
++				printk(KERN_ERR
++				       "%s: chksum proto != TCP or UDP\n",
++				       dev->name);
++				spin_unlock_irqrestore(&mp->lock, flags);
++				return 1;
++			}
++		}
++
+                 status = eth_port_send(mp, &pkt_info);
+ 		if (status != ETH_OK) {
+ 	                if ((status == ETH_ERROR))
+@@ -1178,8 +1230,6 @@
+                                 pkt_info.return_info = 0;
+                         }
+                         pkt_info.byte_cnt = this_frag->size;
+-                        if (this_frag->size < 8)
+-                                printk("%d : \n", skb_shinfo(skb)->nr_frags);
+ 
+                         pkt_info.buf_ptr = pci_map_page(NULL, this_frag->page,
+                                         this_frag->page_offset,
+@@ -1199,12 +1249,24 @@
+ 			}
+                 }
+         }
++#else
++	pkt_info.cmd_sts = ETH_TX_ENABLE_INTERRUPT | ETH_TX_FIRST_DESC |
++							ETH_TX_LAST_DESC;
++	pkt_info.byte_cnt = skb->len;
++	pkt_info.buf_ptr = pci_map_single(0, skb->data, skb->len,
++							PCI_DMA_TODEVICE);
++	pkt_info.return_info = skb;
++	status = eth_port_send(mp, &pkt_info);
++	if ((status == ETH_ERROR) || (status == ETH_QUEUE_FULL))
++		printk(KERN_ERR "%s: Error on transmitting packet\n",
++			       dev->name);
++	mp->tx_ring_skbs++;
+ #endif
+ 
+ 	/* Check if TX queue can handle another skb. If not, then
+ 	 * signal higher layers to stop requesting TX
+ 	 */
+-	if (MV64340_TX_QUEUE_SIZE <= (mp->tx_ring_skbs + 1))
++	if (MV64340_TX_QUEUE_SIZE <= (mp->tx_ring_skbs + MAX_DESCS_PER_SKB))
+ 		/* 
+ 		 * Stop getting skb's from upper layers.
+ 		 * Getting skb's from upper layers will be enabled again after
+@@ -2180,84 +2242,60 @@
+                                          struct pkt_info * p_pkt_info)
  {
--	if (mv64340_dev2)
--		mv64340_eth_remove(mv64340_dev2);
--	if (mv64340_dev1)
--		mv64340_eth_remove(mv64340_dev1);
--	if (mv64340_dev0)
--		mv64340_eth_remove(mv64340_dev0);
-+	driver_unregister(&mv643xx_eth_driver);
-+	driver_unregister(&mv643xx_eth_shared_driver);
+ 	int tx_desc_curr, tx_desc_used, tx_first_desc, tx_next_desc;
+-	volatile struct eth_tx_desc *current_descriptor;
+-	volatile struct eth_tx_desc *first_descriptor;
+-	u32 command_status, first_chip_ptr;
++	struct eth_tx_desc *current_descriptor;
++	struct eth_tx_desc *first_descriptor;
++	u32 command;
+ 
+ 	/* Do not process Tx ring in case of Tx ring resource error */
+ 	if (mp->tx_resource_err)
+ 		return ETH_QUEUE_FULL;
+ 
++	/*
++	 * The hardware requires that each buffer that is <= 8 bytes
++	 * in length must be aligned on an 8 byte boundary.
++	 */
++        if (p_pkt_info->byte_cnt <= 8 && p_pkt_info->buf_ptr & 0x7) {
++                printk(KERN_ERR
++			"mv64340_eth port %d: packet size <= 8 problem\n",
++			mp->port_num);
++                return ETH_ERROR;
++        }
++
+ 	/* Get the Tx Desc ring indexes */
+ 	tx_desc_curr = mp->tx_curr_desc_q;
+ 	tx_desc_used = mp->tx_used_desc_q;
+ 
+ 	current_descriptor = &mp->p_tx_desc_area[tx_desc_curr];
+-	if (current_descriptor == NULL)
+-		return ETH_ERROR;
+ 
+ 	tx_next_desc = (tx_desc_curr + 1) % MV64340_TX_QUEUE_SIZE;
+-	command_status = p_pkt_info->cmd_sts | ETH_ZERO_PADDING | ETH_GEN_CRC;
+-
+-	if (command_status & ETH_TX_FIRST_DESC) {
+-		tx_first_desc = tx_desc_curr;
+-		mp->tx_first_desc_q = tx_first_desc;
+-
+-                /* fill first descriptor */
+-                first_descriptor = &mp->p_tx_desc_area[tx_desc_curr];
+-                first_descriptor->l4i_chk = p_pkt_info->l4i_chk;
+-                first_descriptor->cmd_sts = command_status;
+-                first_descriptor->byte_cnt = p_pkt_info->byte_cnt;
+-                first_descriptor->buf_ptr = p_pkt_info->buf_ptr;
+-                first_descriptor->next_desc_ptr = mp->tx_desc_dma +
+-			tx_next_desc * sizeof(struct eth_tx_desc);
+-		wmb();
+-        } else {
+-                tx_first_desc = mp->tx_first_desc_q;
+-                first_descriptor = &mp->p_tx_desc_area[tx_first_desc];
+-                if (first_descriptor == NULL) {
+-                        printk("First desc is NULL !!\n");
+-                        return ETH_ERROR;
+-                }
+-                if (command_status & ETH_TX_LAST_DESC)
+-                        current_descriptor->next_desc_ptr = 0x00000000;
+-                else {
+-                        command_status |= ETH_BUFFER_OWNED_BY_DMA;
+-                        current_descriptor->next_desc_ptr = mp->tx_desc_dma +
+-				tx_next_desc * sizeof(struct eth_tx_desc);
+-                }
+-        }
+-
+-        if (p_pkt_info->byte_cnt < 8) {
+-                printk(" < 8 problem \n");
+-                return ETH_ERROR;
+-        }
+ 
+         current_descriptor->buf_ptr = p_pkt_info->buf_ptr;
+         current_descriptor->byte_cnt = p_pkt_info->byte_cnt;
+         current_descriptor->l4i_chk = p_pkt_info->l4i_chk;
+-        current_descriptor->cmd_sts = command_status;
+-
+         mp->tx_skb[tx_desc_curr] = (struct sk_buff*) p_pkt_info->return_info;
+ 
+-        wmb();
++	command = p_pkt_info->cmd_sts | ETH_ZERO_PADDING | ETH_GEN_CRC |
++							ETH_BUFFER_OWNED_BY_DMA;
++	if (command & ETH_TX_LAST_DESC)
++		command |= ETH_TX_ENABLE_INTERRUPT;
+ 
+-        /* Set last desc with DMA ownership and interrupt enable. */
+-        if (command_status & ETH_TX_LAST_DESC) {
+-                current_descriptor->cmd_sts = command_status |
+-                                        ETH_TX_ENABLE_INTERRUPT |
+-                                        ETH_BUFFER_OWNED_BY_DMA;
++	if (command & ETH_TX_FIRST_DESC) {
++		tx_first_desc = tx_desc_curr;
++		mp->tx_first_desc_q = tx_first_desc;
++                first_descriptor = current_descriptor;
++		mp->tx_first_command = command;
++        } else {
++                tx_first_desc = mp->tx_first_desc_q;
++                first_descriptor = &mp->p_tx_desc_area[tx_first_desc];
++		BUG_ON(first_descriptor == NULL);
++		current_descriptor->cmd_sts = command;
++        }
+ 
+-		if (!(command_status & ETH_TX_FIRST_DESC))
+-			first_descriptor->cmd_sts |= ETH_BUFFER_OWNED_BY_DMA;
++        if (command & ETH_TX_LAST_DESC) {
+ 		wmb();
++		first_descriptor->cmd_sts = mp->tx_first_command;
+ 
+-		first_chip_ptr = MV_READ(MV64340_ETH_CURRENT_SERVED_TX_DESC_PTR(mp->port_num));
+-
+-		/* Apply send command */
+-		if (first_chip_ptr == 0x00000000)
+-			MV_WRITE(MV64340_ETH_TX_CURRENT_QUEUE_DESC_PTR_0(mp->port_num), (struct eth_tx_desc *) mp->tx_desc_dma + tx_first_desc);
+-
++		wmb();
+                 ETH_ENABLE_TX_QUEUE(mp->port_num);
+ 
+ 		/*
+@@ -2265,13 +2303,9 @@
+ 		 * error */
+                 tx_first_desc = tx_next_desc;
+                 mp->tx_first_desc_q = tx_first_desc;
+-	} else {
+-		if (! (command_status & ETH_TX_FIRST_DESC) ) {
+-			current_descriptor->cmd_sts = command_status;
+-			wmb();
+-		}
+ 	}
+ 
++
+         /* Check for ring index overlap in the Tx desc ring */
+         if (tx_next_desc == tx_desc_used) {
+                 mp->tx_resource_err = 1;
+@@ -2281,7 +2315,6 @@
+ 	}
+ 
+         mp->tx_curr_desc_q = tx_next_desc;
+-        wmb();
+ 
+         return ETH_OK;
+ }
+@@ -2291,7 +2324,7 @@
+ {
+ 	int tx_desc_curr;
+ 	int tx_desc_used;
+-	volatile struct eth_tx_desc* current_descriptor;
++	struct eth_tx_desc *current_descriptor;
+ 	unsigned int command_status;
+ 
+ 	/* Do not process Tx ring in case of Tx ring resource error */
+@@ -2303,32 +2336,18 @@
+ 	tx_desc_used = mp->tx_used_desc_q;
+ 	current_descriptor = &mp->p_tx_desc_area[tx_desc_curr];
+ 
+-	if (current_descriptor == NULL)
+-		return ETH_ERROR;
+-
+ 	command_status = p_pkt_info->cmd_sts | ETH_ZERO_PADDING | ETH_GEN_CRC;
+-
+-/* XXX Is this for real ?!?!? */
+-	/* Buffers with a payload smaller than 8 bytes must be aligned to a
+-	 * 64-bit boundary. We use the memory allocated for Tx descriptor.
+-	 * This memory is located in TX_BUF_OFFSET_IN_DESC offset within the
+-	 * Tx descriptor. */
+-	if (p_pkt_info->byte_cnt <= 8) {
+-		printk(KERN_ERR
+-		       "You have failed in the < 8 bytes errata - fixme\n");
+-		return ETH_ERROR;
+-	}
+ 	current_descriptor->buf_ptr = p_pkt_info->buf_ptr;
+ 	current_descriptor->byte_cnt = p_pkt_info->byte_cnt;
+ 	mp->tx_skb[tx_desc_curr] = (struct sk_buff *) p_pkt_info->return_info;
+ 
+-	mb();
+ 
+ 	/* Set last desc with DMA ownership and interrupt enable. */
++	wmb();
+ 	current_descriptor->cmd_sts = command_status |
+ 			ETH_BUFFER_OWNED_BY_DMA | ETH_TX_ENABLE_INTERRUPT;
+ 
+-	/* Apply send command */
++	wmb();
+ 	ETH_ENABLE_TX_QUEUE(mp->port_num);
+ 
+ 	/* Finish Tx packet. Update first desc in case of Tx resource error */
+@@ -2374,40 +2393,33 @@
+ static ETH_FUNC_RET_STATUS eth_tx_return_desc(struct mv64340_private * mp,
+ 					      struct pkt_info * p_pkt_info)
+ {
+-	int tx_desc_used, tx_desc_curr;
++	int tx_desc_used;
+ #ifdef MV64340_CHECKSUM_OFFLOAD_TX
+-        int tx_first_desc;
++        int tx_busy_desc = mp->tx_first_desc_q;
++#else
++	int tx_busy_desc = mp->tx_curr_desc_q;
+ #endif
+-	volatile struct eth_tx_desc *p_tx_desc_used;
++	struct eth_tx_desc *p_tx_desc_used;
+ 	unsigned int command_status;
+ 
+ 	/* Get the Tx Desc ring indexes */
+-	tx_desc_curr = mp->tx_curr_desc_q;
+ 	tx_desc_used = mp->tx_used_desc_q;
+-#ifdef MV64340_CHECKSUM_OFFLOAD_TX
+-        tx_first_desc = mp->tx_first_desc_q;
+-#endif
++
+ 	p_tx_desc_used = &mp->p_tx_desc_area[tx_desc_used];
+ 
+-	/* XXX Sanity check */
++	/* Sanity check */
+ 	if (p_tx_desc_used == NULL)
+ 		return ETH_ERROR;
+ 
++	/* Stop release. About to overlap the current available Tx descriptor */
++	if (tx_desc_used == tx_busy_desc && !mp->tx_resource_err)
++		return ETH_END_OF_JOB;
++
+ 	command_status = p_tx_desc_used->cmd_sts;
+ 
+ 	/* Still transmitting... */
+-#ifndef MV64340_CHECKSUM_OFFLOAD_TX
+ 	if (command_status & (ETH_BUFFER_OWNED_BY_DMA))
+ 		return ETH_RETRY;
+-#endif
+-	/* Stop release. About to overlap the current available Tx descriptor */
+-#ifdef MV64340_CHECKSUM_OFFLOAD_TX
+-	if (tx_desc_used == tx_first_desc && !mp->tx_resource_err)
+-		return ETH_END_OF_JOB;
+-#else
+-	if (tx_desc_used == tx_desc_curr && !mp->tx_resource_err)
+-		return ETH_END_OF_JOB;
+-#endif
+ 
+ 	/* Pass the packet information to the caller */
+ 	p_pkt_info->cmd_sts = command_status;
+@@ -2488,7 +2500,7 @@
+ 	if (rx_next_curr_desc == rx_used_desc)
+ 		mp->rx_resource_err = 1;
+ 
+-	mb();
++	rmb();
+ 	return ETH_OK;
  }
  
- module_init(mv64340_init_module);
- module_exit(mv64340_cleanup_module);
+@@ -2527,14 +2539,12 @@
+ 	mp->rx_skb[used_rx_desc] = p_pkt_info->return_info;
  
- MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Rabeeh Khoury, Assaf Hoffman, Matthew Dharm and Manish Lachwani");
-+MODULE_AUTHOR("Rabeeh Khoury, Assaf Hoffman, Matthew Dharm, Manish Lachwani"
-+		" and Dale Farnsworth");
- MODULE_DESCRIPTION("Ethernet driver for Marvell MV64340");
+ 	/* Flush the write pipe */
+-	mb();
  
- /*
-@@ -1796,6 +1855,42 @@
- }
+ 	/* Return the descriptor to DMA ownership */
++	wmb();
+ 	p_used_rx_desc->cmd_sts =
+ 		ETH_BUFFER_OWNED_BY_DMA | ETH_RX_ENABLE_INTERRUPT;
+-
+-	/* Flush descriptor and CPU pipe */
+-	mb();
++	wmb();
  
- /*
-+ * eth_port_uc_addr_get - This function retrieves the port Unicast address
-+ * (MAC address) from the ethernet hw registers.
-+ *
-+ * DESCRIPTION:
-+ *		This function retrieves the port Ethernet MAC address.
-+ *
-+ * INPUT:
-+ *	unsigned int	eth_port_num	Port number.
-+ *	char		*MacAddr	pointer where the MAC address is stored
-+ *
-+ * OUTPUT:
-+ *	Copy the MAC address to the location pointed to by MacAddr
-+ *
-+ * RETURN:
-+ *	N/A.
-+ *
-+ */
-+static void eth_port_uc_addr_get(struct net_device *dev, unsigned char *MacAddr)
-+{
-+	struct mv64340_private *mp = netdev_priv(dev);
-+	unsigned int port_num = mp->port_num;
-+        u32 MacLow;
-+        u32 MacHigh;
-+
-+        MacLow = MV_READ(MV64340_ETH_MAC_ADDR_LOW(port_num));
-+        MacHigh = MV_READ(MV64340_ETH_MAC_ADDR_HIGH(port_num));
-+
-+        MacAddr[5] = (MacLow) & 0xff;
-+        MacAddr[4] = (MacLow >> 8) & 0xff;
-+        MacAddr[3] = (MacHigh) & 0xff;
-+        MacAddr[2] = (MacHigh >> 8) & 0xff;
-+        MacAddr[1] = (MacHigh >> 16) & 0xff;
-+        MacAddr[0] = (MacHigh >> 24) & 0xff;
-+}
-+
-+/*
-  * eth_port_uc_addr - This function Set the port unicast address table
-  *
-  * DESCRIPTION:
+ 	/* Move the used descriptor pointer to the next descriptor */
+ 	mp->rx_used_desc_q = (used_rx_desc + 1) % MV64340_RX_QUEUE_SIZE;
 Index: linux-2.5-marvell-submit/drivers/net/mv643xx_eth.h
 ===================================================================
---- linux-2.5-marvell-submit.orig/drivers/net/mv643xx_eth.h	2004-12-13 14:30:38.294827930 -0700
-+++ linux-2.5-marvell-submit/drivers/net/mv643xx_eth.h	2004-12-13 14:30:39.867524366 -0700
-@@ -46,10 +46,6 @@
-  *  The first part is the high level driver of the gigE ethernet ports.
-  */
+--- linux-2.5-marvell-submit.orig/drivers/net/mv643xx_eth.h	2004-12-13 14:30:28.455727084 -0700
++++ linux-2.5-marvell-submit/drivers/net/mv643xx_eth.h	2004-12-13 14:30:34.652530970 -0700
+@@ -511,18 +511,19 @@
+ 	int tx_curr_desc_q, tx_used_desc_q;
+ #ifdef MV64340_CHECKSUM_OFFLOAD_TX
+         int tx_first_desc_q;
++	u32 tx_first_command;
+ #endif
  
--#define ETH_PORT0_IRQ_NUM 48			/* main high register, bit0 */
--#define ETH_PORT1_IRQ_NUM ETH_PORT0_IRQ_NUM+1	/* main high register, bit1 */
--#define ETH_PORT2_IRQ_NUM ETH_PORT0_IRQ_NUM+2	/* main high register, bit1 */
--
- /* Checksum offload for Tx works */
- #define  MV64340_CHECKSUM_OFFLOAD_TX
- #define	 MV64340_NAPI
-Index: linux-2.5-marvell-submit/include/linux/mv643xx.h
-===================================================================
---- linux-2.5-marvell-submit.orig/include/linux/mv643xx.h	2004-12-10 15:47:16.000000000 -0700
-+++ linux-2.5-marvell-submit/include/linux/mv643xx.h	2004-12-13 14:30:39.868524173 -0700
-@@ -663,6 +663,9 @@
- /*        Ethernet Unit Registers  		*/
- /****************************************/
+ #ifdef MV64340_TX_FAST_REFILL
+ 	u32	tx_clean_threshold;
+ #endif
  
-+#define MV64340_ETH_SHARED_REGS                                     0x2000
-+#define MV64340_ETH_SHARED_REGS_SIZE                                0x2000
-+
- #define MV64340_ETH_PHY_ADDR_REG                                    0x2000
- #define MV64340_ETH_SMI_REG                                         0x2004
- #define MV64340_ETH_UNIT_DEFAULT_ADDR_REG                           0x2008
-@@ -1040,4 +1043,13 @@
+-	volatile struct eth_rx_desc	* p_rx_desc_area;
++	struct eth_rx_desc		* p_rx_desc_area;
+ 	dma_addr_t			rx_desc_dma;
+ 	unsigned int			rx_desc_area_size;
+ 	struct sk_buff			* rx_skb[MV64340_RX_QUEUE_SIZE];
  
- extern void mv64340_irq_init(unsigned int base);
- 
-+#define MV64340_ETH_DESC_SIZE				64
-+
-+#define MV64XXX_ETH_SHARED_NAME	"mv64xxx_eth_shared"
-+#define MV64XXX_ETH_NAME	"mv64xxx_eth"
-+
-+struct mv64xxx_eth_platform_data {
-+	char	*mac_addr;	/* pointer to mac address */
-+};
-+
- #endif /* __ASM_MV64340_H */
+-	volatile struct eth_tx_desc	* p_tx_desc_area;
++	struct eth_tx_desc		* p_tx_desc_area;
+ 	dma_addr_t			tx_desc_dma;
+ 	unsigned int			tx_desc_area_size;
+ 	struct sk_buff			* tx_skb[MV64340_TX_QUEUE_SIZE];

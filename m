@@ -1,25 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266183AbSKLEEr>; Mon, 11 Nov 2002 23:04:47 -0500
+	id <S266186AbSKLEHC>; Mon, 11 Nov 2002 23:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266186AbSKLEEr>; Mon, 11 Nov 2002 23:04:47 -0500
-Received: from r200-2-32-202.adinet.com.uy ([200.2.32.202]:36360 "HELO
-	servidor") by vger.kernel.org with SMTP id <S266183AbSKLEEq>;
-	Mon, 11 Nov 2002 23:04:46 -0500
-From: "panchop" <pancho2002@hotpop.com>
-To: Linux-Kernel@Vger.Kernel.ORG
-Subject: Adelgace con salud sin sufrir
+	id <S266191AbSKLEHC>; Mon, 11 Nov 2002 23:07:02 -0500
+Received: from packet.digeo.com ([12.110.80.53]:19706 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266186AbSKLEHB>;
+	Mon, 11 Nov 2002 23:07:01 -0500
+Message-ID: <3DD07FF4.2E1BC593@digeo.com>
+Date: Mon, 11 Nov 2002 20:13:40 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain
-Message-Id: <20021112040446Z266183-32597+20767@vger.kernel.org>
-Date: Mon, 11 Nov 2002 23:04:46 -0500
+To: Andrew McGregor <andrew@indranet.co.nz>, jt@hpl.hp.com,
+       Thomas Molina <tmolina@cox.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Oopsen with pcmcia aironet wireless (2.5.47)
+References: <5860000.1037069226@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Nov 2002 04:13:43.0389 (UTC) FILETIME=[E35C90D0:01C28A01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Su dirección de e-mail fué obtenida de mi disco rígido. No es mi intención molestarlo con este correo. No es SPAM porque se incluye la forma de ser removido: Si desea ser removido de la lista responda esta mail con asunto "Remover" o siga este vínculo mailto:pancho2002@hotpop.com?subject=Remover 
+Andrew McGregor wrote:
+> 
+> I see lots of oopsen when I insert an Aironet PC4800 802.11 card.
 
-Mensaje:
-Si desea adelgazar sin sufrimiento, con buena salud y a un costo razonable siga este vínculo http://www.ofertaexclusiva.com/foreverlite/
-No envío mas información para molestar lo menos posible, pero creo que vale la pena analizar la oferta.
-Saludos, Pancho2002.
+They are debug warnings, not oopses.
 
+> ...
+> Nov 12 15:40:39 localhost kernel: end_request: I/O error, dev hdb, sector 0
+> Nov 12 15:40:39 localhost last message repeated 3 times
+> Nov 12 15:40:39 localhost kernel: end_request: I/O error, dev hdc, sector 0
+> Nov 12 15:40:39 localhost last message repeated 2 times
+
+hm.  IDE sick?
+
+> Nov 12 15:40:39 localhost kernel: Debug: sleeping function called from
+> illegal context at include/asm/semaphore.h:145
+> Nov 12 15:40:39 localhost kernel: Call Trace:
+> Nov 12 15:40:39 localhost kernel:  [<e1a59215>] PC4500_readrid+0x55/0x160
+
+airo_get_stats is called under the read_lock(&dev_base_lock); which was
+taken in dev_get_info.  So it may not call sleeping functions (ie:
+down_interruptible()).
+
+It would appear that no netdevice->get_stats() method is allowed to sleep,
+which seems pretty dumb, IMVHO.

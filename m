@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264630AbTBTAho>; Wed, 19 Feb 2003 19:37:44 -0500
+	id <S261173AbTBTAr0>; Wed, 19 Feb 2003 19:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264646AbTBTAho>; Wed, 19 Feb 2003 19:37:44 -0500
-Received: from rth.ninka.net ([216.101.162.244]:38305 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S264630AbTBTAho>;
-	Wed, 19 Feb 2003 19:37:44 -0500
+	id <S261689AbTBTAr0>; Wed, 19 Feb 2003 19:47:26 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:56208 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S261173AbTBTArZ>;
+	Wed, 19 Feb 2003 19:47:25 -0500
+Date: Wed, 19 Feb 2003 16:57:29 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Tom Lendacky <toml@us.ibm.com>,
+       "Alexey N. Kuznetsov" <kuznet@ms2.inr.ac.ru>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] IPSec protocol application order
-From: "David S. Miller" <davem@redhat.com>
-To: Tom Lendacky <toml@us.ibm.com>
-Cc: "Alexey N. Kuznetsov" <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <OF67D9F550.2E100257-ON86256CD2.007CE0BF-86256CD2.007E9FBD@pok.ibm.com>
-References: <OF67D9F550.2E100257-ON86256CD2.007CE0BF-86256CD2.007E9FBD@pok.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Feb 2003 17:32:09 -0800
-Message-Id: <1045704729.14999.2.camel@rth.ninka.net>
+Message-ID: <20030220005729.GA22880@f00f.org>
+References: <OF67D9F550.2E100257-ON86256CD2.007CE0BF-86256CD2.007E9FBD@pok.ibm.com> <1045704729.14999.2.camel@rth.ninka.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045704729.14999.2.camel@rth.ninka.net>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-19 at 15:03, Tom Lendacky wrote:
-> I apologize if I missed it, but is there another way to set policy in the
-> SPD besides the setkey command?  I am under the assumption that setkey's
-> spdadd operation is what is to be used to define the policy on the system
-> so that racoon can perform dynamic keying.
+On Wed, Feb 19, 2003 at 05:32:09PM -0800, David S. Miller wrote:
 
-That's correct.
+> ... Do you suggest that the kernel or some other part of the system
+> should verify the packets sent through the RAW socket interface?
+> That is exactly what you are telling us that setkey should be doing.
 
-But there is still no issue.
+someone could patch setkey to warn if it's told to do something bogus,
+with optional command line switch to silence this or whatever
 
-The user can make his machine non-RFC compliant by giving a bogus
-specification to setkey.  Kernel and setkey are merely doing what
-the user asks of them.
 
-This is akin to the user writing a RAW socket application which makes
-the kernel output non-RFC compliant TCP packets.  Do you suggest that
-the kernel or some other part of the system should verify the packets
-sent through the RAW socket interface?  That is exactly what you are
-telling us that setkey should be doing.
-
+  --cw

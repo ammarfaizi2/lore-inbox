@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317308AbSHYMO6>; Sun, 25 Aug 2002 08:14:58 -0400
+	id <S317334AbSHYMWr>; Sun, 25 Aug 2002 08:22:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317326AbSHYMO6>; Sun, 25 Aug 2002 08:14:58 -0400
-Received: from pD9E236A6.dip.t-dialin.net ([217.226.54.166]:33705 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317308AbSHYMO6>; Sun, 25 Aug 2002 08:14:58 -0400
-Date: Sun, 25 Aug 2002 06:19:04 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Sean Neakums <sneakums@zork.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre4-ac1
-In-Reply-To: <Pine.GSO.4.21.0208251410290.17500-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.44.0208250618470.3234-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam-Babelsberg; Germany
+	id <S317341AbSHYMWr>; Sun, 25 Aug 2002 08:22:47 -0400
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:39047 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S317334AbSHYMWr>; Sun, 25 Aug 2002 08:22:47 -0400
+Message-ID: <3D68CD62.C3E59923@wanadoo.fr>
+Date: Sun, 25 Aug 2002 14:28:18 +0200
+From: kris <C.Devalquenaire@wanadoo.fr>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: fr-FR, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2.5 Problem ne.c driver
+References: <3D68C32C.AD7D9414@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+kris wrote:
+> 
+> I have 2 ne2000 isa cards (10Mbps for each) and with this versions of
+> kernel the bandwith is divided by 2. So 2*5Mbps = 10Mbps instead of
+> 2*10Mbps=20Mbps.
+> I try to fix the pbm.
 
-On Sun, 25 Aug 2002, Geert Uytterhoeven wrote:
-> "80-conductor cable not detected; limiting bus speed to UDMA2."
-
-...or less...
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+perhaps a bug exists on the dispatcher when 2 identical cards exist.
+Anyone have 2 identical cards for test ?

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266932AbSL3MTG>; Mon, 30 Dec 2002 07:19:06 -0500
+	id <S266941AbSL3MVC>; Mon, 30 Dec 2002 07:21:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266933AbSL3MTG>; Mon, 30 Dec 2002 07:19:06 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44416
+	id <S266944AbSL3MVC>; Mon, 30 Dec 2002 07:21:02 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45440
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266932AbSL3MTF>; Mon, 30 Dec 2002 07:19:05 -0500
-Subject: Re: How much we can trust packet timestamping
+	id <S266941AbSL3MVB>; Mon, 30 Dec 2002 07:21:01 -0500
+Subject: Re: Highpoint HPT370 not working in 2.4.18+ versions
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: uaca@alumni.uv.es
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021230112838.GA928@pusa.informat.uv.es>
-References: <20021230112838.GA928@pusa.informat.uv.es>
+To: system_lists@nullzone.org
+Cc: Scott McDermott <vaxerdec@frontiernet.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.1.6.2.20021230100446.03168ec8@192.168.2.131>
+References: <5.1.1.6.2.20021226012834.037b9558@192.168.2.131>
+	<5.1.1.6.2.20021226012834.037b9558@192.168.2.131> 
+	<5.1.1.6.2.20021230100446.03168ec8@192.168.2.131>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Dec 2002 13:09:03 +0000
-Message-Id: <1041253743.13097.3.camel@irongate.swansea.linux.org.uk>
+Date: 30 Dec 2002 13:10:56 +0000
+Message-Id: <1041253856.13076.5.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-30 at 11:28, uaca@alumni.uv.es wrote:
-> Hi all
+On Mon, 2002-12-30 at 09:10, system_lists@nullzone.org wrote:
 > 
-> IMHO The problem is quite complicated because
+> Hi there Scott,
 > 
-> + common hardware is not designed for real time:
+>     my card (which not need any patch for working on in 2.4.18 but doesnt 
+> work (its simply not detected) on next versions) is:
 > 
-> 	- sends multiple PDUs within one interrupt, and can be delayed
-> 	- Host adapter bus & infraestructure is not designed to garantee latency
->   	etc...
+> HighPoint Technologies, Inc.
+> HPT370 UDMA/ATA100 RAID Controller BIOS v1.0.3b1
+> 
+> have u any idea?
 
-The packet can be timestamped by the hardware receiving as well as by
-the kernel netif_rx code. This is actually intentional and there is
-hardware that supports doing IRQ raise time sampling which the driver
-can then use to get very accurate data.
-
-Alan
+Make sure you have the HPT driver compiled into your kernel
 

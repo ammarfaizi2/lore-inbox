@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264705AbSLMOhb>; Fri, 13 Dec 2002 09:37:31 -0500
+	id <S264711AbSLMOj7>; Fri, 13 Dec 2002 09:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264711AbSLMOhb>; Fri, 13 Dec 2002 09:37:31 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:16791 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264705AbSLMOha>;
-	Fri, 13 Dec 2002 09:37:30 -0500
-Date: Fri, 13 Dec 2002 15:41:56 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>,
-       Petr Sebor <petr@scssoft.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE feature request & problem
-Message-ID: <20021213154156.A6001@ucw.cz>
-References: <021401c2a05d$f1c72c80$551b71c3@krlis> <1039540202.14251.43.camel@irongate.swansea.linux.org.uk> <039d01c2a0ab$b19a5ad0$551b71c3@krlis> <1039569643.14166.105.camel@irongate.swansea.linux.org.uk> <20021211210416.A506@ucw.cz> <20021212181250.GB184@elf.ucw.cz>
+	id <S264715AbSLMOj7>; Fri, 13 Dec 2002 09:39:59 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:16901 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S264711AbSLMOj6>; Fri, 13 Dec 2002 09:39:58 -0500
+Date: Fri, 13 Dec 2002 12:47:44 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Breno <breno_silva@bandnet.com.br>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PROCESS IMIGRATION
+Message-ID: <20021213144744.GI13367@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Breno <breno_silva@bandnet.com.br>,
+	Kernel List <linux-kernel@vger.kernel.org>
+References: <000701c2a208$f50e7a40$8be1a7c8@bsb.virtua.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021212181250.GB184@elf.ucw.cz>; from pavel@suse.cz on Thu, Dec 12, 2002 at 07:12:50PM +0100
+In-Reply-To: <000701c2a208$f50e7a40$8be1a7c8@bsb.virtua.com.br>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 07:12:50PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > > I have got xfs partition and man fsck.xfs say
-> > > > that it will run automatically on reboot.
-> > > 
-> > > You need to force one. Something (I assume XFS) asked the disk for a
-> > > stupid sector number. Thats mostly likely due to some kind of internal
-> > > corruption on the XFS
-> > 
-> > Or the power supply doesn't give enough power to the drives anymore (my
-> > 350W PSU is having heavy problems with five or more drives), and the IDE
-> > transfers get garbled. Note that there is no CRC protection for non-data
-> > xfers even when UDMA is in use, which includes LBA sector addressing.
-> 
-> But kernel would not log bogus LBA in such case.
+Em Thu, Dec 12, 2002 at 04:04:46PM -0200, Breno escreveu:
+> I saw something about one project of FreeBSD and this is about imigration of
+> processes between two machines.
+> The kernel Linux has something about this , or some project like that ?
 
-It could, if the drive has read a different sector than it was supposed
-to and the filesystem got confused by the data ...
+Right next door (oops, city):
 
--- 
-Vojtech Pavlik
-SuSE Labs
+http://www.cos.ufrj.br/~edpin/epckpt/
+
+   What is EPCKPT?
+
+   EPCKPT is a checkpoint/restart utility built into the Linux kernel.
+   Checkpointing is the ability to save an image of the state of a
+   process (or group of processes) at a certain point during its
+   lifetime. Checkpoints are important to a wide range of applications.
+   The most common uses for checkpointing are:
+     * Fault-tolerance
+     * Applications trace/Debugging
+     * Rollback/Animated playback
+     * Process migration
+
+   Our main interest right now is process migration. So, we optimized
+   EPCKPT to make process' image the smaller possible, so migration costs
+   would be low.
+
+- Arnaldo

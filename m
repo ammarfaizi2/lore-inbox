@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTLPPxb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 10:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTLPPxb
+	id S261812AbTLPPrI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 10:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTLPPrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 10:53:31 -0500
-Received: from mmjgroup.com ([192.34.35.33]:64704 "EHLO mmjgroup.com")
-	by vger.kernel.org with ESMTP id S261892AbTLPPxa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 10:53:30 -0500
-Date: Tue, 16 Dec 2003 08:53:24 -0700
-From: LaMont Jones <lamont@mmjgroup.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Randolph Chung <randolph@tausq.org>, linux-kernel@vger.kernel.org,
-       parisc-linux@lists.parisc-linux.org
-Subject: Re: [parisc-linux] Re: Question about cache flushing and fork
-Message-ID: <20031216155324.GB25535@mmjgroup.com>
-Mail-Followup-To: LaMont Jones <lamont@mmjgroup.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Randolph Chung <randolph@tausq.org>, linux-kernel@vger.kernel.org,
-	parisc-linux@lists.parisc-linux.org
-References: <20031216044033.GT533@tausq.org> <20031215204835.0993a51a.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031215204835.0993a51a.davem@redhat.com>
-User-Agent: Mutt/1.5.4i
+	Tue, 16 Dec 2003 10:47:08 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:59778 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261812AbTLPPrG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 10:47:06 -0500
+Date: Tue, 16 Dec 2003 16:47:03 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <Pine.LNX.4.53.0312160846530.17690@chaos>
+Message-ID: <Pine.LNX.4.55.0312161645100.8262@jurand.ds.pg.gda.pl>
+References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
+ <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com>
+ <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl> <3FDE2AC6.30902@mvista.com>
+ <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl>
+ <Pine.LNX.4.53.0312160846530.17690@chaos>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 08:48:35PM -0800, David S. Miller wrote:
-> On Mon, 15 Dec 2003 20:40:33 -0800
-> Randolph Chung <randolph@tausq.org> wrote:
-> > Can someone please explain why it is necessary to flush the cache 
-> > during fork()? (i.e. call to flush_cache_mm() in dup_mmap)
-> Writable pages that will be shared between the child and
-> parent are marked read-only and COW, some cpu caches store
-> protection information in the cache lines in order to avoid
-> TLB lookups etc. so the caches must be flushed since the
-> page protection information is changing.
+On Tue, 16 Dec 2003, Richard B. Johnson wrote:
 
-On PARISC, the cache line contains the following elements:
-	1) data (obviously)
-	2) physical page
-	3) dirty/clean/public/private/etc state
+> Masking OFF the timer channel 0 in the interrupt controller
+> is probably the easiest thing to do. The port is read-write,
+> and the OCW default to having it accessible.
 
-A cache access hits or misses depending on whether or not the physical page from
-the TLB matches the physical page stored in the cache line.
+ Note we are writing about configurations involving an I/O APIC, so things
+are not that easy -- the 8254 timer IRQ may be wired in different ways.
 
-If flushing is required during fork on PARISC, then there are cache consistency
-issues elsewhere, something is horribly broken in the design (and it should be
-falling all over anyway).
-
-lamont
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

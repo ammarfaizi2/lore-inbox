@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbUAYAK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 19:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUAYAK7
+	id S262652AbUAYAfe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 19:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbUAYAfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 19:10:59 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:32140 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263568AbUAYAKz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 19:10:55 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 24 Jan 2004 16:10:56 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Valdis.Kletnieks@vt.edu
-cc: Andrew Morton <akpm@osdl.org>, Felix von Leitner <felix-kernel@fefe.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Request: I/O request recording 
-In-Reply-To: <200401250004.i0P04mx8005321@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.44.0401241609470.14163-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 24 Jan 2004 19:35:34 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:38385 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262652AbUAYAf2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 19:35:28 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 25 Jan 2004 01:35:19 +0100 (MET)
+Message-Id: <UTC200401250035.i0P0ZJW13717.aeb@smtp.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org
+Subject: [uPATCH] ufs.txt update
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jan 2004 Valdis.Kletnieks@vt.edu wrote:
+If the previous patch is applied, the phrase "default value,"
+should be deleted in ufs.txt.
+In any case, the option "ufstype=hp" should be documented.
 
-> On Sat, 24 Jan 2004 15:53:44 PST, Davide Libenzi said:
-> 
-> > > Anyway, the code's ancient but might provide some ideas:
-> > > 
-> > > 	http://www.zip.com.au/~akpm/linux/fboot.tar.gz
-> > 
-> > Warning. I don't know if they do have a patent for this, but MS does this 
-> > starting from XP (look inside %WINDIR%\PreFetch). It is both boot and app 
-> > based.
-> 
-> Hmm.. prior art time. ;)
-> 
-> IBM's OS/VS1 and MVS operating systems had the 'link pack area', where
-> frequently loaded modules were loaded at system startup.  And there were
-> numerous 3rd party optimizers that would analyze the LOAD SVC patterns on your
-> system and produce a list of which modules should be pre-loaded in order to get
-> the most bang for the buck (even a *large* 370/168 or 303x processor might be
-> able to spare a megabyte tops, so optimizing it was important, and sites would
-> spend $5K on software that would optimize the memory usage and save them a
-> memory upgrade at $40K a meg...
-> 
-> This was mid-70s, so definitely pre-XP.
+Andries
 
-They (MS) do work of a page fault basis though. It is quite different.
-
-
-
-- Davide
-
-
+--- /linux/2.6/linux-2.6.1/linux/Documentation/filesystems/ufs.txt	2003-12-18 03:59:06.000000000 +0100
++++ ufs.txt	2004-01-25 01:33:34.000000000 +0100
+@@ -15,7 +15,7 @@
+ 	ufs manually by mount option ufstype. Possible values are:
+ 
+ 	old	old format of ufs
+-		default value, supported os read-only
++		supported os read-only
+ 
+ 	44bsd	used in FreeBSD, NetBSD, OpenBSD
+ 		supported os read-write
+@@ -26,6 +26,9 @@
+ 	sunx86	used in SunOS for Intel (Solarisx86)
+ 		supported as read-write
+ 
++	hp	used in HP-UX
++		supported as read-only
++
+ 	nextstep
+ 		used in NextStep
+ 		supported as read-only

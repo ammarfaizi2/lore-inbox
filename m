@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267489AbUHPJan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUHPJb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267489AbUHPJan (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 05:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUHPJan
+	id S267490AbUHPJb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 05:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUHPJb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 05:30:43 -0400
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:23696 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S267489AbUHPJal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 05:30:41 -0400
-From: Hubert Tonneau <hubert.tonneau@heliogroup.fr>
-To: linux-kernel@vger.kernel.org
-Subject: USB storage crash report in 2.6
-Date: Mon, 16 Aug 2004 09:11:48 GMT
-Message-ID: <04BQXJO12@server5.heliogroup.fr>
-X-Mailer: Pliant 92
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 16 Aug 2004 05:31:26 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:54965 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S267490AbUHPJbW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 05:31:22 -0400
+Date: Mon, 16 Aug 2004 10:30:55 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: your mail
+In-Reply-To: <20040816101732.A9150@infradead.org>
+Message-ID: <Pine.LNX.4.58.0408161019040.21177@skynet>
+References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org>
+ <Pine.LNX.4.58.0408160038320.9944@skynet> <20040816101732.A9150@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to copy large amount of datas (more than 100 GB) between USB
-attached disks, I get a crash with Linux 2.6
+>
+> Eeek, doing different styles of probing is even worse than what you did
+> before.  Please revert to pci_find_device() util you havea proper common
+> driver ready.
 
-Here are the extra details I can provide:
+There was nothing wrong with what we did before it just happened to work
+like 2.4. we are now acting like real 2.6 drivers, which we need to do for
+sysfs and hotplug to work, Jon Smirl is working on a proper minor device
+support (like USB does I think)... we need to get this work done before we
+can have proper common drivers and I don't want to do all this work in
+hiding and then have it refused because we told no-one,
 
-At crash time, the machine completely freezes, so I can only report what I can
-see on the screen, mainly the stack trace report:
-scan_async
-ehci_watchlog
-ehci_work
-ehci_watchlog
-run_timer_softirq
-__do_softirq
-do_softirq
-smp_apic_timer_interrupt
-apic_timer_interrupt
-default_idle
-call_console_driver
-printk
+The DRM will flux a lot over the next while (while we get this common
+drm/fb stuff together) and as long as we can keep the changes from
+actually breaking it I think people should be able to live with it ...
 
-The machine is running a Dell sx270 (P4 hyperthreading) running Linux 2.6.8.1
+Dave.
 
-What I do is try to copy roughly 60 GB from disk sdc to sda (EXT3 to EXT3),
-and then another 60 GB from sdc to sdb
-The crash appends after copying roughly 100 GB.
-It can be reproduced.
-I had no problem when I first copied from sda to sdc and sdb to sdc (it was
-XFS to EXT3).
-
-I tried the following, without success:
-. downgrade to 2.6.7
-. desable kernel preempting
-. change target filesystem from EXT3 to EXT2 then to XFS
-
-What did success is downgrade to 2.4.27
-
-Anyway, I got no crash on all our various machines running 2.6.6 and 2.6.7,
-including some busy ones, unless some USB device is attached (once reading
-a deffective DVD, and this time copying between USB disks).
-
-Just in case, I also remember that I also had a server repetingly freezing
-in early 2.6, and it was related to a bad cable generating tiny error on the
-SCSI bus (MTP fusion controler) and it was properly handled by 2.4, not by 2.6
-so the problem might be related to handling tiny problems in the SCSI layer
-as well (assuming it was not an MTP fusion driver problem).
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315606AbSFTVio>; Thu, 20 Jun 2002 17:38:44 -0400
+	id <S315607AbSFTVkk>; Thu, 20 Jun 2002 17:40:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315616AbSFTVh6>; Thu, 20 Jun 2002 17:37:58 -0400
-Received: from zok.sgi.com ([204.94.215.101]:63657 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S315606AbSFTVhq>;
-	Thu, 20 Jun 2002 17:37:46 -0400
-Date: Thu, 20 Jun 2002 14:37:43 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: linux-kernel@vger.kernel.org, pazke@orbita1.ru
-Subject: Re: [PATCH][RFC] SGI VISWS support for 2.5
-Message-ID: <20020620213743.GA67049@sgi.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, pazke@orbita1.ru
-References: <20020620112608.GA303@pazke.ipt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020620112608.GA303@pazke.ipt>
-User-Agent: Mutt/1.3.27i
+	id <S315546AbSFTVki>; Thu, 20 Jun 2002 17:40:38 -0400
+Received: from mail.science.uva.nl ([146.50.4.51]:6550 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S315611AbSFTVkU>; Thu, 20 Jun 2002 17:40:20 -0400
+Message-Id: <200206202138.g5KLcsO04303@mail.science.uva.nl>
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rvandijk@science.uva.nl>
+Reply-To: rvandijk@science.uva.nl
+Organization: UvA
+To: Dave Jones <davej@suse.de>
+Subject: Re: Linux 2.5.23-dj2
+Date: Thu, 20 Jun 2002 23:42:03 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20020619205136.GA18903@suse.de> <200206192133.g5JLXH814796@mail.science.uva.nl> <20020619234035.R29373@suse.de>
+In-Reply-To: <20020619234035.R29373@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I gave it a go on a 320 that I have here and it gets into start_kernel
-somewhere, but I don't get any output on the serial console.  If you'd
-like to get it into 2.5, maybe we should clean it up a little first
-(as well as get it working)?
+On Wednesday 19 June 2002 23:40, Dave Jones wrote:
+> On Wed, Jun 19, 2002 at 11:36:20PM +0200, Rudmer van Dijk wrote:
+>  > Ok I can run -dj2, but I cannot use X 8-( although this time no BUG or
+>  > panic.
+>
+> 1, any agpgart related messages in the logs/dmesg ?
+> 2. Can you disable agpgart, and try again. I'm fairly certain this
+>    is the cause, but just in case..
 
-When I ported the last patch forward to 2.4.17, I noticed that there
-were quite a few parts that could use some work.  Looking through the
-patch, it seems like the head.S stuff could be done in a better way,
-maybe a seperate head.S for machines that start in protected mode?
-Then again, maybe the boot loader should just be changed?  The
-interrupt handler code also needs to be fixed up.
+just checked 2 but no improvement, also checked without drm again no 
+solution...
 
-I haven't looked at the patch to seperate out i386 subarches yet, but
-maybe that would be a good first step to abstracting away some of the
-visws setup code?
+otherwise the system seems stable (also when running X) but I also saw the 
+'spurious 8259A interrupt: IRQ7.' message after a couple of minutes. I know 
+that this has got something to do with local apic, but nothing more...
 
-Jesse
+this is from dmesg:
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+<snip>
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1128.5606 MHz.
+..... host bus clock speed is 265.5435 MHz.
+cpu: 0, clocks: 2655435, slice: 1327717
+CPU0<T0:2655424,T1:1327696,D:11,S:1327717,C:2655435>
 
-On Thu, Jun 20, 2002 at 03:26:08PM +0400, Andrey Panin wrote:
-> Hi all,
-> 
-> attached patch is a forward port of latest (2.4.17) visws patch from 
-> sourceforge. It's mostly trivial textual merge. Builds, unteseted.
-> 
-> Please take a look at it.
-> 
-> -- 
-> Andrey Panin            | Embedded systems software engineer
-> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+(interresting: this differs from 2.4.19-pre10-ac2... but there I get the same 
+spurious interrupt)
+
+UP system, athlon 1133, mobo: ecs k7s5am
+
+gandalf:~ # lspci
+00:00.0 Host bridge: Silicon Integrated Systems [SiS]: Unknown device 0735 
+(rev
+01)
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+00:0b.0 Ethernet controller: Winbond Electronics Corp W89C940
+00:0f.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+00:11.0 Ethernet controller: Winbond Electronics Corp W89C940
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01)
 
 
-
+	Rudmer

@@ -1,78 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261668AbTCaObe>; Mon, 31 Mar 2003 09:31:34 -0500
+	id <S261664AbTCaOnS>; Mon, 31 Mar 2003 09:43:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261672AbTCaObe>; Mon, 31 Mar 2003 09:31:34 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:8599 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S261668AbTCaObC>; Mon, 31 Mar 2003 09:31:02 -0500
-Date: Mon, 31 Mar 2003 16:42:15 +0200
-From: Stelian Pop <stelian@popies.net>
-To: "Daniel K." <dk@uw.no>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [patch] fix ec_read using wrong #define's in sonypi driver.
-Message-ID: <20030331164215.D11090@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>, "Daniel K." <dk@uw.no>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <3E884305.9070701@uw.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E884305.9070701@uw.no>; from dk@uw.no on Mon, Mar 31, 2003 at 01:30:45PM +0000
+	id <S261665AbTCaOnS>; Mon, 31 Mar 2003 09:43:18 -0500
+Received: from main.gmane.org ([80.91.224.249]:3738 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S261664AbTCaOnR>;
+	Mon, 31 Mar 2003 09:43:17 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Happe <andreashappe@gmx.net>
+Subject: Re: 2.5 on a hp omnibook 6000
+Date: Mon, 31 Mar 2003 16:41:00 +0200
+Message-ID: <slrnb8gkrs.890.andreashappe@3jane.homelinux.net>
+References: <20030331142558.1358.qmail@linuxmail.org>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 01:30:45PM +0000, Daniel K. wrote:
+In article <20030331142558.1358.qmail@linuxmail.org>, Paolo Ciarrocchi wrote:
+> andreashappe@gmx .net
+>>> I have a laptop, it is a HP omnibook 6000.
+>>mine is a hp omnibook 6100.
+> Ok. I think you have a bigger monitor and 
+> more cpu Hz.
 
-> This patch will make the driver use the correct #define's when
-> querying battery charge.
-> 
-> This error sneaked into 2.4.20-pre1,
-> and have been present in 2.5 since 2.5.49.
+monitor should be the same, graphic card is different (radeon mob. compared
+to your ati rage mob.) and I should have a newer chipset.
 
-Damn, a copy and paste error and nobody noticed until now.
+>>> http://bugzilla.kernel.org/show_bug.cgi?id=149
+>>that could be related to bug #18.
+> I don't know.
+> Do you have the same problem with your 6100 ?
 
-Thanks Daniel!
+yes, but IMO that is a driver/hardware feature and bug #18 is about
+missing synaptics features/options in the actual driver. I've glanced
+through the posted spec, but havn't found any helping information (OTH
+I'm not a skilled driver programmer).
 
-Linus, Marcelo, please apply it.
-
-Stelian.
-
---- linux-2.4.21-pre6.vanilla/drivers/char/sonypi.c	2003-03-29 17:27:22.000000000 +0000
-+++ linux-2.4.21-pre6/drivers/char/sonypi.c	2003-03-30 11:44:42.000000000 +0000
-@@ -531,7 +531,7 @@
-  			ret = -EFAULT;
-  		break;
-  	case SONYPI_IOCGBAT1REM:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT1_LEFT, &val16)) {
-  			ret = -EIO;
-  			break;
-  		}
-@@ -539,7 +539,7 @@
-  			ret = -EFAULT;
-  		break;
-  	case SONYPI_IOCGBAT2CAP:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT2_FULL, &val16)) {
-  			ret = -EIO;
-  			break;
-  		}
-@@ -547,7 +547,7 @@
-  			ret = -EFAULT;
-  		break;
-  	case SONYPI_IOCGBAT2REM:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT2_LEFT, &val16)) {
-  			ret = -EIO;
-  			break;
-  		}
-
-
+andreas
 -- 
-Stelian Pop <stelian@popies.net>
+The truly paranoid administrator may wish to place
+motion detectors in the air ducts.
+  -- Practical UNIX & Internet Security, 2nd Edition
+

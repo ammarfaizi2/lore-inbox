@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTFKTCC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 15:02:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTFKTCC
+	id S263930AbTFKTEg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 15:04:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbTFKTEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 15:02:02 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10413
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263632AbTFKTB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 15:01:59 -0400
-Subject: Re: [PATCH] And yet more PCI fixes for 2.5.70
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030611174629.GC31051@gtf.org>
-References: <1055290315109@kroah.com>
-	 <1055335057.2083.14.camel@dhcp22.swansea.linux.org.uk>
-	 <20030611163837.GA24951@kroah.com>
-	 <1055351984.2419.23.camel@dhcp22.swansea.linux.org.uk>
-	 <20030611174629.GC31051@gtf.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055358790.2419.34.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 11 Jun 2003 15:04:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:63760 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263930AbTFKTEc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 15:04:32 -0400
+Date: Wed, 11 Jun 2003 21:18:15 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: ak@suse.de, vojtech@suse.cz, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] New x86_64 time code for 2.5.70
+Message-ID: <20030611191815.GA30411@wotan.suse.de>
+References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jun 2003 20:13:11 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-11 at 18:46, Jeff Garzik wrote:
-> Its an API that doesn't make sense.
+On Wed, Jun 11, 2003 at 11:50:32AM -0700, Bryan O'Sullivan wrote:
+> The time code for x86-64 in 2.5.70 isout of date and wildly unstable,
+> setting the clock to the year 1,115,117 (!) during boot about 60% of the
+> time.  This subsequently causes other pieces of completely unrelated
+> userspace software to crash randomly for no obvious reason once the
+> system comes up.
 
-Is this a PCI box is a sane thing to ask
+Thanks for doing this work.
 
-> "Is a PCI bus present?"  Further, the IDE code calculating system
-> bus speed it should really be calling a PCI callback, not asking "Do
-> I have a PCI bus?" and making a guess...  a guess which seems wrong
-> in several cases, including my Dual Athlon box w/ 100% 66 Mhz PCI bus.
+Does it only look this way or is your white space really broken?
 
-Wrong. You misunderstand why this is done. We want to know for various
-wackomtic old IDE devices and the key to knowing if its going to be
-33Mhz is "does it have a PCI bus".
+> Right now, the only known problem is with the fixup of jiffies if a
+> timer interrupt is lost, which I've hence turned off.  There's
+> preliminary support for using HPET for the gettimeofday vsyscall, but
+> since vsyscalls are disabled on x86-64 for now, that's obviously
+> untested.
 
-BTW if you want to be pedantic your "fix" is as broken as the original
-since PCI root bridges can live on hotpluggable cards on a different
-system bus 8)
+What makes you think they are disabled? They are used for every 64bit
+program that uses gettimeofday or time and enabled by default.
+
+> +static inline void rdtscll_sync(unsigned long *tsc)
+> +{
+> +	sync_core();
+> +	rdtscll(*tsc);
+
+On UP the sync_core is not really needed, but more reliable. May be worth
+it to stick into an #ifdef though.
+>  
+>  	}
+>   
+> +	call++;
+> +
+
+What's that?
 
 
+-Andi

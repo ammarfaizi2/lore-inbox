@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278428AbRKRTsk>; Sun, 18 Nov 2001 14:48:40 -0500
+	id <S280041AbRKRU3c>; Sun, 18 Nov 2001 15:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280037AbRKRTsa>; Sun, 18 Nov 2001 14:48:30 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:53030 "EHLO
-	c0mailgw13.prontomail.com") by vger.kernel.org with ESMTP
-	id <S278428AbRKRTsS>; Sun, 18 Nov 2001 14:48:18 -0500
-Message-ID: <3BF81069.A8C89CE0@starband.net>
-Date: Sun, 18 Nov 2001 14:47:53 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S278592AbRKRU3X>; Sun, 18 Nov 2001 15:29:23 -0500
+Received: from Olivier.PK.WAU.NL ([137.224.145.16]:24328 "EHLO
+	olivier.pk.wau.nl") by vger.kernel.org with ESMTP
+	id <S278587AbRKRU3J>; Sun, 18 Nov 2001 15:29:09 -0500
+Date: Sun, 18 Nov 2001 21:29:02 +0100
 To: linux-kernel@vger.kernel.org
-Subject: I turned swap off, and wow!
+Subject: lockup: 2.2.14 PCMCIA on Vaio R600HEK
+Message-ID: <20011118212902.A7057@olivier>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: lists@olivier.pk.wau.nl (List Account)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to /rpoc/meminfo, I still have about 360MB free as well.
-Normally when I have 2GB of swap on, I would have about 150MB used.
-Interesting!
+Hi all,
 
-For a `ps auxww` list:
-http://war.htmlplanet.com/log.txt
+when I insert a PCMCIA card (I tested 2 cards from a friend) in my Sony Vaio R600HEK I get a complete lockup. 
 
-Running every program I could find on my box.
+I also have some weird kernel messages when the PCMCIA is started:
 
-2:45pm  up  5:13, 128 users,  load average: 1.93, 1.31, 1.25
-521 processes: 519 sleeping, 2 running, 0 zombie, 0 stopped
-CPU states: 20.0% user,  4.5% system,  0.0% nice, 75.3% idle
-Mem:  1029616K av, 1023840K used,    5776K free,       0K shrd,    1248K
-buff
-Swap:       0K av,       0K used,       0K free                  340872K
-cached
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+PCI: No IRQ known for interrupt pin A of device 01:02.0. Please try using pci=biosirq.
+Yenta IRQ list 04b8, PCI irq0
+Socket status: 30000410
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x170-0x177 0x370-0x37f 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: memory probe 0xa0000000-0xa0ffffff: clean.
 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1054326784 1048698880  5627904        0  1286144 349425664
-Swap:        0        0        0
-MemTotal:      1029616 kB
-MemFree:          5496 kB
-MemShared:           0 kB
-Buffers:          1256 kB
-Cached:         341236 kB
-SwapCached:          0 kB
-Active:         400160 kB
-Inactive:       559176 kB
-HighTotal:      131008 kB
-HighFree:         1972 kB
-LowTotal:       898608 kB
-LowFree:          3524 kB
+I use the yenta_socket module, everything on a Debian testing (Woody) system. When the PCMCIA card is in the slot during boot it is correctly detected.
+
+More info on this laptop can be found on
+http://lx.student.wau.nl/~olivier/linux_on_r600hek/linux_on_r600hek.html
+including dmesg output and lspci output and stuff like that
+
+thanks for help
+	Olivier
+
 
 

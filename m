@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319405AbSIFWAj>; Fri, 6 Sep 2002 18:00:39 -0400
+	id <S319406AbSIFWAp>; Fri, 6 Sep 2002 18:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319406AbSIFWAj>; Fri, 6 Sep 2002 18:00:39 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:30725 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S319405AbSIFWAi>; Fri, 6 Sep 2002 18:00:38 -0400
-Message-ID: <3D792698.4010401@namesys.com>
-Date: Sat, 07 Sep 2002 02:05:12 +0400
-From: Hans Reiser <reiser@namesys.com>
+	id <S319407AbSIFWAp>; Fri, 6 Sep 2002 18:00:45 -0400
+Received: from wilder.valley.net ([198.115.160.76]:53773 "EHLO
+	wilder.valley.net") by vger.kernel.org with ESMTP
+	id <S319406AbSIFWAo>; Fri, 6 Sep 2002 18:00:44 -0400
+Message-ID: <3D7926C0.7010906@valley.net>
+Date: Fri, 06 Sep 2002 18:05:52 -0400
+From: Adam Johnson <adamj@valley.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Aaron Lehmann <aaronl@vitelus.com>
-CC: Nikita Danilov <Nikita@Namesys.COM>, "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented)
- files
-References: <20020903092419.GA5643@vitelus.com> <20020906170614.A7946@redhat.com> <15736.57972.202889.872554@laputa.namesys.com> <3D78E44E.5020107@namesys.com> <20020906210214.GA25666@vitelus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Problem: kernel 2.5.33 won't compile
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Lehmann wrote:
+    I get this error message when I try to compile 2.5.33:
 
->On Fri, Sep 06, 2002 at 09:22:22PM +0400, Hans Reiser wrote:
->  
->
->>I think I prefer that we implement a repacker for reiser4 though, as 
->>that, combined with delayed allocation, will be a balanced and thorough 
->>solution.
->>    
->>
->
->How does current ReiserFS fare against extreme fragmentation? What
->about XFS? Without trying to risk a flamewar, what Linux filesystems
->are the most preventive of fragmentation?
->
->The filesystem could make a huge difference on a machine like a mail
->server...
->
->
->  
->
-Sometimes it is best to confess that one does not have the expertise 
-appropriate for answering a question. Someone on our mailing list 
-studied it carefully though. Perhaps they can comment.
+ Generating build number
+make[1]: Entering directory `/usr/src/linux-2.5.33/init'
+  Generating /usr/src/linux-2.5.33/include/linux/compile.h (updated)
+  gcc -Wp,-MD,./.version.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.33/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix 
+include    -DKBUILD_BASENAME=version   -c -o version.o version.c
+   ld -m elf_i386  -r -o init.o main.o version.o do_mounts.o
+make[1]: Leaving directory `/usr/src/linux-2.5.33/init'
+  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o 
+--start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o 
+kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o security/built-in.o 
+/usr/src/linux-2.5.33/arch/i386/lib/lib.a lib/lib.a 
+/usr/src/linux-2.5.33/arch/i386/lib/lib.a drivers/built-in.o 
+sound/sound.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
+drivers/built-in.o(.data+0x2d8d4): undefined reference to `local symbols 
+in discarded section .text.exit'
+make: *** [vmlinux] Error 1
 
-Hans
 

@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266870AbUGLPWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266871AbUGLPX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266870AbUGLPWN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 11:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUGLPWN
+	id S266871AbUGLPX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 11:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUGLPX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 11:22:13 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:46507 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266870AbUGLPWJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 11:22:09 -0400
-Date: Mon, 12 Jul 2004 17:20:32 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: colin@colino.net
-cc: michael@mihu.de, Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix saa7146 compilation on 2.6.8-rc1
-In-Reply-To: <20040712082545.GA416@jack.colino.net>
-Message-ID: <Pine.GSO.4.58.0407121718270.17199@waterleaf.sonytel.be>
-References: <20040712082545.GA416@jack.colino.net>
+	Mon, 12 Jul 2004 11:23:28 -0400
+Received: from web52507.mail.yahoo.com ([206.190.39.132]:39844 "HELO
+	web52507.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266874AbUGLPXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 11:23:11 -0400
+Message-ID: <20040712152310.22995.qmail@web52507.mail.yahoo.com>
+Date: Mon, 12 Jul 2004 08:23:10 -0700 (PDT)
+From: Shobhit Mathur <shobhitmmathur@yahoo.com>
+Subject: cmd_per_lun vs can_queue
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004 colin@colino.net wrote:
-> this patch fixes a compilation error on 2.6.8-rc1. Here's the error:
-> drivers/media/common/saa7146_video.c:3: conflicting types for `memory'
-> include/asm-m68k/setup.h:365: previous declaration of `memory'
-> make[3]: *** [drivers/media/common/saa7146_video.o] Error 1
+Hello,
 
-But there's nothing named plain `memory' in include/asm-m68k/setup.h?!?!?
-Actually there never has been...
+I have a basic query related to the Scsi_Host_Template
+fields namely : cmd_per_lun and can_queue. I would
+like
+to know what is the relation between the per-lun queue
+and the per-HBA queue ?
 
-Gr{oetje,eeting}s,
+To elaborate my query, I would like to know how are
+the
+I/Os from the upper-layers managed between per-lun and
+the host-queue depth. In most cases the host-queue
+depth
+is very large [128 or more], while the per-lun queue
+is
+a fraction [5 or 2]. I would like to know how is the
+relation between the two queues and how does this
+impact
+io-rate ?
 
-						Geert
+- Kindly let me know as I have a blurred picture of
+the
+role of the 2 queues.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+- Thank you very much
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+- Shobhit Mathur
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264835AbTFLWN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264848AbTFLWN5
+	id S264848AbTFLWPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbTFLWPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:13:57 -0400
-Received: from Mail1.kontent.de ([81.88.34.36]:60900 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264835AbTFLWNy (ORCPT
+	Thu, 12 Jun 2003 18:15:44 -0400
+Received: from 66-133-183-62.br1.fod.ia.frontiernet.net ([66.133.183.62]:38078
+	"EHLO www.duskglow.com") by vger.kernel.org with ESMTP
+	id S264848AbTFLWPe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:13:54 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Steven Dake <sdake@mvista.com>
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Date: Fri, 13 Jun 2003 00:27:09 +0200
-User-Agent: KMail/1.5.1
-References: <3EE8D038.7090600@mvista.com>
-In-Reply-To: <3EE8D038.7090600@mvista.com>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 12 Jun 2003 18:15:34 -0400
+From: Russell Miller <rmiller@duskglow.com>
+Reply-To: rmiller@duskglow.com
+Organization: If you only saw my house...
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: aic79xx problem
+Date: Thu, 12 Jun 2003 17:24:53 -0500
+User-Agent: KMail/1.5
+References: <200306121639.37085.rmiller@duskglow.com> <79280000.1055454967@caspian.scsiguy.com>
+In-Reply-To: <79280000.1055454967@caspian.scsiguy.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-Message-Id: <200306130027.09288.oliver@neukum.org>
+Message-Id: <200306121724.55238.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu June 12 2003 4:56 pm, Justin T. Gibbs wrote:
 
-> If it works for you or doesn't or you like the idea or don't, I've love
-> to hear about it
+> If you are running the stock driver in 8.0, that could explain things.
+> More recent drivers can be found here:
+>
+This has solved the problem, thanks. :-)  If you're ever in NW Iowa, I will 
+buy you a beverage of your choice (within reason of course).
 
-+	default:
-+		result = -EINVAL;
-+		break;
-+	}
-+	return (result);
+--Russell
 
-Must return ENOTTY.
+> --
+> Justin
 
-+static int sdeq_open (struct inode *inode, struct file *file)
-+{
-+	MOD_INC_USE_COUNT;
-+
-+	return 0;
-+}
-+
-+static int sdeq_release (struct inode *inode, struct file *file)
-+{
-+	MOD_DEC_USE_COUNT;
-+
-+	return (0);
-+}
+-- 
+Randomly generated fortune cookie:
+When all other means of communication fail, try words.
 
-Wrong. release does not map to close()
-
-
-Aside from that, what exactly are you trying to do?
-You are not solving the fundamental device node reuse race,
-yet you are making necessary a further demon.
-You are not addressing queue limits. The current hotplug
-scheme does so, admittedly crudely by failing to spawn
-a task, but considering the small numbers of events in
-question here, for the time being we can live with that.
-
-You can just as well add load control and error detection
-to the current scheme. You fail to do so in your scheme.
-You cannot queue events forever in unlimited numbers.
-
-As for ordering, this is a real problem, but not fundamental.
-You can make user space locking work. IMHO it will not be
-pretty if done with shell scripts, but it can work.
-There _is_ a basic problem with the kernel 'overtaking'
-user space in its view of the device tree, but you cannot solve
-that _at_ _all_ in user space.
-
-In short, if you feel that the hotplug scheme is inadequate
-for your needs, then write industry strength devfs2.
-
-	Regards
-		Oliver
+Russell Miller - rmiller@duskglow.com - Somewhere near Sioux City, IA.
 

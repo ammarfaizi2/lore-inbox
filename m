@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbUJXLSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUJXLUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbUJXLSO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 07:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUJXLSG
+	id S261443AbUJXLUs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 07:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUJXLSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 07:18:06 -0400
-Received: from smtpq2.home.nl ([213.51.128.197]:6619 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S261447AbUJXLOo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 07:14:44 -0400
-Message-ID: <417B8D96.70000@keyaccess.nl>
-Date: Sun, 24 Oct 2004 13:10:14 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Sun, 24 Oct 2004 07:18:48 -0400
+Received: from av7-2-sn1.fre.skanova.net ([81.228.11.114]:44745 "EHLO
+	av7-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261443AbUJXLOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 07:14:20 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH] Fix incorrect kunmap_atomic in pktcdvd
+References: <m3wtxhibo9.fsf@telia.com> <20041024032546.52314e23.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 24 Oct 2004 13:14:14 +0200
+In-Reply-To: <20041024032546.52314e23.akpm@osdl.org>
+Message-ID: <m3oeisz7uh.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Kevin Puetz <puetzk@puetzk.org>, linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com>	 <41785D8D.5070808@keyaccess.nl> <clcqrr$u5o$1@sea.gmane.org>	 <417A8EC2.7070505@keyaccess.nl> <1098569940.29081.5.camel@krustophenia.net>
-In-Reply-To: <1098569940.29081.5.camel@krustophenia.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> On Sat, 2004-10-23 at 19:02 +0200, Rene Herman wrote:
+> Peter Osterlund <petero2@telia.com> wrote:
+> >
+> >  The pktcdvd driver uses kunmap_atomic() incorrectly. The function is
+> >  supposed to take an address as the first parameter, but the pktcdvd
+> >  driver passed a page pointer. Thanks to Douglas Gilbert and Jens Axboe
+> >  for discovering this.
 > 
->>I see from unichrome.sf.net that they are piecing together register info 
->>from drivers they got VIA to release...
-> 
-> They are not "piecing it together".  They have signed NDA with VIA to
-> get docs.
+> You're about the 7,000th person to make that mistake.  We really should
+> catch it via typechecking but the code's really lame and nobody ever got
+> around to rotorooting it.
 
-http://sourceforge.net/docman/display_doc.php?docid=23693&group_id=102048
+Why was the interface made different from kmap()/kunmap() in the first
+place? Wouldn't it have made more sense to let kunmap_atomic() take a
+page pointer as the first parameter?
 
-Rene.
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

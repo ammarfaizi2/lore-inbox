@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275346AbRJBP1N>; Tue, 2 Oct 2001 11:27:13 -0400
+	id <S275341AbRJBP0x>; Tue, 2 Oct 2001 11:26:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275178AbRJBP1D>; Tue, 2 Oct 2001 11:27:03 -0400
-Received: from sticks.phy.bris.ac.uk ([137.222.30.155]:19983 "EHLO
-	sticks.phy.bris.ac.uk") by vger.kernel.org with ESMTP
-	id <S275337AbRJBP0w>; Tue, 2 Oct 2001 11:26:52 -0400
-Date: Tue, 2 Oct 2001 16:27:19 +0100
-From: Major A <andras@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x with SMP on Alpha
-Message-ID: <20011002162719.B9583@janus.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+	id <S275338AbRJBP0n>; Tue, 2 Oct 2001 11:26:43 -0400
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:14599 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id <S275337AbRJBP0e>; Tue, 2 Oct 2001 11:26:34 -0400
+Date: Tue, 2 Oct 2001 17:26:46 +0200 (CEST)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Sylvain Ravot <sylvain.ravot@cern.ch>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: make: *** [menuconfig] Error 
+In-Reply-To: <3BB9C65C.E01FCC05@cern.ch>
+Message-ID: <Pine.LNX.4.33.0110021724300.1256-100000@grignard.amagerkollegiet.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Oct 2001, Sylvain Ravot wrote:
 
-Hi,
+> I have the following error message when I try to compile the 2.4.9
+> kernel. Could you help me ?
+> 
+> [root@lxusa linux]# make menuconfig
+> 
+> scripts/Menuconfig: line 11:  1872 Segmentation fault      (core dumped)
 
-I'm just wondering what experiences you guys have with linux kernel
-2.4.x configured for SMP on Alpha (UP2000/DP264). I tried the latest
-two:
+Check your syslog for problems, check your filesystem for errors. If 
+none shows up errors, you might have bad RAM - check it with memtest86.
 
-- 2.4.10: seems to fail to define the macro atomic_dec_and_lock
-  (linux/spinlock.h) in various files like kernel/fork.c, resulting in
-  undefined symbols. I think that linux/spinlock.h should be included
-  (I followed the #include-s), but it isn't for some subtle reason.
+http://www.bitwizard.nl/sig11/
 
-- 2.4.9: bug in the pc_keyb driver, can be fixed with an extra
-  #include, but even then some modules get undefined symbols (same as
-  in 2.4.10).
+Rasmus
 
-Therefore I cannot run any of these kernels. The rest of the software
-on this computer is a Debian potato (gcc 2.95.2).
+-- 
+-- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
+When you have multiple CPUs with one interrupt controller, you don't
+have much choice. You either use spin-locks or you Blue-Screen.
+Since Linux doesn't have a "Blue-screen of death", it needs spin-
+locks.
+                                               -- Richard B. Johnson
+--------------------------------- [ moffe at amagerkollegiet dot dk ] --
 
-Any feedback would be appreciated.
-
-  Andras

@@ -1,110 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269057AbUHaTbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUIABNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269057AbUHaTbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268832AbUHaT2X
+	id S266216AbUIABNi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 21:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUIABNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:28:23 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:7831 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S268944AbUHaTYr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:24:47 -0400
-Date: Tue, 31 Aug 2004 21:26:43 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Cc: Ian Wienand <ianw@gelato.unsw.edu.au>, Christoph Hellwig <hch@lst.de>
-Subject: kbuild: Support LOCALVERSION
-Message-ID: <20040831192642.GA15855@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Ian Wienand <ianw@gelato.unsw.edu.au>,
-	Christoph Hellwig <hch@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 31 Aug 2004 21:13:38 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:20897 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S269017AbUIABKJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 21:10:09 -0400
+Message-ID: <4135216C.5090308@slaphack.com>
+Date: Tue, 31 Aug 2004 20:10:04 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <20040826100530.GA20805@taniwha.stupidest.org> <20040826110258.GC30449@mail.shareable.org> <20040827210638.GE709@openzaurus.ucw.cz> <4133CDA6.4060105@slaphack.com> <20040831082144.GA535@elf.ucw.cz>
+In-Reply-To: <20040831082144.GA535@elf.ucw.cz>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch combines the request from several people.
-If you place a file named localversion* in the root of your
-soruce tree or the root of your output tree the text included in this
-file will be appended to KERNELRELEASE.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-LOCALVERSION was originally introduced by Ian Wienand <ianw@gelato.unsw.edu.au>
+Pavel Machek wrote:
+| Hi!
+|
+|
+|>| uservfs does
+|>|
+|>| cd foo.deb#uar
+|>cd foo.deb/ar
+|>| vs.
+|>| cd foo.deb#udeb
+|>cd foo.deb/deb
+|>
+|>and why would you want that, instead of just:
+|>cd foo.deb	# for the ar
+|>dpkg -i foo.deb	# for the deb
+|
+|
+| Because I want to see contents of that .deb package, nicely parsed?
+|
+|
+|>Just want to extract the tar file?  Maybe something like
+|>cat foo.tgz/gunzip
+|>In which case (of course) foo.tgz/gunzip has exactly the same directory
+|>contents as foo.tgz
+|
+|
+| Yes, that would work.
+|
+|
+|>In fact, for just about any syntax anyone could suggest, I can't really
+|>see why you can't just replace all weird symbols with a slash and a
+|>symbol.  Instead of
+|>	foo.tgz#utar
+|>you have
+|>	foo.tgz/#/utar
+|>Only difference is, some things which used to require special tools can
+|>now be serviced by less than what's in busybox.
+|
+|
+| That would work, too. I do not get your comment about busybox.
 
-This allows one to put a short string in localversion identifying this
-particular configuration "-smpacpi", or to identify applied patches
-to the source "-llat-np".
+Busybox is a bare minimum of unix tools, yet still includes things like
+tar/bz2.  With such a system, you can use the most basic (sub-GNU)
+versions of tools like cp, cat, sh, ls, and so on, to do much more
+complex operations.  What's more, you can see everything you can do to a
+file just by looking at it.  I can certainly imagine doing
+	cat foo.tgz/metas/README
+rather than a google search for tgz, followed by a "man tar" and "man
+gzip". Assuming I know nothing about tar/gzip files, it's a lot easier
+as a new user to have one common interface for everything -- including
+docs.  Fewer commands to memorize, faster to learn new stuff.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-More specifically:
-$(srctree)/localversion-lowlatency contains "-llat"
-$(srctree)/localversion-scheduler-nick constins "-np"
-
-$(objtree)/localversion contains "-smpacpi"
-
-Resulting KERNELRELEASE would be:
-2.6.8.rc1-smpacpi-llat-np
-
-
-Note that you no longer need to modify your Makefile to identify
-your kernel so no rejects when applying new patches.
-If you add a new localversion* file, or change a existing one kbuild
-will pick up this and do the proper rebuild next time you run make.
-
-Only issue is that KERNELRELEASE needs to be <= 64 chars - so keep the names short.
-
-kbuild errors out if you are above limit.
-$ cat localviersion-long
-very-long-version-in-localversion-file-exceeding-64-chars-for-sure
-Example:
-  CHK     include/linux/version.h
-"2.6.9-rc1-very-long-version-in-localversion-file-exceeding-64-chars-for-sure" exceeds 64 characters
-make: *** [include/linux/version.h] Error 1
-  
-
-Where do we document this?
-
-[This is deliberately not pushed to my bk tree - want some comments first].
-
-	Sam
-
-===== Makefile 1.526 vs edited =====
---- 1.526/Makefile	2004-08-30 21:23:05 +02:00
-+++ edited/Makefile	2004-08-31 21:05:38 +02:00
-@@ -141,7 +141,14 @@ VPATH		:= $(srctree)
- 
- export srctree objtree VPATH TOPDIR
- 
--KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-+nullstring := 
-+space      := $(nullstring) # end of line
-+
-+LOCALVERSION := $(subst $(space),, \
-+                $(shell cat /dev/null $(objtree)/localversion* \
-+                $(if $(KBUILD_SRC),$(srctree)/localversion*)))
-+
-+KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(LOCALVERSION)
- 
- # SUBARCH tells the usermode build what the underlying arch is.  That is set
- # first, and if a usermode build is happening, the "ARCH=um" on the command
-@@ -329,8 +336,8 @@ CFLAGS 		:= -Wall -Wstrict-prototypes -W
- 	  	   -fno-strict-aliasing -fno-common
- AFLAGS		:= -D__ASSEMBLY__
- 
--export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
--	CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
-+export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION LOCALVERSION KERNELRELEASE \
-+	ARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
- 	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
- 	HOSTCXX HOSTCXXFLAGS LDFLAGS_BLOB LDFLAGS_MODULE CHECK CHECKFLAGS
- 
-@@ -763,7 +770,8 @@ define filechk_version.h
- 	)
- endef
- 
--include/linux/version.h: Makefile
-+include/linux/version.h: $(srctree)/Makefile \
-+                         $(objtree)/localversion* $(srctree)/localversion*
- 	$(call filechk,version.h)
- 
- # ---------------------------------------------------------------------------
+iQIVAwUBQTUha3gHNmZLgCUhAQKRJw/7BUEm41gKZGoVj7gOkcUVe/SRdTs9WtTL
+jkjCX8Zzr/1nnAKTHLqNJEiAJ68Ndf+dRhDfL5y6dDHhOy/Dx+38SzsWz+dQnMJ0
+Fiq5fFDO/DTd0UPecXYPhBrtVeCdfjyyENhgRgJud6D8F39qvLWrZFUsIkjAA3lj
+nzZ/48jRPDWT/mF6JJmv0RfVvNtMWh9HUcW/i0+n4WZU1yFp6jyiF5ExCOP84z3x
+yXQ4Q9hnjgt52MDJTrGsCDvfCSQscQilxvXbl0iaozquIhG9Jz1XNYpij2XUygFi
+RDc1LA1k74VvbWahlkdfbTI+3P4qeMYGBblmfwXVDRwW0i4NH7X0/6xcnr1QjaK/
+f/7EHBz0wnkIG4OpcGWzu9ik4WOR0WXapKrd938XC/mG+WzIluJlQsxG1A2HoRqg
+R66E/mVMVvHJWnJjrW6s10WIemPiKnuXgeIVPifsw81DLXlZ3wxjlZU3iuo7xked
+O6wNDFQBWQR8kv+EMDIt3gtbUdB+5KpxGR+Yli0AjxEdpdk3oZTfe5XQiNdJhcl5
+xrcomVKXGvR96IlNUwHy1EsQk5LySMl101vJIS4z6i7lAIM5CQ1d6eOZrPp/DBOP
+Rw0KoQaiPd3SKNMgoyWSKQL6h85i1PRUN62WH0T2NRU1fZ3EazpiRZr+fuaFqFT9
+Wk2lkDvm5yw=
+=ShWo
+-----END PGP SIGNATURE-----

@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274752AbRKDTaD>; Sun, 4 Nov 2001 14:30:03 -0500
+	id <S274368AbRKDTcn>; Sun, 4 Nov 2001 14:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274368AbRKDT3y>; Sun, 4 Nov 2001 14:29:54 -0500
-Received: from colorfullife.com ([216.156.138.34]:57614 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S274299AbRKDT3q>;
-	Sun, 4 Nov 2001 14:29:46 -0500
-Message-ID: <3BE59724.9EB3B816@colorfullife.com>
-Date: Sun, 04 Nov 2001 20:29:40 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.14-pre7 i686)
-X-Accept-Language: en, de
+	id <S274875AbRKDTcd>; Sun, 4 Nov 2001 14:32:33 -0500
+Received: from ns.suse.de ([213.95.15.193]:53257 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S274368AbRKDTcU> convert rfc822-to-8bit;
+	Sun, 4 Nov 2001 14:32:20 -0500
+Date: Sun, 4 Nov 2001 20:32:17 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <20011104202034.M14001@unthought.net>
+Message-ID: <Pine.LNX.4.30.0111042030360.15260-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: John Fremlin <john@fremlin.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [POLITICAL] Re: ECS k7s5a audio sound SiS 735 - 7012
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Indeed. Could you all please hassle SiS for the datasheet for the 7012
-> integrated audio controller in the SiS 735?
+On Sun, 4 Nov 2001, Jakob Østergaard wrote:
 
-Sis is quite good at writing Linux drivers and they release the source
-under GPL - just search through google for bug reports for the sis900
-network driver. 
+> Now this isn't even bad - the fun begins when a resync is running, when
+> mdstat contains *progress meters* like  "[====>      ] 42%".  While being
+> nicely readable for a human, this is a parsing nightmare.  Especially
+> because stuff like this changes over time.
 
-And it's probably the only driver with a large list of the PHY's that
-are used by the mobo manufacturers with the nic, and the various ways to
-get at the correct negotiation result. That's something you won't be
-able to write even with the sis datasheet.
+Any program needing to parse this would just ignore the bits between [],
+and convert the percentage to an int. Hardly a 'nightmare'.
 
-Just wait a bit, or try to convince nvidia that they should release the
-source of their driver if you want to do something now.
+Dave.
 
---
-	Manfred
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+
+

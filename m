@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129624AbRCARHT>; Thu, 1 Mar 2001 12:07:19 -0500
+	id <S129725AbRCARIy>; Thu, 1 Mar 2001 12:08:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129723AbRCARHG>; Thu, 1 Mar 2001 12:07:06 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:48389 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129624AbRCARG6>;
-	Thu, 1 Mar 2001 12:06:58 -0500
-To: Ofer Fryman <ofer@shunra.co.il>
-Cc: "'kernel@kvack.org'" <kernel@kvack.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
-In-Reply-To: <F1629832DE36D411858F00C04F24847A11DECF@SALVADOR>
+	id <S129730AbRCARIp>; Thu, 1 Mar 2001 12:08:45 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:47622 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129725AbRCARIc>;
+	Thu, 1 Mar 2001 12:08:32 -0500
+To: Friedrich Steven E CONT CNIN <friedrich_s@crane.navy.mil>
+Cc: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: Looking for best resource for device driver programmers
+In-Reply-To: <AF6E1CA59D6AD1119C3A00A0C9893C9A04F570EC@cninexchsrv01.crane.navy.mil>
 From: Jes Sorensen <jes@linuxcare.com>
-Date: 01 Mar 2001 18:06:42 +0100
-In-Reply-To: Ofer Fryman's message of "Thu, 1 Mar 2001 17:51:30 +0200"
-Message-ID: <d3elwhwh99.fsf@lxplus015.cern.ch>
+Date: 01 Mar 2001 18:08:20 +0100
+In-Reply-To: Friedrich Steven E CONT CNIN's message of "Thu, 1 Mar 2001 10:59:25 -0500"
+Message-ID: <d3ae75wh6j.fsf@lxplus015.cern.ch>
 User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ofer" == Ofer Fryman <ofer@shunra.co.il> writes:
+>>>>> "Friedrich" == Friedrich Steven E CONT CNIN <friedrich_s@crane.navy.mil> writes:
 
-Ofer> I need a giga fiber PMC cards for linux2.0.36-pre14, the only
-Ofer> cards I know are either Intel based or level-one lxt-1001 card,
-Ofer> the level-one lxt-1001 has very bad performance so I cannot use
-Ofer> it.
+Friedrich> I'm a real-time developer new to the Linux platform.  I'm
+Friedrich> currently trying to write my first linux kernel device
+Friedrich> driver.
 
-I'd recommend you to upgrade to at least 2.2.x, the scalability of
-2.0.x means there is really no good reason to spend time porting GigE
-drivers to it.
+Friedrich> Anyone know the best web site or mailing list to ask
+Friedrich> questions about linux device driver and kernel issues for a
+Friedrich> programmer like me?
 
+Well you might want to take a look at my slides from my Linux Kernel
+Programming tutorial at Linux Kongress, they are available at http://home.cern.ch/~jes/slides/kongress-kernel-2000-print.ps.gz
+
+Cheers
 Jes

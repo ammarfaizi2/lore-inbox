@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270937AbTGPQMI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 12:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270936AbTGPQMI
+	id S270939AbTGPQSy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 12:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270940AbTGPQSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 12:12:08 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:8211 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S270946AbTGPQMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 12:12:03 -0400
-Date: Wed, 16 Jul 2003 09:26:43 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Kernel Developer List <linux-kernel@vger.kernel.org>
-Subject: Re: e1000 with 82546EB parts on 2.4?
-Message-ID: <20030716092643.B17580@one-eyed-alien.net>
-Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Kernel Developer List <linux-kernel@vger.kernel.org>
-References: <20030715001654.D25443@one-eyed-alien.net> <Pine.LNX.4.53.0307150312250.32541@montezuma.mastecende.com>
+	Wed, 16 Jul 2003 12:18:54 -0400
+Received: from mail.kroah.org ([65.200.24.183]:54964 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270939AbTGPQSw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 12:18:52 -0400
+Date: Wed, 16 Jul 2003 09:26:39 -0700
+From: Greg KH <greg@kroah.com>
+To: Fredrik Tolf <fredrik@dolda2000.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Input layer demand loading
+Message-ID: <20030716162639.GB7513@kroah.com>
+References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307141258.24458.fredrik@dolda2000.cjb.net> <20030716042916.GC3929@kroah.com> <200307161457.42862.fredrik@dolda2000.cjb.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.53.0307150312250.32541@montezuma.mastecende.com>; from zwane@arm.linux.org.uk on Tue, Jul 15, 2003 at 03:13:31AM -0400
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+In-Reply-To: <200307161457.42862.fredrik@dolda2000.cjb.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 16, 2003 at 02:57:42PM +0200, Fredrik Tolf wrote:
+> On Wednesday 16 July 2003 06.29, Greg KH wrote:
+> > On Mon, Jul 14, 2003 at 12:58:24PM +0200, Fredrik Tolf wrote:
+> > > On Monday 14 July 2003 08.22, Greg KH wrote:
+> > > > On Sun, Jul 13, 2003 at 06:39:49PM +0200, Fredrik Tolf wrote:
+> > > > > Why does the input layer still not have on-demand module loading? How
+> > > > > about applying this?
+> > > >
+> > > > What's wrong with the current hotplug interface for the input layer? 
+> > > > If you want to implement this, add some input hotplug scripts to the
+> > > > linux-hotplug package.
+> > >
+> > > Correct me if I'm wrong, but AFAIK that can only be smoothly used to load
+> > > hardware driver modules.
+> >
+> > In a way, yes.
+> >
+> > > If the input layer userspace interface code has been compiled as modules,
+> > > and you have a ordinary (not hotplug) device, eg. a gameport joystick,
+> > > can really the hotplug interface be used to load joydev.o when
+> > > /dev/input/js0 is opened?
+> >
+> > No, you want to load the joydev.o driver when you plug in the gameport
+> > joystick.  Which will be before you open the /dev node.
+> 
+> Not necessarily. When the joystick is plugged in, you want to load the 
+> hardware driver modules. There's really no need for the userspace interface 
+> until someone requests it. At least that's the way I see it.
+> And in any case, even if you do want to load joydev.o when the joystick is 
+> plugged in, I don't see how that could be done on-demand when the joystick 
+> port isn't hotplug compatible, such as is the case with gameports, right?
 
---LyciRD1jyfeSSjG0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+True, but then if you try to open the port, you will only get the base
+joydev.o module loaded, not the gameport driver, which is what you
+_really_ want to have loaded, right?
 
-On Tue, Jul 15, 2003 at 03:13:31AM -0400, Zwane Mwaikambo wrote:
-> On Tue, 15 Jul 2003, Matthew Dharm wrote:
->=20
-> > What I've got is your basic x86 machine with an Intel 82546EB dual-GigE
-> > controller on a PCI bus.  I load e1000.o, ifconfig, and I'm running.  T=
-he
-> > interface is solid as a rock, AFAICT.  I've left it running for days
-> > without any problems.
-> >=20
-> > However, if I ifdown and then ifup the interface, I'm borked.  Based on
-> > tcpdump from another machine, the interface is definately transmitting
-> > packets just fine.  But, it never seems to notice any packets on the
-> > receive side.
->=20
-> Does unloading and reloading the module 'fix' things?
+So there really isn't much benifit to doing this, sorry.
 
-Only sometimes.
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-I'm just trying to think of a way to say "up yours" without getting fired.
-					-- Stef
-User Friendly, 10/8/1998
-
---LyciRD1jyfeSSjG0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/FXzCIjReC7bSPZARAs5tAKCTELymWIRz72+3DLpuyWVd35oFSACfUK9+
-1dodzAbfd202KH9LO36cYLA=
-=ehjg
------END PGP SIGNATURE-----
-
---LyciRD1jyfeSSjG0--
+greg k-h

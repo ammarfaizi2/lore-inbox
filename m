@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265612AbSKOCfD>; Thu, 14 Nov 2002 21:35:03 -0500
+	id <S265603AbSKOCch>; Thu, 14 Nov 2002 21:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265628AbSKOCfD>; Thu, 14 Nov 2002 21:35:03 -0500
-Received: from packet.digeo.com ([12.110.80.53]:30956 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265612AbSKOCfD>;
-	Thu, 14 Nov 2002 21:35:03 -0500
-Message-ID: <3DD45EEB.4E4F170@digeo.com>
-Date: Thu, 14 Nov 2002 18:41:47 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S265608AbSKOCcg>; Thu, 14 Nov 2002 21:32:36 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:4038 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265603AbSKOCcg>; Thu, 14 Nov 2002 21:32:36 -0500
+Date: Thu, 14 Nov 2002 18:35:47 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <396026666.1037298946@[10.10.2.3]>
+In-Reply-To: <1037325839.13735.4.camel@rth.ninka.net>
+References: <1037325839.13735.4.camel@rth.ninka.net>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-CC: Tim Hockin <thockin@sun.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
-References: <3DD44E39.4703C2DA@digeo.com> from "Andrew Morton" at Nov 14, 2002 05:30:33 PM <200211150233.gAF2XQv15588@www.hockin.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2002 02:41:51.0454 (UTC) FILETIME=[8D3B47E0:01C28C50]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
+> While I have this on my mind I want to express this now since the
+> very first bug that hit my mailbox had this issue.
 > 
-> > 10,000 bits isn't much.  Maybe:
+> I DO NOT want to be working on bugs on anything other than Linus's
+> actualy sources.  The first bug I got was a networking bug with
+> Andrew Morton's -mm patches applied.
 > 
-> That's 10000 USED bits.  Remember groups are non-contiguously allocated.  If
-> a task is a member of just groups 32767 and 65535, you'll get one bit per
-> page used, and when they call getgroups() you need to pull it apart and
-> return an array of gid_t.
+> This isn't going to work if that is what people are going to be
+> allowed to do.
 > 
+> I want to suggest that all reported bug in the database must be
+> reporducable with some release done by Linus or his BK sources.
+> And also that we can automatically close any BUG submissions that
+> have other patches applied.
 
-Well that's what I was asking.
+Hmmm ... I'm not sure that being that restrictive is going to help.
+Whilst bugs against any randomly patched version of the kernel
+probably aren't that interesting, things in major trees like -mm, 
+-ac, -dj etc are likely going to end up in mainline sooner or later
+anyway ... wouldn't you rather know of the breakage sooner rather
+than later?
 
-What is the maximum group ID?  0xffffffff?
+Recall when some random idiot broke sparc64 by mucking with 
+free_area_init_node? Those changes had been sitting in -mm tree
+for a while ;-) (and yes, that was me).
 
-In that case a radix tree _might_ suit.  All you need to put in the
-node is a (void *)1 or (void *)0.  But it won't be very space-efficient
-for really sparse groups.
+M.
+

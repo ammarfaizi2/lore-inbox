@@ -1,98 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267033AbUBGTBH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 14:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267036AbUBGTBH
+	id S267036AbUBGTBX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 14:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267038AbUBGTBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 14:01:07 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32986 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267033AbUBGTA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 14:00:59 -0500
-Date: Sat, 7 Feb 2004 20:00:51 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Gerard Roudier <groudier@free.fr>
-Cc: matthew@wil.cx, linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
-       linux-kernel@vger.kernel.org
-Subject: [patch] sym53c8xx_2: warning: "BYTE_ORDER" is not defined
-Message-ID: <20040207190051.GN26093@fs.tum.de>
+	Sat, 7 Feb 2004 14:01:23 -0500
+Received: from pass-d9b86c1b.pool.mediaWays.net ([217.184.108.27]:46208 "EHLO
+	avaloon.intern") by vger.kernel.org with ESMTP id S267036AbUBGTBP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 14:01:15 -0500
+Date: Sat, 7 Feb 2004 20:00:39 +0100
+From: M G Berberich <berberic@fmi.uni-passau.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.2 wacom not working from /etc/modules
+Message-ID: <20040207190039.GA1331@avaloon.intern>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-when compiling 2.6.2-mm1 (this problem doesn't seem to be specific
-to -mm)) with -Wundef I got many of the following warnings:
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<--  snip  -->
+Hello,
 
-...
-  CC      drivers/scsi/sym53c8xx_2/sym_fw.o
-In file included from drivers/scsi/sym53c8xx_2/sym_glue.h:80,
-                 from drivers/scsi/sym53c8xx_2/sym_fw.c:56:
-drivers/scsi/sym53c8xx_2/sym_misc.h:227:9: warning: "BYTE_ORDER" is not  defined
-drivers/scsi/sym53c8xx_2/sym_misc.h:227:23: warning: "BIG_ENDIAN" is not  defined
-...
+I have the strange problem that the wacom driver in 2.6.2 does not
+work if loaded from /etc/modules. If loaded "by hand" after the system
+is up it works fine.=20
 
-<--  snip  -->
+/proc/bus/input/devices is exactly the same in both cases:
 
+  [...]
 
-I don't see a BYTE_ORDER defined anywhere.
+  I: Bus=3D0003 Vendor=3D056a Product=3D0042 Version=3D0126
+  N: Name=3D"Wacom Intuos2 6x8"
+  P: Phys=3Dusb-0000:00:0c.0-1/input0
+  H: Handlers=3Dmouse1 event3
+  B: EV=3D1b
+  B: KEY=3D1cdf 0 1f0000 0 0 0 0 0 0 0 0
+  B: ABS=3Df000163
+  B: MSC=3D1
 
+but if loaded from /etc/modules neither mouse1 nor event3 gives any
+sign of the wacom beeing alive. syslog entries are the same, but in
+different order:
 
-And it seems that the whole #ifdef'ed block isn't used anywhere.
-Is it OK to remove it (patch below)?
+input: PC Speaker
+input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: Wacom Intuos2 6x8 on usb-0000:00:0c.0-1
+drivers/usb/core/usb.c: registered new driver wacom
+drivers/usb/input/wacom.c: v1.30:USB Wacom Graphire and Wacom Intuos tablet=
+ driver
 
+input: PC Speaker
+input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
+input: AT Translated Set 2 keyboard on isa0060/serio0
+drivers/usb/core/usb.c: registered new driver wacom
+drivers/usb/input/wacom.c: v1.30:USB Wacom Graphire and Wacom Intuos tablet=
+ driver
+input: Wacom Intuos2 6x8 on usb-0000:00:0c.0-1
 
-cu
-Adrian
+System is a dual PIII, with stock 2.6.2-kernel
 
---- linux-2.6.2-mm1/drivers/scsi/sym53c8xx_2/sym_misc.h.old	2004-02-07 19:43:05.000000000 +0100
-+++ linux-2.6.2-mm1/drivers/scsi/sym53c8xx_2/sym_misc.h	2004-02-07 19:54:37.000000000 +0100
-@@ -222,42 +222,6 @@
- #define sym_is_bit(p, n)	(((u32 *)(p))[(n)>>5] &   (1<<((n)&0x1f)))
- 
- /*
-- *  Portable but silly implemented byte order primitives.
-- */
--#if	BYTE_ORDER == BIG_ENDIAN
--
--#define __revb16(x) (	(((u16)(x) & (u16)0x00ffU) << 8) | \
--			(((u16)(x) & (u16)0xff00U) >> 8) 	)
--#define __revb32(x) (	(((u32)(x) & 0x000000ffU) << 24) | \
--			(((u32)(x) & 0x0000ff00U) <<  8) | \
--			(((u32)(x) & 0x00ff0000U) >>  8) | \
--			(((u32)(x) & 0xff000000U) >> 24)	)
--
--#define __htole16(v)	__revb16(v)
--#define __htole32(v)	__revb32(v)
--#define __le16toh(v)	__htole16(v)
--#define __le32toh(v)	__htole32(v)
--
--static __inline u16	_htole16(u16 v) { return __htole16(v); }
--static __inline u32	_htole32(u32 v) { return __htole32(v); }
--#define _le16toh	_htole16
--#define _le32toh	_htole32
--
--#else	/* LITTLE ENDIAN */
--
--#define __htole16(v)	(v)
--#define __htole32(v)	(v)
--#define __le16toh(v)	(v)
--#define __le32toh(v)	(v)
--
--#define _htole16(v)	(v)
--#define _htole32(v)	(v)
--#define _le16toh(v)	(v)
--#define _le32toh(v)	(v)
--
--#endif	/* BYTE_ORDER */
--
--/*
-  * The below round up/down macros are to be used with a constant 
-  * as argument (sizeof(...) for example), for the compiler to 
-  * optimize the whole thing.
+BTW: I'm not subscribed to the list.
+
+	MfG
+	bmg
+
+--=20
+"Des is v=F6llig wurscht, was heut beschlos- | M G Berberich
+ sen wird: I bin sowieso dagegn!"          | berberic@fmi.uni-passau.de
+(SPD-Stadtrat Kurt Schindler; Regensburg)  |
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQFAJTXXnp4msu7jrxMRArtOAJ0cUF6gj886zIxYjYOtLmNAoUVzUACgkLab
+qKh+49SWPSXA20Ozacqrfug=
+=GJdj
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--

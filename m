@@ -1,102 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267741AbTBMCwg>; Wed, 12 Feb 2003 21:52:36 -0500
+	id <S267716AbTBMDTD>; Wed, 12 Feb 2003 22:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267740AbTBMCwg>; Wed, 12 Feb 2003 21:52:36 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:10502 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S267731AbTBMCwd>; Wed, 12 Feb 2003 21:52:33 -0500
-Date: Wed, 12 Feb 2003 20:10:22 -0600
-From: Art Haas <ahaas@airmail.net>
-To: linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] C99 initializers for net/sunrpc/sysctl.c
-Message-ID: <20030213021022.GC23898@debian>
+	id <S267726AbTBMDTD>; Wed, 12 Feb 2003 22:19:03 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:13546 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S267716AbTBMDTC>;
+	Wed, 12 Feb 2003 22:19:02 -0500
+Date: Thu, 13 Feb 2003 14:28:34 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>,
+       Troels Walsted Hansen <troels@thule.no>
+Subject: Re: [PATCH][COMPAT] compat_sys_futex 7/7 x86_64
+Message-Id: <20030213142834.46c4fbb5.sfr@canb.auug.org.au>
+In-Reply-To: <20030212160905.7514b848.sfr@canb.auug.org.au>
+References: <20030212154716.7c101942.sfr@canb.auug.org.au>
+	<20030212160905.7514b848.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Linus,
 
-This patch converts the file to use C99 initializers to improve
-readability and remove warnings if '-W' is used.
+On Wed, 12 Feb 2003 16:09:05 +1100 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+>
+> As per Andi's wishes, here is the x86_64 part of the patch.  This one will
+> only apply after applying my previous patch "[PATCH][COMPAT] outstanding
+> compatibility changes 4/4 x86_64".
 
-Art Haas
+Resent due to typo pointd out by Troels Walsted Hansen.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-===== net/sunrpc/sysctl.c 1.2 vs edited =====
---- 1.2/net/sunrpc/sysctl.c	Tue Feb  5 01:39:25 2002
-+++ edited/net/sunrpc/sysctl.c	Wed Feb 12 18:50:37 2003
-@@ -116,23 +116,51 @@
- 	return 0;
+diff -ruN 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/ia32entry.S 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/ia32entry.S
+--- 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/ia32entry.S	2003-02-12 17:31:53.000000000 +1100
++++ 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/ia32entry.S	2003-02-13 14:23:02.000000000 +1100
+@@ -440,7 +440,7 @@
+ 	.quad sys_fremovexattr
+ 	.quad sys_tkill		/* 238 */ 
+ 	.quad sys_sendfile64 
+-	.quad sys32_futex		/* 240 */
++	.quad compat_sys_futex		/* 240 */
+         .quad sys32_sched_setaffinity
+         .quad sys32_sched_getaffinity
+ 	.quad sys_set_thread_area
+diff -ruN 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/sys_ia32.c
+--- 2.5.60-2003021217-32bit.1/arch/x86_64/ia32/sys_ia32.c	2003-02-12 17:31:53.000000000 +1100
++++ 2.5.60-2003021217-32bit.2/arch/x86_64/ia32/sys_ia32.c	2003-02-12 17:42:31.000000000 +1100
+@@ -2199,26 +2199,6 @@
+ 	return err;
  }
  
--#define DIRENTRY(nam1, nam2, child)	\
--	{CTL_##nam1, #nam2, NULL, 0, 0555, child }
--#define DBGENTRY(nam1, nam2)	\
--	{CTL_##nam1##DEBUG, #nam2 "_debug", &nam2##_debug, sizeof(int),\
--	 0644, NULL, &proc_dodebug}
+-extern int sys_futex(unsigned long uaddr, int op, int val, struct timespec *t); 
 -
--static ctl_table		debug_table[] = {
--	DBGENTRY(RPC,  rpc),
--	DBGENTRY(NFS,  nfs),
--	DBGENTRY(NFSD, nfsd),
--	DBGENTRY(NLM,  nlm),
--	{0}
-+static ctl_table debug_table[] = {
-+	{
-+		.ctl_name	= CTL_RPCDEBUG,
-+		.procname	= "rpc_debug",
-+		.data		= &rpc_debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dodebug
-+	}, 
-+	{
-+		.ctl_name	= CTL_NFSDEBUG,
-+		.procname	= "nfs_debug",
-+		.data		= &nfs_debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dodebug
-+	}, 
-+	{
-+		.ctl_name	= CTL_NFSDDEBUG,
-+		.procname	= "nfsd_debug",
-+		.data		= &nfsd_debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dodebug
-+	}, 
-+	{
-+		.ctl_name	= CTL_NLMDEBUG,
-+		.procname	= "nlm_debug",
-+		.data		= &nlm_debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dodebug
-+	}, 
-+	{ .ctl_name = 0 }
- };
+-asmlinkage long
+-sys32_futex(unsigned long uaddr, int op, int val, struct compat_timespec *utime32)
+-{
+-	struct timespec t;
+-	mm_segment_t oldfs = get_fs(); 
+-	int err;
+-
+-	if (utime32 && get_compat_timespec(&t, utime32))
+-		return -EFAULT;
+-
+-	/* the set_fs is safe because futex doesn't use the seg limit 
+-	   for valid page checking of uaddr. */ 
+-	set_fs(KERNEL_DS); 
+-	err = sys_futex(uaddr, op, val, utime32 ? &t : NULL);
+-	set_fs(oldfs); 
+-	return err; 
+-}
+-
+ extern long sys_io_setup(unsigned nr_reqs, aio_context_t *ctx);
  
--static ctl_table		sunrpc_table[] = {
--	DIRENTRY(SUNRPC, sunrpc, debug_table),
--	{0}
-+static ctl_table sunrpc_table[] = {
-+	{
-+		.ctl_name	= CTL_SUNRPC,
-+		.procname	= "sunrpc",
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= debug_table
-+	},
-+	{ .ctl_name = 0 }
- };
- 
- #endif
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+ long sys32_io_setup(unsigned nr_reqs, u32 *ctx32p)

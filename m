@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318696AbSHSM1G>; Mon, 19 Aug 2002 08:27:06 -0400
+	id <S318742AbSHSMcj>; Mon, 19 Aug 2002 08:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318742AbSHSM1G>; Mon, 19 Aug 2002 08:27:06 -0400
-Received: from dsl-213-023-038-065.arcor-ip.net ([213.23.38.65]:10719 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318696AbSHSM1F>;
-	Mon, 19 Aug 2002 08:27:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: Generic list push/pop
-Date: Mon, 19 Aug 2002 14:32:48 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <E17gVcL-00031m-00@starship> <20020819120550.GA21683@holomorphy.com>
-In-Reply-To: <20020819120550.GA21683@holomorphy.com>
+	id <S318744AbSHSMcj>; Mon, 19 Aug 2002 08:32:39 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:28379 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S318742AbSHSMci>;
+	Mon, 19 Aug 2002 08:32:38 -0400
+Date: Mon, 19 Aug 2002 14:36:25 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       jsimmons@infradead.org
+Subject: Re: Little console problem in 2.5.30
+In-Reply-To: <20020819023731.C316@devserv.devel.redhat.com>
+Message-ID: <Pine.GSO.4.21.0208191433430.23654-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17gliC-0003DD-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 August 2002 14:05, William Lee Irwin III wrote:
-> On Sun, Aug 18, 2002 at 09:21:41PM +0200, Daniel Phillips wrote:
-> > I took a run at writing generic single-linked list push and pop macros, to be 
-> > used in the form:
-> 
-> Dear gawd, I've gone blind.
-> 
-> How's this look?
+On Mon, 19 Aug 2002, Pete Zaitcev wrote:
+> I would appreciate if someone would explain me if the attached patch
+> does the right thing. The problem is that I do not use the framebuffer,
+> and use a serial console. Whenever a legacy /sbin/init tries to
+> open /dev/tty0, the system oopses dereferencing conswitchp in
+> visual_init().
 
-Unfortunately, not good.  You get code like:
+And this worked before?
 
-	foo = (struct mylist *) slist_pop((slist *) &somelist->next);
+conswitchp must never be NULL, say `conswitchp = &dummy_con;' in your setup.c
+if you have a serial console.
 
-So type safety goes out the window, and you gain some niceness in the
-definition in exchange for ugliness in usage, the wrong tradeoff imho.
+>From looking at arch/sparc/kernel/setup.c, perhaps you have
+CONFIG_DUMMY_CONSOLE=n?
 
-> struct slist
-> {
-> 	struct slist *next;
-> };
+> -- Pete
 > 
-> 
-> static inline void slist_add(struct slist *head, struct slist *elem)
-> {
-> 	elem->next = head->next;
-> 	head->next = elem;
-> }
-> 
-> #define slist_push(head, elem)	slist_add(head, elem)
-> 
-> static inline struct slist *slist_pop(struct slist *head)
-> {
-> 	struct slist *elem = head->next;
-> 
-> 	if (elem) {
-> 		head->next = elem->next;
-> 		elem->next = NULL;
-> 	}
-> 	return elem;
-> }
+> diff -ur -X dontdiff linux-2.5.30-sp_pbk/drivers/char/console.c linux-2.5.30-sparc/drivers/char/console.c
+> --- linux-2.5.30-sp_pbk/drivers/char/console.c	Thu Aug  1 14:16:34 2002
+> +++ linux-2.5.30-sparc/drivers/char/console.c	Sun Aug 18 23:14:20 2002
+> @@ -652,7 +652,7 @@
+>  
+>  int vc_allocate(unsigned int currcons)	/* return 0 on success */
+>  {
+> -	if (currcons >= MAX_NR_CONSOLES)
+> +	if (currcons >= MAX_NR_CONSOLES || conswitchp == NULL)
+>  		return -ENXIO;
+>  	if (!vc_cons[currcons].d) {
+>  	    long p, q;
 
--- 
-Daniel
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

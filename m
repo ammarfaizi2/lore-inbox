@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287831AbSA2ARR>; Mon, 28 Jan 2002 19:17:17 -0500
+	id <S287833AbSA2AYJ>; Mon, 28 Jan 2002 19:24:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287833AbSA2ARD>; Mon, 28 Jan 2002 19:17:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:19972 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S287831AbSA2AQl>; Mon, 28 Jan 2002 19:16:41 -0500
-Message-ID: <3C55E9E3.50207@namesys.com>
-Date: Tue, 29 Jan 2002 03:16:35 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.33.0201280930130.1557-100000@penguin.transmeta.com> <3C55A58F.1070908@namesys.com> <E16VLZh-0000Dp-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287855AbSA2AX6>; Mon, 28 Jan 2002 19:23:58 -0500
+Received: from jhuml3.jhu.edu ([128.220.2.66]:22715 "HELO jhuml3.jhu.edu")
+	by vger.kernel.org with SMTP id <S287833AbSA2AXr>;
+	Mon, 28 Jan 2002 19:23:47 -0500
+Date: Mon, 28 Jan 2002 16:14:30 -0500
+From: Thomas Hood <jdthood@mail.com>
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+In-Reply-To: <Pine.LNX.4.44.0201290351520.7623-100000@boston.corp.fedex.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <1012252470.743.134.camel@thanatos>
+MIME-version: 1.0
+X-Mailer: Evolution/1.0.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+In-Reply-To: <Pine.LNX.4.44.0201290351520.7623-100000@boston.corp.fedex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On Mon, 2002-01-28 at 15:11, Jeff Chua wrote:
+> Sorry, just got off a long flight from San Diego to Singapore. Anyway,
+> slow ... means that even without vmware, if I just hit return, the lines
+> would scroll for about every 10 lines and there'll be a litte pause (<0.3
+> sec). With pre6, there's no such behavior, and if CONFIG_APM_CPU_IDLE is
+> not set, the "pause" goes away.
 
->On January 28, 2002 08:25 pm, Hans Reiser wrote:
->
->>If I understand you right, your scheme has the fundamental flaw that one 
->>dcache entry on a page can keep an entire page full of "slackers" in 
->>memory, and since there is little correlation in usage between dcache 
->>entries that happen to get stored on a page, the result is that the 
->>effectiveness per megabyte of the dcache is decreased by an order of 
->>magnitude.  It would be worse to have one dcache entry per page, but 
->>maybe not by as much as you might expect.
->>
->>When objects smaller than a page are stored on a page but not correlated 
->>in their usage, they need to be aged individually not as a page, and 
->>then garbage collected as needed.
->>
->
->I had the identical thought - i.e., that this is a job for object aging and 
->not lru, then I realized that a slight modification to lru can do the job, 
->that is:
->
->  - An access to any object on the page promotes the page to the hot end
->    of the lru list.
->
->  - When it's time to recover a page (or pages) scan from the cold end
->    towards the hot end, and recover the first page(s) on which all
->    objects are free.
->
->>Neither the current model nor your 
->>proposed scheme solve the fundamental problem Josh's measurements prove 
->>exists.  
->>
->
->My suggestion might.
->
-This fails to recover an object (e.g. dcache entry) which is used once, 
-and then spends a year in cache on the same page as an object which is 
-hot all the time.  This means that the hot set of objects becomes 
-diffused over an order of magnitude more pages than if garbage 
-collection squeezes them all together.  That makes for very poor caching.
+Suggestion: Try setting the idle_threshold to a higher value,
+e.g., 98.  (The default value is 95.)
 
-Hans
+Question to all: Would it be a good idea to de-idle the CPU
+inside interrupt handlers?
+
+> "host" system is linux. "guest" system is linux (actually, I tried with NT
+> as well, same problem).
+> 
+> The sympton is when I try to ping the "host" from vmware's "guest" system,
+> the first response came back to the guest's console. Then if I don't type
+> anything or don't move the mouse on the guest's console, I won't see any
+> further response on the guest's linux console. Even with a lot of mouse
+> movement or pressing the keys, the response is still very slow with "ping".
+
+> If I ping from the "host" linux console to the "guest" linux system,
+> responses came back, and does not hang. I'll double check this last point.
+> Got to recompile the kernel again.
+
+Try disabling APM cpu idling (set apm idle_threshold to 100) in the
+_guest_ OS.  (Leave it enabled in the host OS.)  Tell us what happens.
+
+Also try disabling APM cpu idling (set apm idle_threshold to 100) in
+the _host_ OS.  (Leave it enabled in the guest OS.)  Tell us what
+happens.
+
+I repeat: You do not need to recompile the kernel to enable/disable
+APM cpu idle: to disable it simply set idle_threshold to 100.
+
+
 

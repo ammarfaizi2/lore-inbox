@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267451AbTANE3T>; Mon, 13 Jan 2003 23:29:19 -0500
+	id <S267454AbTANEfc>; Mon, 13 Jan 2003 23:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267452AbTANE3T>; Mon, 13 Jan 2003 23:29:19 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:22744 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267451AbTANE3P>; Mon, 13 Jan 2003 23:29:15 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH]  Use `--unique=.gnu.linkonce.this_module' linker flag for modules on v850
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030114043757.DE66A3736@mcspd15.ucom.lsi.nec.co.jp>
-Date: Tue, 14 Jan 2003 13:37:57 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	id <S267453AbTANEfa>; Mon, 13 Jan 2003 23:35:30 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:1502 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267452AbTANEf3>; Mon, 13 Jan 2003 23:35:29 -0500
+Date: Mon, 13 Jan 2003 20:43:57 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: APIC version
+Message-ID: <350360000.1042519436@titus>
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD8F1@usslc-exch-4.slc.unisys.com>
+References: <3FAD1088D4556046AEC48D80B47B478C022BD8F1@usslc-exch-4.slc.unisys.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This prevents the linker from merging the .gnu.linkonce.this_module section
-into the .text section, which is necessary for modules to load correctly.
+> True - it has to be only done once per CPU bring-up.
+> 
+> To investigate all the corners of this issue: is it possible now, tomorrow,
+> on in the future to mix Intel processors on the same machine? 
 
-diff -ruN -X../cludes linux-2.5.57-uc0.orig/arch/v850/Makefile linux-2.5.57-uc0/arch/v850/Makefile
---- linux-2.5.57-uc0.orig/arch/v850/Makefile	2002-12-16 12:53:44.000000000 +0900
-+++ linux-2.5.57-uc0/arch/v850/Makefile	2003-01-14 11:16:53.000000000 +0900
-@@ -1,8 +1,8 @@
- #
- # arch/v850/Makefile
- #
--#  Copyright (C) 2001,02  NEC Corporation
--#  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
-+#  Copyright (C) 2001,02,03  NEC Corporation
-+#  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
- #
- # This file is included by the global makefile so that you can add your own
- # architecture-specific flags and dependencies. Remember to do have actions
-@@ -22,6 +22,11 @@
- CFLAGS += -fno-builtin
- CFLAGS += -D__linux__ -DUTS_SYSNAME=\"uClinux\"
- 
-+# This prevents the linker from consolidating the .gnu.linkonce.this_module
-+# section into .text (which the v850 default linker script for -r does for
-+# some reason)
-+LDFLAGS_MODULE += --unique=.gnu.linkonce.this_module
-+
- LDFLAGS_BLOB := -b binary --oformat elf32-little
- OBJCOPY_FLAGS_BLOB := -I binary -O elf32-little -B v850e
- 
+Yes. We can mix PPro 180s up with P3 900s, for a long time now.
+
+> enough really to collect the APIC version of boot CPU and just use it for
+> the rest? 
+
+Nope. 
+
+M.
+

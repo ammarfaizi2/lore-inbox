@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLGPTT>; Thu, 7 Dec 2000 10:19:19 -0500
+	id <S129257AbQLGP13>; Thu, 7 Dec 2000 10:27:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129257AbQLGPTJ>; Thu, 7 Dec 2000 10:19:09 -0500
-Received: from zcamail01.zca.compaq.com ([161.114.32.101]:55306 "HELO
-	zcamail01.zca.compaq.com") by vger.kernel.org with SMTP
-	id <S129226AbQLGPSy>; Thu, 7 Dec 2000 10:18:54 -0500
-Date: Thu, 7 Dec 2000 09:50:32 -0500
-From: Jay Estabrook <Jay.Estabrook@compaq.com>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test12-pre6 on alpha
-Message-ID: <20001207095032.A1783@linux04.mro.cpqcorp.net>
-In-Reply-To: <20001206204723.A8390@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001206204723.A8390@animx.eu.org>; from wakko@animx.eu.org on Wed, Dec 06, 2000 at 08:47:23PM -0500
+	id <S129413AbQLGP1K>; Thu, 7 Dec 2000 10:27:10 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:38409 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S129257AbQLGP1H>; Thu, 7 Dec 2000 10:27:07 -0500
+Date: Thu, 7 Dec 2000 17:09:12 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Broken NR_RESERVED_FILES
+In-Reply-To: <Pine.LNX.4.21.0012071359210.970-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.30.0012071642300.5455-100000@fs129-190.f-secure.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 08:47:23PM -0500, Wakko Warner wrote:
-> I'm glad to say that this is the first 2.4 kernel that works on my noritake
-> alpha with a pci-pci bridge.
-> 
-> I have a small problem.  If I reboot, the srm console can't boot from dka0.
-> Doing a: show dev
-> doesn't list any of the hard drives in the machine.
-> doing an init causes it to reset and find all the drives again.
 
-During boot, the Linux kernel code (on Alpha) changes the PCI resource
-settings of cards and bridges alike. Some SRM consoles do not appreciate
-this... ;-}
+On Thu, 7 Dec 2000, Tigran Aivazian wrote:
+> On Thu, 7 Dec 2000, Szabolcs Szakacsits wrote:
+> > On Thu, 7 Dec 2000, Tigran Aivazian wrote:
+> > > On Thu, 7 Dec 2000, Szabolcs Szakacsits wrote:
+> > > > Reserved fd's for superuser doesn't work.
+> > > It does actually work,
+> >
+> > What do you mean under "work"? I meant user apps are able to
+> > exhaust fd's completely and none is left for superuser.
+>
+> really? how did you manage to do that? On a 2.4.0-test12-pre7 system I
 
-There is code in 2.2 that restores card/bridge settings before exiting
-the kernel back to console mode. This code has NOT been ported to 2.4,
-due primarily to the size of the changes made to 2.4 in that area.
+Just as you but I think you are testing on a margin condition [when
+all file structure were already allocated], just reboot and try it
+again. The failed logic is also clear from the kernel code [user
+happily allocates when freelist < NR_RESERVED_FILES].
 
-Could you verify that 2.2 (take the latest, please) DOES exit to SRM
-correctly?
+Note, I tested only 2.2 but 2.4 apparently also has the same bad
+logic. Maybe with 2.4 you are also just lucky because of several other
+reasons [e.g. kernel tries harder to keep freelist high and you also
+have the fast enough box for it, etc].
 
-A workaround for 2.4 is to set "boot_reset" to ON in SRM, which will
-force a full reset before continuing the boot. Yes, I know, for a lot
-of situations this is overkill, but at least it will do the right thing
-under the above described situations...
+> cannot reproduce the behaviour you describe. I.e. at least
+> NR_RESERVED_FILES (which I agree with you should be increased!) are left
+> to superuser processes whilst the user processes are denied.
+>
+> How exactly are you reproducing this? I wrote a simple while (1)
+> {open("/dev/null", 0); } program and run many instances of it as user. At
+> some stage user starts failing but superuser happily draws from the
+> freelist. Of course, the superuser cannot start complex programs which
+> require many descriptos but that is entirely the issues of
 
-Good luck.
+Well, about maybe 'dmesg' will work, not others for the current
+default value (10). Note, the number of fd's aren't the *currently*
+used one but apparently about all of them - even if they were closed
+after the open - during the existence of the app [probably buffering
+and maybe this changed in 2.4].
 
---Jay++
+> NR_RESERVED_FILES being too small on which I totally agree with you.
 
------------------------------------------------------------------------------
-Jay A Estabrook                            Alpha Engineering - LINUX Project
-Compaq Computer Corp. - MRO1-2/K20         (508) 467-2080
-200 Forest Street, Marlboro MA 01752       Jay.Estabrook@compaq.com
------------------------------------------------------------------------------
+Yep, with it's current value it's just a code decoration without any
+gains.
+
+	Szaka
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

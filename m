@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbTKCDOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 22:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTKCDOR
+	id S261885AbTKCDz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 22:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTKCDz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 22:14:17 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:51481 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S261890AbTKCDOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 22:14:14 -0500
-Date: Sun, 2 Nov 2003 22:14:11 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Ville Herva <vherva@niksula.hut.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: getrlimit for an arbitrary process?
-In-Reply-To: <20031102090505.GB9015@niksula.cs.hut.fi>
-Message-ID: <Pine.LNX.4.44.0311022213140.28000-100000@chimarrao.boston.redhat.com>
+	Sun, 2 Nov 2003 22:55:28 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:28055 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S261885AbTKCDz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 22:55:27 -0500
+Message-ID: <3FA5CF9E.2060507@pacbell.net>
+Date: Sun, 02 Nov 2003 19:46:38 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: davidm@hpl.hp.com
+CC: Greg KH <greg@kroah.com>, vojtech@suse.cz,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
+References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>	<20031028013013.GA3991@kroah.com>	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>	<3FA12A2E.4090308@pacbell.net> <16289.29015.81760.774530@napali.hpl.hp.com>
+In-Reply-To: <16289.29015.81760.774530@napali.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Nov 2003, Ville Herva wrote:
 
-> Is there a way to query/set getrlimit/setrlimit for an arbitrary process?
+>   David> I'm not sure that if the HID driver were to pass a null
+>   David> buffer pointer, it would be caught anywhere.
+> 
+> OK, I'll try to find some time to trace the I/O MMU calls to see if
+> something isn't kosher at that level.  Is there a good way of getting
+> a relatively high-level of tracing in the USB subsystem that would
+> some me what's going on between the HID and the core USB level?
 
-Nope, rlimits only work on the current process
-(and a few of them work on the current UID).
+Most of that story is just submitting and completing URBs.
 
-> Couldn't find it under /proc, at least on 2.4.x.
+I'd either try changing the spots in drivers/usb/core/hcd.c
+marked as appropriate for generic MONITOR_URB hooks (printk
+if it's your HID device, maybe), or manually turn on whatever
+HCD-specific hooks exist (maybe use a VERBOSE message level).
 
-Good idea for 2.7, though we might as well go
-all the way and set up more arbitrary resource
-groups.
+Such a thing wasn't possible in 2.4 since there were too
+many different bizarre (and sometimes buggy) ways for URBs
+to return to the usb device drivers and get implicitly
+resubmitted.
 
-Take a look at http://ckrm.sourceforge.net/  ;)
+- Dave
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+
+
 

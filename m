@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbSK0BO7>; Tue, 26 Nov 2002 20:14:59 -0500
+	id <S262792AbSK0BNk>; Tue, 26 Nov 2002 20:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSK0BO7>; Tue, 26 Nov 2002 20:14:59 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:29332 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263342AbSK0BO6>; Tue, 26 Nov 2002 20:14:58 -0500
-Subject: Re: 2.5.49 module problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adam K Kirchhoff <adamk@voicenet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021126193026.Q14666-100000@sorrow.ashke.com>
-References: <20021126193026.Q14666-100000@sorrow.ashke.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Nov 2002 01:53:28 +0000
-Message-Id: <1038362008.2594.112.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S263321AbSK0BNk>; Tue, 26 Nov 2002 20:13:40 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:25496 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S262792AbSK0BNj>; Tue, 26 Nov 2002 20:13:39 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg Ungerer <gerg@snapgear.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]  v850 additions to include/linux/elf.h
+References: <buoel987otw.fsf_-_@mcspd15.ucom.lsi.nec.co.jp>
+	<1038325289.2594.37.camel@irongate.swansea.linux.org.uk>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 27 Nov 2002 10:19:06 +0900
+In-Reply-To: <1038325289.2594.37.camel@irongate.swansea.linux.org.uk>
+Message-ID: <buoel97kdx1.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-27 at 00:40, Adam K Kirchhoff wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > This patch adds more stuff to include/linux/elf.h for the v850 (used by
+> > the new module loader).
 > 
-> Hello all.
-> 
-> Sorry to bother everyone with what is probably a stupid user error, but in
-> case it's not I thought I should post my problem to the list.
-> 
-> I recently upgraded my motherboard to one with an ICH4 IDE controller.
-> Since it's not supported in 2.4.*, yet, I decided now would be a good time
+> To save cluttering a linux/*.h file couldnt the module loader for v850 
+> include an asm/*.h file holding the extra info ?
 
-2.4.20-rc4 should handle your ICH4 fine
+I suppose so, but the v850 is not exceptional in this regard.
+The various relocation type constants (R_...) in elf.h are completely
+unused in the kernel on _every_ architecture, except by the new module
+loader.
 
-2.5.49 needs new very different module tools
+If tidying is needed, then it seems like the best thing would be to move
+all the arch-specific stuff into the corresponding <asm/elf.h> file for
+each architecture.  I presume the reason this hasn't been done is simply
+convention -- userland elf.h files are also giant conglomerations of
+defines for every supported architecture ...
 
+-Miles
+-- 
+Next to fried food, the South has suffered most from oratory.
+  			-- Walter Hines Page

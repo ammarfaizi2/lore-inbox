@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280203AbRJaNfQ>; Wed, 31 Oct 2001 08:35:16 -0500
+	id <S280199AbRJaNh0>; Wed, 31 Oct 2001 08:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280199AbRJaNfG>; Wed, 31 Oct 2001 08:35:06 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:50181 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S280202AbRJaNez>;
-	Wed, 31 Oct 2001 08:34:55 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110311334.QAA01756@ms2.inr.ac.ru>
-Subject: Re: iptables and tcpdump
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Wed, 31 Oct 2001 16:34:32 +0300 (MSK)
-Cc: davem@redhat.com, fokkensr@linux06.vertis.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20011031172835.4f0c0ed2.rusty@rustcorp.com.au> from "Rusty Russell" at Oct 31, 1 05:28:35 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S280202AbRJaNhQ>; Wed, 31 Oct 2001 08:37:16 -0500
+Received: from web10303.mail.yahoo.com ([216.136.130.81]:8719 "HELO
+	web10303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280199AbRJaNhH>; Wed, 31 Oct 2001 08:37:07 -0500
+Message-ID: <20011031133744.78351.qmail@web10303.mail.yahoo.com>
+Date: Wed, 31 Oct 2001 14:37:44 +0100 (CET)
+From: =?iso-8859-1?q?Marco=20Schwarz?= <mschwarz_contron@yahoo.de>
+Subject: AMD SMP Support ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi all,
 
-> Agreed.  The 2.2 masq code didn't do this, and hence the "don't tcpdump on masq host"
-> recommendation.
+I will get some new servers next week and I have two
+questions:
 
-Paul, it is very possible that I smoke/drunk something wrong
-and saw this in dreams, but I really remember that this bug
-has been fixed in some 2.1.x. :-)
+- Does the current kernel support Dual Athlon CPUs ?
 
-Only function is different: that time skb_unshare() did some
-unitelligible thing and was used only by AX.25 for an unknown purpose.
-So, the function which does the work was called skb_cow().
+- Is it possible to build one kernel for dual Athlon,
+single Athlon, dual PIII and single PIII boxes ? 
 
-Alexey
+I would wait until next week and try it out, but
+unfortunately our management asked me about a
+statement about this :) (They want to be able to swap
+server hardware in case one of the servers breaks -
+without any software configuration if possible).
+
+Thanks in advance,
+
+Marco Schwarz
+
+__________________________________________________________________
+
+Gesendet von Yahoo! Mail
+http://mail.yahoo.de

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316788AbSGZEuJ>; Fri, 26 Jul 2002 00:50:09 -0400
+	id <S316782AbSGZEtT>; Fri, 26 Jul 2002 00:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316789AbSGZEuJ>; Fri, 26 Jul 2002 00:50:09 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:56069 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316788AbSGZEuH>; Fri, 26 Jul 2002 00:50:07 -0400
-Message-ID: <3D409874.3050104@evision.ag>
-Date: Fri, 26 Jul 2002 02:31:48 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S316788AbSGZEtT>; Fri, 26 Jul 2002 00:49:19 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:19098 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S316782AbSGZEtS>; Fri, 26 Jul 2002 00:49:18 -0400
+Message-ID: <032001c23460$2f59e340$1125a8c0@wednesday>
+From: "jdow" <jdow@earthlink.net>
+To: "Daniel Phillips" <phillips@arcor.de>, "Bill Davidsen" <davidsen@tmr.com>
+Cc: "Andrew Rodland" <arodland@noln.com>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1020725084540.11202C-100000@gatekeeper.tmr.com> <E17Xw0V-0004f8-00@starship>
+Subject: Re: [PATCH -ac] Panicking in morse code
+Date: Thu, 25 Jul 2002 21:52:03 -0700
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: vojtech@ucw.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: input: fix sleep support, kill bad ifdefs, cleanup comments
-References: <20020725103713.GA522@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> It is possible to kill few #ifdefs from input.c, so I did that.
-> 
-> Comments far to the left hurt readability in my eyes (I believe
-> input.c has *way* too much comments, too, but...).
+From: "Daniel Phillips" <phillips@arcor.de>
 
-Yes that's Vojtech in action. They don't just hurt my eyes. More 
-importantly - they interferre with the usage of folding in some editors.
-So please consider a style change. (And using FB if console is to narrow
-for you. vga=0x318 always worked for me. No GNOME, no KDE, just X11 + 
-MWM is a good terminal launcher as well - even if rebooting frequently.)
+> On Thursday 25 July 2002 14:51, Bill Davidsen wrote:
+> > On Fri, 19 Jul 2002, Alan Cox wrote:
+> >
+> > > > +static const char * morse[] = {
+> > > > + ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", /* A-H */
+> > > > + "..", ".---.", "-.-", ".-..", "--", "-.", "---", ".--.", /* I-P */
+> > > > + "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", /* Q-X */
+> > > > + "-.--", "--..", /* Y-Z */
+> > > > + "-----", ".----", "..---", "...--", "....-", /* 0-4 */
+> > > > + ".....", "-....", "--...", "---..", "----." /* 5-9 */
+> > >
+> > > How about using bitmasks here. Say top five bits being the length,
+lower
+> > > 5 bits being 1 for dash 0 for dit ?
+> >
+> > ??? If the length is 1..5 I suspect you could use the top two bits and
+fit
+> > the whole thing in a byte. But since bytes work well, use the top three
+> > bits for length without the one bit offset. Still a big win over
+strings,
+> > although a LOT harder to get right by eye.
+>
+> Please read back through the thread and see how 255 different 7 bit codes
+> complete with lengths can be packed into 8 bits.
 
-However: Please note that I greatly welcome that Vojtech
-actually *does* good commenting in exceptionally *exemplary* 
-comprehensive and adequate style!
+It appears someone is under the misapprehension that Morse characters are
+all 5 elements or less. "SK" is an example of a six element meta-character,
+one of a set that needs caring for, "...-.-".
 
+(Gawd I wish I could forget that silly communications mode. <sigh>)
 
-
+{^_^}    W6MKU (Color me a spread-spectrum maven.)
 

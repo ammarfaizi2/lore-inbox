@@ -1,55 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265995AbTAFEh5>; Sun, 5 Jan 2003 23:37:57 -0500
+	id <S266224AbTAFEnu>; Sun, 5 Jan 2003 23:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265998AbTAFEh4>; Sun, 5 Jan 2003 23:37:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58636 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265995AbTAFEh4>; Sun, 5 Jan 2003 23:37:56 -0500
-Date: Sun, 5 Jan 2003 20:14:53 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, <davidm@hpl.hp.com>,
-       <grundler@cup.hp.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
-In-Reply-To: <20030105153735.A8532@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266228AbTAFEnu>; Sun, 5 Jan 2003 23:43:50 -0500
+Received: from shockwave.systems.pipex.net ([62.241.160.9]:15076 "EHLO
+	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
+	id <S266224AbTAFEns>; Sun, 5 Jan 2003 23:43:48 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Philip Wyett <philipwyett@dsl.pipex.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <E18VNtK-0008Tq-00@fencepost.gnu.org>
+References: <FKEAJLBKJCGBDJJIPJLJEEOPDPAA.scott@coyotegulch.com>
+	<E18UxyT-0004AE-00@fencepost.gnu.org> <3E177535.D84F4867@justirc.net> 
+	<E18VNtK-0008Tq-00@fencepost.gnu.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-p2QkBOZS1UbSg/pkmmWb"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Jan 2003 04:55:21 +0000
+Message-Id: <1041828922.1015.38.camel@rh8-workstation>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 5 Jan 2003, Ivan Kokshaysky wrote:
->
-> Hopefully this patch should solve most problems with probing the BARs.
-> The changes are quite minimal as everything still is done in one pass.
+--=-p2QkBOZS1UbSg/pkmmWb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Can you do the same with a multi-pass thing? 
+On Mon, 2003-01-06 at 03:25, Richard Stallman wrote:
+>>     I think that everyone knows the connection between the Linux kernel =
+and GNU.
+>=20
+> I wish that were true.  Most of the people who know about the system
+> have heard of "Linux" but they have not heard of GNU.  Geeks often
+> think they know, but what they know is often wrong; for instance, they
+> often say that "GNU is the name of a collection of tools that are used
+> in Linux."  (See http://www.gnu.org/gnu/gnu-linux-faq.html#tools.)
+>=20
 
-I really think the single-pass approach is broken, because it means that
-we _cannot_ have a fixup for device that runs _before_ the fixup for the 
-bridge that bridges to the device.
+Hi,
 
-As such, the "PCI_FIXUP_EARLY" is not _nearly_ early enough, since it's
-way too late for the actual problem that started this whole thread (ie in
-order to turn off a bridge, we have to make sure that everything behind
-the bridge is turned off _first_).
+While I agree with you that the system should be called 'GNU Linux' and
+be referred too as such in communication etc. When your with a customer
+advocating implementation of the operating system for example. You
+cannot contradict and try force correctness/fairness of naming, unless
+you want to annoy and turn your customer off too you! For most people in
+the commercial world, we can use 'GNU Linux' when we write and speak
+hoping people catch onto it and nothing really more bar explain if
+someone asks why we call it 'GNU Linux'. You would I hope respect this.
 
-In other words, we really should be able to do all the bus number setup
-_first_. That isn't dependent ont eh BAR's or anything else. The actual 
-_sizing_ of the bus is clearly somethign we cannot do early, but we can 
-(and should) enumerate the devices first in phase #1.
+Also the page you linked to is alot of the problem. Yes people have a
+position on how something should be. However, too go on and on about it
+just gets up peoples noses. On the page is the following segment:
 
-Alternatively, we could even have a very limited phase #1 that only 
-enumerates _reachable_ devices (ie it doesn't even try to create bus 
-numbers, it only enumerates devices and buses that have already been set 
-up by the firmware, and ignores bridges that aren't set up yet). A pure 
-discovery phase, without any configuration at all.
+"However, there are people who do not like our saying this. Sometimes
+those people push us away in response. On occasion they are so rude that
+one wonders if they are intentionally trying to intimidate us into
+silence. It doesn't silence us, but it does tend to divide the
+community, so we hope you can convince them to stop."
 
-Hmm?
+The rudeness is not intimidation or not liking you to mention it I feel.
+Most people can be informed of something once or twice, but when it's
+told too them a third, fourth and fifth time they get frustrated to the
+point where the only means of communication is an outburst! Yes it is
+not probably the best of language used, but what they are trying to say
+is "Can you just change the record for a while please?". Sorry in
+advance to the animal lovers. :) There is more than one way to skin a
+cat and I think the preaching method has had it's day and more subtle
+methods may prove more productive.
 
-		Linus
+Regards
+
+Philip Wyett
+
+--=20
+
+AIM: PhilipWyett
+ICQ: 135463069
+Email: philipwyett@dsl.pipex.com
+
+--
+
+Public key: http://www.philipwyett.dsl.pipex.com/gpg/public_key.txt
+
+--
+
+--=-p2QkBOZS1UbSg/pkmmWb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+GQw5Kb/cIyIfGioRArvGAJ99hxGbasluOPgC3znZMaDn4Aa1uACgiW1+
+h5aodJzNJda6pLu9+XnZ0GQ=
+=rFNy
+-----END PGP SIGNATURE-----
+
+--=-p2QkBOZS1UbSg/pkmmWb--
 

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269211AbTGJLTD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 07:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269212AbTGJLTD
+	id S269212AbTGJLU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 07:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269216AbTGJLU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 07:19:03 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:57767 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S269211AbTGJLTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 07:19:01 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] minor optimization for EXT3
-From: bzzz@tmi.comex.ru
-Date: Thu, 10 Jul 2003 15:33:17 +0000
-In-Reply-To: <20030710042016.1b12113b.akpm@osdl.org> (Andrew Morton's
- message of "Thu, 10 Jul 2003 04:20:16 -0700")
-Message-ID: <87isqaiegy.fsf@gw.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
-References: <87smpeigio.fsf@gw.home.net>
-	<20030710042016.1b12113b.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 10 Jul 2003 07:20:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24846 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269212AbTGJLU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 07:20:56 -0400
+Date: Thu, 10 Jul 2003 12:35:29 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
+Message-ID: <20030710123529.A6866@flint.arm.linux.org.uk>
+Mail-Followup-To: Kirill Korotaev <dev@sw.ru>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0307091656240.1654-100000@localhost.localdomain> <200307101450.42340.dev@sw.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200307101450.42340.dev@sw.ru>; from dev@sw.ru on Thu, Jul 10, 2003 at 02:50:42PM +0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton (AM) writes:
+On Thu, Jul 10, 2003 at 02:50:42PM +0400, Kirill Korotaev wrote:
+> > > - I changed do_page_fault to setup vmalloced pages to current->mm->pgd
+> > >  instead of cr3 context.
 
- AM> Alex Tomas <bzzz@tmi.comex.ru> wrote:
- >> 
- >> Andreas Dilger proposed do not read inode's block during inode updating
- >> if we have enough data to fill that block. here is the patch.
+I haven't read the patches, but this caught my attention.
 
- AM> ok, thanks.  Could you please redo it for the current kernel?
+Wasn't the use of cr3 there to ensure that we used the right page tables
+when fixing up page faults occuring in the middle of a context switch for
+interrupt handlers in kernel modules?
 
-hmmm. it was against 2.5.72. I just tried it on 2.5.74 and all is OK.
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

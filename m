@@ -1,81 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272966AbTGaKNp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 06:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272970AbTGaKNp
+	id S272445AbTGaKJG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 06:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272965AbTGaKJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 06:13:45 -0400
-Received: from mailf.telia.com ([194.22.194.25]:16605 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id S272966AbTGaKNn (ORCPT
+	Thu, 31 Jul 2003 06:09:06 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:19730 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S272445AbTGaKJE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 06:13:43 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test2-mm2
-References: <20030730223810.613755b4.akpm@osdl.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 31 Jul 2003 11:50:58 +0200
-In-Reply-To: <20030730223810.613755b4.akpm@osdl.org>
-Message-ID: <m265ljf2il.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 31 Jul 2003 06:09:04 -0400
+Date: Thu, 31 Jul 2003 12:09:01 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Greg KH <greg@kroah.com>, Grant Miner <mine0057@mrs.umn.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Zio! compactflash doesn't work
+Message-ID: <20030731100901.GB2772@win.tue.nl>
+References: <3F26F009.4090608@mrs.umn.edu> <20030730231753.GB5491@kroah.com> <20030731011450.GA2772@win.tue.nl> <20030731041103.GA7668@kroah.com> <20030731005213.B7207@one-eyed-alien.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030731005213.B7207@one-eyed-alien.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Thu, Jul 31, 2003 at 12:52:13AM -0700, Matthew Dharm wrote:
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test2/2.6.0-test2-mm2/
+> > > > > I have a Microtech CompactFlash ZiO! USB
+> > > > > P:  Vendor=04e6 ProdID=1010 Rev= 0.05
+> > > > > S:  Manufacturer=SHUTTLE
+> > > > > S:  Product=SCM Micro USBAT-02
+> > > > > 
+> > > > > but it does not show up in /dev; this is in 2.6.0-pre1.  (It never 
+> > > > > worked in 2.4 either.)  config is attached.  Any ideas?
+> > > > 
+> > > > Linux doesn't currently support this device, sorry.
+> > > 
+> > > Hmm. I think I recall seeing people happily using that.
+> > > Do I misremember?
+> > > 
+> > > Google gives
+> > >   http://www.scm-pc-card.de/service/linux/zio-cf.html
+> > > and
+> > >   http://usbat2.sourceforge.net/
+> > 
+> > In looking at the kernel source, I don't see support for this device.  I
+> > do see support for others like it, but with different product ids.
 > 
-> . Several changes to the synaptics and PS/2 drivers.  People who have had
->   problems with keyboards and mice, please test and report.
+> Zio! apparently makes multiple CF readers.  Some of them are supported, but
+> this particular one is not, and likely never will be.
 
-Thanks for including these patches. Here is one more that is needed to
-make some old synaptics touchpads work.
+This particular one has support on the place indicated.
+Do you mean that that driver will never get into the vanilla kernel?
+And no other driver ever will? Funny.
 
+Andries
 
-When setting the mode byte, don't set bits that the touchpad doesn't
-understand. Those bits are reserved and setting them can lead to
-weird problems, like the left button not working, as reported by Miles
-Lane.
-
-
- linux-petero/drivers/input/mouse/synaptics.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
-
-diff -puN drivers/input/mouse/synaptics.c~synaptics-mode-set drivers/input/mouse/synaptics.c
---- linux/drivers/input/mouse/synaptics.c~synaptics-mode-set	Wed Jul 30 21:01:18 2003
-+++ linux-petero/drivers/input/mouse/synaptics.c	Wed Jul 30 21:01:18 2003
-@@ -182,6 +182,7 @@ static int query_hardware(struct psmouse
- {
- 	struct synaptics_data *priv = psmouse->private;
- 	int retries = 0;
-+	int mode;
- 
- 	while ((retries++ < 3) && synaptics_reset(psmouse))
- 		printk(KERN_ERR "synaptics reset failed\n");
-@@ -192,10 +193,13 @@ static int query_hardware(struct psmouse
- 		return -1;
- 	if (synaptics_capability(psmouse, &priv->capabilities, &priv->ext_cap))
- 		return -1;
--	if (synaptics_set_mode(psmouse, (SYN_BIT_ABSOLUTE_MODE |
--					 SYN_BIT_HIGH_RATE |
--					 SYN_BIT_DISABLE_GESTURE |
--					 SYN_BIT_W_MODE)))
-+
-+	mode = SYN_BIT_ABSOLUTE_MODE | SYN_BIT_HIGH_RATE;
-+	if (SYN_ID_MAJOR(priv->identity) >= 4)
-+		mode |= SYN_BIT_DISABLE_GESTURE;
-+	if (SYN_CAP_EXTENDED(priv->capabilities))
-+		mode |= SYN_BIT_W_MODE;
-+	if (synaptics_set_mode(psmouse, mode))
- 		return -1;
- 
- 	return 0;
-
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340

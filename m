@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279987AbRJ3PiD>; Tue, 30 Oct 2001 10:38:03 -0500
+	id <S279986AbRJ3Pkn>; Tue, 30 Oct 2001 10:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279986AbRJ3Phx>; Tue, 30 Oct 2001 10:37:53 -0500
-Received: from ssh-yyz.somanetworks.com ([216.126.67.45]:16672 "EHLO
-	hydra.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S279974AbRJ3Phr>; Tue, 30 Oct 2001 10:37:47 -0500
-Date: Tue, 30 Oct 2001 10:38:22 -0500 (EST)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: Jerome AUGE <auge@irit.fr>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: opl3sa2 sound driver and mixers
-In-Reply-To: <3BDE648E.135B39B8@irit.fr>
-Message-ID: <Pine.LNX.4.33.0110301027520.20844-100000@rancor.yyz.somanetworks.com>
+	id <S279974AbRJ3Pk1>; Tue, 30 Oct 2001 10:40:27 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:62888 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S279986AbRJ3PkO>; Tue, 30 Oct 2001 10:40:14 -0500
+Date: Tue, 30 Oct 2001 10:56:30 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: bert hubert <ahu@ds9a.nl>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty suprise with uptime
+In-Reply-To: <20011030104751.A11623@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.40.0110301030220.12319-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, Jerome AUGE wrote:
+On Tue, 30 Oct 2001, bert hubert wrote:
 
-> Scott Murray wrote:
-> > I've found myself too busy at work over the last while to really look into
-> > any issues with this driver.  Anyone keen on taking over as maintainer?
->
-> Some times ago I wanted to change the mixer part and get back to the
-> "original" one, with a single mixer ... but as it was intentional, I
-> left it like this.
->
-> However I think it would be a good thing to present, to the user, a
-> single mixer. You have 1 or more soundcards and each soundcard have a
-> single mixer that control all the volume available with this card, no ?
+> Having huge uptimes is by the way not adviseable operational policy
+> according to many. Chances are you will be in for a nasty surprise when you
+> reboot - do you remember after a year which daemons you 'started by hand'
+> and how?
 
-I gave up on the idea because it seemed dumb to me to basically duplicate
-the MSS mixer handling that's already implemented in ad1848.c, but feel
-free to change it.  The mixer code from opl3sa2.c in the 2.2 kernels is
-probably a good place to start.  Remember that you have to worry about
-extra mixer channels on the SA3 versus the SA2.
+While this isn't exactly on topic for l-k, I just thought that I would
+share my recent pain as it does fit in this thread.
 
-> If Alan has not yet released a patch that changes this ... I could try
-> to put all the controls back together ... and it will be the occasion to
-> learn a little bit more of that "mighty and scaring kernel" :)
+I had a box that I inherited.  It just did its job.  Actually most of my
+co-workers didn't even know which box performed this function, and when
+they saw the physical box, they didn't know what it did.
 
-Give it a shot.
+It was running a 2.0.x kernel.  One day after running for a long time (I'm
+guessing close to 500 days) it just went wacky.  I tried getting into the
+machine by ssh, but nothing was really working right at all.  So I figured
+a reboot was in order.
 
-Scott
+This was a crappy 486/66, with no reset button.  So a power cycle was
+called for.  When I started the machine back up, it did the file system
+has not been checked in a long time thing, and it started the fsck.
 
+After a bit I saw read errors start to spew to the screen, tons of bad
+blocks.  Then the machine squealed for a few seconds, clicked, and then
+all was silent, except for the steady stream of errors on the console.
 
+A second power cycle confermed what I already knew.  The BIOS reported a
+failure in the disk controller (the drive would spin up for 2 seconds
+squeal and click a little bit as it spun back down).
+
+This machine was configured to do a task, just forward messages to a
+paging terminal.  It's configuration was never changed.  It had a one of
+those floppy-tape drives in it.  I knew were the backup tape was, it was
+made 3 years ago when the machine was first put into action.
+
+Of course the tape was unreadble at this point.  So the installation and
+configuration was recreated from my memory.  Luckly I have a good memory,
+but it did take me 2 days to get everything running right again.
+
+So the moral of the story is.  Reboot every-so-often.  Set your fsck to
+run at around 2 months, x number of reboots is good too.  I like to
+stagger my partitions with 5 reboots between each, even on journaled
+filesystems.  And verify your backups even if the machine isn't changing.
+
+I usually follow those rules, but the cute little 486 in the corner with
+the 240MB hard drive, 16MB of RAM, and the monster uptimes was just too
+much fun to brag about.  I'm not bragging anymore, and it is disassembled
+on the floor in my office.
+
+-Chris
 -- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 

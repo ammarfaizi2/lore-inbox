@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267282AbSLKUbw>; Wed, 11 Dec 2002 15:31:52 -0500
+	id <S267298AbSLKUim>; Wed, 11 Dec 2002 15:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267292AbSLKUbv>; Wed, 11 Dec 2002 15:31:51 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:55747
+	id <S267300AbSLKUim>; Wed, 11 Dec 2002 15:38:42 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:58051
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267282AbSLKUbv>; Wed, 11 Dec 2002 15:31:51 -0500
-Subject: Re: [2.4]ALi M5451 sound hangs on init; workaround
+	id <S267298AbSLKUil>; Wed, 11 Dec 2002 15:38:41 -0500
+Subject: Re: Bug Report 2.4.20: Interrupt sharing bogus
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Fedor Karpelevitch <fedor@apache.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Vicente Aguilar <bisente@bisente.com>,
-       alsa-devel@lists.sourceforge.net,
-       Debian-Laptops <debian-laptop@lists.debian.org>
-In-Reply-To: <200212111142.31709.fedor@apache.org>
-References: <200212110715.20617.fedor@apache.org>
-	<200212111036.21771.fedor@apache.org>
-	<1039635588.18587.8.camel@irongate.swansea.linux.org.uk> 
-	<200212111142.31709.fedor@apache.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <20021211212734.5429bfee.skraw@ithnet.com>
+References: <20021211195501.7f6dff35.skraw@ithnet.com>
+	<1039635955.18587.12.camel@irongate.swansea.linux.org.uk>
+	<20021211203403.130fc724.skraw@ithnet.com>
+	<1039639993.18587.19.camel@irongate.swansea.linux.org.uk> 
+	<20021211212734.5429bfee.skraw@ithnet.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 21:12:34 +0000
-Message-Id: <1039641154.18412.28.camel@irongate.swansea.linux.org.uk>
+Date: 11 Dec 2002 21:23:54 +0000
+Message-Id: <1039641834.18587.33.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 19:42, Fedor Karpelevitch wrote:
-> So I wonder what toggling those bits is supposed to change. I would 
-> test that somehow then
+On Wed, 2002-12-11 at 20:27, Stephan von Krawczynski wrote:
+> Why does it freeze then with this config? I doubt it has ultimately to do with
+> the 4-port card being of "4-port nature". I can use every of its ports that
 
-6 channel audio mode
+four port cards tend to test two things. PCI bridging and also IRQ
+routing since they tend to use INTA-D not just INTA as is normal.
+
+> does not share interrupt with another device. As soon as I share I get busted.
+> As I told the driver used for ethernet doesn't seem to matter as tulip and
+> sundance show the same effect.
+> I am very interested in solving this somehow having five pieces of these
+> boards...
+
+I would be very interested if (and I've seen this before with other
+vendors boards) plugging the quad card into a good old intel 440BX or
+something like that makes them work.
+
 

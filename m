@@ -1,129 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbTJDUVA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 16:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbTJDUVA
+	id S262757AbTJDUf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 16:35:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTJDUf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 16:21:00 -0400
-Received: from mail.convergence.de ([212.84.236.4]:56717 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262740AbTJDUU5
+	Sat, 4 Oct 2003 16:35:29 -0400
+Received: from b-195-adc53e.lohjanpuhelin.fi ([62.197.173.195]:3458 "EHLO
+	mail.zmailer.org") by vger.kernel.org with ESMTP id S262757AbTJDUfX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 16:20:57 -0400
-Message-ID: <3F7F2BA1.1010009@convergence.de>
-Date: Sat, 04 Oct 2003 22:20:49 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.6] MAINTAINERS, CREDITS, ioctl-number.txt updates
-Content-Type: multipart/mixed;
- boundary="------------070708020201090102050400"
+	Sat, 4 Oct 2003 16:35:23 -0400
+Date: Sat, 4 Oct 2003 16:35:20 -0400
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LKML strangeness duplicate mail, etc
+Message-ID: <20031004203520.GJ1305@mea-ext.zmailer.org>
+References: <200310042015.h94KFjVL001113@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310042015.h94KFjVL001113@81-2-122-30.bradfords.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070708020201090102050400
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+There is some strange epidemy of qmail related problems around...
 
-Hello all,
+On Sat, Oct 04, 2003 at 09:15:45PM +0100, John Bradford wrote:
+> Hi,
+> 
+> I'm seeing some odd behavior apparently from LKML, but it's possible
+> that it's not a list problem at all.
+> 
+> The noticable effect is that mail is duplicated, sometimes
+> immediately, sometimes with a delay of a day or more, but something
+> else seems wrong as well:
 
-I forgot to CC LKML in my post, so here it comes...
+Just earlier today (about 8 hours ago, as it happens) I spotted
+duplication at  noos.fr's  qmail system.  I have no real idea of
+why it happens, but as it happens with ALL their subscription
+addresses, my first order measure I revoked all of their subscriptions.
+I did also notify them.
 
-CU
-Michael.
+> Just in case the headers are being mangled by secondary-mx.co.uk, I
+> have contacted the admin of that server.
+> 
+> Received: from smtp.noos.fr (nan-smtp-12.noos.net [212.198.2.83])
+>         by newton.xela.co.uk (8.11.6/8.11.6) with ESMTP id h94GLZ312486
+>         for <john@grabjohn.com>; Sat, 4 Oct 2003 17:21:35 +0100
+> Received: (qmail 7531815 invoked by uid 0); 4 Oct 2003 16:21:29 -0000
+> Received: (qmail 1637340 invoked by uid 0); 29 Sep 2003 13:22:56 -0000
+> Received: from unknown (HELO vger.kernel.org) ([67.72.78.212])
+>           (envelope-sender <linux-kernel-owner+danseurfou=40noos.fr@vger.kernel.org>)
+>           by 212.198.2.82 (qmail-ldap-1.03) with SMTP
+>           for <danseurfou@noos.fr>; 29 Sep 2003 13:22:56 -0000
+....
 
--------------------------schnipp---------------------------------------
-Hi Linus,
+I have seen this same STYLE of qmail-triplets in duplications all
+around, and for couple weeks (at least) now.
 
-this patch updates the following files:
+It definitely has begun to smell like rotten piece of filter code
+that has gotten wider use over last couple weeks.
 
-- MAINTAINERS:
-    - add the LinuxTV.org project as the DVB driver maintainer
-    - add me as the saa7146 v4l2 driver maintainer
-- CREDITS: add me as the saa7146 v4l2 driver author
-- Documentation/ioctl-number.txt:
-    - remove bogus reference to Linux DVD API, which never really existed
-    - remove bogus referenc to Philips saa7146 driver, which never came
-to life
+The basic screwup is violation of:
+    One shall NEVER use visible "To:" and "Cc:" in message routing.
 
-I've sent the changes for "ioctl-number.txt" to Marcello for 2.4
-inclusion, too.
+(and related:  "sendmail -t"  is root of all evil, and should never
+have been invented...)
 
-Thanks
-Michael.
--------------------------schnipp---------------------------------------
-
-
---------------070708020201090102050400
-Content-Type: text/plain;
- name="documentation_update.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="documentation_update.diff"
-
-diff -ura xx-linux-2.6.0-test6/CREDITS linux-2.6.0-test6/CREDITS
---- xx-linux-2.6.0-test6/CREDITS	2003-10-04 21:06:38.000000000 +0200
-+++ linux-2.6.0-test6/CREDITS	2003-10-04 21:29:59.000000000 +0200
-@@ -1459,6 +1459,13 @@
- S: Roscommon
- S: Ireland
- 
-+N: Michael Hunold
-+E: michael@mihu.de
-+W: http://www.mihu.de/linux/
-+D: Generic saa7146 video4linux-2 driver core,
-+D: Driver for the "Multimedia eXtension Board", "dpc7146",
-+D: "Hexium Orion", "Hexium Gemini"
-+
- N: Miguel de Icaza Amozurrutia
- E: miguel@nuclecu.unam.mx
- D: Linux/SPARC team, Midnight Commander maintainer
-diff -ura xx-linux-2.6.0-test6/Documentation/ioctl-number.txt linux-2.6.0-test6/Documentation/ioctl-number.txt
---- xx-linux-2.6.0-test6/Documentation/ioctl-number.txt	2003-10-04 21:06:09.000000000 +0200
-+++ linux-2.6.0-test6/Documentation/ioctl-number.txt	2003-10-04 21:26:50.000000000 +0200
-@@ -175,10 +175,6 @@
- 					<mailto:buk@buks.ipn.de>
- 0xA0	all	linux/sdp/sdp.h		Industrial Device Project
- 					<mailto:kenji@bitgate.com>
--0xA2    00-0F   DVD decoder driver      in development:
--                                        <http://linuxtv.org/developer/dvdapi.html>
--0xA3	00-1F	Philips SAA7146 dirver	in development:
--					<mailto:Andreas.Beckmann@hamburg.sc.philips.com>
- 0xA3	80-8F	Port ACL		in development:
- 					<mailto:tlewis@mindspring.com>
- 0xA3	90-9F	linux/dtlk.h
-diff -ura xx-linux-2.6.0-test6/MAINTAINERS linux-2.6.0-test6/MAINTAINERS
---- xx-linux-2.6.0-test6/MAINTAINERS	2003-10-04 21:06:38.000000000 +0200
-+++ linux-2.6.0-test6/MAINTAINERS	2003-10-04 21:17:14.000000000 +0200
-@@ -669,6 +669,12 @@
- M:	romieu@ensta.fr
- S:	Maintained
- 
-+DVB SUBSYSTEM AND DRIVERS
-+P:	LinuxTV.org Project
-+L: 	linux-dvb@linuxtv.org
-+W:	http://linuxtv.org/developer/dvb.xml
-+S:	Supported
-+
- EATA-DMA SCSI DRIVER
- P:	Michael Neuffer
- L:	linux-eata@i-connect.net, linux-scsi@vger.kernel.org
-@@ -1658,6 +1664,12 @@
- W:	http://oss.software.ibm.com/developerworks/opensource/linux390
- S:	Supported
- 
-+SAA7146 VIDEO4LINUX-2 DRIVER
-+P:	Michael Hunold
-+M:	michael@mihu.de
-+W:	http://www.mihu.de/linux/saa7146
-+S:	Maintained
-+
- SA1100 SUPPORT
- P:	Nicolas Pitre
- M:	nico@cam.org
-
-
---------------070708020201090102050400--
-
+/Matti Aarnio -- one of <postmaster@vger.kernel.org>

@@ -1,91 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265191AbUBAC47 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 21:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUBAC47
+	id S265203AbUBADZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 22:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265205AbUBADZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 21:56:59 -0500
-Received: from post.tau.ac.il ([132.66.16.11]:62915 "EHLO post.tau.ac.il")
-	by vger.kernel.org with ESMTP id S265191AbUBAC44 (ORCPT
+	Sat, 31 Jan 2004 22:25:31 -0500
+Received: from nevyn.them.org ([66.93.172.17]:30336 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S265203AbUBADZ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 21:56:56 -0500
-Date: Sun, 1 Feb 2004 04:54:46 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
+	Sat, 31 Jan 2004 22:25:28 -0500
+Date: Sat, 31 Jan 2004 22:25:25 -0500
+From: Daniel Jacobowitz <dan@debian.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: oops with 2.6.1-rc1 and rc-3
-Message-ID: <20040201025446.GD32642@luna.mooo.com>
+Subject: More waitpid issues with CLONE_DETACHED/CLONE_THREAD
+Message-ID: <20040201032525.GA10254@nevyn.them.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1075537924.17730.88.camel@laptop-linux> <401B6F7A.5030103@gmx.de> <1075540107.17727.90.camel@laptop-linux> <401B7312.3060207@gmx.de> <1075542685.25454.124.camel@laptop-linux> <401B86EB.50604@gmx.de> <yw1xznc4tfle.fsf@kth.se> <20040131231134.GA6084@digitasaru.net> <20040201002641.GB31914@luna.mooo.com> <401C5AEC.8060602@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <401C5AEC.8060602@gmx.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.3; VDF: 6.23.0.53; host: localhost)
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 01, 2004 at 02:48:28AM +0100, Prakash K. Cheemplavam wrote:
-> This happened once with rc-1 vanilla and once with rc-3 (haven't used 
-> rc2 long enough.) Never happened with a earlier kernel. The message 
-> repeats eternally itself making the system next to unusuable.
-> 
-> Any idea how to fix it?
-> 
-> I am using siimage ide driver.
-> 
-> Prakash
-> 
-> Feb  1 02:34:48 tachyon handlers:
-> Feb  1 02:34:48 tachyon [<c02a6b50>] (ide_intr+0x0/0x190)
-> Feb  1 02:34:48 tachyon [<c03248c0>] (snd_intel8x0_interrupt+0x0/0x210)
-> Feb  1 02:34:48 tachyon Disabling IRQ #11
-> Feb  1 02:34:48 tachyon irq 11: nobody cared!
+This may be related to the python bug reported today...
 
-This irq message has been reported by several people (including me), I
-don't think there is a solution yet. AFAIK its not swsusp related.
+I've been playing around with gdbserver support for NPTL threading all day
+today.  Right now it works, except that when I say "kill" in the GDB client,
+gdbserver hangs.  The problem is that we kill the child, and wait for it,
+but wait never returns it.
 
-> Feb  1 02:34:48 tachyon Call Trace:
-> Feb  1 02:34:48 tachyon [<c010b0aa>] __report_bad_irq+0x2a/0x90
-> Feb  1 02:34:48 tachyon [<c010b19c>] note_interrupt+0x6c/0xb0
-> Feb  1 02:34:48 tachyon [<c010b451>] do_IRQ+0x121/0x130
-> Feb  1 02:34:48 tachyon [<c0109854>] common_interrupt+0x18/0x20
-> Feb  1 02:34:48 tachyon [<c0124080>] do_softirq+0x40/0xa0
-> Feb  1 02:34:48 tachyon [<c010b42d>] do_IRQ+0xfd/0x130
-> Feb  1 02:34:48 tachyon [<c0109854>] common_interrupt+0x18/0x20
-> Feb  1 02:34:48 tachyon [<c0281056>] generic_unplug_device+0x26/0x80
-> Feb  1 02:34:48 tachyon [<c028121a>] blk_run_queues+0x7a/0xb0
-> Feb  1 02:34:48 tachyon [<c016605f>] __wait_on_buffer+0xbf/0xd0
-> Feb  1 02:34:48 tachyon [<c011e1c0>] autoremove_wake_function+0x0/0x50
-> Feb  1 02:34:48 tachyon [<c011e1c0>] autoremove_wake_function+0x0/0x50
-> Feb  1 02:34:48 tachyon [<c020dbb8>] submit_logged_buffer+0x38/0x60
-> Feb  1 02:34:48 tachyon [<c020e1a3>] kupdate_one_transaction+0x1b3/0x210
-> Feb  1 02:34:48 tachyon [<c020e275>] reiserfs_journal_kupdate+0x75/0xb0
-> Feb  1 02:34:48 tachyon [<c0210ed4>] flush_old_commits+0x144/0x1d0
-> Feb  1 02:34:48 tachyon [<c0122583>] do_exit+0x293/0x500
-> Feb  1 02:34:48 tachyon [<c01fe942>] reiserfs_write_super+0x82/0x90
-> Feb  1 02:34:48 tachyon [<c016b94c>] sync_supers+0xac/0xc0
-> Feb  1 02:34:48 tachyon [<c014b526>] wb_kupdate+0x36/0x120
-> Feb  1 02:34:48 tachyon [<c02602d3>] tty_write+0x1d3/0x3f0
-> Feb  1 02:34:48 tachyon [<c026008e>] tty_read+0x18e/0x200
-> Feb  1 02:34:48 tachyon [<c011c86d>] schedule+0x31d/0x590
-> Feb  1 02:34:48 tachyon [<c01214c0>] reparent_to_init+0xf0/0x180
-> Feb  1 02:34:48 tachyon [<c014bb4b>] __pdflush+0xcb/0x1b0
-> Feb  1 02:34:48 tachyon [<c014bc30>] pdflush+0x0/0x20
-> Feb  1 02:34:48 tachyon [<c014bc3f>] pdflush+0xf/0x20
-> Feb  1 02:34:48 tachyon [<c014b4f0>] wb_kupdate+0x0/0x120
-> Feb  1 02:34:48 tachyon [<c0107284>] kernel_thread_helper+0x0/0xc
-> Feb  1 02:34:48 tachyon [<c0107289>] kernel_thread_helper+0x5/0xc
-> Feb  1 02:34:48 tachyon
+write(2, "Killing inferior\n", 17)      = 17
+ptrace(PTRACE_CONT, 8454, 0, SIG_0)     = 0
+tkill(8454, SIGKILL)                    = 0
+--- SIGCHLD (Child exited) @ 0 (0) ---
+waitpid(8454, 0xbfffec04, WNOHANG)      = 0
+waitpid(8454, 0xbfffec04, WNOHANG|__WCLONE) = -1 ECHILD (No child processes)
+nanosleep({0, 1000000}, 0)              = ? ERESTART_RESTARTBLOCK (To be restarted)
+--- SIGCHLD (Child exited) @ 0 (0) ---
+setup()                                 = 0
+waitpid(8454, 0xbfffec04, WNOHANG)      = 0
+waitpid(8454, 0xbfffec04, WNOHANG|__WCLONE) = -1 ECHILD (No child processes)
 
-I didn't check it in the kernel but at first sight it looks like
-regular disks updates. I don't know what it goes into a loop. Are you
-sure that you don't have something that keeps updating the disk?
+and so on (looping on waitpid).  At this point, process 8454 is marked as a
+zombie, and nothing can reap it.  After gdbserver is killed, it reparents to
+init:
 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Name:   linux-dp
+State:  Z (zombie)
+SleepAVG:       91%
+Tgid:   8454
+Pid:    8454
+PPid:   1
+TracerPid:      0
+
+but init can't reap it either.
+
+8454 was the original (i.e. non-CLONE_DETACHED) thread.  Same behavior if I
+use ptrace_kill.
+
+GDB doesn't suffer from the same problem.  A little time with strace and I
+found out why: GDB PTRACE_KILL's the detached threads, PTRACE_KILL's the
+parent thread, waitpid's the detached threads, and then waitpid's the parent
+thread.  No design, just different order of items on the linked list.
+
+If I change gdbserver to do "kill thread; wait for thread; kill next thread;
+wait for next thread; kill parent last; wait for parent last" then it
+terminates and I don't get an unkillable zombie.
+
+ptrace(PTRACE_KILL, 18348, 0, 0)        = 0
+waitpid(18348, 0xbfffec04, WNOHANG)     = -1 ECHILD (No child processes)
+--- SIGCHLD (Child exited) @ 0 (0) ---
+waitpid(18348, [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], WNOHANG|__WCLONE) = 18348
+ptrace(PTRACE_KILL, 18349, 0, 0)        = 0
+waitpid(18349, 0xbfffec04, WNOHANG)     = -1 ECHILD (No child processes)
+waitpid(18349, [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], WNOHANG|__WCLONE) = 18349
+--- SIGCHLD (Child exited) @ 0 (0) ---
+ptrace(PTRACE_KILL, 18350, 0, 0)        = 0
+waitpid(18350, 0xbfffec04, WNOHANG)     = -1 ECHILD (No child processes)
+waitpid(18350, [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], WNOHANG|__WCLONE) = 18350
+ptrace(PTRACE_KILL, 18351, 0, 0)        = 0
+waitpid(18351, 0xbfffec04, WNOHANG)     = -1 ECHILD (No child processes)
+waitpid(18351, [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], WNOHANG|__WCLONE) = 18351
+ptrace(PTRACE_KILL, 18352, 0, 0)        = 0
+waitpid(18352, 0xbfffec04, WNOHANG)     = -1 ECHILD (No child processes)
+waitpid(18352, [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], WNOHANG|__WCLONE) = 18352
+--- SIGCHLD (Child exited) @ 0 (0) ---
+ptrace(PTRACE_KILL, 18329, 0, 0)        = 0
+waitpid(18329, [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], WNOHANG) = 18329
+exit_group(0)                           = ?
+
+So it looks like something gets very confused if the parent is SIGKILLed
+before the children.  What should happen?
+
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

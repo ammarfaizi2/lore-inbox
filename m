@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283481AbRLXWA1>; Mon, 24 Dec 2001 17:00:27 -0500
+	id <S282778AbRLXWLT>; Mon, 24 Dec 2001 17:11:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285383AbRLXWAM>; Mon, 24 Dec 2001 17:00:12 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:20435 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S285377AbRLXV7w>;
-	Mon, 24 Dec 2001 16:59:52 -0500
-Date: Mon, 24 Dec 2001 16:59:51 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Will Dyson <will_dyson@pobox.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT] BeFS filesystem 0.6
-In-Reply-To: <3C2796EC.9050008@pobox.com>
-Message-ID: <Pine.GSO.4.21.0112241625120.28049-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282815AbRLXWLI>; Mon, 24 Dec 2001 17:11:08 -0500
+Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:61316 "EHLO
+	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S282778AbRLXWK7>; Mon, 24 Dec 2001 17:10:59 -0500
+Date: Mon, 24 Dec 2001 17:14:11 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.2-pre1 dbench 32 hangs in vmstat "b" state
+Message-ID: <20011224171411.A260@earthlink.net>
+In-Reply-To: <20011221091104.A120@earthlink.net> <20011221154654.E811@suse.de> <20011221185538.A131@earthlink.net> <20011224150337.A593@suse.de> <20011224115953.A118@earthlink.net> <20011224180244.C1241@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011224180244.C1241@suse.de>; from axboe@suse.de on Mon, Dec 24, 2001 at 06:02:44PM +0100
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 24 Dec 2001, Will Dyson wrote:
-
-> Hi,
+On Mon, Dec 24, 2001 at 06:02:44PM +0100, Jens Axboe wrote:
 > 
-> For some months now, I have been working on a read-only implementation 
-> of the BeOS's native filesystem (BeFS). I just released version 0.6, and 
-> I think it works pretty darn well. <http://befs-driver.sourceforge.net/>
+> I would suspect that, do you get any kernel messages?
+
+When the machine gets in this state, it won't save any files,
+so kern.log doesn't have anything after the initial boot message.
+
+> Please send ps -eo cmd,wchan info for a hung machine.
 > 
-> I've had some reports of it working well on other peoples' machines as 
-> well. So what I'd really like now is for more people to try and break 
-> it. If you have a Be filesystem partition, please try it out. If you 
-> don't (but still feel like testing anyway), the download page has a 
-> filesystem image you can try it out on.
-> 
-> I'd also appreciate anyone who wants to critique the code itself. Thanks!
+> -- 
+> Jens Axboe
 
-Umm...  Obvious comments:
+Strangely (to me anyway), when dbench 32 hangs the machine,
+ps will not print anything.  vmstat will continue it's 8 
+second cycle though.
 
-a) typedef struct super_block vfs_sb;  Please don't.
-
-b) in inode.c:
-	inode->i_mode = (umode_t) raw_inode->mode;
-is wrong.  It's guaranteed bug either on big- or little-endian boxen.
-Same for mtime, uid and gid.  befs_count_blocks() also needs cleanup.
-
-c) befs_read_block()...  Erm.  Why bother with extra layer of abstraction?
-
-d) befs_readdir().  You _are_ guaranteed that inode is non-NULL, you put
-pointer to befs_dir_operations only is S_ISDIR is true and S_ISDIR is
-mutually exclusive with S_ISLNK.
-
-e) are there sparse files on BeFS?  If yes - you want to make BH_Mapped
-conditional in get_block() (set it if block is present, don't if it's a
-hole in file).
-
-f) befs_arch().  You probably want to make that an option...
-
-g) endianness problems in read_super()...
-
-h) TODO: use line breaks ;-)
+-- 
+Randy Hron
 

@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUKDLjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbUKDLjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUKDLjk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 06:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbUKDLh1
+	id S262178AbUKDLjn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 06:39:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUKDLhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 06:37:27 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:27353 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262165AbUKDLSG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 06:18:06 -0500
-Date: Thu, 4 Nov 2004 12:18:22 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 11/12] meye: bump up the version number
-Message-ID: <20041104111822.GQ3472@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <20041104111231.GF3472@crusoe.alcove-fr>
+	Thu, 4 Nov 2004 06:37:06 -0500
+Received: from sartre.ispvip.biz ([209.118.182.154]:64691 "HELO
+	sartre.ispvip.biz") by vger.kernel.org with SMTP id S262155AbUKDLRv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 06:17:51 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
+From: "Michael J. Cohen" <mjc@unre.st>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, sboyce@blueyonder.co.uk,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1099563805.30372.2.camel@localhost>
+References: <4189108C.2050804@blueyonder.co.uk>
+	 <41892899.6080400@cybsft.com> <41897119.6030607@blueyonder.co.uk>
+	 <418988A6.4090902@cybsft.com>  <20041104100634.GA29785@elte.hu>
+	 <1099563805.30372.2.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 04 Nov 2004 06:17:41 -0500
+Message-Id: <1099567061.7911.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104111231.GF3472@crusoe.alcove-fr>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-===================================================================
 
-ChangeSet@1.2350, 2004-11-02 16:34:21+01:00, stelian@popies.net
-  meye: bump up the version number
-  
-  Signed-off-by: Stelian Pop <stelian@popies.net>
+> > i applied your earlier patch but many more changes were needed to port
+> > PREEMPT_REALTIME (and in particular, PREEMPT_HARDIRQS) to x64. You can
+> > check out the x64 bits in -V0.7.8 which can be downloaded from the usual
+> > place:
+> > 
+> >    http://redhat.com/~mingo/realtime-preempt/
+> > 
+> > Sid, does this one build/work for you? (i had to disable CPUFREQ in the
+> > .config to get it to build - an -mm bug i suspect.)
+> > 
+> > 	Ingo
+>   LD      .tmp_vmlinux1
+> kernel/built-in.o(.text+0x1e57c): In function `___trace':
+> : undefined reference to `irqs_disabled_flags'
+> kernel/built-in.o(.text+0x1e797): In function `add_preempt_count':
+> : undefined reference to `irqs_disabled_flags'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> ------
+> Michael Cohen
 
-===================================================================
+Turned off the debugging stuff to fix this one :/
 
- meye.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+might_sleep issue at swap_on and firefox causes oopsen.
 
-===================================================================
+dmesg is 120k+ so here:
 
-diff -Nru a/drivers/media/video/meye.h b/drivers/media/video/meye.h
---- a/drivers/media/video/meye.h	2004-11-04 11:36:28 +01:00
-+++ b/drivers/media/video/meye.h	2004-11-04 11:36:28 +01:00
-@@ -31,7 +31,7 @@
- #define _MEYE_PRIV_H_
- 
- #define MEYE_DRIVER_MAJORVERSION	 1
--#define MEYE_DRIVER_MINORVERSION	10
-+#define MEYE_DRIVER_MINORVERSION	11
- 
- #define MEYE_DRIVER_VERSION __stringify(MEYE_DRIVER_MAJORVERSION) "." \
- 			    __stringify(MEYE_DRIVER_MINORVERSION)
+http://325i.org/software/2.6.10-rc1-mm2-RT-V0.7.8.dmesg
+
+------
+Michael Cohen
+

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131790AbQLPMDg>; Sat, 16 Dec 2000 07:03:36 -0500
+	id <S130537AbQLPMLL>; Sat, 16 Dec 2000 07:11:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131815AbQLPMD0>; Sat, 16 Dec 2000 07:03:26 -0500
-Received: from ginaz2.justnet.com ([64.245.23.10]:265 "EHLO ginaz2.justnet.com")
-	by vger.kernel.org with ESMTP id <S131790AbQLPMDP>;
-	Sat, 16 Dec 2000 07:03:15 -0500
-Message-Id: <5.0.0.25.2.20001216051043.00a6b008@mail.ricis.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Sat, 16 Dec 2000 05:32:51 -0600
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-From: Lee Leahu <lee@ricis.com>
-Subject: Re: Kernel panic: VFS: LRU block list corrupted
-In-Reply-To: <20001216120842.A1851@khan.acc.umu.se>
-In-Reply-To: <5.0.0.25.2.20001215205029.00a8a688@mail.ricis.com>
- <5.0.0.25.2.20001215205029.00a8a688@mail.ricis.com>
+	id <S130026AbQLPMLC>; Sat, 16 Dec 2000 07:11:02 -0500
+Received: from janeway.cistron.net ([195.64.65.23]:9744 "EHLO
+	janeway.cistron.net") by vger.kernel.org with ESMTP
+	id <S130634AbQLPMKt>; Sat, 16 Dec 2000 07:10:49 -0500
+Date: Sat, 16 Dec 2000 12:40:11 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Kurt Garloff <garloff@suse.de>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: TIOCGDEV ioctl
+Message-ID: <20001216124011.A14129@cistron.nl>
+In-Reply-To: <20001216114645.A8944@cistron.nl> <Pine.GSO.4.21.0012160550240.15518-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0012160550240.15518-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Dec 16, 2000 at 06:15:51AM -0500
+X-NCC-RegID: nl.cistron
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In response to David Weinehall's reply:
+According to Alexander Viro:
+> OK, I can see the point of finding out where the console is redirected
+> to. How about the following:
+> 
+> 	/proc/sys/vc -> /dev/tty<n>
+> 	/proc/sys/console -> where the hell did we redirect it or
+> 			     vc if there's no redirect right now
+> Will that be OK with you?
 
-sorry - i forgot that i needed to include more info, i'm new to mailling lists.
+Well, I'd prefer the ioctl, but I can see the general direction the
+kernel is heading to: get rid of numeric ioctls and sysctl()s and
+put all that info under /proc.
 
-We recently upgraded our server to kernel 2.2.16 because there was a bug in 
-2.2.14
-and the new sendmail required at least 2.2.16.
+However /proc/sys only contains directories now, it would look
+kindof ugly to put 2 symlinks in there directly. Oh well.
 
-We built our computer from Abit BE6-II motherboards, Pentium III 550 MHz, 
-512Kb cache,
-256 Megs ram,  3com 905c nics, 3dfx Vodoo 3 3000 video cards
-maxtor 30G hard drive,  standard floppy drive, decend CD-ROM drive
-
-i'm not very familiar with klog, but i'll go with klogd.
-do i append a '-x' to the line that calls klogs in the startup scripts or
-is there some other better way of preventing klogd from destroying
-the Oops information.
-
-Then i guess ksymoops. decodes the oops info
-
-Lee Leahu
-System Administrator
-lee@ricis.com
-
+Mike.
+-- 
+RAND USR 16514
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVAJHeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVAJHkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbVAJHeX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 02:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVAJHeX
+	id S262134AbVAJHkg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 02:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVAJHke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 02:34:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262133AbVAJHeV (ORCPT
+	Mon, 10 Jan 2005 02:40:34 -0500
+Received: from mproxy.gmail.com ([216.239.56.243]:8859 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262134AbVAJHk0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 02:34:21 -0500
-Date: Sun, 9 Jan 2005 23:32:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de
-Cc: rmk+lkml@arm.linux.org.uk, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [2/3] Resend
-Message-Id: <20050109233253.42318137.akpm@osdl.org>
-In-Reply-To: <1105319915.17853.8.camel@tglx.tec.linutronix.de>
-References: <20050110013508.1.patchmail@tglx>
-	<1105318406.17853.2.camel@tglx.tec.linutronix.de>
-	<20050110010613.A5825@flint.arm.linux.org.uk>
-	<1105319915.17853.8.camel@tglx.tec.linutronix.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 10 Jan 2005 02:40:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=QWuckS1ho9f2c0H0XEGGdDX+kRLhyqXBST86kfOW+H+5zm6ovxqXbWnQu+MCOtq9JrNIa2NfdPSUL3n+i+eT83/tcGVlpez0LJoW7w3FyzgVP9Uuize/MRNXDOPQQfHpkmCO9NQwn1hr/Zykf5cwp/2V//rhvQUzw1w/g7YcVq0=
+Message-ID: <21d7e99705010923403a57c7a6@mail.gmail.com>
+Date: Mon, 10 Jan 2005 18:40:25 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Brice.Goglin@ens-lyon.org
+Subject: Re: 2.6.10-mm2
+Cc: Benoit Boissinot <bboissin@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Mike Werner <werner@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <41E13C87.3050306@ens-lyon.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_141_8034753.1105342825583"
+References: <20050106002240.00ac4611.akpm@osdl.org>
+	 <40f323d005010701395a2f8d00@mail.gmail.com>
+	 <21d7e99705010718435695f837@mail.gmail.com>
+	 <40f323d00501080427f881c68@mail.gmail.com>
+	 <21d7e99705010805487322533e@mail.gmail.com>
+	 <40f323d0050108074112ae4ac7@mail.gmail.com>
+	 <21d7e99705010817386f55e836@mail.gmail.com>
+	 <40f323d005010906093ba08ba4@mail.gmail.com>
+	 <41E13C87.3050306@ens-lyon.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner <tglx@linutronix.de> wrote:
->
-> This patch adjusts the ARM entry code to use the fixed up
->  preempt_schedule() handling in 2.6.10-mm2
-> 
-> ...
->  Index: 2.6.10-mm1/arch/arm/kernel/entry.S
+------=_Part_141_8034753.1105342825583
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-There's no such file.  I assumed you meant entry-armv.S and ended up with
-the below.
+On Sun, 09 Jan 2005 15:15:35 +0100, Brice Goglin
+<Brice.Goglin@ens-lyon.fr> wrote:
+> >>If you could apply the patch I've attached (just adds some debug...)
+> >>it'll narrow it down a small bit where it is failing for me...
+> >>
 
---- 25/arch/arm/kernel/entry-armv.S~use-the-new-preemption-code-arm	2005-01-09 23:30:34.794573320 -0800
-+++ 25-akpm/arch/arm/kernel/entry-armv.S	2005-01-09 23:30:34.797572864 -0800
-@@ -136,10 +136,8 @@ svc_preempt:	teq	r9, #0				@ was preempt
- 		ldr	r1, [r6, #8]			@ local_bh_count
- 		adds	r0, r0, r1
- 		movne	pc, lr
--		mov	r7, #PREEMPT_ACTIVE
--		str	r7, [r8, #TI_PREEMPT]		@ set PREEMPT_ACTIVE
- 1:		enable_irq r2				@ enable IRQs
--		bl	schedule
-+               bl      entry_preempt_schedule
- 		disable_irq r0				@ disable IRQs
- 		ldr	r0, [r8, #TI_FLAGS]		@ get new tasks TI_FLAGS
- 		tst	r0, #_TIF_NEED_RESCHED
-_
+I've another patch on top of -mm2 anyone wanna try this.. i'm
+interested in finding out when the atomic_inc actually is happening...
 
+Dave.
+
+------=_Part_141_8034753.1105342825583
+Content-Type: application/octet-stream; name="part1"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="part1"
+
+LS0tIGRyaXZlcnMvY2hhci9hZ3AvYmFja2VuZC5jLm9yaWcJMjAwNS0wMS0wOSAxMjozNjoxOS4w
+MDAwMDAwMDAgKzExMDAKKysrIGRyaXZlcnMvY2hhci9hZ3AvYmFja2VuZC5jCTIwMDUtMDEtMTAg
+MTg6MzY6MTUuMDAwMDAwMDAwICsxMTAwCkBAIC02NiwxMCArNjYsMTcgQEAKIAlicmlkZ2UgPSBh
+Z3BfZ2VuZXJpY19maW5kX2JyaWRnZShwZGV2KTsKIAogCWlmICghYnJpZGdlKQorCXsJCisJCXBy
+aW50aygiYWdwX2JhY2tlbmRfYWNxdWlyZSBmYWlsZWQgb24gZmluZCBicmlkZ2VcbiIpOwogCQly
+ZXR1cm4gTlVMTDsKKwl9CiAKIAlpZiAoYXRvbWljX3JlYWQoJmJyaWRnZS0+YWdwX2luX3VzZSkp
+CisJeworCQlwcmludGsoImFncF9iYWNrZW5kX2FjcXVpcmUgZmFpbGVkIG9uIGF0b21pYyByZWFk
+XG4iKTsKIAkJcmV0dXJuIE5VTEw7CisJfQorCXByaW50aygiYWdwX2JhY2tlbmRfYWNxdWlyZTog
+aW5jcmVhc2UgYWdwX2luX3VzZVxuIik7CiAJYXRvbWljX2luYygmYnJpZGdlLT5hZ3BfaW5fdXNl
+KTsKIAlyZXR1cm4gYnJpZGdlOwogfQpAQCAtODcsOCArOTQsMTAgQEAKIHZvaWQgYWdwX2JhY2tl
+bmRfcmVsZWFzZShzdHJ1Y3QgYWdwX2JyaWRnZV9kYXRhICpicmlkZ2UpCiB7CiAKLQlpZiAoYnJp
+ZGdlKQorCWlmIChicmlkZ2UpIHsKKwkJcHJpbnRrKCJhZ3BfYmFja2VuZF9hY3F1aXJlOiBkZWNy
+ZWFzZSBhZ3BfaW5fdXNlXG4iKTsKIAkJYXRvbWljX2RlYygmYnJpZGdlLT5hZ3BfaW5fdXNlKTsK
+Kwl9CiB9CiBFWFBPUlRfU1lNQk9MKGFncF9iYWNrZW5kX3JlbGVhc2UpOwogCi0tLSBkcml2ZXJz
+L2NoYXIvYWdwL2Zyb250ZW5kLmMub3JpZwkyMDA1LTAxLTEwIDE4OjM4OjA1LjAwMDAwMDAwMCAr
+MTEwMAorKysgZHJpdmVycy9jaGFyL2FncC9mcm9udGVuZC5jCTIwMDUtMDEtMTAgMTg6MzY6NTIu
+MDAwMDAwMDAwICsxMTAwCkBAIC03OTQsNiArNzk0LDcgQEAKICAgICAgICAgaWYgKGF0b21pY19y
+ZWFkKCZhZ3BfYnJpZGdlLT5hZ3BfaW5fdXNlKSkKICAgICAgICAgICAgICAgICByZXR1cm4gLUVC
+VVNZOwogCisJcHJpbnRrKCJhZ3Bpb2MgYWNxdWlyZSBpbmNyZWFzZSBhZ3BfaW5fdXNlXG4iKTsK
+IAlhdG9taWNfaW5jKCZhZ3BfYnJpZGdlLT5hZ3BfaW5fdXNlKTsKIAogCWFncF9mZS5iYWNrZW5k
+X2FjcXVpcmVkID0gVFJVRTsK
+------=_Part_141_8034753.1105342825583--

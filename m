@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268919AbUHMBYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268922AbUHMB1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268919AbUHMBYq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 21:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUHMBYp
+	id S268922AbUHMB1B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 21:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268930AbUHMB1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 21:24:45 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:55529 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268919AbUHMBYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 21:24:44 -0400
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040812235116.GA27838@elte.hu>
-References: <20040726082330.GA22764@elte.hu>
-	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu>  <20040812235116.GA27838@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092360317.1304.72.camel@mindpipe>
+	Thu, 12 Aug 2004 21:27:01 -0400
+Received: from holomorphy.com ([207.189.100.168]:50575 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268922AbUHMB0v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 21:26:51 -0400
+Date: Thu, 12 Aug 2004 18:26:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allocate page caches pages in round robin fasion
+Message-ID: <20040813012638.GU11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andi Kleen <ak@muc.de>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	linux-kernel@vger.kernel.org
+References: <2sxuC-429-3@gated-at.bofh.it> <m3657nu9dl.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 21:25:17 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3657nu9dl.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 19:51, Ingo Molnar wrote:
-> i've uploaded the latest version of the voluntary-preempt patch:
->      
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O6
-> 
+Jesse Barnes <jbarnes@engr.sgi.com> writes:
+>> The patch works by adding an alloc_page_round_robin routine that
+>> simply allocates on successive nodes each time its called, based on
+>> the value of a per-cpu variable modulo the number of nodes.  The
+>> variable is per-cpu to avoid cacheline contention when many cpus try
+>> to do page cache allocations at 
 
-Does not compile.  For each module I get:
+On Fri, Aug 13, 2004 at 03:14:46AM +0200, Andi Kleen wrote:
+> I don't like this approach using a dynamic counter. I think it would
+> be better to add a new function that takes the vma and uses the offset
+> into the inode for static interleaving (anonymous memory would still
+> use the vma offset). This way you would have a good guarantee that the
+> interleaving stays interleaved even when the system swaps pages in and
+> out and you're less likely to get anomalies in the page distribution.
 
-WARNING: /lib/modules/2.6.8-rc4-O6/kernel/drivers/ieee1394/ohci1394.ko
-needs unknown symbol mcount
+If we're going to go that far, why not use a better coloring algorithm?
+IIRC linear_page_index(vma, vaddr) % MAX_NR_NODES has issues with
+various semiregular access patterns where others do not (most are
+relatively simple hash functions). This reminds me that getting the vma
+and vaddr accessible to the allocator helps with normal page coloring.
 
-Lee
 
-
+-- wli

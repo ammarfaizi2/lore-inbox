@@ -1,82 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRDMNBI>; Fri, 13 Apr 2001 09:01:08 -0400
+	id <S130552AbRDMNDs>; Fri, 13 Apr 2001 09:03:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRDMNA6>; Fri, 13 Apr 2001 09:00:58 -0400
-Received: from iris.mc.com ([192.233.16.119]:43692 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S130532AbRDMNAk>;
-	Fri, 13 Apr 2001 09:00:40 -0400
-From: Mark Salisbury <mbs@mc.com>
-To: yodaiken@fsmlabs.com, george anzinger <george@mvista.com>
-Subject: Re: POSIX 52 53? 54
-Date: Fri, 13 Apr 2001 08:46:14 -0400
-X-Mailer: KMail [version 1.0.29]
-Content-Type: text/plain; charset=US-ASCII
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3AD66F56.A827E22@mvista.com> <20010412215323.A17007@hq.fsmlabs.com>
-In-Reply-To: <20010412215323.A17007@hq.fsmlabs.com>
-MIME-Version: 1.0
-Message-Id: <0104130853521R.01893@pc-eng24.mc.com>
-Content-Transfer-Encoding: 7BIT
+	id <S130768AbRDMNDi>; Fri, 13 Apr 2001 09:03:38 -0400
+Received: from napalm.go.cz ([212.24.148.98]:3332 "EHLO napalm.go.cz")
+	by vger.kernel.org with ESMTP id <S130552AbRDMNDX>;
+	Fri, 13 Apr 2001 09:03:23 -0400
+Date: Fri, 13 Apr 2001 15:02:19 +0200
+From: Jan Dvorak <johnydog@go.cz>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Unisys pc keyboard new keys patch, kernel 2.4.3
+Message-ID: <20010413150219.A440@napalm.go.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="liOOAslEiF7prFVr"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.11i
+Organization: (XNET.cz)
+X-URL: http://doga.go.cz/
+X-OS: Linux 2.4.3 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-these are covered in IEEE P100.13, D9 September 1997 AD212.  it is available
-from IEEE for a "nominal" fee.
 
-they are 4 defined subsets of POSIX that are deemed appropriate for real-time
-systems.
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-unfortunately, the sub in subset is a small delta from the full set.
+Hi,
 
-the subsets are:
-	PSE51: Minimal Realtime System Profile
-	PSE52: Realtime Controller System Profile
-	PSE53: Dedicated Realtime System Profile
-	PSE54: Multi-purpose Realtime System Profile.
+i recently met with a new (Unisys) keyboard, which have (among 'normal'
+windows keys) 3 more keys on top of arrows, labeled by pictures as
+halfsun, halfmoon, and power switch. Following patch adds 'support' for them
+(or at least gets rid of 'unknown scancode' messages), but beacuse i am
+new to kernl programming, i don't know if it is the right approach. If it'll
+be OK, it should apply to drivers/char/q40_keyb.c, drivers/sbus/char/sunkbd.c
+and drivers/sbus/char/pcikbd.c as well. I found no maintainer of charaacter
+devices/keyboards/input, so i am posting here.
 
-now, PSE51 is already about 90% of POSIX, so I don't really see what is so
-minimal about it.  the others require even more.
+Jan Dvorak <johnydog@go.cz>
 
-On Thu, 12 Apr 2001, yodaiken@fsmlabs.com wrote:
-> POSIX 1003.13 defines profiles 51-4 where 51 is a single POSIX
-> process with multiple threads (RTLinux) and 54 is a full POSIX OS
-> with the RT extensions (Linux).
-> 
-> On Thu, Apr 12, 2001 at 08:15:34PM -0700, george anzinger wrote:
-> > Any one know any thing about a POSIX draft 52 or 53 or 54.  I think they
-> > are suppose to have something to do with real time.
-> > 
-> > Where can they be found?  What do they imply for the kernel?
-> > 
-> > George
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> ---------------------------------------------------------
-> Victor Yodaiken 
-> Finite State Machine Labs: The RTLinux Company.
->  www.fsmlabs.com  www.rtlinux.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-/*------------------------------------------------**
-**   Mark Salisbury | Mercury Computer Systems    **
-**   mbs@mc.com     | System OS - Kernel Team     **
-**------------------------------------------------**
-**  I will be riding in the Multiple Sclerosis    **
-**  Great Mass Getaway, a 150 mile bike ride from **
-**  Boston to Provincetown.  Last year I raised   **
-**  over $1200.  This year I would like to beat   **
-**  that.  If you would like to contribute,       **
-**  please contact me.                            **
-**------------------------------------------------*/
 
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="unikey.patch"
+
+--- linux/drivers/char/pc_keyb.c.orig	Mon Apr  9 13:58:31 2001
++++ linux/drivers/char/pc_keyb.c	Fri Apr 13 13:34:05 2001
+@@ -224,6 +224,15 @@
+ #define E0_MSRW	126
+ #define E0_MSTM	127
+ 
++/*
++ * Another new microsoft (Unikey) keyboard seems to have just another
++ * three keys: e0 63 (half- or rising- sun), e0 5f (halfmoon) 
++ * and e0 5e (power button?)
++ */
++#define E0_MSPOWER	128
++#define E0_MSHALFMOON	129
++#define E0_MSHALFSUN	130
++
+ static unsigned char e0_keys[128] = {
+   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x00-0x07 */
+   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x08-0x0f */
+@@ -236,8 +245,8 @@
+   E0_DO, E0_F17, 0, 0, 0, 0, E0_BREAK, E0_HOME,	      /* 0x40-0x47 */
+   E0_UP, E0_PGUP, 0, E0_LEFT, E0_OK, E0_RIGHT, E0_KPMINPLUS, E0_END,/* 0x48-0x4f */
+   E0_DOWN, E0_PGDN, E0_INS, E0_DEL, 0, 0, 0, 0,	      /* 0x50-0x57 */
+-  0, 0, 0, E0_MSLW, E0_MSRW, E0_MSTM, 0, 0,	      /* 0x58-0x5f */
+-  0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x60-0x67 */
++  0, 0, 0, E0_MSLW, E0_MSRW, E0_MSTM, E0_MSPOWER, E0_MSHALFMOON,/* 0x58-0x5f */
++  0, 0, 0, E0_MSHALFSUN, 0, 0, 0, 0,		      /* 0x60-0x67 */
+   0, 0, 0, 0, 0, 0, 0, E0_MACRO,		      /* 0x68-0x6f */
+   0, 0, 0, 0, 0, 0, 0, 0,			      /* 0x70-0x77 */
+   0, 0, 0, 0, 0, 0, 0, 0			      /* 0x78-0x7f */
+
+--liOOAslEiF7prFVr--

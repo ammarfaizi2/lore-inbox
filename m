@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbTD1Swr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 14:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbTD1Swr
+	id S261254AbTD1Syq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 14:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTD1Syq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 14:52:47 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:57550 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S261241AbTD1Swq
+	Mon, 28 Apr 2003 14:54:46 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:8064 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261254AbTD1Syo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 14:52:46 -0400
-Date: Mon, 28 Apr 2003 13:04:46 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Oliver Sommer <oliver@kernzeit.com>, linux-kernel@vger.kernel.org
-Subject: Re: [bugreport] aic7xxx, DV failed to configure device
-Message-ID: <765800000.1051556686@aslan.btc.adaptec.com>
-In-Reply-To: <200304281535.05891.oliver@kernzeit.com>
-References: <200304281535.05891.oliver@kernzeit.com>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
+	Mon, 28 Apr 2003 14:54:44 -0400
+Date: Mon, 28 Apr 2003 12:07:01 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Mark Grosberg <mark@nolab.conman.org>
+cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
+       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Combined fork-exec syscall.
+In-Reply-To: <Pine.BSO.4.44.0304272154080.23296-100000@kwalitee.nolab.conman.org>
+Message-ID: <Pine.LNX.4.53.0304281203200.8792@twinlark.arctic.org>
+References: <Pine.BSO.4.44.0304272154080.23296-100000@kwalitee.nolab.conman.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the kernel logging messages ask me to file this "bug report".
-> I hope this is the right place to do so.
-> 
-> 
-> --snip--
-> 
-> SCSI subsystem driver Revision: 1.00
-> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.28
->         <Adaptec 2940 Ultra2 SCSI adapter (OEM)>
->         aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
-> 
-> scsi0:A:0:0: DV failed to configure device.  Please file a bug report against 
-> this driver.
-> (scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
->   Vendor: IBM       Model: DDYS-T18350N      Rev: S80D
->   Type:   Direct-Access                      ANSI SCSI revision: 03
->   Vendor: IBM       Model: DDYS-T36950N      Rev: S80D
->   Type:   Direct-Access                      ANSI SCSI revision: 03
+On Sun, 27 Apr 2003, Mark Grosberg wrote:
 
-You need newer firmware.  This firmware rev. don't implement the
-echo buffer that is mandatory for U160 and is used to perform
-Domain Validation.  There are also lots of other bugs in this
-firmware rev.  Call IBM (or perhaps it is now Hitachi) for an
-update and the error message will go away.
+> On Sun, 27 Apr 2003, dean gaudet wrote:
+>
+> > the only time fork-exec is inefficient, given the existence of vfork, is
+> > when you need to fork a process which has a lot of fd.  and by "a lot" i
+> > mean thousands.
+>
+> Depends at what level of optimization you are talking about. I consider a
+> syscall an expensive operation.
 
---
-Justin
+"expensive syscalls" are a mistake of non-linux unixes :)
 
+> The transition from user to kernel mode,
+> the setup and retrieval of parameters all cost (and some architectures are
+> worse at it than i386).
+>
+> > but even this has a potential work-around using procfs -- use clone() to
+> > get the vfork semantics without also copying the fd array.  then open
+> > /proc/$ppid/fd/N for any file descriptors you want opened in the forked
+> > process.
+>
+> That is still quite a few syscalls (and some path walking for each file
+> descriptor)... I was proposing to get around the syscall overhead which
+> on large multi-user systems (or webservers running lots of CGI) could be
+> significant.
+
+it's no more syscalls than are already required to set up stdin, out, and
+error... the open() calls replace dup2() calls.
+
+if the path walking is a problem then create a openparent(int parent_fd)
+syscall... which would have to do all the same permissions checking that
+using an open("/proc/ppid/...") would.
+
+note that for this to be generically useful for CGI you also need to be
+able to setuid(), and chdir().  this is why NT CreateProcess has a zillion
+arguments -- and why it's really suspect...
+
+-dean

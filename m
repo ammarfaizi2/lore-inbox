@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313799AbSDPSEs>; Tue, 16 Apr 2002 14:04:48 -0400
+	id <S313800AbSDPSGi>; Tue, 16 Apr 2002 14:06:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313800AbSDPSEr>; Tue, 16 Apr 2002 14:04:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:65031 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313799AbSDPSEq>; Tue, 16 Apr 2002 14:04:46 -0400
-Date: Tue, 16 Apr 2002 11:03:06 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: <haveblue@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix ips driver compile problems
-In-Reply-To: <20020416.104921.95902105.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0204161059070.1340-100000@penguin.transmeta.com>
+	id <S313801AbSDPSGi>; Tue, 16 Apr 2002 14:06:38 -0400
+Received: from ccs.covici.com ([209.249.181.196]:21392 "EHLO ccs.covici.com")
+	by vger.kernel.org with ESMTP id <S313800AbSDPSGg>;
+	Tue, 16 Apr 2002 14:06:36 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.8 undefined symbol setup_per_cpu_areas
+From: John Covici <covici@ccs.covici.com>
+Date: Tue, 16 Apr 2002 14:06:35 -0400
+Message-ID: <m3bscjwmac.fsf@ccs.covici.com>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2.50
+ (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am using 2.5.8 and I enabled the machine check and
+non-fatal-messages and I get the following error at the end of
+bzImage make:
 
-On Tue, 16 Apr 2002, David S. Miller wrote:
-> 
->       This patch has been floating inside IBM for a bit, but it appears 
->    that no one passed it back up to you, yet.  I don't know who wrote it, 
->    but it applies to 2.5.8 and the ServeRAID driver works just fine with it 
->    applied.  Without it, the driver fails to compile.
-> 
-> Alan commented today on this list why these changes are not
-> acceptable.
+init/main.o: In function `start_kernel':
+init/main.o(.text.init+0x64a): undefined reference to `setup_per_cpu_areas'
 
-Quite frankly, since after several months of being broken, nobody has
-stepped up to actually fix it, I am most definitely going to accept the
-band-aid solutions to SCSI drivers that will thus only work on x86.
-
-"Not acceptable" is when broken drivers means that people can't test the 
-features they _care_ about. Apparently nobody seems to care about the SCSI 
-driver itself..
-
-		Linus
-
+Any assistance would be appreciated.
+-- 
+         John Covici
+         covici@ccs.covici.com

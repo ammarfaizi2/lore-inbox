@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129546AbQKZLFS>; Sun, 26 Nov 2000 06:05:18 -0500
+        id <S130901AbQKZLGI>; Sun, 26 Nov 2000 06:06:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129722AbQKZLFJ>; Sun, 26 Nov 2000 06:05:09 -0500
-Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:34809
-        "EHLO champ.drew.net") by vger.kernel.org with ESMTP
-        id <S129546AbQKZLEx>; Sun, 26 Nov 2000 06:04:53 -0500
-From: Drew Bertola <drew@drewb.com>
+        id <S130900AbQKZLFt>; Sun, 26 Nov 2000 06:05:49 -0500
+Received: from 194-73-188-238.btconnect.com ([194.73.188.238]:26628 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S129722AbQKZLFp>;
+        Sun, 26 Nov 2000 06:05:45 -0500
+Date: Sun, 26 Nov 2000 10:37:07 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Tim Waugh <twaugh@redhat.com>
+cc: James A Sutherland <jas88@cam.ac.uk>, Andries Brouwer <aeb@veritas.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+In-Reply-To: <20001125235511.A16662@redhat.com>
+Message-ID: <Pine.LNX.4.21.0011261036001.1015-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14880.59211.617743.782851@champ.drew.net>
-Date: Sun, 26 Nov 2000 10:34:51 +0000 ()
-To: linux-kernel@vger.kernel.org
-Subject: i2go starting point...
-X-Mailer: VM 6.75 under Emacs 19.34.1
-Reply-To: drew@drewb.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone point me to a resource for i2go support?
+On Sat, 25 Nov 2000, Tim Waugh wrote:
 
-Thanks,
--- 
-Drew Bertola  | Send a text message to my pager or cell ... 
-              |   http://jpager.com/Drew
+> On Sat, Nov 25, 2000 at 10:53:00PM +0000, James A Sutherland wrote:
+> 
+> > Which is silly. The variable is explicitly defined to be zero
+> > anyway, whether you put this in your code or not.
+> 
+> Why doesn't the compiler just leave out explicit zeros from the
+> 'initial data' segment then?  Seems like it ought to be tought to..
+
+yes, taught to, _BUT_ never let this to be a default option, please.
+Because there are valid cases where a programmer things "this is in .data"
+and that means this should be in .data. Think of binary patching an object
+as one valid example (there may be others, I forgot).
+
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266417AbUAWJ2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 04:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUAWJ2x
+	id S265588AbUAWJZv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 04:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUAWJZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 04:28:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55510 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266417AbUAWJ2v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 04:28:51 -0500
-Date: Fri, 23 Jan 2004 01:29:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bastien Nocera <hadess@hadess.net>
-Cc: vojtech@suse.cz, kieran@ihateaol.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: uk keyboard broken by input updates?
-Message-Id: <20040123012927.6cddd754.akpm@osdl.org>
-In-Reply-To: <1074848307.2358.1.camel@wyatt.hadess.net>
-References: <1073901824.29420.14.camel@bnocera.surrey.redhat.com>
-	<40027510.1080600@ihateaol.co.uk>
-	<20040112103256.GA4038@ucw.cz>
-	<1074848307.2358.1.camel@wyatt.hadess.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jan 2004 04:25:51 -0500
+Received: from hibernia.jakma.org ([213.79.33.168]:56207 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265588AbUAWJZu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 04:25:50 -0500
+Date: Fri, 23 Jan 2004 09:25:36 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: jw schultz <jw@pegasys.ws>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to
+ public posts
+In-Reply-To: <Pine.LNX.4.58.0401221441500.2998@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0401230924480.2140@fogarty.jakma.org>
+References: <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
+ <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com>
+ <20040121213027.GN23765@srv-lnx2600.matchmail.com>
+ <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain>
+ <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org>
+ <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com> <40101B1E.3030908@blue-labs.org>
+ <20040122221802.GD12666@pegasys.ws> <Pine.LNX.4.58.0401221441500.2998@home.osdl.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bastien Nocera <hadess@hadess.net> wrote:
->
-> Hello Vojtech,
-> 
-> Is there any particular reason why this didn't make it into 2.6.2-rc1? I
-> just checked the 2.6.1 to 2.6.2-rc1 patch, and the only change to
-> char/keyboard.c seems to be a change in an #ifdef.
-> 
-> > -	 80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
-> > -	284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
-> > +	 80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
-> > +	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
+On Thu, 22 Jan 2004, Linus Torvalds wrote:
 
-These changes were merged post-2.6.2-rc1.  Please test 2.6.2-rc1-mm2 or the
-latest bk snapshot.
+> > Beyes is the wrong aproach for those random words from the
+> > dictionary blocks.
+> 
+> Bayes is not wrong per se, but doing bayes on pure word statistics is
+> wrong. It always was. People knew how it could be broken. The current rash
+> of spams is just the obvious way to do it.
 
+I use spamprobe - spamprobe.sf.net - which works on arbitrary length 
+phrases. (2 is the reccomended maximum phrase length).
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+System going down at 1:45 this afternoon for disk crashing.

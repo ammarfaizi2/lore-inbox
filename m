@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271299AbTGWWpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 18:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271371AbTGWWpa
+	id S271371AbTGWWqc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 18:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271377AbTGWWqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 18:45:30 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:33242 "HELO
-	develer.com") by vger.kernel.org with SMTP id S271299AbTGWWpY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 18:45:24 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer S.r.l.
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
-Date: Thu, 24 Jul 2003 01:00:00 +0200
-User-Agent: KMail/1.5.9
-Cc: Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@redhat.com>, uclinux-dev@uclinux.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Ungerer <gerg@snapgear.com>,
-       David McCullough <davidm@snapgear.com>
-References: <200307232046.46990.bernie@develer.com> <200307240035.38502.bernie@develer.com> <1058999786.6890.21.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1058999786.6890.21.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307240100.00632.bernie@develer.com>
+	Wed, 23 Jul 2003 18:46:31 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43272 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271371AbTGWWqE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 18:46:04 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Make menuconfig broken
+Date: 23 Jul 2003 22:53:39 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bfn3lj$lpe$1@gatekeeper.tmr.com>
+References: <3F1D91F0.2020900@rackable.com> <Pine.LNX.4.44.0307222129070.17797-100000@phoenix.infradead.org>
+X-Trace: gatekeeper.tmr.com 1059000819 22318 192.168.12.62 (23 Jul 2003 22:53:39 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 July 2003 00:37, Alan Cox wrote:
+In article <Pine.LNX.4.44.0307222129070.17797-100000@phoenix.infradead.org>,
+James Simmons  <jsimmons@infradead.org> wrote:
+| 
+| >   Well there are 2 issues here:
+| > 
+| > 1) How to handle "make oldconfig" on 2.4 config files.  Which may not be 
+| > fixable in a manner that doesn't involve really ugly code.
+| > 
+| > 2) That make menuconfig|xconfig on a clean 2.6 tree results in a kernel 
+| > that doesn't have console support.   This will be something that will 
+| > come up over and over again in the future, and does not require ugly 
+| > hacks to fix.
+| 
+| Instead of hacking up a oldconfig why not have the system detect old 
+| config files and refuse to build it and tell the user to start from 
+| scratch. I think this is acceptable.
 
-> On Mer, 2003-07-23 at 23:35, Bernardo Innocenti wrote:
-> > It's a sequence of 6 instructions, 18 bytes long, clobbering 4 registers.
-> > The compiler cannot see around it.
-> > This takes 18*11 = 198 bytes just for invoking the 'current'
-> > macro so many times.
->
-> Unless you support SMP I'm not sure I understand why m68k nommu changed
-> from using a global for current_task ?
-
-The people who might know best are Greg and David from SnapGear.
-I'm appending them to the Cc list.
-
-But I noticed that most archs in 2.6 do like this. Is it some kind
-of flock-effect? Things get changed in i386 and all other archs
-just follow... :-)
-
+I would say defconfig first, then menuconfig, but whatever. If you can't
+do it right, don't do it at all. The problems introduced by almost-right
+conversions are often harder to find than starting from default.
 -- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
-
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

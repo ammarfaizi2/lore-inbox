@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266186AbSKFWmY>; Wed, 6 Nov 2002 17:42:24 -0500
+	id <S266201AbSKFWuQ>; Wed, 6 Nov 2002 17:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266185AbSKFWmX>; Wed, 6 Nov 2002 17:42:23 -0500
-Received: from [208.49.22.194] ([208.49.22.194]:42428 "EHLO mail.atvideo.com")
-	by vger.kernel.org with ESMTP id <S266186AbSKFWld>;
-	Wed, 6 Nov 2002 17:41:33 -0500
-From: "Frank Wang" <frank@atvideo.com>
-To: <redhat-list@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: devfs, input event system, and kernel configuration.
-Date: Wed, 6 Nov 2002 14:50:21 -0800
-Message-ID: <002401c285e6$e32acb00$3d00000a@atvideo.com>
+	id <S266202AbSKFWuQ>; Wed, 6 Nov 2002 17:50:16 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:34315 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S266201AbSKFWuP>; Wed, 6 Nov 2002 17:50:15 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB184D@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'bert hubert'" <ahu@ds9a.nl>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Regarding zerocopy implementation ...
+Date: Wed, 6 Nov 2002 14:56:35 -0800 
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Yes, but what abt the support in the kernel?
 
-I am trying to attach a special serial input device to an X application.
-Looking at the kernel document, it seems to me the input core system (the
-/dev/input/event#) fits the my needs nicely.  I also realize that the input
-system uses the devfs rather than the traditional major/minor number for its
-device driver.
+-----Original Message-----
+From: bert hubert [mailto:ahu@ds9a.nl]
+Sent: Wednesday, November 06, 2002 2:48 PM
+To: 'linux-kernel@vger.kernel.org'
+Subject: Re: Regarding zerocopy implementation ...
 
-So I configured a 2.4.18-5 kernel with the following flags turned on,
 
-	- devfs turned on,
-	- the input core module,
-	- the input core's keyboard and mouse modules
-	- the input core's event modules
+On Wed, Nov 06, 2002 at 05:44:18PM -0500, Benjamin LaHaise wrote:
 
-The kernel compiles fine.  However, during boot process, everything under
-the /var/* and several device mounts were marked as read-only and thus the
-kernel fails to boot.  I tried to set the devfs=nomount as its boot
-parameter.  It didn't help either.
+> > Yes, we have zero-copy networking if the device supports the requisite
+> > features and the driver is so coded.
+> 
+> But we do not perform zero copy receives to userland yet.
 
-Thanks in advance!
+It has been opted that sendfile with reversed arguments could function as
+'recvfile' and be renamed to 'copyfd' or something more generic like that.
 
-Frank Wang @ Advanced Technology Video Inc.
+Regards,
 
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,106 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129147AbQKQD3R>; Thu, 16 Nov 2000 22:29:17 -0500
+	id <S129145AbQKQDcR>; Thu, 16 Nov 2000 22:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQKQD3H>; Thu, 16 Nov 2000 22:29:07 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:36875 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129147AbQKQD24>; Thu, 16 Nov 2000 22:28:56 -0500
-Date: Thu, 16 Nov 2000 20:55:22 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NCPFS not returning Volume Size (???)
-Message-ID: <20001116205522.A15544@vger.timpanogas.org>
-In-Reply-To: <20001116204029.A15356@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001116204029.A15356@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Thu, Nov 16, 2000 at 08:40:29PM -0700
+	id <S129314AbQKQDb6>; Thu, 16 Nov 2000 22:31:58 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:29147 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S129145AbQKQDby>; Thu, 16 Nov 2000 22:31:54 -0500
+Importance: Normal
+Subject: Re: test11-pre6
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OFF5BA802C.5845C1FB-ON8825699A.00106748@LocalDomain>
+From: "Ying Chen/Almaden/IBM" <ying@almaden.ibm.com>
+Date: Thu, 16 Nov 2000 19:02:25 -0800
+X-MIMETrack: Serialize by Router on D03NM042/03/M/IBM(Release 5.0.5 |September 22, 2000) at
+ 11/16/2000 07:01:52 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 16, 2000 at 08:40:29PM -0700, Jeff V. Merkey wrote:
-> Petr,
-> 
-> NCPFS in 2.2.18-pre21 is not returning volume size via df -h.  I checked
-> your code and found this comment:
-> 
-> static int ncp_statfs(struct super_block *sb, struct statfs *buf, int bufsiz)
-> {
-> 	struct statfs tmp;
-> 
-> 	/* We cannot say how much disk space is left on a mounted
-> 	   NetWare Server, because free space is distributed over
-> 	   volumes, and the current user might have disk quotas. So
-> 	   free space is not that simple to determine. Our decision
-> 	   here is to err conservatively. */
-> 
-> 	tmp.f_type = NCP_SUPER_MAGIC;
-> 	tmp.f_bsize = 512;
-> 	tmp.f_blocks = 0;
-> 	tmp.f_bfree = 0;
-> 	tmp.f_bavail = 0;
-> 	tmp.f_files = -1;
-> 	tmp.f_ffree = -1;
-> 	tmp.f_namelen = 12;
-> 	return copy_to_user(buf, &tmp, bufsiz) ? -EFAULT : 0;
-> }
-> 
-> NCP Code
-> 
-> 2222/17E6   Get Object's Remaining Disk Space
-> 
-> (I have docs on this one and can send if you need it).
-> 
-> will return in NetWare sized blocks the space remaining for this 
-> user (which will be the user ID used to login).  The fact that quota's 
-> are present for a user (user space restriction node -- in NWDIR.H) 
-> should be irrelevant, since from the view of a Linux client attached to 
-> a NetWare server, this is their assigned storage.
-> 
-> This NCP also speaks in hardcoded blocksizes of 4096 bytes, so that's 
-> the factor for free space for whatever login ID was used to mount 
-> the NetWare Volume that can be used in ncpfs_statfs() to return 
-> free space.
 
-COrrection.  3.x always reports as 4096 blocks, 4.11 > reports as
-4K, 8K, 16K, 32K, and 64K.  I have not checked what NSS is reporting,
-but will test tonight.  
+Linus,
 
-Jeff
+You forgot about wakeup_bdflush(1) stuff.
 
-> 
-> I have not gone through your userspace code as of yet, but to make 
-> this work, you need the ObjectID for the User Account you used to
-> connect to the server in order to make this work.  
-> 
-> I noticed I could not get free space from my Server with NCPFS with
-> df -h, and tracked it down.  Several NetWare customers migrating 
-> installations of NetWare to Linux pointed it out when they were 
-> moving Oracle databases over to Linux from NetWare.
-> 
-> I noticed that 2.4 also is not reporting Volume free space.  
-> 
-> The current NCPFS code, like a lot of Linux code, is structured
-> in a manner that's very different from Novell's internal code,
-> (the names are shorter for one, which is an improvement).  The 
-> way the NCP codes are peeled off is different and not the 
-> large case and switch structure employed in NetWare, so it's
-> a little hard for me to follow since I am used to NCPs being 
-> grouped into case/switch classes.  If you can point me to 
-> where 1) the login ID is stored and B) where NCP packet 
-> request/reponse headers are constructed, i.e. a skeleton 
-> to send/receive the requests I can grab, I'll try to 
-> code this for you.
-> 
-> :-)
-> 
-> Jeff 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Here is the patch again (against test10).
+===============================================================
+There are several places where schedule() is called after wakeup_bdflush(1)
+is called. This is completely unnecessary, since wakeup_bdflush(1) already
+gave up the control, and when the control is returned to the calling thread
+who called wakeup_bdflush(1), it should just go on. Calling schedule()
+after wakeup_bdflush(1) will make the calling thread give up control again.
+This is a problem for some of those latency sensitive benchmarks (like SPEC
+SFS) and applications.
+
+============
+diff -ruN mm.orig/highmem.c mm.opt/highmem.c
+--- mm.orig/highmem.c   Wed Oct 18 14:25:46 2000
++++ mm.opt/highmem.c    Fri Nov 10 17:51:39 2000
+@@ -310,8 +310,6 @@
+    bh = kmem_cache_alloc(bh_cachep, SLAB_BUFFER);
+    if (!bh) {
+        wakeup_bdflush(1);  /* Sets task->state to TASK_RUNNING */
+-       current->policy |= SCHED_YIELD;
+-       schedule();
+        goto repeat_bh;
+    }
+    /*
+@@ -324,8 +322,6 @@
+    page = alloc_page(GFP_BUFFER);
+    if (!page) {
+        wakeup_bdflush(1);  /* Sets task->state to TASK_RUNNING */
+-       current->policy |= SCHED_YIELD;
+-       schedule();
+        goto repeat_page;
+    }
+    set_bh_page(bh, page, 0);
+diff -ruN fs.orig/buffer.c fs.opt/buffer.c
+--- fs.orig/buffer.c    Thu Oct 12 14:19:32 2000
++++ fs.opt/buffer.c Fri Nov 10 20:05:44 2000
+@@ -707,11 +707,8 @@
+  */
+ static void refill_freelist(int size)
+ {
+-   if (!grow_buffers(size)) {
++   if (!grow_buffers(size))
+        wakeup_bdflush(1);  /* Sets task->state to TASK_RUNNING */
+-       current->policy |= SCHED_YIELD;
+-       schedule();
+-   }
+ }
+
+ void init_buffer(struct buffer_head *bh, bh_end_io_t *handler, void
+*private)
+==============================
+
+
+Ying Chen
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

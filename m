@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318560AbSIFMgG>; Fri, 6 Sep 2002 08:36:06 -0400
+	id <S318542AbSIFMfG>; Fri, 6 Sep 2002 08:35:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318562AbSIFMgF>; Fri, 6 Sep 2002 08:36:05 -0400
-Received: from speech.braille.uwo.ca ([129.100.109.30]:13521 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S318560AbSIFMgE>; Fri, 6 Sep 2002 08:36:04 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.xx kernels won't run on my Athlon boxes
-References: <0a0c35552230592DTVMAIL9@smtp.cwctv.net>
-	<1031272848.7367.33.camel@irongate.swansea.linux.org.uk>
-	<x765xj9wgg.fsf@speech.braille.uwo.ca>
-	<1031315212.9945.35.camel@irongate.swansea.linux.org.uk>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 06 Sep 2002 08:40:41 -0400
-In-Reply-To: <1031315212.9945.35.camel@irongate.swansea.linux.org.uk>
-Message-ID: <x7sn0n8f5i.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S318552AbSIFMfG>; Fri, 6 Sep 2002 08:35:06 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46720 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318542AbSIFMfF>; Fri, 6 Sep 2002 08:35:05 -0400
+Date: Fri, 6 Sep 2002 08:41:18 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Zwane Mwaikambo <zwane@mwaikambo.name>
+cc: Andreas Dilger <adilger@clusterfs.com>,
+       Peter Surda <shurdeek@panorama.sth.ac.at>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Uptime timer-wrap
+In-Reply-To: <Pine.LNX.4.44.0209061447390.1116-100000@linux-box.realnet.co.sz>
+Message-ID: <Pine.LNX.3.95.1020906083954.3240A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Fri, 6 Sep 2002, Zwane Mwaikambo wrote:
 
-> There was a lot of IDE rewriting for 2.5. 2.5 IDE doesnt work for lots
-> of cases. If you want working IDE run 2.4
+> On Fri, 6 Sep 2002, Richard B. Johnson wrote:
+> 
+> > Do you have an idea where to look? I need to prevent the possibility
+> > of waiting forever for an event that may never occur, with interrupts
+> > disabled, on at least one embedded system. Any wait-forever possibility
+> > must be interruptible because any watch-dog timer that re-boots will end
+> > up destroying data that must never be lost.
+> 
+> Remove the 'wait forever' (really if you're waiting forever you have a 
+> bug anyway, be it hardware or otherwise) and break the entire kernel? Or 
+> perhaps sprinkle timeouts in every little crevice of the kernel code.
+> 
+> 	Zwane
 
-I do run 2.4 on most of my systems.  Thing is see, console code was
-changed in 2.5 and so speakup doesn't work with it anymore.  I can't
-very well rewrite speakup to work again on 2.5.x kernels if I'm
-running 2.4.
+The kernel is waiting forever as previously shown.
 
-I don't even mind providing error reports and the like but I have to
-find someway to make bug reports consistant and reliable enough to be
-useful to folks.
 
-  Kirk
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
--- 
-
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061

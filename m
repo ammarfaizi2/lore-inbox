@@ -1,262 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbTGKOPx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 10:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTGKOPx
+	id S262165AbTGKOTH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 10:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTGKOS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 10:15:53 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:32684 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S261808AbTGKONr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 10:13:47 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: smiler@lanil.mine.nu
-Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
-Date: Sat, 12 Jul 2003 00:30:31 +1000
-User-Agent: KMail/1.5.2
-Cc: <linux-kernel@vger.kernel.org>, <phillips@arcor.de>
-References: <200307112053.55880.kernel@kolivas.org> <1068.::ffff:217.208.49.177.1057927722.squirrel@lanil.mine.nu>
-In-Reply-To: <1068.::ffff:217.208.49.177.1057927722.squirrel@lanil.mine.nu>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_HosD/wF0qZfMiXn"
-Message-Id: <200307120030.31958.kernel@kolivas.org>
+	Fri, 11 Jul 2003 10:18:29 -0400
+Received: from cs180094.pp.htv.fi ([213.243.180.94]:4992 "EHLO hades.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S262179AbTGKOSF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 10:18:05 -0400
+Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
+From: Mika Liljeberg <mika.liljeberg@welho.com>
+To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: Pekka Savola <pekkas@netcore.fi>, Andre Tomt <andre@tomt.net>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <3F0EC96D.6080102@kolumbus.fi>
+References: <Pine.LNX.4.44.0307111446250.27865-100000@netcore.fi>
+	 <1057925366.896.24.camel@hades>  <3F0EB227.50403@kolumbus.fi>
+	 <1057930712.895.32.camel@hades>  <3F0EC96D.6080102@kolumbus.fi>
+Content-Type: multipart/mixed; boundary="=-DKIDlaIdFwiWn2TE4NdP"
+Message-Id: <1057933954.695.6.camel@hades>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 11 Jul 2003 17:32:34 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_HosD/wF0qZfMiXn
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+--=-DKIDlaIdFwiWn2TE4NdP
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 11 Jul 2003 22:48, Christian Axelsson wrote:
-> Ok complies and boot fine
->
-> BUT... after loading X up and gnome-theme-manager I start clicking around
-> abit.. then gnome-theme-manager starts eating 99.9% CPU (prolly a bug in
-> the program). Problem here is that the machine stops responding to input,
-> at first I can move mouse around (but Im stuck in the current focused
-> X-client) and later it all stalls... Cant even get in via SSH.
-> Ive put on a top before repeating this showing gnome-theme-manager eating
-> all CPU-time (PRI 15/NICE 0) and load showing ~55% user ~45% system.
->
-> Anything I can do to help debugging?
+On Fri, 2003-07-11 at 17:27, Mika Penttil=E4 wrote:
+> afaics, ipv6_addr_type() checks just for some rfc-specified reserved=20
+> anycast addresses, not the ones in device list. Anyway, it will surely=20
+> also bail out from the loopback test (anycast subnet router address is=20
+> ours).
 
-Can you try this patch instead which should stop the machine from getting into 
-a deadlock? I dont think I have found the problem but at least it should be 
-easier to diagnose without the machine locking up.
+Nope, since the tunnel interface will have 2002::/16. It seems to work
+with the attached patch (against 2.4.21-ac4). A small fix to sit was
+required as well. Look:
 
-Con
+hades:~# ifconfig 6to4
+6to4      Link encap:IPv6-in-IPv4
+          inet6 addr: ::213.243.180.94/128 Scope:Compat
+          inet6 addr: 2002:d5f3:b45e::1/16 Scope:Global
+          UP RUNNING NOARP  MTU:1480  Metric:1
+          RX packets:4 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:4 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:416 (416.0 b)  TX bytes:496 (496.0 b)
 
---Boundary-00=_HosD/wF0qZfMiXn
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="patch-SI-0307120014"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="patch-SI-0307120014"
+hades:~# ip -6 route list
+::/96 via :: dev 6to4  metric 256  mtu 1480 advmss 1420
+2002::/16 dev 6to4  proto kernel  metric 256  mtu 1480 advmss 1420
+fe80::/64 dev eth0  proto kernel  metric 256  mtu 1500 advmss 1440
+fe80::/64 dev 6to4  proto kernel  metric 256  mtu 1480 advmss 1420
+ff00::/8 dev eth0  proto kernel  metric 256  mtu 1500 advmss 1440
+ff00::/8 dev 6to4  proto kernel  metric 256  mtu 1480 advmss 1420
+default via 2002:c058:6301:: dev 6to4  metric 1024  mtu 1480 advmss 1420
+hades:~# ping6 -c4 -n www.ipv6.org
+PING www.ipv6.org(2001:6b0:1:ea:a00:20ff:fe8f:708f) 56 data bytes
+64 bytes from 2001:6b0:1:ea:a00:20ff:fe8f:708f: icmp_seq=3D1 ttl=3D250 time=
+=3D207 ms
+64 bytes from 2001:6b0:1:ea:a00:20ff:fe8f:708f: icmp_seq=3D2 ttl=3D250 time=
+=3D206 ms
+64 bytes from 2001:6b0:1:ea:a00:20ff:fe8f:708f: icmp_seq=3D3 ttl=3D250 time=
+=3D177 ms
+64 bytes from 2001:6b0:1:ea:a00:20ff:fe8f:708f: icmp_seq=3D4 ttl=3D250 time=
+=3D78.5 ms
 
-diff -Naurp linux-2.5.75-mm1/include/linux/sched.h linux-2.5.75-test/include/linux/sched.h
---- linux-2.5.75-mm1/include/linux/sched.h	2003-07-12 00:03:51.000000000 +1000
-+++ linux-2.5.75-test/include/linux/sched.h	2003-07-12 00:05:00.000000000 +1000
-@@ -125,6 +125,7 @@ extern unsigned long nr_iowait(void);
- #define SCHED_NORMAL		0
- #define SCHED_FIFO		1
- #define SCHED_RR		2
-+#define SCHED_ISO		3
- 
- struct sched_param {
- 	int sched_priority;
-diff -Naurp linux-2.5.75-mm1/kernel/exit.c linux-2.5.75-test/kernel/exit.c
---- linux-2.5.75-mm1/kernel/exit.c	2003-07-12 00:01:38.000000000 +1000
-+++ linux-2.5.75-test/kernel/exit.c	2003-07-12 00:05:00.000000000 +1000
-@@ -223,7 +223,7 @@ void reparent_to_init(void)
- 	/* Set the exit signal to SIGCHLD so we signal init on exit */
- 	current->exit_signal = SIGCHLD;
- 
--	if ((current->policy == SCHED_NORMAL) && (task_nice(current) < 0))
-+	if ((current->policy == SCHED_NORMAL || current->policy == SCHED_ISO) && (task_nice(current) < 0))
- 		set_user_nice(current, 0);
- 	/* cpus_allowed? */
- 	/* rt_priority? */
-diff -Naurp linux-2.5.75-mm1/kernel/sched.c linux-2.5.75-test/kernel/sched.c
---- linux-2.5.75-mm1/kernel/sched.c	2003-07-12 00:03:51.000000000 +1000
-+++ linux-2.5.75-test/kernel/sched.c	2003-07-12 00:13:21.000000000 +1000
-@@ -76,9 +76,9 @@
- #define MIN_SLEEP_AVG		(HZ)
- #define MAX_SLEEP_AVG		(10*HZ)
- #define STARVATION_LIMIT	(10*HZ)
--#define SLEEP_BUFFER		(HZ/20)
- #define NODE_THRESHOLD		125
- #define MAX_BONUS		((MAX_USER_PRIO - MAX_RT_PRIO) * PRIO_BONUS_RATIO / 100)
-+#define ISO_PENALTY		(5)
- 
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-@@ -118,6 +118,8 @@
- #define TASK_INTERACTIVE(p) \
- 	((p)->prio <= (p)->static_prio - DELTA(p))
- 
-+#define iso_task(p)		((p)->policy == SCHED_ISO)
-+
- /*
-  * BASE_TIMESLICE scales user-nice values [ -20 ... 19 ]
-  * to time slice values.
-@@ -134,7 +136,16 @@
- 
- static inline unsigned int task_timeslice(task_t *p)
- {
--	return BASE_TIMESLICE(p);
-+	if (!iso_task(p))
-+		return (BASE_TIMESLICE(p));
-+	else {
-+		int timeslice = BASE_TIMESLICE(p) / ISO_PENALTY;
-+
-+		if (timeslice < MIN_TIMESLICE)
-+			timeslice = MIN_TIMESLICE;
-+
-+		return timeslice;
-+	}
- }
- 
- /*
-@@ -319,6 +330,10 @@ static inline void normalise_sleep(task_
- 
- 	p->sleep_avg = p->sleep_avg * MIN_SLEEP_AVG / old_avg_time;
- 	p->avg_start = jiffies - MIN_SLEEP_AVG;
-+
-+	if (iso_task(p))
-+		p->policy = SCHED_NORMAL;
-+
- }
- 
- /*
-@@ -343,26 +358,32 @@ static int effective_prio(task_t *p)
- 	if (rt_task(p))
- 		return p->prio;
- 
--	sleep_period = jiffies - p->avg_start;
-+	if (!iso_task(p)){
-+		sleep_period = jiffies - p->avg_start;
- 
--	if (unlikely(!sleep_period))
--		return p->static_prio;
-+		if (unlikely(!sleep_period))
-+			return p->static_prio;
- 
--	if (sleep_period > MAX_SLEEP_AVG)
--		sleep_period = MAX_SLEEP_AVG;
-+		if (sleep_period > MAX_SLEEP_AVG)
-+			sleep_period = MAX_SLEEP_AVG;
- 
--	if (p->sleep_avg > sleep_period)
--		sleep_period = p->sleep_avg;
-+		if (p->sleep_avg > sleep_period)
-+			sleep_period = p->sleep_avg;
- 
--	/*
--	 * The bonus is determined according to the accumulated
--	 * sleep avg over the duration the task has been running
--	 * until it reaches MAX_SLEEP_AVG. -ck
--	 */
--	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/sleep_period/100 -
--			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
-+		/*
-+		 * The bonus is determined according to the accumulated
-+		 * sleep avg over the duration the task has been running
-+		 * until it reaches MAX_SLEEP_AVG. -ck
-+		 */
-+		bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/sleep_period/100 -
-+				MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
-+
-+	} else
-+		bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO/100 -
-+				MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
- 
- 	prio = p->static_prio - bonus;
-+
- 	if (prio < MAX_RT_PRIO)
- 		prio = MAX_RT_PRIO;
- 	if (prio > MAX_PRIO-1)
-@@ -401,6 +422,8 @@ static inline void activate_task(task_t 
- 			p->avg_start = jiffies - MIN_SLEEP_AVG;
- 			p->sleep_avg = MIN_SLEEP_AVG * (MAX_BONUS - INTERACTIVE_DELTA - 1) /
- 				MAX_BONUS;
-+			if (iso_task(p))
-+				p->policy = SCHED_NORMAL;
- 		} else {
- 			/*
- 			 * This code gives a bonus to interactive tasks.
-@@ -422,13 +445,14 @@ static inline void activate_task(task_t 
- 					(MAX_SLEEP_AVG + MIN_SLEEP_AVG - runtime) *
- 					(MAX_BONUS - INTERACTIVE_DELTA) / MAX_BONUS / MAX_SLEEP_AVG;
- 
--			/*
--			 * Keep a small buffer of SLEEP_BUFFER sleep_avg to
--			 * prevent fully interactive tasks from becoming
--			 * lower priority with small bursts of cpu usage.
--			 */
--			if (p->sleep_avg > (MAX_SLEEP_AVG + SLEEP_BUFFER))
--				p->sleep_avg = MAX_SLEEP_AVG + SLEEP_BUFFER;
-+			if (p->sleep_avg > MAX_SLEEP_AVG){
-+				if (p->policy == SCHED_NORMAL)
-+					p->policy = SCHED_ISO;
-+				p->sleep_avg = MAX_SLEEP_AVG;
-+			}
-+
-+			if (unlikely(!p->sleep_avg && iso_task(p)))
-+				p->policy = SCHED_NORMAL;
+--- www.ipv6.org ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3030ms
+rtt min/avg/max/mdev =3D 78.547/167.637/207.698/52.821 ms
+
+Anyone see any problems with this?
+
+	MikaL
+
+
+--=-DKIDlaIdFwiWn2TE4NdP
+Content-Disposition: attachment; filename=6to4.udiff
+Content-Type: text/plain; name=6to4.udiff; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+--- route.c.org	2003-07-11 16:41:55.000000000 +0300
++++ route.c	2003-07-11 16:42:16.000000000 +0300
+@@ -743,7 +743,7 @@
+ 			   some exceptions. --ANK
+ 			 */
+ 			err =3D -EINVAL;
+-			if (!(gwa_type&IPV6_ADDR_UNICAST))
++			if (!(gwa_type&(IPV6_ADDR_UNICAST|IPV6_ADDR_ANYCAST)))
+ 				goto out;
+=20
+ 			grt =3D rt6_lookup(gw_addr, NULL, rtmsg->rtmsg_ifindex, 1);
+--- sit.c.org	2003-07-11 16:57:53.000000000 +0300
++++ sit.c	2003-07-11 17:17:42.000000000 +0300
+@@ -495,10 +495,13 @@
+ 			addr_type =3D ipv6_addr_type(addr6);
  		}
- 
- 		if (unlikely(p->avg_start > jiffies)){
-@@ -1819,7 +1843,7 @@ static int setscheduler(pid_t pid, int p
- 	else {
- 		retval = -EINVAL;
- 		if (policy != SCHED_FIFO && policy != SCHED_RR &&
--				policy != SCHED_NORMAL)
-+				policy != SCHED_NORMAL && policy != SCHED_ISO)
- 			goto out_unlock;
+=20
+-		if ((addr_type & IPV6_ADDR_COMPATv4) =3D=3D 0)
+-			goto tx_error_icmp;
++		if ((addr_type & IPV6_ADDR_COMPATv4))
++			dst =3D addr6->s6_addr32[3];
++		else
++			dst =3D try_6to4(addr6);
+=20
+-		dst =3D addr6->s6_addr32[3];
++		if (!dst)
++			goto tx_error_icmp;
  	}
- 
-@@ -1830,7 +1854,7 @@ static int setscheduler(pid_t pid, int p
- 	retval = -EINVAL;
- 	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
- 		goto out_unlock;
--	if ((policy == SCHED_NORMAL) != (lp.sched_priority == 0))
-+	if ((policy == SCHED_NORMAL || policy == SCHED_ISO) != (lp.sched_priority == 0))
- 		goto out_unlock;
- 
- 	retval = -EPERM;
-@@ -1852,7 +1876,7 @@ static int setscheduler(pid_t pid, int p
- 	p->policy = policy;
- 	p->rt_priority = lp.sched_priority;
- 	oldprio = p->prio;
--	if (policy != SCHED_NORMAL)
-+	if (policy == SCHED_FIFO || policy == SCHED_RR)
- 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
- 	else
- 		p->prio = p->static_prio;
-@@ -2153,6 +2177,9 @@ asmlinkage long sys_sched_get_priority_m
- 	case SCHED_NORMAL:
- 		ret = 0;
- 		break;
-+	case SCHED_ISO:
-+		ret = 0;
-+		break;
- 	}
- 	return ret;
- }
-@@ -2175,6 +2202,8 @@ asmlinkage long sys_sched_get_priority_m
- 		break;
- 	case SCHED_NORMAL:
- 		ret = 0;
-+	case SCHED_ISO:
-+		ret = 0;
- 	}
- 	return ret;
- }
+=20
+ 	if (ip_route_output(&rt, dst, tiph->saddr, RT_TOS(tos), tunnel->parms.lin=
+k)) {
 
---Boundary-00=_HosD/wF0qZfMiXn--
-
+--=-DKIDlaIdFwiWn2TE4NdP--

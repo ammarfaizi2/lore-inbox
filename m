@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUGMNR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUGMNTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUGMNR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 09:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUGMNR4
+	id S265097AbUGMNTu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 09:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUGMNTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 09:17:56 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15511 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265060AbUGMNRy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 09:17:54 -0400
-Date: Tue, 13 Jul 2004 08:17:15 -0500
-From: "Jose R. Santos" <jrsantos@austin.ibm.com>
-To: David Howells <dhowells@redhat.com>
-Cc: "Jose R. Santos" <jrsantos@austin.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, slprat@us.ibm.com
-Subject: Re: [PATCH] Making i/dhash_entries cmdline work as it use to.
-Message-ID: <20040713131715.GE9149@rx8.austin.ibm.com>
-References: <20040712175605.GA1735@rx8.austin.ibm.com> <2443.1089714553@redhat.com>
+	Tue, 13 Jul 2004 09:19:50 -0400
+Received: from holomorphy.com ([207.189.100.168]:8341 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265097AbUGMNTq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 09:19:46 -0400
+Date: Tue, 13 Jul 2004 06:19:44 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: preempt-timing-2.6.8-rc1
+Message-ID: <20040713131944.GC21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+References: <20040713122805.GZ21066@holomorphy.com> <40F3DACC.9070703@yahoo.com.au> <20040713125331.GA21066@holomorphy.com> <40F3DC52.1030308@yahoo.com.au> <20040713130448.GB21066@holomorphy.com> <40F3DF31.3000003@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <2443.1089714553@redhat.com> (from dhowells@redhat.com on Tue, Jul 13, 2004 at 05:29:13 -0500)
-X-Mailer: Balsa 2.0.17
+In-Reply-To: <40F3DF31.3000003@yahoo.com.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/13/04 05:29:13, David Howells wrote:
-> 
-> Jose R. Santos <jrsantos@austin.ibm.com> wrote:
-> > Also, any particular reason why MAX_SYS_HASH_TABLE_ORDER was set to 14?
-> > I am already seeing the need to go higher on my 64GB setup and was 
-> > wondering if this could be bumped up to 19.
-> 
-> Yes. IBM did some testing and found that was about optimal. No significant
-> gain was found with anything greater.
+William Lee Irwin III wrote:
+>> The semantics I implemented are warning for strictly above the
+>> preempt_thresh. Whether those semantics are ideal is irrelevant; it's
+>> faithful to those semantics.
 
-On a single setup.  What about people that want to use Linux on a 128way with
-over a terabyte of memory.  Certainly ORDER 14 might be to small for them.
+On Tue, Jul 13, 2004 at 11:10:09PM +1000, Nick Piggin wrote:
+> You are right - I misread it, sorry.
 
-> > I'm sending a patch that get the cmdline options working as the did before
-> > where the could override the kernel calculations and increases 
-> > MAX_SYS_HASH_TABLE_ORDER to 19.  Only tested on PPC64 at the moment.
-> 
-> You need to be careful increasing the maximum order - you have to remember
-> that this affects several tables (well, at least two at the moment), and so
-> the effect is multiplied.
+William Lee Irwin III wrote:
+>> Given that people are asking for sub-
+>> millisecond latencies, maybe I should increase the precision.
 
-Only if I use the cmdline option.  With no command line arguments this allocate
-the kernels sain calculated defaults.
- 
-> It may be reasonable to let the kernel cmdline override the maximum number of
-> buckets calculated on the scaling factor provided to the function (effectively
-> number of buckets per unit memory), but consider that the number of objects
-> that can be allocated and linked into the table is in effect governed by such
-> a factor.
+On Tue, Jul 13, 2004 at 11:10:09PM +1000, Nick Piggin wrote:
+> Would soon be useful I think.
 
-It seems easier to specify a the number of buckets you want than specifying a 
-scaling factor, which some people may have problems figuring out.
+Let me spin up the CONFIG_PREEMPT=n fix and then I'll move on that.
 
--JRS
+
+-- wli

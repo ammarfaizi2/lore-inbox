@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317974AbSFSSiZ>; Wed, 19 Jun 2002 14:38:25 -0400
+	id <S317972AbSFSSzX>; Wed, 19 Jun 2002 14:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317975AbSFSSiY>; Wed, 19 Jun 2002 14:38:24 -0400
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:48323 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317974AbSFSSiX>; Wed, 19 Jun 2002 14:38:23 -0400
-Date: Wed, 19 Jun 2002 20:10:22 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: (2.5.23) buffer layer error at buffer.c:2326
-Message-ID: <Pine.LNX.4.44.0206192007210.1263-100000@netfinity.realnet.co.sz>
+	id <S317976AbSFSSzW>; Wed, 19 Jun 2002 14:55:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9484 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317972AbSFSSzV>; Wed, 19 Jun 2002 14:55:21 -0400
+Date: Wed, 19 Jun 2002 11:55:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Daniel Phillips <phillips@bonn-fries.net>, <Andries.Brouwer@cwi.nl>,
+       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH+discussion] symlink recursion
+In-Reply-To: <20020619181814.GA16548@win.tue.nl>
+Message-ID: <Pine.LNX.4.44.0206191136200.2889-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The ide drive holding the mounted filesystem dropped out of DMA and then 
-spewed the following a number of times. Anyone interested?
 
- buffer layer error at buffer.c:2326
-Pass this trace through ksymoops for reporting
-c13f7e8c 00000916 c1014ef0 c13f6000 c0868d8c c0861da0 c014e500 c1014ef0
-       c13f6000 c0861da0 c13f6000 c0861da0 c0186f3b c1014ef0 00000000 00000000
-       c1000018 c033893c 00000203 000001d0 c13f6000 c0868d8c 0000000a c017d55e
-Call Trace: [<c014e500>] [<c0186f3b>] [<c017d55e>] [<c014cb62>] [<c013cb70>]
-   [<c013d0b5>] [<c013d11c>] [<c013d1c2>] [<c013d236>] [<c013d38f>] [<c0117820>]
-   [<c0105000>] [<c0105000>] [<c01057f6>] [<c013d2d0>]
+On Wed, 19 Jun 2002, Andries Brouwer wrote:
+>
+> The routine link_path_walk() in namei.c will call do_follow_link()
+> in case of a symlink, and this routine will call
+> 	dentry->d_inode->i_op->follow_link(),
+> say, nfs_follow_link(), which calls vfs_follow_link(),
+> which calls link_path_walk(), etc.
 
-Trace; c014e500 <try_to_free_buffers+80/110>
-Trace; c0186f3b <journal_try_to_free_buffers+20b/220>
-Trace; c017d55e <ext3_releasepage+1e/30>
-Trace; c014cb62 <try_to_release_page+42/60>
-Trace; c013cb70 <shrink_cache+3e0/6e0>
-Trace; c013d0b5 <shrink_caches+65/a0>
-Trace; c013d11c <try_to_free_pages+2c/50>
-Trace; c013d1c2 <kswapd_balance_pgdat+52/a0>
-Trace; c013d236 <kswapd_balance+26/40>
-Trace; c013d38f <kswapd+bf/c6>
-Trace; c0117820 <default_wake_function+0/40>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105000 <_stext+0/0>
-Trace; c01057f6 <kernel_thread+26/30>
-Trace; c013d2d0 <kswapd+0/c6>
+Yes. But did you look at the stack frames of those things? It's something
+like 16 bytes for ext2_follow_link (it just calls directly back to the VFS
+layer), 20 bytes for vfs_follow_link(), and 56 for link_path_walk.
 
--- 
-http://function.linuxpower.ca
-		
+(yeah, it obviously isn't just 64 bytes any more, it's 92 bytes. Maybe I
+just counted wrong last time. Or maybe link_path_walk is different
+enough).
+
+Oh, and I think the actual ->follow_link pushes 8 bytes of arguments.
+
+So doing a recursion 5 deep is ~500 bytes of stack space.
+
+That was my point: the _only_ difference between "explicit recursion" and
+"recurse by hand" is where and how those intermediate bytes are allocated.
+There is nothing inherently "evil" in letting the compiler do it for you.
+
+And as you found out yourself, a recursion limit of 5 is actually a lot
+more than people normally use.
+
+But hey, guys, if you want to linearize the recursion, I'm easily swayed
+by numbers. I've actually done the numbers for stack usage (exactly
+because I worried about it some time ago), and I don't worry too much
+about that number. I also don't worry about the number "5", simply because
+I don't think I've _ever_ gotten a complaint about it that I remember.
+
+But there are other numbers, like performance (sometimes linearizing
+recursion loses, sometimes it wins), or somebody doing the math on ia-64
+and showing that the 100 bytes/level on x86 is actually more like 2kB on
+ia-64 and totally unacceptable.
+
+But trying to sell this thing to me as a "recursion is evil and must be
+stamped out" just doesn't work.
+
+			Linus
 

@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264010AbSLXPIH>; Tue, 24 Dec 2002 10:08:07 -0500
+	id <S264628AbSLXPKG>; Tue, 24 Dec 2002 10:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264628AbSLXPIH>; Tue, 24 Dec 2002 10:08:07 -0500
-Received: from packet.digeo.com ([12.110.80.53]:52882 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264010AbSLXPIG>;
-	Tue, 24 Dec 2002 10:08:06 -0500
-Message-ID: <3E087A37.DDF392D0@digeo.com>
-Date: Tue, 24 Dec 2002 07:16:07 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
+	id <S264647AbSLXPKG>; Tue, 24 Dec 2002 10:10:06 -0500
+Received: from mail.ifip.com ([63.113.106.66]:26071 "EHLO mail.ifip.com")
+	by vger.kernel.org with ESMTP id <S264628AbSLXPKE>;
+	Tue, 24 Dec 2002 10:10:04 -0500
+Message-ID: <3E087C19.3000307@markerman.com>
+Date: Tue, 24 Dec 2002 10:24:09 -0500
+From: Byron Albert <byron@markerman.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: kronos@kronoz.cjb.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.53] Cannot open root device
-References: <20021224131957.GA549@dreamland.darkstar.lan>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: KERNEL: assertion tcp.c in 2.4.20
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Dec 2002 15:16:11.0826 (UTC) FILETIME=[64A03920:01C2AB5F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kronos wrote:
-> 
-> I have some problems booting kernel 2.5.53, it seems to be unable to
-> find my root fs:
-> 
-> VFS: Cannot open root device "305" or 03:05
-> 
+I have been seeing some odd errors in 2.4.20.
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion 
+((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed 
+at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion 
+((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed 
+at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion 
+((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed 
+at af_inet.c(689)
 
-Does this fix t?
+Could some one tell me what that means and if I should be worried.
+
+Also  I get alot other TCP: messages  Could some one explain to me what 
+these mean?
+TCP: drop open request from 63.65.68.246/33287
+TCP: drop open request from 24.184.185.85/3568
+TCP: drop open request from 24.184.185.85/3569
+TCP: drop open request from 24.184.185.85/3567
+TCP: drop open request from 24.184.185.85/3570
+TCP: drop open request from 24.184.185.85/3571
+TCP: drop open request from 24.184.185.85/3572
+TCP: drop open request from 24.184.185.85/3573
+TCP: drop open request from 24.184.185.85/3574
+TCP: drop open request from 24.184.185.85/3575
+NET: 147 messages suppressed.
+TCP: Treason uncloaked! Peer 140.209.113.48:1925/80 shrinks window 
+3097980073:3097986643. Repaired.
+TCP: Treason uncloaked! Peer 140.209.113.48:1926/80 shrinks window 
+3100043056:3100045976. Repaired.
+TCP: Treason uncloaked! Peer 63.239.93.2:59895/80 shrinks window 
+2412715752:2412716256. Repaired.
+TCP: Treason uncloaked! Peer 207.191.34.140:38341/80 shrinks window 
+3633908228:3633911148. Repaired.
+TCP: Treason uncloaked! Peer 140.198.144.111:1510/80 shrinks window 
+185415981:185424093. Repaired.
+TCP: Treason uncloaked! Peer 140.198.144.111:1510/80 shrinks window 
+185415981:185424093. Repaired.
+TCP: Treason uncloaked! Peer 140.198.144.111:1546/80 shrinks window 
+1260894648:1260899637. Repaired.
+TCP: Treason uncloaked! Peer 140.198.144.111:1546/80 shrinks window 
+1260894648:1260899637. Repaired.
+TCP: Treason uncloaked! Peer 140.198.144.111:49159/80 shrinks window 
+1415173927:1415183499. Repaired.
+TCP: Treason uncloaked! Peer 140.198.144.111:49159/80 shrinks window 
+1415173927:1415183499. Repaired.
 
 
---- 25/init/do_mounts.c~devfs-fix	Tue Dec 24 07:15:16 2002
-+++ 25-akpm/init/do_mounts.c	Tue Dec 24 07:15:21 2002
-@@ -848,11 +848,6 @@ void prepare_namespace(void)
- {
- 	int is_floppy;
- 
--#ifdef CONFIG_DEVFS_FS
--	sys_mount("devfs", "/dev", "devfs", 0, NULL);
--	do_devfs = 1;
--#endif
--
- 	md_run_setup();
- 
- 	if (saved_root_name[0]) {
 
-_
+Thanks
+Byron
+

@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbUKDAo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbUKDAo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbUKDAo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 19:44:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUKDAlp
+	id S261962AbUKDAo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 19:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUKDAlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 19:41:45 -0500
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:33984
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S261953AbUKDAgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 19:36:48 -0500
-Date: Wed, 3 Nov 2004 19:43:42 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041104004342.GD5283@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200411030751.39578.gene.heskett@verizon.net> <200411031124.19179.gene.heskett@verizon.net> <20041103201322.GA10816@hh.idb.hist.no> <200411031540.03598.gene.heskett@verizon.net>
+	Wed, 3 Nov 2004 19:41:24 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:64991 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262022AbUKDAjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 19:39:04 -0500
+Date: Thu, 4 Nov 2004 01:39:00 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.9-ac6 ide-disk.ko undefined symbols
+Message-ID: <20041104003900.GA20525@louise.pinerecords.com>
+References: <1099314945.18809.66.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411031540.03598.gene.heskett@verizon.net>
+In-Reply-To: <1099314945.18809.66.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.9
-X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 03:40:03PM -0500, Gene Heskett took 89 lines to write:
-> On Wednesday 03 November 2004 15:13, Helge Hafting wrote:
-> >
-> >Yes it does - the problem is that not all resources are managed
-> >by processes.  Some allocations are managed by drivers, so a driver
-> >bug can get the device into a unuseable state _and_ tie up the
-> >process(es) that were using the driver at the moment.
-> 
-> This from my viewpoint, is wrong.  The kernel, and only the kernel 
-> should be ultimately responsible for handing out resources, and 
-> reclaiming at its convienience.
+On Nov-01 2004, Mon, 13:15 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-This might just be semantics, but device drivers are part of the kernel.
+> 2.6.9-ac6
 
-Kurt
+*** Warning: "ide_drive_from_key" [drivers/ide/ide-disk.ko] undefined!
+*** Warning: "ide_cfg_sem" [drivers/ide/ide-disk.ko] undefined!
+
+This problem does not exist in vanilla 2.6.9.
+Trivial fix follows -- tested, seems to work.
+
 -- 
-In 1750 Issac Newton became discouraged when he fell up a flight of
-stairs.
+Tomas Szepe <szepe@pinerecords.com>
+
+
+diff -urN a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	2004-11-04 01:26:11.000000000 +0100
++++ b/drivers/ide/ide.c	2004-11-04 01:25:28.000000000 +0100
+@@ -175,6 +175,7 @@
+ static int initializing;	/* set while initializing built-in drivers */
+ 
+ DECLARE_MUTEX(ide_cfg_sem);
++EXPORT_SYMBOL(ide_cfg_sem);
+ spinlock_t ide_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
+ 
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+@@ -349,6 +350,8 @@
+ 	return ret;
+ }
+ 
++EXPORT_SYMBOL(ide_drive_from_key);
++
+ /*
+  *	ide_drive_to_key	-	turn drive to persistent key
+  *	@drive: drive to use

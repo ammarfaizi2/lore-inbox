@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUJaVtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbUJaVpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbUJaVtU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 16:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUJaVpo
+	id S261667AbUJaVpb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 16:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbUJaVoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 16:45:44 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:56034 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261574AbUJaVnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 16:43:41 -0500
-Message-ID: <41855DB4.4010209@comcast.net>
-Date: Sun, 31 Oct 2004 13:48:36 -0800
-From: Z Smith <plinius@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua> <1099170891.1424.1.camel@krustophenia.net> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua> <20041030222720.GA22753@hockin.org> <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr> <41855483.2090906@comcast.net> <Pine.LNX.4.53.0410312213080.18107@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0410312213080.18107@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Oct 2004 16:44:25 -0500
+Received: from f29.mail.ru ([194.67.57.22]:16658 "EHLO f29.mail.ru")
+	by vger.kernel.org with ESMTP id S261657AbUJaViT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 16:38:19 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] kernel-doc: don't print =?koi8-r?Q?=22?=...=?koi8-r?Q?=22=20?=twice in variadic functions.
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.222.68.89]
+Date: Mon, 01 Nov 2004 00:38:10 +0300
+Reply-To: Alexey Dobriyan <adobriyan@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1CONOs-00009g-00.adobriyan-mail-ru@f29.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+--- a/scripts/kernel-doc	2004-10-31 20:25:16.000000000 +0000
++++ b/scripts/kernel-doc	2004-10-31 22:57:20.061852472 +0000
+@@ -1398,7 +1398,7 @@
+ 
+ 	if ($type eq "" && $param eq "...")
+ 	{
+-	    $type="...";
++	    $type="";
+ 	    $param="...";
+ 	    $parameterdescs{"..."} = "variable arguments";
+ 	}
 
->>Also, might not software 3d open the kernel up to
->>patent issues?
-> 
-> Whatever you do, 3D at the software level is slow, even with a fast comp.
-> See MESA.
-
-Well it might be nice to add support for hardware 3-D, once 2-D
-is mature. In fact I imagine it could be very convenient for
-some people.
-
-ZS

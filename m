@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264951AbTFLS6X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 14:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264952AbTFLS6X
+	id S264948AbTFLS4w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 14:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbTFLS4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 14:58:23 -0400
-Received: from maile.telia.com ([194.22.190.16]:49149 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S264951AbTFLS6S (ORCPT
+	Thu, 12 Jun 2003 14:56:52 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:63721 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264948AbTFLS4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 14:58:18 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: "Joseph Fannin" <jhf@rivenstone.net>
+	Thu, 12 Jun 2003 14:56:51 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Michel Alexandre Salim <mas118@york.ac.uk>
+Subject: Re: Broken USB, sound in 2.5.70-mmX series
+Date: Thu, 12 Jun 2003 21:10:10 +0200
+User-Agent: KMail/1.5.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-References: <m2smqhqk4k.fsf@p4.localdomain> <20030611170246.A4187@ucw.cz>
-	<m27k7sv5si.fsf@telia.com> <20030611203408.A6961@ucw.cz>
-	<m2ptlkqpej.fsf@telia.com> <20030612024814.GB4787@rivenstone.net>
-From: Peter Osterlund <petero2@telia.com>
-Date: 12 Jun 2003 21:11:42 +0200
-In-Reply-To: <20030612024814.GB4787@rivenstone.net>
-Message-ID: <m23cifnma9.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+References: <1055436599.6845.7.camel@bushido> <200306122002.55017.oliver@neukum.org> <1055443509.6143.15.camel@bushido>
+In-Reply-To: <1055443509.6143.15.camel@bushido>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306122110.10207.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Joseph Fannin" <jhf@rivenstone.net> writes:
+Am Donnerstag, 12. Juni 2003 20:45 schrieb Michel Alexandre Salim:
+> On Thu, 2003-06-12 at 19:02, Oliver Neukum wrote:
+> > > It is definitely ACPI - I tried booting with ACPI off, everything works
+> > > (sound stutters though). Booting with ACPI, the sound driver is not
+> > > loaded. Manually loading, sound stuttered then stopped after one
+> > > second. Keyboard and mouse (both USB) do not work with ACPI even though
+> > > the drivers are loaded.
+> >
+> > Do you see irqs for USB if you boot with acpi?
+>
+> Everything's on IRQ 9. That's why sound is broken as well it seems - IRQ
+> sharing does not work as well as it should.
 
-> On Wed, Jun 11, 2003 at 11:23:48PM +0200, Peter Osterlund wrote:
-> 
-> > Here is a new patch that sends ABS_ events to user space. I haven't
-> > modified the XFree86 driver to handle this format yet, but I used
-> > /dev/input/event* to verify that the driver generates correct data.
-> 
->     How well will GPM (for example) work with this?
+Did you try using pci= on the command line?
 
-GPM will need some changes to support the new ABS format, but I think
-it will be quite easy to make those changes.
+	Regards
+		Oliver
 
-This driver will also make it possible to run GPM and the XFree86
-driver simultaneously, something that didn't work before.
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340

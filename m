@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267659AbUHXMfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267605AbUHXMeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267659AbUHXMfT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 08:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267660AbUHXMfS
+	id S267605AbUHXMeW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 08:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267660AbUHXMeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 08:35:18 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:60168 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267659AbUHXMfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 08:35:09 -0400
-Date: Tue, 24 Aug 2004 13:35:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Clayton <andrew@digital-domain.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS compilation warning in 2.6.9-rc1
-Message-ID: <20040824133504.A28488@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Clayton <andrew@digital-domain.net>,
-	linux-kernel@vger.kernel.org
-References: <1093350616.2237.8.camel@alpha.digital-domain.net>
+	Tue, 24 Aug 2004 08:34:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22144 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267605AbUHXMeS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 08:34:18 -0400
+Date: Tue, 24 Aug 2004 13:34:16 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
+       benh@kernel.crashing.org, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu
+Subject: Re: page fault scalability patch v3: use cmpxchg, make rss atomic
+Message-ID: <20040824123416.GL9660@parcelfarce.linux.theplanet.co.uk>
+References: <20040815130919.44769735.davem@redhat.com> <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com> <20040815165827.0c0c8844.davem@redhat.com> <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com> <20040815185644.24ecb247.davem@redhat.com> <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com> <20040816143903.GY11200@holomorphy.com> <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0408232138540.32721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0408232243530.26785@server.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1093350616.2237.8.camel@alpha.digital-domain.net>; from andrew@digital-domain.net on Tue, Aug 24, 2004 at 01:30:16PM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.58.0408232243530.26785@server.home>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 01:30:16PM +0100, Andrew Clayton wrote:
->   CC      fs/xfs/xfs_bmap.o
-> fs/xfs/xfs_bmap.c: In function `xfs_bmap_do_search_extents':
-> fs/xfs/xfs_bmap.c:3434: warning: integer constant is too large for
-> "long" type
-> fs/xfs/xfs_bmap.c:3435: warning: integer constant is too large for
-> "long" type
->   CC      fs/xfs/xfs_bmap_btree.o
+On Mon, Aug 23, 2004 at 10:49:31PM -0700, Christoph Lameter wrote:
+> Unpatched:
+> Gb Rep Threads   User      System     Wall flt/cpu/s fault/wsec
+>   4   3    1    0.157s     11.197s  11.035s 69261.721  69239.940
+>   4   3    2    0.145s     11.445s   6.079s 67849.528 115681.409
+>   4   3    4    0.182s     13.894s   4.027s 55865.834 184108.856
+>   4   3    8    0.196s     24.874s   4.025s 31369.039 184790.767
+> 
+> With page fault scalability patch:
+>  Gb Rep Threads   User      System     Wall flt/cpu/s fault/wsec
+>   4   3    1    0.176s     11.323s  11.050s 68385.368  68345.055
+>   4   3    2    0.174s     10.716s   5.096s 72205.329 131848.322
+>   4   3    4    0.170s     10.694s   3.040s 72380.552 231128.569
+>   4   3    8    0.177s     14.717s   2.064s 52796.567 297380.041
 
+What kind of variance are you seeing with this benchmark?  I'm suspicious
+that your 2 thread case is faster than your single thread case.
 
---- 1.26/fs/xfs/xfs_bmap.c	2004-08-19 05:36:06 +02:00
-+++ edited/fs/xfs/xfs_bmap.c	2004-08-24 14:35:40 +02:00
-@@ -3431,15 +3431,16 @@
- 	* uninitialized br_startblock field.
- 	*/
- 
--        got.br_startoff = 0xffa5a5a5a5a5a5a5;
--        got.br_blockcount = 0xa55a5a5a5a5a5a5a;
-+        got.br_startoff = 0xffa5a5a5a5a5a5a5LL;
-+        got.br_blockcount = 0xa55a5a5a5a5a5a5aLL;
-         got.br_state = XFS_EXT_INVALID;
- 
--	#if XFS_BIG_BLKNOS
--        	got.br_startblock = 0xffffa5a5a5a5a5a5;
--	#else
--		got.br_startblock = 0xffffa5a5;
--	#endif
-+#if XFS_BIG_BLKNOS
-+	got.br_startblock = 0xffffa5a5a5a5a5a5LL;
-+#else
-+	got.br_startblock = 0xffffa5a5;
-+#endif
-+
- 	if (lastx != NULLEXTNUM && lastx < nextents)
- 		ep = base + lastx;
- 	else
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVALS5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVALTM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVALS5L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 13:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVALS4o
+	id S261330AbVALTM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVALTJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 13:56:44 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:25029 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261280AbVALSzQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 13:55:16 -0500
-Date: Wed, 12 Jan 2005 10:55:13 -0800
-From: Greg KH <greg@kroah.com>
-To: Justin Thiessen <jthiessen@penguincomputing.com>
-Cc: LM Sensors <sensors@Stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>, khali@linux-fr.org
-Subject: Re: PATCH (take 3) for adm1026.c, kernel 2.6.10-bk14
-Message-ID: <20050112185513.GB10687@kroah.com>
-References: <41D5D075.4000200@paradyne.com> <20050101001205.6b2a44d3.khali@linux-fr.org> <20050103194355.GA11979@penguincomputing.com> <20050103201056.3c55e330.khali@linux-fr.org> <20050103213707.GA12765@penguincomputing.com> <20050103205231.GK9923@schnapps.adilger.int> <20050103221249.GB12765@penguincomputing.com> <20050112185055.GB16724@penguincomputing.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112185055.GB16724@penguincomputing.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 12 Jan 2005 14:09:26 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:5320 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261330AbVALTG0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 14:06:26 -0500
+Date: Wed, 12 Jan 2005 11:06:00 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: nickpiggin@yahoo.com.au, torvalds@osdl.org, ak@muc.de, hugh@veritas.com,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+In-Reply-To: <20050112104326.69b99298.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0501121055490.11169@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de>
+ <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
+ <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org>
+ <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
+ <20050112104326.69b99298.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 10:50:55AM -0800, Justin Thiessen wrote:
-> Ok, take 3 on the adm1026 patch.
-> 
-> In this patch:
-> 
-> (1) Code has been added which ensures that the fan divisor registers are 
->     properly read into the data structure before fan minimum speeds are 
->     determined.  This prevents a possible divide by zero error.  The line 
->     which reads the hardware default fan divisor values has been reformatted 
->     as suggested by Andreas Dilger to make the intent of the statement clearer.
-> 
-> (2) In a similar spirit, an unecessary carriage return from a "dev_dbg" 
->     statement in the adm1026_print_gpio() function has been elminated,
->     shortening the statement to a single line and making the code easier
->     to read.
-> 
-> Signed-off-by: Justin Thiessen <jthiessen@penguincomputing.com
+On Wed, 12 Jan 2005, Andrew Morton wrote:
 
-Applied, thanks.
+> >  So only a very minor improvements for old machines (this one from ~ 98).
+>
+> OK.  But have you written a test to demonstrate any performance
+> regressions?  From, say, the use of atomic ops on ptes?
 
-greg k-h
+If I knew of any regressions, I would certain try to deal with them. The
+test is written to check for concurrent page fault performance and it has
+repeatedly helped me to find problems with page faults. I have used it for
+a couple of other patchsets too. If the patch would be available in mm
+then it certainly would get more exposure and it may become clear that
+there are some regressions.
+
+Introduction of the cmpxchg is one atomic operations that replaces the two
+spinlock ops typically necessary in an unpatched kernel. Obtaining the
+spinlock requires an spinlock (which is an atomic operation) and then the
+release involves a barrier. So there is a net win for all SMP cases as far
+as I can see.

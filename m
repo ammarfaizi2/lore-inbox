@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267618AbTA3UDX>; Thu, 30 Jan 2003 15:03:23 -0500
+	id <S266100AbTA3UXG>; Thu, 30 Jan 2003 15:23:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267621AbTA3UDX>; Thu, 30 Jan 2003 15:03:23 -0500
-Received: from arnold.dormnet.his.se ([193.10.185.236]:48911 "HELO
-	smtp.dormnet.his.se") by vger.kernel.org with SMTP
-	id <S267618AbTA3UDW>; Thu, 30 Jan 2003 15:03:22 -0500
-Date: Thu, 30 Jan 2003 21:08:41 +0100
-From: Andreas Henriksson <andreas@fjortis.info>
-To: "Randy\.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 87 potential array bounds error/buffer overruns in 2.5.53
-Message-ID: <20030130200841.GA26758@foo>
-References: <000001c2c5a4$5c4465d0$09830c80@stanfordja31z2> <Pine.LNX.4.33L2.0301301102575.4084-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0301301102575.4084-100000@dragon.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
+	id <S266693AbTA3UXG>; Thu, 30 Jan 2003 15:23:06 -0500
+Received: from mta05bw.bigpond.com ([139.134.6.95]:13295 "EHLO
+	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S266100AbTA3UXF>; Thu, 30 Jan 2003 15:23:05 -0500
+Message-ID: <3E398BF0.65C32CFE@bigpond.net.au>
+Date: Fri, 31 Jan 2003 06:32:48 +1000
+From: Chris Ison <cisos@bigpond.net.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20-ac1 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Radeon PCI support
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> These (potential) reported errors are unfixed:
-...
-> 1	|	/sound/sb_card.c
-...
+I am looking for any information that may help in getting my Radeon PCI
+card working in linux with acceloration.
 
-The original message said:
----------------------------------------------------------
-[BUG] what if the for loop above ends with i = 0?
-/home/yxie/linux-2.5.53/sound/oss/sb_card.c:890:sb_isapnp_probe:
-ERROR:BUFFER:890:890:Array bounds error (off < 0) (sb_isapnp_list[i],
-max(off) = -1) 
-}
+I am in the process of trying to obtain information from ATI about the
+chipset but apart from that I haven't been successful in any other way
+except I have determined the card becomes locked and often its FIFO read
+pointer is occassionally at 0 when it has locked (with the FIFO write
+pointer often several kilobytes ahead of it).
 
-if(!first || !reverse)
-i = isapnpjump;
-first = 0;
+I have had no luck with DRI or XFree86 people as PCI support for Radeons
+on x86 platform isn't a priority at this time.
 
-Error --->
-while(sb_isapnp_list[i].card_vendor != 0) {
-static struct pci_bus *bus = NULL;
+The suggestion is that the problem is in the DRM but I can't find
+information confirming that in the lkml at this time.
 
-while ((bus = isapnp_find_card(
----------------------------------------------------------
+If you do have any information/patches that could help for the x86
+platform could you please CC me as I am not on the lkml due to its
+traffic volume.
+
+I am determined to have this fixed so please help if you can.
 
 
-(Hopefully) Relevant loop:
-    /* Count entries in sb_isapnp_list */
-    for (i = 0; sb_isapnp_list[i].card_vendor != 0; i++);
-    i--;
-
-The loop will never end with i=0 unless the card list is
-empty. And what use would a driver with an empty card list be? (so that
-will never happen. Maybee the checker won't trigger if the cardlist is
-marked as "const"? I vote for this to be marked as a non-bug, but
-someone else should probably check it too.)
-
- -- Andreas Henriksson
+Thank you in advance
+Chris Ison

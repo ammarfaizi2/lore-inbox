@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136755AbRAHEXT>; Sun, 7 Jan 2001 23:23:19 -0500
+	id <S136756AbRAHElb>; Sun, 7 Jan 2001 23:41:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136756AbRAHEXJ>; Sun, 7 Jan 2001 23:23:09 -0500
-Received: from anime.net ([63.172.78.150]:25349 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S136708AbRAHEXB>;
-	Sun, 7 Jan 2001 23:23:01 -0500
-Date: Sun, 7 Jan 2001 20:24:16 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Gregory Maxwell <greg@linuxpower.cx>
-cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-        "John O'Donnell" <johnod@voicefx.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: [OT] Re: .br blacklisted ?
-In-Reply-To: <20010107223013.A26813@xi.linuxpower.cx>
-Message-ID: <Pine.LNX.4.30.0101072021090.6048-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136800AbRAHElW>; Sun, 7 Jan 2001 23:41:22 -0500
+Received: from atol.icm.edu.pl ([212.87.0.35]:59908 "EHLO atol.icm.edu.pl")
+	by vger.kernel.org with ESMTP id <S136756AbRAHElI>;
+	Sun, 7 Jan 2001 23:41:08 -0500
+Date: Mon, 8 Jan 2001 05:40:52 +0100
+From: Rafal Maszkowski <rzm@icm.edu.pl>
+To: Rafal Maszkowski <rzm@icm.edu.pl>
+Cc: lizzi@cnam.fr, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.0: not loading fore200e
+Message-ID: <20010108054052.A13378@burza.icm.edu.pl>
+In-Reply-To: <20010108025656.A4450@burza.icm.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.1i
+In-Reply-To: <20010108025656.A4450@burza.icm.edu.pl>; from rzm@icm.edu.pl on Mon, Jan 08, 2001 at 02:56:56AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Gregory Maxwell wrote:
-> You are suggesting that it is acceptable to implement technological
-> barriers to a minority expressing speech that is unacceptable to the
-> majority. This is not acceptable.
+On Mon, Jan 08, 2001 at 02:56:56AM +0100, Rafal Maszkowski wrote:
+> Pure 2.4.0 on sparc32 with RedHat 6.2:
+> root@etest:/usr/src/6,0# modprobe fore200e
+> /lib/modules/2.4.0lt/kernel/drivers/atm/fore200e_sba_fw.o: couldn't find the kernel version the module was compiled for
+> /lib/modules/2.4.0lt/kernel/drivers/atm/fore200e_sba_fw.o: insmod /lib/modules/2.4.0lt/kernel/drivers/atm/fore200e_sba_fw.o failed
+> /lib/modules/2.4.0lt/kernel/drivers/atm/fore200e_sba_fw.o: insmod fore200e failed
 
-See Rowan v. United States Post Office.
+Linking error, Makefile was fixed by 2.4.0-ac2.
 
-*Your* right to free speech stops at *my* property.
-
-Under no circumstances does your right to free speech trump the rights of
-the unwilling recipient. Full Stop. End of story.
-
--Dan
-
+R.
+-- 
+W iskier krzesaniu ¿ywem/Materia³ to rzecz g³ówna
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

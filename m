@@ -1,46 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVCYXvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVCZADW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbVCYXvC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 18:51:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVCYXvC
+	id S261873AbVCZADW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 19:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVCZADW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 18:51:02 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:24594 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261411AbVCYXu4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 18:50:56 -0500
-Date: Sat, 26 Mar 2005 10:47:45 +1100
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Kim Phillips <kim.phillips@freescale.com>, johnpol@2ka.mipt.ru,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       cryptoapi@lists.logix.cz, David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050325234745.GA22661@gondor.apana.org.au>
-References: <1111737496.20797.59.camel@uganda> <424495A8.40804@freescale.com> <20050325234348.GA17411@havoc.gtf.org>
+	Fri, 25 Mar 2005 19:03:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:11907 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261873AbVCZADQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 19:03:16 -0500
+Date: Fri, 25 Mar 2005 16:03:10 -0800
+From: Greg KH <gregkh@suse.de>
+To: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
+Subject: Re: [0/12] More Driver Model Locking Changes
+Message-ID: <20050326000309.GB16602@kroah.com>
+References: <Pine.LNX.4.50.0503242145200.29800-100000@monsoon.he.net> <20050325192024.GA14290@kroah.com> <20050325233952.GA16355@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050325234348.GA17411@havoc.gtf.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20050325233952.GA16355@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 06:43:49PM -0500, Jeff Garzik wrote:
-> 
-> In any case, it is the wrong solution to simply "turn on the tap" and
-> let the RNG spew data.  There needs to be a limiting factor... typically
-> rngd should figure out when /dev/random needs more entropy, or simply
-> delay a little bit between entropy collection/stuffing runs.
+On Fri, Mar 25, 2005 at 03:39:52PM -0800, Greg KH wrote:
+> But can you take a look at drivers/scsi/scsi_transport_spi.c, line 265?
+> That is also going to need fixing up somehow.  Gotta love that FIXME
+> comment...
 
-Completely agreed.  Having it in rngd also allows the scheduler to
-do its job.
+Ok, the patch below seems to fix it, but I would like some validation I
+did the correct thing.
 
-When applications need entropy from /dev/random and they can't get it,
-they'll simply block which allows rngd to run to refill the tank.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Oh, looks like pci express now has problems too, I'll go hit that one
+next...
+
+thanks,
+
+greg k-h
+
+-------------
+
+[scsi] use device_for_each_child() to properly access child devices.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+diff -Nru a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
+--- a/drivers/scsi/scsi_transport_spi.c	2005-03-25 16:03:09 -08:00
++++ b/drivers/scsi/scsi_transport_spi.c	2005-03-25 16:03:09 -08:00
+@@ -254,17 +254,21 @@
+ spi_transport_rd_attr(rti, "%d\n");
+ spi_transport_rd_attr(pcomp_en, "%d\n");
+ 
++/* we only care about the first child device so we return 1 */
++static int child_iter(struct device *dev, void *data)
++{
++	struct scsi_device *sdev = to_scsi_device(dev);
++
++	spi_dv_device(sdev);
++	return 1;
++}
++
+ static ssize_t
+ store_spi_revalidate(struct class_device *cdev, const char *buf, size_t count)
+ {
+ 	struct scsi_target *starget = transport_class_to_starget(cdev);
+ 
+-	/* FIXME: we're relying on an awful lot of device internals
+-	 * here.  We really need a function to get the first available
+-	 * child */
+-	struct device *dev = container_of(starget->dev.children.next, struct device, node);
+-	struct scsi_device *sdev = to_scsi_device(dev);
+-	spi_dv_device(sdev);
++	device_for_each_child(&starget->dev, NULL, child_iter);
+ 	return count;
+ }
+ static CLASS_DEVICE_ATTR(revalidate, S_IWUSR, NULL, store_spi_revalidate);

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317393AbSGDMAb>; Thu, 4 Jul 2002 08:00:31 -0400
+	id <S317396AbSGDMOZ>; Thu, 4 Jul 2002 08:14:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317394AbSGDMAb>; Thu, 4 Jul 2002 08:00:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32525 "EHLO
+	id <S317397AbSGDMOY>; Thu, 4 Jul 2002 08:14:24 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:38157 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317393AbSGDMAa>; Thu, 4 Jul 2002 08:00:30 -0400
-Date: Thu, 4 Jul 2002 13:02:43 +0100
+	id <S317396AbSGDMOY>; Thu, 4 Jul 2002 08:14:24 -0400
+Date: Thu, 4 Jul 2002 13:16:54 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>,
+To: Rob Landley <landley@trommello.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@fs.tum.de>,
        Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [OKS] Kernel release management
-Message-ID: <20020704130243.A11601@flint.arm.linux.org.uk>
-References: <Pine.NEB.4.44.0207012045110.24810-100000@mimas.fachschaften.tu-muenchen.de> <Pine.LNX.3.96.1020702110848.27954D-100000@gatekeeper.tmr.com>
+Message-ID: <20020704131654.B11601@flint.arm.linux.org.uk>
+References: <Pine.LNX.3.96.1020702110848.27954D-100000@gatekeeper.tmr.com> <200207030718.g637I0L145202@pimout2-int.prodigy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.96.1020702110848.27954D-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Tue, Jul 02, 2002 at 11:13:01AM -0400
+In-Reply-To: <200207030718.g637I0L145202@pimout2-int.prodigy.net>; from landley@trommello.org on Tue, Jul 02, 2002 at 09:19:41PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 11:13:01AM -0400, Bill Davidsen wrote:
-> Seems the reason this is being suggested is that lots of new stuff got
-> shoved into 2.2 and 2.4 in the early stages, and they were NOT stable.
+On Tue, Jul 02, 2002 at 09:19:41PM -0400, Rob Landley wrote:
+> Look at the pressure to get stuff into 2.4 when it's already in 2.5.  Because 
+> 2.4 is what people are actually using, and 2.5 is really just for os 
+> development and testing (and general playing with) at this point.
 
-That is where davej, the "help Linus say NO!" guy comes into play.
+If stuff in 2.5 wasn't soo broken (looking at IDE here) then more people
+would be using it, and less people would be wanting the 2.5 features back
+ported to 2.4.  IMHO, at the moment 2.5 has a major problem.  It is not
+getting the testing it deserves because things like IDE and such like
+aren't reasonably stable enough.
 
-I'm maintaining the 2.5 and 2.4 ARM trees here in parallel, and it is
-*really* tough to handle.  There are several problems:
+Some developers in the ARM community have been to use 2.4 because 2.5
+IDE has been broken for soo long.  Having initially based their
+development on 2.5, then being forced to switch to 2.4, they're not
+going to switch back to 2.5 unless there's a _really_ good reason to.
+Fixing IDE isn't "a really good reason" as far as they are concerned.
 
-1. finding the time to build and test each kernel version on hardware
-   reasonably well.
+If we're going to make the 2.5 freeze in October and IDE remains as
+unstable as it has since 2.5.4-ish, the months^wyears after that are
+going to be a rough ride, and it will take a long time to shake the
+bugs out.
 
-2. keeping track of what has been applied to which kernels
+At OLS, I was suggesting to people that 2.6 might happen in the summer of
+2003.  I'm seriously considering moving that estimate to Christmas 2003
+or first couple of months of 2004 now.
 
-3. getting down-stream developers to produce patches for the stable and
-   development kernels generally doesn't happen.
-
-The net effect is I have more support for various ARM machines in 2.4 at
-present than in 2.5, but 2.5 only contains my new features.
-
-If 2.6 and 2.7 appear at the same time, you _will_ run into the same
-problems across the community.  Unless people are willing to put lots
-of work in to making patches apply to two widely different kernel
-source trees, you could end up in the same situation.  And it's no
-fun to be there.
-
-> The maintainer can alway push really new stuff into 2.7, and Linus can
-> always refuse to take a feature into 2.7 until something else is fixed in
-> 2.6.
-
-And you expect Linus to track every single feature and fix that exists in
-2.6 and 2.7?
-
-If 2.6 and 2.7 come out at the same time, I'll have to ignore one or either
-of the source trees completely.  As an architecture maintainer, that would
-be *bad*.
+Feel free to prove me wrong in one and a half years time. 8)
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

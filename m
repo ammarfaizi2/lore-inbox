@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131982AbRCVKo7>; Thu, 22 Mar 2001 05:44:59 -0500
+	id <S131985AbRCVKr7>; Thu, 22 Mar 2001 05:47:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131983AbRCVKot>; Thu, 22 Mar 2001 05:44:49 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:45512 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131982AbRCVKoc>;
-	Thu, 22 Mar 2001 05:44:32 -0500
-Message-ID: <3AB9D73F.6B0A56B2@mandrakesoft.com>
-Date: Thu, 22 Mar 2001 05:43:11 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
-X-Accept-Language: en
+	id <S131988AbRCVKrt>; Thu, 22 Mar 2001 05:47:49 -0500
+Received: from [216.52.49.35] ([216.52.49.35]:37647 "HELO infbosvw.inf.com")
+	by vger.kernel.org with SMTP id <S131985AbRCVKrg>;
+	Thu, 22 Mar 2001 05:47:36 -0500
+Message-ID: <426C1E9EBA27D411839000D0B74752F8015D2C38@punmsg02.ad.infosys.com>
+From: nomit kalidhar <nomit_kalidhar@infy.com>
+To: "'Manoj Sontakke'" <manojs@sasken.com>, linux-kernel@vger.kernel.org
+Subject: RE: Fib entries
+Date: Thu, 22 Mar 2001 15:36:18 +0530
 MIME-Version: 1.0
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
-In-Reply-To: <200103220638.HAA16050@green.mif.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz wrote:
-> 
-> Hi,
->   It looks like a not fully merged patch from Alan's tree:
-> 
-> drivers/net/net.o: In function `pcnet32_open':
-> drivers/net/net.o(.text+0x3bb9): undefined reference to `is_valid_ether_addr'
-> drivers/net/net.o: In function `pcnet32_probe1':
-> drivers/net/net.o(.text.init+0x5fa): undefined reference to `is_valid_ether_addr'
+hello,
 
-Ouch, missed that.  Thanks for the patch.
+It is for all the three cases.
+It also contains for the case in which it does not match any one of them
+that is the default entry.
 
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+
+Warm Regards,
+Nomit Kalidhar,
+Infosys-West, Pune.
+ph  925-32801
+Extn. 2293
+
+------------------------------------------------------------------------
+------------------------------------
+	 Work like you never tire
+	Love like you've never been hurt
+	Dance like nobody is watching
+
+
+
+
+
+-----Original Message-----
+From: Manoj Sontakke [mailto:manojs@sasken.com]
+Sent: Thursday, March 22, 2001 8:15 PM
+To: linux-kernel@vger.kernel.org
+Subject: Fib entries
+
+
+Hi
+	I have a question related to forwarding information base(FIB).
+
+Depending upon destination IP address a packet can be 
+a) for this machine
+b) for a machine to which this machine is directly connected
+c) for a machine to which this machine is not directly connected.
+
+Does FIB contain the entries for delivery for all the 3 cases or only for
+the third case
+
+Thanks in advance for all the help
+
+Manoj
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265831AbUFIXKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUFIXUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265831AbUFIXKk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 19:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265891AbUFIXKk
+	id S265833AbUFIXUX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 19:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUFIXUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 19:10:40 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:50307 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S265831AbUFIXKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 19:10:39 -0400
-Subject: PATCH: 2.6.7-rc3 drivers/scsi/megaraid.c: user/kernel pointer bugs
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: linux-megaraid-devel@dell.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Jun 2004 16:10:32 -0700
-Message-Id: <1086822637.32059.140.camel@dooby.cs.berkeley.edu>
+	Wed, 9 Jun 2004 19:20:23 -0400
+Received: from mail.kroah.org ([65.200.24.183]:53148 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265833AbUFIXUU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 19:20:20 -0400
+Date: Wed, 9 Jun 2004 16:19:20 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Couple of sysfs patches
+Message-ID: <20040609231920.GA9132@kroah.com>
+References: <200406090221.24739.dtor_core@ameritech.net> <200406091732.28684.dtor_core@ameritech.net> <20040609224548.GA1393@kroah.com> <200406091754.23303.dtor_core@ameritech.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406091754.23303.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since arg is a user pointer, so are uioc_mimd and uiocp, and hence umc is 
-a user pointer.  Thus reading umc->xferaddr requires dereferencing a user 
-pointer, which isn't safe.  Let me know if you have any questions or I've
-made an error.
+On Wed, Jun 09, 2004 at 05:54:23PM -0500, Dmitry Torokhov wrote:
+> On Wednesday 09 June 2004 05:45 pm, Greg KH wrote:
+> > On Wed, Jun 09, 2004 at 05:32:28PM -0500, Dmitry Torokhov wrote:
+> > > Actually, I myself want someting else -
+> > > 
+> > > int platform_device_register_simple(struct platform_device **ppdev,
+> > > 				    const char *name, int id)
+> > > 
+> > > It will allocate platform device, set name and id and release function to
+> > > platform_device_simple_release which in turn will be hidden from outside
+> > > world. Since the function does allocation for user is should prevent the
+> > > abuse you were concerned about.
+> > 
+> > Ok, that sounds good.  I'll take patches for that kind of interface.
+> > 
+> > But have the function return the pointer, like the class_simple
+> > functions work.  Not the ** like you just specified.
+> 
+> I want to do both allocation + registration in one shot and I knowing
+> the error code may be important to users.
 
-Best,
-Rob
+That's fine to do.  Again, look at how the class_simple_create()
+function works.  If an error happens, convert it to ERR_PTR() and return
+that.  The caller can check it with IS_ERR() and friends.
 
---- linux-2.6.7-rc3-full/drivers/scsi/megaraid.c.orig	Wed Jun  9 12:43:49 2004
-+++ linux-2.6.7-rc3-full/drivers/scsi/megaraid.c	Wed Jun  9 12:43:10 2004
-@@ -3815,7 +3815,8 @@ mega_n_to_m(void *arg, megacmd_t *mc)
- 
- 			umc = MBOX_P(uiocp);
- 
--			upthru = (mega_passthru *)umc->xferaddr;
-+			if (get_user(upthru, (mega_passthru **)&umc->xferaddr))
-+				return (-EFAULT);
- 
- 			if( put_user(mc->status, (u8 *)&upthru->scsistatus) )
- 				return (-EFAULT);
-@@ -3831,7 +3832,8 @@ mega_n_to_m(void *arg, megacmd_t *mc)
- 
- 			umc = (megacmd_t *)uioc_mimd->mbox;
- 
--			upthru = (mega_passthru *)umc->xferaddr;
-+			if (get_user(upthru, (mega_passthru **)&umc->xferaddr))
-+				return (-EFAULT);
- 
- 			if( put_user(mc->status, (u8 *)&upthru->scsistatus) )
- 				return (-EFAULT);
+> Why do you oppose having double pointers in interface?
 
+It's messy, and with the ERR_PTR() macros, not needed :)
 
+thanks,
 
+greg k-h

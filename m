@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131392AbQLSAvV>; Mon, 18 Dec 2000 19:51:21 -0500
+	id <S131464AbQLSA7X>; Mon, 18 Dec 2000 19:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131628AbQLSAvM>; Mon, 18 Dec 2000 19:51:12 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:21516
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S131625AbQLSAvE>; Mon, 18 Dec 2000 19:51:04 -0500
-Date: Mon, 18 Dec 2000 16:20:28 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Weinehall <tao@acc.umu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SerialATA Release, sortof........
-In-Reply-To: <20001219010852.B8435@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.10.10012181619050.25065-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S131628AbQLSA7N>; Mon, 18 Dec 2000 19:59:13 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:3886 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131464AbQLSA6y>; Mon, 18 Dec 2000 19:58:54 -0500
+Date: Tue, 19 Dec 2000 01:27:14 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Pavel Machek <pavel@suse.cz>, Chris Lattner <sabre@nondot.org>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+Message-ID: <20001219012714.B26127@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0012181847360.2595-100000@duckman.distro.conectiva> <Pine.LNX.3.96.1001218224636.1190D-100000@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1001218224636.1190D-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Mon, Dec 18, 2000 at 10:57:44PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2000, David Weinehall wrote:
+On Mon, Dec 18, 2000 at 10:57:44PM +0100, Mikulas Patocka wrote:
+> You have small posibility that interrupt will eat up memory - interrupt in
+> process that has PF_MEMALLOC. Patch: 
 
-> On Mon, Dec 18, 2000 at 01:27:07PM -0800, Andre Hedrick wrote:
-> > 
-> > FYI
-> > 
-> > The Serial ATA specification (500 pages) is now available to the public
-> > under certain "click-to-accept" conditions.  Click the "specification"
-> > link at the bottom of the home page at http://www.serialata.org/.
-> > I hope the conditions are acceptable. The file is zipped MS Word.
-> 
-> Well, I think that most people can be happy with the conditions. Now,
-> the format, that's a completely different issue. With all your
-> influence, I bet you could persuade them to at least run the document
-> through Acrobat Distiller to turn it into a .pdf?!
+this is not the point of getblk, to fix the getblk deadlock the only way is to
+implement a fail path in each caller and allow getblk to return NULL (as every
+other memory allocation function can do).
 
-My bad for forwarding info from internal.
-I knew that my copies were in PDF, but did not know if they combined all
-the erratas in to a newer doc or what....
-
-Cheers,
-
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

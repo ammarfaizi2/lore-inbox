@@ -1,34 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbVBDJVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVBDJU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262886AbVBDJVE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 04:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVBDJVE
+	id S261633AbVBDJU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 04:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbVBDJU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 04:21:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59813 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262886AbVBDJUs (ORCPT
+	Fri, 4 Feb 2005 04:20:58 -0500
+Received: from ozlabs.org ([203.10.76.45]:24713 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262827AbVBDJUr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 04:20:48 -0500
-Date: Fri, 4 Feb 2005 01:20:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, mochel@digitalimplant.org
-Subject: Re: Please open sysfs symbols to proprietary modules
-Message-Id: <20050204012042.6aedcf39.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
-References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Feb 2005 04:20:47 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16899.15980.791820.132469@cargo.ozlabs.ibm.com>
+Date: Fri, 4 Feb 2005 20:20:44 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Rik van Riel <riel@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: A scrub daemon (prezeroing)
+In-Reply-To: <Pine.LNX.4.58.0502032220430.28851@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
+	<1106828124.19262.45.camel@hades.cambridge.redhat.com>
+	<20050202153256.GA19615@logos.cnet>
+	<Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
+	<20050202163110.GB23132@logos.cnet>
+	<Pine.LNX.4.61.0502022204140.2678@chimarrao.boston.redhat.com>
+	<16898.46622.108835.631425@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.58.0502031650590.26551@schroedinger.engr.sgi.com>
+	<16899.2175.599702.827882@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.58.0502032220430.28851@schroedinger.engr.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Roskin <proski@gnu.org> wrote:
->
-> I'm writing a module under a proprietary license.
+Christoph Lameter writes:
 
-You shouldn't, although many people do.  It's a derived work and hence the
-GPL is applicable.  The only exception we make is for code which was
-written for other operating systems and was then ported to Linux.  Because
-it is inappropriate to consider such code a derived work.
+> If the program does not use these cache lines then you have wasted time
+> in the page fault handler allocating and handling them. That is what
+> prezeroing does for you.
+
+The program is going to access at least one cache line of the new
+page.  On my G5, it takes _less_ time to clear the whole page and pull
+in one cache line from L2 cache to L1 than it does to pull in that
+same cache line from memory.
+
+> Yes but its a short burst that only occurs very infrequestly and it takes
+
+It occurs just as often as we clear pages in the page fault handler.
+We aren't clearing any fewer pages by prezeroing, we are just clearing
+them a bit earlier.
+
+> advantage of all the optimizations that modern memory subsystems have for
+> linear accesses. And if hardware exists that can offload that from the cpu
+> then the cpu caches are only minimally affected.
+
+I can believe that prezeroing could provide a benefit on some
+machines, but I don't think it will provide any on ppc64.
+
+Paul.

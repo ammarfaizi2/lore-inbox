@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261390AbREQKJH>; Thu, 17 May 2001 06:09:07 -0400
+	id <S261392AbREQK0S>; Thu, 17 May 2001 06:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261391AbREQKI5>; Thu, 17 May 2001 06:08:57 -0400
-Received: from news.lucky.net ([193.193.193.102]:63755 "EHLO news.lucky.net")
-	by vger.kernel.org with ESMTP id <S261390AbREQKIr>;
-	Thu, 17 May 2001 06:08:47 -0400
-From: "Mike Gorchak" <mike@malva.com.ua>
+	id <S261394AbREQK0J>; Thu, 17 May 2001 06:26:09 -0400
+Received: from [212.171.207.33] ([212.171.207.33]:49159 "EHLO gollum.link.it")
+	by vger.kernel.org with ESMTP id <S261392AbREQKZ7>;
+	Thu, 17 May 2001 06:25:59 -0400
+Subject: smp hangs with 2.2.19 kernel
+From: "Andrea Dell'Amico" <adellam@link.it>
 To: linux-kernel@vger.kernel.org
-Subject: Routing problem in 2.4.1 kernel, Help, please !!!
-Date: Thu, 17 May 2001 12:46:26 +0300
-Organization: Unknown
-Message-ID: <9e06ml$c42$1@news.lucky.net>
-X-Trace: news.lucky.net 990092823 12418 193.193.194.126 (17 May 2001 09:47:03 GMT)
-X-Complaints-To: usenet@news.lucky.net
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 17 May 2001 12:25:35 +0200
+Message-Id: <990095136.29185.5.camel@altrove>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-                           -------------------------      PPP
-                          |                         |   --------     POS 1
-                          |                         |  /
-10.10.28.10/30
-                          |                         | /
-                          |                         |/    PPP
-                          |           10.10.28.9/30 |  ---------     POS 2
-                          |                         | /
-10.10.28.14/30
-                          |                         |/
-                          |           10.10.28.13/30|     PPP
-                          |                         | ----------     POS 3
-                          |                         |/
-10.10.28.18/30
-                          |           10.10.28.17/30|
-                          |                         |
-                          |                         |     PPP
-                          |           10.10.28.21/30|----------      POS 4
-                          |                         |
-10.10.28.22/30
-                          |                         |
- --------------           |              . . .      |  . . .
-|    Server    | Ethernet |    Router               |
-| 10.10.0.1/24 |----------| 10.10.0.2/24 . . .      |  . . .
-|              |          |                         |
- --------------           |              . . .      |  . . .
-                          |                         |
-                          |                         |
-                          |                         |    PPP
-                          |           10.10.28.57/30|---------     POS NN -
-1
-                          |                         |
-10.10.28.58/30
-                          |                         |
-                          |                         |
-                          |           10.10.28.61/30|    PPP
-                          |                         |\__________     POS NN
-                          |                         |
-10.10.28.62/30
-                          | def. gateway 10.10.0.1  |
-                           -------------------------
+Hallo, I have a problem with a dual processor machine. With Red Hat
+2.2.19 kernel, but with every 2.2.1x kernel, from Red Hat or self
+compiled, the machine hangs with lot of processes in D state:
 
-Legend:
+vmstat output is
 
-PPP    - leased line connected by two modems (async, 19200 bps)
-Router - Access server with default gateway to Server (10.10.0.1).
-         Based on unmodified linux kernel 2.4.1.
-Server - Application server based on Windows NT 4.0.
-POS    - Remote terminal based on unmodified linux kernel 2.2.16.
+procs       memory    swap          io     system         cpu
+ r  b  w swpd free  buff cache si  so    bi    bo   in    cs  us  sy  id
+ 1 225 2   0  10632  10936  16456   0   0  6   3   14     9   6   3  14
 
 
-   Sometimes one of the POS (random) couldn't ping 10.10.0.1,
-but 10.10.0.2 (router) can ping both sides 10.10.0.1 (Server)
-and that crazy POS. But in 15-30 minutes this trouble gone, and
-POS work fine.
-   We have this trouble 1-5 times every day. What that ?
+The memory situation:
+
+[root@petra petra]# free
+             total       used       free     shared    buffers
+cached
+Mem:        523800     504688      19112          0      10620
+31352
+-/+ buffers/cache:     462716      61084
+Swap:      2097136      35164    2061972
 
 
---
-----------------------------
-Mike Gorchak
-CJSC Malva
-System Programmer
+The box has 5 scsi disks with a aic7xxx controller. 4 disks are in RAID
+1, the fifth is only used for the swap partition (2 GB).
+
+When the machine hangs there are no logs.
+
+Is there a way I can debug the cause? 
+
+Thanks in advance,
+andrea
+
+
+-- 
+Andrea Dell'Amico
+<adellam@link.it> - Link s.r.l. <http://www.link.it>
 
 

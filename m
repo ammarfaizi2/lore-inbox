@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270623AbUJUCMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270583AbUJUB35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270623AbUJUCMq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 22:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270641AbUJUCDc
+	id S270583AbUJUB35 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270594AbUJUBZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 22:03:32 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:39882 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S270739AbUJUCBu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 22:01:50 -0400
-Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS,
-	...)
-From: Li Shaohua <shaohua.li@intel.com>
-To: Nate Lawson <nate@root.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <4176FCB8.3060103@root.org>
-References: <4176FCB8.3060103@root.org>
-Content-Type: text/plain
-Message-Id: <1098323602.6132.51.camel@sli10-desk.sh.intel.com>
+	Wed, 20 Oct 2004 21:25:50 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:10725 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S270710AbUJUBQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 21:16:18 -0400
+Date: Thu, 21 Oct 2004 03:17:14 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: ZONE_PADDING wastes 4 bytes of the new cacheline
+Message-ID: <20041021011714.GQ24619@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 21 Oct 2004 09:53:23 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 08:03, Nate Lawson wrote:
-> Pavel Machek wrote:
-> >>>I'm seeing bad problem with N620c notebook (and have reports of
-> more
-> >>>machines behaving like this, for example ASUS L8400C.) If I
-> shutdown
-> >>>machine with lid closed, opening lid will power the machine up.
-> Ouch.
-> >>>2.6.7 behaves okay.
-> >>
-> >>:> Some people would love to have the machine power up when they
-> open
-> >>the lid! Wish my XE3 would do that!
-> 
-> This problem sounds like a wake GPE is enabled for the lid switch and 
-> that it has a _PRW that indicates it can wake the system from S5.  If 
-> this is the case, just disabled the GPE.
-> 
-> > :-). Well for some other people it powers up when they unplug AC
-> > power, and *that* is nasty. I'd like my machine to stay powered down
-> > when I tell it so.
-> 
-> This is likely a similar GPE problem.  The GPE for the EC fires even
-> in 
-> S5.  I think the EC GPE should be disabled in the suspend method.
-It could be the wakeup GPE issue, but must note Pavel's system suffer
-the problem even with acpi=off. Could you please try boot your system
-with acpi=off, and then reboot with acpi=off, what's the result? I
-expected the wakeup GPE is disabled by the BIOS in this case.
-Anyway, the DSDT can tell us the wakeup GPE info.
+I don't see why this 'int x' exists, alignment should really work fine
+even with empty structure (works with my compiler with an userspace
+test, please double check).
 
-Thanks,
-Shaohua
-
+Index: linux-2.5/include/linux/mmzone.h
+===================================================================
+RCS file: /home/andrea/crypto/cvs/linux-2.5/include/linux/mmzone.h,v
+retrieving revision 1.67
+diff -u -p -r1.67 mmzone.h
+--- linux-2.5/include/linux/mmzone.h	19 Oct 2004 14:58:00 -0000	1.67
++++ linux-2.5/include/linux/mmzone.h	21 Oct 2004 01:14:20 -0000
+@@ -35,7 +35,6 @@ struct pglist_data;
+  */
+ #if defined(CONFIG_SMP)
+ struct zone_padding {
+-	int x;
+ } ____cacheline_maxaligned_in_smp;
+ #define ZONE_PADDING(name)	struct zone_padding name;
+ #else

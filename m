@@ -1,357 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVBXLOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVBXLS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVBXLOM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 06:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVBXLMv
+	id S262229AbVBXLS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 06:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVBXLSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 06:12:51 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46865 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262227AbVBXLL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 06:11:26 -0500
-Date: Thu, 24 Feb 2005 12:11:25 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: dwmw2@infradead.org
-Cc: "Eric W. Biederman" <ebiederman@lnxi.com>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove drivers/mtd/maps/ich2rom.c
-Message-ID: <20050224111125.GH8651@stusta.de>
+	Thu, 24 Feb 2005 06:18:55 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:32406 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S262229AbVBXLRS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 06:17:18 -0500
+Date: Thu, 24 Feb 2005 20:16:20 +0900
+From: Horms <horms@debian.org>
+To: Edward Miller <bugzilla@emiller.f2s.com>, 296639@bugs.debian.org
+Cc: zwane@montezuma.fsmlabs.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bug#296639: kernel-source-2.4.27: nforce[23] backport of acpi_skip_timer_override
+Message-ID: <20050224111617.GD7093@verge.net.au>
+References: <E1D41RP-0001UN-I6@hawea.lakes>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0502201157330.26742@montezuma.fsmlabs.com>
+X-Cluestick: seven
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/mtd/maps/ich2rom.c is completely unused because it was renamed 
-to drivers/mtd/maps/ichxrom.c .
+On Wed, Feb 23, 2005 at 06:40:55PM +0000, Edward Miller wrote:
+> Package: kernel-source-2.4.27
+> Version: 2.4.27-8
+> Severity: normal
+> Tags: patch
+> 
+> The 2.6 kernel series has, since 2.6.5, had a fix for an erroneous timer
+> override present in many BIOSes in nforce[23] chipsets. The 2.4 series
+> is missing this, resulting in an XT_PIC timer on systems that have an
+> APIC-enabled kernel. This is believed to cause system instability,
+> including hard lock-ups (with no ssh). At my request, Zwane Mwaikambo
+> has kindly backported the fix for 2.4.30 and Ihave found that this patch
+> works almost unaltered on Debian's kernel-source-2.4.27. Bearing in mind
+> the proximity of Sarge's release and especially d-i rc3, I thought I
+> should send you the patch for review now.
+> 
+> Maybe this will have to be a post-Sarge item but there is a lot of
+> cheap nforce2 out there and 2.6.8 may not be suitable for everyone so I
+> hope you can consider this patch for inclusion in Sarge's 2.4.27.
 
-This patch removes the stale ich2rom.c file.
+Thanks, looks good, though I think the Makefile portion of the patch
+should be as follows. I am in the process of some rebuilds to confirm
+this. I have CCed the Zwane Mwakikamo and LKML so this reaches the right
+eyes.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+-- 
+Horms
 
----
-
- drivers/mtd/maps/ich2rom.c |  316 -------------------------------------
- 1 files changed, 316 deletions(-)
-
---- linux-2.6.11-rc4-mm1-full/drivers/mtd/maps/ich2rom.c	2004-12-24 22:35:49.000000000 +0100
-+++ /dev/null	2004-11-25 03:16:25.000000000 +0100
-@@ -1,316 +0,0 @@
--/*
-- * ich2rom.c
-- *
-- * Normal mappings of chips in physical memory
-- * $Id: ich2rom.c,v 1.7 2003/05/21 12:45:18 dwmw2 Exp $
-- */
--
--#include <linux/module.h>
--#include <linux/types.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <asm/io.h>
--#include <linux/mtd/mtd.h>
--#include <linux/mtd/map.h>
--#include <linux/config.h>
--#include <linux/pci.h>
--#include <linux/pci_ids.h>
--
--#define RESERVE_MEM_REGION 0
--
--#define ICH2_FWH_REGION_START	0xFF000000UL
--#define ICH2_FWH_REGION_SIZE	0x01000000UL
--#define BIOS_CNTL	0x4e
--#define FWH_DEC_EN1	0xE3
--#define FWH_DEC_EN2	0xF0
--#define FWH_SEL1	0xE8
--#define FWH_SEL2	0xEE
--
--struct ich2rom_map_info {
--	struct map_info map;
--	struct mtd_info *mtd;
--	unsigned long window_addr;
--};
--
--static inline unsigned long addr(struct map_info *map, unsigned long ofs)
--{
--	unsigned long offset;
--	offset = ((8*1024*1024) - map->size) + ofs;
--	if (offset >= (4*1024*1024)) {
--		offset += 0x400000;
--	}
--	return map->map_priv_1 + 0x400000 + offset;
--}
--
--static inline unsigned long dbg_addr(struct map_info *map, unsigned long addr)
--{
--	return addr - map->map_priv_1 + ICH2_FWH_REGION_START;
--}
--	
--static __u8 ich2rom_read8(struct map_info *map, unsigned long ofs)
--{
--	return __raw_readb(addr(map, ofs));
--}
--
--static __u16 ich2rom_read16(struct map_info *map, unsigned long ofs)
--{
--	return __raw_readw(addr(map, ofs));
--}
--
--static __u32 ich2rom_read32(struct map_info *map, unsigned long ofs)
--{
--	return __raw_readl(addr(map, ofs));
--}
--
--static void ich2rom_copy_from(struct map_info *map, void *to, unsigned long from, ssize_t len)
--{
--	memcpy_fromio(to, addr(map, from), len);
--}
--
--static void ich2rom_write8(struct map_info *map, __u8 d, unsigned long ofs)
--{
--	__raw_writeb(d, addr(map,ofs));
--	mb();
--}
--
--static void ich2rom_write16(struct map_info *map, __u16 d, unsigned long ofs)
--{
--	__raw_writew(d, addr(map, ofs));
--	mb();
--}
--
--static void ich2rom_write32(struct map_info *map, __u32 d, unsigned long ofs)
--{
--	__raw_writel(d, addr(map, ofs));
--	mb();
--}
--
--static void ich2rom_copy_to(struct map_info *map, unsigned long to, const void *from, ssize_t len)
--{
--	memcpy_toio(addr(map, to), from, len);
--}
--
--static struct ich2rom_map_info ich2rom_map = {
--	.map = {
--		.name = "ICH2 rom",
--		.phys = NO_XIP,
--		.size = 0,
--		.buswidth = 1,
--		.read8 = ich2rom_read8,
--		.read16 = ich2rom_read16,
--		.read32 = ich2rom_read32,
--		.copy_from = ich2rom_copy_from,
--		.write8 = ich2rom_write8,
--		.write16 = ich2rom_write16,
--		.write32 = ich2rom_write32,
--		.copy_to = ich2rom_copy_to,
--		/* Firmware hubs only use vpp when being programmed
--		 * in a factory setting.  So in place programming
--		 * needs to use a different method.
--		 */
--	},
--	.mtd = NULL,
--	.window_addr = 0,
--};
--
--enum fwh_lock_state {
--	FWH_DENY_WRITE = 1,
--	FWH_IMMUTABLE  = 2,
--	FWH_DENY_READ  = 4,
--};
--
--static int ich2rom_set_lock_state(struct mtd_info *mtd, loff_t ofs, size_t len,
--	enum fwh_lock_state state)
--{
--	struct map_info *map = mtd->priv;
--	unsigned long start = ofs;
--	unsigned long end = start + len -1;
--
--	/* FIXME do I need to guard against concurrency here? */
--	/* round down to 64K boundaries */
--	start = start & ~0xFFFF;
--	end = end & ~0xFFFF;
--	while (start <= end) {
--		unsigned long ctrl_addr;
--		ctrl_addr = addr(map, start) - 0x400000 + 2;
--		writeb(state, ctrl_addr);
--		start = start + 0x10000;
--	}
--	return 0;
--}
--
--static int ich2rom_lock(struct mtd_info *mtd, loff_t ofs, size_t len)
--{
--	return ich2rom_set_lock_state(mtd, ofs, len, FWH_DENY_WRITE);
--}
--
--static int ich2rom_unlock(struct mtd_info *mtd, loff_t ofs, size_t len)
--{
--	return ich2rom_set_lock_state(mtd, ofs, len, 0);
--}
--
--static int __devinit ich2rom_init_one (struct pci_dev *pdev,
--	const struct pci_device_id *ent)
--{
--	u16 word;
--	struct ich2rom_map_info *info = &ich2rom_map;
--	unsigned long map_size;
--
--	/* For now I just handle the ich2 and I assume there
--	 * are not a lot of resources up at the top of the address
--	 * space.  It is possible to handle other devices in the
--	 * top 16MB but it is very painful.  Also since
--	 * you can only really attach a FWH to an ICH2 there
--	 * a number of simplifications you can make.
--	 *
--	 * Also you can page firmware hubs if an 8MB window isn't enough 
--	 * but don't currently handle that case either.
--	 */
--
--#if RESERVE_MEM_REGION
--	/* Some boards have this reserved and I haven't found a good work
--	 * around to say I know what I'm doing!
--	 */
--	if (!request_mem_region(ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE, "ich2rom")) {
--		printk(KERN_ERR "ich2rom: cannot reserve rom window\n");
--		goto err_out_none;
--	}
--#endif /* RESERVE_MEM_REGION */
--	
--	/* Enable writes through the rom window */
--	pci_read_config_word(pdev, BIOS_CNTL, &word);
--	if (!(word & 1)  && (word & (1<<1))) {
--		/* The BIOS will generate an error if I enable
--		 * this device, so don't even try.
--		 */
--		printk(KERN_ERR "ich2rom: firmware access control, I can't enable writes\n");
--		goto err_out_none;
--	}
--	pci_write_config_word(pdev, BIOS_CNTL, word | 1);
--
--
--	/* Map the firmware hub into my address space. */
--	/* Does this use to much virtual address space? */
--	info->window_addr = (unsigned long)ioremap(
--		ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE);
--	if (!info->window_addr) {
--		printk(KERN_ERR "Failed to ioremap\n");
--		goto err_out_free_mmio_region;
--	}
--
--	/* For now assume the firmware has setup all relevant firmware
--	 * windows.  We don't have enough information to handle this case
--	 * intelligently.
--	 */
--
--	/* FIXME select the firmware hub and enable a window to it. */
--
--	info->mtd = NULL;
--	info->map.map_priv_1 = 	info->window_addr;
--
--	map_size = ICH2_FWH_REGION_SIZE;
--	while(!info->mtd && (map_size > 0)) {
--		info->map.size = map_size;
--		info->mtd = do_map_probe("jedec_probe", &ich2rom_map.map);
--		map_size -= 512*1024;
--	}
--	if (!info->mtd) {
--		goto err_out_iounmap;
--	}
--	/* I know I can only be a firmware hub here so put
--	 * in the special lock and unlock routines.
--	 */
--	info->mtd->lock = ich2rom_lock;
--	info->mtd->unlock = ich2rom_unlock;
--		
--	info->mtd->owner = THIS_MODULE;
--	add_mtd_device(info->mtd);
--	return 0;
--
--err_out_iounmap:
--	iounmap((void *)(info->window_addr));
--err_out_free_mmio_region:
--#if RESERVE_MEM_REGION
--	release_mem_region(ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE);
--#endif
--err_out_none:
--	return -ENODEV;
--}
--
--
--static void __devexit ich2rom_remove_one (struct pci_dev *pdev)
--{
--	struct ich2rom_map_info *info = &ich2rom_map;
--	u16 word;
--
--	del_mtd_device(info->mtd);
--	map_destroy(info->mtd);
--	info->mtd = NULL;
--	info->map.map_priv_1 = 0;
--
--	iounmap((void *)(info->window_addr));
--	info->window_addr = 0;
--
--	/* Disable writes through the rom window */
--	pci_read_config_word(pdev, BIOS_CNTL, &word);
--	pci_write_config_word(pdev, BIOS_CNTL, word & ~1);
--
--#if RESERVE_MEM_REGION	
--	release_mem_region(ICH2_FWH_REGION_START, ICH2_FWH_REGION_SIZE);
--#endif
--}
--
--static struct pci_device_id ich2rom_pci_tbl[] = {
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0, 
--	  PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_0, 
--	  PCI_ANY_ID, PCI_ANY_ID, },
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0, 
--	  PCI_ANY_ID, PCI_ANY_ID, },
--	{ 0, },
--};
--
--MODULE_DEVICE_TABLE(pci, ich2rom_pci_tbl);
--
--#if 0
--static struct pci_driver ich2rom_driver = {
--	.name =		"ich2rom",
--	.id_table =	ich2rom_pci_tbl,
--	.probe =	ich2rom_init_one,
--	.remove =	ich2rom_remove_one,
--};
--#endif
--
--static struct pci_dev *mydev;
--int __init init_ich2rom(void)
--{
--	struct pci_dev *pdev;
--	struct pci_device_id *id;
--	pdev = NULL;
--	for(id = ich2rom_pci_tbl; id->vendor; id++) {
--		pdev = pci_find_device(id->vendor, id->device, NULL);
--		if (pdev) {
--			break;
--		}
--	}
--	if (pdev) {
--		mydev = pdev;
--		return ich2rom_init_one(pdev, &ich2rom_pci_tbl[0]);
--	}
--	return -ENXIO;
--#if 0
--	return pci_module_init(&ich2rom_driver);
--#endif
--}
--
--static void __exit cleanup_ich2rom(void)
--{
--	ich2rom_remove_one(mydev);
--}
--
--module_init(init_ich2rom);
--module_exit(cleanup_ich2rom);
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Eric Biederman <ebiederman@lnxi.com>");
--MODULE_DESCRIPTION("MTD map driver for BIOS chips on the ICH2 southbridge");
-
+diff -Nru a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+--- a/arch/i386/kernel/Makefile	2005-02-24 20:01:29.000000000 +0900
++++ b/arch/i386/kernel/Makefile.noedit	2005-02-24 20:03:40.000000000 +0900
+@@ -36,7 +36,7 @@
+ obj-$(CONFIG_X86_CPUID)		+= cpuid.o
+ obj-$(CONFIG_MICROCODE)		+= microcode.o
+ obj-$(CONFIG_APM)		+= apm.o
+-obj-$(CONFIG_ACPI_BOOT)		+= acpi.o earlyquirk.o
++obj-$(CONFIG_ACPI_BOOT)		+= acpi.o
+ obj-$(CONFIG_ACPI_SLEEP)	+= acpi_wakeup.o
+ obj-$(CONFIG_SMP)		+= smp.o smpboot.o trampoline.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o apic.o nmi.o
+ 

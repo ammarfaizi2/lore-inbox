@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbULXVZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbULXWMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbULXVZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 16:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbULXVZ2
+	id S261449AbULXWMs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 17:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbULXWMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 16:25:28 -0500
-Received: from holomorphy.com ([207.189.100.168]:38080 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261453AbULXVZZ (ORCPT
+	Fri, 24 Dec 2004 17:12:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39085 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261449AbULXWMq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 16:25:25 -0500
-Date: Fri, 24 Dec 2004 13:25:13 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, akpm@osdl.org
-Subject: Re: VM fixes [4/4]
-Message-ID: <20041224212513.GV771@holomorphy.com>
-References: <20041224174156.GE13747@dualathlon.random> <20041224100147.32ad4268.davem@davemloft.net> <20041224182219.GH13747@dualathlon.random> <20041224125504.4caa4270.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041224125504.4caa4270.davem@davemloft.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 24 Dec 2004 17:12:46 -0500
+Date: Fri, 24 Dec 2004 17:12:32 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Robert_Hentosh@Dell.com, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+In-Reply-To: <20041224164024.GK4459@dualathlon.random>
+Message-ID: <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0412201013080.13935@chimarrao.boston.redhat.com>
+ <20041220125443.091a911b.akpm@osdl.org> <Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com>
+ <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com>
+ <20041224164024.GK4459@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Dec 2004 19:22:19 +0100 Andrea Arcangeli <andrea@suse.de> wrote:
->> If those old cpus really supported smp in linux, then fixing this bit is
->> trivial, just change it to short. Do they support short at least?
+On Fri, 24 Dec 2004, Andrea Arcangeli wrote:
 
-On Fri, Dec 24, 2004 at 12:55:04PM -0800, David S. Miller wrote:
-> No, they do not.  The smallest atomic unit is one 32-bit word.
-> And yes there are SMP systems using these chips.
+>> I am already running with akpm's total_scanned, my lowering of
+>> the dirty limit for non-highmem capable mappings and my "do not
+>> OOM kill if we had to skip writes due to congestion" patch.
+>
+> Did you apply Con's disable-swap-token leaving the sysctl to the default
+> value after applying that patch?
+>
+> Of course I know if you don't apply Con's fix it will run oom, you don't
+> need a cp for that.
 
-Would systems described as ev56 by /proc/cpuinfo have such chips?
+The process 'dd', and all the other processes, live in
+the highmem zone, which has 2.5GB of memory free. Now
+tell me again why you think the swap token has any
+relevance to those 950MB of pagecache that is filling
+up lowmem ?
 
 
--- wli
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbUC2JFk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 04:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUC2JFj
+	id S262772AbUC2JLn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 04:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUC2JLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 04:05:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:56978 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262770AbUC2JFa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 04:05:30 -0500
-Subject: [PATCH] fix oops at pmac_zilog rmmod'ing
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+	Mon, 29 Mar 2004 04:11:43 -0500
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:5568 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S262772AbUC2JLm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 04:11:42 -0500
+Subject: Re: Kernel / Userspace Data Transfer
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20040329124542.019edd8b.p.mironchik@sam-solutions.net>
+References: <1080528430.40678e2e9eb3a@www.beonline.com.au>
+	 <406799F3.1020508@opersys.com>
+	 <20040329124542.019edd8b.p.mironchik@sam-solutions.net>
 Content-Type: text/plain
-Message-Id: <1080551112.1384.14.camel@gaston>
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1080551378.5830.0.camel@rade7.s.cs.auc.dk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 19:05:12 +1000
+Date: Mon, 29 Mar 2004 11:09:40 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew / Linus, please apply
+On Mon, 2004-03-29 at 11:45, Pavel Mironchik wrote:
+> The best Userspace-kernelspace-Userspace transfer thing is soket.
+> Unix or TCP/UDP sockets API is avaible from kernel space.
+> You should use it...
 
-Ben.
+Do you mean Netlink ?
 
------Forwarded Message-----
-From: Colin Leroy <colin@colino.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix oops at pmac_zilog rmmod'ing
-Date: Mon, 29 Mar 2004 10:51:37 +0200
+Regards
+-- 
+Emmanuel Fleury
 
-Hi,
-
-rmmod'ing pmac_zilog currently oopses because uart_unregister_driver(),
-which nullifies drv->tty_driver, is called before uart_remove_one_port(),
-which uses said drv->tty_driver.
-
-The comment at top of uart_unregister_driver() specifically says we have
-to have removed all our ports
-via uart_remove_one_port() before.
-
-HTH,
-
---- drivers/serial/pmac_zilog.c.orig	2004-03-29 10:41:22.000000000 +0200
-+++ drivers/serial/pmac_zilog.c	2004-03-29 10:42:07.000000000 +0200
-@@ -1875,9 +1875,6 @@
- 	/* Get rid of macio-driver (detach from macio) */
- 	macio_unregister_driver(&pmz_driver);
- 
--	/* Unregister UART driver */
--	uart_unregister_driver(&pmz_uart_reg);
--
- 	for (i = 0; i < pmz_ports_count; i++) {
- 		struct uart_pmac_port *uport = &pmz_ports[i];
- 		if (uport->node != NULL) {
-@@ -1885,6 +1882,8 @@
- 			pmz_dispose_port(uport);
- 		}
- 	}
-+	/* Unregister UART driver */
-+	uart_unregister_driver(&pmz_uart_reg);
- }
- 
- #ifdef CONFIG_SERIAL_PMACZILOG_CONSOLE
-
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
 

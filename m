@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265558AbSKAA7P>; Thu, 31 Oct 2002 19:59:15 -0500
+	id <S265522AbSKABEX>; Thu, 31 Oct 2002 20:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265559AbSKAA7O>; Thu, 31 Oct 2002 19:59:14 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:29715 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265558AbSKAA7O>;
-	Thu, 31 Oct 2002 19:59:14 -0500
-Date: Thu, 31 Oct 2002 17:02:41 -0800
-From: Greg KH <greg@kroah.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: bare pci configuration access functions ?
-Message-ID: <20021101010241.GE12405@kroah.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF69@orsmsx102.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF69@orsmsx102.jf.intel.com>
-User-Agent: Mutt/1.4i
+	id <S265535AbSKABEX>; Thu, 31 Oct 2002 20:04:23 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30192 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265522AbSKABEX>;
+	Thu, 31 Oct 2002 20:04:23 -0500
+Date: Thu, 31 Oct 2002 20:10:49 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mount
+In-Reply-To: <UTC200211010053.gA10rk619405.aeb@smtp.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0210312000420.16688-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wait, first off, are we talking about 2.4, or 2.5 here?  For 2.5 I think
-everything is covered, right?
 
-On Thu, Oct 31, 2002 at 11:29:19AM -0800, Lee, Jung-Ik wrote:
-> Question:
-> ========
-> Will it be desirable to have bare global pci config access functions as seen
-> in i386/ia64 pci codes ? It's clean and needs just what it takes - seg, bus,
-> dev, func, where, value, and size.
 
-No, I do not think so.  I think the way 2.5 does this is the correct
-way.  But as I did that patch, I might be a bit biased :)
+On Fri, 1 Nov 2002 Andries.Brouwer@cwi.nl wrote:
 
-We could just force every arch to export the same functions that i386
-and ia64 does, that shouldn't be a big deal.  I think this would solve
-the problem on 2.4 for pci hotplug, as ACPI is already "cheating" and
-doing this right now...
+> (i) I just tried 2.5.45 - CLONE_NEWNS is indeed wrong,
+> and the indicated patch fixes this. Will submit it to
+> Linus one of these centuries unless you object -
+> assuming that I can convince myself of the correctness.
 
-thanks,
+Proposed fix is, indeed, correct.  I'll feed it to Linus.
+ 
+> (ii) The reason I write is that it will soon be time
+> for util-linux 2.12. Mount still lacked syntax for
+> MS_REC, and a moment ago I made it --rbind
+> (for MS_REC|MS_BIND).
+> Please complain if MS_REC should remain undocumented
+> and inaccessible.
 
-greg k-h
+No problem with me.  While we are at it, mount(8) detection of loop
+is, er, odd:
+        return (loopmajor && stat(device, &statbuf) == 0 &&
+                S_ISBLK(statbuf.st_mode) &&
+                (statbuf.st_rdev>>8) == loopmajor);
+                                ^^^
+Tsk, tsk...  Seriously, switching to major(statbuf.st_rdev) would probably
+be a good idea.
+

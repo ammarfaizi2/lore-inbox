@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316999AbSGCLkT>; Wed, 3 Jul 2002 07:40:19 -0400
+	id <S317003AbSGCL6t>; Wed, 3 Jul 2002 07:58:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317002AbSGCLkS>; Wed, 3 Jul 2002 07:40:18 -0400
-Received: from ws-002.ray.fi ([193.64.14.2]:35632 "EHLO behemoth.ts.ray.fi")
-	by vger.kernel.org with ESMTP id <S316999AbSGCLkR>;
-	Wed, 3 Jul 2002 07:40:17 -0400
-Date: Wed, 3 Jul 2002 14:42:42 +0300 (EEST)
-From: Tommi Kyntola <kynde@ts.ray.fi>
-X-X-Sender: kynde@behemoth.ts.ray.fi
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-rc1: mouse clicks broken in X (atleast)
-Message-ID: <Pine.LNX.4.44.0204161148550.30988-100000@behemoth.ts.ray.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317005AbSGCL6t>; Wed, 3 Jul 2002 07:58:49 -0400
+Received: from gw.uk.sistina.com ([62.172.100.98]:45577 "EHLO
+	gw.uk.sistina.com") by vger.kernel.org with ESMTP
+	id <S317003AbSGCL6s>; Wed, 3 Jul 2002 07:58:48 -0400
+Date: Wed, 3 Jul 2002 13:01:24 +0100
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [linux-lvm] LVM2 modifies the buffer_head struct?
+Message-ID: <20020703120124.GB615@fib011235813.fsnet.co.uk>
+References: <F19741gcljD2E2044cY00004523@hotmail.com> <20020702141702.GA9769@fib011235813.fsnet.co.uk> <20020703100838.GH14097@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020703100838.GH14097@suse.de>
+User-Agent: Mutt/1.3.28i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 03, 2002 at 12:08:38PM +0200, Jens Axboe wrote:
+> On Tue, Jul 02 2002, Joe Thornber wrote:
+> > Tom,
+> > 
+> > On Tue, Jul 02, 2002 at 09:40:56AM -0400, Tom Walcott wrote:
+> > > Hello,
+> > > 
+> > > Browsing the patch submitted for 2.4 inclusion, I noticed that LVM2 
+> > > modifies the buffer_head struct. Why does LVM2 require the addition of it's 
+> > > own private field in the buffer_head? It seems that it should be able to 
+> > > use the existing b_private field.
+> > 
+> > This is a horrible hack to get around the fact that ext3 uses the
+> > b_private field for its own purposes after the buffer_head has been
+> > handed to the block layer (it doesn't just use b_private when in the
+> > b_end_io function).  Is this acceptable behaviour ?  Other filesystems
+> > do not have similar problems as far as I know.
+> > 
+> > device-mapper uses the b_private field to 'hook' the buffer_heads so
+> > it can keep track of in flight ios (essential for implementing
+> > suspend/resume correctly).  See dm.c:dec_pending()
+> 
+> Your driver is required to properly stack b_private uses, however if
+> ext3 (well jbd really) over writes b_private after bh i/o submission I
+> would say that it is broken.
 
-Not sure wether this has already been reported in some
-other thread or if it's a known issue, but I'm
-experienceing some really weird mouse behaviour in X
-with the 2.4.19-rc1. 
+AFAIK ext3 doesn't overwrite b_private after submission, but does
+expect the value not to change (ie. no stacking to be taking place).
 
-This is a new issue since nothing similar has not occured
-with any 19-preX or 19-preX-acX patches.
-
-With weird behaviour I mean mouse clicks dont pass through
-to wm as single clicks (apparently as occasional double clicks).
-I'm not going to look into this any further right now as I'm 
-hoping that the person behind changes can sort it out even
-with this minimal information. Movement seems normal though.
-
-If more information or research regarding the problem
-is needed/hoped-for, please just ask. For now I'll just
-stick to pre10-ac2
-
--- 
-Tommi Kynde Kyntola		kynde@ts.ray.fi
-      "A man alone in the forest talking to himself and
-       no women around to hear him. Is he still wrong?"
-
-
-
-
-
-
+- Joe

@@ -1,31 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263382AbTDCN0F>; Thu, 3 Apr 2003 08:26:05 -0500
+	id <S263393AbTDCNcN>; Thu, 3 Apr 2003 08:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263385AbTDCN0F>; Thu, 3 Apr 2003 08:26:05 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:29707 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S263382AbTDCN0D>;
-	Thu, 3 Apr 2003 08:26:03 -0500
-Date: Thu, 3 Apr 2003 15:37:25 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Joel.Becker@oracle.com,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-Message-ID: <20030403133725.GA14027@win.tue.nl>
-References: <200303311541.50200.pbadari@us.ibm.com> <Pine.LNX.4.44.0304021413210.12110-100000@serv> <200304020931.38671.pbadari@us.ibm.com> <Pine.LNX.4.44.0304031256550.5042-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304031256550.5042-100000@serv>
-User-Agent: Mutt/1.3.25i
+	id <S263394AbTDCNcN>; Thu, 3 Apr 2003 08:32:13 -0500
+Received: from [80.93.79.213] ([80.93.79.213]:36624 "EHLO
+	nt-smtp-relay0.seat.it") by vger.kernel.org with ESMTP
+	id <S263393AbTDCNcK>; Thu, 3 Apr 2003 08:32:10 -0500
+Message-ID: <3E8C3646.3010906@seat.it>
+Date: Thu, 03 Apr 2003 15:25:26 +0200
+From: Paolo Zeppegno <zeppegno.paolo@seat.it>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [rfc][patch] Memory Binding Take 2 (1/1)
+References: <Pine.LNX.4.44.0304031317290.1718-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0304031317290.1718-100000@localhost.localdomain>
+X-MIMETrack: Itemize by SMTP Server on domino1/Seat/IT(Versione 5.0.5 |Ottobre 31, 2000) at
+ 03/04/2003 03.28.28 PM,
+	Serialize by Router on nt-smtp-relay0/Seat/IT(Release 5.0.8 |June 18, 2001) at
+ 03/04/2003 15.41.01,
+	Serialize complete at 03/04/2003 15.41.01
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 03, 2003 at 02:13:29PM +0200, Roman Zippel wrote:
+I suggested mbind for consistency with mmap, munmap, mremap and msync, 
+that is IFF the mbind operation is in some ways related with these other 
+syscalls.
 
-> I am really interested why nobody wants to do now
-> that small deciding step to use dynamic dev_t numbers.
 
-Because we first want to have the numbers before using them?
+Hugh Dickins wrote:
+
+>On Wed, 2 Apr 2003, Matthew Dobson wrote:
+>+/*
+>+ * membind -  Bind a range of a process' VM space to a set of memory blocks according to
+>
+>membind or mbind?  Me, I like mbind (modulo remarks below), but you may
+>find Linus does not (he was rather caustic when I suggested that fremap
+>should be mseek, and it ended up as remap_file_pages instead).
+>
+>+ *            a predefined policy.
+>+ * @start:    beginning address of memory region to bind
+>+ * @len:      length of memory region to bind
+>
+>Oh really? len is unused in the code below.  If you were to use it,
+>you'd need to loop over vmas, splitting where necessary.
+>
+>+ * @mask_ptr: pointer to bitmask of cpus
+>+ * @mask_len: length of the bitmask
+>+ * @policy:   flag specifying the policy to use for the segment
+>
+>I think you already remarked that policy is currently unused,
+>fair enough.
+>
+>+ */
+>+asmlinkage unsigned long sys_mbind(unsigned long start, unsigned long len, 
+>+		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
+>+{
+>+	DECLARE_BITMAP(cpu_mask, NR_CPUS);
+>+	DECLARE_BITMAP(node_mask, MAX_NUMNODES);
+>+	struct vm_area_struct *vma = NULL;
+>+	struct address_space *mapping;
+>+	int copy_len, error = 0;
+>+
+>+	/* Deal with getting cpu_mask from userspace & translating to node_mask */
+>+	copy_len = min(mask_len, (unsigned int)NR_CPUS);
+>+	CLEAR_BITMAP(cpu_mask, NR_CPUS);
+>+	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
+>+	if (copy_from_user(cpu_mask, mask_ptr, (copy_len+7)/8)) {
+>+		error = -EFAULT;
+>+		goto out;
+>+	}
+>
+>Shouldn't there be some capability restriction?  Is it right that
+>anyone who can mmap a file for reading can determine its binding
+>(until the next does it differently)?
+>
+>+	cpumask_to_nodemask(cpu_mask, node_mask);
+>+
+>+	vma = find_vma(current->mm, start);
+>
+>You must not scan the vma list without at least
+>down_read(&current->mm->mmap_sem).
+>
+>+	if (!(vma && vma->vm_file && vma->vm_ops && 
+>+		vma->vm_ops->nopage == shmem_nopage)) {
+>+		/* This isn't a shm segment.  For now, we bail. */
+>
+>So you're allowing this on any file on tmpfs,
+>but on no file on any other filesystem: curious.
+>
+>+		error = -EINVAL;
+>+		goto out;
+>+	}
+>+
+>+	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
+>+	mapping->binding = alloc_binding(node_mask);
+>
+>Your NUMA machines clearly have more memory than is good for you:
+>nowhere is there an equivalent free_binding: which in particular
+>would need to be called first here if binding is already set (or
+>else old structure reused), and when inode is freed.
+>
+>So... mapping->binding conditions every page_cache_alloc for that
+>inode.  Hmm, what on earth does this have to do with mbind or membind?
+>It looks to me like fbind, except that you've dressed up the interface
+>to use an address in the caller's address space: presumably because you
+>couldn't get a file handle on SysV shared memory, and that's what you
+>were really wanting to bind, hence the shmem_nopage test?
+>
+>I think this interface is confused (but it probably thinks I am).
+>
+>+	if (!mapping->binding)
+>+		error = -EFAULT;
+>+
+>+out:
+>+	return error;
+>+}
+>diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/mm/swap_state.c linux-2.5.66-membind/mm/swap_state.c
+>--- linux-2.5.66-pre_membind/mm/swap_state.c	Mon Mar 24 14:00:21 2003
+>+++ linux-2.5.66-membind/mm/swap_state.c	Tue Apr  1 17:12:00 2003
+>@@ -47,6 +47,9 @@
+> 	.i_shared_sem	= __MUTEX_INITIALIZER(swapper_space.i_shared_sem),
+> 	.private_lock	= SPIN_LOCK_UNLOCKED,
+> 	.private_list	= LIST_HEAD_INIT(swapper_space.private_list),
+>+#ifdef CONFIG_NUMA
+>+	.binding	= NULL,
+>+#endif
+> };
+> 
+> #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
+>
+>Please leave swap_state.c out of it: this patch does nothing but add
+>an ugly #ifdef to initialize something to 0 which would be 0 anyway.
+>
+>Hugh
+>
+>  
+>
+
 

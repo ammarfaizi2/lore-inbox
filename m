@@ -1,97 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUA0VcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 16:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUA0VcY
+	id S265764AbUA0Vbm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 16:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUA0Vbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 16:32:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46241 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265772AbUA0VcP (ORCPT
+	Tue, 27 Jan 2004 16:31:42 -0500
+Received: from server19.glai.de ([80.239.154.135]:28053 "EHLO server19.glai.de")
+	by vger.kernel.org with ESMTP id S265764AbUA0Vbe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 16:32:15 -0500
-Date: Tue, 27 Jan 2004 13:33:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: moilanen@austin.ibm.com, johnrose@austin.ibm.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH][2.6] PCI Scan all functions
-Message-Id: <20040127133314.0ddf00cd.akpm@osdl.org>
-In-Reply-To: <20040127211253.GA27583@kroah.com>
-References: <1075222501.1030.45.camel@magik>
-	<20040127211253.GA27583@kroah.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 27 Jan 2004 16:31:34 -0500
+Date: Tue, 27 Jan 2004 22:30:26 +0100
+From: markus reichelt <mr@lists.notified.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1 "clock preempt"?
+Message-ID: <20040127213026.GA1315@lists.notified.de>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1074800554.21658.68.camel@cog.beaverton.ibm.com> <20040122195026.GA579@h00a0cca1a6cf.ne.client2.attbi.com> <1074801242.21658.71.camel@cog.beaverton.ibm.com> <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com> <1074806504.21658.76.camel@cog.beaverton.ibm.com> <20040123190205.GA477@h00a0cca1a6cf.ne.client2.attbi.com> <1074885449.12446.27.camel@localhost> <20040123193635.GA492@h00a0cca1a6cf.ne.client2.attbi.com> <1074888405.12447.41.camel@localhost> <20040123203835.GA518@h00a0cca1a6cf.ne.client2.attbi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+In-Reply-To: <20040123203835.GA518@h00a0cca1a6cf.ne.client2.attbi.com>
+Organization: still stuck in reorganization mode
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> On Tue, Jan 27, 2004 at 10:55:01AM -0600, Jake Moilanen wrote:
-> > There are some arch, like PPC64, that need to be able to scan all the
-> > PCI functions.  The problem comes in on a logically partitioned system
-> > where function 0 on a PCI-PCI bridge is assigned to one partition and
-> > say function 2 is assiged to another partition.  On the second
-> > partition, it would appear that function 0 does not exist, but function
-> > 2 does.  If all the functions are not scanned, everything under function
-> > 2 would not be detected.
-> 
-> Heh, I think the PPC64 people need to get together and all talk about
-> this, as I just got a different patch, that solves much the same problem
-> from John Rose (it's on the linuxppc64 mailing list.)
-> 
-> Can you two get together and not patch the same section of code to do
-> the same thing in different ways?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-While we're on the topic, what's with the below patch?  I've had it in -mm
-for ages but apparently there's some disagreement over it.
+timothy parkinson <t@timothyparkinson.com> wrote:
+> * Running with SpeedStep (this is a cpu thing i assume?) could cause this.
+> * Not having DMA enabled on your hard disk(s) could cause this.  See the hdparm
+>   utility to enable it.
+> * Incorrect TSC synchronization on SMP systems could cause this.
+> * Anything else?
 
+Yepp:
 
+Jan 27 20:12:12 tatooine kernel: Losing too many ticks!
 
-From: Anton Blanchard <anton@samba.org>
+I had to set "CONFIG_IDE_TASK_IOCTL=y" in my .config in order to get
+it working.
 
-We have IO BARs on ppc64 machines that begin at address 0. The current
-pci probe code will ignore anything that starts at 0. Remove these checks.
+- -- 
+Bastard Administrator in $hell
+GPG-Key at http://lists.notified.de/
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-
----
-
- drivers/pci/probe.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff -puN drivers/pci/probe.c~ppc64-bar-0-fix drivers/pci/probe.c
---- 25/drivers/pci/probe.c~ppc64-bar-0-fix	2004-01-13 23:23:18.000000000 -0800
-+++ 25-akpm/drivers/pci/probe.c	2004-01-13 23:23:18.000000000 -0800
-@@ -176,7 +176,7 @@ void __devinit pci_read_bridge_bases(str
- 		limit |= (io_limit_hi << 16);
- 	}
- 
--	if (base && base <= limit) {
-+	if (base <= limit) {
- 		res->flags = (io_base_lo & PCI_IO_RANGE_TYPE_MASK) | IORESOURCE_IO;
- 		res->start = base;
- 		res->end = limit + 0xfff;
-@@ -187,7 +187,7 @@ void __devinit pci_read_bridge_bases(str
- 	pci_read_config_word(dev, PCI_MEMORY_LIMIT, &mem_limit_lo);
- 	base = (mem_base_lo & PCI_MEMORY_RANGE_MASK) << 16;
- 	limit = (mem_limit_lo & PCI_MEMORY_RANGE_MASK) << 16;
--	if (base && base <= limit) {
-+	if (base <= limit) {
- 		res->flags = (mem_base_lo & PCI_MEMORY_RANGE_TYPE_MASK) | IORESOURCE_MEM;
- 		res->start = base;
- 		res->end = limit + 0xfffff;
-@@ -213,7 +213,7 @@ void __devinit pci_read_bridge_bases(str
- 		}
- #endif
- 	}
--	if (base && base <= limit) {
-+	if (base <= limit) {
- 		res->flags = (mem_base_lo & PCI_MEMORY_RANGE_TYPE_MASK) | IORESOURCE_MEM | IORESOURCE_PREFETCH;
- 		res->start = base;
- 		res->end = limit + 0xfffff;
-
-_
-
+iD8DBQFAFthyLMyTO8Kj/uQRAojoAJ9ZIdhKEij8DW/QdkO1ZG9ksi1hqwCeMGQA
+jjROcxpIDSJgirm931LKl0c=
+=v37i
+-----END PGP SIGNATURE-----

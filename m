@@ -1,68 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbUDEVoo (ORCPT <rfc822;willy@w.ods.org>);
+	id S263334AbUDEVoo (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 5 Apr 2004 17:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbUDEVnQ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbUDEVnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:43:16 -0400
-Received: from web40506.mail.yahoo.com ([66.218.78.123]:39568 "HELO
-	web40506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263280AbUDEVkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:40:08 -0400
-Message-ID: <20040405214007.68717.qmail@web40506.mail.yahoo.com>
-Date: Mon, 5 Apr 2004 14:40:07 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge
-To: Chris Wright <chrisw@osdl.org>
-Cc: John Stoffel <stoffel@lucent.com>, Timothy Miller <miller@techsource.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040405140810.C22989@build.pdx.osdl.net>
+	Mon, 5 Apr 2004 17:43:04 -0400
+Received: from smtp-hub.mrf.mail.rcn.net ([207.172.4.107]:21417 "EHLO
+	smtp-hub.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S263301AbUDEVje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 17:39:34 -0400
+Message-ID: <4071D210.2070309@lycos.com>
+Date: Mon, 05 Apr 2004 17:39:28 -0400
+From: James Vega <vega_james@lycos.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: fat32 all upper-case filename problem
+References: <4070910E.7020808@lycos.com> <87k70utw5n.fsf@devron.myhome.or.jp> <4071B70E.3090400@lycos.com>
+In-Reply-To: <4071B70E.3090400@lycos.com>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig69166E1420B2C36ECD5219C0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig69166E1420B2C36ECD5219C0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---- Chris Wright <chrisw@osdl.org> wrote:
-> * Sergiy Lozovsky (serge_lozovsky@yahoo.com) wrote:
-> > No :-) What you suggest is kernel should receive
-> > system call from user space. Instead of handling
-> it -
-> > kernel should forward it back to userspace, than
-> it
-> > should be forwarded back to the kernel. Looks not
-> very
-> > nice to me. Why not to handle security policy
-> inside
-> > the kernel as it is done for the file permissions
-> and
-> > root priveleges?
+James Vega wrote:
+> OGAWA Hirofumi wrote:
+>  > Are you using the "iocharset=utf8" or CONFIG_NLS_DEFAULT="utf8"?
 > 
-> All this can be done w/out having a LISP
-> interpretter coming along for the
-> ride, that's the point of the other posters.  With
-> LSM you have a
-> framework for implementing your own security model
-> and enforcing your own
-> policies.
+>> If so, it's buggy.
+>>
+>> Please don't use it for now.
+> 
+> 
+> I am using CONFIG_NLS_DEFAULT="utf8". I'll see if I get the same results 
+> that changed back to iso8859-1.
 
-LSM use another way of doing similar things :-) I'm
-not sure that it is nice to forward system calls back
-to userspace where they came from in the first place
-:-) VXE use high level language to create security
-models.
+Now I am able to ls both 'case' and 'CASE' even though an ls of the directory 
+shows 'case'.  Thanks.
 
-And what are the problems with technology used by VXE?
-File permissions are checked in the kernel and
-everybody are happy with that. VXE just extends
-security features already available in the kernel.
+--------------enig69166E1420B2C36ECD5219C0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-There is a historic part to all that, too - VXE was
-created (1999) before SELinux was available.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Serge.
+iEYEARECAAYFAkBx0hUACgkQDb3UpmEybUCaYQCghMQ8N/GPpcDSvqiDVKbsmWat
+rocAoJK5Vpwv+ZRvWAuhajIIj/Zq57uF
+=jBPQ
+-----END PGP SIGNATURE-----
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+--------------enig69166E1420B2C36ECD5219C0--

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135174AbRDLUTe>; Thu, 12 Apr 2001 16:19:34 -0400
+	id <S135211AbRDLUVo>; Thu, 12 Apr 2001 16:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135195AbRDLUTY>; Thu, 12 Apr 2001 16:19:24 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56335 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135174AbRDLUTO>;
-	Thu, 12 Apr 2001 16:19:14 -0400
-Date: Thu, 12 Apr 2001 17:18:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: scheduler went mad?
-In-Reply-To: <Pine.LNX.4.30.0104122145520.19377-100000@fs131-224.f-secure.com>
-Message-ID: <Pine.LNX.4.21.0104121632330.18260-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S135214AbRDLUVZ>; Thu, 12 Apr 2001 16:21:25 -0400
+Received: from denise.shiny.it ([194.20.232.1]:24027 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S135211AbRDLUVS>;
+	Thu, 12 Apr 2001 16:21:18 -0400
+Message-ID: <3AD60B74.87A9C6D0@denise.shiny.it>
+Date: Thu, 12 Apr 2001 22:09:24 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: new aic7xxx driver problems
+In-Reply-To: <200104101505.f3AF5bs31859@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, Szabolcs Szakacsits wrote:
 
-> You mean without dropping out_of_memory() test in kswapd and calling
-> oom_kill() in page fault [i.e. without additional patch]?
+> >I have two Adaptec 2930CU (ultra narrow) cards. I modified the driver to
+> >make them work in ultra mode.
+>
+> Can you elaborate on what you had to modify ?
 
-No.  I think it's ok for __alloc_pages() to call oom_kill()
-IF we turn out to be out of memory, but that should not even
-be needed.
+I just added AHC_ULTRA to the features of 7850
 
-Also, when a task in __alloc_pages() is OOM-killed, it will
-have PF_MEMALLOC set and will immediately break out of the
-loop. The rest of the system will spin around in the loop
-until the victim has exited and then their allocations will
-succeed.
+AHC_AIC7850_FE	= AHC_SPIOCAP|AHC_AUTOPAUSE|AHC_TARGETMODE|AHC_ULTRA,
+                                                          ^^^^^^^^^^
 
-regards,
+> >Apr  3 23:05:10 Jay kernel: scsi1:0:4:0: Attempting to queue an ABORT message
+>
+> Please run your system with aic7xxx=verbose and send me the resulting
+> messages.  You should also upgrade to v6.1.11 of the driver.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Plain v6.1.11 hangs. It prints scsi0: blah blah scsi1: sdfdfgsg, I hear the cd
+spinning up and nothing more. The system doesn't crash completely because the
+cursor don't stop blinking (I don't use a hw cursor). I think it's just
+waiting
+something will never arrive.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+(ppc750)
+
+Bye.
+
 

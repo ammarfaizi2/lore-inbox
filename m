@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318428AbSH0VFF>; Tue, 27 Aug 2002 17:05:05 -0400
+	id <S317215AbSH0VOs>; Tue, 27 Aug 2002 17:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318389AbSH0VEb>; Tue, 27 Aug 2002 17:04:31 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:18560 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318376AbSH0VDQ>;
-	Tue, 27 Aug 2002 17:03:16 -0400
-Date: Tue, 27 Aug 2002 15:23:04 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Peter Chubb <peter@chubb.wattle.id.au>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Large block device patch, part 1 of 9
-Message-ID: <20020827152303.L35@toy.ucw.cz>
-References: <15717.52317.654149.636236@wombat.chubb.wattle.id.au> <20020823070759.GS19435@clusterfs.com>
+	id <S317253AbSH0VOr>; Tue, 27 Aug 2002 17:14:47 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:17784 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S317215AbSH0VOp>; Tue, 27 Aug 2002 17:14:45 -0400
+Date: Tue, 27 Aug 2002 23:18:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Matthew Dobson <colpatch@us.ibm.com>, Andrew Morton <akpm@zip.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Martin Bligh <mjbligh@us.ibm.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [patch] SImple Topology API v0.3 (1/2)
+Message-ID: <20020827211814.GU25092@dualathlon.random>
+References: <3D6537D3.3080905@us.ibm.com> <20020827143115.B39@toy.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020823070759.GS19435@clusterfs.com>; from adilger@clusterfs.com on Fri, Aug 23, 2002 at 01:07:59AM -0600
+Content-Disposition: inline
+In-Reply-To: <20020827143115.B39@toy.ucw.cz>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Then the following works properly without ugly casts or warnings:
+On Tue, Aug 27, 2002 at 02:31:16PM +0000, Pavel Machek wrote:
+> Hi!
 > 
-> 	__u64 val = 1;
+> > Andrew, Linus, et al:
+> > 	Here's the latest version of the Simple Topology API.  I've broken the patches 
+> > into a solely in-kernel portion, and a portion that exposes the API to 
+> > userspace via syscalls and prctl.  This patch (part 1) is the in-kernel part. 
+> > I hope that the smaller versions of these patches will draw more feedback, 
+> > comments, flames, etc.  Other than that, the patch remains relatively unchanged 
+> > from the last posting.
 > 
-> 	printk("at least "PFU64" of your u64s are belong to us\n", val);
+> > -   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+> > +   bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
+> 
+> Why not simply CONFIG_NUMA?
 
-Casts are ugly but this looks even worse. I'd go for casts.
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+that is just used by the common code, it fits well for that usage and it
+has different semantics.
 
+Andrea

@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbRAaK0m>; Wed, 31 Jan 2001 05:26:42 -0500
+	id <S129735AbRAaK1M>; Wed, 31 Jan 2001 05:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129735AbRAaK0d>; Wed, 31 Jan 2001 05:26:33 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:5386 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129485AbRAaK0W>; Wed, 31 Jan 2001 05:26:22 -0500
-Date: Wed, 31 Jan 2001 04:26:17 -0600
-To: Tom Leete <tleete@mountain.net>
-Cc: David Ford <david@linux.com>, Stephen Frost <sfrost@snowman.net>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-Message-ID: <20010131042616.A32636@cadcamlab.org>
-In-Reply-To: <3A777E1A.8F124207@linux.com> <20010130220148.Y26953@ns> <3A77966E.444B1160@linux.com> <3A77C6E7.606DDA67@mountain.net>
-Mime-Version: 1.0
+	id <S130075AbRAaK1E>; Wed, 31 Jan 2001 05:27:04 -0500
+Received: from colorfullife.com ([216.156.138.34]:19726 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129735AbRAaK04>;
+	Wed, 31 Jan 2001 05:26:56 -0500
+Message-ID: <3A77E875.515B87C4@colorfullife.com>
+Date: Wed, 31 Jan 2001 11:27:01 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: neufeld@linuxcare.com, linux-kernel@vger.kernel.org
+Subject: Re: Request: increase in PCI bus limit
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A77C6E7.606DDA67@mountain.net>; from tleete@mountain.net on Wed, Jan 31, 2001 at 03:03:51AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+>    I'm working at a customer site with custom hardware. The 2.4.0 series 
+> kernel almost works out of the box, but the machine has 52 PCI busses. 
+> Plans are to produce a 4-way box which would have over 80 PCI busses. The 
+> file include/asm-i386/mpspec.h allocates space for 32 busses in the 
+> definition of the macro MAX_MP_BUSSES. 
+>
 
-[Tom Leete]
-> It's not an incompatibility with the k7 chip, just bad code in
-> include/asm-i386/string.h.
+How long is the MP structure?
+smp_scan_config() reserves only 4 kB:
 
-So you're saying SMP *is* supported on Athlon?  Do motherboards exist?
+	reserve_bootmem(mpf->mpf_physptr, PAGE_SIZE);
 
-Peter
+reserving the actual size (mpf->mpf_physptr->mpc_length) could be
+tricky.
+
+It should be possible to dynamically allocate the memory for the busses:
+It's not yet possible (smp_read_mpc() is called at a very early stage,
+before kmalloc is initialized), but we must move it to a later stage
+anyway:
+some Compaq bios version need ioremap() in smp_read_mpc(), and we should
+parse the ACPI tables for APIC descriptors (MADT, ia64 does that
+already).
+
+I'll add it to my TODO list.
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

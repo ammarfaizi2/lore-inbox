@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbTLWToT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 14:44:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTLWToT
+	id S262655AbTLWTiM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 14:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTLWTiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 14:44:19 -0500
-Received: from [200.55.45.230] ([200.55.45.230]:64667 "EHLO smtp.bensa.ar")
-	by vger.kernel.org with ESMTP id S262750AbTLWToM (ORCPT
+	Tue, 23 Dec 2003 14:38:12 -0500
+Received: from codepoet.org ([166.70.99.138]:61583 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S262655AbTLWTiJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 14:44:12 -0500
-From: Norberto Bensa <nbensa@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Date: Tue, 23 Dec 2003 14:36:27 -0300
-User-Agent: KMail/1.5.4
-References: <20031223151622.26d0bf10.dublinux@box.it> <20031223145426.GR1343@mea-ext.zmailer.org>
-In-Reply-To: <20031223145426.GR1343@mea-ext.zmailer.org>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_e0H6/5nxK18ZMBG";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312231436.30097.nbensa@gmx.net>
+	Tue, 23 Dec 2003 14:38:09 -0500
+Date: Tue, 23 Dec 2003 12:38:06 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: xan2@ono.com, linux-kernel@vger.kernel.org
+Subject: Re: [License of kernel components] linux-2.x.y/Documentation/logo.GIF should be logo.PNG?
+Message-ID: <20031223193806.GA5864@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Gene Heskett <gene.heskett@verizon.net>, xan2@ono.com,
+	linux-kernel@vger.kernel.org
+References: <178ed117d672.17d672178ed1@ono.com> <200312231207.53580.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312231207.53580.gene.heskett@verizon.net>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue Dec 23, 2003 at 12:07:53PM -0500, Gene Heskett wrote:
+> I don't think GIF was ever "proprietary", but the l-z-w compression 
+> used was patented.  The patent expired earlier this year.  So gif is 
+> back.
 
---Boundary-02=_e0H6/5nxK18ZMBG
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+The U.S. LZW patent expired June 20, 2003.  The Canadian LZW
+patent expiref July 7, 2004.  The LZW patents in the United
+Kingdom, France, Germany and Italy however are still active, and
+will expire June 18, 2004.  The Japanese LZW patent will expire
+on June 20, 2004. 
 
-Matti Aarnio wrote:
-> Folks, I don't understand you...
-> In EVERY list posting there are explicite instructions
-> of how to unsubscribe, and STILL people do it wrong...
+I vote for keeping the status quo for another 4 months....
 
-People doesn't read.
+ -Erik
 
-Regards,
-Norberto
-
-=2D-=20
-Linux 2.6.0-mm1 Pentium III (Coppermine) GenuineIntel GNU/Linux
- 14:35:46 up 39 min,  1 user,  load average: 0.34, 0.18, 0.13
-
---Boundary-02=_e0H6/5nxK18ZMBG
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/6H0eFXVF50lmS74RAmGOAJ9R52m0hUfnB6ZTjr78/eQddzLd3QCfSLfd
-7IFgl+TrffdUwJ/nObHqjnA=
-=jtuP
------END PGP SIGNATURE-----
-
---Boundary-02=_e0H6/5nxK18ZMBG--
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

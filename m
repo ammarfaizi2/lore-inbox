@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268582AbUI2O5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUI2PBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268582AbUI2O5m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUI2Oyk
+	id S268490AbUI2PBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 11:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268592AbUI2O54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:54:40 -0400
-Received: from colossus.systems.pipex.net ([62.241.160.73]:29605 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S268502AbUI2O1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:27:17 -0400
-Message-ID: <415AC640.3090407@tungstengraphics.com>
-Date: Wed, 29 Sep 2004 15:27:12 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
-X-Accept-Language: en-us, en
+	Wed, 29 Sep 2004 10:57:56 -0400
+Received: from p5089E8E5.dip.t-dialin.net ([80.137.232.229]:3076 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S268490AbUI2O5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:57:09 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Dave Airlie <airlied@gmail.com>
+Subject: Re: 2.6.9-rc2-mm4 drm and XFree oopses
+Date: Wed, 29 Sep 2004 16:57:06 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040929102840.GA11325@none> <200409291517.58750.petkov@uni-muenster.de> <21d7e9970409290649520a882c@mail.gmail.com>
+In-Reply-To: <21d7e9970409290649520a882c@mail.gmail.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Discuss issues related to the xorg tree <xorg@freedesktop.org>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: New DRM driver model - gets rid of DRM() macros!
-References: <9e4733910409280854651581e2@mail.gmail.com> <20040929133759.A11891@infradead.org> <415AB8B4.4090408@tungstengraphics.com> <20040929143129.A12651@infradead.org> <415ABA34.9080608@tungstengraphics.com> <415AC2B3.6070900@tungstengraphics.com> <20040929151601.A13135@infradead.org>
-In-Reply-To: <20040929151601.A13135@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409291657.06174.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Wed, Sep 29, 2004 at 03:12:03PM +0100, Keith Whitwell wrote:
-> 
->>Thinking about it, it may not have been a problem of crashing, but rather that 
->>  the behaviour visible from a program attempting to read (or poll) was 
->>different with noop versions of these functions to NULL versions, and that was 
->>causing problems.  This is 18 months ago, so yes, I'm being vague.
->>
->>The X server does look at this file descriptor, which is where the problem 
->>would have arisen, but only the gamma & maybe ffb drivers do anything with it.
-> 
-> 
-> Indeed, for read you're returning 0 now instead of the -EINVAL from common
-> code when no ->read is present.  I'd say the current drm behaviour is a bug,
-> but if X drivers rely on it.
+On Wednesday 29 September 2004 15:49, Dave Airlie wrote:
+> > do you mean the CONFIG_AGP_INTEL option? Because my chipset is ICH4 and
+> > the help text for that option doesn't mention support for ICH4 chipsets.
+>
+> you have an i845 GMCH, so you need intel AGP support, the ICH4 is the
+> other chip if I remember my Intel chipsets correctly...
+>
+> Dave.
+Hmm,
+compiled as you said, here's what i get now (pretty much the same oops):
 
-I'd agree, but it's a widely distributed bug.  I guess we can fix it in the X 
-server, but even better would be to rip out the code as it's fundamentally 
-misguided, based on a wierd idea that the kernel would somehow ask the X 
-server to perform a context switch between two userspace clients...
-
-Keith
+Sep 29 16:51:08 zmei kernel: agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+Sep 29 16:51:08 zmei kernel: agpgart: Putting AGP V2 device at 0000:00:00.0 into 1x mode
+Sep 29 16:51:08 zmei kernel: agpgart: Putting AGP V2 device at 0000:01:00.0 into 1x mode
+Sep 29 16:51:08 zmei kernel: [drm] Loading R200 Microcode
+Sep 29 16:51:09 zmei kernel: using smp_processor_id() in preemptible code: XFree86/2809
+Sep 29 16:51:09 zmei kernel:  [dump_stack+23/27] dump_stack+0x17/0x1b
+Sep 29 16:51:09 zmei kernel:  [smp_processor_id+146/152] smp_processor_id+0x92/0x98
+Sep 29 16:51:09 zmei kernel:  [add_timer_randomness+274/313] add_timer_randomness+0x112/0x139
+Sep 29 16:51:09 zmei kernel:  [input_event+72/940] input_event+0x48/0x3ac
+Sep 29 16:51:09 zmei kernel:  [kbd_rate+76/156] kbd_rate+0x4c/0x9c
+Sep 29 16:51:09 zmei kernel:  [vt_ioctl+3430/6535] vt_ioctl+0xd66/0x1987
+Sep 29 16:51:09 zmei kernel:  [tty_ioctl+874/1075] tty_ioctl+0x36a/0x433
+Sep 29 16:51:09 zmei kernel:  [sys_ioctl+196/511] sys_ioctl+0xc4/0x1ff
+Sep 29 16:51:09 zmei kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Sep 29 16:51:09 zmei kernel: using smp_processor_id() in preemptible code: XFree86/2809
+Sep 29 16:51:09 zmei kernel:  [dump_stack+23/27] dump_stack+0x17/0x1b
+Sep 29 16:51:09 zmei kernel:  [smp_processor_id+146/152] smp_processor_id+0x92/0x98
+Sep 29 16:51:09 zmei kernel:  [add_timer_randomness+274/313] add_timer_randomness+0x112/0x139
+Sep 29 16:51:09 zmei kernel:  [input_event+72/940] input_event+0x48/0x3ac
+Sep 29 16:51:09 zmei kernel:  [kbd_rate+103/156] kbd_rate+0x67/0x9c
+Sep 29 16:51:09 zmei kernel:  [vt_ioctl+3430/6535] vt_ioctl+0xd66/0x1987
+Sep 29 16:51:09 zmei kernel:  [tty_ioctl+874/1075] tty_ioctl+0x36a/0x433
+Sep 29 16:51:09 zmei kernel:  [sys_ioctl+196/511] sys_ioctl+0xc4/0x1ff
+Sep 29 16:51:09 zmei kernel:  [syscall_call+7/11] syscall_call+0x7/0xb

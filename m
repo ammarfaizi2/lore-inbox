@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSIAJBE>; Sun, 1 Sep 2002 05:01:04 -0400
+	id <S316594AbSIAJKP>; Sun, 1 Sep 2002 05:10:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSIAJBE>; Sun, 1 Sep 2002 05:01:04 -0400
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:31708 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316586AbSIAJBD>; Sun, 1 Sep 2002 05:01:03 -0400
-Message-ID: <3D71D84B.61C15376@wanadoo.fr>
-Date: Sun, 01 Sep 2002 11:05:15 +0200
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre5 i586)
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [info] 2.4.20-pre5-ac1 still have the DMA problem
+	id <S316595AbSIAJKO>; Sun, 1 Sep 2002 05:10:14 -0400
+Received: from users.linvision.com ([62.58.92.114]:1433 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S316594AbSIAJKO>; Sun, 1 Sep 2002 05:10:14 -0400
+Date: Sun, 1 Sep 2002 11:14:33 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, R.E.Wolff@BitWizard.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: drivers/atm/firestream.c doesn't compile in 2.5.33
+Message-ID: <20020901111433.A23165@bitwizard.nl>
+References: <Pine.NEB.4.44.0209010227250.147-100000@mimas.fachschaften.tu-muenchen.de> <3D716D23.1000101@oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D716D23.1000101@oracle.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aug 31 11:21:07 f5ibh kernel: ALI15X3: chipset revision 193
-Aug 31 11:21:07 f5ibh kernel: ALI15X3: not 100%% native mode: will probe
-irqs later
-Aug 31 11:21:07 f5ibh kernel: ALI15X3: simplex device with no drives:
-DMA disabled
-Aug 31 11:21:07 f5ibh kernel: ide0: ALI15X3 Bus-Master DMA disabled
-(BIOS)
-Aug 31 11:21:07 f5ibh kernel: ALI15X3: simplex device with no drives:
-DMA disabled
-Aug 31 11:21:07 f5ibh kernel: ide1: ALI15X3 Bus-Master DMA disabled
-(BIOS)
+On Sun, Sep 01, 2002 at 03:28:03AM +0200, Alessandro Suardi wrote:
+> Same symptom as the cpia.c (and IrDA, too). Just change
+> 
+> #define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter " 
+> __FUNCTION__ "\n")
+> 
+> to
+> 
+> #define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter %s\n", 
+> __FUNCTION__)
 
---------
-Regards
-	Jean-Luc
+Ehmm. 
+
+I wrote that code, and I made a decision to do it that way. Did
+I use "invalid C" or did the C spec change? 
+
+Or did the __FUNCTION__ extension from gcc change? Someone please
+explain.....
+
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

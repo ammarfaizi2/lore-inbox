@@ -1,57 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264289AbTF0Nsr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 09:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTF0Nsq
+	id S264346AbTF0OIh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbTF0OIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 09:48:46 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33774 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264289AbTF0Nso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 09:48:44 -0400
-Date: Fri, 27 Jun 2003 16:02:53 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kill extra printk prototype
-Message-ID: <20030627140252.GF24661@fs.tum.de>
-References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva> <20030626233117.GO3827@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030626233117.GO3827@werewolf.able.es>
-User-Agent: Mutt/1.4.1i
+	Fri, 27 Jun 2003 10:08:37 -0400
+Received: from web12905.mail.yahoo.com ([216.136.174.72]:48790 "HELO
+	web12905.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264346AbTF0OId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 10:08:33 -0400
+Message-ID: <20030627142247.27868.qmail@web12905.mail.yahoo.com>
+Date: Fri, 27 Jun 2003 16:22:47 +0200 (CEST)
+From: =?iso-8859-1?q?Terje=20F=E5berg?= <terje_fb@yahoo.no>
+Subject: Re: Linux 2.5.73 - keyboard failure, repost no. 3
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030626224517.C5633@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 01:31:17AM +0200, J.A. Magallon wrote:
+Vojtech Pavlik <vojtech@suse.cz> skrev:
+
+> 	#define DEBUG
 > 
-> On 06.27, Marcelo Tosatti wrote:
-> > 
-> > Hello,
-> > 
-> > Here goes -pre2 with a big number of changes, including the new aic7xxx
-> > driver.
-> > 
-> > I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
-> > short.
-> > 
+> in
 > 
-> Alredy declared in kernel.h.
->...
+> 	drivers/input/serio/i8042.c
+> 
+> then recompile and send me the output of that.
 
-It seems this issue is also present in 2.5.73.
+...
+i8042.c: Detected active multiplexing controller, rev
+1.1
+atkbd.c: Sent: f2
+atkbd.c: Recieved fe flags 00
+atkbd.c: Sent: ed
+atkbd.c: Recieved fe flags 00
+serio: i8042 AUX0 port at 0x60,0x64 irq 12
+atkbd.c: Sent: f2
+atkbd.c: Recieved fe flags 00
+atkbd.c: Sent: ed
+atkbd.c: Recieved fe flags 00
+serio: i8042 AUX1 port at 0x60,0x64 irq 12
+atkbd.c: Sent: f2
+atkbd.c: Recieved fa flags 00
+atkbd.c: Recieved 00 flags 00
+serio: i8042 AUX2 port at 0x60,0x64 irq 12
+atkbd.c: Sent: f2
+atkbd.c: Recieved fe flags 00
+atkbd.c: Sent: ed
+atkbd.c: Recieved fe flags 00
+serio: i8042 AUX3 port at 0x60,0x64 irq 12
+atkbd.c: Sent: f2
+atkbd.c: Recieved fa flags 00
+atkbd.c: Recieved ab flags 00
+atkbd.c: Recieved 83 flags 00
+atkbd.c: Sent: ed
+atkbd.c: Recieved fa flags 00
+atkbd.c: Sent: 00
+atkbd.c: Recieved fa flags 00
+atkbd.c: Sent: f8
+atkbd.c: Recieved fe flags 00
+atkbd.c: Sent: f4
+atkbd.c: Recieved fa flags 00
+atkbd.c: Sent: f0
+atkbd.c: Recieved fa flags 00
+atkbd.c: Sent: 02
+atkbd.c: Recieved fa flags 00
+atkbd.c: Sent: f0
+atkbd.c: Recieved fa flags 00
+atkbd.c: Sent: 00
+atkbd.c: Recieved fa flags 00
+atkbd.c: Recieved 02 flags 00
+input: AT Set 2 keyboard on isa006 0/serio0
+serio: i8042 KBD port at 0x60,0x64 irq1
+...
 
-Could you send such cleanup changes for inclusion into 2.5 first?
+Regards,
+Terje
 
-TIA
-Adrian
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+______________________________________________________
+Få den nye Yahoo! Messenger på http://no.messenger.yahoo.com/
+Nye ikoner og bakgrunner, webkamera med superkvalitet og dobbelt så morsom

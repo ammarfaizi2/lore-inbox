@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283003AbSATUSh>; Sun, 20 Jan 2002 15:18:37 -0500
+	id <S285482AbSATUfU>; Sun, 20 Jan 2002 15:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284305AbSATUS2>; Sun, 20 Jan 2002 15:18:28 -0500
-Received: from zero.tech9.net ([209.61.188.187]:3849 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S283003AbSATUSO>;
-	Sun, 20 Jan 2002 15:18:14 -0500
-Subject: Re: Preempt & how long it takes to interrupt (was Re:
-	[2.4.17/18pre] VM and swap - it's really unusable)
-From: Robert Love <rml@tech9.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020118224140.GI6918@elf.ucw.cz>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu>
-	<1010781207.819.27.camel@phantasy> <20020111195018.A2008@hq.fsmlabs.com>
-	<20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there>
-	<3C42CA59.F070C2B8@aitel.hist.no>  <20020118224140.GI6918@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 20 Jan 2002 15:22:16 -0500
-Message-Id: <1011558138.8596.317.camel@phantasy>
+	id <S285369AbSATUfA>; Sun, 20 Jan 2002 15:35:00 -0500
+Received: from isis.telemach.net ([213.143.65.10]:15880 "HELO
+	isis.telemach.net") by vger.kernel.org with SMTP id <S284305AbSATUe7>;
+	Sun, 20 Jan 2002 15:34:59 -0500
+Date: Sun, 20 Jan 2002 21:35:54 +0100
+From: Jure Pecar <pegasus@telemach.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17rc2aa2 oops in page_alloc.c
+Message-Id: <20020120213554.667bd8d2.pegasus@telemach.net>
+In-Reply-To: <20020120190835.H21279@athlon.random>
+In-Reply-To: <20020120182655.301234b4.pegasus@telemach.net>
+	<20020120190835.H21279@athlon.random>
+Organization: Select Technology 
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-01-18 at 17:41, Pavel Machek wrote:
+On Sun, 20 Jan 2002 19:08:35 +0100
+Andrea Arcangeli <andrea@suse.de> wrote:
 
-> So... how long do you have to stay in interrupt for it to be a bug?
+ok, will recompile with this patch.
+
+> the real question is, does it feel slower with 50mbyte in swap? I mean,
+
+can't really say, as there is almost no shell usage to get the true feeling of the box. but judging by the users' feedback it is much better with aa2 than with stock 2.4.17.
+
+> some very very lightweight background activity in the long run should be
+> a very good thing, it should save you some ram on the very long run. of
+> course unless you keep seeing swapin/swapout almost all the time, in
+
+will setup a mrtg script to monitor the amount of swap in use. 
+
+> such a case it would be a big mistake but I don't think it's the case.
+> If after a week you see 50mbyte in swap (and you almost never seen any
+> swapin, and maybe only a few very seldom swapout), that sounds good.
+> Infact it's not even sure that you did any real swapout yet, part of the
+> 50mbyte in swap may only be preallocated.
 > 
-> There's *no* requirement that says "it may not take second to handle
-> an interrupt". Actually I guess that some nasty conditions (UHCI needs
-> reset?) may take that long in interrupt. Oh and actually few releases
-> ago, console switching was done from interrupt and it *did* take 2
-> seconds for me.
+> with -aa if you don't want to see such 50mbyte in swap (even if they
+> seems very sane at first sight, so this is not a suggestion, this is
+> just informational, just if you want to try) you can run:
 > 
-> If someone assumes interrupts are "short", he has broken code already.
+> 	echo 1000 >/proc/sys/vm/vm_mapped_ratio
+> 
+> Andrea
+> 
 
-Agreed.  Conversely, however, writing code that introduces long
-interrupt-off periods should be considered a BUG.
 
-In other words, relying on short interrupt-off periods is bad form, but
-so is writing gross code that rudely keeps them off.
+-- 
 
-I think we all considered the long off periods in VT switching and fbdev
-a bug.
 
-	Robert Love
+Jure Pecar
+
+
+Unfortunatly, SMTP email is anything but a small set of problems.  Quite the opposite: it's a tarpit of bureaucratic standards committees, arrogant implementors, impatient administrators and whiny end-users.
 

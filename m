@@ -1,105 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbTFLQSj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 12:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbTFLQSj
+	id S264895AbTFLQVO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 12:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbTFLQTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 12:18:39 -0400
-Received: from hal-5.inet.it ([213.92.5.24]:34244 "EHLO hal-5.inet.it")
-	by vger.kernel.org with ESMTP id S264881AbTFLQS1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 12:18:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Paolo Ornati <javaman@katamail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: 2.5.70 freeze unloading module "snd"
-Date: Thu, 12 Jun 2003 18:32:18 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <S264881AbTFLQS1/20030612161827Z+1679@vger.kernel.org>
+	Thu, 12 Jun 2003 12:19:12 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:13776 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264884AbTFLQS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 12:18:59 -0400
+Date: Thu, 12 Jun 2003 22:05:27 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
+       linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.70-bk16: nfs crash
+Message-ID: <20030612163527.GD1438@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.44.0306120847540.2742-100000@home.transmeta.com> <Pine.LNX.4.44.0306120915190.2742-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306120915190.2742-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm trying ALSA on linux 2.5.70, it works fine but... when I try to unload
-module "snd" the kernel freeze without any message.
-Interrupts are enabled (I try this with the keyboard's leds :-), then I can't 
-do anything but press the reset button.
+On Thu, Jun 12, 2003 at 09:18:11AM -0700, Linus Torvalds wrote:
+> 
+> On Thu, 12 Jun 2003, Linus Torvalds wrote:
+> > 
+> > If you depend on not re-initializing the pointers, you should not use the 
+> > "xxx_del()" function, and you should document it.
+> 
+> Besides, the code doesn't actually depend on not re-initializing the 
+> pointers, it depends on the _forward_ pointers still being walkable in 
+> case some other CPU is traversing the list just as we remove the entry.
+> 
+> Which means that I think the proper patch is to (a) document this and also
+> (b) poison the back pointer.
 
-I'm using module-init-tools 0.9.12 and my config is:
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-CONFIG_KMOD=y
-
-...
-#
-# Sound
-#
-CONFIG_SOUND=m
-
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=m
-# CONFIG_SND_SEQUENCER is not set
-# CONFIG_SND_OSSEMUL is not set
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_VERBOSE_PRINTK=y
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_MEMORY=y
-CONFIG_SND_DEBUG_DETECT=y
-
-#
-# Generic devices
-#
-CONFIG_SND_DUMMY=m
-CONFIG_SND_MTPAV=m
-CONFIG_SND_SERIAL_U16550=m
-CONFIG_SND_MPU401=m
-
-#
-# PCI devices
-#
-# CONFIG_SND_ALI5451 is not set
-# CONFIG_SND_CS46XX is not set
-# CONFIG_SND_CS4281 is not set
-# CONFIG_SND_EMU10K1 is not set
-# CONFIG_SND_KORG1212 is not set
-# CONFIG_SND_NM256 is not set
-# CONFIG_SND_RME32 is not set
-# CONFIG_SND_RME96 is not set
-# CONFIG_SND_RME9652 is not set
-# CONFIG_SND_HDSP is not set
-# CONFIG_SND_TRIDENT is not set
-# CONFIG_SND_YMFPCI is not set
-# CONFIG_SND_ALS4000 is not set
-# CONFIG_SND_CMIPCI is not set
-# CONFIG_SND_ENS1370 is not set
-# CONFIG_SND_ENS1371 is not set
-# CONFIG_SND_ES1938 is not set
-# CONFIG_SND_ES1968 is not set
-# CONFIG_SND_MAESTRO3 is not set
-CONFIG_SND_FM801=m
-# CONFIG_SND_ICE1712 is not set
-# CONFIG_SND_ICE1724 is not set
-# CONFIG_SND_INTEL8X0 is not set
-# CONFIG_SND_SONICVIBES is not set
-# CONFIG_SND_VIA82XX is not set
-
-#
-# Open Sound System
-#
-# CONFIG_SOUND_PRIME is not set
+That should work. However, I do have once concern. At the generic
+list macro level, we don't know if the lockfree traversal is being
+done in forward or backward direction. So, I am not sure if
+list_del_rcu() should poison the backward pointer or atleast
+document the fact that RCU-based traversal would not work on
+backward pointers. hlist_del_rcu() can indeed poison pprev. 
 
 
-Any ideas?
+> 
+> A patch like the attached, in short.
 
+Since we are at it, I can submit a patch documenting the rest of
+hlist functions, if you like.
+
+Thanks
+Dipankar

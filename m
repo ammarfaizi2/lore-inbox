@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135323AbRECWk7>; Thu, 3 May 2001 18:40:59 -0400
+	id <S135284AbRECWmT>; Thu, 3 May 2001 18:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135284AbRECWkj>; Thu, 3 May 2001 18:40:39 -0400
-Received: from p3EE3CDDC.dip.t-dialin.net ([62.227.205.220]:42507 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S135336AbRECWki>; Thu, 3 May 2001 18:40:38 -0400
-Date: Fri, 4 May 2001 00:40:34 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+	id <S135328AbRECWmN>; Thu, 3 May 2001 18:42:13 -0400
+Received: from sovereign.org ([209.180.91.170]:56243 "EHLO lux.homenet")
+	by vger.kernel.org with ESMTP id <S135284AbRECWl4>;
+	Thu, 3 May 2001 18:41:56 -0400
+From: Jim Freeman <jfree@sovereign.org>
+Date: Thu, 3 May 2001 16:42:06 -0600
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
-Message-ID: <20010504004034.A29494@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010428202225.D11994@emma1.emma.line.org> <PGEDKPCOHCLFJBPJPLNMCEDICMAA.denali@sunflower.com> <20010429122546.A1419@werewolf.able.es> <20010430013956.A1578@emma1.emma.line.org> <200104301340.f3UDeN115068@pcx4168.holstein.com> <20010430163045.A13230@emma1.emma.line.org> <3AED7885.A2E4F91B@holstein.com>
+Subject: iproute2, ETH_P_ECHO, linux/if_ether.h
+Message-ID: <20010503164206.A19818@sovereign.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AED7885.A2E4F91B@holstein.com>; from troy@holstein.com on Mon, Apr 30, 2001 at 10:36:53 -0400
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, Todd M. Roy wrote:
+iproute2 compiles against 2.4.4 die.
 
->   I tried 2.4.4 with the old aic7xxxx driver and it worked fine.
 
-That may be true, and it may help the deployment of 2.4.4 on that
-particular machine, but the kernel needs the bugfix anyways, and
-reporting the bug is the least I can do. If I'm after "old" drivers, I
-can stick with 2.2.19 :-)
+Documentation/Changes sez:
+
+	Ip-route2 
+	---------
+	o  <ftp://ftp.inr.ac.ru/ip-routing/iproute2-2.2.4-now-ss991023.tar.gz>
+
+
+But iproute2's lib/ll_proto.c  tries to use ETH_P_ECHO from
+linux/if_ether.h, and that manifest constant has (recently ?)
+been yanked?
+
+
+--- linux-2.4.2/include/linux/if_ether.h	Fri Oct 27 12:03:14 2000
++++ linux-2.4.4/include/linux/if_ether.h	Thu Apr 19 09:38:50 2001
+@@ -37,12 +37,14 @@
+  */
+ 
+ #define ETH_P_LOOP	0x0060		/* Ethernet Loopback packet	*/
+-#define ETH_P_ECHO	0x0200		/* Ethernet Echo packet		*/
+-#define ETH_P_PUP	0x0400		/* Xerox PUP packet		*/
++#define ETH_P_PUP	0x0200		/* Xerox PUP packet		*/
++#define ETH_P_PUPAT	0x0201		/* Xerox PUP Addr Trans packet	*/
+ #define ETH_P_IP	0x0800		/* Internet Protocol packet	*/
+...

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272585AbTG1AuP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 20:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272604AbTG1AtD
+	id S272566AbTG1BC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 21:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272563AbTG1AEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:49:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35507 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S272585AbTG1Any (ORCPT
+	Sun, 27 Jul 2003 20:04:01 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:28659 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272721AbTG0W6Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 20:43:54 -0400
-Date: Sun, 27 Jul 2003 17:55:57 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Carlos Velasco" <carlosev@newipnet.com>
-Cc: bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030727175557.1d624b36.davem@redhat.com>
-In-Reply-To: <200307280253090799.10BB2DF0@192.168.128.16>
-References: <Pine.LNX.4.53.0307272239570.2743@vialle.bloemsaat.com>
-	<200307280140470646.1078EC67@192.168.128.16>
-	<20030727164649.517b2b88.davem@redhat.com>
-	<200307280158250677.10891156@192.168.128.16>
-	<20030727165831.05904792.davem@redhat.com>
-	<200307280211590888.10957DD9@192.168.128.16>
-	<20030727171403.6e5bcc58.davem@redhat.com>
-	<200307280235210263.10AADFF8@192.168.128.16>
-	<20030727173600.475d95fb.davem@redhat.com>
-	<200307280253090799.10BB2DF0@192.168.128.16>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jul 2003 18:58:16 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Henrik Storner <henrik-kernel@hswn.dk>
+Newsgroups: linux.kernel
+Subject: 2.6.0-test2 - VFS: Cannot open root device "NULL" or sda1
+Date: Sun, 27 Jul 2003 20:42:13 +0000 (UTC)
+Organization: Linux Users Inc.
+Message-ID: <bg1df5$1c2$1@ask.hswn.dk>
+NNTP-Posting-Host: osiris.hswn.dk
+X-Trace: ask.hswn.dk 1059338533 1410 172.16.10.100 (27 Jul 2003 20:42:13 GMT)
+X-Complaints-To: news@ask.hswn.dk
+NNTP-Posting-Date: Sun, 27 Jul 2003 20:42:13 +0000 (UTC)
+User-Agent: nn/6.6.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003 02:53:09 +0200
-"Carlos Velasco" <carlosev@newipnet.com> wrote:
+I installed 2.6.0-test1 this afternoon, and was quite pleased that it
+could burn some cd's without the trouble I'd had with ide-scsi.
 
-> But if the hidden patch and /proc switch would be in the main kernel,
-> it would be the simpliest way to solve all these "problems" (with an
-> echo "1" and without filtering or using iproute2).
+So I know 2.6.0-test1 works for me. But 2.6.0-test2 with the same
+configuration (just a "make oldconfig" in between) stops during boot
+with:
 
-With or without your suggestion, people have to do something
-different.
+VFS: Cannot open root device "NULL" or sda1
+Please append a correct "root=" boot option
+Kernel panic: Unable to mount root fs on sda1
 
-This doesn't even address all the problems there are with
-the hidden patch.  It does things that belong on the netfilter
-level and not on the ARP/routing level.
+I have LILO on /dev/hda, and the root fs on /dev/sda1.  Adding a
+"root=/dev/sda1" at the LILO: prompt doesn't change anything.
 
-Again, I'd like you to read all the discussions that have happened on
-this topic in the past, in particular those made by Alexey Kuznetsov
-on this topic.  He gives very clear and concise reasons why the
-"hidden" patch is logically doing things in the wrong part of the
-kernel, and therefore won't ever be put into the tree.
+
+Henrik
+-- 
+Henrik Storner <henrik@hswn.dk> 

@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129212AbRBVXHI>; Thu, 22 Feb 2001 18:07:08 -0500
+	id <S129714AbRBVXIs>; Thu, 22 Feb 2001 18:08:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129250AbRBVXG6>; Thu, 22 Feb 2001 18:06:58 -0500
-Received: from mail.cambridge.com ([208.148.185.5]:9208 "EHLO
-	newmail.cambridge.com") by vger.kernel.org with ESMTP
-	id <S129212AbRBVXGu>; Thu, 22 Feb 2001 18:06:50 -0500
-From: "Doug Marcey" <dougm@cambridge.com>
-To: "Jens Hjalmarsson" <jens@falstaf.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Adaptec 2100S DPT I2O SmartRAID and 2.2/2.4
-Date: Thu, 22 Feb 2001 18:03:32 -0500
-Message-ID: <NNELJLEHNPOMNALEOJAIGEIECHAA.dougm@cambridge.com>
+	id <S129738AbRBVXIj>; Thu, 22 Feb 2001 18:08:39 -0500
+Received: from mail0.netcom.net.uk ([194.42.236.2]:35533 "EHLO
+	mail0.netcom.net.uk") by vger.kernel.org with ESMTP
+	id <S129250AbRBVXIY>; Thu, 22 Feb 2001 18:08:24 -0500
+Message-ID: <3A959BFD.B18F833@netcomuk.co.uk>
+Date: Thu, 22 Feb 2001 23:08:45 +0000
+From: Bill Crawford <billc@netcomuk.co.uk>
+Organization: Netcom Internet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac13 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: "H. Peter Anvin" <hpa@transmeta.com>,
+        Daniel Phillips <phillips@innominate.de>
+Subject: Hashing and directories
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.21.0102100909550.8449-100000@apollo.kulturpasset.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking around for the answer to this question and I only found this
-question over and over again but not the answer.
+ I was hoping to point out that in real life, most systems that
+need to access large numbers of files are already designed to do
+some kind of hashing, or at least to divide-and-conquer by using
+multi-level directory structures.
 
-So is there support for this adaptec 2100S raid card under 2.4.x? Is there a
-reciepe?
+ A particular reason for this, apart from filesystem efficiency,
+is to make it easier for people to find things, as it is usually
+easier to spot what you want amongst a hundred things than among
+a thousand or ten thousand.
 
-Thank you in advance for any help.
+ A couple of practical examples from work here at Netcom UK (now
+Ebone :), would be say DNS zone files or user authentication data.
+We use Solaris and NFS a lot, too, so large directories are a bad
+thing in general for us, so we tend to subdivide things using a
+very simple scheme: taking the first letter and then sometimes
+the second letter or a pair of letters from the filename.  This
+actually works extremely well in practice, and as mentioned above
+provides some positive side-effects.
 
-			--Doug
+ So I don't think it would actually be sensible to encourage
+anyone to use massive directories for too many tasks.  It has a
+fairly unfortunate impact on applying human intervention to a
+broken system, for example, if it takes a long time to find a
+file you're looking for.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Jens Hjalmarsson
-Sent: Saturday, February 10, 2001 3:13 AM
-To: linux-kernel@vger.kernel.org
-Subject: Adaptec 2100S DPT I2O SmartRAID and 2.2/2.4
+ I guess what I really mean is that I think Linus' strategy of
+generally optimizing for the "usual case" is a good thing.  It
+is actually quite annoying in general to have that many files in
+a single directory (think \winnt\... here).  So maybe it would
+be better to focus on the normal situation of, say, a few hundred
+files in a directory rather than thousands ...
 
+ I still think it's a good idea to do anything you can to speed
+up large directory operations on ext2 though :)
 
-Hello,
+ On the plus side, hashes or anything resembling tree structures
+would tend to improve the characteristics of insertion and removal
+of entries on even moderately sized directories, which would
+probably provide a net gain for many folks.
 
-I have been looking around the internet for drivers for my RAID card. I
-found drivers for 2.2, and a patch against "vanilla 2.2.x".
-However, when trying to boot with that patch, I get an oops. (Got it to
-work with 2.2.5.. rather old for me)
-But, I want to run 2.4, and cannot find anything about this card and
-kernel 2.4.
-
-Can someone point me to a driver or a HOWTO so I can get this darn thing
-to work?
-
-Thanks,
-
-Jens
-
-(I am not a member of this list, so please contact me directly)
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
+-- 
+/* Bill Crawford, Unix Systems Developer, ebOne, formerly GTS Netcom */
+#include "stddiscl.h"

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267107AbTCEPjQ>; Wed, 5 Mar 2003 10:39:16 -0500
+	id <S267267AbTCEPlP>; Wed, 5 Mar 2003 10:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267135AbTCEPjP>; Wed, 5 Mar 2003 10:39:15 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:47884 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S267107AbTCEPh5>; Wed, 5 Mar 2003 10:37:57 -0500
-Date: Thu, 06 Mar 2003 00:48:20 +0900 (JST)
-Message-Id: <20030306.004820.41101302.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com
-Cc: kazunori@miyazawa.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: (usagi-core 12294) Re: [PATCH] IPv6 IPsec support
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20030305.072149.121185037.davem@redhat.com>
-References: <20030305233025.784feb00.kazunori@miyazawa.org>
-	<20030305.072149.121185037.davem@redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267268AbTCEPlP>; Wed, 5 Mar 2003 10:41:15 -0500
+Received: from main.gmane.org ([80.91.224.249]:55223 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S267261AbTCEPkp>;
+	Wed, 5 Mar 2003 10:40:45 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jason Lunz <lunz@reflexsecurity.com>
+Subject: Re: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
+Date: Wed, 5 Mar 2003 15:46:20 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <slrnb6c6vb.rm1.lunz@stoli.localnet>
+References: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com> <3E657F33.4000304@pobox.com>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030305.072149.121185037.davem@redhat.com> (at Wed, 05 Mar 2003 07:21:49 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
+jgarzik@pobox.com said:
+> Further, for NAPI and networking in general, it is recommended to bind
+> each NIC to a single interrupt, and never change that binding. 
 
-> I will apply your patch after basic build testing.
+I assume you mean "bind each NIC interrupt to a single CPU" here. I've
+done quite a lot of benchmarking on dual SMP that shows that for
+high-load networking, you basically have two cases:
 
-Thank you.
+ - the irq load is less than what can be handled by one CPU. This is the
+   case, for example, using a NAPI e1000 driver under any load on a
+   > 1 GHz SMP machine. even with two e1000 cards under extreme load,
+   one CPU can run the interrupt handlers with cycles to spare (thanks
+   to NAPI).  This config (all NIC interrupts on CPU0) is optimal as
+   long as CPU doesn't become saturated. Trying to distribute the
+   interrupt load across multiple CPUs incurs measurable performance
+   loss, probably due to cache effects.
+ 
+ - the irq load is enough to livelock one CPU. It's easy for this to
+   happen with gigE NICs on a non-NAPI kernel, for example. In this
+   case, you're better off binding each heavy interrupt source to a
+   different CPU.
 
-> The next large task will be to abstract out more common
-> pieces of code.  There is still quite a bit of code duplication
-> between v4 and v6 xfrm methods,
+2.4's default behavior isn't optimal in either case.
 
-Yes, we will do that.  That patch is first step for reducing 
-duplicate codes between IPv4 and IPv6.
+> Delivering a single NIC's interrupts to multiple CPUs leads to a 
+> noticeable performance loss.  This is why some people complain that 
+> their specific network setups are faster on a uniprocessor kernel than 
+> an SMP kernel.
 
---yoshfuji
+This is what I've seen as well. The good news is that you can pretty
+much recapture the uniprocessor performance by binding all heavy
+interrupt sources to one CPU, as long as that CPU can handle it. And any
+modern machine with a NAPI kernel _can_ handle any realistic gigE load.
+
+I should mention that these results are all measurements of gigabit
+bridge performance, where every frame needs to be received on one NIC
+and sent on the other. So there are obvious cache benefits to doing it
+all on one CPU.
+
+-- 
+Jason Lunz			Reflex Security
+lunz@reflexsecurity.com		http://www.reflexsecurity.com/
+

@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbUL1WSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbUL1XAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbUL1WSl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 17:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbUL1WSl
+	id S261151AbUL1XAx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 18:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbUL1XAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 17:18:41 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:16561
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261265AbUL1WSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 17:18:39 -0500
-Date: Tue, 28 Dec 2004 14:17:10 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       openib-general@openib.org
-Subject: Re: [PATCH][v5][0/24] Latest IB patch queue
-Message-Id: <20041228141710.4daebcfb.davem@davemloft.net>
-In-Reply-To: <52pt0unr0i.fsf@topspin.com>
-References: <200412272150.IBRnA4AvjendsF8x@topspin.com>
-	<20041227225417.3ac7a0a6.davem@davemloft.net>
-	<52pt0unr0i.fsf@topspin.com>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Dec 2004 18:00:53 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:15263 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261151AbUL1XAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 18:00:44 -0500
+Subject: Re: [2.6 patch] /net/ax25/: some cleanups
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: bunk@stusta.de, ralf@linux-mips.org, linux-hams@vger.kernel.org,
+       netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041228100507.7b374b5e.davem@davemloft.net>
+References: <20041212211339.GX22324@stusta.de>
+	 <20041227185151.2a7ceb71.davem@davemloft.net>
+	 <1104237408.20944.70.camel@localhost.localdomain>
+	 <20041228100507.7b374b5e.davem@davemloft.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1104270846.26109.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 28 Dec 2004 21:54:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Dec 2004 11:48:13 -0800
-Roland Dreier <roland@topspin.com> wrote:
+On Maw, 2004-12-28 at 18:05, David S. Miller wrote:
+> Send a patch to netdev and CC: me to fix this as is standard
+> procedure for getting changes into the networking.  :-)
 
-> Speaking of build failures, one of my test builds is cross-compiling
-> for sparc64 with gcc 3.4.2, which adds __attribute__((warn_unused_result))
-> to copy_to_user() et al.  The -Werror in the arch/sparc64 means the
-> build fails with
+Attached - revert to 2.6.9 behaviour.
 
-Thanks, I'll check that out.
+I suspect given that someone made the change for a reason that there
+should probably be a sysctl to switch between AX.25 (as 2.6.9) and "kind
+of routed AX.25-ish" (as 2.6.10).
 
-I believe that you didn't test the sparc64 build of the infiniband stuff
-because arch/sparc64/Kconfig needs to explicitly include the infiniband
-Kconfig since it does not use drivers/Kconfig.  You didn't send me any
-such changes.
+--- ../linux.vanilla-2.6.10/net/ax25/af_ax25.c	2004-12-25 21:15:46.000000000 +0000
++++ net/ax25/af_ax25.c	2004-12-26 22:07:44.000000000 +0000
+@@ -207,8 +207,16 @@
+ 			continue;
+ 		if (s->ax25_dev == NULL)
+ 			continue;
+-		if (ax25cmp(&s->source_addr, src_addr) == 0 &&
+-		    ax25cmp(&s->dest_addr, dest_addr) == 0) {
++		if (ax25cmp(&s->source_addr, src_addr) == 0 && ax25cmp(&s->dest_addr, dest_addr) == 0 && s->ax25_dev->dev == dev) {
++			if (digi != NULL && digi->ndigi != 0) {
++				if (s->digipeat == NULL)
++					continue;
++				if (ax25digicmp(s->digipeat, digi) != 0)
++					continue;
++			} else {
++				if (s->digipeat != NULL && s->digipeat->ndigi != 0)
++					continue;
++			}
+ 			ax25_cb_hold(s);
+ 			spin_unlock_bh(&ax25_list_lock);
+ 
 
-There are a few platforms which also are in this situation.
-I added the sparc64 one to my tree while integrating your changes,
-but the others need to be attended to if you wish infiniband to
-be configurable on them.

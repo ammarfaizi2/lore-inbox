@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290701AbSA3WkK>; Wed, 30 Jan 2002 17:40:10 -0500
+	id <S290684AbSA3Wmu>; Wed, 30 Jan 2002 17:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290698AbSA3WkA>; Wed, 30 Jan 2002 17:40:00 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:30299 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S290701AbSA3Wjy>; Wed, 30 Jan 2002 17:39:54 -0500
-Date: Wed, 30 Jan 2002 16:39:48 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil>
-To: landley@trommello.org, "Matthew D. Pitts" <mpitts@suite224.net>,
-        "Chris Ricker" <kaboom@gatech.edu>,
-        "Linus Torvalds" <torvalds@transmeta.com>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <20020130210212.ZYOS23516.femail25.sdc1.sfba.home.com@there>
-Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
-X-Mailer: [XMailTool v3.1.2b]
+	id <S290706AbSA3Wmk>; Wed, 30 Jan 2002 17:42:40 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:711 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S290698AbSA3Wm0>; Wed, 30 Jan 2002 17:42:26 -0500
+From: "Karl" <ktatgenhorst@earthlink.net>
+To: "Robert Love" <rml@tech9.net>, "Alex Khripin" <akhripin@mit.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: BKL in tty code?
+Date: Wed, 30 Jan 2002 16:57:18 -0500
+Message-ID: <NDBBJHDEALBBOIDJGBNNIEHCCCAA.ktatgenhorst@earthlink.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1012418760.3219.43.camel@phantasy>
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
-Rob Landley <landley@trommello.org>:
-> 
-> On Wednesday 30 January 2002 07:49 am, Matthew D. Pitts wrote:
-> > Chris,
-> >
-> > Thank you for saying this... I have things I would like do/add to the
-> > kernel and I am not sure who to send them to.
-> 
-> No, if you're not a maintainer then you still send them to the maintainer in 
-> the MAINTAINERS file.
-> 
-> The interesting question is, who does THAT maintainer send them to.  (We seem 
-> to be heading for a four-tiered system, with Linus at the top, a dozen or so 
-> lieutenants under him, and then the specific maintainers under them.  With 
-> individual developers submitting patches being the fourth tier.  Patches go 
-> from developer, to maintainer, to lieutenant, to linus.)
-> 
-> This doesn't sound like a bad thing for scalability reasons, and should also 
-> help address the "I sent my patch directly to linus a dozen times and I 
-> didn't hear back" problem.
-> 
-> The problem right now is a lot of the maintainers don't seem to know who 
-> their corresponding lieutenant is.  We're still waiting for clarification 
-> from Linus...
 
-Ummm. this might be silly, but shouldn't those announcements come from
-the lieutenants?
 
-Linus has announced who he accepts patches frin, and who will be doing the 2.0,
-2.2, and 2.4 maintenance. It would seem logical to have those lieutenants
-announce their maintainers.
+>There is probably some cleanup that is possible, but really getting the
+>thing in gear (which means no BKL, which is probably the hardest part to
+>rip out) require some level of rewrite.
 
-How would Linus actually know who, (after his lieutenants) SHOULD send mail
-to the lieutenants?
+   Is there a specific maintainer for the TTY code. This is the part of the
+kernel which I am most interested in. I have many TTYs in a mid size (100
+user Unix network) and could get to do some testing if anyone is writing
+patches for this system. I would also be willing to do minor review of code
+for spelling and such. I would _really_ like to get involved with this
+specific system.
 
-That is the problem in the first place...
 
-It would help to have the information in the MAINTAINERS file though. As well
-as the auxilary mailing lists supporting that activity. That way, users
-who find a bug/create a patch/whatever would have an easier time locating
-where to send the patch. Especially when it doesn't directly affect the
-core kernel.
+Thanks,
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Karl Tatgenhorst
 
-Any opinions expressed are solely my own.

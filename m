@@ -1,442 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288342AbSBIXlf>; Sat, 9 Feb 2002 18:41:35 -0500
+	id <S288748AbSBIXnF>; Sat, 9 Feb 2002 18:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSBIXl2>; Sat, 9 Feb 2002 18:41:28 -0500
-Received: from ptldme-mls2.maine.rr.com ([24.93.159.133]:6832 "EHLO
-	ptldme-mls2.maine.rr.com") by vger.kernel.org with ESMTP
-	id <S288342AbSBIXlX>; Sat, 9 Feb 2002 18:41:23 -0500
-Message-ID: <3C65B40F.77DBE5EB@maine.rr.com>
-Date: Sat, 09 Feb 2002 18:43:11 -0500
-From: "David B. Stevens" <dsteven3@maine.rr.com>
-Organization: Penguin Preservation Society
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7-ac3 i686)
+	id <S288787AbSBIXmz>; Sat, 9 Feb 2002 18:42:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34052 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288748AbSBIXmr>;
+	Sat, 9 Feb 2002 18:42:47 -0500
+Message-ID: <3C65B3F4.FD45143D@mandrakesoft.com>
+Date: Sat, 09 Feb 2002 18:42:44 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Vojtech Pavlik <vojtech@suse.cz>, Nathan <wfilardo@fuse.net>
-Subject: Re: Mouse not working with linux-2.5.3-dj4
-In-Reply-To: <3C647DBC.B0BE0EB@maine.rr.com>
-Content-Type: multipart/mixed;
- boundary="------------2C7242812029C4314E908A86"
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.4-pre5 fails to build (sounddrivers.o/pcmcia_net.o)
+In-Reply-To: <3C658EC2.158C2B2C@oracle.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------2C7242812029C4314E908A86
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Alessandro Suardi wrote:
+> drivers/sound/sounddrivers.o: In function `m3_play_setup':
+> drivers/sound/sounddrivers.o(.text+0xf4e): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+> drivers/sound/sounddrivers.o(.text+0xf6e): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+> drivers/sound/sounddrivers.o(.text+0xf93): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+> drivers/sound/sounddrivers.o(.text+0xfb7): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+> drivers/sound/sounddrivers.o(.text+0xfde): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+> drivers/sound/sounddrivers.o(.text+0x1000): more undefined references to `virt_to_bus_not_defined_use_pci_map' follow
+> drivers/net/pcmcia/pcmcia_net.o: In function `xircom_rx':
+> drivers/net/pcmcia/pcmcia_net.o(.text+0x1801): undefined reference to `bus_to_virt_not_defined_use_pci_map'
+> drivers/net/pcmcia/pcmcia_net.o(.text+0x19a2): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+> drivers/net/pcmcia/pcmcia_net.o: In function `set_rx_mode':
+> drivers/net/pcmcia/pcmcia_net.o(.text+0x22d4): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+> make: *** [vmlinux] Error 1
 
-Dave,
 
-I have followed Vojtech Pavlik's advice and turned on I8042_DEBUG_IO the
-result of which is attached.
+These driver(s) need to be cleaned up to use pci_alloc_consistent.
 
-Cheers,
-  Dave
+Patches welcome!
 
-
-
-"David B. Stevens" wrote:
-> 
-> Dave,
-> 
-> I have a Logitech radio control mouse that refuses to operate.  It is a
-> PS/2 AUX device.  It appears that the mouse was properly detected
-> according to the attached system log.  Do you see anything missing or
-> incorrect in the attached config file?
-> 
-> Thank you for any assistance that you can provide.
-> 
-> Cheers,
->   Dave
-> 
->   ------------------------------------------------------------------------
---------------2C7242812029C4314E908A86
-Content-Type: text/plain; charset=us-ascii;
- name="bustedmouse"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bustedmouse"
-
-Feb  9 18:15:49 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50608]
-Feb  9 18:15:49 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50608]
-Feb  9 18:15:49 tux kernel: i8042.c: 04 <- i8042 (interrupt-aux) [50608]
-Feb  9 18:15:49 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50610]
-Feb  9 18:15:49 tux kernel: i8042.c: 14 <- i8042 (interrupt-aux) [50610]
-Feb  9 18:15:49 tux kernel: i8042.c: 04 <- i8042 (interrupt-aux) [50610]
-Feb  9 18:15:50 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50612]
-Feb  9 18:15:50 tux kernel: i8042.c: 14 <- i8042 (interrupt-aux) [50612]
-Feb  9 18:15:50 tux kernel: i8042.c: 04 <- i8042 (interrupt-aux) [50612]
-Feb  9 18:15:50 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50614]
-Feb  9 18:15:50 tux kernel: i8042.c: 14 <- i8042 (interrupt-aux) [50614]
-Feb  9 18:15:50 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [50614]
-Feb  9 18:15:50 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50616]
-Feb  9 18:15:50 tux kernel: i8042.c: 0c <- i8042 (interrupt-aux) [50616]
-Feb  9 18:15:50 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [50616]
-Feb  9 18:15:50 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50618]
-Feb  9 18:15:50 tux kernel: i8042.c: 0c <- i8042 (interrupt-aux) [50618]
-Feb  9 18:15:50 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [50618]
-Feb  9 18:15:50 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50620]
-Feb  9 18:15:50 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50620]
-Feb  9 18:15:50 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [50620]
-Feb  9 18:15:50 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [50622]
-Feb  9 18:15:50 tux kernel: i8042.c: 05 <- i8042 (interrupt-aux) [50622]
-Feb  9 18:15:50 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50622]
-Feb  9 18:15:50 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50643]
-Feb  9 18:15:50 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [50643]
-Feb  9 18:15:50 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50643]
-Feb  9 18:15:50 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50645]
-Feb  9 18:15:50 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [50645]
-Feb  9 18:15:50 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50645]
-Feb  9 18:15:50 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [50649]
-Feb  9 18:15:50 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50649]
-Feb  9 18:15:50 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [50649]
-Feb  9 18:15:50 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [50676]
-Feb  9 18:15:50 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [50676]
-Feb  9 18:15:50 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [50677]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50762]
-Feb  9 18:15:51 tux kernel: i8042.c: fb <- i8042 (interrupt-aux) [50762]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50762]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50764]
-Feb  9 18:15:51 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [50764]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50764]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50766]
-Feb  9 18:15:51 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [50766]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50766]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50768]
-Feb  9 18:15:51 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [50768]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50768]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50770]
-Feb  9 18:15:51 tux kernel: i8042.c: fb <- i8042 (interrupt-aux) [50770]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50770]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50772]
-Feb  9 18:15:51 tux kernel: i8042.c: fa <- i8042 (interrupt-aux) [50772]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50772]
-Feb  9 18:15:51 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [50774]
-Feb  9 18:15:51 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [50774]
-Feb  9 18:15:51 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [50774]
-Feb  9 18:15:51 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [50776]
-Feb  9 18:15:51 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [50776]
-Feb  9 18:15:51 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [50776]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50778]
-Feb  9 18:15:51 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [50778]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50778]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50780]
-Feb  9 18:15:51 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [50780]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50780]
-Feb  9 18:15:51 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [50782]
-Feb  9 18:15:51 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [50782]
-Feb  9 18:15:51 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [50782]
-Feb  9 18:15:51 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [50784]
-Feb  9 18:15:51 tux kernel: i8042.c: f9 <- i8042 (interrupt-aux) [50784]
-Feb  9 18:15:51 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [50784]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50786]
-Feb  9 18:15:51 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [50786]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50786]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50788]
-Feb  9 18:15:51 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [50788]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50788]
-Feb  9 18:15:51 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [50790]
-Feb  9 18:15:51 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [50790]
-Feb  9 18:15:51 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [50790]
-Feb  9 18:15:51 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [50792]
-Feb  9 18:15:51 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [50792]
-Feb  9 18:15:51 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [50792]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51243]
-Feb  9 18:15:56 tux kernel: i8042.c: 0e <- i8042 (interrupt-aux) [51244]
-Feb  9 18:15:56 tux kernel: i8042.c: 0a <- i8042 (interrupt-aux) [51244]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51245]
-Feb  9 18:15:56 tux kernel: i8042.c: 14 <- i8042 (interrupt-aux) [51246]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51246]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51247]
-Feb  9 18:15:56 tux kernel: i8042.c: 14 <- i8042 (interrupt-aux) [51248]
-Feb  9 18:15:56 tux kernel: i8042.c: 07 <- i8042 (interrupt-aux) [51248]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51249]
-Feb  9 18:15:56 tux kernel: i8042.c: 0c <- i8042 (interrupt-aux) [51250]
-Feb  9 18:15:56 tux kernel: i8042.c: 07 <- i8042 (interrupt-aux) [51250]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51251]
-Feb  9 18:15:56 tux kernel: i8042.c: 06 <- i8042 (interrupt-aux) [51252]
-Feb  9 18:15:56 tux kernel: i8042.c: 04 <- i8042 (interrupt-aux) [51252]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51253]
-Feb  9 18:15:56 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [51254]
-Feb  9 18:15:56 tux kernel: i8042.c: 03 <- i8042 (interrupt-aux) [51254]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51255]
-Feb  9 18:15:56 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51256]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51256]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51263]
-Feb  9 18:15:56 tux kernel: i8042.c: 04 <- i8042 (interrupt-aux) [51264]
-Feb  9 18:15:56 tux kernel: i8042.c: 04 <- i8042 (interrupt-aux) [51264]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51265]
-Feb  9 18:15:56 tux kernel: i8042.c: 06 <- i8042 (interrupt-aux) [51266]
-Feb  9 18:15:56 tux kernel: i8042.c: 03 <- i8042 (interrupt-aux) [51266]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51267]
-Feb  9 18:15:56 tux kernel: i8042.c: 03 <- i8042 (interrupt-aux) [51267]
-Feb  9 18:15:56 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51268]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51269]
-Feb  9 18:15:56 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51269]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51270]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51273]
-Feb  9 18:15:56 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51273]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51274]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51275]
-Feb  9 18:15:56 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [51275]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51276]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51277]
-Feb  9 18:15:56 tux kernel: i8042.c: fa <- i8042 (interrupt-aux) [51277]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51278]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51279]
-Feb  9 18:15:56 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [51279]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51280]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51281]
-Feb  9 18:15:56 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [51281]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51282]
-Feb  9 18:15:56 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51283]
-Feb  9 18:15:56 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51283]
-Feb  9 18:15:56 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51284]
-Feb  9 18:15:56 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51285]
-Feb  9 18:15:56 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51285]
-Feb  9 18:15:56 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51286]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51287]
-Feb  9 18:15:56 tux kernel: i8042.c: e0 <- i8042 (interrupt-aux) [51287]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51288]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51289]
-Feb  9 18:15:56 tux kernel: i8042.c: e0 <- i8042 (interrupt-aux) [51289]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51290]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51291]
-Feb  9 18:15:56 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51291]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51292]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51293]
-Feb  9 18:15:56 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51293]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51294]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51295]
-Feb  9 18:15:56 tux kernel: i8042.c: ec <- i8042 (interrupt-aux) [51295]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51296]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51297]
-Feb  9 18:15:56 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [51297]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51298]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51299]
-Feb  9 18:15:56 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [51299]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51300]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51303]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51303]
-Feb  9 18:15:56 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51304]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51305]
-Feb  9 18:15:56 tux kernel: i8042.c: 03 <- i8042 (interrupt-aux) [51305]
-Feb  9 18:15:56 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51306]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51307]
-Feb  9 18:15:56 tux kernel: i8042.c: 07 <- i8042 (interrupt-aux) [51307]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51308]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51309]
-Feb  9 18:15:56 tux kernel: i8042.c: 14 <- i8042 (interrupt-aux) [51309]
-Feb  9 18:15:56 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51310]
-Feb  9 18:15:56 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51311]
-Feb  9 18:15:56 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51311]
-Feb  9 18:15:56 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51312]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51313]
-Feb  9 18:15:57 tux kernel: i8042.c: 20 <- i8042 (interrupt-aux) [51313]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51314]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51315]
-Feb  9 18:15:57 tux kernel: i8042.c: 20 <- i8042 (interrupt-aux) [51315]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51316]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51317]
-Feb  9 18:15:57 tux kernel: i8042.c: 20 <- i8042 (interrupt-aux) [51317]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51318]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51319]
-Feb  9 18:15:57 tux kernel: i8042.c: 20 <- i8042 (interrupt-aux) [51319]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51320]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51321]
-Feb  9 18:15:57 tux kernel: i8042.c: 20 <- i8042 (interrupt-aux) [51321]
-Feb  9 18:15:57 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [51322]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51323]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51323]
-Feb  9 18:15:57 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [51324]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51325]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51325]
-Feb  9 18:15:57 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [51325]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51327]
-Feb  9 18:15:57 tux kernel: i8042.c: 14 <- i8042 (interrupt-aux) [51327]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51327]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51329]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51329]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51329]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51331]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51331]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51331]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51333]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51333]
-Feb  9 18:15:57 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [51333]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51335]
-Feb  9 18:15:57 tux kernel: i8042.c: fa <- i8042 (interrupt-aux) [51335]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51335]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51337]
-Feb  9 18:15:57 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [51337]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51337]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51339]
-Feb  9 18:15:57 tux kernel: i8042.c: f0 <- i8042 (interrupt-aux) [51339]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51339]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51341]
-Feb  9 18:15:57 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51341]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51341]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51343]
-Feb  9 18:15:57 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51343]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51343]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51345]
-Feb  9 18:15:57 tux kernel: i8042.c: e0 <- i8042 (interrupt-aux) [51345]
-Feb  9 18:15:57 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [51345]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51347]
-Feb  9 18:15:57 tux kernel: i8042.c: e0 <- i8042 (interrupt-aux) [51347]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51347]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51349]
-Feb  9 18:15:57 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51349]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51349]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51351]
-Feb  9 18:15:57 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51351]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51351]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51353]
-Feb  9 18:15:57 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51353]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51353]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51355]
-Feb  9 18:15:57 tux kernel: i8042.c: f0 <- i8042 (interrupt-aux) [51355]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51355]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51357]
-Feb  9 18:15:57 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [51357]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51357]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51359]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51359]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51359]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51361]
-Feb  9 18:15:57 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [51361]
-Feb  9 18:15:57 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [51361]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51363]
-Feb  9 18:15:57 tux kernel: i8042.c: 0c <- i8042 (interrupt-aux) [51363]
-Feb  9 18:15:57 tux kernel: i8042.c: 03 <- i8042 (interrupt-aux) [51363]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51365]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51365]
-Feb  9 18:15:57 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [51365]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51367]
-Feb  9 18:15:57 tux kernel: i8042.c: 20 <- i8042 (interrupt-aux) [51367]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51367]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51369]
-Feb  9 18:15:57 tux kernel: i8042.c: 2c <- i8042 (interrupt-aux) [51369]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51369]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51371]
-Feb  9 18:15:57 tux kernel: i8042.c: 2c <- i8042 (interrupt-aux) [51371]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51371]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51373]
-Feb  9 18:15:57 tux kernel: i8042.c: 20 <- i8042 (interrupt-aux) [51373]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51373]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51375]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51375]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51375]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51377]
-Feb  9 18:15:57 tux kernel: i8042.c: 0c <- i8042 (interrupt-aux) [51377]
-Feb  9 18:15:57 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [51377]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51379]
-Feb  9 18:15:57 tux kernel: i8042.c: 05 <- i8042 (interrupt-aux) [51379]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51379]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51381]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51381]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51381]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51383]
-Feb  9 18:15:57 tux kernel: i8042.c: fc <- i8042 (interrupt-aux) [51383]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51383]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51385]
-Feb  9 18:15:57 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [51385]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51385]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51387]
-Feb  9 18:15:57 tux kernel: i8042.c: f4 <- i8042 (interrupt-aux) [51387]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51387]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51389]
-Feb  9 18:15:57 tux kernel: i8042.c: ec <- i8042 (interrupt-aux) [51389]
-Feb  9 18:15:57 tux kernel: i8042.c: fe <- i8042 (interrupt-aux) [51389]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51391]
-Feb  9 18:15:57 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51391]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51391]
-Feb  9 18:15:57 tux kernel: i8042.c: 38 <- i8042 (interrupt-aux) [51393]
-Feb  9 18:15:57 tux kernel: i8042.c: e8 <- i8042 (interrupt-aux) [51393]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51393]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51395]
-Feb  9 18:15:57 tux kernel: i8042.c: f4 <- i8042 (interrupt-aux) [51395]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51395]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51397]
-Feb  9 18:15:57 tux kernel: i8042.c: f8 <- i8042 (interrupt-aux) [51397]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51397]
-Feb  9 18:15:57 tux kernel: i8042.c: 18 <- i8042 (interrupt-aux) [51399]
-Feb  9 18:15:57 tux kernel: i8042.c: fd <- i8042 (interrupt-aux) [51399]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51399]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51403]
-Feb  9 18:15:57 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [51403]
-Feb  9 18:15:57 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51403]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51405]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51405]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51405]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51407]
-Feb  9 18:15:57 tux kernel: i8042.c: 05 <- i8042 (interrupt-aux) [51407]
-Feb  9 18:15:57 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [51407]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51409]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51409]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51409]
-Feb  9 18:15:57 tux kernel: i8042.c: 28 <- i8042 (interrupt-aux) [51411]
-Feb  9 18:15:57 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51411]
-Feb  9 18:15:57 tux kernel: i8042.c: ff <- i8042 (interrupt-aux) [51411]
-Feb  9 18:15:58 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [51413]
-Feb  9 18:15:58 tux kernel: i8042.c: 02 <- i8042 (interrupt-aux) [51413]
-Feb  9 18:15:58 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [51413]
-Feb  9 18:15:58 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [51456]
-Feb  9 18:15:58 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [51477]
-Feb  9 18:15:59 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [51554]
-Feb  9 18:15:59 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [51572]
-Feb  9 18:16:00 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [51658]
-Feb  9 18:16:00 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [51674]
-Feb  9 18:16:01 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [51749]
-Feb  9 18:16:01 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [51763]
-Feb  9 18:16:01 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [51811]
-Feb  9 18:16:02 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [51830]
-Feb  9 18:16:02 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [51864]
-Feb  9 18:16:02 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [51875]
-Feb  9 18:16:03 tux kernel: i8042.c: 1c <- i8042 (interrupt-kbd) [51984]
-Feb  9 18:16:03 tux kernel: i8042.c: 9c <- i8042 (interrupt-kbd) [51996]
-Feb  9 18:16:04 tux kernel: i8042.c: 08 <- i8042 (interrupt-aux) [52023]
-Feb  9 18:16:04 tux kernel: i8042.c: 01 <- i8042 (interrupt-aux) [52023]
-Feb  9 18:16:04 tux kernel: i8042.c: 00 <- i8042 (interrupt-aux) [52023]
-Feb  9 18:16:05 tux kernel: i8042.c: e0 <- i8042 (interrupt-kbd) [52180]
-Feb  9 18:16:05 tux kernel: i8042.c: 50 <- i8042 (interrupt-kbd) [52181]
-Feb  9 18:16:05 tux kernel: i8042.c: e0 <- i8042 (interrupt-kbd) [52195]
-Feb  9 18:16:05 tux kernel: i8042.c: d0 <- i8042 (interrupt-kbd) [52195]
-Feb  9 18:16:06 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [52242]
-Feb  9 18:16:06 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [52252]
-Feb  9 18:16:06 tux kernel: i8042.c: e0 <- i8042 (interrupt-kbd) [52300]
-Feb  9 18:16:06 tux kernel: i8042.c: 50 <- i8042 (interrupt-kbd) [52300]
-Feb  9 18:16:07 tux kernel: i8042.c: e0 <- i8042 (interrupt-kbd) [52312]
-Feb  9 18:16:07 tux kernel: i8042.c: d0 <- i8042 (interrupt-kbd) [52313]
-Feb  9 18:16:08 tux kernel: i8042.c: 0f <- i8042 (interrupt-kbd) [52462]
-Feb  9 18:16:08 tux kernel: i8042.c: 8f <- i8042 (interrupt-kbd) [52472]
-Feb  9 18:16:10 tux kernel: i8042.c: 1c <- i8042 (interrupt-kbd) [52661]
-Feb  9 18:16:10 tux kernel: i8042.c: 9c <- i8042 (interrupt-kbd) [52692]
-Feb  9 18:16:11 tux init: Switching to runlevel: 6
-Feb  9 18:16:14 tux named[269]: shutting down
-Feb  9 18:16:14 tux named[269]: no longer listening on 127.0.0.1#53
-Feb  9 18:16:14 tux named[269]: no longer listening on 192.168.0.2#53
-Feb  9 18:16:14 tux named[265]: exiting
-Feb  9 18:16:16 tux kernel: Kernel logging (proc) stopped.
-Feb  9 18:16:16 tux kernel: Kernel log daemon terminating.
-Feb  9 18:16:17 tux exiting on signal 15
-Feb  9 18:17:47 tux syslogd 1.3-3: restart.
-Feb  9 18:17:49 tux in.identd[194]: started
-Feb  9 18:17:50 tux modprobe: modprobe: Can't locate module net-pf-10
-Feb  9 18:17:50 tux kernel: klogd 1.3-3, log source = /proc/kmsg started.
-Feb  9 18:17:50 tux kernel: Inspecting /boot/System.map
-Feb  9 18:17:50 tux kernel: Symbol table has incorrect version number.
-Feb  9 18:17:50 tux kernel: Inspecting /System.map
-Feb  9 18:17:51 tux kernel: Symbol table has incorrect version number.
-Feb  9 18:17:51 tux kernel: Cannot find map file.
-Feb  9 18:17:51 tux kernel: No module symbols loaded.
-Feb  9 18:17:52 tux /usr/sbin/cron[264]: (CRON) STARTUP (fork ok)
-Feb  9 18:17:53 tux named[273]: starting BIND 9.0.1
-Feb  9 18:17:54 tux named[277]: loading configuration from '/etc/named.conf'
-Feb  9 18:17:55 tux named[277]: the default for the 'auth-nxdomain' option is now 'no'
-Feb  9 18:17:55 tux modprobe: modprobe: Can't locate module net-pf-10
---------------2C7242812029C4314E908A86--
-
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319468AbSIGLeS>; Sat, 7 Sep 2002 07:34:18 -0400
+	id <S319470AbSIGLxi>; Sat, 7 Sep 2002 07:53:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319470AbSIGLeS>; Sat, 7 Sep 2002 07:34:18 -0400
-Received: from dsl-213-023-038-028.arcor-ip.net ([213.23.38.28]:27576 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319468AbSIGLeS>;
-	Sat, 7 Sep 2002 07:34:18 -0400
+	id <S319473AbSIGLxi>; Sat, 7 Sep 2002 07:53:38 -0400
+Received: from dsl-213-023-038-028.arcor-ip.net ([213.23.38.28]:41912 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319470AbSIGLxh>;
+	Sat, 7 Sep 2002 07:53:37 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@arcor.de>
-To: Todd Inglett <tinglett@vnet.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: PCI driver 64-bit bar size
-Date: Sat, 7 Sep 2002 13:41:35 +0200
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Question about pseudo filesystems
+Date: Sat, 7 Sep 2002 14:00:51 +0200
 X-Mailer: KMail [version 1.3.2]
-Cc: Martin Mares <mj@ucw.cz>
-References: <1031249810.12740.72.camel@q.rchland.ibm.com>
-In-Reply-To: <1031249810.12740.72.camel@q.rchland.ibm.com>
+References: <20020904190225.A13448@kushida.apsleyroad.org>
+In-Reply-To: <20020904190225.A13448@kushida.apsleyroad.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ndy4-0006Sj-00@starship>
+Message-Id: <E17neGi-0006Sv-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 20:16, Todd Inglett wrote:
-> Now in my case, I have an adapter that insists the upper 32-bits of a
-> 64-bit BAR must be zero (don't ask me why -- doesn't make sense to me
-> either, but they are indeed hard-wired).  So after plugging in ffff's
-> into both BARs I effectively get 0x00000000fffff000 (again after masking
-> flags).  I would expect a length of 0x1000 for this (extent 0xfff), but
-> Linux computes an extent of 0xffffffffffffffff!  Since the spec says the
-> length is computed from the first one bit I'll assume this is wrong. 
-> The code should account for the lower dword as well as the upper.
+On Wednesday 04 September 2002 20:02, Jamie Lokier wrote:
+> I have a small problem with a module I'm writing.  It uses a
+> pseudo-filesystem, rather like futexes and pipes, so that it can hand
+> out special file descriptors on request.
 > 
-> So my fix is attached.  I chose to use pci_size() in the computation of
-> the upper dword for consistency.  Perhaps there should be a defined mask
-> for the upper dword in pci.h (i.e. PCI_BASE_ADDRESS_MEM_64_MASK?) rather
-> than hard coding 0xffffffff.  The patch is against 2.4.20-pre4.
+> Following the examples of pipe.c and futex.c, but specifically for a 2.4
+> kernel, I'm doing this:
+> 
+> 	static DECLARE_FSTYPE (mymod_fs_type, "mymod_fs",
+> 			       mymod_read_super, FS_NOMOUNT);
+> 
+> 
+> 	static int __init mymod_init (void)
+> 	{
+> 		int err = register_filesystem (&mymod_fs_type);
+> 		if (err)
+> 			return err;
+> 		mymod_mnt = kern_mount (&mymod_fs_type);
+> 		if (IS_ERR (mymod_mnt)) {
+> 			unregister_filesystem (&mymod_fs_type);
+> 			return PTR_ERR (mymod_mnt);
+> 		}
+> 	}
+> 
+> 	static void __exit mymod_exit (void)
+> 	{
+> 		mntput (mymod_mnt);
+> 		unregister_filesystem (&mymod_fs_type);
+> 	}
+> 
+> Unfortunately, when I come to _unload_ the module, it can't be unloaded
+> because the kern_mount increments the module reference count.
+> 
+> (pipe.c in 2.4 appears to have the same problem, but of course nobody
+> can ever unload it anyway so it doesn't matter).
+> 
+> I'm handing out file descriptors rather like futexes from 2.5: they all
+> share the same dentry, which is the root of the filesystem.  In my
+> code's case, that dentry is created in `mymod_read_super' (just the same
+> way as 2.4 pipe.c).
+> 
+> Somehow, it looks like I need to mount the filesystem when it first
+> generates an fd, and unmount it when the last fd is destroyed -- but is
+> it safe to unmount the filesystem _within_ a release function of an
+> inode on the filesystem?
+> 
+> Either that, or I need something else.
 
-A bug fix like this should at least be cc'd to Marcelo.
+It's a good example of why the module interface is stupidly wrong, and
+__exit needs to be called by the module unloader, returning 0 if it's
+ok to unload.  Then your __exit can whatever condition it's interested
+in and, if all is well, do the kern_umount.
 
 -- 
 Daniel

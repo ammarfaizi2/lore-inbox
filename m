@@ -1,80 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSF2T5j>; Sat, 29 Jun 2002 15:57:39 -0400
+	id <S314243AbSF2UD1>; Sat, 29 Jun 2002 16:03:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314243AbSF2T5i>; Sat, 29 Jun 2002 15:57:38 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:34309
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S314149AbSF2T5h>; Sat, 29 Jun 2002 15:57:37 -0400
-Date: Sat, 29 Jun 2002 12:59:09 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Gunther Mayer <gunther.mayer@gmx.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Evgeniev <nick@octet.spb.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.19-rc1 i845e workaround udma fix
-In-Reply-To: <3D1DF223.C56731EF@gmx.net>
-Message-ID: <Pine.LNX.4.10.10206291252270.5348-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314278AbSF2UD0>; Sat, 29 Jun 2002 16:03:26 -0400
+Received: from niobium.golden.net ([199.166.210.90]:64239 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP
+	id <S314243AbSF2UDY>; Sat, 29 Jun 2002 16:03:24 -0400
+Date: Sat, 29 Jun 2002 16:04:23 -0400
+From: "John L. Males" <jlmales@yahoo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.2.21 aic7xxx lockup or kernel lockup
+Message-Id: <20020629160423.2cfc6be7.jlmales@yahoo.com>
+Reply-To: jlmales@yahoo.com
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i586-pc-linux-gnu-Patched-SortRecipient-CustomSMTPAuthNDate)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.5HF0A(gPDDs6qU"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.5HF0A(gPDDs6qU
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Gunther,
+Hello,
 
-That is a nice start to enable the HBA; however, the issue needs to add
-full loading of the BARS.  Regardless of the old kludge to only load the
-buffered resource values in the kernel, they were never committed to the
-hardware.  This is one of the classic cases where Linux diverges from the
-direction MicroSoft has pushed hardware to go under the rules of WHQL, and
-ends up sucking wind.
+**** Please BCC me in on any reply, not CC me.
+Two reasons, I am not on the Mailing List,
+and second I am suffering BIG time with SPAM
+from posting to mailing lists/Newsgroups.
+Instructions on real address at bottom.
+Thanks in advance. *****
 
-The real need is to add in clean Native/Compatablity mode and not leave it
-in voodoo land as we (me also) in the past have done.
+Could somone advise me what I need to do to obtain the details of a
+aic7xxx module lockup that happens when using insmod?  I am not sure
+what would be helpful data to report here and assist in determining
+what is the problem, beyond the obvious system details?
 
-Cheers,
+I am now using kernel 2.2.21, and it is a tad better in terms of not
+locking up the kernel hard in the different device connected
+conditions.  The lockup does not always occur, much depends on if
+something is connected to the 2930 or not.  In all cases with a device
+connected a hard kernel lockup or module load lockup occur.  In the
+latter I can ctrl-c or close the xterm to kill the load.  I tried an
+strace but this appears not to provide any detail, at least in my
+limited knowledge of the kernel and my techncial read of the strace
+data.
+
+The 2930 has no problem with seeing the devices.  The devices work
+just fine as I changed to a BusLogic 930 and both scanner and CDWriter
+work just fine.  The primary SCSI is a Buslogic 958 that the hard
+drives boot off.  I was using the 2930 for external and slow devices. 
+The 958 remained in, I just swapped the 2930 for the 930.  The
+buslogic.o is loaded at boot time from the Initial RAM disk, and there
+is no compiled in SCSI driver support, all are modules.
+
+I really appreciate if you bcc me in on your reply so I can avoid the
+big SPAM problems that have been snowballing me lately.
 
 
-Andre Hedrick
-LAD Storage Consulting Group
+Regards,
 
-On Sat, 29 Jun 2002, Gunther Mayer wrote:
+John L. Males
+Willowdale, Ontario
+Canada
+29 June 2002 16:04
 
-> Alan Cox wrote:
-> 
-> > Complain to your BIOS vendor
-> >
-> > A workaround for this BIOS flaw will be in the -ac tree in a week or so
-> 
-> Or try this patch today:
-> 
-> --- linux-2.4.19-rc1/arch/i386/kernel/pci-i386.c        Sat Jun 29 20:39:05
-> 2002
-> +++ linux/arch/i386/kernel/pci-i386.c   Sat Jun 29 20:37:25 2002
-> @@ -314,8 +314,8 @@
->         for(idx=0; idx<6; idx++) {
->                 r = &dev->resource[idx];
->                 if (!r->start && r->end) {
-> -                       printk(KERN_ERR "PCI: Device %s not available because
-> of resource collisions\n", dev->slot_name);
-> -                       return -EINVAL;
-> +                       printk(KERN_ERR "PCI: Device %s not available because
-> of resource collisions on idx=%d %x %x\n",
-> dev->slot_name,idx,r->start,r->end);
-> +                       printk("Temporary Workaround for 845E/845G:
-> ignoring.\n");
->                 }
->                 if (r->flags & IORESOURCE_IO)
->                         cmd |= PCI_COMMAND_IO;
-> 
-> This increases hdparm -t from 3MB/sec to 41MB/sec.
-> -
-> Gunther
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+==================================================================
+
+
+"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 -
+February/2000
+
+
+***** Please BCC me in on any reply, not CC me.
+Two reasons, I am not on the Mailing List,
+and second I am suffering BIG time with SPAM
+from posting to mailing lists/Newsgroups.
+Instructions on real address at bottom.
+Thanks in advance. *****
+
+
+Please BCC me by replacing after the "@" as follows:
+TLD =         The last three letters of the word "internet"
+Domain name = The first four letters of the word "software",
+              followed by the first four letters of the word
+              "homeless".
+My appologies in advance for the jumbled eMail address
+and request to BCC me, but SPAM has become a very serious
+problem.  The eMail address in my header information is
+not a valid eMail address for me.  I needed to use a valid
+domain due to ISP SMTP screen rules.
+
+--=.5HF0A(gPDDs6qU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAj0eEt4ACgkQsrsjS27q9xaWvQCcCcjZZGVHhm7EhD6Etr0QhCqw
+/YgAnjHr4SAc/rRSUWITkvkW6oI33o8m
+=gu8K
+-----END PGP SIGNATURE-----
+
+--=.5HF0A(gPDDs6qU--
 

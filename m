@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284484AbRLXJFY>; Mon, 24 Dec 2001 04:05:24 -0500
+	id <S284497AbRLXJTr>; Mon, 24 Dec 2001 04:19:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284488AbRLXJFP>; Mon, 24 Dec 2001 04:05:15 -0500
-Received: from mta9n.bluewin.ch ([195.186.1.215]:7658 "EHLO mta9n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S284484AbRLXJFE>;
-	Mon, 24 Dec 2001 04:05:04 -0500
-Message-ID: <3C25C668000276EC@mta9n.bluewin.ch> (added by postmaster@bluewin.ch)
-From: "Per Jessen" <per@computer.org>
-To: "Adam Keys" <akeys@post.cis.smu.edu>, "DevilKin" <devilkin@gmx.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Mon, 24 Dec 2001 10:17:45 +0100
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+	id <S284507AbRLXJT2>; Mon, 24 Dec 2001 04:19:28 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:18101 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S284491AbRLXJTR> convert rfc822-to-8bit;
+	Mon, 24 Dec 2001 04:19:17 -0500
+Date: Mon, 24 Dec 2001 11:19:04 +0200 (EET)
+From: Teodor Iacob <theo@astral.kappa.ro>
+X-X-Sender: <theo@linux.kappa.ro>
+Reply-To: <Teodor.Iacob@astral.kappa.ro>
+To: =?gb2312?q?hanhbkernel?= <hanhbkernel@yahoo.com.cn>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: boot messeage
+In-Reply-To: <20011224081202.90369.qmail@web15003.mail.bjs.yahoo.com>
+Message-ID: <Pine.LNX.4.31.0112241117310.20918-100000@linux.kappa.ro>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [test] Hmm. no more lklm traffic?
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
+X-RAVMilter-Version: 8.2(snapshot 20010725) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Dec 2001 02:24:39 -0600, Adam Keys wrote:
+in menuconfig under Character devices
+disable the option: Support for console on virtual terminal
 
->On December 24, 2001 02:08, DevilKin wrote:
->> Hmm... It seems that I have / there is a problem with LKLM? I have no more
->> traffic from the mailing list since 23/12 around 3 AM.
+Read the help about it anyway ..
+
+
+      Teodor Iacob,
+Astral TELECOM Internet
+
+On Mon, 24 Dec 2001, [gb2312] hanhbkernel wrote:
+
+> When booting linux the kernel messages is shown
+> on screen.
+> I don't like to show these messages , please tell me
+> how can I do.
 >
->I think it's just beginning to look a lot like Christmas...
-
-Since Dec23 0300 (CET), I have about 200 lkml emails. 
-
-/Per
-
-regards,
-Per Jessen, Zurich
-http://www.enidan.com - home of the J1 serial console.
-
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-
+>
+> _________________________________________________________
+> Do You Yahoo!? 登录免费雅虎电邮! http://mail.yahoo.com.cn
+>
+> <font color=#6666FF>无聊？郁闷？高兴？没理由？都来聊天吧！</font>——
+> 雅虎全新聊天室! http://cn.chat.yahoo.com/c/roomlist.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbTJMCOM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 22:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTJMCOM
+	id S261345AbTJMCaD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 22:30:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbTJMCaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 22:14:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24018 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261569AbTJMCN7 (ORCPT
+	Sun, 12 Oct 2003 22:30:03 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:39639 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id S261345AbTJMCaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 22:13:59 -0400
-Date: Sun, 12 Oct 2003 19:17:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: roland@redhat.com, mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] report user-readable fixmap area in /proc/PID/maps
-Message-Id: <20031012191706.02c22aab.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0310121845100.12190-100000@home.osdl.org>
-References: <200310130135.h9D1Zajj008309@magilla.sf.frob.com>
-	<Pine.LNX.4.44.0310121845100.12190-100000@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Oct 2003 22:30:01 -0400
+Date: Mon, 13 Oct 2003 04:28:21 +0200
+From: Domen Puncer <domen@coderock.org>
+Subject: Re: 3c59x on 2.6.0-test3->test6 slow
+In-reply-to: <20031012173702.57eea934.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Message-id: <200310130428.21170.domen@coderock.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.5.4
+References: <200310061529.56959.domen@coderock.org>
+ <200310130222.03175.domen@coderock.org> <20031012173702.57eea934.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Monday 13 of October 2003 02:37, Andrew Morton wrote:
+> Domen Puncer <domen@coderock.org> wrote:
+> > Tried a bunch of 2.5.x kernels... no better.
+> >  Then i tried 2.4.22... and my nic still doesn't work fast.
 >
-> If you really want /proc/PID/maps to look right, add a new vm_area_struct,
->  see if you can allocate it as part of the "struct mm_struct" so that we
->  don't get yet another (unnecessary) allocation on fork time.
+> There's some stuff in Documentation/networking/vortex.txt telling you how
+> to locate and run vortex-diag and mii-diag.
 
-It could be done "on demand".  So get_user_pages() and the /proc code will
-call the new add_fixmap_vma() on entry.  Hence the additional overhead is
-only incurred when /proc/pid/maps is accessed, or get_user_pages() is
-called.
+Should have read this before, sorry.
 
-It'll need a new flag in mm_struct.  mm_struct.swap_address can be
-salvaged: it is no longer used.
+options=8 (autonegotiate) solves my problem. (driver could default to that?)
+Sorry for wasting your time.
+
+>
+> You might need to reprogram the eeprom using 3c90xx2.exe.
 

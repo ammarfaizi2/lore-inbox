@@ -1,92 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264267AbUD0SJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264254AbUD0SMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264267AbUD0SJc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 14:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUD0SJb
+	id S264254AbUD0SMs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 14:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUD0SKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 14:09:31 -0400
-Received: from mail.gmx.net ([213.165.64.20]:16805 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264267AbUD0SId (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 14:08:33 -0400
-X-Authenticated: #1226656
-Date: Tue, 27 Apr 2004 20:08:30 +0200
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Dru <andru@treshna.com>, linux-xfs@oss.sgi.com,
-       =?ISO-8859-1?Q?M=E5ns_?= =?ISO-8859-1?Q?Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: status of Linux on Alpha?
-Message-Id: <20040427200830.3f485a54@vaio.gigerstyle.ch>
-In-Reply-To: <20040427215514.A651@den.park.msu.ru>
-References: <20040328204308.C14868@jurassic.park.msu.ru>
-	<20040328221806.7fa20502@vaio.gigerstyle.ch>
-	<yw1xr7vcn1z2.fsf@ford.guide>
-	<20040329205233.5b7905aa@vaio.gigerstyle.ch>
-	<20040404121032.7bb42b35@vaio.gigerstyle.ch>
-	<20040409134534.67805dfd@vaio.gigerstyle.ch>
-	<20040409134828.0e2984e5@vaio.gigerstyle.ch>
-	<20040409230651.A727@den.park.msu.ru>
-	<20040413194907.7ce8ceb7@vaio.gigerstyle.ch>
-	<20040427185124.134073cd@vaio.gigerstyle.ch>
-	<20040427215514.A651@den.park.msu.ru>
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Apr 2004 14:10:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60378 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264254AbUD0SH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 14:07:56 -0400
+Message-ID: <408EA16C.4030102@pobox.com>
+Date: Tue, 27 Apr 2004 14:07:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Christoph Hellwig <hch@infradead.org>, Chris Mason <mason@suse.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, akpm@osdl.org
+Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary additional
+ namespace to ReiserFS
+References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <20040426203314.A6973@infradead.org> <408E986F.90506@namesys.com> <20040427183400.A20221@infradead.org> <408E9F42.2080804@namesys.com>
+In-Reply-To: <408E9F42.2080804@namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ivan,
-
-Cool!
-
-I will try your patch after I finished moving to my new flat:-)
-
-I wonder why it happens only with the XFS code. What I saw
-rw_sem is used all over the place in the kernel.
-
-Thank you and Dru for the work and hopefully it will fix my problem.
-
-Regards
-
-Marc
-
-
-On Tue, 27 Apr 2004 21:55:14 +0400
-Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
-
-> On Tue, Apr 27, 2004 at 06:51:24PM +0200, Marc Giger wrote:
-> > What's the current status of the problem?
+Hans Reiser wrote:
+> Christoph Hellwig wrote:
 > 
-> Hopefully resolved - thanks to Dru <andru@treshna.com>, who provided
-> an easy way to reproduce the problem.
+>>> Did you notice that V4 blows XFS and ReiserFS V3 away in 
+>>> benchmarks?    That is what I have been doing for 3 years....
+>>>
+>>> See www.namesys.com for details.
+>>>   
+>>
+>>
+>> see www.microsoft.com why Windows is much better than Linux.  Yeah, 
+>> thanks.
+>>  
+>>
+> Ask the users whether their laptops, etc.,  seem to go a lot faster with 
+> V4.  They seem to be pretty happy with it.
 > 
-> What we have in lib/rwsem.c:__rwsem_do_wake():
-> 	int woken, loop;
-> 	^^^
-> and several lines below:
-> 	loop = woken;
-> 	woken *= RWSEM_ACTIVE_BIAS-RWSEM_WAITING_BIAS;
-> 	woken -= RWSEM_ACTIVE_BIAS;
-> 
-> However, rw_semaphore->count is 64-bit on Alpha, so
-> RWSEM_WAITING_BIAS has been defined as -0x0000000100000000L.
-> Obviously, this blows up in the write contention case.
-> 
-> Ivan.
-> 
-> --- linux.orig/lib/rwsem.c	Mon Apr 26 20:11:36 2004
-> +++ linux/lib/rwsem.c	Tue Apr 27 20:04:14 2004
-> @@ -40,8 +40,7 @@ static inline struct rw_semaphore *__rws
->  {
->  	struct rwsem_waiter *waiter;
->  	struct list_head *next;
-> -	signed long oldcount;
-> -	int woken, loop;
-> +	signed long oldcount, woken, loop;
->  
->  	rwsemtrace(sem,"Entering __rwsem_do_wake");
->  
-> 
-> 
+> V4 fixed all of V3's serious performance flaws, and totally obsoletes 
+> it.    I am very happy with it.
+
+
+For the present thread, this is irrelevant, as the irreverent responses 
+hinted at:
+
+Regardless of _any_ features or fixes in V4, reiserfs V3 will be used in 
+production system for years.  Minor feature additions to an existing 
+filesystem make it far easier for kernel engineers and sysadmins to 
+assess the impact on their systems -- which is typically of less impact 
+than switching to a new filesystem.
+
+	Jeff
+
+
+

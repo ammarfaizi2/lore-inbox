@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbTGFQVG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 12:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbTGFQVG
+	id S262497AbTGFQUc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 12:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTGFQUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 12:21:06 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:25873 "EHLO
-	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262568AbTGFQUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 12:20:36 -0400
-Date: Sun, 6 Jul 2003 18:35:08 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre3
-Message-ID: <20030706163508.GA21898@krusty.dt.e-technik.uni-dortmund.de>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
+	Sun, 6 Jul 2003 12:20:31 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:13 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S262497AbTGFQU2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 12:20:28 -0400
+Date: Sun, 6 Jul 2003 18:34:53 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.22-pre3 and reiserfs boot problem
+Message-Id: <20030706183453.74fbfaf2.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 05 Jul 2003, Marcelo Tosatti wrote:
+Hello,
 
-> Here goes -pre3. It contains a lot of updates and fixes all over.
+I just tried 2.4.22-pre3 and found out I cannot boot my test box any more. It
+halts at:
 
-It still lacks the update of the "shortlog" (aka. lk-changelog.pl)
-:-(
+reiserfs: found format "3.6" with standard journal
 
-bk clone bk://kernel.bkbits.net/torvalds/tools/
-bk get shortlog
-feed your changelog through shortlog
+on a partition located on aic7xxx based hd. 
+
+Booting the box with pre2 works perfectly well.
+Anything I should try? What information is needed?
+
+Regards,
+Stephan
 

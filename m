@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265796AbRF1NnO>; Thu, 28 Jun 2001 09:43:14 -0400
+	id <S265844AbRF1Nto>; Thu, 28 Jun 2001 09:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265837AbRF1NnE>; Thu, 28 Jun 2001 09:43:04 -0400
-Received: from mgw-x3.nokia.com ([131.228.20.26]:6079 "EHLO mgw-x3.nokia.com")
-	by vger.kernel.org with ESMTP id <S265796AbRF1NnA>;
-	Thu, 28 Jun 2001 09:43:00 -0400
-Date: Thu, 28 Jun 2001 16:40:47 +0300
-To: ext Andi Kleen <ak@suse.de>
-Cc: Gautier Harmel <Gautier.Harmel@qosmos.net>, linux-kernel@vger.kernel.org
-Subject: Re: How to pass packets up to protocols layer ?
-Message-ID: <20010628164047.A9478@terrapin>
-In-Reply-To: <3B3AFFDE.2763D18F@qosmos.net.suse.lists.linux.kernel> <oup3d8k4vz0.fsf@pigdrop.muc.suse.de>
+	id <S265845AbRF1Nte>; Thu, 28 Jun 2001 09:49:34 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:52664 "EHLO
+	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265844AbRF1NtS>; Thu, 28 Jun 2001 09:49:18 -0400
+Subject: [ANNOUNCE] New version of the Linux Test Project released
+From: Paul Larson <plars@austin.ibm.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 28 Jun 2001 08:50:34 -0500
+Message-Id: <993736239.4341.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <oup3d8k4vz0.fsf@pigdrop.muc.suse.de>
-User-Agent: Mutt/1.3.18i
-From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Either use netif_rx()/ for complete packets that should go through the
-> whole stack again or nf_reinject() from your hook.
 
-Is it really possible to call netif_rx from netfilter hook? I try to
-call netif_rx(skb) from PRE_ROUTING hook (returning NF_STOLEN)
-and kernel immediately crashes, even if I did nothing with skb at all.
-Why it happens this way?
+The Linux Test Project is an open source project originated by SGI and
+recently joined by IBM and OSDL to provide a collection of tools for
+testing the Linux kernel, and Linux in general.  The project consists of
+well over 100 individual testcases and a test driver to automate
+execution of the tests.  This release includes many new tests and
+updates.
 
--- 
-Alexey
+-Over 20 reliability network tests for remote procedure calls, network
+file systems, multicast, and various network commands.
+-An assortment of robustness tests that cover pthreads, memory,
+filesystems, and disk I/O
+-Several tests for commands commonly used in an application development
+environment.
+
+You can download the Linux Test Project on SourceForge at
+http://sourceforge.net/projects/ltp.  For more information about the
+Linux Test Project, visit our web site at http://ltp.sf.net.
+

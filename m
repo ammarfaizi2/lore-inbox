@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266695AbUHVMBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUHVMHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266695AbUHVMBP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 08:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUHVMBO
+	id S266674AbUHVMHH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 08:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUHVMHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 08:01:14 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:14552 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266695AbUHVMBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 08:01:10 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Sun, 22 Aug 2004 14:00:08 +0200
-To: schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <41288AC8.nail9MX2N76J9@burner>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>
- <d577e5690408190004368536e9@mail.gmail.com>
- <4124A024.nail7X62HZNBB@burner> <4124BA10.6060602@bio.ifi.lmu.de>
- <1092925942.28353.5.camel@localhost.localdomain>
- <4125E5B9.nail8LD2EG3NM@burner>
- <1093001143.30940.23.camel@localhost.localdomain>
- <41260675.nail8LDG1UIJL@burner>
- <1093009555.30941.48.camel@localhost.localdomain>
- <4127436A.nail9BA11B882@burner>
- <1093171538.24341.24.camel@localhost.localdomain>
-In-Reply-To: <1093171538.24341.24.camel@localhost.localdomain>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 22 Aug 2004 08:07:07 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:38030 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266674AbUHVMHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 08:07:04 -0400
+Subject: Re: Fwd: LowFree memory going down -server freezes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Julia M <juliamrus@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040821223551.67748.qmail@web41101.mail.yahoo.com>
+References: <20040821223551.67748.qmail@web41101.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1093172695.24344.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 22 Aug 2004 12:04:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Sad, 2004-08-21 at 23:35, Julia M wrote:
+> I am using Linux version 2.4.9-e.3smp
+> (bhcompile@stripples.devel.redhat.com) (gcc version 2
+> .96 20000731 (Red Hat Linux 7.2 2.96-108.1)) #1 SMP
+> Fri May 3 16:48:54 EDT 2002
 
-> Your mail was not delivered.
->
-> Reason: entry found in the distributed idiots database
+The Red Hat 7.x kernel is very very old and probably the best way to get
+the box happy is to run something modern on it - bugs get fixed by new
+versions and there have been a lot of those for the kernel since 2.4.9.
+If its Red Hat Enterprise Linux rather than RH 7.x you should probably
+ask on the Red Hat rhel lists because (out of neccessity) the 2.1 VM is
+very different to the base kernel and most of the folks who know and
+care about it probably live on the Red Hat list.
 
-You repeatedly not send useful replies.
+Alan
 
-So either you are missing technical competence, you are missing the needed
-discussion culture or you are a troll that has fun with stealing other people's 
-time.
-
-Either become reasonable or be pepared to be treated as a troll.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

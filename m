@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317460AbSFCTXk>; Mon, 3 Jun 2002 15:23:40 -0400
+	id <S311749AbSFCT2a>; Mon, 3 Jun 2002 15:28:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317463AbSFCTXj>; Mon, 3 Jun 2002 15:23:39 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:60105 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S317460AbSFCTXh>;
-	Mon, 3 Jun 2002 15:23:37 -0400
-Date: Mon, 3 Jun 2002 22:23:38 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: please kindly get back to me
-Message-ID: <20020603222338.F18899@mea-ext.zmailer.org>
-In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7801@nocmail101.ma.tmpw.net> <20020603220046.D18899@mea-ext.zmailer.org> <20020603120653.C4940@work.bitmover.com>
-Mime-Version: 1.0
+	id <S314395AbSFCT23>; Mon, 3 Jun 2002 15:28:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46860 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311749AbSFCT22>;
+	Mon, 3 Jun 2002 15:28:28 -0400
+Message-ID: <3CFBC307.70F0581A@zip.com.au>
+Date: Mon, 03 Jun 2002 12:27:04 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/16] unplugging fix
+In-Reply-To: <3CF88852.BCFBF774@zip.com.au> <3CF9CB92.A6BF921B@zip.com.au> <20020602081204.GD820@suse.de> <20020603083937.GA23527@suse.de> <3CFB3383.44A6CC96@zip.com.au> <20020603094121.GB23527@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03, 2002 at 12:06:53PM -0700, Larry McVoy wrote:
-> On Mon, Jun 03, 2002 at 10:00:46PM +0300, Matti Aarnio wrote:
-> >   Anti-spam technology really needs constant evolution, as those
-> >   spammers do evolve themselves...
+Jens Axboe wrote:
 > 
-> If ever there was something which was screaming for an open source project,
-> it's spam filtering.  It seems like every major mailing list has someone
-> like Matti, working really hard on a thankless task, but losing out under
-> the tide of new spam every day.  Seems to me if there was a public repository
-> (sourceforge, bkbits, whatever) with a collection of procmail filters which
-> have been shown to work correctly, that would be a win.
+> On Mon, Jun 03 2002, Andrew Morton wrote:
+> > Jens Axboe wrote:
+> > >
+> > > ...
+> > > Does this work? I can't poke holes in it, but then again...
+> >
+> > It survives a 30-minute test.  It would not have done that
+> > before...
+> 
+> Excellent.
 
-  Larry,
+Hope so.  My Friday-night-notfix wouild have survived that long :(
 
-  Best technologies (as I see them, but I am not omniscient, of course)
-  are those that do scoring.  E.g. naving some word NN might not alone
-  be considered spam-signature, but it might increase score, and once
-  the score exceeds arbitrary treshold (lower with short messages?),
-  the message is considered spam, and rejected.
+> > Are you sure blk_stop_queue() and blk_run_queues() can't
+> > race against each other?  Seems there's a window where
+> > they could both do a list_del().
+> 
+> Hmm I'd prefer to just use the safe variant and not rely on the plugged
+> flag when the lock isn't held, so here's my final version with just that
+> change. Agree?
 
-  Some recent TEXT/PLAIN spams have been encoded in BASE64 or ingenous
-  QUOTED-PRINTABLE to avoid several common Perl-RE pattern using filters.
+Not really ;)
 
-  I think there are several free codes of this kind available, but my time
-  has been chronically over-subscribed to do radical things like taking
-  this kind of codes into use.
+There still seems to be a window where blk_run_queues() will
+assume the queue is on local_plug_list while not holding
+plug_list_lock.  The QUEUE_PLUGGED flag is set, so blk_stop_queue()
+will remove the queue from local_plug_list.  Then blk_run_queues()
+removes it as well.  The new list_head debug code will rudely
+catch that.
 
-> -- 
-> Larry McVoy     lm at bitmover.com     http://www.bitmover.com/lm 
+I'd be more comfortable if the duplicated info in QUEUE_FLAG_PLUGGED
+and "presence on a list" were made fully atomic/coherent via
+blk_plug_lock?
 
-/Matti Aarnio
+-

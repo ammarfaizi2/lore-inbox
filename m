@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266369AbUAOBOA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266382AbUAOBN4
+	id S266352AbUAOB3A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266355AbUAOB3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:13:56 -0500
-Received: from nobody.lpr.e-technik.tu-muenchen.de ([129.187.151.1]:3288 "EHLO
-	nobody.lpr.e-technik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S266369AbUAOBMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 20:12:35 -0500
-Message-ID: <4005E8FF.4050700@metrowerks.com>
-Date: Thu, 15 Jan 2004 02:12:31 +0100
-From: Bernhard Kuhn <bkuhn@metrowerks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: inaky.perez-gonzalez@intel.com
-CC: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org
-Subject: Re: [RFC/PATCH] FUSYN Realtime & Robust mutexes for Linux try 2.1
-References: <0401141449.CaWdGcXb9b6caaodvdxcqcwdkc7cOazb9031@intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 14 Jan 2004 20:29:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49544 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266352AbUAOB27 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 20:28:59 -0500
+Date: Wed, 14 Jan 2004 17:29:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jsun@mvista.com, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk
+Subject: Re: [BUG] 2.6.1/MIPS - missing cache flushing when user program
+ returns pages to kernel
+Message-Id: <20040114172946.03e54706.akpm@osdl.org>
+In-Reply-To: <20040114171252.4d873c51.akpm@osdl.org>
+References: <20040114163920.E13471@mvista.com>
+	<20040114171252.4d873c51.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inaky.perez-gonzalez@intel.com wrote:
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> I think that's wrong, really.  We've discussed this before and decided that
+> these flushing operations should be open-coded in the main .c file rather
+> than embedded in arch functions which happen to undocumentedly do other
+> stuff.
 
-> This code proposes an implementation of kernel based mutexes,
-
-Pretty interessting stuff! I will inspect if i could combine
-it with the "real-time interrupts" i recently described
-(http://www.linuxdevices.com/articles/AT6105045931.html).
-
-Currently i'm protecting critical areas with "prioritized
-spinlocks" that don't provide a priority inversion aviodance
-scheme. Having "real" mutexes with priority inheritence
-should be pretty helpfull to make the kernel hard real time
-aware.
-
-best regards
-
-Bernhard
+err, OK, I give up.  Lots of architectures do the cache flush in
+tlb_start_vma().  I guess mips may as well do the same.
 

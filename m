@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261725AbSI0P5D>; Fri, 27 Sep 2002 11:57:03 -0400
+	id <S262242AbSI0Pyk>; Fri, 27 Sep 2002 11:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261726AbSI0P5D>; Fri, 27 Sep 2002 11:57:03 -0400
-Received: from [198.70.193.2] ([198.70.193.2]:57711 "EHLO AVEXCH01.qlogic.org")
-	by vger.kernel.org with ESMTP id <S261725AbSI0P5C> convert rfc822-to-8bit;
-	Fri, 27 Sep 2002 11:57:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S262513AbSI0Pyk>; Fri, 27 Sep 2002 11:54:40 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:50840 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S262242AbSI0Pyj>;
+	Fri, 27 Sep 2002 11:54:39 -0400
+Message-ID: <3D948074.5030800@colorfullife.com>
+Date: Fri, 27 Sep 2002 17:59:48 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] deadline io scheduler
-Date: Fri, 27 Sep 2002 09:01:20 -0700
-Message-ID: <B179AE41C1147041AA1121F44614F0B004F771@AVEXCH02.qlogic.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] deadline io scheduler
-Thread-Index: AcJl6uvF3GL9SX0BSEuvNaJ1xe81WAAUl2vw
-From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>, "Andrew Vasquez" <praka@san.rr.com>
-Cc: "Mike Anderson" <andmike@us.ibm.com>,
-       "Michael Clark" <michael@metaparadigm.com>,
-       "David S. Miller" <davem@redhat.com>, <wli@holomorphy.com>,
-       <axboe@suse.de>, <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       <patmans@us.ibm.com>
-X-OriginalArrivalTime: 27 Sep 2002 16:02:08.0969 (UTC) FILETIME=[3BA8DB90:01C2663F]
+To: Andrew Morton <akpm@digeo.com>
+CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/4] slab reclaim balancing
+References: <3D931608.3040702@colorfullife.com> <3D9345C4.74CD73B8@digeo.com> <3D935655.1030606@colorfullife.com> <3D9364BA.A2CA02C5@digeo.com> <3D9372D3.3000908@colorfullife.com> <3D937E87.D387F358@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrew Vasquez wrote:
-> > I hope this helps to clearup some of the haze and ambiguity
-> > surrounding QLogic's work with the 6.x series driver, and perhaps
-> > at the same time, prepares a medium for discussion regarding the 6.x
-> > series driver.
+Andrew Morton wrote:
+>>
+>>Is that actually the right approach? For large objects, it would be
+>>possible to cripple the freeable slabs list, and to perform the cache
+>>hit optimization (i.e. per-cpu LIFO) in page_alloc.c, but that doesn't
+>>work with small objects.
 > 
-> Wow, thanks for all that information, and it's great that you've 
-> integrated Arjan's work and feedback.
 > 
-> There is one big question left unanswered...  Where can the 
-> source for 
-> the latest version with all this wonderful stuff be found?  
-> :)  I don't 
-> see a URL even for 6.01b5.
+> Well with a, what? 100:1 speed ratio, we'll generally get best results
+> from optimising for locality/recency of reference.
 > 
-Sure, the 6.01b5 tarball can be found at:
+You misunderstood me:
 
-	http://download.qlogic.com/drivers/5642/qla2x00-v6.1b5-dist.tgz
+AFAICS slab.c has 2 weaks spots:
+* cache hit rates are ignored on UP, and for objects > PAGE_SIZE on both 
+SMP and UP.
+* freeable pages are not returned efficiently to page_alloc.c, neither 
+on SMP nor on UP. On SMP, this is a big problems, because the 
+cache_chain_semaphore is overloaded.
 
-In general all QLogic drivers are available from the following URL:
+I just wanted to say that a hotlist in page_alloc.c is not able to 
+replace a hotlist in slab.c, because many objects are smaller than page 
+size. Both lists are needed.
 
-	http://www.qlogic.com/support/drivers_software.asp
+--
+	Manfred
 
-In my mind, a larger question is determining a balance between the 
-'Release Early, release often' mantra of Linux development and the 
-'kinder, more conservative pace' of business.  For example, If we 
-cannot setup a 'patch/pre-beta' web-site locally at QLogic, I've 
-considered starting a SourceForge project or hosting it locally 
-through my ISP. 
 
-Regards,
-Andrew Vasquez

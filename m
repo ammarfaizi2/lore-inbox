@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133098AbRDZEmD>; Thu, 26 Apr 2001 00:42:03 -0400
+	id <S133106AbRDZEwx>; Thu, 26 Apr 2001 00:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133099AbRDZElv>; Thu, 26 Apr 2001 00:41:51 -0400
-Received: from ohiper1-111.apex.net ([209.250.47.126]:15114 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S133098AbRDZElp>; Thu, 26 Apr 2001 00:41:45 -0400
-Date: Wed, 25 Apr 2001 23:39:39 -0500
-From: Steven Walter <srwalter@yahoo.com>
+	id <S133099AbRDZEwn>; Thu, 26 Apr 2001 00:52:43 -0400
+Received: from MAIL1.ANDREW.CMU.EDU ([128.2.10.131]:50914 "EHLO
+	mail1.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S133106AbRDZEwY>; Thu, 26 Apr 2001 00:52:24 -0400
+Date: Thu, 26 Apr 2001 00:51:53 -0400 (EDT)
+From: Paul Komarek <komarek@andrew.cmu.edu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] to detect ActionTec PCI modem
-Message-ID: <20010425233939.A29065@hapablap.dyn.dhs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 11:36pm  up 1 day,  6:43,  1 user,  load average: 0.15, 0.20, 0.26
+cc: ross@willow.seitz.com, komarek@andrew.cmu.edu
+Subject: 2.4.x APM interferes with FA311TX/natsemi.o
+Message-ID: <Pine.LNX.4.21L.0104260037320.17383-100000@unix49.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch modifies serial.c to detect the ActionTec PCI modem.  This
-particular device has a class of PCI_CLASS_COMMUNICATION_OTHER, so it
-isn't detected by the current catch-all rule that detects devices of
-"PCI_CLASS_COMMUNICATION_SERIAL".
 
-Patch is against kernel 2.4.3.  Tested to compiled and run.  Comments
-welcome.
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+SUMMARY:  the APM call
+  apm_bios_call_simple(APM_FUNC_SET_STATE, 0x100, APM_STATE_READY, &eax)
+causes my Netgear FA311TX to enter a sleep mode.
 
---- clean-2.4.3/drivers/char/serial.c	Fri Mar 30 23:15:33 2001
-+++ linux/drivers/char/serial.c	Tue Apr 24 16:32:02 2001
-@@ -4706,6 +4728,8 @@
- 
- 
- static struct pci_device_id serial_pci_tbl[] __devinitdata = {
-+       { PCI_VENDOR_ID_ATT, PCI_DEVICE_ID_ATT_VENUS_MODEM,
-+         PCI_ANY_ID, PCI_ANY_ID, },
-        { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
- 	 PCI_CLASS_COMMUNICATION_SERIAL << 8, 0xffff00, },
-        { 0, }
+DESCRIPTION:
+I am having difficulties with the natsemi.o driver with a Netgear FA311TX.  
+When the call
+  apm_bios_call_simple(APM_FUNC_SET_STATE, 0x100, APM_STATE_READY, &eax)
+is made, the PMEEN (PME enable) bit in the CCSR register on my FA311
+mysteriously changes from 0 to 1, causing the card to stop processing
+received packets.  This APM call is made when unblanking the screen, for
+instance when switching from KD_GRAPHICS to KD_TEXT with the KDSETMODE
+ioctl on a virtual terminal.
+
+I've modified this APM call to report the status of the PMEEN bit before
+and after the short sequence of assembly statement in
+apm_bios_call_simple() is executed.  I'm guessing there isn't any
+interrupt activity between my "before" and "after" checks.  At least the
+natsemi.o driver's interrupt handler isn't being called, but I can't vouch
+for other interrupt handlers.
+
+I'm more-or-less stuck for what to do next.  I'm a complete novice with
+the kernel, the PCI bus, APM, or network cards, and this is my first
+project.  I'd appreciate pointers for what to try next, since I've
+received no responses from the driver maintainers Donald Becker, Tjeerd
+Mulder, and Jeff Garzik yet.
+
+Please cc me in any responses, as I'm not currently subscribed to the
+kernel mailing list.  Thanks in advance.
+
+-Paul Komarek
+
+
+
+
+

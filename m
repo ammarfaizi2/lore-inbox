@@ -1,34 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264807AbTFESan (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 14:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbTFESan
+	id S264865AbTFESey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 14:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264840AbTFESey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 14:30:43 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:6859 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264865AbTFESam (ORCPT
+	Thu, 5 Jun 2003 14:34:54 -0400
+Received: from [213.187.75.233] ([213.187.75.233]:10415 "EHLO hwinkel")
+	by vger.kernel.org with ESMTP id S264865AbTFESex (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 14:30:42 -0400
-Message-ID: <3EDF8FCD.4020502@austin.ibm.com>
-Date: Thu, 05 Jun 2003 13:45:33 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
+	Thu, 5 Jun 2003 14:34:53 -0400
+From: Andreas Schultz <aschultz@warp10.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][I2C] fix unsafe usage of list_for_each in i2c-core
+Date: Thu, 5 Jun 2003 20:48:21 +0200
+User-Agent: KMail/1.5.2
+Cc: greg@kroah.com
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: re: Nightly regression run results
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306052048.21409.aschultz@warp10.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > 
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm1/2.5.70-vs-2.5.70-mm1/
+Hi,
 
-This shows a significant (20%) degrade for SpecSDET in the mm1 tree.   
-The degrade carries forward in the mm2 and mm3 trees.    I see lots more 
-calls to page_remove_rmap and page_add_rmap in the profile for mm1.  Not 
-sure if this is the issue, but probably needs to be looked at.
+i2c-core.c contains 2 loops that iterate over the list of the clients attached 
+to an adapter and detaches them. Detaching the clients will actually remove 
+them from the list the loop is iterating over. Therefore the 
+list_for_each_safe() method has to be used.
 
-Steve
+Andreas
+
+===== i2c-core.c 1.38 vs edited =====
+--- 1.38/drivers/i2c/i2c-core.c	Mon May 26 02:00:00 2003
++++ edited/i2c-core.c	Thu Jun  5 15:48:40 2003
+@@ -124,7 +125,7 @@
+ 
+ int i2c_del_adapter(struct i2c_adapter *adap)
+ {
+-	struct list_head  *item;
++	struct list_head  *item, *_n;
+ 	struct i2c_driver *driver;
+ 	struct i2c_client *client;
+ 	int res = 0;
+@@ -144,7 +145,7 @@
+ 
+ 	/* detach any active clients. This must be done first, because
+ 	 * it can fail; in which case we give upp. */
+-	list_for_each(item,&adap->clients) {
++	list_for_each_safe(item, _n, &adap->clients) {
+ 		client = list_entry(item, struct i2c_client, list);
+ 
+ 		/* detaching devices is unconditional of the set notify
+@@ -215,8 +216,7 @@
+ 
+ int i2c_del_driver(struct i2c_driver *driver)
+ {
+-	struct list_head   *item1;
+-	struct list_head   *item2;
++	struct list_head   *item1, *item2, *_n;
+ 	struct i2c_client  *client;
+ 	struct i2c_adapter *adap;
+ 	
+@@ -245,7 +245,7 @@
+ 				goto out_unlock;
+ 			}
+ 		} else {
+-			list_for_each(item2,&adap->clients) {
++			list_for_each_safe(item2, _n, &adap->clients) {
+ 				client = list_entry(item2, struct i2c_client, list);
+ 				if (client->driver != driver)
+ 					continue;
 

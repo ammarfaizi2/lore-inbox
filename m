@@ -1,67 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275861AbRJYShi>; Thu, 25 Oct 2001 14:37:38 -0400
+	id <S276021AbRJYSn2>; Thu, 25 Oct 2001 14:43:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275963AbRJYSh2>; Thu, 25 Oct 2001 14:37:28 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:522 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S275861AbRJYSh0>; Thu, 25 Oct 2001 14:37:26 -0400
-Date: Thu, 25 Oct 2001 12:40:36 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: SCSI Tape Device FATAL error on 2.4.10
-Message-ID: <20011025124036.A11885@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S275973AbRJYSnJ>; Thu, 25 Oct 2001 14:43:09 -0400
+Received: from pak200.pakuni.net ([207.91.34.200]:48881 "EHLO
+	smp.paktronix.com") by vger.kernel.org with ESMTP
+	id <S275963AbRJYSmu>; Thu, 25 Oct 2001 14:42:50 -0400
+Date: Thu, 25 Oct 2001 12:40:43 -0500 (CDT)
+From: "Matthew G. Marsh" <mgm@paktronix.com>
+X-X-Sender: <mgm@netmonster.pakint.net>
+To: David Ford <david@blue-labs.org>
+cc: Christopher Friesen <cfriesen@nortelnetworks.com>, <kuznet@ms2.inr.ac.ru>,
+        Julian Anastasov <ja@ssi.bg>, Tim Hockin <thockin@sun.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: issue: deleting one IP alias deletes all
+In-Reply-To: <3BD7263A.9020100@blue-labs.org>
+Message-ID: <Pine.LNX.4.31.0110251234430.32029-100000@netmonster.pakint.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 24 Oct 2001, David Ford wrote:
 
+> That is IMO bad behavior, it didn't use to do this because I have
+> scripts that rely on this behavior.
 
-On a ServerWorks HE Chipset system with an Exabyte EXB-480 
-Robotics Tape library we are seeing a fatal SCSI IO problem
-that results in a SCSI bus hang on the system.  This error
-is very fatal, and requires that the machine be rebooted 
-to recover.   Following this error, the Linux 
-Operating System is still running OK, but the affected 
-SCSI bus does not respond to any commands nor do any 
-devices attached to this bus.   
+The behaviour that Chris describes below has _always_ occurred. And if you
+read Alexey's documentation he states that primary and secondary addresses
+are the _intended_ behaviour. If you do not like the behaviour of
+primary and secondary addressing then simply use /32 as then _every_
+address is it's own primary.
 
-The Tape Drive is an Exabyte SCSI Tape.  The error occurs when
-the device reaches end of tape (EOT) during a write operation
-while writing to the tape.
+The original thought refers to the old concept of address "class" where is
+a "class" (think subnet) went away then there was no need (and indeed
+incorrect) behaviour to still be able to have addresses on it. Thus when
+the primary address is deleted you should clear all addresses within that
+network and so the secondaries are removed. The entire concept of an
+"aliased" address is an address that is within a scope. This behaviour of
+addresses has nothing to do with coloned interfaces and everything to do
+with the definition of scope as applied to the address space of an IP
+network.
 
-With tape programming, there really is no good way to know where
-the end of tape is while archiving data real time, so this error 
-is pretty much fatal.  We are using tape partitioning, which we
-have noticed not many applications in Linux use at present, so
-these code paths may be related to the problem.  I have reviewed
-st.c but it is not readily apparent where the problem may be
-in this code, which is leading me to suspect it's related to 
-some interaction between st.c and the drivers with regard to
-multiple seeks and writes between tape partitions.
+Again - if you do not like this behaviour do not use the primary/secondary
+addressing scopes. Use /32.
 
-Configuration is:
+> I'll take it up with the author, Alexey.
+>
+> David
+>
+> Christopher Friesen wrote:
+>
+> David Ford wrote:
+>
+> >Actually it is quite sane.  The tool is not.
+> >
+> >Switch to 'ip' instead of 'ifconfig', several large distros now include
+> >it.  Addresses can be added and removed completely indiscriminately on
+> >interfaces.
+> >
+> >The "ethN:X" is a legacy design that is now deprecated.
+> >
+>
+> Minor issue...if I create (using 'ip') two addresses on the same subnet on the
+> same device, one of them is primary and the other is secondary.  If I then
+> delete the primary address, the second one goes with it.
+>
+> I submit that this is bad behaviour.
+>
+> Chris
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-2.4.10
-AIC7XXX
-ST
-EXSCH (Exabyte Robotics Library for Linux 2.2.X/2.4.X) We wrote this.
-
-The EXB-480 has 4 Exabyte tape drives and 30 150GB Tape slots with 
-an import/export port.
-
-THe system we are using is the SuperMicro Serverworks HE Motherboard with
-2GB of memory and 3Ware IDE Controllers.  We are not using the 3Ware 
-controllers for any of the tape support.
-
-Please advise,
-
-Jeff Merkey
-TRG
-
-
+--------------------------------------------------
+Matthew G. Marsh,  President
+Paktronix Systems LLC
+1506 North 59th Street
+Omaha  NE  68104
+Phone: (402) 932-7250 x101
+Email: mgm@paktronix.com
+WWW:  http://www.paktronix.com
+--------------------------------------------------
 

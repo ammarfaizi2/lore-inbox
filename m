@@ -1,102 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUG2QgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268044AbUG2Pgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268325AbUG2QgU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 12:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267564AbUG2QCP
+	id S268044AbUG2Pgf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268045AbUG2PNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 12:02:15 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:28124 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S267794AbUG2PyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:54:15 -0400
-Date: Thu, 29 Jul 2004 17:54:11 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, aia21@cantab.net,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: 2.6.8-rc2-mm1: NTFS compile error with gcc 2.95
-Message-ID: <20040729155411.GF26643@lug-owl.de>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Andrew Morton <akpm@osdl.org>, aia21@cantab.net,
-	linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-References: <20040728020444.4dca7e23.akpm@osdl.org> <20040729144149.GC2349@fs.tum.de>
+	Thu, 29 Jul 2004 11:13:30 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17916 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263824AbUG2ONv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 10:13:51 -0400
+Date: Thu, 29 Jul 2004 16:13:43 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] istallion: remove inlines (fwd)
+Message-ID: <20040729141343.GX2349@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AH+kv8CCoFf6qPuz"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040729144149.GC2349@fs.tum.de>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---AH+kv8CCoFf6qPuz
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+FYI:
+The patch forwarded below is still required in 2.6.8-rc2-mm1.
 
-On Thu, 2004-07-29 16:41:49 +0200, Adrian Bunk <bunk@fs.tum.de>
-wrote in message <20040729144149.GC2349@fs.tum.de>:
-> On Wed, Jul 28, 2004 at 02:04:44AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.8-rc1-mm1:
-> >...
-> >  bk-ntfs.patch
-> >...
->=20
-> This causes the following compile error when using gcc 2.95:
->=20
-> <--  snip  -->
->=20
-> ...
->   LD      .tmp_vmlinux1
-> fs/built-in.o(.text+0x14425f): In function `ntfs_find_vcn':
-> : undefined reference to `__cmpdi2'
-> fs/built-in.o(.text+0x144272): In function `ntfs_find_vcn':
-> : undefined reference to `__cmpdi2'
-> make: *** [.tmp_vmlinux1] Error 1
->=20
-> <--  snip  -->
 
-GCC wanted to make a compare on a 8byte integer (so probably long long),
-but decided there isn't an appropriate insn on that hardware platform.
-So instead of emitting assembler, it generated a function call that
-would have resulted in a call to libgcc. However, the Linux kernel asks
-to *not* link that lib (eg. think about a gcc compiled for i686 (so is
-libgcc) while compiling for i386).
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
 
-With the that constraint in mind, there isn't really a "nice" solution.
-Maybe Linux should provide a function of that name (and several others,
-too). OTOH, the H8/300 port explicitely links in libgcc, but that's only
-an option if even the oldest processor supports *all* known CPU
-instructions.
+Date:	Tue, 13 Jul 2004 02:11:20 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: support@stallion.oz.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] istallion: remove inlines
 
-MfG, JBG
+Trying to compile drivers/char/istallion.c with gcc 3.4 and
+  # define inline         __inline__ __attribute__((always_inline))
+results in the following compile error:
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+<--  snip  -->
 
---AH+kv8CCoFf6qPuz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+...
+  CC      drivers/char/istallion.o
+drivers/char/istallion.c: In function `stli_init':
+drivers/char/istallion.c:4603: sorry, unimplemented: inlining failed in 
+call to 'stli_getbrdnr': function not considered for inlining
+drivers/char/istallion.c:4577: sorry, unimplemented: called from here
+drivers/char/istallion.c: At top level:
+drivers/char/istallion.c:422: warning: 'istallion_pci_tbl' defined but 
+not used
+make[2]: *** [drivers/char/istallion.o] Error 1
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+<--  snip  -->
 
-iD8DBQFBCR2jHb1edYOZ4bsRAic1AJwMWwvwnMTMeFswnmt8NtHJRtkVWwCfbwqt
-ljsb1fMfWAwq0sDyMNlJ37Y=
-=3kd5
------END PGP SIGNATURE-----
 
---AH+kv8CCoFf6qPuz--
+The patch below removes all inlines from istallion.c .
+
+An alternative approach to removing the inlines would be to keep all
+inlines that are _really_ required and reorder the functions in the file
+accordingly.
+
+
+diffstat output:
+ drivers/char/istallion.c |   44 +++++++++++++++++++--------------------
+ 1 files changed, 22 insertions(+), 22 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm7-full-gcc3.4/drivers/char/istallion.c.old	2004-07-13 01:05:54.000000000 +0200
++++ linux-2.6.7-mm7-full-gcc3.4/drivers/char/istallion.c	2004-07-13 02:04:46.000000000 +0200
+@@ -749,17 +749,17 @@
+ 
+ static stliport_t *stli_getport(int brdnr, int panelnr, int portnr);
+ 
+-static inline int	stli_initbrds(void);
+-static inline int	stli_initecp(stlibrd_t *brdp);
+-static inline int	stli_initonb(stlibrd_t *brdp);
+-static inline int	stli_findeisabrds(void);
+-static inline int	stli_eisamemprobe(stlibrd_t *brdp);
+-static inline int	stli_initports(stlibrd_t *brdp);
+-static inline int	stli_getbrdnr(void);
++static int	stli_initbrds(void);
++static int	stli_initecp(stlibrd_t *brdp);
++static int	stli_initonb(stlibrd_t *brdp);
++static int	stli_findeisabrds(void);
++static int	stli_eisamemprobe(stlibrd_t *brdp);
++static int	stli_initports(stlibrd_t *brdp);
++static int	stli_getbrdnr(void);
+ 
+ #ifdef	CONFIG_PCI
+-static inline int	stli_findpcibrds(void);
+-static inline int	stli_initpcibrd(int brdtype, struct pci_dev *devp);
++static int	stli_findpcibrds(void);
++static int	stli_initpcibrd(int brdtype, struct pci_dev *devp);
+ #endif
+ 
+ /*****************************************************************************/
+@@ -2758,7 +2758,7 @@
+  *	more chars to unload.
+  */
+ 
+-static inline void stli_read(stlibrd_t *brdp, stliport_t *portp)
++static void stli_read(stlibrd_t *brdp, stliport_t *portp)
+ {
+ 	volatile cdkasyrq_t	*rp;
+ 	volatile char		*shbuf;
+@@ -2826,7 +2826,7 @@
+  *	difficult to deal with them here.
+  */
+ 
+-static inline void stli_dodelaycmd(stliport_t *portp, volatile cdkctrl_t *cp)
++static void stli_dodelaycmd(stliport_t *portp, volatile cdkctrl_t *cp)
+ {
+ 	int	cmd;
+ 
+@@ -2874,7 +2874,7 @@
+  *	then port is still busy, otherwise no longer busy.
+  */
+ 
+-static inline int stli_hostcmd(stlibrd_t *brdp, stliport_t *portp)
++static int stli_hostcmd(stlibrd_t *brdp, stliport_t *portp)
+ {
+ 	volatile cdkasy_t	*ap;
+ 	volatile cdkctrl_t	*cp;
+@@ -3033,7 +3033,7 @@
+  *	at the cdk header structure.
+  */
+ 
+-static inline void stli_brdpoll(stlibrd_t *brdp, volatile cdkhdr_t *hdrp)
++static void stli_brdpoll(stlibrd_t *brdp, volatile cdkhdr_t *hdrp)
+ {
+ 	stliport_t	*portp;
+ 	unsigned char	hostbits[(STL_MAXCHANS / 8) + 1];
+@@ -3306,7 +3306,7 @@
+  *	we need to do here is set up the appropriate per port data structures.
+  */
+ 
+-static inline int stli_initports(stlibrd_t *brdp)
++static int stli_initports(stlibrd_t *brdp)
+ {
+ 	stliport_t	*portp;
+ 	int		i, panelnr, panelport;
+@@ -3918,7 +3918,7 @@
+  *	board types.
+  */
+ 
+-static inline int stli_initecp(stlibrd_t *brdp)
++static int stli_initecp(stlibrd_t *brdp)
+ {
+ 	cdkecpsig_t	sig;
+ 	cdkecpsig_t	*sigsp;
+@@ -4079,7 +4079,7 @@
+  *	This handles only these board types.
+  */
+ 
+-static inline int stli_initonb(stlibrd_t *brdp)
++static int stli_initonb(stlibrd_t *brdp)
+ {
+ 	cdkonbsig_t	sig;
+ 	cdkonbsig_t	*sigsp;
+@@ -4421,7 +4421,7 @@
+  *	might be. This is a bit if hack, but it is the best we can do.
+  */
+ 
+-static inline int stli_eisamemprobe(stlibrd_t *brdp)
++static int stli_eisamemprobe(stlibrd_t *brdp)
+ {
+ 	cdkecpsig_t	ecpsig, *ecpsigp;
+ 	cdkonbsig_t	onbsig, *onbsigp;
+@@ -4525,7 +4525,7 @@
+  *	do is go probing around in the usual places hoping we can find it.
+  */
+ 
+-static inline int stli_findeisabrds()
++static int stli_findeisabrds()
+ {
+ 	stlibrd_t	*brdp;
+ 	unsigned int	iobase, eid;
+@@ -4599,7 +4599,7 @@
+  *	Find the next available board number that is free.
+  */
+ 
+-static inline int stli_getbrdnr()
++static int stli_getbrdnr()
+ {
+ 	int	i;
+ 
+@@ -4623,7 +4623,7 @@
+  *	configuration space.
+  */
+ 
+-static inline int stli_initpcibrd(int brdtype, struct pci_dev *devp)
++static int stli_initpcibrd(int brdtype, struct pci_dev *devp)
+ {
+ 	stlibrd_t	*brdp;
+ 
+@@ -4669,7 +4669,7 @@
+  *	one as it is found.
+  */
+ 
+-static inline int stli_findpcibrds()
++static int stli_findpcibrds()
+ {
+ 	struct pci_dev	*dev = NULL;
+ 	int		rc;
+@@ -4718,7 +4718,7 @@
+  *	can find.
+  */
+ 
+-static inline int stli_initbrds()
++static int stli_initbrds()
+ {
+ 	stlibrd_t	*brdp, *nxtbrdp;
+ 	stlconf_t	*confp;
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

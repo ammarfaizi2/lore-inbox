@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVALQVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVALQXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVALQVG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 11:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVALQVG
+	id S261210AbVALQXV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 11:23:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVALQXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 11:21:06 -0500
-Received: from main.gmane.org ([80.91.229.2]:30435 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261208AbVALQVE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 11:21:04 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Truoble with 8-pixel screen fonts and 2.6 kernels (2.6.9, 2.6.10)
-Date: Wed, 12 Jan 2005 21:22:33 +0500
-Message-ID: <cs3iou$ibs$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
-User-Agent: KNode/0.8.1
+	Wed, 12 Jan 2005 11:23:21 -0500
+Received: from mrdec-exch.amrdec.army.mil ([199.209.144.25]:42767 "EHLO
+	mrdec-owa.ds.amrdec.army.mil") by vger.kernel.org with ESMTP
+	id S261210AbVALQXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 11:23:19 -0500
+Message-ID: <CE14215C87EAAF4B9AD862BB49625057048E820C@ssdd-cluster.ds.amrdec.army.mil>
+From: "Reynolds, Terry (Contractor-SIMTECH)" <terry.reynolds2@us.army.mil>
+To: "Linux-Kernel@Vger. Kernel. Org (linux-kernel@vger.kernel.org)" 
+	<linux-kernel@vger.kernel.org>
+Subject: Realtime-preemtp-2.6.10...-01 on a ppc64?
+Date: Wed, 12 Jan 2005 10:13:37 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(This report is on behalf of Declan Moriarty)
+Hi all,
+ 
+I've installed the patches on 2.6.10 (2.6.10-mm1 & realtime-preempt-2.6.10
+... .34-01) on my G5 desktop.  The realtime patched kernel wont compile, as
+it has a large number of re-defined & conflicting types.  Including:
+ 
+spinlock_t
+rwlock_t
+SPIN_LOCK_UNLOCKED
+RW_LOCK_UNLOCKED
+and lots of _raw_.*lock types.
+ 
+It seems the ppc64 architecture hasn't been fleshed out yet for the
+real-time preemption patches, or did I just do something moronic?
+ 
+I'm sitting in front of a couple of G5 desktops and I'd like to help test /
+checkout / work on this branch!
 
-To reproduce the problem, install the "kbd" package, and from the first
-virtual console execute the following command:
-
-setfont lat1-08          # or any other 8-pixel font
-
-Then switch to the second console and see that the cursor disappeared.
-Moreover, the following escape sequences function improperly:
-
-echo -e '\033[?Xc' where X is a digit
-
-Even more, from the second console this command
-
-setfont lat1-16
-
-gives 43 screen lines with only upper halves of characters (bottoms are cut,
-and I suspect this also happens with the cursor).
-
-Looks like a bug in the character cell height logic. Could you please fix it
-or at least point me to some overview of the relevant source files?
-
--- 
-Alexander E. Patrakov
+TIA.
+ 
+Terry Reynolds
+Simulation Technologies, INC.
 

@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVCaM2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVCaMc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVCaM2W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 07:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVCaM2W
+	id S261396AbVCaMc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 07:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVCaMc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 07:28:22 -0500
-Received: from box3.punkt.pl ([217.8.180.76]:22798 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261390AbVCaM2S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 07:28:18 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: DervishD <lkml@dervishd.net>
-Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
-Date: Thu, 31 Mar 2005 14:26:48 +0200
-User-Agent: KMail/1.7.1
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050330162114.GA1028@DervishD> <200503302240.08200.mmazur@kernel.pl> <20050331074526.GA8614@DervishD>
-In-Reply-To: <20050331074526.GA8614@DervishD>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Mar 2005 07:32:56 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57991 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261396AbVCaMcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 07:32:53 -0500
+Date: Thu, 31 Mar 2005 14:32:53 +0200
+From: Jan Kara <jack@suse.cz>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix possible oops on quotaoff
+Message-ID: <20050331123252.GA8008@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="u3/rZRmxL6MmkK24"
 Content-Disposition: inline
-Message-Id: <200503311426.48435.mmazur@kernel.pl>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On czwartek 31 marzec 2005 09:45, DervishD wrote:
->     The fact is that, in the past, I've used kernel headers older
-> than my running kernel for building glibc and my system worked
-> seamlessly (although I don't use bleeding edge features, you know),
-> but I don't want to take risks.
 
-You risk nothing. APIs in linux change incrementally and if kernel hackers do 
-want to drop support for an api, they're very vocal about it and it doesn't 
-concern stuff that can blow up your computer (see oss vs. alsa).
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->     I don't know which set of headers will work, and in fact I don't
-> know if I must follow 'Linux From Scratch' advice and use raw kernel
-> headers for building glibc and LLH headers for any other thing. I
-> think I probably will use the LLH headers (including scsi) for
-> everything since glibc passes the 'make check' doing that... If I
-> screw my system badly, I have lotsa backups at hand.
+  Hi!
 
-Like I've said, you're unable to break your system this way. And I don't see 
-any point in LFS suggesting using raw kernel headers to compile glibc (no you 
-*can't* screw up your system by using llh unless I specifically switch ioctls 
-so apps remove files instead of opening them; I just can't see any 
-possibility to do it by accident).
+  Attached one-liner should fix possible Oops on quotaoff - the code
+does not expect quotafiles to have any dquots initialized but they
+actually could have some in the following scenario:
+  turn on one quota type
+  write to the file with the other quota type (quota gets initialize)
+  turn on the other quota type
 
-And I'll add an entry to the llh FAQ to clear this matter up.
+  Please apply the fix (it should apply well to any recent kernel)
 
+								Honza
 
 -- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="quota-2.6.11-dropfix.diff"
+
+Remove dquot structures from quota file on quotaon - quota code does not expect them
+to be there.
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.11/fs/dquot.c linux-2.6.11-dropfix/fs/dquot.c
+--- linux-2.6.11/fs/dquot.c	2005-03-30 13:37:05.000000000 +0200
++++ linux-2.6.11-dropfix/fs/dquot.c	2005-03-31 14:03:45.000000000 +0200
+@@ -1444,6 +1444,7 @@ static int vfs_quota_on_inode(struct ino
+ 	oldflags = inode->i_flags & (S_NOATIME | S_IMMUTABLE | S_NOQUOTA);
+ 	inode->i_flags |= S_NOQUOTA | S_NOATIME | S_IMMUTABLE;
+ 	up_write(&dqopt->dqptr_sem);
++	sb->dq_op->drop(inode);
+ 
+ 	error = -EIO;
+ 	dqopt->files[type] = igrab(inode);
+
+--u3/rZRmxL6MmkK24--

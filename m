@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318369AbSGRVKO>; Thu, 18 Jul 2002 17:10:14 -0400
+	id <S318371AbSGRVMg>; Thu, 18 Jul 2002 17:12:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318372AbSGRVKN>; Thu, 18 Jul 2002 17:10:13 -0400
-Received: from verein.lst.de ([212.34.181.86]:55309 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S318369AbSGRVKN>;
-	Thu, 18 Jul 2002 17:10:13 -0400
-Date: Thu, 18 Jul 2002 23:13:13 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vmap_pages()
-Message-ID: <20020718231313.A6939@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	linux-kernel@vger.kernel.org
-References: <20020718230003.A6500@lst.de>
+	id <S318372AbSGRVMg>; Thu, 18 Jul 2002 17:12:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:59914 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318371AbSGRVMg>;
+	Thu, 18 Jul 2002 17:12:36 -0400
+Date: Thu, 18 Jul 2002 23:15:30 +0200
+From: Dave Jones <davej@suse.de>
+To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>, RSinko@island.com,
+       DHubbard@midamerican.com, linux-kernel@vger.kernel.org
+Subject: Re: Wrong CPU count
+Message-ID: <20020718231530.H21997@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>,
+	"Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+	"'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>, RSinko@island.com,
+	DHubbard@midamerican.com, linux-kernel@vger.kernel.org
+References: <61DB42B180EAB34E9D28346C11535A783A7CAE@nocmail101.ma.tmpw.net> <Pine.LNX.4.44.0207181657590.28305-100000@alumno.inacap.cl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020718230003.A6500@lst.de>; from hch@lst.de on Thu, Jul 18, 2002 at 11:00:03PM +0200
+In-Reply-To: <Pine.LNX.4.44.0207181657590.28305-100000@alumno.inacap.cl>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 11:00:03PM +0200, Christoph Hellwig wrote:
-> There's more and more pressure getting XFS into mainline now that most
-> distributors ship it and SGI's Red Hat-based installers are in wide use,
-> and although most of the core kernel changes in the XFS tree have been
-> removed by redesigning/rewriting XFS code.
+On Thu, Jul 18, 2002 at 04:59:14PM -0400, Robinson Maureira Castillo wrote:
 
-[please Cc Linus & linux-mm on replies, I've fucked it up..]
+ > And that arises a question for me too, can we enable/disable HT at boot 
+ > time? (think in a mobo without the option to enable/disable HT)
 
+You can disable it with 'noht'.
+
+        Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

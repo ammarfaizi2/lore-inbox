@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263703AbRFKJTH>; Mon, 11 Jun 2001 05:19:07 -0400
+	id <S264039AbRFKJ2T>; Mon, 11 Jun 2001 05:28:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263554AbRFKJS5>; Mon, 11 Jun 2001 05:18:57 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:7940 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263605AbRFKJSl>;
-	Mon, 11 Jun 2001 05:18:41 -0400
-Date: Fri, 8 Jun 2001 19:32:25 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Bernd Jendrissek <berndj@prism.co.za>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-Message-ID: <20010608193224.A36@toy.ucw.cz>
-In-Reply-To: <20010607124621.A30328@prism.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010607124621.A30328@prism.co.za>; from berndj@prism.co.za on Thu, Jun 07, 2001 at 12:46:22PM +0200
+	id <S264041AbRFKJ16>; Mon, 11 Jun 2001 05:27:58 -0400
+Received: from shiva.jussieu.fr ([134.157.0.129]:8204 "EHLO shiva.jussieu.fr")
+	by vger.kernel.org with ESMTP id <S264039AbRFKJ1y>;
+	Mon, 11 Jun 2001 05:27:54 -0400
+Date: Mon, 11 Jun 2001 11:29:05 +0200
+From: Roberto.Di-Cosmo@pps.jussieu.fr (Roberto Di Cosmo)
+Message-Id: <200106110929.f5B9T5Q27584@foobar.pps.jussieu.fr>
+To: linux-kernel@vger.kernel.org
+Subject: [isocompr PATCH]: announcing stable port to kernel 2.2.18
+Cc: demolinux@demolinux.org, dicosmo@pps.jussieu.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Dear mailing list members,
+        you will find at http://www.pps.jussieu.fr/~dicosmo/FreeSoftware
+the first public release of my updates (for 2.2.18) of an old patch
+(due to Eric Youngdale and  Adam J. Richter) to allow the use
+of transparent compression of files on iso9660 images.
 
-> If this solves your problem, use it; if your name is Linus or Alan,
-> ignore or do it right please.
+This means you can  pack over 1Gb of data on a usual CD. Also, since
+ reading off the CD is actually slower than decompressing data, an overall
+speed improvement comes as a bonus.
 
-Well I guess you should do CONDITIONAL_SCHEDULE (if it is not defined
-as macro, do if (current->need_resched) schedule()).
+The current version of the patch for 2.2.18 is very stable (we use it
+for DemoLinux [see www.demolinux.org] heavily), and I wonder if it could
+not be a good idea to see if this code can be folded into the official releases
+sometime in the future (I have been looking at 2.4.x code, but the new page
+cache means some changes might be needed: I will try to post a first version
+for 2.4.x soon).
 
-That modulo is likely slower than dereference.
+Please feel free to use this code (at your own risk), test it and report bugs
+to dicosmo@pps.jussieu.fr
 
-> diff -u -r1.1 -r1.2
-> --- linux-hack/mm/filemap.c     2001/06/06 21:16:28     1.1
-> +++ linux-hack/mm/filemap.c     2001/06/07 08:57:52     1.2
-> @@ -2599,6 +2599,11 @@
->                 char *kaddr;
->                 int deactivate = 1;
->  
-> +               /* bernd-hack: give other processes a chance to run */
-> +               if (count % 256 == 0) {
-> +                       schedule();
-> +               }
-> +
->                 /*
->                  * Try to find the page in the cache. If it isn't there,
->                  * allocate a free page.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.0.4 (GNU/Linux)
-> Comment: For info see http://www.gnupg.org
-> 
-> iD8DBQE7H1tb/FmLrNfLpjMRAguAAJ0fYInFbAa6LjFC/CWZbRPQxzZwrwCeNqT0
-> /Kod15Nx7AzaM4v0WhOgp88=
-> =pyr6
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Since I am not currently subscribed to the kernel mailing list, please
+contact me directly by e-mail, for any comments.
+ 
+Sincerely yours
+ 
+--Roberto Di Cosmo
+ 
+------------------------------------------------------------------
+Professeur
+PPS                      E-mail: dicosmo@pps.jussieu.fr
+Universite Paris VII     WWW  : http://www.pps.jussieu.fr/~dicosmo
+Case 7014                Tel  : ++33-(1)-44 27 86 55
+2, place Jussieu         Fax  : ++33-(1)-44 27 68 49
+F-75251 Paris Cedex 05
+FRANCE.                  MIME/NextMail accepted
+------------------------------------------------------------------
+Office location:
+ 
+Bureau 6C14 (6th floor)
+175, rue du Chevaleret, XIII
+Metro Chevaleret, ligne 6
+------------------------------------------------------------------                                 

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129541AbRCHUm2>; Thu, 8 Mar 2001 15:42:28 -0500
+	id <S129598AbRCHUo6>; Thu, 8 Mar 2001 15:44:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129598AbRCHUmS>; Thu, 8 Mar 2001 15:42:18 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:64875 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S129541AbRCHUmM>; Thu, 8 Mar 2001 15:42:12 -0500
-Date: Thu, 8 Mar 2001 14:41:42 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200103082041.OAA14001@tomcat.admin.navo.hpc.mil>
-To: root@mauve.demon.co.uk, pollard@tomcat.admin.navo.hpc.mil
-Subject: Re: Microsoft begining to open source Windows 2000?
-In-Reply-To: <200103081834.SAA22871@mauve.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S129609AbRCHUos>; Thu, 8 Mar 2001 15:44:48 -0500
+Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:57800 "EHLO
+	burton") by vger.kernel.org with ESMTP id <S129598AbRCHUog>;
+	Thu, 8 Mar 2001 15:44:36 -0500
+Date: Thu, 8 Mar 2001 21:43:13 +0100
+To: Greg KH <greg@wirex.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac14
+Message-ID: <20010308214313.A22539@h55p111.delphi.afb.lu.se>
+In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu> <20010307164052.B788@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010307164052.B788@wirex.com>; from greg@wirex.com on Wed, Mar 07, 2001 at 04:40:52PM -0800
+From: andersg@0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+On Wed, Mar 07, 2001 at 04:40:52PM -0800, Greg KH wrote:
 
-> 
-> <snip "microsoft may be going open source">
-> > Not a chance. First your company must have at least 1500 licences.... and
-> > you can't modify any code... which implies that you can't rebuild either...
-> 
-> You can modify your compiler, so that it accepts patches (with no context)
-> and completely rewrite anything that needs modified.
-> The modified source would never be stored anywhere.
+> > o	Fix the non build problem with do_BUG		(Andrew Morton)
 
-So you have the source to the MS compiler???? And they gave you all of the
-object modules (or at least the source) AND the makefiles (or equivalent)???
+> i386_ksyms.c:170: `do_BUG' undeclared here (not in a function)
 
-I believe their "can't modify" includes the OS you were supplied under a
-different license.
+> # CONFIG_DEBUG_BUGVERBOSE is not set
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+this patch makes it _compile_ both with and without BUGVERBOSE.
 
-Any opinions expressed are solely my own.
+-- 
+
+//anders/g
+
+--- arch/i386/kernel/i386_ksyms.c.orig  Thu Mar  8 21:30:27 2001
++++ arch/i386/kernel/i386_ksyms.c       Thu Mar  8 21:30:31 2001
+@@ -167,5 +167,7 @@
+ EXPORT_SYMBOL(empty_zero_page);
+ #endif
+
++#ifdef CONFIG_DEBUG_BUGVERBOSE
+ EXPORT_SYMBOL(do_BUG);
++#endif
+   
+   

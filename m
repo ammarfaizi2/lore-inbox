@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129243AbQKFR1Z>; Mon, 6 Nov 2000 12:27:25 -0500
+	id <S129200AbQKFRXo>; Mon, 6 Nov 2000 12:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129765AbQKFR1P>; Mon, 6 Nov 2000 12:27:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61780 "EHLO
+	id <S129765AbQKFRXe>; Mon, 6 Nov 2000 12:23:34 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45908 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129243AbQKFR1D>; Mon, 6 Nov 2000 12:27:03 -0500
-Subject: Re: rdtsc to mili secs?
-To: anton@linuxcare.com (Anton Blanchard)
-Date: Mon, 6 Nov 2000 17:27:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrea@suse.de (Andrea Arcangeli),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20001106091723.A516@linuxcare.com> from "Anton Blanchard" at Nov 06, 2000 09:17:23 AM
+	id <S129388AbQKFRX3>; Mon, 6 Nov 2000 12:23:29 -0500
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+To: vonbrand@inf.utfsm.cl (Horst von Brand)
+Date: Mon, 6 Nov 2000 17:23:11 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse), linux-kernel@vger.kernel.org
+In-Reply-To: <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl> from "Horst von Brand" at Nov 06, 2000 01:31:46 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13sq3d-0006QT-00@the-village.bc.nu>
+Message-Id: <E13spzE-0006Q3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This means our offset calculations in do_fast_gettimeoffset are way off
-> and taking a reading just before a timer tick and just after results in
-> a negative interval. Perhaps we should disable tsc based gettimeofday
-> for these type of machines.
+> No funny "persistent data" mechanisms or screwups when the worker gets
+> removed and reinserted. In many cases the data module could be shared among
+> several others, in other cases it would have to be able lo load several
+> times or manage several incarnations of its payload.
 
-I seem to remember we have a 'notsc' option. Figuring out which boxes are
-infected with the problem may be trickier. We really need to be able to 
-read the current CPU clock rate off whatever generates the clocks when we
-do a udelay
+It actually seems the persistent data mechanism in user space wouldnt be
+much different in implementation.
+
+Add a 'preserved' tag for one section of module memory. On load look up the
+data, if its from this boot memcpy it into the module. On unload write it
+back to disk. No kernel code needed.
+
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

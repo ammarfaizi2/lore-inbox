@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263345AbTCNPKa>; Fri, 14 Mar 2003 10:10:30 -0500
+	id <S263349AbTCNPU1>; Fri, 14 Mar 2003 10:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263347AbTCNPKa>; Fri, 14 Mar 2003 10:10:30 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56019
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263345AbTCNPK3>; Fri, 14 Mar 2003 10:10:29 -0500
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-In-Reply-To: <20030314151455.GB8937@work.bitmover.com>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
-	 <20030314115055.GR1211@marowsky-bree.de>
-	 <20030314144347.GA8937@work.bitmover.com>
-	 <1047658249.29595.34.camel@irongate.swansea.linux.org.uk>
-	 <20030314151455.GB8937@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047659394.29595.38.camel@irongate.swansea.linux.org.uk>
+	id <S263358AbTCNPU1>; Fri, 14 Mar 2003 10:20:27 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51414 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263349AbTCNPUZ>; Fri, 14 Mar 2003 10:20:25 -0500
+Date: Fri, 14 Mar 2003 16:31:08 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Osamu Tomita <tomita@cinet.co.jp>
+Subject: 2.5.64-ac4: mpparse.c doesn't compile
+Message-ID: <20030314153107.GT16212@fs.tum.de>
+References: <200303141509.h2EF9R017016@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 14 Mar 2003 16:29:54 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303141509.h2EF9R017016@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-14 at 15:14, Larry McVoy wrote:
->     "BitBucket: GPL-ed BitKeeper clone"
+<--  snip  -->
 
-That one I have issues with too, as I said its about what it says.
+...
+  gcc -Wp,-MD,arch/i386/kernel/.mpparse.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=mpparse -DKBUILD_MODNAME=mpparse -c -o 
+arch/i386/kernel/mpparse.o arch/i386/kernel/mpparse.c
+arch/i386/kernel/mpparse.c: In function `get_smp_config':
+arch/i386/kernel/mpparse.c:658: `pc98' undeclared (first use in this function)
+arch/i386/kernel/mpparse.c:658: (Each undeclared identifier is reported only once
+arch/i386/kernel/mpparse.c:658: for each function it appears in.)
+make[1]: *** [arch/i386/kernel/mpparse.o] Error 1
 
->     "The goal of this project is to produce a system compatible with BitKeeper"
+<--  snip  -->
 
-Its a goal. It doesn't say it is, whats the problem ? Together sure you
-have a couple of legs to stand on.
 
-So if it said
+cu
+Adrian
 
-	"BitBucket: a GPL version control project"
+-- 
 
-or
-	"BitBucket: a tool for extracting Bitkeeper repositories"
-
-"The goal of this project is to produce a tool to free bitkeeper data 
- from Larry McVoy"
-
-we'd all be happy and could go back to sleep ?
-
-Alan
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

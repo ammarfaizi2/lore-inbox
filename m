@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268000AbTBYP4O>; Tue, 25 Feb 2003 10:56:14 -0500
+	id <S268006AbTBYQBO>; Tue, 25 Feb 2003 11:01:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268005AbTBYP4N>; Tue, 25 Feb 2003 10:56:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24590 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268000AbTBYP4M>; Tue, 25 Feb 2003 10:56:12 -0500
-Date: Tue, 25 Feb 2003 08:02:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andreas Schwab <schwab@suse.de>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-In-Reply-To: <jevfz84bee.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.44.0302250742400.10210-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268011AbTBYQBN>; Tue, 25 Feb 2003 11:01:13 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:664 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268006AbTBYQBN>;
+	Tue, 25 Feb 2003 11:01:13 -0500
+Date: Tue, 25 Feb 2003 08:07:00 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: tomlins@cam.org, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] uart_block_til_ready 2.5.63
+Message-Id: <20030225080700.3a590cf7.rddunlap@osdl.org>
+In-Reply-To: <20030225093544.B9257@flint.arm.linux.org.uk>
+References: <200302242142.26124.tomlins@cam.org>
+	<20030225093544.B9257@flint.arm.linux.org.uk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 25 Feb 2003 09:35:44 +0000
+Russell King <rmk@arm.linux.org.uk> wrote:
 
-On Tue, 25 Feb 2003, Andreas Schwab wrote:
-> |> 
-> |> So? Gcc does that anyway. _Any_ good compiler has to.
-> 
-> But the point is that determining the common type does not require _any_
-> kind of data flow analysis, and this is the place where the unsigned
-> warning is generated.
+| On Mon, Feb 24, 2003 at 09:42:25PM -0500, Ed Tomlinson wrote:
+| > Feb 24 21:14:44 oscar kernel: Code: f6 80 1c 01 00 00 02 75 2d 8b 4d 08 51 e8 10 6e 00 00 85 c0
+| 
+| Can someone decode this Code: line into something useful please?
+| (maybe we should put in an instruction decoder as well as kallsyms
+| into the kernel? 8))
 
-Go back and read my mail. In fact, go back and read just about _any_ of my 
-mails on the subject. Gop back and read the part you snipped:
+Is there a bingrep, so that you can grep for that binary string in
+vmlinux (or whatever it's named)?
 
- "And if the compiler isn't good enough to do it, then the compiler 
-  shouldn't be warning about something that it hasn't got a clue about."
+If not and you haven't already written one, you can use my
+binoffset program for that.  It might help your search time.
+It's at
+  http://www.osdl.org/archive/rddunlap/patches/ikconfig/binoffset.c
 
-In other words, either gcc should do it right, or it should not be done at 
-all. Right now the warning IS GENERATED IN THE WRONG PLACE. Your argument 
-seems to be "but that's the place it is generated" is a total 
-non-argument. It's just stating a fact, and it's exactly that fact that 
-causes the BUG IN GCC.
-
-> |> Trivial example:
-> |> 
-> |> 	int x[2][2];
-> |> 
-> |> 	int main(int argc, char **argv)
-> |> 	{
-> |> 		return x[1][-1];
-> |> 	}
-> |> 
-> |> 
-> |> the above is actually a well-defined C program, and 100%
-> |> standards-conforming ("strictly conforming").
-> 
-> This isn't as trivial as it seems.  Look in comp.std.c for recent
-> discussions on this topic (out-of-array references). 
-
-It is as trivial as it seems, and this is _not_ an out-of-array reference.  
-Sorry. C very clearly specifies the layout of arrays (6.5.2.1: last
-subscript varies fastest, together with sizeof(array) = sizeof(entry)*n),
-which _guarantees_ that the pointers involved in the above calculations
-are all within the object, and thus there is _zero_ undefined behaviour.
-
-So if they argued about this on comp.std.c, they either had clueless
-people there (in addition to the ones that obviously aren't ;), _or_ you
-misunderstood the argument.
-
-		Linus
-
+--
+~Randy

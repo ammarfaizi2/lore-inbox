@@ -1,107 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbULVCR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbULVCZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbULVCR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 21:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbULVCR2
+	id S261945AbULVCZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 21:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbULVCZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 21:17:28 -0500
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:63433 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261942AbULVCRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 21:17:09 -0500
-References: <20041221230726.51621.qmail@web52604.mail.yahoo.com>
-Message-ID: <cone.1103681814.594077.28853.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: jesse <jessezx@yahoo.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Paulo Marques <pmarques@grupopie.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Gurus, a silly question for preemptive behavior
-Date: Wed, 22 Dec 2004 13:16:54 +1100
+	Tue, 21 Dec 2004 21:25:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27265 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261944AbULVCZW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 21:25:22 -0500
+Date: Tue, 21 Dec 2004 18:25:14 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       <laforge@gnumonks.org>, greg@kroah.com
+Subject: Re: My vision of usbmon
+Message-ID: <20041221182514.5ed935e2@lembas.zaitcev.lan>
+In-Reply-To: <200412201525.52149.oliver@neukum.org>
+References: <20041219230454.5b7f83e3@lembas.zaitcev.lan>
+	<200412201525.52149.oliver@neukum.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jesse writes:
+On Mon, 20 Dec 2004 15:25:52 +0100, Oliver Neukum <oliver@neukum.org> wrote:
 
+> Am Montag, 20. Dezember 2004 08:04 schrieb Pete Zaitcev:
+> > +               memcpy(&mbus->shim_ops, ubus->op, sizeof(struct usb_operations));
+> > +               mbus->shim_ops.submit_urb = mon_submit;
+> > +               mbus->saved_op = ubus->op;
+> > +               ubus->op = &mbus->shim_ops;
+> > +               ubus->monitored = 1;
 > 
-> --- Con Kolivas <kernel@kolivas.org> wrote:
-> 
->> jesse wrote:
->> > Paulo:
->> >  
->> >    I already said in the messsage that my user
->> space
->> > application has a low nice priority, i set it to
->> 10.
->> > since my application has low priority compared to
->> > other user space applications, it is supposed to
->> be
->> > interrupted. but it is not.
->> 
->> If your task is better priority the scheduler will
->> make it preempt the 
->> worse priority task. It sounds to me like you are
->> complaining that the 
->> worse priority task is still getting cpu? If so, you
->> misunderstand 
->> priority - it orders tasks according to priority
->> giving lower latency 
->> and preemptive behaviour to the better task, and
->> gives _more_ cpu but 
->> not all the cpu. The cpu must still be shared, but
->> with more cpu 
->> distributed to the better priority task. If you want
->> your better 
->> priority task to get _all_ the cpu you have to use
->> real time scheduling.
->> 
->> Cheers,
->> Con
->> 
-> 
-> ok, Con, your explaining makes some sense to me , but
-> still not very well.
-> 
->    suppose I have five high process: A1, A2, A3, A4,
-> A5 all have nice = 0. and I also have a low priority
-> process B with nice = 10.
-> 
->     a) when process B is scheduled to run, it is given
-> a short time slot based on its priority, for example 5
-> secs. because at that point, A1/2/3/4/5 are not
-> started yet. B will get CPU and run at full speed. 
->     b) at the end of time slot(5 secs), scheduler
-> finds higher priority A1/A2/A3/A4/A5 are ready,
-> scheduler will interrupt process B and starts to pick 
-> a process from group A, even though B still needs CPU
-> cycle.
->     c)unfortunately, process A1/2/3/4/5 are so active,
-> thus process B should never get opportunity to run
-> again, in consequence, CPU Usage% of Process B should
-> be very Low.
->     
->    However, The above theretic assumption is in
-> contrary to what i observed. in my LAB, the low
-> priority process B seems to hold the CPU forever and
-> Top command always shows Process B with a 90% CPU
-> usage.
->   
->   If _more_ cpu but not _all_ the cpu are given to
-> Process A1/2/3/4/5, Process B shouldn't have a 90% CPU
-> usage.   
-> 
->   Thus, i can't help asking why low priority process B
-> gets most CPU cycle.
+> I think you need smp_wmb() here to make sure that an irq taken
+> on another CPU sees the manipulations in the correct order.
 
-What you are describing is completely wrong behaviour. Please post output of 
-top running during this workload to demonstrate/prove this is happening. 
-Easiest thing to do is get your workload running and do 'top -b -n 1 > 
-top.log' and post top.log please.
+Hmm, it seems you are right. I forgot about reordering issues. I relied on
+op being atomic, but if it points at an uninitialized shim, this will end
+badly. How about this?
 
-Cheers,
-Con
+                memcpy(&mbus->shim_ops, ubus->op, sizeof(struct usb_operations));
+                mbus->shim_ops.submit_urb = mon_submit;
+                mbus->saved_op = ubus->op;
+                smp_mb();       /* ubus->op is not protected by spinlocks */
+                ubus->op = &mbus->shim_ops;
+                ubus->monitored = 1;
 
+Generally, the type of coding which requires a use of memory barriers in drivers
+is a bug or a latent bug, so I am sorry for the above. It was a sacrifice to
+make usbmon invisible if it's not actively monitoring. Sorry about that.
+
+-- Pete

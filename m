@@ -1,131 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266888AbTCFP1C>; Thu, 6 Mar 2003 10:27:02 -0500
+	id <S268086AbTCFP3a>; Thu, 6 Mar 2003 10:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266175AbTCFP1C>; Thu, 6 Mar 2003 10:27:02 -0500
-Received: from angband.namesys.com ([212.16.7.85]:43152 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S266888AbTCFP0i>; Thu, 6 Mar 2003 10:26:38 -0500
-Date: Thu, 6 Mar 2003 18:37:05 +0300
-From: Oleg Drokin <green@namesys.com>
-To: dan carpenter <error27@email.com>
-Cc: linux-kernel@vger.kernel.org, smatch-discuss@lists.sf.net
-Subject: Re: smatch update / 2.5.64 / kbugs.org
-Message-ID: <20030306183705.A22846@namesys.com>
-References: <20030306073727.2806.qmail@email.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030306073727.2806.qmail@email.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S268099AbTCFP3a>; Thu, 6 Mar 2003 10:29:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21005 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268086AbTCFP31>; Thu, 6 Mar 2003 10:29:27 -0500
+Date: Thu, 6 Mar 2003 07:37:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: rml@tech9.net, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <20030305234553.715f975e.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.44.0303060710350.7206-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Thu, Mar 06, 2003 at 02:37:27AM -0500, dan carpenter wrote:
+On Wed, 5 Mar 2003, Andrew Morton wrote:
+> 
+> But it is a heuristic, and it will inevitably make mistakes.  The problem
+> which I am observing is that the cost of those mistakes is very high.
 
-> The smatch bugs for kernel 2.5.64 are up.  The 
-> new url for the smatch bug database is http://kbugs.org.  
+The problem I used to see quite clearly is that X gets turned into a
+non-interactive task, because with a complex X desktop X can easily use
+5-15% of CPU even when everything is perfectly normal. That's simply
+because it ends up having to _do_ a lot: anti-aliased text, shifting
+logos, xdaliclock in the corner, blinking cursors, annoying moving
+advertising on web-sites, small animations in the task-bar etc.
 
-Unfortunatelly the bug database does not work. I mean I cannot connect to it.
+And the current heuristic SUCKS for this. And it's quite fundamental: the
+heuristic is _wrong_. The heuristic breaks down _completely_ when there
+are ten CPU hogs that peg the CPU, and now the one process that wants 10% 
+of the CPU suddenly doesn't sleep any more, since it ends up needing all 
+the timeslices it could get.
 
-> One new script from Monday was "UnFree."  This check 
-> looks for variables that aren't freed on the error paths.
-> http://kbugs.org/cgi-bin/index.py?page=bug_list&script=UnFree&kernel=2.5.64
+At this point the current heurstic totally breaks down, and doesn't have 
+any way out. The _only_ part of Ingo's patch that may help is the fact 
+that he made the maximum timeslice be smaller, but realize that since X 
+is now considered to be a background task, that doesn't help very much 
+_either_, since it's going to be scheduled round-robin with those other 
+ten background tasks, and changing the max timeslice from 300 to 200ms 
+only means that the pauses will be "only" two seconds instead of being 
+three seconds.
 
-This is very interesting project, thanks a lot.
-I spent some time on this today.
-This script can produce a lot less false positives with even more custom merge rules.
-Here's the diff that if run on fs/ext3/super.c from current bk tree, produces
-only one true bug. (your version from cvs produces one real bug and two false positives)
-(8 less hits on my default build).
-Still there is a lot room for improvement of course (And probably I will spend some more time
-on it), there are still valid cases left catched:
-pointer assigned to some externally visible variable/structure before exit (fs/reiserfs/fix_node.c)
-kmalloc only done conditionally (fs/reiserfs/namei.c)
-probably more ;)
+See? 
 
-Also I think with this script it is somewhat easy to catch these cases (well, that needs to be coded of course):
-loosing allocated pointer by assigning other value to variable and not storing old value anywhere.
+I told Ingo about it half a year ago, and he ignored it then, saying it 
+can't be solved. Re-nicing X doesn't really help: it only hides the 
+problem because it means that X won't be scheduled round-robin with the 
+background load any more, but because it makes X more important than user 
+processes it then has other fundamental flaws.
 
-Thank you.
+So with "nice -10", when X gets busy, it gets _too_ busy and locks out
+other processes - it fixes the interactivity, but it causes latency
+problems because X is still considered a _background_ job, so it gets a 
+200ms timeslice at high priority and guess what? That kind of sucks for 
+regular programs that want low latency.
 
-Bye,
-    Oleg
---- unfree.pl	Thu Mar  6 13:58:33 2003
-+++ unfree-new.pl	Thu Mar  6 18:16:51 2003
-@@ -12,6 +12,15 @@
-     print get_filename(), " ", get_start_line($var), " ", get_lineno(), " ", get_func_pos(), " $msg\n";
- }
- 
-+
-+sub merge_free_and_null($$$){
-+    my ($name, $one, $two) = @_;
-+
-+    if ( ($one eq "free" && $two eq "null") || ($one eq "null" && $two eq "free") ) {
-+	return "free";
-+    }
-+    return merge_rules($name, $one, $two);
-+}
- sub merge_rules($$$){
-     my ($name, $one, $two) = @_;
- 
-@@ -36,7 +45,7 @@
- 
-     return "undefined";
- }
--add_merge_function("merge_rules");
-+add_merge_function("merge_free_and_null");
- 
- while ($data = get_data()){
-     my $tmp;
-@@ -88,6 +97,11 @@
- 		    set_true_path($name,"non_null");
- 		}
- 	    }
-+	    if ( ! ($cond =~ /_expr/) && ! ($cond =~ /^compound_cond/) ) {
-+		if (get_state ($cond)){
-+		    set_true_path($cond,"non_null");
-+		}
-+	    }
- 	}
- 	for my $cond (@{$conds{falsepath}}){
- 	    if ($cond =~ /eq_expr\(\((.*)\)\(integer_cst\(0\)\)\)/){
-@@ -102,6 +116,11 @@
- 		    set_false_path($name,"null");
- 		}
- 	    }
-+	    if ( ! ($cond =~ /_expr/) && ! ($cond =~ /^compound_cond/) ) {
-+		if (get_state ($cond)){
-+		    set_false_path($cond,"null");
-+		}
-+	    }
- 	}
-     }elsif ($data =~ /^(do_cond) (.*)/){            # check do while() for thouroughness
- 	$conds = split_conds($1);
-@@ -119,11 +138,23 @@
- 		}
- 	    }
- 	}
-+	if ( ! ($cond =~ /_expr/) && ! ($cond =~ /^compound_cond/) ) {
-+	    if (get_state ($cond)){
-+		set_state($cond,"null");
-+	    }
-+	}
-     }
-     
-     if ($data =~ /call_expr\(\(addr_expr function_decl\(kfree\)\)\(tree_list: (.*)\)\)/){
- 	my $var = $1;
--	if (get_state($var)){
-+	my $state = get_state($var);
-+	if ( !($state =~ /non_null/) && $state =~ /null/ ) {
-+	    error_msg("Freeing null pointer", $state);
-+	}
-+	if ( $state =~ /free/ ) {
-+	    error_msg("Freeing already freed", $state);
-+	}
-+	if ($state){
- 	    set_state($var, "free");
- 	}
-     }
+> Let me redescribe the problem:
+> 
+> - Dual 850MHz PIII, 900M of RAM.
+> - Start a `make -j3 vmlinux', everything in pagecache
+> - Start using X applications.  Moving a window about is the usual trigger.
+
+Yeah. Guess what? Moving a window makes X suddenly use a lot more CPU (try 
+turning off acceleration if you _really_ want to see it), so you see the 
+fundamental problem with less load. Add some load (and some X eye-candy) 
+and you will see it much easier. 
+
+And read the above description of what happens, and realize that it is 
+_fundamental_.
+
+And guess what my 5-liner patch tries to address? The one that you didn't
+bother testing.. The one that actually tries to tackle the problem head-on 
+instead of hiding it. 
+
+> Interestingly, this does not happen if the background load is a bunch of
+> busywaits.  It seems to need the fork&exit load of a compilation to trigger.
+
+It happened with busy-waits too last time I checked (which is about halfa
+year ago), it's just that a normal busy-wait tends to _do_ a lot less than
+doign a fork()/wait()/busy-child. When the load on the CPU becomes
+"constrained" (ie when the CPU idle time goes down to zero) of a
+fork/wait/busy-child, suddenly that isn't a load unit of "1" any more, 
+since the fork/wait/exit actually takes time.
+
+Which means that you may need 6 busy-wait tasks to get the same kind of 
+real load that you get with just 3 fork/wait/exit things.
+
+> Robert was able to reproduce this, and noticed that the scheduler had niced
+> the X server down as far as it would go.
+
+Right. It's totally starved for CPU, so it never sleeps, so it gets turned 
+into non-interactive, so it gets round-robined-with-the-background-tasks.
+
+> I'm a pretty pathological case, because I was driving two 1600x1200x24
+> displays with a crufty old AGP voodoo3 and a $2 PCI nvidia.  Am now using a
+> presumably less crufty radeon and the problem persists.
+
+I saw the problem on this 4-CPU machine with my old graphics card, which 
+was something perfectly moderns (ATI Radeon 7000). I can still trigger it 
+even with my current Radeon 8500, but I need to basically make the build 
+be "make -j15" ot something like that to trigger it, at which point I'm 
+not sure it's relevant any more..
+
+And yes, I think my five-liner makes a difference to me, but since I need
+to push the machine so far "off" a reasonable load to trigger it, I don't
+think my machine is a good test.
+
+A good test is a fairly slow graphics card, with some stuff happening all 
+the time on the screen (ie xdaliclock or a noisy web-site). And then 
+seeing what moving a window does when doing a compile.
+
+The window moving itself is not helped by my patch, but my patch _should_
+mean that the _users_ of X (which are less starved for CPU than X is,
+since they don't actually have to do the heavy lifting) will be giving X
+"life points" as X wakes them up.
+
+And that's the whole point of the patch. Any synchronous wake-up that 
+wakes up an interactive task is a _good_ thing. Not just for the 
+interactive task itself, but also for the thing that causes it to wake up. 
+It makes X itself more interactive - it still goes into "background mode" 
+for short stretches, but it seems to need more pushing, and it seems 
+to come out of its funk faster.
+
+Note the "seems". This is why I'd like others to test it - since it's very 
+much a perception issue.
+
+		Linus
+

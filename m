@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbRAORpm>; Mon, 15 Jan 2001 12:45:42 -0500
+	id <S130218AbRAORsB>; Mon, 15 Jan 2001 12:48:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130218AbRAORpb>; Mon, 15 Jan 2001 12:45:31 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13321 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130192AbRAORpQ>; Mon, 15 Jan 2001 12:45:16 -0500
-Message-ID: <3A633716.9EA1FDF5@transmeta.com>
-Date: Mon, 15 Jan 2001 09:44:54 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130304AbRAORrv>; Mon, 15 Jan 2001 12:47:51 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:16644 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130218AbRAORrf>;
+	Mon, 15 Jan 2001 12:47:35 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+Date: Mon, 15 Jan 2001 18:45:06 MET-1
 MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: "Dunlap, Randy" <randy.dunlap@intel.com>,
-        "'H. Peter Anvin'" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: The latest instance in the A20 farce
-In-Reply-To: <Pine.GSO.3.96.1010115182005.16619Q-100000@delta.ds2.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, har
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-mailer: Pegasus Mail v3.40
+Message-ID: <12A9B4484604@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" wrote:
+On 15 Jan 01 at 14:36, Roeland Th. Jansen wrote:
+> On Fri, Jan 12, 2001 at 12:04:21PM -0800, Linus Torvalds wrote:
+> > Ok, so it's tentatively the IOAPIC disable/enable code.  But it could
+> > obviously be something that just interacts with it, including just a
+> > timing issue (ie the _real_ bug might just be bad behaviour when
+> > changing IO-APIC state at the same time as an interrupt happens, and
+> > disable/enable-irq just happen to be the only things that do it at a
+> > high enough frequency that you can see the problem). 
 > 
-> On Wed, 10 Jan 2001, H. Peter Anvin wrote:
+> my BP6 with the patch frank sent me and the apic code at line 273 (or
+> so) defined as '1' and a flood ping :
 > 
-> > URRRK.  I get a feeling these specs are either there to make life extra
-> > difficult for programmers, because the people that design them are too
-> > stupid to tie their own shoes, or because they want nothing but M$
-> > factory-installed to work.
-> 
->  The page is titled "PC DESIGN GUIDE - For the Microsoft Windows Family of
-> Operating Systems," so what do you expect?
-> 
+> Jan 14 19:56:19 grobbebol kernel: APIC error on CPU1: 02(02)
+> Jan 14 19:56:25 grobbebol kernel: APIC error on CPU1: 02(02)
+> Jan 14 19:58:10 grobbebol last message repeated 2 times
+> Jan 14 20:00:01 grobbebol kernel: APIC error on CPU1: 02(02)
+> Jan 14 20:01:11 grobbebol last message repeated 2 times
+> Jan 14 20:01:48 grobbebol kernel: APIC error on CPU1: 02(02)
+> Jan 14 20:01:59 grobbebol kernel: APIC error on CPU1: 02(08)
+> Jan 14 20:02:10 grobbebol kernel: APIC error on CPU1: 08(08)
+> Jan 14 20:02:39 grobbebol kernel: APIC error on CPU1: 08(02)
+> Jan 14 20:02:39 grobbebol kernel: unexpected IRQ trap at vector 8d
+> Jan 14 20:15:32 grobbebol kernel: APIC error on CPU1: 02(08)
+> [....]
+> ad the network is dead. however, no crashes seen during this.
 
-Kind of says it all, doesn't it?
+It is expected. inter-APIC message got finally so damaged that
+checksum was OK, but IRQ trap vector got mangled from 99 -> 8d
+(I bet that it was 99->8d, as both have same checksum, and 99 could
+be used...). So local APIC confirmed reception of 8d interrupt, 
+but 8d interrupt was never requested by IOAPIC :-( So 8d confirmation
+is droped into wastebasket, but 99 IRQ is still marked as serviced
+in IOAPIC, but never seen/EOIed by CPU.
 
-	-hpa
+For such motherboard you have two choices: (1) do not use IOAPIC at all 
+(when LINT#0/#1 are used in 8259 mode, they are not so sensitive to
+electrical noise) or (2) apply another (frank's?) patch which resets IRQ 
+line every few seconds. Maybe hooking this reinitialization into NE2K 
+timeout hook... Or into userspace daemon when received packets does not 
+climb up for couple of seconds... 
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+I think that on BP6 hardware there is no way around except using 'noapic', 
+or passing board through Abit replacement program. There is only two bit 
+checksum which guards 8 or 22 data bits. I have no idea how frequent two 
+bits errors are, but, as your example shows, they definitely happen on 
+your hardware.
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

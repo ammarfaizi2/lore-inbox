@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbUCVSVj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 13:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUCVSVj
+	id S262176AbUCVSXe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 13:23:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUCVSXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 13:21:39 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:24469 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262142AbUCVSVf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 13:21:35 -0500
-Message-Id: <200403221821.i2MILCox004241@eeyore.valparaiso.cl>
-To: Russ Weight <rweight@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Disassemble vmlinuz (i386) 
-In-Reply-To: Your message of "Mon, 22 Mar 2004 09:58:07 PST."
-             <20040322175807.GA22404@us.ibm.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Mon, 22 Mar 2004 14:21:12 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 22 Mar 2004 13:23:34 -0500
+Received: from ns2.uk.superh.com ([193.128.105.170]:31963 "EHLO
+	smtp.uk.superh.com") by vger.kernel.org with ESMTP id S262176AbUCVSXa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 13:23:30 -0500
+Date: Mon, 22 Mar 2004 18:23:28 +0000
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040322182328.GH17627@malvern.uk.w2k.superh.com>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403201651520.1816@pnote.perex-int.cz> <20040320160911.B6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403202038530.1816@pnote.perex-int.cz> <20040320222341.J6726@flint.arm.linux.org.uk> <20040320224518.GQ2045@holomorphy.com> <20040320235445.B24744@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403201920560.28447@montezuma.fsmlabs.com> <1079930812.900.180.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1079930812.900.180.camel@gaston>
+User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 22 Mar 2004 18:25:07.0968 (UTC) FILETIME=[0108B800:01C4103B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russ Weight <rweight@us.ibm.com> said:
-> 	Admittedly, you would have to be pretty desparate to want
-> to disassemble vmlinuz... but I was... and I did.  There may
-> be other (better?) ways to do this, but since I didn't find
-> a complete recipe for this in my web searches, I'll post what
-> I did in case it might be helpful to others.
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> [2004-03-22]:
+> DRI suffers from similar issue when using PCI GART, but then, it also
+> doesn't use the consistent alloc routines, it gets pages with GFP,
+> mmap those into userland, and does pci_map_single in the kernel on
+> each individual page to obtain the bus addresses. This will not be
+> pretty on non-coherent architectures though.
 
-When I needed to do stuff like this, I went back to the vmlinux
-(uncompressed) which was lying around in the build directory. Or even to
-the individual .o files.
+... or on platforms where PCI bounce-buffers are being used.
 
-> 	Note that this was done on a 2.4.9 kernel.
-> 
-> - Russ
-> 
-> 
-> The short version:
-> ==================
-> (1) Strip the header and decompress the kernel
-
-Or grab the uncompressed version (if available).
-
-> (2) Write a small C program to copy the decompressed kernel
->     into a shared memory segment.
-
-Placing it into a file and objdump(1) should give most of what you are
-after... and you might also start gdb(1) on the file. Dunno if the weird
-startup code/placement messes it up, but worth a try.
-
-> (3) Run the C program under gdb - stop at a breakpoint after the
->     copy and then use the gdb "disassemble" command to disassemble
-> 	the kernel from shared memory.
-> (4) Clean up the addresses. If you pick a good virtual address
->     for the shared memory segment, then the cleanup can be a fairly
-> 	simple search & replace.
-
-May I ask what you were after?
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Richard \\\ SH-4/SH-5 Core & Debug Architect
+Curnow  \\\         SuperH (UK) Ltd, Bristol

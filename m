@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264276AbUE2Np5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUE2Nq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264276AbUE2Np5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 09:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUE2Np5
+	id S264912AbUE2Nq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 09:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUE2Nqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 09:45:57 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:31620 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264276AbUE2Np4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 09:45:56 -0400
-Date: Sat, 29 May 2004 15:46:14 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Chris Osicki <osk@osk.ch>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040529134614.GA6420@ucw.cz>
-References: <20040525201616.GE6512@gucio> <20040528194136.GA5175@pclin040.win.tue.nl> <20040528214620.GA2352@gucio> <20040529132320.GC5175@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 29 May 2004 09:46:34 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:28677 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264880AbUE2Nqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 09:46:32 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Zabolotny <zap@homelink.ru>, linux-kernel@vger.kernel.org
+Subject: Re: two patches - request for comments
+Date: Sat, 29 May 2004 16:46:13 +0300
+User-Agent: KMail/1.5.4
+Cc: Greg KH <greg@kroah.com>
+References: <20040529012030.795ad27e.zap@homelink.ru>
+In-Reply-To: <20040529012030.795ad27e.zap@homelink.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040529132320.GC5175@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405291646.13649.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 03:23:20PM +0200, Andries Brouwer wrote:
+On Saturday 29 May 2004 00:20, Andrew Zabolotny wrote:
+> Hello!
+>
+> I'm going to submit the class_find_device() patch (attached for your
+> convenience) as a pre-requisite for the backlight/lcd device class patch
+> (also included so that you can take at it as well) via Russel King (the
 
-> >>> But showkeys -s shows 0x5b when the key in question is pressed
-> >>> (and no release event!!??)
-> 
-> 0x5b is 91 which is x86_keycodes[101].
-> 
-> Yes, so all is clear:
-> The 2.6 kernel no longer has a raw mode - it has a simulated raw mode
-> that is not very raw. When you updated the table used for the
-> scancode->keycode translation, the table used to reconstruct what
-> might have been the original scancode was not changed accordingly.
-> Thus, showkeys -s gave a garbage answer.
-> 
-> Thanks for the report. It shows that resurrecting raw mode is even
-> more desirable than I thought at first.
+Danger Will Robinson. Try to do the same to Rusty Russell and you're toast ;)
+--
+vda
 
-What for?
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

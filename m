@@ -1,69 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130745AbQLHTvh>; Fri, 8 Dec 2000 14:51:37 -0500
+	id <S131154AbQLHUFz>; Fri, 8 Dec 2000 15:05:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132282AbQLHTv2>; Fri, 8 Dec 2000 14:51:28 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:55796 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S130745AbQLHTvS>; Fri, 8 Dec 2000 14:51:18 -0500
-Date: Fri, 8 Dec 2000 11:20:18 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+	id <S131317AbQLHUFp>; Fri, 8 Dec 2000 15:05:45 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:1287 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S131154AbQLHUFf> convert rfc822-to-8bit;
+	Fri, 8 Dec 2000 15:05:35 -0500
+Date: Fri, 8 Dec 2000 11:34:51 -0800 (PST)
+From: Mark Vojkovich <mvojkovich@valinux.com>
+To: David Woodhouse <dwmw2@infradead.org>
 cc: Andi Kleen <ak@suse.de>, Rainer Mager <rmager@vgkk.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-In-Reply-To: <3A303CAD.5600DE5A@timpanogas.org>
-Message-ID: <Pine.LNX.4.21.0012081119460.24557-100000@sol.compendium-tech.com>
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11 
+In-Reply-To: <25692.976268767@redhat.com>
+Message-ID: <Pine.LNX.4.30.0012081129140.6704-100000@beefcake.hdqt.valinux.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't post the core file... It's system-dependant and really wont do
-anyone but yourself a shred of good.
 
-On Thu, 7 Dec 2000, Jeff V. Merkey wrote:
 
-> 
-> 
-> Andi Kleen wrote:
-> > 
-> > On Thu, Dec 07, 2000 at 06:24:34PM -0700, Jeff V. Merkey wrote:
-> > >
-> > > Andi,
-> > >
-> > > It's related to some change in 2.4 vs. 2.2.  There are other programs
-> > > affected other than X, SSH also get's spurious signal 11's now and again
-> > > with 2.4 and glibc <= 2.1 and it does not occur on 2.2.
-> > 
-> > So have you enabled core dumps and actually looked at the core dumps
-> > of the programs using gdb to see where they crashed ?
-> 
-> Yes.  I can only get the SSH crash when I am running remotely from the
-> house over the internet, and it only shows then when running a build in
-> jobserver mode (parallel build).  The X problem seems related as well,
-> since it's related to (usually) NetScape spawing off a forked process. 
-> I will attempt to recreate tonight, and post the core dump file.  
-> 
-> Jeff 
-> 
-> 
-> 
-> 
-> 
-> > 
-> > -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+On Fri, 8 Dec 2000, David Woodhouse wrote:
 
--- 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
+>
+> ak@suse.de said:
+> >  Sounds like a X Server bug. You should probably contact XFree86, not
+> > linux-kernel
+>
+> I quote from the X devel list, which perhaps I shouldn't do but this is hardly
+> NDA'd stuff:
+>
+> On Mon 20 Nov 2000, mvojkovich@valinux.com said:
+> >   I have seen random crashes on dual P3 BX boards (Tyan) and dual Xeon
+> > GX boards (Intel).  XFree86 core dumps indicate that it happens in
+> > random places, in old as dirt software rendering code that has nothing
+> > wrong with it.  I've only seen this under 2.3.x/2.4 SMP kernels.  I
+> > would say that this is definitely a kernel problem.
+>
+> XFree86 3.9 and XFree86 4 were rock solid for a _long_ time on 2.[34]
+> kernels - even on my BP6¹. The random crashes started to happen when I
+> upgraded my distribution² - and are only seen by people using 2.4. So I
+> suspect that it's the combination of glibc and kernel which is triggering
+> it.
+
+   Some additional data points.  It goes away on UP 2.4 kernels.
+Also, I can't recall seeing this problem on IA64.  Maybe it's still
+there on IA64 and I just haven't been trying hard enough to crash
+it, but my current impression is that the problem doesn't exist on IA64.
+
+  Hmmm...  IA64 is a static server.  I don't hear of people having
+problems on 3.3.6 servers either.  I'm wondering if a non-loader
+4.0 server would have problems on IA32 with a 2.4 kernel.  That's
+something for people to try.
+
+
+				Mark.
+
+>
+> --
+> dwmw2
+>
+> ¹ And the BP6 still falls over less frequently than the dual P3 I use at
+> work.
+> ² RH7. Don't start.
+>
+>
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288544AbSA3Ehd>; Tue, 29 Jan 2002 23:37:33 -0500
+	id <S288485AbSA3EyS>; Tue, 29 Jan 2002 23:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288485AbSA3EhY>; Tue, 29 Jan 2002 23:37:24 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:60609 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288484AbSA3EhN>;
-	Tue, 29 Jan 2002 23:37:13 -0500
-Date: Tue, 29 Jan 2002 23:37:11 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: mingo@elte.hu, Rob Landley <landley@trommello.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <E16VgQ0-0000AS-00@starship.berlin>
-Message-ID: <Pine.GSO.4.21.0201292321390.11157-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288511AbSA3Ex5>; Tue, 29 Jan 2002 23:53:57 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:43534 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S288485AbSA3Ex4>; Tue, 29 Jan 2002 23:53:56 -0500
+Message-Id: <200201300453.g0U4rYI61847@aslan.scsiguy.com>
+To: andersen@codepoet.org
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec 1480b SlimSCSI vs hotplug 
+In-Reply-To: Your message of "Tue, 29 Jan 2002 19:52:12 MST."
+             <20020130025212.GA5240@codepoet.org> 
+Date: Tue, 29 Jan 2002 21:53:34 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>On Tue Jan 29, 2002 at 05:48:53PM -0700, Justin T. Gibbs wrote:
+>> >Does this look agreeable?
+>> 
+>> The only thing you've really changed is the class_mask.  I don't
+>> understand why testing against *more bits* of the class allows your
+>> card to be detected.  Can you explain why the old code fail?
+>
+>Exactly, the class_mask is the significant bit.  The rest I just
+>tidied since I hate seeing magic numbers.
 
+It would make your patch easier to review if you didn't intermingle
+style changes with content changes.
 
-On Tue, 29 Jan 2002, Daniel Phillips wrote:
+>Anyways, I started off
+>with the simple observation that it didn't work.  Watching
+>/sbin/hotplug (diethotplug with debugging enabled) closely during
+>add events showed me the following:
 
-> Note who the email is addressed to.  I have tried many different techniques 
-> for communicating with this gentleman, including self-deprecation, and they 
-> all seem to have the same result
+[...]
 
-Trying a bit of intellectual honesty would help big way.
+>Here we can see it is looking at aic7xxx twice, once for vendor
+>0x9004, where it notices that the vendor matches, but then fails
+>to match due to the 0xFFFF00 class_mask filter, and once for
+>vendor 9005 which of course doesn't match.  After changing the
+>class_mask to ~0 I now see:
 
-Realizing that ext2 patches should be sent to ext2 maintainers would help
-even more.
+[...]
 
-You've spent _months_ ignoring the idea above.  You've tried many different
-techniques for what, exactly?  To push that stuff to a guy who is not, was not
-and had never been maintainer of the code in question?  Wow.
+Changing the mask may have the desired effect, but it doesn't
+show where the true bug is.
 
-And yes, it had been told to you from the very beginning.  tytso, sct and akpm
-are the right guys for such stuff.  It's their code, they do maintain it
-and I think in all cases I've sent ext2 patches it was only after ACK from
-ext2 folks.
+>So let me turn the question back to you:  What is the intended 
+>purpose of masking out part of the class space?
 
-If it took you a fscking year to realize that, despite having it explained to
-you in details...  Don't you feel yourself an idiot?
+I'm only trying to match on the base and sub class fields.  In
+the kernel (see drivers/pci/pci.c), the pci device field is
+three bytes wide with the programming interface stored in the
+lowest byte and class information in bytes 1 and 2.  Since I only
+place the expected class values in my table, not the value for
+the programming interface, the low byte needs to be masked away prior
+to doing the comparison.  The logic in the kernel handles the
+mask correctly:
 
+	((ids->class ^ dev->class) & ids->class_mask) == 0
+
+My guess is that diethotplug is not handling the mask correctly
+and thus doesn't work with a partial mask.
+
+--
+Justin

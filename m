@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269294AbTGJOwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 10:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269297AbTGJOve
+	id S269325AbTGJPBU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 11:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269327AbTGJPBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 10:51:34 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:9425 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269294AbTGJOu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 10:50:56 -0400
-Date: Thu, 10 Jul 2003 08:03:45 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74 CONFIG_USB_SERIAL_CONSOLE gone?
-Message-Id: <20030710080345.7907d810.rddunlap@osdl.org>
-In-Reply-To: <200307101453.57857.mflt1@micrologica.com.hk>
-References: <200307101453.57857.mflt1@micrologica.com.hk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 10 Jul 2003 11:01:20 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:51729 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269325AbTGJPBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 11:01:17 -0400
+Date: Thu, 10 Jul 2003 16:15:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+Subject: Re: RFC:  what's in a stable series?
+Message-ID: <20030710161553.C22512@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+References: <3F0CBC08.1060201@pobox.com> <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva> <20030710085338.C28672@infradead.org> <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva> <1057840919.8027.19.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1057840919.8027.19.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 10, 2003 at 01:42:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jul 2003 14:53:57 +0800 Michael Frank <mflt1@micrologica.com.hk> wrote:
+On Thu, Jul 10, 2003 at 01:42:00PM +0100, Alan Cox wrote:
+> On Iau, 2003-07-10 at 13:13, Marcelo Tosatti wrote:
+> > So Christoph's quota patch does not support vendors "v1" files?
+> > 
+> > I must be misunderstanding someone.
+> 
+> There are three species of quota in Linux
+> 
+> v0	(official old Linux)
+> v1	(most 2.4 vendor trees)
+> v2	(the 2.5 format)
 
-| Tried to config usb serial console on 2.5.74 but it's no more configurable.
-| 
-| Searched the tree and these are the only references
-| 
-| ./BitKeeper/deleted/.del-Config.help~23cda2581f02cfcb
-| ./BitKeeper/deleted/.del-Config.in~92fe774f90db89d
-| ./drivers/usb/serial/Makefile
-| ./drivers/usb/serial/usb-serial.h
-| 
-| Has this been deleted?
+Umm, no.  You misunderstood.
 
-No, but there is a typo in the Kconfig file for it.
-Patch for it is below.  (It is from the -kj patchset. :)
-Patch by Francois Romieu <romieu@fr.zoreil.com>.
+There's two quota _ondisk_ formats:
 
---
-~Randy
-| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+v1 old 16bit quota.
+v2 new 32bit quota.
 
+2.4 previously only supported v1, 2.5 and 2.4.22-pre4 also support v2.
 
+There's three sys_quotactl ABIs
 
-diff -puN drivers/usb/serial/Kconfig~typo-usb-serial-kconfig drivers/usb/serial/Kconfig
+1) original 16 bit one, supported by all kernels <= 2.4
+2) first 32bit one, supported by 2.4-ac any many vendor trees, but never
+   in mainline
+3) new 32bit one, supported by 2.4.x (x >= 22-pre4) and 2.5
 
- ----------- Diffstat output ------------
- ./drivers/usb/serial/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Unfortunately the second one uses the same constants as the old 16bit one
+but different structures so there is no way to support both in a single
+kernel.
 
-diff ./drivers/usb/serial/Kconfig~current~ ./drivers/usb/serial/Kconfig
---- ./drivers/usb/serial/Kconfig~current~	2003-07-09 00:12:22.000000000 -0700
-+++ ./drivers/usb/serial/Kconfig	2003-07-09 00:12:22.000000000 -0700
-@@ -31,7 +31,7 @@ config USB_SERIAL_DEBUG
- 
- config USB_SERIAL_CONSOLE
- 	bool "USB Serial Console device support (EXPERIMENTAL)"
--	depends on USB_SERIAL=y && EXPERIMENTAL
-+	depends on USB_SERIAL && EXPERIMENTAL
- 	---help---
- 	  If you say Y here, it will be possible to use a USB to serial
- 	  converter port as the system console (the system console is the

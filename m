@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289749AbSAOXVa>; Tue, 15 Jan 2002 18:21:30 -0500
+	id <S289741AbSAOXXr>; Tue, 15 Jan 2002 18:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289748AbSAOXVS>; Tue, 15 Jan 2002 18:21:18 -0500
-Received: from jalon.able.es ([212.97.163.2]:5113 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S289741AbSAOXVE>;
-	Tue, 15 Jan 2002 18:21:04 -0500
-Date: Wed, 16 Jan 2002 00:26:42 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to compile 2.4.14 on alpha
-Message-ID: <20020116002642.A1838@werewolf.able.es>
-In-Reply-To: <20020114212550.A17323@animx.eu.org> <20020115113213.A1539@werewolf.able.es> <20020115115530.A19073@animx.eu.org>
+	id <S289754AbSAOXXa>; Tue, 15 Jan 2002 18:23:30 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:62592
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S289741AbSAOXXY>; Tue, 15 Jan 2002 18:23:24 -0500
+Date: Tue, 15 Jan 2002 16:22:52 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
+        arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020115232252.GC5220@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <E16QESB-0002xq-00@the-village.bc.nu> <195317834.1011133033@[195.224.237.69]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020115115530.A19073@animx.eu.org>; from wakko@animx.eu.org on mar, ene 15, 2002 at 17:55:30 +0100
-X-Mailer: Balsa 1.3.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <195317834.1011133033@[195.224.237.69]>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 15, 2002 at 10:17:13PM -0000, Alex Bligh - linux-kernel wrote:
+ 
+> & if this is the sole aim, just (configurably no doubt) stick
+> .config somewhere in initramfs as part of the build process
+> and you have no parsing to do whatsoever.
 
-On 20020115 Wakko Warner wrote:
->> >arch/alpha/kernel/kernel.o(.exitcall.exit+0x0): undefined reference to `local symbols in discarded section .text.exit'
->> 
->> Too bew binutils. .17 works again.
->
->Are you saying that 2.4.17 works but prior doesn't?  or were you refering to
->binutils.
->
-
-Recent binutils warn about symbols marked as discardable but referenced
-when the driver is built-in instead of modularized. Older ones just shut up.
-
-Original explanation:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100753194504523&w=2
-
-Corrected mainly in 2.4.17-pre6 (and some leftovers in following pres).
->From ChangeLog-2.4.17:
-
-pre6:
-...
-- Create __devexit_p() function and use that on 
-  drivers which need it to make it possible to
-  use newer binutils                (Keith Owens)
-...
-
->Please keep the CC to linux-kernel as my spam filter is tagging your mail
->server =(
->
-
-OK.
-
-My ISP has reached the spam-black-lists ? I'm beginning to think that
-those lists are becoming useless. Everybody is there. Some day someone
-will manage to send just ONE message faking vger and the linux kernel
-list will be banned...
+initramfs goes away, I believe.  But most vendors stick their config in
+/boot/config-`uname -r`, and last I looked at kbuild-2.5, it asked if
+you wanted to stick your .config in /lib/modules/`uname -r` (which is
+default loc for System.map too..)  Or maybe it just did it.
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre3-beo #5 SMP Sun Jan 13 02:14:04 CET 2002 i686
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

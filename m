@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270087AbRHMLJO>; Mon, 13 Aug 2001 07:09:14 -0400
+	id <S270101AbRHMLbh>; Mon, 13 Aug 2001 07:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270090AbRHMLJD>; Mon, 13 Aug 2001 07:09:03 -0400
-Received: from web13106.mail.yahoo.com ([216.136.174.151]:25096 "HELO
-	web13106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S270089AbRHMLIt>; Mon, 13 Aug 2001 07:08:49 -0400
-Message-ID: <20010813110901.30428.qmail@web13106.mail.yahoo.com>
-Date: Mon, 13 Aug 2001 04:09:01 -0700 (PDT)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: Re: Are we going too fast?
-To: Chris Wilson <jakdaw@lists.jakdaw.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010813110907.5555dde4.jakdaw@lists.jakdaw.org>
+	id <S270102AbRHMLb1>; Mon, 13 Aug 2001 07:31:27 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3076 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270101AbRHMLbW>; Mon, 13 Aug 2001 07:31:22 -0400
+Subject: Re: AC'97 Audio -- what driver?
+To: jeffchua@silk.corp.fedex.com (Jeff Chua)
+Date: Mon, 13 Aug 2001 12:33:23 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel), jchua@fedex.com (Jeff Chua)
+In-Reply-To: <Pine.LNX.4.33.0108131722190.1555-100000@boston.corp.fedex.com> from "Jeff Chua" at Aug 13, 2001 05:23:40 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15WFyF-0007DK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>   Bus  0, device  31, function  5:
+>     Multimedia audio controller: Intel Corporation 82801BA(M) AC'97 Audio
+> (rev 2).
+>       IRQ 11.
+>       I/O at 0xdc00 [0xdcff].
+>       I/O at 0xd800 [0xd83f].
 
---- Chris Wilson <jakdaw@lists.jakdaw.org> wrote:
+Intel i810_audio
 
-> Certainly seems to be moving backwards in that
-> respect - from 2.4.6
-> onwards the bog standard PS/2 keyboard does not work
-> (at all from bootup -
-> "keyboard: Timeout - AT keyboard not present?(ed)")
-> on my SMP VIA w. G400
-> (although I've not got as far as loading X on it
-> without the keyboard!) :(
-> 
-> I can't even see what's changed in 2.4.6 that might
-> cause this - soft_irq?
-> or is that completely unrelated to the keyboard???
-> 
-> 
-> Chris
-> -
-
-I have too a PS/2 keyboard and no problem at all with
-2.4.x kernels. 2.4.0-2.4.8
-Cx486 UP 
-
-
-__________________________________________________
-Do You Yahoo!?
-Send instant messages & get email alerts with Yahoo! Messenger.
-http://im.yahoo.com/

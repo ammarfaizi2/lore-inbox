@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUJWHWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUJWHHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263736AbUJWHWN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 03:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJWHWN
+	id S261875AbUJWHHp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 03:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJWHHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 03:22:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:51600 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263736AbUJWHWL (ORCPT
+	Sat, 23 Oct 2004 03:07:45 -0400
+Received: from daffy.napanet.net ([206.81.96.18]:61707 "EHLO mx1.napanet.net")
+	by vger.kernel.org with ESMTP id S261875AbUJWHHl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 03:22:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=VCH4emZvflr+wgcGuiiFCzYKGsmS/JRwA48nQzqOgs6gTqqTEp31aARwmU0DJXe2RkcyswwJY4vXj2tSVXiWYzQwJOeQbE8iWSZyRwg/pHGvZjodD/xMqxRZXVZpynQSu+aJE6UUXnDLYU+sdW97rCuIhhJQcMRfMLyKOnqWvcY=
-Message-ID: <3aa654a404102300221317f104@mail.gmail.com>
-Date: Sat, 23 Oct 2004 00:22:11 -0700
-From: Avuton Olrich <avuton@gmail.com>
-Reply-To: Avuton Olrich <avuton@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-mm1
+	Sat, 23 Oct 2004 03:07:41 -0400
+Date: Sat, 23 Oct 2004 00:06:14 -0700
+From: Stephen Lewis <lewis@napanet.net>
+To: gene.heskett@verizon.net
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-Id: <20041023000614.6ca68c2e.lewis@napanet.net>
+In-Reply-To: <200410230045.49517.gene.heskett@verizon.net>
+References: <20041022101529.732254eb.lewis@napanet.net>
+	<200410230045.49517.gene.heskett@verizon.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.8; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20041022032039.730eb226.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004 03:20:39 -0700, Andrew Morton <akpm@osdl.org> wrote:
+On Sat, 23 Oct 2004 00:45:49 -0400
+Gene Heskett <gene.heskett@verizon.net> wrote:
 
->   - reiser4: not sure, really.  The namespace extensions were disabled,
->     although all the code for that is still present.  Linus's filesystem
->     criterion used to be "once lots of people are using it, preferably when
->     vendors are shipping it".  That's a bit of a chicken and egg thing though.
->     Needs more discussion.
+...
+> >Baseline - I can get accelerated 3D graphics and video overlay
+> >and YV12 and VGA registers with open source driver that compiles
+> >for PowerPC and DEC Alpha today for $85 - Radeon 7500 PCI.
+> 
+> 'scuse me, but have you tried to buy one of those locally?  The 
+> unwashed masses of us are stuck with whatever we can buy at Circuit 
+> City et all, and the cheapest thing today for an AGP slot is the 
+> house brands of the 9200 SE w/128 megs of ddr ram.
 
-*Disclamer: My first post to the list, sorry if something's wrong with
-it (blame gmail ;P)*
+What do you have against eBay?
 
-I've been using reiser4 in four of my computers since it was in -mm.
-All partitions (excl. /boot), including 2 boxes that have been up
-since (well, reboots for -mm updates from time to time) the reiser4
-conversion and not a hiccup since. I'm always shocked when people
-speak about how my computers are going to blow up, how people who run
-reiser4 must be insane, etc... I've heard it all. Truth is, at the end
-of the day, me, Joe End User, has had no issues. I'm not here to say
-it's perfect (only the programmers know for sure, IANAP), but it's far
-from unpredictable.
+>...
+> Has this links code been substantially updated since the 6.8.1 release 
+> as built on an x86 system?  If not, then this common readily 
+> available card is still not supported all that well, my lspci outputs 
+> say the vendor codes are unknown.  And my glxgears is 198 fps.
+> 
 
-The fs's have taken their share of beatings too, testing the new ACPI
-stuff lately has lead to plenty of lockups and reiser4 deals much
-better than filesystems I have played with in the past.
+Sorry I have no x86 systems.
+9200SE is listed as 3d accelerated see here:
+http://freedesktop.org/~xorg/X11R6.8.0/doc/radeon.4.html
+maybe you do not have dri loaded?
 
-What I'm trying to say here is I've seen more instability in other
-places in the kernel lately than I've seen come from reiser4 at all.
-What hurts when including it, when people have the choice not to
-compile in and have the big EXPERIMENTAL warning?
+> -- 
+> Cheers, Gene
+
+Stephen Lewis

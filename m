@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbUDSKGH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 06:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264341AbUDSKGG
+	id S264340AbUDSKK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 06:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264341AbUDSKK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 06:06:06 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:2733 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264330AbUDSKGE convert rfc822-to-8bit
+	Mon, 19 Apr 2004 06:10:27 -0400
+Received: from tanthi.teneoris.com ([164.164.94.19]:40901 "EHLO
+	tanthi.teneoris.com") by vger.kernel.org with ESMTP id S264340AbUDSKKU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 06:06:04 -0400
-Date: Mon, 19 Apr 2004 12:06:03 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Mon, 19 Apr 2004 06:10:20 -0400
+Subject: alloc_pidmap() query
+From: Amol Lad <amol@teneoris.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Oprofilefs cant handle > 99 cpus
-Message-ID: <20040419100603.GI12480@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040418110658.GC26086@krispykreme>
+Content-Type: text/plain
+Organization: Teneoris
+Message-Id: <1082369420.2308.6.camel@amol.teneoris.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20040418110658.GC26086@krispykreme>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 19 Apr 2004 15:40:20 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-04-18 21:06:58 +1000, Anton Blanchard <anton@samba.org>
-wrote in message <20040418110658.GC26086@krispykreme>:
-> Oprofilefs cant handle > 99 cpus. This should fix it.
+Hi, 
+ It seems in the alloc_pidmap() code (2.6), that for the first time when
+the PIDs are allocated, the alternate entries in pidmap array is used.
 
-Erm, on what hardware are you testing? Some large POWER5 machine?
+Lets take an example,
+    offset = pid & BITS_PER_PAGE_MASK;
+    map = pidmap_array + pid / BITS_PER_PAGE;
 
-MfG, JBG
+  if pid == BITS_PER_PAGE, then we have
+offset = 0;
+map = pidmap_array[1];
+
+as this is the first time allocation, so map->page == NULL,
+
+Following code with get executed,
+
+    if (!offset || !atomic_read(&map->nr_free)) {
+next_map:
+        map = next_free_map(map, &max_steps);
+        if (!map)
+            goto failure;
+        offset = 0;
+    }
+
+This code will select pidmap_array[2] for pid selection even though no
+pids are yet allocated from pidmap_array[1].
+
+is this ok ?
+
+please cc me
+Amol
+
+
+
 
 -- 
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!
-   ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));
+Linus's Law - Given enough eyeballs, all bugs are shallow.
+

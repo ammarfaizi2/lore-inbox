@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbTJTOjU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 10:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTJTOjU
+	id S262576AbTJTOdI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 10:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbTJTOdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 10:39:20 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.73]:44509 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262575AbTJTOjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 10:39:10 -0400
-Subject: Re: Module problems with NVIDIA and 2.6.0-test8?
-From: Chris Anderson <chris@simoniac.com>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F93E9E6.2050106@g-house.de>
-References: <Pine.LNX.4.43.0310201410410.27849-100000@cibs9.sns.it>
-	 <1066655152.26573.0.camel@kuso>  <3F93E9E6.2050106@g-house.de>
-Content-Type: text/plain
-Message-Id: <1066660895.23912.1.camel@kuso>
+	Mon, 20 Oct 2003 10:33:08 -0400
+Received: from main.gmane.org ([80.91.224.249]:44722 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262576AbTJTOdF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 10:33:05 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
+Date: Mon, 20 Oct 2003 16:32:59 +0200
+Message-ID: <yw1x8yngj7xg.fsf@users.sourceforge.net>
+References: <20031020141512.GA30157@hell.org.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 20 Oct 2003 10:41:35 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:fU+dOB57epIDVSqJJNalKH+Rhug=
+Cc: acpi-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-20 at 09:57, Christian Kujau wrote:
-> Chris Anderson schrieb:
-> > On Mon, 2003-10-20 at 08:11, venom@sns.it wrote:
-> > 
-> >>which version of nvidia driver are you using.
-> >>1.0-3123 works just fine with test8.
-> > 
-> > 
-> > 4496, sorry (can't believe I forgot to mention this). Perhaps I'll try
-> > one of the older drivers when I get home.
-> 
-> 4496 works fine here with 2.6.0-test8. i had some issues with the GLX 
-> support, but re-installing the user-space part of the nvidia module has 
-> solved it. be sure to compile the module against the *right* 
-> kernel-includes.
+Karol Kozimor <sziwan@hell.org.pl> writes:
 
-Right now it's using the headers in /usr/src/linux which points to
-/usr/src/linux-2.6.0-test8/ which I used for my kernel. 
+> Suspending and resuming from S1 disables ACPI interrupts for my machine
+> (ASUS L3800C laptop). No further interrupts and events are generated,
+> /proc/interrupts shows no change w.r. to ACPI. This happens regardless of
+> whether the specific IRQ is shared or not.
 
--Chris
+I've got an Asus M2400E laptop, and have seen similar things.  After a
+suspend, the extra buttons (I use them to fire up programs) stop
+working.  Normally, they will generate an ACPI event, that is
+processed by acpid etc.  After a suspend, each button will work once.
+If I then close and open the lid, they will work one more time, and so
+on.  Any way I can help?
+
+-- 
+Måns Rullgård
+mru@users.sf.net
 

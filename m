@@ -1,86 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129835AbRAWExT>; Mon, 22 Jan 2001 23:53:19 -0500
+	id <S132148AbRAWFEt>; Tue, 23 Jan 2001 00:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132210AbRAWExA>; Mon, 22 Jan 2001 23:53:00 -0500
-Received: from fes-qout.whowhere.com ([209.185.123.96]:62671 "HELO
-	mailcity.com") by vger.kernel.org with SMTP id <S129835AbRAWEw4>;
-	Mon, 22 Jan 2001 23:52:56 -0500
-To: linux-kernel@vger.kernel.org
-Date: Mon, 22 Jan 2001 23:52:24 -0500
-From: "Gregg Lloyd" <gregg_99@lycos.com>
-Message-ID: <PFMKNGGAANDBKAAA@mailcity.com>
-Mime-Version: 1.0
-X-Sent-Mail: on
-Reply-To: gregg_99@mailcity.com
-X-Mailer: MailCity Service
-Subject: LILO wont boot  my kernel image: More details...
-X-Sender-Ip: 209.148.72.107
-Organization: Lycos Mail  (http://mail.lycos.com:80)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+	id <S132173AbRAWFEj>; Tue, 23 Jan 2001 00:04:39 -0500
+Received: from argo.starforce.com ([216.158.56.82]:40652 "EHLO
+	argo.starforce.com") by vger.kernel.org with ESMTP
+	id <S132148AbRAWFE3>; Tue, 23 Jan 2001 00:04:29 -0500
+Date: Tue, 23 Jan 2001 00:04:08 -0500 (EST)
+From: Derek Wildstar <dwild+linux_kernel@starforce.com>
+X-X-Sender: <dwild@argo.starforce.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-test10
+In-Reply-To: <3A6CF5B7.57DEDA11@linux.com>
+Message-ID: <Pine.LNX.4.31.0101230000120.2343-100000@argo.starforce.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I have a 2.2.5-15 kernel linux system (red Hat 6.0) that is installed on /dev/hdc2. I boot it from a floppy.
-Recently, I did compile my new kernel 2.4 on my Linux System.
-On the boot floppy, I have LILO (On the hard drive, there's also LILO). 
-For booting my new kernel (/boot/vmlinuz-2.4.0), I added following stanza to /etc/lilo.conf (the one on the hard drive): 
-image=/boot/vmlinuz-2.4.0
-label=linux2.4
-root=/dev/hdc2
-read-only. 
-Lilo was correctly saved (/sbin/lilo..or lilo would display "Added linux2.2 *
-Added linux2.4, Added dos). 
-But when I rebooted the system
-with the boot floppy, LILO wont display linux2.4 so that I can boot with it!
-LILO would only show up the old linux. 
-I went adding the same stanza (as previously mentionned) to /etc/lilo.conf
-that is on the floppy. But the problem is still the same: I do not have the choice to boot with linux2.4!
-I tried "lilo -b /dev/fd0" (after /dev/fd0 
-have been correctly mounted), but system 
-weirdly complained that "open /boot/message: No such file or directory" (which is wrong!).
-I got same error message when trying "lilo -C /mnt/floppy/etc/lilo.conf"! 
-******Here is my /etc/lilo.conf on hard drive*********
-boot=/dev/hdc2
-map=/boot/map
-install=/boot/boot.b
-prompt
-timeout=50
-image=/boot/vmlinuz-2.2.5-15
-label=linux2.2
-root=/dev/hdc2
-read-only
-image=/boot/vmlinuz-2.4.0 
-label=linux2.4
-root=/dev/hdc2
-read-only
-other=/dev/hda1 
-label=dos 
-table=/dev/hda 
-*******Here's lilo.conf on boot floppy*****
-boot=/dev/fd0
-timeout=100
-message=/boot/message
-prompt
-image=/vmlinuz-2.2.5-15
-label=linux2.2
-root=/dev/hdc2
-image=/vmlinuz-2.2.5-15
-label=rescue
-append="load_ramdisk=2 prompt_ramdisk=1" 
-root=/dev/fd0
-image=/vmlinuz-2.4.0
-label=linux2.4
-root=/dev/hdc2
-other=/dev/hda1
-label=dos
-table=/dev/hda
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+I am having ACPI problems with a dell inspiron 5000e, I hear it has a
+broken implementation of APM, so could quite possibly have a broken ACPI
+also.  When ACPI is enabled in the kernel (-pre10 and earlier ones also)
+the system soft-hangs after loading the ACPI definitions.  both
+ctrl-alt-del and alt-sysrq-b will restart the system.  If there is
+anything else i can do to provide more info please let me know.  Running
+without ACPI or APM is stable, even with the r128 kernel
+drivers/XF4.0.2...battery usage is a bit quick, however =)
+
+- -dwild
 
 
-Get your small business started at Lycos Small Business at http://www.lycos.com/business/mail.html
+Linus Torvalds wrote:
+
+> The ChangeLog may not be 100% complete. The physically big things are the
+> PPC and ACPI updates, even if most people won't notice.
+>
+>                 Linus
+>
+> ----
+>
+> pre10:
+>  - got a few too-new R128 #defines in the Radeon merge. Fix.
+>  - tulip driver update from Jeff Garzik
+>  - more cpq and DAC elevator fixes from Jens. Looks good.
+>  - Petr Vandrovec: nicer ncpfs behaviour
+>  - Andy Grover: APCI update
+>  - Cort Dougan: PPC update
+>  - David Miller: sparc updates
+>  - David Miller: networking updates
+>  - Neil Brown: RAID5 fixes
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6bRDYmFSlcxy4R48RAjx8AJ9EgM9A8k5sUQWu91w/lt2hZcfW5wCdFYi8
+S+lZ54tOtr9BMUSn503hj68=
+=d48f
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

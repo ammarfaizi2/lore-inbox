@@ -1,78 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbSL2XpQ>; Sun, 29 Dec 2002 18:45:16 -0500
+	id <S262395AbSL2Xsl>; Sun, 29 Dec 2002 18:48:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262266AbSL2XpQ>; Sun, 29 Dec 2002 18:45:16 -0500
-Received: from almesberger.net ([63.105.73.239]:22800 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262258AbSL2XpP>; Sun, 29 Dec 2002 18:45:15 -0500
-Date: Sun, 29 Dec 2002 20:53:28 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Anomalous Force <anomalous_force@yahoo.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: holy grail
-Message-ID: <20021229205328.B1363@almesberger.net>
-References: <20021227083047.B1406@almesberger.net> <20021228163517.66372.qmail@web13207.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021228163517.66372.qmail@web13207.mail.yahoo.com>; from anomalous_force@yahoo.com on Sat, Dec 28, 2002 at 08:35:17AM -0800
+	id <S262392AbSL2Xsl>; Sun, 29 Dec 2002 18:48:41 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15624 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262395AbSL2Xsi>; Sun, 29 Dec 2002 18:48:38 -0500
+Date: Sun, 29 Dec 2002 15:51:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jakub Jelinek <jakub@redhat.com>
+Subject: Re: glibc binaries w/ sysenter support
+In-Reply-To: <3E0F5233.5050209@redhat.com>
+Message-ID: <Pine.LNX.4.44.0212291543140.1414-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anomalous Force wrote:
-> you miss my point. im not saying to model it after tcp/ip. that
-> was just a reference to a method of data exchange wherein the
-> data has metadata to describe it.
 
-I understood that. What I was saying is that metadata in a TCP
-connection is usually not sufficient for restoring the endpoint
-state.
+On Sun, 29 Dec 2002, Ulrich Drepper wrote:
+>
+> After quite some fiddling we finally have some glibc binaries with
+> sysenter support.  The problems were not in the sysenter code but in
+> coordinating everything in ld.so so that it works on old kernels
+> (without TLS support).
+> 
+> Anyway, the result can be downloaded from
+> 
+>   ftp://people.redhat.com/drepper/glibc/2.3.1-25/
 
-> it makes full sense in an enterprise with 3000+ users that operates
-> 24/7/365. no scheduled down-time for kernel upgrades.
+Thanks. 
 
-I don't disagree with the usefulness of such functionality, but
-I disagree with the level at which you suggest to implement this.
+Having a full system like this showed a few special cases in sysenter
+handling, where some system calls really depend on the old "iret" return
+path.
 
-The approach of trying to migrate low-level kernel state has the
-following problems/disadvantages:
+Notably, "sys_iopl()" requires the iret path because that's the only way
+to restore the full eflags, and "execve()" requires the iret return path
+because it needs to start up the new process with fixed values in
+%edx/%ebx, and the stack has a new layout and no longer contains the
+required sysexit fixup code.
 
- - complexity
- - does not allow recovery from corrupt kernel state, as Pavel has
-   suggested
- - does not support recovery from corrupt hardware state
- - does not support substitution of infrastructure (e.g. what if
-   I want to fail over to a different machine, maybe quickly
-   replace some non-hotpluggable hardware (*), or even swap that
-   old disk with a new one that has completely different
-   characteristics ?)
+I've pushed the fix for both of these issues to the kernel -bk trees. 
 
-So, compared to an approach that implements this at the kernel to
-user space API level, you get a lot of extra complexity, but miss
-several very desirable features.
+Without the fix, a system with sysenter support would not boot up cleanly
+with these libraries due to the execve() issues, and X wouldn't start
+because of the iopl() problem.
 
-(*) While the "big iron" in your data center may have hot-swappable
-    CPUs and everything, it would be nice if such things could also
-    be done with commodity hardware that doesn't provide such
-    luxury.
+With this in place, I've not seen any strange behaviour, and "lmbench" 
+reports
 
-> this is not true. if the system were an integral part of the overall
-> design, then programming would include it apriori.
+	Processor, Processes - times in microseconds - smaller is better
+	----------------------------------------------------------------
+	Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
+	                             call  I/O stat clos       inst hndl proc proc proc
+	--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
+	i686-linu  Linux 2.5.53 2380  0.7  1.1    5    7 0.04K  1.2    3 0.2K   1K   3K
+	i686-linu  Linux 2.5.53 2380  0.7  1.1    5    7 0.04K  1.2    3 0.2K   1K   3K
+	i686-linu  Linux 2.5.53 2380  0.7  1.1    5    7 0.04K  1.2    3 0.2K   1K   3K
+	i686-linu  Linux 2.5.53 2380  0.2  0.6    5    6 0.04K  0.7    3 0.2K   1K   3K
+	i686-linu  Linux 2.5.53 2380  0.2  0.6    5    6 0.04K  0.7    3 0.2K   1K   3K
+	i686-linu  Linux 2.5.53 2380  0.2  0.6    5    6 0.04K  0.7    3 0.2K   1K   3K
 
-Making something part of the design alone doesn't guarantee that
-this is a good approach, nor that it will actually work :-)
+(the three first entries are with the old glibc, three last entries are
+with the new one - note the null call/io and signal install improvements).
 
-> there is a fine distinction between kernel migration, and hot-swap.
-> in a hot-swap setup, there will be signals pending from devices
-[...]
+		Linus
 
-Err, yes, but what does your "hot-swap" do that kernel migration
-doesn't ?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

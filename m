@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130529AbQLHFM5>; Fri, 8 Dec 2000 00:12:57 -0500
+	id <S129602AbQLHFSi>; Fri, 8 Dec 2000 00:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbQLHFMr>; Fri, 8 Dec 2000 00:12:47 -0500
-Received: from caperry-pc1.isot.com ([208.27.64.66]:20141 "HELO
-	onramp.southern-star-ranch.com") by vger.kernel.org with SMTP
-	id <S130529AbQLHFMg>; Fri, 8 Dec 2000 00:12:36 -0500
-Message-ID: <3A3066A5.7E173772@edolnx.net>
-Date: Thu, 07 Dec 2000 22:41:51 -0600
-From: Carl Perry <caperry@edolnx.net>
-Reply-To: caperry@edolnx.net
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0-test10 i686)
+	id <S131656AbQLHFS3>; Fri, 8 Dec 2000 00:18:29 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:46852 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129602AbQLHFSY>; Fri, 8 Dec 2000 00:18:24 -0500
+Message-ID: <3A3066EC.3B657570@timpanogas.org>
+Date: Thu, 07 Dec 2000 21:43:24 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Development Documentation?
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: NTFS repair tools]
+In-Reply-To: <3A30552D.A6BE248C@timpanogas.org> <20001207221347.R6567@cadcamlab.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was reading an article today on Slashdot about how poorly documented the
-Windows API was and had this fear that Linux could get the same way.  So, cut to
-the point:
 
-Is there a project underway that documents how things like the VM, the Memory
-Manger, what a a specific driver needs to do, what it needs to return, how it is
-called, what do all those files in arch/whatever do?  Are there bits and pieces
-spewed around all over the net?  It would seem to me that someone ( and I will
-volunteer ) sould sit down and put together some sort of documentation system
-for the Kernel.  Somthing to the effect of a super help for users with all the
-technical details for developers.
 
-Obviously it should be kept on the Internet but in such a way that it can be
-contributed to by many people ( preferrably the people who have influence with
-the code ).  It should also have a team of "editors" and be maintained such that
-it is browsable, printable, and publishable.
+Peter Samuelson wrote:
+> 
+> [Jeff Merkey]
+> > Do folks not know this NTFS driver will trash hard drives?  We need
+> > to alert folks DO NOT USE WRITE NTFS MODE in those versions we know
+> > are busted.
+> 
+> Here's an idea: let's make r/w support a separate CONFIG option, and
+> label it "DANGEROUS".
+> 
+> Oh wait, we already do that.
+> 
+> Perhaps we should warn users to back up their NTFS partitions before
+> trying this option.  Put that warning in the help text for
+> CONFIG_NTFS_RW.
+> 
+> Oh wait, we already do that too.
+> 
+> How stupid does one have to be in order to enable an option labeled
+> "DANGEROUS" for a non-experimental system?
 
-I personally feel that now would be the time to do this while the current
-development tree is being wrapped up for production and there is no major work
-on a 2.5 development tree - at least publicly.  Like I said, I voulenteer to
-coordinate this effort and find a place to host it.  What are the thoughts of
-others?  Good idea, bad idea?  Input is more than welcome.
--- 
-	-Carl Perry
-	caperry@edolnx.net
+Agree.  We need to disable it, since folks do not read the docs
+(obviously).  Of course, we could leave it on, and I could start
+charging money for these tools -- there's little doubt it would be a
+lucrative business.  Perhaps this is what I'll do if the numbers of
+copies keeps growing.  When it hits > 100 per week, it's taking a lot of
+our time to support, so I will have to start charging for it.
 
-"Real programmers don't draw flowcharts.  Flowcharts are, after
-all, the illiterate's form of documentation.  Cavemen drew
-flowcharts; look how much good it did them."
-	-Fortune (The App, not the Magazine)
+Jeff
+
+Jeff   
+
+
+> 
+> Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

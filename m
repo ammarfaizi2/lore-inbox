@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVCBNTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbVCBN0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbVCBNTH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 08:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVCBNTH
+	id S262286AbVCBN0O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 08:26:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVCBN0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 08:19:07 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:61854 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262287AbVCBNTD (ORCPT
+	Wed, 2 Mar 2005 08:26:14 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:51485 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262286AbVCBN0M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 08:19:03 -0500
+	Wed, 2 Mar 2005 08:26:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IECxFpmZm5p8Js23L7kMUhs+QKYJ0dYQhqnRxiXsCszaXHsiKKqSFewA4No8rGdsOkiLHDRiv6S1wVnn4Y7NRNtgrgKoUc7xHeIYWoVLFHIAEEuK8elMBdpLxE1tIgKBigjBTwRBsZlzb/O9HM7eU8tNMDva/6IfMMmnX3wsU4c=
-Message-ID: <5fc59ff30503020519250dc663@mail.gmail.com>
-Date: Wed, 2 Mar 2005 05:19:02 -0800
-From: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-Reply-To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-To: Zhonghua Dai <zhonghuadai@gmail.com>
-Subject: Re: trouble with Dell dimension 3000 network adapter
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5ca13e830503020247676df272@mail.gmail.com>
+        b=A3d0B5dC4olfPJVMjKU/i9l9a3wz1xklyemNG7l7QwgSFHLfi/lHhdXkLqOZysCP4co8QzO7CJgoLXNlp8a6HYdYP1IcXFwVz7pl6bVhM/Ddu+ADt2ZmJRO7SKyR49poR5XYyM0Wc6xzTrzVaMTInKOPCoGcIxWemfNwv70wYb4=
+Message-ID: <65258a58050302052661e856c6@mail.gmail.com>
+Date: Wed, 2 Mar 2005 14:26:11 +0100
+From: Vincent Vanackere <vincent.vanackere@gmail.com>
+Reply-To: Vincent Vanackere <vincent.vanackere@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+Cc: keenanpepper@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050302032414.13604e41.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <5ca13e830503020247676df272@mail.gmail.com>
+References: <422550FC.9090906@gmail.com>
+	 <20050302012331.746bf9cb.akpm@osdl.org>
+	 <65258a58050302014546011988@mail.gmail.com>
+	 <20050302032414.13604e41.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you try e100?  What kernel are you using? You could download the
-latest e100 from http://sourceforge.net/projects/e1000/.  The latest
-version 3.3.6.
+Works fine for me now, thanks !
 
-ganesh.
+Vincent
 
+On Wed, 2 Mar 2005 03:24:14 -0800, Andrew Morton <akpm@osdl.org> wrote:
 
-On Wed, 2 Mar 2005 18:47:56 +0800, Zhonghua Dai <zhonghuadai@gmail.com> wrote:
-> hi,
+> OK, there are no vmlinux references to lib/parser.o's symbols.  So it isn't
+> getting linked in.
 > 
-> I've installed the debian(woody) on my Dell dimension 3000 computer.
-> But I can't make the network adapter work, it's type is intel pro/100
-> VE network desktop adapter. I've tired such modules as eepro100,
-> eexpress, but it doesn't work.
+> In lib/Makefile, remove parser.o from the lib-y: rule and add
 > 
-> Any suggestion or information are welcomed?
-> 
-> Thanks in advance.
-> 
-> scar
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> obj-y   += parser.o

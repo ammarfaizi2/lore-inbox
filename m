@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277528AbRKSU2a>; Mon, 19 Nov 2001 15:28:30 -0500
+	id <S278046AbRKSUjb>; Mon, 19 Nov 2001 15:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277382AbRKSU2U>; Mon, 19 Nov 2001 15:28:20 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:22458 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277528AbRKSU2H>; Mon, 19 Nov 2001 15:28:07 -0500
-Message-ID: <3BF96A4E.FE21CC31@us.ibm.com>
-Date: Mon, 19 Nov 2001 12:23:42 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S278522AbRKSUjV>; Mon, 19 Nov 2001 15:39:21 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27783 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278046AbRKSUjJ>;
+	Mon, 19 Nov 2001 15:39:09 -0500
+Date: Mon, 19 Nov 2001 15:39:01 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] problem with grow_dev_page()/readpage()
+In-Reply-To: <Pine.LNX.4.33.0111191217390.8460-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0111191533320.19969-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: Mike Kravetz <kravetz@us.ibm.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        lse-tech@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: Real Time Runqueue
-In-Reply-To: <20011116154701.G1152@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0111161620050.998-100000@blue1.dev.mcafeelabs.com> <20011116163224.H1152@w-mikek2.des.beaverton.ibm.com> <3BF61AEB.2C186512@mvista.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> A couple of addition points.  There should be an API to declare cpu
-> affinity, and cpu affinity should be passed thru fork and exec.  You may
-> need to be god (root) to use the API however.  (I think cpu affinity is
-> currently passed thru fork and exec, by the way.)
 
-There is...  there is a launch_policy patch on
-http://sourceforge.net/projects/lse, that offers 2 ways of setting a processes
-CPU affinity.  A process can muck around with its own affinity through prctl(),
-and root can muck around with the CPU affinity of any process through
-/proc/<pid>/cpus_allowed and /proc/<pid>/launch_policy.  And the launch_policy
-*is* inherited from parent to child.
 
-The cpus_allowed part comes from Andrew Morton and controls the processes
-affinity.  I've extended that to include the launch_policy part which sets the
-affinity to be passed on through fork/exec.
+On Mon, 19 Nov 2001, Linus Torvalds wrote:
 
-Enjoy!
+> 
+> On Mon, 19 Nov 2001, Alexander Viro wrote:
+> >
+> > That breaks if you do bread() on something less than hardware sector size,
+> > though.  Then all following attempts to read that page (until ->buffers
+> > is evicted) will keep trying to submit IO on too small buffers.
+> 
+> I don't think that can happen - you can only bread with i_blksize, and the
+> set_blocksize() stuff refuses to set to smaller than the hardware sector
+> size.
 
--matt
+Then we'd better check that in bread() (getblk(), actually).  Works for
+me - that's even better than grow_dev_page().
+
+Notice that 2.4.15-pre6 _does_ have at least two bugs of that kind - aic7xxx
+(both old and new drivers).  They have an ioctl() that tries to guess the
+BIOS geometry.  It blindly does bread() on 1Kb buffer, which leaves MO
+disks very unhappy.  So check looks like a good idea...
+

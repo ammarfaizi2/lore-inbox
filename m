@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277758AbRKADlZ>; Wed, 31 Oct 2001 22:41:25 -0500
+	id <S277798AbRKADwf>; Wed, 31 Oct 2001 22:52:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277728AbRKADlP>; Wed, 31 Oct 2001 22:41:15 -0500
-Received: from smi-105.smith.uml.edu ([129.63.206.105]:21000 "HELO
-	buick.pennace.org") by vger.kernel.org with SMTP id <S277798AbRKADk6>;
-	Wed, 31 Oct 2001 22:40:58 -0500
-Date: Wed, 31 Oct 2001 22:41:34 -0500
-From: Alex Pennace <alex@pennace.org>
-To: safemode <safemode@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: graphical swap comparison of aa and rik vm
-Message-ID: <20011031224134.A19557@buick.pennace.org>
-Mail-Followup-To: safemode <safemode@speakeasy.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011101031823Z277713-17408+8578@vger.kernel.org>
+	id <S277782AbRKADwZ>; Wed, 31 Oct 2001 22:52:25 -0500
+Received: from mx6.port.ru ([194.67.57.16]:57863 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S277720AbRKADwI>;
+	Wed, 31 Oct 2001 22:52:08 -0500
+Date: Thu, 1 Nov 2001 06:51:07 +0300
+From: Dmitry Volkoff <vdb@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: OSDL Scalable Test Platform test for linux_2_4_13
+Message-ID: <20011101065107.A23409@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011101031823Z277713-17408+8578@vger.kernel.org>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 10:18:29PM -0500, safemode wrote:
-> Here is the graph   http://safemode.homeip.net/vm_swapcomparison.png   . It's 
-> about 4.6K. 
+> These tests were performed against 2, 4, and 8 CPU 
+> IA-32 (Intel) servers. 
 
-The server says, "Wrong file name fool."
+UnixBench results are somewhat funny. 
+4-CPU machine is slower than the one with 2 CPU (238.4 vs 260.0)?
+Well, on UP Athlon 1.4Ghz with only 512 Mb RAM I get 460...
+
+-- 
+
+    DV

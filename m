@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265874AbUAPWO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 17:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265863AbUAPWNG
+	id S265877AbUAPWVz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 17:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUAPWVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 17:13:06 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:388 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265746AbUAPWDo
+	Fri, 16 Jan 2004 17:21:53 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:7332 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265877AbUAPWUR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 17:03:44 -0500
-Date: Fri, 16 Jan 2004 17:07:05 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Ashish sddf <buff_boulder@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ kernel module + Makefile
-In-Reply-To: <20040116210924.61545.qmail@web12008.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0401161659470.31455@chaos>
-References: <20040116210924.61545.qmail@web12008.mail.yahoo.com>
+	Fri, 16 Jan 2004 17:20:17 -0500
+Date: Fri, 16 Jan 2004 20:13:27 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Brad Tilley <bradtilley@usa.net>
+Cc: linux-kernel@vger.kernel.org, Oleg Drokin <green@linuxhacker.ru>
+Subject: Re: Possible Bug in 2.4.24???
+In-Reply-To: <306iaPsCz6064S16.1074277731@uwdvg016.cms.usa.net>
+Message-ID: <Pine.LNX.4.58L.0401162000200.30607@logos.cnet>
+References: <306iaPsCz6064S16.1074277731@uwdvg016.cms.usa.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jan 2004, Ashish sddf wrote:
-
-> Hi,
->    I am trying to port a C++ kernel module from 2.4 to
-> 2.6. (It is MIT Click Modular Router).
->
->    As I understand the module building has changed in
-> ver 2.6. I have got the Makefile to compile it but it
-> gives me lot of warning - all dependancies problem
->
->  It appears that the kernel Makefile treats it like a
-> host application and does not pass the necessary
-> processing routines.
->
->   Does anyone can ideas about how to change the kernel
-> makefile to compile the C++ files the same way as C
-> files ?
->
-> Any help will be appreciated.
->
-> Ashish
-
-If somebody actually got a module, written in C++, to compile and
-work on linux-2.4.nn, as you state, it works only by fiat, i.e., was
-declared to work. There is no C++ runtime support in the kernel for
-C++. Are you sure this is a module and not an application? Many
-network processes (daemons) are applications and they don't require
-any knowledge of kernel internals except what's provided by the
-normal C/C++ include-files.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
 
+On Fri, 16 Jan 2004, Brad Tilley wrote:
+
+> While running a script that recursively changes permissions on a ftp
+> directory, I received an error to the term window where the script was
+> running. I then checked out /var/log/messages and saw the below kernel errors.
+> The machine was generally unresponsive and had to be physically rebooted at
+> the power switch. It worked fine upon reboot an fsck ran w/o producing any
+> error... the script ran fine too. This is a HP XW4100 with a P4, 1.5GB DDR RAM
+> and two very fast (15,000 RPM), very large (140GB) SCSI HDDs. It had been up
+> for 9 days (since compiling and installing 2.4.24) and has worked fine until
+> this point. Could someone tell me if this is or isn't a kernel bug?
+>
+>
+> Jan 16 11:50:43 athop1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0
+> return code = 8000002
+> Jan 16 11:50:43 athop1 kernel: Info fld=0x2cd1bd9, Current sd08:15: sense key
+> Hardware Error
+> Jan 16 11:50:43 athop1 kernel: Additional sense indicates Internal target
+> failure
+> Jan 16 11:50:43 athop1 kernel:  I/O error: dev 08:15, sector 54128
+> Jan 16 11:50:43 athop1 kernel: journal-601, buffer write failed
+> Jan 16 11:50:43 athop1 kernel:  (device sd(8,21))
+> Jan 16 11:50:43 athop1 kernel: kernel BUG at prints.c:341!
+> Jan 16 11:50:43 athop1 kernel: invalid operand: 0000
+> Jan 16 11:50:43 athop1 kernel: CPU:    0
+> Jan 16 11:50:43 athop1 kernel: EIP:    0010:[<c0189878>]    Tainted: P
+
+Brad,
+
+A device error happened (you see the "SCSI disk error : " message and
+"Additional sense indicates Internal target failure") which reiserfs
+could not handle.
+
+kernel BUG at prints.c:341 == reiserfs_panic().

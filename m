@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbTGGVF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 17:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264407AbTGGVF4
+	id S264465AbTGGVJd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 17:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTGGVJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 17:05:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40713 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264085AbTGGVFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 17:05:55 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: epoll vs stdin/stdout
-Date: 7 Jul 2003 14:20:09 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <beco69$rfr$1@cesium.transmeta.com>
-References: <20030707154823.GA8696@srv.foo21.com> <20030707194736.GF9328@srv.foo21.com> <20030707200315.GA10939@mail.jlokier.co.uk> <beckj5$e2a$1@news.cistron.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Mon, 7 Jul 2003 17:09:33 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:47703 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264465AbTGGVJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 17:09:31 -0400
+Subject: Re: Unable to grab 2.5 tree via bkbits
+From: Stephen Torri <storri@sbcglobal.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F09E2E7.7020500@pobox.com>
+References: <1057610739.11432.18.camel@base>  <3F09E2E7.7020500@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-e16Ls7AUF7xz3hk5ov0v"
+Organization: 
+Message-Id: <1057613044.912.22.camel@base>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 07 Jul 2003 16:24:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <beckj5$e2a$1@news.cistron.nl>
-By author:    "Miquel van Smoorenburg" <miquels@cistron.nl>
-In newsgroup: linux.dev.kernel
->
-> In article <20030707200315.GA10939@mail.jlokier.co.uk>,
-> Jamie Lokier  <jamie@shareable.org> wrote:
-> >Unfortunately I cannot think of a way for a process to know, in
-> >general, whether two fds that it is passed correspond to the same file
-> >*.  Well, apart from trying epoll on it and seeing what happens :/
-> 
-> fstat() and compare st_dev and st_ino
-> 
 
-That doesn't show if they share the same file *.  Two fd's can be open
-to the same file or other object without sharing the same file *.
+--=-e16Ls7AUF7xz3hk5ov0v
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Seriously, this is not something userspace should have to worry
-about.  The interface should handle it, otherwise it's broken.
+On Mon, 2003-07-07 at 16:15, Jeff Garzik wrote:
+> Just to verify, I'm definitely able to pull and clone from=20
+> http://linux.bkbits.net/linux-2.5 ...  I even cut-n-pasted your first=20
+> command line to be sure.
+>=20
+> It sounds like a local problem... disk space?  no rights to write to curd=
+ir?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Its  a local problem. No write permissions set.=20
+
+Bitkeeper: Can you write the bk client to alert the user that it was
+unable to write to the local directory? It would help alert people to
+set things up properly.
+
+Stephen
+--=20
+Stephen Torri <storri@sbcglobal.net>
+
+--=-e16Ls7AUF7xz3hk5ov0v
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/CeT0mXRzpT81NcgRAlaGAJ9o88wRsQb4igaZtI3OxT7Cwp9+rgCfSyNb
+thDVLavqsvnFLqa+AMg1i0Y=
+=Hx5z
+-----END PGP SIGNATURE-----
+
+--=-e16Ls7AUF7xz3hk5ov0v--
+

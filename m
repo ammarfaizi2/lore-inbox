@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261990AbRE2Blx>; Mon, 28 May 2001 21:41:53 -0400
+	id <S261988AbRE2CLL>; Mon, 28 May 2001 22:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbRE2Blo>; Mon, 28 May 2001 21:41:44 -0400
-Received: from [209.249.10.20] ([209.249.10.20]:746 "EHLO ns1.yggdrasil.com")
-	by vger.kernel.org with ESMTP id <S261987AbRE2Bl3>;
-	Mon, 28 May 2001 21:41:29 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 28 May 2001 18:38:46 -0700
-Message-Id: <200105290138.SAA01532@baldur.yggdrasil.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-Cc: aaronl@vitelus.com, acahalan@cs.uml.edu, adam@yggdrasil.com,
-        dledford@redhat.com, jas88@cam.ac.uk, linux-kernel@vger.kernel.org,
-        lk@tantalophile.demon.co.uk, lm@bitmover.com
+	id <S261992AbRE2CLB>; Mon, 28 May 2001 22:11:01 -0400
+Received: from venus.postmark.net ([207.244.122.71]:61191 "HELO
+	venus.postmark.net") by vger.kernel.org with SMTP
+	id <S261988AbRE2CK6>; Mon, 28 May 2001 22:10:58 -0400
+Message-ID: <20010529011152.9622.qmail@venus.postmark.net>
+Mime-Version: 1.0
+From: J Brook <jbk@postmark.net>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@mandrakesoft.com
+Subject: Re: Current tulip driver from 2.4.5 is plain broken
+Date: Tue, 29 May 2001 01:11:52 +0000
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> = Alan Cox
->>  = lk@tantalophile.demon.co.uk?
->>> = ??
+Michal Jaegermann wrote:
+> I mentioned that before but this should be stated clearly.  As far
+> as I am concerned "Linux Tulip driver version 0.9.15-pre2 (May 16,
+> 2001)", as used in 2.4.5 - and other kernels - is totally buggered.
+> It comes up, and ethernet interfaces can be configured, but does
+> not matter how I am playing with options I cannot get a single
+> packet through.
+> 
+> Replacing it in 2.4.5 with "Linux Tulip driver version 0.9.14d 
+> (April 3, 2001)", which I have handy, restores sanity immediately 
+> and a network simply works without any heroic efforts.
+> 
+> My NIC is "Digital DS21143 Tulip rev 65 at 0x8800".  BTW - a
+> version "tulip-1.1.7" from sourceforge behaves exactly like 
+> 0.9.15-pre2.
 
->>> AFAICS, the firmware is just a file served up to the device as needed
->>> - no more a derivative work from the kernel than my homepage is a
->>> derivative work of Apache.
->> 
->> Indeed.  But if you compiled your home page, linked it into Emacs to
->> display on startup, and distributed the binary, the _combination_
->> "Emacs+homepage" binary would be a derived work, and you'd be required
->> to offer source for both parts.
+ I see exactly the same (broken!) behaviour here. The last kernel
+that
+works for me in 2.4.4-ac6, which I'm running at the moment. All
+subsequent -ac kernels and 2.4.5-pre4 and above are broken. I
+reported
+the bug last week. Quick system summary: RH7.1, Duron, KT133, Network
+card chip "Digital 21041-AA". I get the same problem as above
+(working
+kernels set half-duplex, broken kernels set full-duplex). More
+details
+available on request, or at
+http://boudicca.tux.org/hypermail/linux-kernel/2001week21/0278.html
 
->In which case GNU Emacs violates the GPL by containing a copy of COPYING which
->is more restricted than the GPL. After all it displays copying on a hotkey
->combination
+  Thanks!
 
-	"M-x describe-copying" just displays the file
-/usr/share/emacs/<version>/etc/COPYING.   The emacs binaries do not
-contain the text of GPL.
-
-	By the way, if one wanted to #include the text of the GPL,
-then, in the specific case of the GPL, one could argue that the
-restrictions on modifying the GPL are part of the GPL and, therefore
-not further restrictions.  (Even though those restrictions occur before
-the "preamble", they're just as binding and removing them would be a
-change to the GPL, so they are an existing restriction of the GPL rather
-than a further restriction.)
-
-	That said, I have long advocated that authors use
-GPL-compatible copying conditions for everything, including plain text,
-to facilitate free software effects on platforms that comingle code
-and documentation, such as many web pages and some other interactive
-media.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-A
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+    John
+----------------
+jbk@postmark.net

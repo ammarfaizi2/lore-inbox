@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbTFDPJn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 11:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTFDPJn
+	id S263418AbTFDPOh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 11:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTFDPOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 11:09:43 -0400
-Received: from inpbox.inp.nsk.su ([193.124.167.24]:40591 "EHLO
-	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S263380AbTFDPJm
+	Wed, 4 Jun 2003 11:14:37 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:19877
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263418AbTFDPOg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 11:09:42 -0400
-Date: Wed, 4 Jun 2003 22:16:25 +0700
-From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Reply-To: D.A.Fedorov@inp.nsk.su
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] get_current_user() macro in linux/sched.h conflicts with
- __user defined in compiler.h
-Message-ID: <Pine.SGI.4.10.10306042158520.992312-100000@Sky.inp.nsk.su>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jun 2003 11:14:36 -0400
+Date: Wed, 4 Jun 2003 11:28:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Stewart Smith <stewartsmith@mac.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>,
+       Stewart Smith <stewart@linux.org.au>
+Subject: Re: [PATCH] fixed: CRC32=y && 8193TOO=m unresolved symbols
+Message-ID: <20030604152806.GE19929@gtf.org>
+References: <1054646171.17921.64.camel@passion.cambridge.redhat.com> <3D3CD66D-9651-11D7-A060-00039346F142@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D3CD66D-9651-11D7-A060-00039346F142@mac.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 04, 2003 at 03:56:09PM +1000, Stewart Smith wrote:
+> +{
+> +  return bitreverse(crc32_le(~0, data, length));
+> +}
+> +EXPORT_SYMBOL(ether_crc);
+> +
+> +static inline u32 ether_crc_le(size_t length, unsigned char const 
+> *data)
+> +{
+> +  return crc32_le(~0, data, length);
+> +}
+> +EXPORT_SYMBOL(ether_crc_le);
 
-get_current_user() macro in linux/sched.h conflicts with the
-user space attribute #define __user from compiler.h.
+You can't EXPORT_SYMBOL from a header.
 
-I have not found any usage of this macro in all kernel code though.
+This sounds like Kconfig or Makefile bugs to me... all the
+export-symbol stuff should already be in place.
 
---- linux-2.5.70/include/linux/sched.h.orig	Tue May 27 08:00:23 2003
-+++ linux-2.5.70/include/linux/sched.h	Wed Jun  4 21:58:00 2003
-@@ -289,9 +289,9 @@
- };
- 
- #define get_current_user() ({ 				\
--	struct user_struct *__user = current->user;	\
--	atomic_inc(&__user->__count);			\
--	__user; })
-+	struct user_struct *_user_ = current->user;	\
-+	atomic_inc(&_user_->__count);			\
-+	_user_; })
- 
- extern struct user_struct *find_user(uid_t);
+Can you post your .config and the exact build errors you are getting?
+
+	Jeff
+
+
 

@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282377AbRKWThp>; Fri, 23 Nov 2001 14:37:45 -0500
+	id <S282224AbRKWTo0>; Fri, 23 Nov 2001 14:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282357AbRKWThg>; Fri, 23 Nov 2001 14:37:36 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:4480 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S282343AbRKWTh3>; Fri, 23 Nov 2001 14:37:29 -0500
-Message-ID: <014a01c17456$504197d0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <012101c17452$9ac11550$0201a8c0@HOMER>
-Subject: Re: IDE is still crap.. or something
-Date: Fri, 23 Nov 2001 20:37:40 +0100
+	id <S282216AbRKWToQ>; Fri, 23 Nov 2001 14:44:16 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:43141 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S282213AbRKWTn4>;
+	Fri, 23 Nov 2001 14:43:56 -0500
+Message-ID: <3BFEA6F1.33E3F1BF@pobox.com>
+Date: Fri, 23 Nov 2001 11:43:45 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: war <war@starband.net>
+CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: Which gcc version?
+In-Reply-To: <20011123125137Z282133-17408+17815@vger.kernel.org> <3BFE5447.3AFDFFD3@starband.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, November 23, 2001 8:11 PM
-Subject: IDE is still crap.. or something
+Actually there is no need to go download yet
+another compiler -
 
+The gcc-2.96 shipped with redhat will work
+perfectly for compiling your kernel -
 
-> Well, just wanted to tell you that 2.4.15 still slows down to a crawl when
-> copying a 500MB file between two hard drives (running ext3). I have tried
-> any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14 IDE
-> patch (after fixing the rejects) but no go.
+See Documentation/Changes, line 87 for a
+heads-up
+
+cu
+
+jjs
+
+war wrote:
+
+> You should use gcc-2.95.3.
 >
-> Even iptables is affected, because it takes forever to surf the internet
-> from my behind-linux-firewall windows computer.
+> Roy Sigurd Karlsbakk wrote:
 >
-> I'm right now trying to apply the preemptive-kernel patch to 2.4.15 but it
-> had some strange rejects so it will be exciting to see if it works. I get
-> good response from the -ac kernel series though.
-
-I applied the ide patch and the preemptive-kernel patch, and so far so good.
-Response is up again, but I'm not sure how well I fixed the .rej files.
-There were some reference to a "still_running" label that I simply
-ignored... *shrug*
-
-Btw, i run my (pretty slow) hard disks on my BP6 HPT366 controller.
-
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
-
+> > hi all
+> >
+> > I just wonder...
+> > With a clean rh72 install, I've got two gcc versions installed in parllel,
+> > 2.96 and 3.0.2. Which one should I use to compile the kernel?
 

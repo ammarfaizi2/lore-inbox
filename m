@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317650AbSFMPJe>; Thu, 13 Jun 2002 11:09:34 -0400
+	id <S317661AbSFMPQx>; Thu, 13 Jun 2002 11:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317658AbSFMPJd>; Thu, 13 Jun 2002 11:09:33 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:27597 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317650AbSFMPJc>;
-	Thu, 13 Jun 2002 11:09:32 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S317679AbSFMPQw>; Thu, 13 Jun 2002 11:16:52 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:15314 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S317661AbSFMPQv>; Thu, 13 Jun 2002 11:16:51 -0400
+Message-Id: <200206131516.g5DFGiM70818@d06relay02.portsmouth.uk.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: Patrick Mochel <mochel@osdl.org>
+Subject: [patch] bad locking in {driver,bus}_for_each_{drv,dev}
+Date: Thu, 13 Jun 2002 19:16:31 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arndb@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15624.46508.257287.233406@napali.hpl.hp.com>
-Date: Thu, 13 Jun 2002 08:09:32 -0700
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] pageattr update
-In-Reply-To: <20020613061246.A7121@redhat.com>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+Hi,
 
-I'm have a concern about the current change_page_attr() patch.  It
-gives the impression that the GART memory always gets mapped
-write-combined.  This is not always true.  For example, on IA-64,
-attribute-aliasing issues are prevented by requiring IA-64 platforms
-to use coherent AGP DMA.  In other words, the AGP memory will be
-mapped writeback, as usual.
+I just ran in a deadlock in driver_for_each_dev, where read_unlock 
+was called without the lock being held. The patch below avoids the
+problem there and in the other two places I found it.
 
-As long as change_page_attr() is used for AGP-related stuff only,
-there is probably no real issue with the patch in its current form
-(its simply a no-op on most non-x86 platforms).  However, I'm a bit
-worried that someone might start to use it for other things, such that
-change_page_attr() could no longer be a no-op on those platforms.
-Since the DMA coherency issue is an AGP specific issue, perhaps just
-renaming the macro to agp_change_page_attr() would take care of my
-concern.  What do you think?
+	Arnd <><
 
-	--david
+--- linux-2.5.21/drivers/base/driver.c  Thu Jun 13 19:00:48 2002
++++ drivers/base/driver.c       Thu Jun 13 19:01:25 2002
+@@ -31,6 +31,7 @@
+                dev = next;
+                if ((error = callback(dev,data))) {
+                        put_device(dev);
++                       read_lock(&drv->lock);
+                        break;
+                }
+                read_lock(&drv->lock);
+--- linux-2.5.21/drivers/base/bus.c     Thu Jun 13 19:05:25 2002
++++ drivers/base/bus.c  Thu Jun 13 19:06:01 2002
+@@ -61,6 +61,7 @@
+                dev = next;
+                if ((error = callback(dev,data))) {
+                        put_device(dev);
++                       read_lock(&bus->lock);
+                        break;
+                }
+                read_lock(&bus->lock);
+@@ -96,6 +97,7 @@
+                drv = next;
+                if ((error = callback(drv,data))) {
+                        put_driver(drv);
++                       read_lock(&bus->lock);
+                        break;
+                }
+                read_lock(&bus->lock);

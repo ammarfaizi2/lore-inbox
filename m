@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265120AbUELQUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265118AbUELQU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265120AbUELQUf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265122AbUELQUe
+	id S265118AbUELQU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUELQU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:20:34 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:54668 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265119AbUELQUa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:20:30 -0400
-Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Sourav Sen <souravs@india.hp.com>
-Cc: "'Greg KH'" <greg@kroah.com>, Matt_Domsch@dell.com,
-       "'Matthew E Tolentino'" <matthew.e.tolentino@intel.com>,
-       linux-ia64@vger.kernel.org,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <00cb01c4380b$55c97bc0$39624c0f@india.hp.com>
-References: <00cb01c4380b$55c97bc0$39624c0f@india.hp.com>
-Content-Type: text/plain
-Message-Id: <1084378516.14581.56.camel@nighthawk>
+	Wed, 12 May 2004 12:20:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7149 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265118AbUELQU2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 12:20:28 -0400
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/77voU8SX4pn3etKT7GN"
+Organization: Red Hat UK
+Message-Id: <1084378819.10949.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 12 May 2004 09:15:16 -0700
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 12 May 2004 18:20:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-12 at 03:24, Sourav Sen wrote:
-> Maybe. But the point I had in mind is, say for example
-> memory diagnostics applications/exercisers which reads (Blind
-> reads, without caring about contents) memory
-> to uncover errors (single bit errors) can use
-> this to know the usable ranges and map them thru /dev/mem and
-> read those ranges.
 
-If you expose the EFI memory map, then you'll be able to write memory
-diagnostics that will work on any EFI-based machine.
+--=-/77voU8SX4pn3etKT7GN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If you expose the EFI memory map in an architecture-independent fashion,
-then you'll be able to write diagnostics that will work on any *Linux*
-machine, plus all of the EFI machines.  Plus, by doing it first, you get
-to greatly influence how the arch-independent stuff is done to make your
-life the easiest.  
 
-Think /sys/system/devices/memory, not /sys/firmware/efi.
+> > "4KSTACKS" already is present in the module version string.
+> >=20
+> > And Fedora is shipping now with 4k stacks, so presumably any disasters
+> > are relatively uncommon...
+>=20
+> Fedora and kernel.org have a lot of unshared bugs and features,
+> unfortunately. I take that information as an encouraging proof of concept=
+,
+> not a waranty that the kernel.org code will behave in a similar way.
 
-We're planning on doing this anyway for memory hotplug, so some of the
-work and ideas are already there.  I'd be happy to point you to some
-past discussions and code on the subject.  
+Hey! That's slander of title! :-)
+Seriously the difference between the Fedora Core 2 kernel and the
+matching kernel.org kernel aren't THAT big. The 4g/4g split patch being
+the biggest delta.
 
--- Dave
+
+--=-/77voU8SX4pn3etKT7GN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAok7CxULwo51rQBIRAl+bAKCOVn0OhXv6N+HatZ43os69HFx+YACgiI6a
+LKcwRKUIdJBPVbEGBlmsTg8=
+=V1tm
+-----END PGP SIGNATURE-----
+
+--=-/77voU8SX4pn3etKT7GN--
 

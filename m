@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbRAPT5r>; Tue, 16 Jan 2001 14:57:47 -0500
+	id <S131140AbRAPUCR>; Tue, 16 Jan 2001 15:02:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129704AbRAPT5h>; Tue, 16 Jan 2001 14:57:37 -0500
-Received: from musse.tninet.se ([195.100.94.12]:57084 "HELO musse.tninet.se")
-	by vger.kernel.org with SMTP id <S130870AbRAPT5R>;
-	Tue, 16 Jan 2001 14:57:17 -0500
-Date: Tue, 16 Jan 2001 20:55:58 +0100
-From: André Dahlqvist <anedah-9@sm.luth.se>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Does reiserfs really meet the "Linux-2.4.x patch submission policy"?
-Message-ID: <20010116205558.A1171@sm.luth.se>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <937neu$p95$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <937neu$p95$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Jan 06, 2001 at 10:17:02AM -0800
-X-Unexpected-Header: The Spanish Inquisition
+	id <S130575AbRAPUCI>; Tue, 16 Jan 2001 15:02:08 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:5108 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S129789AbRAPUCA>; Tue, 16 Jan 2001 15:02:00 -0500
+Date: Tue, 16 Jan 2001 12:01:12 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+cc: "'Dominik Kubla'" <dominik.kubla@uni-mainz.de>,
+        "'David Woodhouse'" <dwmw2@infradead.org>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95191@ATL_MS1>
+Message-ID: <Pine.LNX.4.21.0101161154580.17397-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus
+On Tue, 16 Jan 2001, Venkatesh Ramamurthy wrote:
 
-I was very surprised when I checked my local kernel.org mirror this
-morning, and noticed that the latest 2.4.1 pre-patch had grown to
-~180 kb in size. I was even more surprised when I realized that the
-inclusion of reiserfs was the reason for this. While I am certainly
-happy for the reiserfs guys, I can't help but wondering if this really
-had to happen for 2.4.1.
+> > This is due to the fixed ordering of the scsi drivers. You can change the
+> > order of the scsi hosts with the "scsihosts" kernel parameter. See
+> > linux/drivers/scsi/scsi.c
+> 	[Venkatesh Ramamurthy]  I think it would be a nice idea if we can
+> make this process automatic , with out user typing in the order and
+> remembering it. The fact that a kernel developer is not using the machines
+> daily to get his work done should be in our minds. If we do this Linux would
+> become more user friendly
 
-In my understanding of your "2.4.x patch sumission guidelines" these
-large patches was exactly what you wanted to avoid at this point in
-time. For example, isn't reiserfs to be considered a "more involved
-patch" the way you described it in this e-mail:
+you're forgetting that in /etc/lilo.conf there is a directive called
+'append='... all the user has to do is merely add
+'append="scsihosts=whatever,whatever"' into their config file and rerun
+lilo. problem solved
 
-On Sat, Jan 06, 2001 at 10:17:02AM -0800, Linus Torvalds wrote:
+besides, how many 'end-users' do you know of that will have multiple scsi
+adapters in one system? how many end-users -period- will have even a
+*single* scsi adapter in their systems? do we need to bloat the kernel
+with automatic things like this? no... i think it is handled fine the way
+it is. if the user wants to add more than one scsi adapter into his
+system, let him read some documentation on how to do so. (is this even a
+documented feature? if not, i think it should be added to the docs...)
 
-> In short, releasing 2.4.0 does not open up the floor to just about
-> anything.  In fact, to some degree it will probably make patches _less_
-> likely to be accepted than before, at least for a while.  I want to be
-> absolutely convicned that the basic 2.4.x infrastructure is solid as a
-> rock before starting to accept more involved patches. 
+just my thoughts on the matter....
 
-Don't get me wrong, I am personally really excited that reiserfs was
-included. I just thought that you basically wanted 2.4.1 to be "boring".
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
-I guess it's the "pushover and wimp" showing his face again:-)
--- 
-
-André Dahlqvist <anedah-9@sm.luth.se>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

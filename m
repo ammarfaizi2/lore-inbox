@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLMBkt>; Tue, 12 Dec 2000 20:40:49 -0500
+	id <S129352AbQLMBsA>; Tue, 12 Dec 2000 20:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129361AbQLMBkj>; Tue, 12 Dec 2000 20:40:39 -0500
-Received: from spock.linux.it ([151.99.137.27]:48636 "HELO spock.linux.it")
-	by vger.kernel.org with SMTP id <S129267AbQLMBkV>;
-	Tue, 12 Dec 2000 20:40:21 -0500
-Date: Wed, 13 Dec 2000 02:09:31 +0100
-From: "Marco d'Itri" <md@Linux.IT>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: All INNOMINATE linux-list feeds are now killed...
-Message-ID: <20001213020931.A7387@wonderland.linux.it>
-In-Reply-To: <news2mail-3A2E3D4B.91F7F1EA@innominate.com> <Pine.LNX.4.21.0012061126130.18930-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0012061126130.18930-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Dec 06, 2000 at 11:26:44AM -0200
+	id <S129361AbQLMBrv>; Tue, 12 Dec 2000 20:47:51 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:22288 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S129352AbQLMBrl>; Tue, 12 Dec 2000 20:47:41 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible patch for reiserfs-3.6.22 against 2.4.0-test12
+Date: Tue, 12 Dec 2000 18:18:01 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain
+Cc: atsl@ukc.ac.uk, mason@suse.com
+MIME-Version: 1.0
+Message-Id: <00121218180100.04636@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 06, Rik van Riel <riel@conectiva.com.br> wrote:
+Adam Sampson wrote:
+>The latest reiserfs patch on ftp.namesys.com causes compilation errors
+>against test12 due to the task queue changes. Does this look correct?
+[patch snipped]
+> 
+>It does at least compile with these changes, but I haven't yet tested
+>it. Looking at run_task_queue, it would appear that the while() is now
+>redundant, but could someone who knows confirm/deny this?
 
- >> We deeply regret this and apologize honestly, but also would
- >> like to resubscribe...
- >Could you make it a one-way list this time?
-If vger postmasters do not mind, next week I'm going to unidirectinally
-gate linux-kernel (and maybe other high traffic vger lists, any
-suggestions?) to a group in the linux.* hierarchy[1].
+Chris Mason is working on this.  In an earlier exchange on reiserfs-list:
 
-[1] http://www.linux.it/~md/linux-faq
--- 
-ciao,
-Marco
+Chris Mason wrote:
+>I'll try to hack out a patch while I'm waiting, but the task struct changes
+>are the least of our problems.  They've changed ll_rw_block to always set
+>the end_io handler to the default one.  Since the journal code relies on
+>being able to use its own end_io handler, this isn't good for us.  There is
+>a new func we need to use instead, so I'm migrating over.
+>
+>Thew new stuff should be faster, so I won't complain ;-)
 
+Your patch will probably let journal.c get compiled, but it might be dangerous
+to use considering what Chris said.
+
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

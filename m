@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130833AbQKPQAX>; Thu, 16 Nov 2000 11:00:23 -0500
+	id <S130900AbQKPQBd>; Thu, 16 Nov 2000 11:01:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130900AbQKPQAO>; Thu, 16 Nov 2000 11:00:14 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:64529 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130833AbQKPP76>;
-	Thu, 16 Nov 2000 10:59:58 -0500
-Message-ID: <3A13FD32.2E0C6721@mandrakesoft.com>
-Date: Thu, 16 Nov 2000 10:28:50 -0500
+	id <S130986AbQKPQBX>; Thu, 16 Nov 2000 11:01:23 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:1298 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S130900AbQKPQBN>;
+	Thu, 16 Nov 2000 11:01:13 -0500
+Message-ID: <3A13FDB1.4B4740E1@mandrakesoft.com>
+Date: Thu, 16 Nov 2000 10:30:57 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
@@ -23,25 +23,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
-> 
-> [Andrzej Krzysztofowicz]
-> > Note, that as CONFIG_MCA is defined only for i386 the dependencies on
-> > $CONFIG_MCA are no-op for other architectures (in
-> > Configure/Menuconfig).  Either CONFIG_MCA should be defined for all
-> > architectures or there should be if ... fi around these lines.
-> 
-> The former, I think.  Less confusing in the long run.
-> 
-> > BTW, is there any reason for not replacing
-> >    bool '  Other ISA cards' CONFIG_NET_ISA
-> > by
-> >   dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
-> > to eliminate more drivers from non-ISA arch configs ?
-> 
-> Looks good to me.  Anything to remove clutter from config menus....
+Oh yeah, another MCA cleanup to consider -- like EISA, there exists a
+'MCA_bus' variable which is 0 or 1, depending on the absence or presence
+of MCA bus on the current system.
 
-Patch looks ok to me, applied.
+When CONFIG_MCA is enabled, this should be variable like it currently is
+[on x86].  When CONFIG_MCA==n, MCA_bus should be unconditionally defined
+to zero.
+
+Look at how 'EISA_bus' is handled in test11-pre5...
+
+	Jeff
+
+
 
 -- 
 Jeff Garzik             |

@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293032AbSCFBxI>; Tue, 5 Mar 2002 20:53:08 -0500
+	id <S293022AbSCFBxI>; Tue, 5 Mar 2002 20:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293027AbSCFBw6>; Tue, 5 Mar 2002 20:52:58 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46602
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S293022AbSCFBwL> convert rfc822-to-8bit; Tue, 5 Mar 2002 20:52:11 -0500
-Date: Tue, 5 Mar 2002 17:50:59 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-cc: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Kernel panic
-In-Reply-To: <20020306024001.A9217@bouton.inet6-interne.fr>
-Message-ID: <Pine.LNX.4.10.10203051746580.18118-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S293032AbSCFBwz>; Tue, 5 Mar 2002 20:52:55 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:13774 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S293027AbSCFBwf>;
+	Tue, 5 Mar 2002 20:52:35 -0500
+Date: Tue, 5 Mar 2002 17:52:33 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] : ir249_irnet_disc_ind.diff
+Message-ID: <20020305175233.F1577@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Lionel,
-
-Please add your name to the Maintainer List for the SIS5513 chipset code.
-As you have the hardware and testing it and answering questions, for what
-it is worth imho, you have earn the right to put your name there.
-
-Regards,
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+ir249_irnet_disc_ind.diff :
+-------------------------
+	o [CORRECT] Fix IrNET disconnection to not reconnect but
+	  instead to hangup pppd
 
 
-On Wed, 6 Mar 2002, Lionel Bouton wrote:
-
-> On Tue, Mar 05, 2002 at 11:31:41PM +0100, Hanno Böck wrote:
-> > I have a PC with an Athlon CPU, which has problems with newer kernel-versions. (see lspci-output below)
-> > 
-> > If I want to boot current Knoppix or Mandrake 8.2beta3 install cds (both based on kernel 2.4.17), it says:
-> > 
-> > Kernel panic: VFS: Unable to mount root fs on 03:05
-> > 
-> > It worked fine with the older mandrake 8.1 with kernel 2.4.8.
-> > 
-> > Any ideas? How can I help to fix this?
-> > 
-> 
-> Try passing ide=nodma during install and following reboot(s) then fetch a patch
-> at:
-> http://inet6.dyn.dhs.org/sponsoring/sis5513/index.html
-> , apply, recompile, install.
-> 
-> SiS730 support should be OK with latest patches.
-> 
-> LB.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+diff -u -p linux/net/irda/irnet/irnet.d4.h linux/net/irda/irnet/irnet.h
+--- linux/net/irda/irnet/irnet.d4.h	Tue Mar  5 16:05:20 2002
++++ linux/net/irda/irnet/irnet.h	Tue Mar  5 16:43:09 2002
+@@ -206,6 +206,11 @@
+  *	  just after clearing it. *blush*.
+  *	o Use newly created irttp_listen() to fix potential crash when LAP
+  *	  destroyed before irnet module removed.
++ *
++ * v10 - 4.3.2 - Jean II
++ *	o When receiving a disconnect indication, don't reenable the
++ *	  PPP Tx queue, this will trigger a reconnect. Instead, close
++ *	  the channel, which will kill pppd...
+  */
+ 
+ /***************************** INCLUDES *****************************/
+diff -u -p linux/net/irda/irnet/irnet_irda.d4.c linux/net/irda/irnet/irnet_irda.c
+--- linux/net/irda/irnet/irnet_irda.d4.c	Tue Mar  5 16:05:30 2002
++++ linux/net/irda/irnet/irnet_irda.c	Tue Mar  5 16:43:09 2002
+@@ -1122,9 +1122,10 @@ irnet_disconnect_indication(void *	insta
+       irttp_close_tsap(self->tsap);
+       self->tsap = NULL;
+ 
+-      /* Flush (drain) ppp_generic Tx queue (most often we have blocked it) */
++      /* Cleanup & close the PPP channel, which will kill pppd and the rest */
+       if(self->ppp_open)
+-	ppp_output_wakeup(&self->chan);
++	ppp_unregister_channel(&self->chan);
++      self->ppp_open = 0;
+     }
+   /* Cleanup the socket in case we want to reconnect */
+   self->stsap_sel = 0;

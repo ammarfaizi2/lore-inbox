@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTJFNqm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 09:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTJFNql
+	id S262064AbTJFNlt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTJFNlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 09:46:41 -0400
-Received: from imap.gmx.net ([213.165.64.20]:2474 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262106AbTJFNqc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 09:46:32 -0400
-Date: Mon, 6 Oct 2003 15:46:30 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: P4C800E-Dlx: ICH5/S-ATA and Intel Pro onboard network incompatibility ?
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <10570.1065447990@www56.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Mon, 6 Oct 2003 09:41:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53995 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262064AbTJFNls
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 09:41:48 -0400
+Date: Mon, 6 Oct 2003 14:41:47 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <gregkh@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 1/6] sysfs-kobject.patch
+Message-ID: <20031006134147.GO7665@parcelfarce.linux.theplanet.co.uk>
+References: <20031006085915.GE4220@in.ibm.com> <20031006090003.GF4220@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031006090003.GF4220@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Gigabyte GA-8IPE1000MK motherboard with the Intel 865PE memory
-controller and ICH5 IO controller.
+On Mon, Oct 06, 2003 at 02:30:03PM +0530, Maneesh Soni wrote:
+> @@ -32,6 +32,12 @@ struct kobject {
+>  	struct kset		* kset;
+>  	struct kobj_type	* ktype;
+>  	struct dentry		* dentry;
+> + 	struct list_head	k_sibling;
+> + 	struct list_head	k_children;
+> +	struct list_head	attr;
+> +	struct list_head	attr_group;
+> +	struct rw_semaphore	k_rwsem;
+> +	char 			*k_symlink;
+>  };
 
-Exact same problem as mentioned - I need to set my S-ATA drive to
-compatibility mode. Reply to my address if details are required.
-
--- 
-Daniel J Blueman
-
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
-
-Jetzt kostenlos anmelden unter http://www.gmx.net
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
-
+Too bloated.  I suspect that we will be better off if we simply leave
+current scheme for directories and have dentries allocated on demand
+for everything else.

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262581AbSI0TGP>; Fri, 27 Sep 2002 15:06:15 -0400
+	id <S262561AbSI0TCh>; Fri, 27 Sep 2002 15:02:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262582AbSI0TGP>; Fri, 27 Sep 2002 15:06:15 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:28151 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262581AbSI0TGN>; Fri, 27 Sep 2002 15:06:13 -0400
-Subject: Re: [patch] stradis fixes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Cc: laredo@gnu.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20020927183341.GA416@cathedrallabs.org>
-References: <20020927172230.GQ20649@cathedrallabs.org>
-	<1033149332.16726.3.camel@irongate.swansea.linux.org.uk> 
-	<20020927183341.GA416@cathedrallabs.org>
-Content-Type: text/plain
+	id <S262598AbSI0TCh>; Fri, 27 Sep 2002 15:02:37 -0400
+Received: from packet.digeo.com ([12.110.80.53]:19077 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262564AbSI0TCf>;
+	Fri, 27 Sep 2002 15:02:35 -0400
+Message-ID: <3D94AC8B.4AB6EB09@digeo.com>
+Date: Fri, 27 Sep 2002 12:07:55 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
+       Matthew Jacob <mjacob@feral.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doingfile  
+ transfers
+References: <200209271721.g8RHLTn05231@localhost.localdomain> <2543856224.1033153019@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Sep 2002 20:17:04 +0100
-Message-Id: <1033154224.16726.19.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 27 Sep 2002 19:07:48.0149 (UTC) FILETIME=[2B20D650:01C26659]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-27 at 19:33, Aristeu Sergio Rozanski Filho wrote:
-> stradis.c: In function `saa_ioctl':
-> stradis.c:1340: warning: passing arg 1 of `__constant_copy_to_user' makes
-> pointer from integer without a cast
-> stradis.c:1340: warning: passing arg 1 of `__generic_copy_to_user' makes
-> pointer from integer without a cast
-> (snip)
-> am I missing something?
+"Justin T. Gibbs" wrote:
+> 
+> ...
+> > The evidence is here:
+> >
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103302456113997&w=1
+> 
+> Which unfortunately characterizes only a single symptom without breaking
+> it down on a transaction by transaction basis.  We need to understand
+> how many writes were queued by the OS to the drive between each read to
+> know if the drive is actually allowing writes to pass reads or not.
+> 
 
-Maybe you should ask why they are integers and what else is wrong ?
+Given that I measured a two-second read latency with four tags,
+that would be about 60 megabytes of write traffic after the
+read was submitted.  Say, 120 requests.  That's with a tag
+depth of four.
 
+Not sure how old the disk is.  It's a 36G Fujitsu SCA-2.  Manufactured
+in 2000, perhaps??

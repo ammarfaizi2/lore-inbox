@@ -1,120 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVB1LEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVB1LJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVB1LEs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 06:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVB1LEs
+	id S261153AbVB1LJY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 06:09:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVB1LJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 06:04:48 -0500
-Received: from web53605.mail.yahoo.com ([206.190.37.38]:37276 "HELO
-	web53605.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261271AbVB1LEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 06:04:39 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=lDHkrww/NdazF1EhsOeSda7CTcseyEtYyXRy2p0PcmmGiqDqRxd+UWMp4yUR6NXb02ObAitnGp5M2hZeeufjH12PMfY53A6RLr2ZB4czYDSzsmhTq6C42H83lnpKG/gmbu0Jp8bQXYVt++7L/+GCuC7/O9EyVDnTVj507UOgJdI=  ;
-Message-ID: <20050228110439.86144.qmail@web53605.mail.yahoo.com>
-Date: Mon, 28 Feb 2005 03:04:39 -0800 (PST)
-From: Donald Duckie <schipperke2000@yahoo.com>
-Subject: ethertap.c compilation problem
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Feb 2005 06:09:24 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18914 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261153AbVB1LJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 06:09:20 -0500
+Subject: Re: kernel BUG at mm/rmap.c:483!
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Giacomo A. Catenazzi" <cate@pixelized.ch>
+Cc: "Ammar T. Al-Sayegh" <ammar@kunet.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <4222F5BE.7000301@pixelized.ch>
+References: <009d01c519e8$166768b0$7101a8c0@shrugy>
+	 <1109192040.6290.108.camel@laptopd505.fenrus.org>
+	 <003001c519f1$031afc00$7101a8c0@shrugy>
+	 <1109196074.6290.116.camel@laptopd505.fenrus.org>
+	 <007d01c519f9$7c9a5f50$7101a8c0@shrugy>
+	 <1109234333.6530.19.camel@laptopd505.fenrus.org>
+	 <004501c51a52$c4200380$7101a8c0@shrugy>
+	 <1109237429.6530.23.camel@laptopd505.fenrus.org>
+	 <4222F5BE.7000301@pixelized.ch>
+Content-Type: text/plain
+Date: Mon, 28 Feb 2005 12:09:09 +0100
+Message-Id: <1109588950.6298.76.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2005-02-28 at 11:43 +0100, Giacomo A. Catenazzi wrote:
+> Arjan van de Ven wrote:
+> 
+> >>but what what's the
+> >>penalty of preventing microcode from loading? a performance
+> >>hit?
+> > 
+> > 
+> > not even that; in theory a few cpu bugs may have been fixed. Nobody
+> > really knows since there's no changelog for the microcode..
+> 
+> You can see the processor bugs in intel website, i.e.:
+> ftp://download.intel.com/design/Xeon/specupdt/24967847.pdf
+> 
+> The following sentence (IMHO) meens that bug is corrected in microcode:
+> "Workaround: It is possible for the BIOS to contain a workaround
+> for this erratum."
 
-I tried cross-compiling ethertap.c with
-linux-sh-2.4.18, but can not successfully make it.
-
-TOPDIR was set as /usr/src/linux-sh-2.4.18
-CROSS_COMPILE   =sh4-linux-
-CC              = $(CROSS_COMPILE)gcc
-
-the compilation errors are:
---------------------------------------------------
-[aphrodite@aphrodite2 net]$ pwd
-/usr/src/linux-sh-2.4.18/drivers/net
-[aphrodite@aphrodite2 net]$ make
-make all_targets
-make[1]: Entering directory
-`/usr/src/linux-sh-2.4.18/drivers/net'
-cc   -DKBUILD_BASENAME=auto_irq  -c -o auto_irq.o
-auto_irq.c
-In file included from /usr/include/asm/atomic.h:17,
-                 from /usr/include/linux/module.h:25,
-                 from auto_irq.c:33:
-/usr/include/asm/system.h: In function `tas':
-/usr/include/asm/system.h:81: unknown register name
-`t' in `asm'
-In file included from /usr/include/linux/sched.h:14,
-                 from auto_irq.c:34:
-/usr/include/linux/timex.h: At top level:
-/usr/include/linux/timex.h:173: field `time' has
-incomplete type
-In file included from /usr/include/linux/sched.h:82,
-                 from auto_irq.c:34:
-/usr/include/linux/timer.h:17: field `list' has
-incomplete type
-auto_irq.c: In function `autoirq_report':
-auto_irq.c:51: `jiffies' undeclared (first use in this
-function)
-auto_irq.c:51: (Each undeclared identifier is reported
-only once
-auto_irq.c:51: for each function it appears in.)
-auto_irq.c: At top level:
-auto_irq.c:56: syntax error before
-"this_object_must_be_defined_as_export_objs_in_the_Makefile"
-auto_irq.c:56: warning: data definition has no type or
-storage class
-auto_irq.c:57: syntax error before
-"this_object_must_be_defined_as_export_objs_in_the_Makefile"
-auto_irq.c:57: warning: data definition has no type or
-storage class
-make[1]: *** [auto_irq.o] Error 1
-make[1]: Leaving directory
-`/usr/src/linux-sh-2.4.18/drivers/net'
-make: *** [first_rule] Error 2
---------------------------------------------------
-
-what could be the possible problem in here?
-
-basing on this compile log, i am expecting that: 
-(for example)
-/usr/include/asm/system.h
-to be
-/usr/src/linux-sh-2.4.18/include/asm/system.h
-
-I know that there is no need to touch the Makefiles,
-Rules.make for this, but I also tried replacing all
-$(TOPDIR) to /usr/src/linux-sh-2.4.18.
-The result was still the same.
-
-I already ran make dep, make clean, and still got the
-same result.
-
-And also to my surprise, 
-/usr/src/linux -> linux-sh-2.4.18
-/usr/src/linux-sh-2.4.18
-doing a : 
-cd linux
-would result to:
-/usr/src/linux   instead of   /usr/src/linux-sh-2.4.18
-has anyone experienced this?
-if so, can this be explained as to why this is the
-result?
-
-hoping for some insights on how to proceed with my
-compilation problem.
+yeah but it doesn't say in which microcode. Eg it's not possible to find
+out what a specific microcode update changes over the one the bios
+already put in...
 
 
-thank you.
-donald
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Easier than ever with enhanced search. Learn more.
-http://info.mail.yahoo.com/mail_250

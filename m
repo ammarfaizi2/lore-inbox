@@ -1,73 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbTEZXL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 19:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTEZXL2
+	id S262369AbTEZXOC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 19:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTEZXOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 19:11:28 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:50629 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262294AbTEZXL1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 19:11:27 -0400
-Date: Tue, 27 May 2003 09:21:44 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Gregoire Favre <greg@magma.unil.ch>
-Cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xfs don't compil in linux-2.5 BK
-Message-ID: <20030526232144.GA705@frodo>
-References: <20030526193136.GB10276@magma.unil.ch> <1053986469.3754.6.camel@nalesnik.localhost> <20030526223803.GB14954@magma.unil.ch>
+	Mon, 26 May 2003 19:14:02 -0400
+Received: from protolinux.com ([209.180.70.25]:21654 "EHLO turd.protolinux.com")
+	by vger.kernel.org with ESMTP id S262369AbTEZXOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 19:14:01 -0400
+Date: Mon, 26 May 2003 18:27:13 -0500
+To: linux-kernel@vger.kernel.org
+Subject: ATI Rage Mobility LM
+Message-ID: <20030526232713.GA8452@protolinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20030526223803.GB14954@magma.unil.ch>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.3.28i
+From: mike.t@protolinux.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 12:38:03AM +0200, Gregoire Favre wrote:
-> On Mon, May 26, 2003 at 11:01:12PM +0100, Grzegorz Jaskiewicz wrote:
-> 
-> > looks like LINUX_VERSION_CODE is not defined
-> > try this (as 2.5.69 > than 2.5.9)
-> 
-> Well, maybe BK is not for me:
-> 
-> greg@greg:linux >make dep && make bzImage && make modules && sudo make modules_install
-> *** Warning: make dep is unnecessary now.
+Does anyone have any patches for 2.5.69 that will
+enable me to use my Gateway 9300's ATI Rage Mobility video chip
+with the console frame buffer ?
 
-Are you missing "make oldconfig" or one of the other *config targets,
-perhaps?  Looks like some parts of your build haven't been done before
-you descend into fs/xfs - in particular, your <linux/version.h> header
-doesn't seem to have good stuff in it.
+I tried to modify the code from some patches i found for the 2.4.x
+kernels, but the result was an odd fractal graphic growth being
+displayed at boot time.
 
-cheers.
 
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
->   CHK     include/linux/compile.h
-> dnsdomainname: Unknown host
->   CC      fs/xfs/pagebuf/page_buf.o
-> In file included from fs/xfs/pagebuf/page_buf.c:65:
-> fs/xfs/pagebuf/page_buf_internal.h:46:24: operator '<' has no left operand
-> fs/xfs/pagebuf/page_buf_internal.h:51:24: operator '<' has no left operand
-> make[2]: *** [fs/xfs/pagebuf/page_buf.o] Error 1
-> make[1]: *** [fs/xfs] Error 2
-> make: *** [fs] Error 2
-> Exit 2
-> 
-> Thank you very much,
-> 
-> 	Grégoire
-> __________________________________________________________________
-> http://www-ima.unil.ch/greg ICQ:16624071 mailto:greg@magma.unil.ch
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+mike.t(at)protolinux(dot)com
 
--- 
-Nathan

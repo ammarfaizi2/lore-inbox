@@ -1,81 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTICUoY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 16:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264234AbTICUoY
+	id S264286AbTICVA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 17:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTICVA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 16:44:24 -0400
-Received: from pc1-cmbg5-6-cust223.cmbg.cable.ntl.com ([81.104.201.223]:8949
-	"EHLO flat") by vger.kernel.org with ESMTP id S264231AbTICUoV (ORCPT
+	Wed, 3 Sep 2003 17:00:59 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:53732 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264286AbTICVAz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 16:44:21 -0400
-Date: Wed, 3 Sep 2003 21:46:45 +0100
-From: cb-lkml@fish.zetnet.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test4-mm5] [BLUETOOTH] rfcomm: kernel BUG at include/net/sock.h:459!
-Message-ID: <20030903204645.GA2094@fish.zetnet.co.uk>
-Mime-Version: 1.0
+	Wed, 3 Sep 2003 17:00:55 -0400
+Date: Wed, 03 Sep 2003 13:48:59 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+Message-ID: <105370000.1062622139@flay>
+In-Reply-To: <20030903194658.GC1715@holomorphy.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com> <20030903111934.GF10257@work.bitmover.com> <20030903180037.GP4306@holomorphy.com> <20030903180547.GD5769@work.bitmover.com> <20030903181550.GR4306@holomorphy.com> <1062613931.19982.26.camel@dhcp23.swansea.linux.org.uk> <20030903194658.GC1715@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Wed, Sep 03, 2003 at 07:32:12PM +0100, Alan Cox wrote:
+>> Now add a clusterfs and tell me the difference, other than there being a
+>> lot less sharing going on...
+> 
+> The sharing matters; e.g. libc and other massively shared bits are
+> replicated in memory once per instance, which increases memory and
+> cache footprint(s). A number of other consequences of the sharing loss:
 
-I get this BUG (twice) during boot when the rfcomm init script runs.
+Explain the cache footprint argument - if you're only using a single
+copy from any given cpu, it shouldn't affect the cpu cache. More 
+importantly, it'll massively reduce the footprint on the NUMA 
+interconnect cache, which is the whole point of doing text replication.
 
-System info available on request.
+> The number of systems to manage proliferates.
 
-------------[ cut here ]------------
-kernel BUG at include/net/sock.h:459!
-invalid operand: 0000 [#1]
-PREEMPT 
-CPU:    0
-EIP:    0060:[<c8859860>]    Not tainted VLI
-EFLAGS: 00010286
-EIP is at l2cap_sock_alloc+0xd0/0xe0 [l2cap]
-eax: c88d4e60   ebx: c6f9ace0   ecx: 00000000   edx: c6f9ace0
-esi: 00000000   edi: 00000001   ebp: ffffff9f   esp: c72a5f10
-ds: 007b   es: 007b   ss: 0068
-Process krfcommd (pid: 443, threadinfo=c72a4000 task=c731e6b0)
-Stack: c77411e0 00000000 00000024 000000d0 c77411e0 ffffffa3 c88598d4 c77411e0 
-       00000000 000000d0 00000000 c88ca0ec c77411e0 00000000 0000001f c77411e0 
-       00000001 c020193c c77411e0 00000000 c72a5fa4 00000000 c72a5fdc 00000000 
-Call Trace:
- [<c88598d4>] l2cap_sock_create+0x64/0xa0 [l2cap]
- [<c88ca0ec>] bt_sock_create+0x8c/0x110 [bluetooth]
- [<c020193c>] sock_create+0xcc/0x270
- [<c886f06b>] rfcomm_l2sock_create+0x2b/0x60 [rfcomm]
- [<c8871910>] rfcomm_add_listener+0x10/0x170 [rfcomm]
- [<c011baba>] preempt_schedule+0x2a/0x50
- [<c011c272>] set_user_nice+0x122/0x160
- [<c8871b1c>] rfcomm_run+0x6c/0x90 [rfcomm]
- [<c8871ab0>] rfcomm_run+0x0/0x90 [rfcomm]
- [<c0109289>] kernel_thread_helper+0x5/0xc
+Not if you have an SSI cluster, that's the point.
 
-Code: ff ff 89 5c 24 04 c7 04 24 40 e9 85 c8 e8 59 0a 07 00 89 d8 83 c4 10 5b 5e c3 e8 3c 22 8c f7 eb b7 0f 0b 28 01 af cf 85 c8 eb 93 <0f> 0b cb 01 c6 cf 85 c8 e9 66 ff ff ff 8d 76 00 83 ec 10 89 5c 
- <6>Bluetooth: RFCOMM TTY layer initialized
-------------[ cut here ]------------
-kernel BUG at include/net/sock.h:459!
-invalid operand: 0000 [#2]
-PREEMPT 
-CPU:    0
-EIP:    0060:[<c8872515>]    Not tainted VLI
-EFLAGS: 00010286
-EIP is at rfcomm_sock_alloc+0x115/0x130 [rfcomm]
-eax: c88d4e60   ebx: c6f9a060   ecx: 00000000   edx: c6f9a060
-esi: 000000d0   edi: 00000001   ebp: ffffff9f   esp: c79cfef8
-ds: 007b   es: 007b   ss: 0068
-Process rfcomm (pid: 440, threadinfo=c79ce000 task=c79e5370)
-Stack: c7741360 00000003 00000008 000000d0 fffffff4 ffffffa3 c887257a c7741360 
-       00000003 000000d0 00000003 c88ca0ec c7741360 00000003 0000001f c7741360 
-       00000001 c020193c c7741360 00000003 00000000 00000001 c79cff90 00000000 
-Call Trace:
- [<c887257a>] rfcomm_sock_create+0x4a/0x70 [rfcomm]
- [<c88ca0ec>] bt_sock_create+0x8c/0x110 [bluetooth]
- [<c020193c>] sock_create+0xcc/0x270
- [<c0201b0b>] sys_socket+0x2b/0x60
- [<c0202b09>] sys_socketcall+0x89/0x2a0
- [<c025ff0f>] syscall_call+0x7/0xb
+> Pagecache access suddenly involves cross-instance communication instead
+> of swift memory access and function calls, with potentially enormous
+> invalidation latencies.
 
-Code: 89 d8 83 c4 10 5b 5e c3 89 1c 24 e8 36 15 99 f7 31 c0 eb ee e8 8d 95 8a f7 e9 79 ff ff ff 0f 0b 28 01 b5 55 87 c8 e9 52 ff ff ff <0f> 0b cb 01 cc 55 87 c8 e9 21 ff ff ff 8d b4 26 00 00 00 00 8d 
+No, each node in an SSI cluster has its own pagecache, that's mostly
+independant.
+ 
+> Userspace IPC goes from shared memory and pipes and sockets inside
+> a single instance (which are just memory copies) to cross-instance
+> data traffic, which involves slinging memory around through the
+> hypervisor's interface, which is slower.
+
+Indeed, unless the hypervisor-type-layer sets up an efficient cross
+communication mechanism, that doesn't involve it for every transaction.
+Yes, there's some cost here. If the workload is fairly "independant"
+(between processes), it's easy, if it does a lot of cross-process
+traffic with pipes and shit, it's going to hurt to some extent, but 
+it *may* be fairly small, depending on the implementation.
+ 
+> The limited size of a single instance bounds the size of individual
+> applications, which at various times would like to have larger memory
+> footprints or consume more cpu time than fits in a single instance.
+> i.e. something resembling external fragmentation of system resources.
+
+True. depends on how the processes / threads in that app communicate
+as to how big the impact would be. There's nothing saying that two
+processes of the same app in an SSI cluster can't run on different
+nodes ... we present a single system image to userspace, across nodes.
+Some of the glue layer (eg for ps, to give a simple example), like
+for_each_task, is where the hard work in doing this is.
+
+> Process migration is confined to within a single instance without
+> some very ugly bits; things such as forking servers and dynamic task
+> creation algorithms like thread pools fall apart here.
+
+You *need* to be able to migrate processes across nodes. Yes, it's hard.
+Doing it at exec time is easier, but still far from trivial, and not
+sufficient anyway.
+ 
+> There's suddenly competition for and a need for dynamic shifting around
+> of resources not shared across instances, like private disk space and
+> devices, shares of cpu, IP numbers and other system identifiers, and
+> even such things as RAM and virtual cpus.
+> 
+> AFAICT this raises more issues than it addresses. Not that the issues
+> aren't worth addressing, but there's a lot more to do than Larry
+> saying "I think this is a good idea" before expecting anyone to even
+> think it's worth thinking about.
+
+It raises a lot of hard issues. It addresses a lot of hard issues. 
+IMHO, it's a fascinating concept, that deserves some attention, and
+I'd love to work on it. However, I'm far from sure it'd work out, and
+until it's proven to do so, it's unreasonable to expect people to give
+up working on the existing methods in favour of an unproven (but rather
+cool) pipe-dream. 
+
+What we're doing now is mostly just small incremental changes, and unlike Larry, I don't believe it's harmful (I'm not delving back into that 
+debate again - see the mail archives of this list). I'd love to see how
+the radical SSI cluster approach compares, when it's done. If I can 
+get funding for it, I'll help it get done.
+
+M.
+

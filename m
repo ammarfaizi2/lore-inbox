@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbRBOJjZ>; Thu, 15 Feb 2001 04:39:25 -0500
+	id <S129323AbRBOJyb>; Thu, 15 Feb 2001 04:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129363AbRBOJjP>; Thu, 15 Feb 2001 04:39:15 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:25474 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S129270AbRBOJjB>;
-	Thu, 15 Feb 2001 04:39:01 -0500
-Date: Thu, 15 Feb 2001 09:38:30 +0000 (GMT)
-From: Paul Jakma <paulj@itg.ie>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-cc: Timur Tabi <ttabi@interactivesi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [LK] Re: lkml subject line
-In-Reply-To: <Pine.LNX.4.33.0102131247130.16755-100000@asdf.capslock.lan>
-Message-ID: <Pine.LNX.4.32.0102150924260.12516-100000@rossi.itg.ie>
+	id <S129363AbRBOJyL>; Thu, 15 Feb 2001 04:54:11 -0500
+Received: from pat.uio.no ([129.240.130.16]:57548 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S129323AbRBOJyE>;
+	Thu, 15 Feb 2001 04:54:04 -0500
+To: "List User" <lists@chaven.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: NFS mounting delays w/ 2.4.x kernel?
+In-Reply-To: <20010215002012.A21227@gamersgold.net>
+	<031001c096e9$2c437a60$160912ac@stcostlnds2zxj>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=US-ASCII
+Date: 15 Feb 2001 10:53:53 +0100
+In-Reply-To: "List User"'s message of "Wed, 14 Feb 2001 18:49:29 -0600"
+Message-ID: <shshf1we0ge.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, Mike A. Harris wrote:
+>>>>> " " == List User <lists@chaven.com> writes:
 
-> If the above procmail filter doesn't work (untested) let me know
-> and I will MAKE it work.  Windows users - tough luck - procmail
-> is open source - hire someone to port it...
+     > I've seen reference to this before (I think on this list) but
+     > didn't pay attention to them at the time.  I am now running
+     > into this problem myself.  I've just upgraded one of my NFS
+     > servers here from 2.2.17 -> 2.4.1 ).
 
-and even windows users can filter properly. netscape allows you to add
-custom headers to filter on. So absolutely no problems for netscape
-users.
+     > I'm running the user-space server nfs-server-2.2beta48 (tried
+     > beta47 as well).  Current versions of mount, et al.  When
+     > booting I get the following errors:
 
-Those tied to outlook (as i was when i worked at compaq, until i found
-an exchange server that did imap) also have no need to complain as i
-managed to get it to filter l-k without problems -> use the outlook
-"Ru1eZ W1z4Rd" to setup a filter to catch anything "sent from
-linux-kernel@..." and then another filter to look for the l-k list
-info text included at the bottom of every mail.  (this rule should be
-last.)
+     > --------------------------- Mounted devfs on /dev Trying to
+     > unmount old root ... okay Freeing unused kernel memory: 228k
+     > freed Adding Swap: 1048568k swap-space (priority -1) portmap:
+     > server localhost not responding, timed out portmap: server
+     > localhost not responding, timed out lockd_up: makesock failed,
+     > error=-5 portmap: server localhost not responding, timed out
+     > -----------------------------
 
-hey presto, l-k neatly filtered away with Outlook.
+You need to add 'nolock' to your mount options. Unfsd doesn't support
+NLM locking, and it's causing the lockd daemon to be started (which
+again requires the portmapper to be installed etc.).
 
-if you use an MUA that can't do filtering, well then there's something
-wrong with you....
-
---paulj
-
+Cheers,
+  Trond

@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265652AbTF2NBN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 09:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265653AbTF2NBN
+	id S265656AbTF2NCL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 09:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbTF2NCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 09:01:13 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:12307 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S265652AbTF2NBI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 09:01:08 -0400
-Date: Sun, 29 Jun 2003 15:09:52 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: marcelo@conectiva.com.br, viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH-2.4] Prevent mounting on ".."
-Message-ID: <20030629130952.GA246@pcw.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Sun, 29 Jun 2003 09:02:10 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:39942 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265656AbTF2NCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 09:02:06 -0400
+Date: Sun, 29 Jun 2003 09:04:57 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Oops in __change_page_attr Re: (was 2.5.73-mm2)
+In-Reply-To: <3EFEE38C.1070307@colorfullife.com>
+Message-ID: <Pine.LNX.4.53.0306290858350.1878@montezuma.mastecende.com>
+References: <Pine.LNX.4.53.0306290806230.1878@montezuma.mastecende.com>
+ <Pine.LNX.4.53.0306290830080.1878@montezuma.mastecende.com>
+ <3EFEE38C.1070307@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 29 Jun 2003, Manfred Spraul wrote:
 
-Hi Al and Marcelo,
+> Could you try the attached patch?
+> The code tries to map/unmap highmem pages on the fly, and that fails, 
+> because highmem pages are never mapped.
 
-while I was trying to get maximum restrictions on a chroot on 2.4.21-pre,
-I found that it's always possible to mount a ramfs or a tmpfs on "..",
-and then upload whatever I wanted in it. It's a shame because I was
-trying to isolate network daemons inside empty, read-only file-systems,
-and I discovered that this effort was worthless. To resume, imagine a
-network daemon which does :
+Thanks, that fixes it =)
 
-
-chroot("/var/empty") (read-only directory or file-system)
-chdir("/")
-listen(), accept(), fork(), whatever...
--> external code injection from a cracker :
-   mount("none", "..", "ramfs")
-   mkdir("../mydir")
-   chdir("../mydir")
-   the cracker now installs whatever he wants here.
-  
-The worst is that the new directory can even become invisible from all
-other processes, so that the intruder has nothing to fear :-( 
-
-So I read fs/namei.c and fs/namespace.c, and found a way to prevent
-this. Basically, the only case where it's still possible to mount
-something on the current->fs->root now, is when the process wants to
-remount the root fs, but no other mounts are allowed.
-
-Since I'm really clueless about VFS code, I might have done it wrong,
-or broken something, so I post this patch for comments. If everyone
-agrees, I would really appreciate it if it was accepted in mainstream,
-because it's a security problem IMHO.
-
-It still applies to 2.5.66 with offset BTW.
-
-Cheers,
-Willy
-
-
---- linux-2.4.22-pre2/fs/namespace.c	Sat May 10 11:36:02 2003
-+++ linux-2.4.22-pre2-dotdot-mount/fs/namespace.c	Sun Jun 29 14:38:16 2003
-@@ -732,6 +732,10 @@
- 	if (flags & MS_REMOUNT)
- 		retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
- 				    data_page);
-+	else if (nd.dentry == current->fs->root &&
-+		 nd.mnt == current->fs->rootmnt)
-+		/* prevents someone from mounting on . or .. */
-+		retval = -EINVAL;
- 	else if (flags & MS_BIND)
- 		retval = do_loopback(&nd, dev_name, flags & MS_REC);
- 	else if (flags & MS_MOVE)
-
+-- 
+function.linuxpower.ca

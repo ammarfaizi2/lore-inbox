@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbTKOU1X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 15:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTKOU1X
+	id S262038AbTKOUgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 15:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTKOUgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 15:27:23 -0500
-Received: from wblv-224-88.telkomadsl.co.za ([165.165.224.88]:18817 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S262034AbTKOU1W
+	Sat, 15 Nov 2003 15:36:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50916 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262038AbTKOUgI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 15:27:22 -0500
-Subject: Re: Carrier detection for network interfaces
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FB652BA.1010905@pobox.com>
-References: <1068912989.5033.32.camel@nosferatu.lan>
-	 <3FB652BA.1010905@pobox.com>
-Content-Type: text/plain
-Message-Id: <1068928120.5033.34.camel@nosferatu.lan>
+	Sat, 15 Nov 2003 15:36:08 -0500
+Date: Sat, 15 Nov 2003 20:36:07 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Harald Welte <laforge@netfilter.org>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: seq_file and exporting dynamically allocated data
+Message-ID: <20031115203607.GP24159@parcelfarce.linux.theplanet.co.uk>
+References: <20031115093833.GB656@obroa-skai.de.gnumonks.org> <20031115171843.GN24159@parcelfarce.linux.theplanet.co.uk> <20031115173310.GA4786@obroa-skai.de.gnumonks.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 15 Nov 2003 22:28:40 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031115173310.GA4786@obroa-skai.de.gnumonks.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-11-15 at 18:22, Jeff Garzik wrote:
-> Martin Schlemmer wrote:
-> > Is there any proper way to detect a carrier signal with network
-> > interfaces ?  I have recently come across a problem where we tried
-> > to do with with checking for 'RUNNING', which do not work for all
-> > drivers, as well as mii-tool that fails in some cases.
+On Sat, Nov 15, 2003 at 06:33:10PM +0100, Harald Welte wrote:
+> On Sat, Nov 15, 2003 at 05:18:44PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > On Sat, Nov 15, 2003 at 10:38:33AM +0100, Harald Welte wrote:
+> > > that doesn't help.  As I am aware, the seq_file structure is only
+> > > allocated in the seq_open() call.  How does seq_open() know which
+> > > private data (i.e. hash table) to associate with struct file?
+> > 
+> > Why should seq_open() know that?  Its caller does and it can set the damn
+> > thing to whatever it wants.
 > 
-> 
-> What kernel version?
-> 
-> In 2.6 you have linkwatch.  In 2.4 and 2.6, you have ETHTOOL_GLINK, and 
-> mii-tool.
-> 
+> So who is the caller? it's the ->open() member of struct
+> file_operations.  and struct file_operations doesn't have some private
+> member where I could hide my pointer before saving it to
+> seq_file.private in seq_open().
 
-Anything more shell accessible (sysfs/proc) ?
+If arguments of ->open() were not enough to find your data, how the hell would
+current code manage to find it?
 
+You've got inode; you've got (if that's on procfs) proc_dir_entry - from
+inode; you've got dentry (from struct file *).  If that's not enough to
+find your data, what is?
 
-Thanks,
-
--- 
-Martin Schlemmer
-
+Which files do you have in mind?

@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310434AbSCXQl3>; Sun, 24 Mar 2002 11:41:29 -0500
+	id <S310540AbSCXQ5f>; Sun, 24 Mar 2002 11:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310252AbSCXQlT>; Sun, 24 Mar 2002 11:41:19 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21775 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310372AbSCXQlC>; Sun, 24 Mar 2002 11:41:02 -0500
-Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
-To: andihartmann@freenet.de (andreas)
-Date: Sun, 24 Mar 2002 16:57:32 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Kernel-Mailingliste)
-In-Reply-To: <3C9DC1F5.6010508@athlon.maya.org> from "andreas" at Mar 24, 2002 01:09:25 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310549AbSCXQ5Z>; Sun, 24 Mar 2002 11:57:25 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:16688 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S310540AbSCXQ5L> convert rfc822-to-8bit; Sun, 24 Mar 2002 11:57:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Asam <Christian.Asam@chasam.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem with serial.c introduced in 2.4.15
+Date: Sun, 24 Mar 2002 17:57:08 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16pBJE-0006hU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16pBIs-00024N-00@mrvdom03.kundenserver.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've got a basic question:
-> Would it be possible to kill only the process which consumes the most 
-> memory in the last delta t?
-> Or does somebody have a better idea?
+After having found that my VM-Problem (USB/MOD) was due to an old 
+kernel I upgraded to 2.4.18 and found that I couldn't use my digitizer 
+board (Genius) with gpm(genitizer) anymoure.
+I tracked it down to a change made from 2.4.14 to 2.4.15:
 
-At the point you hit OOM every possible heuristic is simply handwaving that
-will work for a subset of the user base. Fix the real problem and it goes
-away. My box doesn't OOM, the worst case (which I've never seen happen) is
-a task being killed by a stack growth failing to get memory.
+drivers/char/serial.c:
+#if 0   /*
+         * !!! ignore all characters if CREAD is not set
+         */
+        if ((cflag & CREAD) == 0)
+                info->ignore_status_mask |= UART_LSR_DR;
+#endif
+
+The #if 0 and #endif was removed in 2.4.15 and somehow that breaks 
+gpm/genitizer. Having added the "commenting out through $if 0" the 
+tablet works fine again and deactivating the appropriate line in 2.4.18 
+also works.
+
+cu

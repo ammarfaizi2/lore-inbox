@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264300AbUAHKCC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 05:02:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbUAHKCC
+	id S263880AbUAHKRR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 05:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUAHKRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 05:02:02 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:39821 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S264300AbUAHKCA (ORCPT
+	Thu, 8 Jan 2004 05:17:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49131 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263880AbUAHKRE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 05:02:00 -0500
-To: Greg KH <greg@kroah.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, Grant Grundler <grundler@parisc-linux.org>,
-       Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, jeremy@sgi.com
-Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
-References: <20040107175801.GA4642@sgi.com>
-	<20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
-	<20040107222142.GB14951@colo.lackof.org>
-	<20040107230712.GB6837@sgi.com> <20040107232754.GA2807@kroah.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 08 Jan 2004 05:01:05 -0500
-In-Reply-To: <20040107232754.GA2807@kroah.com>
-Message-ID: <yq0oeteiwta.fsf@wildopensource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Jan 2004 05:17:04 -0500
+Date: Thu, 8 Jan 2004 02:16:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: nathans@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Fw: Performance drop 2.6.0-test7 -> 2.6.1-rc2
+Message-Id: <20040108021637.15d1b33a.akpm@osdl.org>
+In-Reply-To: <20040108105427.E20265@fi.muni.cz>
+References: <20040107023042.710ebff3.akpm@osdl.org>
+	<20040107215240.GA768@frodo>
+	<20040108105427.E20265@fi.muni.cz>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Greg" == Greg KH <greg@kroah.com> writes:
+Jan Kasprzak <kas@informatics.muni.cz> wrote:
+>
+> Nathan Scott wrote:
+>  : On Wed, Jan 07, 2004 at 02:30:42AM -0800, Andrew Morton wrote:
+>  : > 
+>  : > Nathan, did anything change in XFS which might explain this?
+>  : 
+>  : Just been back through the revision history, and thats a definate
+>  : "no" - very little changed in 2.6 XFS while the big 2.6 freeze was
+>  : on, and since then too (he says, busily preparing a merge tree).
+>  : 
+>  : > I see XFS has some private readahead code.   Anything change there?
+>  : 
+>  : No, and that readahead code is used for metadata only - for file data
+>  : we're making use of the generic IO path code.
+>  : 
+>  	I have done further testing:
+> 
+>  - this is reliable: repeated boot back to 2.6.1-rc2 makes the problem
+>  	appear again (high load, system slow has hell), booting back
+>  	to -test7 makes it disappear.
 
-Greg> On Wed, Jan 07, 2004 at 03:07:12PM -0800, Jesse Barnes wrote:
->>  1) add pcix_enable_relaxed() and read_relaxed() (read() would
->> always be ordered)
+Is the CPU load higher than normal?  Excluding I/O wait?  If so, can you
+profile the kernel while the load is running?
 
-Greg> This probably preserves the current situation best, enabling
-Greg> driver writers to be explicit in knowing what is happening.
+- boot with `profile=1' on the kernel command line
 
-I concur, it also matches the current convention we have with
-__raw_readX()
+- establish steady state load
 
-Cheers,
-Jes
+- Run readprofile -r
+
+- sleep 120
+
+- readprofile -n -v -m System.map | sort -n +2 | tail -40
+
+(More info in Documentation/basic_profiling.txt)
+
+Thanks.
+x

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUGZAH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUGZAJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUGZAH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 20:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbUGZAHZ
+	id S264643AbUGZAJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 20:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbUGZAJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 20:07:25 -0400
-Received: from main.gmane.org ([80.91.224.249]:42698 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264639AbUGZAHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 20:07:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sun, 25 Jul 2004 20:09:57 -0400
+Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:10913 "EHLO
+	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S264643AbUGZAJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 20:09:52 -0400
+From: Rob Couto <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
 To: linux-kernel@vger.kernel.org
-From: Benjamin Rutt <rutt.4+news@osu.edu>
-Subject: Re: clearing filesystem cache for I/O benchmarks
-Date: Sun, 25 Jul 2004 20:07:21 -0400
-Message-ID: <87smbfr5qe.fsf@osu.edu>
-References: <87vfgeuyf5.fsf@osu.edu> <1090647090.8775.19.camel@kryten.internal.splhi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dhcp065-025-157-254.columbus.rr.com
-Mail-Copies-To: nobody
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-Cancel-Lock: sha1:TJcv3Xtwh6oxcfRdE3W3KASomCs=
+Subject: Re: 3C905 and ethtool
+Date: Sun, 25 Jul 2004 20:09:03 -0400
+User-Agent: KMail/1.6.2
+References: <200407251016.22001.cijoml@volny.cz> <200407251945.18055.rpc@cafe4111.org> <200407260156.14896.cijoml@volny.cz>
+In-Reply-To: <200407260156.14896.cijoml@volny.cz>
+Cc: cijoml@volny.cz
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407252009.03770.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Wright <timw@splhi.com> writes:
+On Sunday 25 July 2004 07:56 pm, Bc. Michal Semler wrote:
+> Wow :) 3years old todo :)
+> This is the way, how to make good os :)
 
-> Take a look at the code in hdparm tool that handles the '-f' option.
->
-> Basically calling ioctl(fd, BLKFLSBUF, o) where fd is a file descriptor
-> opened on the block device on which your filesystem resides should be
-> enough to clear the cache.
+TODO? i thought it means it's done...
 
-Thanks, that looks pretty useful, at least to force the I/O to make it
-outside the kernel.  I'm still getting cache hits for some read tests
-though, no doubt due to cache near the physical disks and/or
-controllers.  Correct me if I'm wrong, but this ioctl doesn't appear
-to go out and tell disks to clear their caches.
+grep -n  ethtool drivers/net/3c59x.c
+151:    - Add ethtool support (jgarzik)
+254:#include <linux/ethtool.h>
+877:static struct ethtool_ops vortex_ethtool_ops;
+1342:   dev->ethtool_ops = &vortex_ethtool_ops;
+2704:                           struct ethtool_drvinfo *info)
+2717:static struct ethtool_ops vortex_ethtool_ops = {
 
-I think I'll use the BLKFLSBUF in any case in my tests though, as it
-doesn't seem to take very long to execute.  It can't hurt, and should
-complement the act of reading through a large dummy file, which should
-take care of the disk/controller caches.
 -- 
-Benjamin Rutt
-
+Rob Couto [rpc@cafe4111.org]
+computer safety tip: use only a non-conducting, static-free hammer.
+    -unless Internet Explorer is involved.
+--

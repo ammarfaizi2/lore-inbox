@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbTE0Dmc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 23:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTE0Dmc
+	id S262737AbTE0Dww (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 23:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTE0Dwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 23:42:32 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:20864 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263126AbTE0Dmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 23:42:31 -0400
-Date: Mon, 26 May 2003 20:55:48 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: alan@lxorguk.ukuu.org.uk, zwane@linuxpower.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xirc2ps_cs irq return fix
-Message-Id: <20030526205548.4853c92b.akpm@digeo.com>
-In-Reply-To: <3ED2E03E.80004@pobox.com>
-References: <200305252318.h4PNIPX4026812@hera.kernel.org>
-	<3ED16351.7060904@pobox.com>
-	<Pine.LNX.4.50.0305252051570.28320-100000@montezuma.mastecende.com>
-	<1053992128.17129.15.camel@dhcp22.swansea.linux.org.uk>
-	<3ED2E03E.80004@pobox.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 May 2003 03:55:44.0724 (UTC) FILETIME=[D9645940:01C32403]
+	Mon, 26 May 2003 23:52:51 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:18610 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262737AbTE0Dwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 23:52:50 -0400
+Date: Tue, 27 May 2003 01:03:59 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: manish <manish@storadinc.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+In-Reply-To: <3ED2DE86.2070406@storadinc.com>
+Message-ID: <Pine.LNX.4.55L.0305270103220.32094@freak.distro.conectiva>
+References: <3ED2DE86.2070406@storadinc.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
+
+
+On Mon, 26 May 2003, manish wrote:
+
+> Hello !
 >
-> If the fix is correct, we need to do a bombing run that adds the 
->  following code to each driver,
-> 
->  	if (!netif_device_present(dev))
->  		return IRQ_HANDLED;
+> I am running the 2.4.20 kernel on a system with 3.5 GB RAM and dual CPU.
+> I am running bonnie accross four drives in parallel:
+>
+> bonnie -s 1000 -d /<dir-name>
+>
+> bdflush settings on this system:
+>
+> [root@dyn-10-123-130-235 vm]# cat bdflush
+> 2       50      32      100     50      300     1       0       0
+>
+> All the bonnie process and any other process (like df, ps -ef etc.) are
+> hung in __lock_page. Breaking into kdb, I observe the following for one
+> such bonnie process:
+>
+> schedule(..)
+> __lock_page(..)
+> lock_page(..)
+> do_generic_file_read(..)
+> generic_file_read(..)
+>
+> After this, the processes never exit the hang. At times, a couple of
+> bonnie processes complete but the hang still occurs with the remaining
+> processes and with the other processes.
+>
+> I tried out the 2.5.33 kernel (one of the 2.5 series) and observed that
+> the hang does not occur. If I run, two bonnie processes, they never get
+> stuck. Actually, if I run 4 parallel mke2fs, they too get stuck.
+>
+> Any clues where this could be happening?
 
-no...  What we need to do is to kill the printk in handle_IRQ_event().
+Hi,
 
-It should only be turned on for special situations, where someone is trying
-to hunt down a reproducible lockup.  These are situations in which the odd
-false positive just doesn't matter.  And we know that there will always
-be false positives due to apic delivery latency (at least).
+Are you sure there is no disk activity ?
 
-I think the time is right to do this.  Add CONFIG_DEBUG_IRQ and get on with
-fixing real stuff.
-
-
-
+Run vmstat and check that, please.

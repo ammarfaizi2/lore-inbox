@@ -1,94 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268218AbUI2GG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268225AbUI2Gaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268218AbUI2GG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 02:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268216AbUI2GG3
+	id S268225AbUI2Gaj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 02:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268229AbUI2Gah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 02:06:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:233 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268218AbUI2GFt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 02:05:49 -0400
-Date: Wed, 29 Sep 2004 08:05:21 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: heap-stack-gap for 2.6
-Message-ID: <20040929060521.GA6975@devserv.devel.redhat.com>
-References: <20040925162252.GN3309@dualathlon.random> <1096272553.6572.3.camel@laptop.fenrus.com> <20040927130919.GE28865@dualathlon.random> <20040928194351.GC5037@devserv.devel.redhat.com> <20040928221933.GG4084@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-In-Reply-To: <20040928221933.GG4084@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Wed, 29 Sep 2004 02:30:37 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34734 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268216AbUI2Gaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 02:30:30 -0400
+Date: Wed, 29 Sep 2004 15:26:29 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Subject: Re: [PATCH][3/4] Add hotplug support to drivers/acpi/numa.c
+In-reply-to: <20040927130616.B30443@unix-os.sc.intel.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: tokunaga.keiich@jp.fujitsu.com, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <20040929152629.68d17796.tokunaga.keiich@jp.fujitsu.com>
+Organization: FUJITSU LIMITED
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20040920092520.A14208@unix-os.sc.intel.com>
+ <20040920094719.H14208@unix-os.sc.intel.com>
+ <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
+ <20040924013255.00000337.tokunaga.keiich@jp.fujitsu.com>
+ <20040927130616.B30443@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 27 Sep 2004 13:06:16 -0700 Keshavamurthy Anil S wrote:
+> On Fri, Sep 24, 2004 at 01:32:55AM +0900, Keiichiro Tokunaga wrote:
+> > +void acpi_numa_node_init(acpi_handle handle)
+> Why is this function returning void? I expect
+> this to return int, what do you think?
+> > +
+> > +	if (acpi_bus_get_device(handle, &node_dev)) {
+> > +		printk(KERN_ERR"Unknown handle.\n");
+> > +		return_VOID;
+> > +	}
+> Why do you need to call acpi_bus_get_device?
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I wrote it for printk()s and ACPI_DEBUG_PRINT() to log.
 
-On Wed, Sep 29, 2004 at 12:19:33AM +0200, Andrea Arcangeli wrote:
-> On Tue, Sep 28, 2004 at 09:43:51PM +0200, Arjan van de Ven wrote:
-> > On Mon, Sep 27, 2004 at 03:09:19PM +0200, Andrea Arcangeli wrote:
-> > > > which "those apps" ?
-> > > 
-> > > those apps that wants to allocate as close as possible to the stack.
-> > > They're already using /proc/self/mapped_base, the gap of topdown isn't
-> > > configurable.
-> > 
-> > /proc/self/mmaped_base doesn't exist...
-> 
-> it does with this patch that should be included in mainline too. This
-> follows the redhat API that oracle requires (you invented it, didn't
-> you?) so you should be fine with it.
+        if (! _cnt) {                                                           
+                ACPI_DEBUG_PRINT((ACPI_DB_INFO,                                 
+                                  "nid of <%s> is not detected.\n",             
+                                  acpi_device_bid(node_dev))); 
+                goto cancel;                                                    
+        }
+        ...
+        status = acpi_attach_data(handle, acpi_numa_data_handler, data);        
+        if (ACPI_FAILURE(status)) {                                             
+                printk(KERN_ERR"Failed to attach NUMA data for <%s>.\n",        
+                       acpi_device_bid(node_dev));                              
+                goto cancel;                                                    
+        }
 
-> with mapped base people is free to allocate as much memory as the
-> hardware can, with topdown not.
+        printk(KERN_INFO"Container <%s> is NUMA node.\n",                       
+               acpi_device_bid(node_dev));
 
-oh? you mean that 1Mb gap between stack and topdown? Every ISV I talked to
-said they could get more VA space with topdown than with the suse
-mmaped_base hack... :)
+> > +	acpi_walk_namespace(ACPI_TYPE_PROCESSOR,
+> > +			    handle,
+> > +			    (u32) 1,
+> > +			    find_processor,
+> > +			    data,
+> > +			    (void **)&cnt);
+> Why are you looking for processor device here?
+> Please remove this acpi_walk_namespace function.
 
-> Yeah, map fix is map fixed and when you execute map fixed on a existing
-> mapping becaue topdown moved below the 1G mark (a place where there
-> could never have been a "hinted" mapping before), the existing mapping
-> will be destroyed and the application will behave randomly.
+The reason why the acpi_walk_namespace() is used here was to
+find a container object which is identical to a NUMA node.  My code
+was assuming that a container having CPU and/or memory was
+NUMA node sinece the current Linux seemed to assume so.
 
-MAP_FIXED is to be used only on things YOU mmaped before. 
-> 
-> isn't the whole point of topdown to gain ~1G more of RAM. A 1G area that
-> couldn't possibly be used before
+> > +	/*
+> > diff -puN /dev/null include/acpi/numa.h
+> > +#ifndef MAX_PXM_DOMAINS
+> > +#define MAX_PXM_DOMAINS (256)
+> > +#endif
+> Why defining it again, It is already defined in asm-ia64/acpi.h file
 
-wrong; brk() is there which is also used by malloc() and internally by the C
-library.
+Sorry, that's a stuff that I forgot to remove.  I will remove it.
 
-> mallocs. topdown breaks that assumption and can break random apps in
-> random ways.
-
-do you have proof for that?
-
- 
-> Or did I misunderstood something? If topdown still forbids you to use
-> the first 1G of address space, then what's the point?!?
-
-You missed that you can only use MAP_FIXED on mmaps YOU mmaped before.
-That's true for basically all operating systems because the runtime
-(including C library) is allowed to malloc, to brk(), to mmap etc etc.
-
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBWlCgxULwo51rQBIRAjRvAJ9ow+Zu+Q8rjlriJXTMoDX89rbMJQCdEKOT
-xt/YvzGBrZ263hoHQ8CzOQw=
-=CtaS
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--
+Thanks,
+Keiichiro Tokunaga

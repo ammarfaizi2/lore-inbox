@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265226AbUGLRox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265247AbUGLRrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbUGLRox (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 13:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUGLRox
+	id S265247AbUGLRrO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 13:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUGLRrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 13:44:53 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:11242 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S265226AbUGLRow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 13:44:52 -0400
-Date: Mon, 12 Jul 2004 10:44:51 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix building on Solaris (and don't break Cygwin)
-Message-ID: <20040712174450.GA16877@smtp.west.cox.net>
-References: <20040709210011.GG28002@smtp.west.cox.net> <20040709211605.GA6126@infradead.org> <ccs7c2$bef$1@terminus.zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ccs7c2$bef$1@terminus.zytor.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Mon, 12 Jul 2004 13:47:14 -0400
+Received: from quechua.inka.de ([193.197.184.2]:30344 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S265247AbUGLRrJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 13:47:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org> <m1fz80c406.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org> <Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org> <52r7rj7txj.fsf@topspin.com>
+Organization: private Linux site, southern Germany
+Date: Sun, 11 Jul 2004 23:19:54 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E1Bjljm-0004jT-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 11, 2004 at 08:19:14PM +0000, H. Peter Anvin wrote:
-> Followup to:  <20040709211605.GA6126@infradead.org>
-> By author:    Christoph Hellwig <hch@infradead.org>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Fri, Jul 09, 2004 at 02:00:11PM -0700, Tom Rini wrote:
-> > > The following is from Jean-Christophe Dubois <jdubois@mc.com>.  On
-> > > Solaris 2.8, <stdint.h> does not exist, but <inttypes.h> does.  However,
-> > > on cygwin (the other odd place that the kernel is compiled on)
-> > > <inttypes.h> doesn't exist.  So we end up with something like the
-> > > following.
-> > > Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-> > 
-> > Yikes.  <stdint.h> is mandated by C99, please complain to sun instead or
-> > write up the header yourself - it's not that difficult anyway.
-> > 
-> 
-> <inttypes.h> is also mandated by C99, and is a more complete header
-> (it includes stdint.h).
+> 	struct foo {
+> 		int a;
+> 		int b;
+> 	};
+>
+> then sparse is perfectly happy with someone clearing out a struct foo
+> like this:
+>
+> 	struct foo bar = { 0 };
+>
+> but then if someone changes struct foo to be
+>
+> 	struct foo {
+> 		void *x;
+> 		int a;
+> 		int b;
+> 	};
+>
+> sparse will complain about that initialization, and all of the fixes
 
-Which makes it quite annoying that Cygwin lacks it.
+It complains rather rightly. Think what happens if the original
+initializer was
+   struct foo bar = { 1 };
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+This ambiguity may well be the main reason for the C99 initializer
+syntax.
+
+Olaf
+

@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVBPW3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVBPWlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVBPW3a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 17:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVBPW3a
+	id S262104AbVBPWlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 17:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVBPWlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 17:29:30 -0500
-Received: from pop.gmx.net ([213.165.64.20]:52140 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262038AbVBPW31 (ORCPT
+	Wed, 16 Feb 2005 17:41:22 -0500
+Received: from fire.osdl.org ([65.172.181.4]:6348 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262104AbVBPWlV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 17:29:27 -0500
-X-Authenticated: #8956447
-Subject: Re: [Problem] slow write to dvd-ram since 2.6.7-bk8
-From: Droebbel <droebbel.melta@gmx.de>
-To: Tino Keitel <tino.keitel@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1108590900.7407.11.camel@localhost.localdomain>
-References: <1108301794.9280.18.camel@localhost.localdomain>
-	 <20050213142635.GA2035@animx.eu.org>
-	 <20050214085320.GA4910@dose.home.local>
-	 <1108376734.9495.8.camel@localhost.localdomain>
-	 <20050214105332.GA7163@dose.home.local>
-	 <1108379351.9495.22.camel@localhost.localdomain>
-	 <20050214111819.GA7691@dose.home.local>
-	 <1108590900.7407.11.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 16 Feb 2005 23:29:24 +0100
-Message-Id: <1108592965.7407.17.camel@localhost.localdomain>
+	Wed, 16 Feb 2005 17:41:21 -0500
+Date: Wed, 16 Feb 2005 14:46:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: zippel@linux-m68k.org, schwab@suse.de, linux-kernel@vger.kernel.org,
+       tytso@mit.edu
+Subject: Re: Pty is losing bytes
+Message-Id: <20050216144616.763e695b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0502161156490.2383@ppc970.osdl.org>
+References: <jebramy75q.fsf@sykes.suse.de>
+	<Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
+	<je1xbhy3ap.fsf@sykes.suse.de>
+	<Pine.LNX.4.58.0502151239160.2330@ppc970.osdl.org>
+	<Pine.LNX.4.61.0502160405410.15339@scrub.home>
+	<Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org>
+	<Pine.LNX.4.61.0502161147510.15340@scrub.home>
+	<Pine.LNX.4.58.0502161156490.2383@ppc970.osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.1.5 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mi, 2005-02-16 at 22:55 +0100, Droebbel wrote:
->Some new information:
+Linus Torvalds <torvalds@osdl.org> wrote:
 >
->2.6.7 is ok, 2.6.7-mm2 is not ok, 2.6.7 with just the linus-patch from
->mm2 is ok, 2.6.7 with linus.patch from mm3 isn't.
->So I took some of the patches from the broken-out mm2 and tested them
->seperately.
->
->The vmscan-dont-reclaim-too-many-pages.patch led to the said reduction
->of writing speed. I reverse-applied it to 2.6.8.1, where it seems to
->solve the problem.
+> 
+> 
+> On Wed, 16 Feb 2005, Roman Zippel wrote:
+> > 
+> > Below is a new patch, which also fixes problems with very long lines.
+> 
+> Ok, I agree with this one, but won't dare to apply it right now. Remind me 
+> post-2.6.11, or - even better - see if one of the alternate trees wants to 
+> fix and test this (-mm, -ac, vendors, who-ever).
 
-Sorry, have to correct that: it seemed to help at my tests with dd
-(write 1G of zeroes to a file). Copying a file with mc still shows
-around 1.4MB/s. Could be worse, but is definitely not ok. It *is* better
-with 2.6.7.
-
-Regards
-
-David
-
+I scooped it up.

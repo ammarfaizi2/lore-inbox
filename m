@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261805AbTCGV7i>; Fri, 7 Mar 2003 16:59:38 -0500
+	id <S261812AbTCGV4Q>; Fri, 7 Mar 2003 16:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261808AbTCGV7i>; Fri, 7 Mar 2003 16:59:38 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31151
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261805AbTCGV7h>; Fri, 7 Mar 2003 16:59:37 -0500
-Subject: Re: Those ruddy punctuation fixes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030307121723.B3204@redhat.com>
-References: <3E684737.7080704@kegel.com>  <20030307121723.B3204@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047078959.23697.12.camel@irongate.swansea.linux.org.uk>
+	id <S261808AbTCGVzS>; Fri, 7 Mar 2003 16:55:18 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36601 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261811AbTCGVy1>; Fri, 7 Mar 2003 16:54:27 -0500
+Date: Fri, 7 Mar 2003 17:05:01 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: [PATCH] s390 (1/7): s390 arch fixes.
+Message-ID: <20030307170501.A32569@devserv.devel.redhat.com>
+References: <200303072001.h27K12V16864@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 23:15:59 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303072001.h27K12V16864@devserv.devel.redhat.com>; from zaitcev@redhat.com on Fri, Mar 07, 2003 at 03:01:02PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 17:17, Benjamin LaHaise wrote:
-> On Thu, Mar 06, 2003 at 11:16:07PM -0800, Dan Kegel wrote:
-> > Or is the hubub really about something else?  Like people
-> > just hate the whole idea, and wish it would go away,
-> > and don't really want to discuss it rationally?
-> 
-> Spelling fixes are annoying ways to break patches that provide no 
-> user visible value.  It also detracts from the character of the 
-> code: who wants "drain brammage" to be replaced with "brain dammage"?
+> --- linux-2.5.64/include/asm-s390/system.h	Wed Mar  5 04:29:54 2003
+> +++ linux-2.5.64-s390/include/asm-s390/system.h	Fri Mar  7 11:40:12 2003
+> @@ -82,7 +82,7 @@
+>  		break;							     \
+>  	save_fp_regs(&prev->thread.fp_regs);				     \
+>  	restore_fp_regs(&next->thread.fp_regs);				     \
+> -	resume(prev,next);						     \
+> +	prev = resume(prev,next);					     \
+>  } while (0)
+>  
+>  #define nop() __asm__ __volatile__ ("nop")
 
-There is a difference btween plain wrong and misleading text, printing
-wrong things to the console, text that confuses non first language
-speakers and accidentally removing humour.
+Are you sure it's not "last = resume(prev, next);"?
 
-Someone broke a little bit of asm and it got fixed. Someone broke
-the pnp layer a lot longer before and its still not fixed. You
-have regular releases, stuff gets broken now and then.
-
-People are actually *doing* things, give them a break.
-
+-- Pete

@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbRFEDkT>; Mon, 4 Jun 2001 23:40:19 -0400
+	id <S263142AbRFEDjr>; Mon, 4 Jun 2001 23:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263149AbRFEDkI>; Mon, 4 Jun 2001 23:40:08 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:61943 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263145AbRFEDkB>;
-	Mon, 4 Jun 2001 23:40:01 -0400
-Date: Tue, 5 Jun 2001 05:39:47 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106050339.FAA180067.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, mdharm-kernel@one-eyed-alien.net
-Subject: Re: Unit attention in USB storage
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+	id <S263144AbRFEDjh>; Mon, 4 Jun 2001 23:39:37 -0400
+Received: from fe1.rdc-kc.rr.com ([24.94.163.48]:54020 "EHLO mail1.kc.rr.com")
+	by vger.kernel.org with ESMTP id <S263142AbRFEDjX>;
+	Mon, 4 Jun 2001 23:39:23 -0400
+To: Stanislav Malyshev <stas@zend.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: gdb/ptrace problem
+In-Reply-To: <Pine.LNX.4.33.0105171443050.4567-100000@shire.zend.office>
+From: Mike Coleman <mkc@mathdogs.com>
+Date: 04 Jun 2001 22:39:21 -0500
+In-Reply-To: <Pine.LNX.4.33.0105171443050.4567-100000@shire.zend.office>
+Message-ID: <87ae3nlhna.fsf@mathdogs.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> [things work better when "Unit Attention: not ready to ready transition"
->> is not regarded as an error]
+Stanislav Malyshev <stas@zend.com> writes:
+> Since installing 2.2.19, I have the following problem: each time I try to
+> attach to a running program with gdb, the result is:
+> 
+> ptrace: Operation not permitted.
+> 
+> and attaching fails. No problem with 2.2.18. Have I missed something? Any
+> advice on how this can be fixed?
+> 
+> gdb version:
+> GNU gdb 5.0
+> Copyright 2000 Free Software Foundation, Inc.
 
-> I suggest trying this with 2.4.5 -- several people report that kernel
-> works much better than previous ones with usb-storage.
+I did a cursory look throught the 18->19 patch and didn't see anything obvious
+that could be causing this.  Are you talking about an i386 box?  Are you
+running any other special patches on it?
 
-The details of the behaviour are a bit different, but the essence
-is unchanged: with the same .config as the 2.4.3 I reported on,
-2.4.5 failed. (With a different one it was successful. It is a
-matter of timing.) Again adding the patch:
+You could try running gdb itself under strace.  Perhaps this will show some
+info on exactly how this ptrace call is failing.
 
-diff -r -u ../linux-2.4.5/linux/drivers/usb/storage/debug.c linux/drivers/usb/storage/debug.c
---- ../linux-2.4.5/linux/drivers/usb/storage/debug.c    Sat Sep  9 01:39:12 2000
-+++ linux/drivers/usb/storage/debug.c   Tue Jun  5 05:23:46 2001
-@@ -302,6 +302,8 @@
-        case 0x1C00: what="defect list not found"; break;
-        case 0x2400: what="invalid field in CDB"; break;
-        case 0x2703: what="associated write protect"; break;
-+       case 0x2800: what="not ready to ready transtion (media change?)";
-+               break;
-        case 0x2903: what="bus device reset function occurred"; break;
-        case 0x2904: what="device internal reset"; break;
-        case 0x2B00: what="copy can't execute since host can't disconnect"; 
-diff -r -u ../linux-2.4.5/linux/drivers/usb/storage/transport.c linux/drivers/usb/storage/transport.c
---- ../linux-2.4.5/linux/drivers/usb/storage/transport.c        Wed Apr 18 20:49:12 2001
-+++ linux/drivers/usb/storage/transport.c       Tue Jun  5 05:23:13 2001
-@@ -793,6 +793,15 @@
-                /* If things are really okay, then let's show that */
-                if ((srb->sense_buffer[2] & 0xf) == 0x0)
-                        srb->result = GOOD << 1;
-+
-+               /* A transition from non-ready to ready sounds OK. */
-+               if ((srb->sense_buffer[2] & 0xf) == 0x6 /* unit attention */
-+                   && srb->sense_buffer[12] == 0x28
-+                   && srb->sense_buffer[13] == 0 /* not ready -> ready */) {
-+                       srb->result = GOOD << 1;
-+                       srb->sense_buffer[0] = 0;
-+               }
-+
-        } else /* if (need_auto_sense) */
-                srb->result = GOOD << 1;
- 
-makes things work.
+The EPERM would suggest that gdb doesn't have permission to attach.  You can't
+attach to setuid/setgid processes unless you're root.  Otherwise, you can
+generally attach to processes you're allowed to send signals to (unless
+something has changed).  So you could try running gdb as root as see if you
+can attach then.  Or, you could try doing a 'kill -STOP' on the process
+instead of attaching to it.  Does it work?
 
-Andries
+Also, check for operator error.  :-)
+
+--Mike
+
+-- 
+Mike Coleman, mkc@mathdogs.com
+  http://www.mathdogs.com -- problem solving, expert software development

@@ -1,32 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277313AbRJRA0D>; Wed, 17 Oct 2001 20:26:03 -0400
+	id <S277377AbRJRA1n>; Wed, 17 Oct 2001 20:27:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277377AbRJRAZx>; Wed, 17 Oct 2001 20:25:53 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:18699 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S277313AbRJRAZl>;
-	Wed, 17 Oct 2001 20:25:41 -0400
-Message-Id: <200110180025.f9I0Ps8t004928@sleipnir.valparaiso.cl>
-To: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-cc: Paul Gortmaker <p_gortmaker@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Making diff(1) of linux kernels faster 
-In-Reply-To: Message from =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr> 
-   of "Wed, 17 Oct 2001 19:57:52 +0200." <20011017175752.80489.qmail@web20507.mail.yahoo.com> 
-Date: Wed, 17 Oct 2001 21:25:53 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S277325AbRJRA1Y>; Wed, 17 Oct 2001 20:27:24 -0400
+Received: from pc-62-30-142-167-nm.blueyonder.co.uk ([62.30.142.167]:60423
+	"EHLO merry.bs.lan") by vger.kernel.org with ESMTP
+	id <S277324AbRJRA1O>; Wed, 17 Oct 2001 20:27:14 -0400
+Date: Thu, 18 Oct 2001 01:27:34 +0100
+To: David Gibson <hermes@gibson.dropbear.id.au>,
+        Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] to tidy up some orinoco driver log messages
+Message-ID: <20011018012734.A2802@merry.bs.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+From: Charles Briscoe-Smith <charles@briscoe-smith.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr> said:
+This trivial patch cleans up a few missing newlines in some log messages
+in the Orinoco driver.  Generated from linux-2.4.12 (orinoco.c 0.08a);
+should apply cleanly to linux-2.4.13-pre3.
 
-[...]
+diff -ur linux/drivers/net/wireless/orinoco.c linux-2.4.12/drivers/net/wireless/orinoco.c
+--- linux/drivers/net/wireless/orinoco.c	Thu Oct 18 01:08:20 2001
++++ linux-2.4.12/drivers/net/wireless/orinoco.c	Wed Oct 17 23:42:29 2001
+@@ -1431,7 +1431,7 @@
+ 			priv->ibss_port = 0;
+ 		else {
+ 			printk(KERN_NOTICE "%s: Intersil firmware earlier "
+-			       "than v0.08 - several features not supported.",
++			       "than v0.08 - several features not supported.\n",
+ 			       dev->name);
+ 			priv->ibss_port = 1;
+ 		}
+@@ -1497,7 +1497,7 @@
+ 	err = hermes_read_ltv(hw, USER_BAP, HERMES_RID_CNF_NICKNAME,
+ 			      sizeof(nickbuf), &reclen, &nickbuf);
+ 	if (err) {
+-		printk(KERN_ERR "%s: failed to read station name!n",
++		printk(KERN_ERR "%s: failed to read station name!\n",
+ 		       dev->name);
+ 		goto out;
+ 	}
+@@ -1798,7 +1798,7 @@
+ 		if (err == -EIO)
+ 			DEBUG(1, "%s: DEBUG: EIO writing packet header to BAP\n", dev->name);
+ 		else
+-			printk(KERN_ERR "%s: Error %d writing packet header to BAP",
++			printk(KERN_ERR "%s: Error %d writing packet header to BAP\n",
+ 			       dev->name, err);
+ 		stats->tx_errors++;
+ 		goto fail;
 
-> Be very careful not to modify a multi-linked file, or
-> it will be damaged in all trees and won't be seen by
-> diff. your editor must unlink before saving.
-
-Most don't. ed(1), vi(1) and emacs(1) are careful tro write to the very
-same file. jed(1) is the only outlier I'm aware of...
 -- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+Charles Briscoe-Smith             Hacking Free Software for fun and profit
+PGP/GPG:  1024R/B35EE811  74 68 AB 2E 1C 60 22 94  B8 21 2D 01 DE 66 13 E2
+Governing Law:
+   This License Agreement shall be construed and governed in accordance
+   with the laws of the State of Inebriation. 
+                                    -- http://www.thalia.org/computer.html

@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312077AbSCRAoQ>; Sun, 17 Mar 2002 19:44:16 -0500
+	id <S312154AbSCRAw3>; Sun, 17 Mar 2002 19:52:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312148AbSCRAoG>; Sun, 17 Mar 2002 19:44:06 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:59402 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S312077AbSCRAoB>; Sun, 17 Mar 2002 19:44:01 -0500
-Message-ID: <3C95384A.99FB9C63@linux-m68k.org>
-Date: Mon, 18 Mar 2002 01:43:54 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: alternative linux configurator prototype v0.2
-In-Reply-To: <3C9396F5.7319AB27@linux-m68k.org> <3C94948E.777B5BAF@linux-m68k.org> <20020317233830.GA2679@werewolf.able.es>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S312155AbSCRAwS>; Sun, 17 Mar 2002 19:52:18 -0500
+Received: from runyon.sfbay.redhat.com ([205.180.230.5]:50317 "HELO cygnus.com")
+	by vger.kernel.org with SMTP id <S312154AbSCRAwE>;
+	Sun, 17 Mar 2002 19:52:04 -0500
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+From: Ulrich Drepper <drepper@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Martin Wirth <martin.wirth@dlr.de>, pwaechtler@loewe-komp.de,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020317175009.4f4954a0.rusty@rustcorp.com.au>
+In-Reply-To: <E16m1oK-0006oy-00@wagner.rustcorp.com.au>
+	<3C932B2E.90709@dlr.de>  <20020317175009.4f4954a0.rusty@rustcorp.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-fdJzidDxnRI4dc2+4R9y"
+X-Mailer: Evolution/1.0.2 (1.0.2-0.7x) 
+Date: 17 Mar 2002 16:52:00 -0800
+Message-Id: <1016412720.2194.16.camel@myware.mynet>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-"J.A. Magallon" wrote:
+--=-fdJzidDxnRI4dc2+4R9y
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> There is something (as an 'external' viewer) I never understood.
-> Why nobody has taken the 'obvious' way ?
-> - Perl is much more extended that python and better? than sh for CML.
+On Sat, 2002-03-16 at 22:50, Rusty Russell wrote:
 
-Because we should get away from a language, what we need are properties.
-E.g. a driver has dependencies on other parts of the kernel or has
-configuration options and these properties should be expressed as clear
-as possible.
+> Only vs. pthread_cond_broadcast.
 
-bye, Roman
+No.  pthread_barrier_wait has the same problem.  It has to wake up lots
+of thread.
+
+> And if you're using that you probably
+> have some other performance issues anyway?
+
+Why?  Conditional variables are of use in situations with loosely
+coupled threads.
+
+--=20
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------
+
+--=-fdJzidDxnRI4dc2+4R9y
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8lTow2ijCOnn/RHQRAhQ9AJ9PbWMT0ULslFt9siVmeNkcrfzxgACbB+6k
+cIbNhkrDn5ZCM+PKFVoRwSk=
+=edt3
+-----END PGP SIGNATURE-----
+
+--=-fdJzidDxnRI4dc2+4R9y--
+

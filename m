@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262940AbTJaD63 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 22:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbTJaD63
+	id S262948AbTJaETP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 23:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTJaETP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 22:58:29 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:62033 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262940AbTJaD62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 22:58:28 -0500
-Date: Thu, 30 Oct 2003 22:57:23 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Chris Vine <chris@cvine.freeserve.co.uk>
-cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-In-Reply-To: <200310292230.12304.chris@cvine.freeserve.co.uk>
-Message-ID: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
+	Thu, 30 Oct 2003 23:19:15 -0500
+Received: from web12302.mail.yahoo.com ([216.136.173.100]:45476 "HELO
+	web12302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262948AbTJaETO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 23:19:14 -0500
+Message-ID: <20031031041913.11804.qmail@web12302.mail.yahoo.com>
+Date: Thu, 30 Oct 2003 20:19:13 -0800 (PST)
+From: Vinayak Kariappa <c_vinayak@yahoo.com>
+Subject: Re: 1-Wire bus kernel module
+To: Jitendra Vegiraju <jvegiraju@frys.com>,
+       linux-kernel maillist <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FA14A18.6060802@frys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Oct 2003, Chris Vine wrote:
-
-> However, on a low end machine (200MHz Pentium MMX uniprocessor with only 32MB 
-> of RAM and 70MB of swap) I get poor performance once extensive use is made of 
-> the swap space.
-
-Could you try the patch Con Kolivas posted on the 25th ?
-
-Subject: [PATCH] Autoregulate vm swappiness cleanup
+could you give me more details about your board. Like
+the architecture.
+The code is very crude (some routines left as todos) ,
+but supports multiple chips on the bus using search
+rom. It has a very good proc interface.
+I have tested with pc parallel port as the adapter and
+two ds1820 chips on the bus. 
 
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+--- Jitendra Vegiraju <jvegiraju@frys.com> wrote:
+> I would like to test it out on our board( has a
+> 1-wire DS2415 RTC chip).
+> Can  you please send  code.
+> Thanks,
+> Jitendra
+> 
+> Vinayak Kariappa wrote:
+> 
+> >Hi all,
+> >
+> >As a hobby, I have coded 1-wire bus driver similiar
+> in
+> >the  lines of i2c bus module architecture (clients,
+> >adapter, drivers )for linux.
+> >Please can you guide me to anyone who is already
+> >maintaining such modules. I would be glad to share
+> >it/join with them in development.
+> >  
+> >
+> 
+> 
 
 
+__________________________________
+Do you Yahoo!?
+Exclusive Video Premiere - Britney Spears
+http://launch.yahoo.com/promos/britneyspears/

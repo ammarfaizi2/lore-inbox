@@ -1,51 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266377AbSKUHto>; Thu, 21 Nov 2002 02:49:44 -0500
+	id <S266387AbSKUHzC>; Thu, 21 Nov 2002 02:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266384AbSKUHtn>; Thu, 21 Nov 2002 02:49:43 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:64157 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S266377AbSKUHtn>;
-	Thu, 21 Nov 2002 02:49:43 -0500
-Date: Thu, 21 Nov 2002 10:13:17 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
-In-Reply-To: <20021121001819.GA12650@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0211211007100.1782-100000@localhost.localdomain>
+	id <S266384AbSKUHzC>; Thu, 21 Nov 2002 02:55:02 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:29841
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266387AbSKUHzB>; Thu, 21 Nov 2002 02:55:01 -0500
+Date: Thu, 21 Nov 2002 02:55:44 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@digeo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH][2.5] Add TAINT_UNKNOWN_STATE
+Message-ID: <Pine.LNX.4.44.0211210250330.1628-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+	I've come across some bugs on my test rig where the oops didn't 
+make any sense at all, after trawling through a couple of megs of debug 
+output in the logs i came across the previous oops... This is only after
+spending a considerable amount of time trying to make sense of a useless 
+oops. I also think this would be of use when handling general bug 
+reports, this way we'd be able to determine wether the system was in an 
+uknown state when the oops was dumped, and perhaps try and get further 
+information from the bug reporter.
 
-On Thu, 21 Nov 2002, Jamie Lokier wrote:
+	Zwane
 
-> Thread calls cfork(), which does this in the parent:
-> 
-> 	sigprocmask(...)
-> 		// Very short time during which signals aren't delivered.
-> 	clone(...)
-> 		// Very short time during which signals aren't delivered.
-> 	sigprocmask(...)
-> 
-
-Jamie, we've been there, done that. This is precisely the kind of signal
-locking cruft we got rid of in LinuxThreads, and which cruft caused it to
-be slow. My goal was and still is to isolate signals from the rest of the
-kernel APIs as much as possible, while still keeping the traditional
-semantics. Check out an strace of a LinuxThreads linked pthread
-application and you'll see signal mask manipulation syscalls all around
-the place. Check out an NPTL strace, and see all those straightforward
-single-syscall operations.
-
-sure, fork() has some overhead larger than signal manipulation costs, but
-this does not make the approach right in any way. If all this userspace
-cost can be dealt with by doing some simple things in kernel-space, why
-not do it?
-
-	Ingo
+Index: linux-2.5.48/include/linux/kernel.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.48/include/linux/kernel.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 kernel.h
+--- linux-2.5.48/include/linux/kernel.h	18 Nov 2002 05:11:13 -0000	1.1.1.1
++++ linux-2.5.48/include/linux/kernel.h	20 Nov 2002 06:29:39 -0000
+@@ -103,6 +103,7 @@
+ #define TAINT_FORCED_MODULE		(1<<1)
+ #define TAINT_UNSAFE_SMP		(1<<2)
+ #define TAINT_FORCED_RMMOD		(1<<3)
++#define TAINT_UNKNOWN_STATE		(1<<4)
+ 
+ extern void dump_stack(void);
+ 
+Index: linux-2.5.48/kernel/panic.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.48/kernel/panic.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 panic.c
+--- linux-2.5.48/kernel/panic.c	18 Nov 2002 05:13:12 -0000	1.1.1.1
++++ linux-2.5.48/kernel/panic.c	21 Nov 2002 07:30:10 -0000
+@@ -114,10 +114,11 @@
+ {
+ 	static char buf[20];
+ 	if (tainted) {
+-		snprintf(buf, sizeof(buf), "Tainted: %c%c%c",
++		snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c",
+ 			tainted & TAINT_PROPRIETORY_MODULE ? 'P' : 'G',
+ 			tainted & TAINT_FORCED_MODULE ? 'F' : ' ',
+-			tainted & TAINT_UNSAFE_SMP ? 'S' : ' ');
++			tainted & TAINT_UNSAFE_SMP ? 'S' : ' ',
++			tainted & TAINT_UNKNOWN_STATE ? 'U' : ' ');
+ 	}
+ 	else
+ 		snprintf(buf, sizeof(buf), "Not tainted");
+Index: linux-2.5.48/arch/i386/mm/fault.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.48/arch/i386/mm/fault.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 fault.c
+--- linux-2.5.48/arch/i386/mm/fault.c	18 Nov 2002 05:11:52 -0000	1.1.1.1
++++ linux-2.5.48/arch/i386/mm/fault.c	21 Nov 2002 06:46:43 -0000
+@@ -135,6 +135,7 @@
+ 	console_loglevel = 15;		/* NMI oopser may have shut the console up */
+ 	printk(" ");
+ 	console_loglevel = loglevel_save;
++	tainted |= TAINT_UNKNOWN_STATE;	/* flag that we've gone through one oops 'U' */
+ }
+ 
+ asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
+-- 
+function.linuxpower.ca
 

@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131120AbQK0OlP>; Mon, 27 Nov 2000 09:41:15 -0500
+        id <S131624AbQK0Oli>; Mon, 27 Nov 2000 09:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131624AbQK0OlE>; Mon, 27 Nov 2000 09:41:04 -0500
-Received: from main.cornernet.com ([209.98.65.1]:28689 "EHLO
-        main.cornernet.com") by vger.kernel.org with ESMTP
-        id <S131597AbQK0Oky>; Mon, 27 Nov 2000 09:40:54 -0500
-Date: Mon, 27 Nov 2000 08:22:02 -0600 (CST)
-From: Chad Schwartz <cwslist@main.cornernet.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: 64738 <schwung@rumms.uni-mannheim.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel bits 
-In-Reply-To: <2091.975331871@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.30.0011270820280.20724-100000@main.cornernet.com>
+        id <S131655AbQK0OlP>; Mon, 27 Nov 2000 09:41:15 -0500
+Received: from ns.caldera.de ([212.34.180.1]:25362 "EHLO ns.caldera.de")
+        by vger.kernel.org with ESMTP id <S131597AbQK0OlI> convert rfc822-to-8bit;
+        Mon, 27 Nov 2000 09:41:08 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <14882.27508.534457.187156@ns.caldera.de>
+Date: Mon, 27 Nov 2000 15:11:00 +0100 (CET)
+To: aj@dungeon.inka.de (Andreas Jellinghaus)
+Cc: linux-kernel@vger.kernel.org
+Subject: [Oops] apic, smp and k6
+In-Reply-To: <20001124181723.BAAC7B7813@dungeon.inka.de>
+In-Reply-To: <20001124181723.BAAC7B7813@dungeon.inka.de>
+X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
+From: Torsten Duwe <duwe@caldera.de>
+Reply-to: Torsten.Duwe@caldera.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, that only tells you the size of a long under the compiler you used.
-> If you are on an Intel IA64 (64 bit kernel) but you compile with gcc
-> for ix86 (32 bit userspace) then sizeof(long) is 4.  IA64 runs both
-> native and ix86 code, sizeof(any userspace field) tells you nothing
-> about the kernel.
+>>>>> "Andreas" == Andreas Jellinghaus <aj@dungeon.inka.de> writes:
 
-Doh. Well, it *DOES* tell you if you're running 64bit - if you're running
-the 64bit compiler. :)
+    Andreas> a dual board (meant for pentium) with one k6 200 and a
+    Andreas> 2.4.0-test11 kernel with APIC support enabled does oops
+    Andreas> here. removed the APIC support, and now everything is fine.  i
+    Andreas> read here it´s a known problem ? at least someone else reported
+    Andreas> this, and it´s the same problem here.
 
-It was a simple check. Obviously, its not perfect. (In the cases you
-pointed out, for instance, we'd report the wrong thing.)
+Yes, a colleague of mine has a similar beast, hence Caldera ships for quite a
+while now with an appropriate patch. Now Christoph Hellwig has identified a
+simpler solution (updated for -test11 by me):
 
-Chad
+--- linux/arch/i386/kernel/setup.c~	Fri Jul  7 04:42:06 2000
++++ linux/arch/i386/kernel/setup.c	Tue Jul 18 19:22:48 2000
+@@ -785,7 +785,8 @@
+ 	/*
+ 	 * get boot-time SMP configuration:
+ 	 */
+-	if (smp_found_config)
++	if (smp_found_config && /* try only if the cpu has a local apic */
++	    test_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability))
+ 		get_smp_config();
+ #endif
+ #ifdef CONFIG_X86_LOCAL_APIC
 
 
+I think Alan has a similar thing in his test11-ac* series.
+
+Hope that helps,
+
+	Torsten
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

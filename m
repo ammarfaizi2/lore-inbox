@@ -1,109 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284952AbRLFDjg>; Wed, 5 Dec 2001 22:39:36 -0500
+	id <S284958AbRLFDmg>; Wed, 5 Dec 2001 22:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284957AbRLFDj1>; Wed, 5 Dec 2001 22:39:27 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:23586 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284952AbRLFDjS>; Wed, 5 Dec 2001 22:39:18 -0500
-Message-ID: <3C0EE865.1090607@redhat.com>
-Date: Wed, 05 Dec 2001 22:39:17 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+	id <S284959AbRLFDm0>; Wed, 5 Dec 2001 22:42:26 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:4362 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S284958AbRLFDmR>; Wed, 5 Dec 2001 22:42:17 -0500
+Message-ID: <3C0EE8DD.3080108@namesys.com>
+Date: Thu, 06 Dec 2001 06:41:17 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Nathan Bryant <nbryant@optonline.net>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0EB1F2.7050007@optonline.net> <3C0EB46C.4010806@optonline.net> <3C0EBAEF.5090402@redhat.com> <3C0EC219.8010107@redhat! .com> <3C0EDDC2.608@optonl!
- ine.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: Ext2 directory index: ALS paper and benchmarks
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
+I can't comment on your benchmarks because I was on the way to bed when 
+I read this.  I am sure though that you and Stephen are doing your usual 
+good programming.
 
-> as evidenced by,
-> 
-> 
->        /* if we are currently stopped, then our CIV is actually set to our
->         * *last* sg segment and we are ready to wrap to the next.  However,
->         * if we set our LVI to the last sg segment, then it won't wrap to
->         * the next sg segment, it won't even get a start.  So, instead, 
-> when
->         * we are stopped, we set both the LVI value and also we increment
->         * the CIV value to the next sg segment to be played so that when
->         * we call start_{dac,adc}, things will operate properly
->         */
->        if (!dmabuf->enable) {
-> #ifdef DEBUG_MMAP
->                printk("fnord? %d\n", inb(port+OFF_CIV));
-> #endif
->                /* maybe we have to increment LVI to make room before 
-> incrementing CIV,
->                   (databook says CELV isn't cleared until new val written
->                    to LVI.)
->                   we'll set LVI where we really want it down below. */
->                //outb((inb(port+OFF_LVI)+1)&31, port+OFF_LVI);
->                newciv = (inb(port+OFF_CIV)+1)&31;
->                outb(newciv, port+OFF_CIV);
->                for (x = 0; inb(port+OFF_CIV) != newciv && x< 5000000; x++);
->                if (x==5000000) printk("foo! civ != %d\n", newciv);
->        }
-> 
-> and
-> 
-> Dec  5 21:34:32 lasn-001 kernel: foo! civ != 1
-> 
-> CIV doesn't seem to respond to writes on my chipset, at least not in 
-> this situation. you'll note that nowhere in the driver are we 
-> initializing CIV to anything other than 0 anyway.
-> 
-> two alternatives I can think of:
-> 
-> first fix:
-> set LVI to desired value minus one SG
-> start_dac (which should have side effect of incrementing CIV by one)
-> increment LVI to desired value
-> 
-> 2nd fix:
-> back off and perform DMA reset.
-> 
-> 3rd fix (really fix 1a ;)
-> just don't allow use of the last SG when restarting
-> 
+ReiserFS is an Htree by your definition in your paper, yes?
 
-Try this out:
-         /* if we are currently stopped, then our CIV is actually set to our
-          * *last* sg segment and we are ready to wrap to the next. 
-However,
-          * if we set our LVI to the last sg segment, then it won't wrap to
-          * the next sg segment, it won't even get a start.  So, 
-instead, when
-          * we are stopped, we set both the LVI value and also we increment
-          * the CIV value to the next sg segment to be played so that when
-          * we call start_{dac,adc}, things will operate properly
-          */
-         if (!dmabuf->enable) {
-                 outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
-                 if(rec) {
-                         __start_adc(state);
-                         while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) )
-                                 barrier();
-                 } else {
-                         __start_dac(state);
-                         while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) )
-                                 barrier();
-                 }
-         }
+Daniel Phillips wrote:
+
+>
+>Curiously, Reiserfs actually depends on the spelling of the filename for a 
+>lot of its good performance.  Creating files with names that don't follow a 
+>lexigraphically contiguous sequence produces far different results:
+>
+>   http://people.nl.linux.org/~phillips/htree/indexed.vs.classic.vs.reiser.10x10000.create.random.jpg
+>
+>So it seems that for realistic cases, ext2+htree outperforms reiserfs quite 
+>dramatically.  (Are you reading, Hans?  Fighting words... ;-)
+>
+
+Have you ever seen an application that creates millions of files create 
+them in random order?  Almost always there is some non-randomness in the 
+order, and our newer hash functions are pretty good at preserving it. 
+ Applications that create millions of files are usually willing to play 
+nice for an order of magnitude performance gain also.....
+
+
+I have shared your kpresenter troubles:-)....
+
+Hans
 
 
 
--- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
 

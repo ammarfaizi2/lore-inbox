@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUIATD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUIATGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUIATD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 15:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUIATD5
+	id S266879AbUIATGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 15:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUIATGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 15:03:57 -0400
-Received: from mail3.utc.com ([192.249.46.192]:50937 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S266467AbUIATDz (ORCPT
+	Wed, 1 Sep 2004 15:06:12 -0400
+Received: from holomorphy.com ([207.189.100.168]:33991 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266879AbUIATGH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 15:03:55 -0400
-Message-ID: <41361CEF.2020107@cybsft.com>
-Date: Wed, 01 Sep 2004 14:03:11 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Thomas Charbonnel <thomas@undata.org>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Mark_H_Johnson@raytheon.com, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
-References: <200408282210.03568.pnambic@unu.nu>	 <20040828203116.GA29686@elte.hu>	 <1093727453.8611.71.camel@krustophenia.net>	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>	 <1093737080.1385.2.camel@krustophenia.net>	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>	 <20040830090608.GA25443@elte.hu> <20040901082958.GA22920@elte.hu>	 <20040901135122.GA18708@elte.hu> <1094058546.6465.2.camel@localhost>
-In-Reply-To: <1094058546.6465.2.camel@localhost>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Sep 2004 15:06:07 -0400
+Date: Wed, 1 Sep 2004 12:06:00 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
+Message-ID: <20040901190600.GM5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>,
+	linux-kernel@vger.kernel.org
+References: <20040827173641.5cfb79f6.akpm@osdl.org> <20040828010253.GA50329@muc.de> <20040827183940.33b38bc2.akpm@osdl.org> <16687.59671.869708.795999@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0408272021070.16607@schroedinger.engr.sgi.com> <20040827204241.25da512b.akpm@osdl.org> <Pine.LNX.4.58.0408272121300.16949@schroedinger.engr.sgi.com> <20040827223954.7d021aac.akpm@osdl.org> <20040901180352.GH642@parcelfarce.linux.theplanet.co.uk> <20040901111911.66e89189.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040901111911.66e89189.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Charbonnel wrote:
-> Ingo Molnar wrote :
-> 
->>i've released the -Q7 patch:
->>
->>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q7
-> 
-> 
-> With Q7 I still get rx latency issues (> 130 us non-preemptible section
-> from rtl8139_poll). Moreover network connections were extremely slow
-> (almost hung) until I set /proc/sys/net/core/netdev_backlog_granularity
-> to 2.
-> 
-> Thomas
-> 
-> 
-> 
-I too am still getting these latencies, although not as often (maybe?). 
-I on the other hand am having no problems with slow connections. 
-However, this is with very little load on the system. Here is one such 
-trace:
+Matthew Wilcox <willy@debian.org> wrote:
+>> Sure, but the same kind of app can also do this on 32-bit architectures.
+>> Assuming there's only 2.5GB of address space available per process,
+>> you'd need 1638 cooperating processes to do it.  OK, that's a lot but
+>> the lowest limit I can spy on a quick poll of multiuser boxes I have a
+>> login on is 3064.  Most are above 10,000 (poll sample includes Debian,
+>> RHAS and Fedora).
 
-http://www.cybsft.com/testresults/2.6.9-rc1-bk4-Q7/latencytrace4.txt
+On Wed, Sep 01, 2004 at 11:19:11AM -0700, Andrew Morton wrote:
+> It requires 32GB's worth of pte's.
+> So yeah, it might be possible on a 64GB ia32 box.
 
-I do have a couple of new traces that seem to be related to transmitting 
-data, I think. They are here:
+This only requires approximately 10922.666666666666 processes, which
+has surprisingly been done in practice.
 
-http://www.cybsft.com/testresults/2.6.9-rc1-bk4-Q7/latencytrace2.txt
 
-http://www.cybsft.com/testresults/2.6.9-rc1-bk4-Q7/latencytrace3.txt
-
-kr
+-- wli

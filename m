@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUH0XRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUH0XUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265196AbUH0XRA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 19:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUH0XRA
+	id S266885AbUH0XUE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 19:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266914AbUH0XUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 19:17:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10730 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265196AbUH0XQz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 19:16:55 -0400
-Date: Fri, 27 Aug 2004 16:16:43 -0700 (PDT)
-From: Judith Lebzelter <judith@osdl.org>
-To: <suparna@in.ibm.com>
-cc: <linux-aio@kvack.org>, <mason@suse.com>, <linux-osdl@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: OSDL:  AIO-Stress summary for AIO patch set vs linux-2.6.8
-Message-ID: <Pine.LNX.4.33.0408271452340.6008-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Aug 2004 19:20:04 -0400
+Received: from berrymount.xs4all.nl ([82.92.47.16]:27756 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S266885AbUH0XT7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 19:19:59 -0400
+Date: Sat, 28 Aug 2004 01:18:18 +0200
+From: Rob van Nieuwkerk <robn@berrymount.nl>
+To: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
+Cc: Rob van Nieuwkerk <robn@berrymount.nl>, prakashkc@gmx.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+Message-Id: <20040828011818.2d5f282c.robn@berrymount.nl>
+In-Reply-To: <Pine.LNX.4.61.0408271536340.578@senta.theria.org>
+References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org>
+	<200408270917.47656.vda@port.imtp.ilyichevsk.odessa.ua>
+	<Pine.LNX.4.61.0408271445120.578@senta.theria.org>
+	<200408271604.35400.vda@port.imtp.ilyichevsk.odessa.ua>
+	<412F337C.90206@gmx.de>
+	<Pine.LNX.4.61.0408271536340.578@senta.theria.org>
+Organization: Berrymount Automation B.V.
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-URL: http://www.berrymount.nl/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello;
+On Fri, 27 Aug 2004 15:44:32 +0200 (CEST)
+Wouter Van Hemel <wouter-kernel@fort-knox.rave.org> wrote:
 
-I have done a summary of some aio-stress runs on our 1CPU and 2CPU hosts
-to compare the performance of the latest version of Suparna's buffered AIO
-patch set http://marc.theaimsgroup.com/?l=linux-aio&m=109285137710061&w=2
-(less the aio-ra) to the linux-2.6.8 kernel.  I found up to a 442%
-improvement and was wondering if anyone could explain it.
+Hi all,
 
-The buffered results on 1CPU/single disk/512M RAM/1 2G File showed:
-     Sequential Reads:    -13.2%
-     Random reads:        +32.7%
+> Also note that this driver had some Philips support in the form of 
+> information - sadly enough, partly under NDA.
 
+Just a tiny little detail that might be interesting to anyone
+forming an opinion on all the pwc/linux stuff:
 
-The buffered results on 2CPU/5 Disk striped Megaraid/1G RAM/1 4G File
-showed:
-    Sequential reads:      +2.1%
-    Random Reads:         +442%
+	-----------------------------------------------------------
+	The author of the pwc driver has publicly stated that this
+	NDA has expired more than 1 year ago !!!
+	-----------------------------------------------------------
 
+Despite this he refuses to release the source code for the binary-only
+driver.  Of course it is his right to do so: it is his code.
+But I think it is important for everyone to know this fact.
 
-The improvement in buffered random reads from this patch set was +32% on
-1CPU and +442% on 2CPU.  This was more than expected on the 2CPU host at
-+442%.  It seems as though the 'buffered random reads' performance on the
-unpatched linux-2.6.8 kernel is unexpectedly low at only 7.57MB/s on our
-5 Disk striped Megaraid partition.
-
-The buffered sequential reads on the 1CPU host were 13% slower, but they
-did not change significantly on the 2CPU host.
-
-There were no other serious regressions or changes within error.
-
-The full summary is at:
-
-http://developer.osdl.org/judith/aio/result_compare_2.6.8.html
-
-
-Regards;
-
-Judith Lebzelter
-OSDL
-
-
-
-
-
-
-
+	greetings,
+	Rob van Nieuwkerk

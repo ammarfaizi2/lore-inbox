@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSIDR7G>; Wed, 4 Sep 2002 13:59:06 -0400
+	id <S313190AbSIDSK3>; Wed, 4 Sep 2002 14:10:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313113AbSIDR7F>; Wed, 4 Sep 2002 13:59:05 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:10893 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S313305AbSIDR7F>; Wed, 4 Sep 2002 13:59:05 -0400
-Date: Wed, 4 Sep 2002 19:02:25 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alex Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Question about pseudo filesystems
-Message-ID: <20020904190225.A13448@kushida.apsleyroad.org>
-Mime-Version: 1.0
+	id <S313558AbSIDSK3>; Wed, 4 Sep 2002 14:10:29 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56069
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313190AbSIDSK2>; Wed, 4 Sep 2002 14:10:28 -0400
+Date: Wed, 4 Sep 2002 11:14:23 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+cc: "ROBIN  Jean-Marie (EURIWARE)" <jmrobin@euriware.fr>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OSB4 in impossible state
+In-Reply-To: <1031135030.3314.64.camel@biker.pdb.fsc.net>
+Message-ID: <Pine.LNX.4.10.10209041113310.3440-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a small problem with a module I'm writing.  It uses a
-pseudo-filesystem, rather like futexes and pipes, so that it can hand
-out special file descriptors on request.
 
-Following the examples of pipe.c and futex.c, but specifically for a 2.4
-kernel, I'm doing this:
+Martin,
 
-	static DECLARE_FSTYPE (mymod_fs_type, "mymod_fs",
-			       mymod_read_super, FS_NOMOUNT);
+If you can helps build a DMA PRD list for OSB4, I know the rules.
+Just I do not have the time to get to it.
 
+On 4 Sep 2002, Martin Wilck wrote:
 
-	static int __init mymod_init (void)
-	{
-		int err = register_filesystem (&mymod_fs_type);
-		if (err)
-			return err;
-		mymod_mnt = kern_mount (&mymod_fs_type);
-		if (IS_ERR (mymod_mnt)) {
-			unregister_filesystem (&mymod_fs_type);
-			return PTR_ERR (mymod_mnt);
-		}
-	}
+> Am Mit, 2002-09-04 um 11.30 schrieb ROBIN Jean-Marie (EURIWARE):
+> 
+> > i have installed a redhat 7.3 on a COmpaq  DL360 G2, i had a kernel panic
+> > with the message "ServerWorks OSB4 in impossible state" when i mount a
+> > cdrom...
+> > On newsgroups archives, i look at your patch and created a new kernel.
+> > Now i have no more crash but cdrom is still not accessible with the
+> > following error:
+> > hda: timeout waiting DMA
+> > ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> > hda: status error: status 0x48 { DriveReady DataRequest }
+> > hda: drive not ready
+> > have you any news about this problem? No more infos on web.
+> 
+> Hmm - seems that DMA really doesn't work as it should. In this case my
+> patch really only prevents the crash. For the moment, I can only advise
+> you to start the kernel with the hda=nodma option.
+> 
+> I am forwarding this to Andre and Alan, who know much more about this
+> than I do. It would be helpful if you could tell us your Chipset
+> revision.
+> 
+> Martin
+> 
+> -- 
+> Martin Wilck                Phone: +49 5251 8 15113
+> Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+> Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
+> D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+> 
+> 
+> 
+> 
+> 
 
-	static void __exit mymod_exit (void)
-	{
-		mntput (mymod_mnt);
-		unregister_filesystem (&mymod_fs_type);
-	}
-
-Unfortunately, when I come to _unload_ the module, it can't be unloaded
-because the kern_mount increments the module reference count.
-
-(pipe.c in 2.4 appears to have the same problem, but of course nobody
-can ever unload it anyway so it doesn't matter).
-
-I'm handing out file descriptors rather like futexes from 2.5: they all
-share the same dentry, which is the root of the filesystem.  In my
-code's case, that dentry is created in `mymod_read_super' (just the same
-way as 2.4 pipe.c).
-
-Somehow, it looks like I need to mount the filesystem when it first
-generates an fd, and unmount it when the last fd is destroyed -- but is
-it safe to unmount the filesystem _within_ a release function of an
-inode on the filesystem?
-
-Either that, or I need something else.
-
-Thanks,
--- Jamie
+Andre Hedrick
+LAD Storage Consulting Group
 

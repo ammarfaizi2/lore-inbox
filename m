@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267189AbTBPP4B>; Sun, 16 Feb 2003 10:56:01 -0500
+	id <S267103AbTBPPwj>; Sun, 16 Feb 2003 10:52:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267190AbTBPP4A>; Sun, 16 Feb 2003 10:56:00 -0500
-Received: from [24.206.178.254] ([24.206.178.254]:18307 "EHLO
-	mail.brianandsara.net") by vger.kernel.org with ESMTP
-	id <S267189AbTBPPz5>; Sun, 16 Feb 2003 10:55:57 -0500
-From: Brian Jackson <brian@mdrx.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: 2.5 AGP for 2.4.21-pre4
-Date: Sun, 16 Feb 2003 10:04:53 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200302152135.22425.brian@mdrx.com> <20030216143005.GA481@codemonkey.org.uk>
-In-Reply-To: <20030216143005.GA481@codemonkey.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S267104AbTBPPwj>; Sun, 16 Feb 2003 10:52:39 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:14340 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267103AbTBPPwi>;
+	Sun, 16 Feb 2003 10:52:38 -0500
+Date: Sun, 16 Feb 2003 17:01:50 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       davyd@zdlcomputing.com
+Subject: Re: Toshiba keyboard bug: point people to the patch
+Message-ID: <20030216160150.GB2367@elf.ucw.cz>
+References: <20030215204436.GA8589@elf.ucw.cz> <1045405129.16464.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302161004.53012.brian@mdrx.com>
+In-Reply-To: <1045405129.16464.10.camel@irongate.swansea.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 February 2003 08:30 am, Dave Jones wrote:
-> On Sat, Feb 15, 2003 at 09:35:22PM -0600, Brian Jackson wrote:
->  > P.S.S. To Dave Jones -- I thought 2.5 had support for VIA chipsets &
->  > AGP3, but I only saw config options for the 7205/7505
->
-> If CONFIG_AGP3 is set, then the agp3 routines in via-agp.c also get
-> built, so you get KT400 support.
->
-> 		Dave
+Hi!
 
-That is what it looked like as I started looking through some of the code, I 
-just wasn't sure. Thanks for the answer.
+> > Too many people mail me, and one of them was kind enough to put the
+> > patch on the web. It would be nice to have this in both 2.4.X and
+> > 2.5.X [patch against 2.5.61].
+> 
+> I sent Marcelo the fix and -ac has the fix in as well. Seems easier than
+> the dmi_scan warning 8)
 
---Brian Jackson
+Well, that's a solution I like even more.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

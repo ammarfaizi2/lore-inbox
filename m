@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbTDJQwa (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 12:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTDJQw3 (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 12:52:29 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:5273 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S264075AbTDJQwS (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 12:52:18 -0400
-Date: Thu, 10 Apr 2003 11:03:30 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre7: error compiling aic7(censored)/aicasm/aicasm.c
-Message-ID: <539290000.1049994210@aslan.btc.adaptec.com>
-In-Reply-To: <20030406125804.GW20044@fs.tum.de>
-References: <20030406125804.GW20044@fs.tum.de>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
+	id S264105AbTDJROk (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 13:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264107AbTDJROk (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 13:14:40 -0400
+Received: from imap.gmx.net ([213.165.65.60]:30699 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264105AbTDJROj convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 13:14:39 -0400
+Message-ID: <3E95A932.9030301@gmx.net>
+Date: Thu, 10 Apr 2003 19:26:10 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre6 problem with 8139too Fast Ethernet driver 0.9.26
+References: <Pine.OSF.4.51.0304101852250.408246@tao.natur.cuni.cz>
+In-Reply-To: <Pine.OSF.4.51.0304101852250.408246@tao.natur.cuni.cz>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> <--  snip  -->
+Martin MOKREJ© wrote:
+> Hi,
+>   I'm observing sporadic problems with my onboard network card:
 > 
-> gcc-2.95 -D__KERNEL__ 
-> -I/home/bunk/linux/kernel-2.4/linux-2.4.21-pre7-full-nohotplug/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -D__KERNEL__ 
-> -I/home/bunk/linux/kernel-2.4/linux-2.4.21-pre7-full-nohotplug/include -e stext  
-> aicasm/aicasm.c   -o aicasm/aicasm
-> /usr/bin/ld: warning: cannot find entry symbol stext; defaulting to 08048760
+> [...]
+> $ mii-tool --verbose
+> eth0: 10 Mbit, half duplex, link ok
+>   product info: vendor 00:00:00, model 0 rev 0
+>   basic mode:   10 Mbit, half duplex
+>   basic status: link ok
+>   capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+>   advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+> $
+> 
+> Any ideas? Please cc me in replies.
 
-This is probably due to the misplaced endif in the currently committed
-drivers/scsi/aic7xxx/Makefile.  Updated versions of the Makefile/driver
-can be found here:
+What type is the link partner (switch,hub,network card)? Type of cable
+(crossover,plain)? How high is the traffic on the network?
+Judging from your mii-tool output, you are connected to
+1. a 10MBit hub or
+2. a 100MBit hub and one of the connected network cards is 10MBit or
+3. a 10MBit network card.
+If neither of these is the case, please check your cabling.
 
-http://people.FreeBSD.org/~gibbs/linux/SRC/
+Regards,
+Carl-Daniel
 
---
-Justin
+-- 
+http://www.hailfinger.org/
 

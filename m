@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316309AbSHXOE5>; Sat, 24 Aug 2002 10:04:57 -0400
+	id <S316213AbSHXOEU>; Sat, 24 Aug 2002 10:04:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316322AbSHXOE5>; Sat, 24 Aug 2002 10:04:57 -0400
-Received: from ip29.xiotech.com ([209.46.118.29]:33807 "EHLO
-	pdamail.xiotech.com") by vger.kernel.org with ESMTP
-	id <S316309AbSHXOE4>; Sat, 24 Aug 2002 10:04:56 -0400
-Message-ID: <ED8EDD517E0AA84FA2C36C8D6D205C1303F1C304@alfred.xiotech.com>
-From: "Brueggeman, Steve" <steve_brueggeman@xiotech.com>
-To: "'Grover, Andrew'" <andrew.grover@intel.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Anyone know how to get soft-power-down to work on an Intel SC
-	 B2??
-Date: Sat, 24 Aug 2002 09:09:04 -0500
+	id <S316235AbSHXOEU>; Sat, 24 Aug 2002 10:04:20 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:18700 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S316213AbSHXOET>; Sat, 24 Aug 2002 10:04:19 -0400
+Date: Sat, 24 Aug 2002 16:08:07 +0200 (CEST)
+From: Pawel Kot <pkot@echelon.pl>
+X-X-Sender: <pkot@urtica.linuxnews.pl>
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK-2.4 PATCH] Fix compile with highmem and highio
+In-Reply-To: <E17i1gF-00034U-00@storm.christs.cam.ac.uk>
+Message-ID: <Pine.LNX.4.33.0208241603390.7446-100000@urtica.linuxnews.pl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot to mention, I compiled a version of linux-2.4.9-34 with
-ACPI and APM enabled, and tarballed the kernel and modules, and
-installed them on several intel machines.  They all successfully
-did the soft-power-off, includeing a Dell Precission 610, which
-is a dual-processor system.
+On Fri, 23 Aug 2002, Anton Altaparmakov wrote:
 
-Steve Brueggeman
+>   Remove duplicate & bogus kmap_prot and kmap_pte exports.
+>   These are arch specific and only four architectures implement them. So
+>   on all other orchitectures with highmem enabled compilation would fail with
+>   these exports in ksyms.c...
+
+No, only these 4 architectures allow to set HIGHMEM. So no failure here.
+
+>   The architectures which need them already export them via their arch-ksyms files.
+
+No. They don't. At least in 2.4.20-pre4. I think they may be exported in
+your tree, because of the ntfs backport patch.
+
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
+

@@ -1,188 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269663AbUJABdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269667AbUJABh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269663AbUJABdW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 21:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269664AbUJABdW
+	id S269667AbUJABh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 21:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269668AbUJABh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 21:33:22 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:36234 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S269663AbUJABdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 21:33:14 -0400
-Date: Thu, 30 Sep 2004 18:32:35 -0700
-From: Suresh Siddha <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@muc.de>, akpm@osdl.org
-Cc: Suresh Siddha <suresh.b.siddha@intel.com>, linux-kernel@vger.kernel.org,
-       tom.l.nguyen@intel.com
-Subject: Re: [Patch 1/2] Disable SW irqbalance/irqaffinity for E7520/E7320/E7525 - change TARGET_CPUS on x86_64
-Message-ID: <20040930183235.F29549@unix-os.sc.intel.com>
-References: <2HSdY-7dr-3@gated-at.bofh.it> <m3mzzf99vz.fsf@averell.firstfloor.org>
+	Thu, 30 Sep 2004 21:37:29 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:42404 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S269667AbUJABhY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 21:37:24 -0400
+Subject: Re: 2.6.9rc2-mm4 oops
+From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net,
+       Bernhard Rosenkraenzer <bero@arklinux.org>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <200409301704.28573.bjorn.helgaas@hp.com>
+References: <1096571653.11298.163.camel@cmn37.stanford.edu>
+	 <20040930124937.5942fd64.akpm@osdl.org>
+	 <200409301522.29198.bjorn.helgaas@hp.com>
+	 <200409301704.28573.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1096594616.11297.688.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3mzzf99vz.fsf@averell.firstfloor.org>; from ak@muc.de on Fri, Sep 24, 2004 at 01:36:16PM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Sep 2004 18:36:56 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 01:36:16PM +0200, Andi Kleen wrote:
-> Suresh Siddha <suresh.b.siddha@intel.com> writes:
+On Thu, 2004-09-30 at 16:04, Bjorn Helgaas wrote:
+> On Thursday 30 September 2004 3:22 pm, Bjorn Helgaas wrote:
+> > Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+> > > inserting floppy driver for 2.6.8.1-1.520.1nov.rhfc2.ccrma
+> > > Unable to handle kernel paging request at virtual address f8881920
+> > >  printing eip:
+> > > c0251d3d
+> > > *pde = 37f5f067
+> > > Oops: 0002 [#1]
+> > > PREEMPT 
+> > > Modules linked in: floppy(U) sg(U) dm_mod(U) uhci_hcd(U) ehci_hcd(U)
+> > > button(U) battery(U) asus_acpi(U) ac(U) ext3(U) jbd(U) raid5(U) xor(U)
+> > > sata_via(U) sata_promise(U) libata(U) sd_mod(U) scsi_mod(U)
+> > > CPU:    0
+> > > EIP:    0060:[<c0251d3d>]    Not tainted VLI
+> > > EFLAGS: 00010246   (2.6.8.1-1.520.1nov.rhfc2.ccrma) 
+> > > EIP is at acpi_bus_register_driver+0xd2/0x165
 > 
-> > Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code inline
-> > with x86 mach-default
-> 
-> And breaks compilation with MSI on.
+> Like Pierre, I was able to reproduce this with DEBUG_PAGEALLOC.
+> I found a struct acpi_driver in hpet.c that was erroneously marked
+> __init, and the attached patch fixed the oops for me.  Can you give
+> this a whirl?
 
-Here is a new patch. Andrew Please apply.
+Sorry, I did, and still get the oops. This is it this time (looks the
+same to me):
 
-thanks,
-suresh
---
+inserting floppy driver for 2.6.8.1-1.520.1nov.rhfc2.ccrma
+Unable to handle kernel paging request at virtual address f8881920
+ printing eip:
+c0251d3d
+*pde = 37f5f067
+Oops: 0002 [#1]
+PREEMPT 
+Modules linked in: floppy(U) sg(U) dm_mod(U) uhci_hcd(U) ehci_hcd(U)
+button(U) battery(U) asus_acpi(U) ac(U) ext3(U) jbd(U) raid5(U) xor(U)
+sata_via(U) sata_promise(U) libata(U) sd_mod(U) scsi_mod(U)
+CPU:    0
+EIP:    0060:[<c0251d3d>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.8.1-1.520.1nov.rhfc2.ccrma) 
+EIP is at acpi_bus_register_driver+0xd2/0x165
+eax: f8881920   ebx: f88eefe0   ecx: c03d6b40   edx: f88ebd30
+esi: ffffffed   edi: f6eb8000   ebp: c03d9460   esp: f6eb8f5c
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 2119, threadinfo=f6eb8000 task=f6dc4640)
+Stack: c03d94a0 f88e9126 00000015 00000014 f8870bc1 c03d94a0 f88ef280
+f6eb8000 
+       c0129ef7 c03d94a0 f88ef280 f6eb8000 c03d9460 c014dd52 00000246
+f62d1eac 
+       f6e44c40 f6f16564 f6ea1c40 f6ea1c6c 00000000 b7fde008 0807a1a0
+006a809d 
+Call Trace:
+ [<f88e9126>] acpi_floppy_init+0x16/0x50 [floppy]
+ [<f8870bc1>] floppy_init+0x11/0x600 [floppy]
+ [<c0129ef7>] printk+0x17/0x20
+ [<c014dd52>] sys_init_module+0x252/0x3b0
+ [<c0106afd>] sysenter_past_esp+0x52/0x71
+Code: 00 00 00 a1 ec 67 3e c0 c7 05 78 67 3e c0 a0 7b 3a c0 c7 05 7c 67
+3e c0 bd 01 00 00 89 1d ec 67 3e c0 c7 03 e8 67 3e c0 89 43 04 <89> 18
+81 3d 68 67 3e c0 3c 4b 24 1d 74 1c 68 68 67 3e c0 68 bf 
+ <6>note: modprobe[2119] exited with preempt_count 1
+Debug: sleeping function called from invalid context at
+include/linux/rwsem.h:43
+in_atomic():1, irqs_disabled():0
+ [<c0125652>] __might_sleep+0xa2/0xb0
+ [<c012d222>] do_exit+0xa2/0x980
+ [<c010775f>] die+0x2bf/0x2c0
+ [<c012a0b6>] vprintk+0x1b6/0x340
+ [<c011e1e4>] do_page_fault+0x314/0x56c
+ [<c01d8155>] sysfs_new_dirent+0x25/0x80
+ [<c01d81cd>] sysfs_make_dirent+0x1d/0x90
+ [<c0172a29>] unmap_area_pmd+0x49/0x60
+ [<c01d7d84>] sysfs_add_file+0x74/0xa0
+ [<c0172bb0>] unmap_vm_area+0x30/0x80
+ [<c0173136>] __vunmap+0xb6/0xf0
+ [<c0129cf0>] call_console_drivers+0x80/0x110
+ [<c011ded0>] do_page_fault+0x0/0x56c
+ [<c0106cf9>] error_code+0x2d/0x38
+ [<c0251d3d>] acpi_bus_register_driver+0xd2/0x165
+ [<f88e9126>] acpi_floppy_init+0x16/0x50 [floppy]
+ [<f8870bc1>] floppy_init+0x11/0x600 [floppy]
+ [<c0129ef7>] printk+0x17/0x20
+ [<c014dd52>] sys_init_module+0x252/0x3b0
+ [<c0106afd>] sysenter_past_esp+0x52/0x71
 
-Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code inline
-with x86 mach-default. Fix MSI_TARGET_CPU code which will break with this 
-target_cpus change.
+I tried building without PREEMPT but there were some errors about
+unknown symbols at the end, I'll try again tomorrow.
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-
-
-diff -Nru linux-2.6.9-rc3/arch/x86_64/kernel/io_apic.c linux/arch/x86_64/kernel/io_apic.c
---- linux-2.6.9-rc3/arch/x86_64/kernel/io_apic.c	2004-09-29 20:04:46.000000000 -0700
-+++ linux/arch/x86_64/kernel/io_apic.c	2004-09-10 15:34:54.000000000 -0700
-@@ -735,7 +735,7 @@
- 		entry.delivery_mode = dest_LowestPrio;
- 		entry.dest_mode = INT_DELIVERY_MODE;
- 		entry.mask = 0;				/* enable IRQ */
--		entry.dest.logical.logical_dest = TARGET_CPUS;
-+		entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
- 
- 		idx = find_irq_entry(apic,pin,mp_INT);
- 		if (idx == -1) {
-@@ -753,7 +753,7 @@
- 		if (irq_trigger(idx)) {
- 			entry.trigger = 1;
- 			entry.mask = 1;
--			entry.dest.logical.logical_dest = TARGET_CPUS;
-+			entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
- 		}
- 
- 		irq = pin_2_irq(idx, apic, pin);
-@@ -803,7 +803,7 @@
- 	 */
- 	entry.dest_mode = INT_DELIVERY_MODE;
- 	entry.mask = 0;					/* unmask IRQ now */
--	entry.dest.logical.logical_dest = TARGET_CPUS;
-+	entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
- 	entry.delivery_mode = dest_LowestPrio;
- 	entry.polarity = 0;
- 	entry.trigger = 0;
-@@ -2011,7 +2011,7 @@
- 
- 	entry.delivery_mode = dest_LowestPrio;
- 	entry.dest_mode = INT_DELIVERY_MODE;
--	entry.dest.logical.logical_dest = TARGET_CPUS;
-+	entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
- 	entry.trigger = edge_level;
- 	entry.polarity = active_high_low;
- 	entry.mask = 1;					 /* Disabled (masked) */
-@@ -2069,3 +2069,28 @@
- 	apic_write_around(APIC_ICR, cfg);
- }
- #endif
-+
-+
-+/*
-+ * This function currently is only a helper for the i386 smp boot process where 
-+ * we need to reprogram the ioredtbls to cater for the cpus which have come online
-+ * so mask in all cases should simply be TARGET_CPUS
-+ */
-+void __init setup_ioapic_dest(void)
-+{
-+	int pin, ioapic, irq, irq_entry;
-+
-+	if (skip_ioapic_setup == 1)
-+		return;
-+
-+	for (ioapic = 0; ioapic < nr_ioapics; ioapic++) {
-+		for (pin = 0; pin < nr_ioapic_registers[ioapic]; pin++) {
-+			irq_entry = find_irq_entry(ioapic, pin, mp_INT);
-+			if (irq_entry == -1)
-+				continue;
-+			irq = pin_2_irq(irq_entry, ioapic, pin);
-+			set_ioapic_affinity_irq(irq, TARGET_CPUS);
-+		}
-+
-+	}
-+}
-diff -Nru linux-2.6.9-rc3/arch/x86_64/kernel/smpboot.c linux/arch/x86_64/kernel/smpboot.c
---- linux-2.6.9-rc3/arch/x86_64/kernel/smpboot.c	2004-09-29 20:06:04.000000000 -0700
-+++ linux/arch/x86_64/kernel/smpboot.c	2004-09-10 15:34:54.000000000 -0700
-@@ -950,6 +950,9 @@
- 
- void __init smp_cpus_done(unsigned int max_cpus)
- {
-+#ifdef CONFIG_X86_IO_APIC
-+	setup_ioapic_dest();
-+#endif
- 	zap_low_mappings();
- }
- 
-diff -Nru linux-2.6.9-rc3/include/asm-x86_64/hw_irq.h linux/include/asm-x86_64/hw_irq.h
---- linux-2.6.9-rc3/include/asm-x86_64/hw_irq.h	2004-09-29 20:05:52.000000000 -0700
-+++ linux/include/asm-x86_64/hw_irq.h	2004-09-10 15:34:54.000000000 -0700
-@@ -101,6 +101,7 @@
- extern void print_IO_APIC(void);
- extern int IO_APIC_get_PCI_irq_vector(int bus, int slot, int fn);
- extern void send_IPI(int dest, int vector);
-+extern void setup_ioapic_dest(void);
- 
- extern unsigned long io_apic_irqs;
- 
-diff -Nru linux-2.6.9-rc3/include/asm-x86_64/msi.h linux/include/asm-x86_64/msi.h
---- linux-2.6.9-rc3/include/asm-x86_64/msi.h	2004-09-29 20:05:26.000000000 -0700
-+++ linux/include/asm-x86_64/msi.h	2004-09-10 21:32:14.049837568 -0700
-@@ -11,6 +11,10 @@
- #define LAST_DEVICE_VECTOR		232
- #define MSI_DEST_MODE			MSI_LOGICAL_MODE
- #define MSI_TARGET_CPU_SHIFT		12
--#define MSI_TARGET_CPU			TARGET_CPUS
-+#ifdef CONFIG_SMP
-+#define MSI_TARGET_CPU			logical_smp_processor_id()
-+#else
-+#define MSI_TARGET_CPU			1
-+#endif
- 
- #endif /* ASM_MSI_H */
-diff -Nru linux-2.6.9-rc3/include/asm-x86_64/smp.h linux/include/asm-x86_64/smp.h
---- linux-2.6.9-rc3/include/asm-x86_64/smp.h	2004-09-29 20:03:44.000000000 -0700
-+++ linux/include/asm-x86_64/smp.h	2004-09-10 19:39:01.383479816 -0700
-@@ -74,6 +74,12 @@
- 	return GET_APIC_ID(*(unsigned int *)(APIC_BASE+APIC_ID));
- }
- 
-+static __inline int logical_smp_processor_id(void)
-+{
-+	/* we don't want to mark this access volatile - bad code generation */
-+	return GET_APIC_LOGICAL_ID(*(unsigned long *)(APIC_BASE+APIC_LDR));
-+}
-+
- /*
-  * Some lowlevel functions might want to know about
-  * the real APIC ID <-> CPU # mapping.
-@@ -110,9 +116,13 @@
- 
- #endif
- #define INT_DELIVERY_MODE 1     /* logical delivery */
--#define TARGET_CPUS 1
- 
- #ifndef ASSEMBLY
-+#ifdef CONFIG_SMP
-+#define TARGET_CPUS cpu_online_map
-+#else
-+#define TARGET_CPUS cpumask_of_cpu(0)
-+#endif
- static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
- {
- 	return cpus_addr(cpumask)[0];
+-- Fernando
 
 

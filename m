@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUHIHBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUHIHQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUHIHBW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 03:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUHIHBW
+	id S266195AbUHIHQu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 03:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUHIHQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 03:01:22 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60079 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266189AbUHIHBV (ORCPT
+	Mon, 9 Aug 2004 03:16:50 -0400
+Received: from wit.mht.bme.hu ([152.66.80.190]:39570 "EHLO wit.wit.mht.bme.hu")
+	by vger.kernel.org with ESMTP id S266195AbUHIHQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 03:01:21 -0400
-Date: Sun, 8 Aug 2004 23:45:24 -0700
-From: Greg KH <greg@kroah.com>
-To: John Rose <johnrose@austin.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
-Subject: Re: [Pcihpd-discuss] struct pci_bus, no release() function?
-Message-ID: <20040809064524.GD13690@kroah.com>
-References: <1091477728.23381.24.camel@sinatra.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091477728.23381.24.camel@sinatra.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 9 Aug 2004 03:16:48 -0400
+Date: Mon, 9 Aug 2004 09:16:47 +0200 (CEST)
+From: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
+To: linux-kernel@vger.kernel.org
+Subject: IPv6-IPv6 tunnel problem
+Message-ID: <Pine.LNX.4.44.0408090904010.15626-100000@wit.wit.mht.bme.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 03:15:28PM -0500, John Rose wrote:
-> At probe time, pci_scan_bus_parented() allocates and registers a struct
-> device for each PCI bus it scans.  This generic device structure never
-> gets assigned a "release" function.  
-> 
-> Attempts to unregister such a PCI Bus at runtime result in a kernel
-> message like:
-> Device 'pci0001:00' does not have a release() function, it is broken and
-> must be fixed.
+Hello,
 
-You're right, that should be fixed.  Care to send a patch?  Should just
-be a 1 line change.  You can tell no one else has tried to remove a root
-bus device before...
+There is a strange problem with IPv6 tunnelling (at least) in kernel
+2.6.5-2.6.7.
 
-> Are architectures free to assign their own release function for
-> "devices" associated with struct pci_bus?
+I configured a router with 4 interfaces towards 4 nets. Everithing works
+well.
+But if ip6tnl0 interface comes up, it gets eth0's link local address
+automatically. It does not cause any problem until the tunneling interface
+goes down. After it eth0 can't solicit its neighbour. Solicit messages are
+sent, advertisements are received (tcpdump). But somehow it has no result,
+so solicits are trasmitted again and again (the neighbour responds them).
+Eth0 still has its link local address.
 
-Why would they want to?  It should just be set to pci_release_dev, like
-all other struct pci_dev devices are, right?
+If ip6tnl0 set up again (ip l s ip6tnl0 up), the solicit works.
+This can be repeated for ever.
 
-> If so, does this have to happen at boot, or can it happen right before
-> the remove?
+Best regards,
+Kubi
 
-Heh, you can't assign a release function after it is needed :)
-
-thanks,
-
-greg k-h

@@ -1,84 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273814AbRIXGhh>; Mon, 24 Sep 2001 02:37:37 -0400
+	id <S273817AbRIXGsw>; Mon, 24 Sep 2001 02:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273812AbRIXGh2>; Mon, 24 Sep 2001 02:37:28 -0400
-Received: from [63.227.79.185] ([63.227.79.185]:9714 "EHLO
-	marge.lubricants-oil.com") by vger.kernel.org with ESMTP
-	id <S273813AbRIXGhR>; Mon, 24 Sep 2001 02:37:17 -0400
-From: ddkilzer@theracingworld.com
-Date: Mon, 24 Sep 2001 01:37:30 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
-Subject: Re: pre12 fails to compile: wakeup_bdflush issues
-Message-ID: <20010924013730.A11591@lubricants-oil.com>
-In-Reply-To: <3BAA2BA8.34873B27@candelatech.com> <20010920.113037.59650292.davem@redhat.com>
+	id <S273816AbRIXGsn>; Mon, 24 Sep 2001 02:48:43 -0400
+Received: from t2.redhat.com ([199.183.24.243]:3834 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S273813AbRIXGsY>; Mon, 24 Sep 2001 02:48:24 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010924002854.A25226@codepoet.org> 
+In-Reply-To: <20010924002854.A25226@codepoet.org>  <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <16995.1001284442@redhat.com> 
+To: andersen@codepoet.org
+Cc: David Woodhouse <dwmw2@cambridge.redhat.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.10 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010920.113037.59650292.davem@redhat.com>; from davem@redhat.com on Thu, Sep 20, 2001 at 13:30:37 EST
+Date: Mon, 24 Sep 2001 07:48:47 +0100
+Message-ID: <32737.1001314127@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What about the other two calls to wakeup_bdflush(0) in 
-drivers/char/sysrq.c?  Should they be fixed using the patch below?
 
-Dave
+andersen@codepoet.org said:
+> Is jffs2 still showing the
+>     Child dir "." (ino #1) of dir ino #1 appears to be a hard link
+> problem?  I saw you patched mkfs.jffs2 after my changes -- do you
+> still need me to hunt down that bug I added? 
 
+Yes please. The patch I committed just made it happier with a relative (or
+no) root directory - it was changing into the specified directory and then
+still prepending its name to every path. I assume it's still emitting a
+dirent for '.' in the root directory as it was before. The JFFS2 kernel code
+doesn't like that very much.
 
---- drivers/char/sysrq.c.orig	Sun Sep 23 17:24:55 2001
-+++ drivers/char/sysrq.c	Mon Sep 24 01:11:07 2001
-@@ -32,7 +32,6 @@
- 
- #include <asm/ptrace.h>
- 
--extern void wakeup_bdflush(int);
- extern void reset_vc(unsigned int);
- extern struct list_head super_blocks;
- 
-@@ -221,7 +220,7 @@
- static void sysrq_handle_sync(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
- 	emergency_sync_scheduled = EMERG_SYNC;
--	wakeup_bdflush(0);
-+	wakeup_bdflush();
- }
- static struct sysrq_key_op sysrq_sync_op = {
- 	handler:	sysrq_handle_sync,
-@@ -232,7 +231,7 @@
- static void sysrq_handle_mountro(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
- 	emergency_sync_scheduled = EMERG_REMOUNT;
--	wakeup_bdflush(0);
-+	wakeup_bdflush();
- }
- static struct sysrq_key_op sysrq_mountro_op = {
- 	handler:	sysrq_handle_mountro,
+--
+dwmw2
 
-
-On Thu, Sep 20, 2001 at 13:30:37 EST, David S. Miller wrote:
-
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Thu, 20 Sep 2001 10:47:20 -0700
-> 
->    I get this error:
->    
->    sysrq.c:35: conflicting types for 'wakeup_bdflush'
->    /root/linux/include/linux/fs.h:1347: previous declaration of 'wakeup_bdflush'
->    
->    One says it takes a void argument, the other an int......
-> 
-> The fix is simple:
-> 
-> --- drivers/char/sysrq.c.~1~ Wed Sep 19 14:30:53 2001
-> +++ drivers/char/sysrq.c Thu Sep 20 11:29:30 2001
-> @@ -32,7 +32,6 @@
->  
->  #include <asm/ptrace.h>
->  
-> -extern void wakeup_bdflush(int);
->  extern void reset_vc(unsigned int);
->  extern struct list_head super_blocks;
->  
 

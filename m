@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSIAOwm>; Sun, 1 Sep 2002 10:52:42 -0400
+	id <S317107AbSIAPNr>; Sun, 1 Sep 2002 11:13:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317107AbSIAOwm>; Sun, 1 Sep 2002 10:52:42 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:9994 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317102AbSIAOwl>; Sun, 1 Sep 2002 10:52:41 -0400
-Date: Sun, 1 Sep 2002 16:56:59 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] warnkill trivia 2/2
-Message-ID: <20020901145658.GD7325@louise.pinerecords.com>
-References: <200209011452.QAA17260@harpo.it.uu.se>
+	id <S317112AbSIAPNr>; Sun, 1 Sep 2002 11:13:47 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:34802 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317107AbSIAPNr>; Sun, 1 Sep 2002 11:13:47 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <E17lCXU-0002zH-00@storm.christs.cam.ac.uk> 
+References: <E17lCXU-0002zH-00@storm.christs.cam.ac.uk> 
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: torvalds@transmeta.com (Linus Torvalds),
+       viro@math.psu.edu (Alexander Viro),
+       linux-kernel@vger.kernel.org (Linux Kernel)
+Subject: Re: [BK-PATCH-2.5] Introduce new VFS inode cache lookup function 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209011452.QAA17260@harpo.it.uu.se>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 7 days, 4:02
+Date: Sun, 01 Sep 2002 16:17:41 +0100
+Message-ID: <26631.1030893461@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >i.e. it's impossible to have a constant
-> >pointer to a non-constant value w/o using a qualified
-> >typedef.
-> 
-> void g(int * const t) { *t = 0; }
->
->
-> >W/o a typedef, gcc seems unable to tell the difference
-> >between 'const int *' and 'int const *' altogether.
-> 
-> There is no difference. Read the C spec, or Harbison&Steele
-> which has had an explanation of 'const' since their '87 2nd Ed.
+
+aia21@cantab.net said:
+> The below ChangeSet against Linus' current BK tree adds a new function
+> to the VFS, fs/inode.c::ilookup().
+
+> This is needed in NTFS when writing out inode metadata pages via the
+> VM dirty page code paths as we need to know whether there is an active
+> inode in icache but we don't want to do an iget() because if the inode
+> is not active then there is no need to write it... - I can just skip
+> onto the next one instead... - If there is an active inode then I need
+> to get the struct inode in order to perform appropriate locking for
+> the write out to happen. 
+
+Yum. I need similar functionality for JFFS2 garbage collection. When moving
+a data node, we currently iget() the inode to which it belongs and update
+its in-core extent lists accordingly. If the inode in question wasn't
+already present, there's no real need to do that.
+
+--
+dwmw2
 
 
-Ok, that explains it, obviously I (and DaveM :D) didn't know the syntax.
-Thanks for the reference!
-
-I'm going to redo the patches.
-
-T.

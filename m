@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280056AbRKDXgP>; Sun, 4 Nov 2001 18:36:15 -0500
+	id <S280041AbRKDXnZ>; Sun, 4 Nov 2001 18:43:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280059AbRKDXgF>; Sun, 4 Nov 2001 18:36:05 -0500
-Received: from bitmover.com ([192.132.92.2]:38814 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S280056AbRKDXgA>;
-	Sun, 4 Nov 2001 18:36:00 -0500
-Date: Sun, 4 Nov 2001 15:36:00 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: CVS / Bug Tracking System
-Message-ID: <20011104153600.M19938@work.bitmover.com>
-Mail-Followup-To: Bernd Eckenfels <ecki@lina.inka.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <flk.1004824861.fsf@jens.unfaehig.de> <E160Epp-0008Sa-00@calista.inka.de> <20011103215634.A10051@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011103215634.A10051@work.bitmover.com>; from lm@bitmover.com on Sat, Nov 03, 2001 at 09:56:34PM -0800
+	id <S280032AbRKDXnP>; Sun, 4 Nov 2001 18:43:15 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:3487 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S280051AbRKDXnE>;
+	Sun, 4 Nov 2001 18:43:04 -0500
+Date: Sun, 4 Nov 2001 18:42:57 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Jakob =?koi8-r?q?=3Fstergaard?= <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <20011104214229Z17052-23341+37@humbolt.nl.linux.org>
+Message-ID: <Pine.GSO.4.21.0111041841480.21449-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 03, 2001 at 09:56:34PM -0800, Larry McVoy wrote:
-> and if you'd like to take it for a test drive, we've put up just the stuff
-> you need at
-> 
-> 	http://www.bitkeeper.com/promerge.tgz
-> 
-> You don't need BitKeeper installed to run it
 
-Andrew Pimlott politely pointed out that this isn't true, and here's the fix:
 
-	tar zxf promerge.tgz
-	cd promerge
-	cat > bk
-	exit 0
-	^D
-	chmod +x bk
-	PATH=$PATH:$PWD ./RUN_ME
+On Sun, 4 Nov 2001, Daniel Phillips wrote:
 
-Sorry about that.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> Doing 'top -d .1' eats 18% of a 1GHz cpu, which is abominable.  A kernel
+> profile courtesy of sgi's kernprof shows that scanning pages does not move
+> the needle, whereas sprintf does.  Notice that the biggest chunk of time
+
+Huh?  Scanning pages is statm_pgd_range().  I'd say that it takes
+seriously more than vsnprintf() - look at your own results.
+

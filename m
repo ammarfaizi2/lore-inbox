@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267207AbRGKGA6>; Wed, 11 Jul 2001 02:00:58 -0400
+	id <S267209AbRGKGPb>; Wed, 11 Jul 2001 02:15:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267209AbRGKGAt>; Wed, 11 Jul 2001 02:00:49 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:8196 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S267208AbRGKGAi>; Wed, 11 Jul 2001 02:00:38 -0400
-Date: Wed, 11 Jul 2001 06:55:06 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: <fabrizio.gennari@philips.com>,
-        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.6 does not compile on Sparc
-In-Reply-To: <200107101838.f6AIcI606442@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.33.0107110650330.8698-100000@tahallah.demon.co.uk>
+	id <S267210AbRGKGPV>; Wed, 11 Jul 2001 02:15:21 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:51925 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S267209AbRGKGPH>; Wed, 11 Jul 2001 02:15:07 -0400
+Message-ID: <3B4BEF6E.E8D6C155@idcomm.com>
+Date: Wed, 11 Jul 2001 00:17:18 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ADAPTEC AHA 29160N
+In-Reply-To: <001401c10998$6c1e7960$8364f9c8@elogica.com.br>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jul 2001, Pete Zaitcev wrote:
+Igor Maciel Macaúbas wrote:
+> 
+> Hello Everybody,
+> I'm in trouble with this SCSI controller.
+> I tried, but it's impossible to set up some version of linux with this SCSI
+> controller.
+> I need help .. is this device supported by the actual version of kernels?
+> What the hell is happening?
+> I've tried to install Mandrake (8.0), Red Hat (5.1, 6.0, 6.2), tried with
+> Debian too, and will try with Redhat 7.0 and 7.1
+> How can I get it working?
+> 
+> []'z
+> Igor
+> --
+> igor@br.inter.net
+> igor@nlink.com.br
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> Next time, please be so kind to fold your lines properly.
+I don't know about this separate version of the controller, but the
+integrated versions of the 29160 work with the aic7xxx controller. There
+was some discussion a while back about the "rebuild firmware" option
+during kernel config, I suspect on regular and current kernels it is not
+needed; it was, however, required on some of the XFS patched kernels. Is
+the "N" version the 32 bit pci version (as opposed to the 64 bit pci
+slot versions)? If it fails to work, I'd wonder more if it is a pci
+setup issue than aic7xxx.
 
-At least Pine does.
-
-> It certainly compiles, but does not work too well. It may be a good
-> start if you want to fix sparc(32). Otherwise, forget it and use
-> something else.
-
-I've got two weeks' vacation coming up next week, I intend to look into
-this as I've no money to go anywhere, so might as well contribute my time!
-Also if anyone in the UK is willing to donate a SparcStation 20 with dual
-SM61s (or even better, SM71s) with a 24bit framebuffer, I can make sure
-SMP works on sun4m.
-
--- 
-Hey, they *are* out to get you, but it's nothing personal.
-
-http://www.tahallah.demon.co.uk
-
+D. Stimits, stimits@idcomm.com

@@ -1,158 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbUKJSws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbUKJS5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbUKJSws (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 13:52:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbUKJSws
+	id S262095AbUKJS5M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 13:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUKJS5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 13:52:48 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:13575 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S262029AbUKJSwm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 13:52:42 -0500
-Message-ID: <4192638C.6040007@aknet.ru>
-Date: Wed, 10 Nov 2004 21:53:00 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: prasanna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com>
-In-Reply-To: <20041110104914.GA3825@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------060304050306020100090409"
-X-AV-Checked: ClamAV using ClamSMTP
+	Wed, 10 Nov 2004 13:57:12 -0500
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:53383 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S262095AbUKJS5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 13:57:02 -0500
+Subject: 2.6.9 CIFS oops
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-15
+Date: Wed, 10 Nov 2004 19:55:41 +0100
+Message-Id: <1100112941.4678.26.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060304050306020100090409
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Hi.
+Does anyone have an idea how what the problem is ? When I mount a cifs
+share then put this notebook to sleep and then later on try to acces
+that share the task hangs... also umount does not work and a mount -
+while the umount process hangs - then causes this oops (aswell as any
+access to that share then...)
 
-Prasanna S Panchamukhi wrote:
->> With kprobes enabled, vm86 doesn't feel
->> good. The problem is that kprobes steal
->> the interrupts (mainly int3 I think) from
->> it for no good reason.
-> If the int3 is not registered through kprobes,
-> kprobes handler does not handle it and it falls through the
-> normal int3 handler AFAIK.
-I was considering this, but I convinced
-myself that checking the VM flag is good
-in any case, because, as I presume, you
-never need the interrupts from v86. Or do
-you?
-If there is a bug in kprobes, it would be
-good to fix either, but I just think it
-will not make my patch completely useless.
+oopses from 2 sessions follow.
 
-> Could you please provide a test case to show that kprobes 
-> steals the interrupts.
-Sure, attached. But it is not perfect: on
-the patched kernel it passes the test, but
-on the unpatched one (2.6.9), it just Oopses
-the kernel without printing any reasonable
-diagnostic. Because of the Oops, I can't
-demonstrate the interrupt theft right away,
-but I hope the test-case for the Oops in
-kprobe_exceptions_notify() may also be
-interesting for you.
+Soeren
 
+====snip====
+Machine check in kernel mode.
+Caused by (from SRR1=141000): Transfer error ack signal
+Oops: machine check, sig: 7 [#1]
+NIP: 00012B5C LR: 000003A4 SP: DC971CA0 REGS: dc971bf0 TRAP: 0200    Not tainted
+MSR: 00141000 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 00
+TASK = d863cdb0[10750] 'cifsd' THREAD: dc970000Last syscall: -1 
+GPR00: 00000182 DC971CA0 D863CDB0 00000405 00000000 157BE000 9926234C 40000000 
+GPR08: DB769000 00009032 42000000 1C971CA0 C0013908 1001BA00 100270B8 C04BCF14 
+GPR16: DC971F80 D863CDB0 00000001 00000000 00000000 DC971FA0 00000037 C0390000 
+GPR24: DA54B830 00000037 C0390000 CC1DC0CC 00000037 00000037 00000037 DC971FB8 
+NIP [00012b5c] 0x12b5c
+LR [000003a4] 0x3a4
+Call trace:
+ [24828248] 0x24828248
+ [c02b0238] skb_copy_datagram_iovec+0x54/0x23c
+ [c02d4f5c] tcp_recvmsg+0x538/0x6b8
+ [c02acd94] sock_common_recvmsg+0x3c/0x60
+ [c02a8e88] sock_recvmsg+0x114/0x11c
+ [c02a8ec8] kernel_recvmsg+0x38/0x50
+ [c0137e30] cifs_demultiplex_thread+0x544/0x85c
+ [c000940c] kernel_thread+0x44/0x60
+eth0: Link down
+PHY ID: 2060e1, addr: 0
+====snip====
 
---------------060304050306020100090409
-Content-Type: text/x-csrc;
- name="trap.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="trap.c"
+====snip====
+ CIFS VFS: Invalid size or format for SMB found with length 36 and pdu_lenght 65343
+Received Data is: : dump of 37 bytes of data at 0xe37881c0
 
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <sys/mman.h>
+ 0000ff3b ff534d42 2e000000 008001c8 . . ÿ ; ÿ S M B . . . . . . . È
+ 00000000 00000000 00000000 0100bd6b . . . . . . . . . . . . . . ½ k
+ 64000ec5 005a5a5a d . . Å .
+ CIFS VFS: No response buffer
+Oops: kernel access of bad area, sig: 11 [#1]
+NIP: C0145A5C LR: C0145A00 SP: D3BADE20 REGS: d3badd70 TRAP: 0300    Not tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 6B6B6BD3, DSISR: 40000000
+TASK = da0ca790[27610] 'ls' THREAD: d3bac000Last syscall: 197 
+GPR00: 000102EB D3BADE20 DA0CA790 DDD04A9C DA1A5CCE 00000003 DFC35D4B C04C0000 
+GPR08: C04C0000 6B6B6B6B 00000000 DFB53564 28000282 1002D000 100C0000 100A0000 
+GPR16: 00000000 100F1F08 10020000 10020000 10020000 10020000 10020000 00000000 
+GPR24: C04C0000 00000000 00000000 DFC35D48 000003D9 D80C37B8 DDD04A74 C658D544 
+NIP [c0145a5c] cifs_revalidate+0xe8/0x3c8
+LR [c0145a00] cifs_revalidate+0x8c/0x3c8
+Call trace:
+ [c0145d5c] cifs_getattr+0x20/0x54
+ [c006f924] vfs_getattr+0x68/0xd8
+ [c006fa9c] vfs_fstat+0x38/0x5c
+ [c0070340] sys_fstat64+0x20/0x58
+ [c0005fa0] ret_from_syscall+0x0/0x44
+Oops: kernel access of bad area, sig: 11 [#2]
+NIP: C0145A5C LR: C0145A00 SP: D3BADE20 REGS: d3badd70 TRAP: 0300    Not tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 6B6B6BD3, DSISR: 40000000
+TASK = da0ca790[27611] 'ls' THREAD: d3bac000Last syscall: 197 
+GPR00: 000111CA D3BADE20 DA0CA790 DDD04A9C DA1A5CCE 00000003 E1A322CF C04C0000 
+GPR08: C04C0000 6B6B6B6B 00000000 DFB53564 28000282 1002D000 100C0000 100A0000 
+GPR16: 00000000 10228408 10020000 10020000 10020000 10020000 10020000 00000000 
+GPR24: C04C0000 00000000 00000000 E1A322CC 000003DA D80C37B8 DDD04A74 C658D544 
+NIP [c0145a5c] cifs_revalidate+0xe8/0x3c8
+LR [c0145a00] cifs_revalidate+0x8c/0x3c8
+Call trace:
+ [c0145d5c] cifs_getattr+0x20/0x54
+ [c006f924] vfs_getattr+0x68/0xd8
+ [c006fa9c] vfs_fstat+0x38/0x5c
+ [c0070340] sys_fstat64+0x20/0x58
+ [c0005fa0] ret_from_syscall+0x0/0x44
+Oops: kernel access of bad area, sig: 11 [#3]
+NIP: C0145A5C LR: C0145A00 SP: D4413DE0 REGS: d4413d30 TRAP: 0300    Not tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 6B6B6BD3, DSISR: 40000000
+TASK = e76e1330[27544] 'bash' THREAD: d4412000Last syscall: 195 
+GPR00: 00012132 D4413DE0 E76E1330 DDD04A9C DA1A5CCE 00000003 DFC3563F C04C0000 
+GPR08: C04C0000 6B6B6B6B 00000000 DFB53564 22222482 100CC1D0 100C0000 100A0000 
+GPR16: 00000000 10221FE8 24222482 100C0000 10205B88 10204368 100C0000 00000000 
+GPR24: C04C0000 00000000 00000000 DFC3563C 000003DB D80C37B8 DDD04A74 C658D544 
+NIP [c0145a5c] cifs_revalidate+0xe8/0x3c8
+LR [c0145a00] cifs_revalidate+0x8c/0x3c8
+Call trace:
+ [c0145d5c] cifs_getattr+0x20/0x54
+ [c006f924] vfs_getattr+0x68/0xd8
+ [c006f9ec] vfs_stat+0x58/0x68
+ [c0070290] sys_stat64+0x20/0x58
+ [c0005fa0] ret_from_syscall+0x0/0x44
+===snip===
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
 
-#include <linux/unistd.h>
-#include <asm/vm86.h>
-
-_syscall2(int, vm86, int, func, struct vm86plus_struct *, v86)
-
-static inline void set_bit(uint8_t *a, unsigned int bit)
-{
-    a[bit / 8] |= (1 << (bit % 8));
-}
-
-static inline uint8_t *seg_to_linear(unsigned int seg, unsigned int reg)
-{
-    return (uint8_t *)((seg << 4) + (reg & 0xffff));
-}
-
-int main()
-{
-    uint8_t *vm86_mem;
-    int ret, seg, arg, insn;
-    struct vm86plus_struct ctx;
-    struct vm86_regs *r;
-
-    vm86_mem = mmap((void *)0x00000000, 0x110000, 
-                    PROT_WRITE | PROT_READ | PROT_EXEC, 
-                    MAP_FIXED | MAP_ANON | MAP_PRIVATE, -1, 0);
-    if (vm86_mem == MAP_FAILED) {
-        perror("mmap");
-        return 1;
-    }
-
-    memset(&ctx, 0, sizeof(ctx));
-    /* init basic registers */
-    r = &ctx.regs;
-    r->eip = 0x100;
-    r->esp = 0xfffe;
-    seg = 256;
-    r->cs = seg;
-    r->ss = seg;
-    r->ds = seg;
-    r->es = seg;
-    r->fs = seg;
-    r->gs = seg;
-    r->eflags = VIF_MASK;
-
-    /* put return code */
-    set_bit((uint8_t *)&ctx.int_revectored, 3);
-    *seg_to_linear(r->cs, r->eip) = 0xcc;	/* int3 */
-    *seg_to_linear(r->cs, r->eip + 1) = 0xf4;	/* hlt */
-
-do_vm86:
-    ret = vm86(VM86_ENTER, &ctx);
-    arg = VM86_ARG(ret);
-    insn = *seg_to_linear(r->cs, r->eip);
-    switch(VM86_TYPE(ret)) {
-        case VM86_INTx:
-	    printf("vm86: INT 0x%x\n", VM86_ARG(ret));
-            break;
-        case VM86_STI:
-        case VM86_SIGNAL:
-            /* a signal came, we just ignore that */
-	    goto do_vm86;
-            break;
-        case VM86_TRAP:
-	    if (arg == 3)
-		printf("vm86: Trap 3 - All OK\n");
-	    else
-		printf("Unknown trap %#x\n", arg);
-	    break;
-        case VM86_UNKNOWN:
-	    if (insn == 0xf4)
-		printf("vm86: HLT, test failed\n");
-	    else
-		printf("vm86: unknown result, insn=%#x\n", insn);
-        default:
-            fprintf(stderr, "unhandled vm86 return code (0x%x)\n", ret);
-    }
-    return 0;
-}
-
---------------060304050306020100090409--

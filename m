@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319427AbSILEGg>; Thu, 12 Sep 2002 00:06:36 -0400
+	id <S319428AbSILEJZ>; Thu, 12 Sep 2002 00:09:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319428AbSILEGg>; Thu, 12 Sep 2002 00:06:36 -0400
-Received: from server10.safepages.com ([216.127.146.24]:55057 "EHLO
-	server10.safepages.com") by vger.kernel.org with ESMTP
-	id <S319427AbSILEGf>; Thu, 12 Sep 2002 00:06:35 -0400
-To: linux-kernel@vger.kernel.org
-Subject: fix to drivers/sound/mad16.c cleanup 2.4.19 [PATCH] 
-From: Greg Alexander <galexand@yossman.net>
-Date: Thu, 12 Sep 2002 00:14:17 -0400
-Message-Id: <E17pLMv-0000MT-00@localhost>
+	id <S319429AbSILEJZ>; Thu, 12 Sep 2002 00:09:25 -0400
+Received: from smtp4.us.dell.com ([143.166.148.135]:5577 "EHLO
+	smtp4.us.dell.com") by vger.kernel.org with ESMTP
+	id <S319428AbSILEJY>; Thu, 12 Sep 2002 00:09:24 -0400
+Date: Wed, 11 Sep 2002 23:13:17 -0500 (CDT)
+From: Matt Domsch <Matt_Domsch@Dell.com>
+X-X-Sender: mdomsch@humbolt.us.dell.com
+Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
+To: jw schultz <jw@pegasys.ws>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: the userspace side of driverfs
+In-Reply-To: <20020912012552.GF10315@pegasys.ws>
+Message-ID: <Pine.LNX.4.44.0209112254260.17242-100000@humbolt.us.dell.com>
+X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
+X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings!
+> The main ideal that we're shooting for is to have one ASCII value per
+> file. The ASCII part is mandatory, but there will definitely be exceptions
+> where we will have an array of or multiple values per file. We want to
+> minimize those instances, though. Both for the sake of easy parsing, but
+> also for easy formatting within the drivers.
 
-drivers/sound/mad16.c failed to cleanup the gameport when removing
-the module, resulting in the ioport never getting freed up and
-   cat /proc/ioports
-causes a kernel OOPS from then on.
+On IA-64, I've got the arch/ia64/kernel/efivars.c module that exports
+/proc/efi/vars/{NVRAM-variables}.  It violates several rules of /proc
+which I'd like to address in 2.5.x via driverfs.
+1) It's in /proc but isn't process-related.
+2) It exports its data as binary, not ascii.
 
-I am not a veteran kernel hacker but I'm pretty sure the attached
-patch is sound...
+Proc was chosen because it was simple, didn't require a major/minor
+number, showed easily the set of NVRAM variables that were available
+without needing a separate program to go and query a /dev/efivars file
+to list them; cat and tar are sufficient for making copies of
+variables and restoring them back again.  These exact features make
+driverfs make sense too.
 
-This patch is against 2.4.19 but my suspicion is that it's relevant
-in 2.5 as well (probably no changes).  It's not in 2.2 because the
-joystick driver in that setup is completely separate from the mad16
-driver.
+1) is easy to fix.  2) a little less so.  The data structure being
+exported is a little over 2KB in length; The data is binary (itself a
+variable length set of structures each with no ascii representation).
+An ascii representation in "%02x" format will be longer than a 4K page
+given to fill out and return.  Undoubtedly there's a better way to
+handle this, and I'm open to suggestions.  The thing being exported is
+efi_variable_t.
 
-Please email me if you have any questions/comments.  I do not
-generally read lkml.
+For such cases where the data being exported is really binary,
+having a common set of parse/unparse routines would be nice. 
 
-While we're on this note, anyone care to guess why my SBPCD drive
-stopped working when I upgraded from 2.2.19 to 2.4.19?  It looks like
-I'm passing the correct params to mad16 to initialize the cd-rom drive..
-i don't want to have to go out and buy a new cd-rom so soon! :)
+-Matt
 
-Thanks everybody!  - greg
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1-2/2002! (IDC Aug 2002)
 
-p.s. isn't it about time for a feature freeze on 2.4.19?  I would
-have thought after waiting so long all the details should be settling
-down by now.
-
-I hope it's alright to plain-text attach...
-
---- drivers/sound/mad16.c	2002/09/12 02:15:25
-+++ drivers/sound/mad16.c	2002/09/12 02:19:49
-@@ -1051,6 +1051,12 @@
- {
- 	if (found_mpu)
- 		unload_mad16_mpu(&cfg_mpu);
-+	if (gameport.io) {
-+		/* the gameport was initialized so we must free it up */
-+		gameport_unregister_port(&gameport);
-+		gameport.io = 0;
-+		release_region(0x201, 1);
-+	}
- 	unload_mad16(&cfg);
- }
- 

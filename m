@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267688AbTA1TMP>; Tue, 28 Jan 2003 14:12:15 -0500
+	id <S265099AbTA1Tiu>; Tue, 28 Jan 2003 14:38:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267690AbTA1TMP>; Tue, 28 Jan 2003 14:12:15 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:45062 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267688AbTA1TMO>;
-	Tue, 28 Jan 2003 14:12:14 -0500
-Date: Tue, 28 Jan 2003 20:20:46 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] new modversions implementation
-Message-ID: <20030128192046.GA1173@mars.ravnborg.org>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20030125215637.GA3571@mars.ravnborg.org> <20030128091625.4790C2C2AC@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030128091625.4790C2C2AC@lists.samba.org>
-User-Agent: Mutt/1.4i
+	id <S267652AbTA1Tiu>; Tue, 28 Jan 2003 14:38:50 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:31112 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265099AbTA1Tiu>;
+	Tue, 28 Jan 2003 14:38:50 -0500
+Date: Tue, 28 Jan 2003 11:42:05 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+In-Reply-To: <20030122080322.GB3466@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.33L2.0301281139570.30636-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 06:06:17PM +1100, Rusty Russell wrote:
-> > 
-> > The member "num_syms" says something about number of symbols,
-> > but is contains the syms_size. Misleading name.
-> 
-> I think you've missed the declaration:
-> 
-> extern const struct kernel_symbol __start___ksymtab[];
+On Wed, 22 Jan 2003, Jamie Lokier wrote:
 
-Yep, for a second I forgot about pointer aritmetics and starting
-considering (void *).
-Kai already pointed out this to me :-(
+| ps.  sys_* system-call functions should never return "int".  They
+| should always return "long" or a pointer - even if the user-space
+| equivalent returns "int".  Take a look at sys_open() for an example.
+| Technical requirement of the system call return path on 64-bit targets.
 
-	Sam
+Is this a blanket truism?  For all architectures?
+
+Should current (older/all) syscalls be modified, or should only new ones
+(like epoll) be corrected?
+
+Thanks,
+-- 
+~Randy
+

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275644AbRIZVy6>; Wed, 26 Sep 2001 17:54:58 -0400
+	id <S275650AbRIZV6I>; Wed, 26 Sep 2001 17:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275646AbRIZVys>; Wed, 26 Sep 2001 17:54:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16137 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275644AbRIZVyk>; Wed, 26 Sep 2001 17:54:40 -0400
-Subject: Re: Binary only module overview
-To: ignacio@openservices.net (Ignacio Vazquez-Abrams)
-Date: Wed, 26 Sep 2001 22:58:35 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109261743400.27586-100000@terbidium.openservices.net> from "Ignacio Vazquez-Abrams" at Sep 26, 2001 05:45:31 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S275649AbRIZV56>; Wed, 26 Sep 2001 17:57:58 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:11249 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S275648AbRIZV5n>;
+	Wed, 26 Sep 2001 17:57:43 -0400
+Date: Wed, 26 Sep 2001 23:58:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10aa1 - 0-order allocation failed.
+Message-ID: <20010926235817.W27945@athlon.random>
+In-Reply-To: <20010926233451.V27945@athlon.random> <Pine.LNX.4.21.0109261722010.957-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15mMhP-00021p-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0109261722010.957-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Wed, Sep 26, 2001 at 05:24:28PM -0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What about programs that include header files from /usr/include/linux,
-> /usr/include/asm, and/or /usr/include/scsi?
+On Wed, Sep 26, 2001 at 05:24:28PM -0300, Marcelo Tosatti wrote:
+> 
+> 
+> On Wed, 26 Sep 2001, Andrea Arcangeli wrote:
+> 
+> 
+> <snip>
+> 
+> > > Andrea, 
+> > > 
+> > > This is going to make __GFP_NOFS allocations call writepage(): deadlock. 
+> > 
+> > (side note: I assume you mean GFP_NOFS)
+> > 
+> > GFP_NOFS will never call writepage with the above change, obviously
+> > because __GFP_FS isn't set. So it can't deadlock.
+> 
+> if ((gfp_mask & __GFP_FS) && ((gfp_mask & __GFP_HIGHIO) || !PageHighMem(page)) && writepage) {
+			    ^^
+> 					
+> 							^^ ^^^^^  ^^^^     ^^^^^
+> 
+> If the page is not highmem, we are going to write the page. (independantly
+> of any GFP flag)
+> 
+> I'm I over looking something ? 
 
-I believe you cannot copyright an interface just an implementation of it.
-I suspect someone more familiar in law can give the required precise info
-on that boundary
+the && on the left of the (((gfp_mask & __GFP_HIGHIO) || !PageHighMem(page)).
 
-That is the security layer issue is one of "does it depend on the linux
-kernel to work, is it deriving from the kernel and the GPL'd module for
-security plugins" not about the precise structs and #defines.
-
-Given the SSSCA we have to be very clear on this issue, and if its not clear
-I might be best to kill the entire uncertainty by not including the LSM
-patch in Linux until the US government returns to sanity
+Andrea

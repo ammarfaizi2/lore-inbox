@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265196AbTAXUNC>; Fri, 24 Jan 2003 15:13:02 -0500
+	id <S265134AbTAXUSN>; Fri, 24 Jan 2003 15:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265276AbTAXUNB>; Fri, 24 Jan 2003 15:13:01 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:13757 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S265196AbTAXUNA>; Fri, 24 Jan 2003 15:13:00 -0500
-Message-ID: <3E31A06B.6020508@bogonomicon.net>
-Date: Fri, 24 Jan 2003 14:22:03 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Byron Stanoszek <gandalf@winds.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] linux-2.4.21-pre3-ac4 @ free_pages_ok()
-References: <Pine.LNX.4.44.0301240958340.15579-100000@winds.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265190AbTAXUSN>; Fri, 24 Jan 2003 15:18:13 -0500
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:55563 "EHLO
+	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S265134AbTAXUSM>; Fri, 24 Jan 2003 15:18:12 -0500
+Date: Fri, 24 Jan 2003 15:24:53 -0500
+From: "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       "David S. Miller" <davem@redhat.com>, willy@debian.org,
+       linux-kernel@vger.kernel.org, Jeff Wiedemeier <Jeff.Wiedemeier@hp.com>
+Subject: Re: [patch 2.5] tg3.c: pci_{save,restore}_extended_state
+Message-ID: <20030124152453.A4081@dsnt25.mro.cpqcorp.net>
+References: <20030124212748.C25285@jurassic.park.msu.ru> <20030124193135.GA30884@gtf.org> <20030124150006.A2882@dsnt25.mro.cpqcorp.net> <20030124200538.GB30884@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030124200538.GB30884@gtf.org>; from jgarzik@pobox.com on Fri, Jan 24, 2003 at 03:05:38PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually a patch is already out there.
+On Fri, Jan 24, 2003 at 03:05:38PM -0500, Jeff Garzik wrote:
+> On Fri, Jan 24, 2003 at 03:00:06PM -0500, Wiedemeier, Jeff wrote:
+> > The problem is that if the chip is configured for MSI (through config
+> > space) and the platform's irq mapping code therefore filled in
+> > pci_dev->irq with an appropriate vector for the MSI interrupt the chip
+> > is assigned instead of the LSI interrupt it may also be assigned, then
+> > unless MSGINT_MODE matches PCI_MSI_FLAGS_ENABLE, the driver will grab
+> > wrong interrupt.
+> 
+> That implies we should be disabling PCI_MSI_FLAGS_ENABLE when we first
+> initialize each board, if hardware reset does not automatically do that
+> for us...
 
-From: hugh@veritas.com
-Subject: [PATCH] 2.4.21-pre3-ac oops
+A true hardware reset does reset this bit. It should only be disabled
+arbitrarily if the intent is to *never* use MSI. 
 
+The PCI 2.2 spec states about PCI_MSI_FLAGS_ENABLE:
 
---- 2.4.21-pre3-ac4/kernel/fork.c	Mon Jan 13 18:56:12 2003
-+++ linux/kernel/fork.c	Sun Jan 19 13:39:37 2003
-@@ -688,6 +688,8 @@
-  	p->lock_depth = -1;		/* -1 = no lock */
-  	p->start_time = jiffies;
+    If 1, the function is permitted to use MSI to request service
+    and is prohibited from using it's INTx# pin (if implemented).
 
-+ 
-INIT_LIST_HEAD(&p->local_pages);
-+
-  	retval = -ENOMEM;
-  	/* copy all the process information */
-  	if (copy_files(clone_flags, p))
+The fact that the tg3 has an extra config register that has to be set on
+top of this is not consistent with the spec. 
 
+If the intent is to just not use MSI on tg3 devices, I can use the pci
+quirks to make sure that MSI gets turned off for tg3 devices.
 
--- Bryan
-
-Byron Stanoszek wrote:
-> I've seen this oops report before, but since nobody's posted a fix for it or
-> anything, I figured I'll post the one I saw. I got a series of two oopses after
-> untarring a 200MB tarfile. (The system has 512MB of memory and was recently
-> booted into 2.4.21-pre3-ac4).  Here they are, plus boot-dmesg at the bottom.
-
+/jeff

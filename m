@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265239AbRFUVSP>; Thu, 21 Jun 2001 17:18:15 -0400
+	id <S265237AbRFUVVF>; Thu, 21 Jun 2001 17:21:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265238AbRFUVSF>; Thu, 21 Jun 2001 17:18:05 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:37892 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S265236AbRFUVR5>; Thu, 21 Jun 2001 17:17:57 -0400
-Date: Thu, 21 Jun 2001 16:17:49 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010621170534.F23465@pimlott.ne.mediaone.net>
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <E15D9DP-0001sF-00@the-village.bc.nu> 
-	<20010621151716.B5662@thyrsus.com> <20010621155103.B23465@pimlott.ne.mediaone.net> 
-	<20010621161322.A6873@thyrsus.com> <20010621161322.A6873@thyrsus.com> 
-	<20010621164625.E23465@pimlott.ne.mediaone.net> <pg4C1B.A.WWC.7DmM7@dinero.interactivesi.com> 
-	<pg4C1B.A.WWC.7DmM7@dinero.interactivesi.com> ; from ttabi@interactivesi.com on Thu, Jun 21, 2001 at 04:02:49PM -0500
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <a_xr5.A.nFE.-RmM7@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S265236AbRFUVUz>; Thu, 21 Jun 2001 17:20:55 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:56494 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265237AbRFUVUm>;
+	Thu, 21 Jun 2001 17:20:42 -0400
+Message-ID: <XFMail.20010621142352.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="_=XFMail.1.4.7.Linux:20010621142352:1037=_"
+In-Reply-To: <XFMail.20010621123002.davidel@xmailserver.org>
+Date: Thu, 21 Jun 2001 14:23:52 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: RE: do_select() improvement ...
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Andrew Pimlott <andrew@pimlott.ne.mediaone.net> on
-Thu, 21 Jun 2001 17:05:34 -0400
+This message is in MIME format
+--_=XFMail.1.4.7.Linux:20010621142352:1037=_
+Content-Type: text/plain; charset=us-ascii
 
 
-> Sorry, I meant to say "chooser of the license".  Given that Linux
-> was never an FSF project, and that Linus editorializes at the top of
-> COPYING, I think it is reasonable to infer that we are talking about
-> his interpretation of the GPL.
-
-And my point is that by making such a public, far-reaching interpretation of
-the GPL, a lawyer in court could argue that his interpretation should be THE
-interpretation.  I believe that judges have made interpretations of a law based
-solely on how the law is practiced, to avoid situations where everyone affected
-by that law has to change what he's doing.
+On 21-Jun-2001 Davide Libenzi wrote:
+>                         off = i / __NFDBITS;
+> !                       if (!(i & (__NFDBITS - 1))) {
+> !                               bits = BITS(fds, off);
+> !                               if (!bits) {
+> !                                       i += __NFDBITS;
+> !                                       continue;
+> !                               }
 
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
+This is wrong.
 
+
+
+>                         off = i / __NFDBITS;
+> !                       if (!(i & (__NFDBITS - 1))) {
+> !                               bits = BITS(fds, off);
+> !                               if (!bits) {
+> !                                       i += __NFDBITS - 1;
+> !                                       continue;
+> !                               }
+
+This is right.
+
+
+
+
+
+- Davide
+
+
+--_=XFMail.1.4.7.Linux:20010621142352:1037=_
+Content-Disposition: attachment; filename="select.c.diff"
+Content-Transfer-Encoding: base64
+Content-Description: select.c.diff
+Content-Type: application/octet-stream; name=select.c.diff; SizeOnDisk=597
+
+LS0tIHNlbGVjdC5vcmlnLmMJVGh1IEp1biAyMSAwODo1MjowNCAyMDAxCisrKyBzZWxlY3QuYwlU
+aHUgSnVuIDIxIDEyOjA5OjI1IDIwMDEKQEAgLTE2NSw2ICsxNjUsNyBAQAogCXBvbGxfdGFibGUg
+dGFibGUsICp3YWl0OwogCWludCByZXR2YWwsIGksIG9mZjsKIAlsb25nIF9fdGltZW91dCA9ICp0
+aW1lb3V0OworCXVuc2lnbmVkIGxvbmcgYml0czsKIAogIAlyZWFkX2xvY2soJmN1cnJlbnQtPmZp
+bGVzLT5maWxlX2xvY2spOwogCXJldHZhbCA9IG1heF9zZWxlY3RfZmQobiwgZmRzKTsKQEAgLTE4
+Nyw3ICsxODgsMTQgQEAKIAkJCXN0cnVjdCBmaWxlICpmaWxlOwogCiAJCQlvZmYgPSBpIC8gX19O
+RkRCSVRTOwotCQkJaWYgKCEoYml0ICYgQklUUyhmZHMsIG9mZikpKQorCQkJaWYgKCEoaSAmIChf
+X05GREJJVFMgLSAxKSkpIHsKKwkJCQliaXRzID0gQklUUyhmZHMsIG9mZik7CisJCQkJaWYgKCFi
+aXRzKSB7CisJCQkJCWkgKz0gX19ORkRCSVRTIC0gMTsKKwkJCQkJY29udGludWU7CisJCQkJfQor
+CQkJfQorCQkJaWYgKCEoYml0ICYgYml0cykpCiAJCQkJY29udGludWU7CiAJCQlmaWxlID0gZmdl
+dChpKTsKIAkJCW1hc2sgPSBQT0xMTlZBTDsK
+
+--_=XFMail.1.4.7.Linux:20010621142352:1037=_--
+End of MIME message

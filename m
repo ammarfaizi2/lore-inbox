@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbTAPTBZ>; Thu, 16 Jan 2003 14:01:25 -0500
+	id <S267217AbTAPSyE>; Thu, 16 Jan 2003 13:54:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267242AbTAPTBZ>; Thu, 16 Jan 2003 14:01:25 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:9234 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267241AbTAPTBY>; Thu, 16 Jan 2003 14:01:24 -0500
-Date: Thu, 16 Jan 2003 19:10:09 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Robert Love <rml@tech9.net>, Erich Focht <efocht@ess.nec.de>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
+	id <S267218AbTAPSyE>; Thu, 16 Jan 2003 13:54:04 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:31122 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S267217AbTAPSyB>;
+	Thu, 16 Jan 2003 13:54:01 -0500
+Date: Thu, 16 Jan 2003 20:07:09 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Erich Focht <efocht@ess.nec.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
        Michael Hohnbaum <hohnbaum@us.ibm.com>,
        Andrew Theurer <habanero@us.ibm.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH 2.5.58] new NUMA scheduler: fix
-Message-ID: <20030116191009.A25749@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-	Erich Focht <efocht@ess.nec.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Michael Hohnbaum <hohnbaum@us.ibm.com>,
-	Andrew Theurer <habanero@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	lse-tech <lse-tech@lists.sourceforge.net>
-References: <1042740441.826.55.camel@phantasy> <Pine.LNX.4.44.0301162006280.9051-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0301162006280.9051-100000@localhost.localdomain>; from mingo@elte.hu on Thu, Jan 16, 2003 at 08:07:09PM +0100
+In-Reply-To: <1042740441.826.55.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0301162006280.9051-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 08:07:09PM +0100, Ingo Molnar wrote:
-> well, it needs to settle down a bit more, we are technically in a
-> codefreeze :-)
 
-We're in feature freeze.  Not sure whether fixing the scheduler for
-one type of hardware supported by Linux is a feature 8)
+On 16 Jan 2003, Robert Love wrote:
 
-Anyway, patch 1 should certainly merged ASAP, for the other we can wait
-a bit more to settle, but I don't think it's really worth the wait.
+> > Fine. This form is also nearer to the codingstyle rule: "functions
+> > should do only one thing" (I'm reading those more carefully now ;-)
+> 
+> Good ;)
+> 
+> This is looking good.  Thanks hch for going over it with your fine tooth
+> comb.
+> 
+> Erich and Martin, what more needs to be done prior to inclusion?  Do you
+> still want an exec balancer in place?
+
+well, it needs to settle down a bit more, we are technically in a
+codefreeze :-)
+
+	Ingo
 

@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268002AbUHKJBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268003AbUHKJEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268002AbUHKJBX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 05:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbUHKJBX
+	id S268003AbUHKJEG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 05:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268000AbUHKJEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 05:01:23 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:44217 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268002AbUHKJBS (ORCPT
+	Wed, 11 Aug 2004 05:04:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38085 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268003AbUHKJEC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 05:01:18 -0400
-Date: Wed, 11 Aug 2004 10:25:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-Message-ID: <20040811082536.GA6528@elte.hu>
-References: <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <1092174959.5061.6.camel@mindpipe> <20040811073149.GA4312@elte.hu> <20040811074256.GA5298@elte.hu> <1092210765.1650.3.camel@mindpipe>
+	Wed, 11 Aug 2004 05:04:02 -0400
+Subject: Re: Allow userspace do something special on overtemp
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Pavel Machek <pavel@suse.cz>
+Cc: trenn@suse.de, seife@suse.de, kernel list <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+In-Reply-To: <20040811085326.GA11765@elf.ucw.cz>
+References: <20040811085326.GA11765@elf.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-moTQIL0PlhLuPEvjykgn"
+Organization: Red Hat UK
+Message-Id: <1092215024.2816.8.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092210765.1650.3.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 11 Aug 2004 11:03:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+--=-moTQIL0PlhLuPEvjykgn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > (another thing: could you turn on CONFIG_DEBUG_HIGHMEM,
-> > CONFIG_DEBUG_SPINLOCK and CONFIG_DEBUG_SPINLOCK_SLEEP? Lets make sure
-> > that what we are seeing here is not somehow caused by atomicity
-> > violations.)
-> 
-> I have highmem disabled per your previous request.  Should I turn it
-> back on?
+On Wed, 2004-08-11 at 10:53, Pavel Machek wrote:
+> Hi!
+>=20
+> This patch cleans up thermal.c a bit, and adds possibility to react to
+> critical overtemp: it tries to call /sbin/overtemp, and only if that
+> fails calls /sbin/poweroff.
 
-nope, please keep it disabled still. (You can turn the C3 CPU option
-back on though, it doesnt seem to have any impact on latency.)
+why not call /sbin/hotplug ????
 
-then it's just the spinlock debugging options that should be enabled. 
-(they make sense on UP kernels too, if CONFIG_PREEMPT is enabled.)
 
-	Ingo
+--=-moTQIL0PlhLuPEvjykgn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBGeDwxULwo51rQBIRApPIAJ4jZhDdgFHexNtyk/EY925BaxZMeACeLJQ1
+q00WiK62AZWPDG33rhe6oyM=
+=+qKO
+-----END PGP SIGNATURE-----
+
+--=-moTQIL0PlhLuPEvjykgn--
+

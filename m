@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131142AbQKPRtB>; Thu, 16 Nov 2000 12:49:01 -0500
+	id <S131200AbQKPRtv>; Thu, 16 Nov 2000 12:49:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131200AbQKPRsv>; Thu, 16 Nov 2000 12:48:51 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:23312 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131142AbQKPRsn>;
-	Thu, 16 Nov 2000 12:48:43 -0500
-Date: Thu, 16 Nov 2000 18:18:40 +0100
-From: Andi Kleen <ak@suse.de>
-To: Nishant Rao <nishant@cs.utexas.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Setting IP Options in the IP-Header
-Message-ID: <20001116181840.A18222@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.21.0011161111210.5572-100000@crom.cs.utexas.edu>
-Mime-Version: 1.0
+	id <S131230AbQKPRtl>; Thu, 16 Nov 2000 12:49:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35388 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131200AbQKPRth>; Thu, 16 Nov 2000 12:49:37 -0500
+Subject: Re: Local root exploit with kmod and modutils > 2.1.121
+To: kuznet@ms2.inr.ac.ru
+Date: Thu, 16 Nov 2000 17:19:45 +0000 (GMT)
+Cc: alan@lxorguk.UKuu.ORG.UK (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200011161705.UAA03238@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Nov 16, 2000 08:05:05 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011161111210.5572-100000@crom.cs.utexas.edu>; from nishant@cs.utexas.edu on Thu, Nov 16, 2000 at 11:11:45AM -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13wShQ-000860-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.UKuu.ORG.UK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 16, 2000 at 11:11:45AM -0600, Nishant Rao wrote:
-> Hi,
+> It checks CAP_SYS_MODULE nowadays.
 > 
-> We are conducting some research that involves setting our custom data as
-> a new IP option in the IP header (in the options field) of every packet.
-> 
-> We have poured over the source code but it is quite confusing to figure
-> out how the details of the way the options field is split among various
-> options (ie. offsets etc). Can anyone help us figure out how to add new
-> custom options into the IP header ? 
+> Which does not look good by the way, it is function of request_module(),
+> rather than of caller.
 
-man ip(7), see the IP_OPTIONS socket option.
+Only the caller knows if the data is tainted. Thus only the caller can decide
 
-Linux only echoes received options, but never sets them by default unless that 
-socket option is specified. So it depends on the application and/or the sender.
-
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

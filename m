@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312270AbSCTXIb>; Wed, 20 Mar 2002 18:08:31 -0500
+	id <S312268AbSCTXIb>; Wed, 20 Mar 2002 18:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312268AbSCTXIV>; Wed, 20 Mar 2002 18:08:21 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:63440 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S312267AbSCTXIK>; Wed, 20 Mar 2002 18:08:10 -0500
-Date: Wed, 20 Mar 2002 15:04:42 -0800
-From: Russ Weight <rweight@us.ibm.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: mingo@elte.hu, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Scalable CPU bitmasks
-Message-ID: <20020320150442.A1264@us.ibm.com>
-In-Reply-To: <20020318140700.A4635@us.ibm.com> <200203190728.g2J7Srq31344@Port.imtp.ilyichevsk.odessa.ua>
+	id <S312267AbSCTXIW>; Wed, 20 Mar 2002 18:08:22 -0500
+Received: from 217-127-135-237.uc.nombres.ttd.es ([217.127.135.237]:35312 "EHLO
+	pulp.ibd.es") by vger.kernel.org with ESMTP id <S312266AbSCTXIK>;
+	Wed, 20 Mar 2002 18:08:10 -0500
+Subject: [PATCH] Too much debug info from ide-tape
+From: Alfredo =?ISO-8859-1?Q?Sanju=E1n?= <alfre@IBD.es>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 21 Mar 2002 00:06:35 +0100
+Message-Id: <1016665600.1831.13.camel@den.ibd.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 09:28:25AM -0200, Denis Vlasenko wrote:
-> On 18 March 2002 20:07, Russ Weight wrote:
-> >           While systems with more than 32 processors are still
-> >   out in the future, these interfaces provide a path for gradual
-> >   code migration. One of the primary goals is to provide current
-> >   functionality without affecting performance.
-> 
-> Not so far in the future. "7.52 second kernel compile" thread is about
-> timing kernel compile on the 32 CPU SMP box.
-> 
-> I don't know whether BUG() in inlines makes them too big, but
-> _for() _loops_ in inline functions definitely do that.
-> Here's one of the overgrown inlines:
+	Hi Marcelo.
 
-I was hoping for some feedback regarding the use of BUG(). I have
-been experimenting with the patch - changing various bitmasks to 
-use this new datatype. None of them do the error checking that I am
-adding. Is it worth the overhead to have these checks at all? If
-they ever trigger, they are indicative of an error elsewhere in the
-kernel...
+	This little patch removes too much DEBUG info from
+drivers/ide/ide-tape.c. This is for vanilla 2.4.18.
 
-With respect to the for loops: For CPUMAP_SIZE > 1, most of the
-interfaces expand to a "for loop". This is a performance vs. bloat
-tradeoff. The "for-loop" versions of the functions _could_ be moved
-to a cpumap.c file under lib. Is this the recommended approach?
+--alfredo
 
-The cpumap_format() function below is probably the worst offender.
-There is no real performance value in making it an inline function...
+-------------------------------------------------------
 
-> 
-> > +static inline char *cpumap_format(cpumap_t map, char *buf, int size)
-> > +{
-> > +	if (size < CPUMAP_BUFSIZE) {
-> > +		BUG();
-> > +	}
-> > +
-> > +#if CPUMAP_SIZE > 1
-> > +	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
-> > +	{
-> > +		int i;
-> > +		char *p = buf + strlen(buf);
-> > +		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
-> > +			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
-> > +		}
-> > +	}
-> > +#else
-> > +	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
-> > +#endif
-> > +	return(buf);
-> > +}
-> --
-> vda
+diff -ur linux-2.4.18/drivers/ide/ide-tape.c linux-2.4.18new/drivers/ide/ide-tape.c
+--- linux-2.4.18/drivers/ide/ide-tape.c	Fri Dec 21 18:41:54 2001
++++ linux-2.4.18new/drivers/ide/ide-tape.c	Wed Mar 20 23:48:11 2002
+@@ -3096,10 +3096,10 @@
+ 	idetape_tape_t *tape = drive->driver_data;
+ 	idetape_read_position_result_t *result;
+ 	
+-//#if IDETAPE_DEBUG_LOG
+-//	if (tape->debug_level >= 4)
++#if IDETAPE_DEBUG_LOG
++	if (tape->debug_level >= 4)
+ 		printk (KERN_INFO "ide-tape: Reached idetape_read_position_callback\n");
+-//#endif /* IDETAPE_DEBUG_LOG */
++#endif /* IDETAPE_DEBUG_LOG */
+ 
+ 	if (!tape->pc->error) {
+ 		result = (idetape_read_position_result_t *) tape->pc->buffer;
+@@ -3273,10 +3273,10 @@
+ 	idetape_pc_t pc;
+ 	int position;
+ 
+-//#if IDETAPE_DEBUG_LOG
+-//        if (tape->debug_level >= 4)
++#if IDETAPE_DEBUG_LOG
++        if (tape->debug_level >= 4)
+ 	printk (KERN_INFO "ide-tape: Reached idetape_read_position\n");
+-//#endif /* IDETAPE_DEBUG_LOG */
++#endif /* IDETAPE_DEBUG_LOG */
+ 
+ #ifdef NO_LONGER_REQUIRED
+ 	idetape_flush_tape_buffers(drive);
 
--- 
-Russ Weight (rweight@us.ibm.com)
-Linux Technology Center
+------------------------------------------------------------------------
+

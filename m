@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268724AbUI2RCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268667AbUI2RFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268724AbUI2RCL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 13:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268723AbUI2RCL
+	id S268667AbUI2RFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 13:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUI2RFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 13:02:11 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:27274 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268667AbUI2RBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 13:01:47 -0400
-Subject: Re: PATCH: 3c59x 00:00:00:00:00:00 MAC failure
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <415AE866.7090007@pobox.com>
-References: <20040929163023.GA17899@devserv.devel.redhat.com>
-	 <20040929174530.D16537@flint.arm.linux.org.uk> <415AE866.7090007@pobox.com>
+	Wed, 29 Sep 2004 13:05:16 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:33233 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268667AbUI2RFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 13:05:01 -0400
+Subject: Re: 2.6.9-rc2-mm4 and nvidia 1.0-6111
+From: Lee Revell <rlrevell@joe-job.com>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, sboyce@blueyonder.co.uk
+In-Reply-To: <200409291355.20281.norberto+linux-kernel@bensa.ath.cx>
+References: <415A6EE6.1090404@blueyonder.co.uk>
+	 <200409291355.20281.norberto+linux-kernel@bensa.ath.cx>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096473535.15905.54.camel@localhost.localdomain>
+Message-Id: <1096477498.1400.17.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 29 Sep 2004 16:58:58 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 29 Sep 2004 13:04:58 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-29 at 17:52, Jeff Garzik wrote:
-> > Shouldn't this be using is_valid_ether_addr() ?
+On Wed, 2004-09-29 at 12:55, Norberto Bensa wrote:
+> Sid Boyce wrote:
+> > Any help appreciated, also posted to nvidia forum.
 > 
-> Yes.
+> I did revert these patches:
+> 
+> convert-references-to-remap_page_range-under-arch-and-documentation-to-remap_pfn_range.patch
+> convert-users-of-remap_page_range-under-drivers-and-net-to-use-remap_pfn_range.patch
+> convert-users-of-remap_page_range-under-include-asm--to-use-remap_pfn_range.patch
+> convert-users-of-remap_page_range-under-sound-to-use-remap_pfn_range.patch
+> for-mm-only-remove-remap_page_range-completely.patch
+> introduce-remap_pfn_range-to-replace-remap_page_range.patch
 
-Fixed in my tree - want another diff ?
+Isn't there an nvidia-linux mailing list?  This is really OT for LKML.
+
+Lee
 

@@ -1,102 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSC1CgM>; Wed, 27 Mar 2002 21:36:12 -0500
+	id <S311530AbSC1Cmc>; Wed, 27 Mar 2002 21:42:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311530AbSC1CgD>; Wed, 27 Mar 2002 21:36:03 -0500
-Received: from think.faceprint.com ([166.90.149.11]:49307 "EHLO
-	think.faceprint.com") by vger.kernel.org with ESMTP
-	id <S287817AbSC1Cfy>; Wed, 27 Mar 2002 21:35:54 -0500
-Date: Wed, 27 Mar 2002 21:35:46 -0500
-From: Nathan Walp <faceprint@faceprint.com>
-To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.7-dj2
-Message-ID: <20020328023543.GA28445@faceprint.com>
-Reply-To: faceprint@faceprint.com
-In-Reply-To: <20020328015928.A3607@suse.de>
+	id <S311547AbSC1CmW>; Wed, 27 Mar 2002 21:42:22 -0500
+Received: from ns.suse.de ([213.95.15.193]:11535 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311530AbSC1CmM>;
+	Wed, 27 Mar 2002 21:42:12 -0500
+Date: Thu, 28 Mar 2002 03:42:11 +0100
+From: Andi Kleen <ak@suse.de>
+To: linux-kernel@vger.kernel.org, announce@x86-64.org
+Subject: [ANNOUNCEMENT] New x86-64 kernel snapshot based on 2.4.19pre4 
+Message-ID: <20020328034211.A14622@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A new 2.4.19pre4 based x86-64 linux kernel snapshot has been released. This is
+a port of the Linux kernel to the x86-64 architecture, as implemented by the AMD
+Hammer family of CPUs and the Virtutech VirtuHammer simulator. For more 
+information about x86-64 see http://www.x86-64.org 
 
-Compile error in 2.5.7-dj2, 2.5.7-dj1 compiled fine, has been running 7
-days now. =20
+This is a major update for the x86-64 kernel. It has so many bugs fixed over
+previous kernels that I would recommend every x86-64 user to update to
+this kernel version.
 
-make[4]: Entering directory `/usr/src/linux-2.5.7-dj2/drivers/scsi/aic7xxx'
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.7-dj2/include -Wall -Wstrict-prototyp=
-es -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common=
- -pipe -mpreferred-stack-boundary=3D2 -march=3Di686 -malign-functions=3D4  =
-  -DKBUILD_BASENAME=3Daic7xxx_osm  -c -o aic7xxx_osm.o aic7xxx_osm.c
-aic7xxx_osm.c: In function `ahc_linux_setup_tag_info':
-aic7xxx_osm.c:1036: warning: implicit declaration of function `strtok'
-aic7xxx_osm.c:1036: warning: assignment makes pointer from integer without =
-a cast
-aic7xxx_osm.c: In function `aic7xxx_setup':
-aic7xxx_osm.c:1068: warning: assignment makes pointer from integer without =
-a cast
-aic7xxx_osm.c:1068: warning: assignment makes pointer from integer without =
-a cast
-aic7xxx_osm.c: In function `ahc_platform_alloc':
-aic7xxx_osm.c:1322: `AHC_LINUX_NOIRQ' undeclared (first use in this functio=
-n)
-aic7xxx_osm.c:1322: (Each undeclared identifier is reported only once
-aic7xxx_osm.c:1322: for each function it appears in.)
-aic7xxx_osm.c:1332: structure has no member named `runq_tasklet'
-aic7xxx_osm.c: In function `ahc_platform_free':
-aic7xxx_osm.c:1345: structure has no member named `runq_tasklet'
-aic7xxx_osm.c:1349: `AHC_LINUX_NOIRQ' undeclared (first use in this functio=
-n)
-aic7xxx_osm.c: In function `ahc_linux_isr':
-aic7xxx_osm.c:1849: structure has no member named `runq_tasklet'
-aic7xxx_osm.c: In function `ahc_linux_release_sim_queue':
-aic7xxx_osm.c:2460: structure has no member named `runq_tasklet'
-aic7xxx_osm.c: In function `ahc_linux_queue_recovery_cmd':
-aic7xxx_osm.c:2497: `io_request_lock' undeclared (first use in this functio=
-n)
-aic7xxx_osm.c: In function `ahc_linux_bus_reset':
-aic7xxx_osm.c:2794: `io_request_lock' undeclared (first use in this functio=
-n)
-aic7xxx_osm.c: In function `ahc_linux_biosparam':
-aic7xxx_osm.c:2833: warning: passing arg 1 of `scsi_partsize' from incompat=
-ible pointer type
-aic7xxx_osm.c: At top level:
-aic7xxx_osm.c:2924: unknown field `use_new_eh_code' specified in initializer
-make[4]: *** [aic7xxx_osm.o] Error 1
-make[4]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers/scsi/aic7xxx'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers/scsi/aic7xxx'
-make[2]: *** [_subdir_aic7xxx] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers/scsi'
-make[1]: *** [_subdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.7-dj2/drivers'
-make: *** [_dir_drivers] Error 2
+This release requires new binutils and a recent gcc to build. The changed
+signal ABI requires a new glibc. Working versions of gcc, glibc and binutils can 
+be downloaded from ftp://ftp.x86-64.org/pub/stable-tools/current/ 
+It also requires an updated gdb. Documentation on how to build the toolchain
+and glibc can be found at http://www.x86-64.org/documentation
 
+This is a newer x86-64 codebase than the version in the 2.5 kernel with much
+more testing. 2.5 will be synced with this tree soon. 
 
---=20
-Nathan Walp             || faceprint@faceprint.com
-GPG Fingerprint:        ||   http://faceprint.com/
-5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
+Please report any problems to bugs@x86-64.org.  The discussion list is 
+discuss@x86-64.org. See http://www.x86-64.org/mailinglists for archives
+and subscribe/unsubscribe options.
 
+You can download the x86-64 kernel source as a full tarball at: 
 
---vtzGhvizbBRQ85DL
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+ftp://ftp.x86-64.org/pub/linux-x86_64/v2.4/linux-x86_64-2.4.19pre4-1.tar.bz2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+MD5: 
+e90765227be6956ffd002e18aa2a9e3a  linux-x86_64-2.4.19pre4-1.tar.bz2
 
-iD8DBQE8ooF/PkYs3Ekt234RAnC+AJ9UF1ElVfi3z7u4bmm2WxMLzccVBwCeLxxw
-DjsmkANFoel8GYa6FykZS+k=
-=5uMF
------END PGP SIGNATURE-----
+or as a patch against plain Linux 2.4.19pre4 as released by Marcelo: 
 
---vtzGhvizbBRQ85DL--
+ftp://ftp.x86-64.org/pub/linux-x86_64/v2.4/x86_64-2.4.19pre4-1.bz2
+
+MD5: 
+807df0308052b4065df2089cc9a49499  x86_64-2.4.19pre4-1.bz2
+
+This is a snapshot of the CVS tree at cvs.x86-64.org. The current CVS tree can be 
+accessed anonymously, for details see http://www.x86-64.org/cvs 
+Note that the code in the CVS tree HEAD can be unstable sometimes.
+
+Known problems: 
+- MTRR breaks on SMP and can oops at booting. It is disabled ATM. 
+- Still some problems in 64bit LTP runs, which could be partly kernel bugs.
+- 32bit lspci breaks on the 64bit kernel because the /proc/pci structures
+are not compatible.
+- 32bit personality setting ("linux32") doesn't work. 
+- NMI watchdog doesn't work.
+- String/memory functions unoptimized and use a lot of CPU time. 
+- 32bit setserial crashes.
+
+Changes:
+- Merge to 2.4.19pre4. This has a reduced struct page which saves several
+MB of memory in a 64bit build.
+- SMP and APIC code functional now
+- 8257 timer is now accurate
+- Some signal handling bugs fixed.
+- modify_ldt for 32bit and 64bit implemented
+- IA32 emulation enhanced with a few new calls and ioctls and various bugs 
+fixed.
+- 32bit ptrace support.
+- Some driver support for AMD 8111: Sound card, IDE, USB 2.0 (Vojtech Pavlik) 
+- AMD 8111 Random Generator based on the AMD768 RNG driver.
+- Audited on all inline assembly: this found and fixed various bugs. 
+- New struct user and signal frame formats.  This is an ABI change.
+- Doesn't require 32bit tools for building anymore.
+- New kernel mapping that in theory supports ~120TB of physical memory per
+system. 
+- Kernel modules functional now. Fixed some vmalloc/ioremap bugs.
+- More efficient signal handling. Does FXSAVE directly into and out 
+of user space now.
+- WCHAN support added.
+- Various other bug fixes.
+
+-Andi Kleen, SuSE Labs.

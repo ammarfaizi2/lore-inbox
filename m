@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289885AbSAKF4Y>; Fri, 11 Jan 2002 00:56:24 -0500
+	id <S289886AbSAKGGY>; Fri, 11 Jan 2002 01:06:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289886AbSAKF4D>; Fri, 11 Jan 2002 00:56:03 -0500
-Received: from zok.sgi.com ([204.94.215.101]:9121 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S289885AbSAKF4C>;
-	Fri, 11 Jan 2002 00:56:02 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andreas Boman <aboman@goofy.nerdfest.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 has 2 modules named sym53c8xx.o 
-In-Reply-To: Your message of "Fri, 11 Jan 2002 00:00:52 CDT."
-             <20020111000052.34204997.aboman@goofy.nerdfest.org> 
-Mime-Version: 1.0
+	id <S289887AbSAKGGO>; Fri, 11 Jan 2002 01:06:14 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:31503 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289886AbSAKGGE>; Fri, 11 Jan 2002 01:06:04 -0500
+Message-ID: <3C3E7F89.AB2F629@zip.com.au>
+Date: Thu, 10 Jan 2002 22:00:41 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: ext3-2.4-0.9.16
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 11 Jan 2002 16:55:49 +1100
-Message-ID: <3452.1010728549@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jan 2002 00:00:52 -0500, 
-Andreas Boman <aboman@goofy.nerdfest.org> wrote:
->It seems a new sym53c8xx was added in 2.4.17, and now there are 2 modules,
->both named sym53c8xx.o (CONFIG_SCSI_SYM53C8XX and
->CONFIG_SCSI_SYM53C8XX_2). This was noticed since my mkinitrd script isn't
->smart enough to destinguish the two. Leading to the question how does
->modprobe?
+A small ext3 update.  It fixes a few hard-to-hit but potentially
+serious problems.  The patch is against 2.4.18-pre3, and is also
+applicable to 2.4.17.
 
-It does not.  Two modules with the same name give undefined results for
-modprobe, insmod, initrd etc.
+	http://www.zip.com.au/~akpm/ext3-2.4-0.9.17-2418p3.gz
 
+
+0.9.17  12 Jan 2002
+-------------------
+
+- Cleanup from Manfred Spraul which provides better randomisation of inode
+  generation numbers.
+
+- A locking fix which prevents possible panics when an application is
+  using ioctl(FIBMAP) against a loaded filesystem.
+
+- Buffer locking fix for journal descriptor buffers - fixes the
+  "end_request: buffer-list destroyed" crash which can occur under
+  heavy VM load.
+
+- Fix a buffer locking problem which could cause corruption if a process
+  is reading from the underlying block device while journal recovery is
+  in progress.
+
+-

@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269586AbUICKEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269617AbUICKHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269586AbUICKEY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 06:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269599AbUICKCh
+	id S269617AbUICKHN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 06:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269614AbUICKEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 06:02:37 -0400
-Received: from pop.gmx.de ([213.165.64.20]:25520 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269586AbUICKBj (ORCPT
+	Fri, 3 Sep 2004 06:04:34 -0400
+Received: from mail.kroah.org ([69.55.234.183]:13747 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269589AbUICKCX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 06:01:39 -0400
-X-Authenticated: #4399952
-Date: Fri, 3 Sep 2004 12:14:05 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: lockup with voluntary preempt R0 and VP, KP, etc, disabled
-Message-ID: <20040903121405.3d32beec@mango.fruits.de>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Fri, 3 Sep 2004 06:02:23 -0400
+Date: Fri, 3 Sep 2004 11:41:13 +0200
+From: Greg KH <greg@kroah.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Fixes for ub in 2.4.9-rc1 from Oliver and Pat
+Message-ID: <20040903094113.GD29103@kroah.com>
+References: <20040830084455.54cfcc87@lembas.zaitcev.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040830084455.54cfcc87@lembas.zaitcev.lan>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oops typo. now it should show up on lkml, too
+On Mon, Aug 30, 2004 at 08:44:55AM -0700, Pete Zaitcev wrote:
+> - Set the allocation size in REQUEST SENSE (Pat LaVarre)
+> - Move add_timer invocations to safer places (Oliver Neukum)
 
+Applied, thanks.
 
-Hi,
+greg k-h
 
-i can experience hard lockups when turning off all the VP stuff via the
-/proc interface.
-
-echo 0 > /proc/sys/kernel/hardirq_preemption
-echo 0 > /proc/sys/kernel/softirq_preemption
-echo 0 > /proc/sys/kernel/voluntary_preemption
-echo 0 > /proc/sys/kernel/kernel_preemption
-echo 0 > /proc/sys/kernel/trace_enabled
-
-then do some audio work with jackd and the machine locks up in the next
-3 or 4 minutes. How can i help in debugging this? I know only very
-little about core dumps, etc, so it would be cool if anyone of you guys
-can reproduce the lockup. Or tell me how to proceed..
-
-flo
-
+p.s. next time please add a "Signed-off-by:" line...

@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUIISWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUIISWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266603AbUIISWy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 14:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUIISWx
+	id S266505AbUIISWo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 14:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUIISWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 14:22:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30662 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266616AbUIISDH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 14:03:07 -0400
-Date: Thu, 9 Sep 2004 13:39:29 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] cacheline align pagevec structure
-Message-ID: <20040909163929.GA4484@logos.cnet>
+	Thu, 9 Sep 2004 14:22:44 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:47112 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266505AbUIIR5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 13:57:15 -0400
+Date: Thu, 9 Sep 2004 18:57:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mingming Cao <cmm@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Ram Pai <linuxram@us.ibm.com>
+Subject: Re: [Patch 2/6]: ext3 reservations: Renumber the ext3 reservations ioctls
+Message-ID: <20040909185702.A13111@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Mingming Cao <cmm@us.ibm.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Ram Pai <linuxram@us.ibm.com>
+References: <200409071302.i87D2ROd030909@sisko.scot.redhat.com> <20040907235327.A21397@infradead.org> <1094636497.1985.20.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1094636497.1985.20.camel@sisko.scot.redhat.com>; from sct@redhat.com on Wed, Sep 08, 2004 at 10:41:38AM +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Wed, Sep 08, 2004 at 10:41:38AM +0100, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Tue, 2004-09-07 at 23:53, Christoph Hellwig wrote:
+> 
+> > Maybe you could reuse the XFS reservation ioctls instead of adding
+> > another set?  Having incompatible APIs for the same thing on different
+> > filesystems sounds like the wrong way to go.
+> 
+> I don't mind either way.  But I just looked, and I think they are doing
+> different things.  If I'm reading the XFS bits right, the XFS ioctls
+> actively reserve/free disk space; but the ext3 ones do nothing except
+> set/query the size of the per-inode sliding reservation window.
+> 
+> So sounds like they are best kept separate for now.
 
-I commented this with Andrew before, we can shrink the pagevec structure to 
-cacheline align it. It is used all over VM reclaiming and mpage 
-pagecache read code.
-
-Right now it is 140 bytes on 64-bit and 72 bytes on 32-bit. Thats just a little bit more 
-than a power of 2 (which will cacheline align), so shrink it to be aligned: 64 bytes on 
-32bit and 124bytes on 64-bit. 
-
-It now occupies two cachelines most of the time instead of three. 
-
-I changed nr and cold to "unsigned short" because they'll never reach 2 ^ 16.
-
-I do not see a problem with changing pagevec to "15" page pointers either, 
-Andrew, is there a special reason for that "16"? Is intentional to align
-to 64 kbytes (IO device alignment)? I dont think that matters much because
-of the elevator which sorts and merges requests anyway?
-
-
-
-Did some reaim benchmarking on 4way PIII (32byte cacheline), with 512MB RAM:
-
-#### stock 2.6.9-rc1-mm4 ####
-
-Peak load Test: Maximum Jobs per Minute 4144.44 (average of 3 runs)
-Quick Convergence Test: Maximum Jobs per Minute 4007.86 (average of 3 runs)
-
-Peak load Test: Maximum Jobs per Minute 4207.48 (average of 3 runs)
-Quick Convergence Test: Maximum Jobs per Minute 3999.28 (average of 3 runs)
-
-#### shrink-pagevec #####
-
-Peak load Test: Maximum Jobs per Minute 4717.88 (average of 3 runs)
-Quick Convergence Test: Maximum Jobs per Minute 4360.59 (average of 3 runs)
-
-Peak load Test: Maximum Jobs per Minute 4493.18 (average of 3 runs)
-Quick Convergence Test: Maximum Jobs per Minute 4327.77 (average of 3 runs)
-
-
---- linux-2.6.9-rc1-mm4.orig/include/linux/pagevec.h	2004-09-08 16:13:14.000000000 -0300
-+++ linux-2.6.9-rc1-mm4/include/linux/pagevec.h	2004-09-08 16:48:51.703401288 -0300
-@@ -5,14 +5,14 @@
-  * pages.  A pagevec is a multipage container which is used for that.
-  */
- 
--#define PAGEVEC_SIZE	16
-+#define PAGEVEC_SIZE	15
- 
- struct page;
- struct address_space;
- 
- struct pagevec {
--	unsigned nr;
--	int cold;
-+	unsigned short nr;
-+	unsigned short cold;
- 	struct page *pages[PAGEVEC_SIZE];
- };
- 
-
-
+makes sense.
 

@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbUKHMXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbUKHM12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbUKHMXk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 07:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbUKHMXk
+	id S261818AbUKHM12 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 07:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbUKHM12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 07:23:40 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:65180 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261826AbUKHMWp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 07:22:45 -0500
-Date: Mon, 8 Nov 2004 18:02:23 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
+	Mon, 8 Nov 2004 07:27:28 -0500
+Received: from wpkrenn.net ([217.114.210.79]:14600 "EHLO
+	217-114-210-79.wpkrenn.net") by vger.kernel.org with ESMTP
+	id S261818AbUKHM1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 07:27:25 -0500
+Message-ID: <418F661E.6050601@gmx.at>
+Date: Mon, 08 Nov 2004 13:27:10 +0100
+From: Willibald Krenn <Willibald.Krenn@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; de-AT; rv:1.4.2) Gecko/20040921
+X-Accept-Language: de-at, de, en-us, en
+MIME-Version: 1.0
 To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Fix O_SYNC speedup for generic_file_write_nolock
-Message-ID: <20041108123223.GA4028@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20041108100738.GA4003@in.ibm.com> <1099908278.3577.2.camel@laptop.fenrus.org> <20041108115353.GA4068@in.ibm.com> <1099915544.3577.9.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099915544.3577.9.camel@laptop.fenrus.org>
-User-Agent: Mutt/1.4i
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VMM:  syscall for reordering pages in vm
+References: <418F4F97.5000805@gmx.at> <1099915498.3577.7.camel@laptop.fenrus.org>
+In-Reply-To: <1099915498.3577.7.camel@laptop.fenrus.org>
+X-Enigmail-Version: 0.76.8.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 01:05:44PM +0100, Arjan van de Ven wrote:
-> On Mon, 2004-11-08 at 17:23 +0530, Suparna Bhattacharya wrote:
-> > On Mon, Nov 08, 2004 at 11:04:38AM +0100, Arjan van de Ven wrote:
-> > > > +EXPORT_SYMBOL(sync_page_range_nolock);
-> > > 
-> > > 
-> > > why adding this export? nothing appears to be using it (AIO isn't a module after all)
-> > > 
-> > 
-> > This doesn't have anything to do with AIO. Filesystems which implement 
-> > the equivalent of generic_file_write_nolock may use sync_page_range_nolock
-> > for O_SYNC.
-> > 
-> > Does that help clarify ?
+Arjan van de Ven schrieb:
+> On Mon, 2004-11-08 at 11:51 +0100, Willibald Krenn wrote:
+>> virtual memory page exchange by modifying the physical<->virtual
+>>page mapping. 
 > 
-> not really; none do so far so how about not adding the export until
-> someone does use it ?
+> eh isn't this already possible with mmap and mremap ?
 
-It is just like sync_page_range() from akpm's original O_SYNC speedup
-patch. Andrew, do we keep or remove the export ?
+If I'm not mistaken: You can not tell mmap and mremap to explicitely 
+exchange two pages. (Mremap resizes an existing memory mapping.)
 
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Perhaps I did not explain my idea good enough: I want something along 
+the lines "Current memory contents in page starting at address X move to 
+address Y and the contents of the page starting at address Y shall be 
+found at address X in future".
 

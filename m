@@ -1,87 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129561AbQL1P2t>; Thu, 28 Dec 2000 10:28:49 -0500
+	id <S130562AbQL1P3j>; Thu, 28 Dec 2000 10:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129906AbQL1P2k>; Thu, 28 Dec 2000 10:28:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22281 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129561AbQL1P21>;
-	Thu, 28 Dec 2000 10:28:27 -0500
-Date: Thu, 28 Dec 2000 14:58:01 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] kmalloc(HIGHUSER) crashes
-Message-ID: <20001228145801.C19693@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S130559AbQL1P33>; Thu, 28 Dec 2000 10:29:29 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:57331 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129906AbQL1P3P>; Thu, 28 Dec 2000 10:29:15 -0500
+Date: Thu, 28 Dec 2000 12:57:08 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@innominate.de>, Ingo Molnar <mingo@elte.hu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] better drop-behind in generic_file_write
+Message-ID: <Pine.LNX.4.21.0012281238480.14052-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, Daniel,
 
-doh, i'm a moron.
+the (trivial) patch below fixes the drop-behind call in
+generic_file_write to *only* do drop-behind if we've
+written "past the end" of the page.
 
------- This is a copy of the message ------
+This way we have a better chance of still having partially
+written pages in memory when we write to them again (eg. for
+TUX logfiles). Not only will this speed up non page-aligned
+writes on loaded systems, it'll also give slower writes a
+small advantage over fast writes (which will skip page boundaries
+more often).
 
-Date: Thu, 28 Dec 2000 14:51:25 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: linux-kernel@vger.rutgers.edu
-Cc: torvalds@transmeta.com
-Subject: [PATCH] kmalloc(HIGHUSER) crashes
+Linus, Alan, could you please apply this patch in your next
+2.4.0-test kernel ?
 
-The slab cache accepts the __GFP_HIGHMEM flag, but it will then die
-horribly, tracing it through:
+regards,
 
-<linux/slab.h>
-#define SLAB_LEVEL_MASK         (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_HIGHMEM)
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
 
-slab.c:kmem_cache_grow()
-        if (flags & ~(SLAB_DMA|SLAB_LEVEL_MASK|SLAB_NO_GROW))
-	                BUG();
-(...)
-slab.c:kmem_getpages()
-        addr = (void*) __get_free_pages(flags, cachep->gfporder);
-
-__get_free_pages calls page_address() on the allocated pages, but:
-
-/*
- * Permanent address of a page. Obviously must never be
- * called on a highmem page.
- */
-#define page_address(page) ((page)->virtual)
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 
-so I think we should apply the patch at the bottom of this email.
-
-Ideally, I think slab.c should call alloc_pages and manage them directly
--- it calls virt_to_page often enough that it should become more intimate
-with the linux struct page *.  But I don't think we should allow HIGHMEM
-kmallocs anyway; we'd run out of kmap space too readily.
-
-Index: include/linux/slab.h
-===================================================================
-RCS file: /var/cvs/linux/include/linux/slab.h,v
-retrieving revision 1.1.1.1
-diff -u -p -r1.1.1.1 include/linux/slab.h
---- include/linux/slab.h	2000/10/31 19:18:05	1.1.1.1
-+++ include/linux/slab.h	2000/12/28 11:06:49
-@@ -22,7 +22,7 @@ typedef struct kmem_cache_s kmem_cache_t
- #define	SLAB_NFS		GFP_NFS
- #define	SLAB_DMA		GFP_DMA
+--- linux-2.4.0-test12-pre3/mm/filemap.c.orig	2000/12/21 18:20:17
++++ linux/mm/filemap.c	2000/12/21 21:31:39
+@@ -2436,7 +2436,7 @@
+ 	}
  
--#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_HIGHMEM)
-+#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO)
- #define	SLAB_NO_GROW		0x00001000UL	/* don't grow a cache */
+ 	while (count) {
+-		unsigned long bytes, index, offset;
++		unsigned long bytes, index, offset, partial = 0;
+ 		char *kaddr;
  
- /* flags to pass to kmem_cache_create().
+ 		/*
+@@ -2446,8 +2446,10 @@
+ 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+-		if (bytes > count)
++		if (bytes > count) {
+ 			bytes = count;
++			partial = 1;
++		}
+ 
+ 		status = -ENOMEM;	/* we'll assign it later anyway */
+ 		page = __grab_cache_page(mapping, index, &cached_page);
+@@ -2478,9 +2480,17 @@
+ 			buf += status;
+ 		}
+ unlock:
+-		/* Mark it unlocked again and drop the page.. */
++		/*
++		 * Mark it unlocked again and release the page.
++		 * In order to prevent large (fast) file writes
++		 * from causing too much memory pressure we move
++		 * completely written pages to the inactive list.
++		 * We do, however, try to keep the pages that may
++		 * still be written to (ie. partially written pages).
++		 */
+ 		UnlockPage(page);
+-		deactivate_page(page);
++		if (!partial)
++			deactivate_page(page);
+ 		page_cache_release(page);
+ 
+ 		if (status < 0)
 
--- 
-Revolutions do not require corporate support.
 
------ End forwarded message -----
-
--- 
-Revolutions do not require corporate support.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,90 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVCDXSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263190AbVCDXYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVCDXSM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbVCDXNQ
+	id S263190AbVCDXYz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbVCDXXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:13:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38050 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263184AbVCDUyz convert rfc822-to-8bit
+	Fri, 4 Mar 2005 18:23:35 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:30355 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S263231AbVCDVQH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:54:55 -0500
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Kill i2c_client.id (5/5)
-In-Reply-To: <11099685942662@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 4 Mar 2005 12:36:34 -0800
-Message-Id: <11099685942488@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 4 Mar 2005 16:16:07 -0500
+Message-ID: <4228D013.8010307@drzeus.cx>
+Date: Fri, 04 Mar 2005 22:16:03 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Andrew Morton <akpm@osdl.org>, Mark Canter <marcus@vfxcomputing.com>,
+       rlrevell@joe-job.com, nish.aravamudan@gmail.com,
+       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
+References: <4227085C.7060104@drzeus.cx>	<29495f1d05030309455a990c5b@mail.gmail.com>	<Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>	<1109875926.2908.26.camel@mindpipe>	<Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>	<1109876978.2908.31.camel@mindpipe>	<Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com> <20050303154929.1abd0a62.akpm@osdl.org> <4227ADE7.3080100@drzeus.cx>
+In-Reply-To: <4227ADE7.3080100@drzeus.cx>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2087, 2005/03/02 11:58:29-08:00, khali@linux-fr.org
+Pierre Ossman wrote:
+> Andrew Morton wrote:
+> 
+>> Mark Canter <marcus@vfxcomputing.com> wrote:
+>>  
+>>
+>>> To close this issue out of the LKML and alsa-devel, a bug report has 
+>>> been written.
+>>>
+>>> It appears to be an issue with the 'headphone jack sense' (as kde 
+>>> labels it).  The issue is in the way the 8x0 addresses the docking 
+>>> station/port replicator's audio output jack.  The mentioned quick fix 
+>>> does not work for using the ds/pr audio output, but does resolve it 
+>>> for a user that is only using headphones/internal speakers.
+>>>   
+>>
+>>
+>> But there was a behavioural change: applications which worked in 2.6.10
+>> don't work in 2.6.11, is that correct?
+>>
+>> If so, the best course of action is to change the kernel so those
+>> applications work again.  Can that be done?
+>>
+>>  
+>>
+> Yes. Speakers worked in 2.6.10 and stopped working in 2.6.11. This could 
+> be changed by setting the default for the two new volumes to muted. I 
+> don't know how this affects the issue with the docking station or the 
+> bug that this is supposed to solve though.
+> 
 
-[PATCH] I2C: Kill i2c_client.id (5/5)
+It seems I spoke too soon. The defaults picked by the driver are 
+actually fine. It seems to be alsactl store/restore that did something 
+strange when coming from an older kernel.
 
-> (5/5) Documentation update.
-
-Finally, updates are required to the i2c/writing-client and
-i2c/porting-client documents. Remove any reference to i2c_client id and
-invite porters to discard that struct member.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- Documentation/i2c/porting-clients |    6 +++---
- Documentation/i2c/writing-clients |    4 ----
- 2 files changed, 3 insertions(+), 7 deletions(-)
-
-
-diff -Nru a/Documentation/i2c/porting-clients b/Documentation/i2c/porting-clients
---- a/Documentation/i2c/porting-clients	2005-03-04 12:25:58 -08:00
-+++ b/Documentation/i2c/porting-clients	2005-03-04 12:25:58 -08:00
-@@ -49,9 +49,8 @@
-   static void lm75_update_client(struct i2c_client *client);
- 
- * [Sysctl] All sysctl stuff is of course gone (defines, ctl_table
--  and functions). Instead, right after the static id definition
--  line, you have to define show and set functions for each sysfs
--  file. Only define set for writable values. Take a look at an
-+  and functions). Instead, you have to define show and set functions for
-+  each sysfs file. Only define set for writable values. Take a look at an
-   existing 2.6 driver for details (lm78 for example). Don't forget
-   to define the attributes for each file (this is that step that
-   links callback functions). Use the file names specified in
-@@ -86,6 +85,7 @@
-   Replace the sysctl directory registration by calls to
-   device_create_file. Move the driver initialization before any
-   sysfs file creation.
-+  Drop client->id.
- 
- * [Init] Limits must not be set by the driver (can be done later in
-   user-space). Chip should not be reset default (although a module
-diff -Nru a/Documentation/i2c/writing-clients b/Documentation/i2c/writing-clients
---- a/Documentation/i2c/writing-clients	2005-03-04 12:25:58 -08:00
-+++ b/Documentation/i2c/writing-clients	2005-03-04 12:25:58 -08:00
-@@ -344,9 +344,6 @@
- 
- For now, you can ignore the `flags' parameter. It is there for future use.
- 
--  /* Unique ID allocation */
--  static int foo_id = 0;
--
-   int foo_detect_client(struct i2c_adapter *adapter, int address, 
-                         unsigned short flags, int kind)
-   {
-@@ -482,7 +479,6 @@
-     data->type = kind;
-     /* SENSORS ONLY END */
- 
--    new_client->id = foo_id++; /* Automatically unique */
-     data->valid = 0; /* Only if you use this field */
-     init_MUTEX(&data->update_lock); /* Only if you use this field */
- 
-
+Rgds
+Pierre

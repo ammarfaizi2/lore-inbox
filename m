@@ -1,115 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTLXUhM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 15:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTLXUhM
+	id S263836AbTLXVAb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 16:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbTLXVAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 15:37:12 -0500
-Received: from mail.gmx.de ([213.165.64.20]:16267 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263823AbTLXUhG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 15:37:06 -0500
-X-Authenticated: #3270670
-From: "Thomas Babut" <thomas.babut@gmx.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: PPP ooopses on 2.6.0-mm1
-Date: Wed, 24 Dec 2003 21:38:52 +0100
+	Wed, 24 Dec 2003 16:00:31 -0500
+Received: from user-119ahgg.biz.mindspring.com ([66.149.70.16]:7841 "EHLO
+	mail.home") by vger.kernel.org with ESMTP id S263836AbTLXVA3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 16:00:29 -0500
+From: Eric <eric@cisu.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0 and VMWare Buslogic Error?
+Date: Wed, 24 Dec 2003 15:00:27 -0600
+User-Agent: KMail/1.5.94
+Cc: lnz@dandelion.com
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcPKXfFoEgkxehhpRpaeTGIJmucidA==
-Message-Id: <S263823AbTLXUhG/20031224203706Z+14997@vger.kernel.org>
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200312241500.27156.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> ismail 'cartman' dönmez
-> Sent: Wednesday, December 24, 2003 10:22 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: PPP ooopses on 2.6.0-mm1
-> 
-> Hi all,
-> 
-> Here is what I get from syslog :
-> 
-> 
-> Dec 24 11:09:51 southpark kernel: Unable to handle kernel 
-> NULL pointer dereference at virtual address 00000065
-> Dec 24 11:09:51 southpark kernel: Unable to handle kernel 
-> NULL pointer dereference at virtual address 00000065
-> Dec 24 11:09:51 southpark kernel:  printing eip:
-> Dec 24 11:09:51 southpark kernel: e500dfcb
-> Dec 24 11:09:51 southpark kernel: *pde = 00000000
-> Dec 24 11:09:51 southpark kernel: *pde = 00000000
-> Dec 24 11:09:51 southpark kernel: Oops: 0000 [#1]
-> Dec 24 11:09:51 southpark kernel: PREEMPT
-> Dec 24 11:09:51 southpark kernel: CPU:    0
-> Dec 24 11:09:51 southpark kernel: EIP:    
-> 0060:[_end+617343539/1070258792]    Not tainted VLI
-> Dec 24 11:09:51 southpark kernel: EFLAGS: 00010002
-> Dec 24 11:09:51 southpark kernel: EIP is at 
-> process_input_packet+0x6b/0x230 [ppp_async]
-> Dec 24 11:09:51 southpark kernel: eax: d5156c00   ebx: 
-> 0000007e   ecx: dae99310   edx: 00000000
-> Dec 24 11:09:51 southpark kernel: esi: 00000001   edi: 
-> dae99710   ebp: d5156c00   esp: e3f8dee8
-> Dec 24 11:09:51 southpark kernel: ds: 007b   es: 007b   ss: 0068
-> Dec 24 11:09:51 southpark kernel: Process events/0 (pid: 3, 
-> threadinfo=e3f8c000 task=c15cecc0)
-> Dec 24 11:09:51 southpark kernel: Stack: c02a151c c15cecc0 
-> e3fedc28 dae990bc e3f8df70 0000007e 00000001 dae99710
-> Dec 24 11:09:51 southpark kernel:        00000002 e500e34c 
-> d5156c00 0000f18b c029fa60 e3f8c000 00000286 d5156c00
-> Dec 24 11:09:51 southpark kernel:        dae99000 e500d522 
-> d5156c00 dae99310 dae99710 00000008 dae99000 00000008
-> Dec 24 11:09:51 southpark kernel: Call Trace:
-> Dec 24 11:09:51 southpark kernel:  
-> [_end+617344436/1070258792] ppp_async_input+0x1bc/0x340 [ppp_async]
-> Dec 24 11:09:51 southpark kernel:  
-> [_end+617340810/1070258792] ppp_asynctty_receive+0x52/0xd0 [ppp_async]
-> Dec 24 11:09:51 southpark kernel:  [flush_to_ldisc+156/272] 
-> flush_to_ldisc+0x9c/0x110
-> Dec 24 11:09:51 southpark kernel:  [worker_thread+477/720] 
-> worker_thread+0x1dd/0x2d0
-> Dec 24 11:09:51 southpark kernel:  [flush_to_ldisc+0/272] 
-> flush_to_ldisc+0x0/0x110
-> Dec 24 11:09:51 southpark kernel:  
-> [default_wake_function+0/32] default_wake_function+0x0/0x20
-> Dec 24 11:09:51 southpark kernel:  [ret_from_fork+6/20] 
-> ret_from_fork+0x6/0x14
-> Dec 24 11:09:51 southpark kernel:  
-> [default_wake_function+0/32] default_wake_function+0x0/0x20
-> Dec 24 11:09:51 southpark kernel:  [worker_thread+0/720] 
-> worker_thread+0x0/0x2d0
-> Dec 24 11:09:51 southpark kernel:  
-> [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
-> Dec 24 11:09:51 southpark kernel:
-> Dec 24 11:09:51 southpark kernel: Code: 89 d0 c1 e8 08 32 13 
-> 43 0f b6 d2 0f b7 94 12 40 f3 00 e5 31 c2 49 75 e8 81 fa b8 
-> f0 00 00 74 4e c7 45 08 04 00 00 00 85 f6 74 25 <8b> 4e 64 85 
-> c9 74 1e 8b 56 68 85 d2 75 1f c7 46 64 00 00 00 00
-> Dec 24 11:09:51 southpark kernel:  <6>note: events/0[3] 
-> exited with preempt_count 1
-> 
-> 
-> This somehow freezes X too. Anyone seen similar problems?
-> -- 
-> Joe Random Hacker Since 2002
+Hello, 
+	When booting the linux kernel 2.6.0 (and since 2.6.0-test9 when I started 
+using 2.6) I am not sure if I get it using 2.4 However my vague memory says 
+no.. I get this message on startup. I am using VMWare Workstation 4.0.5 build 
+6030.
 
-I've got the same problem. ppp seems to be broken with 2.6.0-mm1. But not in
-2.6.0 vanilla. There ppp runs without any problems.
-It's a Fedora Core 1 Linux Kernel:
-Linux version 2.6.0-1.21 (bhcompile@bugs.devel.redhat.com) (gcc version
-3.3.2 20031202 (Red Hat Lin
-ux 3.3.2-3)) #1 Tue Dec 23 19:31:42 EST 2003
+scsi: ***** BusLogic SCSI Driver Version 2.1.16 of 18 July 2002 *****
+scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+ERROR: SCSI host `BusLogic' has no error handling
+ERROR: This is not a safe way to run your SCSI host
+ERROR: The error handling must be added to this driver
+Call Trace:
+ [<c0213068>] scsi_host_alloc+0x77/0x288
+ [<c0213289>] scsi_register+0x10/0x51
+ [<c03349b5>] BusLogic_DetectHostAdapter+0x1ae/0x32e
+ [<c0335345>] init_this_scsi_driver+0x51/0xce
+ [<c031e773>] do_initcalls+0x2c/0x7a
+ [<c01050db>] init+0x58/0x13d
+ [<c0105083>] init+0x0/0x13d
+ [<c01071f9>] kernel_thread_helper+0x5/0xb
 
-Since this version Red Hat the Kernel 2.6.0 ist patched with -mm1.
+scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
+scsi0:   Firmware Version: 5.07B, I/O Address: 0x1060, IRQ Channel: 17/Level
+scsi0:   PCI Bus: 0, Device: 16, Address: 0xF4000000, Host Adapter SCSI ID: 7
+scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
+scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
+scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
+scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
+scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
+scsi0:   Error Recovery Strategy: Default, SCSI Bus Reset: Enabled
+scsi0: *** BusLogic BT-958 Initialized Successfully ***
+scsi0 : BusLogic BT-958
+  Vendor: VMware,   Model: VMware Virtual S  Rev: 1.0 
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 12582912 512-byte hdwr sectors (6442 MB)
+sda: asking for cache data failed
+sda: assuming drive cache: write through
+sda: sda1
 
-Bye
-Thomas
+I have been running my VMMachines for a while now so I dont think theres a 
+huge problem. But should I be worried? Am I just lucky my data hasnt been 
+corrupted by this unsafe mode? Is this being fixed in a future version or 
+2.6? Would you like more debugging info to support this variant of the 
+Buslogic controller better?
 
+Just a curios side-note... what the HECK are mailboxes relating to this scsi 
+driver?! I know what most of the other parameters are, but I cant figure out 
+what a mailbox could be in a scsi driver. 
+
+I am on the LKML, however I prefer to have replies CC'd to me. I notice them 
+MUCH faster.
+-------------------------
+Eric Bambach
+Eric at cisu dot net
+-------------------------

@@ -1,104 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVDBXtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVDBXrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVDBXtA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 18:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVDBXtA
+	id S261369AbVDBXrS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 18:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVDBXrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 18:49:00 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:27095 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S261355AbVDBXso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 18:48:44 -0500
-Message-ID: <424F20F6.8010804@latinsud.com>
-Date: Sun, 03 Apr 2005 00:47:18 +0200
-From: "SuD (Alex)" <sud@latinsud.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 2 Apr 2005 18:47:17 -0500
+Received: from mail48-s.fg.online.no ([148.122.161.48]:2286 "EHLO
+	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S261370AbVDBXrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 18:47:06 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Oops in set_spdif_output in i810_audio
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz>
+	<873bvyfsvs.fsf@quasar.esben-stien.name>
+	<87zmxil0g8.fsf@quasar.esben-stien.name>
+	<1110056942.16541.4.camel@localhost>
+	<87sm37vfre.fsf@quasar.esben-stien.name>
+	<87wtsjtii6.fsf@quasar.esben-stien.name>
+	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
+From: Esben Stien <b0ef@esben-stien.name>
+X-Home-Page: http://www.esben-stien.name
+Date: Sun, 03 Apr 2005 01:44:25 +0200
+In-Reply-To: <1112083646.12986.3.camel@localhost> (Jeremy Nickurak's message
+ of "Tue, 29 Mar 2005 01:07:26 -0700")
+Message-ID: <87psxcsq06.fsf@quasar.esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, i got a new ahtec laptop and i get null pointer oops everytime i 
-load i810_audio on 2.4 and 2.6 (including 2.6.11.6) kernels.
+Jeremy Nickurak <atrus@rifetech.com> writes:
 
-*** These are init messages & oops:
-i810_audio: Unknown symbol ac97_set_dac_rate
-i810_audio: Unknown symbol ac97_release_codec
-i810_audio: Unknown symbol ac97_set_adc_rate
-i810_audio: Unknown symbol ac97_alloc_codec
-i810_audio: Unknown symbol ac97_probe_codec
-Intel 810 + AC97 Audio, version 1.01, 04:15:45 Jan 24 2005
-ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 10 (level, low) -> IRQ 10
-i810: Intel ICH4 found at IO 0x18c0 and 0x1c00, MEM 0xe0100c00 and 
-0xe0100800, IRQ 10
-i810: Intel ICH4 mmio at 0xde9f3c00 and 0xdea84800
-i810_audio: Primary codec has ID 0
-i810_audio: Audio Controller supports 6 channels.
-i810_audio: Defaulting to base 2 channel mode.
-i810_audio: Resetting connection 0
-i810_audio: Connection 0 with codec id 0
-ac97_codec: AC97 Modem codec, id: CXT48 (Unknown)
-i810_audio: codec 0 is a softmodem - skipping.
-...
-EIP:    0060:[<dec4b172>]    Not tainted
-EFLAGS: 00010246   (2.6.8-2-686)
-EIP is at i810_set_spdif_output+0x22/0x160 [i810_audio]
-eax: ffffffff   ebx: 00000000   ecx: d9c28400   edx: d9c28400
-esi: 00000000   edi: 00000000   ebp: d6edfb80   esp: d7383e30
-ds: 007b   es: 007b   ss: 0068
-Process insmod (pid: 3358, threadinfo=d7382000 task=dca643b0)
-Stack: 00004461 ffffffce c011c7f4 00000000 d6edfb80 00000000 d6edfc18 
-00000000
-       dec4ff9f d6edfb80 ffffffff 00000000 dec51740 d7383e7c dda3c240 
-00000a04
-       d9c28400 dec4fdb0 d6edfbb0 d9c28400 00000000 00000001 00000000 
-00000001
-Call Trace:
- [<c011c7f4>] release_console_sem+0xc4/0xd0
- [<dec4ff9f>] i810_configure_clocking+0xbf/0x4c0 [i810_audio]
- [<dec4fdb0>] i810_ac97_init+0x4a0/0x5d0 [i810_audio]
- [<dec5084f>] i810_probe+0x4af/0x690 [i810_audio]
+> I'm playing with this under 2.6.11.4 
 
-*** This is my device:
-0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM 
-(ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 03)
-        Subsystem: QUANTA Computer Inc: Unknown device 0707
-        Flags: bus master, medium devsel, latency 0, IRQ 10
-        I/O ports at 1c00 [size=256]
-        I/O ports at 18c0 [size=64]
-        Memory at e0100c00 (32-bit, non-prefetchable) [size=512]
-        Memory at e0100800 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [50] Power Management version 2
+I got 2.6.12-rc1 
 
+> The vertical cruise control buttons work properly, with the
+> exception of the extra button press.
 
-*** What happened in set_spdif_output:
-      struct ac97_codec *codec = state->card->ac97_codec[0];
-     // ... for some reason codec is NULL, and then
-      if(!codec->codec_ops->digital)
-     // ... oops
+Yup, nice, I see the same
 
-*** Why is that null?
-   Perhaps it is because the driver thinks that the card is a modem and 
-releases it. So no codecs are available, but some functions expect at 
-least one codec to exist.
+> But the horizontal buttons are mapping to 6/7 as non-repeat buttons,
+> and adding simulateously the 4/5 events auto-repeated for as long as
+> the button is down. That is to say, pressing the the horizontal
+> scroll in a 2d scrolling area will scroll *diagonally* one step,
+> then vertically until the button is released.
 
-   if(codec->modem)
-                {
-                        printk(KERN_WARNING "i810_audio: codec %d is a 
-softmodem - skipping.\n", ac97_id);
-                        ac97_release_codec(codec);
+Yup, seeing exactly the same here. 
 
-  And is detected as modem because of this condition (in ac97_codec.c):
-  /* Check for an AC97 1.0 soft modem (ID1) */
-  if(codec->codec_read(codec, AC97_RESET) & 2)                        
-
-I don't know much about ac97, i also have an ac97 modem. Anybody knows 
-what is wrong?
-
-Btw, Alsa snd-intel8x0 driver works, but as many distros still default 
-to Oss i think this bug should be hunt.
-
+-- 
+Esben Stien is b0ef@esben-stien.name
+http://www.esben-stien.name
+irc://irc.esben-stien.name/%23contact
+[sip|iax]:esben-stien.name

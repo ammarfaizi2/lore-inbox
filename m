@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285451AbRLGLHO>; Fri, 7 Dec 2001 06:07:14 -0500
+	id <S285459AbRLGLIo>; Fri, 7 Dec 2001 06:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285455AbRLGLHG>; Fri, 7 Dec 2001 06:07:06 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:22803 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S285451AbRLGLG4>; Fri, 7 Dec 2001 06:06:56 -0500
-Message-ID: <3C10A057.BD8E1252@evision-ventures.com>
-Date: Fri, 07 Dec 2001 11:56:23 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: dalecki@evision.ag, Linus Torvalds <torvalds@transmeta.com>,
+	id <S285455AbRLGLI2>; Fri, 7 Dec 2001 06:08:28 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:47634 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S285459AbRLGLIF>;
+	Fri, 7 Dec 2001 06:08:05 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Tom Rini <trini@kernel.crashing.org>, kbuild-devel@lists.sourceforge.net,
         linux-kernel@vger.kernel.org
-Subject: Re: Linux/Pro  -- clusters
-In-Reply-To: <E16CINX-0005MC-00@the-village.bc.nu>
+Subject: Re: [kbuild-devel] (no subject) 
+In-Reply-To: Your message of "Fri, 07 Dec 2001 11:01:58 -0000."
+             <20011207110158.B1500@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 07 Dec 2001 22:07:53 +1100
+Message-ID: <27272.1007723273@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, 7 Dec 2001 11:01:58 +0000, 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>On Fri, Dec 07, 2001 at 03:36:13PM +1100, Keith Owens wrote:
+>> We will not get all architectures converted in 48 hours or even 72.
+>> kbuild 2.5 has been available for months and only i386, ia64, sparc32
+>> (I did all those) and sparc64 (Ben Collins) have been converted.  Alpha
+>> is in progress.  Unconverted architectures stay on 2.5.2-pre1 until
+>> they do the conversion, but there is no need to hold up everybody else.
+>
+>It's a shame that you were too busy to discuss the bugs I found in
+>kbuild 2.5 6 months ago when I tried it on ARM, despite me following
+>it up since.
 
-> > For example please grep for the MINOR() macro in the scsi layer...
-> > Most of the places where it's used should be replaced by a simple
-> > driver instance enumerator. I did this once already, so this is for
-> > sure.
-> 
-> it become block_device->instance or ->minor
+What bugs?  Details please.
 
-Well if all the infromation those functions are needing would
-be already in block_device in place, that it could become as easy
-as just passing &block_device there.
-However please note that replacing kdev_t in the scsi layer
-with just passing the minor can be done already *now* without
-any pain. The same applies to the excessive MINOR lookups in the
-v4l code. I did this already some time ago  (patch was here - about one
-year ago)
- 
-> major/minors for old stuff still end up leaking into user space and
-> mattering there. I'm not sure the best option for that
-
-Thta's no problem. But they should be used as hash values no the
-syscall implementation level and nowhere else.
-
--- 
-- phone: +49 214 8656 283
-- job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
-- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
-ru_RU.KOI8-R

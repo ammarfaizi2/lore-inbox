@@ -1,140 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbUKPVNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbUKPVPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbUKPVNp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 16:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbUKPVNp
+	id S261815AbUKPVPe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 16:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUKPVPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 16:13:45 -0500
-Received: from node-40240c4a.sjc.onnet.us.uu.net ([64.36.12.74]:38743 "EHLO
-	ns2.tleibold.net") by vger.kernel.org with ESMTP id S261811AbUKPVNj
+	Tue, 16 Nov 2004 16:15:34 -0500
+Received: from alog0072.analogic.com ([208.224.220.87]:18048 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261815AbUKPVOv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 16:13:39 -0500
-Message-ID: <36881.192.168.0.19.1100639614.squirrel@192.168.0.12>
-In-Reply-To: <hKBrMfMm.1100605629.3776330.khali@gcu.info>
-References: <36129.192.168.0.19.1100598647.squirrel@192.168.0.12>
-    <hKBrMfMm.1100605629.3776330.khali@gcu.info>
-Date: Tue, 16 Nov 2004 13:13:34 -0800 (PST)
-Subject: [PATCH 2.6] i2c-nforce2.c add support for nForce3 Pro 150 MCP
-From: "Thomas Leibold" <thomas@plx.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: sensors@stimpy.netroedge.com, "Jean Delvare" <khali@linux-fr.org>,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
+	Tue, 16 Nov 2004 16:14:51 -0500
+Date: Tue, 16 Nov 2004 16:14:39 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Work around a lockup?
+In-Reply-To: <Pine.LNX.4.53.0411162145240.20538@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.61.0411161556420.1963@chaos.analogic.com>
+References: <Pine.LNX.4.53.0411162038490.8374@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0411161456030.983@chaos.analogic.com>
+ <Pine.LNX.4.53.0411162111440.32739@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0411161524450.1562@chaos.analogic.com>
+ <Pine.LNX.4.53.0411162145240.20538@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20041116131334_76696"
-X-Priority: 3
-Importance: Normal
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1992984896-1100639679=:1963"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20041116131334_76696
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Hi Greg,
+--1678434306-1992984896-1100639679=:1963
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-This patch applies to linux 2.6.10-RC1. I tried to follow the procedures
-in Documentation/SubmittingPatches and I hope I got everything right.
+On Tue, 16 Nov 2004, Jan Engelhardt wrote:
 
-Signed-off-by: Thomas Leibold <thomas@plx.com>
+>> If there is a continuous loop inside the kernel, something outside
+>> the kernel (you) are never going to get control except from an
+>> interrupt. The keyboard interrupt is going to let you see what
+>> is happening, but you won't get any real control because the
+>> kernel is not a task. If the kernel were a task (like VMS),
+>
+> (Surprise.) Yes, I can still ping it and initiate a connection (i.e. the =
+queue
+> accepts it, because someone did listen() on the socket), but that's all. =
+I bet
+> that's due to the network card generating an interrupt.
+>
+>> you could (maybe) context-switch out of the kernel. But,
+>> the kernel is some common code that executes on behalf of
+>> all the tasks in the context of "current". If the current
+>> task is stuck inside the kernel code, it has nowhere to go.
+>
+> Wait, an interrupt can ... well interrupt a task, /even/ if it is in kern=
+el
+> mode, otherwise jiffies would not get incremented. So, would not it be
+> possible
+> to call some sort of schedule() when do_timer() (or similar) is run?
+> Like:
+>  foreach p in runqueue {
+>    if(p->location=3D=3DKERNELSPACE && exceeded-kernelspace-timeslic) {
+>      switch_to(rq->next); // "never returns"
+>    }
+>  }
+>
 
-Thanks
-	Thomas
+You can't schedule from an interrupt because, if (when) the
+scheduled task calls the kernel to do something, the return
+address, context info, etc., of the previously-interrupted
+task will be overwritten and lost forever.
+
+Now, VMS (solved) this non-problem, at great performance penalty,
+by having a context-switch for everything. A hardware interrupt
+generated a context-switch so the hardware interrupt could
+certainly directly context-switch to a user-mode task. The
+kernel was, itself, a task (called SWAPPER). When you called
+the kernel (trapped to), a context-switch occurred and the
+kernel did whatever in whatever order it wanted because it
+didn't have to return to the caller right away (if ever).
+In fact, it didn't even have to return to whatever got
+interrupted. That task was just put into the queue of
+runnable tasks.
+
+The performance was nice for a single task that used, for
+instance, a DR11 parallel-port board. An interrupt occurred
+and the task got control right away after the data was
+DMAed. Add more tasks and the system bogged down.
+If you had 20 people compiling FORTRAN of a 11/780, it
+took MINUTES to log in.
+
+However, with such a system a high-priority task could
+take the CPU away from anything. That meant that SYSTEM
+could usually get control, assuming it was already logged
+in. A dead driver was just marked unusable and everything
+continued. Even dead RAM was able to marked unusable.
+
+Unix was invented to bypass all this stuff. The kernel
+is not a task. It is just some privileged shared code.
+Therefore, it can execute quickly. The trade-off is
+that you need to fix bad drivers.
+
+
+>> When some user task executes outside the kernel, it doesn't
+>> have the priviliges to loop forever. A context switch will
+>> occur and the CPU will be shared with others. However, when
+>> that user task calls some kernel function, perhaps from
+>> a driver interface, that function has the priviliges to
+>> keep the CPU forever. If the driver is improperly written,
+>> it will.
+>
+> So to summarize what I need: disprivilege a process to keep the CPU forev=
+er
+> when it is in kernel mode.
+>
+
+You can't. Once the kernel code starts executing, it must behave.
 
 >
-> Hi Thomas,
->
->> This patch adds recognition of the PCI-Id for the nForce3 Pro 150 MCP
->> to the i2c-nforce2.c bus driver. I have tested this simple patch on
->> ASUS A7N8X-deluxe (nforce2, i386) and ASUS SK8N (nforce3, x86-64).
->>
->> On the ASUS SK8N the hardware monitoring is done with a IT8712F-A chip
->> on the ISA bus, so the only use for accessing the 2 SMBUS interfaces
->> in the nForce3 MCP is to read the SPD eeprom in the memory modules.
->>
->> I don't know if this works for other chips in the nForce3 family.
->
-> Patch looks good and simple, I'll apply it this evening.
->
-> Would you consider providing a similar patch to Greg for Linux 2.6?
->
-> Thanks,
-> Jean
+> Jan Engelhardt
+> --=20
+> Gesellschaft f=FF=FFr Wissenschaftliche Datenverarbeitung
+> Am Fassberg, 37077 G=FF=FFttingen, www.gwdg.de
 >
 
-------=_20041116131334_76696
-Content-Type: text/x-diff; name="nforce3_patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="nforce3_patch"
-
-diff -uprN linux-2.6.10-rc1/drivers/i2c/busses/i2c-nforce2.c patched/drivers/i2c/busses/i2c-nforce2.c
---- linux-2.6.10-rc1/drivers/i2c/busses/i2c-nforce2.c	2004-11-16 10:22:09.728664352 -0800
-+++ patched/drivers/i2c/busses/i2c-nforce2.c	2004-11-16 11:31:01.957470088 -0800
-@@ -1,6 +1,7 @@
- /*
-     SMBus driver for nVidia nForce2 MCP
- 
-+    Added nForce3 Pro 150  Thomas Leibold <thomas@plx.com>,
- 	Ported to 2.5 Patrick Dreker <patrick@dreker.de>,
-     Copyright (c) 2003  Hans-Frieder Vogt <hfvogt@arcor.de>,
-     Based on
-@@ -25,6 +26,7 @@
- /*
-     SUPPORTED DEVICES	PCI ID
-     nForce2 MCP		0064
-+    nForce3 Pro150 MCP	00D4
- 
-     This driver supports the 2 SMBuses that are included in the MCP2 of the
-     nForce2 chipset.
-@@ -53,6 +55,10 @@ MODULE_DESCRIPTION("nForce2 SMBus driver
- #define PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS   0x0064
- #endif
- 
-+#ifndef PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS   0x00D4
-+#endif
-+
- 
- struct nforce2_smbus {
- 	struct pci_dev *dev;
-@@ -294,6 +300,8 @@ static u32 nforce2_func(struct i2c_adapt
- static struct pci_device_id nforce2_ids[] = {
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS,
- 	       	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS,
-+	       	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ 0 }
- };
- 
-diff -uprN linux-2.6.10-rc1/drivers/i2c/busses/Kconfig patched/drivers/i2c/busses/Kconfig
---- linux-2.6.10-rc1/drivers/i2c/busses/Kconfig	2004-11-16 10:22:09.723665112 -0800
-+++ patched/drivers/i2c/busses/Kconfig	2004-11-16 11:01:18.162648120 -0800
-@@ -205,6 +205,7 @@ config I2C_NFORCE2
- 	help
- 	  If you say yes to this option, support will be included for the Nvidia
- 	  Nforce2 family of mainboard I2C interfaces.
-+	  This driver also supports the nForce3 Pro 150 MCP.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-nforce2.
-diff -uprN linux-2.6.10-rc1/include/linux/pci_ids.h patched/include/linux/pci_ids.h
---- linux-2.6.10-rc1/include/linux/pci_ids.h	2004-11-16 10:22:15.000000000 -0800
-+++ patched/include/linux/pci_ids.h	2004-11-16 11:21:28.223690880 -0800
-@@ -1081,6 +1081,7 @@
- #define PCI_DEVICE_ID_NVIDIA_NVENET_8		0x0056
- #define PCI_DEVICE_ID_NVIDIA_NVENET_9		0x0057
- #define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO	0x0059
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS	0x0064
- #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
- #define PCI_DEVICE_ID_NVIDIA_NVENET_2		0x0066
- #define PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO		0x006a
-@@ -1092,6 +1093,7 @@
- #define PCI_DEVICE_ID_NVIDIA_NFORCE3		0x00d1
- #define PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO		0x00da
- #define PCI_DEVICE_ID_NVIDIA_NFORCE3S  		0x00e1
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS	0x00d4
- #define PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE	0x00d5
- #define PCI_DEVICE_ID_NVIDIA_NVENET_3		0x00d6
- #define PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO		0x00da
-------=_20041116131334_76696--
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.
+--1678434306-1992984896-1100639679=:1963--

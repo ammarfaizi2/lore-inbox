@@ -1,36 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbVAKA2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbVAKAcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbVAKA2J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 19:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVAKA2J
+	id S262540AbVAKAcM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 19:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVAKAcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 19:28:09 -0500
-Received: from orb.pobox.com ([207.8.226.5]:33191 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262603AbVAKATF (ORCPT
+	Mon, 10 Jan 2005 19:32:09 -0500
+Received: from mail.teja.com ([209.10.202.115]:43155 "EHLO mail.teja.com")
+	by vger.kernel.org with ESMTP id S262540AbVAKA2v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 19:19:05 -0500
-Date: Mon, 10 Jan 2005 16:19:01 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: Steve Bergman <steve@rueb.com>, linux-kernel@vger.kernel.org
-Subject: Re: Proper procedure for reporting possible security vulnerabilities?
-Message-ID: <20050111001901.GA4378@ip68-4-98-123.oc.oc.cox.net>
-References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de> <41E2F6B3.9060008@rueb.com> <20050110230827.4d13ae7b.diegocg@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050110230827.4d13ae7b.diegocg@gmail.com>
-User-Agent: Mutt/1.5.5.1i
+	Mon, 10 Jan 2005 19:28:51 -0500
+Message-ID: <41E31F42.2000008@teja.com>
+Date: Mon, 10 Jan 2005 16:35:14 -0800
+From: Slade Maurer <smaurer@teja.com>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dsaxena@plexity.net
+CC: Dave <dave.jiang@gmail.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, linux@arm.linux.org.uk, drew.moseley@intel.com
+Subject: Re: clean way to support >32bit addr on 32bit CPU
+References: <8746466a050110153479954fd2@mail.gmail.com> <41E3176F.6000809@teja.com> <20050111000050.GA7958@plexity.net>
+In-Reply-To: <20050111000050.GA7958@plexity.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 11:08:27PM +0100, Diego Calleja wrote:
-> They could have mailed to *THIS* mailing list, so anyone can make a patch.
+Deepak Saxena wrote:
 
-And abandon the whole idea of coordinated disclosure? That would put
-anyone using vendor kernels at a disadvantage (there would be a time gap
-between the vulnerability being public and the vendor kernel being
-released -- which happened anyway with uselib() but which doesn't
-*always* happen).
+>On Jan 10 2005, at 16:01, Slade Maurer was caught saying:
+>  
+>
+>>Also, it would be nice to have PTEs to represent the upper 4GB such that 
+>>it can be mmapped to user space. PAE handled this in and it would be 
+>>great to have it in ARM MMU36 as well.
+>>    
+>>
+>
+>Not doable. I believe PAE allows for normal 4K pages to be used when
+>mapping > 32-bits. XSC3 and ARMv6 only allow for > 32 bit addresses 
+>when using 16MB pages (supersections), so we need to instead use
+>the hugetlb approach.
+>
+>~Deepak
+>
+>  
+>
+You are right of course. The MMUs first level descriptors force you to 
+have 16MB pages.
 
--Barry K. Nathan <barryn@pobox.com>
+I don't see anything wrong with using hugeTLB. Then it is up to the user 
+to get hugetlbfs setup so that they can mmap(...) properly. This is 
+forced on us by the designers of the MMU ;)
+
+I think that is better than setting permissions during ioremap(...) so 
+that a user space process can use a kernel virtual address for user 
+space access.
+
+ -Slade
+

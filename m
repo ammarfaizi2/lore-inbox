@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbTHUHjX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 03:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTHUHjX
+	id S262482AbTHUHi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 03:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTHUHi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 03:39:23 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:25869
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S262489AbTHUHjV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 03:39:21 -0400
-Subject: [PATCH] Allow either tid or pid in SCM_CREDENTIALS struct ucred
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andrew Morton <akpm@osdl.org>, kuznet@ms2.inr.ac.ru
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1061451559.4386.13.camel@localhost.localdomain>
+	Thu, 21 Aug 2003 03:38:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:52123 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262482AbTHUHi0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 03:38:26 -0400
+Date: Thu, 21 Aug 2003 00:40:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-t3: vfs/ext3 do_lookup bug?!
+Message-Id: <20030821004018.1fb79bbb.akpm@osdl.org>
+In-Reply-To: <20030821092534.0eb08a89.martin.zwickel@technotrend.de>
+References: <20030820171431.0211930e.martin.zwickel@technotrend.de>
+	<20030820113625.6a75d699.akpm@osdl.org>
+	<bi0grq$49r$1@build.pdx.osdl.net>
+	<20030821083337.6fc701b9.martin.zwickel@technotrend.de>
+	<20030820234119.33362f7a.akpm@osdl.org>
+	<20030821092534.0eb08a89.martin.zwickel@technotrend.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 21 Aug 2003 00:39:19 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Martin Zwickel <martin.zwickel@technotrend.de> wrote:
+>
+> On Wed, 20 Aug 2003 23:41:19 -0700
+> Andrew Morton <akpm@osdl.org> bubbled:
+> 
+> > Martin Zwickel <martin.zwickel@technotrend.de> wrote:
+> > >
+> > > cutted-dmesg.txt  text/plain (15496 bytes)
+> > 
+> > Try `dmesg -s 1000000'.   The silly thing has too small a buffer.
+> 
+> too late.. :(
+> rebooted and fscked.
+> on reboot, my console did hang up while unmounting fs's and i got tons of
+> strange errors about something on my fs(where the processes got stuck). can't
+> remeber the outputs, was too much and too fast.
+> only a sysrq-b helped.
+> 
+> on another fs i got some "Deleted inode ###### has zero dtime.  Fix<y>?".
 
-Could you stick this in -mm and see if anyone complains?  It fixes an
-apparent bug in the validation of the SCM_CREDENTIALS structure in a
-unix-domain socket sendmsg().
+Sigh.  Well the filesystem obviously shat itself, so the fsck errors aren't
+that surprising.
 
-I found this because with Valgrind, the sendmsg call is being done in a
-different thread from the one which did a getpid() to fill out the
-SCM_CREDENTIALS structure, which causes the kernel to fail the sendmsg
-with EPERM.  In the general case, this would cause a multithreaded
-program sending messages with SCM_CREDENTIALS to appear schizophrenic to
-a recipient, because every message would have a different pid depending
-on which thread happened to send it.
+My guess would be that something oopsed while holding a directory semaphore
+and you missed the oops.  Maybe you were in X at the time?
 
-If you use SCM_CREDENTIALS with a unix domain socket, and you're
-non-root, then the kernel double-checks the values you supply for pid,
-uid and gid in struct ucred.  In the case of uid or gid, it allows any
-of effective, saved or real uid/gid.  In the case of pid, it only allows
-current->pid, which is actually the tid.
+If it happens again, please remember that dmesg needs the `-s 1000000'
+option to prevent it from truncating output.
 
-This patch also makes it accept tgid in the SCM_CREDENTIALS pid field. 
-That is, a threaded program can either supply the ID of the whole
-process (tgid) or a particular thread (pid).  
+> ps.: 2.6.0-t3 scheduler performance is not that good...
 
-Thanks,
-	J
+It's pretty bad.  I'm running 2.6.0-test3-mm1 here which has Ingo/Con
+goodies and it is significantly improved.
 
- net/core/scm.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN net/core/scm.c~scm_allow_tgid net/core/scm.c
---- local-2.6/net/core/scm.c~scm_allow_tgid	2003-08-20 19:52:40.000000000 -0700
-+++ local-2.6-jeremy/net/core/scm.c	2003-08-21 00:28:10.295629745 -0700
-@@ -41,7 +41,8 @@
- 
- static __inline__ int scm_check_creds(struct ucred *creds)
- {
--	if ((creds->pid == current->pid || capable(CAP_SYS_ADMIN)) &&
-+	if (((creds->pid == current->pid || creds->pid == current->tgid) ||
-+	     capable(CAP_SYS_ADMIN)) &&
- 	    ((creds->uid == current->uid || creds->uid == current->euid ||
- 	      creds->uid == current->suid) || capable(CAP_SETUID)) &&
- 	    ((creds->gid == current->gid || creds->gid == current->egid ||
-
-_
-
+Once that code is working sufficiently well for everyone and there is
+consensus that the general direction is correct and the possible
+regressions with mixed database workloads are sorted out, we'll fix it up. 
+So don't panic yet.
 

@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265708AbSLBIXG>; Mon, 2 Dec 2002 03:23:06 -0500
+	id <S265705AbSLBISP>; Mon, 2 Dec 2002 03:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265711AbSLBIXG>; Mon, 2 Dec 2002 03:23:06 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:20416 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265708AbSLBIXF>;
-	Mon, 2 Dec 2002 03:23:05 -0500
-Date: Mon, 02 Dec 2002 00:28:15 -0800 (PST)
-Message-Id: <20021202.002815.58826951.davem@redhat.com>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Start of compat32.h (again)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <p737kesu9bt.fsf@oldwotan.suse.de>
-References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com.suse.lists.linux.kernel>
-	<1038804400.4411.4.camel@rth.ninka.net.suse.lists.linux.kernel>
-	<p737kesu9bt.fsf@oldwotan.suse.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S265700AbSLBISP>; Mon, 2 Dec 2002 03:18:15 -0500
+Received: from dial-ctb05213.webone.com.au ([210.9.245.213]:14855 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S265705AbSLBISN>;
+	Mon, 2 Dec 2002 03:18:13 -0500
+Message-ID: <3DEB192C.2080800@cyberone.com.au>
+Date: Mon, 02 Dec 2002 19:26:20 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: data corrupting bug in 2.4.20 ext3, data=journal
+References: <3DE9C43D.61FF79C5@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: 02 Dec 2002 09:13:58 +0100
-   
-   Random sample (with .ehframe stripped):
-   
-   64bit ls:
-   -rwxr-xr-x    1 root     root        76672 Oct 25 05:59 /bin/ls
-     text    data     bss     dec     hex filename
-     64847    7752    1136   73735   12007 /bin/ls
-   
-   32bit ls: 
-   -rwxr-xr-x    1 root     root        68524 2002-09-09 22:56 /bin/ls
-     text    data     bss     dec     hex filename
-     65353    1112     872   67337   10709 /bin/ls
-   
-   [< 1K .text growth, some .data growth due to 64bit pointers]
+Andrew Morton wrote:
 
-The data is where I'd say the bloat would be, and lo and behold is a
-nearly 7-fold increase for the sample you give us _only_ in the .data
-section.
+>Nick Piggin wrote:
+>> 
+>> Andrew Morton wrote:
+>> 
+>> >In 2.4.20-pre5 an optimisation was made to the ext3 fsync function
+>> >which can very easily cause file data corruption at unmount time.  This
+>> >was first reported by Nick Piggin on November 29th (one day after 2.4.20 was
+>> >released, and three months after the bug was merged.  Unfortunate timing)
+>> >
+>> In fact it was reported on lkml on 18th July IIRC before 2.4.19 was
+>> released if that is any help to you. 2.4.19 and 2.4.20 are affected
+>> and I haven't tested previous releases. I was going to re-report it
+>> sometime, but Alan brought it to light just the other day.
+>> 
+>
+>Are you sure?  I can't make it happen on 2.4.19.  And disabling the new
+>BH_Freed logic (which went into 2.4.20-pre5) makes it go away.
+>
+>
+>--- linux-akpm/fs/jbd/commit.c~a	Sun Dec  1 23:10:12 2002
+>+++ linux-akpm-akpm/fs/jbd/commit.c	Sun Dec  1 23:10:27 2002
+>@@ -695,7 +695,7 @@ skip_commit: /* The journal should be un
+> 		 * use in a different page. */
+> 		if (__buffer_state(bh, Freed)) {
+> 			clear_bit(BH_Freed, &bh->b_state);
+>-			clear_bit(BH_JBDDirty, &bh->b_state);
+>+//			clear_bit(BH_JBDDirty, &bh->b_state);
+> 		}
+> 			
+> 		if (buffer_jdirty(bh)) {
+>
+I reported the bug for 2.4.19-rc1 and 2 but I can't remember if I tested 
+2.4.19
+when it was released. It has an external journal on a seperate disk. I can't
+really do any testing with the machine unfortunately.
 
-This doesn't even include dynamically allocated data structures,
-things that sit on the stack, etc.
+Regards,
+Nick
 
-I can definitely see the text staying roughly the same, that's not the
-big cost, it's the larger data structures.
-
-BTW, I bet your dynamic relocation tables are a bit larger too.

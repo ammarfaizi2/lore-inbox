@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbTD3OmD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 10:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbTD3OmC
+	id S262189AbTD3Om4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 10:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTD3Om4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 10:42:02 -0400
-Received: from mx02.uni-tuebingen.de ([134.2.3.12]:28568 "EHLO
-	mx02.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S262206AbTD3OmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 10:42:01 -0400
-X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
- wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: dphillips@sistina.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Faster generic_fls
-References: <Pine.LNX.4.44.0304300709300.7157-100000@home.transmeta.com>
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Date: 30 Apr 2003 16:53:54 +0200
-In-Reply-To: <Pine.LNX.4.44.0304300709300.7157-100000@home.transmeta.com>
-Message-ID: <87ptn4t4sd.fsf@student.uni-tuebingen.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
-MIME-Version: 1.0
+	Wed, 30 Apr 2003 10:42:56 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:64011 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262189AbTD3Omt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 10:42:49 -0400
+Date: Wed, 30 Apr 2003 15:55:07 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add a stub by which a module can bind to the AFS syscall
+Message-ID: <20030430155507.A8897@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <25734.1051710294@warthog.warthog> <20030430150211.A7024@infradead.org> <20030430144638.GB25076@gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.10
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030430144638.GB25076@gtf.org>; from jgarzik@pobox.com on Wed, Apr 30, 2003 at 10:46:38AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Wed, Apr 30, 2003 at 10:46:38AM -0400, Jeff Garzik wrote:
+> It's better than the alternative, having OpenAFS patch the system
+> call table itself... ;-)
 
-> Classic mistake. Lookup tables are only faster in benchmarks, they
-> are almost always slower in real life. You only need to miss in the
-> cache _once_ on the lookup to lose all the time you won on the
-> previous one hundred calls.
+That's already taken care of with David's first patch.  There's no
+reason we can't have an afsctlfs like the nfsctlfs.  But anyway,
+please list the prototypes and usages of the subcalls here, maybe
+some of them are generally usefull.
 
-It seems to me if you call the function so seldom the table drops out
-of the cache, it is irrelevant how long it takes anyway.
+This kind of "I need a stuff fr a random syscall multiplexer"
+requests are silly. APIs need review or you'll get the syssgi syndrome
+really soon..
 
-> "Small and simple" is almost always better than the alternatives. 
-
-Well, if a lookup table isn't "small and simple", I don't know what
-is.
-
--- 
-	Falk

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266508AbRGDGNn>; Wed, 4 Jul 2001 02:13:43 -0400
+	id <S264238AbRGDGYD>; Wed, 4 Jul 2001 02:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266510AbRGDGNd>; Wed, 4 Jul 2001 02:13:33 -0400
-Received: from mail.bmlv.gv.at ([193.171.152.34]:38064 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id <S266508AbRGDGNW>;
-	Wed, 4 Jul 2001 02:13:22 -0400
-Message-Id: <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Wed, 04 Jul 2001 08:16:21 +0200
-To: Rik van Riel <riel@conectiva.com.br>
-From: "Ph. Marek" <marek@bmlv.gv.at>
-Subject: Re: Ideas for TUX2
-Cc: <linux-kernel@vger.kernel.org>, <phillips@bonn-fries.net>
-In-Reply-To: <Pine.LNX.4.33L.0107032042220.28737-100000@imladris.rielhom
- e.conectiva>
-In-Reply-To: <3.0.6.32.20010703082513.0091f900@pop3.bmlv.gv.at>
+	id <S265967AbRGDGXx>; Wed, 4 Jul 2001 02:23:53 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:1043 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S264238AbRGDGXr>;
+	Wed, 4 Jul 2001 02:23:47 -0400
+Date: Wed, 4 Jul 2001 00:24:36 -0600
+From: Cort Dougan <cort@fsmlabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+Message-ID: <20010704002436.C1294@ftsoj.fsmlabs.com>
+In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010703233605.A1244@zalem.puupuu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010703233605.A1244@zalem.puupuu.org>; from galibert@pobox.com on Tue, Jul 03, 2001 at 11:36:05PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If a file's data has been changed, it suffices to update the inode and the
->> of free blocks bitmap (fbb).
->> But updating them in one go is not possible
->
->You seem to have missed some fundamental understanding of
->exactly how phase tree works; the wohle point of phase
->tree is to make atomic updates like this possible!
-Well, my point was, that with several thousand inodes spread over the disk
-it won't always be possible to update the inode AND the fbb in one go.
-So I proposed the 2nd inode with generation counter!
+There isn't such a crippling difference between straight-line and code with
+unconditional branches in it with modern processors.  In fact, there's very
+little measurable difference.
 
+If you're looking for something to blame hurd performance on I'd suggest
+the entire design of Mach, not inline asm vs procedure calls.  Tossing a
+few context switches into calls is a lot more expensive.
 
-Regards,
-
-Phil
+} > In other words, if you know the push sequence of your C compiler's
+} > function calls, you don't need asm("");.
+} 
+} You are very much forgetting _inline_ asm.  And if you think that's
+} unimportant for performance, well, as Al would say, go back playing
+} with Hurd.

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbUKPTnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbUKPTxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbUKPTnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 14:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbUKPTlE
+	id S261791AbUKPTxh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 14:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUKPTxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 14:41:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:226 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262126AbUKPTjL (ORCPT
+	Tue, 16 Nov 2004 14:53:36 -0500
+Received: from mail4.utc.com ([192.249.46.193]:62141 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S261785AbUKPTwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 14:39:11 -0500
-Date: Tue, 16 Nov 2004 11:38:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041116193836.GB10327@kroah.com>
-References: <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com> <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com> <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu> <20041116175857.GA9213@kroah.com> <E1CU8hS-0007U5-00@dorka.pomaz.szeredi.hu> <20041116191643.GA10021@kroah.com> <E1CU91x-0007Xw-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CU91x-0007Xw-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.6i
+	Tue, 16 Nov 2004 14:52:15 -0500
+Message-ID: <419A5A53.6050100@cybsft.com>
+Date: Tue, 16 Nov 2004 13:51:47 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mark_H_Johnson@raytheon.com, Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Stefan Schweizer <sschweizer@gmail.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com> <20041116184315.GA5492@elte.hu>
+In-Reply-To: <20041116184315.GA5492@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 08:30:21PM +0100, Miklos Szeredi wrote:
-> > Any ioctls?  Any wierd, non-chardev like things?
+Ingo Molnar wrote:
+> * Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 > 
-> Nothing extraordinary.  Messages are sent/received with plain read and
-> write.
-
-Ok, that sounds acceptable.
-
-> > Again, inline code would have been nice to see so those of us who live
-> > in our email clients could have reviewed it...
 > 
-> Next time I'll try to split it up in managable parts, and send it
-> inline.
+>>Florian Schmidt <mista.tapas@gmx.net> wrote:
+>>
+>>
+>>>ok, this new build still hangs at the same spot.
+>>
+>>Me too. The serial console output follows at the end. Will try a few
+>>boot alternatives and let you know if I can get this to run.
+>>>From what I can tell, it was attempting to test the NMI watchdog
+>>when it failed.
+> 
+> 
+> i've uploaded -5 with a fix in profile_tick() - does it boot fine for
+> you now?
+> 
 
-I, and others, will appreciate that.
+I now have both of my SMP systems booted on -V0.7.27-6 now without any 
+problems.
 
-thanks,
-
-greg k-h
+kr

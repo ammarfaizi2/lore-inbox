@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAJVbv>; Wed, 10 Jan 2001 16:31:51 -0500
+	id <S136594AbRAJVcB>; Wed, 10 Jan 2001 16:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136595AbRAJVbg>; Wed, 10 Jan 2001 16:31:36 -0500
-Received: from [213.8.206.36] ([213.8.206.36]:10770 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S136576AbRAJVbS>;
-	Wed, 10 Jan 2001 16:31:18 -0500
-Date: Wed, 10 Jan 2001 23:30:17 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Thiago Rondon <maluco@mileniumnet.com.br>
-cc: dahinds@users.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ds patch
-In-Reply-To: <Pine.LNX.4.21.0101101623150.4170-100000@freak.mileniumnet.com.br>
-Message-ID: <Pine.LNX.4.21.0101102313310.27620-100000@callisto.yi.org>
+	id <S136595AbRAJVbv>; Wed, 10 Jan 2001 16:31:51 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:3514 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S136594AbRAJVbo>; Wed, 10 Jan 2001 16:31:44 -0500
+Date: Wed, 10 Jan 2001 22:33:35 +0100 (CET)
+From: Matthias Juchem <matthias@gandalf.math.uni-mannheim.de>
+Reply-To: Matthias Juchem <juchem@uni-mannheim.de>
+To: Richard Torkar <ds98rito@thn.htu.se>
+cc: Matthias Juchem <juchem@uni-mannheim.de>, <linux-kernel@vger.kernel.org>,
+        Keith Owens <kaos@ocs.com.au>, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: bugreporting script - second try
+In-Reply-To: <Pine.LNX.4.30.0101102205250.1391-100000@studpc91.thndorm.htu.se>
+Message-ID: <Pine.LNX.4.30.0101102227500.12979-100000@gandalf.math.uni-mannheim.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, Thiago Rondon wrote:
+On Wed, 10 Jan 2001, Richard Torkar wrote:
 
-> Check kmalloc().
+> I do not have any PPP, and no kdb installed on that machine, neither do I
+> have procinfo. Shouldn't it say N/A or not found instead of the above? The
+> ppp part is not true ;-).
 
-In case where kmalloc() failed we shouldn't increase driver->use_count,
-because we wouldn't be able to decrease it at unbind_request(), since we
-got no matching socket_bind_t in the list.
+Sure. I forgot to convert some function calls... But I'll have to rewrite
+that part anyway, I don't like it.
 
-Prehaps the increase of the use count should be moved after the 
-check. Like:
+> Other thing I thought about was the Ctrl-D thingy when entering text.
+> What if ppl don't have any text to enter? Shouldn't is say on each line
+> that if you don't have anything to write then just write N/A and press
+> Ctrl-D? Because pressing Ctrl-D directly doesn't do any good.
 
---- linux/drivers/pcmcia/ds.c	Sat Sep  2 10:13:49 2000
-+++ linux/drivers/pcmcia/ds.c	Wed Jan 10 23:23:10 2001
-@@ -412,8 +412,11 @@
-     }
- 
-     /* Add binding to list for this socket */
--    driver->use_count++;
-     b = kmalloc(sizeof(socket_bind_t), GFP_KERNEL);
-+    if (!b)
-+    	return -ENOMEM;
-+
-+    driver->use_count++;
-     b->driver = driver;
-     b->function = bind_info->function;
-     b->instance = NULL;
+You are right. I will change this...
 
- 
+> Sorry to just be a pain in the ass, and *very* sorry for not having the
+> time to make a patch for you :)
 
-> -Thiago Rondon
-> 
-> --- linux-2.4.0-ac5/drivers/pcmcia/ds.c	Sat Sep  2 04:13:49 2000
-> +++ linux-2.4.0-ac5.maluco/drivers/pcmcia/ds.c	Wed Jan 10 16:20:53 2001
-> @@ -414,6 +414,8 @@
->      /* Add binding to list for this socket */
->      driver->use_count++;
->      b = kmalloc(sizeof(socket_bind_t), GFP_KERNEL);
-> +    if (!b) 
-> +      return -ENOMEM;    
->      b->driver = driver;
->      b->function = bind_info->function;
->      b->instance = NULL;
-
--- 
-Dan Aloni 
-dax@karrde.org
+That's fine, I *need* comments.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

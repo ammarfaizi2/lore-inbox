@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270747AbUJUPW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270753AbUJUPL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270747AbUJUPW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270745AbUJUPV7
+	id S270753AbUJUPL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270718AbUJUPIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:21:59 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:31874 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S270748AbUJUPTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:19:21 -0400
-Message-ID: <4177D353.8090106@nortelnetworks.com>
-Date: Thu, 21 Oct 2004 09:18:43 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Thu, 21 Oct 2004 11:08:21 -0400
+Received: from moutng.kundenserver.de ([212.227.126.191]:24294 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S270748AbUJUPF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 11:05:56 -0400
+Message-ID: <4177D06A.40308@corscience.de>
+Date: Thu, 21 Oct 2004 17:06:18 +0200
+From: Simon Braunschmidt <braunschmidt@corscience.de>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com> <41772674.50403@metaparadigm.com> <417736C0.8040102@zytor.com> <417743EF.90604@nortelnetworks.com> <417744FD.1000008@zytor.com> <41774E20.8000309@nortelnetworks.com> <41774FEE.8020801@zytor.com>
-In-Reply-To: <41774FEE.8020801@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Timothy Miller <miller@techsource.com>
+CC: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <1098311393.15517.4.camel@localhost> <4177CD5A.8010309@techsource.com>
+In-Reply-To: <4177CD5A.8010309@techsource.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:8519ad80e38159671026452e53963bc3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-
-> POSIX specifies:
-
-<useful stuff snipped>
-
-> The recvmsg( ) function may fail if:
+Timothy Miller schrieb:
 > 
-> [EIO] An I/O error occurred while reading from or writing to the file 
-> system.
+> 
+> Kasper Sandberg wrote:
+> 
+>> well.. while i like this idea, i doubt it is ever going to work, since
+>> 3d would probably be a requirement, and with stuff like nvidia around, i
+>> doubt most people would want to pay the money it would require, since
+>> ati and nvidia can smash out millions of cards, while it would probably
+>> be at best, a couple of thousands of these opensource cards that could
+>> be sold, i, for one would like to pay, however i dont think mainstream
+>> will... and as of for 2d only, well :| i kindof needs 3d :(
+>> but certainly a good idea, and maybe in future, if linux grows more
+>> used, it will actually be possible to do something real kicking ass ;)
+>>
+>>
+> 
+> Perhaps typical end users are not our target market.  Instead, maybe we 
+> should be targeting companies that sell workstations and servers who 
+> want something which maximized stability, regardless of the cost and 
+> performance.
+> 
+> If you're selling a $5000 workstation, you might be willing to pay $300 
+> for a graphics card that saves you thousands in customer support calls 
+> that don't have to happen.
+> 
 
-<snipped>
+Is $300 with 3D in the class of geforce2/ati_r200?
 
-> Since you didn't code to Linux, and didn't code to POSIX... what did you 
-> code to?
-
-I didn't code it--my code generally uses nonblocking sockets or doesn't use 
-select at all.  I'm just commenting on existing apps.
-
-What do you mean by "didn't code to Linux"?  The Linux man pages for recvmsg() 
-and ip do not mention EIO.  Hence, I suspect that not many people coding for 
-Linux will have handled it.  Furthermore, the Linux man page for select() says 
-that a socket that is returned as readable will not block on a subsequent read.
-
->> On the other hand, if you simply do the checksum verification at 
->> select() time for blocking sockets, then the existing binaries get 
->> exactly the behaviour they expect.
-
-> ... unless the blocking changes.  In which case you either have to do 
-> work twice, or it might *never* happen.  Not to mention the extra code 
-> complexity.
-
-If you verify the checksum at select time, you could just flag the packet as 
-verified.  Then even if you do a recvmsg() with MSG_DONTWAIT, you wouldn't have 
-to verify it again.  It means an extra pass over the data compared to a full-on 
-O_NONBLOCK socket, but it's still correct.
-
-If you change from nonblocking to blocking between select() and recvmsg(), then 
-you have a problem, but you're still no worse off than the current situation.
-
-The extra complexity is a valid point, but I suggest that the expectations of 
-the installed base are more important.
-
-
-> The performance overhead of checksumming is substantial; I have seen 
-> some real horror examples of what happens when you do it badly.
-
-Again, this is only a backwards compatibility thing.  All new apps should use 
-nonblocking sockets anyways, right?  So this way, old apps don't suffer from 
-single-packet-DOS attacks, at the cost of a performance penalty.
-
-Chris
+Simon

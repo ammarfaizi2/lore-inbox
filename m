@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUHQCZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUHQC67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268076AbUHQCZg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 22:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268078AbUHQCZg
+	id S261234AbUHQC67 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 22:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUHQC67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 22:25:36 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:59009 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S268076AbUHQCZe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 22:25:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Keyboard input ignored by 2.6.8
-Date: Mon, 16 Aug 2004 19:25:45 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3015B698E@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Keyboard input ignored by 2.6.8
-Thread-Index: AcSCHhdKMgeYrjdpRPCJN1PWfj8w1wB4wsBQ
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Tetsuji Rai" <badtrans666@yahoo.co.jp>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Aug 2004 02:25:45.0779 (UTC) FILETIME=[806EB830:01C48401]
+	Mon, 16 Aug 2004 22:58:59 -0400
+Received: from av6.lga.net.sg ([203.92.64.141]:45719 "HELO av6.lga.net.sg")
+	by vger.kernel.org with SMTP id S261234AbUHQC66 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 22:58:58 -0400
+Message-ID: <01C48448.D5B44750.vanitha@agilis.st.com.sg>
+From: Vanitha Ramaswami <vanitha@agilis.st.com.sg>
+Reply-To: "vanitha@agilis.st.com.sg" <vanitha@agilis.st.com.sg>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Serial Driver for PPP - that runs in Half Duplex Mode
+Date: Tue, 17 Aug 2004 10:56:22 -0000
+Organization: Agilis Communications
+X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Today I compiled 2.6.8 on my Debian sarge with gcc-3.4(and tested with
->gcc-3.3 also), and found 2.6.8 didn't accept my keyboard input.   My
->keybaord is a usual PS/2 keyboard.  I don't know what's going 
->on.  I cannot
->even login.   Until today I have been using 2.6.7 without any 
->problem.   I
->attach my .config file as the attachment.
->
->Another (minor?) problem is when I compiled into usb stuff 
->into the 2.6.8
->kernel, it freezed on booting.  So I compiled usb stuff as 
->modules and it
->was solved.
+Hi All,
+Is there a serial PPP Driver , that is capable of operating in half duplex 
+mode. I have a radio that operates in half duplex mode and it has a serial 
+interface. I want to establish a Point to Point connection between two 
+Radios.
 
-Try this patch
-http://www.mail-archive.com/linux-usb-devel%40lists.sourceforge.net/msg2
-6993.html.
-You need to specify "usb-handoff" as a kernel boot parameter.
+Do you have a serial port PPP Driver that supports half-duplex mode of 
+operation ?. i.e.  I need RTS to be active when you are transmitting data 
+and to be inactive to receive.
 
-Aleks.
+Thanks
+Vanitha
+

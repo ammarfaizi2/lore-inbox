@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRALK62>; Fri, 12 Jan 2001 05:58:28 -0500
+	id <S129431AbRALK63>; Fri, 12 Jan 2001 05:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRALK6T>; Fri, 12 Jan 2001 05:58:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40709 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129401AbRALK6N>;
-	Fri, 12 Jan 2001 05:58:13 -0500
+	id <S129401AbRALK6T>; Fri, 12 Jan 2001 05:58:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41989 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129383AbRALK6L>;
+	Fri, 12 Jan 2001 05:58:11 -0500
 From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101111036.KAA07188@brick.arm.linux.org.uk>
+Message-Id: <200101111327.NAA07244@brick.arm.linux.org.uk>
 Subject: Re: Compatibility issue with 2.2.19pre7
-To: ak@suse.de (Andi Kleen)
-Date: Thu, 11 Jan 2001 10:36:45 +0000 (GMT)
-Cc: andrea@suse.de (Andrea Arcangeli), mantel@suse.de (Hubert Mantel),
+To: manfred@colorfullife.com (Manfred)
+Date: Thu, 11 Jan 2001 13:27:34 +0000 (GMT)
+Cc: ak@suse.de (Andi Kleen), manfred@colorfullife.com (Manfred),
+        rmk@arm.linux.org.uk (Russell King), andrea@suse.de (Andrea Arcangeli),
+        mantel@suse.de (Hubert Mantel),
         linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
         alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <20010111113353.B20569@gruyere.muc.suse.de> from "Andi Kleen" at Jan 11, 2001 11:33:53 AM
+In-Reply-To: <979216159.3a5da71fdc35b@colorfullife.com> from "Manfred" at Jan 11, 2001 07:29:19 AM
 X-Location: london.england.earth.mulky-way.universe
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
@@ -23,13 +25,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
-> The change is rather useless anyways, because even in NFSv3 file handles
-> cannot be >64bytes. Would even fit in a char, doesn't need a short nor an
-> int. 
+Manfred writes:
+> 2.2.18 struct nfs_fh is a new structure for nfsV3, it doesn't exist in 2.2.17.
+> That structure is unusable on ARM.
 
-Indeed, but whether it be a char or a short, it'll still break on ARM.  My
-original set of 3 solutions still stand therefore.
+Correct.
+
+> Russel want's to change the new "struct nfs_fh" (from 2.2.18), and that
+> change is included in 2.2.19pre7. But that change breaks i386 nfs mount.
+
+Unfortunately.
+
+> Could someone with an Alpha/Sparc/ARM compiler compile a test program with
+> "struct nfs_fh" from 2.2.18 and print the offset of nfs_fh.data?
+
+2
    _____
   |_____| ------------------------------------------------- ---+---+-
   |   |         Russell King        rmk@arm.linux.org.uk      --- ---

@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUJOKfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUJOKj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267565AbUJOKfA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 06:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUJOKfA
+	id S267588AbUJOKj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 06:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267645AbUJOKj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 06:35:00 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:15496 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S267565AbUJOKe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 06:34:58 -0400
-Date: Fri, 15 Oct 2004 14:34:41 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
-Message-ID: <20041015143441.A31625@jurassic.park.msu.ru>
-References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk> <20041014182704.A13971@jurassic.park.msu.ru> <20041014143924.GP16153@parcelfarce.linux.theplanet.co.uk> <20041015071926.GA11457@twiddle.net>
+	Fri, 15 Oct 2004 06:39:29 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:24449 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S267588AbUJOKjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 06:39:25 -0400
+Date: Fri, 15 Oct 2004 12:39:14 +0200
+To: =?iso-8859-15?Q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org,
+       debian-alpha@lists.debian.org, linux-alpha@vger.kernel.org
+Subject: Re: 2.4.27, alpha arch, make bootimage and make bootpfile fails
+Message-ID: <20041015103914.GA24800@gamma.logic.tuwien.ac.at>
+References: <20041012173344.GA21846@gamma.logic.tuwien.ac.at> <20041013233247.A11663@jurassic.park.msu.ru> <20041014130035.GA4152@gamma.logic.tuwien.ac.at> <yw1xis9d8b9b.fsf@ford.guide>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041015071926.GA11457@twiddle.net>; from rth@twiddle.net on Fri, Oct 15, 2004 at 12:19:26AM -0700
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xis9d8b9b.fsf@ford.guide>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 12:19:26AM -0700, Richard Henderson wrote:
-> So you conclude from 50% of the ports implementing things in a 
-> particular way that you should invent a totally new interface?
-> Isn't the obvious solution to implement the existing interface
-> for the ports that don't have it?
+On Don, 14 Okt 2004, Måns Rullgård wrote:
+> > Loading the kernel...'root=/dev/sda1'
+> >
+> > Halted CPU 0
+> >
+> > halt code = 2
+> > kernel stack not valid halt
+> > PC = 200000000
+> > boot failure
+> 
+> Try building more things as modules instead of builtin, if possible.
 
-Definitely.
-Besides, pci_bus_to_phys() name is quite misleading. Sounds like
-invitation to use phys_to_virt() with the returned value...
-pcibios_bus_to_resource as the inverse of pcibios_resource_to_bus
-would be much cleaner.
+I have reduced the whole kernel zo more or less nothing included,
+besides the SCSI drivers, and the same still happens. 
 
-Ivan.
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+LOCHRANZA (n.)
+The long unaccomplished wail in the middle of a Scottish folk song
+where the pipes nip around the corner for a couple of drinks.
+			--- Douglas Adams, The Meaning of Liff

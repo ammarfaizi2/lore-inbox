@@ -1,110 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUESAVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263592AbUESAYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUESAVi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 20:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUESAVd
+	id S263592AbUESAYs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 20:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbUESAYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 20:21:33 -0400
-Received: from mail.kroah.org ([65.200.24.183]:51592 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263601AbUESAVW (ORCPT
+	Tue, 18 May 2004 20:24:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58301 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263601AbUESAYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 20:21:22 -0400
-Date: Tue, 18 May 2004 17:20:00 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] Some driver changes for 2.6.6 (msleep)
-Message-ID: <20040519002000.GA11409@kroah.com>
+	Tue, 18 May 2004 20:24:46 -0400
+Date: Tue, 18 May 2004 17:27:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: invalidate_inode_pages2
+Message-Id: <20040518172718.773d32c1.akpm@osdl.org>
+In-Reply-To: <20040519001520.GO3044@dualathlon.random>
+References: <20040519001520.GO3044@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> Something broke in invalidate_inode_pages2 between 2.4 and 2.6, this
+> causes malfunctions with mapped pages in 2.6.
 
-Based on the previous USB changes creating a useful sleep function that
-all drivers can use, Jeff Garzik suggested that I make it available to
-all of the kernel.  Doing this enabled me to remove a lot of local
-driver functions that all did the same thing (and some of them did it
-wrong, like the i2c code...)  Anyway, here is the result of this
-cleanup, it's been discussed on lkml as to the name and location of the
-function.
+What is the malfunction?
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/usb-2.6
+> I guess the below untested one liner should be enough to fix it. The
+> only single point of invalidate_inode_pages2, is to invalidate _mapped_
+> pages too. Otherwise we could as well use invalidate_inode_pages.
+> Clearly the dirty bit doesn't mean invalidate, invalidate primarly means
+> clearing the uptodate bitflag.
+> 
+> --- sles/mm/truncate.c.~1~	2004-05-18 19:24:40.000000000 +0200
+> +++ sles/mm/truncate.c	2004-05-19 02:09:28.311781864 +0200
+> @@ -260,9 +260,10 @@ void invalidate_inode_pages2(struct addr
+>  			if (page->mapping == mapping) {	/* truncate race? */
+>  				wait_on_page_writeback(page);
+>  				next = page->index + 1;
+> -				if (page_mapped(page))
+> +				if (page_mapped(page)) {
+> +					ClearPageUptodate(page);
+>  					clear_page_dirty(page);
+> -				else
+> +				} else
+>  					invalidate_complete_page(mapping, page);
+>  			}
+>  			unlock_page(page);
 
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
-
- drivers/block/carmel.c              |    6 ------
- drivers/i2c/busses/i2c-ali1535.c    |    5 +++--
- drivers/i2c/busses/i2c-ali1563.c    |    5 +++--
- drivers/i2c/busses/i2c-ali15x3.c    |    5 +++--
- drivers/i2c/busses/i2c-amd756.c     |    7 ++++---
- drivers/i2c/busses/i2c-amd8111.c    |    2 +-
- drivers/i2c/busses/i2c-i801.c       |    7 ++++---
- drivers/i2c/busses/i2c-piix4.c      |    3 ++-
- drivers/i2c/busses/i2c-sis5595.c    |    3 ++-
- drivers/i2c/busses/i2c-sis630.c     |    3 ++-
- drivers/i2c/busses/i2c-sis96x.c     |    3 ++-
- drivers/i2c/busses/i2c-viapro.c     |    3 ++-
- drivers/i2c/chips/w83l785ts.c       |    3 ++-
- drivers/input/gameport/ns558.c      |    5 +++--
- drivers/input/gameport/vortex.c     |    3 ++-
- drivers/input/joystick/adi.c        |    6 +++---
- drivers/input/joystick/analog.c     |    6 +++---
- drivers/input/joystick/gf2k.c       |    4 ++--
- drivers/macintosh/therm_pm72.c      |   17 +++++------------
- drivers/net/irda/stir4200.c         |    5 +++--
- drivers/scsi/libata-core.c          |   17 -----------------
- drivers/usb/core/hub.c              |   14 +++++++-------
- drivers/usb/core/usb.c              |   11 -----------
- drivers/usb/host/ehci-hcd.c         |    6 +++---
- drivers/usb/host/ehci-hub.c         |    2 +-
- drivers/usb/host/ehci.h             |    6 ------
- drivers/usb/host/ohci-hcd.c         |    4 ++--
- drivers/usb/host/ohci-hub.c         |    4 ++--
- drivers/usb/host/ohci-pci.c         |    6 +++---
- drivers/usb/host/ohci.h             |    6 ------
- drivers/usb/input/aiptek.c          |    2 +-
- drivers/usb/misc/usbtest.c          |    2 +-
- drivers/usb/net/usbnet.c            |    2 +-
- drivers/usb/serial/io_ti.c          |    4 ++--
- drivers/usb/storage/datafab.c       |    2 +-
- drivers/usb/storage/isd200.c        |    4 ++--
- drivers/usb/storage/jumpshot.c      |    2 +-
- drivers/usb/storage/shuttle_usbat.c |   14 +++++++-------
- drivers/video/aty/radeon_base.c     |    2 +-
- drivers/video/aty/radeon_i2c.c      |   16 ++++++++--------
- drivers/video/aty/radeonfb.h        |    9 ---------
- include/linux/delay.h               |    2 ++
- include/linux/gameport.h            |    6 ------
- include/linux/i2c.h                 |    7 -------
- include/linux/usb.h                 |   13 -------------
- kernel/timer.c                      |   17 +++++++++++++++++
- sound/oss/dmasound/dac3550a.c       |    5 +++--
- sound/oss/dmasound/dmasound.h       |    6 ------
- sound/oss/dmasound/dmasound_awacs.c |   30 +++++++++++++++---------------
- sound/oss/trident.c                 |    2 +-
- sound/pci/au88x0/au88x0_game.c      |    3 ++-
- 51 files changed, 134 insertions(+), 193 deletions(-)
------
-
-Greg Kroah-Hartman:
-  o Some more misc wait_ms() conversions to use msleep()
-  o Input: remove wait_ms() in place of using msleep()
-  o I2C: change i2c_delay() to use msleep() instead
-  o USB: remove wait_ms() from usb.h as it's no longer needed
-  o USB: remove ehci and ohci's private sleep function and use msleep() instead
-  o USB: clean up usages of wait_ms() now that we have msleep()
-  o USB: remove usb_uninterruptible_sleep_ms() now that we have msleep()
-  o Remove libata's version of msleep()
-  o Delete block/carmel.c's version of msleep()
-  o Add msleep function to the kernel core to prevent duplication
+It's currently the case that pages which are mapped into process pagetables
+are always up to date, which sounds like a good invariant to have.  This
+changes that rule.  I dunno if it'll break anything though.
 

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbTEFHKu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 03:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTEFHKu
+	id S262414AbTEFHIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 03:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTEFHIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 03:10:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34277 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262427AbTEFHKt (ORCPT
+	Tue, 6 May 2003 03:08:21 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:60435 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262412AbTEFHIS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 03:10:49 -0400
-Date: Mon, 05 May 2003 23:15:53 -0700 (PDT)
-Message-Id: <20030505.231553.68055974.davem@redhat.com>
-To: akpm@digeo.com
+	Tue, 6 May 2003 03:08:18 -0400
+Date: Tue, 6 May 2003 00:22:29 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "David S. Miller" <davem@redhat.com>
 Cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] kmalloc_percpu
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030506002229.631a642a.akpm@digeo.com>
-References: <20030505235549.5df75866.akpm@digeo.com>
+Message-Id: <20030506002229.631a642a.akpm@digeo.com>
+In-Reply-To: <20030505.225748.35026531.davem@redhat.com>
+References: <20030505224815.07e5240c.akpm@digeo.com>
+	<20030505.223554.88485673.davem@redhat.com>
+	<20030505235549.5df75866.akpm@digeo.com>
 	<20030505.225748.35026531.davem@redhat.com>
-	<20030506002229.631a642a.akpm@digeo.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 May 2003 07:20:43.0431 (UTC) FILETIME=[01515B70:01C313A0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@digeo.com>
-   Date: Tue, 6 May 2003 00:22:29 -0700
+"David S. Miller" <davem@redhat.com> wrote:
+>
+> Make kmalloc_per_cpu() merely a convenience macro, made up of existing
+> non-percpu primitives.
 
-   "David S. Miller" <davem@redhat.com> wrote:
-   >
-   > Make kmalloc_per_cpu() merely a convenience macro, made up of existing
-   > non-percpu primitives.
-   
-   I think we're agreeing here.
-   
-As just pointed out by dipankar the only issue is NUMA...
-so it has to be something more sophisticated than simply
-kmalloc()[smp_processor_id];
+I think we're agreeing here.
+
+The current kmalloc_percpu() is a wrapper around kmalloc.  That seems OK to
+me.
+
+What we _do_ want to solve is the problem that DEFINE_PERCPU() does not work
+in modules.  Rusty's patch (reworked to not alter kmalloc_percpu) would suit
+that requirement.
+
+
+(kiran has a new version of kmalloc_percpu() which may be faster than the
+current one, but for the purposes of this discussion it's equivalent).
+

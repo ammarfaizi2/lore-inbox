@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268997AbRH0VSm>; Mon, 27 Aug 2001 17:18:42 -0400
+	id <S269041AbRH0VWW>; Mon, 27 Aug 2001 17:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRH0VSc>; Mon, 27 Aug 2001 17:18:32 -0400
-Received: from barry.mail.mindspring.net ([207.69.200.25]:31548 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S268997AbRH0VSY>; Mon, 27 Aug 2001 17:18:24 -0400
-Subject: Re: Updated Linux kernel preemption patches
-From: Robert Love <rml@tech9.net>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Cc: J Sloan <jjs@toyota.com>, Cliff Albert <cliff@oisec.net>
-In-Reply-To: <998941465.1993.9.camel@phantasy>
-In-Reply-To: <998877465.801.19.camel@phantasy>
-	<20010827093835.A15153@oisec.net>  <3B8AA02D.6F7561AB@lexus.com> 
-	<998941465.1993.9.camel@phantasy>
-Content-Type: text/plain
+	id <S269067AbRH0VWM>; Mon, 27 Aug 2001 17:22:12 -0400
+Received: from imo-r03.mx.aol.com ([152.163.225.99]:6082 "EHLO
+	imo-r03.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S269041AbRH0VV6>; Mon, 27 Aug 2001 17:21:58 -0400
+From: Floydsmith@aol.com
+Message-ID: <b8.1a85f08d.28bc13fa@aol.com>
+Date: Mon, 27 Aug 2001 17:22:02 EDT
+Subject: 2.4.9 ide-floppy broken - 2.4.8 works ok
+To: linux-kernel@vger.kernel.org
+CC: Floydsmith@aol.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 27 Aug 2001 17:18:57 -0400
-Message-Id: <998947154.11860.30.camel@phantasy>
-Mime-Version: 1.0
+X-Mailer: AOL 4.0 for Windows 95 sub 14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ahhh I think I got it. nevermind the bit about CONFIG_PREEMPT not being
-set, that is not it (as I am sure you all know).
+My ls-120 drive is connected to /dev/hdd (a scsi emulated IDE drive is 
+connected to /dev/hdc)
 
-The problem is that dec_and_lock.c is not being compiled (or at least
-the object isnt being included).  I believe this is caused by having bad
-dependencies.  My .depend has a dependency to compile the object -- I
-wager your's does not.
+The "messages" has:
+Aug 27 17:17:28 localhost kernel: hdb: 30043440 sectors (15382 MB) w/2048KiB 
+Cache, CHS=1870/255/63
+Aug 27 17:17:28 localhost kernel: ide-floppy driver 0.97
+Aug 27 17:17:28 localhost kernel: hdd: No disk in drive
+Aug 27 17:17:28 localhost kernel: hdd: 123264kB, 963/8/32 CHS, 533 kBps, 512 
+sector size, 720 rpm
+Aug 27 17:17:28 localhost kernel: ide-floppy: hdd: I/O error, pc = 5a, key =  
+5, asc = 24, ascq =  0
+Aug 27 17:17:28 localhost kernel: Partition check:
+Aug 27 17:17:28 localhost kernel:  hda: hda1 hda2 hda3 hda4 < hda5 >
+Aug 27 17:17:28 localhost kernel:  hdb: hdb1 hdb2 hdb3 hdb4 < hdb5 hdb6 >
+Aug 27 17:17:28 localhost kernel: ide-floppy driver 0.97
 
-So... did you rerun `make dep' ?
+Same message appears when a diskette is attempted to be mounted.
 
-If not, try a fresh kernel tree and make sure to do `make oldconfig dep
-clean' after patching.
-
-Please let me know because I am trying to track this down, and I don't
-have it happening to me.  I think this should do it.
-
-Of note, I will release a patch against 2.4.9-ac2 and 2.4.10-pre1 soon.
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Floyd,

@@ -1,50 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318975AbSHFDwl>; Mon, 5 Aug 2002 23:52:41 -0400
+	id <S319009AbSHFGNW>; Tue, 6 Aug 2002 02:13:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318977AbSHFDwl>; Mon, 5 Aug 2002 23:52:41 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:52135 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318975AbSHFDwk>;
-	Mon, 5 Aug 2002 23:52:40 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       vamsi_krishna@in.ibm.com
-Subject: Re: [PATCH] kprobes for 2.5.30 
-In-reply-to: Your message of "Mon, 05 Aug 2002 09:10:08 MST."
-             <Pine.LNX.4.44.0208050906030.1753-100000@home.transmeta.com> 
-Date: Tue, 06 Aug 2002 12:18:13 +1000
-Message-Id: <20020806035803.23FC54B65@lists.samba.org>
+	id <S319010AbSHFGNW>; Tue, 6 Aug 2002 02:13:22 -0400
+Received: from fc.capaccess.org ([151.200.199.53]:61964 "EHLO fc.Capaccess.org")
+	by vger.kernel.org with ESMTP id <S319009AbSHFGNW>;
+	Tue, 6 Aug 2002 02:13:22 -0400
+Message-id: <fc.0010c7b20053775a0010c7b20053775a.5377bd@Capaccess.org>
+Date: Tue, 06 Aug 2002 02:17:22 -0400
+Subject: Size datapoint
+To: linux-kernel@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@Capaccess.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0208050906030.1753-100000@home.transmeta.com> you wri
-te:
-> 
-> On Mon, 5 Aug 2002, Rusty Russell wrote:
-> > 
-> > In testing, I came up against the "spin_unlock() causes schedule()
-> > inside interrupt" problem.
-> 
-> It shouldn't cause a schedule, it should cause a big warning (with 
-> complete trace) to be printed out. Or did you mean something else?
+I downloaded the U.S. Code of active Federal statutory law. That's the
+legal corpus of the U.S. created at the Congressional level. That's not
+regulations, which formally aren't from Congress. The U.S. Code is 50
+Titles, with a few missing. It's about 71 meg gzipped as ASCII. No wonder
+the country is going to hell :o) And the only part as twisted as kernel
+code is the Internal Revenue Code.
 
-Yes, that's what I meant.
+Rick Hohensee
+x
 
-> Maybe the warning should be changed to
-> 
-> 	Warning, kernel is mixing metaphors. "It's not rocket surgery".
-> 
-> to make it clear why it's a bad idea.
-
-Oh yes, that's *much* clearer!
-
-I am reading from this that we *should* be explicitly disabling
-preemption in interrupt handlers if we rely on the cpu number not
-changing underneath us, even if it's (a) currently unneccessary, and
-(b) arch-specific code.
-
-Yes?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265408AbSJSAQr>; Fri, 18 Oct 2002 20:16:47 -0400
+	id <S265417AbSJSATn>; Fri, 18 Oct 2002 20:19:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265414AbSJSAQr>; Fri, 18 Oct 2002 20:16:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61387 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265408AbSJSAQq>;
-	Fri, 18 Oct 2002 20:16:46 -0400
-Date: Fri, 18 Oct 2002 17:15:04 -0700 (PDT)
-Message-Id: <20021018.171504.96943359.davem@redhat.com>
-To: ak@suse.de
-Cc: jun.nakajima@intel.com, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, asit.k.mallick@intel.com,
-       sunil.saxena@intel.com
-Subject: Re: [PATCH] fixes for building kernel using Intel compiler
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <p73u1jjnvea.fsf@oldwotan.suse.de>
-References: <F2DBA543B89AD51184B600508B68D4000E6ADE5B@fmsmsx103.fm.intel.com.suse.lists.linux.kernel>
-	<p73u1jjnvea.fsf@oldwotan.suse.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265418AbSJSATn>; Fri, 18 Oct 2002 20:19:43 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:24791 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265417AbSJSATO>;
+	Fri, 18 Oct 2002 20:19:14 -0400
+Date: Fri, 18 Oct 2002 20:25:14 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH][RFC] 2.5.42 (1/2): Filesystem capabilities kernel patch
+In-Reply-To: <87d6q7mgtf.fsf@goat.bogus.local>
+Message-ID: <Pine.GSO.4.21.0210182018010.21677-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: 19 Oct 2002 02:07:41 +0200
-   
-   > -/* Enable FXSR and company _before_ testing for FP problems. */
-   > -       /*
-   > -        * Verify that the FXSAVE/FXRSTOR data will be 16-byte aligned.
-   > -        */
-   > -       if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
-   > -               extern void __buggy_fxsr_alignment(void);
-   > -               __buggy_fxsr_alignment();
-   > -       }
-   
-   Why does that not work? IMHO it is legal ISO-C
 
-Depending upon the compiler to optimize away the non-existent function
-reference is not ISO-C :-)  Although the fact the Intel compiler isn't
-doing this is amusing.
+
+On Sat, 19 Oct 2002, Olaf Dietsche wrote:
+
+> > To start
+> > with, on a bunch of filesystems inode numbers are unstable.
+> 
+> Not really a problem, so restrict it to stable inode systems only.
+
+So exec.c code should go looking for fs type and try and match it
+against some table?  OK...
+ 
+> > Moreover,
+> > owner of that file suddenly gets _all_ capabilities that exist in the
+> > system,
+> 
+> Yup, like root for example.
+> 
+> > ditto for any task capable of mount(2),
+> 
+> How's that? I think this task must own the filesystem and root
+> directory too.
+
+mount --bind my_file /usr/.capabilities
+
+> > ditto for owner of
+> > root directory on some filesystem.
+> 
+> Which is a problem for foreign (network) filesystems only. Should be
+> solvable with a mount option (i.e. mount -o nocaps ...).
+> 
+> > And there is no way to recognize
+> > that file as such, so additional checks on write(), mount(), unlink().
+> > etc. are not possible.
+> 
+> Depends on, wether I want to recognize it and do these checks. Anyway,
+> could be solved with a mount option too or something like quotactl(2)
+> maybe.
+
+Ahem.  You had made several capabilities equivalent to "everything".
+E.g. "anyone who can override checks in chown() can set arbitrary
+capabilities", etc.  Which changes model big way and makes the affected
+capabilities pretty much useless - they can be elevated to any other
+capability.
+ 
+> > And that is not to mention that binding of
+> > non-root will play silly buggers with the entire scheme.
+> 
+> I don't understand this sentence. What do you mean with "binding of
+> non-root"?
+
+mount --bind /usr/bin /mnt
+Suddenly /mnt/foo and /usr/bin/foo (same file) have different capabilities.
+

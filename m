@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131625AbRDJMcl>; Tue, 10 Apr 2001 08:32:41 -0400
+	id <S131638AbRDJMew>; Tue, 10 Apr 2001 08:34:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRDJMcc>; Tue, 10 Apr 2001 08:32:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:16137 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131625AbRDJMcT>;
-	Tue, 10 Apr 2001 08:32:19 -0400
-Date: Tue, 10 Apr 2001 14:32:16 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Mark Salisbury <mbs@mc.com>,
+	id <S131666AbRDJMeo>; Tue, 10 Apr 2001 08:34:44 -0400
+Received: from iris.mc.com ([192.233.16.119]:44237 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S131638AbRDJMed>;
+	Tue, 10 Apr 2001 08:34:33 -0400
+From: Mark Salisbury <mbs@mc.com>
+To: David Schleef <ds@schleef.org>, David Schleef <ds@schleef.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: No 100 HZ timer !
+Date: Tue, 10 Apr 2001 08:19:59 -0400
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
         Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
         linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-Message-ID: <20010410143216.A15880@gruyere.muc.suse.de>
-In-Reply-To: <20010410140202.A15114@gruyere.muc.suse.de> <E14mx0K-00049P-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14mx0K-00049P-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 01:12:14PM +0100
+In-Reply-To: <Pine.LNX.3.96.1010410002852.4212A-100000@artax.karlin.mff.cuni.cz> <E14mkGA-000341-00@the-village.bc.nu> <20010410044336.A1934@stm.lbl.gov>
+In-Reply-To: <20010410044336.A1934@stm.lbl.gov>
+MIME-Version: 1.0
+Message-Id: <0104100825201B.01893@pc-eng24.mc.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 01:12:14PM +0100, Alan Cox wrote:
-> Measure the number of clocks executing a timer interrupt. rdtsc is fast. Now
-> consider the fact that out of this you get KHz or better scheduling 
-> resolution required for games and midi. I'd say it looks good. I agree
+On Tue, 10 Apr 2001, David Schleef wrote:
+> i.e., the TSC, you have to use 8254 timer 0 as both the timebase
+> and the interval counter -- you end up slowly losing time because
+> of the race condition between reading the timer and writing a
+> new interval.  
 
-And measure the number of cycles a gigahertz CPU can do between a 1ms timer.
-And then check how often the typical application executes something like
-gettimeofday.
-
-> the accounting of user/system time needs care to avoid slowing down syscall
-> paths
-
-It's also all interrupts, not only syscalls, and also context switch if you
-want to be accurate.
-
-On modern PC hardware it might be possible to do user/system accounting using
-performance MSRs. They have a bit in the performance counter that allows to
-only account user or system. If you find a count that is near equivalent to
-the cycles you have both: total = rdtsc, user = msr, system = rdtsc-msr.
-At least PPro derived have event 0x16, number of instructions executed, which
-might be good enough when multiplied with a factor if your instruction mix is not 
-too unusual.
-
-Still even with that the more complex checking in add_timer doesn't look too good.
+actually, I have an algorithm to fix that.  (had to implement this on a system
+with a single 32 bit decrementer (an ADI21060 SHARC, YUK!))  the algorithm
+simulates a free spinning 64 bit incrementer given  a 32 bit interrupting
+decrementer under exclusive control of the timekeeping code.  it also takes
+into account the read/calculate/write interval.
 
 
--Andi
+  
+> It would be nice to see any redesign in this area make it more
+> modular.  I have hardware that would make it possible to slave
+> the Linux system clock directly off a high-accuracy timebase,
+> which would be super-useful for some applications.  I've been
+> doing some of this already, both as a kernel patch and as part
+> of RTAI; search for 'timekeeper' in the LKML archives if interested.
+> 
+> 
+> 
+> 
+> dave...
+-- 
+/*------------------------------------------------**
+**   Mark Salisbury | Mercury Computer Systems    **
+**   mbs@mc.com     | System OS - Kernel Team     **
+**------------------------------------------------**
+**  I will be riding in the Multiple Sclerosis    **
+**  Great Mass Getaway, a 150 mile bike ride from **
+**  Boston to Provincetown.  Last year I raised   **
+**  over $1200.  This year I would like to beat   **
+**  that.  If you would like to contribute,       **
+**  please contact me.                            **
+**------------------------------------------------*/
+

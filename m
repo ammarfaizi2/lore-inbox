@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbTESB0e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 21:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbTESB0e
+	id S262297AbTESBfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 21:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTESBfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 21:26:34 -0400
-Received: from dp.samba.org ([66.70.73.150]:30353 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262285AbTESB0d (ORCPT
+	Sun, 18 May 2003 21:35:09 -0400
+Received: from rth.ninka.net ([216.101.162.244]:24192 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S262297AbTESBfI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 21:26:33 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 18 May 2003 21:35:08 -0400
+Subject: Re: Naming devices
+From: "David S. Miller" <davem@redhat.com>
+To: Daniel Stekloff <dsteklof@us.ibm.com>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200305181822.51612.dsteklof@us.ibm.com>
+References: <20030518213358.GE8994@krispykreme>
+	 <200305181822.51612.dsteklof@us.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16072.13753.498811.834748@argo.ozlabs.ibm.com>
-Date: Mon, 19 May 2003 11:39:05 +1000
-To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: [PATCH] Compile fix for pmac IDE driver
-X-Mailer: VM 7.15 under Emacs 21.3.2
+Organization: 
+Message-Id: <1053308881.3909.2.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 18 May 2003 18:48:01 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart,
+On Sun, 2003-05-18 at 18:22, Daniel Stekloff wrote:
+> Just last week or so, Jim Keniston asked for comments on network device 
+> specific macros - netdev_printk. I thought these were handy when I was 
+> working on a system with 4 ethernet cards.
 
-The version of drivers/ide/ppc/pmac.c in Linus' tree at the moment
-doesn't compile.  The one-liner below fixes it.  Please apply.
+I don't understand how this is useful for this application.
+If I put 1,000 e1000 cards into the machine, all the messages
+scroll out of the dmesg buffer.
 
-Thanks,
-Paul.
+The only reliable source for this kind of information is ethtool.
+The kernel message buffer is like IP datagram delivery in that it is
+unreliable, whereas ethtool provides a stable source for this
+information.
 
-diff -urN linux-2.5/drivers/ide/ppc/pmac.c pmac-2.5/drivers/ide/ppc/pmac.c
---- linux-2.5/drivers/ide/ppc/pmac.c	2003-05-12 17:41:32.000000000 +1000
-+++ pmac-2.5/drivers/ide/ppc/pmac.c	2003-05-13 16:48:42.000000000 +1000
-@@ -721,7 +721,7 @@
- 		}
- 	}
- 
--	return NODEV;
-+	return 0;
- }
- 
- void __init
+All I hear is that "hey we're making printk provide the same
+information as ethtool", and when duplicating functionality you
+ought to have a real good reason for it :-)
+
+-- 
+David S. Miller <davem@redhat.com>

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280751AbRKGD0s>; Tue, 6 Nov 2001 22:26:48 -0500
+	id <S280752AbRKGD15>; Tue, 6 Nov 2001 22:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280750AbRKGD0h>; Tue, 6 Nov 2001 22:26:37 -0500
-Received: from Sioux.meginc.com ([207.246.76.19]:2821 "EHLO sioux.meginc.com")
-	by vger.kernel.org with ESMTP id <S280751AbRKGD03>;
-	Tue, 6 Nov 2001 22:26:29 -0500
-Message-Id: <200111070323.WAA01534@sioux.meginc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Brandon Barker <bebarker@meginc.com>
-To: linux-kernel@vger.kernel.org
-Subject: AGPGART build problem in 2.4.14
-Date: Tue, 6 Nov 2001 22:27:50 -0500
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S280750AbRKGD1k>; Tue, 6 Nov 2001 22:27:40 -0500
+Received: from queen.bee.lk ([203.143.12.182]:27014 "EHLO queen.bee.lk")
+	by vger.kernel.org with ESMTP id <S280754AbRKGD1Y>;
+	Tue, 6 Nov 2001 22:27:24 -0500
+Date: Wed, 7 Nov 2001 09:27:30 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Anuradha Ratnaweera <anuradha@gnu.org>, Robert Love <rml@tech9.net>,
+        torvalds@transmeta.com, Terminator <jimmy@mtc.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Are -final releases realy FINAL? (Was Re: kernel 2.4.14 compiling fail for loop device)
+Message-ID: <20011107092730.A11860@bee.lk>
+In-Reply-To: <Pine.LNX.4.33.0111051936090.18663-100000@www.mtc.dhs.org> <20011105194316.B665@mikef-linux.matchmail.com> <1005019360.897.2.camel@phantasy> <20011107091314.A11202@bee.lk> <20011106191747.A20245@mikef-linux.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011106191747.A20245@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Tue, Nov 06, 2001 at 07:17:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following problem occured while building linux 2.4.14 while trying to 
-make the agpgart driver (system is Intel/Redhat 7.2):
+On Tue, Nov 06, 2001 at 07:17:47PM -0800, Mike Fedyk wrote:
+> 
+> Here here.
+> 
+> You'd almost expect this from XP-beta to XP-final, but not Linux kernel...
 
+Few points.
 
-make[3]: Entering directory `/usr/src/linux-2.4.14/drivers/char/agp'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.14/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS 
--include /usr/src/linux-2.4.14/include/linux/modversions.h   -c -o 
-agpgart_fe.o agpgart_fe.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.14/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS 
--include /usr/src/linux-2.4.14/include/linux/modversions.h   -DEXPORT_SYMTAB 
--c agpgart_be.c
-agpgart_be.c:84:2: #error "Please define flush_cache."
-make[3]: *** [agpgart_be.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.14/drivers/char/agp'
-make[2]: *** [_modsubdir_agp] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.14/drivers/char'
-make[1]: *** [_modsubdir_char] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.14/drivers'
-make: *** [_mod_drivers] Error 2
-[root@localhost linux]#
+- I don't believe that there is any such thing stable enough to be caled
+  XP-final, or even XP-beta ;)  Specially when compared to the Linux kernel
+  standards of stability.
 
-If this problem is resolved please tell me, I'd be very appreciative.
-Brandon Barker
+- It is not necessary to compare linux with other low grade software ;)
+  They may not work.  But linux do.
+
+- I nevey use nor plan to use XP so I don't care if it doesn't work.
+
+> Sorry, couldn't resist.
+
+I couldn't, too ;)
+
+Regards,
+
+Anuradha
+
+-- 
+
+Debian GNU/Linux (kernel 2.4.13)
+
+Three hours a day will produce as much as a man ought to write.
+		-- Trollope
+

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266531AbRGGUeZ>; Sat, 7 Jul 2001 16:34:25 -0400
+	id <S266530AbRGGU1o>; Sat, 7 Jul 2001 16:27:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266536AbRGGUeP>; Sat, 7 Jul 2001 16:34:15 -0400
-Received: from toscano.org ([64.50.191.142]:63680 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S266531AbRGGUd7>;
-	Sat, 7 Jul 2001 16:33:59 -0400
-Date: Sat, 7 Jul 2001 16:34:00 -0400
-From: Pete Toscano <pete.lkml@toscano.org>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Hi all, a strange full lock in SMP-kernel 2.4.6 and 2.4.5
-Message-ID: <20010707163400.B3983@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
-	kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010707021356.A2232@eresmas.net> <20010706235324.A19386@bubba.toscano.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010706235324.A19386@bubba.toscano.org>; from pete.lkml@toscano.org on Fri, Jul 06, 2001 at 11:53:24PM -0400
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 4:31pm  up  1:02,  2 users,  load average: 0.04, 0.10, 0.20
+	id <S266531AbRGGU1e>; Sat, 7 Jul 2001 16:27:34 -0400
+Received: from SMTP-OUT003.ONEMAIN.COM ([63.208.208.73]:11579 "HELO
+	smtp04.mail.onemain.com") by vger.kernel.org with SMTP
+	id <S266530AbRGGU1Z>; Sat, 7 Jul 2001 16:27:25 -0400
+From: "Gerry Chu" <gerry@gerrychu.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Modem problem
+Date: Sat, 7 Jul 2001 13:26:38 -0700
+Message-ID: <NCBBIACEOOOFMAJFGDBIAEBHCJAA.gerry@gerrychu.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to follow up to myself, after futher testing, it looks like it's an
-SMP-related problem.  I'm not yet sure if it's an SMP-Via chipset
-problem or just an SMP problem.  I've heard from two people with this
-same problem.  I think one of them has a Via chipset and I'm not sure
-about the other one.  
+My modems (Courier 28.8 external, Actiontec PCI call waiting non-winmodem)
+connect to the Internet fine with 2.4.0, and broke around 2.4.1. What
+happens is they dial out, make those sounds, and just as they seem to be
+about to connect, they disconnect. I'm pretty sure both kernels are
+configured correctly. This still occurs with kernel 2.4.6.
 
-Can anybody look into this or give me a good brain dump on how I can fix
-it?
+On a seperate note (and I realize this is a lot more nebulous) my disk
+begins to make a lot of noise at random times and doesn't stop for several
+minutes. This sometimes happens when using apt-get, though I've seen it do
+it at gdm login prompts. 128 megs ram, 130 meg swap. Any ideas...?
 
-Thanks,
-pete
+Thank you,
 
-On Fri, 06 Jul 2001, Pete Toscano wrote:
+Gerry
+please cc, not subscribed
 
-> I think I've seen this same problem, at least with regards to USB
-> printing.  Yesterday, I traced the problem down to a patch to usb-uhci.c
-> in the transition from 2.4.3 to 2.4.4.  The problem persists today.  A
-> work around for this problem is to use the alternate UHCI driver
-> (uhci.o).
-> 
-> What motherboard and chipset are you using.  I use the Tyan Tiger 133
-> motherboard with the VIA Apollo Pro 133a chipset.  Someone else who I
-> heard from uses another VIA-based chipset (I think, he never replied to
-> my question).  Maybe this is a VIA-related problem, like the APIC
-> problem is.  (Do you use "noapic" when you boot?  He and I both have SMP
-> systems too....)
-> 
-> I posted something on the linux-usb list yesterday about this problem
-> and with all the info I was able to track down, but I have yet to see
-> any response.  I've taken this as far as I can by myself.  I don't know
-> enough about kernel programming or about USB to check the code in
-> usb-uhci.c, but I'm more than happy to help by providing information
-> and/or testing potential patches/fixes.
-> 
-> pete

@@ -1,102 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318204AbSHDUWA>; Sun, 4 Aug 2002 16:22:00 -0400
+	id <S318223AbSHDUXE>; Sun, 4 Aug 2002 16:23:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318208AbSHDUWA>; Sun, 4 Aug 2002 16:22:00 -0400
-Received: from netmail.netcologne.de ([194.8.194.109]:7278 "EHLO
-	netmail.netcologne.de") by vger.kernel.org with ESMTP
-	id <S318204AbSHDUV6>; Sun, 4 Aug 2002 16:21:58 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: =?iso-8859-1?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
-Reply-To: joergprante@netcologne.de
-Organization: Linux Kernel -jp http://infolinux.de
-To: linux-kernel@vger.kernel.org
-Subject: [PATCHSET] Linux 2.4.19-jp14
-Date: Sun, 4 Aug 2002 22:24:06 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208042224.06484.joergprante@netcologne.de>
+	id <S318224AbSHDUXE>; Sun, 4 Aug 2002 16:23:04 -0400
+Received: from holomorphy.com ([66.224.33.161]:29314 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318223AbSHDUXC>;
+	Sun, 4 Aug 2002 16:23:02 -0400
+Date: Sun, 4 Aug 2002 13:23:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
+       davidm@napali.hpl.hp.com, gh@us.ibm.com, Martin.Bligh@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: large page patch (fwd) (fwd)
+Message-ID: <20020804202322.GA4020@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	"David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
+	davidm@napali.hpl.hp.com, gh@us.ibm.com, Martin.Bligh@us.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208041131380.10314-100000@home.transmeta.com> <200208041530.24661.frankeh@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <200208041530.24661.frankeh@watson.ibm.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux kernel patch set 2.4.19-jp14
+On Sun, Aug 04, 2002 at 03:30:24PM -0400, Hubertus Franke wrote:
+> As long as the alignments are observed, which you I guess imply by the range.
 
-This is the fourteenth release of the -jp patch set.
+On Sunday 04 August 2002 02:38 pm, Linus Torvalds wrote:
+>>    If the order-X allocation fails, we're likely low on memory (this is
+>>    _especially_ true since the very fact that we do lots of order-X
+>>    allocations will probably actually help keep fragementation down
+>>    normally), and we just allocate one page (with a regular GFP_USER this
+>>    time).
 
-What is it?
-
-The -jp kernel patch sets are development kernels for testing purpose only. 
-They provide a service for developers who can't keep up to date with the 
-latest kernel and interesting patches at the various places in the net. 
-For those peoples who like to test interesting new features of large patches 
-and evaluate bleeding-edge enhancements not to be expected for inclusion 
-into the standard 2.4 kernel in the near future, the -jp kernel patch set 
-offers an alternative.
-
-Many thanks to all patch developers for the great work.
-
-Download
-
-http://infolinux.de/jp14
-
-The patch set is provided as a single archive where you will find all patches 
-as separate files. 
-
-Content
-
-000_amd-cache-fix                             046_i8k-1.13
-001_gcc-3.1-fix                               047_tux2-remove-khttpd
-002_no-warnings                               048_tux2-final-A3
-003_lkml-quick-fixes                          049_nfs-2.4.19-rc4
-004_jiffies-for-i386-2                        050_nfs-over-tcp
-005_cpufreq                                   051_ext3-cvs
-006_cpufreq-26Jul2002                         052_xfs-2.4.19-split-only
-007_p4-xeon                                   053_xfs-2.4.19-split-xattr
-008_sis740-961                                054_xfs-2.4.19-split-kernel
-009_TIOCGDEV                                  055_xfs-2.4.19-split-quota32
-010_via-northbridge-fixup                     056_xfs-2.4.19-split-kbuild-2.5
-011_vm-rmap-13-2                              057_xfs-2.4.19-split-dmapi
-012_vm-rmap-13a                               058_xfs-2.4.19-split-misc
-013_vm-rmap-13a-13b                           059_xfs-2.4.19-split-ia64
-014_sched-O1-rml-2.4.19-rc1-1                 060_xfs-2.4.19-jp14-adapt
-015_preempt-kernel-rml-2.4.19-rc3-ac5-1-rmap  061_jfs-1.0.20
-016_preempt-lock-break                        062_jfs-adapt
-017_lowlatency-mini                           063_ftpfs-0.6.2
-018_lowlatency-fixes-5                        064_ftpfs-fixups
-019_pagecache-radix-tree                      065_cdfs-0.5b
-020_ide-all-convert-10-2                      066_cdfs-0.5c
-021_block-tag-2.4.19pre8                      067_befs-0.92
-022_block-tag-2                               068_ntfs-22a
-023_ide-tag-2.4.19pre8                        069_ncpfs-fix
-024_ide-tag-2                                 070_shared-zlib
-025_ide-cd-dma-4                              071_patch-int-2.4.18.3
-026_raid-md-locks-2                           072_loop-jari-2.4.18.0
-027_raid-split                                073_freeswan-snapshot-2002aug03g
-028_raid-mdp-major                            074_grsecurity-1.9.6
-029_raid-md-part                              075_grsecurity-1.9.6-tux-adapt
-030_supermount-autofs4                        076_nmap-freak
-031_supermount-isrdonly                       077_alsa-remove-oss-2.4.19
-032_supermount-new-stat-4                     078_alsa-remove-oss-2.4.18
-033_supermount-mediactl                       079_alsa-remove-oss-core
-034_supermount-llseek                         080_alsa-0.9.0rc1
-035_supermount-mount                          081_alsa-2.5.17-cs1.582
-036_supermount-device                         082_alsa-adapt-2
-037_supermount-supermount                     083_kbuild25-3.0
-038_supermount-fix                            084_kbuild-alsa
-039_scsi-dc395x-1.40                          085_kbuild-crypto
-040_usbdnet-0.4b                              086_kbuild-scsi-dc395x
-041_i2c-2.6.4                                 087_kbuild-ratcache-adapt
-042_i2c-fixes                                 088_kbuild-rtc-fix
-043_lm-sensors-2.6.4                          089_kbuild-acpi-adapt
-044_acpi-20020726                             100_VERSION
-045_acpi-include-dir
-
-For more information, please visit http://infolinux.de
-
-   Kind regards,
-
-       Jörg Prante <joerg@infolinux.de>
+Later on I can redo one of the various online defragmentation things
+that went around last October or so if it would help with this.
 
 
+On Sunday 04 August 2002 02:38 pm, Linus Torvalds wrote:
+>>    Map in all pages.
+>>  - do the same for page_cache_readahead() (this, btw, is where radix trees
+>>    will kick some serious ass - we'd have had a hard time doing the "is
+>>    this range of order-X pages populated" efficiently with the old hashes.
+
+On Sun, Aug 04, 2002 at 03:30:24PM -0400, Hubertus Franke wrote:
+> Hey, we use the radix tree to track page cache mappings for large pages
+> particularly for this reason...
+
+Proportion of radix tree populated beneath a given node can be computed
+by means of traversals adding up ->count or by incrementally maintaining
+a secondary counter for ancestors within the radix tree node. I can look
+into this when I go over the path compression heuristics, which would
+help the space consumption for access patterns fooling the current one.
+Getting physical contiguity out of that is another matter, but the code
+can be used for other things (e.g. exec()-time prefaulting) until that's
+worked out, and it's not a focus or requirement of this code anyway.
+
+
+On Sunday 04 August 2002 02:38 pm, Linus Torvalds wrote:
+>> I bet just those fairly small changes will give you effective coloring,
+>> _and_ they are also what you want for doing small superpages.
+
+On Sun, Aug 04, 2002 at 03:30:24PM -0400, Hubertus Franke wrote:
+> The HW TLB case can be extended to not store the same PA in all the PTEs,
+> but conceptually carry the superpage concept for the purpose described above.
+
+Pagetable walking gets a tiny hook, not much interesting goes on there.
+A specialized wrapper for extracting physical pfn's from the pmd's like
+the one for testing whether they're terminal nodes might look more
+polished, but that's mostly cosmetic.
+
+Hmm, from looking at the "small" vs. "large" page bits, I have an
+inkling this may be relative to the machine size. 256GB boxen will
+probably think of 4MB pages as small.
+
+
+On Sun, Aug 04, 2002 at 03:30:24PM -0400, Hubertus Franke wrote:
+> But to go down this route we need the concept of a superpage in the VM,
+> not just at TLB time or a hack that throws these things over the fence. 
+
+The bit throwing it over the fence is probably still useful, as Oracle
+knows what it's doing and I suspect it's largely to dodge pagetable
+space consumption OOM'ing machines as opposed to optimizing anything.
+It pretty much wants the kernel out of the way aside from as a big bag
+of device drivers, so I'm not surprised they're more than happy to have
+the MMU in their hands too. The more I think about it, the less related
+to superpages it seems. The motive for superpages is 100% TLB, not a
+workaround for pagetable OOM.
+
+
+Cheers,
+Bill

@@ -1,137 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVA3Uyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVA3VBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbVA3Uyp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 15:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVA3Uyp
+	id S261783AbVA3VBd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 16:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVA3VBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 15:54:45 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:41907 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261781AbVA3Uyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 15:54:39 -0500
-Message-ID: <41FD498C.9000708@comcast.net>
-Date: Sun, 30 Jan 2005 15:54:36 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Sun, 30 Jan 2005 16:01:32 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:1713 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261783AbVA3VB3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 16:01:29 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Peter Osterlund <petero2@telia.com>
+Subject: Re: Touchpad problems with 2.6.11-rc2
+Date: Sun, 30 Jan 2005 12:59:22 -0800
+User-Agent: KMail/1.7.1
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+       Pete Zaitcev <zaitcev@redhat.com>
+References: <200501251155.20430.david-b@pacbell.net> <d120d50005012513304ba0ca88@mail.gmail.com> <m31xc388o9.fsf@telia.com>
+In-Reply-To: <m31xc388o9.fsf@telia.com>
 MIME-Version: 1.0
-To: bcollins@debian.org, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux1394-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] ohci1394: dma_pool_destroy while in_atomic() && irqs_disabled()
-Content-Type: multipart/mixed;
- boundary="------------020607070605060307020003"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501301259.22584.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020607070605060307020003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sunday 30 January 2005 3:20 am, Peter Osterlund wrote:
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+> > On Tue, 25 Jan 2005 11:55:20 -0800, David Brownell <david-b@pacbell.net> wrote:
 
-Problem - ohci1394.c:ohci_devctl ends up calling dma_pool_destroy from 
-invalid context. Below is the dmesg output when I exit Kino after video 
-capture -
+> > > The more serious one is that sometimes it seems to spontaneously emit click
+> > > events while I'm moving finger across pad.  Which means I've had to learn to
+> > > plan my "mouse" motions to avoid areas where clicking could have bad effects.
+> > > But that's not always possible ...
+> > 
+> > That is default sensitivity not suiting your habits I think.
 
-Debug: sleeping function called from invalid context at 
-include/asm/semaphore.h:107
-in_atomic():1, irqs_disabled():1
- [<c0104c2e>] dump_stack+0x1e/0x20
- [<c011f8a2>] __might_sleep+0xa2/0xc0
- [<c028c660>] dma_pool_destroy+0x20/0x140
- [<f0b7affe>] free_dma_rcv_ctx+0x8e/0x150 [ohci1394]
- [<f0b774a4>] ohci_devctl+0x214/0x9b0 [ohci1394]
- [<f0e7aa99>] handle_iso_listen+0x2d9/0x310 [raw1394]
- [<f0e7f22b>] state_connected+0x29b/0x2b0 [raw1394]
- [<f0e7f2de>] raw1394_write+0x9e/0xd0 [raw1394]
- [<c0183ef2>] vfs_write+0xc2/0x170
- [<c018406b>] sys_write+0x4b/0x80
- [<c0103cb1>] sysenter_past_esp+0x52/0x75
-
-Attached patch against 2.6.11-rc2 (tested to work normally with a  
-camcorder device) enables ohci_devctl to defer the work of destroying 
-the dma pool by using a work queue, so the dma pool is destroyed in a 
-valid context and we no longer get an error in dmesg (duh :)
-
-Note : There still exists  one more similar problem with ohci1394 - that 
-is with dma_pool_create being called from invalid context - this happens 
-in response to ISO_LISTEN_CHANNEL. I get dmesg debug for this case which 
-is similar to the above. My analysis is that this one is non-trivial to 
-fix. More on this in a separate mail.
-
-Patch is attached since T'Bird messes up with the inlined one. (Pls. 
-suggest a good email client for kernel patch stuff :)
-
-Signed-off-by: Parag Warudkar (kernel-stuff@comcast.net)
+That answer isn't good.  No defaults should be that dangerous!
+But I suspect that's not really the issue...
 
 
-Parag
+> > I would 
+> > recomment trying out Synaptics X driver (which also does ALPS) so you
+> > will be able adjust sensitivity the way you like it.
+
+With the Synaptics X driver (as supplied by SuSE -- but NOT configured
+automatically by the system install tool) and the ALPS parameters in the
+README.alps from synaptics-0.14.0, and kernel parameters "usb-handoff"
+and "mousedev.tap_time=0", I'm getting somewhat better results in this
+particular area.
+
+I see some new "mouse"-specific failure modes though:
+
+  (a) Sometimes tapping automagically generates extra clicks.  For
+      example, pressing the delete button once will delete two or more
+      mail messages.  Unfortunately it's not actually smart enough to
+      only kick in for spam!  (I think this is exclusively when using
+      the touchpad itself.)
+
+  (b) Sometimes tapping the left button seems to start half a drag event.
+      For example a GUI button's menu pops up rather than performing the
+      action associated with the button.  That could be some funky UI
+      settings, but it's not consistent ... and I've observed this with
+      very quick button presses.  So I think something else is afoot.
+
+  (c) Sometimes tapping seems to only generate a "down" event ... until
+      I move the cursor, the "up" doesn't happen.  Again, this is with
+      the left button, not the touchpad itself.
+
+I haven't recently seen that nasty "motion emits random mouseclicks"
+behavior, but given the way the hardware programs/trains user behavior,
+it's hard to say for sure quite yet.
+
+I've not done enough with non-GUI keyboard interactions to say if that
+nasty keyboard blockage issue is gone or not; I wouldn't have seen it.
 
 
+> I think the problem is that the tap detection in mousedev.c is very
+> simplistic. It always generates a button click if the time between
+> "finger down" and "finger up" is small enough, even if the finger was
+> moved a large x/y distance. The X driver handles this with another
+> parameter that specifies the maximum allowed distance. If the finger
+> moved more than this distance, no button event is generated.
 
---------------020607070605060307020003
-Content-Type: text/plain;
- name="patch-ohci1394"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-ohci1394"
+Sounds like "dueling heuristics" here!
 
---- drivers/ieee1394/ohci1394.c.orig	2004-12-24 16:35:25.000000000 -0500
-+++ drivers/ieee1394/ohci1394.c	2005-01-30 15:46:34.000000000 -0500
-@@ -99,6 +99,7 @@
- #include <asm/uaccess.h>
- #include <linux/delay.h>
- #include <linux/spinlock.h>
-+#include <linux/workqueue.h>
- 
- #include <asm/pgtable.h>
- #include <asm/page.h>
-@@ -164,6 +165,7 @@
- static char version[] __devinitdata =
- 	"$Rev: 1223 $ Ben Collins <bcollins@debian.org>";
- 
-+
- /* Module Parameters */
- static int phys_dma = 1;
- module_param(phys_dma, int, 0644);
-@@ -184,6 +186,8 @@
- 
- static void ohci1394_pci_remove(struct pci_dev *pdev);
- 
-+static void ohci_free_dma_work_fn(void* data);
-+
- #ifndef __LITTLE_ENDIAN
- static unsigned hdr_sizes[] =
- {
-@@ -1130,6 +1134,13 @@
- 	return retval;
- }
- 
-+static void ohci_free_dma_work_fn(void* data)
-+{
-+	struct pci_pool* prg_pool = (struct pci_pool*) data;
-+	pci_pool_destroy(prg_pool);
-+	OHCI_DMA_FREE("dma_rcv prg pool");
-+}
-+
- /***********************************
-  * rawiso ISO reception            *
-  ***********************************/
-@@ -2898,13 +2909,14 @@
- 		kfree(d->buf_bus);
- 	}
- 	if (d->prg_cpu) {
-+		struct work_struct ohci_free_dma_work;
- 		for (i=0; i<d->num_desc; i++)
- 			if (d->prg_cpu[i] && d->prg_bus[i]) {
- 				pci_pool_free(d->prg_pool, d->prg_cpu[i], d->prg_bus[i]);
- 				OHCI_DMA_FREE("consistent dma_rcv prg[%d]", i);
- 			}
--		pci_pool_destroy(d->prg_pool);
--		OHCI_DMA_FREE("dma_rcv prg pool");
-+		INIT_WORK(&ohci_free_dma_work, ohci_free_dma_work_fn, (void*) d->prg_pool);
-+		schedule_work(&ohci_free_dma_work);
- 		kfree(d->prg_cpu);
- 		kfree(d->prg_bus);
- 	}
+I think the behavior I'm now seeing supports that hypothesis.  But
+it's hard to say without knowing more about how all the pieces fit
+together.
 
---------------020607070605060307020003--
+- Dave
+

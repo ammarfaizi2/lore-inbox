@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286198AbRLTHok>; Thu, 20 Dec 2001 02:44:40 -0500
+	id <S286206AbRLTH5a>; Thu, 20 Dec 2001 02:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286195AbRLTHob>; Thu, 20 Dec 2001 02:44:31 -0500
-Received: from core-gateway-1.hyperlink.com ([213.219.35.163]:33546 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S286198AbRLTHoW>; Thu, 20 Dec 2001 02:44:22 -0500
-Subject: Re: asynchronus multiprocessing
-From: "Martin A. Brooks" <martin@jtrix.com>
-To: george anzinger <george@mvista.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C20D9DC.B14709FD@mvista.com>
-In-Reply-To: <1008776432.431.15.camel@unhygienix>
-	<1008777560.431.19.camel@unhygienix>  <3C20D9DC.B14709FD@mvista.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-9P+qqT53rRcWdzuU+EwG"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 20 Dec 2001 07:44:17 +0000
-Message-Id: <1008834258.431.21.camel@unhygienix>
+	id <S286207AbRLTH5V>; Thu, 20 Dec 2001 02:57:21 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:54022
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S286206AbRLTH5O>; Thu, 20 Dec 2001 02:57:14 -0500
+Message-Id: <5.1.0.14.2.20011220024656.01e0cd20@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 20 Dec 2001 02:51:42 -0500
+To: "David S. Miller" <davem@redhat.com>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+Cc: Mika.Liljeberg@welho.com, kuznet@ms2.inr.ac.ru, Mika.Liljeberg@nokia.com,
+        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
+In-Reply-To: <20011219.234020.98861143.davem@redhat.com>
+In-Reply-To: <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>
+ <3C1FA558.E889A00D@welho.com>
+ <20011218.122813.63057831.davem@redhat.com>
+ <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:40 PM 12/19/2001 -0800, David S. Miller wrote:
+>They should trap on it or handle it, silent "garbage" is really not
+>nice behavior.
 
---=-9P+qqT53rRcWdzuU+EwG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+hah, I wish. The ARM7 has seven "exception" vectors -- that's it.
 
-On Wed, 2001-12-19 at 18:18, george anzinger wrote:
+0x00 = RESET
+0x04 = Undefined instruction
+0x08 = Software interrupt (SWI instruction, used to escape the restricted 
+USR cpu mode)
+0x0C = Data abort (a very very very much lesser form of an access 
+violation; accessing memory that's physically not there)
+0x10 = Prefetch abort (a data abort that happens trying to read the next 
+instruction)
+0x14 = IRQ  <-  these two can't really even count as exceptions!
+0x18 = FIQ  <-  which makes for five...
+0x1C = <-
+0x20 = <- Oh, yeah, and two "reserved" fields which aren't likely to ever 
+be used.
 
-> I have heard of some work.  As I understand it they are making an API
-> for cpu affinity.  It is real time, so they are also interested in the
-> schedule routines around cpu affinity as well.
->=20
-> What did you have in mind?=20
+Anyway, this is a bit off-topic now.
 
-Nothing too major, I just intend to buy myself a dual Athlon. I would
-rather recycle my perfectly good 1.3ghz chip and use it in conjuction
-with a 1.5ghz athlon rather than buying two new processors.
 
---=20
-Martin A. Brooks   Systems Administrator
-Jtrix Ltd          t: +44 7395 4990
-57-59 Neal Street  f: +44 7395 4991
-London, WC2H 9PP   e: martin@jtrix.com
+--
+Stevie-O
 
---=-9P+qqT53rRcWdzuU+EwG
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAjwhltEACgkQwgE0gTKdDoZ+KgCfYS4Sou6PMd0A6frAY72hqefZ
-fmcAn1gEapsdkbye788PmTaVWinkIB0k
-=nr4Q
------END PGP SIGNATURE-----
-
---=-9P+qqT53rRcWdzuU+EwG--
+Real programmers use COPY CON PROGRAM.EXE
 

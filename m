@@ -1,59 +1,111 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154044AbQAXWzb>; Mon, 24 Jan 2000 17:55:31 -0500
-Received: by vger.rutgers.edu id <S154260AbQAXWl2>; Mon, 24 Jan 2000 17:41:28 -0500
-Received: from mailhost.uni-koblenz.de ([141.26.64.1]:33684 "EHLO mailhost.uni-koblenz.de") by vger.rutgers.edu with ESMTP id <S154462AbQAXWeZ>; Mon, 24 Jan 2000 17:34:25 -0500
-Date: Tue, 25 Jan 2000 03:38:07 +0100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Jamie Lokier <lkd@tantalophile.demon.co.uk>
-Cc: dg50@daimlerchrysler.com, linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu via listexpand id <S154026AbQAYG45>; Tue, 25 Jan 2000 01:56:57 -0500
+Received: by vger.rutgers.edu id <S154015AbQAYGpK>; Tue, 25 Jan 2000 01:45:10 -0500
+Received: from [151.4.188.55] ([151.4.188.55]:2192 "HELO maticad") by vger.rutgers.edu with SMTP id <S154137AbQAYGnz>; Tue, 25 Jan 2000 01:43:55 -0500
+Message-ID: <02e701bf6721$8a1077e0$1f0104c0@maticad>
+From: "Davide Libenzi" <davidel@maticad.it>
+To: "David Schwartz" <davids@webmaster.com>, <dg50@daimlerchrysler.com>, <linux-kernel@vger.rutgers.edu>
+References: <000f01bf66da$872a6730$021d85d1@youwant.to>
 Subject: Re: SMP Theory (was: Re: Interesting analysis of linux kernel threading by IBM)
-Message-ID: <20000125033807.B6090@uni-koblenz.de>
-References: <OFC8E00C6C.FBE80B06-ON85256870.007B8178@notes.chrysler.com> <20000125005645.A5940@pcep-jamie.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20000125005645.A5940@pcep-jamie.cern.ch>
-X-Accept-Language: de,en,fr
+Date: Tue, 25 Jan 2000 11:47:13 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Tue, Jan 25, 2000 at 12:56:45AM +0100, Jamie Lokier wrote:
+Tuesday, January 25, 2000 3:18 AM
+David Schwartz <davids@webmaster.com> wrote :
 
-> dg50@daimlerchrysler.com wrote:
-> > If this is indeed the case (please correct any misconceptions I have) then
-> > it strikes me that perhaps the hardware design of SMP is broken. That
-> > instead of sharing main memory, each processor should have it's own main
-> > memory. You connect the various main memory chunks to the "primary" CPU via
-> > some sort of very wide, very fast memory bus, and then when you spawn a
-> > thread, you instead do something more like a fork - copy the relevent
-> > process and data to the child cpu's private main memory (perhaps via some
-> > sort of blitter) over this bus, and then let that CPU go play in its own
-> > sandbox for a while.
-> 
-> I think you just reinvented NUMA -- Non-Uniform Memory Access.  Every
-> CPU can access the others' memory, but you really want them to
-> concentrate on their own.  SGI does some boxes like that.
+> If you wanted completely separate memory spaces for each processor, the
+> current hardware will let you have it. Just separate the address space
+into
+> logical chunks and code each processor only to use its chunk. The current
+> hardware design lets you do exactly what you are suggesting. And if one
+> processor does need to acceess the memory earmarked for another, the
+current
+> hardware provides a fast way to do it.
 
-SGI does ccNUMA, cache coherent NUMA.  The difference is that unlike in
-`real' NUMA machines each processor on a node has access to memory in each
-node directly.  A node in an Origin system is a dual CPU SMP system.
+100% agree, and is faster than an ethernet connection between N separated UP
+machines.
+Probably the cost of a N way SMP machine is higher than N single UP machines
+( at least
+for PCs ) but this isn't linux-business, isn't it ?
 
-> Linux even has a memory allocator which is moving in the direction of
-> supporting those things.
+The cache misses cost that an SMP architecture must sustain is :
 
-It's actually the start of the support for the Origin series but other
-systems are expected to jump the wagon.
+CMTc = Nm * F( Np * Ms * WTR )
 
-> > Which really is more like the "array of uni-processor boxen joined by a
-> > network" model than it is current SMP - just with a REALLY fast&wide
-> > network pipe that just happens to be in the same physical box.
-> 
-> It's been proposed to have multiple instances of the OS running too,
-> instead of one OS running on all CPUs.
+where :
 
-Ok, but users and application developers still want the entire system to
-feel like a single system.
+CMTc = cache misses time cost
+Ms = memory size shared between :
+Np = number of processes sharing Ms
+WTR = write touch rate ( statistical average ) at which the Np processes
+write access Ms
+F = a probably non linear function depending on architecture, etc ...
+Nm = number of memory shares
 
-  Ralf
+
+This is an absolute value that _must_ be compared ( weighted ) with the time
+spent by the single processes in computing to ponder if the application
+design
+we've chosen for SMP is right, or even more, if SMP is the correct target
+for
+our app.
+
+
+Take at the rendering pipeline example.
+We've each step read a bit of data ( think as from stdin ), do a relatively
+long compute on data and write another kind of data ( think as to stdout )
+to be processed by the next pipeline step.
+The step pattern can be expressed as :
+
+RCCCCCCCCCCCCW
+
+where R = read, C = compute and W = write.
+Say we've a six step pipeline, so :
+
+Nm = 5 ( 6 - 1 )
+Np = 2
+Ms = tipically small ( triangles, scanlines, ...)
+WTR = small compared with the computing times
+
+We can think as Ms be a ( relatively big ) object set.
+This increase Ms but lengthen the computing path, so the weighted cost
+equals.
+This is, IMVHO, a good candidate for SMP.
+
+
+Consider now a typical data centric application in which we've a continuous
+read-write cycles along the entire data set :
+
+RCCWRCRWCCRCWC
+
+If we can't split this data set into autonomous chunks of data, we have :
+
+Nm = the number threads we've split the app
+Np = typically equal to Nm
+Ms = probably the entire data set
+WTR = typically high coz the nature of the application
+
+This is not a good candidate for SMP.
+
+Typical examples of these applications are the ones in which the lower steps
+of the computing path must access to data computed ( read as
+write-accessed ) from
+most of previous steps.
+
+
+
+Davide.
+
+--
+All this stuff is IMVHO
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbTEMF4L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 01:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTEMF4L
+	id S263011AbTEMGAD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 02:00:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTEMGAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 01:56:11 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:29156 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262976AbTEMF4K
+	Tue, 13 May 2003 02:00:03 -0400
+Received: from [195.95.38.160] ([195.95.38.160]:54513 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id S263011AbTEMGAC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 01:56:10 -0400
-Date: Mon, 12 May 2003 20:51:05 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Bharata B Rao <bharata@in.ibm.com>
-Subject: Re: 2.5.69-mjb1: undefined reference to `blk_queue_empty'
-Message-ID: <20570000.1052797864@[10.10.2.4]>
-In-Reply-To: <20030512205139.GT1107@fs.tum.de>
-References: <9380000.1052624649@[10.10.2.4]> <20030512205139.GT1107@fs.tum.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 13 May 2003 02:00:02 -0400
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+       Torrey Hoffman <thoffman@arnor.net>
+Subject: Re: [2.420] Unexplained repeatable Oops
+Date: Tue, 13 May 2003 08:12:37 +0200
+User-Agent: KMail/1.5.1
+References: <200305112052.51938.devilkin-lkml@blindguardian.org> <200305130740.45250.devilkin-lkml@blindguardian.org> <200305131549.13371.kernel@kolivas.org>
+In-Reply-To: <200305131549.13371.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
+Message-Id: <200305130812.42741.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On Tuesday 13 May 2003 07:49, Con Kolivas wrote:
+>
+> mprime will pick up more subtle things than cpuburn will. It's not purely a
+> temperature of the cpu issue. It may be the bus.
+> Try underclocking your bus/cpu. I run a P3 933 (133x7) at 868 (124x7) and
+> all problems go away. The same cpu works fine overclocked on a different
+> motherboard.
 
---Adrian Bunk <bunk@fs.tum.de> wrote (on Monday, May 12, 2003 22:51:40 +0200):
+IC.
 
-> <--  snip  -->
-> 
-> ...
->   gcc -Wp,-MD,drivers/dump/.dump_blockdev.o.d -D__KERNEL__ -Iinclude 
-> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
-> -mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default 
-> -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_blockdev 
-> \-DKBUILD_MODNAME=dump_blockdev -c -o drivers/dump/dump_blockdev.o 
-> drivers/dump/dump_blockdev.c
-> drivers/dump/dump_blockdev.c: In function `dump_block_silence':
-> drivers/dump/dump_blockdev.c:264: warning: implicit declaration of function `blk_queue_empty'
-> ...
-> 386/oprofile/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-> drivers/built-in.o(.text+0x77edaf): In function `dump_block_silence':
-> : undefined reference to `blk_queue_empty'
-> ...
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> <--  snip  -->
-> 
-> This is the only occurence of blk_queue_empty in the whole kernel tree.
+Little question though: any idea what actually _would_ happen if it were an 
+agp card problem? As far as I know (and can relate to previous problems) this 
+usually causes a blank screen, or distorted video - but not crashes where X 
+segfaults back to the console, or where the entire system goes hanging...
 
-Thanks Adrian ... this is LKCD stuff, maybe Suparna / Bharata can fix it?
-Looks like it disappeared in 2.5.67 or so.
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-M.
+iD8DBQE+wIzXpuyeqyCEh60RAjSKAJwM35Hj7Vna8/hKBF8rEl6/2mNh/ACfZ1qS
+VNLUSF7228WI/fNVoizGvZs=
+=JKid
+-----END PGP SIGNATURE-----
 

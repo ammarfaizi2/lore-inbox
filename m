@@ -1,66 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVC3Dg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVC3Dk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261740AbVC3Dg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 22:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVC3Dg2
+	id S261743AbVC3Dk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 22:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVC3Dk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 22:36:28 -0500
-Received: from main.gmane.org ([80.91.229.2]:26258 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261740AbVC3DgT (ORCPT
+	Tue, 29 Mar 2005 22:40:58 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:18107 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261743AbVC3Dkg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 22:36:19 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 29 Mar 2005 22:40:36 -0500
+Date: Tue, 29 Mar 2005 21:40:34 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [PATCH] embarassing typo
-Date: Wed, 30 Mar 2005 05:35:54 +0200
-Message-ID: <yw1x8y45ztyd.fsf@ford.inprovide.com>
-References: <200503292331.46832.vicente.feito@gmail.com>
+Cc: linuxppc64-dev@ozlabs.org
+Subject: prefetch on ppc64
+Message-ID: <20050330034034.GA1752@IBM-BWN8ZTBWA01.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:d++RnixjambMWQ7xlUy9WmYnxQA=
+Content-Type: multipart/mixed; boundary="gKMricLos+KVdGMg"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vicente Feito <vicente.feito@gmail.com> writes:
 
-> On Tuesday 29 March 2005 09:58 pm, you wrote:
->> Måns Rullgård wrote:
->> > "Ronald S. Bultje" <rbultje@ronald.bitfreak.net> writes:
->> >>--- linux-2.6.5/drivers/media/video/zr36050.c.old 16 Sep 2004 22:53:27
->> >> -0000 1.2 +++ linux-2.6.5/drivers/media/video/zr36050.c 29 Mar 2005
->> >> 20:30:23 -0000 @@ -419,7 +419,7 @@
->> >>  dri_data[2] = 0x00;
->> >>  dri_data[3] = 0x04;
->> >>  dri_data[4] = ptr->dri >> 8;
->> >>- dri_data[5] = ptr->dri * 0xff;
->> >>+ dri_data[5] = ptr->dri & 0xff;
->> >
->> > Hey, that's a nice obfuscation of a simple negation.
->>
->> It's not a negation.  This statement always assigns zero to
->> dri_data[5] if dri_data is char[].  Looks like gcc isn't catching
->> this problem.
->>
-> As long as the variable doesn't get overflowed you would have a
-> negation, you shouldn't do dri_data[5] = ptr->dri * 0xff; if
-> ptr->dri it's 255, but if ptr->dri = 1 i.e. (like is set in
-> zr36050_setup) then you would be getting the negation, -1. the
-> Direct rendering support is a flag afaik, so in this case I believe
-> is a worthy C obfuscated negation code :)
-> btw, are you sure about this patch?I would contact the maintainer
-> first, because and'ing that doesn't make much sense...
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It seems pretty obvious to me, that the code is supposed to store the
-high byte in dri_data[4], and the low byte in dri_data[5].  Mistyping
-& as * doesn't seem too unlikely, either.
+Hi,
 
--- 
-Måns Rullgård
-mru@inprovide.com
+While investigating the inordinate performance impact one of my patches
+seemed to be having, we tracked it down to two hlist_for_each_entry
+loops, and finally to the prefetch instruction in the loop.
+
+The machine I'm testing on has 4 power5 1.5Ghz cpus and 16G ram.  I was
+mostly using dbench (v3.03) in runs of 50 and 100 on an ext2 system.
+Kernel was 2.6.11-rc5.
+
+I've not had much of a chance to test on x86, but the few tests I've run
+have shown that prefetch does improve performance there.  From what I've
+seen this seems to be a ppc (perhaps ppc64) specific symptom.
+
+Following are two sets of interesting results on the ppc64 system.  The
+first is on a stock 2.6.11-rc5 kernel.  The actual stock kernel gave the
+following results for 100 runs of dbench:
+# elements: 100, mean 862.580380, variance 5.973441, std dev 2.444062
+
+When I patched fs/dcache.c to replace the three hlist_for_each_entry{,_rcu}
+rules with manual loops, as shown in the attached file dcache-nohlist.patch,
+I got:
+# elements: 50, mean 881.804980, variance 10.695022, std dev 3.270325
+
+The next set of results is based on 2.6.11-rc5 with the LSM stacking
+patches (from www.sf.net/projects/lsm-stacker).  I was understandably
+alarmed to find the original patched version gave me:
+# elements: 100, mean 797.654870, variance 7.503588, std dev 2.739268
+
+The code which I determined to be responsible contained two
+list_for_each_entry loops,  Replacing one with a manual loop gave me
+# elements: 50, mean 835.859980, variance 81.901719, std dev 9.049957
+and replacing the second gave me
+# elements: 50, mean 846.541060, variance 17.095401, std dev 4.134658
+
+Finally I followed Paul McKenney's suggestion and just commented out the
+ppc definition of prefetch altogether, which gave me:
+
+# elements: 50, mean 860.823880, variance 47.567428, std dev 6.896914
+
+I am currently testing this same patch against a non-stacking kernel.
+
+thanks,
+-serge
+
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="dcache-nohlist.patch"
+
+Index: linux-2.6.11-rc5-nostack/fs/dcache.c
+===================================================================
+--- linux-2.6.11-rc5-nostack.orig/fs/dcache.c	2005-03-11 15:19:58.000000000 -0600
++++ linux-2.6.11-rc5-nostack/fs/dcache.c	2005-03-26 01:35:29.000000000 -0600
+@@ -656,7 +656,7 @@
+ 	do {
+ 		found = 0;
+ 		spin_lock(&dcache_lock);
+-		hlist_for_each(lp, head) {
++		for (lp=head->first; lp; lp = lp->next) {
+ 			struct dentry *this = hlist_entry(lp, struct dentry, d_hash);
+ 			if (!list_empty(&this->d_lru)) {
+ 				dentry_stat.nr_unused--;
+@@ -1047,7 +1047,9 @@
+ 
+ 	rcu_read_lock();
+ 	
+-	hlist_for_each_rcu(node, head) {
++	for (node=head->first; node;
++			({ node = node->next; smp_read_barrier_depends(); }))
++	{
+ 		struct dentry *dentry; 
+ 		struct qstr *qstr;
+ 
+@@ -1123,7 +1125,7 @@
+ 
+ 	spin_lock(&dcache_lock);
+ 	base = d_hash(dparent, dentry->d_name.hash);
+-	hlist_for_each(lhp,base) { 
++	for (lhp=base->first; lhp; lhp = lhp->next) {
+ 		/* hlist_for_each_rcu() not required for d_hash list
+ 		 * as it is parsed under dcache_lock
+ 		 */
+
+--gKMricLos+KVdGMg--
 

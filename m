@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263449AbTH0PUz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTH0PUy
+	id S263459AbTH0PVO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTH0PVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:20:54 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45536 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263449AbTH0PUw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:20:52 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Wed, 27 Aug 2003 11:21:14 -0400
+Received: from mail.gondor.com ([212.117.64.182]:2321 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S263459AbTH0PVA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 11:21:00 -0400
+Date: Wed, 27 Aug 2003 17:20:52 +0200
+From: Jan Niehusmann <jan@gondor.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Promise IDE patches
-Date: Wed, 27 Aug 2003 17:21:31 +0200
-User-Agent: KMail/1.5
-Cc: Jan Niehusmann <jan@gondor.com>,
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
        Marcelo Tosatti <marcelo@conectiva.com.br>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030826223158.GA25047@gondor.com> <200308270054.27375.bzolnier@elka.pw.edu.pl> <1061996314.22739.36.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1061996314.22739.36.camel@dhcp23.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Subject: Re: Promise IDE patches
+Message-ID: <20030827152052.GB25198@gondor.com>
+References: <20030826223158.GA25047@gondor.com> <200308270054.27375.bzolnier@elka.pw.edu.pl> <1061996391.22825.39.camel@dhcp23.swansea.linux.org.uk> <20030827151227.GA25198@gondor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308271721.31751.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20030827151227.GA25198@gondor.com>
+X-Request-PGP: http://gondor.com/key.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 of August 2003 16:58, Alan Cox wrote:
-> On Maw, 2003-08-26 at 23:54, Bartlomiej Zolnierkiewicz wrote:
-> > Thanks Jan.
-> >
-> > Marcelo can you apply these patches?
->
-> The last one looks wrong to me. At the least it needs to check
-> which pdc202xx chip first
+On Wed, Aug 27, 2003 at 05:12:27PM +0200, Jan Niehusmann wrote:
+> What do you think about a check in __ide_do_rw_disk? calling
+> lba_28_rw_disk or chs_rw_disk when the block address doesn't fit in
+> 28bit is surely wrong and should return an error. 
 
-Yep, you are right.
-[ I guess that PIO forced is 20246 specific, but we don't know. ]
+Sorry - I didn't notice that this straight forward distinction is only
+possible in the CONFIG_IDE_TASKFILE_IO case. 
 
---bartlomiej
+Jan
 

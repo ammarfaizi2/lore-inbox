@@ -1,61 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbTCaWYT>; Mon, 31 Mar 2003 17:24:19 -0500
+	id <S261875AbTCaW3M>; Mon, 31 Mar 2003 17:29:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261875AbTCaWYT>; Mon, 31 Mar 2003 17:24:19 -0500
-Received: from dyn-ctb-210-9-246-105.webone.com.au ([210.9.246.105]:14852 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S261874AbTCaWYS>;
-	Mon, 31 Mar 2003 17:24:18 -0500
-Message-ID: <3E88C29A.7050308@cyberone.com.au>
-Date: Tue, 01 Apr 2003 08:35:06 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: Helge Hafting <helgehaf@aitel.hist.no>, erik@hensema.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <20030328231248.GH5147@zaurus.ucw.cz> <slrnb8gbfp.1d6.erik@bender.home.hensema.net> <3E8845A8.20107@aitel.hist.no> <3E88BAF9.8040100@cyberone.com.au> <3E88BFA9.5010003@nortelnetworks.com>
-In-Reply-To: <3E88BFA9.5010003@nortelnetworks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261877AbTCaW3M>; Mon, 31 Mar 2003 17:29:12 -0500
+Received: from dp.samba.org ([66.70.73.150]:49640 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261875AbTCaW3K>;
+	Mon, 31 Mar 2003 17:29:10 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: akpm@zip.com.au, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Put all functions in kallsyms
+Date: Mon, 31 Mar 2003 18:14:03 +1000
+Message-Id: <20030331224033.489DD2C04B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
+	Simple, untested patch.  Any objections?
 
-Chris Friesen wrote:
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-> Nick Piggin wrote:
->
->> I haven't thought about this much, but it seems to me that
->> doing writeout whenever the disk would otherwise be idle
->> (and we have dirty memory to write out) would be a good
->> solution.
->
->
-> The whole argument about waiting though is that there may be another 
-> write coming to the same place, in which case you could save the cost 
-> of the first write because it didn't have to be written.
->
-> Writing to disk isn't free, even if the disk would otherwise be idle.  
-> You have the cost of the setup as well as the memory and pci bus 
-> traffic.  You may have disk bandwidth available but be already maxing 
-> out the PCI bus, in which case your "free" disk write takes I/O away 
-> from other things. 
+Name: Include All Functions in kallsyms
+Author: Rusty Russell
+Status: Experimental
 
-Only if the memory gets dirtied again, otherwise the earlier the better. 
-If the
-memory does get written to again before the writeout timeout then yeah 
-its used
-some cpu, memory, pci, etc that it didn't have to.
+D: Do not discard functions outside _stext and _etext, but include all
+D: 't' or 'T' functions.  This means __init functions are included (in my
+D: config this means an increas from 5691 to 6442 functions.
+D:
+D: TODO: Allow multiple kallsym tables, discard init one after init.
+D: TODO: Use huffman name compression and 16-bit offsets (see IDE
+D: oopser patch)
 
->
->
-> Ultimately its all a tradeoff.  Do you write now, or do you hold off 
-> and hope that you can throw away some of the writes because new stuff 
-> will home in to overwrite them?
-
-Yes it is a tradeoff. Having an idle disk gives more weight to "write now".
-
+--- working-2.5.66-uml/scripts/kallsyms.c.~1~	2003-02-07 19:22:29.000000000 +1100
++++ working-2.5.66-uml/scripts/kallsyms.c	2003-03-31 18:08:41.000000000 +1000
+@@ -14,14 +14,12 @@
+ 
+ struct sym_entry {
+ 	unsigned long long addr;
+-	char type;
+ 	char *sym;
+ };
+ 
+ 
+ static struct sym_entry *table;
+ static int size, cnt;
+-static unsigned long long _stext, _etext;
+ 
+ static void
+ usage(void)
+@@ -35,8 +33,9 @@
+ {
+ 	char str[500];
+ 	int rc;
++	char type;
+ 
+-	rc = fscanf(in, "%llx %c %499s\n", &s->addr, &s->type, str);
++	rc = fscanf(in, "%llx %c %499s\n", &s->addr, &type, str);
+ 	if (rc != 3) {
+ 		if (rc != EOF) {
+ 			/* skip line */
+@@ -44,19 +43,18 @@
+ 		}
+ 		return -1;
+ 	}
++
++	/* Only interested in functions. */
++	if (type != 't' && type != 'T')
++		return -1;
++
+ 	s->sym = strdup(str);
+ 	return 0;
+ }
+ 
+-static int
++static inline int
+ symbol_valid(struct sym_entry *s)
+ {
+-	if (s->addr < _stext)
+-		return 0;
+-
+-	if (s->addr > _etext)
+-		return 0;
+-
+ 	if (strstr(s->sym, "_compiled."))
+ 		return 0;
+ 
+@@ -80,12 +78,6 @@
+ 		if (read_symbol(in, &table[cnt]) == 0)
+ 			cnt++;
+ 	}
+-	for (i = 0; i < cnt; i++) {
+-		if (strcmp(table[i].sym, "_stext") == 0)
+-			_stext = table[i].addr;
+-		if (strcmp(table[i].sym, "_etext") == 0)
+-			_etext = table[i].addr;
+-	}
+ }
+ 
+ static void

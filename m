@@ -1,65 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314043AbSDKNIO>; Thu, 11 Apr 2002 09:08:14 -0400
+	id <S314044AbSDKNMl>; Thu, 11 Apr 2002 09:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314045AbSDKNIN>; Thu, 11 Apr 2002 09:08:13 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:57874 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314043AbSDKNIN>; Thu, 11 Apr 2002 09:08:13 -0400
-Message-ID: <3CB57C1F.9060607@evision-ventures.com>
-Date: Thu, 11 Apr 2002 14:05:51 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S314045AbSDKNMk>; Thu, 11 Apr 2002 09:12:40 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62726 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314044AbSDKNMj>; Thu, 11 Apr 2002 09:12:39 -0400
+Date: Thu, 11 Apr 2002 09:09:25 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: More than 10 IDE interfaces
+In-Reply-To: <3CB53D70.5070100@evision-ventures.com>
+Message-ID: <Pine.LNX.3.96.1020411085829.3677F-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: Jens Axboe <axboe@suse.de>, Martin Dalecki <martin@dalecki.de>,
-        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: New IDE code and DMA failures
-In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> Hi Jens, Martin, Vojtech,
+On Thu, 11 Apr 2002, Martin Dalecki wrote:
 
-Zdrastwujtie.
-
-> I have a flaky IDE subsystem in one box. Reads work fine,
-> writes sometimes don't work and hang either IDE/block device
-> sybsystem or entire box. For example, I dumped ~40 MB file to
-> the disk and now I have additional power led (i.e. hdd activity
-> led is constantly on) and a bunch of "D" state processes
-> (kupdated, mount, umount).
+> Baldur Norddahl wrote:
+> > Hi,
+> > 
+> > I have a machine with the following configuration:
+> > 
+> > 2 on board IDE interfaces (AMD chipset)
+> > 2 Promise Technology UltraDMA100 controllers with each 2 IDE interfaces.
+> > 4 Promise Technology UltraDMA133 controllers with each 2 IDE interfaces.
+> > 
+> > This adds up to 14 IDE interfaces. And I just discovered that the kernel
+> > only supports 10 IDE interfaces :-(
+> > 
+> > So I tried to hack the kernel, and I was partially successfull. I changed
+> > MAX_HWIF from 10 to 14. I made up some major numbers for the extra
 > 
-> This is happening since I decided to try 2.5.7.
-> 2.4.18 reported DMA failures and reverted to PIO.
+> In your case if should be changed to 15 there is an off by one error here in the
+> interpretation of this constant.
+
+  ??? If the current value is 10, and supports 10 interfaces, and I
+believe that is the case, why should he need a value of 15 to get 14?
+Doesn't the off by one error happen on smaller values, or what?
+
+  I am NOT disagreeing with you, I just don't see how to code an off by
+one and have it work some of the time and not others.
+ 
+> > interfaces (115, 116, 117 and 118).
+> > 
+> > drivers/ide/ide.c and fs/partitions/check.c were modified to know about
+> > IDE10_MAJOR to IDE13_MAJOR.
+> > 
+> > With there changes the kernel detects the extra interfaces and the disks on
+> > them. They get some strange names like IDE< and the last disk is named hd{,
+> > but I guess I can live with that :-)
 > 
-> I did send a detailed report of similar event with
-> ksymoopsed stack traces of hung prosesses to lkml.
+> The cause of those funny names is well known in the 2.5.xx series.
+> The solution to it will first involve a complete rewrite of the kernel
+> parameter parsing in ide.c
+
+  I thought devfs was supposed to eliminate all this stuff and replace
+names with long hierarchical names. In hindsight it probably would have
+been better to call drives something like hdNNX, where NN is the interface
+and X is m or s. Hum, I wonder how hard that would be as a retrofit?
+
+> > But when it tries to detect the partitions on the extra interfaces, it locks
+> > up. The last lines it writes is:
+> > 
+> > Partition check:
+> >  hda: hda1
+> >  hde: hde1
+> >  hdg: hdg1
+> >  hdi: hdi1
+> >  hdk: hdk1
+> >  hdm: hdm1
+> >  hdo: hdo1
+> >  hdq: hdq1
+> >  hds: hds1
+> >  hdu:
 > 
-> Since you are working on IDE subsystem, I will be glad to
-> *retain* my flaky IDE setup and test future kernels
-> for correct operation in this failure mode.
-> 
-> Please inform me whenever you want me to test your patches.
+> See above + make MAX_HWIFS 15 and you should have more luck. (Not tested
+> actually).
 
-Guessing from the symptoms I would rather suggest that:
+  Right. I would be interested in this one myself, but I don't have a good
+way of getting that many drives attached. I have a pile of old Promise
+ATA33 cards, and I could come up with a hundred 400-500MB drives, but the
+case and cabling is a serious issue.
 
-1. Are you sure you have the support for your chipset properly
-    enabled? It's allmost a must for DMA.
+  Anyway, if you have a moment to hint why an off by one error is not
+biting us on ten drives I'd be interested.
 
-2. Could you please report about the hardware you have. There are
-    chipsets around there which are using theyr own transport layer
-    implementations. host chip (aka south bridge) disk types and so on.
-
-3. Some timeout values got increased to more generally used values (in esp.
-    IBM microdrives advice about timeout values. Could you see whatever
-    the data doesn't eventually go to the disk after georgeous
-    amounts of time.
-
-4. Could you try to set the DMA mode lower then it's set up
-    per default by using hdparm and try whatever it helps?
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

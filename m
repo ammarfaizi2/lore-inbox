@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVATQds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVATRTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVATQds (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 11:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVATQTS
+	id S262241AbVATRTi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:19:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVATRTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:19:18 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:12751 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262233AbVATQRT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:17:19 -0500
-Date: Thu, 20 Jan 2005 17:16:26 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: [patch] minor spinlock cleanups
-Message-ID: <20050120161626.GD13812@elte.hu>
-References: <16878.54402.344079.528038@cargo.ozlabs.ibm.com> <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu> <20050120161116.GA13812@elte.hu> <20050120161259.GB13812@elte.hu> <20050120161450.GC13812@elte.hu>
+	Thu, 20 Jan 2005 12:19:37 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:24327
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262241AbVATRPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 12:15:50 -0500
+Date: Thu, 20 Jan 2005 18:15:44 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: oom killer gone nuts
+Message-ID: <20050120171544.GN12647@dualathlon.random>
+References: <20050120123402.GA4782@suse.de> <20050120131556.GC10457@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050120161450.GC13812@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050120131556.GC10457@pclin040.win.tue.nl>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 38 12 CD 76 E4 82 94 AF 02 0C 0F FA E1 FF 55 9D 9B 4F A5 9B
+X-Cpushare-SSL-MD5-Cert: ED A5 F2 DA 1D 32 75 60 5E 07 6C 91 BF FC B8 85
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[this patch didnt change due to can_lock but i've resent it so that the
-patch stream is complete. this concludes my current spinlock patches.]
---
+On Thu, Jan 20, 2005 at 02:15:56PM +0100, Andries Brouwer wrote:
+> On Thu, Jan 20, 2005 at 01:34:06PM +0100, Jens Axboe wrote:
+> 
+> > Using current BK on my x86-64 workstation, it went completely nuts today
+> > killing tasks left and right with oodles of free memory available.
+> 
+> Yes, the fact that the oom-killer exists is a serious problem.
+> People work on trying to tune it, instead of just removing it.
 
-cleanup: remove stale semicolon from linux/spinlock.h and stale space
-from asm-i386/spinlock.h.
+I'm working on fixing it, not just tuning it. The bugs in mainline
+aren't about the selection algorithm (which is normally what people
+calls oom killer). The bugs in mainline are about being able to kill a
+task reliably, regardless of which task we pick, and every linux kernel
+out there has always killed some task when it was oom. So the bugs are
+just obvious regressions of 2.6 if compared to 2.4.
 
-	Ingo
+But this is all fixed now, I'm starting sending the first patches to
+Anderw very shortly (last week there was still the oracle stuff going
+on). Now I can fix the rejects.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/include/linux/spinlock.h.orig
-+++ linux/include/linux/spinlock.h
-@@ -202,7 +202,7 @@ typedef struct {
- #define _raw_spin_lock(lock)	do { (void)(lock); } while(0)
- #define spin_is_locked(lock)	((void)(lock), 0)
- #define _raw_spin_trylock(lock)	(((void)(lock), 1))
--#define spin_unlock_wait(lock)	(void)(lock);
-+#define spin_unlock_wait(lock)	(void)(lock)
- #define _raw_spin_unlock(lock) do { (void)(lock); } while(0)
- #endif /* CONFIG_DEBUG_SPINLOCK */
- 
---- linux/include/asm-i386/spinlock.h.orig
-+++ linux/include/asm-i386/spinlock.h
-@@ -92,7 +92,7 @@ static inline void spin_unlock_wait(spin
-  * (except on PPro SMP or if we are using OOSTORE)
-  * (PPro errata 66, 92)
-  */
-- 
-+
- #if !defined(CONFIG_X86_OOSTORE) && !defined(CONFIG_X86_PPRO_FENCE)
- 
- #define spin_unlock_string \
+I will guarantee nothing about which task will be picked (that's the old
+code at works, I changed not a bit in what normally people calls "the oom
+killer", plus the recent improvement from Thomas), but I guarantee the
+VM won't kill tasks right and left like it does now (i.e. by invoking the
+oom killer multiple times).

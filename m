@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263161AbTJPU27 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 16:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTJPU27
+	id S263148AbTJPU2X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 16:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbTJPU2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 16:28:59 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:21495 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263161AbTJPU24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 16:28:56 -0400
-Date: Thu, 16 Oct 2003 14:27:06 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Eli Billauer <eli_billauer@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [RFC] frandom - fast random generator module
-Message-ID: <20031016142706.G7000@schatzie.adilger.int>
-Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Eli Billauer <eli_billauer@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016102020.A7000@schatzie.adilger.int> <20031016174526.GM5725@waste.org> <20031016123828.F7000@schatzie.adilger.int> <20031016190825.GQ5725@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031016190825.GQ5725@waste.org>; from mpm@selenic.com on Thu, Oct 16, 2003 at 02:08:25PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Thu, 16 Oct 2003 16:28:23 -0400
+Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:19584
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263148AbTJPU2V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 16:28:21 -0400
+Message-ID: <3F8EFFEC.6010402@trash.net>
+Date: Thu, 16 Oct 2003 22:30:36 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test7: XFS fills files with 0-bytes after crash
+References: <3F8EF3BB.6090602@trash.net>
+In-Reply-To: <3F8EF3BB.6090602@trash.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 16, 2003  14:08 -0500, Matt Mackall wrote:
-> On Thu, Oct 16, 2003 at 12:38:28PM -0600, Andreas Dilger wrote:
-> > It was a 2-way SMP system.  We use the RNG a fair amount (enough to know
-> > that 2 CPUs can race and return the same value from get_random_bytes() ;-)
-> 
-> Sure this is a race and not a birthday paradox? How recent is this?
-> Possibly before locking was added to random.c?
+Apparently this is a known problem, no need for further replies.
+Thanks to the people who responded.
 
-This is with a 2.4 kernel, which AFAIK doesn't have any locking.
+Best regards,
+Patrick
 
-> > so we had to put a spinlock around our calls to that.  Even so, oprofile
-> > showed extract_entropy() and SHATransform() near the top of CPU users.
-> 
-> Ok, the lock contention would be with add_entropy_words. I've got code
-> that reduces calls to SHATransform for /dev/urandom, but it require
-> addressing the starvation issues between /dev/random and /dev/urandom first.
+Patrick McHardy wrote:
 
-But there isn't an in-kernel interface to "/dev/urandom" so that doesn't
-help us.
+> I recently encountered a problem with XFS: while hacking on some 
+> network stuff
+> I crashed my box multiple times. Every time I saved a file directly 
+> before the crash
+> XFS filled the file with 0-bytes (I assume at recovery). The file size 
+> was unchanged.
+> Syncing and waiting a couple of seconds before crashing the box 
+> helped. To confirm
+> my network hacking didn't accidentally damage XFS data structures I 
+> created a
+> module which does nothing more than dereferencing a NULL pointer in 
+> softirq
+> context, the problem persisted.
+>
+> ver_linux:
+>
+> Gnu C                  3.3.2
+> Gnu make               3.80
+> util-linux             2.12
+> mount                  2.12
+> module-init-tools      0.9.15-pre2
+> e2fsprogs              1.35-WIP
+> xfsprogs               2.5.11
+> nfs-utils              1.0.5
+> Linux C Library        2.3.2
+> Dynamic linker (ldd)   2.3.2
+> Procps                 3.1.12
+> Net-tools              1.60
+> Console-tools          0.2.3
+> Sh-utils               5.0.91
+> Modules Loaded         sch_hfsc iptable_filter ipt_MARK iptable_mangle 
+> ip_tables cls_fw oprofile nfsd exportfs deflate zlib_deflate twofish 
+> serpent aes blowfish des sha256 sha1 md5 af_key 8250 serial_core nfs 
+> lockd sunrpc af_packet snd_pcm_oss snd_mixer_oss snd_ens1371 
+> snd_rawmidi snd_seq_device snd_pcm snd_page_alloc snd_timer 
+> snd_ac97_codec snd soundcore 8139too mii rtc unix
+>
+> xfsprogs 2.5.11-1 (debian)
+>
+> If more specific information is required please tell me ..
+>
+> Best regards,
+> Patrick
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+
 

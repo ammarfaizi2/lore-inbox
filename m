@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbTFXSKE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 14:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFXSJ6
+	id S262316AbTFXSRC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 14:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTFXSRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 14:09:58 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37905 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264292AbTFXSIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 14:08:24 -0400
-Date: Tue, 24 Jun 2003 14:15:57 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Greg KH <greg@kroah.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.73 compile error
-In-Reply-To: <20030624163548.GA3914@kroah.com>
-Message-ID: <Pine.LNX.3.96.1030624141403.6519C-100000@gatekeeper.tmr.com>
+	Tue, 24 Jun 2003 14:17:01 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:38284 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264127AbTFXSOR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 14:14:17 -0400
+Date: Tue, 24 Jun 2003 11:16:46 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Werner Almesberger <wa@almesberger.net>
+cc: "Rick A. Hohensee" <rickh@capaccess.org>, linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox has been...
+Message-ID: <181980000.1056478606@flay>
+In-Reply-To: <20030624152154.G1418@almesberger.net>
+References: <fc.0010c7b200933d110010c7b200933d11.933d19@capaccess.org> <347470000.1056467133@[10.10.2.4]> <20030624152154.G1418@almesberger.net>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Jun 2003, Greg KH wrote:
+--On Tuesday, June 24, 2003 15:21:54 -0300 Werner Almesberger <wa@almesberger.net> wrote:
 
-> On Tue, Jun 24, 2003 at 07:36:09AM +0900, Seiichi Nakashima wrote:
-> > Hi.
-> > 
-> > I update to linux-2.5.73 from linux-2.5.72.
-> > compile error occured.
+> Martin J. Bligh wrote:
+>> Given a choice between Alan and you, I feel confident in the knowledge
+>> who 99.999999999% of the world would find more useful.
 > 
-> Search the archives for the patch, or just enable CONFIG_HOTPLUG
+> Hmm, I'm not sure Alan has the necessary skills to design an
+> assembler that looks like the glue-sniffing bastard son from
+> a drunken encounter of Intercal and APL ;-)
 
-Looking at the error posted, it is in hotplug. It may be a silly question,
-but shouldn't whatever makes the hotplug source compile also compile the
-requirements? If CONFIG_HOTPLUG is not selected, why is it compiled?
+Please note the use of the word "useful" at the end of my sentence.
+It was not accidental ;-)
 
-In search of consistency...
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+M.
 

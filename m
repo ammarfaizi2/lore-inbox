@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271725AbRHQWEY>; Fri, 17 Aug 2001 18:04:24 -0400
+	id <S271730AbRHQWFo>; Fri, 17 Aug 2001 18:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271734AbRHQWEQ>; Fri, 17 Aug 2001 18:04:16 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:38415 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S271728AbRHQWEG>;
-	Fri, 17 Aug 2001 18:04:06 -0400
-Date: Fri, 17 Aug 2001 23:04:14 +0100 (IST)
-From: Dave Airlie <airlied@csn.ul.ie>
-X-X-Sender: <airlied@skynet>
-To: <linux-kernel@vger.kernel.org>
-Subject: UID16 stuff.. 
-Message-ID: <Pine.LNX.4.32.0108172303500.4995-100000@skynet>
+	id <S271728AbRHQWFj>; Fri, 17 Aug 2001 18:05:39 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:28883 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S271733AbRHQWF1>; Fri, 17 Aug 2001 18:05:27 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Theodore Tso" <tytso@mit.edu>, "Andreas Dilger" <adilger@turbolinux.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: /dev/random in 2.4.6
+Date: Fri, 17 Aug 2001 15:05:39 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMKEFFDEAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <20010817171834.A24850@thunk.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-following on from my syscall compat query last night.. should a new
-architecture need the CONFIG_UID16 and associated changes to system call
-table? or should it go without them...
+> That's not the only attack, actually.  The much simpler attack pathis
+> for an attack to **observe** the network traffic to such a precise
+> extent as to be able to guess what the entropy numbers are that are
+> going into the pool.  (Think: FBI's Carnivore).
+>
+> The one saving grace here is that in order to really do this well, the
+> attacker would need to be sitting on the local area network to get the
+> best and most precise timing numbers.  You can argue that this is
+> still a theoretical attack; but it's not quite so difficult as saying
+> that the attacker has to "control" the network traffic.
+>
+> 						- Ted
 
-so I suppose are we moving towards this or away from it?
+	This is a non-issue providing the entropy pool code correctly estimates the
+amount of entropy. The Linux entropy code is written so that there is no
+harm from putting fully known or partially known numbers into the pool
+provided that the pool does not overestimate the amount of entropy in those
+numbers.
 
-Thanks again,
-	Dave.
+	Even if you could perfectly time the packets on the LAN, you still could
+not tell the clock skew between the clock on the LAN card and the TSC. There
+would still be unknowns involving how long it would take for the interrupt
+to be acknowledged and the entropy gathering code to get to the CPU. These
+unknowns still contain real entropy that there is no known way an attacker
+could know.
 
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied@skynet.ie
-pam_smb / Linux DecStation / Linux VAX / ILUG person
-
-
+	DS
 

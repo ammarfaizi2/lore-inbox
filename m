@@ -1,35 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263673AbUEKVaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263711AbUEKVe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263673AbUEKVaH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 17:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbUEKVaF
+	id S263711AbUEKVe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 17:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUEKVe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 17:30:05 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:47626 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263665AbUEKV31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 17:29:27 -0400
-Subject: Re: 2.6.6 turns off HDD on reboot
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Dmitry Ivanov <dimss@solutions.lv>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040511202052.GA30241@new.solutions.lv>
-References: <20040511202052.GA30241@new.solutions.lv>
-Content-Type: text/plain
-Message-Id: <1084310967.1684.1.camel@teapot.felipe-alfaro.com>
+	Tue, 11 May 2004 17:34:26 -0400
+Received: from mail.kroah.org ([65.200.24.183]:16297 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263711AbUEKVbw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 17:31:52 -0400
+Date: Tue, 11 May 2004 14:30:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, roms@lpg.ticalc.org, jb@technologeek.org
+Subject: Re: [PATCH 2.6.6-rc3] Add class support to drivers/usb/misc/tiglusb.c
+Message-ID: <20040511213056.GB24789@kroah.com>
+References: <79660000.1083267538@dyn318071bld.beaverton.ibm.com> <20040502064915.GF3766@kroah.com> <36460000.1083795831@dyn318071bld.beaverton.ibm.com> <20040505223510.GA30309@kroah.com> <38560000.1083800158@dyn318071bld.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Tue, 11 May 2004 23:29:27 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <38560000.1083800158@dyn318071bld.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-11 at 22:20, Dmitry Ivanov wrote:
-> 2.6.6 turns off my HDD on reboot. After 2-3 secs
-> BIOS turns it on again. All kernels before 2.6.6
-> worked OK.
+On Wed, May 05, 2004 at 04:35:58PM -0700, Hanna Linder wrote:
+> --On Wednesday, May 05, 2004 03:35:10 PM -0700 Greg KH <greg@kroah.com> wrote:
+> > 
+> > Ick, don't destroy the whole class.  Not good.
+> 
+> 3rd times the charm.... Only destroying the class when the module is removed.
 
-I think this is related to new IDE cache flush stuff.
-Also, I think this behavior is not desirable and will cause HDD motors
-to break faster due to the increased spin up/down cycles.
+Looks good, applied, thanks.
 
+greg k-h

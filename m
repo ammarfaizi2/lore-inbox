@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264221AbTEXHxw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 03:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264222AbTEXHxv
+	id S264222AbTEXI0a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 04:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbTEXI0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 03:53:51 -0400
-Received: from h80ad2699.async.vt.edu ([128.173.38.153]:57766 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264221AbTEXHxu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 03:53:50 -0400
-Message-Id: <200305240805.h4O85f9O009429@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Jim Keniston <jkenisto@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Anton Blanchard <anton@samba.org>,
-       "Feldman, Scott" <scott.feldman@intel.com>, Greg KH <greg@kroah.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Phil Cayton <phil.cayton@intel.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [RFC] [PATCH] Net device error logging (revised) 
-In-Reply-To: Your message of "Fri, 23 May 2003 23:21:24 PDT."
-             <3ECF0F64.AAD25389@us.ibm.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <3ECF0F64.AAD25389@us.ibm.com>
+	Sat, 24 May 2003 04:26:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:51730 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264222AbTEXI03 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 04:26:29 -0400
+Date: Sat, 24 May 2003 10:39:36 +0200
+From: Andi Kleen <ak@suse.de>
+To: andrew.grover@intel.com, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Make ACPI compile again on 64bit/gcc 3.3
+Message-ID: <20030524083936.GA7594@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_66314912P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 24 May 2003 04:05:41 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_66314912P
-Content-Type: text/plain; charset=us-ascii
 
-On Fri, 23 May 2003 23:21:24 PDT, Jim Keniston said:
+Without this patch ACPI in BK-CVS current does not compile on AMD64/gcc 3.3.
 
-> - With Steve Hemminger's creation of the "net" device class a few days
-> ago, the network device's interface name is now sufficient to find the
-> information about the underlying device in sysfs (even without running
-> ethtool).  So these macros no longer log the device's driver name and
-> bus ID.
+-Andi
 
-Is something *else* logging the driver name and bus ID?
 
-Just because an interface is called 'eth2' when the message is logged
-doesn't mean it's still eth2 when you actually *read* the message.
-And no, you *can't* rely on finding the "renaming bus-ID to ethN" message
-in the logs - if the system is unstable the last bit of local logging may
-go bye-bye if not synced, and messages about network hardware problems are
-*very* prone to not making it to the syslog server (I wonder why? ;).
-
-Been there, done that, it's not fun.  Almost swapped out the wrong eth1
-a *second* time before realizing what was really going on...
-
---==_Exmh_66314912P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+zyfUcC3lWbTT17ARAlRpAKCjpTPiL/ZOwFIEGMOgKHKVQZxtkwCgkyOB
-gHbZjNch5l9CS35Uzq4x93M=
-=X1IW
------END PGP SIGNATURE-----
-
---==_Exmh_66314912P--
+Index: linux/include/acpi/acpiosxf.h
+===================================================================
+RCS file: /home/cvs/linux-2.5/include/acpi/acpiosxf.h,v
+retrieving revision 1.7
+diff -u -u -r1.7 acpiosxf.h
+--- linux/include/acpi/acpiosxf.h	24 May 2003 01:49:28 -0000	1.7
++++ linux/include/acpi/acpiosxf.h	24 May 2003 07:32:37 -0000
+@@ -287,15 +287,15 @@
+  * Miscellaneous
+  */
+ 
+-u8
++BOOLEAN
+ acpi_os_readable (
+ 	void                            *pointer,
+-	acpi_size                       length);
++	u32                       	length);
+ 
+-u8
++BOOLEAN
+ acpi_os_writable (
+ 	void                            *pointer,
+-	acpi_size                       length);
++	u32                       	length);
+ 
+ u32
+ acpi_os_get_timer (

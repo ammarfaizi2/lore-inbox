@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264963AbTANS4Y>; Tue, 14 Jan 2003 13:56:24 -0500
+	id <S265037AbTANSx7>; Tue, 14 Jan 2003 13:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264983AbTANS4Y>; Tue, 14 Jan 2003 13:56:24 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3283 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S264963AbTANS4V>; Tue, 14 Jan 2003 13:56:21 -0500
-Date: Tue, 14 Jan 2003 20:05:07 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Rodrigo F. Baroni" <rodrigobaroni@yahoo.com.br>
+	id <S265002AbTANSx7>; Tue, 14 Jan 2003 13:53:59 -0500
+Received: from mons.uio.no ([129.240.130.14]:47807 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S265037AbTANSx5>;
+	Tue, 14 Jan 2003 13:53:57 -0500
+To: Andrew Walrond <andrew@walrond.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Docs to a beginner
-Message-ID: <20030114190507.GA15211@fs.tum.de>
-References: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
-Mime-Version: 1.0
+Subject: Re: 2.5.bk no longer boots from NFS root after bk pull this morning
+References: <3E23E087.9020302@walrond.org> <shsof6j21cw.fsf@charged.uio.no>
+	<3E2439A6.2060808@walrond.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 14 Jan 2003 20:02:45 +0100
+In-Reply-To: <3E2439A6.2060808@walrond.org>
+Message-ID: <shsd6mz5zca.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 12:05:21PM -0300, Rodrigo F. Baroni wrote:
-
-> Hello all,
-> 
-> 
->     I'm a computer science grad student, and I would
-> like to know some suggestions about links, docs and
-> books to start study the kernel linux, if wouldn't
-> bother anyone.
->...
-
-    Alessandro Rubini and Jonathan Corbet.  Linux device drivers.
-    O'Reilly, second edition, 2001.  Online version: 
-    http://www.xml.com/ldd/chapter/book/index.html
+>>>>> " " == Andrew Walrond <andrew@walrond.org> writes:
 
 
->   Thanks a lot
-> Rodrigo F Baroni
+     > NFS: server cheating in read reply: count 4096 > recvd 1000
 
-cu
-Adrian
+Did this start with the 2.5.58 client? What is the server running?
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Cheers,
+  Trond

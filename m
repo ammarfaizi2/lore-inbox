@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317662AbSGVQBe>; Mon, 22 Jul 2002 12:01:34 -0400
+	id <S317777AbSGVQIU>; Mon, 22 Jul 2002 12:08:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSGVQBe>; Mon, 22 Jul 2002 12:01:34 -0400
-Received: from 62-190-216-139.pdu.pipex.net ([62.190.216.139]:27405 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S317662AbSGVQBd>; Mon, 22 Jul 2002 12:01:33 -0400
-From: metf28@dial.pipex.com
-Message-Id: <200207221610.g6MGA5Dc002733@darkstar.example.net>
-Subject: Re: Athlon XP 1800+ segemntation fault
-To: karol_olechowski@acn.waw.pl (Karol Olechowski)
-Date: Mon, 22 Jul 2002 17:10:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1027352789.1655.41.camel@alpha> from "Karol Olechowski" at Jul 22, 2002 05:46:29 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317778AbSGVQIU>; Mon, 22 Jul 2002 12:08:20 -0400
+Received: from pump3.york.ac.uk ([144.32.128.131]:47777 "EHLO pump3.york.ac.uk")
+	by vger.kernel.org with ESMTP id <S317777AbSGVQIT>;
+	Mon, 22 Jul 2002 12:08:19 -0400
+Date: Mon, 22 Jul 2002 16:35:16 +0100 (BST)
+From: Ewan Mac Mahon <ecm103@york.ac.uk>
+X-X-Sender: ewan@talisker.york.ac.uk
+To: James Simmons <jsimmons@transvirtual.com>
+cc: linux-kernel@vger.kernel.org
+Subject: VT code in 2.5.26,27 breaks with devfs
+Message-ID: <Pine.LNX.4.44.0207221632460.31044-100000@talisker.york.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's something strange with my computer cause not only Linux hangs.On
-> the other disk I've got Win XP and it also hangs ( blue screen,memory
-> dump and things like that...).Almost every component is a brand
-> new(mother board, processor, memory, video card, power supply)
 
-Check the following things:
+Hi,
 
-* Cooling - is the CPU fan, especially, working, and not clogged up with dust
+It seems that the rearranged VT/console init code in 2.5.26 and 2.5.27
+doesn't call con_init_devfs to register the VTs. On boot a devfs only
+system can't open gettys since the /dev/vc/x nodes don't exist, while a
+non-devfs system is fine.
 
-* Memory - try booting Linux with MEM=16M or something - if the problem goes away, it's probably related to memory.  Try removing and re-inserting the RAM, and cleaning the edge connectors, (I had a machine run fine for a couple of years, then suddenly keep failing.  Cleaning the RAM edge connectors fixed it).
+This one liner fixes it for me,
 
-* PSU - make sure your power supply is suitable for the new CPU, (rule of thumb being 300+ Watt rating on it).
+Ewan
+
+diff -urN linux-2.5.27-clean/drivers/char/console.c linux-2.5.27-devfs_vc/drivers/char/console.c
+--- linux-2.5.27-clean/drivers/char/console.c	Sat Jul 20 20:11:57 2002
++++ linux-2.5.27-devfs_vc/drivers/char/console.c	Mon Jul 22 10:44:09 2002
+@@ -2525,6 +2525,7 @@
+ 
+ 	kbd_init();
+ 	console_map_init();
++	con_init_devfs();
+ 	vcs_init();
+ 	return 0;
+ }
+
+
+
+
+
+
+
+

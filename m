@@ -1,109 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVA0DI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVA0DI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbVA0DI3 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262409AbVA0DI3 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 26 Jan 2005 22:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbVAZXL2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVAZXM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:11:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13729 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262422AbVAZRMf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 12:12:35 -0500
-Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <m3k6q18fwt.fsf@bzzz.home.net>
-References: <m3wtu9v3il.fsf@bzzz.home.net>
-	 <1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3brbebh43.fsf@bzzz.home.net>
-	 <1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3sm4p8tk7.fsf@bzzz.home.net>
-	 <1106670089.1985.766.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3k6q18fwt.fsf@bzzz.home.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1106759535.1953.53.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 26 Jan 2005 17:12:16 +0000
+	Wed, 26 Jan 2005 18:12:28 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46808 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262438AbVAZRXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 12:23:45 -0500
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+	<1106294155.26219.26.camel@2fwv946.in.ibm.com>
+	<m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
+	<1106305073.26219.46.camel@2fwv946.in.ibm.com>
+	<m17jm72fy1.fsf@ebiederm.dsl.xmission.com>
+	<1106475280.26219.125.camel@2fwv946.in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 26 Jan 2005 10:21:56 -0700
+In-Reply-To: <1106475280.26219.125.camel@2fwv946.in.ibm.com>
+Message-ID: <m18y6gf6mj.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 2005-01-25 at 19:30, Alex Tomas wrote:
+Right now I am very frustrated with reviewing any of the crashdump
+patches.  When I make comments usually things change just enough that
+what I said is addressed but things are addressed very much at
+a surface level.  Which means that if I think any kind of substantial
+change is needed the only way I seem to be able to communicate
+that is by actually implementing it myself.
 
->  >> journal_dirty_metadata(handle, bh)
->  >> {
->  >>     transaction->t_reserved--;
->  >>     handle->h_buffer_credits--;
->  >>     if (jh->b_tcount > 0) {
->  >>         /* modifed, no need to track it any more */
->  >>          transaction-> t_outstanding_credits++;
->  >>        jh-> b_tcount = -1;
->  >>      }
->  >> }
+Code that works today is great it does manages the job of requirements
+capture.   But just throwing code together when you are dealing
+with fundamental interface boundaries is not a good way to build
+a sustainable design.  And with the crashdump code I want an
+interface that is at least as simple and as stable as the syscall
+interface.
+
+At the very least if a patch is just a snapshot of your development
+process up for comment and you are going to continue on making
+headway please say as much.  If I know the code is quite possibly
+going to change in some pretty fundamental ways I can stop worrying
+about it.  This patch is certainly nothing I would want for more
+than a couple of day hack, in my personal development tree.
+
+I will try once again...
+
+There is evil intermingling and false dependency sharing between
+the dying kernel and the crash capture kernel in this patch, and
+virtually all of the code is unnecessary.  I have already addressed
+why.
+
+Vivek Goyal <vgoyal@in.ibm.com> writes:
+
+> On Fri, 2005-01-21 at 16:43, Eric W. Biederman wrote:
+> > On deeper review your patch as it stands is incomplete.  In particular
+> > you don't provide a way to either hardcode or dynamically set
+> > the area you are attempt to reserve to hold the backup region.
 > 
->  SCT> Actually, the whole thing can be wrapped in if (jh->b_tcount > 0) {}, I
->  SCT> think.
-
-> the idea is:
-> 1) the sooner we drop reservation, the higher probability to cover many
->    changes by single transaction
-
-But that's exactly why we _don't_ want to do this.  You're dropping the
-reservation, but remember, we return unused handle credits to the
-transaction at the end of the handle's life.
-
-So normally, when you are, for example, appending 4k at a time to a
-large file, the first handle in a new transaction gets charged for the
-indirect/bitmap updates.  But subsequent ones do not, so as the later
-handles end, they return their credits to the transaction.  That allows
-large numbers of handles to update the same buffers in the same
-transaction.
-
-But by reducing handle->h_buffer_credits early, even if the bh is
-already modified in the current transaction, you are preventing the
-return of those credits back to the transaction.  Effectively, each
-modification of the same bh in the same transaction is being accounted
-for separately, so you're charging the transaction multiple times for a
-bh which is only going to be journaled once.  That's going to cause the
-transaction to be closed early, as our accounting will tell us that the
-transaction is full even when it has only a few buffers modified.
-
-> 1) having h_buffer_credits being decremented for each modification
->    could help us to debug handle overflow situations
+> Well. Here is the new patch. This one steals the 640k from top of memory
+> region reserved for crash kernel. 
 > 
->  SCT> If we do that, do we in fact need t_reserved at all?
+> A new command line parameter (crashbackup=) has been introduced for
+> crash dump kernels. This parameter specifies the location of backup
+> region from where to retrieve the backup data.
+
+What is wrong with user space doing all of the extra space
+reservation?
+
+Could you send this fairly obvious kexec fix, as a separate patch? 
+
+> diff -puN include/linux/kexec.h~crashdump-x86-reserve-640k-memory
+> include/linux/kexec.h
 > 
-> hmm. if t_outstanding_credits holds number of modified buffers,
-> then we need sum of all running h_buffer_credits to protect
-> from transaction overflow. t_reserved is sum of h_buffer_credits.
+> --- linux-2.6.11-rc1/include/linux/kexec.h~crashdump-x86-reserve-640k-memory
+> 2005-01-22 14:16:27.000000000 +0530
+> 
+> +++ linux-2.6.11-rc1-root/include/linux/kexec.h 2005-01-22 14:16:27.000000000
+> +0530
+> 
+> @@ -79,7 +79,7 @@ struct kimage {
+>  	unsigned long control_page;
+>  
+>  	/* Flags to indicate special processing */
+> -	int type : 1;
+> +	unsigned int type : 1;
+>  #define KEXEC_TYPE_DEFAULT 0
+>  #define KEXEC_TYPE_CRASH   1
+>  };
 
-Why can't we just maintain t_outstanding_credits for this?  Define that
-as the sum of all credits either promised or consumed by any handles.
-
-On journal_start(), t_outstanding_credits += blocks;
-
-On journal_dirty_metadata(), 
-	{
-		if (jb->b_tcount > 0) {
-			/* a promised credit has turned into a consumed one */
-			handle->h_buffer_credits--;
-			jh->b_tcount = -1;
-		}
-	}
-
-On journal_stop(), any remaining handle credits are promised but
-unconsumed; simply return them: 
-	transaction->t_outstanding_credits -= handle->h_buffer_credits;
-
-As before journal_release_buffer() doesn't have to do anything about
-credits because we're only releasing buffers if they have not been
-charged for yet.
-
---Stephen
-
+Eric

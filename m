@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270208AbRHGN33>; Tue, 7 Aug 2001 09:29:29 -0400
+	id <S270167AbRHGNb3>; Tue, 7 Aug 2001 09:31:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270167AbRHGN3T>; Tue, 7 Aug 2001 09:29:19 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:33550 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S270161AbRHGN3J>; Tue, 7 Aug 2001 09:29:09 -0400
-From: wichert@cistron.nl (Wichert Akkerman)
-Subject: Re: Encrypted Swap
-Date: 7 Aug 2001 15:29:17 +0200
-Organization: Cistron Internet Services
-Message-ID: <9koqfd$npd$1@picard.cistron.nl>
-In-Reply-To: <20010807042810.A23855@foobar.toppoint.de> <3B6F9D78.412AB717@idb.hist.no> <20010807035828.E2399@mueller.datastacks.com> <3B6FB378.6BAD9A21@idb.hist.no>
-To: linux-kernel@vger.kernel.org
+	id <S270210AbRHGNbT>; Tue, 7 Aug 2001 09:31:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:45284 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270167AbRHGNbD>;
+	Tue, 7 Aug 2001 09:31:03 -0400
+Date: Tue, 7 Aug 2001 09:31:07 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] using writepage to start io
+In-Reply-To: <01080715292606.02365@starship>
+Message-ID: <Pine.GSO.4.21.0108070928250.18565-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B6FB378.6BAD9A21@idb.hist.no>,
-Helge Hafting  <helgehaf@idb.hist.no> wrote:
->A relatively cheap way might be a custom pci
->card with a self-destruct RAM bank for
->storing the decryption keys.  Opening the 
->safe cause the card to zero the RAM.  
-
-You can do that with most PC hardware these days as well, mainboards
-have an enclosure sensor you can hook up for that.
-
-Wichert.
 
 
--- 
-  _________________________________________________________________
- /       Nothing is fool-proof to a sufficiently talented fool     \
-| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+On Tue, 7 Aug 2001, Daniel Phillips wrote:
+
+> One thread per block device; flushes across mounts on the same device
+> are serialized.  This model works well for fs->device graphs that are
+> strict trees.  For a non-strict tree (acyclic graph) its not clear
+> what to do, but you could argue that such a configuration is stupid,
+> so any kind of punt would do.
+
+Except that you can have a part of fs structures on a separate device.
+Journal, for one thing. Now think of two disks, both partitioned. Two
+filesystems. Each has data on the first partition of its own disk.
+And journal on the second of another.
 

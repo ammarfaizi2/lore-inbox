@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLSAJs>; Mon, 18 Dec 2000 19:09:48 -0500
+	id <S129431AbQLSAM2>; Mon, 18 Dec 2000 19:12:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbQLSAJi>; Mon, 18 Dec 2000 19:09:38 -0500
-Received: from mail.valinux.com ([198.186.202.175]:6156 "EHLO mail.valinux.com")
-	by vger.kernel.org with ESMTP id <S129391AbQLSAJ2>;
-	Mon, 18 Dec 2000 19:09:28 -0500
-Date: Mon, 18 Dec 2000 15:40:33 -0800
-From: David Hinds <dhinds@valinux.com>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCMCIA modem (v.90 X2) not working with 2.4.0-test12 PCMCIA services
-Message-ID: <20001218154033.C11728@valinux.com>
-In-Reply-To: <007101c067cc$0500c620$0b31a3ce@g1e7m6>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <007101c067cc$0500c620$0b31a3ce@g1e7m6>; from Miles Lane on Sat, Dec 16, 2000 at 05:52:30PM -0800
+	id <S129507AbQLSAMS>; Mon, 18 Dec 2000 19:12:18 -0500
+Received: from c984966-a.chmpgn1.il.home.com ([24.22.18.225]:64008 "EHLO
+	draco.mcnabbs.org") by vger.kernel.org with ESMTP
+	id <S129431AbQLSAMI>; Mon, 18 Dec 2000 19:12:08 -0500
+Date: Mon, 18 Dec 2000 17:41:41 -0600 (CST)
+From: Andrew McNabb <amcnabb@mcnabbs.org>
+To: David Feuer <David_Feuer@brown.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: APM/DPMS lockup on Dell 3800
+In-Reply-To: <3A3D9F7A.40F1004@brown.edu>
+Message-ID: <Pine.LNX.4.21.0012181740390.28635-100000@draco.mcnabbs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 05:52:30PM -0800, Miles Lane wrote:
+This is a problem with the 3Com Ethernet card in your system.
+There are annoying problems when you try to use this card on
+a network with a lot of collisions.
 
-> register_serial(): autoconfig failed
-> serial_cs: register_serial() at 0x03e8, irq 3 failed.
+
+On Mon, 18 Dec 2000, David Feuer wrote:
+
+> BTW, what does it mean when this gets logged?
 > 
-> "cardctl ident" shows:
+> Dec 17 19:01:09 localhost kernel: eth0: Resetting the Tx ring pointer.
+> Dec 17 19:01:09 localhost kernel: eth0: Tx Ring full, refusing to send
+> buffer.
 > 
-> Socket 1:
->     product info: "PCMCIA", "V.90 Communications Device ", "", ""
->     manfid: 0x018a, 0x0001
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-Have you tried, or could you try, using this card under a 2.2 kernel
-for comparison?
 
-Also, the first thing I'd try would be to exclude the irq 3, port
-0x3e8-0x3ef resources in /etc/pcmcia/config.opts to verify that it is
-not a resource conflict of some sort.
+--
+Andrew McNabb
+amcnabb@mcnabbs.org
+http://www.mcnabbs.org/
 
--- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

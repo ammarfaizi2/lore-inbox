@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266576AbSKLNtZ>; Tue, 12 Nov 2002 08:49:25 -0500
+	id <S266564AbSKLNpl>; Tue, 12 Nov 2002 08:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266578AbSKLNtY>; Tue, 12 Nov 2002 08:49:24 -0500
-Received: from ausadmmsps306.aus.amer.dell.com ([143.166.224.101]:12816 "HELO
-	AUSADMMSPS306.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S266576AbSKLNtY>; Tue, 12 Nov 2002 08:49:24 -0500
-X-Server-Uuid: c21c953d-96eb-4242-880f-19bdb46bc876
-Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1EB7C@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: amd@tt.ee, linux-kernel@vger.kernel.org
-Subject: RE: 2.5.47: make modules_install fails
-Date: Tue, 12 Nov 2002 07:56:06 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 11CFD7F2735809-01-01
-Content-Type: text/plain; 
- charset=us-ascii
+	id <S266578AbSKLNpl>; Tue, 12 Nov 2002 08:45:41 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:10150 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266564AbSKLNpk>; Tue, 12 Nov 2002 08:45:40 -0500
+Subject: Re: pc_keyb.c #define kbd_controller_present()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nat Ersoz <nat.ersoz@myrio.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1037069597.23521.46.camel@ersoz.et.myrio.com>
+References: <1037069597.23521.46.camel@ersoz.et.myrio.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Nov 2002 14:17:33 +0000
+Message-Id: <1037110653.8321.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> when doing make modules_install, it fails with the following error
-> messages:
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.5.47/kernel/drivers/net/8390.o
-> depmod:         crc32_be_Rb7b61546
-> depmod:         crc32_be_Rb7b61546
+On Tue, 2002-11-12 at 02:53, Nat Ersoz wrote:
+> Is it possible to get a new .config file symbol for the keyboard similar
+> to the mouse?  It would be very helpful to us.
 
-For the crc32 bits, you've got CONFIG_CRC32=y, but CONFIG_SMC91C92=m, and
-nothing built-in is using the crc32 functions, so the linker is throwing
-them out.  Set CONFIG_CRC32=m, if something built-in needs it it'll get set
-to =y by them.
-
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+2.5 already has the ability to build a kernel without PS/2 keyboard. For
+2.4 it wouldnt be hard. Cutting down the amount of noise and the time
+waited might not be a bad idea too
 

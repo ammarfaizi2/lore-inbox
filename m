@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270142AbTHSKxb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 06:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270230AbTHSKxb
+	id S270256AbTHSKzG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 06:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270272AbTHSKzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 06:53:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24026 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270142AbTHSKxa (ORCPT
+	Tue, 19 Aug 2003 06:55:05 -0400
+Received: from zork.zork.net ([64.81.246.102]:33157 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S270256AbTHSKzD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 06:53:30 -0400
-Date: Tue, 19 Aug 2003 03:55:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: chrisl@vmware.com
-Cc: azarah@gentoo.org, linux-kernel@vger.kernel.org, adilger@clusterfs.com,
-       ext3-users@redhat.com, x86-kernel@gentoo.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] fix for htree corruption. Was: [2.6] Perl weirdness
- with ext3 and HTREE
-Message-Id: <20030819035506.28f72a6a.akpm@osdl.org>
-In-Reply-To: <20030819104026.GA25402@vmware.com>
-References: <68F326C497FDB743B5F844B776C9B146097700@pa-exch4.vmware.com>
-	<1060208887.12477.31.camel@nosferatu.lan>
-	<20030819104026.GA25402@vmware.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 06:55:03 -0400
+To: peter enderborg <pme@hyglo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: strtok non reentrant
+References: <3F41FE52.3000109@hyglo.com>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: peter enderborg <pme@hyglo.com>,
+ linux-kernel@vger.kernel.org
+Date: Tue, 19 Aug 2003 11:54:59 +0100
+In-Reply-To: <3F41FE52.3000109@hyglo.com> (peter enderborg's message of
+ "Tue, 19 Aug 2003 12:39:14 +0200")
+Message-ID: <6uy8xpor24.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chrisl@vmware.com wrote:
->
-> Martin,
-> 
-> The first patch should fix it. The bug is trigger by creating the index.
-> Coping out the index we assume the dirents start with the first entry
-> after "." "..".
-> 
-> It can make the first previous deleted entry reappear.
-> In the past we set inode to zero for empty entry so this is not
-> a problem. That is not true any more.
+peter enderborg <pme@hyglo.com> writes:
 
-whee, neat, thanks.
+> Why do the 2.4 kernel having the non reentrant strtok() functions?  Is
+> there any reason at all not to have
+> strtok_r() instead?
 
-> Andrew, I assume touch inode->i_ctime after
-> ext3_mark_inode_dirty is a bug? The second patch is for that.
-
-That's correct.
-
-Could you please regenerate a full, single diff against a known kernel
-version?  That patch generated 100% rejects for me...
+You probably want strsep().  strtok() seems to be deprecated.
 

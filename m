@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264312AbTKOACH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 19:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbTKOACH
+	id S261168AbTKNX40 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 18:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTKNX40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 19:02:07 -0500
-Received: from ozlabs.org ([203.10.76.45]:5278 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264312AbTKOACE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 19:02:04 -0500
+	Fri, 14 Nov 2003 18:56:26 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:23274 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S261168AbTKNX4T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 18:56:19 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: 2.6.0-test9 VFAT problem
+Date: Fri, 14 Nov 2003 18:56:17 -0500
+User-Agent: KMail/1.5.1
+Cc: "Patrick Beard" <patrick@scotcomms.co.uk>, linux-kernel@vger.kernel.org
+References: <20031114113224.GR21265@home.bofhlet.net> <200311141351.18944.gene.heskett@verizon.net> <87ptfura5a.fsf@devron.myhome.or.jp>
+In-Reply-To: <87ptfura5a.fsf@devron.myhome.or.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16309.28037.896731.19038@cargo.ozlabs.ibm.com>
-Date: Sat, 15 Nov 2003 11:04:21 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: torvalds@osdl.org
-Cc: trini@kernel.crashing.org, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC32: cancel syscall restart on signal delivery
-X-Mailer: VM 7.17 under Emacs 21.3.1
+Content-Disposition: inline
+Message-Id: <200311141856.17275.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.12.17] at Fri, 14 Nov 2003 17:56:17 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+On Friday 14 November 2003 15:02, OGAWA Hirofumi wrote:
+>Gene Heskett <gene.heskett@verizon.net> writes:
+>> dd if=/dev/sda1|md5sum <--note use of the same device as to read
+>> pix. has been running for 3 or so minutes now, steadily reading
+>> the camera. I shoulda put a time in front of it!  Ok got it, heres
+>> the sum: 127945+0 records in
+>> 127945+0 records out
+>> f6c568dd1f35bb37f3d667a2ab228e2f
+>> f6c568dd1f35bb37f3d667a2ab228e2f
+>
+>[...]
+>
+>> What does this tell us?
+>
+>Thanks. I want to know it's not reading the randomly garbage.
+>Can this problem reproduce easy? If so, what operations?
 
-This patch ensures that the PPC kernel cancels any pending restarted
-system call when it delivers a signal.  This is the PPC counterpart of
-the change that has recently gone into i386 and other architectures.
+NDI OGAWA.  And I rebooted to find that all my printers I had defined 
+in cups were gone, and I cannot define new ones, getting 
+sever-error-internal-error when I try.  And thats much more important 
+to me ATM, sorry.
 
-BTW, do we have a test program that triggers the bug that this fixes?
+However, before I rebooted, those operations felt a solid as a rock, 
+and always returned the same md5sum on a repeat.
 
-Thanks,
-Paul.
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-diff -urN linux-2.5/arch/ppc/kernel/signal.c pmac-2.5/arch/ppc/kernel/signal.c
---- linux-2.5/arch/ppc/kernel/signal.c	2003-09-27 19:46:43.000000000 +1000
-+++ pmac-2.5/arch/ppc/kernel/signal.c	2003-11-14 23:08:22.000000000 +1100
-@@ -569,10 +569,6 @@
- 			regs->result = -EINTR;
- 			regs->gpr[3] = EINTR;
- 			/* note that the cr0.SO bit is already set */
--			/* clear any restart function that was set */
--			if (ret == ERESTART_RESTARTBLOCK)
--				current_thread_info()->restart_block.fn
--					= do_no_restart_syscall;
- 		} else {
- 			regs->nip -= 4;	/* Back up & retry system call */
- 			regs->result = 0;
-@@ -587,6 +583,9 @@
- 	if (signr == 0)
- 		return 0;		/* no signals delivered */
- 
-+	/* Always make any pending restarted system calls return -EINTR */
-+	current_thread_info()->restart_block.fn = do_no_restart_syscall;
-+
- 	if ((ka->sa.sa_flags & SA_ONSTACK) && current->sas_ss_size
- 	    && !on_sig_stack(regs->gpr[1]))
- 		newsp = current->sas_ss_sp + current->sas_ss_size;

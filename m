@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267966AbTBSDp6>; Tue, 18 Feb 2003 22:45:58 -0500
+	id <S267971AbTBSDqb>; Tue, 18 Feb 2003 22:46:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267970AbTBSDp6>; Tue, 18 Feb 2003 22:45:58 -0500
-Received: from dp.samba.org ([66.70.73.150]:2237 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267966AbTBSDp4>;
-	Tue, 18 Feb 2003 22:45:56 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
-In-reply-to: Your message of "Tue, 18 Feb 2003 10:50:49 -0800."
-             <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com> 
-Date: Wed, 19 Feb 2003 14:54:21 +1100
-Message-Id: <20030219035559.7527A2C079@lists.samba.org>
+	id <S267973AbTBSDqb>; Tue, 18 Feb 2003 22:46:31 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:17676 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S267971AbTBSDqa>; Tue, 18 Feb 2003 22:46:30 -0500
+Date: Wed, 19 Feb 2003 14:56:04 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: desrt <desrt@desrt.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5: crypto core + block devices + ???
+In-Reply-To: <1045625825.2879.8.camel@nothing.desrt.ca>
+Message-ID: <Pine.LNX.4.44.0302191454160.1595-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com> you write:
-> At 07:46 PM 2/17/2003, David S. Miller wrote:
+On 18 Feb 2003, desrt wrote:
+
+> Looking at the way the crypto api works (ie: skatterlists) makes it seem
+> vaguely compatible with what I've read about the new block device IO
+> mechanisms in 2.5.  Is this an accident?  Is there some generic crypto
+> support for block devices planned that will obsolete using the loopback
+> driver to this end? (like the pages get decrypted upon loading into the
+> buffer cache from the physical media or whatever? i'm not really sure
+> how all the block device stuff works,...)
 > 
-> >After talking to Alexey, I don't like this patch.
-> >
-> >The new module subsystem was supposed to deal with things
-> >like this cleanly, and this patch is merely a hack to cover
-> >up for it's shortcomings.
 
-I don't quite understand.  
+Nothing like this is planned that I'm aware of.
 
-There are some issue with this patch, however.
 
-Firstly, the owner field should probably be in struct proto_ops not
-struct socket, where the function pointers are.
+> If there are no deeper motives here and the intention is to continue
+> supporting encrypted filesystems via the loopback interface, is there
+> anyone working on the project?
 
-The sk thing looks reasonable at first glance.  Getting a reference to
-npf->owner, then holding it for the socket is a little confusing, but
-an obvious optimization over a naive "get, use, drop, get".
+Yes, a few people have been working on loopback crypto support for 2.5, 
+see the cryptoapi-devel archives.
 
-In sys_accept:
 
-> @@ -1196,9 +1198,13 @@
->  	if (!(newsock = sock_alloc())) 
->  		goto out_put;
->  
-> -	newsock->type = sock->type;
-> -	newsock->ops = sock->ops;
-> +	newsock->type  = sock->type;
-> +	newsock->ops   = sock->ops;
-> +	newsock->owner = sock->owner;
->  
-> +	try_module_get(sock->owner);
-> +	newsock->owner = sock->owner;
-> +	
->  	err = sock->ops->accept(sock, newsock, sock->file->f_flags);
->  	if (err < 0)
->  		goto out_release;
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
-You still need to check the result of try_module_get, and fail if it
-fails.  The *only* time this will fail is when someone is doing an
-"rmmod --wait" on the module, which presumably means they really do
-not want you to increase the reference count furthur.
 
-Hope that helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276734AbRJKTSh>; Thu, 11 Oct 2001 15:18:37 -0400
+	id <S276702AbRJKTTh>; Thu, 11 Oct 2001 15:19:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276702AbRJKTS2>; Thu, 11 Oct 2001 15:18:28 -0400
-Received: from colorfullife.com ([216.156.138.34]:32775 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S276736AbRJKTSP>;
-	Thu, 11 Oct 2001 15:18:15 -0400
-Message-ID: <3BC5F092.6492A8B3@colorfullife.com>
-Date: Thu, 11 Oct 2001 21:18:42 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en, de
+	id <S276738AbRJKTT3>; Thu, 11 Oct 2001 15:19:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54750 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276736AbRJKTSq>;
+	Thu, 11 Oct 2001 15:18:46 -0400
+Date: Thu, 11 Oct 2001 15:19:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: adilger@turbolabs.com, arvest@orphansonfire.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11 loses sda9
+In-Reply-To: <UTC200110111907.TAA32409.aeb@cwi.nl>
+Message-ID: <Pine.GSO.4.21.0110111509340.24742-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Tommy Faasen <faasen@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: SMP debugging
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The way I look at the output is that the kernel only looks
-> what the specs ofthe first cpu are and asumes that the second
-> is the same.
 
-Correct, that part of the Intel MP specification: if 2 different cpus
-are
-used, then the capabilities of the second cpu must be a subset of the
-capabilities of the first cpu. (IIRC)
 
-Probably you must edit smpboot.c or init.c and clear the capabilities of
-cpu0 that cpu1 doesn't have.
+On Thu, 11 Oct 2001 Andries.Brouwer@cwi.nl wrote:
 
-> Invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c010c784>]    Not tainted
-> EFLAGS: 00010206
+> so as to make it easy to switch between compiles where
+> a kdev_t is a number and we use the infamous arrays,
+> and compiles where a kdev_t is a pointer to a device struct,
+> and no arrays exist, I now see that get_hardsect_size(dev)
+> is replaced by
+>         get_hardsect_size(to_kdev_t(bdev->bd_dev))
+> . Yecch.
+> Al, I never understood why you want to introduce a
+> struct block_device * to do precisely what kdev_t
+> was designed to do.]
+ 
+We had been through that way too many times.  You know what problems
+with unified device struct I've brought before.  You know what
+problems I have with your 64bit dev_t.  And you know _very_ well that
+any patches in that area should be done in small steps.
 
-Could you run the oops through ksymoops?
+Hell, I'd prefer that one to be done _much_ slower - with decent
+debugging between the steps instead of "we've got to close the
+holes opened by bdev-in-pagecache _NOW_" kind of situation we'd got.
 
-> processor 0:
-> flags  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat
->		pse36 mmx fxsr
-> processor 1:
-> flags  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov mmx
+IMO eventually we should have per-disk structure and keep reference to
+it from struct block_device.  Then get_hardsect_size() wiuld turn into
+access to field of that beast (and would take struct block_device *
+as an argument).  But that's 2.5 stuff and I bloody refuse to participate
+in attempts to do everything in one huge leap.  One we'd got is already
+bad enough.
 
-Ok, cpu0 support fxsr, cpu1 doesn't.
-fxsr is used for the thread switching.
-It seems that this causes an oops during the first thread switch.
-
-Could you try what happens if you replace
-linux/include/asm-i386/processor.h:
-- #define cpu_has_fxsr        (test_bit(X86_FEATURE_FXSR,
-boot_cpu_data.x86_capability))
-+ #define cpu_has_fxsr		(0)
-
-If that doesn't work, then check where X86_FEATURE_FXSR is used.
-
---
-	Manfred

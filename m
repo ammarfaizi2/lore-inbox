@@ -1,79 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbUBHO2J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 09:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbUBHO2J
+	id S263637AbUBHOiG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 09:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbUBHOiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 09:28:09 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:36101 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263679AbUBHO2F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 09:28:05 -0500
-Date: Sun, 8 Feb 2004 15:40:52 +0100
-To: "John J. Foster" <festus@frognet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sound and multiple X-servers
-Message-ID: <20040208144052.GA16903@hh.idb.hist.no>
-References: <1076197321.8976.3.camel@Highway-61>
+	Sun, 8 Feb 2004 09:38:06 -0500
+Received: from [220.249.10.10] ([220.249.10.10]:56986 "EHLO
+	mail.goldenhope.com.cn") by vger.kernel.org with ESMTP
+	id S263646AbUBHOhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 09:37:53 -0500
+Date: Sun, 8 Feb 2004 22:37:40 +0800
+From: lepton <lepton@sina.com>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG]linux-2.4.24 with k8 numa support panic when init scsi
+Message-ID: <20040208143740.GA25010@lepton.goldenhope.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1076197321.8976.3.camel@Highway-61>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 07, 2004 at 06:42:23PM -0500, John J. Foster wrote:
-> Good evening,
-> 
-> Could someone please point me to the correct resources regarding proper
-> setup of the various sound devices (/dev/cdrom, /dev/mixer, etc...) and
-> multiple X servers/sessions? I realize this is not the proper group, but
-> I have been searching google, the XFree86 website, ALSA website,
-> newsgroups, etc... and anywhere else I can think of on and off for a few
-> months now. I'm currently running FedoraCore on an ASUS A7N8X Deluxe
-> motherboard, but I don't really think the particular hardware or version
-> of Linux is the problem. I hope it's just a missed configuration issue.
-> Each of these devices seems to only be available to the first X session
-> to logon.
-> I've bypassed this restriction for CD Audio by creating device files for
-> all 4 users of this machines, and then configuring their preferred
-> cd-player app to poing at their device file. It works fine. Any
-> logged-in user can now play cd's.
-> 
-> brw-------    1 bird     disk      11,   0 Dec 31 18:20 /dev/cd-bird
-> brw-------    1 festus   disk      11,   0 Dec 31 18:15 /dev/cd-festus
-> brw-------    1 kayde    disk      11,   0 Jan  8 21:09 /dev/cd-kayde
-> brw-------    1 monet    disk      11,   0 Dec 31 18:19 /dev/cd-monet
-> 
-Seems you make several device nodes for the _same_ device, with different
-owners.  This is not the normal way to do i, are you going to
-create a new set of nodes whenever there's a new user?
+Hi!
+	I've found if I enable k8-numa support in my dual amd64 boxes.
+	It will panic when init scsi.
+	Further investigation leads out it panics in
 
-The usual way is to have only one node per device, and set permissions
-so that all users can use the device.  Let the cdrom device be owned
-by some group (cdromusers). Lett all your users belong to that group,
-and give the group rw permissions.  Similar for other shared devices.
+	drivers/scsi/scsi_dma.c
 
-> My problem now is /dev/mixer, I think. Only the first logged-in user
-> gets any system sounds.
-> 
-Seems you have a lousy soundcard (or sound driver) that isn't shareable.
-Several solutions:
-1. Replace with a shareable card.  I know the trident 4dwave cards are,
-   there are probably others.  This is also useful when a single
-   user want to run two sound programs simultaneously, such as
-   both "system sounds" and a game and a background mp3/cd at the same time.
-2. Use several cards, the best solution if your simultaneous users sit at 
-   different locations.  Each may then have his/her own set of speakers.
-3. Use software mixing, there are sound daemons available for this purpose.
+	when it  __get_free_pages(GFP_ATOMIC | GFP_DMA, 0) in two
+places.
+	Sometimes it will panic before found scsi disk (in scsi_init_minimal_dma_pool)
 
+	Sometimes it will panic after found scsi disk (in scsi_resize_dma_pool)
+	
 
-> Before I go further, am I missing something obvious?
-Take a look at how groups & permissions works.  Then think about
-what kind of soundcard you want.
+	The following is my output of panic.
 
-Helge Hafting
+	If you'd like any other information,I will provide as you
+reguest.
+
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
+Unable to handle kernel NULL pointer dereference<1> at 0000000000000180
+RIP: [<ffffffff80145ce0>]PML4 0
+Oops: 0000
+CPU 1
+Pid: 1, comm: swapper Not tainted
+RIP: 0010:[<ffffffff80145ce0>]
+RSP: 0000:000001007ffe3da8  EFLAGS: 00010012
+RAX: 0000000000000000 RBX: 0000010080000000 RCX: 0000000000000021
+RDX: 0000010080000548 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 00000100fbf2b800 R11: 0000000000000800 R12: 0000000000000021
+R13: 0000010080000000 R14: 0000000000000082 R15: 0000000000000021
+FS:  0000000000000000(0000) GS:ffffffff803da800(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000180 CR3: 000000007ffed000 CR4: 00000000000006e0
+Process swapper (pid: 1, stackpage=1007ffe3000)
+Stack: 000001007ffe3da8 0000000000000000 000000000000000f
+0000000000000000
+       0000010080000548 000001007fffec80 0000010080000000
+0000000000000000
+       0000000000000021 0000010080000000 0000000000000082
+00000100fbf2f618
+Call Trace: [<ffffffff801493bd>] [<ffffffff80145f7d>]
+       [<ffffffff8024f6ae>] [<ffffffff80244ed0>] [<ffffffff8010c122>]
+       [<ffffffff8010f1f0>] [<ffffffff8010c0c0>] [<ffffffff8010f1e8>]
 
 
+Code: 48 2b 80 80 01 00 00 48 c1 f8 03 41 89 c6 41 89 f4 48 89 d3
+RIP [<ffffffff80145ce0>] RSP <000001007ffe3da8>
+CR2: 0000000000000180
+ <0>Kernel panic: Attempted to kill init!

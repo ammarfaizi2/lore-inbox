@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288557AbSCIRLk>; Sat, 9 Mar 2002 12:11:40 -0500
+	id <S292858AbSCIRwl>; Sat, 9 Mar 2002 12:52:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292835AbSCIRLa>; Sat, 9 Mar 2002 12:11:30 -0500
-Received: from proj2501.aiss.uic.edu ([131.193.164.90]:21002 "EHLO
-	proj2501.aiss.uic.edu") by vger.kernel.org with ESMTP
-	id <S288557AbSCIRLQ>; Sat, 9 Mar 2002 12:11:16 -0500
-Date: Sat, 9 Mar 2002 11:17:27 -0600 (CST)
-From: "Barton, Christopher" <cpbarton@uiuc.edu>
-X-X-Sender: cpbarton@proj2501.aiss.uic.edu
-To: Ingo Molnar <mingo@elte.hu>
+	id <S292859AbSCIRwb>; Sat, 9 Mar 2002 12:52:31 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:710 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S292858AbSCIRw1>;
+	Sat, 9 Mar 2002 12:52:27 -0500
+Date: Sat, 09 Mar 2002 09:53:24 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: andersen@codepoet.org
 cc: linux-kernel@vger.kernel.org
-Subject: netconsole patch for 2.5?
-In-Reply-To: <Pine.LNX.4.33.0109280939090.1569-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0203091051060.27667-100000@proj2501.aiss.uic.edu>
+Subject: Re: 23 second kernel compile (aka which patches help scalibility on NUMA)
+Message-ID: <126403558.1015667602@[10.10.2.3]>
+In-Reply-To: <20020309164305.GA2914@codepoet.org>
+In-Reply-To: <20020309164305.GA2914@codepoet.org>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+--On Saturday, March 09, 2002 9:43 AM -0700 Erik Andersen <andersen@codepoet.org> wrote:
+> On Fri Mar 08, 2002 at 09:47:04PM -0800, Martin J. Bligh wrote:
+>> "time make -j32 bzImage" is now down to 23 seconds.
+>> (16 way NUMA-Q, 700MHz P3's, 4Gb RAM).
+> [-----------snip---------]
+>> Any other suggestions are welcome. I'd also be interested
+> 
+> I suggest that you should give me your computer.  ;-) 
 
-Is there a netconsole patch for Linux 2.5?  Is netconsole on anyone's
-radar for inclusion?
+There's a very similar machine that's publicly available
+in the OSDL (http://www.osdlab.org). I don't think they'll
+let you take it home, but access is half way there ;-)
 
-Thanks a lot!
-
-On Fri, 28 Sep 2001, Ingo Molnar wrote:
-
-> 
-> On Thu, 27 Sep 2001, Albert Cranford wrote:
-> 
-> > Great tool Ingo thanks.  Below is a tested tulip patch.
-> > Thanks Andrew for the the inspiration.
-> 
-> thanks Albert - i've added it to the patch, and the latest
-> netconsole-2.4.10-C2 version can be downloaded from:
-> 
-> 	http://redhat.com/~mingo/netconsole-patches/
-> 
-> NOTE: new client-side utilities are needed as well.
-> 
-> other changes:
-> 
->  - netconsole-server fix from Andreas Dilger
-> 
->  - introduced versioning and offsetting of output, to display messages in
->    the correct order even if interim routers reorder packets. Future
->    netconsole-clients should reliably detect the right protocol version.
-> 
->  - small cleanups.
-> 
-> 	Ingo
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+M.
 

@@ -1,42 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUIAMLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUIAMQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUIAMLe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 08:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266217AbUIAMLe
+	id S266218AbUIAMQz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 08:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266219AbUIAMQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 08:11:34 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:26067 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S266175AbUIAMLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 08:11:30 -0400
-Date: Wed, 1 Sep 2004 08:15:55 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Romain Moyne <aero_climb@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Time runs exactly three times too fast
-In-Reply-To: <200409021453.09730.aero_climb@yahoo.fr>
-Message-ID: <Pine.LNX.4.58.0409010814580.4481@montezuma.fsmlabs.com>
-References: <200409021453.09730.aero_climb@yahoo.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Sep 2004 08:16:55 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:45105
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S266218AbUIAMQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 08:16:54 -0400
+Message-Id: <s135cbc5.006@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
+Date: Wed, 01 Sep 2004 14:17:23 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <hpa@zytor.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: question on i386 very early memory detection cleanup patch
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Sep 2004, Romain Moyne wrote:
+Is there a particular reason why this patch changes the alignment of
+cpu_gdt_table to be page rather than cache line aligned? This is
+particulary strange to me because the alignment is guaranteed only for
+the boot processor, but not for any of the APs; for the latter ones
+there isn't even a string guarantee that the table would be cache line
+aligned (which it really should be); the weak guarantee only is through
+an appearant assumption of GDT_ENTRIES being a sufficiently large power
+of two.
 
-> Hello, I'm french, sorry for my bad english :(
->
-> I have a problem with my kernel: Time runs exactly three times too fast.
->
-> I tested the kernel 2.6.8.1 and the 2.6.9-rc1, no success.
-> It is really strange because yesterday I reinstalled my debian with a kernel
-> 2.6.8.1 (made by me): Time ran correctly. And this morning when I rebooted my
-> computer (Compaq presario R3000 series, R3215EA exactly) the time is running
-> again three times too fast (with the kernel 2.6.8.1 and 2.6.9-rc1).
->
-> All my applications (KDE, command "date"...) runs three times too fast. It's
-> very annoying.
-
-Can you try this without cpuspeed or some frequency control daemon
-running? So disable it in runlevel scripts and then reboot.
-
+Thanks, Jan

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267982AbUBRUGW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:06:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267983AbUBRUGW
+	id S267199AbUBRRjc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 12:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267236AbUBRRjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:06:22 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:12160 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S267982AbUBRUGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:06:20 -0500
-Date: Wed, 18 Feb 2004 21:06:07 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: Zoltan NAGY <nagyz@nefty.hu>, linux-kernel@vger.kernel.org
-Subject: Re: v2.6 in vmware?
-Message-ID: <20040218200607.GA12982@vana.vc.cvut.cz>
-References: <10ADD433537@vcnet.vc.cvut.cz> <8765e4fayx.fsf@lapper.ihatent.com>
-Mime-Version: 1.0
+	Wed, 18 Feb 2004 12:39:31 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:25100 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S267199AbUBRRja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 12:39:30 -0500
+Message-ID: <4033A33F.FF279C05@SteelEye.com>
+Date: Wed, 18 Feb 2004 12:39:11 -0500
+From: Paul Clements <Paul.Clements@SteelEye.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nbd oops on unload.
+References: <20040217224700.GE6242@redhat.com> <4032FF7D.55D9935B@SteelEye.com> <20040218071752.GB27190@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8765e4fayx.fsf@lapper.ihatent.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 08:23:34PM +0100, Alexander Hoogerhuis wrote:
-> "Petr Vandrovec" <VANDROVE@vc.cvut.cz> writes:
+Jens Axboe wrote:
 > 
-> > On 18 Feb 04 at 14:37, Zoltan NAGY wrote:
-> > > I've been trying to get 2.6.x working in vmware4, but it drops some
-> > > oopses during init... I cannot provide details, but I'm sure that it
-> > > does not just me who are having problems with it..
-> > 
-> > Definitely you are... I do not know about any problems with running
-> > 2.6.x as a guest under VMware. 
-> > 
+> On Wed, Feb 18 2004, Paul Clements wrote:
+> > Dave Jones wrote:
+> > >
+> > > modprobe nbd ; rmmod nbd  was enough to reproduce this one..
+> > > (2.6.3rc4)
+> >
+> > hmmm...I'll look into it...out of curiosity, are you using any "unusual"
+> > kernel config options? I've done the same test myself many times and
+> > have not seen any problems...
 > 
-> There was something about sysenter support or something in that
-> general direction; I had Zwane Mwaikambo send me a patch that worked
-> around this for pre 4.0.5 vmware, but never got around to test it as I
-> upgraded the vmware software.
+> It looks like 'the usual' 'several devices sharing a queue' oops on
+> unload.
 
-I have all reasons to believe that this is fixed in 4.0.5. It is definitely
-fixed in 4.5.
-					Best regards,
-						Petr Vandrovec
+Ahh, cleanup was being done in the wrong order.
+
+Patch coming shortly...
+
+--
+Paul

@@ -1,185 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbULVUiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbULVUsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbULVUiY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 15:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbULVUiY
+	id S262037AbULVUsI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 15:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbULVUsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 15:38:24 -0500
-Received: from [217.111.56.2] ([217.111.56.2]:47231 "EHLO farside.sncag.com")
-	by vger.kernel.org with ESMTP id S262035AbULVUiF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 15:38:05 -0500
-To: linux-kernel@vger.kernel.org
-Subject: write support for MTD partitions w/ multiple erase sizes
-From: Rainer Weikusat <rainer.weikusat@sncag.com>
-Date: Wed, 22 Dec 2004 21:38:04 +0100
-Message-ID: <874qiekr0z.fsf@farside.sncag.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+	Wed, 22 Dec 2004 15:48:08 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:12963 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262037AbULVUsD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 15:48:03 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: My vision of usbmon
+Date: Wed, 22 Dec 2004 21:46:33 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       <laforge@gnumonks.org>, greg@kroah.com
+References: <20041219230454.5b7f83e3@lembas.zaitcev.lan> <200412201525.52149.oliver@neukum.org> <20041221182514.5ed935e2@lembas.zaitcev.lan>
+In-Reply-To: <20041221182514.5ed935e2@lembas.zaitcev.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200412222146.33279.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The MTD partition setup code in drivers/mtd/mtdpart.c doesn't
-copy erase region info from master to slave devices, but instead
-(wrongfully) prints a message that MTD partitions spanning multiple
-erase regions cannot be written to and forces them to be read-only.
-The following patch adds a function that does copy this information,
-which enables writing to such MTD partitions as long as they begin
-and end on an erase block boundary. The patch is against 2.4.28, but
-can be used with 2.6.9, too. It hasn't been tested with anything more
-esoteric than a MTD partition starting in one erase region and
-ending in the next (is this even possible?)
+Am Mittwoch, 22. Dezember 2004 03:25 schrieb Pete Zaitcev:
+> On Mon, 20 Dec 2004 15:25:52 +0100, Oliver Neukum <oliver@neukum.org> wrote:
+> 
+> > Am Montag, 20. Dezember 2004 08:04 schrieb Pete Zaitcev:
+> > > +               memcpy(&mbus->shim_ops, ubus->op, sizeof(struct usb_operations));
+> > > +               mbus->shim_ops.submit_urb = mon_submit;
+> > > +               mbus->saved_op = ubus->op;
+> > > +               ubus->op = &mbus->shim_ops;
+> > > +               ubus->monitored = 1;
+> > 
+> > I think you need smp_wmb() here to make sure that an irq taken
+> > on another CPU sees the manipulations in the correct order.
+> 
+> Hmm, it seems you are right. I forgot about reordering issues. I relied on
+> op being atomic, but if it points at an uninitialized shim, this will end
+> badly. How about this?
+> 
+>                 memcpy(&mbus->shim_ops, ubus->op, sizeof(struct usb_operations));
+>                 mbus->shim_ops.submit_urb = mon_submit;
+>                 mbus->saved_op = ubus->op;
+>                 smp_mb();       /* ubus->op is not protected by spinlocks */
+smp_wmb() would do.
 
---- linux-2.4.28/drivers/mtd/mtdpart.c	2004-12-19 16:02:48.000000000 +0100
-+++ linux-eli/drivers/mtd/mtdpart.c	2004-12-19 20:47:15.000000000 +0100
-@@ -272,6 +272,7 @@
- 			__list_del(prev, node->next);
- 			if(slave->registered)
- 				del_mtd_device(&slave->mtd);
-+			kfree(slave->mtd.eraseregions);
- 			kfree(slave);
- 			node = prev;
- 		}
-@@ -281,12 +282,98 @@
- }
+>                 ubus->op = &mbus->shim_ops;
+>                 ubus->monitored = 1;
+> 
+> Generally, the type of coding which requires a use of memory barriers in drivers
+> is a bug or a latent bug, so I am sorry for the above. It was a sacrifice to
+> make usbmon invisible if it's not actively monitoring. Sorry about that.
+
+That is the best way. It's just a little tricky.
+
+	Regards
+		Oliver
  
- /*
-- * This function, given a master MTD object and a partition table, creates
-+ * These functions, given a master MTD object and a partition table, creates
-  * and registers slave MTD objects which are bound to the master according to
-  * the partition definitions.
-  * (Q: should we register the master MTD object as well?)
-  */
- 
-+static void setup_erase_regions(struct mtd_info const *master,
-+				struct mtd_info *slave, u_int32_t slave_offset)
-+/*
-+  Setup erase region info for slave devices.
-+*/
-+{
-+#define region_end(region) (region.offset + region.erasesize * region.numblocks)
-+	
-+	struct mtd_erase_region_info *master_regions, *slave_regions;
-+	unsigned first, last, ofs, n, remain;
-+
-+	slave->numeraseregions = 0;
-+	if (master->numeraseregions == 1) {
-+		slave->erasesize = master->erasesize;
-+		return;
-+	}
-+	
-+	master_regions = master->eraseregions;
-+	slave->erasesize = 0;
-+
-+	first = 0;
-+	while (region_end(master_regions[first]) <= slave_offset) ++first;
-+	slave->erasesize = master_regions[first].erasesize;
-+
-+	last = first;
-+	n = slave_offset + slave->size;
-+	while (region_end(master_regions[last]) < n) {
-+		++last;
-+		
-+		if (master_regions[last].erasesize > slave->erasesize)
-+			slave->erasesize = master_regions[last].erasesize;
-+	}
-+
-+	if (slave_offset % master_regions[first].erasesize) {
-+	    printk("partition \"%s\" does not start on an erase"
-+		   " block boundary -- forcing read-only\n", slave->name);
-+	    goto force_read_only;
-+	}
-+	
-+	slave_regions = kmalloc(sizeof(*slave_regions) * (last - first + 1),
-+				GFP_KERNEL);
-+	if (!slave_regions) {
-+		printk("partition \"%s\": could not allocate memory for erase"
-+		       " region information\n", slave->name);
-+		printk("forcing read-only\n");
-+		goto force_read_only;
-+	}
-+	
-+	ofs = n = 0;
-+	slave_regions[n].offset = ofs;
-+	slave_regions[n].erasesize = master_regions[first].erasesize;
-+	slave_regions[n].numblocks = master_regions[first].numblocks;
-+	slave_regions[n].numblocks -=
-+		(slave_offset - master_regions[first].offset)
-+		/ slave_regions[n].erasesize;
-+	ofs += slave_regions[n].numblocks * slave_regions[n].erasesize;
-+
-+	while (first + ++n < last) {
-+		slave_regions[n].offset = ofs;
-+		slave_regions[n].erasesize = master_regions[first + n].erasesize;
-+		slave_regions[n].numblocks = master_regions[first + n].numblocks;
-+		ofs += slave_regions[n].numblocks * slave_regions[n].erasesize;
-+	}
-+	
-+	remain = slave->size - ofs;
-+	
-+	if (remain % master_regions[last].erasesize) {
-+		printk("partition \"%s\" does not end on an erase block boundary\n"
-+		       " -- forcing read-only\n", slave->name);
-+		kfree(slave_regions);
-+		goto force_read_only;
-+	}
-+		
-+	slave_regions[n].offset = ofs;
-+	slave_regions[n].erasesize = master_regions[last].erasesize;
-+	slave_regions[n].numblocks = remain / master_regions[last].erasesize;
-+
-+	slave->eraseregions = slave_regions;
-+	slave->numeraseregions = last - first + 1;
-+	return;
-+
-+ force_read_only:
-+	slave->flags &= ~(MTD_WRITEABLE | MTD_ERASEABLE);
-+#undef region_end
-+}
-+
- int add_mtd_partitions(struct mtd_info *master, 
- 		       struct mtd_partition *parts,
- 		       int nbparts)
-@@ -399,39 +486,8 @@
- 			printk ("mtd: partition \"%s\" extends beyond the end of device \"%s\" -- size truncated to %#x\n",
- 				parts[i].name, master->name, slave->mtd.size);
- 		}
--		if (master->numeraseregions>1) {
--			/* Deal with variable erase size stuff */
--			int i;
--			struct mtd_erase_region_info *regions = master->eraseregions;
--			
--			/* Find the first erase regions which is part of this partition. */
--			for (i=0; i < master->numeraseregions && slave->offset >= regions[i].offset; i++)
--				;
--
--			for (i--; i < master->numeraseregions && slave->offset + slave->mtd.size > regions[i].offset; i++) {
--				if (slave->mtd.erasesize < regions[i].erasesize) {
--					slave->mtd.erasesize = regions[i].erasesize;
--				}
--			}
--		} else {
--			/* Single erase size */
--			slave->mtd.erasesize = master->erasesize;
--		}
--
--		if ((slave->mtd.flags & MTD_WRITEABLE) && 
--		    (slave->offset % slave->mtd.erasesize)) {
--			/* Doesn't start on a boundary of major erase size */
--			/* FIXME: Let it be writable if it is on a boundary of _minor_ erase size though */
--			slave->mtd.flags &= ~MTD_WRITEABLE;
--			printk ("mtd: partition \"%s\" doesn't start on an erase block boundary -- force read-only\n",
--				parts[i].name);
--		}
--		if ((slave->mtd.flags & MTD_WRITEABLE) && 
--		    (slave->mtd.size % slave->mtd.erasesize)) {
--			slave->mtd.flags &= ~MTD_WRITEABLE;
--			printk ("mtd: partition \"%s\" doesn't end on an erase block -- force read-only\n",
--				parts[i].name);
--		}
-+		
-+		setup_erase_regions(master, &slave->mtd, slave->offset);
- 
- 		if(parts[i].mtdp)
- 		{	/* store the object pointer (caller may or may not register it */

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265389AbSJXKxb>; Thu, 24 Oct 2002 06:53:31 -0400
+	id <S265397AbSJXKzz>; Thu, 24 Oct 2002 06:55:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265390AbSJXKxb>; Thu, 24 Oct 2002 06:53:31 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:29848 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265389AbSJXKxa> convert rfc822-to-8bit;
-	Thu, 24 Oct 2002 06:53:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
+	id <S265398AbSJXKzz>; Thu, 24 Oct 2002 06:55:55 -0400
+Received: from babsi.intermeta.de ([212.34.181.3]:5136 "EHLO mail.intermeta.de")
+	by vger.kernel.org with ESMTP id <S265397AbSJXKzz>;
+	Thu, 24 Oct 2002 06:55:55 -0400
+Subject: Re: feature request - why not make netif_rx() a pointer?
+From: Henning Schmiedehausen <hps@intermeta.de>
 To: "David S. Miller" <davem@rth.ninka.net>
-Subject: Re: sendfile64() anyone? (was [RESEND] tuning linux for high network performance?)
-Date: Thu, 24 Oct 2002 13:07:36 +0200
-User-Agent: KMail/1.4.1
-Cc: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200210231218.18733.roy@karlsbakk.net> <200210241230.46848.roy@karlsbakk.net> <1035456463.10555.7.camel@rth.ninka.net>
-In-Reply-To: <1035456463.10555.7.camel@rth.ninka.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210241307.36134.roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1035454504.10558.3.camel@rth.ninka.net>
+References: <20021023003959.GA23155@bougret.hpl.hp.com>
+	<1035432805.9626.4.camel@rth.ninka.net>  <ap8eg1$8ee$1@forge.intermeta.de> 
+	<1035454504.10558.3.camel@rth.ninka.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 24 Oct 2002 13:01:59 +0200
+Message-Id: <1035457319.10221.11.camel@forge>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 October 2002 12:47, David S. Miller wrote:
-> On Thu, 2002-10-24 at 03:30, Roy Sigurd Karlsbakk wrote:
-> > Are there any plans of implementing sendfile64() or sendfile() support
-> > for -D_FILE_OFFSET_BITS=64?
->
-> This is old hat, and appears in every current vendor kernel I am
-> aware of and is in 2.5.x as well.
+On Thu, 2002-10-24 at 12:15, David S. Miller wrote:
+> On Thu, 2002-10-24 at 02:28, Henning P. Schmiedehausen wrote:
+> > Distributing work based on GPL code binary-only without supplying
+> > the source and the modifications is (might be? is considered?)
+> > illegal. This is a major difference. 
+> 
+> That's what I meant.
+> 
+> Obviouslly this guy is intending to distribute his work though :)
 
-then where can I find these patches? I cannot use 2.5, and I usually try to 
-stick with an official kernel.
+Fine, then we're in violent agreement. :-)
 
-and - if this patch has been around all this time...
+	Regards
+		Henning
 
-	why isn't it in the official kernel yet?
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   
 

@@ -1,86 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280110AbRKNEtI>; Tue, 13 Nov 2001 23:49:08 -0500
+	id <S280104AbRKNEtR>; Tue, 13 Nov 2001 23:49:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280118AbRKNEs5>; Tue, 13 Nov 2001 23:48:57 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:47748 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S280110AbRKNEso>; Tue, 13 Nov 2001 23:48:44 -0500
-Date: Tue, 13 Nov 2001 20:17:35 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Ben Greear <greearb@candelatech.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question on USB mouse & laptop.
-In-Reply-To: <3BF1E9CD.9050702@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0111132007350.7976-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280118AbRKNEtI>; Tue, 13 Nov 2001 23:49:08 -0500
+Received: from mnh-1-04.mv.com ([207.22.10.36]:38156 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S280114AbRKNEsy> convert rfc822-to-8bit;
+	Tue, 13 Nov 2001 23:48:54 -0500
+Message-Id: <200111140607.BAA06138@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.51-2.4.14
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 14 Nov 2001 01:07:59 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you need to run gpm -M (for gpm console dual mouse support
+The user-mode port of 2.4.14 is available.
 
-for xf86 4.x you need to make sure there are two mouse setups...
+The SIGIO now uses poll instead of select.  This is in preparation for
+fixing the console driver's flow control problems.
 
-something like:
+Redid the task switching code so that the tracing thread is no longer 
+involved.  This is in preparation for eliminating the tracing thread - it
+doesn't actually speed anything up yet.  However, it does allow UML to be
+^Z-ed and backgrounded.
 
-Section "InputDevice"
-        Identifier  "Mouse0"
-        Driver      "mouse"
-        Option      "Device" "/dev/mouse"
-        Option      "Protocol" "PS/2"
-        Option      "Emulate3Buttons" "off"
-        Option      "ZAxisMapping" "4 5"
-EndSection
-To add another mouse just copy the above section and modify it, so that it 
-reads:
-Section "InputDevice"
-        Identifier  "Mouse1"
-        Driver      "mouse"
-        Option      "Device" "/dev/input/mice"
-        Option      "Protocol" "IMPS/2"
-        Option      "Emulate3Buttons" "off"
-        Option      "ZAxisMapping" "4 5"
-EndSection
- 
-then tweak the server layout section for the second mouse...
+UML now works on 3G/1G hosts when CONFIG_HOST_2G_2G is on. 
 
-Section "ServerLayout"
-        Identifier "XFree86 Configured"
-        Screen      0  "Screen0" 0 0
-        InputDevice    "Mouse0" "CorePointer"
-        InputDevice    "Mouse1" "AlwaysCore"
-        InputDevice    "Keyboard0" "CoreKeyboard"
-EndSection
+Every thread now has a private page of data which contains errno.  This is 
+handy for people poking around the UML arch code with gdb.  Everything gdb
+does is intercepted by the tracing thread, which makes (mostly successful)
+system calls which set errno to 0.  This is at least an annoyance when stepping
+through the code, and it could be bad if it causes the code flow to change.
+With thread-private errnos, this is no longer a problem.
 
+Some context switching optimizations from Jörgen Cederlöf and me have been
+made.  These noticably help the performance of workloads that switch 
+frequently.
 
-see if that helps...
+Fixed the process segfaults caused by Xnest and kernel builds.  The same
+fix also makes gdb work better.  
 
+Fixed a typo in arch/um/kernel/Makefile which caused modules not to load
+into a profiled kernel.  
 
-On Tue, 13 Nov 2001, Ben Greear wrote:
+Restructured the uml_net sources to make them more modular. 
 
-> I have a Sony VAIO laptop.  When I plug in my USB keyboard, I can use both
-> it and the built-in keyboard.  However, it boots up with the USB mouse in,
-> I can only use the USB mouse, not the built-in scratch-pad mouse.
-> (Other than that, the USB stuff seems to work great!)
-> 
-> Is this expected behaviour?
-> If not, I'll send in a detailed report on my system...
-> 
-> Thanks,
-> Ben
-> 
-> 
+uml_net should now do proxy arp correctly. 
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli				       joelja@darkwing.uoregon.edu    
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+uml_mconsole can now take a command on its command line. 
 
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+				Jeff
 

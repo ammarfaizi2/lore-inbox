@@ -1,77 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVAKRuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVAKRuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVAKRuG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVAKRsu
+	id S261206AbVAKRuE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 12:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVAKRtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 12:48:50 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:3565 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261175AbVAKRg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 12:36:26 -0500
-Message-ID: <41E40E9D.9090502@comcast.net>
-Date: Tue, 11 Jan 2005 12:36:29 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
+	Tue, 11 Jan 2005 12:49:14 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38088 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261206AbVAKRkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 12:40:16 -0500
+Date: Tue, 11 Jan 2005 09:39:59 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: torvalds@osdl.org, Andi Kleen <ak@muc.de>
+cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: page table lock patch V15 [0/7]: overview
+In-Reply-To: <m1652ddljp.fsf@muc.de>
+Message-ID: <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: starting with 2.7
-References: <1105096053.5444.11.camel@ulysse.olympe.o2t>	 <20050107111508.GA6667@infradead.org> <20050107111751.GA6765@infradead.org>	 <41DEC83D.30105@comcast.net>	 <1105196469.10519.3.camel@localhost.localdomain>	 <41E37DA0.80702@comcast.net> <1105456172.15742.16.camel@localhost.localdomain>
-In-Reply-To: <1105456172.15742.16.camel@localhost.localdomain>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Changes from V14->V15 of this patch:
+- Remove misplaced semicolon in handle_mm_fault (caused x86_64 troubles)
+- Fixed up and tested x86_64 arch specific patch
+- Redone against 2.6.10-bk14
 
+This is a series of patches that increases the scalability of
+the page fault handler for SMP. The performance increase is
+accomplished by avoiding the use of the page_table_lock spinlock
+(but not mm->mmap_sem) through new atomic operations on pte's
+(ptep_xchg, ptep_cmpxchg) and on pmd, pud and
+pgd's (pgd_test_and_populate, pud_test_and_populate,
+pmd_test_and_populate).
 
+The page table lock can be avoided in the following situations:
 
-Alan Cox wrote:
-| On Maw, 2005-01-11 at 07:17, John Richard Moser wrote:
-|
-|>Hello??
-|>
-|>The latest 2.0 version of the Linux kernel is:  	2.0.40 	2004-02-08
-|>07:13 UTC 	F 	V 	VI 	  	Changelog
-|>
-|>You have FOUR.  2.6, 2.4, 2.2, 2.0
-|
-|
-| 2.4.29 is as different from say 2.4.9 as 2.0 is from 2.2 or 2.6.9 from
-| 2.6.5
-|
-| You have a lot more than four
-|
+1. An empty pte or pmd entry is populated
 
-That's not good.
+This is safe since the swapper may only depopulate them and the
+swapper code has been changed to never set a pte to be empty until the
+page has been evicted. The population of an empty pte is frequent
+if a process touches newly allocated memory.
 
-2.4.29 should ideally be 2.4.9 with a buttload of bug fixes.  Same with
-2.6.5/2.6.9.  Major feature differences should ideally come with majors,
-i.e. 2.0->2.2->2.4->2.6
+2. Modifications of flags in a pte entry (write/accessed).
 
-A few bugfix backports may be fine, though that's already light to fair
-work (depending on how many security bugs are being found and need
-backporting, versus how many can patch clean without porting); How do
-you people maintain 4 ACTIVE branches?
+These modifications are done by the CPU or by low level handlers
+on various platforms also bypassing the page_table_lock. So this
+seems to be safe too.
 
-oi, whatever.
-|
+One essential change in the VM is the use of pte_cmpxchg (or its
+generic emulation) on page table entries before doing an
+update_mmu_change without holding the page table lock. However, we do
+similar things now with other atomic pte operations such as
+ptep_get_and_clear and ptep_test_and_clear_dirty. These operations
+clear a pte *after* doing an operation on it. The ptep_cmpxchg as used
+in this patch operates on an *cleared* pte and replaces it with a pte
+pointing to valid memory. The effect of this change on various
+architectures has to be thought through. Local definitions of
+ptep_cmpxchg and ptep_xchg may be necessary.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+For ia64 an icache coherency issue may arise that potentially requires
+the flushing of the icache (as done via update_mmu_cache on ia64) prior
+to the use of ptep_cmpxchg. Similar issues may arise on other platforms.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+The patch introduces a split counter for rss handling to avoid atomic
+operations and locks currently necessary for rss modifications. In
+addition to mm->rss, tsk->rss is introduced. tsk->rss is defined to be
+in the same cache line as tsk->mm (which is already used by the fault
+handler) and thus tsk->rss can be incremented without locks
+in a fast way. The cache line does not need to be shared between
+processors for the page table handler.
 
-iD8DBQFB5A6dhDd4aOud5P8RAhAtAJ9FgTkd/AyZXuI59gyiIVAJNFM9rgCdGYss
-kN4m4Bc5BVeVLZbWGHIP+xg=
-=hDM/
------END PGP SIGNATURE-----
+A tasklist is generated for each mm (rcu based). Values in that list
+are added up to calculate rss or anon_rss values.
+
+The patchset is composed of 7 patches (and was tested against 2.6.10-bk6):
+
+1/7: Avoid page_table_lock in handle_mm_fault
+
+   This patch defers the acquisition of the page_table_lock as much as
+   possible and uses atomic operations for allocating anonymous memory.
+   These atomic operations are simulated by acquiring the page_table_lock
+   for very small time frames if an architecture does not define
+   __HAVE_ARCH_ATOMIC_TABLE_OPS. It also changes kswapd so that a
+   pte will not be set to empty if a page is in transition to swap.
+
+   If only the first two patches are applied then the time that the
+   page_table_lock is held is simply reduced. The lock may then be
+   acquired multiple times during a page fault.
+
+2/7: Atomic pte operations for ia64
+
+3/7: Make cmpxchg generally available on i386
+
+   The atomic operations on the page table rely heavily on cmpxchg
+   instructions. This patch adds emulations for cmpxchg and cmpxchg8b
+   for old 80386 and 80486 cpus. The emulations are only included if a
+   kernel is build for these old cpus and are skipped for the real
+   cmpxchg instructions if the kernel that is build for 386 or 486 is
+   then run on a more recent cpu.
+
+   This patch may be used independently of the other patches.
+
+4/7: Atomic pte operations for i386
+
+   A generally available cmpxchg (last patch) must be available for
+   this patch to preserve the ability to build kernels for 386 and 486.
+
+5/7: Atomic pte operation for x86_64
+
+6/7: Atomic pte operations for s390
+
+7/7: Split counter implementation for rss
+  Add tsk->rss and tsk->anon_rss. Add tasklist. Add logic
+  to calculate rss from tasklist.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+

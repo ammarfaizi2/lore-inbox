@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263497AbSJGXK7>; Mon, 7 Oct 2002 19:10:59 -0400
+	id <S263227AbSJGXDo>; Mon, 7 Oct 2002 19:03:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263734AbSJGXJ0>; Mon, 7 Oct 2002 19:09:26 -0400
-Received: from members.cotse.com ([216.112.42.58]:39558 "EHLO cotse.com")
-	by vger.kernel.org with ESMTP id <S263497AbSJGXHB>;
-	Mon, 7 Oct 2002 19:07:01 -0400
-Message-ID: <YWxhbg==.a03486974c45631ab208f8963158f56d@1034032442.cotse.net>
-Date: Mon, 7 Oct 2002 19:14:02 -0400 (EDT)
-X-Abuse-To: abuse@cotse.com
-X-AntiForge: http://packetderm.cotse.com/antiforge.php
-Subject: DRI not working
-From: "Alan Willis" <alan@cotse.net>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: alan@cotse.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S263204AbSJGXDo>; Mon, 7 Oct 2002 19:03:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52893 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263227AbSJGXDT>;
+	Mon, 7 Oct 2002 19:03:19 -0400
+Date: Mon, 07 Oct 2002 16:01:46 -0700 (PDT)
+Message-Id: <20021007.160146.128866444.davem@redhat.com>
+To: Hell.Surfers@cwctv.net
+Cc: rmk@arm.linux.org.uk, george@mvista.com, nico@cam.org, mark@mark.mielke.cc,
+       simon@baydel.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <07ac352022007a2DTVMAIL8@smtp.cwctv.net>
+References: <07ac352022007a2DTVMAIL8@smtp.cwctv.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  For quite a few kernel versions now,.. DRI has not been working.  I see
-that there is a lot of DRI syncing going on, so someone should probably
-check this out, as it is still broken as of linux 2.5.41.  Log, dmesg and
-config are attached, something about not enough memory for dcache.
+   From: <Hell.Surfers@cwctv.net>
+   Date: Mon, 7 Oct 2002 21:04:29 +0100
 
-
--alan
-
-P.S: This may also be useful:
-
-alan@aries:~$ cat /proc/meminfo
-MemTotal:       253148 kB
-MemFree:         68648 kB
-MemShared:           0 kB
-Buffers:          9500 kB
-Cached:          86804 kB
-SwapCached:          0 kB
-Active:          36264 kB
-Inactive:       124924 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       253148 kB
-LowFree:         68648 kB
-SwapTotal:     1028152 kB
-SwapFree:      1028152 kB
-Dirty:              48 kB
-Writeback:           0 kB
-Mapped:          99720 kB
-Slab:             9524 kB
-Committed_AS:   235176 kB
-PageTables:       1116 kB
-ReverseMaps:     56213
-
-
-
+   Then shouldn't the thing thats different from the norm be programmed into a header file which contains how certain functions should be handled differently, which can be dynamically switched by a config option?
+   
+If I gave you a dollar, would you go out and buy some newlines
+to use in future emails?

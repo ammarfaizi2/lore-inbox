@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285813AbRLJTFW>; Mon, 10 Dec 2001 14:05:22 -0500
+	id <S285829AbRLJTKJ>; Mon, 10 Dec 2001 14:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286153AbRLJTFC>; Mon, 10 Dec 2001 14:05:02 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:30096 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S285829AbRLJTDk>; Mon, 10 Dec 2001 14:03:40 -0500
-Message-ID: <3C15077B.6AD2693E@nortelnetworks.com>
-Date: Mon, 10 Dec 2001 14:05:31 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S286153AbRLJTJ7>; Mon, 10 Dec 2001 14:09:59 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:59662
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S285823AbRLJTJn>; Mon, 10 Dec 2001 14:09:43 -0500
+Date: Mon, 10 Dec 2001 11:05:03 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+cc: linux-raid@vger.kernel.org
+Subject: ide.2.4.16.12102001.patch
+Message-ID: <Pine.LNX.4.10.10112101100540.28839-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Chris Wright <chris@wirex.com>
-Cc: Ben Greear <greearb@candelatech.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question on select: How big can the empty buffer space be before 
-         select returns ready-to-write?
-In-Reply-To: <3C145359.3090401@candelatech.com> <20011209233349.C27109@figure1.int.wirex.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> 
-> * Ben Greear (greearb@candelatech.com) wrote:
-> > For instance, it appears that select will return that a socket is
-> > writable when there is, say 8k of buffer space in it.  However, if
-> > I'm sending 32k UDP packets, this still causes me to drop packets
-> > due to a lack of resources...
-> 
-> udp has a fixed 8k max payload. did you try breaking up your packets?
 
-Are you sure about that? UDP has a 16-bit field for the length.  Thus the
-standard technically allows for packet sizes (including header) of up to 2^16
-(roughly 65K) bytes.
+The lastest is up, at www.linuxdiskcert.org
 
-Chris
+ide.2.4.16.12102001.patch
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Should there be an issues I will not be able to address until much later
+today or tomorrow, as I will be in attendance in Irvine for the NCITS 
+Standards Committee on AT-Attachment.
+
+Regards, and enjoy.
+
+Andre Hedrick
+Linux ATA Development                   Linux Disk Certification Project
+

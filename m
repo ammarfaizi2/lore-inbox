@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314005AbSDKKDs>; Thu, 11 Apr 2002 06:03:48 -0400
+	id <S314013AbSDKKHr>; Thu, 11 Apr 2002 06:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314013AbSDKKDr>; Thu, 11 Apr 2002 06:03:47 -0400
-Received: from elin.scali.no ([62.70.89.10]:43014 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S314005AbSDKKDr>;
-	Thu, 11 Apr 2002 06:03:47 -0400
-Date: Thu, 11 Apr 2002 09:34:43 +0200 (CEST)
-From: Steffen Persvold <sp@scali.com>
-To: <nfs@lists.sourceforge.net>
-Subject: IRIX NFS server and Linux NFS client
-In-Reply-To: <15540.60384.355250.346480@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.30.0204110928530.28565-100000@elin.scali.no>
+	id <S314014AbSDKKHq>; Thu, 11 Apr 2002 06:07:46 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:50693 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S314013AbSDKKHp>;
+	Thu, 11 Apr 2002 06:07:45 -0400
+Date: Thu, 11 Apr 2002 12:07:13 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andreas Dilger <adilger@clusterfs.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: RAID superblock confusion
+In-Reply-To: <20020410233641.GG23513@matchmail.com>
+Message-ID: <Pine.LNX.4.44.0204111202440.17727-100000@Expansa.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-Is there any reason why my Linux NFS client (kernel 2.4.18
-nfs-utils-0.3.1-13.7.2.1 from RedHat 7.2) is not able to mount a directory
-exported from an IRIX server in NFSv3 (not sure which version of IRIX
-yet, if this is important I will find out). NFSv2 works fine, but if I
-try to force NFSv3 I get "Connection refused".
+> > >
+> > > Ehh, I ran into this a while ago.  When you compile raid as modules
+> > > it doesn't use the raid superblocks for anything except for
+> > > verification.  I took a quick glance at the source and the
+> > > auto-detect code is ifdefed out if you compiled as a module.
+> >
+> > Exactly where is this? A scan with find and grep don't reveal this.
+> >
+>
+> drivers/md/md.c
+>
+> in the ifndef MODULE sectioin.
+>
+> > > Ever since I have had raid compiled into my kernels.
+> >
+> > This is my relevant .config:
+> > CONFIG_MD=y
+> > CONFIG_BLK_DEV_MD=y
+> > CONFIG_MD_LINEAR=m
+> > CONFIG_MD_RAID0=m
+> > CONFIG_MD_RAID1=m
+> > CONFIG_MD_RAID5=m
+> > CONFIG_MD_MULTIPATH=m
+> >
+>
+> Set this to =y and you're set.
+>
+> I'd like to see this working from modules though.
 
-I'll appreciate any help.
+NO, please. There are hundreds of scenarios where that could be dangerous.
+Suppose you load the RAID
+module when all partitions are mounted, and two partiton in mirror are
+mount on different mount point (you can do this, raid module is not
+loaded, and so...). And now you load the module and md device is
+registered. That would not be really nice, also if it is ulikely that you
+could damnage your system
 
-Regards,
--- 
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
- mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
+
 
 

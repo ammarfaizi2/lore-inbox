@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262399AbTCMOaO>; Thu, 13 Mar 2003 09:30:14 -0500
+	id <S262364AbTCMO0m>; Thu, 13 Mar 2003 09:26:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262401AbTCMOaO>; Thu, 13 Mar 2003 09:30:14 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4481 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262399AbTCMOaN>; Thu, 13 Mar 2003 09:30:13 -0500
-Date: Thu, 13 Mar 2003 09:42:39 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S262367AbTCMO0m>; Thu, 13 Mar 2003 09:26:42 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12238
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262364AbTCMO0l>; Thu, 13 Mar 2003 09:26:41 -0500
+Subject: Re: Linux BUG: Memory Leak
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: James Stevenson <james@stev.org>
-cc: pd dd <parviz_kernel@yahoo.com>, "M. Soltysiak" <msoltysiak@hotmail.com>,
+Cc: pd dd <parviz_kernel@yahoo.com>, "M. Soltysiak" <msoltysiak@hotmail.com>,
        ML-linux-kernel <linux-kernel@vger.kernel.org>,
        William Stearns <wstearns@pobox.com>
-Subject: Re: Linux BUG: Memory Leak
-In-Reply-To: <01f901c2e96c$98b1e3d0$0cfea8c0@ezdsp.com>
-Message-ID: <Pine.LNX.3.95.1030313093618.21484A-100000@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <01f801c2e96c$980b4390$0cfea8c0@ezdsp.com>
+References: <20030313091315.14044.qmail@web20504.mail.yahoo.com>
+	 <01f801c2e96c$980b4390$0cfea8c0@ezdsp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047570333.25944.42.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 13 Mar 2003 15:45:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Mar 2003, James Stevenson wrote:
-
-> 
-> 
-> > With all due respect to all the great programmers and
-> > minds in this mailing list. I could not read this and
-> > not reply to this guy:
-> >
-> > Maybe you should take your games and movies to windows
-> > and leave linux for more serious stuff. That'll fix
-> > your memory leak.
-> 
-> correct me if i am wrong here but i know alot of students
-> who use linux todo serious stuff and get really pissed off have to
-> reboot into windows to play games because they dont work
-> under windows and for various other things that also cause
-> problems in linux. Actually quite alot of them end up
-> dumping linux because any of the serious games wont work on there
-> system because they would have to tear much of it apart toget
-> them to work.
-> 
+On Thu, 2003-03-13 at 14:26, James Stevenson wrote:
 > this isnt a serious problem then ?
-> 
->     James
-> 
 
-But it's a memory leak in the game, not the kernel. They should
-complain to the game makers. If a game runs the system out of
-memory so a user can't log in on the root account and kill off
-the game, it's a problem with the game.
+There were problems with the XFree 4.3 DRM if you mixed it with
+certain other ingredients like rmap. I don't know what Slackware
+ships but that may be the problem.
 
---and I don't know what a 'serious game' is. Perhaps its what
-the student is doing instead of studying so future engineers
-develop that necessary hand-eye coordination. It's great
-in design reviews, can swap hands and get a beat in between.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+With a base kernel + XFree 4.3 DRM port the only problems I'm now
+hitting are serious breakages in the DRM code causing memory
+corruption on Radeon 9x00 and the fact 4.3 broke SiS DRM support.
 

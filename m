@@ -1,111 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSEaAKT>; Thu, 30 May 2002 20:10:19 -0400
+	id <S311752AbSEaAM7>; Thu, 30 May 2002 20:12:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311752AbSEaAKS>; Thu, 30 May 2002 20:10:18 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:54230 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S311025AbSEaAKR>;
-	Thu, 30 May 2002 20:10:17 -0400
-Date: Fri, 31 May 2002 02:10:17 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200205310010.CAA16956@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.5.19] fix broken floppy driver, take 3
+	id <S312560AbSEaAM6>; Thu, 30 May 2002 20:12:58 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:34517 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S311752AbSEaAM5>; Thu, 30 May 2002 20:12:57 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, Keith Owens <kaos@ocs.com.au>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Date: Thu, 30 May 2002 17:09:16 -0700 (PDT)
+Subject: Re: KBuild 2.5 Impressions
+In-Reply-To: <E17DZCa-0007hI-00@starship>
+Message-ID: <Pine.LNX.4.44.0205301704550.23527-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a 3rd version of the patch to fix the floppy driver which
-got broken in the 2.5.13-2.5.19 block dev changes.
-This version fixes the following remaining problems in 2.5.19:
-1. error from generic_unplug_device, due to the queue being NULL
-   (new problem since 2.5.18)
-   -> fixed by initialising the queue early in floppy_open()
-2. data corruption on I/O
-   -> fixed (seemingly) by ensuring that the bdev block size equals
-      the hardsect/queue block size; the fix is now local to
-      floppy.c and does not touch anything else
-3. memory corruption on module unload because the floppy device
-   (Mochel's drivers/base/ stuff) wasn't unregistered (caused a
-   kernel hang just before reboot for me)
-   -> fixed by only registering at the end of floppy_init(), and
-      unregister in cleanup_module()
+On Fri, 31 May 2002, Daniel Phillips wrote:
 
-/Mikael
+> On Thursday 30 May 2002 23:55, Ion Badulescu wrote:
+> > On Thu, 30 May 2002 11:45:14 +0200, Daniel Phillips <phillips@bonn-fries.net> wrote:
+> >
+> > That's the biggest problem of kbuild25: maintainability of the
+> > configure+make replacement that Keith is using. Enough people know
+> > make and makefiles that the existing system can be fixed or at least
+> > made to work reasonably well. Not the same thing can be said about
+> > the 10000-line brand-new make augmenter in kbuild25.
+>
+> It's quite readable and understandable.  I must say I find it easier
+> to comprehend than the current system.  Part of that is the extensive
+> documentation and another part is that appears to be well thought out
+> and constructed according to sound software engineering principles.
+>
 
-diff -ruN linux-2.5.19/drivers/block/floppy.c linux-2.5.19.fix-floppy/drivers/block/floppy.c
---- linux-2.5.19/drivers/block/floppy.c	Thu May 30 17:51:50 2002
-+++ linux-2.5.19.fix-floppy/drivers/block/floppy.c	Fri May 31 01:09:52 2002
-@@ -3700,6 +3700,10 @@
- 		UDRS->fd_ref = 0;
- 	}
- 	floppy_release_irq_and_dma();
-+
-+	/* undo ++bd_openers in floppy_open() */
-+	--inode->i_bdev->bd_openers;
-+
- 	return 0;
- }
- 
-@@ -3792,6 +3796,35 @@
- 		invalidate_buffers(mk_kdev(FLOPPY_MAJOR,old_dev));
- 	}
- 
-+	/* Problems:
-+	 * 1. floppy_open() triggers a call to submit_bio(), but
-+	 *    bdev->bd_queue may be NULL since it is not set up until
-+	 *    after floppy_open() has returned. Prior to 2.5.18, NULL
-+	 *    queues were initialised when needed.
-+	 * 2. fs/block_dev.c:do_open() changes bdev's block size
-+	 *    after floppy_open() has returned. For some reason, this
-+	 *    causes data corruption durings writes.
-+	 * Workarounds:
-+	 * 1. bdev->bd_queue is initialised here.
-+	 * 2. a) Set bdev block size equal to the hardsect/queue size;
-+	 *    this seems to cure the data corruption problem.
-+	 *    b) ++bdev->bd_openers to bypass do_open()'s block size
-+	 *    change. floppy_release() does a --bdev->bd_openers.
-+	 */
-+	{
-+		struct block_device *bdev = inode->i_bdev;
-+		kdev_t dev = inode->i_rdev;
-+		struct blk_dev_struct *p = blk_dev + major(dev);
-+
-+		if (p->queue)
-+			bdev->bd_queue = p->queue(dev);
-+		else
-+			bdev->bd_queue = &p->request_queue;
-+		bdev->bd_block_size = bdev_hardsect_size(bdev);
-+		bdev->bd_inode->i_blkbits = blksize_bits(block_size(bdev));
-+		++bdev->bd_openers;
-+	}
-+
- 	/* Allow ioctls if we have write-permissions even if read-only open.
- 	 * Needed so that programs such as fdrawcmd still can work on write
- 	 * protected disks */
-@@ -4229,8 +4262,6 @@
- {
- 	int i,unit,drive;
- 
--	register_sys_device(&device_floppy);
--
- 	raw_cmd = NULL;
- 
- 	devfs_handle = devfs_mk_dir (NULL, "floppy", NULL);
-@@ -4354,6 +4385,9 @@
- 			register_disk(NULL, mk_kdev(MAJOR_NR,TOMINOR(drive)+i*4),
- 					1, &floppy_fops, 0);
- 	}
-+
-+	register_sys_device(&device_floppy);
-+
- 	return have_no_fdc;
- }
- 
-@@ -4536,6 +4570,7 @@
- {
- 	int dummy;
- 		
-+	unregister_sys_device(&device_floppy);
- 	devfs_unregister (devfs_handle);
- 	devfs_unregister_blkdev(MAJOR_NR, "fd");
- 
+don't forget that the kbuild2.5 patch was a lot smaller before keith was
+told to "go away and don't bother anyone until the speed problem is fixed"
+a large part of the fix was to use the mmapped db stuff that Larry McVoy
+made available instead of useing the standard db libraries on the system.
+
+one possible way to make this more 'incramental' would be to make a
+version of kbuild2.5 that used the standard db stuff and is 200% slower
+then the existing kbuild and then after it's accepted put in the patch to
+speed it up to where it's 17% faster (IIRC the numbers Daniel posted
+earlier today) by converting the db that's used. Somehow I doubt that
+crippling the speed mearly to make it 'incramental' would make many people
+happy.
+
+David Lang

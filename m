@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262633AbRE3Hav>; Wed, 30 May 2001 03:30:51 -0400
+	id <S262640AbRE3Hgv>; Wed, 30 May 2001 03:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262640AbRE3Hal>; Wed, 30 May 2001 03:30:41 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11222 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262633AbRE3HaZ>;
-	Wed, 30 May 2001 03:30:25 -0400
-Date: Wed, 30 May 2001 03:30:24 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Gergely Tamas <dice@mfa.kfki.hu>, linux-kernel@vger.kernel.org
-Subject: Re: OOPS with 2.4.5 [kernel BUG at inode.c:486]
-In-Reply-To: <shssnhn47tl.fsf@charged.uio.no>
-Message-ID: <Pine.GSO.4.21.0105300328230.12645-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262641AbRE3Hgl>; Wed, 30 May 2001 03:36:41 -0400
+Received: from t2.redhat.com ([199.183.24.243]:753 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S262640AbRE3Hgi>; Wed, 30 May 2001 03:36:38 -0400
+To: Feng Xian <fxian@fxian.jukie.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.3-ac14 spinlock problem? 
+In-Reply-To: Message from Feng Xian <fxian@fxian.jukie.net> 
+   of "Tue, 29 May 2001 15:52:47 EDT." <Pine.LNX.4.33.0105291550400.28008-100000@tiger> 
+Date: Wed, 30 May 2001 08:36:36 +0100
+Message-ID: <12317.991208196@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> I was running something on my Dell dual p3 box (optiplex gx300). my kernel
+> is linux-2.4.3-ac14. I got the following message:
 
-On 30 May 2001, Trond Myklebust wrote:
+How often did this message occur?
 
-> The reason we haven't seen this before is that we had 'force_delete'
-> that would always set i_nlink = 0. Unfortunately force_delete is toxic
-> to mmap(), as it will discard any dirty pages rather than flushing
-> them to storage, so it was removed in the 2.4.5-pre series...
+> __rwsem_do_wake(): wait_list unexpectedly empty
+> [4191] c5966f60 = { 00000001 })
+> kenel BUG at rwsem.c:99!
+> invalid operand: 0000
+> CPU:            1
+> EIP:            0010:[<c0236b99>]
+> EFLAGS: 00010282
+> kenel BUG at /usr/src/2.4.3-ac14/include/asm/spinlock.h:104!
 > 
-> Al: Is there any reason why the cases
 > 
->   if (!inode->i_nlink)
-> 
-> and the 'magic nfs path' should be treated differently? Personally,
-> I'd rather prefer to merge the 2.
+> I upgrade the kernel to 2.4.5, no such problem any more.
 
-I don't think that it's a good idea. Why not fry the cache explicitly
-when you invalidate the inode?
+I suspect something else corrupted the rw-semaphore structure, but that's very
+hard to prove unless you catch it in the act. If it happens again with any
+frequency, you might want to try turning on rwsem debugging.
 
+David

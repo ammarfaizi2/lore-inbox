@@ -1,53 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUCCGBB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 01:01:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUCCGBB
+	id S261401AbUCCGeI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 01:34:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbUCCGeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 01:01:01 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:61444 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S261693AbUCCGBA (ORCPT
+	Wed, 3 Mar 2004 01:34:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16077 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261401AbUCCGeC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 01:01:00 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: David Weinehall <david@southpole.se>
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-Date: Wed, 3 Mar 2004 07:00:56 +0100
-User-Agent: KMail/1.6.1
-Cc: Andrew Ho <andrewho@animezone.org>, Dax Kelson <dax@gurulabs.com>,
-       Peter Nelson <pnelson@andrew.cmu.edu>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-References: <4044119D.6050502@andrew.cmu.edu> <40453538.8050103@animezone.org> <20040303014115.GP19111@khan.acc.umu.se>
-In-Reply-To: <20040303014115.GP19111@khan.acc.umu.se>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 3 Mar 2004 01:34:02 -0500
+Date: Tue, 2 Mar 2004 22:30:01 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: wa1ter@myrealbox.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.x]  USB Zip drive kills ps2 mouse.
+Message-Id: <20040302223001.463b947f.rddunlap@osdl.org>
+In-Reply-To: <20040302164756.6e41a3c6.rddunlap@osdl.org>
+References: <20040302164756.6e41a3c6.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403030700.57164.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 March 2004 02:41, David Weinehall wrote:
-> On Tue, Mar 02, 2004 at 08:30:32PM -0500, Andrew Ho wrote:
-> > XFS is the best filesystem.
-> 
-> Well it'd better be, it's 10 times the size of ext3, 5 times the size of
-> ReiserFS and 3.5 times the size of JFS.
-> 
-> And people say size doesn't matter.
+| Randy.Dunlap wrote:
+| > | From: walt
+| > | To: Linux Kernel <linux-kernel@vger.kernel.org>
+| > | Subject: [2.6.x]  USB Zip drive kills ps2 mouse.
+| > | 
+| > | 
+| > | Could I ask anyone with a USB Zip drive and a ps2 mouse to try
+| > | to confirm this bizarre bug for me?
+| > | 
+| > | To reproduce it should be simple:
+| > | 
+| > | 1)  Compile USB support as modular, *not* compiled in.
+| > | 
+| > | 2)  The USB Zip drive *must* be plugged in during boot.
+| > |      This bug won't show if you plug in the drive later.
+| > | 
+| > | 3)  Reboot and see if your ps2 mouse works.
+| > 
+| > Hi,
+| > 
+| > I'm not seeing a problem with this.  I'm using 2.6.4-rc1.
+| > 
+| > However, you didn't mention what modules were being loaded
+| > automatically, so we could have a difference in that area.
+| > If you care to specify a module list, I can test it again.
+| > 
+| > And is your USB Zip drive on a UHCI or OHCI controller?
+| > I have both, so I can test it either way.
+| 
+| I've narrowed it down to the uhci_hcd module -- all the rest can
+| be compiled in or as modules, doesn't matter.
+| 
+| Just in case I was vague:  the Zip drive works great regardless --
+| it's only the ps2 mouse which is affected by this weird problem.
+| No cursor movement at all if the Zip is plugged in during boot.
+| 
+| ASUS A7V8X mobo, in case it matters:
+| 00:10.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
+| 00:10.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
+| 00:10.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
+| 00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+| 
+| Things that make no difference to this problem:  ACPI, PnP, udev versus devfs.
+| I'm also using 2.6.4-rc1.  I have not tested for this bug on any 2.6.x prior
+| to a week ago, but I have tried recent 2.4.x kernels and I do not see this bug
+| with them.
 
-Recoverability matters to me. The driver could be 10 megabyte and
-*I* would not care. XFS seems to stand no matter how rudely the OS
-is knocked down.
+Is VIA (still) UHCI for USB 1.1?
+Maybe it's a VIA UHCI controller problem.
 
-After a few hundred crashes (laptop, kids, drained batteries) I'd expect 
-something bad to happen, but no. XFS returns my data quickly and happily
-everytime (as opposed to most of the time). Maybe the're a bit of luck.
+I suggest taking it up on <linux-usb-devel@lists.sf.net>.
 
-Salute to XFS!
-
--- robin
+--
+~Randy

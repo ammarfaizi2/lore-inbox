@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTDZQUd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 12:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTDZQUd
+	id S261821AbTDZQQC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 12:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTDZQQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 12:20:33 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:24080 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S261876AbTDZQUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 12:20:32 -0400
-Date: Sat, 26 Apr 2003 18:32:43 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: Tom Dietz <tom@glis.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3ware 7500 RAID problems....
-In-Reply-To: <000001c30c03$38963870$6501a8c0@typhoon>
-Message-ID: <Pine.LNX.4.44.0304261823330.18264-100000@pc40.e18.physik.tu-muenchen.de>
+	Sat, 26 Apr 2003 12:16:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1555 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261821AbTDZQQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 12:16:01 -0400
+Date: Sat, 26 Apr 2003 09:29:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zack Brown <zbrown@tumblerings.org>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ChangeLog suggestion
+In-Reply-To: <20030426062105.GA1423@renegade>
+Message-ID: <Pine.LNX.4.44.0304260924190.2276-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tom!
 
-On Sat, 26 Apr 2003, Tom Dietz wrote:
-
-> I recently upgraded to RedHat 9.0 only to find that my 600GB RAID system no
-> longer works.  It worked fine with RH 8.0, however once I upgraded, it no
-> longer came up cleanly and I got lots of error messages during boot.
+On Fri, 25 Apr 2003, Zack Brown wrote:
 > 
-When updating the 3ware driver (as part of the kernel update), 3ware's website 
-recommends updating the firmware, too. See e.g.
+> I'm not familiar with your scripts, but I'd be surprised if this were very
+> difficult to implement.
 
-http://www.3ware.com/download/Escalade7000Series/7.6/7.6_Release_Notes_Web.pdf
+Well, the scripts can take it, but quite frankly I'd rather not clutter 
+the changelogs up with crud that really doesn't matter.
 
-for matching versions of the firmware, driver and 3dmd.
+The thing is, the stuff that already _is_ in the changelog is certainly 
+enough to identify the email if you just have a reasonable search engine. 
+You have author, comments and diff, and if that isn't enough to identify 
+the thing then something is wrong.
 
-Ciao,
-					Roland
+Also, _most_ of the patches by far end up coming as personal emails, and
+while they have often shown up on linux-kernel in _some_ way, it won't be
+the same email that got sent to me. The email that showed up on the
+mailing list will often have been of the type "please test this out and if
+it works for you I'll send it to Linus", or it will have been posted by
+the original author and then the actual patch made it to me either through
+somebody elses BK tree _or_ through a person like Andrew Morton or Alan
+Cox.
 
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
+In other words, what you ask for is ugly (yes, I actually look at the 
+output of "bk changes") _and_ not very useful.
 
-"If you think NT is the answer, you didn't understand the question."
-						- Paul Stephens
+			Linus
 

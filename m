@@ -1,108 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292836AbSCRUdI>; Mon, 18 Mar 2002 15:33:08 -0500
+	id <S292837AbSCRUg1>; Mon, 18 Mar 2002 15:36:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292837AbSCRUc6>; Mon, 18 Mar 2002 15:32:58 -0500
-Received: from adsl-63-193-243-214.dsl.snfc21.pacbell.net ([63.193.243.214]:655
-	"EHLO dmz.ruault.com") by vger.kernel.org with ESMTP
-	id <S292836AbSCRUcq>; Mon, 18 Mar 2002 15:32:46 -0500
-Message-ID: <3C964FA8.2070706@ruault.com>
-Date: Mon, 18 Mar 2002 12:35:52 -0800
-From: Charles-Edouard Ruault <ce@ruault.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S292840AbSCRUgR>; Mon, 18 Mar 2002 15:36:17 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:31872 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292837AbSCRUgH>; Mon, 18 Mar 2002 15:36:07 -0500
+Date: Mon, 18 Mar 2002 15:36:27 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ed Vance <EdV@macrolink.com>
+cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: PCI drivers - memory mapped vs. I/O ports
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A7715@EXCHANGE>
+Message-ID: <Pine.LNX.3.95.1020318152604.29558A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: davem@redhat.com
-Subject: [PATCH] fix for /usr/src/linux/net/ipv4/ip_default_ttl usage 
-Content-Type: multipart/mixed;
- boundary="------------020202030400080900020404"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020202030400080900020404
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 18 Mar 2002, Ed Vance wrote:
 
-Hi All,
+> If a PCI device can be programmed equally well via I/O port space or memory
+> space, what are the reasons to chose one space over the other when writing
+> the driver?
+> 
 
-i've been playing with different IP setting available in the linux 
-kernel ( 2.4.18 ) and found a stange behaviour with 
-/usr/src/linux/net/ipv4/ip_default_ttl :
-the value that you set here is not taken into account in the following 
-cases :
+o       There is more 'memory' I/O space. Therefore you are more likely
+        to have enough space for your device when other boards are
+        installed. IOTW, you may find that there is no I/O space allocated
+        because there isn't any available.
 
-- ICMP reply ( of any kind )
-- TCP RST .
+o       Memory address space I/O is faster on Intel Machines. You can
+        write or read whole buffers of I/O space in memory address space.
+        the best you can do in port space is one long-word at a time.
 
-since the sockets used in this cases are the one created at the init of 
-the given protocols, and therefore the ttl value used are the one that 
-are setup at boot time and not the one that you will set later when 
-using the sysctl or the proc interface.
+o       PCI posted writes work when accessing memory-address I/O space.
+        Port I/O space cannot do this. The FIFO is written immediately
+        before any other access is allowed. This improves the access
+        speed in certain circumstances.
 
-I'm not sure that this has been left out on purpose since it will defeat 
-the goal of changing the default ttl to confuse OS fingerprinting 
-softwares.
-Therefore, i've made a small patch ( against kernel 2.4.18 ) that will 
-change the behaviour and make the default ttl be used in these cases.
+Basically, if you have a choice, it's hands-down to use memory-mapped
+I/O space.
 
-I hope it will be useful to some of you ....
-Regards
+Cheers,
+Dick Johnson
 
-PS : i'm not on the list so please CC me if you reply to this email.
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
--- 
-Charles-Edouard Ruault
-PGP Key ID 4370AF2D
-
-
-
---------------020202030400080900020404
-Content-Type: text/plain;
- name="default_ttl.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="default_ttl.patch"
-
---- icmp.c.sav	Mon Mar 18 10:43:24 2002
-+++ icmp.c	Mon Mar 18 12:29:48 2002
-@@ -139,6 +139,8 @@
-   { EHOSTUNREACH,	1 }	/*	ICMP_PREC_CUTOFF	*/
- };
- 
-+extern int sysctl_ip_default_ttl;
-+
- /* Control parameters for ECHO replies. */
- int sysctl_icmp_echo_ignore_all;
- int sysctl_icmp_echo_ignore_broadcasts;
-@@ -354,6 +356,7 @@
- 	icmp_out_count(icmp_param->data.icmph.type);
- 
- 	sk->protinfo.af_inet.tos = skb->nh.iph->tos;
-+	sk->protinfo.af_inet.ttl = sysctl_ip_default_ttl;
- 	daddr = ipc.addr = rt->rt_src;
- 	ipc.opt = NULL;
- 	if (icmp_param->replyopts.optlen) {
---- tcp_ipv4.c.sav	Mon Mar 18 10:43:03 2002
-+++ tcp_ipv4.c	Mon Mar 18 11:54:16 2002
-@@ -64,7 +64,7 @@
- #include <linux/ipsec.h>
- 
- extern int sysctl_ip_dynaddr;
--
-+extern int sysctl_ip_default_ttl;
- /* Check TCP sequence numbers in ICMP packets. */
- #define ICMP_MIN_LENGTH 8
- 
-@@ -1072,6 +1072,7 @@
- 	arg.n_iov = 1;
- 	arg.csumoffset = offsetof(struct tcphdr, check) / 2; 
- 
-+	tcp_socket->sk->protinfo.af_inet.ttl = sysctl_ip_default_ttl;
- 	ip_send_reply(tcp_socket->sk, skb, &arg, sizeof rth);
- 
- 	TCP_INC_STATS_BH(TcpOutSegs);
-
---------------020202030400080900020404--
+                 Windows-2000/Professional isn't.
 

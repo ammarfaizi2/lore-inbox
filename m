@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292015AbSBAU4Y>; Fri, 1 Feb 2002 15:56:24 -0500
+	id <S292035AbSBAU6y>; Fri, 1 Feb 2002 15:58:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292001AbSBAU4Q>; Fri, 1 Feb 2002 15:56:16 -0500
-Received: from adsl-63-197-0-76.dsl.snfc21.pacbell.net ([63.197.0.76]:15887
-	"HELO www.pmonta.com") by vger.kernel.org with SMTP
-	id <S292015AbSBAU4H>; Fri, 1 Feb 2002 15:56:07 -0500
-From: Peter Monta <pmonta@pmonta.com>
-To: garzik@havoc.gtf.org
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020201153346.B2497@havoc.gtf.org> (message from Jeff Garzik on
-	Fri, 1 Feb 2002 15:33:46 -0500)
-Subject: Re: Continuing /dev/random problems with 2.4
-In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201202334.72F921C5@www.pmonta.com> <20020201153346.B2497@havoc.gtf.org>
-Message-Id: <20020201205605.ED5111C5@www.pmonta.com>
-Date: Fri,  1 Feb 2002 12:56:05 -0800 (PST)
+	id <S292032AbSBAU6k>; Fri, 1 Feb 2002 15:58:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60933 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292028AbSBAU5t>;
+	Fri, 1 Feb 2002 15:57:49 -0500
+Message-ID: <3C5B012B.FE72EFD1@zip.com.au>
+Date: Fri, 01 Feb 2002 12:57:15 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ricardo Galli <gallir@uib.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT fails in some kernel and FS
+In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es> <3C5AFE2D.95A3C02E@zip.com.au>,
+		<3C5AFE2D.95A3C02E@zip.com.au> <E16Wkcm-0005D4-00@antoli.uib.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Anything that is meant to be a server really pretty much needs an
-> > > enthropy generator these days.
-> > 
-> > Many motherboards have on-board sound.  Why not turn the mic
-> > gain all the way up and use the noise---surely there will be
-> > a few bits' worth?
->
-> Even if you think you have a good true source of random noise, you need
-> to run good fitness tests on the data to ensure it's truly random.
+Ricardo Galli wrote:
+> 
+> > ext2 is the only filesystem which has O_DIRECT support.
+> 
+> Does that mean that the succesful test with ext3 and 2.4.14 is bogus?
+> 
 
-Well, yes and no.  What you really need is a conservative estimate
-of how much entropy is contained in n bits of input; a cryptographic
-hash, such as MD5, will distill out the "truly random".  The comments
-in drivers/char/random.c claim that the input hash is cryptographically
-noncritical, but to be pedantic, maybe MD5 the audio noise before
-writing to /dev/random.
+Yep.  O_DIRECT was added around 2.4.10, was tugged out for a while
+and then went back in again.
 
-Assuming the sound-card output looks like reasonable noise of
-a few LSBs amplitude, a conservative estimate might be 0.1 bit
-of entropy per sample.  This is 9600 bits of entropy per second
-from a stereo card, more than enough.
-
-A small daemon would wake up every so often, check if /dev/random
-needs topped up, read some audio samples, MD5(), write(),
-ioctl(# of claimed entropy bits).  I haven't seen the i810 RNG tools,
-but I guess they do something similar.
+-

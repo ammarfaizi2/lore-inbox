@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262698AbVAKKqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbVAKKtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262698AbVAKKqP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 05:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVAKKqO
+	id S262695AbVAKKtW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 05:49:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbVAKKtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 05:46:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61320 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262698AbVAKKpy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 05:45:54 -0500
-Date: Tue, 11 Jan 2005 05:42:30 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Edjard Souza Mota <edjard@gmail.com>, Mauricio Lin <mauriciolin@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: User space out of memory approach
-Message-ID: <20050111074230.GB18796@logos.cnet>
-References: <3f250c71050110134337c08ef0@mail.gmail.com> <20050110192012.GA18531@logos.cnet> <4d6522b9050110144017d0c075@mail.gmail.com> <20050110200514.GA18796@logos.cnet> <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
+	Tue, 11 Jan 2005 05:49:22 -0500
+Received: from web60603.mail.yahoo.com ([216.109.118.223]:18828 "HELO
+	web60603.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262695AbVAKKtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 05:49:20 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=AToV3hCN1+dL8dL6oZxLgLnG5Cn2KB5kMA3122iosqF88NcUjEM9eD4IRyLHE1FvFQP4NTtfvnQrEmXlS1oDCWR+lKROSZolnZvNpJ8EPObve9l/P9kTt6tvtiVXkUCV+RmYC1UYCz6QJAN1AuDDPoCEdzJPeJZkwcBSIFs4a9Y=  ;
+Message-ID: <20050111104919.64122.qmail@web60603.mail.yahoo.com>
+Date: Tue, 11 Jan 2005 02:49:19 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: pipe_wait illustration needed
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 01:35:47AM +0100, Thomas Gleixner wrote:
-> On Mon, 2005-01-10 at 18:05 -0200, Marcelo Tosatti wrote:
-> > The feature is interesting - several similar patches have been around with similar
-> > functionality (people who need usually write their own, I've seen a few), but none 
-> > has ever been merged, even though it is an important requirement for many users.
-> 
-> It's not a requirement for users. The current implementation in the
-> kernel it's just broken, ugly code.
-> 
-> > This is simple, an ordered list of candidate PIDs. IMO something similar to this 
-> > should be merged. Andrew ?
-> 
-> I have no objections against the userspace provided candidate list
-> option, but as long as the main sources of trouble 
-> 
-> 	- invocation
-> 	- reentrancy
-> 	- timed, counted, blah ugly protection
-> 	- selection problem
-> 
-> are not fixed properly, we don't need to discuss the inclusion of a
-> userspace provided candidate list.
-> 
-> Postpone this until the main problem is fixed. There is a proper
-> confirmed fix for this available. It was posted more than once.
+Hello linux-experts,
+    I can't understand this function pipe_wait defined
+in linux/fs/pipe.c line by line,especially the lines
+after add_wait_queue. If the process is added to the
+wait queue and schedule() is called then after that a
+new process will be selected and will be given the
+CPU. So, the current process will be out of the way.
+Then, how can the kernel reach the line 
+remove_wait_queue. 
+    Also, how the scheduler will know that the pipe
+event has occurred and it's safe to set the process
+state to TASK_RUNNING?
 
-Agreed - haven't you and Andrea fixed those recently ?
+Thanks,
+selva
+----------------
+/* Drop the inode semaphore and wait for a pipe event,
+atomically */
+void pipe_wait(struct inode * inode)
+{
+	DECLARE_WAITQUEUE(wait, current);
+	current->state = TASK_INTERRUPTIBLE;
+	add_wait_queue(PIPE_WAIT(*inode), &wait);
+	up(PIPE_SEM(*inode));
+	schedule();
+	remove_wait_queue(PIPE_WAIT(*inode), &wait);
+	current->state = TASK_RUNNING;
+	down(PIPE_SEM(*inode));
+}
 
-> Merging a fix which helps only 0,001 % of the users to hide the mess
-> instead of fixing the real problem is a real interesting engineering
-> aproach.
-> 
-> I don't deny, that after the source of trouble is fixed it is worth to
-> think about the merging of this addon to allow interested users to
-> define the culprits instead of relying on an always imperfect selection
-> algorithm.
 
-Yep.
+		
+__________________________________ 
+Do you Yahoo!? 
+Meet the all-new My Yahoo! - Try it today! 
+http://my.yahoo.com 
+ 
+

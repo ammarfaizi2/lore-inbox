@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275266AbTHGKkc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 06:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275271AbTHGKkc
+	id S275264AbTHGKr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 06:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275271AbTHGKr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 06:40:32 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:65287 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S275266AbTHGKkb (ORCPT
+	Thu, 7 Aug 2003 06:47:29 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:27332 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S275264AbTHGKr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 06:40:31 -0400
-To: linux-kernel@vger.kernel.org
+	Thu, 7 Aug 2003 06:47:28 -0400
+Date: Thu, 7 Aug 2003 20:45:53 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Charles Lepple <clepple@ghz.cc>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+Message-Id: <20030807204553.3c5f432e.sfr@canb.auug.org.au>
+In-Reply-To: <3F31BDA3.7040700@ghz.cc>
+References: <20030806231519.H16116@flint.arm.linux.org.uk>
+	<3F31BDA3.7040700@ghz.cc>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@altium.nl (Dick Streefland)
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <20030806231403.GF1380@pegasys.ws> <20030805233308.GD928@matchmail.com> <200308052014.31133.gene.heskett@verizon.net> <Pine.LNX.4.51.0308061115400.16005@dns.toxicfilms.tv> <20030806231403.GF1380@pegasys.ws> <Pine.LNX.4.51.0308071159280.32494@dns.toxicfilms.tv>
-From: spam@altium.nl (Dick Streefland)
-Subject: Re: [OT] Re: Euro-English
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <409a.3f322c49.c82b0@altium.nl>
-Date: Thu, 07 Aug 2003 10:39:05 -0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
-| Yes, but try going skiing to the Alps. Checkout French, Austrian, Italian
-| side glaciers. And try to get any response more correct than "we pipl buys
-| tickets, ski lift not works", and so on.
+On Wed, 06 Aug 2003 22:46:59 -0400 Charles Lepple <clepple@ghz.cc> wrote:
+>
+> Also saw your post about the 3c59x cardbus adapter. I can't recall ever 
+> being able to suspend the machine with that card inserted (including 
+> under 2.4-- I always had to eject the card before suspend or hibernate). 
 
-It depends on the part of Europe. Not incidentally, in the countries
-you mention, all foreign content shown on televison and in movie
-theaters is dubbed. In other countries such as the Scandinavian
-countries, The Netherlands and Belgium, almost everything is
-sub-titled. I think there is a direct relation between dubbing and the
-lack of English language skills.
+The IBM Thinkpad documentation mentions this (or used to) you cannot
+suspend a Thinkpad (using APM?) while there is a card powered in the
+PCMCIA/Cardbus slot.  You could try doing "cardctrl eject" before
+suspending - I find that this works for me (Thinkpad T22).
+
+The message "apm: suspend: Unable to enter requested state" is an
+indication of an error from the BIOS.
 
 -- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
-
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

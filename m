@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265286AbUFAXcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265283AbUFAXuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265286AbUFAXcu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 19:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265283AbUFAXct
+	id S265283AbUFAXuY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 19:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbUFAXuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 19:32:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9359 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265286AbUFAXcq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 19:32:46 -0400
-Message-ID: <40BD1211.9030302@pobox.com>
-Date: Tue, 01 Jun 2004 19:32:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 1 Jun 2004 19:50:24 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:40375 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265283AbUFAXuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 19:50:20 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SERIO_USERDEV patch for 2.6
+Date: Tue, 1 Jun 2004 18:50:15 -0500
+User-Agent: KMail/1.6.2
+Cc: Giuseppe Bilotta <bilotta78@hotpop.com>
+References: <Pine.GSO.4.58.0406011105330.6922@stekt37> <200406011318.36992.dtor_core@ameritech.net> <MPG.1b272042f54382879896b4@news.gmane.org>
+In-Reply-To: <MPG.1b272042f54382879896b4@news.gmane.org>
 MIME-Version: 1.0
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
-References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org> <40BC9EF7.4060502@shadowconnect.com>
-In-Reply-To: <40BC9EF7.4060502@shadowconnect.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406011850.16136.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Lidel wrote:
-> Hello,
+On Tuesday 01 June 2004 05:23 pm, Giuseppe Bilotta wrote:
+> Dmitry Torokhov wrote:
+> > echo "rawdev" > /sys/bus/serio/devices/serio0/driver
+> > 
+> > or something alont these lines. At least that's my grand plan ;)
 > 
-> Jeff Garzik wrote:
-> 
->>> could someone help me with a ioremap problem. If there are two 
->>> controllers plugged in, the ioremap request for the first controller 
->>> is successfull, but the second returns NULL. Here is the output of 
->>> the driver:
->>> i2o: Checking for PCI I2O controllers...
->>> i2o: I2O controller on bus 0 at 72.
->>> i2o: PCI I2O controller at 0xD0000000 size=134217728
->>> I2O: MTRR workaround for Intel i960 processor
->>> i2o/iop0: Installed at IRQ17
->>> i2o: I2O controller on bus 0 at 96.
->>> i2o: PCI I2O controller at 0xD8000000 size=134217728
->>> i2o: Unable to map controller.
->>
->> If "size=xxxx" indicates the size you are remapping, then that's
-> 
-> 
-> Yep, it is...
-> 
->> probably too large an area to be remapping.  Try remapping only the
->> memory area needed, and not the entire area.
-> 
-> 
-> Is there a way, to increase the size, which could be remapped, or is 
-> there a way, to find out what is the maximum size which could be remapped?
+> I like this kind of idea. Many options should be settable this 
+> way (think for example about Synaptics and ALPS touchpad 
 
-My preferred approach would be:  consider that the hardware does not 
-need the entire 0x8000000-byte area mapped.  Plain and simple.
+Yes, exactly, it will allow much more flexible option handling. Still,
+as far as your examples go: 
 
-This is a "don't do that" situation, and that renders the other 
-questions moot :)  You should only be mapping what you need to map.
+> configurations: whether to use multipointers separately or 
+> together,
+- userspace task - always persent separate devices and have application
+  (GPM or X) multiplex data together.
 
-	Jeff
+> (de)activation of tapping,
+- may be userspace task - i.e can be done in userspace if device can
+  report BTN_TOUCH event. If not then kernel has to toggle it.
 
+> button remapping etc).  
+- userspace task
+
+-- 
+Dmitry

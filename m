@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283735AbRK3Rzv>; Fri, 30 Nov 2001 12:55:51 -0500
+	id <S283731AbRK3Rwv>; Fri, 30 Nov 2001 12:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283736AbRK3Rzd>; Fri, 30 Nov 2001 12:55:33 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62907 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S283732AbRK3RzO>;
-	Fri, 30 Nov 2001 12:55:14 -0500
-Date: Fri, 30 Nov 2001 12:55:11 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Henning Schmiedehausen <hps@intermeta.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Larry McVoy <lm@bitmover.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <1007140529.6655.37.camel@forge>
-Message-ID: <Pine.GSO.4.21.0111301226190.15083-100000@weyl.math.psu.edu>
+	id <S283733AbRK3Rwm>; Fri, 30 Nov 2001 12:52:42 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:64005 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S283731AbRK3Rw1>; Fri, 30 Nov 2001 12:52:27 -0500
+Message-ID: <3C07C4F9.A52C07F6@evision-ventures.com>
+Date: Fri, 30 Nov 2001 18:42:17 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: dalecki@evision.ag, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <E169rqb-0004G7-00@the-village.bc.nu>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> > irritate the oftes so called "maintainer". Two expierences:
+> > ftape and mcd I'm through....
+> 
+> I timed the mcd maintainer out and tidied it anyway. I figured since it
+> wasnt being maintained nobody would scream too loudly - nobody has
 
+Wenn sorry for the missconception I wanted to insult *you*, my expierenc
+in regard to this is even older...
 
-On 30 Nov 2001, Henning Schmiedehausen wrote:
+> > BTW.> ftape (for the pascal emulation) and DAC960
+> 
+> ftape is an awkward one. Really the newer ftape4 wants merging into the
+> kernel but that should have happened a long time ago
 
-> issue. Code that you consider ugly as hell may be seen as "easily
-> understandable and maintainable" by the author. If it works and has no
-> bugs, so what? Just because it is hard for you and me to understand (cf.
+It diverged too much from what's in the kernel since about already 3-4
+years.
+And I don't think that it's that much better in terms of implementation
+style...
+Fortunately all those floppy interface iomega streamers are 
+physically obsolete by now. Plese notice that ftape4 is using a
+different storage format, well this is due to the fact that the
+ftape inside the kernel wasn't up to the corresponding standard
+(QIO-80)...
 
-... it goes without peer review for years.  And that means bugs.
+> > serial.c is another one for the whole multiport support which
+> > may be used by maybe 0.1% of the Linux users thrown on them all
+> > and some "magic" number silliness as well...
+> 
+> serial.c is a good example of the "ugly" that actually matters more, as is
+> floppy.c. Clean well formatted code that is stil opaque.
 
-Fact of life: we all suck at reviewing our own code.  You, me, Ken Thompson,
-anybody - we tend to overlook bugs in the code we'd written.  Depending on
-the skill we can compensate - there are technics for that, but it doesn't
-change the fact that review by clued people who didn't write the thing
-tends to show bugs we'd missed for years.
-
-If you really don't know that by your own experience - you don't _have_
-experience.  There is a damn good reason for uniform style within a
-project: peer review helps.  I've lost the count of bugs in the drivers
-that I'd found just grepping the tree.  Even on that level review catches
-tons of bugs.  And I have no reason to doubt that authors of respective
-drivers would fix them as soon as they'd see said bugs.
-
-"It's my code and I don't care if nobody else can read it" is an immediate
-firing offense in any sane place.  It may be OK in academentia, but in the
-real life it's simply unacceptable.
-
-It's all nice and dandy to shed tears for poor, abused, well-meaning company
-that had made everyone happy by correct but unreadable code and now gets
-humiliated by mean ingrates.  Nice image, but in reality the picture is
-quite different.  Code _is_ buggy.  That much is a given, regardless of
-the origin of that code.  The only question is how soon are these bugs
-fixed.  And that directly depends on the amount of efforts required to
-read through that code.
-
-Sigh...  Ironic that _you_ recommend somebody to grow up - I would expect
-the level of naivety you'd demonstrated from a CS grad who'd never worked
-on anything beyond his toy project.  Not from somebody adult.
-
+floppy.c is indeed one of the best compiler test cases around there.
+But personally I would excuse floppy.c a bit becouse it's dealing with
+a really awkward controller interface ;-).
+serial.c should be hooked at the misc char device interface sooner or
+later.
+But somehow this never happened becouse nobody dared to care enough.

@@ -1,90 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbUCHCYw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 21:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUCHCYv
+	id S262321AbUCHCpw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 21:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbUCHCpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 21:24:51 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59266
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262373AbUCHCYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 21:24:49 -0500
-From: Rob Landley <rob@landley.net>
-To: David Gibson <hermes@gibson.dropbear.id.au>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Orinoco card fails on resume with 2.6.2 (race condition?)
-Date: Sun, 7 Mar 2004 18:01:15 -0600
-User-Agent: KMail/1.5.4
-References: <200402251436.15740.rob@landley.net> <20040304094555.C6052@flint.arm.linux.org.uk> <20040308002051.GA10554@zax>
-In-Reply-To: <20040308002051.GA10554@zax>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403071801.15688.rob@landley.net>
+	Sun, 7 Mar 2004 21:45:51 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18869 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262321AbUCHCpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 21:45:42 -0500
+Date: Mon, 08 Mar 2004 11:49:10 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: [PATCH] fix PCI interrupt setting for ia64
+To: linux-ia64@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Message-id: <MDEEKOKJPMPMKGHIFAMAKECGDGAA.kaneshige.kenji@jp.fujitsu.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Content-type: text/plain;	charset="iso-2022-jp"
+Content-transfer-encoding: 7bit
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 March 2004 18:20, David Gibson wrote:
-> Sorry I've been slow to reply - still catching up from three weeks
-> away.
+Hi,
 
-I'm traveling around the country myself.
+In ia64 kernel, IOSAPIC's RTEs for PCI interrupts are unmasked at the
+boot time before installing device drivers. I think it is very dangerous.
+If some PCI devices without device driver generate interrupts, interrupts
+are generated repeatedly because these interrupt requests are never
+cleared. I think RTEs for PCI interrupts should be unmasked by device
+driver.
 
-> On Thu, Mar 04, 2004 at 09:45:55AM +0000, Russell King wrote:
-> > On Wed, Feb 25, 2004 at 02:36:15PM -0600, Rob Landley wrote:
-> > > Attached are a dmesg log from my laptop resuming after a software
-> > > suspend with a stock 2.6.2 kernel, and the config that 2.6.2 kernel was
-> > > compiled with.
-> >
-> > I guess we need the orinoco people to comment on this; although I seem
-> > to look after the 2.6 PCMCIA _core_, I certainly do not look after
-> > PCMCIA driver issues.
-> >
-> > David - can you provide any insight?
->
-> Um... not a lot, I'm afraid.  A "Timeout waiting for command
-> completion" usually indicates a low-level problem, the registers not
-> responding at all, for example.  On the other hand we do seem to be
-> getting some interrupts and correctly processing linkstatus frames
-> before it all falls over, so it doesn't look like a complete failure
-> of the low-level stuff to re-activate the card on resume.
+A following patch fixes this issue.
 
-Well, thanks for the attempt.
+Regards,
+Kenji Kaneshige
 
-Hmmm...  I don't _think_ the software suspend logic is likely to snapshot any 
-strange timer state, but I dunno.  On resume, the system goes into a swap 
-frenzy trying to get everything back in.  (This thinkpad can only hold 192 
-megabytes of ram, and as far as I can tell Konqueror never actually frees any 
-memory it allocates, so I'm usually about halfway into swap.)  So if there's 
-any possibility of the world's strangest race condition occurring on resume, 
-this thing could probably trigger it.  My suspend script is just:
 
-#!/bin/sh
+diff -Naur linux-2.6.4-rc2/arch/ia64/kernel/iosapic.c
+linux-2.6.4-rc2-changed/arch/ia64/kernel/iosapic.c
+--- linux-2.6.4-rc2/arch/ia64/kernel/iosapic.c  2004-03-05
+15:13:53.155237277 +0900
++++ linux-2.6.4-rc2-changed/arch/ia64/kernel/iosapic.c  2004-03-05
+16:48:31.856142526 +0900
+@@ -170,7 +170,7 @@
+ }
 
-sync
-#echo -n disk > /sys/power/state
-echo 4 > /proc/acpi/sleep
-hwclock --hctosys
-# rdate -s clock.psu.edu
-dhclient eth0
+ static void
+-set_rte (unsigned int vector, unsigned int dest)
++set_rte (unsigned int vector, unsigned int dest, int mask)
+ {
+        unsigned long pol, trigger, dmode;
+        u32 low32, high32;
+@@ -205,6 +205,7 @@
+        low32 = ((pol << IOSAPIC_POLARITY_SHIFT) |
+                 (trigger << IOSAPIC_TRIGGER_SHIFT) |
+                 (dmode << IOSAPIC_DELIVERY_SHIFT) |
++                ((mask ? 1 : 0) << IOSAPIC_MASK_SHIFT) |
+                 vector);
 
-> > > Usually after resume the network is back and happy, but this time it
-> > > went "boing".  Specifically:
->
-> A race condition in the re-initialization logic is plausible - the
-> locking around there is very hairy - and would jibe with this
-> observation.
+        /* dest contains both id and eid */
+@@ -509,7 +510,7 @@
+               (trigger == IOSAPIC_EDGE ? "edge" : "level"), dest, vector);
 
-The odd part is that dhclient thought it had negotiated a connection before 
-the wireless card decided to curl up and die.  Too bad the card couldn't 
-either start over initializing the sucker again, or at least print a stack 
-trace of where it to confused...
+        /* program the IOSAPIC routing table */
+-       set_rte(vector, dest);
++       set_rte(vector, dest, 0);
+        return vector;
+ }
 
-I'll let you know if it happens again.  That's the...  second or third time 
-I've seen it in the past four or five months.  (It happens.  Just not often 
-enough to determine a pattern.)
+@@ -557,7 +558,7 @@
+               (trigger == IOSAPIC_EDGE ? "edge" : "level"), dest, vector);
 
-Rob
+        /* program the IOSAPIC routing table */
+-       set_rte(vector, dest);
++       set_rte(vector, dest, 0);
+        return vector;
+ }
+
+@@ -583,7 +584,7 @@
+            trigger == IOSAPIC_EDGE ? "edge" : "level", dest, vector);
+
+        /* program the IOSAPIC routing table */
+-       set_rte(vector, dest);
++       set_rte(vector, dest, 0);
+ }
+
+ void __init
+@@ -669,7 +670,7 @@
+        /* direct the interrupt vector to the running cpu id */
+        dest = (ia64_getreg(_IA64_REG_CR_LID) >> 16) & 0xffff;
+ #endif
+-       set_rte(vector, dest);
++       set_rte(vector, dest, 1);
+
+        printk(KERN_INFO "IOSAPIC: vector %d -> CPU 0x%04x, enabled\n",
+               vector, dest);
 

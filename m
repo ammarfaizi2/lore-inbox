@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318122AbSG2VkN>; Mon, 29 Jul 2002 17:40:13 -0400
+	id <S318139AbSG2VpZ>; Mon, 29 Jul 2002 17:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318124AbSG2VkN>; Mon, 29 Jul 2002 17:40:13 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:51640 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S318122AbSG2VkM>; Mon, 29 Jul 2002 17:40:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Axel Siebenwirth <axel@hh59.org>,
-       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.27: JFS oops
-Date: Mon, 29 Jul 2002 16:43:14 -0500
-X-Mailer: KMail [version 1.4]
-References: <20020729150634.GA661@prester.freenet.de>
-In-Reply-To: <20020729150634.GA661@prester.freenet.de>
+	id <S318140AbSG2VpY>; Mon, 29 Jul 2002 17:45:24 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:54220 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318139AbSG2VpX>;
+	Mon, 29 Jul 2002 17:45:23 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207291643.14602.shaggy@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15685.47159.255792.34483@napali.hpl.hp.com>
+Date: Mon, 29 Jul 2002 14:48:39 -0700
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: "'Matthew Wilcox'" <willy@debian.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-ia64@linuxia64.org'" <linux-ia64@linuxia64.org>
+Subject: RE: [Linux-ia64] Linux kernel deadlock caused by spinlock bug
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F3AF@usslc-exch-4.slc.unisys.com>
+References: <3FAD1088D4556046AEC48D80B47B478C0101F3AF@usslc-exch-4.slc.unisys.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 July 2002 10:06, Axel Siebenwirth wrote:
-> Hi Dave,
->
-> here goes another jfsCommit oops from kernel 2.5.27.
+>>>>> On Mon, 29 Jul 2002 16:29:09 -0500, "Van Maren, Kevin" <kevin.vanmaren@unisys.com> said:
 
-I haven't seen this trap before.  I'll take a closer look at it, and let 
-you know what I find.
+  Van> Yes, but that isn't the point: unless you eliminate all rw
+  Van> locks, it is conceptually possible to cause a kernel deadlock
+  Van> by forcing contention on the locks you didn't remove, if the
+  Van> user can force the kernel to acquire a reader lock and if
+  Van> something else needs to acquire the writer lock.  Correctness
+  Van> is the issue, not performance.
 
-> Can I use jfs from cvs with current kernels (2.5.29/2.4.19-rc3-ac3)
-> to see how latest changes work?
+I agree with Kevin here.  There must be some argument as to why
+readers cannot indefinitely lock out a writer.  A probabilistic
+argument is fine, but just saying "contention doesn't happen"
+certainly isn't good enough.
 
-Yes.  You should be able to just replace everything under fs/jfs with 
-what's in cvs.
->
-> Best regards,
-> Axel Siebenwirth
-
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+	--david

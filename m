@@ -1,42 +1,76 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157445AbQHACUc>; Mon, 31 Jul 2000 22:20:32 -0400
-Received: by vger.rutgers.edu id <S160064AbQHACUW>; Mon, 31 Jul 2000 22:20:22 -0400
-Received: from hog.ctrl-c.liu.se ([130.236.252.129]:4791 "HELO t1.ctrl-c.liu.se") by vger.rutgers.edu with SMTP id <S157631AbQHACSm>; Mon, 31 Jul 2000 22:18:42 -0400
-Date: 1 Aug 2000 02:30:27 -0000
-Message-ID: <20000801023027.23228.qmail@t1.ctrl-c.liu.se>
-From: wingel@t1.ctrl-c.liu.se
-To: dalgoda@ix.netcom.com
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: RLIM_INFINITY inconsistency between archs
-Newsgroups: linux.kernel
-In-Reply-To: <20000731211810.B28169@thune.mrc-home.org>
-References: <7iw6kYsXw-B@khms.westfalen.de> <Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com> <8m4q9v$871$1@enterprise.cistron.net> <8m4tn3$cri$1@cesium.transmeta.com>
-Organization: 
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157481AbQGaLc1>; Mon, 31 Jul 2000 07:32:27 -0400
+Received: by vger.rutgers.edu id <S157252AbQGaLcQ>; Mon, 31 Jul 2000 07:32:16 -0400
+Received: from pec-58-41.tnt4.b2.uunet.de ([149.225.58.41]:1621 "EHLO router.abc") by vger.rutgers.edu with ESMTP id <S157320AbQGaLcF>; Mon, 31 Jul 2000 07:32:05 -0400
+Message-ID: <3985680D.49B19846@baldauf.org>
+Date: Mon, 31 Jul 2000 13:50:37 +0200
+From: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+Organization: Medium.net
+X-Mailer: Mozilla 4.74 [en] (Win98; U)
+X-Accept-Language: en,de-DE
+MIME-Version: 1.0
+To: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, reiserfs@devlinux.com, linux-kernel@vger.rutgers.edu
+Subject: Re: (reiserfs) Re: sync: why disk cannot spin down
+References: <200007302237.XAA11816@flint.arm.linux.org.uk> <3984B985.680B0ACF@baldauf.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In article <20000731211810.B28169@thune.mrc-home.org> dalgoda@ix.netcom.com wrote:
->On Mon, Jul 31, 2000 at 03:13:55PM -0700, H. Peter Anvin wrote:
->> Unfortunately that doesn't work very well.  For user-space daemons
->> which talk to Linux-specific kernel interfaces, such as automount, you
->> need both the glibc and the Linux kernel headers.
->
->Does this mean that automount has to be rebuilt for every kernel?  And that
->we should be running /lib/modules/`uname -r`/sbin/automount.
->
->It's sounds like it's an awful lot like a loadable module in how tightly
->it's tied to the kernel.  And how a kernel change can break things
->horribly.  How you have to be built against the one you're going to run
->against and not the one glibc was built against.
 
-It only means that the application will be built agains the kernel 
-_interface_ that was present in that version of the kernel.  And 
-syscall/ioctl interfaces should never change, they can be added to,
-and relly old depreciated interfaces can be removed, but they should
-be stable for at least a few major kernel releases.
 
-  /Christer
--- 
-"Just how much can I get away with and still go to heaven?"
+Xuan Baldauf wrote:
+
+> Russell King wrote:
+>
+> > Xuan Baldauf writes:
+> > > this problem is possibly unrelated to reiserfs but related to
+> > > linux-kernel, but now I can prove it: regular sync()s do prevent the
+> > > spindown of (IDE) disks. There will be a call to sync() after 32 or less
+> > > seconds have elapsed since the last sync(). Not a problem itself, but
+> > > every sync spins up the disk again.
+> >
+> > You may want to have a look at the atime/diratime mount options, or
+> > even chattr -A to prevent certain files causing a write when they're
+> > run/read.
+> >
+> > Note that just executing "sync" causes its atime to be marked for update,
+> > which will cause a write back to disk a short while later.
+> >
+> > [...]
+>
+> Thank you for waking me! :o) I forgot the atime issue. I wonder why it still
+> is the default...
+>
+
+Now I made all my partitions noatime, and wow,
+
+sync; hdparm -C -Y /dev/hda; sync; hdparm -C /dev/hda
+
+does not necessarily spin up the disk!
+
+Someone suggested noflushd (does anybody have pointers?), because every write
+would trigger spin up, but that is okay for me, I'd like to have a system where
+no writes are done else when needed. About a minute (some more or less seconds)
+after spindown, the disk spins up again, but now I cannot find out the cause.
+
+I tried to strace the whole system with
+
+strace `ps x|grep -v PID|grep -v $PPID|awk {' print "-" "p " $1 '}`
+
+but this was not very clueful, because if some process writes, the buffers are
+only changed in memory. Then the disk spins down (spindown time set to 20
+seconds). After some time, the disk spins up again, because kupdate sends the
+buffers to disk. Unfortunately, this way I cannot find (time-)relations between
+writes or write-like functions (like munmap) and disk access.
+
+Is there a simple switch or a patch out there which makes every buffer (head)
+release synchronous (yet not discarding the buffer, it is still needed so all
+daemons can fully run in RAM).
+
+Xuân.:o)
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261644AbSKLPiy>; Tue, 12 Nov 2002 10:38:54 -0500
+	id <S266601AbSKLPeD>; Tue, 12 Nov 2002 10:34:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSKLPiy>; Tue, 12 Nov 2002 10:38:54 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:48399 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261624AbSKLPix>;
-	Tue, 12 Nov 2002 10:38:53 -0500
-Date: Tue, 12 Nov 2002 07:40:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Ian Molton <spyro@f2s.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: devfs
-Message-ID: <20021112154032.GA30343@kroah.com>
-References: <20021112093259.3d770f6e.spyro@f2s.com> <1037094221.16831.21.camel@bip>
+	id <S261742AbSKLPcn>; Tue, 12 Nov 2002 10:32:43 -0500
+Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:21492 "EHLO
+	kermit.unets.com") by vger.kernel.org with ESMTP id <S261683AbSKLPcH>;
+	Tue, 12 Nov 2002 10:32:07 -0500
+Subject: File Limit in Kernel?
+From: Adam Voigt <adam@cryptocomm.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-gjU1b+qYiuNy2hSLpQYr"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Nov 2002 10:38:55 -0500
+Message-Id: <1037115535.1439.5.camel@beowulf.cryptocomm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037094221.16831.21.camel@bip>
-User-Agent: Mutt/1.4i
+X-OriginalArrivalTime: 12 Nov 2002 15:38:57.0648 (UTC) FILETIME=[9D5E9F00:01C28A61]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 10:43:41AM +0100, Xavier Bestel wrote:
-> 
-> I'm wondering if a totally userspace solution could replace devs ?
-> Something using hotplug + sysfs and creating directories/nodes as they
-> appear on the system. This way, the policy (how do I name what) could be
-> moved out of the kernel.
 
-Yes, that is _exactly_ what I am working on doing, and have stated as
-such on this list a number of times in the past.
+--=-gjU1b+qYiuNy2hSLpQYr
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-As for it being after the feature freeze comment, like Alan noted,
-everything is already present to do this, it's just going to take some
-more notifiers being added and some userspace code written.
+I have a directory with 39,000 files in it, and I'm trying to use the cp
+command to copy them into another directory, and neither the cp or the
+mv command will work, they both same "argument list too long" when I
+use:
 
-And no, even if all of this gets done, I would not want to remove devfs
-from the kernel, yet :)
+cp -f * /usr/local/www/images
 
-thanks,
+or
 
-greg k-h
+mv -f * /usr/local/www/images
+
+Is this a kernel limitation? If yes, how can I get around it?
+If no, anyone know a workaround? I appreciate it.
+
+--=20
+Adam Voigt (adam@cryptocomm.com)
+The Cryptocomm Group
+My GPG Key: http://64.238.252.49:8080/adam_at_cryptocomm.asc
+
+--=-gjU1b+qYiuNy2hSLpQYr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA90SCPF9k9BmZXCWYRAqlsAJoCW1C/DfWSlwOiVQulcNLidr8RrACeIEph
+MgAaBBF1vNaDnpS0rXfC/NI=
+=Cd37
+-----END PGP SIGNATURE-----
+
+--=-gjU1b+qYiuNy2hSLpQYr--
+

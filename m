@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbUBTOps (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 09:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUBTOps
+	id S261274AbUBTO5E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 09:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbUBTO5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 09:45:48 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:4356 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261252AbUBTOpm (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 09:45:42 -0500
-Message-Id: <200402192230.i1JMUifj004565@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Matthew Wilcox <willy@debian.org>
-Cc: davidm@hpl.hp.com, torvalds@osdl.org, Michel D?nzer <michel@daenzer.net>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: radeon warning on 64-bit platforms 
-In-Reply-To: Your message of "Wed, 18 Feb 2004 02:28:31 GMT."
-             <20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <1077054385.2714.72.camel@thor.asgaard.local> <16434.36137.623311.751484@napali.hpl.hp.com> <1077055209.2712.80.camel@thor.asgaard.local> <16434.37025.840577.826949@napali.hpl.hp.com> <1077058106.2713.88.camel@thor.asgaard.local> <16434.41884.249541.156083@napali.hpl.hp.com> <20040217234848.GB22534@krispykreme> <16434.46860.429861.157242@napali.hpl.hp.com> <20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk> <16434.50928.682219.187846@napali.hpl.hp.com>
-            <20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk>
+	Fri, 20 Feb 2004 09:57:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33929 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261274AbUBTO5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 09:57:00 -0500
+Date: Fri, 20 Feb 2004 14:59:44 +0000
+From: Joe Thornber <thornber@redhat.com>
+To: Miquel van Smoorenburg <miquels@cistron.net>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       miquels@cistron.nl, axboe@suse.de, linux-lvm@sistina.com,
+       linux-kernel@vger.kernel.org, thornber@redhat.com
+Subject: Re: [PATCH] bdi_congestion_funp (was: Re: [PATCH] per process request limits (was Re: IO scheduler, queue depth, nr_requests))
+Message-ID: <20040220145944.GM27549@reti>
+References: <20040219101519.GG30621@drinkel.cistron.nl> <20040219101915.GJ27190@suse.de> <20040219205907.GE32263@drinkel.cistron.nl> <40353E30.6000105@cyberone.com.au> <20040219235303.GI32263@drinkel.cistron.nl> <40355F03.9030207@cyberone.com.au> <20040219172656.77c887cf.akpm@osdl.org> <40356599.3080001@cyberone.com.au> <20040219183218.2b3c4706.akpm@osdl.org> <20040220144042.GC20917@traveler.cistron.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1478586615P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 19 Feb 2004 17:30:44 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040220144042.GC20917@traveler.cistron.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1478586615P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Feb 20, 2004 at 03:40:42PM +0100, Miquel van Smoorenburg wrote:
+> --- linux-2.6.3/drivers/md/dm-table.c.ORIG	2004-02-04 04:44:59.000000000 +0100
+> +++ linux-2.6.3/drivers/md/dm-table.c	2004-02-20 15:14:35.000000000 +0100
 
-On Wed, 18 Feb 2004 02:28:31 GMT, Matthew Wilcox said:
-> On Tue, Feb 17, 2004 at 05:59:12PM -0800, David Mosberger wrote:
-> > I personally would be more than happy to reformat things to 80 cols,
-> > but it's a waste of time unless almost all Linux code gets
-> > reformatted.
-> 
-> Hm?  I don't know where you're getting that from.  Let's talk numbers.
-> 
-> Of the 60525 lines in .c files in arch/i386, 460 are longer than 80 cols.
-> Of the 67398 lines in .c files in arch/ia64, 1189 are longer than 80 cols.
-> Of the 496510 lines in .c files in drivers/net, 4044 are longer than 80 cols.
+<snip>
 
-You apparently made the mistake of looking at character count < 80, not
-lines that extend past column 80.
+> +	if ((t = dm_get_table(md)) == NULL)
+> +		return 0;
 
-For 2.6.3-mm1, I see:
-[/usr/src/linux-2.6.3-mm1/arch/i386]2 find . -name '*.c' | xargs cat | wc -l
-  64542
-[/usr/src/linux-2.6.3-mm1/arch/i386]2 find . -name '*.c' | xargs cat | awk 'length() > 80 { print $0}' | wc -l
-    477
-[/usr/src/linux-2.6.3-mm1/arch/i386]2 find . -name '*.c' | xargs cat |sed 's/\t/        /g'| awk 'length() > 80 { print $0}' | wc -l
-   1291
+struct mapped_device has no business in this file.  You should move
+this function to dm.c, and provide accessor fns in dm-table.c.
 
-(replace \t with whatever your shell needs to enter a literal tab .  Yes, this
-botches on the relatively rare line that has an embedded tab. Deal with it. ;).
+> +	devices = dm_table_get_devices(t);
+> +	for (d = devices->next; d != devices; d = d->next) {
+> +		struct dm_dev *dd = list_entry(d, struct dm_dev, list);
+> +		request_queue_t *q = bdev_get_queue(dd->bdev);
+> +		r |= test_bit(bdi_state, &(q->backing_dev_info.state));
 
-In other words, the situation is a lot worse if you count columns, not
-characters.
+Shouldn't this be calling your bdi_*_congested function rather than
+assuming it is a real device under dm ? (often not true).
 
-(For IA64, it's 67,376 and either 1,185 or 3,222, and for drivers/net I see
-493,027 and either 4,004 or 15,606 - ia64 is worse at the 80-col thing either way)
+I'm also very slightly worried that or'ing together the congestion
+results for all the seperate devices isn't always the right thing.
+These devices include anything that the targets are using, exception
+stores for snapshots, logs for mirror, all paths for multipath (or'ing
+is most likely to be wrong for multipath).
 
-
---==_Exmh_-1478586615P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFANTkTcC3lWbTT17ARAkIGAKC3AJIuHJek6tAm9DTUqLA8Oaj1YgCg33UM
-jNhhp3RIWYPIyqTAtFEqHm0=
-=M+0b
------END PGP SIGNATURE-----
-
---==_Exmh_-1478586615P--
+- Joe

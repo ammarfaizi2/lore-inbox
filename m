@@ -1,97 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266367AbTBKWRl>; Tue, 11 Feb 2003 17:17:41 -0500
+	id <S266379AbTBKWWK>; Tue, 11 Feb 2003 17:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266379AbTBKWRl>; Tue, 11 Feb 2003 17:17:41 -0500
-Received: from bitmover.com ([192.132.92.2]:40676 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266367AbTBKWRk>;
-	Tue, 11 Feb 2003 17:17:40 -0500
-Date: Tue, 11 Feb 2003 14:27:21 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: David Schwartz <davids@webmaster.com>
-Cc: brand@jupiter.cs.uni-dortmund.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms
-Message-ID: <20030211222721.GA15043@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Schwartz <davids@webmaster.com>,
-	brand@jupiter.cs.uni-dortmund.de,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S266384AbTBKWWK>; Tue, 11 Feb 2003 17:22:10 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:24738 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id <S266379AbTBKWWJ>;
+	Tue, 11 Feb 2003 17:22:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] 2/3 ACPI resource handling
+Date: Tue, 11 Feb 2003 15:31:37 -0700
+User-Agent: KMail/1.4.3
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, t-kochi@bq.jp.nec.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+References: <200302111459.35380.bjorn_helgaas@hp.com> <1045001693.17351.62.camel@dell_ss3.pdx.osdl.net>
+In-Reply-To: <1045001693.17351.62.camel@dell_ss3.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302111531.37646.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	I'll explain it again, repeating myself more slowly.
+> > +#define copy_field(out, in, field)	out->field = in->field
+> > +#define copy_address(out, in)					\
+> > +	copy_field(out, in, resource_type);			\
+> > +	copy_field(out, in, producer_consumer);			\
+> > +	copy_field(out, in, decode);				\
+> > +	copy_field(out, in, min_address_fixed);			\
+> > +	copy_field(out, in, max_address_fixed);			\
+> > +	copy_field(out, in, attribute);				\
+> > +	copy_field(out, in, granularity);			\
+> > +	copy_field(out, in, min_address_range);			\
+> > +	copy_field(out, in, max_address_range);			\
+> > +	copy_field(out, in, address_translation_offset);	\
+> > +	copy_field(out, in, address_length);			\
+> > +	copy_field(out, in, resource_source);
+> 
+> If ACPI just used normal (ie short) variable names, then ugly macros
+> like this would not be necessary.
 
-David has a good point here.  It is worth emphasizing that what you believe
-to be true may not be legally true.  Everyone believes certain things about
-the GPL but those beliefs are just opinions.
+Well, the length of variable names is really irrelevant to this patch.
+I just didn't want to write
 
-If David is correct, and what he is saying seems plausible, then because
-there is no click through, shrink wrap, or written agreement to the GPL,
-if you had the rights to the software *before* it was modified then
-you had those rights, end of story.  And the GPL grants those rights
-to everyone.  This is why almost 100% of the other licenses in the world
-start out with "XYZ expressly  reserves  all  rights  in  the Software
-not specifically granted to Licensee."
+	switch (resource->id) {
+	case ACPI_RSTYPE_ADDRESS16:
+		address16 = (struct acpi_resource_address16 *) &resource->data;
+		out->resource_type = address16->resource_type;
+		out->producer_consumer = address16->producer_consumer;
+		...
+	case ACPI_RSTYPE_ADDRESS32:
+		address32 = (struct acpi_resource_address32 *) &resource->data;
+		out->resource_type = address32->resource_type;
+		out->producer_consumer = address32->producer_consumer;
+		...
+	case ACPI_RSTYPE_ADDRESS64:
+		address64 = (struct acpi_resource_address64 *) &resource->data;
+		out->resource_type = address64->resource_type;
+		out->producer_consumer = address64->producer_consumer;
+		...
 
-I think people should read his posting below carefully, which is why I
-quoted it.  
+where all the cases are identical except for the 16/32/64 (and the
+occasional cut-and-paste error).
 
-> 	Nobody signs the GPL. So the only way you can determine whether or 
-> not someone is bound by the GPL is if they did something that they 
-> could not have obtained the right to do other than by the GPL.
-> 
-> 	You don't need to assent to the GPL to receive GPL'd works. You 
-> don't need to assent to the GPL to distribute rights to use a GPL'd 
-> work (because everyone is already given that right).
-> 
-> 	So what did you do that you couldn't do without the GPL? The answer 
-> is that you distributed a derived work to people who already had the 
-> right to possess the original work. I am saying that that is not an 
-> *additional* right to the *original* work. It's the simple sum of 
-> other rights. So you don't need to assent to the GPL to get it.
-> 
-> 	The difference with other software licenses is that you *do* need to 
-> assent to them to get the rights you already have without the GPL. 
-> For example, with Microsoft's EULA, you don't have the right to use 
-> the work without assenting to the EUAL, so mere use of the work can 
-> be used as proof of assent.
-> 
-> 	As an example, suppose you and I both have some greeting card 
-> program. I produce a greeting card that includes some graphics 
-> included with the greeting card program. That greeting card is a 
-> derived work. I can't distribute it to anyone I want because it 
-> contains embedded graphics and I would be distributing those graphics 
-> to people who had no right to them.
-> 
-> 	On the other hand, if I distributed it only to people who also owned 
-> the greeting card program, there would be no rights question. Every 
-> recipient of my derived work already has the rights to use and 
-> possess the work from which it is derived. The only additional right 
-> they need is the right to my modifications, which I can give them.
-> 
-> 	Again, the right to possess and use a derivative work when you 
-> already have the right to possess and use the original work and the 
-> right to make the derivative work is not an *additional* right to the 
-> *original* work. I can't say it any clearer than that, and I welcome 
-> any citations to law or court precedent to the contrary.
-> 
-> -- 
-> David Schwartz
-> <davids@webmaster.com>
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+If the macros are considered too ugly, I'd be glad to rewrite the
+function as above.  The main thing is to put the 16/32/64 switch
+ONE place, rather than duplicating it in every place that consumes
+address resources.
 
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Bjorn
+

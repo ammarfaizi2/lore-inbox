@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbTDRJmE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 05:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTDRJmE
+	id S262994AbTDRJmR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 05:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbTDRJmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 05:42:04 -0400
-Received: from siaag1ac.compuserve.com ([149.174.40.5]:54171 "EHLO
-	siaag1ac.compuserve.com") by vger.kernel.org with ESMTP
-	id S262993AbTDRJmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 05:42:03 -0400
-Date: Fri, 18 Apr 2003 05:50:39 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] only use 48-bit lba when necessary
-To: "linux-kernel@horizon.com" <linux-kernel@horizon.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304180553_MC3-1-34EE-10DA@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Fri, 18 Apr 2003 05:42:17 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:25493 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262994AbTDRJmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 05:42:15 -0400
+Date: Fri, 18 Apr 2003 11:54:08 +0200 (MEST)
+Message-Id: <200304180954.h3I9s8qc025926@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: CONFIG_X86_UP_APIC and CONFIG_X86_UP_IOAPIC won't allow me to connect with my ADSL
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Apr 2003 mikpe@csd.uu.se wrote:
+> Wed, 16 Apr 2003 21:53:21 -0300 (BRT), 0@pervalidus.tk wrote:
+> >I just installed an ECS K7VTA3 5.0 and ADSL. I was using an
+> >ASUS A7S333 and cable modem.
+> >
+> >With a kernel compiled with CONFIG_X86_UP_APIC and
+> >CONFIG_X86_UP_IOAPIC adsl-start will timeout. adsl-connect also
+> >fails.
+..
+> First thing to try:
+> Keep UP_APIC enabled but disable UP_IOAPIC.
 
->>   The operands of & can be evaluated in any order, while && requires
->> left-to-right and does not evaluate the right operand if the left one
->> is false.  Only the simplest cases could possibly generate the same
->> code.
->
-> The code must execute AS IF the right operand is only evaluated if the left
-> operand is true.
->
-> If an optimizer can prove that evaluating an operand has no side effects
-> (which a halfway-decent optimizer can usually do for simple expressions),
-> then it is free to evaluate it in any way that will produce the same
-> result.
+I've received confirmation that disabling IOAPIC support
+but keeping local APIC support eliminated the problems
+this person had. The chipset was VIA something.
 
-
-  No, that's not quite right.  Take this code for example:
-
-   struct foo *bar;
-
-   if (bar && bar->baz == 6) /* something */;
-
-If bar were zero, then evaluating the right side of the && would cause
-a fault.  (This is not a side effect.)
-
-  So the AS IF part if your statement is right but you have to consider
-more than just side effects.
-
- --
- Chuck
+The errors when IOAPIC was enabled included things like
+'eth0: transmit timed out' and
+'eth0: Interrupt posted but not delivered -- IRQ blocked by another device?'

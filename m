@@ -1,362 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130457AbRC1Ex0>; Tue, 27 Mar 2001 23:53:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131025AbRC1ExR>; Tue, 27 Mar 2001 23:53:17 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:47419 "EHLO devserv.devel.redhat.com") by vger.kernel.org with ESMTP id <S130457AbRC1ExL>; Tue, 27 Mar 2001 23:53:11 -0500
-Date: Wed, 28 Mar 2001 05:49:30 +0100
-From: Stephen Tweedie <sct@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@transmeta.com>
-Cc: Mark Mitchell <mmitchell@eurologic.com>, linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>, Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>, linux-mm@kvack.org, Helge Deller <hdeller@redhat.de>, Steve Lord <lord@sgi.com>
-Subject: [PATCH-2.4.2ac26] fix raw IO
-Message-ID: <20010328054930.A10669@redhat.com>
-References: <3ABBA330.2ADCEBAA@eurologic.com> <E14gZoY-0005Xy-00@the-village.bc.nu>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131486AbRC1Fxg>; Wed, 28 Mar 2001 00:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131528AbRC1Fx1>; Wed, 28 Mar 2001 00:53:27 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:58876 "EHLO zooty.lancs.ac.uk") by vger.kernel.org with ESMTP id <S131486AbRC1FxR>; Wed, 28 Mar 2001 00:53:17 -0500
+Message-Id: <l03130300b6e7282c3def@[192.168.239.101]>
+In-Reply-To: <01032718343500.32154@friz.themagicbus.com>
+References: <Pine.LNX.4.33.0103271815370.26154-100000@duckman.distro.conectiva> <Pine.LNX.4.33.0103271815370.26154-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14gZoY-0005Xy-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 23, 2001 at 10:13:44PM +0000
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 28 Mar 2001 06:52:14 +0100
+To: james <jdickens@ameritech.net>, Rik van Riel <riel@conectiva.com.br>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: Ideas for the oom problem
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm going to be gentle here and try to point out where your suggestions are
+flawed...
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>a. don't kill any task with a uid < 100
 
-Hi,
+Suppose your system daemon springs a leak?  It will have to be killed
+eventually, however system daemons can sensibly be given a little "grace".
+Also, the UIDs used by a system daemon vary from system to system.
 
-On Fri, Mar 23, 2001 at 10:13:44PM +0000, Alan Cox wrote:
-> > 
-> > I really need to know any *specific* issues with RAWIO.
-> 
-> All I know is that Stephen said he had a set of patches needed to fix rawio.
-> I've not applied them nor afaik has Linus.
+>b. if uid between 100 to 500 or CAP-SYS equivalent enabled
+>	set it too a lower priority, so if it is at fault it will happen
+>slower
+>            giving more time before the system collapses
 
-Ben LaHaise has been testing Oracle on raw IO with the new patches,
-and I only got the thumbs up on that yesterday.  Patch below.
+Not slowly enough.  When your system is thrashing, the CPU is the resource
+under least pressure, so "nice" values and priorities have virtually zero
+effect.  In any case, under OOM conditions the system has *already*
+collapsed and we *have* to kill something for the system to keep running.
 
-This fixes:
+>c.  if a task is nice'd then immediately put the task too sleep, and schedule
+>all code / data too be swapped out, or thrown away as appropiate. do not
+>reschedule the task too continue until memory is available
 
- Fix two problems when faulting in pages for direct access:
-  Check pmd and pgd entries for validity in follow page; 
-  Be prepared to call handle_mm_fault more than once if necessary 
-  to complete the page fault.
+In OOM conditions there is no swap space left to do what you suggest.  This
+is a sensible solution for when thrashing is the only problem...
 
- Allow raw devices to be unbound by binding to dev (0,0)
+>d. kill any normal user interactive tasks that is started during a memory
+>crisis.
 
- Use SetPageDirty to mark pages dirty in memory after a read from disk
+Define "memory crisis".  However, this is a relatively sensible solution.
 
- Wait for pending IO correctly if an error occurs during IO
+>allocate a pool of memory at system start up that is too be released to the
+>memory pool when the system is in a memory crisis. This will reduce system
+>swapping, and allow the system too stablize slightly
 
- Return -EIO if an IO error occurs in the first block of the IO
+One of my patches already tries to do this, in a way.  It doesn't yet
+provide a hard barrier, but it does prevent applications from hogging the
+entire memory on the system (at least, without expending some effort into
+it).
 
-Cheers,
- Stephen
+>report any task asking for large pool of memory while the system is in
+>oom crisis. if uid > 500 and was started from an interactive shell it should
+>be killed.
+
+See above.  malloc() fails, which tells the application there is no more
+memory in the system.  A well-written application will respond to this and
+use more memory-conservative techniques.  A poorly-written application will
+segfault.  End Of Problem.  Now to make memory accounting work properly so
+these tests are reliable...
+
+>when the crisis is ended, re-adquire the memory pool for later usage.
+
+It is never given up, except when it is needed by the kernel itself (eg. to
+swap in pages or (in the absence of true memory accounting) to provide COW
+space.
+
+>Prong 3 providing  information about oom crisis too user land
+>
+>create /proc/vm/oom_crisis this would be readonly file owned by root it would
+>report if the system is in crisis and the uid of any process that is asking
+>for large amounts of ram while the system
+>is in crisis.
+
+This kind of information is already available using /proc - applications
+just have to look int he right places.
+
+>create a SIGDANGER handler that is sent out too all tasks that have
+>registered a handler when the kernel enters oom_kill, give these tasks a high
+>priority access too system resources.
+
+This is a fairly good idea, why does it look so familiar?  :)  SIGDANGER
+would be sent to all processes when memory availablility goes below a
+threshold, ie. when there is still enough memory left to handle the
+situation.  The default handler would be a no-op, preserving compatibility.
+However, the notion of "high priority access to resources" is not currently
+feasible (or necessary).
+
+>this would enable user land programs too deal with the situation with out
+>continuous polling free ram/swap. They could email/page sysadmin and user
+>about the crisis and add additional swap resources and kill any know  non
+>essential tasks. and probe system for possible broken tasks, such as
+>netscape-common tasks not connected too netscape client, at least i have been
+>known too find these when netscape crashes.
+
+Interesting applications for this signal.  However, this is entirely a
+userspace issue as to what to do with the signal - the kernel's job is to
+provide it (if we decide to, that is).
+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
+
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.4.2-ac26.raw-fixes.patch"
-
---- linux-2.4.2-ac26/drivers/char/raw.c.~1~	Tue Mar 27 18:41:07 2001
-+++ linux-2.4.2-ac26/drivers/char/raw.c	Wed Mar 28 03:33:16 2001
-@@ -184,7 +184,8 @@
- 			 * major/minor numbers make sense. 
- 			 */
- 
--			if (rq.block_major == NODEV || 
-+			if ((rq.block_major == NODEV && 
-+			     rq.block_minor != NODEV) ||
- 			    rq.block_major > MAX_BLKDEV ||
- 			    rq.block_minor > MINORMASK) {
- 				err = -EINVAL;
-@@ -313,24 +314,21 @@
- 		err = map_user_kiobuf(rw, iobuf, (unsigned long) buf, iosize);
- 		if (err)
- 			break;
--#if 0
--		err = lock_kiovec(1, &iobuf, 1);
--		if (err) 
--			break;
--#endif
--	
-+
- 		for (i=0; i < blocks; i++) 
- 			b[i] = blocknr++;
- 		
- 		err = brw_kiovec(rw, 1, &iobuf, dev, b, sector_size);
--
-+		if (rw == READ && err > 0)
-+			mark_dirty_kiobuf(iobuf, err);
-+		
- 		if (err >= 0) {
- 			transferred += err;
- 			size -= err;
- 			buf += err;
- 		}
- 
--		unmap_kiobuf(iobuf); /* The unlock_kiobuf is implicit here */
-+		unmap_kiobuf(iobuf);
- 
- 		if (err != iosize)
- 			break;
---- linux-2.4.2-ac26/fs/buffer.c.~1~	Tue Mar 27 18:41:40 2001
-+++ linux-2.4.2-ac26/fs/buffer.c	Wed Mar 28 03:33:16 2001
-@@ -2016,12 +2016,12 @@
- 
- static int wait_kio(int rw, int nr, struct buffer_head *bh[], int size)
- {
--	int iosize;
-+	int iosize, err;
- 	int i;
- 	struct buffer_head *tmp;
- 
--
- 	iosize = 0;
-+	err = 0;
- 	spin_lock(&unused_list_lock);
- 
- 	for (i = nr; --i >= 0; ) {
-@@ -2038,13 +2038,16 @@
-                            clearing iosize on error calculates the
-                            amount of IO before the first error. */
- 			iosize = 0;
-+			err = -EIO;
- 		}
- 		__put_unused_buffer_head(tmp);
- 	}
- 	
- 	spin_unlock(&unused_list_lock);
- 
--	return iosize;
-+	if (iosize)
-+		return iosize;
-+	return err;
- }
- 
- /*
-@@ -2157,29 +2160,22 @@
- 		} /* End of page loop */		
- 	} /* End of iovec loop */
- 
-+ error:
- 	/* Is there any IO still left to submit? */
- 	if (bhind) {
--		err = wait_kio(rw, bhind, bh, size);
--		if (err >= 0)
--			transferred += err;
-+		int tmp_err;
-+		tmp_err = wait_kio(rw, bhind, bh, size);
-+		if (tmp_err >= 0)
-+			transferred += tmp_err;
- 		else
--			goto finished;
-+			if (!err)
-+				err = tmp_err;
- 	}
- 
-  finished:
- 	if (transferred)
- 		return transferred;
- 	return err;
--
-- error:
--	/* We got an error allocating the bh'es.  Just free the current
--           buffer_heads and exit. */
--	spin_lock(&unused_list_lock);
--	for (i = bhind; --i >= 0; ) {
--		__put_unused_buffer_head(bh[i]);
--	}
--	spin_unlock(&unused_list_lock);
--	goto finished;
- }
- 
- /*
---- linux-2.4.2-ac26/include/linux/iobuf.h.~1~	Thu Feb 22 00:10:12 2001
-+++ linux-2.4.2-ac26/include/linux/iobuf.h	Wed Mar 28 03:33:16 2001
-@@ -64,6 +64,7 @@
- void	unmap_kiobuf(struct kiobuf *iobuf);
- int	lock_kiovec(int nr, struct kiobuf *iovec[], int wait);
- int	unlock_kiovec(int nr, struct kiobuf *iovec[]);
-+void	mark_dirty_kiobuf(struct kiobuf *iobuf, int bytes);
- 
- /* fs/iobuf.c */
- 
---- linux-2.4.2-ac26/mm/memory.c.~1~	Tue Mar 27 18:41:50 2001
-+++ linux-2.4.2-ac26/mm/memory.c	Wed Mar 28 03:36:42 2001
-@@ -382,20 +382,33 @@
- /*
-  * Do a quick page-table lookup for a single page. 
-  */
--static struct page * follow_page(unsigned long address) 
-+static struct page * follow_page(unsigned long address, int write) 
- {
- 	pgd_t *pgd;
- 	pmd_t *pmd;
-+	pte_t *ptep, pte;
- 
- 	pgd = pgd_offset(current->mm, address);
-+	if (pgd_none(*pgd) || pgd_bad(*pgd))
-+		goto out;
-+
- 	pmd = pmd_offset(pgd, address);
--	if (pmd) {
--		pte_t * pte = pte_offset(pmd, address);
--		if (pte && pte_present(*pte))
--			return pte_page(*pte);
-+	if (pmd_none(*pmd) || pmd_bad(*pmd))
-+		goto out;
-+
-+	ptep = pte_offset(pmd, address);
-+	if (!ptep)
-+		goto out;
-+
-+	pte = *ptep;
-+	if (pte_present(pte)) {
-+		if (!write ||
-+		    (pte_write(pte) && pte_dirty(pte)))
-+			return pte_page(pte);
- 	}
--	
--	return NULL;
-+
-+out:
-+	return 0;
- }
- 
- /* 
-@@ -425,7 +438,7 @@
- 	struct vm_area_struct *	vma = 0;
- 	struct page *		map;
- 	int			i;
--	int			datain = (rw == READ);
-+	int			to_user = (rw == READ);
- 	
- 	/* Make sure the iobuf is not already mapped somewhere. */
- 	if (iobuf->nr_pages)
-@@ -448,13 +461,18 @@
- 	iobuf->length = len;
- 	
- 	i = 0;
-+
-+	spin_lock(&mm->page_table_lock);
- 	
- 	/* 
- 	 * First of all, try to fault in all of the necessary pages
- 	 */
- 	while (ptr < end) {
- 		if (!vma || ptr >= vma->vm_end) {
-+
-+			spin_unlock(&mm->page_table_lock);
- 			vma = find_vma(current->mm, ptr);
-+
- 			if (!vma) 
- 				goto out_unlock;
- 			if (vma->vm_start > ptr) {
-@@ -463,34 +481,49 @@
- 				if (expand_stack(vma, ptr))
- 					goto out_unlock;
- 			}
--			if (((datain) && (!(vma->vm_flags & VM_WRITE))) ||
--					(!(vma->vm_flags & VM_READ))) {
-+			if (((to_user) && (!(vma->vm_flags & VM_WRITE))) ||
-+			    (!(vma->vm_flags & VM_READ))) {
- 				err = -EACCES;
- 				goto out_unlock;
- 			}
-+
-+			spin_lock(&mm->page_table_lock);
- 		}
--		if (handle_mm_fault(current->mm, vma, ptr, datain) <= 0) 
--			goto out_unlock;
--		spin_lock(&mm->page_table_lock);
--		map = follow_page(ptr);
--		if (!map) {
-+		while (1) {
-+			int ret;
-+			
-+			map = follow_page(ptr, to_user);
-+			if (map) {
-+				map = get_page_map(map);
-+				if (map) {
-+					flush_dcache_page(map);
-+					atomic_inc(&map->count);
-+				} else
-+					printk (KERN_INFO
-+						"Mapped page missing [%d]\n", 
-+						i);
-+				break;
-+			}
-+			
- 			spin_unlock(&mm->page_table_lock);
--			dprintk (KERN_ERR "Missing page in map_user_kiobuf\n");
--			goto out_unlock;
-+
-+			ret = handle_mm_fault(current->mm, vma, ptr, to_user);
-+			if (ret <= 0) {
-+				if (ret)
-+					err = -ENOMEM;
-+				goto out_unlock;
-+			}
-+
-+			spin_lock(&mm->page_table_lock);
- 		}
--		map = get_page_map(map);
--		if (map) {
--			flush_dcache_page(map);
--			atomic_inc(&map->count);
--		} else
--			printk (KERN_INFO "Mapped page missing [%d]\n", i);
--		spin_unlock(&mm->page_table_lock);
-+		
- 		iobuf->maplist[i] = map;
- 		iobuf->nr_pages = ++i;
- 		
- 		ptr += PAGE_SIZE;
- 	}
- 
-+	spin_unlock(&mm->page_table_lock);
- 	up_write(&mm->mmap_sem);
- 	dprintk ("map_user_kiobuf: end OK\n");
- 	return 0;
-@@ -524,6 +557,39 @@
- 	
- 	iobuf->nr_pages = 0;
- 	iobuf->locked = 0;
-+}
-+
-+
-+/*
-+ * Mark all of the pages in a kiobuf as dirty 
-+ *
-+ * We need to be able to deal with short reads from disk: if an IO error
-+ * occurs, the number of bytes read into memory may be less than the
-+ * size of the kiobuf, so we have to stop marking pages dirty once the
-+ * requested byte count has been reached.
-+ */
-+
-+void mark_dirty_kiobuf(struct kiobuf *iobuf, int bytes)
-+{
-+	int index, offset, remaining;
-+	struct page *page;
-+	
-+	index = iobuf->offset >> PAGE_SHIFT;
-+	offset = iobuf->offset & ~PAGE_MASK;
-+	remaining = bytes;
-+	if (remaining > iobuf->length)
-+		remaining = iobuf->length;
-+	
-+	while (remaining > 0 && index < iobuf->nr_pages) {
-+		page = iobuf->maplist[index];
-+		
-+		if (!PageReserved(page))
-+			SetPageDirty(page);
-+
-+		remaining -= (PAGE_SIZE - offset);
-+		offset = 0;
-+		index++;
-+	}
- }
- 
- 
-
---EVF5PPMfhYS0aIcm--

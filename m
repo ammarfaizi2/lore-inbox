@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268340AbUJGWvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUJGW4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268340AbUJGWvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269852AbUJGWSo
+	id S267923AbUJGW4h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269892AbUJGW4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:18:44 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:7808 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S269856AbUJGWRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:17:52 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: lsm: add bsdjail documentation
-Date: Fri, 08 Oct 2004 00:17:09 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.10.07.22.17.09.105723@smurf.noris.de>
-References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094358.6939.13.camel@serge.austin.ibm.com>
-NNTP-Posting-Host: kiste.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: server.smurf.noris.de 1097187429 31272 192.109.102.35 (7 Oct 2004 22:17:09 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Thu, 7 Oct 2004 22:17:09 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Thu, 7 Oct 2004 18:56:05 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:28655 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267923AbUJGWjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:39:49 -0400
+Message-ID: <4165C58A.9030803@nortelnetworks.com>
+Date: Thu, 07 Oct 2004 16:39:06 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: martijn@entmoot.nl, hzhong@cisco.com, jst1@email.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       davem@redhat.com
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com>	<41658C03.6000503@nortelnetworks.com>	<015f01c4acbe$cf70dae0$161b14ac@boromir>	<4165B9DD.7010603@nortelnetworks.com>	<20041007150035.6e9f0e09.davem@davemloft.net>	<4165C20D.8020808@nortelnetworks.com> <20041007152634.5374a774.davem@davemloft.net>
+In-Reply-To: <20041007152634.5374a774.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Serge Hallyn wrote:
+David S. Miller wrote:
+> Chris Friesen <cfriesen@nortelnetworks.com> wrote:
 
-> +       echo -n "ip 2.2.2.2" > /proc/$$/attr/exec (optional)
+>>What I had in mind was that the non-blocking file descriptor have select() 
+>>return without verifying the checksum, and if it was discovered to be bad at 
+>>recvmsg() time, we return EAGAIN.
+> 
+> 
+> That's what we do.  In net/ipv4/udp.c:udp_recvmsg()
 
-Please use RFC private addresses in example code.
+Yes.  I realize this, and agree with that behaviour.
 
-That being said, bsdjail is a very good idea (which is why we're stealing
-it from BSD after all ...). It affords lightweight compartmentalization,
-in other words a chroot-on-steroids, which is exactly what I need to split
-one box into a couple of mostly-independent realms, and I assume that many
-ISP/ASP/whatever hosting people will agree.
+However, you chopped off what I consider the interesting part of my post.   I 
+propose that if we call select() on a blocking file descriptor, we verify the 
+checksum before saying that the socket is readable.  Then, at recvmsg() time, if 
+it hasn't been checked already we would check it (to allow for the case of 
+blocking socket without select()).
 
-Anyway, that's my vote for adding it to the kernel.
+This allows for easy porting of apps that expect a blocking recvmsg() after 
+select() to always succeed.
 
--- 
-Matthias Urlichs
+Thus, you end up with:
+
+nonblocking socket -- exactly as current
+blocking socket without select -- exactly as current
+blocking socket with select -- checksum verified before select() returns
+
+
+Chris

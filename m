@@ -1,88 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUG1RsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUG1RvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267357AbUG1RsS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 13:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267348AbUG1RsS
+	id S267360AbUG1RvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 13:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267358AbUG1RvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 13:48:18 -0400
-Received: from ns1.landhost.net ([66.98.188.87]:30913 "EHLO
-	secure.landhost.net") by vger.kernel.org with ESMTP id S267383AbUG1Rrp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 13:47:45 -0400
-Message-ID: <1408.81.36.109.252.1091036862.squirrel@www.marcansoft.com>
-Date: Wed, 28 Jul 2004 12:47:42 -0500 (CDT)
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic 
-     (maybeRLT-8139 related)
-From: hector@marcansoft.com
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Cc: "Pasi Sjoholm" <ptsjohol@cc.jyu.fi>
-User-Agent: SquirrelMail/1.4.0
+	Wed, 28 Jul 2004 13:51:09 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:17370 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S267360AbUG1RvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 13:51:06 -0400
+Message-ID: <4107E788.8030903@eidetix.com>
+Date: Wed, 28 Jul 2004 19:51:04 +0200
+From: "David N. Welton" <davidw@eidetix.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - secure.landhost.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32268 769] / [47 12]
-X-AntiAbuse: Sender Address Domain - secure.landhost.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+To: linux-kernel@vger.kernel.org
+CC: Sascha Wilde <wilde@sha-bang.de>
+Subject: 2.6 kernel won't reboot on AMD system (no, not the BIOS...)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 27 Jul 2004, Robert Olsson wrote:
->
->>  > Yeah, when the ksoftirqd is taking all the cpu it will be like that,
->> but
->>  > when the kernel is behaving normally the starving diff is between
->> 0->1sec.
->>  Well ksoftirqd makes your kernel load just visible which is good and
->>  ksofirqd gets accounted for this when softirq's get deferred to it.
->>  It may look like goes from 0 to 100% but thats probably not the case.
->>  The problem is we can starve userland at high loads. As said we were
->>  trying some way to cure this I may have some old patch if you like to
->> try.
->
-> Ok, as I said before I'm willing to test your patches.
->
-> It would be nice that one could use the full capacity of his/her computer.
-> This is not a big problem for everyday use for a workstation but prevents
-> 2.6-series to be used in production-enviroments in the servers.
-> But hey.. we need to do some work and maybe we will resolve this. =)
->
-> --
-> Pasi Sjöholm
+[ Please CC replies to me. ]
 
-Hi all, and first of all thanks for all the feedback!
+[ Sorry for the rerun, but I guess everyone was away at the OLS, so I'll 
+try again, operating on the squeaky wheel principle. ]
 
-Currently i'm on vacation (reading this through webmail, if you notice
-anything strange please tell me) and I won't be able to test anything, but
-Monday I'm back.
+Before you hit reply or erase, no, I'm not talking about the machine not
+getting past the BIOS check complaining that there is no keyboard present.
 
-As I mentioned in the first e-mail, I can reproduce this under heavy
-_packet_ load, UDP load actually, with 5-20 byte packets at a moderate
-rate. No other CPU usage is needed to reproduce it, so it seems to be more
-related to the number of packets than to the bytes/sec. Presumably more
-packets means more interrupts, hence this behaviour. Also, the fact that
-this packet stream is actually a debug-mesage protocol stream which
-basically gets dumped to the screen (each UDP packet is one line) might
-account for a slightly increased CPU load.
+Kernel 2.6.7
 
-I'm willing to test any patches and other stuff that may be needed, I have
-free time currently.
+model name      : AMD Athlon(tm) XP 2400+
 
-BTW this actually is a pretty big pain in the ass for me, since I need
-those messages to get feedback from an application I'm developing. I can
-reduce them, but then I get less feedback.
+motherboard: http://www.ecsusa.com/products/km400-m2.html
 
-This seems to be something resource-related since the first 15-30 minutes
-all goes well, but it just starts (not having touched the computer) and
-then there's no going back. I can (with some effort) close down X and
-telnet in, but performance is very bad (even the framebuffer screen takes
-some time to refresh after a line scroll--and that's a kernel job AFAIK)
+... not sure what else might be useful... apci=off added to boot
+options.  Preemptive kernel.
 
-BTW when I get back I'll test it with the old 10mbps card that I use for
-the external connection (internet) to see if it still happens with the
-other driver. I might be able to try other cards as well.
+In any case, the machine in question does not reboot.  I traced the
+problem down to the mach_reboot but it doesn't get past those assembly
+instructions.  Things do seem to work alright if a keyboard is
+installed.  Otherwise, the machine just sits there, no longer responsive
+to pings or anything else.
+
+This appears to be a somewhat common problem, as I found several other
+posters discussing it:
+
+http://lkml.org/lkml/2004/3/12/248
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108868695814658&w=2
+
+any ideas on what parts of the kernel to look at in order to determine
+what is causing this?  I need to fix it, and I don't know where to start 
+looking.
+
+Thankyou,
+-- 
+David N. Welton
+davidw@eidetix.com
+

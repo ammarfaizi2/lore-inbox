@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVADD6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVADEF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVADD6w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 22:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVADD6w
+	id S262013AbVADEF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 23:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVADEF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 22:58:52 -0500
-Received: from dp.samba.org ([66.70.73.150]:52701 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262012AbVADD6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 22:58:50 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16858.5104.353423.247503@samba.org>
-Date: Tue, 4 Jan 2005 14:56:32 +1100
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: sfrench@samba.org, samba-technical@lists.samba.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ntfs-dev@lists.sourceforge.net, aia21@cantab.net,
-       "H. Peter Anvin" <hpa@zytor.com>, hirofumi@mail.parknet.co.jp
-Subject: Re: FAT, NTFS, CIFS and DOS attributes
-In-Reply-To: <3D55717A-5E02-11D9-B689-000393ACC76E@mac.com>
+	Mon, 3 Jan 2005 23:05:27 -0500
+Received: from li4-142.members.linode.com ([66.220.1.142]:9482 "EHLO
+	li4-142.members.linode.com") by vger.kernel.org with ESMTP
+	id S262013AbVADEFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 23:05:23 -0500
+Message-ID: <27793.199.43.32.68.1104811520.squirrel@li4-142.members.linode.com>
+In-Reply-To: <41D9E3AA.5050903@zytor.com>
 References: <41D9C635.1090703@zytor.com>
-	<16857.56805.501880.446082@samba.org>
-	<41D9E3AA.5050903@zytor.com>
-	<16857.59946.683684.231658@samba.org>
-	<41D9EDF6.1060600@zytor.com>
-	<16857.62250.259275.305392@samba.org>
-	<41D9F65E.3030301@zytor.com>
-	<16857.63978.65838.823252@samba.org>
-	<AA7F1C76-5DF7-11D9-B689-000393ACC76E@mac.com>
-	<16858.1074.740440.917427@samba.org>
-	<3D55717A-5E02-11D9-B689-000393ACC76E@mac.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+    <16857.56805.501880.446082@samba.org> <41D9E3AA.5050903@zytor.com>
+Date: Mon, 3 Jan 2005 23:05:20 -0500 (EST)
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+From: "Michael B Allen" <mba2000@ioplex.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: tridge@samba.org, sfrench@samba.org, aia21@cantab.net,
+       linux-ntfs-dev@lists.sourceforge.net, samba-technical@lists.samba.org,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       hirofumi@mail.parknet.co.jp
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle,
+H. Peter Anvin said:
+> In other words, I'm inclined to define simple system attributes or just
+> go back to the original ioctl() patch for the DOS filesystems as seen by
+> the kernel.
 
- > I was thinking something more along the lines of a more complex and
- > detailed scheme that is a superset of both NT ACLs and POSIX ACLs.
+Well if you're just interested in DOS attributes you don't care about how
+Samba handles ACLs. You're only interested in about 3 bits. Anyway I have
+an idea...
 
-superset is hard, as a uid_t/gid_t is only superfically similar to a
-windows SID. Samba has to do quite a lot of complex stuff to map
-between general SIDs and posix IDs. It can't be done in any reasonable
-fashion without being able to talk MSRPC to domain controllers, or at
-least having a (potentially quite large) persistent database of
-mappings.
+If the attrib member in xattr_DosInfo2 was moved to the beginning of the
+structure the all attrib members would always be encoded at the same
+offset within the data returned by getxattr regardless of what info
+strucutre was used. So you could get and set these attributes as
+user.DosAttrib in a fairly compatible way.
 
-The schemes that attempt to do general SID -> uid/gid mappings via
-fixed algorithmic mappings are hopeless. They are great for toy demos,
-but useless for real deployments.
-
-Cheers, Tridge
+Mike

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268049AbUHQAYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUHQAYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268049AbUHQAYb (ORCPT <rfc822;willy@w.ods.org>);
+	id S268039AbUHQAYb (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 16 Aug 2004 20:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUHQAXJ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268048AbUHQAXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 20:23:09 -0400
-Received: from web14923.mail.yahoo.com ([216.136.225.7]:8121 "HELO
-	web14923.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268042AbUHQAWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 20:22:42 -0400
-Message-ID: <20040817002242.14379.qmail@web14923.mail.yahoo.com>
-Date: Mon, 16 Aug 2004 17:22:42 -0700 (PDT)
+	Mon, 16 Aug 2004 20:23:02 -0400
+Received: from web14928.mail.yahoo.com ([216.136.225.87]:40638 "HELO
+	web14928.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268039AbUHQAWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 20:22:32 -0400
+Message-ID: <20040817002231.14910.qmail@web14928.mail.yahoo.com>
+Date: Mon, 16 Aug 2004 17:22:31 -0700 (PDT)
 From: Jon Smirl <jonsmirl@yahoo.com>
 Subject: DRM and probing (was: your mail)
 To: Christoph Hellwig <hch@infradead.org>
@@ -45,9 +45,8 @@ Jon Smirl
 jonsmirl@yahoo.com
 
 
-	
 		
 __________________________________
 Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+Yahoo! Mail is new and improved - Check it out!
+http://promotions.yahoo.com/new_mail

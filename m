@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVA3LC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVA3LIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVA3LC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 06:02:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVA3LC5
+	id S261673AbVA3LIY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 06:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVA3LIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 06:02:57 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:31627 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261670AbVA3LCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 06:02:55 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Nelson <evildarkarchon@gmail.com>
-Subject: Re: 2.6.11-rc2-mm2
-Date: Sun, 30 Jan 2005 12:03:12 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050129131134.75dacb41.akpm@osdl.org> <891493700501292220216e4186@mail.gmail.com>
-In-Reply-To: <891493700501292220216e4186@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Jan 2005 06:08:24 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:13586 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261673AbVA3LHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 06:07:53 -0500
+Date: Sun, 30 Jan 2005 12:16:34 +0100
+To: airlied@gmail.com
+Cc: Andreas Hartmann <andihartmann@01019freenet.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, further binary search result
+Message-ID: <20050130111634.GA9269@hh.idb.hist.no>
+References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no> <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de> <21d7e99705012205012c95665@mail.gmail.com> <41F76B4D.8090905@hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501301203.13240.rjw@sisk.pl>
+In-Reply-To: <41F76B4D.8090905@hist.no>
+User-Agent: Mutt/1.5.6+20040907i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 30 of January 2005 07:20, Andrew Nelson wrote:
-> I got a compile error:
-> arch/x86_64/kernel/asm-offsets.c: In function `main':
-> arch/x86_64/kernel/asm-offsets.c:65: error: invalid application of
-> `sizeof' to incomplete type `pbe'
-> arch/x86_64/kernel/asm-offsets.c:66: error: dereferencing pointer to
-> incomplete type
-> arch/x86_64/kernel/asm-offsets.c:67: error: dereferencing pointer to
-> incomplete type
-> make[1]: *** [arch/x86_64/kernel/asm-offsets.s] Error 1
-> make: *** [arch/x86_64/kernel/asm-offsets.s] Error 2
 
-I don't see it.  Have you started from a fresh tree?
-
-Greets,
-RJW
+>> What is the most useful to do now?
+>> Binary searching for the crash between bk15 and rc2?   Or:]
+>
+> I'd keep looking for the crash... the out of memory will probably
+> disappear with a later snapshot..
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+After sorting out a stupid build problem, here is the result for
+the binary search for the crash.
+2.6.9         crash
+2.6.9-rc2     pci-oom
+2.6.9-rc3     crash
+2.6.9-rc2-bk7 crash
+2.6.9-rc2-bk4 crash
+2.6.9-rc2-bk2 pci-oom
+2.6.9-rc2-bk3 krash in ifconfig  
+
+Up to 2.6.9-rc2-bk2 we don't get a crash, instead the X log shows this:
+
+(EE) RADEON(0): [pci] Out of memory (-1007)
+
+and gives up on drm in an orderly fashion.  
+2.6.9-rc2-bk4 crashes though.  As usual, the X log ends with:
+(II) LoadModule: "int10"
+(II) Reloading /usr/X11R6/lib/modules/linux/libint10.a
+(II) RADEON(0): initializing int10
+(**) RADEON(0): Option "InitPrimary" "on"
+(II) Truncating PCI BIOS Length to 53248
+
+
+2.6.9-rc2-bk3 wasn't tested further, because the kernel dies upon
+running "ifconfig" which must be some other temporary bug.
+X will probably be difficult without IPv4 anyway.
+
+Helge Hafting 
+

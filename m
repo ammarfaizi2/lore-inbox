@@ -1,167 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUINBvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269103AbUINB77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269102AbUINBvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 21:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUINBvJ
+	id S269103AbUINB77 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 21:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUINB77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 21:51:09 -0400
-Received: from c-24-10-253-213.client.comcast.net ([24.10.253.213]:722 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269102AbUINBuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 21:50:50 -0400
-Message-Id: <200409140151.i8E1p4ZE023810@localhost.localdomain>
-Subject: [patch 2/2] Incorrect PCI interrupt assignment on ES7000 for pin zero
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Natalie.Protasevich@unisys.com
-From: Natalie.Protasevich@unisys.com
-Date: Mon, 13 Sep 2004 19:51:03 -0600
+	Mon, 13 Sep 2004 21:59:59 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:2976 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269103AbUINB75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 21:59:57 -0400
+Message-ID: <4146508F.9080700@yahoo.com.au>
+Date: Tue, 14 Sep 2004 11:59:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
+References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com> <20040909162245.606403d3.akpm@osdl.org> <20040910000717.GR3106@holomorphy.com> <414133EB.8020802@yahoo.com.au> <20040910174915.GA4750@logos.cnet> <20040912045636.GA2660@holomorphy.com> <4143D07E.3030408@yahoo.com.au> <20040913222127.GA23588@logos.cnet>
+In-Reply-To: <20040913222127.GA23588@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACPI driver uses zero as an error return while parsing _PRT. On ES7000, pin 0 on the first IO-APIC is used for a PCI device. While zero is a legitimate GSI, it gets discarded as invalid by the parser. This results in any device with an interrupt line wired to IRQ 0 will not be assigned an IRQ for that interrupt line. This causes failure of the slot that contains device wired to pin 0. Below is proposed code change to use "-1" as error return:
+Marcelo Tosatti wrote:
+>>Sure. And when you fill it with pages, they'll use up 32KB of dcache
+>>by using a single 64B line per page. Now that you've blown the cache,
+>>when you go to move those pages to another list, you'll have to pull
+>>them out of L2 again one at a time.
+>>
+>>OK, so a 511 item pagevec is pretty unlikely. How about a 64 item one
+>>with 128 byte cachelines, and you're touching two cachelines per
+>>page operation? That's 16K.
+> 
+> 
+> Nick, 
+> 
+> Note that you dont read/write data to the actual pages most of the 
+> times pagevec's are used. The great majority is just page management code.  
+> So we dont really blow the caches like you said.
+> 
 
+You're often pulling them off lists though which is what will do it.
+Not the actual page, but the struct page.
 
-Signed-off-by: Natalie Protasevich <Natalie.Protasevich@xxxxxxxxxx>
+> I agree we need more tests :) 
+> 
 
----
+Yep.
 
- linux-root/drivers/acpi/pci_irq.c  |   26 +++++++++++++-------------
- linux-root/drivers/acpi/pci_link.c |   10 +++++-----
- 2 files changed, 18 insertions(+), 18 deletions(-)
-
-diff -L vers/acpi/pci_irq.c -puN /dev/null /dev/null
-diff -puN drivers/acpi/pci_link.c~mypatch1 drivers/acpi/pci_link.c
---- linux/drivers/acpi/pci_link.c~mypatch1	2004-09-13 14:19:32.000000000 -0600
-+++ linux-root/drivers/acpi/pci_link.c	2004-09-13 14:30:06.000000000 -0600
-@@ -593,27 +593,27 @@ acpi_pci_link_get_irq (
- 	result = acpi_bus_get_device(handle, &device);
- 	if (result) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link device\n"));
--		return_VALUE(0);
-+		return_VALUE(-1);
- 	}
- 
- 	link = (struct acpi_pci_link *) acpi_driver_data(device);
- 	if (!link) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link context\n"));
--		return_VALUE(0);
-+		return_VALUE(-1);
- 	}
- 
- 	/* TBD: Support multiple index (IRQ) entries per Link Device */
- 	if (index) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid index %d\n", index));
--		return_VALUE(0);
-+		return_VALUE(-1);
- 	}
- 
- 	if (acpi_pci_link_allocate(link))
--		return_VALUE(0);
-+		return_VALUE(-1);
- 	   
- 	if (!link->irq.active) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Link active IRQ is 0!\n"));
--		return_VALUE(0);
-+		return_VALUE(-1);
- 	}
- 
- 	if (edge_level) *edge_level = link->irq.edge_level;
-diff -puN drivers/acpi/pci_irq.c~mypatch1 drivers/acpi/pci_irq.c
---- linux/drivers/acpi/pci_irq.c~mypatch1	2004-09-13 14:19:54.000000000 -0600
-+++ linux-root/drivers/acpi/pci_irq.c	2004-09-13 15:23:22.463717712 -0600
-@@ -249,14 +249,14 @@ acpi_pci_irq_lookup (
- 	entry = acpi_pci_irq_find_prt_entry(segment, bus_nr, device, pin); 
- 	if (!entry) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "PRT entry not found\n"));
--		return_VALUE(0);
-+		return_VALUE(-1);
- 	}
- 	
- 	if (entry->link.handle) {
- 		irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index, edge_level, active_high_low);
--		if (!irq) {
-+		if (irq < 0) {
- 			ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Invalid IRQ link routing entry\n"));
--			return_VALUE(0);
-+			return_VALUE(-1);
- 		}
- 	} else {
- 		irq = entry->link.index;
-@@ -277,7 +277,7 @@ acpi_pci_irq_derive (
- 	int			*active_high_low)
- {
- 	struct pci_dev		*bridge = dev;
--	int			irq = 0;
-+	int			irq = -1;
- 	u8			bridge_pin = 0;
- 
- 	ACPI_FUNCTION_TRACE("acpi_pci_irq_derive");
-@@ -289,7 +289,7 @@ acpi_pci_irq_derive (
- 	 * Attempt to derive an IRQ for this device from a parent bridge's
- 	 * PCI interrupt routing entry (eg. yenta bridge and add-in card bridge).
- 	 */
--	while (!irq && bridge->bus->self) {
-+	while (irq < 0 && bridge->bus->self) {
- 		pin = (pin + PCI_SLOT(bridge->devfn)) % 4;
- 		bridge = bridge->bus->self;
- 
-@@ -299,7 +299,7 @@ acpi_pci_irq_derive (
- 			if (!bridge_pin) {
- 				ACPI_DEBUG_PRINT((ACPI_DB_INFO, 
- 					"No interrupt pin configured for device %s\n", pci_name(bridge)));
--				return_VALUE(0);
-+				return_VALUE(-EINVAL);
- 			}
- 			/* Pin is from 0 to 3 */
- 			bridge_pin --;
-@@ -310,9 +310,9 @@ acpi_pci_irq_derive (
- 			pin, edge_level, active_high_low);
- 	}
- 
--	if (!irq) {
-+	if (irq < 0) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Unable to derive IRQ for device %s\n", pci_name(dev)));
--		return_VALUE(0);
-+		return_VALUE(-EINVAL);
- 	}
- 
- 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Derive IRQ %d for device %s from %s\n",
-@@ -327,7 +327,7 @@ acpi_pci_irq_enable (
- 	struct pci_dev		*dev)
- {
- 	int			irq = 0;
--	u8			pin = 0;
-+	u8			pin = -1;
- 	int			edge_level = ACPI_LEVEL_SENSITIVE;
- 	int			active_high_low = ACPI_ACTIVE_LOW;
- 
-@@ -358,24 +358,24 @@ acpi_pci_irq_enable (
- 	 * If no PRT entry was found, we'll try to derive an IRQ from the
- 	 * device's parent bridge.
- 	 */
--	if (!irq)
-+	if (irq < 0)
-  		irq = acpi_pci_irq_derive(dev, pin, &edge_level, &active_high_low);
-  
- 	/*
- 	 * No IRQ known to the ACPI subsystem - maybe the BIOS / 
- 	 * driver reported one, then use it. Exit in any case.
- 	 */
--	if (!irq) {
-+	if (irq < 0) {
- 		printk(KERN_WARNING PREFIX "PCI interrupt %s[%c]: no GSI",
- 			pci_name(dev), ('A' + pin));
- 		/* Interrupt Line values above 0xF are forbidden */
--		if (dev->irq && (dev->irq <= 0xF)) {
-+		if (dev->irq >= 0 && (dev->irq <= 0xF)) {
- 			printk(" - using IRQ %d\n", dev->irq);
- 			return_VALUE(dev->irq);
- 		}
- 		else {
- 			printk("\n");
--			return_VALUE(0);
-+			return_VALUE(-EINVAL);
- 		}
-  	}
- 
-_

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBPICL>; Fri, 16 Feb 2001 03:02:11 -0500
+	id <S129069AbRBPI7K>; Fri, 16 Feb 2001 03:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbRBPICC>; Fri, 16 Feb 2001 03:02:02 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:38895 "HELO
-	dark.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S129027AbRBPIBp>; Fri, 16 Feb 2001 03:01:45 -0500
-To: Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de>
-Cc: Thomas Lau <lkthomas@hkicable.com>, linux-kernel@vger.kernel.org
-Subject: Re: finding Tekram SCSI dc395U linux patch driver:
-In-Reply-To: <XFMail.010215224622.Juergen.Schoew@unix-ag.org>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 16 Feb 2001 09:01:15 +0000
-In-Reply-To: <XFMail.010215224622.Juergen.Schoew@unix-ag.org>
-Message-ID: <m3d7cj0zok.fsf@giants.mandrakesoft.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.95
+	id <S129098AbRBPI7B>; Fri, 16 Feb 2001 03:59:01 -0500
+Received: from 13dyn103.delft.casema.net ([212.64.76.103]:50448 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129069AbRBPI65>; Fri, 16 Feb 2001 03:58:57 -0500
+Message-Id: <200102160858.JAA02472@cave.bitwizard.nl>
+Subject: 8139 full duplex?
+To: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Date: Fri, 16 Feb 2001 09:58:53 +0100 (MET)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de> writes:
 
-> Hi,
-> On 15-Feb-01 Thomas Lau wrote:
-> > hey, I found this driver on mandrake kernel sources, it's ac3, but I
-> > need ac14 code, also, why still not port this driver into kernel?
-> > the patch file already released 1 years ago
-> 
-> Have you checked http://www.garloff.de/kurt/linux/dc395/index.html
-> there ist a driver Version 1.32 (2000-12-02).
+Hi All,
 
-it's the version included with the mandrake kernel.
+I have a bunch of computers with 8139 cards. When I moved the cables
+over from my hub to my new switch all the "full duplex" lights came on
+immediately.
+
+Would this mean that the driver/card already were in full-duplex? That
+would explain me seeing way too many collisions on that old hub (which
+obviously doesn't support full-duplex).
+
+(Some machines run 2.2 kernels, others run 2.4 kernels some run the
+old driver, others run the 8139too driver). 
+
+				Roger. 
 
 -- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

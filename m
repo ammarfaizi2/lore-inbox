@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUITRlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUITRqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUITRlp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 13:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUITRlp
+	id S266880AbUITRqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 13:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266884AbUITRqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 13:41:45 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:3592 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S266864AbUITRln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 13:41:43 -0400
-Date: Mon, 20 Sep 2004 12:41:30 -0500
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm1
-Message-ID: <20040920174130.GA2142@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <20040916024020.0c88586d.akpm@osdl.org> <200409161345.56131.norberto+linux-kernel@bensa.ath.cx> <1095354962.2698.22.camel@laptop.fenrus.com> <200409161428.10717.norberto+linux-kernel@bensa.ath.cx> <20040916173022.GA6793@devserv.devel.redhat.com> <200409171929.i8HJTq92024659@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409171929.i8HJTq92024659@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.7 
-X-OriginalArrivalTime: 20 Sep 2004 17:41:33.0223 (UTC) FILETIME=[11B4CB70:01C49F39]
+	Mon, 20 Sep 2004 13:46:25 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:63658 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S266880AbUITRqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 13:46:21 -0400
+Message-ID: <414F0F87.9040903@drdos.com>
+Date: Mon, 20 Sep 2004 11:12:39 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jmerkey@galt.devicelogics.com
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2 bio sickness with large writes
+References: <4148D2C7.3050007@drdos.com> <20040916063416.GI2300@suse.de> <4149C176.2020506@drdos.com> <20040917073653.GA2573@suse.de> <20040917201604.GA12974@galt.devicelogics.com>
+In-Reply-To: <20040917201604.GA12974@galt.devicelogics.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 03:29:51PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> I admit not knowing the memory manager or the NVidia well enough to know what
-> they *should* be doing instead.....
+jmerkey@galt.devicelogics.com wrote:
 
-this is some ugly code. we're doing a lookup on a physical address to
-see if this is memory we previously allocated and returning a kernel
-pointer to the page.
+Jens,
 
-the particular snippet in question (that uses MAXMEM) is an ugly attempt
-to verify the address is a real physical address, before using __va()
-on something like an i/o region. A better approach than comparing
-MAXMEM would probably be to convert the address to a mapnr and compare
-to max_mapnr.
+Can you explain the circumstances related to the bio->bi_size callback. 
+You stated (and I have observed)
+that there may be callbacks from bi_end_io with bi_size set and that 
+these should be ignored and
+return a value of 1.
 
-I'll clean up this code and post a patch in the next couple of days.
-in the meantime, the current patches out there should be good.
+Can you explain to me under what circumstances I am likely to see this 
+behavior? In other words, would
+you explain the bio process start to finish with coalesced IO requests, 
+at least as designed. Also, the whole
+page and offset sematics in the interface are also somewhat burdensome. 
+Wouldn't a more reasonable
+interface for async IO be:
 
-Thanks,
-Terence
+address
+length
+address
+length
+
+rather than
+
+page structure
+offset in page structure
+page structure
+offset in page structure
+
+The hardware doesn't care about page mapping above it just needs to see 
+addresses (and not always 4 byte aligned addresses)
+and lengths for building scatter gather lists. Forcing page sematics 
+seems a little orthagonal.
+
+I can assume from the interface as designed that if you pass an offset 
+for a page that is not page aligned,
+and ask for a 4K write, then you will end up dropping the data on the 
+floor than spans beyond the end of the page.
+
+No offense, but this is **BUSTED** behavior for an asynch interface. The 
+whole page offset thing is a little
+difficult to use and pushes needless complexity to someone just needing 
+to submit IO to the disk. I think this
+is great for mmap for the VFS layer, and it dure makes it a lot easier 
+to submit IO for fs with the mmap layer,
+but as a general purpose async layer on top of generic_make_request, 
+it's a little tough to use, IMHO.
+
+Please advise,
+
+Jeff
+
+
+
+
 

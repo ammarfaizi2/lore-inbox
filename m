@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbULNXd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbULNX2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbULNXd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 18:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbULNX2h
+	id S261753AbULNX2G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 18:28:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbULNXXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 18:28:37 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:3228 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261745AbULNX1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 18:27:14 -0500
-Date: Tue, 14 Dec 2004 23:26:48 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Greg KH <greg@kroah.com>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
-In-Reply-To: <20041214164548.GA18817@kroah.com>
-Message-ID: <Pine.LNX.4.44.0412142304160.11826-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 14 Dec 2004 18:23:55 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:60873 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S261772AbULNXWp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 18:22:45 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <20041214132834.GA32390@elte.hu>
+References: <20041116134027.GA13360@elte.hu>
+	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
+	 <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
+	 <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
+	 <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu>
+	 <20041207141123.GA12025@elte.hu>  <20041214132834.GA32390@elte.hu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1103066516.12659.377.camel@cmn37.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Dec 2004 15:21:56 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Dec 2004, Greg KH wrote:
+On Tue, 2004-12-14 at 05:28, Ingo Molnar wrote:
+> i have released the -V0.7.33-0 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
 > 
-> So I finally try to get dri working on my laptop and I get the following
-> kernel bug when killing X (the program gish was running at the time):
+>   http://redhat.com/~mingo/realtime-preempt/
 > 
-> kernel BUG at mm/rmap.c:480!
-> EIP is at page_remove_rmap+0x32/0x40
-> Process gish (pid: 10864, threadinfo=c8aea000 task=c7c2c040)
->  [<c0141495>] zap_pte_range+0x135/0x290
->...
->  [<c0145f41>] exit_mmap+0x71/0x140
->  [<c01163c4>] mmput+0x24/0x80
->  [<c011a756>] do_exit+0x146/0x370
->...
+> this is mainly a port from -rc2-mm3 to -rc3-mm1. Changes:
+> 
+> - due to 2.6.10 release work the -mm kernel now is in fixes-mostly mode,
+>   but there's one interesting new feature: -rc3-mm1 introduced the
+>   ->unlocked_ioctl method which is now an official way to do BKL-less
+>   ioctls. I changed the ALSA ->ioctl_bkl changes in -RT to use this
+>   facility. The ALSA/sound guys might be interested in these bits. Thus
+>   another chunk of -RT could go upstream.
+> 
+> - IO-APIC/MSI fix from Steven Rostedt.
+> 
+> - fixed a tracer bug which would produce a kernel warning and an empty
+>   /proc/latency_trace if the trace buffer overflows.
 
-It's my BUG_ON(page_mapcount(page) < 0).
+I don't know which change did it, but I have network connectivity in my
+athlon64 test box with 0.7.33-0! Woohoo! [*]
+Thanks...
+-- Fernando
 
-We've had about one report per month, over the last six months.
-But this is the first citing "gish"; sometimes it's been "cc1".
+[*] as reported before: going up to runlevel 5 killed the network, up to
+leve 3 everything was fine, I was guessing probably due to some problem
+with X and the radeon driver. 
 
-I've given it a lot of thought, but I'm still mystified.  The last
-report turned out to be attributable to bad memory; but this BUG_ON
-is too persistent and specific to be put down to that in all cases.
-
-One case that's easy to explain: if it was preceded (perhaps hours
-earlier) by a "Bad page state" message and stacktrace, referring to
-the same page (in ecx, edx, ebp in your dump), which showed non-zero
-mapcount, then this is an after-effect of bad_page resetting mapcount.
-And the real problem was probably a double free, which bad_page noted,
-but carried on regardless.  Worth checking your logs for, let us know,
-but there have been several reports where that's definitely not so.
-
-I presume this was just a one-off?  If you can repeat it from time to
-time, I'll try to devise some printk'ing to shed more light.  You might
-wonder why I haven't got such a patch already prepared: precisely
-because I'm mystified and have no hypothesis worth testing out.
-
-In the meantime, any similar or related traces,
-please do send me to scan for commonalities.
-
-Thanks!
-Hugh
 

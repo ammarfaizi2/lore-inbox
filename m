@@ -1,66 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129638AbQKTXnf>; Mon, 20 Nov 2000 18:43:35 -0500
+	id <S129870AbQKTXsz>; Mon, 20 Nov 2000 18:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129732AbQKTXnZ>; Mon, 20 Nov 2000 18:43:25 -0500
-Received: from smtp5.libero.it ([193.70.192.55]:60073 "EHLO smtp5.libero.it")
-	by vger.kernel.org with ESMTP id <S129638AbQKTXnU>;
-	Mon, 20 Nov 2000 18:43:20 -0500
-Message-ID: <3A19B00A.C9D98839@libero.it>
-Date: Tue, 21 Nov 2000 00:13:14 +0100
-From: Abramo Bagnara <abramo.bagnara@libero.it>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: Michal Jaegermann <michal@harddata.com>
-CC: linux-kernel@vger.kernel.org, akenning@dog.topology.org
-Subject: Re: easy-to-fix bug in /dev/null driver
-In-Reply-To: <20001120160638.A14325@dog.topology.org> <20001121005304.A15760@dog.topology.org> <20001120123300.A19251@mail.harddata.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129874AbQKTXsp>; Mon, 20 Nov 2000 18:48:45 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:8976 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S129870AbQKTXsd>; Mon, 20 Nov 2000 18:48:33 -0500
+From: wichert@cistron.nl (Wichert Akkerman)
+Subject: Re: Bug in large files ext2 in 2.4.0-test11 ?
+Date: 20 Nov 2000 23:59:39 +0100
+Organization: Cistron Internet Services
+Message-ID: <8vcacr$196$1@picard.cistron.nl>
+In-Reply-To: <D69EF5976ED@vcnet.vc.cvut.cz> <20001120141641.Y619@visi.net>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Jaegermann wrote:
-> 
-> On Tue, Nov 21, 2000 at 12:53:04AM +1030, Alan Kennington wrote:
-> >
-> > I still think that write_null() should be rewritten as:
-> >
-> > ===================================================
-> > static ssize_t write_null(struct file * file, const char * buf,
-> >                           size_t count, loff_t *ppos)
-> > {
-> >         return (count <= 2147483647) ? count : 2147483647;
-> > }
-> > ===================================================
-> >
-> > This would fix the problem without introducing any new errors.
-> > (Unless someone change the definitions of ssize_t and size_t!!)
-> 
-> Someone already did.  Or, more precisely, there are platforms where
-> values used in 'return' above are bogus.
-> 
-> Shifting 1 up by sizeof(ssize_t) * 8 - 1 and subtracting one from
-> the result, in order to derive the maximal allowable value, might work.
-> I do not think that we have anything with non-8 bit bytes yet.
-> 
+In article <20001120141641.Y619@visi.net>,
+Ben Collins  <bcollins@debian.org> wrote:
+>work in our transition mechanisms. IOW, we don't have to just worry about
+>1 architecture and 1 distribution, we have to make sure upgrades work,
+>make sure things don't break, and ensure backward compatibility is retained
+>for 5 architectures that have released already (new archs don't need a
+>transisition obviously).
 
-I think it's time to provide SIZE_MAX and SSIZE_MAX along with
-size_t/ssize_t typedefs.
+Euhm, we released 6 architectures (arm, alpha, i386, m68k, powerpc and sparc)
+
+Wichert.
 
 -- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
-
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project is            http://www.alsa-project.org
-sponsored by SuSE Linux    http://www.suse.com
-
-It sounds good!
+   ________________________________________________________________
+ / Generally uninteresting signature - ignore at your convenience  \
+| wichert@cistron.nl                  http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbTGTHb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 03:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTGTHbZ
+	id S263025AbTGTHsS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 03:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTGTHsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 03:31:25 -0400
-Received: from mailf.telia.com ([194.22.194.25]:47078 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id S263187AbTGTHbV (ORCPT
+	Sun, 20 Jul 2003 03:48:18 -0400
+Received: from fc.capaccess.org ([151.200.199.53]:40973 "EHLO fc.capaccess.org")
+	by vger.kernel.org with ESMTP id S262931AbTGTHsQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 03:31:21 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: Software suspend testing in 2.6.0-test1
-References: <m2wueh2axz.fsf@telia.com> <20030717200039.GA227@elf.ucw.cz>
-	<20030717130906.0717b30d.akpm@osdl.org> <m2d6g8cg06.fsf@telia.com>
-	<20030718032433.4b6b9281.akpm@osdl.org>
-	<20030718152205.GA407@elf.ucw.cz> <m2el0nvnhm.fsf@telia.com>
-	<20030718094542.07b2685a.akpm@osdl.org> <m2oezrppxo.fsf@telia.com>
-	<20030718131527.7cf4ca5e.akpm@osdl.org> <m2wuee9hdo.fsf@telia.com>
-	<20030719180105.53b1226c.akpm@osdl.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 20 Jul 2003 09:45:52 +0200
-In-Reply-To: <20030719180105.53b1226c.akpm@osdl.org>
-Message-ID: <m2wuedvdxr.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Sun, 20 Jul 2003 03:48:16 -0400
+Message-id: <fc.0010c7b2009ad0a90010c7b2009ad0a9.9ad0aa@capaccess.org>
+Date: Sun, 20 Jul 2003 04:05:19 -0400
+Subject: Forreal Mode update
+To: linux-kernel@vger.kernel.org, linux-assembly@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@capaccess.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+I don't have interrupts working in Forreal Mode yet, but I think I've
+figured out what the two likely scenarios are. (Forreal Mode is
+unprotected USE32. PE=0, Dbit in CS descriptor =1.)
 
-> Peter Osterlund <petero2@telia.com> wrote:
-> >
-> > I have tried the change, but the writeout is still very slow. (Maybe
-> > somewhat faster than the original code, but far from being limited by
-> > disk bandwidth.)
-> 
-> Did you fix swsusp to leave kswapd unrefrigerated during the shrink?  If
-> not, the change wouldn't make any difference.
+PE=0 clearly means intvecs are 4-byte 8086-emulation-style, regardless of
+Dbit. The exact description of INT says so, and it would be a very big
+deal for it to be otherwise, like a special class of GDTless interrupt
+gate for a mode INTeL doesn't support, or who knows what. The issue a
+4-byte intvec creates in a USE32 world is what happens to a USE32 EIP
+when the intvec offset is assigned to IP. Just IP, not EIP. Is the high
+side of EIP persistant, like the high side of EAX when you clobber AX, or
+does it get zeroed? Those appear to be the two possibilities. Getting
+zeroed, UNLIKE EAX, would be better. Then your Forreal Mode event handler
+code needs to be in the low meg. Just the handlers, and just thier
+entry-points. No-Sweat Item. IF, HOWEVER, the high side of EIP is simply
+left there, all is not lost. Then there are schemes to replicate faux IDTs
+every 64k, and you can still have more than a meg of code in 32 bit
+unprotected Forreal Mode. And with an extra jump to get to the actual
+handler code Forreal Mode may still be faster to handle interrupts than
+Pmode, thanks in part to the 4-byte intvecs.
 
-Yes, handled by this part of the patch:
+Things that aren't issues are the Dbit of the handler code, which can be
+USE32 also, and if fact must be, and thus the interrupt and the IRET stack
+frames balance. The rmode CS values in the intvecs probably should all be
+0, keeping them in the non-issue category. The real sticky bit is the
+undefined behavior of the high side of EIP.
 
-@@ -976,10 +983,11 @@
- 	 * us from recursively trying to free more memory as we're
- 	 * trying to free the first piece of memory in the first place).
- 	 */
--	tsk->flags |= PF_MEMALLOC|PF_KSWAPD;
-+	tsk->flags |= PF_MEMALLOC|PF_KSWAPD|PF_IOTHREAD;
+Even if you have to do something like keep all code in the low meg, data
+beyond the low meg is already a non-issue in Forreal Mode.
 
-Without that change, nothing got swapped to disk. It looks like
-__alloc_pages(GFP_ATOMIC,...) only wakes up the kswapd threads. Is the
-pdflush threads needed during memory freeing? My patch leaves them
-unrefrigerated too, but Pavel said that wasn't safe for some reason.
+Rick Hohensee
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+

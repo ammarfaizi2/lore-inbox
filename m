@@ -1,92 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266216AbUAGVri (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 16:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUAGVri
+	id S265645AbUAGVl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 16:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUAGVl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 16:47:38 -0500
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:7846 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S266216AbUAGVrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 16:47:35 -0500
-Subject: 2.4.23: user/kernel pointer bugs (vicam.c, w9968cf.c)
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: luca_ing@libero.it
-Cc: jburks@wavicle.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 07 Jan 2004 13:47:32 -0800
-Message-Id: <1073512053.20237.89.camel@dooby.cs.berkeley.edu>
+	Wed, 7 Jan 2004 16:41:56 -0500
+Received: from dh197.citi.umich.edu ([141.211.133.197]:57477 "EHLO
+	nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S265645AbUAGVlz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 16:41:55 -0500
+Subject: Re: 2.6.1-rc1-tiny2
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Mitchell Blank Jr <mitch@sfgoth.com>, Jens Axboe <axboe@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040107201056.GE18208@waste.org>
+References: <20040106054859.GA18208@waste.org>
+	 <20040107140640.GC16720@suse.de> <20040107185039.GC18208@waste.org>
+	 <20040107192732.GA13240@gaz.sfgoth.com>  <20040107201056.GE18208@waste.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1073511697.1242.105.camel@nidelv.trondhjem.org>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 07 Jan 2004 16:41:38 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think there are exploitable user/kernel pointer bugs in vicam.c and
-w9968cf.c.  The bugs are very simple, so I think the patches speak for
-themselves.  Thanks for looking at this, and my apologies if I've made
-any mistakes.  Let me know if you have any questions.
+På on , 07/01/2004 klokka 15:10, skreiv Matt Mackall:
+> NFS is a good example of why the guarantees of mempool are being
+> overstated - it still needs to allocate SKBs to make progress and
+> preallocating a pool for other data structures can make that fail
+> where it otherwise might not. The pool size for NFS (32) is also
+> completely arbitrary as far as I can tell.
 
-Best,
-Rob
+If you are in a hardware situation where you actually care about the
+permanent size of that mempool, then you're barking up entirely the
+wrong tree: there is a hell of a lot more memory to reclaim from not
+having to build up all those nfs_page lists in the first place.
 
-P.S. Both of these bugs were found using the source code verification
-tool, CQual, developed by Jeff Foster, myself, and others, and available
-from http://www.cs.umd.edu/~jfoster/cqual/.
+i.e. Rip out the entire asynchronous NFS read/write support, not just
+the mempools.
 
+As for the usefulness of the mempools in the situation where you have
+asynchronous I/O: I agree that the socket layer screws any chance of a
+guarantee. So does the server if it goes down, the network itself can
+screw you,.... All in all, it is surprising how few guarantees NFS
+offers you.
+I therefore see the mempools as more of an optimization that mainly
+avoid sleeping under a certain limited set of "reasonable"
+circumstances.
 
---- drivers/usb/vicam.c.orig	Wed Jan  7 13:26:01 2004
-+++ drivers/usb/vicam.c	Mon Jan  5 17:23:11 2004
-@@ -601,12 +601,19 @@
- 	case VIDIOCSWIN:
- 		{
- 
--			struct video_window *vw = (struct video_window *) arg;
--			DBG("VIDIOCSWIN %d x %d\n", vw->width, vw->height);
-+			struct video_window vw;
- 
--			if ( vw->width != 320 || vw->height != 240 )
-+			if (copy_from_user(&vw, arg, sizeof(vw)))
-+			{
- 				retval = -EFAULT;
-+				break;
-+			}
-+
-+			DBG("VIDIOCSWIN %d x %d\n", vw->width, vw->height);
- 			
-+			if ( vw.width != 320 || vw.height != 240 )
-+				retval = -EFAULT;
-+
- 			break;
- 		}
- 
-
-
---- drivers/usb/w9968cf.c.orig	Wed Jan  7 13:32:28 2004
-+++ drivers/usb/w9968cf.c	Wed Jan  7 13:44:44 2004
-@@ -3552,10 +3552,13 @@
- 
- 	case VIDIOCSYNC: /* wait until the capture of a frame is finished */
- 	{
--		unsigned int f_num = *((unsigned int *) arg);
-+		unsigned int f_num;
- 		struct w9968cf_frame_t* fr;
- 		int err = 0;
- 
-+		if (copy_from_user(&f_num, arg, sizeof(f_num)))
-+			return -EFAULT;
-+
- 		if (f_num >= cam->nbuffers) {
- 			DBG(4, "Invalid frame number (%d). "
- 			       "VIDIOCMCAPTURE failed.", f_num)
-@@ -3620,7 +3623,8 @@
- 	{
- 		struct video_buffer* buffer = (struct video_buffer*)arg;
- 
--		memset(buffer, 0, sizeof(struct video_buffer));
-+		if (clear_user(buffer, sizeof(struct video_buffer)))
-+			return -EFAULT;
- 
- 		DBG(5, "VIDIOCGFBUF successfully called.")
- 		return 0;
-
+Cheers,
+  Trond

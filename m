@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUIOPve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266526AbUIOPxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUIOPve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUIOPtO
+	id S266526AbUIOPxk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUIOPxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:49:14 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:61876 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266498AbUIOPsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:48:10 -0400
-Subject: Re: 2.6.9 rc2 freezing
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Zilvinas Valinskas <zilvinas@gemtek.lt>,
-       Erik Tews <erik@debian.franken.de>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.33.0409151047560.10693-100000@sweetums.bluetronic.net>
-References: <Pine.GSO.4.33.0409151047560.10693-100000@sweetums.bluetronic.net>
+	Wed, 15 Sep 2004 11:53:37 -0400
+Received: from mta10-svc.ntlworld.com ([62.253.162.94]:26710 "EHLO
+	mta10-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S266526AbUIOPvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:51:44 -0400
+Subject: Re: [2.6.8.1/x86] The kernel is _always_ compiled with -msoft-float
+From: Ian Campbell <ijc@hellion.org.uk>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040915153528.GE24818@thundrix.ch>
+References: <20040915021418.A1621@natasha.ward.six>
+	 <20040915153528.GE24818@thundrix.ch>
 Content-Type: text/plain
-Message-Id: <1095263296.2406.141.camel@krustophenia.net>
+Message-Id: <1095263494.18800.47.camel@icampbell-debian>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 15 Sep 2004 11:48:16 -0400
+Date: Wed, 15 Sep 2004 16:51:34 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 10:55, Ricky Beam wrote:
-> On Wed, 15 Sep 2004, Zilvinas Valinskas wrote:
-> >Perhaps that is mixture of PREEMPT=y and ipsec ? dunno ...
-> 
-> No mixture necessary.  PREEMPT is uber-screwed up.  Try rebuilding your
-> kernel/modules with it disabled. (make clean first; the kernel deps don't
-> track CONFIG_PREEMPT correctly.)
+On Wed, 2004-09-15 at 16:35, Tonnerre wrote:
+> On Wed, Sep 15, 2004 at 02:14:18AM +0600, Denis Zaitsev wrote:
+> > Why this kernel is always compiled with the FP emulation for x86?
+> > This is the line from the beginning of arch/i386/Makefile:
+> > 
+> > CFLAGS += -pipe -msoft-float
+> > 
+> > And it's hardcoded, it does not depend on CONFIG_MATH_EMULATION.  So,
+> > is this just a typo or not?
+[snip]
+> Thus  we force gcc  to use  the library  functions for  floating point
+> arith, and  since we  don't link  against gcc's lib,  FPU users  get a
+> fancy linker error.
 
-Um, PREEMPT works just fine.  Anything that breaks on PREEMPT will also
-break on SMP.  And the kernel deps do track CONFIG_PREEMPT correctly.
+It's a shame that gcc doesn't have -mno-float which could disable
+floating point completely and produce a more useful error message than a
+missing symbol at link time
 
-Maybe you are doing it wrong.
+I searched for ages just yesterday for the "float" in some kernel code I
+acquired recently... To be fair I was grepping for float and it was a
+double that was being used so if I'd had my brain turned on I would have
+found it quite quickly, but you get the point.
 
-Lee
+Has anyone ever suggested such a flag to the gcc folks?
+
+Ian.
+
+-- 
+Ian Campbell
+Current Noise: Megadeth - Pyschotron
+
+Mind your own business, Spock.  I'm sick of your halfbreed interference.
 

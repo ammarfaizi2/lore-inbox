@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVAYJdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVAYJiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVAYJdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 04:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVAYJdM
+	id S261795AbVAYJiM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 04:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVAYJiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 04:33:12 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:25025 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261758AbVAYJdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 04:33:08 -0500
-From: Elias da Silva <silva@aurigatec.de>
-Organization: aurigatec Informationssysteme GmbH
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] drivers/block/scsi_ioctl.c, Video DVD playback support
-Date: Tue, 25 Jan 2005 10:29:22 +0100
-User-Agent: KMail/1.7.2
-References: <200501220327.38236.silva@aurigatec.de> <200501242310.00184.silva@aurigatec.de> <1106611309.6148.116.camel@localhost.localdomain>
-In-Reply-To: <1106611309.6148.116.camel@localhost.localdomain>
-Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 25 Jan 2005 04:38:12 -0500
+Received: from mxc.rambler.ru ([81.19.66.31]:23058 "EHLO mxc.rambler.ru")
+	by vger.kernel.org with ESMTP id S261795AbVAYJiI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 04:38:08 -0500
+Date: Tue, 25 Jan 2005 12:35:16 +0300
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+To: Alex Riesen <raa.lkml@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Russian encoding support for MacHFS
+Message-Id: <20050125123516.7f40a397.sonic_amiga@rambler.ru>
+In-Reply-To: <81b0412b05012410463c7fd842@mail.gmail.com>
+References: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
+	<81b0412b05012410463c7fd842@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0beta2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501251029.22646.silva@aurigatec.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:71cf304d62c8802a383a5ddf42c5bd08
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 January 2005 01:01, you wrote:
-[snip]
-: > This is exactly the point: if the kernel wants to be safe, the
-: > authentication procedure should be totally implemented in the kernel
-: > and be protected against further changes via "alternative" ways...
-: > but it isn't now and probably won't be although it could be.
-: 
-: It provides the DVD_AUTH ioctls to handle this. Why are you banging raw
-: commands at hardware when there is an abstraction for it ?
-Hello.
+On Mon, 24 Jan 2005 19:46:18 +0100
+Alex Riesen <raa.lkml@gmail.com> wrote:
 
-This is the way VMware and probably other comparable emulators
-access the devices.
+> how about just leave the characters unchanged? (remap them to the same
+> codes in Unicode).
 
-Yes, sometimes you have to risk broken software in favor of augmented
-security, but so far we only have broken software.
+ But what to do when i convert then from unicode to 8-bit iocharset? This can lead to that several characters in Mac charset will be converted to the same character in Linux charset. This will lead to information loss and name will not be reverse-translatable.
+ To describe the thing better: i have 8-bit Mac encoding and 8-bit target encoding (iocharset). I need to convert from (1) to (2) and be able to convert back. I tried to perform a one-way conversion like in other filesystems but this didn't work.
+ Probably NLS tables can be used when iocharset is UTF8. If you wish i can try to implement it after some time.
 
-: Someone did actually have a demo of a small fs that allowed you to
-: fiddle with the status but possibly the code could get smarter for
-: "exclusive user of media". I'm not sure if that is worth it.
+> Unicode, and its encoding UTF8 IS commonly used everywhere.
+> And Russia can (and often does) use it just as well.
 
-Do you have the name of the fs and/or the name of author?
+ Many people say many software is not UTF8-ready yet. Anyway i had problems when tried to use it. Many russian ASCII documents use 8-bit encoding so i need to be able to deal with them. Many software assumes that 1 byte is 1 character.
 
-Do we have a clear understanding that this fs would only
-be a benefit if *All* the different ways to access the device would
-use the same policy enforcement and consistently allow or
-disallow certain operations regardless of the access method?
+> P.S. Read Documentation/SubmittingPatches.
 
-Regards,
+ Ok. Sorry for violations.
 
-Elias
+> What kernel is the patch against?
+
+ 2.6.8.
+
+-- 
+Best regards,
+Pavel Fedin,									mailto:sonic_amiga@rambler.ru

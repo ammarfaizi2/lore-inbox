@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132802AbRDOWEa>; Sun, 15 Apr 2001 18:04:30 -0400
+	id <S132807AbRDOWKv>; Sun, 15 Apr 2001 18:10:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132807AbRDOWEU>; Sun, 15 Apr 2001 18:04:20 -0400
-Received: from dystopia.lab43.org ([209.217.122.210]:51429 "EHLO
-	dystopia.lab43.org") by vger.kernel.org with ESMTP
-	id <S132802AbRDOWEC>; Sun, 15 Apr 2001 18:04:02 -0400
-Date: Sun, 15 Apr 2001 18:01:57 -0400 (EDT)
-From: Rod Stewart <stewart@dystopia.lab43.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-Subject: Re: [new PATCH] Re: 8139too: defunct threads
-In-Reply-To: <3AD99CE4.E1ED7090@colorfullife.com>
-Message-ID: <Pine.LNX.4.33.0104151801170.25233-100000@dystopia.lab43.org>
+	id <S132808AbRDOWKm>; Sun, 15 Apr 2001 18:10:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19719 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132807AbRDOWKc>; Sun, 15 Apr 2001 18:10:32 -0400
+Subject: Re: [PATCH] NTFS comment expanded, small fix.
+To: aia21@cus.cam.ac.uk
+Date: Sun, 15 Apr 2001 23:11:15 +0100 (BST)
+Cc: R.E.Wolff@BitWizard.nl (Rogier Wolff), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Linus.Torvalds@Helsinki.FI (Linus Torvalds),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.3.96.1010415173424.19123A-100000@libra.cus.cam.ac.uk> from "Anton Altaparmakov" at Apr 15, 2001 06:11:08 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14oujm-0007TW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Can the numerous ntfs fixes in the -ac series be applied to the mainstream
+> kernel instead? Thanks.
 
-On Sun, 15 Apr 2001, Manfred Spraul wrote:
+Want me to feed them to Linus or will you do it ?
 
-> Alan, which fix would you prefer:
-> * init could use wait3 and set __WALL.
-> * all kernel thread users could set SIGCHLD. Some already do that
-> (__call_usermodehelper).
-> * the kernel_thread implementations could force the exit signal to
-> SIGCHLD.
->
-> I'd prefer the last version.
-> The attached patch is tested with i386. The alpha, parisc and ppc
-> assember changes are guessed.
-
-This patch fixed my problem.
-
-Thanks,
--Rms
 

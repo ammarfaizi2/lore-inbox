@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277873AbRJRSSt>; Thu, 18 Oct 2001 14:18:49 -0400
+	id <S277893AbRJRSZb>; Thu, 18 Oct 2001 14:25:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277893AbRJRSSj>; Thu, 18 Oct 2001 14:18:39 -0400
-Received: from colorfullife.com ([216.156.138.34]:8204 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S277873AbRJRSS1>;
-	Thu, 18 Oct 2001 14:18:27 -0400
-Message-ID: <3BCF1D07.1C54BAAD@colorfullife.com>
-Date: Thu, 18 Oct 2001 20:18:47 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en, de
+	id <S277905AbRJRSZV>; Thu, 18 Oct 2001 14:25:21 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44296 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277893AbRJRSZP>; Thu, 18 Oct 2001 14:25:15 -0400
+Date: Thu, 18 Oct 2001 15:04:15 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fork() failing
+Message-ID: <Pine.LNX.4.21.0110181503220.12276-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch and Performance of larger pipes
-In-Reply-To: <3BCF1A74.AE96F241@colorfullife.com>
-Content-Type: multipart/mixed;
- boundary="------------A0B49C5F90BF14A4D4C09CB6"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------A0B49C5F90BF14A4D4C09CB6
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Sorry, the patches don't compile - I mixed 2 different versions.
-Apply the attached patch on top.
+Linus,
 
---
-	MAnfred
---------------A0B49C5F90BF14A4D4C09CB6
-Content-Type: text/plain; charset=us-ascii;
- name="patch-kiopipe2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-kiopipe2"
+As you know, we currently allow 1-order allocations to fail easily. 
 
---- 2.4/fs/pipe.c	Thu Oct 18 20:10:13 2001
-+++ build-2.4/fs/pipe.c	Thu Oct 18 00:21:08 2001
-@@ -113,7 +113,7 @@
- 	len = (pio->offset+pio->len+PAGE_SIZE-1)/PAGE_SIZE;
- 	down_read(&current->mm->mmap_sem);
- 	len = get_user_pages(current, current->mm, (unsigned long)buf, len,
--			0, pio->pages, vmas);
-+			0, 0, pio->pages, vmas);
- 	if (len > 0) {
- 		int i;
- 		for(i=0;i<len;i++) {
+However, there is one special case of 1-order allocations which cannot
+fail: fork.
 
---------------A0B49C5F90BF14A4D4C09CB6--
+Here is the tested patch against pre4.
 
+--- linux.orig/mm/page_alloc.c	Thu Oct 18 14:26:28 2001
++++ linux/mm/page_alloc.c	Thu Oct 18 16:23:15 2001
+@@ -393,8 +393,13 @@
+ 		}
+ 	}
+ 
+-	/* Don't let big-order allocations loop */
+-	if (order)
++	/* We have one special 1-order alloc user: fork().
++	 * It obviously cannot fail easily like other 
++	 * high order allocations. This could also be fixed
++	 * by having a __GFP_LOOP flag to indicate that the 
++	 * high order allocation is "critical". 
++	 */
++	if (order > 1)
+ 		return NULL;
+ 
+ 	/* Yield for kswapd, and try again */
 

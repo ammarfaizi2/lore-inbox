@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbUK1RNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbUK1RT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbUK1RNS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 12:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbUK1RMQ
+	id S261527AbUK1RT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 12:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUK1RT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 12:12:16 -0500
-Received: from gprs214-243.eurotel.cz ([160.218.214.243]:1922 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261531AbUK1RLX (ORCPT
+	Sun, 28 Nov 2004 12:19:27 -0500
+Received: from smtp1.suscom.net ([64.78.119.248]:6579 "EHLO smtp1.suscom.net")
+	by vger.kernel.org with ESMTP id S261529AbUK1RJq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 12:11:23 -0500
-Date: Sun, 28 Nov 2004 18:11:06 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: software suspend patch [1/6]
-Message-ID: <20041128171106.GD1214@elf.ucw.cz>
-References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net> <20041128113708.GQ1417@openzaurus.ucw.cz> <20041128162320.GA28881@hugang.soulinfo.com> <20041128162558.GF28881@hugang.soulinfo.com>
+	Sun, 28 Nov 2004 12:09:46 -0500
+Date: Sun, 28 Nov 2004 12:07:56 -0500
+From: Eric Brundick <kernel@spirilis.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [IDE] Need assistance on a Silicon Image 680-based board
+Message-ID: <20041128170756.GA3358@riker.lan>
+References: <20041128150914.GA2556@riker.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041128162558.GF28881@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041128150914.GA2556@riker.lan>
+User-Agent: Mutt/1.4.2i
+X-Mailer-Agent: Mutt (1.2.5i for UNIX)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This has been resolved; Petr suggested I make sure the PCI card is snug, and it wasn't.
+The card reported its proper Vendor ID of 1095 after I reinstalled it.
+Eventually I discovered you need to install this card in a Windows machine and get it working
+with at least 1 drive connected for the card to become accessible.  I'm assuming the Windows driver
+does some sort of initialization on the card.  After this, Linux detects it perfectly:
 
-> >  device-tree.diff 
-> >    base from suspend2 with a little changed.
-> > 
-> >  core.diff
-> >   1: redefine struct pbe for using _no_ continuous as pagedir.
-> >   2: make shrink memory as little as possible.
-> >   3: using a bitmap speed up collide check in page relocating.
-> >   4: pagecache saving ready.
-> > 
-> >  i386.diff
-> >  ppc.diff
-> >   i386 and powerpc suspend update.
-> > 
-> >  pagecachs_addon.diff
-> >   if enable page caches saving, must using it, it making saving
-> >   pagecaches safe. idea from suspend2.
-> > 
-> >   ppcfix.diff
-> >   fix compile error. 
-> >   $ gcc -v
-> >    .... 
-> >    gcc version 2.95.4 20011002 (Debian prerelease)
-> > 
-> > I'm using 2.6.9-ck3 With above patch, swsusp1 works prefect in my 
-> > PowerPC and x86 PC with Highmem and prepempt option enabled.
-> > 
-> > I hope the core.diff@1,@2,@3 i386.diff ppc.diff will merge into 
-> > mainline kernel ASAP, :). from I view point device-tree.diff is 
-> > very usefuly when using pagecache saving and pagecachs_addon.diff
-> > that's really hack for making pagecache saving safe.
-> > 
-> 
-> --- 2.6.9-lzf/arch/ppc/syslib/open_pic.c	2004-11-26 12:32:58.000000000 +0800
-> +++ 2.6.9/arch/ppc/syslib/open_pic.c	2004-11-28 23:16:58.000000000 +0800
-> @@ -776,7 +776,8 @@ static void openpic_mapirq(u_int irq, cp
->  	if (ISR[irq] == 0)
->  		return;
->  	if (!cpus_empty(keepmask)) {
-> -		cpumask_t irqdest = { .bits[0] = openpic_read(&ISR[irq]->Destination) };
-> +		cpumask_t irqdest;
-> +		irqdest.bits[0] = openpic_read(&ISR[irq]->Destination);
->  		cpus_and(irqdest, irqdest, keepmask);
->  		cpus_or(physmask, physmask, irqdest);
->  	}
+SiI680: IDE controller at PCI slot 0000:00:08.0
+SiI680: chipset revision 2
+SiI680: BASE CLOCK == 133
+SiI680: 100% native mode on irq 10
+    ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
+    ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
+hde: WDC WD136AA, ATA DISK drive
+ide2 at 0xd1816c80-0xd1816c87,0xd1816c8a on irq 10
+...
+hde: max request size: 64KiB
+hde: 26564832 sectors (13601 MB) w/2048KiB Cache, CHS=26354/16/63, UDMA(66)
+ hde: hde1 hde2 hde3 < hde5 hde6 hde7 >
 
-ACK. Send this to Andrew Morton, Cc: Rusty trivial patch monkey
-Russell <trivial@rustcorp.com.au>.
-								Pavel
+Thanks again
+-Eric
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+On Sun, Nov 28, 2004 at 10:09:14AM -0500, Eric Brundick put into existance:
+] Hi-
+] I have recently purchased an IDE Host Adapter card based on the Silicon Image 680 chipset.
+] The board is a Creative I/O UW-A133RPCI-A01.  User manual says "ULTRA ATA/133 IDE RAID CONTROLLER
+] CARD SIL680-RAID."
+] The board's chipset itself says:
+] "Silicon Image
+]  Sil0680 ACL144
+]  4E0032
+]  0411"
+... junk trimmed

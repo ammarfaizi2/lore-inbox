@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129941AbQKQA4c>; Thu, 16 Nov 2000 19:56:32 -0500
+	id <S129814AbQKQBCX>; Thu, 16 Nov 2000 20:02:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130443AbQKQA4W>; Thu, 16 Nov 2000 19:56:22 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:6343 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129941AbQKQA4J>;
-	Thu, 16 Nov 2000 19:56:09 -0500
-Date: Fri, 17 Nov 2000 01:26:02 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200011170026.BAA133349.aeb@aak.cwi.nl>
-To: aeb@veritas.com, torvalds@transmeta.com
-Subject: Re: BUG: isofs broken (2.2 and 2.4)
-Cc: emoenke@gwdg.de, eric@andante.org, koenig@tat.physik.uni-tuebingen.de,
-        linux-kernel@vger.kernel.org
+	id <S129380AbQKQBCO>; Thu, 16 Nov 2000 20:02:14 -0500
+Received: from lsne-cable-1-p21.vtxnet.ch ([212.147.5.21]:51717 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129130AbQKQBCE>;
+	Thu, 16 Nov 2000 20:02:04 -0500
+Date: Fri, 17 Nov 2000 01:31:57 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: linux-kernel@vger.kernel.org
+Subject: BTTV detection broken in 2.4.0-test11-pre5
+Message-ID: <20001117013157.A21329@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> both 2.2.x and 2.4.x kernels can't read `real sky' CDs
+The BTTV driver 0.7.48 doesn't detect my old Hauppauge card anymore.
+The problem seems to be that my card sets PCI_SUBSYSTEM_ID and
+PCI_SUBSYSTEM_VENDOR_ID to zero (lspci output below).
 
-Yes. 2.0.38 is OK. I just made a patch that seems to work.
+In 2.4.0-test10-pre5, the card was correctly detected as a
+"Hauppauge old". If I set btv->type to 2 in 2.4.0-test11-pre5, the
+card is properly initialized and works.
 
-Harald, could you try
-	ftp.xx.kernel.org/.../people/aeb/linux-2.4.0test9-isofs-patch
-and report?
+Not sure what the correct fix is. Maybe to fall back to vendor/device
+ID if there's no subsystem information ?
 
-Linus, Alan - I made patches for 2.2 and 2.4 but want to
-polish and check them a bit more before submitting.
-There also seem to be a lot of bug reports in newsgroups
-and mailing lists - must check whether people complain
-about the same thing or whether there are more problems.
+- Werner
 
-Andries
+---------------------------------- cut here -----------------------------------
 
+# lspci -v -s 00:0f.0      
+00:0f.0 Multimedia video controller: Brooktree Corporation Bt848 TV with DMA push (rev 12)
+        Flags: bus master, medium devsel, latency 64, IRQ 9
+        Memory at eddfe000 (32-bit, prefetchable) [size=4K]
+# lspci -x -s 00:0f.0 -n
+00:0f.0 Class 0400: 109e:0350 (rev 12)
+00: 9e 10 50 03 06 00 80 02 12 00 00 04 00 40 00 00
+10: 08 e0 df ed 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 09 01 10 28
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbULBIID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbULBITL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbULBIID (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 03:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbULBIID
+	id S261307AbULBITL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 03:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbULBITK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 03:08:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42910 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261341AbULBIHh (ORCPT
+	Thu, 2 Dec 2004 03:19:10 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:7587 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261307AbULBITG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 03:07:37 -0500
-Date: Thu, 2 Dec 2004 09:07:09 +0100
+	Thu, 2 Dec 2004 03:19:06 -0500
+Date: Thu, 2 Dec 2004 09:18:28 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Markus Plail <linux-kernel@gitteundmarkus.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord dev=ATA cannont scanbus as non-root
-Message-ID: <20041202080709.GB10454@suse.de>
-References: <1101763996l.13519l.0l@werewolf.able.es> <Pine.LNX.4.53.0411292246310.15146@yvahk01.tjqt.qr> <1101765555l.13519l.1l@werewolf.able.es> <20041130071638.GC10450@suse.de> <87eki9bs33.fsf@plailis.daheim.bs>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Block layer question - indicating EOF on block devices
+Message-ID: <20041202081828.GC10454@suse.de>
+References: <1101829852.25628.47.camel@localhost.localdomain> <20041130184345.47e80323.akpm@osdl.org> <1101912876.30770.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87eki9bs33.fsf@plailis.daheim.bs>
+In-Reply-To: <1101912876.30770.14.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01 2004, Markus Plail wrote:
-> Jens Axboe <axboe@suse.de> writes:
+On Wed, Dec 01 2004, Alan Cox wrote:
+> On Mer, 2004-12-01 at 02:43, Andrew Morton wrote:
+> > Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > If the driver simply returns an I/O error, userspace should see a short
+> > read and be happy?
 > 
-> > On Mon, Nov 29 2004, J.A. Magallon wrote:
-> >> dev=ATAPI uses ide-scsi interface, through /dev/sgX. And:
-> >> 
-> >> > scsibus: -1 target: -1 lun: -1
-> >> > Warning: Using ATA Packet interface.
-> >> > Warning: The related Linux kernel interface code seems to be unmaintained.
-> >> > Warning: There is absolutely NO DMA, operations thus are slow.
-> >> 
-> >> dev=ATA uses direct IDE burning. Try that as root. In my box, as root:
-> >
-> > Oh no, not this again... Please check the facts: the ATAPI method uses
-> > the SG_IO ioctl, which is direct-to-device. It does _not_ go through
-> > /dev/sgX, unless you actually give /dev/sgX as the device name. It has
-> > nothing to do with ide-scsi. Period.
-> >
-> > ATA uses CDROM_SEND_PACKET. This has nothing to do with direct IDE
-> > burning, it's a crippled interface from the CDROM layer that should not
-> > be used for anything.  scsi-linux-ata.c should be ripped from the
-> > cdrecord sources, or at least cdrecord should _never_ select that
-> > transport for 2.6 kernels. For 2.4 you are far better off using
-> > ide-scsi.
-> 
-> Are you sure you don't mix ATA with ATAPI? I think ATA is equivalent to
-> dev=/dev/hdX. 
+> And the logs fill with I/O error messages. 
 
-I did mix them up, my apologies til Magallon. As always you should just
-use -dev=/dev/hdX and it will work the best, there's no need to give ATA
-or ATAPI. They are too easy to mix up as the names don't really give you
-any hints on what access method they will utilize. Using -dev also means
-there's no reason to run -scanbus at all, since you know where the
-device is. If you don't, then you probably should be using k3b or some
-other helper to work out things for you.
+read-ahead should definitely be marked quiet, agree.
+
+> > > and
+> > > it also fills the log with "I/O error on" spew from the block layer
+> > > innards even if REQ_QUIET is magically set.
+> > 
+> > We'd need to propagate that quietness back up to the buffer_head layer, at
+> > least.
+> 
+> Thats what I was assuming looking at the code. Really the block layer is
+> broken here. It should not be whining about I/O errors on readahead
+> blocks just letting them go. It has no idea if the readahead is a
+> badblock a media feature or whatever. (or as James added on irc scsi
+> reservations).
+
+The upper buffer layer could do something intelligent if EOF is set on
+the bio, it really should. The problem is that there's no -EXXX to flag
+EOF from the driver, it would be nicest if one could just do:
+
+	end_that_request_chunk(req, 1, good_bytes);
+	end_that_request_chunk(req, -EOF, residual);
+
+and be done with it.
 
 -- 
 Jens Axboe

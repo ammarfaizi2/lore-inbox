@@ -1,61 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314551AbSFNWaC>; Fri, 14 Jun 2002 18:30:02 -0400
+	id <S314596AbSFNWtT>; Fri, 14 Jun 2002 18:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314584AbSFNWaB>; Fri, 14 Jun 2002 18:30:01 -0400
-Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:36364 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S314551AbSFNWaB>;
-	Fri, 14 Jun 2002 18:30:01 -0400
-Date: Fri, 14 Jun 2002 17:30:01 -0500 (CDT)
-From: Brent Cook <busterb@mail.utexas.edu>
-X-X-Sender: busterb@abbey.hauschen
-To: Dave Jones <davej@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: File permission problem with NFSv3 and 2.5.20-dj4
-In-Reply-To: <Pine.LNX.4.33.0202072243560.26015-100000@Appserv.suse.de>
-Message-ID: <20020614171820.A13031-100000@abbey.hauschen>
+	id <S314602AbSFNWtT>; Fri, 14 Jun 2002 18:49:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59399 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314596AbSFNWtS>;
+	Fri, 14 Jun 2002 18:49:18 -0400
+Message-ID: <3D0A7219.6000303@mandrakesoft.com>
+Date: Fri, 14 Jun 2002 18:45:45 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jt@hpl.hp.com
+CC: irda-users@lists.sourceforge.net,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] : ir250_cache_wait_data-2.diff
+In-Reply-To: <20020610175300.E21783@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-  Looks like there is a problem with NFSv3 and file permissions in the DJ
-kernels.
-
-A file that is marked as executable will lose its executable flag whenever
-it is written to. I suspect the proble lies in the changes to the NFS file
-info cacheing in the DJ kernels at least since 2.5.20-dj1 (I was unable
-to find where this change occured in the changelog).
-
-Here is one example:
-
- Enter NFS mount (in this case, the NFS server is a FreeBSD 4.6 machine)
- Compile a simple program; gcc hello.c -o hello
- Result: hello has the following permissions: -rw-r--r--
- Modify the permissions manually; chmod 755 hello
- Result: hello has the following permissions: -rwxr-xr-x
-
-Here is another:
-
- Enter NFS mount
- Compile a simple program; gcc hello.c -o hello
- Result: hello has the following permissions: -rw-r--r--
- Unmount the NFS mount; umount /home
- Remount the NFS mount; mount server:/home /home
- Result: hello has the following permissions: -rwxr-xr-x
-
-Here is the final one:
-
- Enter NFS mount, find a file with executable permissions;
- Edit a file; vi whahoo.sh
- Save and close the file
- Results: file has the following permissions: -rw-r--r--
-
-So, in the process of writing a file, its executable bits are lost. Can
-someone help? The problem is not present with vanilla Linux-2.5.20.
-
-Regards,
- - Brent Cook
+Patch did not apply...  I think you're a victim of __FUNCTION__ 
+cleanups, possibly.  Whoever did those in recent 2.5.x kernels didn't 
+bother notifying any maintainers :(
 

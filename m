@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286336AbSASRlG>; Sat, 19 Jan 2002 12:41:06 -0500
+	id <S286447AbSASRmQ>; Sat, 19 Jan 2002 12:42:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286339AbSASRk4>; Sat, 19 Jan 2002 12:40:56 -0500
-Received: from ns.suse.de ([213.95.15.193]:28679 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S286336AbSASRkj>;
-	Sat, 19 Jan 2002 12:40:39 -0500
-To: Stefan Rompf <srompf@isg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Interface operative status detection
-In-Reply-To: <3C498CC9.6FAED2AF@isg.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 19 Jan 2002 18:40:35 +0100
-In-Reply-To: Stefan Rompf's message of "19 Jan 2002 16:27:54 +0100"
-Message-ID: <p73g0525je4.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S286339AbSASRmH>; Sat, 19 Jan 2002 12:42:07 -0500
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:25281 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S286343AbSASRlz>; Sat, 19 Jan 2002 12:41:55 -0500
+Date: Sat, 19 Jan 2002 18:41:49 +0100 (MET)
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: O(1) scheduler: load_balance issues
+Message-ID: <Pine.LNX.4.21.0201191826400.14284-100000@sx6.ess.nec.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Rompf <srompf@isg.de> writes:
+Hi Ingo,
 
-> while playing with the Zebra routing daemon, I realized that neither
-> Linux nor Zebra are capable of detecting the operative state of an
-> interface, f.e. the ethernet link beat. This is a major show stopper
-> against using Linux for "serious" IP routing.
+while debugging the IA64 race-conditions with the new scheduler some
+question/suggestion came to my mind.
 
-It's only when you assume that the link beat is a "serious" sign for
-link healthiness. Unfortunately there are many error cases where a link
-can fail, but the link beat is still there - for example the software
-on the other machine crashing but the NIC still working fine. These
-seem to be the majority of the cases in fact except for demo situations
-where people pull cables on purpose. To handle all the other cases you
-need a separate heartbeat protocol that actually checks if the higher
-layers above the networking card are alive on the peer too. Most routing
-protocols do this already in fact, e.g. OSPF or RIP with their 'hello' 
-packets. The Linux IP stack does it also using ARP probes.  When a probe
-is not answered the routing daemon eventually notices and takes action.
-While waiting for probes is a bit slower (30-60s usually), checking
-the link beat only handles such a small subset of cases that it is not
-worth it to optimize these rare ones. 
+In the load_balance() function the initial value for max_load should
+better be set to 1 instead of 0 in order to avoid finding 'busiest'
+runqueues with only one task. This avoids taking the spin-locks
+unnecessarily for the case idle=1.
 
-Commercial vendors seem to like it because it looks good in demos ;),
-but linux fortunately doesn't have to be concerned with such marketing
-reasoning. 
+Another issue: I don't understand how prev_max_load works, I think that
+the comments in load_balance are not true any more and the comparison to
+prev_max_load can be dropped. In the loop where you compare wit hit it
+will never have another value than 1000000000. Or am I completely
+misunderstanding the code?
 
-In short - Linux doesn't have this feature because it's not needed.
-If your routing protocol relies on link state checking without other
-probing it's broken. Zebra isn't. 
+Thanks,
 
--Andi
+best regards,
+Erich
+
+
+
+

@@ -1,139 +1,166 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129960AbQKTCos>; Sun, 19 Nov 2000 21:44:48 -0500
+	id <S130394AbQKTCuU>; Sun, 19 Nov 2000 21:50:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130394AbQKTCoh>; Sun, 19 Nov 2000 21:44:37 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:63754 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129960AbQKTCoa>;
-	Sun, 19 Nov 2000 21:44:30 -0500
-Date: Mon, 20 Nov 2000 03:14:24 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] bttv_card & bttv_radio (was Re: BTTV detection broken in 2.4.0-test11-pre5)
-Message-ID: <20001120031424.A32756@almesberger.net>
-In-Reply-To: <20001117013157.A21329@almesberger.net> <slrn91b42n.fs.kraxel@bogomips.masq.in-berlin.de> <20001118141426.B23033@almesberger.net> <slrn91f3hr.jt.kraxel@bogomips.masq.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrn91f3hr.jt.kraxel@bogomips.masq.in-berlin.de>; from kraxel@bytesex.org on Sun, Nov 19, 2000 at 08:24:27AM +0000
+	id <S130571AbQKTCuK>; Sun, 19 Nov 2000 21:50:10 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47631 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130394AbQKTCuC> convert rfc822-to-8bit; Sun, 19 Nov 2000 21:50:02 -0500
+Date: Sun, 19 Nov 2000 18:19:33 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.0-test11
+Message-ID: <Pine.LNX.4.10.10011191815160.850-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id SAA13627
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-> Why?  What is the point in compiling bttv statically into the kernel?
 
-Well, I see the modules vs. static flame war is already in progress ;-)
+Ok, test11 is out there. The most noticeable fixes since pre7 are the
+Athlon lockup fix, the PCI routing handling, and getting the Joliet stuff
+right for iso9660.
 
-My reason for wanting static kernels is that I usually build many, very
-different versions of the same kernel, among which I frequently switch
-back and forth, and which I copy to different machines. Modules just get
-in the way here.
+		Linus
 
-I'm not at all against modules in general, quite to the contrary, but
-there are cases where a static kernel is preferrable, and since it's
-easy to keep the driver usable also without modules, I think it's worth
-the effort.
+----
 
-Since we don't have Keith Owens' wonderful extension yet, I've made a
-patch for 2.4.0-test11-pre7 that adds the new option bttv_card, and
-renames bt848_radio to bttv_radio, replacing my previous patch. It also
-fixes a rather embarrassing mistake I made in the bt848_radio patch ...
+ - final:
+    - Patrick Mochel: export the ACPI facs table in /proc too
+    - Brian Gerst: Video4Linux cleanup (named initializers)
+    - me: only use irq13 for FP errors for external FPU's. This
+      fixes the Atlon FP exception lockups.
+    - me: add a new intel signature to the PIRQ table matching logic.
+      Make the matching match both reported and actual device ID (with a
+      preference for the reported). Fixes PCMCIA on NEC Versa laptops.
+    - iso9660: fix Joliet filename argument order bug introduced in pre7
+    - Highmem: p_page -> b_page typo.
+    - me: don't allow pending FPU exceptions without an FPU context..
 
-- Werner
+ - pre7:
+    - Kai Germaschewski: more ISDN cleanups and small fixes.
+    - Al Viro: fix ntfs_new_inode() that he broke. Cleanups.
+    - various: handle !CONFIG_HOTPLUG properly
+    - David Miller: sparc and networking
+    - me: more iso9660 fixes. 
+    - Neil Brown: fix rd and RAID on highmem machines
+    - Vojtech Pavlik: input driver fixes
+    - David Woodhouse: module unload races - up_and_exit()
 
----------------------------------- cut here -----------------------------------
+ - pre6:
+    - Intel: start to add Pentium IV specific stuff (128-byte cacheline
+      etc)
+    - David Miller: search-and-destroy places that forget to mark us
+      running after removing us from a wait-queue.
+    - me: NFS client write-back ref-counting SMP instability.
+    - me: fix up non-exclusive waiters
+    - Trond Myklebust: Be more careful about SMP in NFS and RPC code
+    - Trond Myklebust: inode attribute update race fix
+    - Charles White: don't do unaligned accesses in cpqarray driver.
+    - Jeff Garzik: continued driver cleanup and fixes
+    - Peter Anvin: integrate more of the Intel patches.
+    - Robert Love: add i815 signature to the intel AGP support
+    - Rik Faith: DRM update to make it easier to sync up 2.2.x
+    - David Woodhouse: make old 16-bit pcmcia controllers work
+      again (ie i82365 and TCIC)
 
---- linux.orig/Documentation/kernel-parameters.txt	Tue Sep  5 22:51:14 2000
-+++ linux/Documentation/kernel-parameters.txt	Mon Nov 20 02:15:59 2000
-@@ -43,6 +43,7 @@
- 	SERIAL	Serial support is enabled.
- 	SMP 	The kernel is an SMP kernel.
- 	SOUND	Appropriate sound system support is enabled.
-+	V4L	Video For Linux support is enabled.
- 	VGA 	The VGA console has been enabled.
- 	VT	Virtual terminal support is enabled.
- 	XT	IBM PC/XT MFM hard disk support is enabled.
-@@ -115,6 +116,20 @@
- 			Duplex Mode.
- 
- 	bmouse=		[HW,MOUSE,PS2] Bus mouse.
-+
-+	bttv_card=	[HW,V4L] Specify the model of the BT848/878 card(s),
-+			superseding any auto-detection. The values are
-+			described in Documentation/video4linux/bttv/CARDLIST.
-+			E.g. bttv_card=2 specifies "Hauppauge old" for the
-+			first card, bttv_card=3,3 specifies "STB" for the
-+			first two cards.
-+
-+	bttv_radio=	[HW,V4L] Enables the FM radio tuners of BT848/878
-+			cards. This parameter corresponds to the radio= module
-+			parameter if the driver is compiled as such, e.g.
-+			bttv_radio=1 enables the radio of the first card,
-+			bttv_radio=0,1 enables the radio of the second card,
-+			etc.
- 
- 	BusLogic=	[HW,SCSI]
- 
---- linux.orig/drivers/media/video/bttv-cards.c	Mon Nov 20 02:07:47 2000
-+++ linux/drivers/media/video/bttv-cards.c	Mon Nov 20 03:07:22 2000
-@@ -1319,6 +1319,24 @@
- 	}
- }
- 
-+#ifndef MODULE
-+
-+static int __init bttv_card_setup(char *str)
-+{
-+	int i,number,res = 2;
-+
-+	for (i = 0; res == 2 && i < BTTV_MAX; i++) {
-+		res = get_option(&str,&number);
-+		if (res)
-+			card[i] = number;
-+	}
-+	return 1;
-+}
-+
-+__setup("bttv_card=", bttv_card_setup);
-+
-+#endif /* not MODULE */
-+
- /*
-  * Local variables:
-  * c-basic-offset: 8
---- linux.orig/drivers/media/video/bttv-driver.c	Mon Nov 20 02:07:47 2000
-+++ linux/drivers/media/video/bttv-driver.c	Mon Nov 20 02:59:10 2000
-@@ -3100,6 +3100,24 @@
- module_init(bttv_init_module);
- module_exit(bttv_cleanup_module);
- 
-+#ifndef MODULE
-+
-+static int __init bttv_radio_setup(char *str)
-+{
-+	int i,number,res = 2;
-+
-+	for (i = 0; res == 2 && i < BTTV_MAX; i++) {
-+		res = get_option(&str,&number);
-+		if (res)
-+			radio[i] = number;
-+	}
-+	return 1;
-+}
-+
-+__setup("bttv_radio=", bttv_radio_setup);
-+
-+#endif /* not MODULE */
-+
- /*
-  * Local variables:
-  * c-basic-offset: 8
+ - pre5:
+    - Rasmus Andersen: add proper "<linux/init.h>" for sound drivers
+    - David Miller: sparc64 and networking updates
+    - David Trcka: MOXA numbering starts from 0, not 1.
+    - Jeff Garzik: sysctl.h standalone
+    - Dag Brattli: IrDA finishing touches
+    - Randy Dunlap: USB fixes
+    - Gerd Knorr: big bttv update
+    - Peter Anvin: x86 capabilities cleanup
+    - Stephen Rothwell: apm initcall fix - smp poweroff should work
+    - Andrew Morton: setscheduler() spinlock ordering fix
+    - Stephen Rothwell: directory notification documentation
+    - Petr Vandrovec: ncpfs capabilities check cleanup
+    - David Woodhouse: fix jffs to use generic isxxxx() library
+    - Chris Swiedler: oom_kill selection fix
+    - Jens Axboe: re-merge after sleeping in ll_rw_block.
+    - Randy Dunlap: USB updates (pegasus and ftdi_sio)
+    - Kai Germaschewski: ISDN ppp header compression fixed
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+ - pre4:
+    - Andrea Arcangeli: SMP scheduler memory barrier fixup
+    - Richard Henderson: fix alpha semaphores and spinlock bugs.
+    - Richard Henderson: clean up the file from hell: "xor.c" 
+
+ - pre3:
+    - James Simmons: vgacon "printk()" deadlock with global irq lock.
+    - don't poke blanked console on console output
+    - Ching-Ling: get channels right on ALI audio driver
+    - Dag Brattli and Jean Tourrilhes: big IrDA update
+    - Paul Mackerras: PPC updates
+    - Randy Dunlap: USB ID table support, LEDs with usbkbd, belkin
+      serial converter. 
+    - Jeff Garzik: pcnet32 and lance net driver fix/cleanup
+    - Mikael Pettersson: clean up x86 ELF_PLATFORM
+    - Bartlomiej Zolnierkiewicz: sound and drm driver init fixes and
+      cleanups
+    - Al Viro: Jeff missed some kmap()'s. sysctl cleanup
+    - Kai Germaschewski: ISDN updates
+    - Alan Cox: SCSI driver NULL ptr checks
+    - David Miller: networking updates, exclusive waitqueues nest properly,
+      SMP i_shared_lock/page_table_lock lock order fix.
+
+ - pre2:
+    - Stephen Rothwell: directory notify could return with the lock held
+    - Richard Henderson: CLOCKS_PER_SEC on alpha.
+    - Jeff Garzik: ramfs and highmem: kmap() the page to clear it
+    - Asit Mallick: enable the APIC in the official order
+    - Neil Brown: avoid rd deadlock on io_request_lock by using a
+      private rd-request function. This also avoids unnecessary
+      request merging at this level.
+    - Ben LaHaise: vmalloc threadign and overflow fix
+    - Randy Dunlap: USB updates (plusb driver). PCI cacheline size.
+    - Neil Brown: fix a raid1 on top of lvm bug that crept in in pre1
+    - Alan Cox: various (Athlon mmx copy, NULL ptr checks for
+      scsi_register etc). 
+    - Al Viro: fix /proc permission check security hole.
+    - Can-Ru Yeou: SiS301 fbcon driver
+    - Andrew Morton: NMI oopser and kernel page fault punch through
+      both console_lock and timerlist_lock to make sure it prints out..
+    - Jeff Garzik: clean up "kmap()" return type (it returns a kernel
+      virtual address, ie a "void *").
+    - Jeff Garzik: network driver docs, various one-liners.
+    - David Miller: add generic "special" flag to page flags, to be
+      used by architectures as they see fit. Like keeping track of
+      cache coherency issues.
+    - David Miller: sparc64 updates, make sparc32 boot again
+    - Davdi Millner: spel "synchronous" correctly
+    - David Miller: networking - fix some bridge issues, and correct
+      IPv6 sysctl entries.
+    - Dan Aloni: make fork.c use proper macro rather than doing
+      get_exec_domain() by hand. 
+
+ - pre1:
+    - me: make PCMCIA work even in the absense of PCI irq's
+    - me: add irq mapping capabilities for Cyrix southbridges
+    - me: make IBMMCA compile right as a module
+    - me: uhhuh. Major atomic-PTE SMP race boo-boo. Fixed.
+    - Andrea Arkangeli: don't allow people to set security-conscious
+      bits in mxcsr through ptrace SETFPXREGS.
+    - Jürgen Fischer: aha152x update
+    - Andrew Morton, Trond Myklebust: file locking fixes
+    - me: TLB invalidate race with highmem
+    - Paul Fulghum: synclink/n_hdlc driver updates
+    - David Miller: export sysctl_jiffies, and have the proper no-sysctl
+      version handy
+    - Neil Brown: RAID driver deadlock and nsfd read access to
+      execute-only files fix
+    - Keith Owens: clean up module information passing, remove
+      "get_module_symbol()".
+    - Jeff Garzik: network (and other) driver fixes and cleanups
+    - Andrea Arkangeli: scheduler cleanup.
+    - Ching-Ling Li: fix ALi sound driver memory leak
+    - Anton Altaparmakov: upcase fix for NTFS
+    - Thomas Woller: CS4281 audio update
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

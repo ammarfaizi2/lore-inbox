@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUG0R02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266482AbUG0RbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266469AbUG0R02 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 13:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUG0R02
+	id S266482AbUG0RbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 13:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbUG0RbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 13:26:28 -0400
-Received: from zero.aec.at ([193.170.194.10]:12556 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266469AbUG0R0J (ORCPT
+	Tue, 27 Jul 2004 13:31:21 -0400
+Received: from main.gmane.org ([80.91.224.249]:27529 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266488AbUG0RbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 13:26:09 -0400
-To: xiphmont@xiph.org (Monty)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: large, spurious[?] TSC skews on AMD 760MPX boards
-References: <2kECV-3a0-3@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 27 Jul 2004 19:26:04 +0200
-In-Reply-To: <2kECV-3a0-3@gated-at.bofh.it> (xiphmont@xiph.org's message of
- "Thu, 22 Jul 2004 07:50:05 +0200")
-Message-ID: <m3isc9mker.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 27 Jul 2004 13:31:12 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+Mail-Followup-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+From: Benjamin Rutt <rutt.4+news@osu.edu>
+Subject: Re: clearing filesystem cache for I/O benchmarks
+Date: Tue, 27 Jul 2004 13:31:04 -0400
+Message-ID: <87vfg9nyqv.fsf@osu.edu>
+References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org>
+ <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org>
+ <4106013E.30408@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dhcp065-025-157-254.columbus.rr.com
+Mail-Copies-To: nobody
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+Cancel-Lock: sha1:zzMsvun0ufFfkT6UXjI3QKk5iAw=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xiphmont@xiph.org (Monty) writes:
+Hans Reiser <reiser@namesys.com> writes:
 
-> Ever since getting my first dual Athlon, the system timer was 'not
-> quite right' when running at stock speed.  Selects, alarms, etc, had a
-> strange way of firing fractions of a second or several seconds 'too
-> late'.  I discovered that overclocking by about 10% made the problem
+> when benchmarking, please be careful that you don't end up
+> benchmarking umount/mount, or sync, or..... it can be remarkably hard
+> to avoid such mistakes.....
 
-That points away from the TSC actually. select and alarm use the jiffies
-clock, which is managed by the PIT timer in the southbridge. AFAIK
-they never rely on the TSC. 
+I agree, I've made some blunders like that in the past.  However for
+write tests, we are including fsync() time, once, at the end of a file
+write, since I feel it's unfair to trim that time.  Not including
+fsync() time would only test the ability of the various parts of the
+I/O systems to do write buffering.  It's easy to do lots of write
+buffering, if you buy enough memory.  Forcing the disks to write is
+the only fair way to compare writes between I/O systems.
 
-> magically go away.  I've never been entirely comfortable doing that,
-> but three dual athlons later (all 760MPX-B2 based boards of different
-> makes), it was always the only way to make the problem disappear and I
-> didn't think more about it.
->
-> Now that I'm on #3, it is not stable at the overclock I need to make
-> the system timer problem disappear, so I finally started hunting for
-> the cause.  Whenever I run the system stock, I see:
->
-> Jul 20 21:48:26 Snotfish kernel: checking TSC synchronization across CPUs: 
-> Jul 20 21:48:26 Snotfish kernel: BIOS BUG: CPU#0 improperly initialized, has 6282588 usecs TSC skew! FIXED.
-> Jul 20 21:48:26 Snotfish kernel: BIOS BUG: CPU#1 improperly initialized, has -6282588 usecs TSC skew! FIXED.
->
-> When the system is running 'properly', that is to say, overclocked:
->
-> Jul 21 22:08:01 Snotfish kernel: checking TSC synchronization across CPUs: passed.
->
-> This behavior is reproducable on all three of my 760MPX systems (One
-> Gigabyte GA-7DPXDW-P, and two MSI K7D Master-L).  The amount of the
-> reported skew varies in the stock case, but it's always large.  Note
-> that once in a blue moon, the system will come up with no TSC skew at
-> stock timings, and the system timer issues seem to disappear.
->
-> What is the proper route to go about debugging this problem, as I have
-> it bottled up here in a reproducability cage?
+> I tend to try to use large enough filesets that small things like
+> cache flush happenstance or bitmap loading overhead do not sway the
+> benchmark.
 
-Assuming it is the TSC: 
+Sounds familiar...we cycle among file sizes at every power of 2 point
+from 8MB to 64GB.  So by the time we access the 64GB file, all the
+previous accesses for 8M..32GB will probably have pushed all of the
+64GB file out of cache.
 
-You could write a multithreaded program that polls the TSCs
-on your both CPU for a long time and check out the drift rate. 
-The kernel will try to fix it at boot time, but it cannot do that when the TSCs
-are drifting later.
+> Rebooting tends to work for resetting the OS thoroughly, though I
+> would be curious to hear comments on whether one ought to power down
+> the disk drive so that its cache flushes......;-)
 
-One way to work around it would be to boot with "notsc". This will
-make your gettimeofday() slower and more inaccurate though.
-
-In theory you could resync the TSC in a regularly running timer,
-but this would probably be quite some overhead.
-
-Assuming it is not: 
-
-Something is wrong with your PIT timer in the southbridge. Maybe
-just run ntpd ?
-
-I know that later AMD chipsets - in particular the 8111 - are somewhat
-bad time keepers, which makes it a good idea to run NTP always.
-
--Andi
+With the mass storage environment I'm working in, you'd need to power
+down the whole storage cluster, then remove that batteries that back
+the controller cache...yes, clearing kernel cache is often just the
+beginning. :)
+-- 
+Benjamin Rutt
 

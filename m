@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293074AbSB1Wuo>; Thu, 28 Feb 2002 17:50:44 -0500
+	id <S293489AbSB1WDo>; Thu, 28 Feb 2002 17:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310192AbSB1Wsg>; Thu, 28 Feb 2002 17:48:36 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61458 "EHLO
+	id <S310148AbSB1WCO>; Thu, 28 Feb 2002 17:02:14 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56850 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S310182AbSB1Wqy>; Thu, 28 Feb 2002 17:46:54 -0500
-Date: Thu, 28 Feb 2002 17:45:24 -0500 (EST)
+	id <S310142AbSB1V72>; Thu, 28 Feb 2002 16:59:28 -0500
+Date: Thu, 28 Feb 2002 16:58:03 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Christoph Hellwig <hch@caldera.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the tree
-In-Reply-To: <20020226175322.A31217@caldera.de>
-Message-ID: <Pine.LNX.3.96.1020228174142.2006I-100000@gatekeeper.tmr.com>
+To: Rick Stevens <rstevens@vitalstream.com>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Big file support
+In-Reply-To: <3C7D3587.8080609@vitalstream.com>
+Message-ID: <Pine.LNX.3.96.1020228165550.2006C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Christoph Hellwig wrote:
+On Wed, 27 Feb 2002, Rick Stevens wrote:
 
-> They shouldn't,  But many old drivers do (and _had to_):
+> I'm not certain if this is the right place, but are there plans to
+> have big file support (files >2GB) anytime soon?  I ask, as we use
+> Linux to serve LOTS of streaming media and the logs for popular sites
+> often exceed 2GB.  I'd like to see the ability to handle at least 16GB
+> files, possibly more.
 > 
-> 	current->policy = SCHED_YIELD;
-> 	schedule();
-> 
-> which isn't possible with the new scheduler.
+> Please cc: me on any replies if possible.  I've been REALLY busy and
+> am finding it hard to keep up with l-k traffic.
 
-Let's see, the choices are to (a) keep the old scheduler which has many
-performance issues, or (b) put in the new scheduler and let people who
-need the old drivers either fix them or stop upgrading.
-
-Bad performance should go the way of a.out kernels and xiafs (which at
-least did have utility), not be justified as a way to force people to
-patch their kernel.
+You must be really behind, large file support has been in the current
+kernel for ~14 months. Of course if your application isn't compiled with
+LFS enabled it doesn't matter, or if it keeps offsets in long instead of
+offset types...
 
 -- 
 bill davidsen <davidsen@tmr.com>

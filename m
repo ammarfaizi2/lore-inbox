@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbUCSQED (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 11:04:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUCSQED
+	id S263024AbUCSQCd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 11:02:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbUCSQCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 11:04:03 -0500
-Received: from fed1mtao08.cox.net ([68.6.19.123]:63893 "EHLO
-	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S263027AbUCSQEB
+	Fri, 19 Mar 2004 11:02:33 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:46794 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263024AbUCSQCb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 11:04:01 -0500
-Date: Fri, 19 Mar 2004 09:03:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: kgdb-bugreport@lists.sourceforge.net
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: kgdb_arch_set/remove_break() ?
-Message-ID: <20040319160359.GD4569@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Mar 2004 11:02:31 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Supphachoke Suntiwichaya <mrchoke@opentle.org>
+Subject: Re: [PATCH] ATI IXP IDE support 2.6.5-rc1 (modify)
+Date: Fri, 19 Mar 2004 17:10:06 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <405A77CC.50506@opentle.org>
+In-Reply-To: <405A77CC.50506@opentle.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403191710.06084.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  Right now I'm writing up a porting doc that describes the various
-hook functions we've got.  I noticed that nothing is calling
-kgdb_arch_set/remove_break.  Is there some arch we're expecting will
-need this?  I'd like to just go ahead and remove them.
+On Friday 19 of March 2004 05:32, Supphachoke Suntiwichaya wrote:
+> Hi,
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Hi,
+
+> I modified patch from
+> http://www.kernel.org/pub/linux/kernel/people/bart/atiixp_ide/atiixp_ide-2.
+>6.3-2.patch
+
+You should have checked official Linus tree first,
+ATI IXP IDE support is already merged - 2.5.6-rc1-bk2 contains it. :-)
+
+http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/
+
+> for kernel 2.6.5-rc1. It work well for my box ASUS P4R800-VM.
+
+Thanks for testing,
+Bartlomiej
+

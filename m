@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129742AbQK2CRX>; Tue, 28 Nov 2000 21:17:23 -0500
+        id <S131121AbQK2CTD>; Tue, 28 Nov 2000 21:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129933AbQK2CRN>; Tue, 28 Nov 2000 21:17:13 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:47108 "EHLO saturn.cs.uml.edu")
-        by vger.kernel.org with ESMTP id <S129742AbQK2CRF>;
-        Tue, 28 Nov 2000 21:17:05 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011290146.eAT1khL116131@saturn.cs.uml.edu>
-Subject: Re: [PATCH] removal of "static foo = 0"
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Tue, 28 Nov 2000 20:46:43 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), aeb@veritas.com (Andries Brouwer),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200011272257.eARMvw302186@flint.arm.linux.org.uk> from "Russell King" at Nov 27, 2000 10:57:57 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        id <S129933AbQK2CSx>; Tue, 28 Nov 2000 21:18:53 -0500
+Received: from jalon.able.es ([212.97.163.2]:18321 "EHLO jalon.able.es")
+        by vger.kernel.org with ESMTP id <S131121AbQK2CSo>;
+        Tue, 28 Nov 2000 21:18:44 -0500
+Date: Wed, 29 Nov 2000 02:48:36 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Dan Hollis <goemon@anime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
+Message-ID: <20001129024836.A3305@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <20001129021025.A768@werewolf.able.es> <Pine.LNX.4.30.0011281722220.27692-100000@anime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.30.0011281722220.27692-100000@anime.net>; from goemon@anime.net on Wed, Nov 29, 2000 at 02:29:04 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> Albert D. Cahalan writes:
 
->> It is too late to fix things now. It would have been good to
->> have the compiler put explicitly zeroed data in a segment that
->> isn't shared with non-zero or uninitialized data, so that the
->> uninitialized data could be set to 0xfff00fff to catch bugs.
->> It would take much effort over many years to make that work.
->
-> Oh dear, here's that misconception again.
->
-> static int a;
->
-> isn't a bug.
+On Wed, 29 Nov 2000 02:29:04 Dan Hollis wrote:
+> On Wed, 29 Nov 2000, J . A . Magallon wrote:
+> > On Wed, 29 Nov 2000 01:39:56 Dan Hollis wrote:
+> > > Dont forget the nvidia driver is completely SMP broken. As in, trash your
+> > > filesystems broken.
+> > Not so broken. I use it under SMP 2.2.18-pre23 and works fine.
+> 
+> Try unreal tournament. Locks up hard during the intro animation. It's been
+> listed for months in the nvidia FAQ as a known bug (#6.5.7) with no fix.
+> 
 
-Alone, it is not.
+Not exactly UT, but I have tried quake3, heretic2, and descent3. And in
+the serious group, OpenGL Performer and recently Inventor. I have not
+tried to leave q3a in demo mode for two days, but everything else works
+fine. And Performer now (v2.4) is SMP'ing.
 
-> It is not "uninitialised data".  It is defined to be
-> zero.  Setting the BSS of any C program to contain non-zero data will
-> break it.  Fact.  The only bug you'll find is the fact that you're
-> breaking the C standard.
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
 
-Oh, bullshit. We break the C standard left and right already.
-This is the kernel, and the kernel can initialize BSS any damn
-way it feels like initializing it. The kernel isn't ever going
-to be standard C.
+Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
 
-Choosing an initializer that tends to catch unintended reliance
-on zeroed data would be good. Too bad it is too late to fix.
-
-> All variables declared at top-level are initialised.  No questions
-> asked.  And its not a bug to rely on such a fact.
-
-Go back and read the rest of this thread. Examples have been
-provided (not by me) of such code leading to latter mistakes.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

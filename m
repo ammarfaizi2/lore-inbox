@@ -1,101 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbTFBTwm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 15:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTFBTwl
+	id S261651AbTFBTwb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 15:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbTFBTwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 15:52:41 -0400
-Received: from fed1mtao05.cox.net ([68.6.19.126]:4311 "EHLO fed1mtao05.cox.net")
-	by vger.kernel.org with ESMTP id S261688AbTFBTwi (ORCPT
+	Mon, 2 Jun 2003 15:52:30 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:46859 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S261651AbTFBTw2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 15:52:38 -0400
-Date: Mon, 2 Jun 2003 13:05:50 -0700 (MST)
-From: James Blanford <jimmybgood@cox.net>
-Reply-To: jimmybgood9@yahoo.com
-Subject: 2.4.21-rc6-rmap15j possible drive format corruption
-To: linux-kernel@vger.kernel.org
+	Mon, 2 Jun 2003 15:52:28 -0400
+Message-ID: <3EDBAE1D.7010504@xss.co.at>
+Date: Mon, 02 Jun 2003 22:05:49 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-Message-Id: <20030602200601.YWX5311.fed1mtao05.cox.net@ip68-0-167-78.tc.ph.cox.net>
+To: linux-kernel@vger.kernel.org
+CC: Pam.Delaney@lsil.com
+Subject: Misleading comment for CONFIG_FUSION (LSI fusion MPT driver)
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now this could just be a complete coincidence and my hard drive decided
-to head south just minutes after the second time I booted
-2.4.21-rc6-rmap15j.  But it is also quite reminiscent of the
-Thanksgiving, 2001 greased-turkey release.  This time I have no system
-problems or error messages, but got a report of 3 ATA errors (my drive's
-first) from a running SMART daemon.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Both smartmontool's smartctl and Seagate's SeaTools Desktop gave an
-error that basically meant that the drive self-tests could not be run.
-Seagate offered the possibility that a low-level format could correct
-the problem.  More ominously, upon booting to a system on a different
-drive and running badblocks, badblocks hangs testing the beginning of
-the partition that my root is mounted on. Everything else is ok
-including fsck (without badblocks).
+Hi!
 
-drive:	Seagate 340016A, ATA 40GB
-board:	ECS K7S5A, SiS 735 chipset, SiS 5513 on board IDE
-filesystem:	ext3 built into kernel
-config:	
+(I've already reported this previously as post scriptum
+to a different bugreport, so it might have slipped through
+unnoticed...)
 
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_BLK_DEV_CMD640 is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_BLK_DEV_GENERIC is not set
-# CONFIG_IDEPCI_SHARE_IRQ is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_BLK_DEV_ADMA100 is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-CONFIG_BLK_DEV_SIS5513=y
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-# CONFIG_BLK_DEV_ATARAID is not set
+The linux kernel configuration help text for the LSI fusion MPT
+driver (CONFIG_FUSION) provides this information:
 
-I normally don't post and know that this could be a hardware problem
-only.  I decided to post because I (and I imagine anyone else) would
-have missed it if I had not been running smartd.  Or maybe all this
-smart stuff is just bogus?
+[...]
+  If you have Fusion MPT hardware and want to use it, you can say
+  Y or M here to add MPT (base + ScsiHost) drivers.
+    <Y> = build lib (fusion.o), and link [static] into the kernel [2]
+          proper
+    <M> = compiled as [dynamic] modules [3] named: (mptbase.o,
+          mptscsih.o)
 
-What, me worry?
+          [2] In order enable capability to boot the linux kernel
+              natively from a Fusion MPT target device, you MUST
+               answer Y here! (currently requires CONFIG_BLK_DEV_SD)
+[...]
 
-     -  Alfred
+This is at least misleading: It _is_ possible to boot from
+a SCSI drive connected to a LSI Fusion MPT controller and have
+the device driver loaded as module: just use an initial ramdisk
+which contains the necessary modules and load them in linuxrc
 
-PS Not subscribed, but lurking
+There is nothing special here: I do this all the time with
+all kind of hardware: RAID controllers, SCSI controllers,
+IDE controllers (ok, modular IDE is now broken with 2.4.2x,
+but it used to work in the good old times), even diskless
+root fs is possible using initrd (as you all know)
+
+When I first tried to figure if Linux did support the LSI1030
+controller, this comment made me quite insecure: I did not want
+to compile a custom kernel just for this controller and wondered,
+what might be so special about this driver.
+
+But it turned out this wasn't necessary. You can have a modular
+kernel and boot from your harddisk connected to a fusion MPT
+controller quite fine, using the initial ramdisk method. No
+special customized kernel needed!  :-)
+
+With linux-2.4.21-rc6-ac1 (my current test system), just the
+following modules are needed (order is important):
+
+scsi_mod
+mptbase
+mptscsih
+sd_mod
+
+and any other module (like filesystem driver) you need to
+access your root fs.
+
+I just thought this might be of interest for you...
+Perhaps the comment could be changed so it doesn't confuse
+people (like me), who are actually reading the documentation... ;-)
+
+- - andreas
+
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+264ZxJmyeGcXPhERAoN8AJwLe8zMHNN/yCq5gj5BuZ0amFwH3QCdFi0Y
+8fOSlS6LCg4J5W2YgCuFpH4=
+=e0mr
+-----END PGP SIGNATURE-----
+

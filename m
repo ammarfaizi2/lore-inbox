@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137080AbREKIda>; Fri, 11 May 2001 04:33:30 -0400
+	id <S137077AbREKI0K>; Fri, 11 May 2001 04:26:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137079AbREKIdU>; Fri, 11 May 2001 04:33:20 -0400
-Received: from ns.suse.de ([213.95.15.193]:6149 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S137078AbREKIdI>;
-	Fri, 11 May 2001 04:33:08 -0400
-Date: Fri, 11 May 2001 10:32:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Daniel Podlejski <underley@witch.underley.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs, xfs, ext2, ext3
-Message-ID: <20010511103233.A2252@gruyere.muc.suse.de>
-In-Reply-To: <alan@lxorguk.ukuu.org.uk> <20010510151204.A16686@gruyere.muc.suse.de> <20010510222313Z5297730-750+10@witch.underley.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010510222313Z5297730-750+10@witch.underley.eu.org>; from underley@witch.underley.eu.org on Fri, May 11, 2001 at 12:23:09AM +0200
+	id <S137078AbREKI0B>; Fri, 11 May 2001 04:26:01 -0400
+Received: from hood.tvd.be ([195.162.196.21]:36494 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S137077AbREKIZs>;
+	Fri, 11 May 2001 04:25:48 -0400
+Date: Fri, 11 May 2001 10:24:13 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: linux-parport@torque.net
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] parport_pc_init_superio()
+Message-ID: <Pine.LNX.4.05.10105111021570.1624-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 11, 2001 at 12:23:09AM +0200, Daniel Podlejski wrote:
-> 
-> ext2:
-> 
-> root@witch:/mobile:# time tar xzf /arc/test.tar.gz
 
-If /arc is not on a different hd it is probably a good idea to make 
-sure test.tar.gz is small enough to fit into memory and has been read
-at least once to be cache hot (that was the case with my test tar). 
-Otherwise you're testing how fast the hd can seek between the two places 
-and how far XFS and ext2 are away, and both are not very interesting.
+Someone forgot to update parport_pc_init_superio() for CONFIG_PCI=n (found by
+Richard Zidlicky, IIRC).
 
+Patches against Linus' 2.4.5-pre1 and Alan's 2.4.4-ac6 below.
 
--Andi
+diff -urN linux-2.4.5-pre1/drivers/parport/parport_pc.c linux-m68k-2.4.5-pre1/drivers/parport/parport_pc.c
+--- linux-2.4.5-pre1/drivers/parport/parport_pc.c	Sat Apr 28 20:21:49 2001
++++ linux-m68k-2.4.5-pre1/drivers/parport/parport_pc.c	Wed May  2 08:23:08 2001
+@@ -2576,7 +2576,7 @@
+ }
+ #else
+ static struct pci_driver parport_pc_pci_driver;
+-static int __init parport_pc_init_superio(void) {return 0;}
++static int __init parport_pc_init_superio(int autoirq, int autodma) {return 0;}
+ #endif /* CONFIG_PCI */
+ 
+ /* This is called by parport_pc_find_nonpci_ports (in asm/parport.h) */
+
+--- linux-2.4.4-ac6/drivers/parport/parport_pc.c	Wed May  9 09:20:02 2001
++++ m68k-2.4.4-ac6/drivers/parport/parport_pc.c	Fri May 11 10:16:37 2001
+@@ -2718,7 +2718,7 @@
+ 
+ #else
+ static struct pci_driver parport_pc_pci_driver;
+-static int __init parport_pc_init_superio(void) {return 0;}
++static int __init parport_pc_init_superio(int autoirq, int autodma) {return 0;}
+ #endif
+ 
+ /* This is called by parport_pc_find_nonpci_ports (in asm/parport.h) */
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

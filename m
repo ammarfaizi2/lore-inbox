@@ -1,57 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263758AbTK2JZL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 04:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbTK2JZL
+	id S263760AbTK2JZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 04:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTK2JZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 04:25:11 -0500
-Received: from [210.8.79.18] ([210.8.79.18]:42127 "EHLO dreamcraft.com.au")
-	by vger.kernel.org with ESMTP id S263758AbTK2JZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 04:25:08 -0500
-Date: Sat, 29 Nov 2003 20:24:25 +1100
-To: Dave Jones <davej@redhat.com>, Aubin LaBrosse <arl8778@rit.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DRI and AGP on 2.6.0-test9
-Message-ID: <20031129092425.GA1057@dreamcraft.com.au>
-References: <1069571959.9574.46.camel@rain.rh.rit.edu> <20031123193724.GA24957@redhat.com>
+	Sat, 29 Nov 2003 04:25:31 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:59154 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S263760AbTK2JZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 04:25:25 -0500
+Date: Sat, 29 Nov 2003 20:24:58 +1100
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [JBD] Handle j_commit_interval == 0
+Message-ID: <20031129092458.GA19338@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
 Content-Disposition: inline
-In-Reply-To: <20031123193724.GA24957@redhat.com>
 User-Agent: Mutt/1.5.4i
-From: tmc@dreamcraft.com.au (Tomasz Ciolek)
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That make it ...  work... 
 
-why was it not documented somewhere??
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-TMC
+Hi:
 
-On Sun, Nov 23, 2003 at 07:37:24PM +0000, Dave Jones wrote:
->  > of particular worry to me, though i'm not a kernel hacker, is the line
->  > [agp] AGP not available.
-> 
-> Did you modprobe the amd-k7-agp module as well as agpgart ?
-> 
-> 		Dave
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+After the laptop mode patch was merged, it is now possible for
+j_commit_interval to be zero.  Unfortunately jbd doesn't handle
+this situation very well.
 
+This patch makes it do the sensible thing.
+
+Cheers,
 -- 
-Tomasz M. Ciolek	
-*******************************************************************************
-  email:  tmc at dreamcraft dot com dot au 
-*******************************************************************************
-	GPG Key ID: 0x41C4C2F0  Key available on www.pgp.net	
-*******************************************************************************
-  Everything falls under the law of change;	
-  Like a dream, a phantom, a bubble, a shadow,
-  like dew of flash of lightning.
-  You should contemplate like this. 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: kernel-source-2.4/fs/jbd/journal.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/fs/jbd/journal.c,v
+retrieving revision 1.1.1.9
+diff -u -r1.1.1.9 journal.c
+--- kernel-source-2.4/fs/jbd/journal.c	29 Nov 2003 06:39:14 -0000	1.1.1.9
++++ kernel-source-2.4/fs/jbd/journal.c	29 Nov 2003 09:20:32 -0000
+@@ -253,6 +253,7 @@
+ 
+ 		/* Were we woken up by a commit wakeup event? */
+ 		if ((transaction = journal->j_running_transaction) != NULL &&
++		    journal->j_commit_interval &&
+ 		    time_after_eq(jiffies, transaction->t_expires)) {
+ 			journal->j_commit_request = transaction->t_tid;
+ 			jbd_debug(1, "woke because of timeout\n");
+Index: kernel-source-2.4/fs/jbd/transaction.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/fs/jbd/transaction.c,v
+retrieving revision 1.1.1.6
+diff -u -r1.1.1.6 transaction.c
+--- kernel-source-2.4/fs/jbd/transaction.c	28 Nov 2003 18:26:21 -0000	1.1.1.6
++++ kernel-source-2.4/fs/jbd/transaction.c	29 Nov 2003 06:59:58 -0000
+@@ -60,10 +60,12 @@
+ 	INIT_LIST_HEAD(&transaction->t_jcb);
+ 
+ 	/* Set up the commit timer for the new transaction. */
+-	J_ASSERT (!journal->j_commit_timer_active);
+-	journal->j_commit_timer_active = 1;
+-	journal->j_commit_timer->expires = transaction->t_expires;
+-	add_timer(journal->j_commit_timer);
++	if (journal->j_commit_interval) {
++		J_ASSERT (!journal->j_commit_timer_active);
++		journal->j_commit_timer_active = 1;
++		journal->j_commit_timer->expires = transaction->t_expires;
++		add_timer(journal->j_commit_timer);
++	}
+ 	
+ 	J_ASSERT (journal->j_running_transaction == NULL);
+ 	journal->j_running_transaction = transaction;
+@@ -1465,7 +1467,8 @@
+ 	if (handle->h_sync ||
+ 			transaction->t_outstanding_credits >
+ 				journal->j_max_transaction_buffers ||
+-	    		time_after_eq(jiffies, transaction->t_expires)) {
++	    		(journal->j_commit_interval &&
++	    		 time_after_eq(jiffies, transaction->t_expires))) {
+ 		/* Do this even for aborted journals: an abort still
+ 		 * completes the commit thread, it just doesn't write
+ 		 * anything to disk. */
+
+--fUYQa+Pmc3FrFX/N--

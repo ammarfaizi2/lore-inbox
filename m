@@ -1,94 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289772AbSAJXVm>; Thu, 10 Jan 2002 18:21:42 -0500
+	id <S286339AbSAJX22>; Thu, 10 Jan 2002 18:28:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286339AbSAJXVc>; Thu, 10 Jan 2002 18:21:32 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:10003 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289772AbSAJXVV>;
-	Thu, 10 Jan 2002 18:21:21 -0500
-Date: Thu, 10 Jan 2002 15:18:49 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, felix-dietlibc@fefe.de,
-        andersen@codepoet.org
-Subject: [RFC] klibc requirements, round 2
-Message-ID: <20020110231849.GA28945@kroah.com>
+	id <S289774AbSAJX2N>; Thu, 10 Jan 2002 18:28:13 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:64969 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289773AbSAJX2G>; Thu, 10 Jan 2002 18:28:06 -0500
+Date: Thu, 10 Jan 2002 18:28:04 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pagecache lock ordering
+Message-ID: <20020110182804.D8433@redhat.com>
+In-Reply-To: <3C3CE5D6.2204BD27@zip.com.au> <Pine.LNX.4.21.0201101332560.1121-100000@localhost.localdomain> <3C3DFBEF.BA050536@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C3DFBEF.BA050536@zip.com.au>; from akpm@zip.com.au on Thu, Jan 10, 2002 at 12:39:11PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jan 10, 2002 at 12:39:11PM -0800, Andrew Morton wrote:
+> I'm struggling to see a use for generic_buffer_fdatasync().  Maybe
+> for a filesystem which doesn't implement ->writepage()?  Dunno.
 
-Ok, now that we have a general idea that people are going to want to
-stick lots of different types of programs into the initramfs, does this
-change any of the initial requirement list for klibc that I sent out?
+I seem to be using it in aio.  Well, at least code based on it which 
+seems to work for most filesystems for O_DATASYNC...
 
-To summarize, here's a partial list of the programs people want to run:
-	- mount
-	- hotplug
-	- busybox
-	- dhcpcd
-	- image viewer
-	- mkreiserfs
-	- partition discovery (currently in the kernel)
-	- lots of other, existing in kernel code.
-
-So on to the requirements:
-  1) portable
-     This is still true.
-     
-     dietlibc and uClibc currently do not cover the
-     range of platforms that this code must run on.  For either of them
-     to be used, they must be worked on.
-
-  2) tiny
-     Still true.
-     
-     For some people, glibc will be acceptable.  For the rest of us, we
-     want something a bit smaller :) Both uClibc and dietlibc fit this
-     requirement.
-
-  3) dynamic version available
-     Probably not true anymore.
-     In talking with lots of people, and playing with the dynamic
-     linking capabilities of different libraries, I don't think this is
-     worth having as a requirement for this kind of library.
-
-  4) not suck
-     Still true :)
-
-
-So, what's the available options to try to meet these requirements?
-
-Here's some proposed solutions:
-  - dietlibc / uClibc
-    Nice options.  Both of these libraries are already fairly complete.
-    One drawback is they are not portable to all platforms.  With some
-    work, this can probably be solved.
-
-  - klibc
-    Portability can be achieved through using the kernel unistd.h file
-    for the syscall logic, and having a very small _start function
-    written.  For an example of this kind of code, see the initramfs
-    patches from Al Viro on his ftp site:
-	    ftp://ftp.math.psu.edu/pub/viro/
-    This would involve writing/porting a lot of the basic library
-    functions.  They could be copied from the existing libc
-    implementations, but this would be a separate project, requiring
-    maintenance over time, and people willing to do the work.
-
-Is this all a good summary?  Any other comments from people?
-
-How about responses from the dietlibc and uClibc people on the odds of
-them being able to port to the remaining platforms?
-
-In the meantime, I'll go off and play with klibc, and see if I can get
-some portability based off of Al's example code.  If anyone is
-interested, the code can be found at:
-	http://linuxusb.bkbits.net:8088/klibc
-
-thanks,
-
-greg k-h
+		-ben
+-- 
+Fish.

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQKUK7R>; Tue, 21 Nov 2000 05:59:17 -0500
+	id <S129231AbQKULFa>; Tue, 21 Nov 2000 06:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQKUK7H>; Tue, 21 Nov 2000 05:59:07 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16903 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129208AbQKUK66>;
-	Tue, 21 Nov 2000 05:58:58 -0500
-Date: Tue, 21 Nov 2000 11:28:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: kumon@flab.fujitsu.co.jp
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] livelock in elevator scheduling
-Message-ID: <20001121112836.B10007@suse.de>
-In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp>
+	id <S130215AbQKULFV>; Tue, 21 Nov 2000 06:05:21 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:33781 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129231AbQKULFP>;
+	Tue, 21 Nov 2000 06:05:15 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20001121073955.16B948960@tuttifrutti.cdt.luth.se> 
+In-Reply-To: <20001121073955.16B948960@tuttifrutti.cdt.luth.se> 
+To: Hakan Lennestal <hakanl@cdt.luth.se>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: 2.4.0, test10, test11: HPT366 problem 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp>; from kumon@flab.fujitsu.co.jp on Tue, Nov 21, 2000 at 05:38:44PM +0900
+Date: Tue, 21 Nov 2000 10:35:05 +0000
+Message-ID: <5117.974802905@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21 2000, kumon@flab.fujitsu.co.jp wrote:
-> The current elevator_linus() doesn't obey the true elevator
-> scheduling, and causes I/O livelock during frequent random write
-> traffics. In such environment I/O (read/write) transactions may be
-> delayed almost infinitely (more than 1 hour).
-> 
-> Problem:
->  Current elevator_linus() traverses the I/O requesting queue from the
-> tail to top. And when the current request has smaller sector number
-> than the request on the top of queue, it is always placed just after
-> the top.
->  This means, if requests in some sector range are continuously
-> generated, a request with larger sector number is always places at the
-> last and has no chance to go to the front.  e.g. it is not scheduled.
 
-Believe it or not, but this is intentional. In that regard, the
-function name is a misnomer -- call it i/o scheduler instead :-)
-The current settings in test11 cause this behaviour, because the
-starting request sequence numbers are a 'bit' too high.
+hakanl@cdt.luth.se said:
+>   Nov 21 08:08:40 t kernel: hde: IBM-DTLA-307030, ATA DISK drive
 
-I'd be very interested if you could repeat your test with my
-block patch applied. It has, among other things, a more fair (and
-faster) insertion.
+>   Nov 21 08:08:40 t kernel:  hde: hde1 hde2 < hde5
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test11/blk-11.bz2
+> And then after a while it gets a DMA timeout and hangs hard. 
 
-> [...] Additionally, it may be better to add extra priority to reads
-> than writes to obtain better response, but this patch doesn't.
+You mean this?
 
-READs do have bigger priority, they start out with lower sequence
-numbers than WRITEs do:
+	hde: timeout waiting for DMA
+	ide_dmaproc: chipset supported ide_dma_timeout func only: 14
 
-	latency = elevator_request_latency(elevator, rw);
+I see identical hangs when I have a similar IBM-DTLA drive attached 
+anywhere on the HPT366. But I also see it hang on 2.2.17 if I try:
 
-With my patch, READ sequence start is now 8192. WRITEs are twice
-that.
+ hdparm -t /dev/hde & hdparm -t /dev/hde & hdparm -t /dev/hde
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+a few times. This is even with Andre's latest patch.
+
+For now, I've just moved the IBM drive onto the PIIX4, where it's stable. My 
+other UDMA66 drive has been rock solid on the BP6 for months:
+	hda: SAMSUNG SV0432D, ATA DISK drive
+
+Andre, un{less,til} we can work out what the problem is, can we add the IBM 
+drives to the HPT366 udma4 blacklist? I'll also try it in udma3 mode to see 
+what happens.
+
+--
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

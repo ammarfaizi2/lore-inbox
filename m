@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbUBNLv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 06:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUBNLv3
+	id S261877AbUBNMKX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 07:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUBNMKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 06:51:29 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35523 "HELO
+	Sat, 14 Feb 2004 07:10:23 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54466 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261827AbUBNLv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 06:51:28 -0500
-Date: Sat, 14 Feb 2004 12:51:23 +0100
+	id S261877AbUBNMKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 07:10:18 -0500
+Date: Sat, 14 Feb 2004 13:10:13 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Elikster <elik@webspires.com>
+To: Peter Cordes <peter@cordes.ca>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.2 Kernel Problem
-Message-ID: <20040214115123.GG1308@fs.tum.de>
-References: <20040211061753.GA22167@plexity.net> <Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de> <20040211111800.A5618@home.com> <882539071.20040211114351@webspires.com>
+Subject: Re: typo: HOSTCCFLAGS instead of HOSTCFLAGS in lib/Makefile
+Message-ID: <20040214121013.GI1308@fs.tum.de>
+References: <20040210233102.GH5388@llama.nslug.ns.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <882539071.20040211114351@webspires.com>
+In-Reply-To: <20040210233102.GH5388@llama.nslug.ns.ca>
 User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 11:43:51AM -0700, Elikster wrote:
-
-> Greetings,
+On Tue, Feb 10, 2004 at 07:31:02PM -0400, Peter Cordes wrote:
 > 
->    I noticed two problems that seems to come up after using the 2.6.2 kernel on the production servers.  One is the RPM system. It seems to barf badly due to the db3 vs db4 errors when updating the packages on Redhat 9.0 system.
->...
+>  In lib/Makefile in Linux 2.4.24, near the end there is:
+> gen_crc32table: gen_crc32table.c
+>          $(HOSTCC) $(HOSTCCFLAGS) -o $@ $<
+>                          ^^
+>  It should be HOSTCFLAGS, not HOSTCCFLAGS.
+> 
+>  There aren't any other instances of HOSTCCFLAGS in 2.4.24, or any in 2.6.1.
 
-This problem and a workaround are listed at
+Nice spotting!
 
-  http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
+@Marcelo:
+Please apply the patch below.
 
-
-> Best regards,
->  Elikster                            mailto:elik@webspires.com
+>  please CC on replies, since I'm not subscribed.
 
 cu
 Adrian
 
-BTW: Please tell your mail client about line breaks.
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--- linux-2.4.25-rc2-full/lib/Makefile.old	2004-02-14 13:02:36.000000000 +0100
++++ linux-2.4.25-rc2-full/lib/Makefile	2004-02-14 13:02:47.000000000 +0100
+@@ -42,7 +42,7 @@
+ crc32.o: crc32table.h
+ 
+ gen_crc32table: gen_crc32table.c
+-	$(HOSTCC) $(HOSTCCFLAGS) -o $@ $<
++	$(HOSTCC) $(HOSTCFLAGS) -o $@ $<
+ 
+ crc32table.h: gen_crc32table
+ 	./$< > $@

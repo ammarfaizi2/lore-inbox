@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267973AbUIGMXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUIGMZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267973AbUIGMXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 08:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267977AbUIGMXF
+	id S267977AbUIGMZt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 08:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267989AbUIGMZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 08:23:05 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:51094 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S267973AbUIGMWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 08:22:21 -0400
-Date: Tue, 7 Sep 2004 14:21:59 +0200 (CEST)
-From: Simon Derr <simon.derr@bull.net>
-X-X-Sender: derr@daphne.frec.bull.fr
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm4
-In-Reply-To: <20040907020831.62390588.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0409071415380.10577@daphne.frec.bull.fr>
-References: <20040907020831.62390588.akpm@osdl.org>
+	Tue, 7 Sep 2004 08:25:49 -0400
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:43488 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267977AbUIGMXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 08:23:48 -0400
+Message-ID: <413DA83A.7010704@kolivas.org>
+Date: Tue, 07 Sep 2004 22:23:22 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: attribute warn_unused_result
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1B50B56EB1D2EA7D8FD8DBCB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1B50B56EB1D2EA7D8FD8DBCB
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Gcc3.4.1 has recently been complaining of a number of unused results 
+from function with attribute warn_unused_result set. I'm not sure of how 
+you want to tackle this so I'm avoiding posting patches. Should we 
+remove the attribute (seems the likely option) or set some dummy 
+variable (sounds stupid now that I ask it).
 
-> add-some-key-management-specific-error-codes.patch
->   Add some key management specific error codes
->
-> keys-new-error-codes-for-alpha-mips-pa-risc-sparc-sparc64.patch
->   keys: new error codes for Alpha, MIPS, PA-RISC, Sparc & Sparc64
->
-> implement-in-kernel-keys-keyring-management.patch
->   implement in-kernel keys & keyring management
->   keys build fix
->   keys & keyring management update patch
->   implement-in-kernel-keys-keyring-management-update-build-fix
->   implement-in-kernel-keys-keyring-management-update-build-fix-2
->   key management patch cleanup
->
-> make-key-management-code-use-new-the-error-codes.patch
->   Make key management code use new the error codes
->
-> keys-permission-fix.patch
->   keys: permission fix
->
-> keys-keyring-management-keyfs-patch.patch
->   keys & keyring management: keyfs patch
->
-> keyfs-build-fix.patch
->   keyfs build fix
+Con
 
-Build fails without CONFIG_KEYS:
+--------------enig1B50B56EB1D2EA7D8FD8DBCB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-kernel/sys.c:283:29: macro "sys_request_key" requires 5 arguments, but only 1 given
-kernel/sys.c:283: error: `sys_request_key' defined both normally and as an alias
-kernel/sys.c:283: warning: `syscall_linkage' attribute only applies to function types
-kernel/sys.c:284:24: macro "sys_keyctl" requires 5 arguments, but only 1 given
-kernel/sys.c:284: error: `sys_keyctl' defined both normally and as an alias
-kernel/sys.c:284: warning: `syscall_linkage' attribute only applies to function types
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-In include/linux/key.h, sys_request_key and sys_keyctl are defined as
-macros :
+iD8DBQFBPag7ZUg7+tp6mRURAiDMAJ0bovokQOPlNUfhGmDm0fb3gUPH2wCggQ22
+rnXYNW/f9eUFLLkFQj3txUU=
+=IB9E
+-----END PGP SIGNATURE-----
 
-#define sys_request_key(a,b,c,d,e)      (-ENOSYS)
-#define sys_keyctl(a,b,c,d,e)           (-ENOSYS)
-
-But in kernel/sys.c, we find:
-
-cond_syscall(sys_request_key)
-cond_syscall(sys_keyctl)
-
-Which expects these symbols to be real functions, it seems.
+--------------enig1B50B56EB1D2EA7D8FD8DBCB--

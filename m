@@ -1,30 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbUCLSka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 13:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUCLSka
+	id S262399AbUCLSiI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 13:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUCLSiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 13:40:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9892 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262441AbUCLSk0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 13:40:26 -0500
-Message-ID: <4052040D.8050100@pobox.com>
-Date: Fri, 12 Mar 2004 13:40:13 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rene Herman <rene.herman@keyaccess.nl>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL] 8139too assertions
-References: <404F9B6B.10102@keyaccess.nl>
-In-Reply-To: <404F9B6B.10102@keyaccess.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 13:38:07 -0500
+Received: from thunk.org ([140.239.227.29]:39565 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262399AbUCLShw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 13:37:52 -0500
+Date: Fri, 12 Mar 2004 13:37:38 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Matthew Galgoci <mgalgoci@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] atkbd shaddup
+Message-ID: <20040312183738.GA3233@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Matthew Galgoci <mgalgoci@redhat.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0403121228100.28918-100000@lacrosse.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403121228100.28918-100000@lacrosse.corp.redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied to 2.4 and 2.5
+On Fri, Mar 12, 2004 at 12:37:06PM -0500, Matthew Galgoci wrote:
+> 
+> Andrew,
+> 
+> I can't be the only person to be annoyed by the "too many keys
+> pressed" error message that often gets spewed across the console
+> when I am typing fast. This patch turns that error message (and
+> others) into info message. Also, one debug message was turned into
+> info, and a couple of warnings were turned into info where I thought
+> it made sense.
 
+I'd go even further.  Do we need to print the "too many keys pressed"
+message at *all*?  Why would anyone care?
 
+						- Ted

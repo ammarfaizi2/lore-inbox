@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261519AbSJAIE5>; Tue, 1 Oct 2002 04:04:57 -0400
+	id <S261524AbSJAIL0>; Tue, 1 Oct 2002 04:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261522AbSJAIE5>; Tue, 1 Oct 2002 04:04:57 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:28800 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S261519AbSJAIE5>;
-	Tue, 1 Oct 2002 04:04:57 -0400
-Date: Tue, 1 Oct 2002 03:10:23 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Steven Cole <elenstev@mesatop.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.39 Oops on boot (device_attach+0x3a)
-In-Reply-To: <1033443514.3100.24.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0210010305110.1429-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261525AbSJAIL0>; Tue, 1 Oct 2002 04:11:26 -0400
+Received: from rammstein.mweb.co.za ([196.2.53.175]:56009 "EHLO
+	rammstein.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S261524AbSJAILZ>; Tue, 1 Oct 2002 04:11:25 -0400
+To: Thomas Molina <tmolina@cox.net>,
+       Felipe Alfaro Solana <felipe_alfaro@msn.com>,
+       linux-kernel@vger.kernel.org
+From: bonganilinux@mweb.co.za
+Subject: Re: cdrecord, IDE-SCSI and 2.5.39
+Date: Tue, 1 Oct 2002 08:16:39 GMT
+X-Posting-IP: 196.34.86.10 via 172.24.158.16
+X-Mailer: Endymion MailMan  
+Message-Id: <E17wI3a-0001NA-00@rammstein.mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Sep 2002, Steven Cole wrote:
 
-> > I believe the oops on boot people have been seeing in 2.5.39 may be 
-> > related to problems inserting ide-scsi modules (sr_mod, mod_scsi, 
-> > ide-scsi).  Since I have to get up early tomorrow I'm going to beg off for 
-> > tonight, but I can reliably produce the above oops.  I'll provide full 
-> > data and explanations when I'm not so tired.  
+> > Which kernel are you running? I have compiled ide-scsi support into
+> > 2.5.39 and I get an Oops after booting.
 > > 
-> It's good that the above oops can be reproduced, so here is some more
-> info on my setup:
 > 
-> [steven@localhost linux-2.5.39-linus]$ grep "=m" .config
-> CONFIG_PARPORT=m
-> CONFIG_PARPORT_PC=m
-> CONFIG_PARPORT_PC_CML1=m
-> CONFIG_PRINTER=m
-> CONFIG_AUTOFS_FS=m
-> CONFIG_FAT_FS=m
-> CONFIG_MSDOS_FS=m
-> CONFIG_VFAT_FS=m
-> CONFIG_NLS_ISO8859_1=m
-> 
-> [steven@localhost linux-2.5.39-linus]$ grep SCSI .config
-> # SCSI device support
-> # CONFIG_SCSI is not set
-> # Old non-SCSI/ATAPI CD-ROM drives
-> # CONFIG_CD_NO_IDESCSI is not set
-> [steven@localhost linux-2.5.39-linus]$ find . -name Makefile | xargs grep sr_mod
-> ./drivers/scsi/Makefile:obj-$(CONFIG_BLK_DEV_SR)        += sr_mod.o
-> ./drivers/scsi/Makefile:sr_mod-objs     := sr.o sr_ioctl.o sr_vendor.o
-> [steven@localhost linux-2.5.39-linus]$ grep BLK_DEV_SR .config
-> [steven@localhost linux-2.5.39-linus]$
+> I'm using kernel 2.5.39.  I've used various flavors of linus' bk tree and 
+> haven't seen any problems.  However, upon further review, I can cause oops 
+> on request when rmmod sr_mod or ide-scsi.  I'm going to write up a full 
+> report tomorrow, but it is similar to what others have reported.  I have 
+> to get up at 0230 in the morning so it's time for bed now.
 
-That would seem to indicate problems within the module load/unload 
-routines rather than specifically ide-scsi.  I could beleive that, 
-although the only modules I could produce the oops with were sr_mod and 
-ide-scsi.  I need more testing so I can produce a coherent report to lkml.
+Hi,
+
+Have you tried to build ide-scsi support into the kernel? I will
+try to compile the kernel with ide-scsi support as modules and see
+how it goes when I get home. I did write down the oops that i get
+and posted it on the list. I haven't got any feed back on it yet.
+
+The original post of the Oops is here
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0209.3/1493.html
+
+Thanx
+
+---------------------------------------------
+This message was sent using M-Web Airmail.
+JUST LIKE THAT
+Are you ready for 10-digit dialling?
+To find out how this will affect your Internet connection go to www.mweb.co.za/ten
+http://airmail.mweb.co.za/
+
 

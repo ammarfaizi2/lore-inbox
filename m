@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262913AbSLIGrc>; Mon, 9 Dec 2002 01:47:32 -0500
+	id <S262901AbSLIGRo>; Mon, 9 Dec 2002 01:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbSLIGrc>; Mon, 9 Dec 2002 01:47:32 -0500
-Received: from f32.law9.hotmail.com ([64.4.9.32]:49160 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S262913AbSLIGrb>;
-	Mon, 9 Dec 2002 01:47:31 -0500
-X-Originating-IP: [66.92.149.185]
-From: "William Knop" <w_knop@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.50-ac1 mpparse -> gcc 3.0.1 segfault
-Date: Mon, 09 Dec 2002 01:55:08 -0500
+	id <S262913AbSLIGRo>; Mon, 9 Dec 2002 01:17:44 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:45288 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S262901AbSLIGRn>;
+	Mon, 9 Dec 2002 01:17:43 -0500
+Date: Mon, 9 Dec 2002 17:18:50 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: torvalds@transmeta.com, george@mvista.com, jim.houston@ccur.com,
+       linux-kernel@vger.kernel.org, anton@samba.org, ak@muc.de,
+       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+Message-Id: <20021209171850.1c2a8c32.sfr@canb.auug.org.au>
+In-Reply-To: <20021208.124100.71913406.davem@redhat.com>
+References: <Pine.LNX.4.44.0212060944030.23118-100000@home.transmeta.com>
+	<Pine.LNX.4.44.0212061111090.1489-100000@home.transmeta.com>
+	<20021208.124100.71913406.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F32fiSBtAM9r5h1inen000214bb@hotmail.com>
-X-OriginalArrivalTime: 09 Dec 2002 06:55:08.0780 (UTC) FILETIME=[E97532C0:01C29F4F]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-The machine I'm working on has SMP enabled (dual 2GHZ P4 Xeon), although 
-I've tried it on a different box with dual P3s and it's still a no go. It 
-didn't happen on 2.5.50-vanilla, so far as I can tell (it had other compile 
-errors wrt intermezzo, but it got past mpparse). Attached at the bottom is 
-the make output. Any info on similar occurrences or a fix would be 
-appreciated.
+On Sun, 08 Dec 2002 12:41:00 -0800 (PST) "David S. Miller" <davem@redhat.com> wrote:
+>
+>    From: Linus Torvalds <torvalds@transmeta.com>
+>    Date: Fri, 6 Dec 2002 11:20:26 -0800 (PST)
+> 
+>    I did the nanosleep() implementation using the new infrastructure now, and
+>    am pushing it out as I write this.
+>  ...   
+>    Compat people can hopefully fix it up.
+> 
+> I'm fixing this up right now.
 
-Thanks,
-William Knop
-Language Technologies Institute
-Carnegie Mellon University
+Thanks for this, Dave.
 
+Isn't it nice that it only needs to be fixed once :-)
 
-  gcc -Wp,-MD,arch/i386/kernel/.trampoline.o.d -D__ASSEMBLY__ -D__KERNEL__ 
--Iinclude -Iarch/i386/mach-generic -Iarch/i386/mach-defaults -nostdinc 
--iwithprefix include  -traditional  -c -o arch/i386/kernel/trampoline.o 
-arch/i386/kernel/trampoline.S
-  gcc -Wp,-MD,arch/i386/kernel/.mpparse.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
--Iarch/i386/mach-generic -Iarch/i386/mach-defaults -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=mpparse -DKBUILD_MODNAME=mpparse   -c -o 
-arch/i386/kernel/mpparse.o arch/i386/kernel/mpparse.c
-arch/i386/kernel/mpparse.c:46: Internal error: Segmentation fault
-Please submit a full bug report,
-with preprocessed source if appropriate.
-See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
-make[1]: *** [arch/i386/kernel/mpparse.o] Error 1
-make: *** [arch/i386/kernel] Error 2
-
-
-
-_________________________________________________________________
-Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
-
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

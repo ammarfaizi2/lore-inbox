@@ -1,108 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265162AbUAJNp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 08:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUAJNp0
+	id S265163AbUAJNxe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 08:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbUAJNxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 08:45:26 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:22291 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S265162AbUAJNpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 08:45:24 -0500
-Date: Sat, 10 Jan 2004 14:41:42 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Maciej Zenczykowski <maze@cela.pl>
-cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity
- checking 
-In-Reply-To: <Pine.LNX.4.44.0401092105070.1739-100000@gaia.cela.pl>
-Message-ID: <Pine.LNX.4.56.0401101431340.13547@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.44.0401092105070.1739-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Jan 2004 08:53:34 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:19102 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S265163AbUAJNxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 08:53:31 -0500
+Date: Sat, 10 Jan 2004 14:53:29 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.2. ELF loader mystery
+Message-Id: <20040110145329.36ecaa38@argon.inf.tu-dresden.de>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Sat__10_Jan_2004_14_53_29_+0100_L30PvIr0+qhg1mcX"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 9 Jan 2004, Maciej Zenczykowski wrote:
-
-> > I know of the document, but thank you for pointing it out, it's quite an
-> > interresting read. Actually, reading that exact document ages ago was what
-> > initially caused me to start reading the ELF loading code (thinking
-> > "there's got to be something wrong here").
-> > I've actually been planning to use some of the crazy stunts he pulls
-> > with that code as validity checks of the code I want to implement (in
-> > adition to specially tailored test-cases ofcourse).
->
-> I think this points to an 'issue', if we're going to increase the checks
-> in the ELF-loader (and thus increase the size of the minimal valid ELF
-> file we can load, thus effectively 'bloating' (lol) some programs) we
-
-Do you need smaller than this?  :
-
-                org     0x08048000
-
-  ehdr:                                                 ; Elf32_Ehdr
-                db      0x7F, "ELF", 1, 1, 1            ;   e_ident
-        times 9 db      0
-                dw      2                               ;   e_type
-                dw      3                               ;   e_machine
-                dd      1                               ;   e_version
-                dd      _start                          ;   e_entry
-                dd      phdr - $$                       ;   e_phoff
-                dd      0                               ;   e_shoff
-                dd      0                               ;   e_flags
-                dw      ehdrsize                        ;   e_ehsize
-                dw      phdrsize                        ;   e_phentsize
-                dw      1                               ;   e_phnum
-                dw      0                               ;   e_shentsize
-                dw      0                               ;   e_shnum
-                dw      0                               ;   e_shstrndx
-
-  ehdrsize      equ     $ - ehdr
-
-  phdr:                                                 ; Elf32_Phdr
-                dd      1                               ;   p_type
-                dd      0                               ;   p_offset
-                dd      $$                              ;   p_vaddr
-                dd      $$                              ;   p_paddr
-                dd      filesize                        ;   p_filesz
-                dd      filesize                        ;   p_memsz
-                dd      5                               ;   p_flags
-                dd      0x1000                          ;   p_align
-
-  phdrsize      equ     $ - phdr
-
-  _start:
-
-                mov     bl, 0
-                xor     eax, eax
-                inc     eax
-                int     0x80
-
-  filesize      equ     $ - $$
+--Signature=_Sat__10_Jan_2004_14_53_29_+0100_L30PvIr0+qhg1mcX
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
 
-That's a 100% valid ELF executable, and the entire program is 91 bytes..
-Sure, it doesn't do much useful, and the ELF header and program header
-table is huge overhead compared to the actual program, but that overhead
-is minimal in any program that does any actual work.
+Hi,
 
-Also, I'm not planning to add anything that disallows anything the ELF
-spec allows, so you can still pull funny tricks like have sections overlap
-and in the above program put _start inside the unused padding bytes in
-e_ident[EI_PAD] if you want.. still a valid program, and not something
-that the checks I'm adding will prevent.
+Linux 2.2 refuses to allocate certain .bss ELF sections in memory if there
+are PT_LOAD sections following them. Is there any convention saying that
+.bss must always be the last section and must not be followed by PT_LOAD
+sections? OTOH both Linux 2.4 and 2.6 have no trouble getting this right
+and load the binary just fine.
 
-It you want *really* tiny files then, as some have suggested, anothe
-format could be used.
-In my oppinion, if you claim to be an ELF executable, then you should be a
-*valid* ELF executable.. If you are not a valid elf file but claim to be
-so, then either something corrupted you or the tools that generated you
-are buggy - and you should not be allowed to even attempt to execute - for
-all the reasons I gave in my original mail.
+Here is an example. There is an .initcall section following .bss and
+.bss (sections 13 and 14) are not being allocated with zero-pages on startup.
+Program thus crashes with SIGSEGV.
+
+Any hints welcome.
+
+-Udo.
 
 
--- Jesper Juhl
 
+prog:     file format elf32-i386
+
+Program Header:
+    LOAD off    0x00000000 vaddr 0x00001000 paddr 0x00001000 align 2**12
+         filesz 0x000a6468 memsz 0x000b8818 flags rwx
+    LOAD off    0x000a7000 vaddr 0x000ba000 paddr 0x000ba000 align 2**12
+         filesz 0x00005000 memsz 0x00005000 flags rwx
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .init         00000017  00001200  00001200  00000200  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .text         0007d640  00001220  00001220  00000220  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .fini         0000001b  0007e860  0007e860  0007d860  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  3 .rodata       00027228  0007e880  0007e880  0007d880  2**5
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .eh_frame     00000000  000a5aa8  000a5aa8  000a4aa8  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  5 .preinit_array 00000000  000a5aa8  000a5aa8  000ac000  2**0
+                  CONTENTS
+  6 .init_array   00000000  000a5aa8  000a5aa8  000ac000  2**0
+                  CONTENTS
+  7 .fini_array   00000000  000a5aa8  000a5aa8  000ac000  2**0
+                  CONTENTS
+  8 .data         000018f0  000a5ac0  000a5ac0  000a4ac0  2**5
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .jcr          00000000  000a73b0  000a73b0  000a63b0  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 10 .ctors        000000a0  000a73b0  000a73b0  000a63b0  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 11 .dtors        00000008  000a7450  000a7450  000a6450  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 12 .got          00000010  000a7458  000a7458  000a6458  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 13 .bss          00011800  000a8000  000a8000  000a7000  2**5
+                  ALLOC
+ 14 __libc_freeres_ptrs 00000018  000b9800  000b9800  000a7000  2**2
+                  ALLOC
+ 15 .initcall     00005000  000ba000  000ba000  000a7000  2**5
+                  CONTENTS, ALLOC, LOAD, CODE
+ 16 .debug_pubnames 00000025  00000000  00000000  000ac000  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 17 .debug_info   0000096c  00000000  00000000  000ac025  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 18 .debug_abbrev 00000124  00000000  00000000  000ac991  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 19 .debug_line   000001c8  00000000  00000000  000acab5  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 20 .debug_str    00000674  00000000  00000000  000acc7d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 21 .debug_aranges 00000058  00000000  00000000  000ad2f8  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 22 .stab         000dba14  00000000  00000000  000ad350  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 23 .stabstr      002ddbd6  00000000  00000000  00188d64  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+results in the following memory map after startup:
+
+00001000-000a8000 rwxp 00000000 03:07 62988      /tmp/prog
+000ba000-000bf000 rwxp 000a7000 03:07 62988      /tmp/prog
+bffff000-c0000000 rwxp 00000000 00:00 0
+
+--Signature=_Sat__10_Jan_2004_14_53_29_+0100_L30PvIr0+qhg1mcX
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAAAPZnhRzXSM7nSkRAkOLAJ9GnBvOK42zQmDRNoqlQ0rj2zqH0QCfZwik
+BiON4GmsY8EmvhcJnk73xVI=
+=bnND
+-----END PGP SIGNATURE-----
+
+--Signature=_Sat__10_Jan_2004_14_53_29_+0100_L30PvIr0+qhg1mcX--

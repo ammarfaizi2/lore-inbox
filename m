@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVBAX3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVBAX2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbVBAX3N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVBAX3M
+	id S262173AbVBAX2M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVBAX1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:29:12 -0500
-Received: from gprs214-253.eurotel.cz ([160.218.214.253]:40834 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262176AbVBAX27 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:28:59 -0500
-Date: Wed, 2 Feb 2005 00:24:29 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ide-dev 3/5] generic Power Management for IDE devices
-Message-ID: <20050201232429.GF1790@elf.ucw.cz>
-References: <Pine.GSO.4.58.0501220004050.23959@mion.elka.pw.edu.pl> <20050122184124.GL468@openzaurus.ucw.cz> <58cb370e05020115032fdb8b59@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e05020115032fdb8b59@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 1 Feb 2005 18:27:46 -0500
+Received: from smtpout16.mailhost.ntl.com ([212.250.162.16]:51751 "EHLO
+	mta08-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S262170AbVBAX1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:27:30 -0500
+Message-ID: <34184.192.168.1.250.1107300443.squirrel@www.bennee.com>
+Date: Tue, 1 Feb 2005 23:27:23 -0000 (GMT)
+Subject: Forcedeth Network driver lockup report
+From: "Alex Bennee" <alex@bennee.com>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Reply-To: alex@bennee.com
+X-Mailer: SquirrelMail (version 1.2.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso_8859_1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I think I've hit a wierd lockup in the forcedeth (Nvidia onboard lan
+chipset) driver on 2.6.9-gentoo-r9. When the failure occurs the
+network just dies with loads of:
 
-> > > Move PM code from ide-cd.c and ide-disk.c to IDE core so:
-> > > * PM is supported for other ATAPI devices (floppy, tape)
-> > > * PM is supported even if specific driver is not loaded
-> > 
-> > Why do you need to have state-machine? During suspend we are running
-> > single-threaded, it should be okay to just do the calls directly.
-> >                                 Pavel
-> 
-> If we are running single-threaded I also see no reason for state-machine.
-> Ben?
-> 
-> Pavel, I assume that changes contained in the patch are OK with you?
+NETDEV WATCHDOG: eth0: transmit timed out
+nv_stop_tx: TransmitterStatus remained busy<7>eth0: tx_timeout: dead entries!
 
-I do not think I looked too closely but yes, they are probably ok.
+Rebooting doesn't solve the problem although the driver will sit there
+and accumulate a load of IRQ's achieving nothing:
 
-								Pavel
+eth0: nv_nic_irq
+eth0: irq: 00000020
+eth0: irq: 00000000
+eth0: nv_nic_irq completed
+
+Even shutting down and "powering off" doesn't clear the condition.
+However if you remove the power from the box and wait a bit and
+restart it comes back too life. I'm 50/50 on if this is failing
+hardware or just that without physically removing power the chip
+doesn't get fully reset. I have copious diagnostic traces since I #if
+1'd the dprintk but before I flood lkml with traces.
+
+* Has anyone else seen this problem?
+
+* Could it be a reset problem?
+
+* Should you be able to fully reset the chip with ethtool/mii-tool?
+
+Please cc me as I'm no longer subscribed to the email torrent that is
+lkml :-)
+
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Alex
+http://www.bennee.com/~alex/
+
+

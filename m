@@ -1,45 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVCVVeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVCVVhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbVCVVeU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVCVVdf
+	id S262009AbVCVVhL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVCVVhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:33:35 -0500
-Received: from manson.clss.net ([65.211.158.2]:46740 "HELO manson.clss.net")
-	by vger.kernel.org with SMTP id S262005AbVCVVbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:31:21 -0500
-Message-ID: <20050322213114.20103.qmail@manson.clss.net>
-From: "Alan Curry" <pacman-kernel@manson.clss.net>
-Subject: Re: SVGATextMode on 2.6.11
-To: aebr@win.tue.nl (Andries Brouwer)
-Date: Tue, 22 Mar 2005 16:31:11 -0500 (EST)
-Cc: akpm@osdl.org (Andrew Morton), linux-kernel@vger.kernel.org,
-       eich@freedesktop.org
-In-Reply-To: <20050322200616.GA4583@pclin040.win.tue.nl> from "Andries Brouwer" at Mar 22, 2005 09:06:16 PM
+	Tue, 22 Mar 2005 16:37:09 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:38334 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262009AbVCVVgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:36:11 -0500
+Message-ID: <42408FCD.1080303@austin.rr.com>
+Date: Tue, 22 Mar 2005 15:36:13 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][0/6] cifs: readdir.c cleanup
+References: <Pine.LNX.4.62.0503222055150.2683@dragon.hyggekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0503222055150.2683@dragon.hyggekrogen.localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer writes the following:
+Jesper Juhl wrote:
+
+>Hi Steve,
 >
->> "Alan Curry" <pacman-kernel@manson.clss.net> wrote:
->>> An SVGATextMode
->>> block cursor isn't affected by ^[c -- it truly *becomes* the default
+>Here's one more cleanup for a file in fs/cifs - readdir.c (i'm going to 
+>follow the order you told me you'd prefer first, then do the remaining 
+>files in arbitrary order).
+>I'm going to send the patches inline to make it easy for others to comment 
+>if they so choose, but since you had problems with inline patches from me 
+>last time I've also placed them online for you :
 >
->True - it is obtained by hardware reprogramming. But having lots of programs
->touch the hardware is getting less popular.
+>http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_readdir-whitespace-cleanup-1.patch
+>http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_readdir-whitespace-cleanup-2.patch
+>http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_readdir-whitespace-cleanup-3.patch
+>http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_readdir-kfree-cleanup.patch
+>http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_readdir-cast-cleanup.patch
+>http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_readdir-whitespace-cleanup-final-bits.patch
+>
+>(listed in the order they apply)
+>
+>
+>Short description of each patch will be in the email with that patch 
+>inline that will follow shortly.
+>
+>
+>  
+>
+The first looks fine.  I am part way through reviewing the second, and 
+so far only found one change (see following) that I question.  I prefer 
+to keep the local variables together without a blank line between them.  
+Is there a global Linux style compliance issue here?  By the way, it is 
+not common to use typedefs but you will see a few in this function since 
+the network protocol specification describes the format of the wire 
+protocol using them and it makes the structure names match the standard.
 
-Yes, I realize that SVGATextMode is probably considered obsolete by now. If
-the new cursor-restoring code actually solved a problem, SVGATextMode
-breakage is an acceptable side effect.
+ static char *nxt_dir_entry(char *old_entry, char *end_of_smb)
+ {
+-	char * new_entry;
+-	FILE_DIRECTORY_INFO * pDirInfo = (FILE_DIRECTORY_INFO *)old_entry;
++	char *new_entry;
++
++	FILE_DIRECTORY_INFO *pDirInfo = (FILE_DIRECTORY_INFO *)old_entry;
 
->Concerning your 1. - You know that such an echo actually creates the VC?
->I still recall the times that there was not enough memory for more than
->four or five VCs, but probably you don't mind wasting a few hundred kB.
-
-I did find a better way, as explained in a subsequent message: Set the
-console font before changing the cursor, and don't touch it afterward.
-
+I will apply at least a few of them, but I am busy doing a high priority 
+fix to handle split transact2 responses (which could cause an oops in ls 
+to some servers so is high priority - although it only occurs on large 
+directories, and if the server decides to send two transact responses 
+for one request (which is not that common) and a search entry is split 
+in certain ways across two SMB responses).

@@ -1,37 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291273AbSAaU3V>; Thu, 31 Jan 2002 15:29:21 -0500
+	id <S291272AbSAaUaL>; Thu, 31 Jan 2002 15:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291272AbSAaU3L>; Thu, 31 Jan 2002 15:29:11 -0500
-Received: from zeke.inet.com ([199.171.211.198]:13974 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S291273AbSAaU3G>;
-	Thu, 31 Jan 2002 15:29:06 -0500
-Message-ID: <3C59A904.1ABC93BF@inet.com>
-Date: Thu, 31 Jan 2002 14:28:52 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-10enterprise i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@atnf.csiro.au>
-CC: linux-kernel@vger.kernel.org
-Subject: vfs.txt and i_ino
+	id <S291275AbSAaU37>; Thu, 31 Jan 2002 15:29:59 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30222 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S291272AbSAaU3f>;
+	Thu, 31 Jan 2002 15:29:35 -0500
+Date: Thu, 31 Jan 2002 21:29:09 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Roger Larsson <roger.larsson@norran.net>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: Errors in the VM - detailed
+Message-ID: <20020131212909.T5301@suse.de>
+In-Reply-To: <Pine.LNX.4.30.0201311604470.14025-100000@mustard.heime.net> <200201312024.g0VKORD19223@mailf.telia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200201312024.g0VKORD19223@mailf.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard,
+On Thu, Jan 31 2002, Roger Larsson wrote:
+> Wait a minute - it might be readahead that gets killed.
+> If I remember correctly READA requests are dropped when failing to allocate 
+> space for it - yes I did...
 
-It appears that struct inode i_ino has a special value of 0.  I don't
-see a mention of that in vfs.txt, and I haven't found anything obvious
-in the fs code... Would it be possible to add some documentation of
-that, along with an explaination of what i_ino==0 is supposed to
-indicate?  (Bad/invalid inode?)
+s/allocate/retrieve
 
-TIA,
+No allocation takes place.
 
-Eli 
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------
+> /usr/src/develop/linux/drivers/block/ll_rw_block.c:746 (earlier kernel)
+> 
+> 	/*
+> 	 * Grab a free request from the freelist - if that is empty, check
+> 	 * if we are doing read ahead and abort instead of blocking for
+> 	 * a free slot.
+> 	 */
+> get_rq:
+> 	if (freereq) {
+> 		req = freereq;
+> 		freereq = NULL;
+> 	} else if ((req = get_request(q, rw)) == NULL) {
+> 		spin_unlock_irq(&io_request_lock);
+> 		if (rw_ahead)
+> 			goto end_io;
+> 
+> 		freereq = __get_request_wait(q, rw);
+> 		goto again;
+> 	}
+> 
+> Suppose we fail with get_request, the request is a rw_ahead,
+> it quits... => no read ahead.
+> 
+> Try to add a prink there...
+> 		if (rw_ahead) {
+> 			printk("Skipping readahead...\n");
+> 			goto end_io;
+> 		}
+
+That will trigger _all the time_ even on a moderately busy machine.
+Checking if tossing away read-ahead is the issue is probably better
+tested with just increasing the request slots. Roy, please try and change
+the queue_nr_requests assignment in ll_rw_blk:blk_dev_init() to
+something like 2048.
+
+-- 
+Jens Axboe
+

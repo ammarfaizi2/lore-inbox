@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUHQDPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268081AbUHQDUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268080AbUHQDPI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 23:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268081AbUHQDPI
+	id S268081AbUHQDUx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 23:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268082AbUHQDUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 23:15:08 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:1985 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268080AbUHQDPF (ORCPT
+	Mon, 16 Aug 2004 23:20:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10217 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268081AbUHQDUv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 23:15:05 -0400
-Message-ID: <d577e569040816201329fa86c@mail.gmail.com>
-Date: Mon, 16 Aug 2004 23:13:34 -0400
-From: Patrick McFarland <diablod3@gmail.com>
-Reply-To: Patrick McFarland <diablod3@gmail.com>
-To: Nur Hussein <obiwan@anomalistic.org>
-Subject: Re: Linux v2.6.8 - Oops on NFSv3
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <411E0A37.5040507@anomalistic.org>
+	Mon, 16 Aug 2004 23:20:51 -0400
+Date: Mon, 16 Aug 2004 20:19:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm1
+Message-Id: <20040816201915.544df590.akpm@osdl.org>
+In-Reply-To: <20040817030957.GI11200@holomorphy.com>
+References: <20040816143710.1cd0bd2c.akpm@osdl.org>
+	<20040817030748.GH11200@holomorphy.com>
+	<20040817030957.GI11200@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org> <411E0A37.5040507@anomalistic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Aug 2004 20:48:55 +0800, Nur Hussein <obiwan@anomalistic.org> wrote:
-> I hear the first victim of the breakage may be the kernel.org front
-> page. 2.6.8.1 is not showing up as "latest".
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> On Mon, Aug 16, 2004 at 02:37:10PM -0700, Andrew Morton wrote:
+> >> - This kernel probably still has the ia64 scheduler startup bug, although it
+> >>   works For Me.
+> 
+> On Mon, Aug 16, 2004 at 08:07:48PM -0700, William Lee Irwin III wrote:
+> > AIUI that was fixed by kill-clone-idletask-fix.patch
+> 
+> How did you compile on ia64? I get:
 
-Yeah, but on the other hand, debian's make-kpkg is working fine.
+I suspect I got lucky.
 
--- 
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
-all be running around in darkened rooms, munching magic pills and listening to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+> make: *** No rule to make target `.tmp_kallsyms3.S', needed by `.tmp_kallsyms3.o'.  Stop.
+> 
+
+People are saying that `make -j1' will work around this.

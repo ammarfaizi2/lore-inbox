@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTI1DVT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 23:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTI1DVT
+	id S262316AbTI1Du6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 23:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTI1Du6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 23:21:19 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:47036 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S262319AbTI1DVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 23:21:17 -0400
-Message-ID: <3F7653AA.2090806@blue-labs.org>
-Date: Sat, 27 Sep 2003 23:21:14 -0400
-From: David Ford <david+hb@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20030927
-X-Accept-Language: en-us, en
+	Sat, 27 Sep 2003 23:50:58 -0400
+Received: from [24.76.142.122] ([24.76.142.122]:44294 "HELO
+	signalmarketing.com") by vger.kernel.org with SMTP id S262316AbTI1Du4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 23:50:56 -0400
+Date: Sat, 27 Sep 2003 22:50:54 -0500 (CDT)
+From: Derek Foreman <manmower@signalmarketing.com>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CDROM_SEND_PACKET oddity
+In-Reply-To: <20030927175445.GI15415@suse.de>
+Message-ID: <Pine.LNX.4.58.0309272200200.1850@uberdeity.signalmarketing.com>
+References: <Pine.LNX.4.58.0309262131110.15317@uberdeity.signalmarketing.com>
+ <20030927114712.GJ3416@suse.de> <20030927122703.GK3416@suse.de>
+ <20030927175445.GI15415@suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: LInksys WMP11 (BCM4301 chip)
-References: <200309272238.50475.public@mikl.as>
-In-Reply-To: <200309272238.50475.public@mikl.as>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm _eagerly_ awaiting more information :)
+On Sat, 27 Sep 2003, Jens Axboe wrote:
 
-There's a project on sourceforge, alas it hasn't gone anywhere in the 
-several months that it's been there.  I'm relying on my laptop to route 
-for me because it has builtin wireless/lan on it and I really need 
-network access on my desktop.  I now have two linksys wireless pieces 
-of...stuff, and neither are supported or supported well.  I.e the WMP11 
-and the WUSB11.
+> On Sat, Sep 27 2003, Jens Axboe wrote:
+> > On Sat, Sep 27 2003, Jens Axboe wrote:
+> > Actually, try this patch against current bk, it kills the
+> > CDROM_SEND_PACKET setup and use SG_IO internally instead. Should be much
+> > much better than what we have now. It's not tested here at all though,
+> > I'd appreciate it if you could give it a go.
+> 
+> This has a better chance of working. Changes:
+> 
+> - Don't export sg_io() anyways (leftover)
+> - Actually set ->cmdp and ->cmd_len
+> 
+> still untested.
 
-The WUSB11 is slowly moving along, but it's far behind 2.6.0.
+[...]
 
-I used to by Linksys net Netgear stuff because they were reliable and 
-they sometimes stated "Linux" directly on the product box.  These days 
-I'm starting to get jaded.  It seems that the 'buzzword hype' of putting 
-"Linux" on the box has disappeared.  Pretty fscking annoying when the 
-community that can best improve a driver and freely at that, is occluded.
+> +			memcpy(hdr.cmdp, cgc.cmd, sizeof(cgc.cmd));
 
-Getting back to the subject.  I have both the WUSB11 and the WMP11 and 
-I'm more than willing to provide data for testing.  Even if I gotta 
-hardwire the things with baling wire and bubble gum, I gotta get one of 
-them working.
+This breaks because hdr.cmdp is a pointer, not an array.
 
-David
-p.s. To Erik: yes, I know the article was spun :(  I read Andrew's 
-original post.  Unfortunately it was spun to say that BC made linux 
-people happy.
+I think there has to be a hdr.mx_sb_len = sizeof(struct request_sense) in 
+there too?
 
-Andrew Miklas wrote:
+Also, this changes the semantics of CDROM_SEND_PACKET, currently if 
+the command fails, it returns EIO, after the patch it succeeds.
 
->The link mentioned quotes me as saying that the BCM4300 series of wireless 
->chips has excellent support on the MIPS architecture, which indeed it does. 
->Unfortunately, what they don't mention is that the source for that driver was 
->not, and has not been released by Linksys or Broadcom.  Also, the binary 
->driver is only available in the firmware of networking products, like the 
->WRT54G, using Broadcom wireless chips.
->
->Hopefully, I'll have some more information to post here about that in the 
->coming few days.
->  
->
+how's this incremental patch?  It seems to work as I expect it to.
 
+--- scsi_ioctl.c.orig	2003-09-27 22:45:40.708105384 -0500
++++ scsi_ioctl.c	2003-09-27 22:46:23.490917249 -0500
+@@ -479,10 +479,14 @@
+ 			hdr.dxferp = cgc.buffer;
+ 			hdr.sbp = (char *) cgc.sense;
+ 			hdr.timeout = cgc.timeout;
+-			memcpy(hdr.cmdp, cgc.cmd, sizeof(cgc.cmd));
++			hdr.cmdp = (unsigned char *)arg
++			         + offsetof(struct cdrom_generic_command, cmd);
++			hdr.mx_sb_len = sizeof(struct request_sense);
+ 			hdr.cmd_len = sizeof(cgc.cmd);
+ 			err = sg_io(q, bdev, &hdr);
+ 
++			if (hdr.status)
++				err = -EIO;
+ 			cgc.stat = err;
+ 			cgc.buflen = hdr.resid;
+ 			if (copy_to_user((struct cdrom_generic_command *) arg, &cgc, sizeof(cgc)))

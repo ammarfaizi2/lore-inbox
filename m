@@ -1,113 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318757AbSIPDBe>; Sun, 15 Sep 2002 23:01:34 -0400
+	id <S318784AbSIPDHW>; Sun, 15 Sep 2002 23:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318769AbSIPDBe>; Sun, 15 Sep 2002 23:01:34 -0400
-Received: from dp.samba.org ([66.70.73.150]:16354 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S318757AbSIPDBd>;
-	Sun, 15 Sep 2002 23:01:33 -0400
-Date: Mon, 16 Sep 2002 13:06:25 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Remove CONFIG_SMP around wait_task_inactive()
-Message-ID: <20020916030624.GB4482@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+	id <S318790AbSIPDHW>; Sun, 15 Sep 2002 23:07:22 -0400
+Received: from 210-54-175-12.visp.co.nz ([210.54.175.12]:50184 "EHLO
+	mdew.dyndns.org") by vger.kernel.org with ESMTP id <S318784AbSIPDHV>;
+	Sun, 15 Sep 2002 23:07:21 -0400
+Subject: Re: [PATCH](1/2) rmap14 for ac  (was: Re: 2.5.34-mm4)
+From: mdew <mdew@mdew.dyndns.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.0209152346320.1857-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0209152346320.1857-100000@imladris.surriel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-9l8IRspENC1klkrF5VuZ"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Sep 2002 15:08:39 +1200
+Message-Id: <1032145719.2465.15.camel@mdew>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  This defines wait_task_inactive() to be a no-op
-on UP machines, and removes the #ifdef CONFIG_SMP which surrounds
-current calls.
 
-This also fixes compile on UP which was broken by the addition of a
-call to wait_task_inactive in fs/exec.c which was not protected by an
-#ifdef.
+--=-9l8IRspENC1klkrF5VuZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The patch is against 2.5.34
+On Mon, 2002-09-16 at 14:47, Rik van Riel wrote:
+> On 16 Sep 2002, Alan Cox wrote:
+>=20
+> > So send me rmap-14a patches by all means
+>=20
+> And here is the patch that takes you from rmap14 to
+> rmap14a + small bugfixes.  Don't be fooled by the
+> bitkeeper changelog, there was a one-line (whitespace)
+> reject I had to fix ;)
+>=20
+> please apply,
+>=20
+> Rik
 
-diff -urN /home/dgibson/kernel/linuxppc-2.5/arch/ia64/kernel/perfmon.c linux-bluefish/arch/ia64/kernel/perfmon.c
---- /home/dgibson/kernel/linuxppc-2.5/arch/ia64/kernel/perfmon.c	2002-08-14 18:28:28.000000000 +1000
-+++ linux-bluefish/arch/ia64/kernel/perfmon.c	2002-09-16 12:57:56.000000000 +1000
-@@ -2345,22 +2345,19 @@
- check_task_state(struct task_struct *task)
- {
- 	int ret = 0;
--#ifdef CONFIG_SMP
-+
- 	/* We must wait until the state has been completely
- 	 * saved. There can be situations where the reader arrives before
- 	 * after the task is marked as STOPPED but before pfm_save_regs()
- 	 * is completed.
- 	 */
--	if (task->state != TASK_ZOMBIE && task->state != TASK_STOPPED) return -EBUSY;
--	DBprintk(("before wait_task_inactive [%d] state %ld\n", task->pid, task->state));
--	wait_task_inactive(task);
--	DBprintk(("after wait_task_inactive [%d] state %ld\n", task->pid, task->state));
--#else
- 	if (task->state != TASK_ZOMBIE && task->state != TASK_STOPPED) {
- 		DBprintk(("warning [%d] not in stable state %ld\n", task->pid, task->state));
- 		ret = -EBUSY;
- 	}
--#endif
-+	DBprintk(("before wait_task_inactive [%d] state %ld\n", task->pid, task->state));
-+	wait_task_inactive(task);
-+	DBprintk(("after wait_task_inactive [%d] state %ld\n", task->pid, task->state));
- 	return ret;
- }
- 
-diff -urN /home/dgibson/kernel/linuxppc-2.5/include/linux/sched.h linux-bluefish/include/linux/sched.h
---- /home/dgibson/kernel/linuxppc-2.5/include/linux/sched.h	2002-09-16 10:32:57.000000000 +1000
-+++ linux-bluefish/include/linux/sched.h	2002-09-16 12:59:29.000000000 +1000
-@@ -690,7 +690,11 @@
- extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
- extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
- 
-+#ifdef CONFIG_SMP
- extern void wait_task_inactive(task_t * p);
-+#else
-+#define wait_task_inactive(p)	do { } while (0)
-+#endif
- extern void kick_if_running(task_t * p);
- 
- #define __wait_event(wq, condition) 					\
-diff -urN /home/dgibson/kernel/linuxppc-2.5/kernel/exit.c linux-bluefish/kernel/exit.c
---- /home/dgibson/kernel/linuxppc-2.5/kernel/exit.c	2002-09-16 10:32:57.000000000 +1000
-+++ linux-bluefish/kernel/exit.c	2002-09-16 12:57:22.000000000 +1000
-@@ -55,10 +55,8 @@
- 
- 	if (p->state != TASK_ZOMBIE)
- 		BUG();
--#ifdef CONFIG_SMP
- 	if (p != current)
- 		wait_task_inactive(p);
--#endif
- 	atomic_dec(&p->user->processes);
- 	security_ops->task_free_security(p);
- 	free_uid(p->user);
-diff -urN /home/dgibson/kernel/linuxppc-2.5/kernel/ptrace.c linux-bluefish/kernel/ptrace.c
---- /home/dgibson/kernel/linuxppc-2.5/kernel/ptrace.c	2002-09-09 11:45:00.000000000 +1000
-+++ linux-bluefish/kernel/ptrace.c	2002-09-16 12:57:15.000000000 +1000
-@@ -69,9 +69,7 @@
- 	if (!kill) {
- 		if (child->state != TASK_STOPPED)
- 			return -ESRCH;
--#ifdef CONFIG_SMP
- 		wait_task_inactive(child);
--#endif		
- 	}
- 
- 	/* All systems go.. */
+With the recent rmap changes in 2.5.x, will those be ported back to 2.4?
+rmap14a is a little old :)
 
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+
+--=-9l8IRspENC1klkrF5VuZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9hUs3H5J/xul0J+4RAkEwAJ9je5yF5rAStx+93NX2ZCSCm3wRzACfcpDZ
+3rijlAFEsB75X3CZQSnwcWE=
+=bsN/
+-----END PGP SIGNATURE-----
+
+--=-9l8IRspENC1klkrF5VuZ--
+

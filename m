@@ -1,46 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUKIK6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbUKILGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbUKIK6V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 05:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbUKIK4e
+	id S261513AbUKILGd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 06:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUKILG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 05:56:34 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:40652 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261476AbUKIKue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 05:50:34 -0500
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davids@webmaster.com,
-       =?ISO-8859-1?Q?Rapha=EBl?= Rigo LKML <lkml@twilight-hall.net>
-In-Reply-To: <200411082132.46728.dtor_core@ameritech.net>
-References: <MDEHLPKNGKAHNMBLJOLKIECMPKAA.davids@webmaster.com>
-	 <1099954836.14146.0.camel@localhost.localdomain>
-	 <200411082132.46728.dtor_core@ameritech.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1099993648.15462.8.camel@localhost.localdomain>
+	Tue, 9 Nov 2004 06:06:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:65461 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261499AbUKILGJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 06:06:09 -0500
+Date: Tue, 9 Nov 2004 03:05:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Cc: oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/11] oprofile: arch-independent code for stack trace
+ sampling
+Message-Id: <20041109030557.1de3f96a.akpm@osdl.org>
+In-Reply-To: <1099996668.1985.783.camel@hole.melbourne.sgi.com>
+References: <1099996668.1985.783.camel@hole.melbourne.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 09 Nov 2004 09:47:29 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-09 at 02:32, Dmitry Torokhov wrote:
-> "The $20 USD subscription fee includes unlimited priority support,
-> full access to the Sveasoft forums, and unlimited access to new
-> firmware versions and upgrades."
-> 
-> So it looks like "if you exersize your right for the software in quesion
-> I terminate the contract we have entered into" as opposed to "I will not
-> extend your contract beyond initial term".
-> 
-> Isn't that an additional restriction? My rights for updates are revoked
-> if I distribute GPLed code.
+Greg Banks <gnb@melbourne.sgi.com> wrote:
+>
+> +	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
 
-Those aren't GPL granted rights. The updates/support contract is a
-private contractual matter between Sveasoft and its members. They don't
-stop you redistributing the GPL code you received.
+oprofile is currently doing suspicious things with smp_processor_id() in
+premptible reasons.  Is this patch compounding things?
 

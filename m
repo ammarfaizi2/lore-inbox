@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVADApm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVADApq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVADApm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVADAe3
+	id S261977AbVADApq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVADAdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:34:29 -0500
-Received: from smtpout.mac.com ([17.250.248.46]:22258 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261973AbVACXlz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:41:55 -0500
-In-Reply-To: <20050103221441.GA26732@infradead.org>
-References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <FDBCBDF2-5DE0-11D9-892B-000D9352858E@mac.com>
+	Mon, 3 Jan 2005 19:33:50 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:18595 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262012AbVADAbT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:31:19 -0500
+Message-ID: <41D9E3AA.5050903@zytor.com>
+Date: Mon, 03 Jan 2005 16:30:34 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tridge@samba.org
+CC: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
+       samba-technical@lists.samba.org, aia21@cantab.net,
+       hirofumi@mail.parknet.co.jp,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+References: <41D9C635.1090703@zytor.com> <16857.56805.501880.446082@samba.org>
+In-Reply-To: <16857.56805.501880.446082@samba.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Adrian Bunk <bunk@stusta.de>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@debian.org>
-From: Felipe Alfaro Solana <lkml@mac.com>
-Subject: Re: starting with 2.7
-Date: Tue, 4 Jan 2005 00:41:29 +0100
-To: Christoph Hellwig <hch@infradead.org>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+tridge@samba.org wrote:
+> 
+> Thats taken from Samba4, where it is fully implemented. I guess Steve
+> is planning on integrating cifsfs with the Samba4 way of handling EAs,
+> NT ACLs, attribs, streams etc at some stage.
+> 
+> See 
+>   http://samba.org/ftp/unpacked/samba4/source/librpc/idl/xattr.idl 
+> for a full definition of the structures we use. 
+> 
+> I used a NDR encoding in each of the xattrs to provide a well defined
+> architecture independent encoding, and an easy way to extend the
+> structure in the future (thats why DosAttrib is a union with a version
+> switch). 
+> 
 
-On 3 Jan 2005, at 23:14, Christoph Hellwig wrote:
+Oh geez.  Couldn't you have split out the various data items into 
+separate xattrs?  This seems to be a really bad user interface, 
+especially for writing (can't chmod the file without poking at all the 
+other data items), except for a non-DOS-based filesystem to keep data 
+for Samba itself.  Samba clearly has other needs than other users, 
+although of course it would be unfortunate if Samba then can't export 
+this information.
 
->> Gosh! I bought an ATI video card, I bought a VMware license, etc.... I
->> want to keep using them. Changing a "stable" kernel will continuously
->> annoy users and vendors.
->
-> So buy some Operating System that supports the propritary software of
-> your choice but stop annoying us.
+In other words, I'm inclined to define simple system attributes or just 
+go back to the original ioctl() patch for the DOS filesystems as seen by 
+the kernel.
 
-I'm sorry if my comments annoy you. I thought this was an open list, 
-open for discussion. I see I was wrong.
-
+	-hpa

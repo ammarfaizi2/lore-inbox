@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAXHE4>; Wed, 24 Jan 2001 02:04:56 -0500
+	id <S129532AbRAXH3O>; Wed, 24 Jan 2001 02:29:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129764AbRAXHEr>; Wed, 24 Jan 2001 02:04:47 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:5125 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129431AbRAXHEl>;
-	Wed, 24 Jan 2001 02:04:41 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101240701.f0O71OE110437@saturn.cs.uml.edu>
-Subject: Re: Bug in ppp_async.c
-To: paulus@linuxcare.com.au
-Date: Wed, 24 Jan 2001 02:01:24 -0500 (EST)
-Cc: l_indien@magic.fr, jma@netgem.com, callahan@maths.ox.ac.uk,
-        jfree@sovereign.org, linux-kernel@vger.kernel.org
-In-Reply-To: <14958.25201.508164.388346@diego.linuxcare.com.au> from "Paul Mackerras" at Jan 24, 2001 04:04:49 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129534AbRAXH3E>; Wed, 24 Jan 2001 02:29:04 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:65173 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S129532AbRAXH2w>; Wed, 24 Jan 2001 02:28:52 -0500
+Date: Tue, 23 Jan 2001 23:31:07 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: 2001-01-23 release of hotplug scripts
+To: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        Linux-usb-users@lists.sourceforge.net
+Message-id: <018201c085d7$9e82a9c0$6600000a@brownell.org>
+MIME-version: 1.0
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+Content-type: text/plain; charset="iso-8859-1"
+Content-transfer-encoding: 7bit
+X-MSMail-Priority: Normal
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+In-Reply-To: <20010116225518.C1733@kroah.com> <20010123221213.A19568@kroah.com>
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras writes:
-> Jo l'Indien writes:
+Also, PCI (Cardbus at least) support should behave
+again, thanks to Dan Zink.
 
->> I found a bug in the 2.4.1-pre10 version of ppp_async.c
->>
->> In fact, a lot of ioctl are not supported any more,
->> whih make the pppd start fail.
+For USB hotplug, make sure you have modutils 2.4.2
+(kernel 2.4.0 and later).
+
+- Dave
+
+
+----- Original Message -----
+From: Greg KH <greg@kroah.com>
+To: <linux-hotplug-devel@lists.sourceforge.net>; <linux-kernel@vger.kernel.org>;
+<linux-usb-devel@lists.sourceforge.net>; <Linux-usb-users@lists.sourceforge.net>
+Sent: Tuesday, January 23, 2001 10:12 PM
+Subject: 2001-01-23 release of hotplug scripts
+
+
+> I've just packaged up the latest hotplug scripts into a release, and
+> they can be found at:
+> http://download.sourceforge.net/linux-hotplug/hotplug-2001_01_23.tar.gz
+> http://download.sourceforge.net/linux-hotplug/hotplug-2001_01_23-1.noarch.rpm
+>   http://download.sourceforge.net/linux-hotplug/hotplug-2001_01_23-1.src.rpm
+> depending on which format you prefer.
 >
-> I'll bet you're using an old pppd.  You need version 2.4.0 of pppd,
-> available from ftp://linuxcare.com.au/pub/ppp/, as documented in the
-> Documentation/Changes file.
+> Changes in this version from the last release are:
+> - log "ifup" invocations when debugging for net.agent script
+> - address some problems with hotplugging USB on 2.2
+> - small change in the .spec file from Chmouel Boudjnah
+>
+> thanks,
+>
+> greg k-h
+>
+> --
+> greg@(kroah|wirex).com
+>
+> _______________________________________________
+> Linux-hotplug-devel mailing list  http://linux-hotplug.sourceforge.net
+> Linux-hotplug-devel@lists.sourceforge.net
+> http://lists.sourceforge.net/lists/listinfo/linux-hotplug-devel
 
-Even Red Hat 7 only has the 2.3.11 version.
-
-The 2.4.xx series is supposed to be stable. If there is any way
-you could add a compatibility hack, please do so.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

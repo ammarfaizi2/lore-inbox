@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316836AbSGNOXy>; Sun, 14 Jul 2002 10:23:54 -0400
+	id <S316837AbSGNOYi>; Sun, 14 Jul 2002 10:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316837AbSGNOXx>; Sun, 14 Jul 2002 10:23:53 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:12428 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316836AbSGNOXw> convert rfc822-to-8bit;
-	Sun, 14 Jul 2002 10:23:52 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RAID problem - please hlp
-Date: Sun, 14 Jul 2002 16:26:55 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207141626.55442.roy@karlsbakk.net>
+	id <S316853AbSGNOYg>; Sun, 14 Jul 2002 10:24:36 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:9112 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S316837AbSGNOYc>; Sun, 14 Jul 2002 10:24:32 -0400
+Date: Sun, 14 Jul 2002 16:25:48 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207141425.g6EEPmpc019153@burner.fokus.gmd.de>
+To: alan@lxorguk.ukuu.org.uk, schilling@fokus.gmd.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From alan@lxorguk.ukuu.org.uk Sun Jul 14 15:35:09 2002
 
-On Saturday 13 July 2002 21:14, you wrote:
+>On Sun, 2002-07-14 at 14:17, Joerg Schilling wrote:
+>> Did you ever looks at the ATAPI specs?
+>> 
+>> ATAPI _is_ SCSI over IDE with a few "bugs"/deviations:
 
-hi all
+>In other words as he said ATAPI is not SCSI
 
-How can I force RAID devices to get status non-failed? I have a so-called 4
-out of 15 devices failed, and it failes to start.
 
-The true devices have _not_ failed!
+It would really help not to turn a technically based discussion
+into personal bashing. I am still waiting to see any tecnical based
+argument from you.
 
-That is - md[0123] are just fine, and as they generally are on the same drives 
-as md4, something _should_ be possible
+It seems that you are not nterested in a better technical based solution
+but in preventing other people's ideas from being used.
 
-Thanks all
+Jörg
 
-roy
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

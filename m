@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S274426AbUKAQFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S274608AbUKAQKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274426AbUKAQFl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 11:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274366AbUKAQFO
+	id S274608AbUKAQKc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 11:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274558AbUKAQKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 11:05:14 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:21235 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S274356AbUKAQEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 11:04:54 -0500
-Date: Mon, 1 Nov 2004 11:02:11 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Olaf Hering <olh@suse.de>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Disambiguation for panic_timeout's sysctl
-In-Reply-To: <20041101120704.GB24626@suse.de>
-Message-ID: <Pine.GSO.4.33.0411011057310.9358-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Nov 2004 11:10:32 -0500
+Received: from postman2.arcor-online.net ([151.189.20.157]:50876 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S274573AbUKAQKQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 11:10:16 -0500
+Date: Mon, 1 Nov 2004 17:10:20 +0100
+From: Juergen Quade <quade@hsnr.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.10-rc1-mm2] keyboard / synaptics not working
+Message-ID: <20041101161020.GA2056@hsnr.de>
+References: <200410311903.06927@zodiac.zodiac.dnsalias.org> <5786143704110107302e1722d8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <5786143704110107302e1722d8@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Nov 2004, Olaf Hering wrote:
->> And why should applications care for the panic timeout?  Especially only
->> a few days after it's been added to the kernel?
->
->/proc/sys/kernel/panic exists since at least 2.6.5.
->Its used to override the silly default '0' on i386, but one should be
->able to boot with panic=$bignum
+On Mon, Nov 01, 2004 at 09:30:13AM -0600, Jesus Delgado wrote:
+> Hi all:
+>  
+>     Iam have is the same problems, kernel 2.6.10-rc1 keryboard and
+> mouse OK ( emachines M6709), both running kernel 2.6.10-rc1-mm2 the
+> keyboard and mouse NOT WORKING.
 
-/proc/sys/kernel/panic has been around for YEARS:
+Interesting: I have keyboard and mouse problems already in
+(Linu_s_) Kernel 2.6.9 and 2.6.10-rc1 (no problems in 2.6.8.1).
+Haven't tested -mm-Versions and haven't found time to
+dig further into the problem...
 
-  [cramer:ttyp0]dominion:~/[10:52am]:uname -a
-  Linux dominion 2.3.42-SMP #11 SMP Sun Feb 6 20:06:02 EST 2000 i686
-                                    ^^^^^^^^^^^^^^^^^^^^^^ ****
-  [cramer:ttyp0]dominion:~/[10:52am]:ls -l /proc/sys/kernel/panic
-  -rw-r--r--   1 root     root            0 Nov  1 10:52 /proc/sys/kernel/panic
-
-And that's the oldest kernel I happen to have running at the moment.
-
---Ricky
-
-
+         Juergen.

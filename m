@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263556AbUCYTV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUCYTVX
+	id S263529AbUCYTZm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 14:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUCYTZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:21:23 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:60324 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263538AbUCYTVT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:21:19 -0500
-Message-Id: <200403251920.i2PJKwF25849@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Todd Poynor'" <tpoynor@mvista.com>
-Cc: <linux-ia64@vger.kernel.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "CPU Freq ML" <cpufreq@www.linux.org.uk>
-Subject: RE: add lowpower_idle sysctl
-Date: Thu, 25 Mar 2004 11:20:58 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQNPL2OgLWS3uEOTw+kbstXJU7ZfAFYRFAQ
-In-Reply-To: <405A29EA.6000400@mvista.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 25 Mar 2004 14:25:42 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:957 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263529AbUCYTZk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 14:25:40 -0500
+Date: Thu, 25 Mar 2004 11:24:44 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>
+cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Message-ID: <10030000.1080242684@flay>
+In-Reply-To: <20040325190944.GB12383@elte.hu>
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Todd Poynor wrote on Thu, March 18, 2004 3:00 PM
-> I'd vote for using Patrick Mochel's PM subsystem and use a standard
-> set of identifiers that are mapped to a platform-specific idle behavior,
-> in  much the same way as platform suspend modes are handled today.  For
-> example, strings echoed to /sys/power/idle could be an interface.  If
-> folks are amenable to this I'd be happy to supply a (generic) patch for it.
+>> It doesn't do load balance in wake_up_forked_process() and is
+>> relatively non aggressive in balancing later. This leads to the
+>> multithreaded OpenMP STREAM running its childs first on the same node
+>> as the original process and allocating memory there. [...]
+> 
+> i believe the fix we want is to pre-balance the context at fork() time. 
+> I've implemented this (which is basically just a reuse of
+> sched_balance_exec() in fork.c, and the related namespace cleanups), 
+> could you give it a go:
+> 
+>   http://redhat.com/~mingo/scheduler-patches/sched-2.6.5-rc2-mm2-A5
+> 
+> another solution would be to add SD_BALANCE_FORK.
+> 
+> also, the best place to do fork() blancing is not at
+> wake_up_forked_process() time, but prior doing the MM copy. This patch
+> does it there. At wakeup time we've already copied all the pagetables
+> and created tons of dirty cachelines.
 
-Just wondering what is the state of development for this new PM scheme?
-I don't check LKML that frequently, sorry if I miss any posting on LKML.
+How are you going to decide whether to rebalance at fork time or exec time?
+Exec time balancing is a *lot* more efficient, it just doesn't work for
+things that don't exec ... cloned threads would certainly be one case.
 
-- Ken
-
+M.
 

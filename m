@@ -1,111 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVBPOm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVBPOnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVBPOm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 09:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVBPOm2
+	id S262029AbVBPOnj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 09:43:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVBPOmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 09:42:28 -0500
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:59067 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262028AbVBPOlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 09:41:55 -0500
-Date: Wed, 16 Feb 2005 09:39:19 -0500
-From: Vincent C Jones <vcjones@networkingunlimited.com>
-Subject: Re: Radeon FB troubles with recent kernels
-In-reply-to: <1108521681.13376.77.camel@gaston>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Message-id: <20050216143919.GA7672@NetworkingUnlimited.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.6i
-References: <3y1SR-5K6-1@gated-at.bofh.it>
- <20050215150713.EE7721DE4A@X31.nui.nul> <1108504921.13376.21.camel@gaston>
- <20050216015323.GA7223@NetworkingUnlimited.com>
- <1108521681.13376.77.camel@gaston>
+	Wed, 16 Feb 2005 09:42:36 -0500
+Received: from thunk.org ([69.25.196.29]:5522 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262029AbVBPOmN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 09:42:13 -0500
+Date: Wed, 16 Feb 2005 09:42:03 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andreas Schwab <schwab@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Pty is losing bytes
+Message-ID: <20050216144203.GB7767@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
+References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org> <je1xbhy3ap.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151239160.2330@ppc970.osdl.org> <Pine.LNX.4.61.0502160405410.15339@scrub.home> <Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 16, 2005 at 01:41:20PM +1100, Benjamin Herrenschmidt wrote:
-> On Tue, 2005-02-15 at 20:53 -0500, Vincent C Jones wrote:
-> 
-> > 
-> > Kernel command line: auto BOOT_IMAGE=Test_9.2 ro root=306 pci=usepirqmask desktop idebus=66 video=radeonfb:1024x768-24@60
-> > 
-> > Note the "video=radeonfb:1024x768-24@60" which used to be required to
-> > get the console into 1024x768 mode but is documented in "modefb.txt"
-> > as an invalid combination of mode specifications (and also states
-> > that radeonfb does not support mode specification...). So other
-> > than the loss of temporary working of backlight controls, I just
-> > see undocumented progress :-)
-> > 
-> > Thanks again, and keep up the great work!
-> 
-> Heh, good. Well, the mode spec should work in fact, provided that you
-> get the syntax right, though I haven't tried. I'll have a look later,
-> but if it doesn't work, then it was always broken and it's not a
-> regression :) I still want to fix more stuff in this area, but for now,
-> I'm concerned mostly about regressions.
-> 
-> Can you remind me exactly what's up with the backlight control ?
-> 
-> Ben.
+On Tue, Feb 15, 2005 at 08:05:05PM -0800, Linus Torvalds wrote:
+> Why have that "tty->icanon && !tty->canon_data" test in the first place, I 
+> wonder?  Isn't the "left" calculation always correct? That's really how 
+> many bytes free we have in the tty, that "canon_data" thing is just about 
+> how much of it is available for _reading_ as canon, no? (Ie "how many 
+> characters that have seen a finishing end-of-line"). So I don't see why 
+> that canon_data test is relevant to the question of filling the buffer..
 
-Out of the box (SuSE 9.2) with kernel 2.6.11-rc2, powersaved
-successfully suspends to RAM and resumes correctly (can't speak for
-earlier versions). With 2.6.11-rc3, suspend to RAM works except that the
-backlight on the display does not stay turned off. Once suspended, the
-backlight is on even if the lid switch is closed!
+The comment above the test explains why that test is there in
+n_tty_receive_room.  If that test isn't there, and we are doing input
+canonicalization, when the buffer gets full, the low-level driver will
+either flow control the source (so the ERASE or EOLN characters won't
+get sent through) or the low-level driver will drop the characters
+(and the line discpline will never see the ERASE or EOLN characters).  
 
-Others with X31's (and I assume, other ThinkPads, and probably other
-notebooks) have only gotten ACPI to work with earlier kernels by using
-the radeontool to turn off the back light. See, for example, 
+So the idea behind this code was to lie to the low-level driver, so
+that the line discpline would always get the characters, and then the
+line discpline could process ERASE, WERASE, KILL, or EOL, and drop the
+rest on the floor.  At least, that was the basic idea.  Yes, it was a
+kludge; no I'm not particularly proud of it.
 
-http://www.summet.com/x31/ which includes the following:
+The whole structure badly needs to be ripped apart and rewritten, but
+unfortunately few employers seem to be willing to dedicate their
+hackers' time to Do This Right.  Sigh....
 
-Suspend to memory works well if you configure a few files like this:
-
-    * Create an /etc/acpi/events/sleepbtn file as follows:
-
-		event=button[ /]sleep
-		action=/etc/acpi/actions/sleepbtn.sh
-		
-
-    * Create an /etc/acpi/actions/sleepbtn.sh file as follows:
-
- #!/bin/bash
-
- #Stop the bluetooth service.
- service bluetooth stop
-
- #sync the disks.
- sync && sync && sync
- #Change the screen to VT1 (text mode)
- /usr/bin/chvt 1
- #turn off the backlight on the laptop
- # (Note: You must have the radeontool installed....)
- /usr/sbin/radeontool light off
- #perform the actual "go-to-sleep" function.
- echo "mem" > /sys/power/state
-
- #Pause a second or two to let us sleep.
- sleep 2
- #Sleepytime...Everything after this line gets exectued
- #after the user resumes...
-
- #switch back to the Xterminal (automatically turns on backlight)
- /usr/bin/chvt 7
- #restart services...
- service bluetooth start
-     
-                       # # #
-
--- 
-Dr. Vincent C. Jones, PE              Expert advice and a helping hand
-Computer Network Consultant           for those who want to manage and
-Networking Unlimited, Inc.            control their networking destiny
-Phone: +1 201 568-7810
-14 Dogwood Lane, Tenafly, NJ 07670
-VCJones@NetworkingUnlimited.com     http://www.networkingunlimited.com
+						- Ted

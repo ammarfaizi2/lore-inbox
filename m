@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbSBSSYb>; Tue, 19 Feb 2002 13:24:31 -0500
+	id <S286339AbSBSS1l>; Tue, 19 Feb 2002 13:27:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286322AbSBSSYW>; Tue, 19 Feb 2002 13:24:22 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:19940 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S285720AbSBSSYH>;
-	Tue, 19 Feb 2002 13:24:07 -0500
-Date: Tue, 19 Feb 2002 19:23:59 +0100 (MET)
+	id <S286336AbSBSS1Y>; Tue, 19 Feb 2002 13:27:24 -0500
+Received: from mx0.gmx.de ([213.165.64.100]:47129 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S286322AbSBSS1G>;
+	Tue, 19 Feb 2002 13:27:06 -0500
+Date: Tue, 19 Feb 2002 19:27:00 +0100 (MET)
 From: cschumpf@gmx.net
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -14,7 +14,7 @@ Subject: Patch or module?
 X-Priority: 3 (Normal)
 X-Authenticated-Sender: #0014208664@gmx.net
 X-Authenticated-IP: [195.20.224.6]
-Message-ID: <18920.1014143039@www57.gmx.net>
+Message-ID: <19933.1014143220@www57.gmx.net>
 X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
 X-Flags: 0001
 Content-Type: text/plain; charset="us-ascii"

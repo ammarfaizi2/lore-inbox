@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267206AbTBQQyz>; Mon, 17 Feb 2003 11:54:55 -0500
+	id <S267267AbTBQQ7W>; Mon, 17 Feb 2003 11:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267208AbTBQQyz>; Mon, 17 Feb 2003 11:54:55 -0500
-Received: from almesberger.net ([63.105.73.239]:19974 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267206AbTBQQyq>; Mon, 17 Feb 2003 11:54:46 -0500
-Date: Mon, 17 Feb 2003 14:04:23 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
-       davem@redhat.com, kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-Message-ID: <20030217140423.N2092@almesberger.net>
-References: <20030214120628.208112C464@lists.samba.org> <Pine.LNX.4.44.0302141410540.1336-100000@serv> <20030214105338.E2092@almesberger.net> <Pine.LNX.4.44.0302141500540.1336-100000@serv> <20030214153039.G2092@almesberger.net> <Pine.LNX.4.44.0302142106140.1336-100000@serv> <20030214211226.I2092@almesberger.net> <Pine.LNX.4.44.0302150148010.1336-100000@serv> <20030214232818.J2092@almesberger.net> <Pine.LNX.4.44.0302151816550.1336-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302151816550.1336-100000@serv>; from zippel@linux-m68k.org on Sun, Feb 16, 2003 at 12:20:24AM +0100
+	id <S267268AbTBQQ7W>; Mon, 17 Feb 2003 11:59:22 -0500
+Received: from mail2.fbab.net ([195.54.134.228]:13785 "HELO mail2.fbab.net")
+	by vger.kernel.org with SMTP id <S267267AbTBQQ7U>;
+	Mon, 17 Feb 2003 11:59:20 -0500
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail2.fbab.net
+X-Qmail-Scanner: 1.10 (Clear:0. Processed in 0.263194 secs)
+Message-ID: <14f601c2d6a7$4c0f5170$f80c0a0a@mnd>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "Linus Torvalds" <torvalds@transmeta.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: "Manfred Spraul" <manfred@colorfullife.com>,
+       "Anton Blanchard" <anton@samba.org>, "Andrew Morton" <akpm@digeo.com>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Zwane Mwaikambo" <zwane@holomorphy.com>
+References: <Pine.LNX.4.44.0302161951580.1424-100000@home.transmeta.com>
+Subject: Re: more signal locking bugs?
+Date: Mon, 17 Feb 2003 18:09:14 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Let's stay at the main problem, we have find out when it's safe to delete 
-> an object. For dynamic objects you have the following options:
-[...]
-> Static objects and functions are freed by the module code and usually we
-[...]
+Linus Torvalds <torvalds@transmeta.com> wrote:
+> 
+> Doh.
+> 
+> This should fix it.
 
-Okay so far.
+[snip]
 
-> If we exclude the possibly-wait-forever-option, do you see the problem 
-> for dynamic objects which also contain references to static data/
-> functions?
+> + spin_lock_irq(&task->sighand->siglock);
+> + collect_sigign_sigcatch(task, &sigign, &sigcatch);
+> + spin_lock_irq(&task->sighand->siglock);
 
-You mean that two locking mechanisms are used, where one of them
-shouldn't be doing all that much ? Well, yes.
+[snip]
 
-Now, is this a problem, or just a symptom ? I'd say it's a symptom:
-we already have a perfectly good locking/synchronization method,
-and that's through the register/unregister interface, so the
-module-specific part is unnecessary.
+You take the lock twice here?
 
-That much about the theory. Of course, in real life, we have to
-face a few more problems:
-
- - if callbacks can happen after apparently successful "unregister",
-   we die
- - if accesses to other static data owned by a module can happen
-   after apparently successful "unregister", we may die
- - if a module doesn't "unregister" at all, we die too
-
-But all these problems equally affect code that does other things
-that can break a callback/access, e.g. if we destroy *de->data
-immediately after remove_proc_entry returns.
-
-So this is not a module-specific problem.
-
-Agreed ?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Magnus

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266330AbTAFJRy>; Mon, 6 Jan 2003 04:17:54 -0500
+	id <S266368AbTAFJVY>; Mon, 6 Jan 2003 04:21:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266347AbTAFJRy>; Mon, 6 Jan 2003 04:17:54 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:63900 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S266330AbTAFJRx>; Mon, 6 Jan 2003 04:17:53 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, rth@twiddle.net, linux-kernel@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, ak@suse.de,
-       davem@redhat.com, paulus@samba.org, rmk@arm.linux.org.uk
-Subject: Re: [PATCH] Modules 3/3: Sort sections
-References: <20030102030044.D066C2C05E@lists.samba.org>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 06 Jan 2003 18:25:26 +0900
-In-Reply-To: <20030102030044.D066C2C05E@lists.samba.org>
-Message-ID: <buo3co6bpfd.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	id <S266367AbTAFJVY>; Mon, 6 Jan 2003 04:21:24 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:59402
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S266377AbTAFJVX>; Mon, 6 Jan 2003 04:21:23 -0500
+Date: Mon, 6 Jan 2003 01:28:53 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator
+In-Reply-To: <5.1.0.14.2.20030106200839.00bb3c78@mira-sjcm-3.cisco.com>
+Message-ID: <Pine.LNX.4.10.10301060116090.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The declaration of `module_frob_arch_sections' in moduleloader.h (and
-the definitions in most of the module.c files) are inconsistent with the
-definition in the PPC's module.c -- in the latter the first two
-arguments are not declared `const', whereas everyplace else they are.
+On Mon, 6 Jan 2003, Lincoln Dale wrote:
 
-I copied the PPC version of module_frob_arch_sections for the v850, and
-couldn't compile without changing the type-signature to match.  Making
-all args const to agree with the declaration results in these warnings:
+> At 11:53 PM 5/01/2003 -0800, Andre Hedrick wrote:
+> [..]
+> 
+> as a discussion about various merits of parts of the iSCSI protocol are not 
+> relevant to linux-kernel, i've taken the discussion(sic) off-list.
+> 
+> see my private reply.
 
-   arch/v850/kernel/module.c: In function `module_frob_arch_sections':
-   arch/v850/kernel/module.c:124: warning: assignment of read-only member `sh_size'arch/v850/kernel/module.c:126: warning: assignment of read-only member `sh_size'
+it is now way past time and over due to kill the battle.
+It is a little less gray, and a little more clear.
 
-Since the purpose of module_frob_arch_sections is to frob, perhaps it
-makes sense to have the frobable arguments be non-const (in this case
-only sechdrs needs it, I guess)... :-)
+I guess I will hang on a little longer with the old hat, while figuring
+out what to do with a new one.
 
--Miles
--- 
-"Whatever you do will be insignificant, but it is very important that
- you do it."  Mahatma Ghandi
+Oh and you guys who emailed, got me with the guilt trip to go back to my
+old directory.  I do not know how, or I am starting to age into a softy
+but I am back.  Where was Bart?  I would have dumped on his plate at the
+time.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

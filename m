@@ -1,95 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbTLCJHN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 04:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbTLCJHM
+	id S264522AbTLCJLG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 04:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTLCJLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 04:07:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43731 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264524AbTLCJGf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 04:06:35 -0500
-Date: Wed, 3 Dec 2003 10:06:04 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: ross.alexander@uk.neceur.com, Ed Sweetman <ed.sweetman@wmich.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-SCSI oops in 2.6.0-test11
-Message-ID: <20031203090604.GS12211@suse.de>
-References: <OFCDE312E0.4BD86A49-ON80256DF0.004D17F7-80256DF0.004DA592@uk.neceur.com> <Pine.LNX.4.58.0312021028590.1519@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312021028590.1519@home.osdl.org>
+	Wed, 3 Dec 2003 04:11:06 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:4622 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264522AbTLCJK6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 04:10:58 -0500
+Message-ID: <3FCDAB29.8020301@aitel.hist.no>
+Date: Wed, 03 Dec 2003 10:21:45 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: Stephan von Krawczynski <skraw@ithnet.com>, torvalds@osdl.org,
+       jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312021439.52933.gene.heskett@verizon.net> <20031202213228.5747cbfe.skraw@ithnet.com> <200312021648.07050.gene.heskett@verizon.net>
+In-Reply-To: <200312021648.07050.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02 2003, Linus Torvalds wrote:
+Gene Heskett wrote:
+> On Tuesday 02 December 2003 15:32, Stephan von Krawczynski wrote:
+> 
+>>On Tue, 2 Dec 2003 14:39:52 -0500
+>>
+>>Gene Heskett <gene.heskett@verizon.net> wrote:
+>>
+>>>[...]
+>>>Its not your emails (as Linus) to nvidia that will fix that, but a
+>>>concerted effort, emailing them for a resolution from everyone who
+>>>owns one of their products _might_ eventually make a difference.
+>>
+>>Make the difference yourself: don't buy such products. I stopped
+>>some time ago and I am very happy with _my choice_, not relying on
+>>theirs'.
 > 
 > 
-> On Tue, 2 Dec 2003 ross.alexander@uk.neceur.com wrote:
-> >
-> > I can't get the source, otherwise I would have compiled it against
-> > 2.6.0.  However I don't find this point particularly relevant since
-> > 2.6.0 should be backward compatible with 2.4,0, atleast at the binary
-> > level.
-> >
-> > I tried the earlier versions of dvdrtools and cdrtools and their didn't
-> > like ide-cd.  This version (cdrecord-dvdpro) does but it still don't
-> > alter the fact that while using ide-scsi is no longer recommended, it
-> > still should work.
+> So what are you using?  And how does it work, at least for a 
+> non-gamer?
 > 
-> Well, we're trying, but nobody has had a lot of luck with it.
-> 
-> However, your particular case looks pretty straightforward:
-> 
-> > Here the the oops again.
-> >
-> > Dec  2 12:02:46 mig27 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> > Dec  2 12:02:46 mig27 kernel:  printing eip:
-> > Dec  2 12:02:46 mig27 kernel: 00000000
-> 
-> Somebody jumped through a NULL pointer, and it was:
-> 
-> > Dec  2 12:02:46 mig27 kernel: Process cdrecord-prodvd (pid: 369,  threadinfo=e4160000 task=f65d4100)
-> > Dec  2 12:02:46 mig27 kernel: Call Trace:
-> > Dec  2 12:02:46 mig27 kernel:  [<f9859b1b>]  idescsi_transfer_pc+0x11b/0x120 [ide_scsi]
-> 
-> That's the code that does:
-> 
-> 	...
->         if (test_bit (PC_DMA_OK, &pc->flags)) {
->                 set_bit (PC_DMA_IN_PROGRESS, &pc->flags);
->                 (void) (HWIF(drive)->ide_dma_begin(drive));
->         }
-> 	...
-> 
-> and it looks like the PC_DMA_OK flag is incorrect.
-> 
-> Doing a bit more digging shows that "idescsi_issue_pc()" seems to use some
-> variables without ever actually _initializing_ them. How about this
-> trivial one-liner? Does that make it work for you?
-> 
-> Jens? Comments?
-> 
-> 			Linus
-> 
-> ---
-> ===== drivers/scsi/ide-scsi.c 1.33 vs edited =====
-> --- 1.33/drivers/scsi/ide-scsi.c	Tue Nov 18 23:40:45 2003
-> +++ edited/drivers/scsi/ide-scsi.c	Tue Dec  2 10:36:33 2003
-> @@ -516,6 +516,7 @@
->  	pc->actually_transferred=0;					/* We haven't transferred any data yet */
->  	pc->current_position=pc->buffer;
->  	bcount.all = IDE_MIN(pc->request_transfer, 63 * 1024);		/* Request to transfer the entire buffer at once */
-> +	feature.all = 0;
-> 
->  	if (drive->using_dma && rq->bio) {
->  		if (test_bit(PC_WRITING, &pc->flags))
+I have a matrox G550.  Not known for the best 3D performance,
+but it is good enough for tuxracer which is my heaviest 3D app.
+It is supposed to be good at 2D.
 
-Your fix is correct Linus, the very same bug was fixed in 2.4 recently
-as well.
+It should be fine for a non-gamer, one of the things matrox does well
+is a nice sharp flicker-free picture.  (A feature that don't require
+any os support either!)  The picture is certainly better than the
+radeon I use at work, that one has some flickering in high-frequency
+images such as the default X background.
 
--- 
-Jens Axboe
+Helge Hafting
 

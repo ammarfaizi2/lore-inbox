@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbUCEU6S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 15:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbUCEU6R
+	id S262702AbUCEVBG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbUCEVBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 15:58:17 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:56972 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S262701AbUCEU6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 15:58:11 -0500
-Message-ID: <4048E9C0.6010707@matchmail.com>
-Date: Fri, 05 Mar 2004 12:57:36 -0800
+	Fri, 5 Mar 2004 16:01:05 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:21967 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262702AbUCEVBC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 16:01:02 -0500
+Message-ID: <4048EA87.1080304@matchmail.com>
+Date: Fri, 05 Mar 2004 13:00:55 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
 User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, Jesper Dangaard Brouer <hawk@diku.dk>,
-       marek cervenka <cer20um@axpsu.fpf.slu.cz>, linux-net@vger.kernel.org,
-       James Morris <jmorris@intercode.com.au>
-Subject: Re: [PATCH 1/2] NET: fix class reporting in TBF qdisc
-References: <Pine.LNX.4.58.0403031323140.6655@ask.diku.dk> <200403050144.17622.dtor_core@ameritech.net> <200403050147.39657.dtor_core@ameritech.net> <200403050148.22964.dtor_core@ameritech.net>
-In-Reply-To: <200403050148.22964.dtor_core@ameritech.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] UTF-8ifying the kernel source
+References: <20040304100503.GA13970@havoc.gtf.org> <buovfljbsyl.fsf@mcspd15.ucom.lsi.nec.co.jp> <c2ambg$9rs$1@terminus.zytor.com>
+In-Reply-To: <c2ambg$9rs$1@terminus.zytor.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> ===================================================================
+H. Peter Anvin wrote:
+> Followup to:  <buovfljbsyl.fsf@mcspd15.ucom.lsi.nec.co.jp>
+> By author:    Miles Bader <miles@lsi.nec.co.jp>
+> In newsgroup: linux.dev.kernel
+> 
+>>David Eger <eger@havoc.gtf.org> writes:
+>>
+>>>arch/v850/kernel/as85ep1.ld	- WTF? comments in some random charset...
+>>
+>>FWIW, the charset is EUC-JP.
+>>
+>>Even other files in that same directory aren't consistent, e.g.,
+>>as85ep1.c uses ISO-2022-JP.
+>>
+>>[My fault, but it never really registered on my important-enough-to fix
+>>radar (emacs autodetects them all so I never really noticed the
+>>discrepancy).]
+>>
 > 
 > 
-> ChangeSet@1.1649, 2004-03-05 01:18:18-05:00, dtor_core@ameritech.net
->   NET: TBF trailing whitespace cleanup
-> 
-> 
->  sch_tbf.c |   68 +++++++++++++++++++++++++++++++-------------------------------
->  1 files changed, 34 insertions(+), 34 deletions(-)
-> 
-> 
-> ===================================================================
-> 
-> 
-> 
-> diff -Nru a/net/sched/sch_tbf.c b/net/sched/sch_tbf.c
-> --- a/net/sched/sch_tbf.c	Fri Mar  5 01:26:58 2004
-> +++ b/net/sched/sch_tbf.c	Fri Mar  5 01:26:58 2004
-> @@ -62,7 +62,7 @@
->  
->  	Algorithm.
->  	----------
-> -	
-> +
+> OK, this is definitely a good reason to go to UTF-8 across the board.
 
-That's a lot of whitespace cleanup in there too.
+So when is "less" going to support utf8?  Right now, it just shows 
+escape codes... :(

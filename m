@@ -1,31 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317506AbSIENUw>; Thu, 5 Sep 2002 09:20:52 -0400
+	id <S317482AbSIENQs>; Thu, 5 Sep 2002 09:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSIENUv>; Thu, 5 Sep 2002 09:20:51 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20201 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317506AbSIENUv>;
-	Thu, 5 Sep 2002 09:20:51 -0400
-Date: Thu, 05 Sep 2002 06:17:34 -0700 (PDT)
-Message-Id: <20020905.061734.27237914.davem@redhat.com>
-To: paubert@iram.es
-Cc: lk@tantalophile.demon.co.uk, taka@valinux.co.jp, hpa@zytor.com,
-       linux-kernel@vger.kernel.org
+	id <S317488AbSIENQs>; Thu, 5 Sep 2002 09:16:48 -0400
+Received: from gra-lx1.iram.es ([150.214.224.41]:21768 "EHLO gra-lx1.iram.es")
+	by vger.kernel.org with ESMTP id <S317482AbSIENQr>;
+	Thu, 5 Sep 2002 09:16:47 -0400
+Date: Thu, 5 Sep 2002 15:21:01 +0200 (CEST)
+From: Gabriel Paubert <paubert@iram.es>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Hirokazu Takahashi <taka@valinux.co.jp>, <hpa@zytor.com>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: TCP Segmentation Offloading (TSO)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0209051334280.13338-100000@gra-lx1.iram.es>
-References: <20020905121717.A15540@kushida.apsleyroad.org>
-	<Pine.LNX.4.33.0209051334280.13338-100000@gra-lx1.iram.es>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020905121717.A15540@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.4.33.0209051334280.13338-100000@gra-lx1.iram.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gabriel Paubert <paubert@iram.es>
-   Date: Thu, 5 Sep 2002 15:21:01 +0200 (CEST)
-   
-   it is in the out of mainline code path for odd buffer addresses
+On Thu, 5 Sep 2002, Jamie Lokier wrote:
 
-This happens to occur every packet for pppoe users BTW.
+> Gabriel Paubert wrote:
+> > Now that is grossly inefficient ;-) since you can save one instruction by
+> > moving roll after adcl (hand edited partial patch hunk, won't apply):
+>
+> Yes but is it _faster_? :-)
+
+Hard to tell, with OOO engine and decoder constraints. But once again it
+is in the out of mainline code path for odd buffer addresses, not in the
+loop, so its performance is not critical. Actually code size may have more
+impact it ends up spanning one more cache line (or even a 16 byte block
+used as fetch unit by P6 cores).
+
+>
+> I've been doing some PPro assembly lately, and I'm reminded that
+> sometimes inserting instructions can reduce the timing by up to 8 cycles
+> or so.
+
+The one instruction that you can still be moved around easily is the
+pointer increment. But I would never try to improve code paths that I
+consider non critical.
+
+	Gabriel.
+
+
+
+
+
+
+
+

@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVAYV6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVAYWBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbVAYV6E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 16:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVAYV5q
+	id S262165AbVAYWBw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:01:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVAYWBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 16:57:46 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:58813 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262185AbVAYVzT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 16:55:19 -0500
-Date: Tue, 25 Jan 2005 16:55:11 -0500
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Ram <linuxram@us.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees
-Message-ID: <20050125215511.GD21764@fieldses.org>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <20050116160213.GB13624@fieldses.org> <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050116184209.GD13624@fieldses.org> <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk> <20050117173213.GC24830@fieldses.org> <1106687232.3298.37.camel@localhost> <41F6BE58.50208@sun.com>
+	Tue, 25 Jan 2005 17:01:49 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:44954 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262172AbVAYV6u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 16:58:50 -0500
+Date: Tue, 25 Jan 2005 22:57:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Chris Wright <chrisw@osdl.org>
+Cc: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit tunable
+Message-ID: <20050125215758.GA10811@elte.hu>
+References: <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us> <20050125083724.GA4812@elte.hu> <87oefdfaxp.fsf@sulphur.joq.us> <20050125214900.GA9421@elte.hu> <20050125135508.A24171@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41F6BE58.50208@sun.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <20050125135508.A24171@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 04:47:04PM -0500, Mike Waychison wrote:
-> Although Al hasn't explicitly defined the semantics for mount
-> - --make-shared, I think the idea is that 'only' that mountpoint becomes
-> tagged as shared (becomes a member of a p-node of size 1).
 
-On Thu, Jan 13, 2005 at 10:18:51PM +0000, Al Viro wrote:
->	* we can mark a subtree sharable.  Every vfsmount in the subtree
-> that is not already in some p-node gets a single-element p-node of its
-> own.
+* Chris Wright <chrisw@osdl.org> wrote:
 
-Also, note that mount automatically sets up propagation that mirrors
-that of the mounted on vfsmount, so by default new mounts anywhere in
-the subtree will also be tagged as shared.
+> * Ingo Molnar (mingo@elte.hu) wrote:
+> > well, there's setrlimit, so you could add a jackd client callback that
+> > instructs all clients to change their RT_CPU_RATIO rlimit. In theory we
+> > could try to add a new rlimit syscall that changes another task's rlimit
+> > (right now the syscalls only allow the changing of the rlimit of the
+> > current task) - that would enable utilities to change the rlimit of all
+> > tasks in the system, achieving the equivalent of a global sysctl.
+> 
+> We've talked about smth. similar in another thread.  I'm not opposed
+> to the idea.
 
---b.
+did that thread go into technical details? There are some rlimit users
+that might not be prepared to see the rlimit change under them. The
+RT_CPU_RATIO one ought to be safe, but generally i'm not so sure.
+
+	Ingo

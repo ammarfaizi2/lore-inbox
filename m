@@ -1,161 +1,218 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287509AbRLaNgs>; Mon, 31 Dec 2001 08:36:48 -0500
+	id <S287518AbRLaNuj>; Mon, 31 Dec 2001 08:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287513AbRLaNgj>; Mon, 31 Dec 2001 08:36:39 -0500
-Received: from mail.nep.net ([12.23.44.24]:25619 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S287509AbRLaNgW>;
-	Mon, 31 Dec 2001 08:36:22 -0500
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A1251C7@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: Ben Greear <greearb@candelatech.com>, "Ryan C. Bonham" <Ryan@srfarms.com>
-Cc: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Tyan Tomcat i815T(S2080) LAN problems
-Date: Mon, 31 Dec 2001 08:44:12 -0500
+	id <S287519AbRLaNua>; Mon, 31 Dec 2001 08:50:30 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:30598 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S287518AbRLaNuY>;
+	Mon, 31 Dec 2001 08:50:24 -0500
+Message-ID: <3C306CB6.867B071@mailnet.de>
+Date: Mon, 31 Dec 2001 14:48:38 +0100
+From: pil@mailnet.de
+X-Mailer: Mozilla 4.79C-pil. [en] (X11; U; Linux 2.4.17 i586)
+X-Accept-Language: en, en-US, de
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: HFS-Bug in 2.4.17
+Content-Type: multipart/mixed;
+ boundary="------------0A483BF81CC122B9EA34C439"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------0A483BF81CC122B9EA34C439
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
 Hi,
 
-Well my first problem, once I got my brain working, was to realize that eth1 was DOA.. so as soon as I get a replacement board, I will try again.. Using the e100 driver, how did you force setting the MAC address?? 
+Here is the next one:
+You can recreate the bug if you have a kernel with modules support for
+hfs-format, mount a hfs formated floppy and try to move a directory into
+another directory on that floppy. You'll get a segmentation fault and an
+uninterruptible sleep for the mount PID.
+You cannot use or unmount the drive again.
 
-Ryan
+Regards
 
-> -----Original Message-----
-> From: Ben Greear [mailto:greearb@candelatech.com]
-> Sent: Sunday, December 30, 2001 10:31 PM
-> To: Ryan C. Bonham
-> Cc: Linux Kernel List (E-mail)
-> Subject: Re: Tyan Tomcat i815T(S2080) LAN problems
-> 
-> 
-> I sort of got it working by using the e100 driver from Intel, and then
-> forcefully setting the MAC address to something other than 0xFF...FF
-> 
-> Neither Becker, I, nor someone at Intel could figure out why
-> the MAC (EEPROM) was all FFs.  The best guess was that the BIOS
-> was screwed up somehow (that's what the Intel guy said...)
-> 
-> I'd be interested if you get it working...I have two of these marginal
-> boards gathering dust!!
-> 
-> Ben
-> 
-> Ryan C. Bonham wrote:
-> 
-> > Hi,
-> > 
-> > I installed kernel 2.4.17 and this problem still exists. I 
-> have attached the important stuff from demesg and from eepro100-diag. 
-> > 
-> > 
-> >>Has anyone gotten the Dual built-in LAN cards to work on the 
-> >>Tyan S2080 Motherboard?  I am running a Redhat kernel 
-> >>2.4.9-13.. I haven't tried the latest kernel yet.. I saw some 
-> >>talk about this board in the archives but I found no 
-> >>solutions. It says it has a Intel 82559 LAN controller and a 
-> >>ICH2 LAN Controller. I am only seeing one NIC when I boot up. 
-> >>And dmesg is showing
-> >>eth0: Invalid EEPROM checksum 0xFF00, check setting before 
-> >>activating this device!
-> >>
-> >>
-> > 
-> > Thanks,
-> > 
-> > 
-> > eepro100.c:v1.09j-t 9/29/99 Donald Becker 
-> http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-> > eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey 
-> V. Savochkin <saw@saw.sw.com.sg> and others
-> > PCI: Found IRQ 11 for device 01:08.0
-> > eth0: Invalid EEPROM checksum 0xff00, check settings before 
-> activating this device!
-> > eth0: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 11.
-> >   Board assembly ffffff-255, Physical connectors present: 
-> RJ45 BNC AUI MII
-> >   Primary interface chip unknown-15 PHY #31.
-> >     Secondary interface chip i82555.
-> >   General self-test: passed.
-> >   Serial sub-system self-test: passed.
-> >   Internal registers self-test: passed.
-> >   ROM checksum self-test: passed (0x04f4518b).
-> > 
-> > ----------------------------------  eerpro100-diag -aaeef
-> > 
-> > eepro100-diag.c:v2.06 12/10/2001 Donald Becker (becker@scyld.com)
-> >  http://www.scyld.com/diag/index.html
-> > Index #1: Found a Intel i82562 Pro/100 V adapter at 0xc800.
-> > i82557 chip registers at 0xc800:
-> >   0c000050 07036000 00000000 00080002 3fe1ffff 00000600
-> >   No interrupt sources are pending.
-> >    The transmit unit state is 'Suspended'.
-> >    The receive unit state is 'Ready'.
-> >   This status is normal for an activated but idle interface.
-> >  The Command register has an unprocessed command 0c00(?!).
-> > EEPROM contents, size 256x16:
-> >     00: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x08: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x10: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x18: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x20: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x28: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x30: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x38: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x40: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x48: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x50: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x58: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x60: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x68: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x70: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x78: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x80: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x88: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x90: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0x98: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xa0: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xa8: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xb0: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xb8: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xc0: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xc8: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xd0: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xd8: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xe0: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xe8: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xf0: ffff ffff ffff ffff ffff ffff ffff ffff
-> >   0xf8: ffff ffff ffff ffff ffff ffff ffff ffff
-> >  *****  The EEPROM checksum is INCORRECT!  *****
-> >   The checksum is 0xFF00, it should be 0xBABA!
-> > Intel EtherExpress Pro 10/100 EEPROM contents:
-> >   Station address FF:FF:FF:FF:FF:FF.
-> >   Board assembly ffffff-255, Physical connectors present: 
-> RJ45 BNC AUI MII
-> >   Primary interface chip i82555 PHY #-1.
-> >     Secondary interface chip i82555, PHY -1.
-> >    Sleep mode is enabled.  This is not recommended.
-> >    Under high load the card may not respond to
-> >    PCI requests, and thus cause a master abort.
-> >    To clear sleep mode use the '-G 0 -w -w -f' options..
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > 
-> 
-> 
-> -- 
-> Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-> President of Candela Technologies Inc      http://www.candelatech.com
-> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-> 
-> 
-> 
+Wolfgang Pichler
+--------------0A483BF81CC122B9EA34C439
+Content-Type: text/plain; charset=us-ascii;
+ name="report"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="report"
+
+
+
+
+syslog
+Dec 31 11:33:12 pc kernel: invalid operand: 0000
+Dec 31 11:33:12 pc kernel: CPU:    0
+Dec 31 11:33:12 pc kernel: EIP:    0010:[<c88abfb4>]    Not tainted
+Dec 31 11:33:12 pc kernel: EFLAGS: 00010246
+Dec 31 11:33:12 pc kernel: eax: 00000000   ebx: c18b6f40   ecx: c42faa00   edx: 00000001
+Dec 31 11:33:12 pc kernel: esi: 00000002   edi: c42fa820   ebp: c42faa20   esp: c19c9ec4
+Dec 31 11:33:12 pc kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 11:33:12 pc kernel: Process mv (pid: 943, stackpage=c19c9000)
+Dec 31 11:33:12 pc kernel: Stack: c18b5c5c ffffffea c2129a9c 00000000 00000001 00000000 c4
+2faa00 c42fa200 
+Dec 31 11:33:12 pc kernel:        00000000 00005b0e 73081300 67657661 9e656d61 9ee8c19c 9a
+20c19c a800c212 
+Dec 31 11:33:12 pc kernel:        a859c42f e780c88a c013c6b0 c0137074 c2129a20 c18b6940 c1
+8b5be0 c19c45e0 
+Dec 31 11:33:12 pc kernel: Call Trace: [d_instantiate+16/48] [vfs_rename_dir+1004/1204] [v
+fs_rename+46/136] [sys_rename+402/544] [system_call+51/64] 
+Dec 31 11:33:12 pc kernel: 
+Dec 31 11:33:12 pc kernel: Code: 0f 0b ff 03 8b 53 08 66 c7 42 34 00 00 a1 30 a9 24 c0 89 
+42
+
+cat /proc/version
+Linux version 2.4.17 (root@pc) (gcc version 2.95.2 19991024 (release)) #1 Wed Dec 26 10:42:01 CET 2001
+
+cat /proc/modules
+hfs                    73552   0 (autoclean)
+vfat                    9200   0 (autoclean)
+fat                    28928   0 (autoclean) [vfat]
+floppy                 45712   0 (autoclean)
+snd-pcm-oss            18208   0 (unused)
+snd-pcm-plugin         14000   0 [snd-pcm-oss]
+snd-mixer-oss           4832   0 [snd-pcm-oss]
+snd-card-via686a        7152   0
+snd-pcm                29216   0 [snd-pcm-oss snd-pcm-plugin snd-card-via686a]
+snd-timer               8192   0 [snd-pcm]
+snd-ac97-codec         24320   0 [snd-card-via686a]
+snd-mixer              22896   0 [snd-mixer-oss snd-ac97-codec]
+snd-mpu401-uart         2320   0 [snd-card-via686a]
+snd-rawmidi             9344   0 [snd-mpu401-uart]
+snd-seq-device          3824   0 [snd-rawmidi]
+snd                    31568   1 [snd-pcm-oss snd-pcm-plugin snd-mixer-oss snd-card-via686a snd-pcm snd-timer snd-ac97-codec snd-mixer snd-mpu401-uart snd-rawmidi snd-seq-device]
+soundcore               3280   4 [snd]
+ide-scsi                7472   0
+loop                    7808   0 (unused)
+sr_mod                 12032   0 (unused)
+sg                     23520   0 (unused)
+scsi_mod               79072   3 [ide-scsi sr_mod sg]
+
+
+
+su1 lspci -vvv
+00:00.0 Host bridge: VIA Technologies, Inc. VT8501 (rev 02)
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+        Latency: 32 set
+        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=7 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8501 (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+        Latency: 0 set
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: e4000000-e7ffffff
+        Prefetchable memory behind bridge: fff00000-000fffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 14)
+        Subsystem: VIA Technologies, Inc.: Unknown device 0000
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0 set
+
+
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06) (prog-if 8a [Master SecP PriP])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 set
+        Region 4: I/O ports at d000 [size=16]
+
+00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 06) (prog-if 00 [UHCI])
+        Subsystem: Unknown device 0925:1234
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 set, cache line size 08
+        Interrupt: pin D routed to IRQ 10
+        Region 4: I/O ports at d400 [size=32]
+
+00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 06) (prog-if 00 [UHCI])
+        Subsystem: Unknown device 0925:1234
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 set, cache line size 08
+        Interrupt: pin D routed to IRQ 10
+        Region 4: I/O ports at d800 [size=32]
+
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 10)
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin ? routed to IRQ 9
+
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 [Apollo Super AC97/Audio] (rev 12)
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin C routed to IRQ 11
+        Region 0: I/O ports at dc00 [size=256]
+        Region 1: I/O ports at e000 [size=4]
+
+
+00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
+        Subsystem: Allied Telesyn International: Unknown device 2503
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 min, 64 max, 32 set
+        Interrupt: pin A routed to IRQ 9
+        Region 0: I/O ports at e400 [size=256]
+        Region 1: Memory at e8000000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME+
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: Trident Microsystems CyberBlade/i7 (rev 5b) (prog-if 00 [VGA])
+        Subsystem: Trident Microsystems: Unknown device 8400
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 set
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e5800000 (32-bit, non-prefetchable) [size=8M]
+        Region 1: Memory at e6000000 (32-bit, non-prefetchable) [size=128K]
+        Region 2: Memory at e5000000 (32-bit, non-prefetchable) [size=8M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [80] AGP version 1.0
+                Status: RQ=32 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [90] Power Management version 1
+                Flags: PMEClk- AuxPwr- DSI+ D1+ D2+ PME-
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
+
+cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 8
+model name      : AMD-K6(tm) 3D processor
+stepping        : 12
+cpu MHz         : 451.037
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 pge mmx syscall 3dnow k6_mtrr
+bogomips        : 897.84
+
+
+
+
+
+--------------0A483BF81CC122B9EA34C439--
+
+

@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130028AbRBEXHa>; Mon, 5 Feb 2001 18:07:30 -0500
+	id <S130231AbRBEXQY>; Mon, 5 Feb 2001 18:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135937AbRBEXHU>; Mon, 5 Feb 2001 18:07:20 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57863 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130028AbRBEXHF>; Mon, 5 Feb 2001 18:07:05 -0500
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-To: sct@redhat.com (Stephen C. Tweedie)
-Date: Mon, 5 Feb 2001 23:06:48 +0000 (GMT)
-Cc: mingo@elte.hu (Ingo Molnar), sct@redhat.com (Stephen C. Tweedie),
-        lord@sgi.com (Steve Lord), linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net,
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <20010205225804.Z1167@redhat.com> from "Stephen C. Tweedie" at Feb 05, 2001 10:58:04 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130540AbRBEXQP>; Mon, 5 Feb 2001 18:16:15 -0500
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:26314 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S130231AbRBEXQD>; Mon, 5 Feb 2001 18:16:03 -0500
+Message-ID: <3A7F3420.A3B10510@alumni.caltech.edu>
+Date: Mon, 05 Feb 2001 15:15:44 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Reply-To: dank@alumni.caltech.edu
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Tony Finch <dot@dotat.at>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: TCP_NOPUSH on FreeBSD, TCP_CORK on Linux (was: Is sendfile all that 
+ sexy?)
+In-Reply-To: <3A66729E.3E9E3C64@alumni.caltech.edu> <Pine.LNX.4.10.10101172046170.17109-100000@penguin.transmeta.com> <20010202013104.A48377@hand.dotat.at> <20010205225411.E70673@hand.dotat.at>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14Puih-0004Rk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> do you then tell the application _above_ raid0 if one of the
-> underlying IOs succeeds and the other fails halfway through?
+Tony Finch wrote:
+> 
+> Tony Finch <dot@dotat.at> wrote:
+> >Linus Torvalds <torvalds@transmeta.com> wrote:
+> >>
+> >>Without proper uncorking (and it really shouldn't be that hard to
+> >>add), TCP_NOPUSH simply can't be used in the generic sense.
+> >
+> >It was easy :-) I've put up a patch for FreeBSD that adds proper
+> >uncorking on my homepage <http://apache.org/~fanf/> in the "Stuff"
+> >section.
+> 
+> ... and it has been committed to -CURRENT, too.
 
-struct 
-{
-	u32 flags;	/* because everything needs flags */
-	struct io_completion *completions;
-	kiovec_t sglist[0];
-} thingy;
+How very cool.
 
-now kmalloc one object of the header the sglist of the right size and the
-completion list. Shove the completion list on the end of it as another
-array of objects and what is the problem.
+How close is TCP_NOPUSH to behaving identically to TCP_CORK now?
+If it does behave identically, it might be time to standardize
+the symbolic name for this option, to make apps more portable
+between the two OS's.  (It'd be nice to also standardize the
+numeric value, in the interest of making the ABI's more compatible, too.)
 
-> In other words, even if we expand the kiobuf into a sg vector list,
-> when it comes to merging requests in ll_rw_blk.c we still need to
-> track the callbacks on each independent source kiobufs.  
+Here are the definitions in the two OS's at the moment:
 
-But that can be two arrays
+FreeBSD: netinet/tcp.h (from 
+http://minnie.cs.adfa.oz.au/FreeBSD-srctree/newsrc/netinet/tcp.h.html#TCP_NOPUSH )
 
+/*
+ * User-settable options (used with setsockopt).
+ */
+#define TCP_NODELAY     0x01    /* don't delay send to coalesce packets */
+#define TCP_MAXSEG      0x02    /* set maximum segment size */
+#define TCP_NOPUSH      0x04    /* don't push last block of write */
+
+Linux: netinet/tcp.h:
+
+/*
+ * User-settable options (used with setsockopt).
+ */
+#define TCP_NODELAY 0x01    /* don't delay send to coalesce packets */
+#define TCP_MAXSEG  0x02    /* set maximum segment size */
+#define TCP_CORK    0x03    /* control sending of partial frames */      
+
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129685AbQLESnO>; Tue, 5 Dec 2000 13:43:14 -0500
+	id <S130231AbQLESpY>; Tue, 5 Dec 2000 13:45:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129518AbQLESnE>; Tue, 5 Dec 2000 13:43:04 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:20027 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S130063AbQLESmu>;
-	Tue, 5 Dec 2000 13:42:50 -0500
-Message-ID: <20001205191224.A11904@win.tue.nl>
-Date: Tue, 5 Dec 2000 19:12:24 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Daniel Sangenberg <daniel@datanova.se>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.17 + ide patches + 61gb ibm disc = problem
-In-Reply-To: <5.0.1.4.2.20001205170724.00b30458@mail.datanova.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <5.0.1.4.2.20001205170724.00b30458@mail.datanova.se>; from Daniel Sangenberg on Tue, Dec 05, 2000 at 05:15:25PM +0100
+	id <S130229AbQLESpO>; Tue, 5 Dec 2000 13:45:14 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:13443 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130228AbQLESpM>;
+	Tue, 5 Dec 2000 13:45:12 -0500
+Date: Tue, 5 Dec 2000 13:14:22 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        Alan Cox <alan@redhat.com>, Christoph Rohland <cr@sap.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        MOLNAR Ingo <mingo@chiara.elte.hu>
+Subject: Re: test12-pre5
+In-Reply-To: <Pine.LNX.4.21.0012050930170.18170-100000@dual.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0012051256470.12284-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2000 at 05:15:25PM +0100, Daniel Sangenberg wrote:
 
-> I have a problem with 2.2.17 + the latest ide patches and 2 * 61 gb ibm ide 
-> discs, the discs are connected as slave on a two channels (onboard ide 
-> channels on a asus p2b (i440BX Chipset)), there is nohing else connected on 
-> the ide interface and the jumper settings are identical.
 
-> hdb: IBM-DTLA-307060, 58644MB w/1916kB Cache, CHS=7476/255/63, UDMA(33)
-> hdd: IBM-DTLA-307060, 58644MB w/1916kB Cache, CHS=119150/16/63, UDMA(33)
+On Tue, 5 Dec 2000, Linus Torvalds wrote:
 
-> The difference in size and cylinders could cause a problem if this changes 
-> in later versions, is this normal behaviour or did i do something wrong ?
+> Get your acts together, guys. Stop blathering and frothing at the mouth.
+> The only time clear_inode() should be called is (a) when we prune the
+> inode cache - and we CLEARLY cannot prune an inode if it still has dirty
+> blocks associated with it and CAN_UNUSE() already enforces this or (b)
+> when we're getting rid of the very last occurrence of the inode. In one
+> case the dirty list is already empty. In the other, invalidating it is
+> clearly the right thing and the _required_ thing to do.
 
-This is normal behaviour. See
-	http://www.win.tue.nl/~aeb/linux/Large-Disk-14.html#ss14.2
-("14.2 Nonproblem: Identical disks have different geometry?")
+
+Sigh. OK, let me put it that way:
+
+	* we _can_ have dirty blocks on the list when inode gets freed.
+	* no, CAN_UNUSE will not see them.
+	* no, we do not give a damn about forgetting them.
+
+So Stephen is right wrt fsync() (it will not get that stuff on disk).
+However, it's not a bug - if that crap will not end up on disk we
+will only win.
+
+However, I think that things would be cleaner if we wouldn't have that
+call in clear_inode(). Why? Because filesystems that had ordered writing
+the blocks would better tell us when they are no longer interested in it.
+It does not matter for the current code. It may matter a lot for any
+fs that does write ordering of any kind.
+
+IOW, while with the current tree invalidate_inode_buffers() is not a band-aid
+(just a bad misnomer) it may easily become such.
+
+> So I repeat: are there known bugs in this area left in pre5?
+
+AFAIK, none. I _really_ don't like the way we handle that stuff now (at
+the very least let's rename the bloody thing - it doesn't invalidate
+anything), but as far as I can see the code is technically correct.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

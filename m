@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131550AbQLHPo1>; Fri, 8 Dec 2000 10:44:27 -0500
+	id <S132127AbQLHPr1>; Fri, 8 Dec 2000 10:47:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131652AbQLHPoR>; Fri, 8 Dec 2000 10:44:17 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:39409 "EHLO
-	tantra.cygnus.co.uk") by vger.kernel.org with ESMTP
-	id <S131550AbQLHPoN>; Fri, 8 Dec 2000 10:44:13 -0500
-From: David Howells <dhowells@redhat.com>
-To: Christoph Rohland <cr@sap.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH,preliminary] cleanup shm handling 
-In-Reply-To: Your message of "08 Dec 2000 14:23:06 +0100."
-             <qwwu28fkpxh.fsf@sap.com> 
-Date: Fri, 08 Dec 2000 15:13:45 +0000
-Message-ID: <20295.976288425@warthog.cygnus>
+	id <S132119AbQLHPrR>; Fri, 8 Dec 2000 10:47:17 -0500
+Received: from web1102.mail.yahoo.com ([128.11.23.122]:52749 "HELO
+	web1102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131652AbQLHPrH>; Fri, 8 Dec 2000 10:47:07 -0500
+Message-ID: <20001208151632.17335.qmail@web1102.mail.yahoo.com>
+Date: Fri, 8 Dec 2000 16:16:32 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.2.18pre25
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Willy Tarreau <wtarreau@free.fr>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Miquel van Smoorenburg <miquels@cistron.nl>,
+        linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-87755422-976288592=:13116"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--0-87755422-976288592=:13116
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-> here is my first shot for cleaning up the shm handling. It did survive
-> some basic testing but is not ready for inclusion. 
+> It doesnt even apply
 
-Can you help me with an SHM related problem?
+sorry Alan, I think it's because I had to copy/paste
+it
+with my mouse under X into my browser (I don't have
+smtp access here at work), and it applies here with a
+-12 lines offset...
 
-I'm currently writing a Win32 emulation kernel module to help speed Wine up,
-and I'm writing the file mapping support stuff at the moment
-(CreateFileMapping and MapViewOfFile).
+Here it is attached for 2.2.18pre25, but since the
+raid
+server is running now (under 2.2.18pre20+patch), I
+won't be able to test it till next week, but
+I'm a bit confident since it will do the same as the
+one which currently allows this server to boot.
 
-I have PE Image mapping just about working (fixups, misaligned file sections
-and all), but I'm trying to think of a good way of doing anonymous shared
-mappings without having to hack the main kernel around too much (so far I've
-only had to add to kernel/ksyms.c).
+as soon as I can reboot it, I promise I will test the
+kernel with and without the patch to be really sure.
+but before that, if people who have problems with
+megaraid/netraid could give it a try, that would be
+cool. Also, it would be nice if people for which the
+normal megaraid driver works would accept to check
+this
+doesn't break anything.
 
-Is there a reasonable way I could hook into the SHM system to "reserve" a
-chunk of shared memory of a particular size, and then a second hook by which I
-can "map" _part_ of that into a process's address space?
+Regards,
+Willy
 
-Cheers,
-David
 
-PS: to anyone else reading this, if you wrote do_generic_file_read(), it
-rocks!
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
+--0-87755422-976288592=:13116
+Content-Type: application/x-unknown; name=patch-megaraid-fix
+Content-Transfer-Encoding: base64
+Content-Description: patch-megaraid-fix
+Content-Disposition: attachment; filename=patch-megaraid-fix
+
+ZGlmZiAtdXJOIGxpbnV4LTIuMi4xOHAyNS9kcml2ZXJzL3Njc2kvbWVnYXJh
+aWQuYyBsaW51eC0yLjIuMThwMjUrbWVnYXJhaWRmaXgvZHJpdmVycy9zY3Np
+L21lZ2FyYWlkLmMKLS0tIGxpbnV4LTIuMi4xOHAyNS9kcml2ZXJzL3Njc2kv
+bWVnYXJhaWQuYwlGcmkgRGVjICA4IDE2OjEwOjI3IDIwMDAKKysrIGxpbnV4
+LTIuMi4xOHAyNSttZWdhcmFpZGZpeC9kcml2ZXJzL3Njc2kvbWVnYXJhaWQu
+YwlGcmkgRGVjICA4IDE2OjEyOjA3IDIwMDAKQEAgLTE5MDgsMTAgKzE5MDgs
+MTQgQEAKIAogICAgIHBjaUlkeCsrOwogCi0gICAgaWYgKGZsYWcgJiBCT0FS
+RF9RVUFSVFopCisgICAgaWYgKGZsYWcgJiBCT0FSRF9RVUFSVFopIHsKKyAg
+ICAgICBtZWdhQmFzZSAmPSBQQ0lfQkFTRV9BRERSRVNTX01FTV9NQVNLOwog
+ICAgICAgIG1lZ2FCYXNlID0gKGxvbmcpIGlvcmVtYXAgKG1lZ2FCYXNlLCAx
+MjgpOwotICAgIGVsc2UKKyAgICB9CisgICAgZWxzZSB7CisgICAgICAgbWVn
+YUJhc2UgJj0gUENJX0JBU0VfQUREUkVTU19NRU1fTUFTSzsKICAgICAgICBt
+ZWdhQmFzZSArPSAweDEwOworICAgIH0KIAogICAgIC8qIEluaXRpYWxpemUg
+U0NTSSBIb3N0IHN0cnVjdHVyZSAqLwogICAgIGhvc3QgPSBzY3NpX3JlZ2lz
+dGVyIChwSG9zdFRtcGwsIHNpemVvZiAobWVnYV9ob3N0X2NvbmZpZykpOwo=
+
+
+--0-87755422-976288592=:13116--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

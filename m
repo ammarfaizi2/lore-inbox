@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVCCPr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVCCPsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVCCPr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 10:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVCCPr6
+	id S261855AbVCCPsq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 10:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVCCPsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 10:47:58 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:36623 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S261887AbVCCPrk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 10:47:40 -0500
-Message-ID: <42273149.7030802@cantab.net>
-Date: Thu, 03 Mar 2005 15:46:17 +0000
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Thu, 3 Mar 2005 10:48:46 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:3529 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261855AbVCCPsh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 10:48:37 -0500
 MIME-Version: 1.0
-To: kai@germaschewski.name, sam@ravnborg.org
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: kbuild Makefile: allow checking if ARCH and CROSS_COMPILE is set
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Mar 2005 15:51:51.0281 (UTC) FILETIME=[EA4F2610:01C52008]
+Message-ID: <16935.12745.191707.91582@alkaid.it.uu.se>
+Date: Thu, 3 Mar 2005 16:48:25 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: miklos@szeredi.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [request for inclusion] Filesystem in Userspace
+In-Reply-To: <20050303013203.245c8833.akpm@osdl.org>
+References: <E1D6YPJ-0000Jv-00@dorka.pomaz.szeredi.hu>
+	<20050302123123.3d528d05.akpm@osdl.org>
+	<16934.54647.354607.902748@alkaid.it.uu.se>
+	<20050303013203.245c8833.akpm@osdl.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton writes:
+ > Mikael Pettersson <mikpe@csd.uu.se> wrote:
+ > >
+ > > Andrew Morton writes:
+ > >  > Miklos Szeredi <miklos@szeredi.hu> wrote:
+ > >  > >
+ > >  > > Do you have any objections to merging FUSE in mainline kernel?
+ > >  > 
+ > >  > I was planning on sending FUSE into Linus in a week or two.  That and
+ > >  > cpusets are the notable features which are 2.6.12 candidates.
+ > >  > 
+ > >  > - crashdump seems permanently not-quite-ready
+ > >  > 
+ > >  > - perfctr works fine, but is rather deadlocked because it is
+ > >  >   similar-to-but-different-from ia64's perfmon, and might not be suitable
+ > >  >   for ppc64 (although things have gone quiet on the latter front).
+ > > 
+ > > perfctr has one API update pending, and then the API should be
+ > > in it final-ish form. David Gibson at IBM has done a ppc64 port,
+ > > which is about ready to be merged, and someone else has just
+ > > started working on a mips port.
+ > > 
+ > 
+ > That sounds good.  Where do we stand now with ia64?  Do we just end up
+ > agreeing to differ?
 
-It can be useful for distributors for kernel source trees intended
-for cross-compilation only (e.g., for embedded targets) to ensure
-the user has set ARCH and CROSS_COMPILE.
+I think so, yes.
 
-This patch allows one to create the file .force-cross-compile containing
-the word "yes" to enable such a test.
+The ia64 perfmon has some features perfctr doesn't have,
+but my perfctr API changes will allow perfctr to grow its
+feature list and adapt to HW changes without breaking the API.
+Its unlikely that perfctr will ever implement everything
+perfmon does, but multiplexing and overflow sample buffering
+are two features that should be added at some point.
 
-Signed-off-by: David Vrabel <dvrabel@arcom.com>
-
-Index: linux-2.6-working/Makefile
-===================================================================
---- linux-2.6-working.orig/Makefile	2005-03-03 15:03:33.177767998 +0000
-+++ linux-2.6-working/Makefile	2005-03-03 15:21:44.366657764 +0000
-@@ -189,6 +189,19 @@
- # Default value for CROSS_COMPILE is not to prefix executables
- # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
-
-+# Creating the file .force-cross-compile containing the word "yes"
-+# will ensure the user specifies ARCH and CROSS_COMPILE.  This is
-+# handy for distributers of kernel trees intended for
-+# cross-compilation only.
-+ifeq ($(shell cat .force-cross-compile),yes)
-+  ifeq ($(ARCH),)
-+    $(error ARCH is unset)
-+  endif
-+  ifeq ($(CROSS_COMPILE),)
-+    $(error CROSS_COMPILE is unset)
-+  endif
-+endif
-+
- ARCH		?= $(SUBARCH)
- CROSS_COMPILE	?=
-
+/Mikael

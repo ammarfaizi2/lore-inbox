@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279783AbRKMWqA>; Tue, 13 Nov 2001 17:46:00 -0500
+	id <S279798AbRKMWsu>; Tue, 13 Nov 2001 17:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279790AbRKMWpu>; Tue, 13 Nov 2001 17:45:50 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26381 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279783AbRKMWpl>; Tue, 13 Nov 2001 17:45:41 -0500
-Subject: Re: PATCH: scsi_scan.c: emulate windows behavior
-To: mdharm-kernel@one-eyed-alien.net (Matthew Dharm)
-Date: Tue, 13 Nov 2001 22:52:43 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Kernel Developer List)
-In-Reply-To: <20011113102106.A23110@one-eyed-alien.net> from "Matthew Dharm" at Nov 13, 2001 10:21:06 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S279787AbRKMWsk>; Tue, 13 Nov 2001 17:48:40 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:15885 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S278617AbRKMWsZ>;
+	Tue, 13 Nov 2001 17:48:25 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: mjacob@feral.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: modutils 2.4.11 is available 
+In-Reply-To: Your message of "Tue, 13 Nov 2001 10:46:05 -0800."
+             <Pine.BSF.4.21.0111131045540.78620-100000@beppo> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163mQ7-0002b8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Wed, 14 Nov 2001 09:48:14 +1100
+Message-ID: <19387.1005691694@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Attached is a one-liner patch to scsi_scan.c, which changes the length of
-> the INQUIRY data request from 255 bytes to 36 bytes.  This subtle change
-> makes Linux act more like Win/MacOS and other popular OSes, and reduces
-> incompatibility with a broad range of out-of-spec devices that will simply
-> die if asked for more than the required minimum of 36 bytes.
+On Tue, 13 Nov 2001 10:46:05 -0800 (PST), 
+Matthew Jacob <mjacob@feral.com> wrote:
+>gcc -O2 -Wall -I./../include -D_GNU_SOURCE  -DCONFIG_ROOT_CHECK_OFF=0
+>-DCOMMON_3264 -DELF_MACHINE_H='"elf_ppc64.h"' -DARCH_ppc64 -DONLY_64 -c -o
+>obj_ppc64_64.o obj_ppc64.c
+>In file included from ../include/obj.h:34,
+>                 from obj_ppc64.c:25:
+>../include/elf_ppc64.h:89: unbalanced `#endif'
+>make[1]: *** [obj_ppc64_64.o] Error 1
 
-It breaks sane, it breaks some cd burning tools. We really need all of it
-I think
+My fault, remove the last two lines of include/elf_ppc64.h.
+

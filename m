@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbSJ0Vpw>; Sun, 27 Oct 2002 16:45:52 -0500
+	id <S262681AbSJ0V4H>; Sun, 27 Oct 2002 16:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSJ0Vpw>; Sun, 27 Oct 2002 16:45:52 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:46844 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262653AbSJ0Vpv>; Sun, 27 Oct 2002 16:45:51 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sun, 27 Oct 2002 14:49:13 -0700
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New nanosecond stat patch for 2.5.44
-Message-ID: <20021027214913.GA17533@clusterfs.com>
-Mail-Followup-To: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-References: <20021027121318.GA2249@averell>
-Mime-Version: 1.0
+	id <S262689AbSJ0V4H>; Sun, 27 Oct 2002 16:56:07 -0500
+Received: from smtpout.mac.com ([204.179.120.85]:29400 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S262681AbSJ0V4G>;
+	Sun, 27 Oct 2002 16:56:06 -0500
+Message-ID: <3DBC6314.6B8AC5EA@mac.com>
+Date: Sun, 27 Oct 2002 23:05:08 +0100
+From: Peter Waechtler <pwaechtler@mac.com>
+X-Mailer: Mozilla 4.8 [de] (X11; U; Linux 2.4.18-4GB-SMP i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] unified SysV and Posix mqueues as FS
+References: <3DBC1A6B.7020108@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021027121318.GA2249@averell>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 27, 2002  13:13 +0100, Andi Kleen wrote:
-> Move time_t members in struct stat to struct timespec and allow subsecond
-> timestamps for files.  Too big to post on the list, because it edits
-> a lot of file systems and drivers in a straight forward way.
+Manfred Spraul schrieb:
 > 
-> This is required for reliable "make" on fast computers.
+>  > - notification not tested
+>  > - still linear search in queues
 > 
-> File systems that support nsec storage are currently: XFS, JFS, NFSv3
-> (if the filesystem on the server supports it), VFAT (not quite nanosecond),
-> CIFS (unit in 100ns which is above what linux supports), SMBFS (for 
-> newer servers)
+> Is that a problem? Receive does one linear search of the queued
+> messages, send does one linear search of the waiting receivers. Both
+> lists should be short.
+> 
 
-Two notes I might make about this:
-1) It would be good if it were possible to select this with a config
-   option (I don't care which way the default goes), so that people who
-   don't need/care about the increased resolution don't need the extra
-   space in their inodes and minor extra overhead.  To make this a lot
-   easier to code, having something akin to the inode_update_time()
-   which does all of the i_[acm]time updates as appropriate.
-2) Updating i_atime based on comparing the nsec timestamp is going to be
-   a killer.  I think AKPM saw dramatic performance improvements when he
-   changed the code to only do the update once/second, and even though
-   you are "only" updating the atime if the times are different, in
-   practise this will be always.  Even without the "per superblock interval"
-   you suggest we should probably only update the atime once a second (I
-   don't think anything is keyed off such high resolution atimes, unlike
-   make and mtime/ctime).
-3) The fields you are usurping in struct stat are actually there for the
-   Y2038 problem (when time_t wraps).  At least that's what Ted said when
-   we were looking into nsec times for ext2/3.  Granted, we may all be
-   using 64-bit systems by 2038...  I've always thought 64 bits is much
-   to large for time_t, so we could always use 20 or 30 bits for sub-second
-   times, and the remaining bits for extending time_t at the high end,
-   and mask those off for now, but that is a separate issue...
+Yes, they _should_ but don't have to be.
+It only matters if you ask for specific priority/type of message.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+> Could you split your patch into the functional changes and cleanup?
+> (const, size_t, you move a few definitions around, whitespace cleanups)
+> 
+> I don't like the deep integration of the mqueues into the sysv code - is
+> that really needed?
+> For example, you add the mqueue messages into the sysv array, and then
+> add lots of code to separate both again - IPC_RMID cannot remove posix
+> queues, etc.
+> 
+> Have you tried to separate both further? Create a ramfs like filesystem,
+> store msg_queue in the inode structure?
+> The ids array is only for sysv, only the actual message handling is
+> shared between sysv msg and posix mqueues
+> 
 
+I plan to separate the interfaces and just share the message stuff.
+But time was getting short. :)

@@ -1,77 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSHYJSZ>; Sun, 25 Aug 2002 05:18:25 -0400
+	id <S316659AbSHYJx4>; Sun, 25 Aug 2002 05:53:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317169AbSHYJSZ>; Sun, 25 Aug 2002 05:18:25 -0400
-Received: from pD9E236A6.dip.t-dialin.net ([217.226.54.166]:15272 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317117AbSHYJSY>; Sun, 25 Aug 2002 05:18:24 -0400
-Date: Sun, 25 Aug 2002 03:22:28 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Kerenyi Gabor <wom@tateyama.hu>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>
-Subject: Re: [RFC] make localconfig
-In-Reply-To: <200208250657.PAA11049@cttsv008.ctt.ne.jp>
-Message-ID: <Pine.LNX.4.44.0208250320360.3234-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam-Babelsberg; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317091AbSHYJx4>; Sun, 25 Aug 2002 05:53:56 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:9361 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316659AbSHYJxz>;
+	Sun, 25 Aug 2002 05:53:55 -0400
+Date: Sun, 25 Aug 2002 19:57:45 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Consolidate include/asm/fcntl.h into include/linux/fcntl.h
+Message-Id: <20020825195745.63ba6fb4.sfr@canb.auug.org.au>
+In-Reply-To: <20020824213549.H29958@parcelfarce.linux.theplanet.co.uk>
+References: <20020824213549.H29958@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Willy,
 
-I think this version is supposed to illustrate much better what I've had 
-in my mind.
+On Sat, 24 Aug 2002 21:35:49 +0100 Matthew Wilcox <willy@debian.org> wrote:
+>
+> I think this is a bad idea -- when doing a new port, it's easier to fill
+> in the bits with the current scheme rather than with your proposed scheme.
 
-localconfig(9)	  Generating local configuration	localconfig(9)
+The point about nay new port is that it is likely to be exactly the same as
+one of the current ports as far as these defines and structures are
+concerned.  WIth the current scheme, you get exactly what happened with
+PPC and PPC64 - i.e. they are identical with most of the other ports except
+for a couple of defines which are only different because of an error.
+There is no existing ABI that would be an excuse for them to be different.
 
-NAME
-	localconfig - generate a .config for the local computer
+With the new scheme, asm/fcntl.h consists of only the necessary
+differences from the "norm" as defined by linux/fcntl.h.
 
-SYNOPSIS
-	make localconfig
-	make dep ... etc... pp...
+Unjustified differences between the ports are a bad thing.  For one,
+it make the library maintainers job much harder ...
 
-DESCRIPTION
-	Generate a .config for the  local computer, so that the kernel
-	could  be  built right  in  that  moment.  Therefor the  local
-	computer is being examined,  probed and configured and all the
-	devices that we find go into your .config.
+The longer term intent of my consolidation efforts is to lessen the
+problems of all the port maintainers trying to keep up with each other
+when bugs are fixed in (more or less generic) code in one port (usually
+i386 ...).  There are several bugs like this currently and I suspect
+many that have not been discovered yet.
 
-	This is supposed to be a first step into a new direction where
-	we no  longer copy vendor packages  from the vendor  CD to the
-	system in the first place, but rather compile new packages for
-	each  system, hoping  that  somewhen the  boxes  will be  fast
-	enough  to handle  it  in  no time.  It's  basically a  binary
-	distribution -> source distribution transition.
+> There is one part which I like:
+> 
+> -/* for old implementation of bsd flock () */
+> -#define F_EXLCK		4	/* or 3 */
+> -#define F_SHLCK		8	/* or 4 */
+> 
+> All of these can go, nobody's been using them since kernel 2.0.  I took
+> out the last vestiges of them from locks.c earlier in 2.5.  None of the
+> BSDs have them either.
 
-AVAILABILITY
-	Linux 2.7+
+Wonderful, I will update my patch to remove them completely.
 
-SEE ALSO
-	make(1), kbuild(9)
-
-	scripts/localconfig.pl
-
-AUTHORS
-	(...)
-	Thunder from the hill <thunder@ngforever.de>
-
-BUGS
-	The version is  probably never overly accurate, it  might be a
-	good  idea to  manually  recheck the  .config  (e.g. via  make
-	menuconfig) in the first versions.
-
-Linux build system		Aug 25, 2002		localconfig(9)
-
-			Thunder
 -- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

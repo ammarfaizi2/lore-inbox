@@ -1,84 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267656AbUIPASa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267774AbUIPASb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267656AbUIPASa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 20:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267774AbUIPAPt
+	id S267774AbUIPASb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 20:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUIPAPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 20:15:49 -0400
-Received: from chello062179026180.chello.pl ([62.179.26.180]:2183 "EHLO
-	pioneer.space.nemesis.pl") by vger.kernel.org with ESMTP
-	id S267656AbUIPALY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 20:11:24 -0400
-Date: Thu, 16 Sep 2004 02:12:16 +0200 (CEST)
-From: Tomasz Rola <rtomek@cis.com.pl>
-To: Tonnerre <tonnerre@thundrix.ch>
-cc: Andre Bonin <kernel@bonin.ca>, linux-kernel@vger.kernel.org,
-       Tomasz Rola <rtomek@cis.com.pl>
-Subject: Re: PCI coprocessors
-In-Reply-To: <20040915164914.GG24818@thundrix.ch>
-Message-ID: <Pine.LNX.3.96.1040916015212.26011C-100000@pioneer.space.nemesis.pl>
+	Wed, 15 Sep 2004 20:15:25 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:22926 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S267774AbUIPANf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 20:13:35 -0400
+Message-ID: <4148D2C7.3050007@drdos.com>
+Date: Wed, 15 Sep 2004 17:39:51 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, jmerkey@comcast.net, jmerkey@drdos.com
+Subject: 2.6.9-rc2 bio sickness with large writes
+Content-Type: multipart/mixed;
+ boundary="------------080608080502010307080307"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Wed, 15 Sep 2004, Tonnerre wrote:
-
-> Salut,
-> 
-> On Wed, Sep 15, 2004 at 04:55:53PM +0200, Tomasz Rola wrote:
-> > After loading  a kernel into it  somehow, boot it with  nfs root and
-> > run the rest from nfs server  that would be provided by a host Intel
-> > machine.
-> 
-> I'd rather not do that via nfs. Rather some special "hostfs" port over
-> PCI.
-
-Well, "there is more than one way of doing this", it seems.
-
-> But  anyway, reading  his original  post  he seems  to have  something
-> completely different  in mind than booting  a second PC on  his PC: to
-> boot a supportive processor..
-
-Erm, somehow I came to thinking he wanted to schedule binaries on cpus of
-different types.
-
-Anyway, Andre, you are welcome :-).
-
-One more thing - I remember reading on one Polish newsgroup devoted to
-electronics, that making PCI cards is rather difficult (actually, nobody
-wanted to try it) while one can do ISA cards "at home" or something like
-this. I know ISA is out of business, but for "proof of concept" it may be
-a better choice. Or maybe you (Andre) can do it with USB chip - it should
-be even easier to make such device with USB and connect it to your host
-this way. There are quite a few controllers available. I've searched for
-ATMEL's and found this:
-
-http://www.atmel.com/dyn/products/devices.asp?family_id=655
-
-Of course, there must be others, too.
-
-bye
-T.
-
-- --
-** A C programmer asked whether computer had Buddha's nature.      **
-** As the answer, master did "rm -rif" on the programmer's home    **
-** directory. And then the C programmer became enlightened...      **
-**                                                                 **
-** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
+This is a multi-part message in MIME format.
+--------------080608080502010307080307
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 5.0i for non-commercial use
-Charset: noconv
+I am posting bio chains each with a total size of 64KB (16 pages each) 
+and of each of
+these I am posting chains of these bio requests in 128MB contiguous sectors
+(i.e.  bio = 16 pages = 64KB + bio =16 pages = 64KB + bio = 16 pages = 
+64KB, etc.)
 
-iQA/AwUBQUjaaBETUsyL9vbiEQLi1wCg8stbROOHy36NUN15uZ2XW1/LGp0An0fy
-m0ynDnyoOkf+aRUxt0v502vk
-=qHKK
------END PGP SIGNATURE-----
+With the subsequent bio requests posted after the first bio is posted 
+the bio requests
+merge together, but I never get all the callbacks from the coaslesced 
+bio requests which
+are posted subsequent to the intial 64KB bio.  The data ends up making 
+it onto the drives
+and I am not seeing any data loss, the 2nd,3rd, .... etc. bios don't 
+seem to callback
+correctly.
+
+This bug does not manifest itself every time on every bio chain.  It 
+only shows up
+part of the time.  about 1 in every 2-3 bio chains behave this way.  
+This is severely
+BUSTED and I am providing the calling code as an example of what may be 
+happening.
+
+Attached is the write case and the callback.
+
+Any ideas?  Also, if I use bio's the way Linus does in his buffer cache 
+code for submit_bh
+ine onesy - twosy mode the interface works just fine.  It is severely 
+broken with multiple pages, however.
+
+Jeff
 
 
+
+
+
+
+
+--------------080608080502010307080307
+Content-Type: text/x-csrc;
+ name="example.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="example.c"
+
+
+static int end_bio_asynch(struct bio *bio, unsigned int bytes_done, int err)
+{
+    ASYNCH_IO *io = bio->bi_private;
+
+    if (err)
+    {
+       P_Print("asynch bio error %d\n", (int)err);
+       io->ccode = ASIO_IO_ERROR;
+       datascout_put_bio(io->bio);
+       io->bio = NULL; 
+       return 0;
+    }
+
+    if (!test_bit(BIO_UPTODATE, &bio->bi_flags))
+       io->ccode = ASIO_IO_ERROR;
+
+    atomic_inc((atomic_t *)&io->complete);
+    if (io->complete == io->count)
+    {
+       datascout_put_bio(io->bio);
+       io->bio = NULL; 
+       insert_callback(io);
+
+#if (PROFILE_AIO)
+       profile_complete();
+#endif
+       return 0;
+    }
+    return 1;
+
+}
+
+ULONG aWriteDiskSectors(ULONG disk, ULONG StartingLBA, BYTE *Sector,
+		       ULONG sectors, ULONG readAhead, ASYNCH_IO *io)
+{
+    register ULONG i, bytesWritten = 0;
+    register ULONG bps, lba;
+    register DSDISK *DSDisk;
+    register ULONG rsize, blocks, blocksize, spb;
+
+    DSDisk = SystemDisk[disk];
+    bps = DSDisk->BytesPerSector;
+    blocksize = DSDisk->DeviceBlockSize;
+
+    if ((ULONG)(sectors * bps) % blocksize)
+       return 0;
+
+    rsize = sectors * bps;
+    blocks = rsize / blocksize;
+    if (!blocks)
+       return 0;
+    spb = blocksize / bps;
+    
+    lba = StartingLBA / spb;
+    if (StartingLBA % spb)
+    {
+       P_Print("request not %d block aligned (%d) sectors-%d lba-%d (write)\n",
+	       (int)blocksize, (int)(StartingLBA % spb), (int)sectors,
+	       (int)StartingLBA);
+       return 0;
+    }
+
+    io->bio = datascout_get_bio();
+    if (!io->bio)
+       return 0;
+
+    if (io->bio->bi_max_vecs < blocks)
+       return 0;
+
+    io->ccode = 0;
+    io->count = blocks;
+    io->complete = 0;
+
+    io->bio->bi_bdev = DSDisk->PhysicalDiskHandle;
+    io->bio->bi_sector = StartingLBA;
+    io->bio->bi_idx = 0;
+    io->bio->bi_end_io = end_bio_asynch;
+    io->bio->bi_private = io;
+    io->bio->bi_vcnt = 0;
+    io->bio->bi_phys_segments = 0;
+    io->bio->bi_hw_segments = 0;
+    io->bio->bi_size = 0;
+
+    for (i=0; i < blocks; i++)
+    {
+#if LINUX_26_BIO_ADDPAGE
+         register struct page *page = virt_to_page(&Sector[i * blocksize]);
+         register ULONG offset = ((ULONG)(&Sector[i * blocksize])) % PAGE_SIZE;
+         register ULONG bytes;
+
+         bytes = bio_add_page(io->bio, page, 
+                              PAGE_SIZE - (offset % PAGE_SIZE), 0);
+
+         bytesWritten += bytes;
+#else
+         register struct page *page = virt_to_page(&Sector[i * blocksize]);
+         register ULONG offset = ((ULONG)(&Sector[i * blocksize])) % PAGE_SIZE;
+
+	 io->bio->bi_io_vec[i].bv_page = page;
+	 io->bio->bi_io_vec[i].bv_len = blocksize;
+	 io->bio->bi_io_vec[i].bv_offset = offset;
+	 io->bio->bi_vcnt++;
+	 io->bio->bi_phys_segments++;
+	 io->bio->bi_hw_segments++;
+	 io->bio->bi_size += blocksize;
+         bytesWritten += blocksize;
+#endif
+    }
+
+    // unplug the queue and drain the bathtub
+    bio_get(io->bio);
+    submit_bio(WRITE | (1 << BIO_RW_SYNC), io->bio);
+    bio_put(io->bio);
+
+    return (bytesWritten);
+}
+
+
+--------------080608080502010307080307--

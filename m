@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130538AbQJ0VZy>; Fri, 27 Oct 2000 17:25:54 -0400
+	id <S130559AbQJ0V1E>; Fri, 27 Oct 2000 17:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130559AbQJ0VZp>; Fri, 27 Oct 2000 17:25:45 -0400
-Received: from james.kalifornia.com ([208.179.0.2]:19007 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S130538AbQJ0VZb>; Fri, 27 Oct 2000 17:25:31 -0400
-Message-ID: <39F9F2C8.29055CAE@kalifornia.com>
-Date: Fri, 27 Oct 2000 14:25:28 -0700
-From: David Ford <david@kalifornia.com>
-Reply-To: david+validemail@kalifornia.com
-Organization: Talon Technology, Intl.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S130593AbQJ0V0y>; Fri, 27 Oct 2000 17:26:54 -0400
+Received: from mail-out.chello.nl ([213.46.240.7]:36657 "EHLO
+	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S130559AbQJ0V0u>; Fri, 27 Oct 2000 17:26:50 -0400
+Date: Sat, 28 Oct 2000 00:34:50 +0200 (CEST)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: jpranevich@lycos-inc.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Big file support in Linux 2.2
+In-Reply-To: <85256985.00556CD3.00@SMTPNotes1.ma.lycos.com>
+Message-ID: <Pine.LNX.4.21.0010280033490.12608-100000@server.serve.me.nl>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia in test10pre6
-In-Reply-To: <648.39f967c2.1f52d@trespassersw.daria.co.uk> <20001027105109.B5628@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
 
-> Grab the pcmcia off sourceforge.  It seems to build and work.  The stuff
-> in 2.4 at present is still somewhat broken.  I worked on this until 2:00
-> last night getting it to build with 2.4.  Thanks to Alan for pointing
-> me to a package that actually works and will build on 2.4.
+> Hello,
+> 
+> For one of our projects here, we've crashed head first into the 2 gig file size
+> limitation in Linux 2.2 kernels. While I know that this has been solved in
+> 2.3/2.4, has there been any work to backport this feature into a Linux 2.2
+> kernel? I'm looking for a temporary solution until we can move to Linux 2.4
+> directly, but obviously not until after it's been "really" released. :)
+> 
+> Yes, I know this is likely to be relatively unstable. (Probably almost as
+> unstable as running a 2.4-pre kernel in production), but at least it would give
+> us a start.
 
-Yes and no, pulling a modem/lan card out of my machine still causes an instant hardware lockup.  You have put a lot of work into it that I greatly
-appreciate, but the 2.4 PCMCIA is still a festering wound for some of the hardware I have.  I'm not whining here, I know it'll take time to get things
-working and I have one of the most problematic pieces of hardware in regards to 2.4 PCMCIA.
+Seek for LFS on Freshmeat. Requires a kernel patch, and a glibc
+recompile. I'm still having some problems with it, mainly cp -ar giving
+some wonderful weard strace results.
 
--d
+> 
+> Thanks for your help,
+> 
+> Joe
 
---
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
 
-
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262777AbTKITJe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 14:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbTKITJd
+	id S262762AbTKITFy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 14:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKITFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 14:09:33 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:47889 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S262777AbTKITJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 14:09:30 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: file2alias - incorrect? aliases for USB
-Date: Sun, 9 Nov 2003 21:55:19 +0300
-User-Agent: KMail/1.5.3
+	Sun, 9 Nov 2003 14:05:54 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:33516 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262774AbTKITFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 14:05:45 -0500
+Date: Sun, 9 Nov 2003 20:05:26 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Bob McElrath <bob+linux-kernel@mcelrath.org>
+cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/rtc on alpha
+In-Reply-To: <20031109174436.GA24812@mcelrath.org>
+Message-ID: <Pine.GSO.4.21.0311092004590.2000-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311092155.19924.arvidjaar@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-file2aliases puts in alias device ID high and low numbers directly from match 
-specifications. E.g. for this match table entry:
+On Sun, 9 Nov 2003, Bob McElrath wrote:
+> Ivan Kokshaysky [ink@jurassic.park.msu.ru] wrote:
+> > On Sat, Nov 08, 2003 at 01:33:57PM -0800, Bob McElrath wrote:
+> > > Why is the alpha kernel code grabbing the rtc interrupt?  Is it possible
+> > > it share its use with a user program?  Would reprogramming the interrupt
+> > > rate by a user program do violence to some internel kernel timing?
+> > 
+> > On most Alphas RTC is the system timer (running at 1024 Hz).
+> > So changing the interrupt rate from user space wouldn't be a good idea.
+> 
+> Then I propose CONFIG_RTC be set to "n" in the arch/alpha files, and the
+> /dev/rtc driver be disabled on alpha.  There seems to be confusion on
+> this point in the config files.  CONFIG_RTC is for the /dev/rtc driver.
 
-usb-storage          0x000f      0x04e6   0x0006    0x0100       0x0205 ...
+As an alternative, you can try using genrtc instead.
 
-it generates alias
+Gr{oetje,eeting}s,
 
-alias usb:v04E6p0006dl0100dh0205dc*dsc*dp*ic*isc*ip* usb_storage
+						Geert
 
-unfortunately real device attribute does not include high and low - rather it 
-has single device ID (as part of PRODUCT) that should be contained in these 
-bounds:
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-        length += snprintf (scratch, buffer_size - length, "PRODUCT=%x/%x/%x",
-                            usb_dev->descriptor.idVendor,
-                            usb_dev->descriptor.idProduct,
-                            usb_dev->descriptor.bcdDevice);
-
-or bcdDevice file in sysfs.
-
-This makes those aliases rather useless for the purpose of matching reported 
-device. It may take the same route as PCI and reject all device ID table 
-entries that have High != Low but there are quite a few of them available.
-
-I am rather confused because I do not see how this condition (low <= bcdDevice 
-<= high) can be expressed using simple glob pattern (unless we are going to 
-take glob library from Zsh :)
-
-thank you
-
--andrey
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

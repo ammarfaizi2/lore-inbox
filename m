@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUIHNFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267372AbUIHNFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267411AbUIHNFf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 09:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUIHNCJ
+	id S267372AbUIHNFg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 09:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUIHNBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 09:02:09 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:33772 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267238AbUIHNAH (ORCPT
+	Wed, 8 Sep 2004 09:01:48 -0400
+Received: from holomorphy.com ([207.189.100.168]:56999 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267455AbUIHM6H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 09:00:07 -0400
-Date: Wed, 8 Sep 2004 15:01:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] preempt-smp.patch, 2.6.9-rc1-bk14
-Message-ID: <20040908130136.GB20132@elte.hu>
-References: <20040908111751.GA11507@elte.hu> <Pine.LNX.4.53.0409080814570.15087@montezuma.fsmlabs.com>
+	Wed, 8 Sep 2004 08:58:07 -0400
+Date: Wed, 8 Sep 2004 05:57:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Scott Wood <scott@timesys.com>
+Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
+Message-ID: <20040908125755.GC3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Scott Wood <scott@timesys.com>
+References: <20040908120613.GA16916@elte.hu> <20040908133445.A31267@infradead.org> <20040908124547.GA19231@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0409080814570.15087@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040908124547.GA19231@elte.hu>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Christoph Hellwig <hch@infradead.org> wrote:
+>> And make hardirq.o dependent on some symbols the architectures set.
+>> Else arches that don't use it carry tons of useless baggage around
+>> (and in fact I'm pretty sure it wouldn't even compie for many)
 
-* Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+On Wed, Sep 08, 2004 at 02:45:47PM +0200, Ingo Molnar wrote:
+> it compiles fine on x86, x64, ppc and ppc64. Why do you think it wont
+> compile on others?
+> wrt. unused generic functions - why dont we drop them link-time?
 
-> > In addition to the preemption latency problems, the _irq() variants in
-> > the above list didnt do any IRQ-enabling while spinning - possibly
-> > resulting in excessive irqs-off sections of code!
-> 
-> I had a patch for this
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0405.3/0578.html and it
-> has been running for about 3 months now on a heavily used 4 processor
-> box.  It's all a matter of whether Andrew is feeling brave ;)
+It may be time for a __weak define to abbreviate __attribute__((weak));
+we seem to use it in enough places.
 
-at a quick glance your patch doesnt seem to cover the following locking
-primitives: read_lock_irqsave(), read_lock_irq(), write_lock_irqsave,
-write_lock_irq(). Also, i think your 2.6.6 patch doesnt apply anymore
-because it clashes with your very nice out-of-line spinlocks patch that
-went into -BK recently ;)
 
-anyway, the preempt-smp.patch is a complete and systematic solution that
-has been tested, measured and traced quite heavily.
-
-	Ingo
+-- wli

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265238AbUBEOob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 09:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUBEOob
+	id S265246AbUBEPPe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 10:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUBEPPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 09:44:31 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:3712 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265238AbUBEOoV (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 09:44:21 -0500
-Message-Id: <200402051119.i15BJxFO027912@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: jmorris@redhat.com, aviro@redhat.com, sds@epoch.ncsc.mil,
-       linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov, chrisw@osdl.org
-Subject: Re: [PATCH] (3/3) SELinux context mount support - SELinux changes. 
-In-Reply-To: Your message of "Thu, 05 Feb 2004 02:40:16 PST."
-             <20040205024016.281a1c5a.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Xine.LNX.4.44.0402040953280.4796-100000@thoron.boston.redhat.com> <200402051017.i15AHA99025783@turing-police.cc.vt.edu>
-            <20040205024016.281a1c5a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_54503430P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 05 Feb 2004 06:19:58 -0500
+	Thu, 5 Feb 2004 10:15:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22877 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S265246AbUBEPPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 10:15:30 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] PCI / OF linkage in sysfs
+References: <1075878713.992.3.camel@gaston>
+	<Pine.LNX.4.58.0402041407160.2086@home.osdl.org>
+	<20040204231324.GA5078@kroah.com>
+	<Pine.LNX.4.58.0402041522390.2086@home.osdl.org>
+	<1075938633.4029.53.camel@gaston>
+	<Pine.LNX.4.58.0402041601080.2086@home.osdl.org>
+	<1075939994.4371.58.camel@gaston>
+	<Pine.LNX.4.58.0402041634440.2086@home.osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Feb 2004 08:08:19 -0700
+In-Reply-To: <Pine.LNX.4.58.0402041634440.2086@home.osdl.org>
+Message-ID: <m1llnhsgws.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_54503430P
-Content-Type: text/plain; charset=us-ascii
+Linus Torvalds <torvalds@osdl.org> writes:
 
-On Thu, 05 Feb 2004 02:40:16 PST, Andrew Morton said:
+> On some platforms, we might have multiple different entries (eg on a PC we 
+> might have pointers to ACPI data, to PnP data and to EFI data, all at the 
+> same time. I hope we never will, but maybe there would be reason for it). 
+> That would argue _against_ a "generic" name like "platform", and for 
+> something that is actually very much specific to the kind of data it 
+> points to (eg "of-data" rather than "platform-data").
 
-> All that text is lovingly shovelled into the changelogs.  They're damn hard
-> to get at via the bk web interface but with `bk revtool' it's a snap.  Go
-> to a line in a .c file, double-click on it, see the diffview and the full
-> changelog.
+And there is the possibility in the LinuxBIOS case that you can have
+ACPI, EFI, OF and the native LinuxBIOS interfaces all on one box :) 
 
-Wow.. So you go to line 300 or so of drivers/block/as-iosched.c and
-a doubleclick pulls up Documentation/as-iosched.txt? Coooool ;)
+The EFI side is the only piece we are in wait and see mode for at
+the moment.
 
-% which bk
-/usr/bin/which: no bk in (/home/valdis/bin:/usr/local/bin:/usr/bin/X11:/bin:/usr/bin:/usr/sbin:/sbin)
+So it is seriously possible you get everything simultaneously.
 
-Damn. :)
+Eric
 
-
---==_Exmh_54503430P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAIibecC3lWbTT17ARAg8TAJ4tupkGecGrXrK1nrBTg+z/j5oVIwCdGsC3
-fr9L7xV4+duP0S6M2I9Meh8=
-=6ITz
------END PGP SIGNATURE-----
-
---==_Exmh_54503430P--

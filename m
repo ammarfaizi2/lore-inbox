@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUGRUYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUGRU0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbUGRUYa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 16:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUGRUYa
+	id S264512AbUGRU0X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 16:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUGRU0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 16:24:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47842 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264502AbUGRUY2 (ORCPT
+	Sun, 18 Jul 2004 16:26:23 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:29128 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264512AbUGRU0O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 16:24:28 -0400
-Date: Sun, 18 Jul 2004 16:23:51 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@devserv.devel.redhat.com
-To: Carl Spalletta <cspalletta@yahoo.com>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [PATCH] Remove prototypes of non-existent funcs from security/selinux
- files
-In-Reply-To: <20040718184511.73905.qmail@web53802.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0407181623390.31568@devserv.devel.redhat.com>
-References: <20040718184511.73905.qmail@web53802.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 18 Jul 2004 16:26:14 -0400
+Date: Sun, 18 Jul 2004 22:23:42 +0200
+To: akpm@osdl.com
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390: Use include/asm-generic/dma-mapping-broken.h
+Message-ID: <20040718202342.GA9485@mars>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks fine to me.
+Hi,
 
-On Sun, 18 Jul 2004, Carl Spalletta wrote:
-> diff -ru linux-2.6.7-orig/security/selinux/include/avc.h
-> linux-2.6.7-new/security/selinux/include/avc.h
-> --- linux-2.6.7-orig/security/selinux/include/avc.h     2004-06-15 22:19:01.000000000 -0700
-> +++ linux-2.6.7-new/security/selinux/include/avc.h      2004-07-18 08:55:29.000000000 -0700
-> @@ -130,7 +130,6 @@
->  struct audit_buffer;
->  void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av);
->  void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tclass);
-> -void avc_dump_cache(struct audit_buffer *ab, char *tag);
-> 
->  /*
->   * AVC operations
-> diff -ru linux-2.6.7-orig/security/selinux/ss/policydb.h
-> linux-2.6.7-new/security/selinux/ss/policydb.h
-> --- linux-2.6.7-orig/security/selinux/ss/policydb.h     2004-06-15 22:19:43.000000000 -0700
-> +++ linux-2.6.7-new/security/selinux/ss/policydb.h      2004-07-18 08:55:15.000000000 -0700
-> @@ -251,7 +251,6 @@
->  extern int policydb_init(struct policydb *p);
->  extern int policydb_index_classes(struct policydb *p);
->  extern int policydb_index_others(struct policydb *p);
-> -extern int constraint_expr_destroy(struct constraint_expr *expr);
->  extern void policydb_destroy(struct policydb *p);
->  extern int policydb_load_isids(struct policydb *p, struct sidtab *s);
->  extern int policydb_context_isvalid(struct policydb *p, struct context *c);
-> 
+ChangeSet 1.1371.413.23 [1] introduced the file
+include/asm-generic/dma-mapping-broken.h for architectures that don't
+support the new DMA API. I don't know if this is the case with s390,
+however, ChangeSet 1.1371.445.6 [2] introduced a set of changes that
+duplicate those in include/asm-generic/dma-mapping-broken.h.
 
--- 
-James Morris
-<jmorris@redhat.com>
+This patch squishes that duplication by simply including
+include/asm-generic/dma-mapping-broken.h in
+include/asm-s390/dma-mapping.h.
 
+Against 2.6.7, but applies cleanly against 2.6.8-rc2. Thanks.
+
+[1] http://tinyurl.com/7y2d9
+[2] http://tinyurl.com/5qybl
+
+Signed-off-by: Arthur Othieno <a.othieno@bluewin.ch>
+
+
+ dma-mapping.h |   13 +------------
+ 1 files changed, 1 insertion(+), 12 deletions(-)
+
+--- a/include/asm-s390/dma-mapping.h	2004-04-11 14:05:20.000000000 +0200
++++ b/include/asm-s390/dma-mapping.h	2004-05-03 00:36:56.000000000 +0200
+@@ -9,17 +9,6 @@
+ #ifndef _ASM_DMA_MAPPING_H
+ #define _ASM_DMA_MAPPING_H
+ 
+-static inline void *dma_alloc_coherent(struct device *dev, size_t size,
+-			 dma_addr_t *dma_handle, int flag)
+-{
+-	BUG();
+-	return 0;
+-}
+-
+-static inline void dma_free_coherent(struct device *dev, size_t size,
+-		       void *vaddr, dma_addr_t dma_handle)
+-{
+-	BUG();
+-}
++#include <asm-generic/dma-mapping-broken.h>
+ 
+ #endif /* _ASM_DMA_MAPPING_H */

@@ -1,29 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316541AbSHRXzR>; Sun, 18 Aug 2002 19:55:17 -0400
+	id <S316545AbSHSAGZ>; Sun, 18 Aug 2002 20:06:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316544AbSHRXzQ>; Sun, 18 Aug 2002 19:55:16 -0400
-Received: from h-64-105-136-5.SNVACAID.covad.net ([64.105.136.5]:44263 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316541AbSHRXzQ>; Sun, 18 Aug 2002 19:55:16 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 18 Aug 2002 16:57:31 -0700
-Message-Id: <200208182357.QAA01145@adam.yggdrasil.com>
-To: andre@linux-ide.org
-Subject: Re: IDE?
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, stp@osdl.org
+	id <S316569AbSHSAGZ>; Sun, 18 Aug 2002 20:06:25 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:58544 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S316545AbSHSAGY>; Sun, 18 Aug 2002 20:06:24 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Scott Bronson <bronson@rinspin.com>
+Cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+       linux-kernel@vger.kernel.org
+Date: Sun, 18 Aug 2002 17:03:31 -0700 (PDT)
+Subject: Re: IDE?  IDE-TNG driver
+In-Reply-To: <1029630519.1541.11.camel@emma>
+Message-ID: <Pine.LNX.4.44.0208181654290.18798-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick writes:
->150 systems is a not a large enough sample.
+A couple things in favor of a monlithic kernel.
 
-	Sorry if I wasn't clear.  I did not mean "instead of" other
-testing, I meant "in addition to."
+there is a slight performance advantage becouse the calls don't
+have to be far calls
 
-	Anyhow, I'm glad to hear that you had already checked out osdl.
+there is a slight memory advantage becouse you don't have the fraction of
+a page of ram lost per module
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+with a monolithic kernel there's no chance of making a mistake and trying
+to use incompatable modules with your kernel (and before you say that this
+can be fixed with the kernel build remember that for many people the build
+machine is not where the kernel will be run)
+
+David Lang
+
+
+On 17 Aug 2002, Scott
+Bronson wrote:
+
+> Date: 17 Aug 2002 17:28:38 -0700
+> From: Scott Bronson <bronson@rinspin.com>
+> To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: IDE?  IDE-TNG driver
+>
+> On Sat, 2002-08-17 at 15:57, Ruth Ivimey-Cook wrote:
+> >  a) some people want basically module-less kernels
+>
+> Everyone I've heard advocating a moduleless kernel uses an argument that
+> boils down to "it's slightly more secure."  Does anybody have a GOOD
+> reason for not using modules?  Obsolete or embedded hardware arguments
+> don't count.
+>
+>
+> >  b) in some environments, you need to be able to select the IO mechanism
+> >     without the ability to select the module to load.
+>
+> If that's the case, won't a kernel parameter suffice?  Can you
+> elaborate?
+>
+>     - Scott
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

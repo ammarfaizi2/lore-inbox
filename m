@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315162AbSGQOeX>; Wed, 17 Jul 2002 10:34:23 -0400
+	id <S315192AbSGQOg5>; Wed, 17 Jul 2002 10:36:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315167AbSGQOeX>; Wed, 17 Jul 2002 10:34:23 -0400
-Received: from mta9n.bluewin.ch ([195.186.1.215]:612 "EHLO mta9n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S315162AbSGQOeW>;
-	Wed, 17 Jul 2002 10:34:22 -0400
-Date: Wed, 17 Jul 2002 16:35:19 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: "O'Riordan, Kevin" <K.ORiordan@ucc.ie>
-Cc: "'Joseph Wenninger'" <kernel@jowenn.at>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with Via Rhine- Kernel 2.4.18
-Message-ID: <20020717143519.GA16992@k3.hellgate.ch>
-References: <9FBB394A25826C46B2C6F0EBDAD42755018E6E45@xch2.ucc.ie>
+	id <S315191AbSGQOg5>; Wed, 17 Jul 2002 10:36:57 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:28423 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S315182AbSGQOgz>;
+	Wed, 17 Jul 2002 10:36:55 -0400
+Date: Wed, 17 Jul 2002 22:13:34 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: Filip Sneppe (Yucom) <filip.sneppe@yucom.be>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Re: how to improve the throughput of linux network
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9FBB394A25826C46B2C6F0EBDAD42755018E6E45@xch2.ucc.ie>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.19-rc1 on i686
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200207172216104.SM00792@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> in May which fixed the problem and a new patch just a few days ago against
-> 2.4.19-rc1(and against 2.4.19-rc2 as well I'd say as the via-rhine driver
 
-Actually, the patch is against Jeff's public tree, which is somewhat
-different from what's in rc1, against which I guess the patch will succeed
-with offsets (rejecting the changelog portion, which is okay).
+>On Tue, 2002-07-16 at 03:13, zhengchuanbo wrote:
+>> 
+>> we use linux as our router. i just tested the performance of the router with smartbits, and i found that the throughput of 64byte 
+>> i looked for some solution,and found some article mentioned the NAPI. it changed the driver to polling mode,so that the interrupt is no too much. but i could not find  drivers for our router.(eepro100 card). has the polling mode driver been used in linux?
 
-You can also try the ac kernel. Alan has the Rhine changes merged since
-2.4.19-rc1-ac6.
+>Try this url:
+>
+>ftp://robur.slu.se/pub/Linux/net-development/NAPI/
+>
+>Also check out 2.5 kernels - they alreacdy have NAPI, there's is at
+>least some documentation under linux/Documentation/
+>
+>Could you put some numbers online after your tests ?
+>I already have this page, I don't have a Smartbits, though :-):
+>
+>http://www.filip.sneppe.yucom.be/linux/netfilter/performance/benchmarks.htm
+>
+>Regards,
+>Filip
 
-Roger
+i got the patch for NAPI,and patched it on linux2.4.18. it worked. the throughput of 128bytes frame improve from 60% to more than 90%. it seems that it has no influnce to frames bigger than 256.
+
+but there is still some problem. when i tested the throught of 64bytes frame,some error occured. in the begining it works well. but after several times of try the linux router can not receive any packets at all.(i found that by run ifconfig when the smartbits is testing). for the other frames it worked very well.
+
+so what's wrong with my test? is there some problem with the patch?
+
+regards,
+chuanbo zheng
+
+

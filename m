@@ -1,37 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266831AbUHXP7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUHXQD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266831AbUHXP7K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 11:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268047AbUHXP7K
+	id S268072AbUHXQD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 12:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUHXQD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 11:59:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8384 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266831AbUHXP7D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 11:59:03 -0400
-Date: Tue, 24 Aug 2004 11:57:45 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] make oom killer points unsigned long
-In-Reply-To: <Pine.LNX.4.53.0408241745020.6266@gockel.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.44.0408241156590.3884-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Aug 2004 12:03:27 -0400
+Received: from p508B6A77.dip.t-dialin.net ([80.139.106.119]:56393 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S268072AbUHXQDS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 12:03:18 -0400
+Date: Tue, 24 Aug 2004 18:03:04 +0200
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: [PATCH] 2.6.9-rc1 - #ifdef cleanip for MIPS
+Message-ID: <20040824160304.GA23826@linux-mips.org>
+References: <200408241352.i7ODqf73026463@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408241352.i7ODqf73026463@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004, Tim Schmielau wrote:
+On Tue, Aug 24, 2004 at 09:52:41AM -0400, Valdis.Kletnieks@vt.edu wrote:
 
-> Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
+> Cleaning up some #if to use #ifdef instead, to make life safer for compiling
+> with -Wundef.
 
-Patch looks safe and obvious to me.  Andrew, could you please
-apply it for the next -mm ?
+Thanks, applied.
 
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+  Ralf

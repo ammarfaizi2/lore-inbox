@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTDZOoA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 10:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbTDZOoA
+	id S261339AbTDZOvi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 10:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTDZOvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 10:44:00 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:61589 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261326AbTDZOn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 10:43:59 -0400
-Date: Sat, 26 Apr 2003 10:40:18 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The IEEE-1394 saga continued... [ was: IEEE-1394 problem on init ]
-Message-ID: <20030426144017.GD2774@phunnypharm.org>
-References: <20030423142131.GK820@hottah.alcove-fr> <20030423142353.GL354@phunnypharm.org> <20030423145122.GL820@hottah.alcove-fr> <20030423144857.GN354@phunnypharm.org> <20030423152914.GM820@hottah.alcove-fr> <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva> <20030423202002.GA10567@vitel.alcove-fr> <20030423202453.GA354@phunnypharm.org> <20030423204258.GB10567@vitel.alcove-fr> <20030426082956.GB18917@vitel.alcove-fr>
+	Sat, 26 Apr 2003 10:51:38 -0400
+Received: from holomorphy.com ([66.224.33.161]:22968 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261339AbTDZOvh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 10:51:37 -0400
+Date: Sat, 26 Apr 2003 08:03:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: TASK_UNMAPPED_BASE & stack location
+Message-ID: <20030426150345.GV8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@redhat.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-mm mailing list <linux-mm@kvack.org>,
+	Andrew Morton <akpm@digeo.com>
+References: <459930000.1051302738@[10.10.2.4]> <Pine.LNX.4.44.0304261034180.27719-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030426082956.GB18917@vitel.alcove-fr>
+In-Reply-To: <Pine.LNX.4.44.0304261034180.27719-100000@chimarrao.boston.redhat.com>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since I reported issues about this 3 days ago, I would have appreciated
-> being CC:'ed on the patch mail, so I could have reported issues 
-> like this _before_ such a patch being applied. 
+On Fri, 25 Apr 2003, Martin J. Bligh wrote:
+>> Is there any good reason we can't remove TASK_UNMAPPED_BASE, and just shove
+>> libraries directly above the program text? Red Hat seems to have patches to
+>> dynamically tune it on a per-processes basis anyway ...
 
-BTW, there are atleast 2 dozen people looking for this patch. I tested
-it and several others on the linux1394 mailing list tested it. If you
-want to be more closely involved with linux1394 specifically, then don't
-expect me to search you out...come to us where our development happens.
-We have a commit list to the repo and a developers list.
+On Sat, Apr 26, 2003 at 10:37:11AM -0400, Rik van Riel wrote:
+> What could be done is leave the stack where it is, but have
+> malloc() space and mmap() space grow towards each other:
+> 0                                            3G
+> | |prog | malloc -->         <-- mmap | stack |
+> The stack will get the stack size ulimit size and the space
+> between where malloc and mmap start should be about 2.7 GB.
+> That 2.7 GB will of course by divided between malloc and mmap,
+> but the division will be done dynamically based on whoever
+> needs the space.  Much better than the current static 1:1.7
+> division...
 
-Things happen there...the only reason I bother the general linux-kernel
-list is for things that affect outside the scope of drivers/ieee1394/*.
-I don't think that's much different than a lot of projects in the
-kernel.
+My internal proposals (backed by code) already include this in addition
+to relocating the stack (whose kernel side is trivial).
 
-I've never sent my patches to the list prior to inclusion in the kernel,
-and a lot of folks don't, depending on neccessity. I don't see the need
-to start now, not when interested parties have a place to go to see the
-patches before hand anyway. Nothing major I send to Marcelo or Linus is
-done so without it being committed in out repo first.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+-- wli

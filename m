@@ -1,97 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280662AbRKYCoC>; Sat, 24 Nov 2001 21:44:02 -0500
+	id <S280667AbRKYCwg>; Sat, 24 Nov 2001 21:52:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280663AbRKYCnw>; Sat, 24 Nov 2001 21:43:52 -0500
-Received: from grip.panax.com ([63.163.40.2]:18959 "EHLO panax.com")
-	by vger.kernel.org with ESMTP id <S280662AbRKYCnc>;
-	Sat, 24 Nov 2001 21:43:32 -0500
-Date: Sat, 24 Nov 2001 21:41:15 -0500
-From: Patrick McFarland <unknown@panax.com>
-To: war <war@starband.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011124214114.E241@localhost>
-Mail-Followup-To: war <war@starband.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0111241744250.12119-100000@freak.distro.conectiva> <Pine.LNX.4.33.0111241311040.2591-100000@penguin.transmeta.com> <20011124205632.C241@localhost> <20011124211204.D241@localhost> <3C0058CF.D97D0E2B@starband.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C0058CF.D97D0E2B@starband.net>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.14 i686
-X-Distributed: Join the Effort!  http://www.distributed.net/
+	id <S280665AbRKYCwZ>; Sat, 24 Nov 2001 21:52:25 -0500
+Received: from mailrelay.netcologne.de ([194.8.194.96]:33720 "EHLO
+	mailrelay.netcologne.de") by vger.kernel.org with ESMTP
+	id <S280663AbRKYCwO>; Sat, 24 Nov 2001 21:52:14 -0500
+Message-ID: <00aa01c1755c$2a5159a0$25aefea9@ecce>
+From: "[MOc]cda*mirabilos" <mirabilos@netcologne.de>
+To: <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <E167ja2-0004fF-00@carbon.btinternet.com> <9tpiio$n4u$1@cesium.transmeta.com>
+Subject: Re: Network hardware: "Network Media Detection"
+Date: Sun, 25 Nov 2001 02:52:04 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, so it was 14 that had the file loopback bug, and 12 that had the ieee bug.Those bugs shouldnt have been in there in the first place! Those are very major potentially show stopping bugs. What If I get up one day, and I cant print? Or build isos? That sounds minor to you, but thats a big thing if say, the linux box is a network print server, or, its the workstation for the guy in the company who builds the iso. And, no, "use the previous kernel" isnt a good excuse. Because what if you get hit with bugs back to back? You'll have to go back to some kernel way way back. Like 2.4.2. The Kernel needs Quality Assurance.
+> > That is, it detects the presence of a (10BaseT) cable in the back of
+the
+> > card.. and then does appropriate stuff (ifup/down, dhcpcd) when the
+event
+> > happens.
+> This is basically taking the interface down when the link disappears
+> (and vice versa.)  Rather useful for portable systems.  Don't think
+> anyone has implemented it, but it should be easy enough to do.
 
-On 24-Nov-2001, war wrote:
-> 2.4.14 - Has deactivate_page linker bug.  Fix: Edit loop.c, and delete the deactivate_page() function calls.
-> 
-> 2.4.13 - No known bugs.
-> 
-> 2.4.12 - Parallel port driver broken in this release.
-> 
-> 2.4.11 - Allows local denial of service using symlinks.
-> 
-> http://www.ramdown.com/war/kernel.html
-> 
-> Patrick McFarland wrote:
-> 
-> > er, I think I ment 2.4.13 for the loopback bug... or did that have the ieee parport problem...
-> >
-> > On 24-Nov-2001, Patrick McFarland wrote:
-> > > Heh, speaking about stuff like this, isnt testing suppost to happen to kernels? I mean, in 2.4.14 we had the file loopback problem (_alot_ of people use that module, its great for building iso images and stuff)  and then we have the inode.c bug (which may or may not exist and the fix may or may not actually fix it) then it seems bugs in other sections of the kernel. Whats going on Linus? Stable kernel releases were never this bad before.
-> > >
-> > > On 24-Nov-2001, Linus Torvalds wrote:
-> > > >
-> > > > On Sat, 24 Nov 2001, Marcelo Tosatti wrote:
-> > > > > >
-> > > > > > Are these going to appear on the front page of kernel.org?
-> > > > >
-> > > > > They have to...
-> > > > >
-> > > > > I'm sure hpa will do that as soon as he has time to...
-> > > >
-> > > > I also decided that the suggestion to move the "testing" subdirectory down
-> > > > to below the kernel that the directory is for is a good idea.
-> > > >
-> > > > So I moved all the 2.5.x testing stuff to kernel/v2.5/testing, leaving the
-> > > > old kernel/testing directory basically orphaned.
-> > > >
-> > > > Marcelo could either take over the old directory (which will make his
-> > > > pre-patches show up on kernel.org automatically), or preferably just do
-> > > > the same thing, and make the v2.4 test patches in v2.4/testing (which will
-> > > > also require support from the site admin, who is probably overworked as-is
-> > > > with the RAID failures ;)
-> > > >
-> > > >                     Linus
-> > > >
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > >
-> > >
-> > > --
-> > > Patrick "Diablo-D3" McFarland || unknown@panax.com
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
-> > --
-> > Patrick "Diablo-D3" McFarland || unknown@panax.com
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
+pcmcia-cs has (had?) this, just edit /etc/pcmcia/blah-script...
+needed to do this to get the default route set on card load,
+and removed on unload.
 
--- 
-Patrick "Diablo-D3" McFarland || unknown@panax.com
+-mirabilos
+--
+Redistribution of this message body via AOL or the
+Microsoft network strictly prohibited.
+Quotation permitted if due credit is given.
+(Excuse the X-Mailer, accusate my ISP for that)
+
+

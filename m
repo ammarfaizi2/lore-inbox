@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316477AbSEOTlz>; Wed, 15 May 2002 15:41:55 -0400
+	id <S316479AbSEOUDp>; Wed, 15 May 2002 16:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316478AbSEOTly>; Wed, 15 May 2002 15:41:54 -0400
-Received: from pc132.utati.net ([216.143.22.132]:21409 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S316477AbSEOTly>; Wed, 15 May 2002 15:41:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: John Weber <john.weber@linuxhq.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Unofficial but Supported Kernel Patches
-Date: Wed, 15 May 2002 09:43:26 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33L2.0205121935000.18593-100000@dragon.pdx.osdl.net> <3CDF2C7C.7090203@linuxhq.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020515200758.BEAB373B@merlin.webofficenow.com>
+	id <S316480AbSEOUDp>; Wed, 15 May 2002 16:03:45 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:34806 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S316479AbSEOUDo>; Wed, 15 May 2002 16:03:44 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020515122003.A13795@work.bitmover.com> 
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Changelogs on kernel.org 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 15 May 2002 21:03:40 +0100
+Message-ID: <18732.1021493020@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 May 2002 11:01 pm, John Weber wrote:
 
-> [2] Kernel Programming Documentation.  This would mostly document the
-> kernel API, and important kernel data structures, as well as "good
-> habits" in kernel development -- like "don't use virt_to_bus use
-> blah,blah,blah".  Information like this might be useful to kernel
-> janitors.  (This probably exists already).
+lm@bitmover.com said:
+> FYI, if they do a 
+> 	bk send -ubk://linux.bkbits.net/linux-2.5 torvalds@transmeta.com
+> that problem goes away.  The -u<url> stuff does the same sort of
+> handshake that a pull does to figure out what needs to be sent to fill
+> in the holes.
 
-Yeah, but filtering, collating, editing, and generally putting together a 
-good, high-quality, well indexed collection never hurts.
+Not quite. The sender usually omits changesets for a _reason_. You'll often
+find that one of the changesets in the middle wasn't necessary and didn't
+touch any of the same files -- in which case patches would have applied 
+just fine.
 
-The stuff in linux/Documentation generally seems more reference material than 
-instruction material.  (Coverage is spotty and indexing is nonexistent, but 
-it's way better than nothing.)  There's buildable docbook documentation in 
-the source tarball that in theory could be blasted to HTML and posted online, 
-and that might be nice to have a standard location for.  (If there is one 
-already, I missed it.)
+--
+dwmw2
 
-Try "make htmldocs" (and its cousins, make pdfdocs and make psdocs).
 
-> [3] Necessary patches for each release.
->
-> I will do any and maybe all things that folks find useful...
-> other suggestions also welcome.
-
-Actually, what I'd like to see is some kind of voting on the stability of 
-releases.  (If you had users who could indicate "I currently use THIS kernel" 
-and then keep a running tally of where everybody's at...
-
-Not so much for the stable series (modulo 2.4.11) but for the -ac series, 
-knowing which ones are considered relatively stable would be fun.  And 
-knowing which 2.5 variants are going to at least finish booting before they 
-eating your filesystem might be good. :)
-
-Possibly you could have a version specific message board.  (Grab the 
-slashcode or something and post a "story" about each new release, then 
-collect them into topics.)  Linux-kernel isn't necessarily the best place for 
-"comments on 2.5.15-pre-314159", because there's no real version sorting.  
-We've got 2.5 development, 2.4 development, 2.5-dj, 2.4-ac, the occasional 
-burp from 2.2, and all sorts of general theoretical development unrelated to 
-any actual kerenel.  (Random traffic for the O(1) scheduler patches, preempt 
-patches, Keith Owens' new build system, periodic CML2 flamewars...)  The 
-noise level's a bit high to try to follow specific topics of interest...
-
-Being able to thread that out a little better doesn't strike me as a bad 
-thing at all...
-
-Rob

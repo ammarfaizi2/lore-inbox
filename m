@@ -1,110 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUIPUWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268161AbUIPUXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268177AbUIPUWo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 16:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUIPUWo
+	id S268161AbUIPUXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 16:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUIPUXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 16:22:44 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1779 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S268177AbUIPUUB
+	Thu, 16 Sep 2004 16:23:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4814 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268161AbUIPUXK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 16:20:01 -0400
-Message-ID: <4149F56E.50406@mvista.com>
-Date: Thu, 16 Sep 2004 13:19:58 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Henry Margies <henry.margies@gmx.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Is there a problem in timeval_to_jiffies?
-References: <20040909154828.5972376a.henry.margies@gmx.de>	<20040912163319.6e55fbe6.henry.margies@gmx.de>	<20040915203039.369bb866.rddunlap@osdl.org>	<414962DF.5080209@mvista.com> <20040916200203.6259e113.henry.margies@gmx.de>
-In-Reply-To: <20040916200203.6259e113.henry.margies@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Sep 2004 16:23:10 -0400
+Date: Thu, 16 Sep 2004 15:50:19 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Message-ID: <20040916185019.GC11241@logos.cnet>
+References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <1095186713.6309.15.camel@stantz.corp.sgi.com> <20040914201558.GA32254@logos.cnet> <41477661.9030204@kolivas.org> <20040914214158.GA363@logos.cnet> <41478B56.90607@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41478B56.90607@kolivas.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henry Margies wrote:
-> Hi,
-> 
-> 
-> On Thu, 16 Sep 2004 02:54:39 -0700
-> George Anzinger <george@mvista.com> wrote:
-> 
-> 
->>Timers are constrained by the standard to NEVER finish early. 
-> 
-> 
-> I just thought about that again and I think you are wrong.
-> Maybe your statement is true for one-shot timers, but not for
-> interval timers.
-> 
-> No interval timer can guarantee, that the time between to
-> triggers is always greater or equal to the time you programmed
-> it.
+Con!
 
-This depends on how you interpret things.  Strictly speaking you are right in 
-that a given timer signal can be delayed (latency things) while the next signal 
-is not so that that interval would appear short.  However, the standard seems to 
-say that what you should measure is the expected arrival time (i.e. assume zero 
-latency).  In this case the standard calls for timers NEVER to be early.
+Spent some time reading your patch...
+
+On Wed, Sep 15, 2004 at 10:22:46AM +1000, Con Kolivas wrote:
+
+> >>I already answered this. That hard swappiness patch does not really 
+> >>rewrite swapping policy. It identifies exactly what has changed because 
+> >>it does not count "distress in the swap tendency". Therefore if the 
+> >>swappiness value is the same, the mapped ratio is the same (in the 
+> >>workload) yet the vm is swappinig more, it is getting into more 
+> >>"distress". The mapped ratio is the same but the "distress" is for some 
+> >>reason much higher in later kernels, meaning the priority of our 
+> >>scanning is getting more and more intense. This should help direct your 
+> >>searches.
+
+Well if "distress" is getting higher (with similar workload/pressure) 
+thats because VM is having a harder time freeing pages (priority increases,
+distress increases).
+
+You say "distress is getting higher in later kernels". Can you expand
+more on that? How did you find this out, and can you be more especific
+wrt "later kernels".
+
+> >>These are the relevant lines of code _from mainline_:
+> >>
+> >>distress = 100 >> zone->prev_priority
+> >>mapped_ratio = (sc->nr_mapped * 100) / total_memory;
+> >>swap_tendency = mapped_ratio / 2 + distress + vm_swappiness
+> >>if (swap_tendency >= 100)
+> >>-		reclaim_mapped = 1;
+> >>
+> >>
+> >>That hard swappiness patch effectively made "distress == 0" always.
+> >
+> >So isnt it true that decreasing vm_swappiness should compensate 
+> >distress and have the same effect of your patch? 
 > 
-> 1 occurrence of a 1000ms timer,
-> 10 occurrences of a 100ms timer and
-> 100 occurrences of a 10ms timer should take the same time.
+> Nope. We swap large amounts with the wrong workload at swappiness==0 
+> where we wouldn't before at swappiness==60. ie there is no workaround 
+> possible without changing the code in some way.
 
-You are assuming NICE things about timers that just are not true.  The problem 
-is resolution.  The timer resolution is a function of what the hardware can 
-actually do.  The system code attempts to make the resolution as close to 1/HZ 
-as possible, but this will not always be exact.  In fact, the best that the x86 
-hardware can do with HZ=1000 is 999849 nanoseconds.  Hence the result as per my 
-message.
+"we wouldn't before" refering to older kernel versions?
+
+I see you add a "z->nr_unmapped" watermark a bit above "z->pages_high", 
+and use that to set "pgdat->mapped_nrpages" to what needs to be freed 
+so z->free_pages reaches "z->nr_unmapped".
+
+And then you use that per-pgdat "mapped_nrpages" count to avoid:
+
+- moving mapped pages to inactive list (wasting the swappiness algorithm)
+- swapping out pages at shrink_list
+
+Those two only happen when pgdat->mapped_nrpages is zero, which 
+becomes true when we go below pages_low.
+
+To resume, deactivation/swapout of mapped pages only happens when we 
+go any zone pages_low.
+
+Correct?
+
+Now with v2.6 stock kernel, kswapd will deactivate (using vm_swappiness algorithm)
+and swapout pages between the low and high zone watermarks. 
+
+That avoids swapping out as hard as possible until we go below pages_low. 
+
+IMHO this might be OK for common desktop workloads where people complain 
+about swap, but might be harmful for other workloads where swapping out on
+advance unused anonymous process memory is a _gain_.
+
+I dont understand this check on balance_pgdat (kswapd worker function):
+
++       /*
++        * kswapd does a light balance_pgdat() when there is less than 1/3
++        * ram free provided there is less than vm_mapped % of that ram
++        * mapped.
++        */
++       if (maplimit && sc.nr_mapped * 100 / total_memory > vm_mapped)
++               return 0;
++
+
+So "if not any zone is under pages_low, and more than vm_mapped % of ram
+is mapped, bail out." 
+
+I dont get what you're trying to achieve with this.
+
 > 
-> For example: 
+> >To be fair I'm just arguing, haven't really looked at the code.
 > 
-> I want to have an interval timer for each second. Because of
-> some special reason the time between two triggers became 1.2
-> seconds.
-> The question is now, when do you want to have the next timer? 
+> Thats cool ;)
 
-You are talking about latency here.  The kernel and the standard do not account 
-for latency.
-> 
-> Your approach would trigger the timer in at least one second. But
-> that is not the behavior of an interval timer. An interval timer
-> should trigger in 0.8 seconds because I wanted him to trigger  
-> _every_ second.
+I still think swapout behaviour can be correctly tuned with vm_swappiness,
+and agree with Andrew on that we should not change anything in the algorithm
+if this can be tuned.
 
-Yes, within the limits of the hardware imposed resolution.
-
-> If you want to have at least one second between your timers, you
-> have to use one-shot timers and restart them after each
-> occurrence.
-> 
-Yes.
-
-> And in fact, I think that no userspace program can ever take
-> advantage of your approach, because it can be interrupted
-> every time, so there is no guarantee at all, that there will be at
-> least some fixed time between the very important commands. (for
-> interval timers)
-
-Uh, my approach???
-> 
-> 
-> So, what about adding this rounding value just to it_value to
-> guarantee that the first occurrence is in it least this time?
-
-The it_value and the it_interval are, indeed, computed differently.  The 
-it_value needs to have 1 additional resolution size period added to it to 
-account for the initial time starting between ticks.  The it_interval does not 
-have this additional period added to it.  Both values, however, are first 
-rounded up to the next resolution size value.
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Andrew, maybe decrease vm_swappiness to 50 on the next -mm for a test?
 

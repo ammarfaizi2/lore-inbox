@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129734AbQJ0MF3>; Fri, 27 Oct 2000 08:05:29 -0400
+	id <S130111AbQJ0MF3>; Fri, 27 Oct 2000 08:05:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130146AbQJ0MFT>; Fri, 27 Oct 2000 08:05:19 -0400
+	id <S129734AbQJ0MFU>; Fri, 27 Oct 2000 08:05:20 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:44036 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129734AbQJ0MFI>;
-	Fri, 27 Oct 2000 08:05:08 -0400
-Subject: Re: NFS, Can't get request slot
-To: jordg@cpgen.cpg.com.au (Grahame Jordan)
-Date: Fri, 27 Oct 2000 12:40:31 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <39F904AA.A585C3FF@cpgen.cpg.com.au> from "Grahame Jordan" at Oct 27, 2000 03:29:30 PM
+	by vger.kernel.org with ESMTP id <S130131AbQJ0MFL>;
+	Fri, 27 Oct 2000 08:05:11 -0400
+Subject: Re: missing mxcsr initialization
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Fri, 27 Oct 2000 12:42:03 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrea@suse.de (Andrea Arcangeli),
+        dledford@redhat.com (Doug Ledford), paubert@iram.es (Gabriel Paubert),
+        mingo@redhat.com, gareth@valinux.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10010262229330.864-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 26, 2000 10:35:25 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13p7sA-0004M5-00@the-village.bc.nu>
+Message-Id: <E13p7te-0004MB-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> By the evidence that we have gathered it seems that the Server is not
-> taxed too much as samba users are getting files OK etc.  The can't get
-> request slot is plaguing many others in different ways.   It looks like
-> an NFS issue.   How can this be proven?  Then we can work on the
-> problem.
+> Go back. Read ym email. Realize that you do this ONCE. At setup time.
 
-The request queue slot message means the server isnt responding (at least in
-the eyes of the client). Given you can get into the box that isnt the
-net card (at least not now). What mount options do you use ?
+(I've got about 2000 to read after this jaunt so I may have missed some)
+
+> You can even split SEP into SEPOLD and SEPNEW, and _always_ just test one
+> bit. You should not have to test stepping levels in normal use: that
+> invariably causes problems when there are more than one CPU that has some
+> feature.
+
+Agree
+
+> 	if (vendor == intel && stepping < 5) {
+> 		...
+> 	}
+> 
+> and it appears to work again, until it turns out that Cyrix has the same
+> issue, and then it ends up being the test from hell, where different
+> vendor tests all clash, and it gets increasingly difficult to add a new
+> thing later on sanely. 
+
+And you end up with mtrr.c
+
+> No thank you. We'll just require fixed feature flags. Which can be turned
+> on as the features are enabled.
+
+That seems sensible
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

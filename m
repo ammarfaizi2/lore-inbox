@@ -1,93 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267265AbSLEHEl>; Thu, 5 Dec 2002 02:04:41 -0500
+	id <S267244AbSLEHCE>; Thu, 5 Dec 2002 02:02:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267266AbSLEHEl>; Thu, 5 Dec 2002 02:04:41 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:34043 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267265AbSLEHEk>;
-	Thu, 5 Dec 2002 02:04:40 -0500
-Message-ID: <3DEEFBE7.A1B2A28E@mvista.com>
-Date: Wed, 04 Dec 2002 23:10:31 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <Pine.LNX.4.44.0212042009340.11869-100000@home.transmeta.com>
+	id <S267245AbSLEHCE>; Thu, 5 Dec 2002 02:02:04 -0500
+Received: from ns.suse.de ([213.95.15.193]:39172 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267244AbSLEHCD>;
+	Thu, 5 Dec 2002 02:02:03 -0500
+Date: Thu, 5 Dec 2002 08:09:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI notifiers for 2.5
+Message-ID: <20021205070937.GA16766@wotan.suse.de>
+References: <1039027142.20387.11.camel@dell_ss3.pdx.osdl.net.suse.lists.linux.kernel> <p731y4xtulg.fsf@oldwotan.suse.de> <1039038853.20387.19.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1039038853.20387.19.camel@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, Dec 04, 2002 at 01:54:13PM -0800, Stephen Hemminger wrote:
 > 
-> On Wed, 4 Dec 2002, george anzinger wrote:
-> >
-> > Once it changes the system call (eax, right), could the new
-> > call code then just get the parms from the restart_block.
+> > For a more comprehensive variant see include/asm-x86_64/kdebug.h	
+> > The x86-64 variant cannot be 1:1 copied because it's still incomplete
+> > and e.g. does not implement veto for all places where it's needed.
+> > 
 > 
-> Agreed.
-> 
-> > I think it would be best to keep this as generic as
-> > possible, i.e. let the new call code fetch its own
-> > paramerers from the restart_block.
-> 
-> We could even have one _single_ a generic "restart" system call, and have
-> the function pointer for that be in the restart block.
+> Didn't look in x86_64 code.  Would it just make more sense to turn this
+> into an architecture independent mechanism and provide sample versions
+> for x86_64 and i386?
 
-I think what you mean is that, if there is a
-restart_function (i.e. the block is set up) and the return
-is -ERESTART_RESTARTBLOCK, then change eax (x86 ) to call
-sys_restart which would in turn call the function in the
-restart_block.
+Would seem like overkill to me.
 
-One of the problems with this is the way parameters are
-passed to system calls.  One way to do this would be to have
-sys_restart branch to the restart_function (requires asm). 
-Another way is to just pass a struct pointer (actually the
-reg struct) which the restart function could sort out.  For
-example for nano_sleep:
+notifiers are already architecture independent, that should be enough.
 
-int sys_restart(struct void parms)
-{
-	return (current->restart_block.sys_call) (&parms);
+My experience so far is that one has to be very careful how to design
+such hooks and the first versions of it usually don't survive 
+the actual implementation of an debugger or crash dumper.
 
-}
-Then:
-struct nano_sleep_call{
-	struct timespec *tp;
-	struct timespec *rem;
-}
-int restart_nano_sleep(struct nano_sleep_call *parm)
-> 
-> > My question is who sets up these values?  I think you are
-> > saying it should be the system call.  Is this right?
-> 
-> Whatever system call that return -ERESTART_RESTARTBLOCK, yes.
-> 
-> So it would never get set up at all in the fast path. Only in the error
-> case path of a system call that wants to have restarting capabilities.
-
-And then only when returning -ERESTART_RESTARTBLOCK.
-> 
->                 Linus
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+-Andi

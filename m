@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268753AbUJPPRC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268582AbUJPPWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268753AbUJPPRC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 11:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268755AbUJPPRC
+	id S268582AbUJPPWc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 11:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268756AbUJPPWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 11:17:02 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:37274 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268753AbUJPPRA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 11:17:00 -0400
-Message-ID: <41713B79.3080406@drzeus.cx>
-Date: Sat, 16 Oct 2004 17:17:13 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+	Sat, 16 Oct 2004 11:22:32 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:38822 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268582AbUJPPWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 11:22:30 -0400
+Message-ID: <41713CB3.3010005@namesys.com>
+Date: Sat, 16 Oct 2004 08:22:27 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: nhorman@redhat.com, hancockr@shaw.ca
-Subject: Re: Tasklet usage?
-References: <416FCD3E.8010605@drzeus.cx>
-In-Reply-To: <416FCD3E.8010605@drzeus.cx>
-X-Enigmail-Version: 0.84.2.0
+To: Peter Zaitsev <peter@mysql.com>
+CC: linux-kernel@vger.kernel.org, vs <vs@thebsh.namesys.com>,
+       Chris Mason <mason@suse.com>, Jeff Mahoney <jeffm@suse.com>
+Subject: Re: Disk full and writting to pre-allocated area on ReiserFS
+References: <1097876157.6553.22.camel@sphere.site>
+In-Reply-To: <1097876157.6553.22.camel@sphere.site>
+X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As I was digging through the functions there was one thing that struck 
-me. The parameter for the tasklet is of type unsigned long, not void*. 
-Since the parameter in most cases is a pointer this might cause problems 
-on 64-bit systems. Or does the kernel do some magic to map kernel memory 
-in the first 4 GB?
+Peter Zaitsev wrote:
 
-Rgds
-Pierre
-
+>Hi,
+>
+>I'm running SuSE 9.1  Kernel 2.6.5-7.108-default 
+>But I would guess it applies to large variety of platforms as we have
+>customers reporting the same problem.
+>
+>I'm using reiserfs:
+>/dev/md0 on /data type reiserfs (rw,noatime,notail,data=writeback)
+>
+>The problem is in case of disk full condition,  "Disk full" error is
+>being reported even if write happens to Pre-Allocated area, in my case
+>to Innodb recovery log files.
+>
+>This is very unfortunate as in such case Innodb has no way but to
+>terminate database server.  These logs are specially pre-allocated so 
+>one would not run in such condition.
+>
+>Question: Is there any way to avoid this problem with Reiserfs ? 
+>
+>
+>  
+>
+vs or chris or jeff, can you comment?

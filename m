@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbTERDkc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 23:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTERDkc
+	id S261944AbTERDhL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 23:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTERDhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 23:40:32 -0400
-Received: from almesberger.net ([63.105.73.239]:33541 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261936AbTERDkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 23:40:31 -0400
-Date: Sun, 18 May 2003 00:53:07 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Cc: pavel@ucw.cz
-Subject: Re: What exactly does "supports Linux" mean?
-Message-ID: <20030518005307.B1475@almesberger.net>
-References: <20030514021210.GD30766@pegasys.ws> <BKEGKPICNAKILKJKMHCAMEONCPAA.Riley@Williams.Name> <yw1xhe7xo1f6.fsf@zaphod.guide> <20030517160509.GA283@elf.ucw.cz> <20030518013926.GA16286@pegasys.ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030518013926.GA16286@pegasys.ws>; from jw@pegasys.ws on Sat, May 17, 2003 at 06:39:26PM -0700
+	Sat, 17 May 2003 23:37:11 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:65414 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261944AbTERDhK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 23:37:10 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 17 May 2003 20:49:11 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SIS-650+CPQ Presario 3045US+USB ...
+Message-ID: <Pine.LNX.4.55.0305172022440.4235@bigblue.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz wrote:
-> Perhaps you'd be willing to help Aunt Tillie do this.  Your
-> definition of "includes driver sources" will appeal to such a
-> small market segment it isn't worth the ink on the box.
 
-I think Pavel's idea is brilliant. "Includes driver sources"
-captures exactly the essence of dependable support for Linux.
+I've spent a few horrible hours terrified by the idea of a possible XP
+install on my new laptop. It's a Compaq Presario 3045US with SIS-650
+chipset and there was no way to have USB bits work with it because of a
+IRQ routing issue. The PCI routing table of that machine issues requests
+for 0x60, 0x61 and 0x63 that, to have everything to work out, must be
+handled like the 0x4* cases. Now, while 0x60 and 0x63 were ot documented
+at all, 0x61 was documented as IDEIRQ and I was a bit worried about that.
+But this is not the case since the machine issue 0x60..0x63 for the four
+OHCI devices. Now USB is working great with keyboard, mouse and drives. I
+still have to say bye to the Broadcom 54g wireless interface though ...
 
-Aunt Tillie will eventually learn that this strange sentence means
-that, even if the thing doesn't work when she attaches it to her
-PC, her nephew will be able to make it work for her.
 
-And in a few years, when she buys a new PC with a new distribution,
-there will probably already be a driver included.
 
-What else could she ask for ?
+- Davide
 
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

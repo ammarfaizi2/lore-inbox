@@ -1,90 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbTKETvn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 14:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbTKETvD
+	id S263166AbTKETr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 14:47:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbTKETr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 14:51:03 -0500
-Received: from web40908.mail.yahoo.com ([66.218.78.205]:36871 "HELO
-	web40908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263176AbTKETtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 14:49:43 -0500
-Message-ID: <20031105194942.51568.qmail@web40908.mail.yahoo.com>
-Date: Wed, 5 Nov 2003 11:49:42 -0800 (PST)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: 2.6.0-test9-mm2
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Nov 2003 14:47:56 -0500
+Received: from main.gmane.org ([80.91.224.249]:21946 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263166AbTKETra (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 14:47:30 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Pseudo disk interface
+Date: Wed, 05 Nov 2003 20:47:27 +0100
+Message-ID: <yw1xvfpyvbqo.fsf@kth.se>
+References: <e9bdb4e9ef4a.e9ef4ae9bdb4@usc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:03j2oimunjFoNLPm6C09JJfulrQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Morton,
+balaji raghavan <braghava@usc.edu> writes:
 
-This patch: +drm-agp-module-dependency-fix.patch
+>     Is there a some kind of __disk_abstraction__ existent in Linux? I
+> am trying to write a Cryptographic disk driver for linux. But AFAIK, I
 
-has broken the radeon DRM driver under 2.6.0-test9-mm2. Enclosed is an e-mail I
-sent to the dri-devel sourceforge list:
+There already exists such a driver, at least in Linux 2.6.  It's part
+of (or at least related to) the loopback driver.
 
-<snip>
+-- 
+Måns Rullgård
+mru@kth.se
 
-I'm having problems using te DRI radeon driver in the 2.6.0-test9-mm2
-kernel tree. When X is started, the kernel outputs these messages:
-
-[drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-[drm:radeon_unlock] *ERROR* Process 1083 using kernel context 0
-
-The driver did not do this under 2.6.0-test9-mm1.
-
-Interesting parts of dmesg (under 2.6.0-test9-mm2):
-
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected an Intel i845 Chipset.
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: AGP aperture is 64M @ 0xec000000
-[drm] Initialized radeon 1.9.0 20020828 on minor 0
-
-I am using XFree86-4.3.0-42 from Fedora Core.
-
-</snip>
-
-Diffing the drivers/char/drm trees produces this, which I assume is the patch
-you applied:
-
-diff -urN linux-2.6.0-test9-mm1/drivers/char/drm/drm_agpsupport.h
-linux-2.6.0-test9-mm2/drivers/char/drm/drm_agpsupport.h
---- linux-2.6.0-test9-mm1/drivers/char/drm/drm_agpsupport.h     2003-10-17
-22:42:52.000000000 +0100
-+++ linux-2.6.0-test9-mm2/drivers/char/drm/drm_agpsupport.h     2003-11-05
-08:45:46.000000000 +0000
-@@ -37,8 +37,8 @@
- #if __REALLY_HAVE_AGP
-
-
--#define DRM_AGP_GET (drm_agp_t *)inter_module_get("drm_agp")
--#define DRM_AGP_PUT inter_module_put("drm_agp")
-+#define DRM_AGP_GET symbol_get(agp_drm)
-+#define DRM_AGP_PUT symbol_put(agp_drm)
-
- /**
-  * Pointer to the drm_agp_t structure made available by the agpgart module.
-
-I've had some responses from dri-devel so far, but right now I'm running
-2.6.0-test9-mm1, which works perfectly fine.
-
-What now?
-
-TIA
-
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree

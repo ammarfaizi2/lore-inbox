@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317003AbSGSUAS>; Fri, 19 Jul 2002 16:00:18 -0400
+	id <S317005AbSGSUHa>; Fri, 19 Jul 2002 16:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSGSUAS>; Fri, 19 Jul 2002 16:00:18 -0400
-Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:46213 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S317003AbSGSUAS>; Fri, 19 Jul 2002 16:00:18 -0400
-Date: Fri, 19 Jul 2002 15:01:16 -0500
-From: Shawn <core@enodev.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020719150116.A31973@q.mn.rr.com>
-References: <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com> <20020717114501.GB28284@merlin.emma.line.org> <20020717190259.GA31503@clusterfs.com> <20020719102906.A5131@krusty.dt.e-technik.uni-dortmund.de> <20020719163907.GD10315@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020719163907.GD10315@clusterfs.com>; from adilger@clusterfs.com on Fri, Jul 19, 2002 at 10:39:07AM -0600
+	id <S317006AbSGSUH3>; Fri, 19 Jul 2002 16:07:29 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:63996 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317005AbSGSUH3>;
+	Fri, 19 Jul 2002 16:07:29 -0400
+Message-ID: <1027109386.3d38720ad79f5@imap.linux.ibm.com>
+Date: Fri, 19 Jul 2002 13:09:46 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+To: hayden@spinbox.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2 to 2.4... serious TCP send slowdowns
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 9.47.18.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/19, Andreas Dilger said something like:
-> On Jul 19, 2002  10:29 +0200, Matthias Andree wrote:
-> > What kernel version is necessary to achieve this on production kernels
-> > (i. e. 2.4)?
-> > 
-> > Does "consistent" mean "fsck proof"?
-> > 
-> > Here's what I tried, on Linux-2.4.19-pre10-ac3 (IIRC) (ext3fs):
-> > 
-> > (from memory, history not available, different machine):
-> > lvcreate --snapshot snap /dev/vg0/home
-> > e2fsck -f /dev/vg0/snap
-> > dump -0 ...
-> > 
-> > It reported zero dtime for one file and two bitmap differences.
-> 
-> That is because one critical piece is missing from 2.4, the VFS lock
-> patch.  It is part of the LVM sources at sistina.com.  Chris Mason has
-> been trying to get it in, but it is delayed until 2.4.19 is out.
-> 
-> > dump did not complain however, and given what e2fsck had to complain,
-> > I'd happily force mount such a file system when just a deletion has not
-> > completed.
-> 
-> You cannot mount a dirty ext3 filesystem from read-only media.
+> We're finally migrating to the 2.4 kernel due to hardware
+> incompatibilities with the 2.2.  The 2.2 has worked better
+> for us in the past as far as our application performs.
+> Our application is an adserver and becomes bogged down in 2.4
+> when sending files such as images across
 
-I thought you could "mount -t ext2" ext3 volumes, and thought you could
-force mount ext2.
+When you say bogged down, what exactly does that mean? Does it
+hang? Can you quantify the slowdown with any measurements?
+Have you looked at TCP and network statistics to check for
+timeouts, drops, other errors, the like? netstat -s should
+give you some extended TCP stats which might help you diagnose
+that sort of problem..
 
-I'm no Andreas Dilger, so don't take this like I'm disagreeing...
+> the wire.  They're in general between 20-50k in size.  I've been
+> researching the differences between 2.4 and 2.2 and have noticed
+> that a lot of work has gone into autotuning with 2.4 and I'm
+> wondering if this is what's slowing things down.  When I do tcpdumps
+> to see the traffic being sent to the client I'm noticing that the
+> receiver window is almost always set to 6430 bytes.  When looking at
+> the same transfer on our 2.2 boxes the receiver window is almost
+> always over 31000 bytes.  I've tried to increase the size of the
+> buffers using the proc settings that are provided however
 
---
-Shawn Leas
-core@enodev.com
+Whats your interface MTU? How did you change the size of the buffers?
+Note that you need to increase the tcp_rmem[1] and tcp_wmem[1] to
+affect the default tcp socket buffer sizes. Also note that
+approximately half that is used by the kernel, so if you really want
+64K user space, try setting the size to 128K.
 
-I went to the bank and asked to borrow a cup of money.  They
-said, "What for?"  I said, "I'm going to buy some sugar."
-						-- Stephen Wright
+> this hasn't seemed to make a difference even after restarting
+> servers after each change the window is still 6430 bytes.  I've
+> tried manually settting the size with setsockopt calls in the server
+> code but this hasn't seemed to help.  I believe the problem is
+> definately with sending the files over the line.  We files are read
+> into the socket to be sent across the network byte by byte.  The boss
+> says this is the best way to do it but I'm curious if this is so.
+
+You cant optimize your read() from a fd and writes to a socket fd()
+simultaneously. Are you setting TCP_NODELAY?
+
+If all you are doing is reading large files from disk and sending them
+out over a socket, consider using sendfile() instead. Much more
+efficient.
+
+thanks,
+Nivedita
+
+
+
+

@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbUJYRAC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUJYSCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbUJYRAC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUJYQ7M
+	id S261179AbUJYSCf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 14:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbUJYSCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 12:59:12 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:53950 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261978AbUJYQ4f convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 12:56:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=TSwbfQeyWruDktTm8nTtZScNWn4XsLoKFxLprjiGimwsHRZoU0e2BTDQctmUgdhFt6khkqx4h0A9IKYzazLQlDlQren5qyDA+2V2LD4P2KjfAYIwlSQcWsLhITKEcRVL+rFwR0bcE07vBm7B/2WFXQg9oFCmQl9ijU7r2mEC8QU=
-Message-ID: <9e473391041025094812aa9923@mail.gmail.com>
-Date: Mon, 25 Oct 2004 12:48:43 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6] hw_random.c: replace pci_find_device
-Cc: Hanna Linder <hannal@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com
-In-Reply-To: <41783CDA.8010901@pobox.com>
+	Mon, 25 Oct 2004 14:02:15 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:23173 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261218AbUJYRyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:54:45 -0400
+Message-Id: <200410251754.i9PHsVrI018284@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: "Nico Augustijn." <kernel@janestarz.com>, hvr@gnu.org,
+       clemens@endorphin.org, linux-kernel@vger.kernel.org
+Subject: Re: Cryptoloop patch for builtin default passphrase 
+In-Reply-To: Your message of "Mon, 25 Oct 2004 18:33:43 BST."
+             <417D38F7.1040204@grupopie.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200410251354.31226.kernel@janestarz.com> <200410251719.i9PHJmOi009687@turing-police.cc.vt.edu>
+            <417D38F7.1040204@grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-References: <268450000.1098383924@w-hlinder.beaverton.ibm.com>
-	 <41783CDA.8010901@pobox.com>
+Content-Type: multipart/signed; boundary="==_Exmh_-605258228P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Oct 2004 13:54:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 18:48:58 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
-> applied
+--==_Exmh_-605258228P
+Content-Type: text/plain; charset=us-ascii
 
-I just pulled from Linus bk, for_each_pci_dev isn't defined anywhere.
-I get compile errors in hw_random.c.
+On Mon, 25 Oct 2004 18:33:43 BST, Paulo Marques said:
 
-[jonsmirl@smirl linux-2.5]$ grep -rI for_each_pci_dev *
-drivers/char/hw_random.c:       for_each_pci_dev(pdev) {
-SCCS/s.ChangeSet:c for_each_pci_dev is a macro wrapper around pci_get_device.
-[jonsmirl@smirl linux-2.5]$
+> I don't have any feelings about this patch, but it seems to me that you 
+> could always store the contents of the nvram somewhere "safe" (you could 
+> even write them down and take it to a safe deposit box in a bank :) ), 
+> and, if those contents happen to change, you could always write them 
+> again...
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+That's assuming that your machine will even *boot* correctly and cleanly if the
+contents of the NVRAM are put back.
+
+And if you're doing the "write it down and type it in again" thing, you might
+as well just use a passphrase, as it's defeating the whole concept of
+using /dev/nvram to xor against....
+
+--==_Exmh_-605258228P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBfT3WcC3lWbTT17ARApk5AKCu+Zlgkw8vDcPjTiVa1NRm5vGMNQCfSRr3
+q3sZPPawGavtJfbupMP2vPA=
+=85yD
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-605258228P--

@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318307AbSGRTMP>; Thu, 18 Jul 2002 15:12:15 -0400
+	id <S318317AbSGRTOE>; Thu, 18 Jul 2002 15:14:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318308AbSGRTMP>; Thu, 18 Jul 2002 15:12:15 -0400
-Received: from pc1-alde1-3-cust222.gfd.cable.ntl.com ([62.252.20.222]:31322
-	"EHLO mayday.local") by vger.kernel.org with ESMTP
-	id <S318307AbSGRTMO>; Thu, 18 Jul 2002 15:12:14 -0400
-Date: Thu, 18 Jul 2002 20:15:05 +0100 (BST)
-To: jw schultz <jw@pegasys.ws>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
-In-Reply-To: <20020702173636.A13790@pegasys.ws>
-Organization: Mayday Technology Ltd
-X-URL: <http://www.cix.co.uk/~mayday>
-X-Dev86-Version: 0.16.2
-Reply-By: 01 jan 1900 00:00:00
-X-Message-Flag: Linux: The choice of a GNU generation.
+	id <S318319AbSGRTOE>; Thu, 18 Jul 2002 15:14:04 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:44418 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318317AbSGRTOD>; Thu, 18 Jul 2002 15:14:03 -0400
+Date: Thu, 18 Jul 2002 15:19:48 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Robert Love <rml@tech9.net>
+cc: Szakacsits Szabolcs <szaka@sienet.hu>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] strict VM overcommit for stock 2.4
+In-Reply-To: <1027018996.1116.136.camel@sinai>
+Message-ID: <Pine.LNX.3.95.1020718150735.1373A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-From: Robert de Bath <robert$@mayday.cix.co.uk>
-Message-ID: <8ff9ed84695e27db@mayday.cix.co.uk>
-X-Mailer: Pine for Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jul 2002, jw schultz wrote:
+On 18 Jul 2002, Robert Love wrote:
 
-> wouldn't add too much more overhead than
->
-> 	if (!emulation_notice)
-> 	{
-> 		emulation_notice = 1;
-> 		printk(...);
-> 	}
->
-> after all this is only supposed to happen under rescue
-> situations.  That way it will be sure to be in the logs and
-> maybe even on the console and we won't have to hunt for it.
->
-> Also, the message should say you are doing instruction
-> emulation.  "wrong model cpu, emulating instruction XXX" I
-> doubt indicating the program is helpful unless the tracking
-> is done per task or the printk every time you emulate.
+> On Thu, 2002-07-18 at 11:56, Richard B. Johnson wrote:
+> 
+> > What should have happened is each of the tasks need only about
+> > 4k until they actually access something. Since they can't possibly
+> > access everything at once, we need to fault in pages as needed,
+> > not all at once. This is what 'overcomit' is, and it is necessary.
+> 
+> Then do not enable strict overcommit, Dick.
+> 
+> > If you have 'fixed' something so that no RAM ever has to be paged
+> > you have a badly broken system.
+> 
+> That is not the intention of Alan or I's work at all.
+> 
+> 	Robert Love
 
-I'd suggest this message could be so frequent that you want to
-link it's display to real time. Check the jiffy counter each
-time and if it's been less that X seconds since the last message
-just up a counter. Plus in the message say how many instructions
-have been emulated since the last one ... eg if it's only five
-I don't care, but five million would be a problem!
+Okay then. When would it be useful? I read that it would be useful
+in embedded systems, but everything that will ever run on embedded
+systems is known at compile time, or is uploaded by something written
+by an intelligent developer, so I don't think it's useful there. I
+'do' embedded systems and have never encountered OOM.
 
-One other thing ... should the FPU emulator also display messages
-like these if it's used?
+I also read about some 'home users' not knowing how to set up
+there systems. I don't think one CPU cycle should be wasted to
+protect them, well maybe 10, but that's it.
 
--- 
-Rob.                          (Robert de Bath <robert$ @ debath.co.uk>)
-                                       <http://www.cix.co.uk/~mayday>
+I keep seeing the same thing about protecting root against fork and
+malloc bombs and I get rather "malloc()" about it. All distributions
+I have seen, so far, come with `gcc` and `make`. The kiddies can
+crap all over their kernels at their heart's content. I don't think
+Linux should be reduced to the lowest common denominator.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 
 

@@ -1,67 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265724AbUFUB4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265992AbUFUCDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265724AbUFUB4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 21:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUFUB4Y
+	id S265992AbUFUCDS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 22:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265997AbUFUCDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 21:56:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30378 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265724AbUFUB4V
+	Sun, 20 Jun 2004 22:03:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14763 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265992AbUFUCDG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 21:56:21 -0400
-Date: Sun, 20 Jun 2004 22:49:10 -0300
+	Sun, 20 Jun 2004 22:03:06 -0400
+Date: Sun, 20 Jun 2004 22:56:10 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       Ryan Underwood <nemesis-lists@icequake.net>,
-       Willy Tarreau <willy@w.ods.org>, twaugh@redhat.com, akpm@osdl.org
-Subject: Netmos 9835 in 2.6.x was Request: Netmos support in parport_serial for 2.4.27 
-Message-ID: <20040621014910.GC9359@logos.cnet>
-References: <20040613111949.GB6564@dbz.icequake.net> <20040613123950.GA3332@logos.cnet> <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk> <20040613220727.GB4771@logos.cnet> <20040614045104.GE27622@dbz.icequake.net>
+To: Chris Caputo <ccaputo@alt.net>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: crashes in prune_icache() in 2.4.26
+Message-ID: <20040621015610.GD9359@logos.cnet>
+References: <Pine.LNX.4.44.0405302345250.12337-100000@nacho.alt.net> <Pine.LNX.4.44.0405311233450.16373-100000@nacho.alt.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040614045104.GE27622@dbz.icequake.net>
+In-Reply-To: <Pine.LNX.4.44.0405311233450.16373-100000@nacho.alt.net>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 13, 2004 at 11:51:04PM -0500, Ryan Underwood wrote:
-> On Sun, Jun 13, 2004 at 07:07:27PM -0300, Marcelo Tosatti wrote:
-> > 
-> > Jesper, 
-> > 
-> > Two more things.
-> > 
-> > It seems v2.6 also lacks support for this boards:
-> > 
-> > grep PCI_DEVICE_ID_NETMOS_ *
-> > pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9735     0x9735
-> > pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9835     0x9835
-> > [marcelo@localhost linux]$
-> > 
-> > Care to prepare a v2.6 version?
+On Mon, May 31, 2004 at 12:38:48PM -0700, Chris Caputo wrote:
+> Made a little more progress...
 > 
-> Seems like someone already did, but I guess it did not get applied for
-> some reasons:
-> http://seclists.org/lists/linux-kernel/2003/Dec/0654.html
+> Turns out the infinite loop wasn't in the CONFIG_HIGMEM while() loop, but 
+> rather in the while() loop at the top of the code.  Sorry about that.  I 
+> misunderstood the disassembly until now.
+> 
+> So basically both types of crashes I am seeing (NULL deref and infinite
+> loop) are happening in the primary/top while() loop of prune_icache()  
+> and I suspect they are both the result of a corrupted inode_unused list.
+> 
+> Now I am trying to figure out where/how the inode_unused list is getting
+> corrupted...  If anyone has any existing code for validating list
+> integrity, which I could sprinkle around the code, I'd love a copy.
+> 
+> Thanks,
+> Chris
+> 
+> On Mon, 31 May 2004, Chris Caputo wrote:
+> > [CC'ed lkml in case anyone else wants to take a shot.]
+> > 
+> > A little more info...  I added some printk's to the function to highlight
+> > the input value of parameter 'goal' and also to show where the function
+> > was returning.
+> > 
+> > My understanding is these printk's all happened in rapid succession:
+> > 
+> >     entry > prune_icache(goal = 92370)
+> >     exit < prune_icache() at if (goal <= 0)
+> > 
+> >   Above the function completed without entering the CONFIG_HIGHMEM while
+> >   loop.
+> > 
+> >     entry > prune_icache(goal = 94037)
+> >     exit < prune_icache() - end of function
+> > 
+> >   Above the function went through the CONFIG_HIGHMEM while loop.  This was
+> >   the first time this happened since boot, after a number of 
+> >   prune_icache() calls that had returned prior to the CONFIG_HIGHMEM while 
+> >   loop.
+> > 
+> >     entry > prune_icache(goal = 98609)
+> >     Unable to handle kernel NULL pointer dereference at virtual address 00000004
+> > 
+> >   The final printk above shows the function being entered and then hitting
+> >   the NULL dereference.
 
-Andrew, the patch in the URL looks fine to me, it adds support for 
-Netmos 9835 based cards. Tim Waugh ACKed the 2.4 version of the patch. 
+Chris, 
 
-Christopher Lameter updated the patch for v2.6, and it looks 
-alright to me. Please check the URL.
+Can you please post the full oops message ksymooped? 
 
-Quoting him:
+I hope you saved that.
 
-"Attached a patch to support a variety of PCI based serial and parallel
-port I/O ports (typically labeled 222N-2 or 9835). The patch was
-
-I just fixed it up and made it work for 2.6.0-test10/10.
-
-I think this should go into 2.6.0 since it has been out there for a long
-time and is just some additional driver support that somehow fell through
-the cracks in 2.4.X. Tim Waugh submitted it in the 2.4.X series."
-
-I'm sure the fellows in this thread who posses the cards 
-can give it a test.
-
+> > 
+> > Chris
+> > 
+> > On Sun, 30 May 2004, Chris Caputo wrote:
+> > > Hi.  I have been experiencing a number of crashes in fs/inode.c's
+> > > prune_icache() function.  I found on linux.bkbits.net that you made the
+> > > most recent major change to this function back in January.  With that in
+> > > mind I hope it is okay to write directly to you.
+> > > 
+> > > I have experienced two kinds of crashes with this function.
+> > > 
+> > > The first is in the older part of the code.  Basically the inode_unused 
+> > > list is somehow getting corrupt and when it does an Oops happens at:
+> > > 
+> > >     entry = entry->prev;   (line 808 of the 2.4.26 fs/inode.c)
+> > > 
+> > > I haven't yet figured out how it is getting corrupt so any tips welcome.
+> > > 
+> > > A second problem I have seen is that my system has gotten into an infinite
+> > > loop in the while loop in the CONFIG_HIGHMEM part of the prune_icache()
+> > > code.  I haven't yet figured out why.  But I am curious about the code at 
+> > > the beginning of the loop:
+> > > 
+> > >         while (goal-- > 0) {
+> > >                 if (list_empty(&inode_unused_pagecache))
+> > >                         break;
+> > >                 entry = inode_unused_pagecache.prev;
+> > >                 list_del(entry);
+> > >                 list_add(entry, &inode_unused_pagecache);
+> > > 
+> > > Is the intent of the last 3 lines to remove the entry from the end of the
+> > > linked-list and then add it to the front, as a way of traversing the list?  
+> > > Or is it intended that the add be an add to the inode_unused list as
+> > > opposed to the inode_unused_pagecache list?
+> > > 
+> > > I'd love to figure out the problems I am experiencing, so any advice on
+> > > how to proceed is welcome.  The bug happens every few days on our main
+> > > fileserver and I have been able to reproduce it on a test fileserver too.
+> > > 
+> > > Chris

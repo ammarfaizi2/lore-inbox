@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262499AbTCIMDo>; Sun, 9 Mar 2003 07:03:44 -0500
+	id <S262502AbTCIMS5>; Sun, 9 Mar 2003 07:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262501AbTCIMDo>; Sun, 9 Mar 2003 07:03:44 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:2805 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S262499AbTCIMDn>;
-	Sun, 9 Mar 2003 07:03:43 -0500
-Date: Sun, 9 Mar 2003 13:14:14 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Romain Lievin <roms@tilp.info>
-Subject: Re: [PATCH] kconfig update
-Message-ID: <20030309121414.GM3917@pasky.ji.cz>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-	Romain Lievin <roms@tilp.info>
-References: <Pine.LNX.4.44.0303090432200.32518-100000@serv> <20030309085915.A14548@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030309085915.A14548@infradead.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	id <S262503AbTCIMS5>; Sun, 9 Mar 2003 07:18:57 -0500
+Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:37129 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S262502AbTCIMS4>; Sun, 9 Mar 2003 07:18:56 -0500
+Date: Sun, 9 Mar 2003 13:29:26 +0100 (CET)
+From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds6.pg.gda.pl>
+X-X-Sender: blues@piorun.ds.pg.gda.pl
+To: Siim Vahtre <siim@pld.ttu.ee>
+Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
+Subject: Re: Console weirdness
+In-Reply-To: <Pine.SOL.4.31.0303091125560.28624-100000@pitsa.pld.ttu.ee>
+Message-ID: <Pine.LNX.4.51L.0303091327460.6084@piorun.ds.pg.gda.pl>
+References: <Pine.SOL.4.31.0303091125560.28624-100000@pitsa.pld.ttu.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Mar 09, 2003 at 09:59:15AM CET, I got a letter,
-where Christoph Hellwig <hch@infradead.org> told me, that...
-> On Sun, Mar 09, 2003 at 04:57:54AM +0100, Roman Zippel wrote:
-> > Hi,
-> > 
-> > It took a bit longer than I wanted, but here is finally another kconfig 
-> > update. There are two important changes: I included Romain's gtk front 
-> > end and the support for the menuconfig keyword.
+On Sun, 9 Mar 2003, Siim Vahtre wrote:
+> > But still, switching back from X to console corrupts the display.
+> > Switching back is fine though using the fbdev.diff patch. Without
+> > switching back and force works fine, except that the last line isn't
+> > properly redrawn (rivafb).
+> I am using rivafb with 2.5.64-bk2 kernel and with latest fbdev patches
+> and have following (minor) problems:
+
+2.5.64 with latest fbdev patches.
+
+> * switching to X and back ruins the colours totally. Soulution is to
+> fbset back to default mode. (I've even made hotkey for that ;-) )
 > 
-> Any chance you could take a look at the patch that links lxdialog directly
-> to menuconfig instead of requiring the separate binary?  It has been
-> around for a long time and seems like a very worthwhile change, imho.
+> * changing modes(to other than 640x480) will change the resolution but
+> not the 'console window' itself. That is - I have 640x480 window on the
+> corner for text console but actually 800x600 resolution. (Maybe it is a
+> feature? How to get it full-screened, anyway?)
+> 
+> * changing modes on one tty (even though -a was specified with fbset)
+> will not change modes on other ttys. When switching ttys with different
+> resolution, the screen blanks and I again have to use my hotkey to fbset
+> back to default resolution.
 
-It is me responsible for the delays and not being integrated yet, unfortunately
-I didn't have time for proper debugging one problem in it yet :-( (broken
-window resizing handler; Roman proposed some solution which I didn't manage to
-try yet). I hope I will finally give it a final kick really soon.
-
-Kind regards,
+I have the same problems on my tdfx (Voodoo3).
 
 -- 
- 
-				Petr "Pasky" Baudis
-.
-When in doubt, use brute force.
-		-- Ken Thompson
-.
-Crap: http://pasky.ji.cz/
+---------------------------------
+pozdr.  Pawe³ Go³aszewski        
+---------------------------------
+CPU not found - software emulation...

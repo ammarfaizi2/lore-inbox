@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280398AbRJaSdm>; Wed, 31 Oct 2001 13:33:42 -0500
+	id <S280391AbRJaSbc>; Wed, 31 Oct 2001 13:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280400AbRJaSdd>; Wed, 31 Oct 2001 13:33:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:63108 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280398AbRJaSd0>;
-	Wed, 31 Oct 2001 13:33:26 -0500
-Date: Wed, 31 Oct 2001 10:32:41 -0800 (PST)
-Message-Id: <20011031.103241.45747017.davem@redhat.com>
-To: alex.buell@tahallah.demon.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0110311827530.19987-100000@tahallah.demon.co.uk>
-In-Reply-To: <20011031.092954.115906622.davem@redhat.com>
-	<Pine.LNX.4.33.0110311827530.19987-100000@tahallah.demon.co.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280392AbRJaSbX>; Wed, 31 Oct 2001 13:31:23 -0500
+Received: from relay03.cablecom.net ([62.2.33.103]:34703 "EHLO
+	relay03.cablecom.net") by vger.kernel.org with ESMTP
+	id <S280391AbRJaSbK>; Wed, 31 Oct 2001 13:31:10 -0500
+Message-Id: <200110311831.f9VIVeR09294@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: LLX <llx@swissonline.ch>
+Reply-To: llx@swissonline.ch
+To: Rik van Riel <riel@conectiva.com.br>, Timur Tabi <ttabi@interactivesi.com>
+Subject: Re: Module Licensing?
+Date: Wed, 31 Oct 2001 19:31:40 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0110311535250.2963-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0110311535250.2963-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-   Date: Wed, 31 Oct 2001 18:28:28 +0000 (GMT)
+> The irrelevance here is IYHO ... it may well be judged that
+> since these two portions of the work need each other in order
+> to function, the thing really is one work.
 
-   On Wed, 31 Oct 2001, David S. Miller wrote:
-   
-   >   cp src/linux/include/linux/soundcard.h /usr/include/linux/soundcard.h
-   
-   Unfortunately, these files are identical, which is why it is so strange!
+a)
+vmware for linux needs a linux kernel to work. does that meen
+you whant to gpl it? 
 
-I'm pretty sure the ioctl numbers are wrong, and that is what
-is causing the problem.
+b)
+you can write abstraction modules for different os's. and the 
+non-gpl module works with all of them. so my module does not
+need the linux abstraction module it also works with the free-
+BSD module. the only #ifdef in my module will be around the 
+module registration code. or i write a propriatary loader,
+so that even the same binary works for different os's
 
-Print out from your app the ioctl number it uses (you've done
-this already) and have the kernel do similar.  If they are different
-you know that at least I was on the right track.
 
-It's easy to figure out some value in the kernel without even
-rebooting, just add to like some source file:
 
-int foo = IOCTL_VALUE_I_WANT;
-
-Then do "make drivers/sbus/audio/whatever.s"
-and look at the assembler file for the value it
-ended up using :-)
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+-- 
+****** It's nice to be important, but it's more important to be nice ! ******

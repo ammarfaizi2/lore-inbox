@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTEVE5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 00:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEVE5y
+	id S262483AbTEVFLi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 01:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbTEVFLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 00:57:54 -0400
-Received: from CPE-203-51-25-146.nsw.bigpond.net.au ([203.51.25.146]:3968 "EHLO
-	didi") by vger.kernel.org with ESMTP id S262273AbTEVE5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 00:57:52 -0400
-Date: Thu, 22 May 2003 15:09:56 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: Robert White <rwhite@casabyte.com>,
-       Rik van Riel <riel@imladris.surriel.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: recursive spinlocks. Shoot.
-Message-ID: <20030522050956.GA273@didi>
-Mail-Followup-To: "Peter T. Breuer" <ptb@it.uc3m.es>,
-	Robert White <rwhite@casabyte.com>,
-	Rik van Riel <riel@imladris.surriel.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <3ECC4C3A.9000903@cyberone.com.au> <200305220442.h4M4gFM12023@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305220442.h4M4gFM12023@oboe.it.uc3m.es>
-User-Agent: Mutt/1.5.4i
+	Thu, 22 May 2003 01:11:37 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:29824
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S262483AbTEVFLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 01:11:37 -0400
+Date: Thu, 22 May 2003 01:14:45 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Dima Brodsky <dima@cs.ubc.ca>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.69 doesn't boot
+In-Reply-To: <20030522050427.GA9191@columbia.cs.ubc.ca>
+Message-ID: <Pine.LNX.4.50.0305220113001.30977-100000@montezuma.mastecende.com>
+References: <20030522050427.GA9191@columbia.cs.ubc.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 22, 2003 at 06:42:15AM +0200, Peter T. Breuer wrote:
-> "Nick Piggin wrote:"
-> > Locking is an implementation issue, and as such I think you'll have
-> > to come up with a real problem or some real code. You must have some
-> > target problem in mind?
+On Wed, 21 May 2003, Dima Brodsky wrote:
+
+> 2.5.69 won't boot on a:
 > 
-> I'll butt back in here.
-> 
-snip
+> PIII 650, 512 Ram, 440 BX chipset (Asus board)
+> GeForce 256 vga
+> D-Link DFE-538TX (RealTek RTL8139) network card
+> Tekram DC395U/UW/F DC315/U V1.41, 2002-06-21 scsi card for scanner
 
-> 
-> The result was a call from the block driver to the md driver with a
-> lock held, and a rather unexpected call back from the md driver that
-> impotently tried to take the same lock.
-> 
-> Same thread.
->
+'If a Linux box boots but you don't see the kernel output, did it really 
+boot? ;)'
 
-OK, in this case, it didn't sound like your block driver
-expected to be re-entered. Lucky the problem immediately
-caused a deadlock ;)
+Turn on CONFIG_VT
 
-More seriously, lets say you get around the above with
-recursive locks:
+	Zwane
 
-Thread 1			Thread 2 (on another cpu)
-enter the block driver
-take the bd lock
-				issue an md ioctl
-				take the md lock
-				enter the block driver
-				spin on bd lock
-automatically call md ioctl
-spin on md lock
-
-So the problem needs a rethink.

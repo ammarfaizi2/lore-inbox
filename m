@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266246AbUGATsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUGATuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266246AbUGATsY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 15:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUGATsY
+	id S266245AbUGATuF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 15:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbUGATuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 15:48:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50393 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266236AbUGATsW (ORCPT
+	Thu, 1 Jul 2004 15:50:05 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:58361 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266245AbUGATt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 15:48:22 -0400
-Date: Thu, 1 Jul 2004 12:46:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Martuccelli <peterm@redhat.com>
-Cc: peterm@redhat.com, faith@redhat.com, davidm@hpl.hp.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ray.lanza@hp.com
-Subject: Re: [PATCH] IA64 audit support
-Message-Id: <20040701124644.5e301ca0.akpm@osdl.org>
-In-Reply-To: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
-References: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 1 Jul 2004 15:49:59 -0400
+Subject: Re: [PATCH] 2.6 PPC64: lockfix for rtas error log
+	(third-times-a-charm?)]
+From: Dave Hansen <haveblue@us.ibm.com>
+To: linas@austin.ibm.com
+Cc: paulus@au1.ibm.com, Paul Mackerras <paulus@samba.org>,
+       PPC64 External List <linuxppc64-dev@lists.linuxppc.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040701141931.E21634@forte.austin.ibm.com>
+References: <20040701141931.E21634@forte.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1088711355.21679.152.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 01 Jul 2004 12:49:16 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Martuccelli <peterm@redhat.com> wrote:
->
->  Here is one of the audit tasks we talked about.  This patch adds 
->  ia64 support to the audit subsystem.  I have tested the ia64 audit 
->  support without any issues to report. The original patch was from
->  from Ray Lanza.
+On Thu, 2004-07-01 at 12:19, linas@austin.ibm.com wrote:
+> +	/* Log the error in the unlikely case that there was one. */
+> +	if (unlikely(logit)) {
+> +		buff_copy = kmalloc (RTAS_ERROR_LOG_MAX, GFP_ATOMIC);
+> +		memcpy (buff_copy, rtas_err_buf, RTAS_ERROR_LOG_MAX);
+> +	}
 
-It's nice and simple.
+You forgot to check the allocation for failure.
 
-> Requesting patch to be merged in the next version. 
+-- Dave
 
-Via davidm, please.

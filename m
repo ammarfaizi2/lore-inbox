@@ -1,203 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311583AbSCXFsk>; Sun, 24 Mar 2002 00:48:40 -0500
+	id <S311605AbSCXFyB>; Sun, 24 Mar 2002 00:54:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311586AbSCXFsX>; Sun, 24 Mar 2002 00:48:23 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:33804 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S311583AbSCXFsI>;
-	Sun, 24 Mar 2002 00:48:08 -0500
-Date: Sat, 23 Mar 2002 21:47:35 -0800 (PST)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>, <davej@suse.de>
-Subject: [patch 2.5] seq_file for /proc/partitions (take 2)
-In-Reply-To: <Pine.LNX.4.33.0203232049240.23956-100000@osdlab.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0203232143380.5047-100000@osdlab.pdx.osdl.net>
+	id <S311613AbSCXFxv>; Sun, 24 Mar 2002 00:53:51 -0500
+Received: from [206.58.238.200] ([206.58.238.200]:3715 "EHLO
+	portland.puremagic.com") by vger.kernel.org with ESMTP
+	id <S311605AbSCXFxe>; Sun, 24 Mar 2002 00:53:34 -0500
+Date: Sat, 23 Mar 2002 21:53:30 -0800 (PST)
+From: Brad Roberts <braddr@puremagic.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: partition detection failure between 2.4.19-pre2 and pre3
+In-Reply-To: <Pine.LNX.4.10.10203232146380.2377-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.33.0203232151060.27124-100000@portland.puremagic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Mar 2002 rddunlap@osdl.org wrote:
+If you say so, but I'm observing a distinct change in behavior, and well
+before the type of the file system gets involved.  There are several
+different file systems involved however, ext2, ext3, fat32, and ntfs.
 
-| On Sat, 23 Mar 2002, Alexander Viro wrote:
-|
-| | Erm...  Actually that _is_ wrong - what you want is
-| |
-| | 	return ((struct gendisk)v)->next;
-|
-| Will repost patch after testing.
+If there's some specific changes you'd like me to try to back out of -pre3
+or apply to -pre2 for purposes of narrowing this down more, I'll be glad
+to.
 
-OK, here's the tested fixup.
+Thanks,
+Brad
 
-Dave, please add to 2.5.7-dj.
+On Sat, 23 Mar 2002, Andre Hedrick wrote:
 
-Alan, I have 2.4.18 patch for this, but 2.4.19-pre3-ac6
-includes more (sard ?) partition stats.
-Are those going to 2.5 also?
-Do you want me to merge partition stats and seq_file?
-
--- 
-~Randy
-
-
---- ./drivers/block/genhd.c.PART	Mon Mar 18 12:37:14 2002
-+++ ./drivers/block/genhd.c	Sat Mar 23 20:44:25 2002
-@@ -22,6 +22,7 @@
- #include <linux/blk.h>
- #include <linux/init.h>
- #include <linux/spinlock.h>
-+#include <linux/seq_file.h>
-
-
- static rwlock_t gendisk_lock;
-@@ -142,39 +143,58 @@
- }
-
- #ifdef CONFIG_PROC_FS
--int
--get_partition_list(char *page, char **start, off_t offset, int count)
-+/* iterator */
-+static void *part_start(struct seq_file *part, loff_t *pos)
- {
--	struct gendisk *gp;
--	char buf[64];
--	int len, n;
-+	loff_t k = *pos;
-+	struct gendisk *sgp;
-
--	len = sprintf(page, "major minor  #blocks  name\n\n");
- 	read_lock(&gendisk_lock);
--	for (gp = gendisk_head; gp; gp = gp->next) {
--		for (n = 0; n < (gp->nr_real << gp->minor_shift); n++) {
--			if (gp->part[n].nr_sects == 0)
--				continue;
--
--			len += snprintf(page + len, 63,
--					"%4d  %4d %10d %s\n",
--					gp->major, n, gp->sizes[n],
--					disk_name(gp, n, buf));
--			if (len < offset)
--				offset -= len, len = 0;
--			else if (len >= offset + count)
--				goto out;
--		}
-+	for (sgp = gendisk_head; sgp; sgp = sgp->next) {
-+		if (!k--)
-+			return sgp;
- 	}
-+	return NULL;
-+}
-
--out:
-+static void *part_next(struct seq_file *part, void *v, loff_t *pos)
-+{
-+	++*pos;
-+	return ((struct gendisk *)v)->next;
-+}
-+
-+static void part_stop(struct seq_file *part, void *v)
-+{
- 	read_unlock(&gendisk_lock);
--	*start = page + offset;
--	len -= offset;
--	if (len < 0)
--		len = 0;
--	return len > count ? count : len;
- }
-+
-+static int show_partition(struct seq_file *part, void *v)
-+{
-+	struct gendisk *sgp = v;
-+	int n;
-+	char buf[64];
-+
-+	if (sgp == gendisk_head)
-+		seq_puts(part, "major minor  #blocks  name\n\n");
-+
-+	/* show all non-0 size partitions of this disk */
-+	for (n = 0; n < (sgp->nr_real << sgp->minor_shift); n++) {
-+		if (sgp->part[n].nr_sects == 0)
-+			continue;
-+		seq_printf(part, "%4d  %4d %10d %s\n",
-+			sgp->major, n, sgp->sizes[n],
-+			disk_name(sgp, n, buf));
-+	}
-+
-+	return 0;
-+}
-+
-+struct seq_operations partitions_op = {
-+	start:	part_start,
-+	next:	part_next,
-+	stop:	part_stop,
-+	show:	show_partition
-+};
- #endif
-
-
---- ./fs/proc/proc_misc.c.PART	Mon Mar 18 12:37:06 2002
-+++ ./fs/proc/proc_misc.c	Sat Mar 23 16:34:07 2002
-@@ -51,7 +51,6 @@
-  * wrappers, but this needs further analysis wrt potential overflows.
-  */
- extern int get_device_list(char *);
--extern int get_partition_list(char *, char **, off_t, int);
- extern int get_filesystem_list(char *);
- extern int get_exec_domain_list(char *);
- extern int get_dma_list(char *);
-@@ -199,6 +198,18 @@
- 	release:	seq_release,
- };
-
-+extern struct seq_operations partitions_op;
-+static int partitions_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open(file, &partitions_op);
-+}
-+static struct file_operations proc_partitions_operations = {
-+	open:		partitions_open,
-+	read:		seq_read,
-+	llseek:		seq_lseek,
-+	release:	seq_release,
-+};
-+
- #ifdef CONFIG_MODULES
- extern struct seq_operations modules_op;
- static int modules_open(struct inode *inode, struct file *file)
-@@ -323,14 +334,6 @@
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
-
--static int partitions_read_proc(char *page, char **start, off_t off,
--				 int count, int *eof, void *data)
--{
--	int len = get_partition_list(page, start, off, count);
--	if (len < count) *eof = 1;
--	return len;
--}
--
- static void *single_start(struct seq_file *p, loff_t *pos)
- {
- 	return NULL + (*pos == 0);
-@@ -538,7 +541,6 @@
- 		{"version",	version_read_proc},
- 		{"stat",	kstat_read_proc},
- 		{"devices",	devices_read_proc},
--		{"partitions",	partitions_read_proc},
- 		{"filesystems",	filesystems_read_proc},
- 		{"dma",		dma_read_proc},
- 		{"ioports",	ioports_read_proc},
-@@ -562,6 +564,7 @@
- 	if (entry)
- 		entry->proc_fops = &proc_kmsg_operations;
- 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
-+	create_seq_entry("partitions", 0, &proc_partitions_operations);
- 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
- 	create_seq_entry("slabinfo",S_IWUSR|S_IRUGO,&proc_slabinfo_operations);
- #ifdef CONFIG_MODULES
-
-
-
+> Date: Sat, 23 Mar 2002 21:47:30 -0800 (PST)
+> From: Andre Hedrick <andre@linux-ide.org>
+> To: Brad Roberts <braddr@puremagic.com>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: partition detection failure between 2.4.19-pre2 and pre3
+>
+>
+> But it did not alter the behavior between 2.4.19-pre2 and pre3.
+> Unless there was was a partial patch inclusion for dealing w/ fs/msdos as
+> a module and it did not make it totally there.
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> On Sat, 23 Mar 2002, Brad Roberts wrote:
+>
+> > (not on the list, I read it via a list archive due to traffic, so please
+> > cc me on all replies)
+> >
+> > Starting with 2.4.19-pre3 (and continuing for -pre4 and every post-pre2 ac
+> > kernel I've tried) bootup hangs during partition detection:
+> >
+> > 2.4.19-pre2 output:
+> >
+> > <snip>
+> > Uniform Multi-Platform E-IDE driver Revision: 6.31
+> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> > PDC20265: IDE controller on PCI bus 00 dev 30
+> > PCI: Found IRQ 5 for device 00:06.0
+> > PCI: Sharing IRQ 5 with 00:10.0
+> > PCI: Sharing IRQ 5 with 00:11.2
+> > PCI: Sharing IRQ 5 with 00:11.3
+> > PCI: Sharing IRQ 5 with 00:11.4
+> > PDC20265: chipset revision 2
+> > PDC20265: not 100% native mode: will probe irqs later
+> > PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+> >     ide2: BM-DMA at 0xb400-0xb407, BIOS settings: hde:DMA, hdf:pio
+> >     ide3: BM-DMA at 0xb408-0xb40f, BIOS settings: hdg:DMA, hdh:pio
+> > VP_IDE: IDE controller on PCI bus 00 dev 89
+> > PCI: Found IRQ 11 for device 00:11.1
+> > PCI: Sharing IRQ 11 with 01:00.0
+> > VP_IDE: chipset revision 6
+> > VP_IDE: not 100% native mode: will probe irqs later
+> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> > VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
+> >     ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
+> >     ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:pio
+> > hda: Maxtor 98196H8, ATA DISK drive
+> > hdc: 52X CD-ROM, ATAPI CD/DVD-ROM drive
+> > hde: Maxtor 4D060H3, ATA DISK drive
+> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > ide1 at 0x170-0x177,0x376 on irq 15
+> > ide2 at 0xd800-0xd807,0xd402 on irq 5
+> > hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=9964/255/63, UDMA(100)
+> > hde: 120069936 sectors (61476 MB) w/2048KiB Cache, CHS=119117/16/63, UDMA(100)
+> > hdc: ATAPI 52X CD-ROM drive, 128kB Cache, UDMA(33)
+> > Uniform CD-ROM driver Revision: 3.12
+> > Partition check:
+> >  hda: hda1 hda2 < hda5 > hda3 hda4
+> >  hde: hde1
+> > <snip>
+> >
+> >
+> > The pre-3 output stops right after:
+> >
+> > Partition check:
+> >  hda: hda1 hda2 < hda5 > hda3 hda4
+> >  hde:
+> >
+> >
+> > Ie, it never detects any partitions on hde.  The motherboard is an
+> > A7V266-E asus motherboard.
+> >
+> > Suggestions?  I started looking through the changes between pre2 and pre3,
+> > but the ide subsystem got overhauled reasonably thoroughly in pre3.
+> >
+> > Thanks,
+> > Brad
+>
 

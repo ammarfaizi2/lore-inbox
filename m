@@ -1,129 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSCKBnJ>; Sun, 10 Mar 2002 20:43:09 -0500
+	id <S293448AbSCKBsB>; Sun, 10 Mar 2002 20:48:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293458AbSCKBm7>; Sun, 10 Mar 2002 20:42:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:25785 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293457AbSCKBm5>;
-	Sun, 10 Mar 2002 20:42:57 -0500
-Date: Sun, 10 Mar 2002 17:39:35 -0800 (PST)
-Message-Id: <20020310.173935.74819813.davem@redhat.com>
-To: beezly@beezly.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sun GEM card looses TX on x86 32bit PCI
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1015792619.1801.4.camel@monkey>
-In-Reply-To: <1015792619.1801.4.camel@monkey>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S293459AbSCKBrv>; Sun, 10 Mar 2002 20:47:51 -0500
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:52489
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S293448AbSCKBre>; Sun, 10 Mar 2002 20:47:34 -0500
+Date: Mon, 11 Mar 2002 02:47:32 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH SIS IDE] sis5513.c v0.13 final against 2.4.19-pre2
+Message-ID: <20020311024732.C32392@bouton.inet6-interne.fr>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oops, mailed Marcelo, Andre and Alan but forgot to CC lkml, here it's done...
 
-   From: Beezly <beezly@beezly.org.uk>
-   Date: 10 Mar 2002 20:36:59 +0000
+Hi,
 
-   Unfortunately not. I've just applied these changes and recompiled, but
-   I'm suffering exactly the same problem.
-   
-   This is what I have this time when the card has stopped receiving;
+as no bugreport came in since last post, here's a patch against 2.4.19-pre2
+for the SiS IDE driver. It brings ATA16 and ATA33 chipset families support
+as well as ATA66 and ATA100 bugfixes. Configure.help and MAINTAINERS are
+updated.
+This is roughly the same driver than the one in 2.4.19-pre2-ac2
+(verbose debug messages deactivated and some cleanups).
 
-Please add this patch on top of what you have.  I still want the
-kernel logs from the failure case that I asked for an hour ago
-though, I really need to know if systems seeing this problem have
-Pause enabled on the link or not.
+I consider it to large (35276 bytes) for lkml posting, so
+here's a link to it:
+http://inet6.dyn.dhs.org/sponsoring/sis5513/sis.patch.20020311_1
+mirror available at:
+http://gyver.homeip.net/sis5513/sis.patch.20020311_1
 
---- drivers/net/sungem.c.~1~	Sun Mar 10 00:12:34 2002
-+++ drivers/net/sungem.c	Sun Mar 10 17:29:33 2002
-@@ -299,19 +299,39 @@
- 			gp->dev->name, rxmac_stat);
- 
- 	if (rxmac_stat & MAC_RXSTAT_OFLW) {
--		u32 smac = readl(gp->regs + MAC_SMACHINE);
-+		int limit;
- 
--		printk(KERN_ERR "%s: RX MAC fifo overflow smac[%08x].\n",
--		       dev->name, smac);
- 		gp->net_stats.rx_over_errors++;
- 		gp->net_stats.rx_fifo_errors++;
- 
--		if (((smac >> 24) & 0x7) == 0x7) {
--			/* Due to a bug, the chip is hung in this case
--			 * and a full reset is necessary.
--			 */
-+		/* Reset the RX MAC then re-enable it. */
-+		writel(MAC_RXRST_CMD, gp->regs + MAC_RXRST);
-+		for (limit = 0; limit < 5000; limit++) {
-+			if (!(readl(gp->regs + MAC_RXRST) & MAC_RXRST_CMD))
-+				break;
-+			udelay(10);
-+		}
-+		if (limit == 5000) {
-+			printk(KERN_ERR "%s: RX MAC will not reset, resetting whole "
-+			       "chip.\n", dev->name);
- 			ret = 1;
-+			goto out;
- 		}
-+
-+		writel(0, gp->regs + MAC_RXCFG);
-+		for (limit = 0; limit < 5000; limit++) {
-+			if (!(readl(gp->regs + MAC_RXCFG) & MAC_RXCFG_ENAB))
-+				break;
-+			udelay(10);
-+		}
-+		if (limit == 5000) {
-+			printk(KERN_ERR "%s: RX MAC will not disable, resetting whole "
-+			       "chip.\n", dev->name);
-+			ret = 1;
-+			goto out;
-+		}
-+
-+		writel(gp->mac_rx_cfg | MAC_RXCFG_ENAB, gp->regs + MAC_RXCFG);
- 	}
- 
- 	if (rxmac_stat & MAC_RXSTAT_ACE)
-@@ -323,6 +343,7 @@
- 	if (rxmac_stat & MAC_RXSTAT_LCE)
- 		gp->net_stats.rx_length_errors += 0x10000;
- 
-+out:
- 	/* We do not track MAC_RXSTAT_FCE and MAC_RXSTAT_VCE
- 	 * events.
- 	 */
-@@ -1830,7 +1851,6 @@
- static void gem_init_mac(struct gem *gp)
- {
- 	unsigned char *e = &gp->dev->dev_addr[0];
--	u32 rxcfg;
- 
- 	if (gp->pdev->vendor == PCI_VENDOR_ID_SUN &&
- 	    gp->pdev->device == PCI_DEVICE_ID_SUN_GEM)
-@@ -1870,7 +1890,7 @@
- 	writel(0, gp->regs + MAC_AF21MSK);
- 	writel(0, gp->regs + MAC_AF0MSK);
- 
--	rxcfg = gem_setup_multicast(gp);
-+	gp->mac_rx_cfg = gem_setup_multicast(gp);
- 
- 	writel(0, gp->regs + MAC_NCOLL);
- 	writel(0, gp->regs + MAC_FASUCC);
-@@ -1888,7 +1908,7 @@
- 	 * them once a link is established.
- 	 */
- 	writel(0, gp->regs + MAC_TXCFG);
--	writel(rxcfg, gp->regs + MAC_RXCFG);
-+	writel(gp->mac_rx_cfg, gp->regs + MAC_RXCFG);
- 	writel(0, gp->regs + MAC_MCCFG);
- 	writel(0, gp->regs + MAC_XIFCFG);
- 
-@@ -2441,7 +2461,7 @@
- 	netif_stop_queue(dev);
- 
- 	rxcfg = readl(gp->regs + MAC_RXCFG);
--	rxcfg_new = gem_setup_multicast(gp);
-+	gp->mac_rx_cfg = rxcfg_new = gem_setup_multicast(gp);
- 	
- 	writel(rxcfg & ~MAC_RXCFG_ENAB, gp->regs + MAC_RXCFG);
- 	while (readl(gp->regs + MAC_RXCFG) & MAC_RXCFG_ENAB) {
+Please apply,
+
+LB.
+
+PS: Alan, a patch against 2.4.19-pre2-ac4 is coming RSN.

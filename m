@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265775AbUFINWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264384AbUFINYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265775AbUFINWr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 09:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUFINMZ
+	id S264384AbUFINYs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 09:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUFINXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 09:12:25 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:42982 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265776AbUFINLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 09:11:37 -0400
-Date: Wed, 9 Jun 2004 09:13:03 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Eric BEGOT <eric_begot@yahoo.fr>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-rc3-mm1
-In-Reply-To: <40C6F3C3.9040401@yahoo.fr>
-Message-ID: <Pine.LNX.4.58.0406090910170.1838@montezuma.fsmlabs.com>
-References: <20040609015001.31d249ca.akpm@osdl.org> <40C6F3C3.9040401@yahoo.fr>
+	Wed, 9 Jun 2004 09:23:18 -0400
+Received: from mailman2.ppco.com ([138.32.33.140]:3465 "EHLO mailman2.ppco.com")
+	by vger.kernel.org with ESMTP id S265776AbUFINM2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 09:12:28 -0400
+From: Norman Weathers <norman.r.weathers@conocophillips.com>
+Reply-To: norman.r.weathers@conocophillips.com
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: 2.4.26 SMP lockup problem
+Date: Wed, 9 Jun 2004 08:12:20 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0406082058400.24569-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.44.0406082058400.24569-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406090812.20041.norman.r.weathers@conocophillips.com>
+X-OriginalArrivalTime: 09 Jun 2004 13:12:21.0918 (UTC) FILETIME=[663AFBE0:01C44E23]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jun 2004, Eric BEGOT wrote:
 
-> I've installed 2.6.7-rc3-mm1 patch on my x86 and during the boot it
-> freezes. The last messages are :
+
+
+On Tuesday 08 June 2004 08:00 pm, Mark Hahn wrote:
+> > CONFIG_X86_LOCAL_APIC=y
 >
-> CPU0: AMD Athlon(tm) XP 2400+ stepping 01
-> per-CPU timeslice cutoff : 731,38 usecs
-> task migration cache decay timeout : 1 msecs.
-> enabled ExtINT on CPU#0
-> ESR value before enabling vector : 00000000
-> ESR value after enabling vector : 00000000
-> Booting processor 1/15 eip 3000
+> that's the first thing I'd try turning off...
+>
 
-Try backing out this patch first;
+I have it disabled on the lilo promptwith noapic.  If that is not enough to 
+keep it disabled on these nodes, then I will turn it off completely.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc3/2.6.7-rc3-mm1/broken-out/apic-enumeration-fixes.patch
+> > make), great as I have about 200 nodes right now that are candidates for
+> > testing.
+>
+> heh.  I'm a cluster admin myself, much smaller now, but looking
+> at adding 512-768 duals by the end of the year.  gulp!
 
-The other suspect would be the cpumask patch, but that may be a bit
-harder to backout.
+Just went through that with a series of IBM blades.  Don't envy ya.
 
-	Zwane
+-- 
+
+Norman Weathers
+SIP Linux Cluster
+TCE UNIX
+ConocoPhillips
+Houston, TX
+
+Office:  LO2003
+Phone:   ETN  639-2727
+	 or (281) 293-2727

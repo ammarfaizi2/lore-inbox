@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTJMQX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 12:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTJMQX4
+	id S261984AbTJMQZH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 12:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbTJMQZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 12:23:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14308 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261965AbTJMQXx (ORCPT
+	Mon, 13 Oct 2003 12:25:05 -0400
+Received: from users.linvision.com ([62.58.92.114]:54657 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S261967AbTJMQY7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 12:23:53 -0400
-Date: Mon, 13 Oct 2003 09:23:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Frank Cusack <fcusack@fcusack.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nfs fstat st_blocks overreporting
-In-Reply-To: <20031013075316.A16032@google.com>
-Message-ID: <Pine.LNX.4.44.0310130920210.21879-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Oct 2003 12:24:59 -0400
+Date: Mon, 13 Oct 2003 18:24:57 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Xose Vazquez Perez <xose@wanadoo.es>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [summary] state of scsi drivers
+Message-ID: <20031013162457.GD17877@bitwizard.nl>
+References: <3F8ACFE2.1080708@wanadoo.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F8ACFE2.1080708@wanadoo.es>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 13, 2003 at 06:16:34PM +0200, Xose Vazquez Perez wrote:
+> o sym53c8xx_2
+>  - manufacturer: LSI Logic
+>  - kernel: 2.1.17a     (Dec 01 2001)
+>  - latest: 2.1.18f     (Oct 13 2003)
+>  - beta:   2.1.19-pre3 (Nov 23 2002)
+>  - arch: i386 alpha sparc powerpc ia64
+>  - features:
+>  - maintainer: <matthew_AT_wil.cx>
+>  - url: http://www.tux.org/pub/tux/roudier/drivers/linux/stable/
+>         http://ftp.linux.org.uk/pub/linux/willy/patches/
 
-On Mon, 13 Oct 2003, Frank Cusack wrote:
->
-> While you know I disagree that s_blocksize should be wtmult (ie, it
-> is wtmult?wtmult:512 and I think it should be MAX(rsize,wsize)), in
-> any event the blocks used reporting is incorrect in that it assumes
-> a 512 byte blocksize.
+AFAIK Matthew only maintains the driver in 2.6, not in 2.4.
 
-I agree with you that st_blocksize should very probably be different (in 
-_no_ case has it got anything to do with just "wtmult", since the thing 
-is used for reading too). However, the st_blocks calculations has 
-_nothing_ to do with st_blocksize.
 
-st_blocksize is "this is the preferred blocking for IO".
+Erik
 
-st_blocks is "this is how many 512-byte blocks the file has".
-
-The names may be similar, but they have nothing in common. They are in
-totally different namespaces - one is in bytes, the other one in units of
-"traditional UNIX block size", aka sector, aka 512 bytes. Trying to mix 
-the two is doomed.
-
-		Linus
-
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+| Data lost? Stay calm and contact Harddisk-recovery.com

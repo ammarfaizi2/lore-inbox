@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261340AbSJULyR>; Mon, 21 Oct 2002 07:54:17 -0400
+	id <S261335AbSJULxB>; Mon, 21 Oct 2002 07:53:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbSJULyR>; Mon, 21 Oct 2002 07:54:17 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:57523 "EHLO
+	id <S261338AbSJULxB>; Mon, 21 Oct 2002 07:53:01 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:56499 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261340AbSJULyQ>; Mon, 21 Oct 2002 07:54:16 -0400
-Subject: Re: AIC7xxx driver build failure
+	id <S261335AbSJULxA>; Mon, 21 Oct 2002 07:53:00 -0400
+Subject: Re: [PATCH] work around duff ABIs
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+To: Matthew Wilcox <willy@debian.org>
+Cc: Erik Andersen <andersen@codepoet.org>, Alexander Viro <viro@math.psu.edu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <671452704.1035095402@aslan.scsiguy.com>
-References: <15794.7193.525850.601506@milikk.co.intel.com> 
-	<671452704.1035095402@aslan.scsiguy.com>
+In-Reply-To: <20021020135109.D5285@parcelfarce.linux.theplanet.co.uk>
+References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
+	<20021020045149.GA27887@codepoet.org> 
+	<20021020135109.D5285@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 13:15:58 +0100
-Message-Id: <1035202558.27309.64.camel@irongate.swansea.linux.org.uk>
+Date: 21 Oct 2002 13:14:43 +0100
+Message-Id: <1035202483.27259.62.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-20 at 07:30, Justin T. Gibbs wrote:
-> > The AIC 7xxx driver fails to build because the Makefile fails to
-> > specify the correct include path to aicasm.
-> > 
-> > Justin, are you getting this?
+On Sun, 2002-10-20 at 13:51, Matthew Wilcox wrote: 
+> asmlinkage ssize_t sys_pread64(unsigned int fd, char *buf, size_t count,
+> 				loff_t pos)
 > 
-> No, because this bug doesn't exist in the latest version of the driver
-> in my tree or the last set of patches I sent to Linus (a month ago??).
 
-Care to send me the stuff Linus has dropped ?
+Which ABI. If its the hppa ABI then its however you specified it and
+however your call setup/return code handles it. If that needs glue and
+your own syscall vectors calling sys_pread64 indirectly BFD.
 

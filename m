@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269221AbUIBV57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269103AbUIBV6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269221AbUIBV57 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269217AbUIBV55
+	id S269103AbUIBV6t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 17:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269180AbUIBV6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:57:57 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57066 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269221AbUIBV4S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:56:18 -0400
-Date: Thu, 2 Sep 2004 23:57:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-Message-ID: <20040902215728.GA28571@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu>
+	Thu, 2 Sep 2004 17:58:07 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:7766 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269196AbUIBV4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 17:56:00 -0400
+Date: Thu, 2 Sep 2004 14:55:00 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Andi Kleen <ak@suse.de>
+Cc: benh@kernel.crashing.org, akpm@osdl.org, clameter@sgi.com,
+       paulus@samba.org, ak@muc.de, ak@suse.de, wli@holomorphy.com,
+       davem@redhat.com, raybry@sgi.com, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch final : i386 tested, x86_64
+ support added
+Message-Id: <20040902145500.271ae676.davem@davemloft.net>
+In-Reply-To: <20040902212634.GJ16175@wotan.suse.de>
+References: <20040827172337.638275c3.davem@davemloft.net>
+	<20040827173641.5cfb79f6.akpm@osdl.org>
+	<20040828010253.GA50329@muc.de>
+	<20040827183940.33b38bc2.akpm@osdl.org>
+	<16687.59671.869708.795999@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.58.0408272021070.16607@schroedinger.engr.sgi.com>
+	<20040827204241.25da512b.akpm@osdl.org>
+	<Pine.LNX.4.58.0408272121300.16949@schroedinger.engr.sgi.com>
+	<20040827223954.7d021aac.akpm@osdl.org>
+	<1094012028.6539.320.camel@gaston>
+	<20040902212634.GJ16175@wotan.suse.de>
+Organization: DaveM Loft Enterprises
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040902111003.GA4256@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2 Sep 2004 23:26:34 +0200
+Andi Kleen <ak@suse.de> wrote:
 
-i've released the -R0 patch:
+> I would do atomic64 on 64bit archs only and then do a wrapper 
+> somewhere that defines atomiclongt based on BITSPERLONG 
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R0
- 
-ontop of:
-
-  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
-
-i've given up on the netdev_backlog_granularity approach, and as a
-replacement i've modified specific network drivers to return at a safe
-point if softirq preemption is requested. This gives the same end result
-but is more robust. For the time being i've fixed 8193too.c and e100.c.
-(will fix up other drivers too as latencies get reported)
-
-this should fix the crash reported by P.O. Gaillard, and it should solve
-the packet delay/loss issues reported by Mark H Johnson. I cannot see
-any problems on my rtl8193 testbox anymore.
-
-	Ingo
+We do have CONFIG_64BIT, might as well use it.

@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbRGTCvh>; Thu, 19 Jul 2001 22:51:37 -0400
+	id <S266516AbRGTC5t>; Thu, 19 Jul 2001 22:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266490AbRGTCv1>; Thu, 19 Jul 2001 22:51:27 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:4073 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S266507AbRGTCvR>; Thu, 19 Jul 2001 22:51:17 -0400
-Message-ID: <3B579BEB.B5D68FCC@yahoo.co.uk>
-Date: Thu, 19 Jul 2001 22:48:11 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-Reply-To: jdthood_A@T_yahoo.co.uk
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: acme@conectiva.com.br
-Subject: [BUG] "unregister_netdevice: waiting for eth0 to become free. Usage 
- count = 2"
-In-Reply-To: <20010214092251.D1144@e-trend.de> <3A8AA725.7446DEA0@ubishops.ca> <20010214165758.L28359@e-trend.de> <20010214122244.H7859@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266519AbRGTC5i>; Thu, 19 Jul 2001 22:57:38 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:11652 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S266516AbRGTC52>; Thu, 19 Jul 2001 22:57:28 -0400
+Message-Id: <5.1.0.14.2.20010720035303.00a83760@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 20 Jul 2001 03:58:18 +0100
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Resend inlined text: [PATCH] Minor cleanup and export
+  three functions
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E15NQK6-0005qn-00@virgo.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
->Groan<   The "unregister_netdevice" bug is back.
+This is clearly not my day for sending emails...
 
-I haven't been able to do extensive testing, but I have
-just encountered the message
-   unregister_netdevice: waiting for eth0 to become free. Usage count = 2
-again.  Once it starts, it repeats ad infinitum, once per second.
-The message starts spewing when I do a "cardctl eject"
-on a Xircom CEM56 modem/ethernet card (driven by xirc2ps_cs.o, serial.o)
-which was previously configured using DHCP with IPX enabled.  The cardctl
-eject never completes and the OS will not shut down completely; it hangs
-at the point where it tries to de-configure network interfaces. Disabling
-IPX cured the problem for me the next time I tried.
+Sorry. The attachment was fine on last email but a little misunderstanding 
+between elm and myself resulted in the invention of two non-existent email 
+addresses and put them in the To: field. )-: Just remove them before 
+replying... They are quite obvious: Linus@cus.cam.ac.uk, Torwalds@cus.cam.ac.uk
 
-I am running 2.4.6-ac2, but the bug could have been reintroduced
-a while back.  I haven't been using Ethernet for a couple of
-months.
+Just trying to preempt the flames I am bound to get for that mess up... At 
+least I know how to do it properly next time. (-:
 
-Well, I'm no expert on the networking code, so I'll just suggest
-some things that look odd to me.  I'm looking in net/ipx/af_ipx.c,
-tracing through ipxitf_create().  This function exits with dev->refcnt
-incremented ... unless something goes wrong, in which case the function
-exits through via a goto to "out_dev" which decrements the refcnt again.
-Likewise, ipxitf_auto_create() increments the dev refcnt (by doing a
-dev_hold(dev)) if all goes well.  However when I look at ipxitf_delete(),
-which I presume ought to undo what the *_create() functions do, I see
-nothing that decrements the refcnt.
+Anton
 
-If this is where the bug lies then I would suggest that the functions
-be documented to say that "this function exits with the refcnt incremented
-if blah blah blah", etc.  
 
-As an aside, I notice that __dev_get_by_name() is called from ipxitf_delete().
-A comment preceding __dev_get_by_name() in net/core/dev.c says that this
-function should be called "under RTNL semaphore or @dev_base_lock", but
-it is actually called under the ipx_interfaces_lock.  Is this okay?
-__dev_get_by_name() is also called from within ipxitf_ioctl(), seemingly
-under no locks at all.  Also okay?
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-Thomas Hood

@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265511AbSJSEnf>; Sat, 19 Oct 2002 00:43:35 -0400
+	id <S265515AbSJSE4q>; Sat, 19 Oct 2002 00:56:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265512AbSJSEnf>; Sat, 19 Oct 2002 00:43:35 -0400
-Received: from adsl-66-125-254-44.dsl.sntc01.pacbell.net ([66.125.254.44]:3485
-	"EHLO fiorano.interclypse.net") by vger.kernel.org with ESMTP
-	id <S265511AbSJSEne>; Sat, 19 Oct 2002 00:43:34 -0400
-Subject: 3COM 3C990 NIC
-From: Christopher Keller <cnkeller@interclypse.net>
+	id <S265516AbSJSE4p>; Sat, 19 Oct 2002 00:56:45 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:46737 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP
+	id <S265515AbSJSE4h>; Sat, 19 Oct 2002 00:56:37 -0400
+Message-Id: <200210190459.g9J4x8vk008923@pool-141-150-241-241.delv.east.verizon.net>
+Date: Sat, 19 Oct 2002 00:59:08 -0400
+From: Skip Ford <skip.ford@verizon.net>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Oct 2002 21:49:36 -0700
-Message-Id: <1035002976.3086.4.camel@maranello.interclypse.net>
+Subject: [PATCH] 2.5.44 net/ipv4/raw.c NF_IP_LOCAL_OUT undefined
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out001.verizon.net from [141.150.241.241] at Sat, 19 Oct 2002 00:02:34 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone maintaining the 3C990 driver? I'm using the code from 3COM and
-it doesn't look like it's been kept up to date with the various kernel
-changes. I'm also using the latest Red Hat kernel in case it matters. 
+net/ipv4/raw.c needs to include netfilter_ipv4.h instead of just
+netfilter.h
 
-When compiling with SMP support, I'm getting the following errors during
-a depmod -ae
+--- linux/net/ipv4/raw.c~	Sat Oct 19 00:47:05 2002
++++ linux/net/ipv4/raw.c	Sat Oct 19 00:47:11 2002
+@@ -64,7 +64,7 @@
+ #include <net/raw.h>
+ #include <net/inet_common.h>
+ #include <net/checksum.h>
+-#include <linux/netfilter.h>
++#include <linux/netfilter_ipv4.h>
+ 
+ struct sock *raw_v4_htable[RAWV4_HTABLE_SIZE];
+ rwlock_t raw_v4_lock = RW_LOCK_UNLOCKED;
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.18-17.8.0smp/kernel/drivers/net/3c990.o
-depmod:         pci_write_config_byte
-depmod:         eth_type_trans
-depmod:         __wake_up
-depmod:         __kfree_skb
-depmod:         alloc_skb
-depmod:         init_etherdev
-depmod:         kmalloc
-depmod:         pci_free_consistent
-depmod:         pci_find_class
-depmod:         pci_read_config_byte
-depmod:         cpu_raise_softirq
-depmod:         free_irq
-depmod:         unregister_netdev
-depmod:         __out_of_line_bug
-depmod:         iounmap
-depmod:         pci_alloc_consistent
-depmod:         interruptible_sleep_on_timeout
-depmod:         __ioremap
-depmod:         pci_read_config_word
-depmod:         kfree
-depmod:         request_irq
-depmod:         netif_rx
-depmod:         skb_over_panic
-depmod:         jiffies
-depmod:         softnet_data
-depmod:         printk
-depmod:         __const_udelay
-
-I get no problems in the single processor compile & depmod. Can these be
-safely ignored? The SMP #define simply includes the spinlock stuff.
-
-#ifdef SMP
-#include <linux/spinlock.h>
-#endif
 -- 
-Homepage: http://interclypse.net
-Registered Linux user #215241 (http://counter.li.org/)
-
+Skip

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbSJ0Tqk>; Sun, 27 Oct 2002 14:46:40 -0500
+	id <S262510AbSJ0T4u>; Sun, 27 Oct 2002 14:56:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbSJ0Tqk>; Sun, 27 Oct 2002 14:46:40 -0500
-Received: from dclient217-162-232-203.hispeed.ch ([217.162.232.203]:61062 "EHLO
-	trivadis.com") by vger.kernel.org with ESMTP id <S262500AbSJ0Tqj>;
-	Sun, 27 Oct 2002 14:46:39 -0500
-Envelope-to: linux-kernel@vger.kernel.org
-Date: Sun, 27 Oct 2002 20:41:10 +0100
-From: Tim Tassonis <timtas@cubic.ch>
-To: linux-kernel@vger.kernel.org
+	id <S262512AbSJ0T4u>; Sun, 27 Oct 2002 14:56:50 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:44562 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262510AbSJ0T4t>; Sun, 27 Oct 2002 14:56:49 -0500
+Date: Sun, 27 Oct 2002 20:03:08 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Tim Tassonis <timtas@cubic.ch>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Swap doesn't work
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20021027200308.A26047@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tim Tassonis <timtas@cubic.ch>, linux-kernel@vger.kernel.org
+References: <E185tHb-0002mq-00@trivadis.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E185tHb-0002mq-00@trivadis.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E185tHb-0002mq-00@trivadis.com>; from timtas@cubic.ch on Sun, Oct 27, 2002 at 08:41:10PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan
+On Sun, Oct 27, 2002 at 08:41:10PM +0100, Tim Tassonis wrote:
+> Not that I would know better or have an idea why this bug happens, but to
+> say "Bugger off if you have an lfs system" is a bit lousy, I think. After
+> all, lfs has not really an "unstrusted toolchain", as compared to
+> RH/Suse's/Debian "trustworthy computing toolchains":
 
-> On Sun, 2002-10-27 at 14:48, Vladimír Tøebický wrote:
-> > > > That's not a badblock. That's an kernel IDE bug. Andre Hedrick and
-> > > > Alan Cox will love to see this.
-> > >
-> > > Not on a kernel built with an untrusted hand built tool chain
-> > >
-> > Well, I don't know what could possibly cause this kind of error except
-> > kernel.
-> > No matter what application I use to read or write /dev/hda6. Which
-> > part of my tool chain do you have in mind?
-> 
-> gcc and binutils. I get so many weird never duplicated reports from
-> linux from scratch people that don't happen to anyone else that I treat
-> them with deep suspicion.  Especially because it sometimes goes away if
-> they instead build the same kernel with Debian/Red Hat/.. binutils/gcc
+Sorry, tons of people that have absolute no clue about the package
+internals set up their systems themselves and make mistakes.  nothing
+spectacular, but they just don't have those people who know the
+packages in detail and can notice and fix the bugs.  Just get binary
+rpm/deb whatever of the toolchain and reproduce.
 
-Not that I would know better or have an idea why this bug happens, but to
-say "Bugger off if you have an lfs system" is a bit lousy, I think. After
-all, lfs has not really an "unstrusted toolchain", as compared to
-RH/Suse's/Debian "trustworthy computing toolchains":
+> lfs has a manual with clearly specified package versions, patches and
+> order of "toolchaining". It might well be a bug in that chain, but other
+> distros have bugs, too. Signing software doesn't make it superior, after
+> all.
 
-lfs has a manual with clearly specified package versions, patches and
-order of "toolchaining". It might well be a bug in that chain, but other
-distros have bugs, too. Signing software doesn't make it superior, after
-all.
-
-However, the error does not happen on my crappy lfs system, but then
-again, I run it in a vmware, with the virtual disks set up as scsi...
-
-Bye
-Tim
-
-
+but having people who understand the software maintain the
+packages sometimes helps :)
 

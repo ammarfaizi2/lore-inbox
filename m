@@ -1,55 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbTFOOxl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 10:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTFOOxl
+	id S262288AbTFOO7t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 10:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbTFOO7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 10:53:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2314 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262267AbTFOOxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 10:53:40 -0400
-Date: Sun, 15 Jun 2003 16:07:29 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Subject: bad: scheduling while atomic! (Part Deux)
-Message-ID: <20030615160729.A5417@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	David Woodhouse <dwmw2@infradead.org>
+	Sun, 15 Jun 2003 10:59:49 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:40358 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262288AbTFOO7p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 10:59:45 -0400
+Date: Sun, 15 Jun 2003 16:13:26 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: [PATCH] siimage.c: two problems in init_hwif_siimage()
+Message-ID: <20030615151326.GI32730@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-ide@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="STPqjqpCrtky8aYs"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigh.  Another MTD deadlock, and cause of scheduling badness on UP preempt.
 
-David, I think MTD needs an audit to ensure that no further cases exist.
+--STPqjqpCrtky8aYs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-static void cfi_intelext_sync (struct mtd_info *mtd)
-{
-        for (i=0; !ret && i<cfi->numchips; i++) {
-                chip = &cfi->chips[i];
+   Alan - 
 
-                spin_lock(chip->mutex);
-                ret = get_chip(map, chip, chip->start, FL_SYNCING);
-...
-        }
+   Two issues with the init_hwif_siimage function in
+drivers/ide/pci/siimage.c:
 
-        /* Unlock the chips again */
+1) is_sata returns 0 or 1, not a PCI_DEVICE_ID_.
 
-        for (i--; i >=0; i--) {
-                chip = &cfi->chips[i];
+2) In the same function, there is:
 
-                spin_lock(chip->mutex);
-...
-                spin_unlock(chip->mutex);
-        }
-}
+        if (hwif->pci_dev->device != PCI_DEVICE_ID_SII_3112)
+                hwif->atapi_dma = 1;
+
+   This doesn't initialise the 1210SA in the same way as the 3112. I
+think the line should read:
+
+	if(!is_sata(hwif))
+                hwif->atapi_dma = 1;
+
+   Patches below fix both separately.
+
+   Hugo.
+
+diff -ru --exclude-from patch-help/ignore linux-2.4.21-ac1/drivers/ide/pci/siimage.c linux-test/drivers/ide/pci/siimage.c
+--- linux-2.4.21-ac1/drivers/ide/pci/siimage.c	2003-06-15 13:08:58.000000000 +0100
++++ linux-test/drivers/ide/pci/siimage.c	2003-06-15 13:29:10.000000000 +0100
+@@ -1114,7 +1114,7 @@
+ 	hwif->reset_poll = &siimage_reset_poll;
+ 	hwif->pre_reset = &siimage_pre_reset;
+ 
+-	if(is_sata(hwif) == PCI_DEVICE_ID_SII_3112)
++	if(is_sata(hwif))
+ 		hwif->busproc   = &siimage_busproc;
+ 
+ 	if (!hwif->dma_base) {
+
+
+
+diff -ru --exclude-from patch-help/ignore linux-2.4.21-ac1/drivers/ide/pci/siimage.c linux-test/drivers/ide/pci/siimage.c
+--- linux-2.4.21-ac1/drivers/ide/pci/siimage.c	2003-06-15 13:08:58.000000000 +0100
++++ linux-test/drivers/ide/pci/siimage.c	2003-06-15 13:52:41.000000000 +0100
+@@ -1127,7 +1127,7 @@
+ 	hwif->mwdma_mask = 0x07;
+ 	hwif->swdma_mask = 0x07;
+ 
+-	if (hwif->pci_dev->device != PCI_DEVICE_ID_SII_3112)
++	if (!is_sata(hwif))
+ 		hwif->atapi_dma = 1;
+ 
+ 	hwif->ide_dma_check = &siimage_config_drive_for_dma;
+
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+        --- Great oxymorons of the world, no. 2: Common Sense ---        
 
+--STPqjqpCrtky8aYs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+7I0WssJ7whwzWGARAj4tAKCxBQ0j92Z8oWlTAPK3XRQ6ne0BnQCdFogR
+Sy8Jh2KiZ684RqaYoyfI2Zs=
+=JGo1
+-----END PGP SIGNATURE-----
+
+--STPqjqpCrtky8aYs--

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316693AbSGUR11>; Sun, 21 Jul 2002 13:27:27 -0400
+	id <S316886AbSGURqb>; Sun, 21 Jul 2002 13:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316750AbSGUR11>; Sun, 21 Jul 2002 13:27:27 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:18139 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S316693AbSGUR10>;
-	Sun, 21 Jul 2002 13:27:26 -0400
-Date: Sun, 21 Jul 2002 19:29:30 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: support <support@promise.com.tw>
-Cc: "Alan Cox (Linux Kernel)" <alan@lxorguk.ukuu.org.uk>,
-       "Marcelo (Linux Kernel)" <marcelo@conectiva.com.br>,
+	id <S316928AbSGURqb>; Sun, 21 Jul 2002 13:46:31 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:52214 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316886AbSGURqa>; Sun, 21 Jul 2002 13:46:30 -0400
+Subject: Re: [PATCH] strict VM overcommit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Robert Love <rml@tech9.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19-rc2-ac2 pdc202xx.c update (looks strange)
-Message-ID: <20020721192929.A27138@fafner.intra.cogenit.fr>
-References: <016501c22f04$087ed660$47cba8c0@promise.com.tw>
+In-Reply-To: <Pine.LNX.4.30.0207211705220.701-100000@divine.city.tvnet.hu>
+References: <Pine.LNX.4.30.0207211705220.701-100000@divine.city.tvnet.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Jul 2002 20:01:48 +0100
+Message-Id: <1027278108.17234.109.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <016501c22f04$087ed660$47cba8c0@promise.com.tw>; from support@promise.com.tw on Fri, Jul 19, 2002 at 05:09:38PM +0800
-X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Sun, 2002-07-21 at 16:23, Szakacsits Szabolcs wrote:
+> What about the many hundred counter-examples (e.g. umount gives EBUSY,
 
-support <support@promise.com.tw> :
-[...]
->     Now we are the maintainer of pdc202xx controllers. We know the
-> ASIC detail spec. So please let us modify and maintain.
-> We can provide best support for world wide Promise users.
+umount -f.
 
-+#define set_2regs(a, b) \
-+        OUT_BYTE((a + adj), indexreg); \
-+       OUT_BYTE(b, datareg);
-+
-+#define set_reg_and_wait(value, reg, delay) \
-+       OUT_BYTE(value, reg); \
-+        mdelay(delay);
+> kill can't kill processes in uninterruptible sleep, etc, etc)? Why the
 
-Hmmm...
+In these cases the kernel infrastructure doesn't support the ability to
+recover from such a state, very different from stopping a user doing
+something it can handle perfectly well.
 
-[...]
-+       if (speed == XFER_UDMA_2)
-+               set_2regs(thold, (IN_BYTE(datareg) & 0x7f));
+You'll find plenty of people who believe the umount behaviour is
+incorrect (and it should just GC them) as wel as the fact that
+uninterruptible sleep is a bad idea
 
-Oops
-
-[...]
-+       if (new_chip) {
-+               if (id->capability & 4) /* IORDY_EN & PREFETCH_EN */
-+                       set_2regs(iordy, (IN_BYTE(datareg) | 0x03));
-+       }
-
-Oops
-
--- 
-Ueimor

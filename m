@@ -1,119 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268381AbUHWX0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268438AbUHWX3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268381AbUHWX0g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 19:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268378AbUHWXZm
+	id S268438AbUHWX3t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 19:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268405AbUHWX1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 19:25:42 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:16533 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S268330AbUHWXXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 19:23:40 -0400
-Date: Tue, 24 Aug 2004 00:23:20 +0100
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: Fix MTRR strings definition.
-Message-ID: <20040823232320.GA1875@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 23 Aug 2004 19:27:34 -0400
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:41106 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S268387AbUHWX0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 19:26:11 -0400
+Date: Mon, 23 Aug 2004 19:25:38 -0400 (EDT)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@sapphire.engin.umich.edu
+To: Christoph Lameter <christoph@lameter.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Hugh Dickins <hugh@veritas.com>, "David S. Miller" <davem@redhat.com>,
+       raybry@sgi.com, ak@muc.de, benh@kernel.crashing.org,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: page fault fastpath patch v2: fix race conditions, stats for
+ 8,32     and    512 cpu SMP
+In-Reply-To: <Pine.LNX.4.58.0408231456150.17943@server.home>
+Message-ID: <Pine.GSO.4.58.0408231916330.21483@sapphire.engin.umich.edu>
+References: <2uexw-1Nn-1@gated-at.bofh.it> <2uCTq-2wa-55@gated-at.bofh.it>
+ <pan.2004.08.18.23.50.13.562750@umich.edu> <20040819000151.GU11200@holomorphy.com>
+ <Pine.GSO.4.58.0408182005080.9340@sapphire.engin.umich.edu>
+ <20040819002038.GW11200@holomorphy.com> <Pine.LNX.4.58.0408231456150.17943@server.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Instead of deleting the extern from include/asm/mtrr.h, I believe
-the correct fix would be to move the strings back to the include file
-where they belong.
-The reason behind this, is that there are userspace apps (admittedly
-few, but we even ship two in Documentation/mtrr.txt) that rely upon
-these definitions being in that header.  This has been broken for
-all 2.6 releases so far. Patch below fixes things back the way it
-was in 2.4
-
-Andi, I don't have gcc 3.5 to hand, I trust this fixes whatever
-problem you saw there too ?
-
-		Dave
-
-Restore mtrr_strings header definitions to how things were in 2.4
-
-Signed-off-by: Dave Jones <davej@redhat.com>
 
 
---- latest-FC2/arch/i386/kernel/cpu/mtrr/if.c~	2004-08-24 00:13:41.419631072 +0100
-+++ latest-FC2/arch/i386/kernel/cpu/mtrr/if.c	2004-08-24 00:14:13.639732872 +0100
-@@ -6,6 +6,7 @@
- #include <asm/uaccess.h>
- 
- #define LINE_SIZE 80
-+#define MTRR_NEED_STRINGS
- 
- #include <asm/mtrr.h>
- #include "mtrr.h"
-@@ -16,17 +17,6 @@
- 
- #define FILE_FCOUNT(f) (((struct seq_file *)((f)->private_data))->private)
- 
--static char *mtrr_strings[MTRR_NUM_TYPES] =
--{
--    "uncachable",               /* 0 */
--    "write-combining",          /* 1 */
--    "?",                        /* 2 */
--    "?",                        /* 3 */
--    "write-through",            /* 4 */
--    "write-protect",            /* 5 */
--    "write-back",               /* 6 */
--};
--
- char *mtrr_attrib_to_str(int x)
- {
- 	return (x <= 6) ? mtrr_strings[x] : "?";
---- latest-FC2/include/asm-i386/mtrr.h~	2004-08-24 00:02:40.000000000 +0100
-+++ latest-FC2/include/asm-i386/mtrr.h	2004-08-24 00:18:08.537023056 +0100
-@@ -65,6 +65,19 @@
- #define MTRR_TYPE_WRBACK     6
- #define MTRR_NUM_TYPES       7
- 
-+#ifdef MTRR_NEED_STRINGS
-+static char *mtrr_strings[MTRR_NUM_TYPES] =
-+{
-+	"uncachable",		/* 0 */
-+	"write-combining",	/* 1 */
-+	"?",			/* 2 */
-+	"?",			/* 3 */
-+	"write-through",	/* 4 */
-+	"write-protect",	/* 5 */
-+	"write-back",		/* 6 */
-+};
-+#endif
-+
- #ifdef __KERNEL__
- 
- /*  The following functions are for use by other drivers  */
+On Mon, 23 Aug 2004, Christoph Lameter wrote:
 
---- latest-FC2/include/asm-x86_64/mtrr.h~	2004-08-24 00:20:17.377436336 +0100
-+++ latest-FC2/include/asm-x86_64/mtrr.h	2004-08-24 00:21:04.137327752 +0100
-@@ -69,6 +69,19 @@
- #define MTRR_TYPE_WRBACK     6
- #define MTRR_NUM_TYPES       7
- 
-+#ifdef MTRR_NEED_STRINGS
-+static char *mtrr_strings[MTRR_NUM_TYPES] =
-+{
-+	"uncachable",		/* 0 */
-+	"write-combining",	/* 1 */
-+	"?",			/* 2 */
-+	"?",			/* 3 */
-+	"write-through",	/* 4 */
-+	"write-protect",	/* 5 */
-+	"write-back",		/* 6 */
-+};
-+#endif
-+
- #ifdef __KERNEL__
- 
- extern char *mtrr_strings[MTRR_NUM_TYPES];
+> Would it not be better if exit_mmap would hold a writelock on
+> mm->mmap_sem and the page_table_lock? This would insure that page faults
+> would not change pte's. exit_mmap changes the memory map so it seems that
+> the wrong lock is used here.
+
+exit_mmap() is only called from kernel/fork.c/mmput(). We call exit_mmap()
+only if (atomic_dec_and_lock(&mm->mm_users, &mmlist_lock)).
+
+So there are no other active thread (mm_user) other than the current
+exit_mmap() thread. This gives thread exclusion. So we don't need
+mm->mmap_sem.
+
+However, we have to lock out truncate()->zap_pmd_range(), rmap.c
+functions, and other places from walking the page tables while we
+are freeing the page tables in exit_mmap(). The page_table_lock in
+exit_mmap() provides that exclusion.
+
+That's my understanding. Correct me if I am wrong.
+
+Thanks,
+Rajesh
+
+> On Wed, 18 Aug 2004, William Lee Irwin III wrote:
+>
+> > On Wed, 18 Aug 2004, William Lee Irwin III wrote:
+> > >> exit_mmap() has removed the vma from ->i_mmap and ->mmap prior to
+> > >> unmapping the pages, so this should be safe unless that operation
+> > >> can be caught while it's in progress.
+> >
+> > On Wed, Aug 18, 2004 at 08:07:24PM -0400, Rajesh Venkatasubramanian wrote:
+> > > No. Unfortunately exit_mmap() removes vmas from ->i_mmap after removing
+> > > page table pages. Maybe we can reverse this, though.
+> >
+> > Something like this?
+> >
+> >
+> > Index: mm1-2.6.8.1/mm/mmap.c
+> > ===================================================================
+> > --- mm1-2.6.8.1.orig/mm/mmap.c	2004-08-16 23:47:16.000000000 -0700
+> > +++ mm1-2.6.8.1/mm/mmap.c	2004-08-18 17:18:26.513559632 -0700
+> > @@ -1810,6 +1810,14 @@
+> >  	mm->map_count -= unmap_vmas(&tlb, mm, mm->mmap, 0,
+> >  					~0UL, &nr_accounted, NULL);
+> >  	vm_unacct_memory(nr_accounted);
+> > +	/*
+> > +	 * Walk the list again, actually closing and freeing it.
+> > +	 */
+> > +	while (vma) {
+> > +		struct vm_area_struct *next = vma->vm_next;
+> > +		remove_vm_struct(vma);
+> > +		vma = next;
+> > +	}
+> >  	BUG_ON(mm->map_count);	/* This is just debugging */
+> >  	clear_page_tables(tlb, FIRST_USER_PGD_NR, USER_PTRS_PER_PGD);
+> >  	tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
+> > @@ -1822,16 +1830,6 @@
+> >  	mm->locked_vm = 0;
+> >
+> >  	spin_unlock(&mm->page_table_lock);
+> > -
+> > -	/*
+> > -	 * Walk the list again, actually closing and freeing it
+> > -	 * without holding any MM locks.
+> > -	 */
+> > -	while (vma) {
+> > -		struct vm_area_struct *next = vma->vm_next;
+> > -		remove_vm_struct(vma);
+> > -		vma = next;
+> > -	}
+> >  }
+> >
+> >  /* Insert vm structure into process list sorted by address
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>

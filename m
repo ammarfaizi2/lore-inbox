@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbULFRXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbULFR1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbULFRXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 12:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbULFRXy
+	id S261586AbULFR1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 12:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbULFR1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 12:23:54 -0500
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:49328 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id S261584AbULFRXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 12:23:32 -0500
-Message-ID: <41B4958B.7050605@enterprise.bidmc.harvard.edu>
-Date: Mon, 06 Dec 2004 12:23:23 -0500
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040919
-X-Accept-Language: en-GB, en
+	Mon, 6 Dec 2004 12:27:24 -0500
+Received: from 4.Red-80-32-108.pooles.rima-tde.net ([80.32.108.4]:25216 "EHLO
+	gimli") by vger.kernel.org with ESMTP id S261586AbULFR1N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 12:27:13 -0500
+Message-ID: <41B4971E.6060401@sombragris.com>
+Date: Mon, 06 Dec 2004 18:30:06 +0100
+From: Miguel Angel Flores <maf@sombragris.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: FS Corruption [Re: Linux 2.6.10-rc3]
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx driver large integer warning
+References: <41B3A683.8060008@sombragris.com> <1102339898.13423.28.camel@localhost.localdomain>
+In-Reply-To: <1102339898.13423.28.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Alan Cox wrote:
 
->Ok, it's out there in all the normal places, and here's the shortlog for
->the thing.
+>Add (dma_addr_t) casts and it will go away. The compiler just wants to
+>know you mean it.
+>  
 >
+Sure, but the 39 bit variable is only used when the type of dma_addr_t 
+is u64. I think that is more clean to put this assignement inside the if 
+block, like the rest of the CONFIG_HIGHMEM64G code. Anyway the 
+(dma_addr_t) cast can be added too.
 
-Hi Linus - I'm seeing filesystem corruption (on ext3 anyway) with -rc3; 
-there is no such corruption on -rc2.  It would be better if somebody 
-with a clue reported this; but since I haven't seen anything, I thought 
-I'd hollar before somebody loses work as a result.  (Everybody does real 
-work on -rc kernels, don't they? :-)
+¿how you would solve this?
 
-I untarred a kernel tarball into a directory, renamed it "foo", reboot 
-(to clear disk cache), and then did this:
+Cheers,
+MaF
 
-pinhead:/usr/src/kernels# rm -r foo &
-[1] 3268
-pinhead:/usr/src/kernels# tar xzf linux-2.6.9.tar.gz
-rm: cannot remove `foo/include/asm-ppc/linkage.h': No such file or directory
-rm: cannot remove `foo/include/asm-x86_64/rtc.h': No such file or directory
-rm: cannot remove `foo/include/asm-m68knommu/mcftimer.h': No such file or directory
-rm: cannot remove `foo/include/asm-m68k/linkage.h': No such file or directory
-rm: cannot remove `foo/include/asm-sparc64/rwsem.h': No such file or directory
-rm: cannot remove `foo/include/asm-sparc/psr.h': No such file or directory
-[1]+  Exit 1                  rm -r foo
-pinhead:/usr/src/kernels#
-
-
-Running e2fsck on the next boot reports I've got a damaged filesystem.
-
-System is a generic PC (a Dell GX110) - I810 chipset, PIII, IDE.  
-Untainted vanilla kernel.  Other config details upon request.
-
-Kris

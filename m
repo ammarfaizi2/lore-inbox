@@ -1,99 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293422AbSB1Po3>; Thu, 28 Feb 2002 10:44:29 -0500
+	id <S293199AbSB1QjG>; Thu, 28 Feb 2002 11:39:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293423AbSB1PoP>; Thu, 28 Feb 2002 10:44:15 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:59780 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S293434AbSB1PnH>; Thu, 28 Feb 2002 10:43:07 -0500
-Message-Id: <200202281455.HAA26468@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.5.5-dj2, add 9 help texts to sound/oss/Config.help
-Date: Thu, 28 Feb 2002 08:41:06 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S293478AbSB1Qih>; Thu, 28 Feb 2002 11:38:37 -0500
+Received: from WAVELETS.MIT.EDU ([18.58.2.230]:29609 "EHLO wavelets.mit.edu")
+	by vger.kernel.org with ESMTP id <S293465AbSB1Qer>;
+	Thu, 28 Feb 2002 11:34:47 -0500
+Subject: Yet another disk transfer speed problem
+From: Bharath Krishnan <bharath@mit.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 (1.0.2-0.7x) 
+Date: 28 Feb 2002 11:34:47 -0500
+Message-Id: <1014914087.3274.22.camel@wavelets.mit.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds help texts for the following nine options
-to sound/oss/Config.help. The texts were obtained from 
-Eric Raymond's Configure.help v2.97.
+Hello!
 
-Steven
+Please CC: me on replies,
 
-CONFIG_SOUND_VRC5477
-CONFIG_SC6600_CDROM
-CONFIG_SOUND_CMPCI_FM
-CONFIG_SOUND_CMPCI_FMIO
-CONFIG_SOUND_CMPCI_MIDI
-CONFIG_SOUND_CMPCI_MPUIO
-CONFIG_SOUND_CMPCI_SPDIFINVERSE
-CONFIG_SOUND_CMPCI_LINE_REAR
-CONFIG_SOUND_CMPCI_LINE_BASS
+Problem: ata disk on secondary controller of PDC20265
+gives sub-par performance.
 
---- linux-2.5.5-dj2/sound/oss/Config.help.orig	Thu Feb 28 08:06:58 2002
-+++ linux-2.5.5-dj2/sound/oss/Config.help	Thu Feb 28 08:24:45 2002
-@@ -192,6 +192,11 @@
-   <file:Documentation/sound/vwsnd> for more info on this driver's
-   capabilities.
- 
-+CONFIG_SOUND_VRC5477
-+  Say Y here to enable sound support for the NEC Vrc5477 chip, an
-+  integrated, multi-function controller chip for MIPS CPUs.  Works
-+  with the AC97 codec.
-+
- CONFIG_SOUND_SSCAPE
-   Answer Y if you have a sound card based on the Ensoniq SoundScape
-   chipset. Such cards are being manufactured at least by Ensoniq, Spea
-@@ -476,6 +481,11 @@
-   Say Y here in order to use the joystick interface of the Audio Excel
-   DSP 16 card.
- 
-+CONFIG_SC6600_CDROM
-+  This is used to activate the CD-ROM interface of the Audio Excel
-+  DSP 16 card. Enter: 0 for Sony, 1 for Panasonic, 2 for IDE, 4 for no
-+  CD-ROM present.
-+
- CONFIG_SC6600_CDROMBASE
-   Base I/O port address for the CD-ROM interface of the Audio Excel
-   DSP 16 card.
-@@ -498,6 +508,34 @@
-   chips is available at
-   <http://member.nifty.ne.jp/Breeze/softwares/unix/cmictl-e.html>.
- 
-+CONFIG_SOUND_CMPCI_FM
-+  Say Y here to enable the legacy FM (frequency-modulation) synthesis
-+  support on a card using the CMI8338 or CMI8378 chipset.
-+
-+CONFIG_SOUND_CMPCI_FMIO
-+  Set the base I/O address for FM synthesis control on a card using
-+  the CMI8338 or CMI8378 chipset.
-+
-+CONFIG_SOUND_CMPCI_MIDI
-+  Say Y here to enable the legacy MP401 MIDI synthesis support on a
-+  card using the CMI8338 or CMI8378 chipset.
-+
-+CONFIG_SOUND_CMPCI_MPUIO
-+  Set the base I/O address for MP401 MIDI synthesis control on a card
-+  using the CMI8338 or CMI8378 chipset.
-+
-+CONFIG_SOUND_CMPCI_SPDIFINVERSE
-+  Say Y here to have the driver invert the signal presented on SPDIF IN
-+  of s card using the CMI8338 or CMI8378 chipset.
-+
-+CONFIG_SOUND_CMPCI_LINE_REAR
-+  Say Y here to enable using line-in jack as an output jack for a rear
-+  speaker.
-+
-+CONFIG_SOUND_CMPCI_LINE_BASS
-+  Say Y here to enable using line-in jack as an output jack for a bass
-+  speaker.
-+
- CONFIG_SOUND_CMPCI_CM8738
-   Say Y or M if you have a PCI sound card using the CMI8338
-   or the CMI8378 chipset.  Data on this chip is available at
+both disks have c3 and d1 set along with X69.
+
+hdparm -tT /dev/hdg:
+/dev/hdg:
+ Timing buffer-cache reads:   128 MB in  0.77 seconds =166.23 MB/sec
+ Timing buffered disk reads:  64 MB in  3.81 seconds = 16.80 MB/sec
+
+compared to
+hdparm -tT /dev/hde:
+/dev/hde:
+ Timing buffer-cache reads:   128 MB in  0.73 seconds =175.34 MB/sec
+ Timing buffered disk reads:  64 MB in  1.82 seconds = 35.16 MB/sec
+
+
+Setup:
+kernel: 2.4.17
+pdc20265 controller on asus a7v motherboard.
+kernel config options:
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_PDC202XX_BURST=y
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+
+similar behavior with redhat 7.2 updated kernel 2.4.9-21
+
+hde: IBM-DTLA-307015, ATA DISK drive
+hdg: MAXTOR 6L040J2, ATA DISK drive
+
+Interesting stuff from dmesg:
+ide2: BM-DMA at 0x8000-0x8007, BIOS settings: hde:DMA, hdf:pio
+ide3: BM-DMA at 0x8008-0x800f, BIOS settings: hdg:DMA, hdh:pio
+
+cat /proc/ide/ide2/config
+pci bus 00 device 88 vid 105a did 0d30 channel 0
+5a 10 30 0d 07 00 10 02 02 00 80 01 00 20 00 00
+01 94 00 00 01 90 00 00 01 88 00 00 01 84 00 00
+01 80 00 00 00 00 00 d4 00 00 00 00 5a 10 33 4d
+00 00 00 00 58 00 00 00 00 00 00 00 0a 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+be 33 00 00 00 00 00 00 01 00 01 00 00 00 00 00
+f1 24 41 00 c4 f3 4f 00 f1 24 41 00 c4 f3 4f 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+cat /proc/ide/ide3/config 
+pci bus 00 device 88 vid 105a did 0d30 channel 1
+5a 10 30 0d 07 00 10 02 02 00 80 01 00 20 00 00
+01 94 00 00 01 90 00 00 01 88 00 00 01 84 00 00
+01 80 00 00 00 00 00 d4 00 00 00 00 5a 10 33 4d
+00 00 00 00 58 00 00 00 00 00 00 00 0a 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+be 33 00 00 00 00 00 00 01 00 01 00 00 00 00 00
+f1 24 41 00 c4 f3 4f 00 f1 24 41 00 c4 f3 4f 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+hdparm -i
+/dev/hde
+Model=IBM-DTLA-307015, FwRev=TX2OA50C, SerialNo=YF0YFFX4393
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=30003120
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
+ AdvancedPM=yes: disabled (255)
+ Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-2 ATA-3 ATA-4
+ATA-5 
+
+/dev/hdg
+Model=MAXTOR 6L040J2, FwRev=A93.0300, SerialNo=662125114610
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=1820kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=78177792
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 udma6
+ AdvancedPM=no
+ Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-1 ATA-2 ATA-3
+ATA-4 ATA-5 
+
+cat /proc/ide/pdc202xx
+                               PDC20265 Chipset.
+------------------------------- General Status
+---------------------------------Burst Mode                           :
+enabled
+Host Mode                            : Normal
+Bus Clocking                         : 33 PCI Internal
+IO pad select                        : 10 mA
+Status Polling Period                : 8
+Interrupt Check Status Polling Delay : 11
+--------------- Primary Channel ---------------- Secondary Channel ----
+                enabled                          enabled 
+66 Clocking     enabled                          enabled 
+           Mode PCI                         Mode PCI   
+                FIFO Empty                       FIFO Empty  
+--------------- drive0 --------- drive1 -------- drive0 ----------
+drive1 -DMA enabled:    yes              no             
+yes               no 
+DMA Mode:       UDMA 4           NOTSET          UDMA 4           
+NOTSET
+PIO Mode:       PIO 4            NOTSET           PIO 4           
+NOTSET
+
+
+What is going on? I do have ata100 cables. 
+
+Thanks,
+
+-bharath

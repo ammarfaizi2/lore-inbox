@@ -1,76 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbTFAB4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 21:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbTFAB4Y
+	id S261161AbTFACDL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 22:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbTFACDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 21:56:24 -0400
-Received: from port-212-202-202-240.reverse.qdsl-home.de ([212.202.202.240]:59270
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S261158AbTFAB4W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 21:56:22 -0400
-Message-ID: <3ED96068.8070003@trash.net>
-Date: Sun, 01 Jun 2003 04:09:44 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: fix memory leak in ppp filter ioctl error path
-Content-Type: multipart/mixed;
- boundary="------------060201010206050509040200"
+	Sat, 31 May 2003 22:03:11 -0400
+Received: from a11a.mannikko1.ton.tut.fi ([195.148.185.30]:65286 "EHLO
+	a11a.mannikko1.ton.tut.fi") by vger.kernel.org with ESMTP
+	id S261161AbTFACDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 22:03:09 -0400
+Date: Sun, 1 Jun 2003 05:16:11 +0300
+From: Pasi Savolainen <pvsavola@luukku.com>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] amd76x_pm port to 2.5.70
+Message-ID: <20030601021611.GA13152@a11a.mannikko1.ton.tut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030531214223.GA21788@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060201010206050509040200
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This patch fixes a memory leak in ppp_ioctl,
-when copy_from_user fails 'code' isn't freed.
-Patch applies to both 2.4 and 2.5.
+* Dave Jones <davej@codemonkey.org.uk>:
+> On Sat, May 31, 2003 at 09:33:21PM +0300, Pasi Savolainen wrote:
+> > +	/* Clear W4SG, and set PMIOEN, if using a 765/766 set STPGNT as well.
+> > +	 * AMD-766: C3A41; page 59 in AMD-766 doc
+> > +	 * AMD-768: DevB:3x41C; page 94 in AMD-768 doc */
+> > +	pci_read_config_byte(pdev_sb, 0x41, &regbyte);
+> > +	if(enable) {
+> > +		regbyte |= ((0 << 0) | (is_766?1:0 << 1) | (1 << 7));
+>                          ^^^^^^
+>  
+> This looks totally bogus. If you want that bit clearing, you need
+> to AND its inverse, not OR it.  The second statement also looks a
+> bit funny to the eye.
 
-Best regards,
-Patrick
+AFAICT, it's 'for future expansion', NMC. I'll trim it down. Either way,
+that enable seems to work, at least on my machine. As I don't know much
+about it, I can't say what's right/wrong.
+(I don't have the spec. Only code that does desired thing)
+
+> > +static void
+> > +amd76x_smp_idle(void)
+> > +{
+> > +	/*
+> > +	 * Exit idle mode immediately if the CPU does not change.
+> > +	 * Usually that means that we have some load on another CPU.
+> > +	 */
+> > +
+> > +	if (prs[0].idle && prs[1].idle && amd76x_pm_cfg.last_pr == smp_processor_id()) {
+> > +		prs[0].idle = 0;
+> > +		prs[1].idle = 0;
+> > +		/* This looks redundent as it was just checked in the if() */
+> > +		/* amd76x_pm_cfg.last_pr = smp_processor_id(); */
+> 
+> except with preemption, it may have changed. This needs to be fixed,
+> as noted in the function header. Either get_cpu(),put_cpu() or explicit
+> preempt_enable/disable()		
+
+This is idle loop, like we're not doing anything, and if somebody is to
+preempt us, then it sure means we're not supposed to idle.
+
+Second point is (I'm _really_ on thin ground here..) that if we get_cpu()
+here, and other CPU is sleeping, then it'd be woken up sooner, for cache
+will need syncing.
+
+> > +/*
+> > + *    Info exported through "/proc/driver/amd76x_pm"
+> 
+> This should really be using sysfs. Adding extra junk to /proc is
+> somewhat frowned upon, and with the other PM stuff now living in
+> sysfs, that seems to be the way forward.
+
+done.
+
+> 
+> > +static void __exit
+> > +amd76x_pm_cleanup(void)
+> > +{
+> > +#ifndef AMD76X_NTH
+> > +	pm_idle = amd76x_pm_cfg.orig_idle;
+> > +	wmb();
+> > +	//__asm__ __volatile__ ("wbinvd;"); // propagate through SMP
+> 
+> Not sure why this was there, is it noted in the 766 spec to flush
+> the cache ? if so, it needs to be reenabled, and used with on_each_cpu()
+
+Zwane told me to use synchronize_kernel(); it cured my crashes on rmmod
+amd76x_pm. -> hack removed.
+
+> Sounds like possible candidate for something that should be exposed
+> via sysfs.
+
+done.
+
+Iteration n at
+<http://varg.dyndns.org/psi/files/misc/amd76x_pm-2.5.70.patch.bz2>
+
+/sys/devices/pci0/00:00.0/C2_cnt  (ro) number of C2 calls made.
+/sys/devices/pci0/00:00.0/lazy_idle (rw) number of successfull idle
+ calls to be made before entering C2.
 
 
---------------060201010206050509040200
-Content-Type: text/plain;
- name="ppp_filter-memleak.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ppp_filter-memleak.diff"
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1248  -> 1.1249 
-#	drivers/net/ppp_generic.c	1.19    -> 1.20   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/06/01	kaber@trash.net	1.1249
-# [PPP] fix memory leak in ioctl error path
-# --------------------------------------------
-#
-diff -Nru a/drivers/net/ppp_generic.c b/drivers/net/ppp_generic.c
---- a/drivers/net/ppp_generic.c	Sun Jun  1 03:58:58 2003
-+++ b/drivers/net/ppp_generic.c	Sun Jun  1 03:58:58 2003
-@@ -666,8 +666,10 @@
- 			if (code == 0)
- 				break;
- 			err = -EFAULT;
--			if (copy_from_user(code, uprog.filter, len))
-+			if (copy_from_user(code, uprog.filter, len)) {
-+				kfree(code);
- 				break;
-+			}
- 			err = sk_chk_filter(code, uprog.len);
- 			if (err) {
- 				kfree(code);
-
---------------060201010206050509040200--
-
+-- 
+   Psi -- <http://www.iki.fi/pasi.savolainen>

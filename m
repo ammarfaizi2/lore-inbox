@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129790AbRAKPhl>; Thu, 11 Jan 2001 10:37:41 -0500
+	id <S129927AbRAKPnp>; Thu, 11 Jan 2001 10:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129927AbRAKPhb>; Thu, 11 Jan 2001 10:37:31 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:16646 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S129790AbRAKPhU>; Thu, 11 Jan 2001 10:37:20 -0500
-Date: Thu, 11 Jan 2001 16:37:03 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Daniel Phillips <phillips@innominate.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FS callback routines
-Message-ID: <20010111163703.A3000@pcep-jamie.cern.ch>
-In-Reply-To: <3A5A4958.CE11C79B@goingware.com> <3A5B0D0C.719E69F@innominate.de> <20010110115632.E30055@pcep-jamie.cern.ch> <3A5DC376.D9E5103F@innominate.de>
-Mime-Version: 1.0
+	id <S130006AbRAKPnf>; Thu, 11 Jan 2001 10:43:35 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:44038 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129927AbRAKPnZ>; Thu, 11 Jan 2001 10:43:25 -0500
+Date: Thu, 11 Jan 2001 10:43:04 -0500
+From: Chris Mason <mason@suse.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible deadlock with ->writepaged version of
+ flush_dirty_buffers() and 2.4.0
+Message-ID: <517420000.979227784@tiny>
+In-Reply-To: <Pine.LNX.4.21.0101101742500.8441-100000@freak.distro.conectiva>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5DC376.D9E5103F@innominate.de>; from phillips@innominate.de on Thu, Jan 11, 2001 at 03:30:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
->         DN_OPEN       A file in the directory was opened
+
+
+On Wednesday, January 10, 2001 05:56:09 PM -0200 Marcelo Tosatti
+<marcelo@conectiva.com.br> wrote:
+
 > 
-> You open the top level directory and register for events.  When somebody
-> opens a subdirectory of the top level directory, you receive
-> notification and register for events on the subdirectory, and so on,
-> down to the file that is actually modified.
+> Hi Chris,
+> 
+> It seems there is a possible deadlock condition with your patch which
+> changes flush_dirty_buffers() to use ->writepage (something which we
+> _definately_ want for 2.5). Take a look:
+> 
+Yes, good catch.
 
-If it worked, and I'm not sure the timing would be reliable enough, the
-daemon would only have to have open every directory being accessed by
-every program in the system.  Hmm.  Seems like overkill when you're only
-interested in files that are being modified.
+> 
+> mark_buffer_dirty->balance_dirty->wakeup_bdflush->flush_dirty_buffers->
+> writepage->block_write_full_page->__block_write_full_page->get_block->
+> ext2_get_block->ext2_alloc_branch->
+> 
+>	 ext2_alloc_block->ext2_new_block->lock_super
+>	 or 
+>	 getblk()->lock_super
+> 
+> 
+> I dont see any reason why this deadlock could'nt happen in practice now.
+> 
+It won't happen until someone other than fs/buffer.c starts marking ext2
+pages dirty.  The normal file write path will make sure that any dirty
+buffers are mapped, so the ext2_get_block code is never run.
 
-It would be much, much more reliable to do a walk over d_parent in
-dnotify.c.  Your idea is a nice way to flag kernel dentries such that
-you don't do d_parent walks unnecessarily.
+> If I'm right, it will pretty nasty to fix this. One possible solution is
+> to _never_ call mark_buffer_dirty() with the superblock lock held (ext2
+> has a lot of places likes this right now)
+> 
 
--- Jamie
+This is probably the best solution, since it is a good idea regardless of
+my patch.
+
+-chris
+ 
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

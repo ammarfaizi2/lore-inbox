@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbTHXTh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 15:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbTHXTh4
+	id S261299AbTHXUWP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 16:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTHXUWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 15:37:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52135 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261200AbTHXThy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 15:37:54 -0400
-Date: Sun, 24 Aug 2003 12:40:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Wiktor Wodecki <wodecki@gmx.de>
-Cc: felipe_alfaro@linuxmail.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz, linux-acpi@intel.com
-Subject: Re: 2.6.0-test3-bk6: hang at i8042.c when booting with no PS/2
- mouse attached
-Message-Id: <20030824124020.72a1f03c.akpm@osdl.org>
-In-Reply-To: <20030824131312.GA714@gmx.de>
-References: <20030824120605.23981.qmail@linuxmail.org>
-	<20030824131312.GA714@gmx.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 24 Aug 2003 16:22:14 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.36.229]:56459 "EHLO
+	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261299AbTHXUWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 16:22:13 -0400
+Message-ID: <3F491E69.5090206@austin.rr.com>
+Date: Sun, 24 Aug 2003 15:22:01 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: via rhine network failure on 2.6.0-test4
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiktor Wodecki <wodecki@gmx.de> wrote:
->
-> > > >         if (request_irq(values->irq, i8042_interrupt, SA_SHIRQ, 
->  > > >                                 "i8042", i8042_request_irq_cookie)) 
->  > >  
->  > > What happens if you remove the SA_SHIRQ and replace with 0? 
->  >  
->  > It does nothing: the kernel still hangs there. It seems to be a problem with the new ACPI code 
->  > changes cause the kernel boots fine with "pci=noacpi". 
-> 
->  confirmed here. Although I have it on 2.6.0-test4 and had it since
->  al least test3-mm3.
+The via rhine driver fails to get a dhcp address on my test system on 
+2.6.0-test4.   ethereal shows no dhcp request leaving the box but 
+ifconfig does show the device and it is detected in /proc/pci.   
+Switching from the test3 vs.  test4 snapshots built with equivalent 
+configure options on the same system (SuSE 8.2) - test3 works but test4 
+does not.   This is using essentially the default config for both the 
+test3 and test4 cases - the only changes are SMP disabled, scsi devices 
+disabled, Athlon, via-rhine enabled in network devices and a handful of 
+additional filesystems enabled, debug memory allocations enabled.   This 
+is the first time in many months that I have seen problems with the 
+via-rhine driver on 2.6
 
-Guys, please send a full report to linux-acpi@intel.com based on
-the following:
+Analyzing the code differences between 2.6.0-test3 and test4 (in 
+via-rhine.c) is not very promising since the only line that has changed 
+(kfree to free_netdev) is in the routine via_rhine_remove_one that seems 
+unlikely to cause problems sending data on the network.
 
- Regarding how to field these in general...
- Bugzilla would be really helpful, because we've got multiple bugs and
- multiple people working on them and bugzilla is better than e-mail at
- keeping the relevant bits together.  bugzilla with component=ACPI and
- owner len.brown@intel.com or andrew.grover@intel.com should do the
- trick.
+Ideas as to what could have caused the regression?
 
- The dmesg output of the failing case is really helpful,
- As is the output of acpidmp to examine the ACPI tables on the system.
- (Red Hat includes both of these in their severn beta1, acpidmp is also
- in pmtools on intel's ACPI web page)
- dmidecode output is useful to identify the BIOS version.
-
- Of course the 1st thing to check with ACPI failures is that the BIOS
- version shown by dmidmp is the latest provided by the vendor...  Plus,
- if we determine the BIOS is toast, DMI provides what we need to add the
- system to the DMI or acpi blacklists.
-
- We're seeting the most problems on VIA chip-sets with no IO-APIC.
- The one below is unusual because it is a 2-way system with 3 IO-APICs.
-
- The latest code in linus' tree includes ACPICA 20030813, which is
- slightly newer than the one below, it might be a good idea to try that
- with CONFIG_ACPI_DEBUG.  Note that it will spit out the DMI info upon
- the mount root failure automatically.
